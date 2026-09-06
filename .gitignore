@@ -1,0 +1,49 @@
+# TruthRaw measurement/evidence payloads
+*.dng
+*.raw
+*.rawsensor
+*.rawbuffer
+*.raw10
+*.raw12
+*.raw14
+*.npz
+*.npy
+*.apk
+*.aab
+*.jpg
+*.jpeg
+*.png
+*.heif
+*.heic
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tar.zst
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+captures/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Secrets / local config
+.env
+.env.*
+*.keystore
+*.jks
