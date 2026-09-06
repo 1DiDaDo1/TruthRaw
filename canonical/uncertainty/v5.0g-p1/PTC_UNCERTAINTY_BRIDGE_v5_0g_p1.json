@@ -1,0 +1,29 @@
+{
+  "schema": "TruthRawPTCUncertaintyBridge/5.0g-p1",
+  "ptc_certificate_version": "PTC-1.1",
+  "prospective_holdout": {
+    "file": "IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+    "sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+    "capture_time": "2026-09-06T15:13:48+02:00",
+    "freeze_time": "2026-09-06T15:12:24.272276+02:00",
+    "strictly_after_freeze": true,
+    "decision": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS"
+  },
+  "development_validation_pass": true,
+  "native_runtime_parity_pass": true,
+  "prospective_holdout_pass": true,
+  "ptc_full_physical_blocker": "full.backend_bound_uncertainty",
+  "blocker_state": "CLOSED_FOR_EXACT_SCOPE",
+  "exact_scope": {
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "source_class": "HONOR vendor DNG",
+    "focal_length_mm": 22.48,
+    "project_lens": "Tele 3.7x / System ID 5",
+    "cfa": "BGGR",
+    "white_level": 1023,
+    "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0"
+  },
+  "scope_warning": "This closure does not transfer to Main/Wide/Front lenses, MotionCam direct-CFA, Google HDR+ computational DNGs, other reconstruction backend hashes, or other camera/source classes.",
+  "claim_boundary": "Leakage-free hidden-CFA recovery calibrates uncertainty behavior of the exact reconstruction family; it does not provide co-sited RGB ground truth for missing Bayer channels."
+}
