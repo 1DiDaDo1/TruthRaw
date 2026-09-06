@@ -1,0 +1,10 @@
+{
+  "schema": "TruthRawStatus/4.7j",
+  "status": "DETAIL_TRUTH_NATIVE_PASS_WAITING_VULKAN_AND_DEVICE_VALIDATION",
+  "scientific_master_modified": false,
+  "appearance_backend": "adaptive_detailed_crisp_multiband_hard_edge_guard_v47j",
+  "required_halo_pixels": 5,
+  "cpu_reference_validated": true,
+  "vulkan_validated": false,
+  "magic8pro_validated": false
+}
