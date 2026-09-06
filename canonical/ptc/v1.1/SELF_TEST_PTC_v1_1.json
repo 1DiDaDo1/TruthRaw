@@ -1,0 +1,13 @@
+{
+  "schema": "TruthRawPTCSelfTest/1.1",
+  "python_self_test": "PASS",
+  "native_cpp_self_test": "PASS",
+  "mobile_v47i_adapter_compile_test": "PASS",
+  "jpeg_xmp_in_file": "PASS",
+  "jpeg_decoded_pixels_bit_identical_after_metadata": true,
+  "jpeg_media_payload_hash_unchanged": true,
+  "current_real_example_verification": "PASS",
+  "current_real_example_status": "PURE_TRUTH_DERIVED",
+  "ed25519_throwaway_key_roundtrip": "PASS",
+  "project_signing_key": "NOT_CONFIGURED_BY_DESIGN"
+}

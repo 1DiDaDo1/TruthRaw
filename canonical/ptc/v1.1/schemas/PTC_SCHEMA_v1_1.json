@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:truthraw:ptc:1.1",
+  "title": "TruthRaw Pure Truth Certificate PTC-1.1",
+  "type": "object",
+  "required": ["schema","certificate_version","scope","status","source","capture","admission","reconstruction","clipping","scientific_master","export","copyright_notice","certification_statement"],
+  "properties": {
+    "schema": {"const":"TruthRawPureTruthCertificate/1.1"},
+    "certificate_version": {"const":"PTC-1.1"},
+    "scope": {"enum":["CORE_INTEGRITY","FULL_PHYSICAL"]},
+    "status": {"enum":["PURE_TRUTH_CERTIFIED","PURE_TRUTH_DERIVED","TRUTHRAW_DEVELOPMENT","NOT_CERTIFIED"]}
+  },
+  "additionalProperties": true
+}

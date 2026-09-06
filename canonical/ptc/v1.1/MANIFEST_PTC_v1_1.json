@@ -1,0 +1,130 @@
+{
+  "schema": "TruthRawPTCManifest/1.1",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "63ca18b8bf4a77aac94fb16dea476f8643e2b664e59af7ee0351db434cd09df2",
+      "bytes": 525
+    },
+    {
+      "path": "SELF_TEST_PTC_v1_1.json",
+      "sha256": "4852ec753a6e3bcf06c3c78c8839ac540afde33398e8b30129cdb0e2a665de0c",
+      "bytes": 486
+    },
+    {
+      "path": "docs/CURRENT_PROJECT_PTC_GAP_v1_1.md",
+      "sha256": "05a5821dd38d6256f0bfa5ac7cb5a898f49f910506ef9748d4f3139fc5d72aad",
+      "bytes": 967
+    },
+    {
+      "path": "docs/PTC_IMPLEMENTATION_v1_1.md",
+      "sha256": "9493428da17bf97e88cda9acc503635566874798f1602fbf12980499b60c6580",
+      "bytes": 1888
+    },
+    {
+      "path": "examples/IMG_20260530_143227_EXTERNAL_CONTAINER_MANIFEST_v1_1.json",
+      "sha256": "a3787ced80a72508b926dff555e786da29a1cb709954d05c26e7f6774d51b500",
+      "bytes": 563
+    },
+    {
+      "path": "examples/IMG_20260530_143227_NATURE_TRUTH_SAFE_PTC_v1_1.jpg",
+      "sha256": "e250d7bcf0b5e5508af51e71ff25e430434ce06d062efaedafbd8975c22896da",
+      "bytes": 2051240
+    },
+    {
+      "path": "examples/IMG_20260530_143227_PTC_VERIFY_v1_1.json",
+      "sha256": "43bab631da0dc6feb87209f47173d5267a68beb03108fd14e40f7d949c158779",
+      "bytes": 562
+    },
+    {
+      "path": "examples/IMG_20260530_143227_PTC_v1_1.json",
+      "sha256": "5132b54b5a0182d298e9dbd267e555312d85f47a973d6523791e6d14ff473432",
+      "bytes": 3273
+    },
+    {
+      "path": "examples/IMG_20260530_143227_PTC_v1_1.xmp",
+      "sha256": "76ab8b8bd6fd1e78b4b4c34259c8c07fe374600072304b3b3925445b7a8ec7bb",
+      "bytes": 2252
+    },
+    {
+      "path": "examples/IMG_20260530_143227_XYZ_D50_C4_MASTER_PTC_v1_1.npy",
+      "sha256": "3cbe10e6eff5581c18c7ca5ea1fb3b4d3e0d5b22cd1c17c8fa9302656cf7e998",
+      "bytes": 37601408
+    },
+    {
+      "path": "examples/NATURE_BACKEND_BUNDLE_PTC_v1_1.json",
+      "sha256": "9d0f7deb8691fba29f808f2473d623a265ff7bf4b0d85dbd24efc69356a9c738",
+      "bytes": 306
+    },
+    {
+      "path": "examples/PROJECT_PTC_READINESS_v1_1.json",
+      "sha256": "c7300d4e25c9717c2e8c8ad4f224e8d9d11510c2085809f6d94312d29c4650f4",
+      "bytes": 691
+    },
+    {
+      "path": "integration/PTC_EXPORT_CONTRACT.md",
+      "sha256": "037345179550404bf3e918fa261aacf440a0b767bac5cc2f69603f83958ce98e",
+      "bytes": 1227
+    },
+    {
+      "path": "integration/mobile_v47i_ptc_adapter.cpp",
+      "sha256": "f5f9214264ea1d4569df3b57c325229143d5159971880612a825d611215abf74",
+      "bytes": 1736
+    },
+    {
+      "path": "integration/mobile_v47i_ptc_adapter.h",
+      "sha256": "11745331ea485d9aa2a06b2df63da0bd007c61f04348203607c56869f7ad3dfa",
+      "bytes": 898
+    },
+    {
+      "path": "native/include/truthraw/ptc.h",
+      "sha256": "0399dc4f0addd55fac4845d7fe96a956a65fd5d2029117e0d84dbc25ef842a63",
+      "bytes": 1529
+    },
+    {
+      "path": "native/src/ptc.cpp",
+      "sha256": "b87fcc279d4b55f8a8013f69fc4832eddf2634fdc3d59cee4c88a90626b7be61",
+      "bytes": 3224
+    },
+    {
+      "path": "python/__pycache__/truthraw_ptc.cpython-313.pyc",
+      "sha256": "77a91dc04aab26dc692eeba4d8c99cb04951c9e07cca32a6c664273a80042665",
+      "bytes": 29789
+    },
+    {
+      "path": "python/truthraw_ptc.py",
+      "sha256": "0ee18bc538f151bf100c556bc541149ff62a2fa27b9efd543ceef702d63c1815",
+      "bytes": 19536
+    },
+    {
+      "path": "schemas/PTC_SCHEMA_v1_1.json",
+      "sha256": "52c807ce787bea5afbb32770389557d52ad36b335cb844d9f96d6f459e489cdd",
+      "bytes": 698
+    },
+    {
+      "path": "tests/mobile_adapter_compile_test",
+      "sha256": "9b71d2aa4fdb4d8e37b18daa03497c56820579c9aa841d61e0097cbee7d2ab6b",
+      "bytes": 22464
+    },
+    {
+      "path": "tests/mobile_adapter_compile_test.cpp",
+      "sha256": "a18ebdb4e737e1df08c2f9b70ced7592976e8204a5135fcd6a039f4f9d20dfaf",
+      "bytes": 787
+    },
+    {
+      "path": "tests/ptc_selftest",
+      "sha256": "297b96fd83b297ddd96d846c010512bb4abbc9769724818400b1aee8e118b1b8",
+      "bytes": 17728
+    },
+    {
+      "path": "tests/ptc_selftest.cpp",
+      "sha256": "be3619a9bd93ea69bb09f4e730dd2e703d77bd346983f32fbf7da611727843c7",
+      "bytes": 683
+    },
+    {
+      "path": "tests/test_ptc.py",
+      "sha256": "75fef3c01129c3309580140e6ed8cd9bf0cfafe94c361ed26b5a0362fa7a4205",
+      "bytes": 2298
+    }
+  ]
+}
