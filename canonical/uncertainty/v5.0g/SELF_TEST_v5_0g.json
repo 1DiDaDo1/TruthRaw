@@ -1,0 +1,10 @@
+{
+  "schema": "TruthRawUncertaintyRuntimeSelfTest/5.0g",
+  "cpp_compile_pass": true,
+  "cpp_compile_stderr": "",
+  "cpp_smoke_pass": true,
+  "cpp_smoke_output": "4.03234e-05 0.000116804",
+  "development_validation_pass": true,
+  "model_json_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+  "binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0"
+}
