@@ -1,0 +1,9 @@
+{
+  "schema": "TruthRawNativeUncertaintyParity/5.0g",
+  "compile_pass": true,
+  "compile_stderr": "",
+  "run_pass": true,
+  "stdout": "max_abs=9.14848e-09 bad=0",
+  "stderr": "",
+  "tolerance_stage2": 2e-06
+}
