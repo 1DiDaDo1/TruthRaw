@@ -1,0 +1,22 @@
+{
+  "schema": "TruthRaw200MPJPEGReference/0.7",
+  "classification": "REAL_200MP_HIGH_RESOLUTION_JPEG_REFERENCE",
+  "file_name": "IMG_20260906_223040.jpg",
+  "sha256": "22543011dba224ae48ef9af2572391ee7f0d23e7a1d2201f804657339acc3565",
+  "bytes": 47576094,
+  "width": 16320,
+  "height": 12288,
+  "megapixels": 200.54016,
+  "make": "HONOR",
+  "model": "BKQ-N49",
+  "orientation": 6,
+  "datetime_original": "2026:09:06 22:30:40",
+  "offset_time_original": "+02:00",
+  "exposure_time_s": 0.016666666666666666,
+  "f_number": 2.6,
+  "iso": 1250,
+  "focal_length_mm": 22.48,
+  "focal_length_35mm_equivalent": 85,
+  "pairing_status": "UNPAIRED_REFERENCE_WAITING_FOR_16320x12288_RAW_SENSOR_CAPTURE",
+  "boundary": "JPEG reference is processed output. It can characterize the high-resolution ISP/output path but is not sensor measurement ground truth."
+}
