@@ -1,0 +1,55 @@
+{
+  "schema": "TruthRawFrozenTeleUncertaintyProtocol/5.0g",
+  "frozen_at_utc": "2026-09-06T13:12:24.272276+00:00",
+  "frozen_at_europe_amsterdam": "2026-09-06T15:12:24.272276+02:00",
+  "source_class": {
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "writer_prefix": "HONOR/BKQ-N49/",
+    "cfa": "BGGR",
+    "white_level": 1023.0,
+    "focal_length_mm": 22.48,
+    "project_lens": "Tele 3.7x / System ID 5"
+  },
+  "frozen_assets": {
+    "uncertainty_model": {
+      "file": "UNCERTAINTY_MODEL_v5_0g.json",
+      "sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f"
+    },
+    "backend_binding": {
+      "file": "BACKEND_BINDING_v5_0g.json",
+      "sha256": "d0134dc5322cf721778d1b5e4607c2e82e0dde45b909acfa2e6ea2c8e588d42d"
+    },
+    "feature_extractor": {
+      "file": "uncertainty_core_v5_0g.py",
+      "sha256": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d"
+    }
+  },
+  "historical_development_sha256": {
+    "b0282acb2729432d4fd4c4343efecc06bb509927836c9389e1abb387e99fb4e7": "IMG_BNC_TRUTHRAW20260906_142925_827.dng",
+    "b79a423d1631b573a9aec53e4a773f115a223db7c0c8416417e15618f17b73ba": "IMG_BNC_TRUTHRAW20260906_142935_568.dng",
+    "ad07c4c97cd2cf7d28a65575c6a16a3efa569b058738a2898c57190bbca88591": "IMG_BNC_TRUTHRAW20260906_142941_853.dng",
+    "f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce": "IMG_BNC_TRUTHRAW20260906_142950_144.dng"
+  },
+  "prospective_requirement": "A genuinely new BKQ-N49 22.48mm HONOR vendor DNG captured after this freeze and absent from the historical hash set.",
+  "prospective_gates": {
+    "minimum_uncensored_targets": 80000,
+    "p50_coverage_range": [
+      0.44,
+      0.56
+    ],
+    "p95_coverage_range": [
+      0.9,
+      0.99
+    ],
+    "risk_ordering_required": true,
+    "risk_quintile_p95_ratio_range": [
+      0.75,
+      1.35
+    ]
+  },
+  "decision_if_pass": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+  "decision_if_fail": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_FAIL",
+  "ptc_before_prospective": "PURE_TRUTH_DERIVED_UNCERTAINTY_BACKEND_BOUND_DEVELOPMENT_ONLY",
+  "ptc_after_prospective_pass": "UNCERTAINTY_BLOCKER_CLOSED_FOR_THIS_EXACT_TELE_SOURCE_CLASS_AND_BACKEND"
+}
