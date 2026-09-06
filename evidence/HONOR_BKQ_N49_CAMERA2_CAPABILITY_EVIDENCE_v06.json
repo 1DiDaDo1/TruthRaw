@@ -1,0 +1,42 @@
+{
+  "evidence_class": "USER_PROVIDED_CAMERA2_CHARACTERISTICS_DUMP",
+  "device": {"make":"HONOR","model":"BKQ-N49"},
+  "camera_id": "5",
+  "role": "tele_3p7x_project_system5_match_by_focal_aperture_geometry",
+  "hardware_level": "HARDWARE_LEVEL_3",
+  "focal_length_mm": 22.48,
+  "aperture": 2.6,
+  "available_capabilities": [0,9,3,7,4,5,1,6,2,16,19,18,20],
+  "pixel_array_size": [4080,3072],
+  "active_array_size": [4080,3072],
+  "pre_correction_active_array_size": [4080,3072],
+  "pixel_array_size_maximum_resolution": [16320,12288],
+  "active_array_size_maximum_resolution": [16320,12288],
+  "pre_correction_active_array_size_maximum_resolution": [16320,12288],
+  "sensor_info_binning_factor": [2,2],
+  "color_filter_arrangement": 3,
+  "white_level": 1023,
+  "black_level_pattern": [64,64,64,64],
+  "lens_shading_applied": true,
+  "physical_size_mm": [9.1392,6.88128],
+  "default_raw_outputs": [
+    {"format":"RAW_SENSOR","width":4080,"height":3072,"min_duration_ns":33322225},
+    {"format":"RAW10","width":4080,"height":3072,"min_duration_ns":33322225}
+  ],
+  "maximum_resolution_raw_outputs": [
+    {"format":"RAW_SENSOR","width":8160,"height":6144,"min_duration_ns":41528239},
+    {"format":"RAW10","width":8160,"height":6144,"min_duration_ns":41528239}
+  ],
+  "maximum_resolution_high_res_outputs": [
+    {"format":"RAW_SENSOR","width":16320,"height":12288,"min_duration_ns":133333333},
+    {"format":"RAW10","width":16320,"height":12288,"min_duration_ns":133333333}
+  ],
+  "parent_logical_camera_0_multi_resolution_raw_sensor": [
+    {"width":8192,"height":6144,"physical_id":"2"},
+    {"width":4096,"height":3072,"physical_id":"2"},
+    {"width":4032,"height":3024,"physical_id":"4"},
+    {"width":16320,"height":12288,"physical_id":"5"},
+    {"width":4080,"height":3072,"physical_id":"5"}
+  ],
+  "source_note": "Key fields transcribed from the Camera2 test pasted by the user in-chat on 2026-09-06. This is static characteristics evidence, not a captured RAW payload."
+}
