@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="20dp">
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="TruthRaw Camera 5 200MP Probe v0.7" android:textSize="18sp" android:paddingBottom="12dp" />
+    <Button android:id="@+id/run" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Run Camera 5 200MP RAW proof" />
+    <Button android:id="@+id/dump" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Dump Camera2 capabilities only" />
+    <Button android:id="@+id/capture" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Capture 16320×12288 RAW_SENSOR" />
+    <Button android:id="@+id/share" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Share latest evidence files" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <TextView android:id="@+id/log" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textIsSelectable="true" android:typeface="monospace" android:textSize="12sp" />
+    </ScrollView>
+</LinearLayout>
