@@ -1,0 +1,13 @@
+{
+  "schema": "TruthRawBackendUncertaintyBinding/5.0g",
+  "production_reconstruction_backend": "ResearchEdgeAwareMeasuredPreservingReconstruction",
+  "production_backend_files": {
+    "core.cpp": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "core.h": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167"
+  },
+  "production_backend_combined_sha256": "8d3a2ad2a97729c2a6a72028099dca7eda6190fcc4df3a3a4020f1c92e15c7ca",
+  "hidden_cfa_proxy_backend_sha256": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+  "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+  "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+  "claim_boundary": "Leakage-free hidden-CFA recovery calibrates uncertainty behavior of the exact reconstruction family; it does not provide co-sited RGB ground truth for missing Bayer channels."
+}
