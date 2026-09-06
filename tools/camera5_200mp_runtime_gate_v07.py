@@ -90,6 +90,7 @@ def evaluate(m: dict, raw_path: Path|None=None):
       )
     }
     lens_shading=cc.get('lens_shading_applied_to_raw')
+    untouched = (lens_shading is False)
     if classification=='FULL_SENSOR_200MP_APP_VISIBLE_RAW_CAPTURE_PROVEN' and lens_shading is True:
         purity='APP_VISIBLE_FULL_SENSOR_RAW_WITH_UPSTREAM_LENS_SHADING'
     elif classification=='FULL_SENSOR_200MP_APP_VISIBLE_RAW_CAPTURE_PROVEN':
