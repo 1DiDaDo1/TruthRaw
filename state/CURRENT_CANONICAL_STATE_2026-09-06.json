@@ -1,0 +1,59 @@
+{
+  "project": "TruthRaw",
+  "backup_date": "2026-09-06",
+  "official_slogan_en": "Measured where measured. Reconstructed where necessary. Never invented.",
+  "official_slogan_nl": "Echt gemeten. Echt gereconstrueerd. Geen verzinsels.",
+  "device": "HONOR BKQ-N49 / Magic 8 Pro project device",
+  "lens_mapping": {
+    "main": {
+      "zoom": "1.0x",
+      "system_id": 2,
+      "raw": "RAW10"
+    },
+    "wide": {
+      "zoom": "0.6x",
+      "system_id": 4,
+      "raw": "RAW10"
+    },
+    "tele": {
+      "zoom": "3.7x",
+      "system_id": 5,
+      "raw": "RAW10",
+      "priority": true
+    },
+    "front": {
+      "zoom": "1.0x",
+      "system_id": 1,
+      "raw": "RAW10"
+    }
+  },
+  "current_major_branch": "v5.x Pure Truth / Unified Material / Backend-bound uncertainty",
+  "canonical_detail_backend": "v4.7j Adaptive Detail + v4.7k Output Acutance; Unified Material Truth only limits, never invents content",
+  "ptc_version": "PTC v1.1",
+  "ptc_current_general_status": "PURE_TRUTH_DERIVED",
+  "ptc_tele_uncertainty": {
+    "status": "CLOSED_FOR_EXACT_SCOPE",
+    "scope": "HONOR BKQ-N49 22.48 mm / 3.7x tele / System ID 5 / HONOR vendor DNG / exact bound reconstruction backend",
+    "prospective_result": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+    "holdout": "IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+    "coverage_p50": 0.5010615492435173,
+    "coverage_p95": 0.9503854557447334
+  },
+  "remaining_full_physical_ptc_blockers_tele": [
+    "per-lens color calibration",
+    "illuminant calibration",
+    "electron/PTC sensor calibration",
+    "optics calibration: PSF/MTF/CA/flare/color shading"
+  ],
+  "source_provenance_rules": [
+    "MotionCam direct-CFA/RAWSENSOR is distinct from HONOR vendor DNG.",
+    "Google HDR+ computational DNG is never relabeled as untouched sensor truth.",
+    "File name does not determine provenance; embedded metadata/source admission does.",
+    "Original CFA/sample bytes + capture metadata remain immutable evidence."
+  ],
+  "pending_task": {
+    "apk": "app-debug (2).apk",
+    "status": "PENDING_DEEP_INSPECTION",
+    "goal": "Extract all camera/lens/sensor/Camera2/DNG/native/device-specific information applicable to TruthRaw."
+  }
+}
