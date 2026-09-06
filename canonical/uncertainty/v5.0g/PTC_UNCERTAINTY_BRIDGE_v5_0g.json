@@ -1,0 +1,14 @@
+{
+  "schema": "TruthRawPTCUncertaintyBridge/5.0g",
+  "ptc_certificate_version": "PTC-1.1",
+  "current_uncertainty_status": "BACKEND_BOUND_DEVELOPMENT_PASS",
+  "development_validation_pass": true,
+  "native_runtime_parity_pass": true,
+  "prospective_holdout_pass": false,
+  "ptc_full_physical_blocker": "full.backend_bound_uncertainty",
+  "current_blocker_state": "PARTIALLY_RESOLVED_DEVELOPMENT_BOUND_BUT_NOT_PROSPECTIVE",
+  "blocker_closes_only_when": "prospective_holdout_v5_0g.py returns BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS on a new BKQ-N49 22.48mm tele DNG captured after the frozen timestamp",
+  "frozen_at_europe_amsterdam": "2026-09-06T15:12:24.272276+02:00",
+  "scope_if_future_pass": "Exact HONOR BKQ-N49 22.48mm tele vendor-DNG source class + exact bound reconstruction backend/hash only.",
+  "claim_boundary": "Hidden-CFA validation is an uncertainty proxy, not co-sited RGB ground truth."
+}
