@@ -1,0 +1,175 @@
+{
+  "schema": "TruthRawTeleUncertaintyRuntimeModel/5.0g",
+  "model_family": "log-error ridge + role/SNR quantile calibration",
+  "ridge_alpha": 20.0,
+  "log_epsilon": 2e-05,
+  "feature_names": [
+    "log1p_abs_prediction_stage2",
+    "log1p_sigma_stage2_x1e4",
+    "log1p_predicted_snr",
+    "log1p_support_std_over_sigma",
+    "log1p_support_range_over_sigma",
+    "log1p_pair_min_disagreement_over_sigma",
+    "log1p_pair_median_disagreement_over_sigma",
+    "log1p_green_direction_disagreement_over_sigma",
+    "log1p_local_mosaic_range_over_sigma",
+    "gain_at_target",
+    "neighbor_censor_fraction",
+    "radial_position_norm",
+    "prediction_negative_flag",
+    "prediction_over1_flag",
+    "role_R",
+    "role_G1",
+    "role_G2",
+    "role_B"
+  ],
+  "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+  "coefficients": [
+    0.39560182865755256,
+    1.0161682914538537,
+    -0.1427753298770904,
+    0.7359219854369202,
+    -0.23091424097593158,
+    0.021758142187742753,
+    -0.10094162838787113,
+    -0.0034295231121772435,
+    0.0824666634235143,
+    0.026693573250413768,
+    0.48590059304532635,
+    0.019262741845627946,
+    0.2818476268259488,
+    0.5190842824097119,
+    0.042559419347716135,
+    -0.04993336769428747,
+    -0.03652103344000874,
+    0.04389498180821168
+  ],
+  "intercept": -9.859522042356929,
+  "snr_bins": [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    1e+30
+  ],
+  "role_order": [
+    "R",
+    "G1",
+    "G2",
+    "B"
+  ],
+  "calibration": {
+    "R": {
+      "0": {
+        "q50_factor": 1.231865682669854,
+        "q95_factor": 3.546796840273797,
+        "n": 5700
+      },
+      "1": {
+        "q50_factor": 1.2908136692538486,
+        "q95_factor": 3.793965306343965,
+        "n": 22544
+      },
+      "2": {
+        "q50_factor": 1.2504420015126712,
+        "q95_factor": 3.62211432587943,
+        "n": 49067
+      },
+      "3": {
+        "q50_factor": 1.2305798219573738,
+        "q95_factor": 3.6443451690918227,
+        "n": 14120
+      },
+      "4": {
+        "q50_factor": 1.2590962743751166,
+        "q95_factor": 3.6221063333240333,
+        "n": 4167
+      }
+    },
+    "G1": {
+      "0": {
+        "q50_factor": 1.640727841085955,
+        "q95_factor": 4.763977410108175,
+        "n": 3957
+      },
+      "1": {
+        "q50_factor": 1.4059890073821433,
+        "q95_factor": 4.276152316934799,
+        "n": 3505
+      },
+      "2": {
+        "q50_factor": 1.3522913191345247,
+        "q95_factor": 3.965925252841995,
+        "n": 54152
+      },
+      "3": {
+        "q50_factor": 1.3226677467986496,
+        "q95_factor": 3.8354128722599263,
+        "n": 28718
+      },
+      "4": {
+        "q50_factor": 1.2809214266235962,
+        "q95_factor": 3.837643438378962,
+        "n": 5218
+      }
+    },
+    "G2": {
+      "0": {
+        "q50_factor": 1.6422864247994864,
+        "q95_factor": 4.738723164710131,
+        "n": 3969
+      },
+      "1": {
+        "q50_factor": 1.3943906655134495,
+        "q95_factor": 4.221709375100408,
+        "n": 3463
+      },
+      "2": {
+        "q50_factor": 1.3529949563092272,
+        "q95_factor": 3.92232166293173,
+        "n": 54879
+      },
+      "3": {
+        "q50_factor": 1.3241946628400298,
+        "q95_factor": 3.8142002053215953,
+        "n": 28915
+      },
+      "4": {
+        "q50_factor": 1.2385172282582537,
+        "q95_factor": 3.763539378516662,
+        "n": 5406
+      }
+    },
+    "B": {
+      "0": {
+        "q50_factor": 1.291396354412495,
+        "q95_factor": 3.719499471273777,
+        "n": 5597
+      },
+      "1": {
+        "q50_factor": 1.2781368351623865,
+        "q95_factor": 3.824158517583519,
+        "n": 25565
+      },
+      "2": {
+        "q50_factor": 1.251897127263868,
+        "q95_factor": 3.6299484745794905,
+        "n": 48724
+      },
+      "3": {
+        "q50_factor": 1.2392970084648944,
+        "q95_factor": 3.56435722257653,
+        "n": 12421
+      },
+      "4": {
+        "q50_factor": 1.2094740477517203,
+        "q95_factor": 3.567995560138259,
+        "n": 4348
+      }
+    }
+  },
+  "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+  "output_units": "Stage-2 normalized scene-linear absolute-error bands",
+  "runtime_formula": "mu=max(exp(intercept + dot(coefficients, X))-log_epsilon, 1e-6); p50=mu*q50_factor(role,snr_bin); p95=max(mu*q95_factor,p50)."
+}
