@@ -1,0 +1,7 @@
+{
+  "schema": "TruthRawFailedNativeParityCodegen/5.0g",
+  "status": "FAILED_THEN_FIXED",
+  "cause": "Generated C++ used literals such as 0f/1f, which are invalid standard C++ float literals. Runtime model itself was not implicated.",
+  "compile_stderr_excerpt": "runtime_parity_test.cpp: In function ‘int main()’:\nruntime_parity_test.cpp:6:165: error: unable to find numeric literal operator ‘operator\"\"f’\n    6 |   std::array<float,18> x0={0.00878546573f, 3.48990226f, 1.32877195f, 0.817905366f, 1.62805915f, 0.513409674f, 0.701586068f, 0.862090349f, 2.14812732f, 2.08278084f, 0f, 0.995433927f, 0f, 0f, 1f, 0f, 0f, 0f}; auto p0=truthraw::predict_uncertainty_v5_0g(x0,3,2.77640295f);\n      |                                                                                                                                                                     ^~\nruntime_parity_test.cpp:6:165: note: use ‘-fext-numeric-literals’ to enable more built-in suffixes\nruntime_parity_test.cpp:6:183: error: unable to find numeric literal operator ‘operator\"\"f’\n    6 |   std::array<float,18> x0={0.00878546573f, 3.48990226f, 1.32877195f, 0.817905366f, 1.62805915f, 0.513409674f, 0.701586068f, 0.862090349f, 2.14812732f, 2.08278084f, 0f, 0.995433927f, 0f, 0f, 1f, 0f, 0f, 0f}; auto p0=truthraw::predict_uncertainty_v5_0g(x0,3,2.77640295f);\n      |                                                                                                                                ",
+  "fix": "Emit 0.0f/1.0f or decimal scientific literals for all generated float constants."
+}
