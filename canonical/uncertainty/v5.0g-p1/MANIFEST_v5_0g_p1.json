@@ -1,0 +1,50 @@
+{
+  "schema": "TruthRawProspectiveTeleUncertaintyManifest/5.0g-p1",
+  "files": [
+    {
+      "file": "BACKEND_BINDING_v5_0g.json",
+      "sha256": "d0134dc5322cf721778d1b5e4607c2e82e0dde45b909acfa2e6ea2c8e588d42d",
+      "bytes": 956
+    },
+    {
+      "file": "FROZEN_PROTOCOL_v5_0g.json",
+      "sha256": "ee45f659cf37025d0ea72ca3b5726bb758d1b162104e9383ccaf7b7e1903d166",
+      "bytes": 2197
+    },
+    {
+      "file": "NATIVE_PARITY_v5_0g.json",
+      "sha256": "2c50b299373d1e235f8e62914e4b079b0d54faacaf47beb9fec8161ab3e197c6",
+      "bytes": 208
+    },
+    {
+      "file": "PROSPECTIVE_RISK_CALIBRATION_v5_0g_p1.png",
+      "sha256": "39b4de3b81999635d8aee5f23dbae802c407b0f57cb7e2d368e5b713dfec6c65",
+      "bytes": 89733
+    },
+    {
+      "file": "PROSPECTIVE_TELE_HOLDOUT_RESULT_v5_0g_p1.json",
+      "sha256": "7895961af0b4fd942edeeb32ec79476a3b841c74862af9fa5088681682116781",
+      "bytes": 5873
+    },
+    {
+      "file": "PTC_TELE_READINESS_v5_0g_p1.json",
+      "sha256": "7e0c8b34dd08ea88a9cec69e3b6309369d341d1c3844bd12b1127318330aa251",
+      "bytes": 832
+    },
+    {
+      "file": "PTC_UNCERTAINTY_BRIDGE_v5_0g_p1.json",
+      "sha256": "0bfce3cd071e6667454f1e9a390057848168a69602f58350b365952e521186bb",
+      "bytes": 1418
+    },
+    {
+      "file": "README_v5_0g_p1.md",
+      "sha256": "0b7cb9289ac4ed3f65fe0a77567b4081ef945464defebfc0601c8eca0575571e",
+      "bytes": 966
+    },
+    {
+      "file": "UNCERTAINTY_MODEL_v5_0g.json",
+      "sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+      "bytes": 4390
+    }
+  ]
+}
