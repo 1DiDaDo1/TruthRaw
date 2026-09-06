@@ -1,0 +1,13 @@
+{
+  "schema": "TruthRawUncertaintyStatus/5.0g",
+  "state": "BACKEND_BOUND_DEVELOPMENT_PASS_WAITING_PROSPECTIVE_TELE_HOLDOUT",
+  "development_validation_pass": true,
+  "portable_cpp_runtime_pass": true,
+  "prospective_holdout_pass": false,
+  "ptc_uncertainty_state": "WAITING_NEW_PROSPECTIVE_TELE_CAPTURE",
+  "frozen_at": "2026-09-06T15:12:24.272276+02:00",
+  "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+  "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+  "native_runtime_full_parity_pass": true,
+  "native_runtime_parity_result": "max_abs=9.14848e-09 bad=0"
+}
