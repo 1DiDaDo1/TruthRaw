@@ -1,0 +1,18 @@
+{
+  "schema": "TruthRawCamera5ProbeHostValidation/0.7",
+  "status": "PASS",
+  "regression": "19/19 PASS",
+  "main_activity_sha256": "4c715771f7f5cba920e4c8da436724680ac6edf7359cdc3a5a092e6447c0b7cf",
+  "checks": {
+    "queries_getHighResolutionOutputSizes": true,
+    "exact_16320x12288_target": true,
+    "raw_sensor_only_candidate": true,
+    "max_images_1": true,
+    "no_full_frame_ByteArray_copy": true,
+    "direct_filechannel_write": true,
+    "explicit_maximum_pixel_mode": true,
+    "dngcreator_attempt_for_raw_sensor": true
+  },
+  "android_compile": "NOT_EXECUTED_NO_ANDROID_SDK_IN_SANDBOX",
+  "device_execution": "PENDING_REAL_BKQ_N49_RUN"
+}
