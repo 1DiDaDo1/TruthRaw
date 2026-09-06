@@ -1,0 +1,20 @@
+{
+  "schema": "TruthRawPTCTeleReadiness/5.0g-p1",
+  "scope": "HONOR BKQ-N49 22.48mm tele vendor-DNG + exact bound reconstruction backend",
+  "current_status": "PURE_TRUTH_DERIVED",
+  "core_integrity_pass": true,
+  "backend_bound_uncertainty_pass": true,
+  "full_physical_pass": false,
+  "remaining_full_physical_blockers": [
+    "full.per_lens_color_calibrated",
+    "full.illuminant_calibrated",
+    "full.electron_calibration_bound",
+    "full.optics_calibration_bound"
+  ],
+  "resolved_this_step": [
+    "full.backend_bound_uncertainty"
+  ],
+  "prospective_result_sha256": "7895961af0b4fd942edeeb32ec79476a3b841c74862af9fa5088681682116781",
+  "raw_source_sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+  "note": "No threshold or model coefficient was changed after seeing the prospective holdout."
+}
