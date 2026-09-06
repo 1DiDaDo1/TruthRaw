@@ -1,0 +1,54 @@
+#version 450
+// TruthRaw v4.7k semantic Vulkan reference.
+// Reference precision is FP32. SPIR-V compilation/device parity is still pending.
+layout(local_size_x=16, local_size_y=16, local_size_z=1) in;
+layout(binding=0, rgba32f) readonly uniform image2D srcRgb;
+layout(binding=1, rgba32f) writeonly uniform image2D dstRgb;
+layout(push_constant) uniform Push {
+    float noiseSigmaAt2Pct;
+    float resizeRatio;
+    float strength;
+    float deltaCap;
+    float hardEdgeNormStart;
+    float hardEdgeNormFull;
+    float shadowStart;
+    float shadowFull;
+    float highlightStart;
+    float highlightFull;
+} pc;
+
+float sat(float x){return clamp(x,0.0,1.0);}
+float smooth01(float x){x=sat(x);return x*x*(3.0-2.0*x);}
+float lum(vec3 c){c=max(c,vec3(0.0));return dot(c,vec3(0.2126,0.7152,0.0722));}
+ivec2 clampP(ivec2 p, ivec2 sz){return clamp(p,ivec2(0),sz-ivec2(1));}
+vec3 rgbAt(ivec2 p,ivec2 sz){return imageLoad(srcRgb,clampP(p,sz)).rgb;}
+float yAt(ivec2 p,ivec2 sz){return lum(rgbAt(p,sz));}
+
+void main(){
+    ivec2 p=ivec2(gl_GlobalInvocationID.xy);ivec2 sz=imageSize(srcRgb);if(any(greaterThanEqual(p,sz)))return;
+    // Equivalent 3x3 outer-product kernel of [0.2,0.6,0.2].
+    const float k0=0.2,k1=0.6,k2=0.2;
+    float blur=0.0;
+    float ky[3]=float[3](k0,k1,k2);float kx[3]=float[3](k0,k1,k2);
+    for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx)blur+=ky[dy+1]*kx[dx+1]*yAt(p+ivec2(dx,dy),sz);
+    float yy=yAt(p,sz);float detail=yy-blur;
+    float p00=yAt(p+ivec2(-1,-1),sz),p01=yAt(p+ivec2(0,-1),sz),p02=yAt(p+ivec2(1,-1),sz);
+    float p10=yAt(p+ivec2(-1,0),sz), p12=yAt(p+ivec2(1,0),sz);
+    float p20=yAt(p+ivec2(-1,1),sz), p21=yAt(p+ivec2(0,1),sz), p22=yAt(p+ivec2(1,1),sz);
+    float gx=(-p00+p02-2.0*p10+2.0*p12-p20+p22)*0.25;
+    float gy=(-p00-2.0*p01-p02+p20+2.0*p21+p22)*0.25;
+    float grad=sqrt(gx*gx+gy*gy);
+    float edgeNorm=grad/max(blur,0.035);
+    float hard=smooth01((edgeNorm-pc.hardEdgeNormStart)/max(pc.hardEdgeNormFull-pc.hardEdgeNormStart,1e-8));
+    float edgeGuard=1.0-0.75*hard;
+    float shadowGate=0.18+0.82*smooth01((yy-pc.shadowStart)/max(pc.shadowFull-pc.shadowStart,1e-8));
+    float highGate=1.0-0.82*smooth01((yy-pc.highlightStart)/max(pc.highlightFull-pc.highlightStart,1e-8));
+    float n=pc.noiseSigmaAt2Pct/sqrt(max(pc.resizeRatio,1.0));float nf=max(n,2e-4);
+    float dsnr=abs(detail)/nf;float textureConf=0.35+0.65*smooth01((dsnr-0.7)/2.0);
+    float shrink=max(abs(detail)-0.35*nf,0.0)/max(abs(detail),1e-8);
+    float delta=pc.strength*(detail*shrink)*edgeGuard*shadowGate*highGate*textureConf;
+    delta=clamp(delta,-pc.deltaCap,pc.deltaCap);
+    float yo=max(yy+delta,0.0);float sc=yy>1e-8?yo/yy:1.0;
+    vec3 outRgb=max(rgbAt(p,sz),vec3(0.0))*sc;
+    imageStore(dstRgb,p,vec4(outRgb,1.0));
+}
