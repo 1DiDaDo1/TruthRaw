@@ -1,0 +1,165 @@
+{
+  "schema": "TruthRawProspectiveTeleUncertaintyResult/5.0g",
+  "file": "/mnt/data/IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+  "sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+  "frozen_at": "2026-09-06T15:12:24.272276+02:00",
+  "capture_time_assumed_europe_amsterdam": "2026-09-06T15:13:48+02:00",
+  "asset_integrity": {
+    "uncertainty_model": {
+      "file": "UNCERTAINTY_MODEL_v5_0g.json",
+      "expected": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+      "got": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+      "pass": true
+    },
+    "backend_binding": {
+      "file": "BACKEND_BINDING_v5_0g.json",
+      "expected": "d0134dc5322cf721778d1b5e4607c2e82e0dde45b909acfa2e6ea2c8e588d42d",
+      "got": "d0134dc5322cf721778d1b5e4607c2e82e0dde45b909acfa2e6ea2c8e588d42d",
+      "pass": true
+    },
+    "feature_extractor": {
+      "file": "uncertainty_core_v5_0g.py",
+      "expected": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+      "got": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+      "pass": true
+    },
+    "production_core_cpp": {
+      "expected": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+      "got": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+      "pass": true
+    },
+    "production_core_h": {
+      "expected": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+      "got": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+      "pass": true
+    }
+  },
+  "source_admission": {
+    "pass": true,
+    "checks": {
+      "make_HONOR": true,
+      "model_BKQ_N49": true,
+      "firmware_writer_prefix": true,
+      "BGGR": true,
+      "white_1023": true,
+      "tele_focal_22_48mm": true,
+      "noise_profile_valid": true
+    },
+    "metadata": {
+      "file": "IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+      "sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+      "shape": [
+        3072,
+        4080
+      ],
+      "cfa": "BGGR",
+      "white_level": 1023.0,
+      "black_levels": [
+        64.0,
+        63.75,
+        63.98,
+        63.75
+      ],
+      "noise_profile": [
+        0.000762143497878267,
+        1.8076375322549172e-06,
+        0.0007947308434916886,
+        1.2580161601661667e-06,
+        0.0007853744402303735,
+        1.752272011688235e-06
+      ],
+      "focal_length_mm": 22.48,
+      "iso": 4888,
+      "stage2_min": -0.007270084228366613,
+      "stage2_max": 0.6392968893051147,
+      "gain_min": 1.000986099243164,
+      "gain_max": 2.365234375
+    }
+  },
+  "admission_checks": {
+    "asset_integrity": true,
+    "source_class_exact": true,
+    "sha256_not_historical": true,
+    "capture_timestamp_present": true,
+    "capture_strictly_after_freeze": true
+  },
+  "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+  "claim_boundary": "Leakage-free hidden-CFA recovery calibrates uncertainty behavior of the exact reconstruction family; it does not provide co-sited RGB ground truth for missing Bayer channels.",
+  "dataset_summary": {
+    "targets_uncensored": 97028,
+    "source_white_censored": 0,
+    "stage2_min": -0.007270084228366613,
+    "stage2_max": 0.6392968893051147
+  },
+  "score": {
+    "n": 97028,
+    "coverage_p50": 0.5010615492435173,
+    "coverage_p95": 0.9503854557447334,
+    "observed_median_stage2": 0.008743209764361382,
+    "observed_p95_stage2": 0.036180607974529266,
+    "predicted_p50_median_stage2": 0.011029101612090583,
+    "predicted_p95_median_stage2": 0.031935336402403196,
+    "risk_quintiles": [
+      {
+        "q": 1,
+        "n": 19406,
+        "predicted_p95_median": 0.012538205645130529,
+        "observed_error_median": 0.004252913407981396,
+        "observed_error_p95": 0.013023067265748978,
+        "p95_ratio_pred_to_observed": 0.9627690151080116,
+        "coverage_p95": 0.9438318045965165
+      },
+      {
+        "q": 2,
+        "n": 19405,
+        "predicted_p95_median": 0.01834688999382297,
+        "observed_error_median": 0.006439762655645609,
+        "observed_error_p95": 0.01946166902780533,
+        "p95_ratio_pred_to_observed": 0.942719248159567,
+        "coverage_p95": 0.9418706518938418
+      },
+      {
+        "q": 3,
+        "n": 19406,
+        "predicted_p95_median": 0.031935336402403196,
+        "observed_error_median": 0.010553574189543724,
+        "observed_error_p95": 0.03184504806995392,
+        "p95_ratio_pred_to_observed": 1.0028352393204414,
+        "coverage_p95": 0.946923631866433
+      },
+      {
+        "q": 4,
+        "n": 19405,
+        "predicted_p95_median": 0.04187381721064425,
+        "observed_error_median": 0.013828953728079796,
+        "observed_error_p95": 0.04055606573820114,
+        "p95_ratio_pred_to_observed": 1.0324920933147093,
+        "coverage_p95": 0.9562483895903118
+      },
+      {
+        "q": 5,
+        "n": 19406,
+        "predicted_p95_median": 0.04995926235968119,
+        "observed_error_median": 0.016365405172109604,
+        "observed_error_p95": 0.048160482197999954,
+        "p95_ratio_pred_to_observed": 1.037349712452753,
+        "coverage_p95": 0.9630526641244975
+      }
+    ],
+    "risk_ordering": true
+  },
+  "prospective_checks": {
+    "minimum_uncensored_targets": true,
+    "p50_coverage": true,
+    "p95_coverage": true,
+    "risk_ordering": true,
+    "all_risk_quintile_p95_ratios": true,
+    "float_scene_linear_no_clamp": true,
+    "source_white_excluded_from_exact_value_scoring": true
+  },
+  "decision": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+  "ptc_uncertainty_state": "UNCERTAINTY_BLOCKER_CLOSED_FOR_THIS_EXACT_TELE_SOURCE_CLASS_AND_BACKEND"
+}
