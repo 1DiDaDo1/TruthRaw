@@ -1,0 +1,111 @@
+{
+  "schema": "TruthRawCamera2StaticCapabilityGate/0.6",
+  "classification": "FULL_SENSOR_MAXIMUM_RESOLUTION_CAPABILITY_PROVEN",
+  "pass": true,
+  "checks": {
+    "physical_camera_identity_specific": true,
+    "raw_capability": true,
+    "ultra_high_resolution_capability": true,
+    "maximum_pixel_array_reported": true,
+    "maximum_active_array_matches_pixel_array": true,
+    "highres_raw_sensor_matches_maximum_pixel_array": true,
+    "default_raw_sensor_present": true
+  },
+  "camera": {
+    "camera_id": "5",
+    "role": "tele_3p7x_project_system5_match_by_focal_aperture_geometry",
+    "focal_length_mm": 22.48,
+    "aperture": 2.6,
+    "hardware_level": "HARDWARE_LEVEL_3",
+    "color_filter_arrangement": 3,
+    "white_level": 1023,
+    "lens_shading_applied": true
+  },
+  "geometry": {
+    "default_pixel_array": [
+      4080,
+      3072
+    ],
+    "maximum_pixel_array": [
+      16320,
+      12288
+    ],
+    "linear_ratio": [
+      4.0,
+      4.0
+    ],
+    "area_ratio": 16.0,
+    "maximum_megapixels": 200.54016
+  },
+  "raw_routes": {
+    "default": [
+      {
+        "format": "RAW_SENSOR",
+        "width": 4080,
+        "height": 3072,
+        "min_duration_ns": 33322225
+      },
+      {
+        "format": "RAW10",
+        "width": 4080,
+        "height": 3072,
+        "min_duration_ns": 33322225
+      }
+    ],
+    "maximum_resolution": [
+      {
+        "format": "RAW_SENSOR",
+        "width": 8160,
+        "height": 6144,
+        "min_duration_ns": 41528239
+      },
+      {
+        "format": "RAW10",
+        "width": 8160,
+        "height": 6144,
+        "min_duration_ns": 41528239
+      }
+    ],
+    "high_resolution": [
+      {
+        "format": "RAW_SENSOR",
+        "width": 16320,
+        "height": 12288,
+        "min_duration_ns": 133333333
+      },
+      {
+        "format": "RAW10",
+        "width": 16320,
+        "height": 12288,
+        "min_duration_ns": 133333333
+      }
+    ]
+  },
+  "maximum_raw_sensor_min_duration_ns": 133333333,
+  "maximum_raw_sensor_theoretical_max_fps": 7.50000001875,
+  "capabilities": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    16,
+    18,
+    19,
+    20
+  ],
+  "ultra_high_resolution_sensor": true,
+  "remosaic_reprocessing": false,
+  "sensor_info_binning_factor": [
+    2,
+    2
+  ],
+  "app_visible_raw_topology_interpretation": "APP_VISIBLE_RAW_SENSOR_REGULAR_BAYER_BY_ANDROID_CONTRACT",
+  "metadata_warning": "Vendor metadata tension: SENSOR_INFO_BINNING_FACTOR is reported although Android documentation says ULTRA_HIGH_RESOLUTION_SENSOR devices without REMOSAIC_REPROCESSING normally omit this key because RAW_SENSOR is regular Bayer. Treat the 2x2 value as observed metadata, not as proof that the app-visible 200MP RAW uses a 2x2 same-color CFA.",
+  "capture_gate": "OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING",
+  "boundary": "Static CameraCharacteristics prove that the device advertises the route. They do not prove a successful frame, payload integrity, applied SENSOR_PIXEL_MODE, timestamp binding, or absence of sensor/HAL processing."
+}
