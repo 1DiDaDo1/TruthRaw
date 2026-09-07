@@ -1,0 +1,178 @@
+{
+  "schema": "TruthRawFrozenTeleRegressionEvidence/1.0",
+  "date": "2026-09-07",
+  "full_report_sha256": "6bc552025ec532500240f8ca2548510dd6d1598954a55fd33badc2f187d69d78",
+  "full_report_bytes": 31848,
+  "policy": {
+    "no_retune_on_holdout": true,
+    "pre_freeze_files_regression_only": true,
+    "post_freeze_files_uncertainty_generalization": true,
+    "source_dngs_not_for_git_commit": true
+  },
+  "all_fixed_appearance_checks_pass": true,
+  "sources": {
+    "IMG_BNC_TRUTHRAW20260906_151110_490.dng": {
+      "sha256": "784b941a1d06f5b38e206db2f6472c7e74f732bb53b075cdd1cb45303eaff057",
+      "iso": 100,
+      "exposure_s": 0.002474595,
+      "noise_sigma_at_2pct": 0.0014533265155624465,
+      "stage2": {
+        "min": -0.004806500393897295,
+        "max": 1.32254159450531,
+        "negative_fraction": 0.0014888588899101306,
+        "over1_fraction": 1.8908930759803922e-05,
+        "source_white_count": 179
+      },
+      "v4_7j": {
+        "p99_abs_delta_y": 0.015675678849220276,
+        "overshoot_p99": 0.053397126495838165,
+        "lf_drift_p99": 0.0023579485714435577
+      },
+      "v5_0e": {
+        "p99_abs_delta_y": 0.01201852411031723,
+        "overshoot_p99": 0.030000310391187668,
+        "lf_drift_p99": 0.000893712043762207,
+        "p95_safety": 0.41319212317466736
+      },
+      "v4_7k": {
+        "max_abs_delta_y": 0.006227617617696524,
+        "delta_cap": 0.006227617693713798
+      },
+      "uncertainty": {
+        "status": "PRE_FREEZE_NOT_SCORED",
+        "q5_ratio": null,
+        "by_role": {},
+        "by_location": {}
+      }
+    },
+    "IMG_BNC_TRUTHRAW20260906_151129_256.dng": {
+      "sha256": "f900c9d8911072530d43c532a02328c62ed1e380ab6659c36bc2ed0f2dc9b229",
+      "iso": 100,
+      "exposure_s": 0.000589705,
+      "noise_sigma_at_2pct": 0.0014725491111617986,
+      "stage2": {
+        "min": -0.0021108428481966257,
+        "max": 1.4190200567245483,
+        "negative_fraction": 7.97845179738562e-08,
+        "over1_fraction": 0.0457730162377451,
+        "source_white_count": 481294
+      },
+      "v4_7j": {
+        "p99_abs_delta_y": 0.001903235912322998,
+        "overshoot_p99": 0.047796159982681274,
+        "lf_drift_p99": 0.0010132193565368652
+      },
+      "v5_0e": {
+        "p99_abs_delta_y": 0.0013954639434814453,
+        "overshoot_p99": 0.030000077560544014,
+        "lf_drift_p99": 0.00034093111753463745,
+        "p95_safety": 0.41057470440864563
+      },
+      "v4_7k": {
+        "max_abs_delta_y": 0.005253075156360865,
+        "delta_cap": 0.00610328318522402
+      },
+      "uncertainty": {
+        "status": "PRE_FREEZE_NOT_SCORED",
+        "q5_ratio": null,
+        "by_role": {},
+        "by_location": {}
+      }
+    },
+    "IMG_BNC_TRUTHRAW20260907_094414_423.dng": {
+      "sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+      "iso": 1619,
+      "exposure_s": 0.001999998,
+      "noise_sigma_at_2pct": 0.0027825051504174725,
+      "stage2": {
+        "min": -0.00566201051697135,
+        "max": 1.013418197631836,
+        "negative_fraction": 0.0035161037071078432,
+        "over1_fraction": 1.595690359477124e-07,
+        "source_white_count": 0
+      },
+      "v4_7j": {
+        "p99_abs_delta_y": 0.0026473524048924446,
+        "overshoot_p99": 0.03580024838447571,
+        "lf_drift_p99": 0.0005799401551485062
+      },
+      "v5_0e": {
+        "p99_abs_delta_y": 0.0020371023565530777,
+        "overshoot_p99": 0.029549045488238335,
+        "lf_drift_p99": 0.0001995861530303955,
+        "p95_safety": 0.704305112361908
+      },
+      "v4_7k": {
+        "max_abs_delta_y": 0.0015198785113170743,
+        "delta_cap": 0.0045
+      },
+      "uncertainty": {
+        "status": "SCORED",
+        "q5_ratio": 0.7050438892783493,
+        "by_role": {
+          "R": 0.8391229017702067,
+          "G1": 0.6291155896611614,
+          "G2": 0.6524975832692057,
+          "B": 0.9100757660008032
+        },
+        "by_location": {
+          "center": 0.8379464438479818,
+          "mid": 0.606491471881036,
+          "outer": 0.798602750188474
+        }
+      }
+    },
+    "IMG_BNC_TRUTHRAW20260907_094449_565.dng": {
+      "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+      "iso": 638,
+      "exposure_s": 0.009999993,
+      "noise_sigma_at_2pct": 0.0020198424652791433,
+      "stage2": {
+        "min": -0.006340971682220697,
+        "max": 1.2977731227874756,
+        "negative_fraction": 0.000611468545751634,
+        "over1_fraction": 0.004997941559436275,
+        "source_white_count": 217
+      },
+      "v4_7j": {
+        "p99_abs_delta_y": 0.002140358090400696,
+        "overshoot_p99": 0.03627833351492882,
+        "lf_drift_p99": 0.0004033651202917099
+      },
+      "v5_0e": {
+        "p99_abs_delta_y": 0.001699770800769329,
+        "overshoot_p99": 0.029999179765582085,
+        "lf_drift_p99": 0.00015379488468170166,
+        "p95_safety": 0.44170084595680237
+      },
+      "v4_7k": {
+        "max_abs_delta_y": 0.0004865828377660364,
+        "delta_cap": 0.0045
+      },
+      "uncertainty": {
+        "status": "SCORED",
+        "q5_ratio": 0.9171705499823999,
+        "by_role": {
+          "R": 1.0707929975193078,
+          "G1": 0.9273275518263511,
+          "G2": 0.932021680984404,
+          "B": 1.1595330225296947
+        },
+        "by_location": {
+          "center": 0.961392848454376,
+          "mid": 0.9604141130133292,
+          "outer": 0.863348554581404
+        }
+      }
+    }
+  },
+  "findings": {
+    "appearance": "All four pass the fixed v4.7j/v5.0e/v4.7k regression invariants when color direction is evaluated with a robust p99 invariant; isolated max-direction anomalies occur only where vector direction is numerically undefined/unstable near black.",
+    "unified_material": "v5.0e consistently reduces v4.7j local overshoot and broad-field drift while preserving RGB direction at p99 precision.",
+    "output_acutance": "v4.7k respects its scene-specific delta cap in all four files and becomes extremely conservative at ISO 638/1619 because noise confidence is zero for their DNG NoiseProfiles.",
+    "uncertainty": "ISO 638 remains frozen prospective PASS (Q5 ratio 0.917). ISO 1619 remains frozen prospective FAIL (Q5 ratio 0.705). No coefficients or gates were changed.",
+    "uncertainty_localization": "The ISO 1619 Q5 failure is strongest in G1/G2 and the mid-field region; its Q5 underprediction is not isolated to the lowest-SNR quartile, so a simple low-SNR-only explanation is insufficient.",
+    "gainmap": "The two 2026-09-07 captures have almost identical green GainMaps (~0.04-0.05% mean absolute difference) but materially larger R/B differences (~1.2% mean, >4% max). This is metadata-path evidence that spatial chromatic correction is not perfectly invariant across captures; it is not independent calibration proof.",
+    "color_boundary": "The regression uses the frozen v5.0e DNG ForwardMatrix/AsShotNeutral color path. Independent per-lens color/illuminant calibration remains open and is not closed by these tests."
+  }
+}
