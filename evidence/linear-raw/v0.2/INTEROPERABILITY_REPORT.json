@@ -1,0 +1,46 @@
+{
+  "schema": "TruthRawLinearRawInteroperability/0.2",
+  "classification": "DERIVED_RECONSTRUCTED_LINEAR_RAW_DNG",
+  "v0_1_status": "REJECTED_FOR_EXTERNAL_DNG_INTEROP",
+  "v0_1_failure": "tifffile deflate produced TIFF Compression=32946; installed LibRaw rejected both files at open_file.",
+  "v0_2_change": "Repacked exact same 16-bit LinearRaw pixel payload with Compression=1 (uncompressed). No reconstructed pixel values changed.",
+  "v0_2_status": "EXTERNAL_INTEROP_PARTIAL_PASS",
+  "independent_gates": {
+    "tifffile_reopen": "PASS",
+    "libtiff_full_scanline_payload": "PASS",
+    "libraw_open_unpack_process": "PASS",
+    "adobe_dng_sdk_validator": "OPEN_NOT_EXECUTED_IN_SANDBOX"
+  },
+  "scientific_master_status": "UNCHANGED_FROM_V0_1",
+  "production_claim": "Not yet Adobe-DNG-SDK-certified. LibRaw + libtiff interoperability is proven; Adobe DNG SDK validation remains a promotion gate.",
+  "files": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_2.dng",
+      "bytes": 75205504,
+      "sha256": "7d28c352129424162a3f1a2363e769fb86abdf21977433a38883351fd8cfad0d",
+      "compression_tag": 1,
+      "photometric_interpretation": 34892,
+      "shape": [3072,4080,3],
+      "bits_per_sample": 16,
+      "samples_per_pixel": 3,
+      "pixel_payload_sha256": "9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be",
+      "v0_1_pixel_payload_exactly_preserved": true,
+      "libraw": {"open":0,"unpack":0,"process":0,"make_mem_image":0,"processed_width":4080,"processed_height":3072,"processed_colors":3,"processed_bits":8,"status":"PASS","preview":"IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_2__LIBRAW_INTEROP_PREVIEW.jpg","preview_sha256":"ec1f67764c0e378247afc2843215ef92484aa457b76b3a436f47af032a67959f"},
+      "libtiff": {"scanline_bytes":24480,"payload_bytes":75202560,"decoded_payload_sha256":"9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be","matches_tifffile_payload_sha256":true,"status":"PASS"}
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_2.dng",
+      "bytes": 75205488,
+      "sha256": "ffd5f0fdfd469ef6e6714ef70563e7d6726c33c7215c970e2c1a4a474f90d637",
+      "compression_tag": 1,
+      "photometric_interpretation": 34892,
+      "shape": [3072,4080,3],
+      "bits_per_sample": 16,
+      "samples_per_pixel": 3,
+      "pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+      "v0_1_pixel_payload_exactly_preserved": true,
+      "libraw": {"open":0,"unpack":0,"process":0,"make_mem_image":0,"processed_width":4080,"processed_height":3072,"processed_colors":3,"processed_bits":8,"status":"PASS","preview":"IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_2__LIBRAW_INTEROP_PREVIEW.jpg","preview_sha256":"143e15f3d2d5f16f395286095f5fbd7f43a4ef89b8d4d6410c96abab4be28ef4"},
+      "libtiff": {"scanline_bytes":24480,"payload_bytes":75202560,"decoded_payload_sha256":"71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb","matches_tifffile_payload_sha256":true,"status":"PASS"}
+    }
+  ]
+}
