@@ -1,0 +1,74 @@
+{
+  "schema": "TruthRawHighlightTruthEvidence/0.1",
+  "status": "EXPERIMENTAL_NOT_CANONICAL",
+  "principle": "Censored CFA samples are lower-bound evidence, not exact latent radiance.",
+  "guard_scope": "appearance-only display chroma; source CFA, Stage-2, reconstruction master and uncertainty model unchanged",
+  "support_rule": "For each BGGR 2x2 cell, chroma confidence = min(R uncensored support, B uncensored support, fraction of two G samples uncensored).",
+  "sun_test": {
+    "source": "IMG_BNC_TRUTHRAW20260906_151129_256.dng",
+    "synthetic_bggr_mapping_pass": true,
+    "synthetic_rgb_observed": [3000, 2000, 1000],
+    "neutral_to_D50_max_abs_error": 1.1102230246251565e-16,
+    "linear_luminance_max_abs_delta": 1.7881393432617188e-07,
+    "preview_guard_affected_fraction_alpha_gt_0_01": 0.05087655601659751,
+    "preview_guard_core_fraction_alpha_gt_0_99": 0.04679460580912863,
+    "linear_chroma_before_affected": {
+      "median": 1.0634329319000244,
+      "p90": 1.0827548503875732,
+      "p99": 1.0889394283294678
+    },
+    "linear_chroma_after_affected": {
+      "median": 0.0,
+      "p90": 1.6058199037161103e-07,
+      "p99": 0.25988978147506714
+    }
+  },
+  "four_scene_noop_regression": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_151110_490.dng",
+      "sha256": "784b941a1d06f5b38e206db2f6472c7e74f732bb53b075cdd1cb45303eaff057",
+      "white_level": 1023.0,
+      "censored_samples": 179,
+      "censored_sample_fraction": 1.4281428717320262e-05,
+      "bayer_cells_any_censor_fraction": 2.3935355392156862e-05,
+      "bayer_cells_full_chroma_unsupported_fraction": 1.5956903594771243e-05,
+      "bayer_cells_partial_chroma_support_fraction": 7.978451797385621e-06
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_151129_256.dng",
+      "sha256": "f900c9d8911072530d43c532a02328c62ed1e380ab6659c36bc2ed0f2dc9b229",
+      "white_level": 1023.0,
+      "censored_samples": 481294,
+      "censored_sample_fraction": 0.03839980979370915,
+      "bayer_cells_any_censor_fraction": 0.04662096609477124,
+      "bayer_cells_full_chroma_unsupported_fraction": 0.046139386744281044,
+      "bayer_cells_partial_chroma_support_fraction": 0.0004815793504901961
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+      "sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+      "white_level": 1023.0,
+      "censored_samples": 0,
+      "censored_sample_fraction": 0.0,
+      "bayer_cells_any_censor_fraction": 0.0,
+      "bayer_cells_full_chroma_unsupported_fraction": 0.0,
+      "bayer_cells_partial_chroma_support_fraction": 0.0
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+      "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+      "white_level": 1023.0,
+      "censored_samples": 217,
+      "censored_sample_fraction": 1.7313240400326797e-05,
+      "bayer_cells_any_censor_fraction": 2.8084150326797384e-05,
+      "bayer_cells_full_chroma_unsupported_fraction": 1.851000816993464e-05,
+      "bayer_cells_partial_chroma_support_fraction": 9.574142156862745e-06
+    }
+  ],
+  "promotion_blockers": [
+    "validate full-resolution implementation rather than preview-resolution prototype",
+    "validate transition boundary against synthetic clipped-CFA fixtures",
+    "validate colored light sources where neutral display fallback may be visually conservative but not physically chromatic",
+    "do not infer or certify latent hue in fully censored regions"
+  ]
+}
