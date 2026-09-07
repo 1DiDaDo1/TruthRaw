@@ -63,12 +63,6 @@ Their provenance should be represented by manifests and hashes instead.
 ## Current work areas
 
 - `capture/android/camera5-200mp-probe-v07/` — experimental Android Camera2 200 MP RAW_SENSOR capture probe
-- `canonical/reconstruction/v4.7i/` — reconstruction reference state
-- `canonical/detail/v4.7j/` — Adaptive Detail Truth backend
-- `canonical/output-acutance/v4.7k/` — Output Acutance reference
-- `canonical/ptc/v1.1/` — Pure Truth Certificate implementation and fail-closed export boundary
-- `canonical/uncertainty/v5.0g/` — backend-bound tele uncertainty model/runtime
-- `canonical/uncertainty/v5.0g-p1/` — prospective tele holdout PASS evidence
 - `tools/` — host-side RAW normalization and fail-closed runtime gates
 - `tests/` — host validation for the capture branch
 - `docs/` — scientific and validation documentation
