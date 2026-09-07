@@ -1,0 +1,83 @@
+{
+  "schema": "TruthRawBackendBoundHiddenCFAFeatures/5.0g",
+  "source": {
+    "file": "IMG_BNC_TRUTHRAW20260906_142950_144.dng",
+    "sha256": "f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce",
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+    "shape": [
+      3072,
+      4080
+    ],
+    "cfa": "BGGR",
+    "white_level": 1023.0,
+    "black_levels": [
+      64.0,
+      63.75,
+      63.75,
+      63.71
+    ],
+    "noise_profile": [
+      0.004341025502626169,
+      4.897759791089278e-05,
+      0.004332914262987762,
+      4.359540441259186e-05,
+      0.0044206134370739225,
+      4.895380711837287e-05
+    ],
+    "focal_length_mm": 22.48,
+    "iso": 28950,
+    "stage2_min": -0.0508212074637413,
+    "stage2_max": 1.2516053915023804,
+    "gain_min": 1.0010037422180176,
+    "gain_max": 2.0205078125
+  },
+  "targets_uncensored": 97027,
+  "targets_source_white_censored": 1,
+  "role_counts": {
+    "B": {
+      "all": 24384,
+      "kept_uncensored": 24384,
+      "source_white_censored": 0
+    },
+    "G1": {
+      "all": 24130,
+      "kept_uncensored": 24130,
+      "source_white_censored": 0
+    },
+    "G2": {
+      "all": 24384,
+      "kept_uncensored": 24383,
+      "source_white_censored": 1
+    },
+    "R": {
+      "all": 24130,
+      "kept_uncensored": 24130,
+      "source_white_censored": 0
+    }
+  },
+  "feature_names": [
+    "log1p_abs_prediction_stage2",
+    "log1p_sigma_stage2_x1e4",
+    "log1p_predicted_snr",
+    "log1p_support_std_over_sigma",
+    "log1p_support_range_over_sigma",
+    "log1p_pair_min_disagreement_over_sigma",
+    "log1p_pair_median_disagreement_over_sigma",
+    "log1p_green_direction_disagreement_over_sigma",
+    "log1p_local_mosaic_range_over_sigma",
+    "gain_at_target",
+    "neighbor_censor_fraction",
+    "radial_position_norm",
+    "prediction_negative_flag",
+    "prediction_over1_flag",
+    "role_R",
+    "role_G1",
+    "role_G2",
+    "role_B"
+  ],
+  "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+  "anti_leak": "All features and predictions are computed without reading the central hidden measured sample. Only after X is complete is the target read for error. Source-white targets are excluded from exact-value scoring.",
+  "claim_boundary": "Hidden-CFA error is a proxy calibration for reconstruction uncertainty; it is not co-sited RGB ground truth for missing Bayer channels."
+}

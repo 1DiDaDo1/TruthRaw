@@ -1,0 +1,175 @@
+ror_median": 0.00213550787884742,
+          "observed_error_p95": 0.006058844318613408,
+          "p95_ratio_pred_to_observed": 0.9553785230271223,
+          "coverage_p95": 0.9406661668630181
+        },
+        {
+          "q": 5,
+          "n": 18674,
+          "predicted_p95_median": 0.007149246469500025,
+          "observed_error_median": 0.002667007502168417,
+          "observed_error_p95": 0.008523654565215099,
+          "p95_ratio_pred_to_observed": 0.8387536607450035,
+          "coverage_p95": 0.9432901360179929
+        }
+      ],
+      "by_role": {
+        "R": {
+          "n": 23210,
+          "coverage_p50": 0.47643257216716933,
+          "coverage_p95": 0.9342093925032313,
+          "observed_median": 0.0017995747039094567,
+          "observed_p95": 0.0056294636335223885,
+          "predicted_p95_median": 0.0047812418134578274
+        },
+        "G1": {
+          "n": 23168,
+          "coverage_p50": 0.4822168508287293,
+          "coverage_p95": 0.9365072513812155,
+          "observed_median": 0.002123148296959698,
+          "observed_p95": 0.00640355900395661,
+          "predicted_p95_median": 0.005452746226092157
+        },
+        "G2": {
+          "n": 23488,
+          "coverage_p50": 0.47939373297002724,
+          "coverage_p95": 0.9376277247956403,
+          "observed_median": 0.002161084325052798,
+          "observed_p95": 0.006428414001129566,
+          "predicted_p95_median": 0.005518744089273168
+        },
+        "B": {
+          "n": 23504,
+          "coverage_p50": 0.4686861810755616,
+          "coverage_p95": 0.9347345132743363,
+          "observed_median": 0.001839272619690746,
+          "observed_p95": 0.0055663268547505125,
+          "predicted_p95_median": 0.0048089722985557365
+        }
+      },
+      "risk_ordering_pass": true,
+      "holdout_scene": "IMG_BNC_TRUTHRAW20260906_142941_853.dng"
+    },
+    {
+      "n": 97027,
+      "coverage_p50": 0.5302647716614963,
+      "coverage_p95": 0.9622270089768827,
+      "observed_median_stage2": 0.020763956010341644,
+      "observed_p95_stage2": 0.06346200630068778,
+      "predicted_p50_median_stage2": 0.022650043458704968,
+      "predicted_p95_median_stage2": 0.06577283434781182,
+      "risk_quintiles": [
+        {
+          "q": 1,
+          "n": 19406,
+          "predicted_p95_median": 0.05163266720767644,
+          "observed_error_median": 0.0165270883589983,
+          "observed_error_p95": 0.0515940897166729,
+          "p95_ratio_pred_to_observed": 1.0007477114377905,
+          "coverage_p95": 0.9434710914150263
+        },
+        {
+          "q": 2,
+          "n": 19405,
+          "predicted_p95_median": 0.05905065669033371,
+          "observed_error_median": 0.018814176321029663,
+          "observed_error_p95": 0.05506180971860885,
+          "p95_ratio_pred_to_observed": 1.0724430779175202,
+          "coverage_p95": 0.963359958773512
+        },
+        {
+          "q": 3,
+          "n": 19405,
+          "predicted_p95_median": 0.06577283434781182,
+          "observed_error_median": 0.021263983100652695,
+          "observed_error_p95": 0.06105182617902755,
+          "p95_ratio_pred_to_observed": 1.0773278780382498,
+          "coverage_p95": 0.9661942798247874
+        },
+        {
+          "q": 4,
+          "n": 19405,
+          "predicted_p95_median": 0.07269993363652834,
+          "observed_error_median": 0.022862408310174942,
+          "observed_error_p95": 0.06670150458812714,
+          "p95_ratio_pred_to_observed": 1.0899294414037688,
+          "coverage_p95": 0.9665550115949497
+        },
+        {
+          "q": 5,
+          "n": 19406,
+          "predicted_p95_median": 0.08267301158319477,
+          "observed_error_median": 0.026018794625997543,
+          "observed_error_p95": 0.07655321806669235,
+          "p95_ratio_pred_to_observed": 1.0799416885541104,
+          "coverage_p95": 0.971555189116768
+        }
+      ],
+      "by_role": {
+        "R": {
+          "n": 24130,
+          "coverage_p50": 0.5190634065478658,
+          "coverage_p95": 0.9570658930791546,
+          "observed_median": 0.019390007480978966,
+          "observed_p95": 0.058893624134361736,
+          "predicted_p95_median": 0.059326998014592625
+        },
+        "G1": {
+          "n": 24130,
+          "coverage_p50": 0.5435142975549109,
+          "coverage_p95": 0.9670120182345627,
+          "observed_median": 0.02267355937510729,
+          "observed_p95": 0.068296704813838,
+          "predicted_p95_median": 0.07324675705152217
+        },
+        "G2": {
+          "n": 24383,
+          "coverage_p50": 0.5451339047697166,
+          "coverage_p95": 0.9680104991182381,
+          "observed_median": 0.02273428626358509,
+          "observed_p95": 0.06880124509334563,
+          "predicted_p95_median": 0.07372264288787865
+        },
+        "B": {
+          "n": 24384,
+          "coverage_p50": 0.5133694225721784,
+          "coverage_p95": 0.9568159448818898,
+          "observed_median": 0.018773415125906467,
+          "observed_p95": 0.056839440390467635,
+          "predicted_p95_median": 0.05781612936372896
+        }
+      },
+      "risk_ordering_pass": true,
+      "holdout_scene": "IMG_BNC_TRUTHRAW20260906_142950_144.dng"
+    }
+  ],
+  "source_reports": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_142925_827.dng",
+      "sha256": "b0282acb2729432d4fd4c4343efecc06bb509927836c9389e1abb387e99fb4e7",
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+      "shape": [
+        3072,
+        4080
+      ],
+      "cfa": "BGGR",
+      "white_level": 1023.0,
+      "black_levels": [
+        64.0,
+        64.0,
+        64.0,
+        64.0
+      ],
+      "noise_profile": [
+        0.00036799349735537027,
+        7.595985107086627e-07,
+        0.0004050630660141475,
+        2.777876173225531e-07,
+        0.0003850177225163262,
+        6.973897725495286e-07
+      ],
+      "focal_length_mm": 22.48,
+      "iso": 2238,
+      "stage2_min": -0.007158145308494568

@@ -1,0 +1,166 @@
+95": 0.963075010360547,
+          "observed_median": 0.0021137756993994117,
+          "observed_p95": 0.012262780079618087,
+          "predicted_p95_median": 0.006120109016440367
+        },
+        "G1": {
+          "n": 24127,
+          "coverage_p50": 0.48638454843121814,
+          "coverage_p95": 0.9490612177228831,
+          "observed_median": 0.002410906134173274,
+          "observed_p95": 0.015769601985812197,
+          "predicted_p95_median": 0.0067456818336639685
+        },
+        "G2": {
+          "n": 24381,
+          "coverage_p50": 0.47295024814404657,
+          "coverage_p95": 0.949796973052787,
+          "observed_median": 0.0024639510083943605,
+          "observed_p95": 0.01555092167109251,
+          "predicted_p95_median": 0.006787373100267717
+        },
+        "B": {
+          "n": 24384,
+          "coverage_p50": 0.5330954724409449,
+          "coverage_p95": 0.9617372047244095,
+          "observed_median": 0.0020824377425014973,
+          "observed_p95": 0.012639686977490773,
+          "predicted_p95_median": 0.0060856114849920425
+        }
+      },
+      "risk_ordering_pass": true,
+      "holdout_scene": "IMG_BNC_TRUTHRAW20260906_142925_827.dng"
+    },
+    {
+      "n": 97016,
+      "coverage_p50": 0.5090088232868805,
+      "coverage_p95": 0.9512966933289354,
+      "observed_median_stage2": 0.013811485841870308,
+      "observed_p95_stage2": 0.045875621028244495,
+      "predicted_p50_median_stage2": 0.014911468131310886,
+      "predicted_p95_median_stage2": 0.043128041467844325,
+      "risk_quintiles": [
+        {
+          "q": 1,
+          "n": 19403,
+          "predicted_p95_median": 0.027621440066361226,
+          "observed_error_median": 0.008449786342680454,
+          "observed_error_p95": 0.02821141369640827,
+          "p95_ratio_pred_to_observed": 0.9790874134704509,
+          "coverage_p95": 0.9461423491212699
+        },
+        {
+          "q": 2,
+          "n": 19403,
+          "predicted_p95_median": 0.03714930779596593,
+          "observed_error_median": 0.012619229964911938,
+          "observed_error_p95": 0.03731379546225061,
+          "p95_ratio_pred_to_observed": 0.9955917733844286,
+          "coverage_p95": 0.950007730763284
+        },
+        {
+          "q": 3,
+          "n": 19403,
+          "predicted_p95_median": 0.04312796787646699,
+          "observed_error_median": 0.014743992127478123,
+          "observed_error_p95": 0.04346858710050583,
+          "p95_ratio_pred_to_observed": 0.9921640143662531,
+          "coverage_p95": 0.9485131165283719
+        },
+        {
+          "q": 4,
+          "n": 19403,
+          "predicted_p95_median": 0.04920884605306162,
+          "observed_error_median": 0.016772843897342682,
+          "observed_error_p95": 0.04827312156558037,
+          "p95_ratio_pred_to_observed": 1.0193839647641192,
+          "coverage_p95": 0.9550584961088492
+        },
+        {
+          "q": 5,
+          "n": 19404,
+          "predicted_p95_median": 0.05916209718612715,
+          "observed_error_median": 0.02032096777111292,
+          "observed_error_p95": 0.059792950935661726,
+          "p95_ratio_pred_to_observed": 0.9894493625140967,
+          "coverage_p95": 0.9567614924757782
+        }
+      ],
+      "by_role": {
+        "R": {
+          "n": 24128,
+          "coverage_p50": 0.5052635941644562,
+          "coverage_p95": 0.9519230769230769,
+          "observed_median": 0.012534781824797392,
+          "observed_p95": 0.041240535303950304,
+          "predicted_p95_median": 0.03962077635166851
+        },
+        "G1": {
+          "n": 24125,
+          "coverage_p50": 0.5110051813471502,
+          "coverage_p95": 0.9525803108808291,
+          "observed_median": 0.0154339037835598,
+          "observed_p95": 0.05054479464888573,
+          "predicted_p95_median": 0.04804686378231143
+        },
+        "G2": {
+          "n": 24380,
+          "coverage_p50": 0.5166529942575881,
+          "coverage_p95": 0.9498769483182937,
+          "observed_median": 0.015545186586678028,
+          "observed_p95": 0.05020234417170285,
+          "predicted_p95_median": 0.04806970049774946
+        },
+        "B": {
+          "n": 24383,
+          "coverage_p50": 0.5030964196366321,
+          "coverage_p95": 0.9508263954394455,
+          "observed_median": 0.012184728868305683,
+          "observed_p95": 0.0395680610090494,
+          "predicted_p95_median": 0.037659355878873084
+        }
+      },
+      "risk_ordering_pass": true,
+      "holdout_scene": "IMG_BNC_TRUTHRAW20260906_142935_568.dng"
+    },
+    {
+      "n": 93370,
+      "coverage_p50": 0.4766627396379994,
+      "coverage_p95": 0.9357716611331263,
+      "observed_median_stage2": 0.0019517805776558816,
+      "observed_p95_stage2": 0.006014789431355894,
+      "predicted_p50_median_stage2": 0.0017738631900690908,
+      "predicted_p95_median_stage2": 0.005151603978080967,
+      "risk_quintiles": [
+        {
+          "q": 1,
+          "n": 18674,
+          "predicted_p95_median": 0.004254546771830202,
+          "observed_error_median": 0.001596999354660511,
+          "observed_error_p95": 0.004683456616476177,
+          "p95_ratio_pred_to_observed": 0.9084202374935874,
+          "coverage_p95": 0.9242797472421549
+        },
+        {
+          "q": 2,
+          "n": 18674,
+          "predicted_p95_median": 0.004726989938805924,
+          "observed_error_median": 0.0017153607914224267,
+          "observed_error_p95": 0.005078646563924849,
+          "p95_ratio_pred_to_observed": 0.9307578070864692,
+          "coverage_p95": 0.9328478097890115
+        },
+        {
+          "q": 3,
+          "n": 18674,
+          "predicted_p95_median": 0.005151603978080967,
+          "observed_error_median": 0.0018661500071175396,
+          "observed_error_p95": 0.005407413560897111,
+          "p95_ratio_pred_to_observed": 0.9526928022176828,
+          "coverage_p95": 0.937774445753454
+        },
+        {
+          "q": 4,
+          "n": 18674,
+          "predicted_p95_median": 0.00578848973636815,
+          "observed_er

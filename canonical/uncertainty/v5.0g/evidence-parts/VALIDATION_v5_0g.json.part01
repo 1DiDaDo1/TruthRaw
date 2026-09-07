@@ -1,0 +1,172 @@
+{
+  "schema": "TruthRawBackendBoundUncertaintyDevelopmentValidation/5.0g",
+  "pass": true,
+  "gates": {
+    "four_scene_held_out_cv": true,
+    "oof_targets_ge_300k": true,
+    "oof_p50_coverage_0_46_to_0_54": true,
+    "oof_p95_coverage_0_92_to_0_98": true,
+    "all_fold_p50_0_44_to_0_56": true,
+    "all_fold_p95_0_90_to_0_99": true,
+    "risk_ordering": true,
+    "all_risk_quintile_p95_ratios_0_85_to_1_15": true,
+    "float_scene_linear_no_affine_clamp": true,
+    "source_white_excluded_from_exact_error": true,
+    "negative_and_overrange_targets_retained": true,
+    "gain_aware_noise_Sprime_gS_Oprime_g2O": true,
+    "backend_hash_bound": true,
+    "feature_schema_hash_bound": true,
+    "old_v4f10_confidence_not_reused": true
+  },
+  "oof": {
+    "n": 384435,
+    "coverage_p50": 0.5048993978175764,
+    "coverage_p95": 0.9514508304394761,
+    "observed_median_stage2": 0.004974123556166887,
+    "observed_p95_stage2": 0.046088203415274615,
+    "predicted_p50_median_stage2": 0.009054129152887096,
+    "predicted_p95_median_stage2": 0.027045476159009388,
+    "risk_quintiles": [
+      {
+        "q": 1,
+        "n": 76887,
+        "predicted_p95_median": 0.004562950961997292,
+        "observed_error_median": 0.0015087375650182366,
+        "observed_error_p95": 0.004696246841922403,
+        "p95_ratio_pred_to_observed": 0.9716165090098744,
+        "coverage_p95": 0.9431373314084306
+      },
+      {
+        "q": 2,
+        "n": 76887,
+        "predicted_p95_median": 0.006177115490411073,
+        "observed_error_median": 0.0021583368070423603,
+        "observed_error_p95": 0.006337484531104563,
+        "p95_ratio_pred_to_observed": 0.9746951586380379,
+        "coverage_p95": 0.9479625944568002
+      },
+      {
+        "q": 3,
+        "n": 76887,
+        "predicted_p95_median": 0.027045476159009388,
+        "observed_error_median": 0.007117659784853458,
+        "observed_error_p95": 0.029514604061841965,
+        "p95_ratio_pred_to_observed": 0.9163421641144495,
+        "coverage_p95": 0.9480406310559653
+      },
+      {
+        "q": 4,
+        "n": 76887,
+        "predicted_p95_median": 0.050553056401034926,
+        "observed_error_median": 0.016785897314548492,
+        "observed_error_p95": 0.0500350035727024,
+        "p95_ratio_pred_to_observed": 1.0103538081611163,
+        "coverage_p95": 0.9516433207174164
+      },
+      {
+        "q": 5,
+        "n": 76887,
+        "predicted_p95_median": 0.07021842497076017,
+        "observed_error_median": 0.022630680352449417,
+        "observed_error_p95": 0.06692963242530821,
+        "p95_ratio_pred_to_observed": 1.0491380637585628,
+        "coverage_p95": 0.9664702745587681
+      }
+    ],
+    "by_role": {
+      "R": {
+        "n": 95598,
+        "coverage_p50": 0.5049478022552774,
+        "coverage_p95": 0.9517353919538065,
+        "observed_median": 0.004566668765619397,
+        "observed_p95": 0.042099082469940166,
+        "predicted_p95_median": 0.024052559644222836
+      },
+      "G1": {
+        "n": 95550,
+        "coverage_p50": 0.5060177917320774,
+        "coverage_p95": 0.9514390371533229,
+        "observed_median": 0.0053916736505925655,
+        "observed_p95": 0.04995065219700338,
+        "predicted_p95_median": 0.03091225742897038
+      },
+      "G2": {
+        "n": 96632,
+        "coverage_p50": 0.5037565195794353,
+        "coverage_p95": 0.9514550045533571,
+        "observed_median": 0.00544196180999279,
+        "observed_p95": 0.05050998013466594,
+        "predicted_p95_median": 0.03116677401279251
+      },
+      "B": {
+        "n": 96655,
+        "coverage_p50": 0.5048885210284,
+        "coverage_p95": 0.9511768661735037,
+        "observed_median": 0.004529876168817282,
+        "observed_p95": 0.04069277904927731,
+        "predicted_p95_median": 0.02353212828452996
+      }
+    },
+    "risk_ordering_pass": true
+  },
+  "folds": [
+    {
+      "n": 97022,
+      "coverage_p50": 0.5025973490548535,
+      "coverage_p95": 0.9559172146523469,
+      "observed_median_stage2": 0.0022680478869006038,
+      "observed_p95_stage2": 0.0139736030716449,
+      "predicted_p50_median_stage2": 0.002190032243691788,
+      "predicted_p95_median_stage2": 0.006412335962650163,
+      "risk_quintiles": [
+        {
+          "q": 1,
+          "n": 19405,
+          "predicted_p95_median": 0.0039619724483068615,
+          "observed_error_median": 0.0012044374598190188,
+          "observed_error_p95": 0.003538029873743653,
+          "p95_ratio_pred_to_observed": 1.11982447568048,
+          "coverage_p95": 0.9653697500644164
+        },
+        {
+          "q": 2,
+          "n": 19404,
+          "predicted_p95_median": 0.005474455783403071,
+          "observed_error_median": 0.0017596948891878128,
+          "observed_error_p95": 0.005221279361285262,
+          "p95_ratio_pred_to_observed": 1.0484893461160232,
+          "coverage_p95": 0.9595444238301382
+        },
+        {
+          "q": 3,
+          "n": 19404,
+          "predicted_p95_median": 0.006412335962650163,
+          "observed_error_median": 0.0021568635711446404,
+          "observed_error_p95": 0.006312351557426145,
+          "p95_ratio_pred_to_observed": 1.0158394861747506,
+          "coverage_p95": 0.9540816326530612
+        },
+        {
+          "q": 4,
+          "n": 19404,
+          "predicted_p95_median": 0.0075762656093547025,
+          "observed_error_median": 0.0028080138145014644,
+          "observed_error_p95": 0.00834669624455273,
+          "p95_ratio_pred_to_observed": 0.9076963372542963,
+          "coverage_p95": 0.9479488765203051
+        },
+        {
+          "q": 5,
+          "n": 19405,
+          "predicted_p95_median": 0.02395175792101228,
+          "observed_error_median": 0.007958163507282734,
+          "observed_error_p95": 0.025739980489015577,
+          "p95_ratio_pred_to_observed": 0.9305274311001746,
+          "coverage_p95": 0.9526410718886885
+        }
+      ],
+      "by_role": {
+        "R": {
+          "n": 24130,
+          "coverage_p50": 0.5179444674678823,
+          "coverage_p

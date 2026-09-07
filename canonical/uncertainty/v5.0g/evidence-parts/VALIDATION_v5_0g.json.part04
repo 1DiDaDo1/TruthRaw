@@ -1,0 +1,106 @@
+,
+      "stage2_max": 1.1481988430023193,
+      "gain_min": 1.0010151863098145,
+      "gain_max": 2.3203125
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_142935_568.dng",
+      "sha256": "b79a423d1631b573a9aec53e4a773f115a223db7c0c8416417e15618f17b73ba",
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+      "shape": [
+        3072,
+        4080
+      ],
+      "cfa": "BGGR",
+      "white_level": 1023.0,
+      "black_levels": [
+        64.0,
+        63.75,
+        63.75,
+        63.75
+      ],
+      "noise_profile": [
+        0.0016777613858854187,
+        7.250842270020337e-06,
+        0.0016999364427942331,
+        6.349033325373666e-06,
+        0.0017154106493804395,
+        7.23101839786083e-06
+      ],
+      "focal_length_mm": 22.48,
+      "iso": 11044,
+      "stage2_min": -0.019926762208342552,
+      "stage2_max": 1.3833446502685547,
+      "gain_min": 1.0010188817977905,
+      "gain_max": 2.0810546875
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_142941_853.dng",
+      "sha256": "ad07c4c97cd2cf7d28a65575c6a16a3efa569b058738a2898c57190bbca88591",
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+      "shape": [
+        3072,
+        4080
+      ],
+      "cfa": "BGGR",
+      "white_level": 1023.0,
+      "black_levels": [
+        64.0,
+        64.0,
+        64.0,
+        64.0
+      ],
+      "noise_profile": [
+        0.0002707202519433044,
+        6.208736836449334e-07,
+        0.00030889599942157697,
+        1.480385981607601e-07,
+        0.00028621270614463305,
+        5.57759135532586e-07
+      ],
+      "focal_length_mm": 22.48,
+      "iso": 1584,
+      "stage2_min": -0.0035810123663395643,
+      "stage2_max": 1.534430980682373,
+      "gain_min": 1.0010473728179932,
+      "gain_max": 2.35546875
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_142950_144.dng",
+      "sha256": "f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce",
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "software": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys",
+      "shape": [
+        3072,
+        4080
+      ],
+      "cfa": "BGGR",
+      "white_level": 1023.0,
+      "black_levels": [
+        64.0,
+        63.75,
+        63.75,
+        63.71
+      ],
+      "noise_profile": [
+        0.004341025502626169,
+        4.897759791089278e-05,
+        0.004332914262987762,
+        4.359540441259186e-05,
+        0.0044206134370739225,
+        4.895380711837287e-05
+      ],
+      "focal_length_mm": 22.48,
+      "iso": 28950,
+      "stage2_min": -0.0508212074637413,
+      "stage2_max": 1.2516053915023804,
+      "gain_min": 1.0010037422180176,
+      "gain_max": 2.0205078125
+    }
+  ]
+}
