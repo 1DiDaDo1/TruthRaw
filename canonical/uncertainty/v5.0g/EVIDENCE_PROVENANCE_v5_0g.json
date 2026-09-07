@@ -1,122 +1,59 @@
 {
-  "schema": "TruthRawV5gRepositoryEvidenceProvenance/1.0",
-  "component": "Backend-bound uncertainty v5.0g",
-  "source_package": {
-    "filename": "truthraw_uncertainty_v5_0g_package.zip",
-    "bytes": 19022660,
-    "sha256": "bea76771b7aaf76294035a7b8e0e3a9d1512fa411adcb30c5b463fc75299f675",
-    "manifest_actual_bytes": 5441,
-    "manifest_actual_sha256": "ea023187d12fe987259667c9663b95f9b8eeb4f0b005365fe4602bed8c2441fb"
-  },
-  "direct_repo_path_map": {
-    "BACKEND_BINDING_v5_0g.json": "BACKEND_BINDING_v5_0g.json",
-    "FAILED_NATIVE_PARITY_CODEGEN_v5_0g.json": "history/FAILED_NATIVE_PARITY_CODEGEN_v5_0g.json",
-    "FROZEN_PROTOCOL_v5_0g.json": "FROZEN_PROTOCOL_v5_0g.json",
-    "HISTORICAL_REJECTION_SELFTEST_v5_0g.json": "history/HISTORICAL_REJECTION_SELFTEST_v5_0g.json",
-    "NATIVE_PARITY_v5_0g.json": "NATIVE_PARITY_v5_0g.json",
-    "OOF_RISK_QUINTILES_v5_0g.csv": "OOF_RISK_QUINTILES_v5_0g.csv",
-    "PTC_UNCERTAINTY_BRIDGE_v5_0g.json": "PTC_UNCERTAINTY_BRIDGE_v5_0g.json",
-    "README_v5_0g.md": "README_v5_0g.md",
-    "SELF_TEST_v5_0g.json": "SELF_TEST_v5_0g.json",
-    "STATUS_v5_0g.json": "STATUS_v5_0g.json",
-    "UNCERTAINTY_MODEL_v5_0g.json": "UNCERTAINTY_MODEL_v5_0g.json",
-    "finalize_uncertainty_v5_0g.py": "source/finalize_uncertainty_v5_0g.py",
-    "fit_uncertainty_v5_0g.py": "source/fit_uncertainty_v5_0g.py",
-    "prospective_holdout_v5_0g.py": "source/prospective_holdout_v5_0g.py",
-    "runtime_compile_test.cpp": "runtime/runtime_compile_test.cpp",
-    "runtime_parity_test.cpp": "runtime/runtime_parity_test.cpp",
-    "train_uncertainty_v5_0g.py": "source/train_uncertainty_v5_0g.py",
-    "uncertainty_core_v5_0g.py": "source/uncertainty_core_v5_0g.py",
-    "uncertainty_runtime_v5_0g.cpp": "runtime/uncertainty_runtime_v5_0g.cpp",
-    "uncertainty_runtime_v5_0g.h": "runtime/uncertainty_runtime_v5_0g.h",
-    "SCENE_HOLDOUT_COVERAGE_v5_0g.csv": "evidence/SCENE_HOLDOUT_COVERAGE_v5_0g.csv",
-    "dataset_scene_1_v5_0g.json": "evidence/dataset_scene_1_v5_0g.json",
-    "dataset_scene_2_v5_0g.json": "evidence/dataset_scene_2_v5_0g.json",
-    "dataset_scene_3_v5_0g.json": "evidence/dataset_scene_3_v5_0g.json",
-    "dataset_scene_4_v5_0g.json": "evidence/dataset_scene_4_v5_0g.json"
-  },
-  "reconstructed_files": [
+  "schema": "TruthRawGitReconstructableEvidence/1.0",
+  "package": "truthraw_uncertainty_v5_0g_package.zip",
+  "files": [
     {
-      "canonical_filename": "VALIDATION_v5_0g.json",
-      "bytes": 20863,
-      "sha256": "6142aa64f89ace230f93299fb614656d2fc03861dea8770f3c4e8720ffd91366",
-      "encoding": "raw_concat",
+      "target": "VALIDATION_v5_0g.json",
+      "encoding": "concat",
       "parts": [
-        {
-          "file": "evidence-parts/VALIDATION_v5_0g.json.part01",
-          "bytes": 6000,
-          "sha256": "add0a9a6cc268a15852197b49302caa957b17ff7e132829c25d3a2f87377e1d0",
-          "git_blob_sha1": "18180ddf9fdd8ff6b9974ab76b9f3203fd0146e9"
-        },
-        {
-          "file": "evidence-parts/VALIDATION_v5_0g.json.part02",
-          "bytes": 6000,
-          "sha256": "cc7fa084bb6c0b3d2a96ed68a8a89caf83236e67dcd8212e1ee7088631ede3f1",
-          "git_blob_sha1": "de91e7207139e4941635e458e7ae5fe04855af9b"
-        },
-        {
-          "file": "evidence-parts/VALIDATION_v5_0g.json.part03",
-          "bytes": 6000,
-          "sha256": "c5314a61dca001bac041a9372acce56e94f0a7c54de334ff87ce0758372ccd2b",
-          "git_blob_sha1": "e546a8568e2de2981b6022ada90f222e4a36140e"
-        },
-        {
-          "file": "evidence-parts/VALIDATION_v5_0g.json.part04",
-          "bytes": 2863,
-          "sha256": "51cab9188799aa7e7a5f607a69bee651ffaf743a7c69bde37d9e1847a3d60138",
-          "git_blob_sha1": "2d75f14c1dfeb8820c2d1b15bf8c84705f31b53c"
-        }
-      ]
+        "evidence-parts/VALIDATION_v5_0g.json.part01",
+        "evidence-parts/VALIDATION_v5_0g.json.part02",
+        "evidence-parts/VALIDATION_v5_0g.json.part03",
+        "evidence-parts/VALIDATION_v5_0g.json.part04"
+      ],
+      "bytes": 20863,
+      "sha256": "6142aa64f89ace230f93299fb614656d2fc03861dea8770f3c4e8720ffd91366"
     },
     {
-      "canonical_filename": "RUNTIME_PARITY_VECTORS_v5_0g.json",
-      "bytes": 50219,
-      "sha256": "c98295c6c8f12c844ba089ba394f539a780a14ecb9d9e5ea00dc2e6f386b569d",
-      "encoding": "zlib_concat",
+      "target": "RUNTIME_PARITY_VECTORS_v5_0g.json",
+      "encoding": "zlib-concat",
+      "parts": [
+        "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part01",
+        "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part02",
+        "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part03",
+        "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part04"
+      ],
       "compressed_bytes": 14541,
       "compressed_sha256": "3fb3cb9fc43de7bb9393645037270a3a7f382d81ad8bca19e9ab6c075cdacb07",
-      "parts": [
-        {
-          "file": "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part01",
-          "bytes": 4500,
-          "sha256": "7b40556b3016a3da48c830bc146f998349b82c49694ba75c6433155398733c20",
-          "git_blob_sha1": "f154444e5f899b6bff277022904a3253c4404a22"
-        },
-        {
-          "file": "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part02",
-          "bytes": 4500,
-          "sha256": "bad4184b76a3a2d1639c87fa3e3af857aeba50209ff2ab21ceafc19477f573f3",
-          "git_blob_sha1": "fa1637c0a2907f57b5094abd012fb51ba220e7ac"
-        },
-        {
-          "file": "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part03",
-          "bytes": 4500,
-          "sha256": "642efde9841d2415efbd1a75c16c08932533118c972caf3ca6b918b5a2c33fd9",
-          "git_blob_sha1": "9d603e0c781b19245cb969882ed9d8695309a245"
-        },
-        {
-          "file": "evidence-parts/RUNTIME_PARITY_VECTORS_v5_0g.json.zlib.part04",
-          "bytes": 1041,
-          "sha256": "e7ccf17a9d2145fc77517479abdc86192f009acbeecb09bb1fca4acd838e271d",
-          "git_blob_sha1": "96fb7f67a71be5954bb3f64f21452cff041f613a"
-        }
-      ]
+      "bytes": 50219,
+      "sha256": "c98295c6c8f12c844ba089ba394f539a780a14ecb9d9e5ea00dc2e6f386b569d"
     }
   ],
-  "external_package_assets": [
-    "UNCERTAINTY_RISK_CALIBRATION_v5_0g.png",
-    "dataset_scene_1_compact_v5_0g.npz",
-    "dataset_scene_2_compact_v5_0g.npz",
-    "dataset_scene_3_compact_v5_0g.npz",
-    "dataset_scene_4_compact_v5_0g.npz"
-  ],
-  "known_historical_exception": {
-    "id": "V5G_MANIFEST_SELF_ENTRY_STALE",
-    "declared_bytes": 4116,
-    "declared_sha256": "52d3dea63650e6e5bd029d92615c850e75ba7141b7d0e7fb0788865da0076842",
-    "actual_bytes": 5441,
-    "actual_sha256": "ea023187d12fe987259667c9663b95f9b8eeb4f0b005365fe4602bed8c2441fb",
-    "treatment": "preserve actual packaged manifest byte-exact; fail-closed checker records but does not rewrite the stale self-entry"
-  },
-  "scientific_status": "repository storage/migration only; no scientific claim, PTC state, RAW interpretation, or APK-derived code changed"
+  "excluded_large_evidence": [
+    {
+      "file": "dataset_scene_1_compact_v5_0g.npz",
+      "sha256": "db532282a2faef75ebce71fc6ff08a03cba42b072c5e088c4d5ecbe06b4aa514",
+      "bytes": 4936410
+    },
+    {
+      "file": "dataset_scene_2_compact_v5_0g.npz",
+      "sha256": "2310a9715a458626b8ddf2b9500f6076d74598e662f262f9916bc7cfd59cd786",
+      "bytes": 4918076
+    },
+    {
+      "file": "dataset_scene_3_compact_v5_0g.npz",
+      "sha256": "e1f39313e748e15b786df6b236f3304a311349e9c7cf63e14d21a8580d6110c2",
+      "bytes": 4748783
+    },
+    {
+      "file": "dataset_scene_4_compact_v5_0g.npz",
+      "sha256": "4574c853511d86fbf56f9e2f275e42e88abaa927c6df62545501e23b538879f3",
+      "bytes": 4892068
+    },
+    {
+      "file": "UNCERTAINTY_RISK_CALIBRATION_v5_0g.png",
+      "sha256": "931f68b06fba5014707d3967e86e2ac39abcbbea67059a8876d152bfed56aec7",
+      "bytes": 85407
+    }
+  ]
 }

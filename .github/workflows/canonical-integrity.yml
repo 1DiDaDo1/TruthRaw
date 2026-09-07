@@ -1,10 +1,9 @@
-name: Canonical integrity
+name: Canonical Integrity
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,5 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify canonical byte integrity and native parity
-        run: python3 tools/verify_canonical_integrity.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify byte-exact canonical provenance
+        run: python tools/verify_canonical_integrity.py
+      - name: Compile and run v5.0g uncertainty parity
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror \
+            canonical/uncertainty/v5.0g/runtime/uncertainty_runtime_v5_0g.cpp \
+            canonical/uncertainty/v5.0g/runtime/runtime_parity_test.cpp \
+            -Icanonical/uncertainty/v5.0g/runtime -o /tmp/truthraw_uncertainty_parity
+          /tmp/truthraw_uncertainty_parity

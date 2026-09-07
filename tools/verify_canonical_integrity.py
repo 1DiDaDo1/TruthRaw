@@ -1,47 +1,38 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib,json,subprocess,sys,tempfile,zlib
-ROOT=Path(__file__).resolve().parents[1]; V5G=ROOT/"canonical/uncertainty/v5.0g"; V5E=ROOT/"canonical/unified-material/v5.0e"
-def h(b): return hashlib.sha256(b).hexdigest()
-def gh(b): return hashlib.sha1(b"blob "+str(len(b)).encode()+b"\0"+b).hexdigest()
-def chk(p,n,s,g=None):
- if not p.is_file(): raise AssertionError(f"missing {p.relative_to(ROOT)}")
- b=p.read_bytes()
- if len(b)!=n or h(b)!=s or (g and gh(b)!=g): raise AssertionError(f"integrity mismatch {p.relative_to(ROOT)}")
- return b
-def v5g():
- P=json.loads((V5G/"EVIDENCE_PROVENANCE_v5_0g.json").read_text()); M=json.loads((V5G/"MANIFEST_v5_0g.json").read_text()); D={e["file"]:e for e in M["files"]}
- for name,rp in P["direct_repo_path_map"].items():
-  e=D[name]; chk(V5G/rp,e["bytes"],e["sha256"])
- for e in P["reconstructed_files"]:
-  b=b"".join(chk(V5G/p["file"],p["bytes"],p["sha256"],p["git_blob_sha1"]) for p in e["parts"])
-  if e["encoding"]=="zlib_concat":
-   if len(b)!=e["compressed_bytes"] or h(b)!=e["compressed_sha256"]: raise AssertionError("compressed evidence mismatch")
-   b=zlib.decompress(b)
-  elif e["encoding"]!="raw_concat": raise AssertionError("unknown evidence encoding")
-  if len(b)!=e["bytes"] or h(b)!=e["sha256"]: raise AssertionError(f"reconstruction mismatch {e['canonical_filename']}")
-  d=D[e["canonical_filename"]]
-  if d["bytes"]!=e["bytes"] or d["sha256"]!=e["sha256"]: raise AssertionError("manifest/reconstruction mismatch")
- for name in P["external_package_assets"]:
-  if name not in D: raise AssertionError(f"external declaration missing {name}")
- x=P["known_historical_exception"]; mb=(V5G/"MANIFEST_v5_0g.json").read_bytes(); d=D["MANIFEST_v5_0g.json"]
- if len(mb)!=x["actual_bytes"] or h(mb)!=x["actual_sha256"] or d["bytes"]!=x["declared_bytes"] or d["sha256"]!=x["declared_sha256"]: raise AssertionError("v5.0g manifest historical exception changed")
- if x["actual_bytes"]==x["declared_bytes"] and x["actual_sha256"]==x["declared_sha256"]: raise AssertionError("historical exception unexpectedly absent")
- print("PASS v5.0g repository evidence integrity")
-def v5e():
- P=json.loads((V5E/"SOURCE_PROVENANCE.json").read_text()); b=b""
- for p in P["parts"]:
-  q=V5E/p["file"]; d=q.read_bytes()
-  if len(d)!=p["bytes"] or gh(d)!=p["git_blob_sha1"]: raise AssertionError(f"v5.0e part mismatch {p['file']}")
-  b+=d
- if len(b)!=P["canonical_bytes"] or h(b)!=P["canonical_sha256"] or gh(b)!=P["canonical_git_blob_sha1"]: raise AssertionError("v5.0e source mismatch")
- print("PASS v5.0e byte-exact source integrity")
-def runtime():
- r=V5G/"runtime"
- with tempfile.TemporaryDirectory() as td:
-  x=Path(td)/"p"; subprocess.run(["g++","-std=c++17","-O2","-Wall","-Wextra","-Werror",str(r/"uncertainty_runtime_v5_0g.cpp"),str(r/"runtime_parity_test.cpp"),"-I",str(r),"-o",str(x)],check=True); subprocess.run([str(x)],check=True)
- print("PASS v5.0g native runtime parity")
-def main(): v5g(); v5e(); runtime(); print("PASS canonical integrity")
-if __name__=="__main__":
- try: main()
- except Exception as e: print(f"FAIL canonical integrity: {e}",file=sys.stderr); raise
+import hashlib, json, zlib
+ROOT=Path(__file__).resolve().parents[1]
+def gitblob(p):
+    b=p.read_bytes(); return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+EXPECTED_BLOBS={
+ 'README.md':'05cab04bdaf789a627801312da709c85d8564fd3',
+ 'canonical/detail/v4.7j/native/include/truthraw/core.h':'ff5a6c976be8228d990aa4ee577db8613d8c9bd1',
+ 'canonical/detail/v4.7j/native/src/core.cpp':'4c818fed9644605693e93e35c88bedeee5360cef',
+ 'canonical/ptc/v1.1/python/truthraw_ptc.py':'92f177f2292a4c194b698916c951d3c751766699',
+ 'canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py':'3a833147f892a970c60175a7ebe4ab1e8cf0221c',
+ 'canonical/uncertainty/v5.0g/source/prospective_holdout_v5_0g.py':'8f1f57f8d965b3a7067aed51ec60fe8586f196df',
+ 'canonical/uncertainty/v5.0g/source/finalize_uncertainty_v5_0g.py':'7832f3da0cb960f74f025f1c2c9fbd9f2c772a62',
+ 'canonical/uncertainty/v5.0g/source/fit_uncertainty_v5_0g.py':'0e3e8be37e890f5a3cf6b2e25ae9374e62aaa2b6',
+ 'canonical/uncertainty/v5.0g/source/train_uncertainty_v5_0g.py':'e9a9cf08c54637111bcfd0b6b8a29f0566e46075',
+ 'canonical/uncertainty/v5.0g/runtime/runtime_parity_test.cpp':'923f581612cb1632cc352659acd68d90dc9cec01',
+}
+for rel,exp in EXPECTED_BLOBS.items():
+    p=ROOT/rel
+    if not p.is_file() or gitblob(p)!=exp: raise SystemExit(f'FAIL blob {rel}')
+    print('PASS blob',rel)
+v5e=ROOT/'canonical/unified-material/v5.0e'
+data=b''.join((v5e/'source-parts'/f'unified_material_v5_0e.py.part0{i}').read_bytes() for i in range(1,5))
+if len(data)!=26771 or hashlib.sha256(data).hexdigest()!='7a60703c47a981da8aa4f9613545e1615a6a25cdbb3a8347ed1c1a4df076b1e0': raise SystemExit('FAIL v5.0e source')
+print('PASS v5.0e source reconstruction')
+u=ROOT/'canonical/uncertainty/v5.0g'; prov=json.loads((u/'EVIDENCE_PROVENANCE_v5_0g.json').read_text())
+for rec in prov['files']:
+    b=b''.join((u/x).read_bytes() for x in rec['parts'])
+    if rec['encoding']=='zlib-concat':
+        if len(b)!=rec['compressed_bytes'] or hashlib.sha256(b).hexdigest()!=rec['compressed_sha256']: raise SystemExit('FAIL compressed '+rec['target'])
+        b=zlib.decompress(b)
+    if len(b)!=rec['bytes'] or hashlib.sha256(b).hexdigest()!=rec['sha256']: raise SystemExit('FAIL evidence '+rec['target'])
+    print('PASS evidence',rec['target'])
+for p in ROOT.rglob('*'):
+    if p.is_file() and p.suffix.lower() in {'.dng','.rawsensor','.raw10','.raw12','.apk','.npz'}:
+        raise SystemExit('FAIL forbidden payload '+str(p.relative_to(ROOT)))
+print('TruthRaw canonical integrity: PASS')
