@@ -1,0 +1,53 @@
+{
+  "schema": "TruthRawRepositoryMigrationStatus/1.0",
+  "repository": "1DiDaDo1/TruthRaw",
+  "visibility": "private",
+  "basis_commit": "e74a58ab320a3325690081159923b62043e77a0e",
+  "status": "CANONICAL_MIGRATION_INTEGRITY_PASS",
+  "scientific_boundary": "Repository integrity proves preservation/reconstructability of the frozen imported software/evidence bytes covered by the checker. It does not convert reconstructed values into measured photons and does not prove untouched photodiode/ADC RAW.",
+  "canonical_components_present": [
+    "reconstruction v4.7i reference state",
+    "Adaptive Detail v4.7j",
+    "Output Acutance v4.7k",
+    "PTC v1.1",
+    "Unified Material Truth v5.0e",
+    "backend-bound uncertainty v5.0g",
+    "prospective tele uncertainty v5.0g-p1"
+  ],
+  "experimental_components_present": [
+    "HONOR BKQ-N49 Camera 5 200MP RAW_SENSOR capture probe v0.7"
+  ],
+  "verified_baseline_ci": {
+    "workflow": "Canonical Integrity",
+    "run_id": 34105372477,
+    "head_sha": "e74a58ab320a3325690081159923b62043e77a0e",
+    "conclusion": "success",
+    "integrity_result": "TruthRaw canonical integrity: PASS",
+    "uncertainty_runtime_parity_max_abs": 9.14848e-09,
+    "uncertainty_runtime_parity_bad": 0
+  },
+  "v5_0g_reconstructable_evidence": {
+    "VALIDATION_v5_0g.json": {
+      "bytes": 20863,
+      "sha256": "6142aa64f89ace230f93299fb614656d2fc03861dea8770f3c4e8720ffd91366"
+    },
+    "RUNTIME_PARITY_VECTORS_v5_0g.json": {
+      "bytes": 50219,
+      "sha256": "c98295c6c8f12c844ba089ba394f539a780a14ecb9d9e5ea00dc2e6f386b569d"
+    }
+  },
+  "excluded_payload_classes": [
+    "DNG/RAW measurement files",
+    "rawsensor/RAW10/RAW12 payloads",
+    "NPZ training datasets",
+    "large JPEG/PNG evidence",
+    "APK files",
+    "project backup archives"
+  ],
+  "apk_policy": "No APK-derived TruthRaw code or architecture changes are integrated into the canonical repository state.",
+  "open_physical_truth_boundary": "Camera 5 16320x12288 RAW_SENSOR runtime capture remains separate from repository migration integrity; lensShadingApplied=true prevents an untouched-photodiode/ADC claim without further evidence.",
+  "next_ci_extension": [
+    "PTC v1.1 native compile/self-test",
+    "Python syntax smoke for canonical/reference tooling"
+  ]
+}
