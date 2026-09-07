@@ -1,0 +1,81 @@
+s={}
+  for r in range(2):
+   for c in range(2):
+    ch=CFA_PATTERNS['BGGR'][r][c];pl=stage[r::2,c::2];g=bilinear_grid(maps[ch].gains,*pl.shape);stage[r::2,c::2]=pl*g;gains[ch]=g
+  org=gettag(rawpg,main,50719);sz=gettag(rawpg,main,50720)
+  if kind=='google_hdrplus' and org is not None and sz is not None:
+   def pairvals(v,n):
+    a=list(v)
+    if len(a)==n:return np.array(a,dtype=float)
+    if len(a)==2*n:return np.array([a[i]/a[i+1] for i in range(0,2*n,2)],dtype=float)
+    raise RuntimeError('unexpected crop tag shape')
+   ov=pairvals(org.value,2);sv=pairvals(sz.value,2);x0,y0=int(round(ov[0])),int(round(ov[1]));cw,chh=int(round(sv[0])),int(round(sv[1]))
+  else:x0=y0=0;chh,cw=raw.shape
+  # force even crop for C4 parity; these project sources are already even-aligned.
+  x0-=x0%2;y0-=y0%2;cw-=cw%2;chh-=chh%2
+  st=stage[y0:y0+chh,x0:x0+cw];rrw=raw[y0:y0+chh,x0:x0+cw]
+  B=st[0::2,0::2];G1=st[0::2,1::2];G2=st[1::2,0::2];R=st[1::2,1::2];cam=np.stack([R,.5*(G1+G2),B],-1)
+  FM,cct,wA=estimate_dual_forward(main,rawpg);neutral=rats(gettag(rawpg,main,50728).value);C2X=FM@np.diag(1/neutral)
+  xyz50=np.einsum('ij,...j->...i',C2X,cam);xyz65=np.einsum('ij,...j->...i',ADAPT,xyz50);lin=np.maximum(np.einsum('ij,...j->...i',XYZ65_TO_SRGB,xyz65).astype(np.float32),0)
+  npf=np.array(gettag(rawpg,main,51041).value,float);pars={'R':npf[:2],'G1':npf[2:4],'G2':npf[2:4],'B':npf[4:]};snrps=[]
+  # crop gain grids in C4 coordinates
+  ys=slice(y0//2,(y0+chh)//2);xs=slice(x0//2,(x0+cw)//2)
+  for rr,cc,ch in [(0,0,'B'),(0,1,'G1'),(1,0,'G2'),(1,1,'R')]:
+   s=stage[rr::2,cc::2][ys,xs];g=gains[ch][ys,xs];a,b=pars[ch];sig=np.maximum(s,0);snrps.append(sig/np.sqrt(np.maximum(g*a*sig+g*g*b,1e-12)))
+  snr=np.median(np.stack(snrps,-1),-1).astype(np.float32);sigmas=[]
+  for ch in ['R','G1','G2','B']:
+   a,b=pars[ch];gm=float(np.median(gains[ch][ys,xs]));sigmas.append(math.sqrt(max(gm*a*.02+gm*gm*b,1e-12)))
+  ns=float(np.median(sigmas))
+  cens=((rrw[0::2,0::2]>=white)|(rrw[0::2,1::2]>=white)|(rrw[1::2,0::2]>=white)|(rrw[1::2,1::2]>=white)).astype(np.uint8)
+  return {'lin':lin,'xyz50':xyz50.astype(np.float32),'snr':snr,'ns':ns,'cens':cens,'raw':raw,'white':white,'black':bl,'crop':[x0,y0,cw,chh],'cct':cct,'wA':wA,'source_white_count':int(np.sum(raw>=white)),'stage_negative_fraction':float(np.mean(stage<0)),'stage_over1_fraction':float(np.mean(stage>1))}
+
+def unified_guard(lin,snr,cens,ns):
+ detailed,dd=v47j(lin,ns);Y0=dd['Y'];Y1=luma(detailed)
+ b08=cv2.GaussianBlur(Y0,(0,0),.8,borderType=cv2.BORDER_REFLECT_101);b25=cv2.GaussianBlur(Y0,(0,0),2.5,borderType=cv2.BORDER_REFLECT_101)
+ hf=np.abs(Y0-b08);mf=np.abs(b08-b25);activity=(hf+.60*mf)/np.maximum(b25,.03)
+ gx=cv2.Sobel(Y0,cv2.CV_32F,1,0,ksize=3,scale=1/8);gy=cv2.Sobel(Y0,cv2.CV_32F,0,1,ksize=3,scale=1/8)
+ jxx=cv2.GaussianBlur(gx*gx,(0,0),1.2);jyy=cv2.GaussianBlur(gy*gy,(0,0),1.2);jxy=cv2.GaussianBlur(gx*gy,(0,0),1.2);tr=jxx+jyy;disc=np.sqrt(np.maximum((jxx-jyy)**2+4*jxy*jxy,0));coh=disc/(tr+1e-9)
+ grad=np.sqrt(gx*gx+gy*gy)
+ # Generic texture support: no object/material labels, just evidence quality and local texture.
+ texture_support=np.clip((activity-.008)/.045,0,1)*np.clip((snr-8)/18,0,1)*(1-.35*np.clip((coh-.92)/.07,0,1))
+ # Thin/coherent-risk proxy. It is a limiting cue only, never a classifier.
+ thin_risk=np.clip((coh-.62)/.32,0,1)*np.clip((activity-.012)/.045,0,1)*np.clip((snr-5)/12,0,1)
+ # Hard-edge risk from canonical backend + local gradient.
+ hard_risk=np.maximum(dd['hard'],np.clip((grad/np.maximum(b25,.03)-.09)/.20,0,1))
+ # Scene-relative glint/censor risk.
+ blur2=cv2.GaussianBlur(Y0,(0,0),2.0,borderType=cv2.BORDER_REFLECT_101);peak=np.maximum(Y0-blur2,0);p97=float(np.percentile(Y0,97));p999=float(np.percentile(Y0,99.9));pk99=float(np.percentile(peak,99))
+ rank=np.clip((Y0-p97)/max(p999-p97,1e-6),0,1);glint=np.clip(.65*rank+.35*np.clip(peak/max(pk99,1e-6),0,1),0,1);cnear=cv2.dilate(cens,np.ones((5,5),np.uint8)).astype(np.float32);glint=np.maximum(glint,cnear)
+ noise=np.clip((6-snr)/5,0,1)
+ # Support can relax texture/edge limiting, but never glint/censoring or low-SNR protection.
+ structural=np.maximum(.58*thin_risk,.38*hard_risk)*(1-.48*texture_support)
+ safety=np.maximum.reduce([.95*glint,.82*noise,structural])
+ safety=cv2.GaussianBlur(safety,(0,0),2.2,borderType=cv2.BORDER_REFLECT_101)
+ factor=np.clip(1-.68*safety,.30,1.0)
+ guarded=lin+(detailed-lin)*factor[...,None];Yg=luma(guarded)
+ # Universal anti-drift constraint: appearance detail cannot alter the broad scene field.
+ lf0=cv2.GaussianBlur(Y0,(0,0),4.0,borderType=cv2.BORDER_REFLECT_101);lfg=cv2.GaussianBlur(Yg,(0,0),4.0,borderType=cv2.BORDER_REFLECT_101);Yt=np.maximum(Yg+(lf0-lfg),0)
+ lo=cv2.erode(Y0,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);hi=cv2.dilate(Y0,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);rng=np.maximum(hi-lo,1e-5);Yt=np.clip(Yt,lo-.03*rng,hi+.03*rng);Yt=np.maximum(Yt,0)
+ # Uniform RGB scalar means no hue/chroma is generated by the material/detail guard.
+ sy=np.where(Y0>1e-8,Yt/(Y0+1e-12),1).astype(np.float32);unified=lin*sy[...,None]
+ smooth_cue=np.clip(np.exp(-activity*28)*np.exp(-(grad/np.maximum(b25,.03))*8)*np.clip((snr-4)/12,0,1),0,1)
+ return detailed,unified,{'Y0':Y0,'Y1':Y1,'Y2':luma(unified),'texture_support':texture_support,'thin_risk':thin_risk,'hard_risk':hard_risk,'glint':glint,'noise':noise,'safety':safety,'smooth_cue':smooth_cue}
+
+def micro95(v,sl):return float(np.percentile(np.abs(v-cv2.GaussianBlur(v,(0,0),.8))[sl],95))
+def lfstd(v,sl):return float(np.std(cv2.GaussianBlur(v,(0,0),4.0)[sl]))
+def rgbdir(a):return a/np.maximum(np.linalg.norm(a,axis=-1,keepdims=True),1e-9)
+
+def overshoot_p99(neutralY,testY,sl):
+ lo=cv2.erode(neutralY,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);hi=cv2.dilate(neutralY,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);rng=np.maximum(hi-lo,1e-6)
+ o=np.maximum(np.maximum(testY-hi,lo-testY),0)/rng;return float(np.percentile(o[sl],99))
+
+rows=[];summaries={};outputs=[];certs=[]
+try:font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',18)
+except:font=ImageFont.load_default()
+
+for fn,kind in SOURCES:
+ p=ROOT/fn;stem=p.stem;d=load_source(p,kind);lin=d['lin'];snr=d['snr'];detailed,unified,f=unified_guard(lin,snr,d['cens'],d['ns'])
+ disp0,scale=render(lin);disp1,_=render(detailed,scale);disp2,_=render(unified,scale)
+ basejpeg=OUT/f'{stem}_UNIFIED_MATERIAL_TRUTH_v5_0e_base.jpg'
+ Image.fromarray(np.clip(disp2*255+.5,0,255).astype(np.uint8)).save(basejpeg,quality=95,subsampling=0)
+ # diagnostic fields: red=safety limiter, green=texture-detail support, blue=smooth/low-frequency diagnostic cue
+ heat=np.zeros_like(disp0);heat[...,0]=f['safety'];heat[...,1]=f['texture_support'];h

@@ -1,0 +1,17 @@
+{
+  "schema": "TruthRawCanonicalSourceParts/1.0",
+  "component": "Unified Material Truth v5.0e",
+  "canonical_filename": "unified_material_v5_0e.py",
+  "canonical_bytes": 26771,
+  "canonical_sha256": "7a60703c47a981da8aa4f9613545e1615a6a25cdbb3a8347ed1c1a4df076b1e0",
+  "canonical_git_blob_sha1": "09f96194c23a510a35395f24368823df0c9637b0",
+  "storage_reason": "Stored as raw byte chunks to avoid any text/newline/Unicode normalization during migration.",
+  "parts": [
+    {"file":"source-parts/unified_material_v5_0e.py.part01","bytes":6693,"git_blob_sha1":"590a489586947b5a8fe9ca21622f1430a04b7ad6"},
+    {"file":"source-parts/unified_material_v5_0e.py.part02","bytes":6693,"git_blob_sha1":"dc869ceb8693f8c0bed4bcad91ae51982b95d551"},
+    {"file":"source-parts/unified_material_v5_0e.py.part03","bytes":6693,"git_blob_sha1":"dfb388671de865bffb547f1f451d7a700e77a7cf"},
+    {"file":"source-parts/unified_material_v5_0e.py.part04","bytes":6692,"git_blob_sha1":"c0488e738c719e4b2372c0c9deac9762398fc727"}
+  ],
+  "materializer": "materialize_source.py",
+  "scientific_status": "canonical v5.0e source preserved byte-exact; storage format is repository infrastructure only"
+}

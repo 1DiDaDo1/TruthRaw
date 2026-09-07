@@ -1,0 +1,185 @@
+{
+  "schema": "TruthRawUnifiedMaterialTruthManifest/5.0e",
+  "files": [
+    {
+      "file": "IMG_20260425_171051_COMPARISON_v5_0e.jpg",
+      "sha256": "f1fe36fdafc855067b5a2b183ca0044aac9782cbcd1d3be73ce56304c69e2b9b",
+      "bytes": 273288
+    },
+    {
+      "file": "IMG_20260425_171051_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_20260425_171051_PTC_v1_1.json",
+      "sha256": "12b300decfdd146cd88d77ef79753a455da44cfb2e80bac2dc6910882ec74116",
+      "bytes": 3356
+    },
+    {
+      "file": "IMG_20260425_171051_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "53a194647f149c5ddf910245e1d231b4e8381a0c689081bafff344f3ec4b5e50",
+      "bytes": 2558118
+    },
+    {
+      "file": "IMG_20260425_171051_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "e139468295e555b195e6f655f3d9f4a40fbc7ab9546cbf04f4860272f50c8707",
+      "bytes": 1509512
+    },
+    {
+      "file": "IMG_20260530_143227_COMPARISON_v5_0e.jpg",
+      "sha256": "5024b5093d03d03e30562cf4067c4e0a991fc9ac9d74015764d39e5bfd21f87e",
+      "bytes": 346809
+    },
+    {
+      "file": "IMG_20260530_143227_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_20260530_143227_PTC_v1_1.json",
+      "sha256": "4027c281c2e8653b2e0c623ad372cbad0d6fccbc9e21f5340d8c228ba0e22f84",
+      "bytes": 3356
+    },
+    {
+      "file": "IMG_20260530_143227_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "a6a41c55c6a923c678c49c4a53014c09bf3a1e32025af91ef196a5e678b6737c",
+      "bytes": 2679161
+    },
+    {
+      "file": "IMG_20260530_143227_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "9624a77e3887a5217cefeb78c11add156e474ea530a4d00a8d6e7b178656dacb",
+      "bytes": 2047473
+    },
+    {
+      "file": "IMG_20260530_143343_COMPARISON_v5_0e.jpg",
+      "sha256": "e12e1dec96159050a0f63ce80b54497e8366d4527940773127bdd77b3be32ae0",
+      "bytes": 170847
+    },
+    {
+      "file": "IMG_20260530_143343_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_20260530_143343_PTC_v1_1.json",
+      "sha256": "35bd1361072f44b85e89ed5ad2f4d07469b9540d97b3bd7bee0a0c142fa73046",
+      "bytes": 3356
+    },
+    {
+      "file": "IMG_20260530_143343_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "72361c3af8dcbbc40c056646e1370b04c563bda22710fafd77ce372b90a20abd",
+      "bytes": 2503927
+    },
+    {
+      "file": "IMG_20260530_143343_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "ad8c3e6cfd1ca16dcf0d147e086c1d897af9f209d63d466fa6f78b20b51479b1",
+      "bytes": 967483
+    },
+    {
+      "file": "IMG_20260809_144614_COMPARISON_v5_0e.jpg",
+      "sha256": "9317561f21090a0d90cacacc0a8c7b6b58b34752fb89628d97cd8bcc132c1dde",
+      "bytes": 370351
+    },
+    {
+      "file": "IMG_20260809_144614_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_20260809_144614_PTC_v1_1.json",
+      "sha256": "fecc1adc74998586e449b19e533709dc0c0f5417fd6f47ff6b8197b508931254",
+      "bytes": 3356
+    },
+    {
+      "file": "IMG_20260809_144614_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "ef03d008d8f8c5dd95cc8fd0e81a77d776af6de081f7ea594ac48e2c2e0dcc92",
+      "bytes": 2776088
+    },
+    {
+      "file": "IMG_20260809_144614_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "d806f9a09edce2ec83ffa39ab0ec745391f297368418be0159c632412eaa43b5",
+      "bytes": 1582071
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735_COMPARISON_v5_0e.jpg",
+      "sha256": "013a5f0a609f9a04cb0ef7014616cda441c95622f52f9ce8e9ef5f53f947da94",
+      "bytes": 370329
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735_PTC_v1_1.json",
+      "sha256": "8f443c4172de0c8a6f1afaa8e1270e238a23596e7d849a497e60e7d53f66f5e5",
+      "bytes": 3357
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "9929cedef5c11c2a45efe5f72463a8cef83e87d99a2a75eb37a0a44000ba9f1c",
+      "bytes": 880908
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "bd4fd5ef84fbc15fb761354d1cfab48c1da79ce1e67efbe357a533efd3fa1fd7",
+      "bytes": 497081
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747_COMPARISON_v5_0e.jpg",
+      "sha256": "9ede6217dd0f76bf2cbd622d635ebc0e84ae2236b67831794863f8bbb8abe90b",
+      "bytes": 276198
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747_PTC_VERIFY_v1_1.json",
+      "sha256": "d345013c70b83a7f00961048a0fb3b30b565ac9525d398e64493b973ecbffd33",
+      "bytes": 524
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747_PTC_v1_1.json",
+      "sha256": "7e9943f7db1449ed2ece3f0e8a974c4863305904e55e7e4e57d47ec32f4dcadc",
+      "bytes": 3357
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747_UNIFIED_EVIDENCE_FIELDS_v5_0e.jpg",
+      "sha256": "2b96fc91af65295b121dbc68ee0a7c25fc9fcdeac980461dee7c8df3e0d94a80",
+      "bytes": 752369
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747_UNIFIED_MATERIAL_TRUTH_PTC_v1_1.jpg",
+      "sha256": "b13009c15295b9568f34897009e4cadcd470e0c384daca741c5098fd217e7e54",
+      "bytes": 366726
+    },
+    {
+      "file": "README_v5_0e.md",
+      "sha256": "f524fd62565bd04bc3b40e3f7de7036c034c9ff363ed9e32165a525686d157e3",
+      "bytes": 665
+    },
+    {
+      "file": "UNIFIED_MATERIAL_ROI_METRICS_v5_0e.csv",
+      "sha256": "c3591f5cb3e9103614249e8d7ede32afebbfa3cf317353109d3e2ebe6b2500c7",
+      "bytes": 7266
+    },
+    {
+      "file": "UNIFIED_MATERIAL_TRUTH_6_SOURCE_OVERVIEW_v5_0e.jpg",
+      "sha256": "62eadce3c5e6f1254cee935e3bbda29435016f3ce77a9aae6e29d309dca171c3",
+      "bytes": 1033258
+    },
+    {
+      "file": "UNIFIED_MATERIAL_TRUTH_POLICY_v5_0e.md",
+      "sha256": "2b5ee844b8785fd165f8be92f25de7091ad8509944036c1bd4c4a2bda01a78d9",
+      "bytes": 1347
+    },
+    {
+      "file": "UNIFIED_MATERIAL_TRUTH_REPORT_v5_0e.json",
+      "sha256": "645afccf029b4e5ae3a4fb5a714dd33736959abed9e5f0eb531dae0f6ec81ad4",
+      "bytes": 4534
+    },
+    {
+      "file": "VALIDATION_v5_0e.json",
+      "sha256": "04ee4daa7c4f19e48824a4cc5202e2db3446611f4ce680fe93dfcd9bee48f084",
+      "bytes": 7594
+    }
+  ]
+}

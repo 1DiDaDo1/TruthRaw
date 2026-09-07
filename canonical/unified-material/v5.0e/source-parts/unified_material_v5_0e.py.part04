@@ -1,0 +1,39 @@
+9']+1e-6 for r in glint),
+ 'low_frequency_within_1pct_neutral_all_rois':all(.99<=r['unified_lowfreq_std_ratio']<=1.01 for r in allrows),
+ 'rgb_direction_p95_lt_0_05deg_all_rois':all(r['unified_rgb_direction_p95_deg']<.05 for r in allrows),
+ 'ptc_core_integrity_pass_all_exports':all(c['core_pass'] and c['verify'].get('pass') for c in certs),
+ 'ptc_full_physical_not_falsely_claimed':all(c['certificate_status']=='PURE_TRUTH_DERIVED' and not c['full_pass'] for c in certs),
+}
+validation={'schema':'TruthRawUnifiedMaterialTruthValidation/5.0e','pass':all(gates.values()),'gates':gates,'aggregate':{'roi_count':len(rows),'mean_fibre_feather_unified_vs_v47j':float(np.mean([r['unified_vs_v47j_microdetail'] for r in fibre_feather])),'median_fibre_feather_v47j_overshoot':float(np.median([r['v47j_support_overshoot_p99'] for r in fibre_feather])),'median_fibre_feather_unified_overshoot':float(np.median([r['unified_support_overshoot_p99'] for r in fibre_feather])),'min_high_texture_retention':float(min(r['unified_vs_v47j_microdetail'] for r in high_texture)),'max_rgb_direction_p95_deg':float(max(r['unified_rgb_direction_p95_deg'] for r in allrows)),'max_lowfreq_abs_error_pct':float(max(abs(r['unified_lowfreq_std_ratio']-1) for r in allrows)*100)},'ptc':certs}
+(OUT/'VALIDATION_v5_0e.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+
+# Combined overview 6 rows x 3 columns, preserving scene order.
+cell=(420,315);header=34;sheet=Image.new('RGB',(cell[0]*3,(cell[1]+header)*len(outputs)),(12,12,12));dr=ImageDraw.Draw(sheet)
+for ri,(stem,comp,fieldp) in enumerate(outputs):
+ # recreate from comparison: split 3 equal sections under header for convenience
+ im=np.array(Image.open(comp).convert('RGB'));hh=38;cw=im.shape[1]//3
+ for ci in range(3):
+  crop=Image.fromarray(im[hh:,ci*cw:(ci+1)*cw]).resize(cell,Image.Resampling.LANCZOS);yy=ri*(cell[1]+header);sheet.paste(crop,(ci*cell[0],yy+header))
+ labels=['Neutral','v4.7j','Unified v5.0e']
+ for ci,lab in enumerate(labels):dr.text((ci*cell[0]+7,ri*(cell[1]+header)+7),f'{stem} — {lab}',fill='white',font=font)
+overview=OUT/'UNIFIED_MATERIAL_TRUTH_6_SOURCE_OVERVIEW_v5_0e.jpg';sheet.save(overview,quality=92,subsampling=0)
+
+report={'schema':'TruthRawUnifiedMaterialTruthAudit/5.0e','status':'DEVELOPMENT_PASS_UNIFIED_MATERIAL_TRUTH' if validation['pass'] else 'DEVELOPMENT_FAIL_UNIFIED_MATERIAL_TRUTH','validation_pass':validation['pass'],'sources':summaries,'architecture':{'runtime_semantics':'none','runtime_fields':['texture_detail_support','thin_coherent_risk','hard_edge_risk','glint_censor_risk','low_snr_risk','smooth_low_frequency_diagnostic'],'rule':'Fields describe measurable image behavior, never object identity. Wood, grass, feathers and water may legitimately share a texture-support response.','scientific_master_modified':False,'detail_policy':'limiting-only relative to v4.7j; never add generated content'},'canonical_decision':['Replace separate material-named runtime guards with one Unified Material Truth limiter architecture.','Keep scene/material names only in validation ROI labels, never in runtime branching.','Rename previous green organic/nature cue to texture-detail support.','v4.7j remains canonical detail source; Unified Material Truth only limits/anchors its appearance delta.','PTC v1.1 CORE_INTEGRITY must pass for every export; FULL_PHYSICAL remains PURE_TRUTH_DERIVED until calibration blockers are closed.'],'ptc_status_summary':{c['file']:c['certificate_status'] for c in certs}}
+(OUT/'UNIFIED_MATERIAL_TRUTH_REPORT_v5_0e.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+
+policy='''# TruthRaw v5.0e — Unified Material Truth Policy\n\n## Runtime rule\nThe runtime engine does not know whether a pixel belongs to water, wood, grass, a feather, fur, skin, architecture or any other semantic object.\n\nIt may use only measurable evidence fields:\n- texture-detail support\n- thin/coherent-structure risk\n- hard-edge risk\n- glint/censoring risk\n- low-SNR risk\n- smooth/low-frequency diagnostic structure\n\n## Meaning of the visualization\n- Red = limiting/risk field\n- Green = texture-detail support (NOT nature, foliage or object classification)\n- Blue = smooth/low-frequency diagnostic cue\n\nTherefore a wooden window frame may correctly appear green when its texture is high-confidence detail. This is not a claim that wood is being classified as nature.\n\n## Hard constraints\n1. Unified Material Truth may never create semantic detail.\n2. It may not exceed the canonical v4.7j detail delta.\n3. Broad scene luminance is anchored to Neutral Reference.\n4. Detail changes use a uniform RGB scalar and may not intentionally rotate hue/chroma.\n5. Source-white/censored evidence remains a provenance fact.\n6. Material decomposition claims (reflection/transmission/species/material identity) require independent evidence and are not inferred here.\n7. Scientific RAW/Stage-2/XYZ masters remain unchanged.\n8. Every export is evaluated by PTC v1.1.\n'''
+(OUT/'UNIFIED_MATERIAL_TRUTH_POLICY_v5_0e.md').write_text(policy,encoding='utf-8')
+readme=f'''# TruthRaw v5.0e — Unified Material Truth\n\nValidation: **{'PASS' if validation['pass'] else 'FAIL'}**\n\nSix real project sources are run through one identical non-semantic engine: landscape/architecture, dense fibres, backlit fibres, pool water/splash, and two real animal/feather HDR+ DNGs.\n\nThe former green “nature/organic” visualization label is replaced by **texture-detail support**. Runtime material/object classification does not exist.\n\nPTC v1.1 is integrated into every final JPEG export. Current files pass CORE_INTEGRITY and correctly remain `PURE_TRUTH_DERIVED` for FULL_PHYSICAL because exact backend uncertainty, per-lens/illuminant/electron/optics calibration are not yet complete.\n'''
+(OUT/'README_v5_0e.md').write_text(readme,encoding='utf-8')
+
+# final manifest/package
+manifest=[]
+for q in sorted(OUT.iterdir()):
+ if q.is_file():manifest.append({'file':q.name,'sha256':sha256_file(q),'bytes':q.stat().st_size})
+(OUT/'MANIFEST_v5_0e.json').write_text(json.dumps({'schema':'TruthRawUnifiedMaterialTruthManifest/5.0e','files':manifest},indent=2),encoding='utf-8')
+zip_path=ROOT/'truthraw_unified_material_v5_0e_package.zip'
+if zip_path.exists():zip_path.unlink()
+with zipfile.ZipFile(zip_path,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+ for q in sorted(OUT.iterdir()):
+  if q.is_file():z.write(q,arcname=q.name)
+print(json.dumps({'validation_pass':validation['pass'],'gates':gates,'aggregate':validation['aggregate'],'ptc_statuses':report['ptc_status_summary'],'overview':str(overview),'package':str(zip_path),'package_sha256':sha256_file(zip_path)},indent=2))

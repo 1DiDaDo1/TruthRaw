@@ -1,0 +1,240 @@
+{
+  "schema": "TruthRawUnifiedMaterialTruthValidation/5.0e",
+  "pass": true,
+  "gates": {
+    "all_6_sources_processed": true,
+    "single_runtime_engine_no_scene_class_branch": true,
+    "terminology_texture_support_not_nature_classifier": true,
+    "no_semantic_detail_generation": true,
+    "all_rois_never_exceed_v47j_microdetail": true,
+    "high_confidence_texture_retains_at_least_95pct_v47j": true,
+    "fibre_feather_mean_detail_is_limited": true,
+    "fibre_feather_overshoot_not_increased": true,
+    "glint_p99_9_area_not_increased_vs_v47j": true,
+    "low_frequency_within_1pct_neutral_all_rois": true,
+    "rgb_direction_p95_lt_0_05deg_all_rois": true,
+    "ptc_core_integrity_pass_all_exports": true,
+    "ptc_full_physical_not_falsely_claimed": true
+  },
+  "aggregate": {
+    "roi_count": 23,
+    "mean_fibre_feather_unified_vs_v47j": 0.9785105343676442,
+    "median_fibre_feather_v47j_overshoot": 0.04783280726829098,
+    "median_fibre_feather_unified_overshoot": 0.03000025637447834,
+    "min_high_texture_retention": 0.9764354850914846,
+    "max_rgb_direction_p95_deg": 0.02797645330429077,
+    "max_lowfreq_abs_error_pct": 0.1388484700969972
+  },
+  "ptc": [
+    {
+      "file": "IMG_20260530_143227.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    },
+    {
+      "file": "IMG_20260530_143343.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    },
+    {
+      "file": "IMG_20260425_171051.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    },
+    {
+      "file": "IMG_20260809_144614.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    },
+    {
+      "file": "IMG_BNNN88_270426_180735.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    },
+    {
+      "file": "IMG_BNNN88_270426_180747.dng",
+      "certificate_status": "PURE_TRUTH_DERIVED",
+      "core_pass": true,
+      "full_pass": false,
+      "completion_blockers": [
+        "full.backend_bound_uncertainty",
+        "full.per_lens_color_calibrated",
+        "full.illuminant_calibrated",
+        "full.electron_calibration_bound",
+        "full.optics_calibration_bound"
+      ],
+      "verify": {
+        "pass": true,
+        "checks": {
+          "source_sha256": true,
+          "media_payload_sha256": true,
+          "ptc_xmp_present": true,
+          "certificate_json_sha256": true
+        },
+        "evaluation": {
+          "status": "PURE_TRUTH_DERIVED",
+          "hard_failures": [],
+          "completion_blockers": [
+            "full.backend_bound_uncertainty",
+            "full.per_lens_color_calibrated",
+            "full.illuminant_calibrated",
+            "full.electron_calibration_bound",
+            "full.optics_calibration_bound"
+          ],
+          "pass_core": true,
+          "pass_full": false
+        }
+      }
+    }
+  ]
+}

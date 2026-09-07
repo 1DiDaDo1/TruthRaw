@@ -1,0 +1,120 @@
+{
+  "schema": "TruthRawUnifiedMaterialTruthAudit/5.0e",
+  "status": "DEVELOPMENT_PASS_UNIFIED_MATERIAL_TRUTH",
+  "validation_pass": true,
+  "sources": {
+    "IMG_20260530_143227": {
+      "source": "IMG_20260530_143227.dng",
+      "source_kind": "vendor",
+      "sha256": "85634c7c273728e4541a188b449bf253de56d3dada3f0bee9c77b2d2f6bc656d",
+      "c4_shape": [
+        1536,
+        2040
+      ],
+      "source_white_count": 4,
+      "stage_negative_fraction": 0.0,
+      "stage_over1_fraction": 3.9892258986928106e-07,
+      "noise_sigma_2pct": 0.0014563986631970158,
+      "dual_illuminant_estimated_cct_K": null
+    },
+    "IMG_20260530_143343": {
+      "source": "IMG_20260530_143343.dng",
+      "source_kind": "vendor",
+      "sha256": "a65fac3ade04772dda5f5057809dcb266ca54f00c75df769a5a4319f801cc7a1",
+      "c4_shape": [
+        1536,
+        2040
+      ],
+      "source_white_count": 129,
+      "stage_negative_fraction": 0.0,
+      "stage_over1_fraction": 3.2711652369281045e-05,
+      "noise_sigma_2pct": 0.0014883901426604278,
+      "dual_illuminant_estimated_cct_K": null
+    },
+    "IMG_20260425_171051": {
+      "source": "IMG_20260425_171051.dng",
+      "source_kind": "vendor",
+      "sha256": "1c8a2037f853a946d8f4388901d72325d8de34368f3975af7ed49a41f00f721b",
+      "c4_shape": [
+        1536,
+        2040
+      ],
+      "source_white_count": 7316,
+      "stage_negative_fraction": 7.276348039215686e-05,
+      "stage_over1_fraction": 0.0009041181576797386,
+      "noise_sigma_2pct": 0.0014587996792389895,
+      "dual_illuminant_estimated_cct_K": null
+    },
+    "IMG_20260809_144614": {
+      "source": "IMG_20260809_144614.dng",
+      "source_kind": "vendor",
+      "sha256": "46cafa1169e01949134ebfc15126077572fafa27364611930b134e280dcd8aac",
+      "c4_shape": [
+        1536,
+        2040
+      ],
+      "source_white_count": 570,
+      "stage_negative_fraction": 2.2658803104575164e-05,
+      "stage_over1_fraction": 6.023731107026144e-05,
+      "noise_sigma_2pct": 0.0014724920409893401,
+      "dual_illuminant_estimated_cct_K": null
+    },
+    "IMG_BNNN88_270426_180735": {
+      "source": "IMG_BNNN88_270426_180735.dng",
+      "source_kind": "google_hdrplus",
+      "sha256": "07f382aa0eadb4441010902c09f5ce87c3f0ae3b1271b5f15114d9fcacb2c5d1",
+      "c4_shape": [
+        845,
+        1125
+      ],
+      "source_white_count": 971,
+      "stage_negative_fraction": 0.0,
+      "stage_over1_fraction": 0.00039836556300435925,
+      "noise_sigma_2pct": 0.001684880974585457,
+      "dual_illuminant_estimated_cct_K": 4598.167896224564
+    },
+    "IMG_BNNN88_270426_180747": {
+      "source": "IMG_BNNN88_270426_180747.dng",
+      "source_kind": "google_hdrplus",
+      "sha256": "657717cd8dfff1b7184b64ee23c02954d5843c8126b71de313928ed5ec1a273c",
+      "c4_shape": [
+        845,
+        1125
+      ],
+      "source_white_count": 536,
+      "stage_negative_fraction": 0.0,
+      "stage_over1_fraction": 0.00021651427028223941,
+      "noise_sigma_2pct": 0.0014345971601966712,
+      "dual_illuminant_estimated_cct_K": 4616.031601506688
+    }
+  },
+  "architecture": {
+    "runtime_semantics": "none",
+    "runtime_fields": [
+      "texture_detail_support",
+      "thin_coherent_risk",
+      "hard_edge_risk",
+      "glint_censor_risk",
+      "low_snr_risk",
+      "smooth_low_frequency_diagnostic"
+    ],
+    "rule": "Fields describe measurable image behavior, never object identity. Wood, grass, feathers and water may legitimately share a texture-support response.",
+    "scientific_master_modified": false,
+    "detail_policy": "limiting-only relative to v4.7j; never add generated content"
+  },
+  "canonical_decision": [
+    "Replace separate material-named runtime guards with one Unified Material Truth limiter architecture.",
+    "Keep scene/material names only in validation ROI labels, never in runtime branching.",
+    "Rename previous green organic/nature cue to texture-detail support.",
+    "v4.7j remains canonical detail source; Unified Material Truth only limits/anchors its appearance delta.",
+    "PTC v1.1 CORE_INTEGRITY must pass for every export; FULL_PHYSICAL remains PURE_TRUTH_DERIVED until calibration blockers are closed."
+  ],
+  "ptc_status_summary": {
+    "IMG_20260530_143227.dng": "PURE_TRUTH_DERIVED",
+    "IMG_20260530_143343.dng": "PURE_TRUTH_DERIVED",
+    "IMG_20260425_171051.dng": "PURE_TRUTH_DERIVED",
+    "IMG_20260809_144614.dng": "PURE_TRUTH_DERIVED",
+    "IMG_BNNN88_270426_180735.dng": "PURE_TRUTH_DERIVED",
+    "IMG_BNNN88_270426_180747.dng": "PURE_TRUTH_DERIVED"
+  }
+}

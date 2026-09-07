@@ -1,0 +1,125 @@
+from pathlib import Path
+import sys, json, math, hashlib, zipfile, csv, shutil
+import numpy as np, tifffile, cv2
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT=Path('/mnt/data')
+OUT=ROOT/'truthraw_unified_material_v5_0e'
+OUT.mkdir(exist_ok=True)
+PTCROOT=ROOT/'truthraw_ptc_v1_1'
+sys.path.insert(0,str(ROOT/'truthraw_v4f8_sources/lib'))
+sys.path.insert(0,str(PTCROOT/'python'))
+from spatial_color_calibration import parse_dng_gainmaps, bilinear_grid, CFA_PATTERNS
+import truthraw_ptc as ptc
+
+SOURCES=[
+ ('IMG_20260530_143227.dng','vendor'),
+ ('IMG_20260530_143343.dng','vendor'),
+ ('IMG_20260425_171051.dng','vendor'),
+ ('IMG_20260809_144614.dng','vendor'),
+ ('IMG_BNNN88_270426_180735.dng','google_hdrplus'),
+ ('IMG_BNNN88_270426_180747.dng','google_hdrplus'),
+]
+
+# ROI labels are validation-only. Runtime engine never receives them.
+ROIS={
+ 'IMG_20260530_143227':{
+  'foliage_texture':(0,110,2040,650),'soil_grass_texture':(0,760,2040,776),'construction_texture':(150,350,1500,520)},
+ 'IMG_20260530_143343':{
+  'dense_fibres':(430,80,1250,1050),'fine_outer_fibres':(350,160,1450,850),'smooth_background':(0,0,380,1536)},
+ 'IMG_20260425_171051':{
+  'backlit_fibres':(120,0,1650,1300),'specular_fibre_tips':(110,50,1720,900),'dark_background':(0,0,500,500)},
+ 'IMG_20260809_144614':{
+  'open_water':(0,820,2040,570),'splash':(410,810,650,500),'wet_pool_edge':(950,1250,1090,286),'skin_context':(360,870,650,600)},
+ 'IMG_BNNN88_270426_180735':{
+  'iridescent_head':(525,145,145,220),'wing_feathers':(285,345,315,175),'body_feathers':(300,350,480,235),'water_background':(0,0,430,310),'grass':(0,545,1125,300)},
+ 'IMG_BNNN88_270426_180747':{
+  'iridescent_head':(410,135,200,220),'wing_feathers':(220,335,340,220),'light_flank_feathers':(400,365,300,280),'water_background':(0,0,400,340),'grass':(0,610,1125,235)},
+}
+
+MB=np.array([[.8951,.2664,-.1614],[-.7502,1.7135,.0367],[.0389,-.0685,1.0296]],np.float64)
+D50=np.array([.96422,1,.82521],np.float64);D65=np.array([.95047,1,1.08883],np.float64)
+ADAPT=(np.linalg.inv(MB)@np.diag((MB@D65)/(MB@D50))@MB).astype(np.float32)
+XYZ65_TO_SRGB=np.array([[3.2404542,-1.5371385,-.4985314],[-.969266,1.8760108,.041556],[.0556434,-.2040259,1.0572252]],np.float32)
+
+def sha256_file(p):
+ h=hashlib.sha256()
+ with open(p,'rb') as f:
+  for c in iter(lambda:f.read(1<<20),b''):h.update(c)
+ return h.hexdigest()
+def sha256_array(a):
+ h=hashlib.sha256();h.update(np.ascontiguousarray(a).view(np.uint8));return h.hexdigest()
+def rats(v):
+ a=list(v);return np.array([a[i]/a[i+1] for i in range(0,len(a),2)],np.float32)
+def mat9(v):return rats(v).reshape(3,3)
+def smooth01(x):x=np.clip(x,0,1);return x*x*(3-2*x)
+def box(x,r):return cv2.boxFilter(x,cv2.CV_32F,(2*r+1,2*r+1),normalize=True,borderType=cv2.BORDER_REFLECT_101)
+def luma(a):return .2126*a[...,0]+.7152*a[...,1]+.0722*a[...,2]
+def srgb_enc(x):
+ x=np.clip(x,0,None);return np.where(x<=.0031308,12.92*x,1.055*np.power(x,1/2.4)-.055)
+def tone(L,wp=1.65):
+ L=np.clip(L,0,None);return (L*(1+L/(wp*wp)))/(1+L)
+def render(rgb,scale=None):
+ rgb=np.maximum(rgb,0).astype(np.float32);Y=luma(rgb)
+ if scale is None:scale=.93/max(float(np.percentile(Y,99.5)),1e-6)
+ rgb=rgb*scale;Y=luma(rgb);Lt=tone(Y);rgb=rgb*np.where(Y>1e-8,Lt/(Y+1e-12),0)[...,None]
+ return np.clip(srgb_enc(rgb),0,1),scale
+
+def gettag(rawpg,main,code):
+ t=rawpg.tags.get(code)
+ if t is None:t=main.tags.get(code)
+ return t
+
+def estimate_dual_forward(main,rawpg):
+ t1=gettag(rawpg,main,50964); t2=gettag(rawpg,main,50965); ntag=gettag(rawpg,main,50728)
+ if t1 is None or ntag is None: raise RuntimeError('missing ForwardMatrix/AsShotNeutral')
+ fm1=mat9(t1.value).astype(np.float64); neutral=rats(ntag.value).astype(np.float64)
+ if t2 is None:return fm1.astype(np.float32),None,None
+ fm2=mat9(t2.value).astype(np.float64)
+ cm1t=gettag(rawpg,main,50721);cm2t=gettag(rawpg,main,50722)
+ if cm1t is None or cm2t is None or np.max(np.abs(fm1-fm2))<1e-10:return fm1.astype(np.float32),None,None
+ cm1=mat9(cm1t.value).astype(np.float64);cm2=mat9(cm2t.value).astype(np.float64)
+ T1,T2=2856.,6504.;T=5200.
+ def mccamy(x,y):
+  n=(x-.3320)/(.1858-y);return 449*n**3+3525*n**2+6823.3*n+5520.33
+ for _ in range(20):
+  w=float(np.clip(((1/T)-(1/T2))/((1/T1)-(1/T2)),0,1));CM=w*cm1+(1-w)*cm2
+  XYZ=np.linalg.inv(CM)@neutral;XYZ/=XYZ[1];x=XYZ[0]/XYZ.sum();y=XYZ[1]/XYZ.sum();Tn=float(np.clip(mccamy(x,y),T1,T2))
+  if abs(Tn-T)<.1:break
+  T=Tn
+ w=float(np.clip(((1/T)-(1/T2))/((1/T1)-(1/T2)),0,1))
+ return (w*fm1+(1-w)*fm2).astype(np.float32),float(T),w
+
+def v47j(rgb,ns):
+ a=np.maximum(rgb.astype(np.float32),0);Y=luma(a);b1,b2,b5=box(Y,1),box(Y,2),box(Y,5)
+ micro=Y-b1;fine=b1-b2;texture=b2-b5;q=1-smooth01((ns-.00125)/(.00180-.00125))
+ A=.25+.45*q;B=.18+.26*q;C=.10+.12*q
+ low=smooth01((Y-.004)/.055);high=1-smooth01((Y-.88)/.30);shadow=.32+.68*q;tonegate=high*(shadow+(1-shadow)*low)
+ sp=ns*np.sqrt(np.maximum(Y,.005)/.02);conf=smooth01((np.abs(micro)/np.maximum(sp,1e-6)-.80)/1.60)
+ mg=.20+.80*conf;fg=.42+.58*conf;tg=.70+.30*conf
+ act=(np.abs(fine)+.50*np.abs(texture))/np.maximum(b5,.03);ag=.15+.85*smooth01((act-.012)/.043)
+ mg*=ag;fg*=.50+.50*ag;tg*=.75+.25*ag
+ gx=.5*(np.roll(Y,-1,1)-np.roll(Y,1,1));gy=.5*(np.roll(Y,-1,0)-np.roll(Y,1,0));gx[:,0]=Y[:,1]-Y[:,0];gx[:,-1]=Y[:,-1]-Y[:,-2];gy[0,:]=Y[1,:]-Y[0,:];gy[-1,:]=Y[-1,:]-Y[-2,:]
+ grad=np.sqrt(gx*gx+gy*gy);l=np.roll(Y,1,1);r=np.roll(Y,-1,1);u=np.roll(Y,1,0);d=np.roll(Y,-1,0);l[:,0]=Y[:,0];r[:,-1]=Y[:,-1];u[0,:]=Y[0,:];d[-1,:]=Y[-1,:]
+ lap=.25*np.abs(4*Y-l-r-u-d);mgra=box(grad,2);mlap=box(lap,2);ng=grad/np.maximum(b5,.03);osc=mlap/np.maximum(mgra,1e-6)
+ hard=smooth01((ng-.03)/.17)*(1-smooth01((osc-.30)/.70));eg=1-hard;mg*=eg;fg*=.40+.60*eg;tg*=.75+.25*eg
+ yd=Y+(A*micro*mg+B*fine*fg+C*texture*tg)*tonegate
+ lo=cv2.erode(Y,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);hi=cv2.dilate(Y,np.ones((3,3),np.uint8),borderType=cv2.BORDER_REPLICATE);rng=np.maximum(hi-lo,1e-5)
+ margin=(.035+.015*q)*(1-.72*hard)*rng+2e-5;v=np.clip(yd,lo-margin,hi+margin);s=np.where(Y>1e-8,np.maximum(v,0)/(Y+1e-12),1)
+ return a*s[...,None],{'Y':Y,'hard':hard}
+
+def load_source(path,kind):
+ with tifffile.TiffFile(path) as tf:
+  main=tf.pages[0]
+  rawpg=main if len(main.shape)==2 else main.pages[0]
+  raw=rawpg.asarray().astype(np.float32)
+  white=float(gettag(rawpg,main,50717).value);blv=rats(gettag(rawpg,main,50714).value)
+  if len(blv)==1:bl=np.repeat(blv,4).reshape(2,2)
+  else:bl=blv[:4].reshape(2,2)
+  black=np.empty_like(raw)
+  for r in range(2):
+   for c in range(2):black[r::2,c::2]=bl[r,c]
+  norm=(raw-black)/np.maximum(white-black,1)
+  opt=gettag(rawpg,main,51009)
+  if opt is None:raise RuntimeError('missing OpcodeList2/GainMap')
+  maps=parse_dng_gainmaps(opt.value,'BGGR');stage=norm.copy();gain
