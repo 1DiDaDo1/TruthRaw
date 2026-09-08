@@ -1,0 +1,71 @@
+name: Build DNG Validate 2611
+
+on:
+  push:
+    branches:
+      - validation/dng-sdk-2611-build
+    paths:
+      - .github/workflows/build-dng-validate-2611.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build build-essential libjpeg-dev zlib1g-dev libexpat1-dev
+
+      - name: Fetch pinned Adobe DNG SDK mirror and pinned Linux CMake wrapper
+        run: |
+          git clone https://github.com/hfiguiere/dng_sdk.git /tmp/dng-src
+          git -C /tmp/dng-src checkout 11e5eb4259c2a7ad92d66e152e4974441d2e226a
+          test "$(git -C /tmp/dng-src rev-parse HEAD)" = "11e5eb4259c2a7ad92d66e152e4974441d2e226a"
+
+          git clone https://github.com/ssh4net/DNG-CMake.git /tmp/dng-cmake
+          git -C /tmp/dng-cmake checkout 685f7139ba87afba2e40d4fd24a6455db6f8e9d9
+          test "$(git -C /tmp/dng-cmake rev-parse HEAD)" = "685f7139ba87afba2e40d4fd24a6455db6f8e9d9"
+
+          rm -rf /tmp/dng-cmake/dng_sdk
+          cp -a /tmp/dng-src/dng_sdk /tmp/dng-cmake/dng_sdk
+
+      - name: Configure dng_validate
+        run: |
+          cmake -S /tmp/dng-cmake -B /tmp/dng-build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_DNG_VALIDATE=ON \
+            -DDNG_VALIDATE=ON \
+            -DDNG_WITH_XMP=OFF \
+            -DDNG_WITH_JXL=OFF \
+            -DDNG_WITH_JPEG=ON
+
+      - name: Build dng_validate
+        run: |
+          cmake --build /tmp/dng-build --target dng_validate --parallel 2
+          BIN="$(find /tmp/dng-build -type f -name dng_validate -perm -111 | head -n1)"
+          test -n "$BIN"
+          "$BIN" 2>&1 | head -n 20 || true
+          mkdir -p /tmp/artifact
+          cp "$BIN" /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64
+          sha256sum /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64 | tee /tmp/artifact/SHA256SUMS.txt
+          {
+            echo 'Adobe DNG SDK source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
+            echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
+            echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
+            echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=OFF DNG_WITH_JXL=OFF DNG_WITH_JPEG=ON'
+            uname -a
+            c++ --version | head -n1
+            cmake --version | head -n1
+          } > /tmp/artifact/BUILD_PROVENANCE.txt
+
+      - name: Upload validator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dng-validate-1.7.1-2611-linux-x86_64
+          path: /tmp/artifact
+          if-no-files-found: error
+          retention-days: 7
