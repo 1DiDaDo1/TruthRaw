@@ -18,7 +18,10 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build build-essential libjpeg-dev zlib1g-dev libexpat1-dev
+          sudo apt-get install -y \
+            cmake ninja-build build-essential \
+            libjpeg-dev zlib1g-dev libexpat1-dev \
+            libjxl-dev libhwy-dev libbrotli-dev
 
       - name: Fetch pinned Adobe DNG SDK mirror and pinned Linux CMake wrapper
         run: |
@@ -57,6 +60,7 @@ jobs:
             echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
             echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
             echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=OFF DNG_WITH_JXL=OFF DNG_WITH_JPEG=ON'
+            dpkg-query -W -f='libjxl-dev ${Version}\n' libjxl-dev || true
             uname -a
             c++ --version | head -n1
             cmake --version | head -n1
