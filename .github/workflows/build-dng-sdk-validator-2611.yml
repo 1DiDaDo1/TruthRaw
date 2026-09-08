@@ -16,7 +16,27 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build g++ pkg-config zlib1g-dev libexpat1-dev libjpeg-dev libjxl-dev
+          sudo apt-get install -y meson ninja-build g++ pkg-config cmake zlib1g-dev libexpat1-dev libjpeg-dev libbrotli-dev libhwy-dev liblcms2-dev
+
+      - name: Build pinned libjxl dependency
+        run: |
+          git clone --branch v0.11.1 --depth 1 --recursive https://github.com/libjxl/libjxl.git libjxl-0.11.1
+          cmake -S libjxl-0.11.1 -B libjxl-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+            -DBUILD_TESTING=OFF \
+            -DJPEGXL_ENABLE_TOOLS=OFF \
+            -DJPEGXL_ENABLE_DEVTOOLS=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_DOXYGEN=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_JPEGLI=OFF
+          cmake --build libjxl-build --parallel 2
+          cmake --install libjxl-build
+          export PKG_CONFIG_PATH="$HOME/.local/lib/x86_64-linux-gnu/pkgconfig:$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH"
+          pkg-config --modversion libjxl | tee LIBJXL_VERSION.txt
+          test "$(pkg-config --modversion libjxl)" = "0.11.1"
 
       - name: Fetch pinned DNG SDK mirror revision
         run: |
@@ -27,6 +47,9 @@ jobs:
           git rev-parse HEAD | tee ../DNG_SDK_MIRROR_COMMIT.txt
 
       - name: Build dng_validate
+        env:
+          PKG_CONFIG_PATH: /home/runner/.local/lib/x86_64-linux-gnu/pkgconfig:/home/runner/.local/lib/pkgconfig
+          LD_LIBRARY_PATH: /home/runner/.local/lib/x86_64-linux-gnu:/home/runner/.local/lib
         run: |
           cd dng-sdk-mirror
           meson setup _build
@@ -35,17 +58,23 @@ jobs:
           _build/dng_sdk/source/dng_validate 2>&1 | head -80 || true
 
       - name: Record binary provenance
+        env:
+          LD_LIBRARY_PATH: /home/runner/.local/lib/x86_64-linux-gnu:/home/runner/.local/lib
         run: |
-          mkdir -p validator-artifact
+          mkdir -p validator-artifact/lib
           cp dng-sdk-mirror/_build/dng_sdk/source/dng_validate validator-artifact/
           cp DNG_SDK_MIRROR_COMMIT.txt validator-artifact/
+          cp LIBJXL_VERSION.txt validator-artifact/
+          cp "$HOME"/.local/lib/x86_64-linux-gnu/libjxl.so* validator-artifact/lib/ || true
+          cp "$HOME"/.local/lib/x86_64-linux-gnu/libjxl_threads.so* validator-artifact/lib/ || true
           sha256sum validator-artifact/dng_validate | tee validator-artifact/SHA256SUMS.txt
-          ldd validator-artifact/dng_validate | tee validator-artifact/LDD.txt
+          LD_LIBRARY_PATH="$HOME/.local/lib/x86_64-linux-gnu:$HOME/.local/lib" ldd validator-artifact/dng_validate | tee validator-artifact/LDD.txt
           cat > validator-artifact/PROVENANCE.txt <<'EOF'
           Purpose: temporary independent validation tool for TruthRaw LinearRaw DNG v0.4
-          Upstream mirror: https://github.com/hfiguiere/dng_sdk
-          Pinned commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a
+          DNG SDK mirror: https://github.com/hfiguiere/dng_sdk
+          Pinned DNG SDK commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a
           Commit message at pin: Update to DNG SDK 1.7.1 2611
+          libjxl dependency: official libjxl tag v0.11.1
           This artifact is a mirror-built validator, not an Adobe-signed binary.
           EOF
 
