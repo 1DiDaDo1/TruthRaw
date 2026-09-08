@@ -101,7 +101,15 @@ jobs:
           "$BIN" 2>&1 | head -n 20 || true
           mkdir -p /tmp/artifact
           cp "$BIN" /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64
-          sha256sum /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64 | tee /tmp/artifact/SHA256SUMS.txt
+
+          JPEG_LIB="$(ldd "$BIN" | awk '/libjpeg\.so\.8/{print $3; exit}')"
+          test -n "$JPEG_LIB"
+          test -f "$JPEG_LIB"
+          cp -L "$JPEG_LIB" /tmp/artifact/libjpeg.so.8
+
+          sha256sum \
+            /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64 \
+            /tmp/artifact/libjpeg.so.8 | tee /tmp/artifact/SHA256SUMS.txt
           {
             echo 'Adobe DNG SDK + XMP source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
             echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
@@ -110,6 +118,7 @@ jobs:
             echo 'Pinned libjxl commit: c51cffd7587d27fdd73f0be856db3b730314f03c'
             echo 'libjxl linkage: static install under /tmp/libjxl-install'
             echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=ON DNG_WITH_JXL=ON DNG_WITH_JPEG=ON XMP_USE_SYSTEM_ZLIB=ON'
+            dpkg-query -W -f='libjpeg-turbo8 ${Version}\n' libjpeg-turbo8 || true
             pkg-config --modversion libbrotlienc || true
             pkg-config --modversion lcms2 || true
             uname -a
