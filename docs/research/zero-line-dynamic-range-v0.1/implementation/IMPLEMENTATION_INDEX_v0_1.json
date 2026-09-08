@@ -1,0 +1,46 @@
+{
+  "schema": "TruthRawZeroLineImplementationIndex/0.1",
+  "status": "RESEARCH_IMPLEMENTATION_ARCHITECTURE_VALIDATION_PASS_NOT_CANONICAL_MASTER",
+  "source_domain": {
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+    "focal_length_mm": 22.48,
+    "f_number": 2.6,
+    "geometry": [
+      4080,
+      3072
+    ],
+    "cfa": "BGGR"
+  },
+  "gauge": {
+    "formula": "T = log2(L_proxy/L0)",
+    "L_proxy": "black-subtracted source-white-normalized signal / (ISO * exposure_seconds)",
+    "L0": 0.0009765625,
+    "gauge_id": "BNCAM_V0_1_ISO_EXPOSURE_RELATIVE_GAUGE",
+    "absolute_physical_units": false,
+    "important": "ISO is used only to undo source gain scale in this experiment; output TruthRange is not an ISO-labelled image."
+  },
+  "iso_values": [
+    100,
+    200,
+    400,
+    800,
+    1600,
+    3200,
+    6400,
+    12800
+  ],
+  "stability_ev": {
+    "p50_spread": 0.09310940439148122,
+    "p90_spread": 0.13213184567437408,
+    "p99_spread": 0.13323580819828473
+  },
+  "high_censor": "WhiteLevel clip => finite TruthRange lower bound; upper = +infinity",
+  "dark_censor": "noise-limited => lower = -infinity; finite evidence-dependent upper bound",
+  "full_external_results": {
+    "package": "TRUTHRAW_ZERO_LINE_IMPLEMENTATION_v0_1.zip",
+    "sha256": "e6804c5423af5dad8613295e658adac5cf049bd227bd4aae6d30c89b003b0e87"
+  },
+  "next": "bind TruthRange to exact Stage-2/Latent Scene Master plus v5.0g backend uncertainty; replace provisional ISO*exposure coordinate where stronger measured gain mapping exists."
+}
