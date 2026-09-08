@@ -1,0 +1,195 @@
+{
+  "schema": "TruthRawOutputAcutanceRealSceneValidation/4.7k",
+  "target_long_edge": 1280,
+  "scenes": [
+    {
+      "scene": "house",
+      "input_hw": [
+        964,
+        1280
+      ],
+      "resize_ratio": 3.1875,
+      "noise_sigma_2pct": 0.0013534984455017551,
+      "plan": {
+        "schema": "TruthRawOutputAcutancePlan/4.7k",
+        "noise_sigma_at_2pct": 0.0013534984455017551,
+        "noise_confidence": 0.907093338983297,
+        "resize_ratio": 3.1875,
+        "resize_need": 1.0,
+        "strength": 0.13,
+        "blur_kernel": "separable_0.20_0.60_0.20",
+        "delta_cap": 0.0067677333474582425,
+        "hard_edge_norm_start": 0.035,
+        "hard_edge_norm_full": 0.18,
+        "shadow_start": 0.012,
+        "shadow_full": 0.07,
+        "highlight_start": 0.8,
+        "highlight_full": 1.03,
+        "scientific_master_modified": false,
+        "color_policy": "luminance_only_rgb_direction_preserved"
+      },
+      "metrics": {
+        "gradient_p95_ratio": 1.0107529886772035,
+        "micro_p95_ratio": 1.0203721404703765,
+        "p50_Y_ratio": 0.9992092505152188,
+        "p99_Y_ratio": 1.0010182749950705,
+        "chromaticity_max_error": 1.1920928955078125e-07,
+        "mean_abs_delta_y": 0.00019620453531388193,
+        "p99_abs_delta_y": 0.0020713473204523325,
+        "max_abs_delta_y": 0.006767733488231897,
+        "mean_edge_guard": 0.4299197494983673,
+        "mean_texture_conf": 0.7953177690505981
+      }
+    },
+    {
+      "scene": "people",
+      "input_hw": [
+        964,
+        1280
+      ],
+      "resize_ratio": 1.59375,
+      "noise_sigma_2pct": 0.0014525275147743884,
+      "plan": {
+        "schema": "TruthRawOutputAcutancePlan/4.7k",
+        "noise_sigma_at_2pct": 0.0014525275147743884,
+        "noise_confidence": 0.6930764918950436,
+        "resize_ratio": 1.59375,
+        "resize_need": 0.46253124999999995,
+        "strength": 0.06991647357035341,
+        "blur_kernel": "separable_0.20_0.60_0.20",
+        "delta_cap": 0.0062326912297376086,
+        "hard_edge_norm_start": 0.035,
+        "hard_edge_norm_full": 0.18,
+        "shadow_start": 0.012,
+        "shadow_full": 0.07,
+        "highlight_start": 0.8,
+        "highlight_full": 1.03,
+        "scientific_master_modified": false,
+        "color_policy": "luminance_only_rgb_direction_preserved"
+      },
+      "metrics": {
+        "gradient_p95_ratio": 1.003970726957991,
+        "micro_p95_ratio": 1.009452048729878,
+        "p50_Y_ratio": 0.9997576716645254,
+        "p99_Y_ratio": 1.000250267159011,
+        "chromaticity_max_error": 1.7881393432617188e-07,
+        "mean_abs_delta_y": 0.00013898745237383991,
+        "p99_abs_delta_y": 0.0011843822430819273,
+        "max_abs_delta_y": 0.0062326909974217415,
+        "mean_edge_guard": 0.472462922334671,
+        "mean_texture_conf": 0.7431227564811707
+      },
+      "skin_roi": {
+        "ratios": {
+          "left_man_cheek": 1.0029787227177005,
+          "left_man_forearm": 1.0045157271015446,
+          "woman_cheek": 1.0003960970874752,
+          "woman_leg": 1.0032300685524334,
+          "right_man_cheek": 1.0020764504884365,
+          "right_man_forearm": 1.003890462197117,
+          "right_woman_upper_arm": 1.0037117127722937,
+          "child_cheek": 1.0015585908118576
+        },
+        "median": 1.003104395635067,
+        "p95": 1.0042968843849949
+      }
+    },
+    {
+      "scene": "redcar",
+      "input_hw": [
+        964,
+        1280
+      ],
+      "resize_ratio": 1.59375,
+      "noise_sigma_2pct": 0.0013534984455017551,
+      "plan": {
+        "schema": "TruthRawOutputAcutancePlan/4.7k",
+        "noise_sigma_at_2pct": 0.0013534984455017551,
+        "noise_confidence": 0.907093338983297,
+        "resize_ratio": 1.59375,
+        "resize_need": 0.46253124999999995,
+        "strength": 0.09150615870329284,
+        "blur_kernel": "separable_0.20_0.60_0.20",
+        "delta_cap": 0.0067677333474582425,
+        "hard_edge_norm_start": 0.035,
+        "hard_edge_norm_full": 0.18,
+        "shadow_start": 0.012,
+        "shadow_full": 0.07,
+        "highlight_start": 0.8,
+        "highlight_full": 1.03,
+        "scientific_master_modified": false,
+        "color_policy": "luminance_only_rgb_direction_preserved"
+      },
+      "metrics": {
+        "gradient_p95_ratio": 1.0038169265508636,
+        "micro_p95_ratio": 1.0122962416080254,
+        "p50_Y_ratio": 0.9997127173866969,
+        "p99_Y_ratio": 1.0000743442090223,
+        "chromaticity_max_error": 1.7881393432617188e-07,
+        "mean_abs_delta_y": 6.581527850357816e-05,
+        "p99_abs_delta_y": 0.0009694420150481164,
+        "max_abs_delta_y": 0.006767733488231897,
+        "mean_edge_guard": 0.7051140069961548,
+        "mean_texture_conf": 0.5231072306632996
+      }
+    },
+    {
+      "scene": "forest",
+      "input_hw": [
+        1280,
+        964
+      ],
+      "resize_ratio": 1.59375,
+      "noise_sigma_2pct": 0.00171899834488115,
+      "plan": {
+        "schema": "TruthRawOutputAcutancePlan/4.7k",
+        "noise_sigma_at_2pct": 0.00171899834488115,
+        "noise_confidence": 0.05868156430382354,
+        "resize_ratio": 1.59375,
+        "resize_need": 0.46253124999999995,
+        "strength": 0.012,
+        "blur_kernel": "separable_0.20_0.60_0.20",
+        "delta_cap": 0.004646703910759558,
+        "hard_edge_norm_start": 0.035,
+        "hard_edge_norm_full": 0.18,
+        "shadow_start": 0.012,
+        "shadow_full": 0.07,
+        "highlight_start": 0.8,
+        "highlight_full": 1.03,
+        "scientific_master_modified": false,
+        "color_policy": "luminance_only_rgb_direction_preserved"
+      },
+      "metrics": {
+        "gradient_p95_ratio": 1.0007717089550368,
+        "micro_p95_ratio": 1.001707621869225,
+        "p50_Y_ratio": 0.9998436562917782,
+        "p99_Y_ratio": 1.0003318576294704,
+        "chromaticity_max_error": 1.1920928955078125e-07,
+        "mean_abs_delta_y": 2.899354149121791e-05,
+        "p99_abs_delta_y": 0.0002373747993260622,
+        "max_abs_delta_y": 0.002536064013838768,
+        "mean_edge_guard": 0.35088956356048584,
+        "mean_texture_conf": 0.7977319955825806
+      }
+    }
+  ],
+  "checks": {
+    "house_chromaticity": true,
+    "house_midtone_stability": true,
+    "house_micro_gain": true,
+    "people_chromaticity": true,
+    "people_midtone_stability": true,
+    "people_micro_gain": true,
+    "redcar_chromaticity": true,
+    "redcar_midtone_stability": true,
+    "redcar_micro_gain": true,
+    "forest_chromaticity": true,
+    "forest_midtone_stability": true,
+    "forest_micro_gain": true,
+    "people_skin_median_le_1p04": true,
+    "people_skin_p95_le_1p05": true
+  },
+  "passed": 14,
+  "total": 14,
+  "all_pass": true
+}

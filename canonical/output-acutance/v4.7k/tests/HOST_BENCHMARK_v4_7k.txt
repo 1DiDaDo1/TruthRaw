@@ -1,0 +1,1 @@
+width=1280 height=964 ms=125.274 mpix_s=9.84974

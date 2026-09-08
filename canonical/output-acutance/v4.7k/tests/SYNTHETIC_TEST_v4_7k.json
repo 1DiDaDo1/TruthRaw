@@ -1,0 +1,42 @@
+{
+  "schema": "TruthRawOutputAcutanceSyntheticTest/4.7k",
+  "plan": {
+    "schema": "TruthRawOutputAcutancePlan/4.7k",
+    "noise_sigma_at_2pct": 0.0013,
+    "noise_confidence": 0.9767092411720512,
+    "resize_ratio": 2.0,
+    "resize_need": 0.8960000000000001,
+    "strength": 0.13,
+    "blur_kernel": "separable_0.20_0.60_0.20",
+    "delta_cap": 0.006941773102930128,
+    "hard_edge_norm_start": 0.035,
+    "hard_edge_norm_full": 0.18,
+    "shadow_start": 0.012,
+    "shadow_full": 0.07,
+    "highlight_start": 0.8,
+    "highlight_full": 1.03,
+    "scientific_master_modified": false,
+    "color_policy": "luminance_only_rgb_direction_preserved"
+  },
+  "metrics": {
+    "fine_detail_gain": 1.0451131793254413,
+    "hard_edge_undershoot_fraction": 0.005939234793186181,
+    "hard_edge_overshoot_fraction": 0.009870477517445927,
+    "noise_amp_low": 1.030961312631646,
+    "noise_amp_mid": 1.0220567959184395,
+    "noise_amp_high": 1.0032902958901904,
+    "max_chromaticity_error": 5.960464477539063e-08
+  },
+  "checks": {
+    "fine_detail_gain_1p02_to_1p12": true,
+    "hard_edge_halo_le_0p015": true,
+    "noise_low_le_1p035": true,
+    "noise_mid_le_1p03": true,
+    "noise_high_le_1p02": true,
+    "chromaticity_le_2e_6": true,
+    "nonnegative": true
+  },
+  "passed": 7,
+  "total": 7,
+  "all_pass": true
+}

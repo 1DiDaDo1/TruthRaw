@@ -1,0 +1,11 @@
+{
+  "schema": "TruthRawStatus/4.7k",
+  "version": "v4.7k",
+  "state": "OUTPUT_ACUTANCE_CPU_REFERENCE_PASS_WAITING_VULKAN_SPIRV_DEVICE_PARITY",
+  "scientific_master_modified": false,
+  "cpu_reference_validated": true,
+  "python_cpp_parity": true,
+  "vulkan_spirv_validated": false,
+  "device_validated": false,
+  "recommended_order": "final SDR resize -> output acutance -> recompute/derive HDR gain against final base -> OETF/encode/presentation orientation"
+}

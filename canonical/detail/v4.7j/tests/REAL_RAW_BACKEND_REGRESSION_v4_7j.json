@@ -1,0 +1,43 @@
+{
+  "schema": "TruthRawRealRawBackendRegression/4.7j",
+  "rows": [
+    {
+      "direct_max_error": 0,
+      "finite_components": 37601280,
+      "expected_components": 37601280,
+      "max_abs_component": 1,
+      "scene": "house",
+      "source": "/mnt/data/IMG_260816_143716_085_041.dng"
+    },
+    {
+      "direct_max_error": 0,
+      "finite_components": 37601280,
+      "expected_components": 37601280,
+      "max_abs_component": 1.05762,
+      "scene": "people",
+      "source": "/mnt/data/IMG_260816_134204_911_008.dng"
+    },
+    {
+      "direct_max_error": 0,
+      "finite_components": 37601280,
+      "expected_components": 37601280,
+      "max_abs_component": 1.08734,
+      "scene": "redcar",
+      "source": "/mnt/data/IMG_260816_133127_336_005.dng"
+    },
+    {
+      "direct_max_error": 0,
+      "finite_components": 37601280,
+      "expected_components": 37601280,
+      "max_abs_component": 1.09803,
+      "scene": "forest",
+      "source": "/mnt/data/IMG_260816_132507_194_002.dng"
+    }
+  ],
+  "checks": {
+    "all_direct_measured_exact": true,
+    "all_components_finite": true,
+    "all_reconstructed_components_bounded_under_1p25_abs": true
+  },
+  "all_pass": true
+}

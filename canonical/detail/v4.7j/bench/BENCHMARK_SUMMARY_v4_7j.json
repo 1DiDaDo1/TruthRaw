@@ -1,0 +1,75 @@
+{
+  "schema": "TruthRawDetailBenchmark/4.7j",
+  "one_thread": {
+    "research_neutral": {
+      "total_ms": 2067.62,
+      "scientific_ms": 1055.57,
+      "appearance_ms": 18.0035,
+      "plan_ms": 0.171695,
+      "sdr_ms": 195.343,
+      "gain_ms": 124.602,
+      "peak_tile_bytes": 13766656.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    },
+    "research_skin_safe": {
+      "total_ms": 3600.69,
+      "scientific_ms": 1089.17,
+      "appearance_ms": 1592.97,
+      "plan_ms": 0.173673,
+      "sdr_ms": 199.882,
+      "gain_ms": 117.991,
+      "peak_tile_bytes": 14063872.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    },
+    "research_adaptive_detail": {
+      "total_ms": 2880.58,
+      "scientific_ms": 1069.73,
+      "appearance_ms": 963.315,
+      "plan_ms": 0.108739,
+      "sdr_ms": 197.905,
+      "gain_ms": 66.649,
+      "peak_tile_bytes": 14138896.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    }
+  },
+  "eight_threads": {
+    "research_neutral": {
+      "total_ms": 613.262,
+      "scientific_ms": 448.131,
+      "appearance_ms": 6.71965,
+      "plan_ms": 1.76121,
+      "sdr_ms": 51.0878,
+      "gain_ms": 39.0323,
+      "peak_tile_bytes": 13766656.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    },
+    "research_skin_safe": {
+      "total_ms": 1192.55,
+      "scientific_ms": 518.917,
+      "appearance_ms": 513.876,
+      "plan_ms": 0.139652,
+      "sdr_ms": 59.1233,
+      "gain_ms": 42.9987,
+      "peak_tile_bytes": 14063872.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    },
+    "research_adaptive_detail": {
+      "total_ms": 935.111,
+      "scientific_ms": 454.732,
+      "appearance_ms": 346.521,
+      "plan_ms": 0.203329,
+      "sdr_ms": 48.6002,
+      "gain_ms": 34.0355,
+      "peak_tile_bytes": 14138896.0,
+      "final_sdr_bytes": 150405120.0,
+      "half_gain_bytes": 12533760.0
+    }
+  },
+  "adaptive_speedup_1t_to_8t": 3.0804685219187884,
+  "adaptive_appearance_speedup_1t_to_8t": 2.7799613876215297
+}

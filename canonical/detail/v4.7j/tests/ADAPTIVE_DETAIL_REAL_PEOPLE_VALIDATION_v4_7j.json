@@ -1,0 +1,25 @@
+{
+  "schema": "TruthRawAdaptiveDetailRealPeopleValidation/4.7j",
+  "noise_sigma_2pct": 0.0013924899,
+  "median_skin_p95_gradient_ratio": 1.0883002877235413,
+  "p95_skin_p95_gradient_ratio": 1.112197333574295,
+  "non_skin_p95_gradient_ratio": 1.1015684604644775,
+  "max_rgb_chromaticity_error": 1.7881393432617188e-07,
+  "roi_gradient_ratios": {
+    "left_man_cheek": 1.100903868675232,
+    "left_man_forearm": 1.039270043373108,
+    "woman_cheek": 1.1130874156951904,
+    "woman_leg": 1.0811882019042969,
+    "right_man_cheek": 1.0638822317123413,
+    "right_man_forearm": 1.0954123735427856,
+    "right_woman_upper_arm": 1.0755528211593628,
+    "child_cheek": 1.1105443239212036
+  },
+  "checks": {
+    "median_skin_gradient_le_1p10": true,
+    "p95_skin_gradient_le_1p14": true,
+    "non_skin_detail_ge_1p10": true,
+    "chromaticity_error_le_2e_6": true
+  },
+  "all_pass": true
+}

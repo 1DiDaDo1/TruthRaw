@@ -1,0 +1,22 @@
+{
+  "schema": "TruthRawAdaptiveDetailPythonCppParity/4.7j",
+  "rows": [
+    {
+      "noise_sigma_2pct": 0.0012874365,
+      "max_abs_error": 0.0,
+      "p99_abs_error": 0.0
+    },
+    {
+      "noise_sigma_2pct": 0.0013924899,
+      "max_abs_error": 0.0,
+      "p99_abs_error": 0.0
+    },
+    {
+      "noise_sigma_2pct": 0.0016719648,
+      "max_abs_error": 0.0,
+      "p99_abs_error": 0.0
+    }
+  ],
+  "tolerance_max": 0.0003,
+  "pass": true
+}

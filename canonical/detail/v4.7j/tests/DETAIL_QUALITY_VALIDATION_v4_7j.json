@@ -1,0 +1,74 @@
+{
+  "schema": "TruthRawDetailQualityValidation/4.7j",
+  "mtf_summary": {
+    "Y0.08_horizontal": {
+      "reconstruction": 0.857769038263232,
+      "recon_plus_current": 0.8943700992108652,
+      "recon_plus_v47j": 0.9437660097932772
+    },
+    "Y0.08_diagonal": {
+      "reconstruction": 0.8037268372551821,
+      "recon_plus_current": 0.8333467322553134,
+      "recon_plus_v47j": 0.8777540327340401
+    },
+    "Y0.35_horizontal": {
+      "reconstruction": 0.8577689455133253,
+      "recon_plus_current": 1.057770485161777,
+      "recon_plus_v47j": 0.9406769741493025
+    },
+    "Y0.35_diagonal": {
+      "reconstruction": 0.8037268728453034,
+      "recon_plus_current": 0.9666101305924006,
+      "recon_plus_v47j": 0.8805619117761238
+    }
+  },
+  "hard_edge": {
+    "min": 0.10734818130731583,
+    "max": 0.7326518297195435,
+    "undershoot": 0.012651816010475159,
+    "overshoot": 0.012651801109313965,
+    "max_halo_fraction_of_step": 0.0210863600174586
+  },
+  "noise_rows": [
+    {
+      "noise_sigma_2pct": 0.0012874365,
+      "mean_Y": 0.08,
+      "noise_std_ratio": 1.0596550703048706
+    },
+    {
+      "noise_sigma_2pct": 0.0012874365,
+      "mean_Y": 0.35,
+      "noise_std_ratio": 1.0571552515029907
+    },
+    {
+      "noise_sigma_2pct": 0.0013924899,
+      "mean_Y": 0.08,
+      "noise_std_ratio": 1.0552521347999573
+    },
+    {
+      "noise_sigma_2pct": 0.0013924899,
+      "mean_Y": 0.35,
+      "noise_std_ratio": 1.0523717403411865
+    },
+    {
+      "noise_sigma_2pct": 0.0016719648,
+      "mean_Y": 0.08,
+      "noise_std_ratio": 1.0321369171142578
+    },
+    {
+      "noise_sigma_2pct": 0.0016719648,
+      "mean_Y": 0.35,
+      "noise_std_ratio": 1.0288302898406982
+    }
+  ],
+  "checks": {
+    "dark_horizontal_mtf_improves_vs_legacy_by_0p04": true,
+    "dark_diagonal_mtf_improves_vs_legacy_by_0p04": true,
+    "midtone_horizontal_not_over_acutance_1p05": true,
+    "midtone_diagonal_improves_over_reconstruction": true,
+    "hard_edge_halo_le_0p025_step": true,
+    "all_noise_amplification_le_1p08": true,
+    "high_noise_amplification_le_1p05": true
+  },
+  "all_pass": true
+}

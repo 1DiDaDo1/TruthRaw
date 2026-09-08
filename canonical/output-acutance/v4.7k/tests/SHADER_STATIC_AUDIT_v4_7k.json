@@ -1,0 +1,14 @@
+{
+  "schema": "TruthRawShaderStaticAudit/4.7k",
+  "checks": {
+    "version_450": true,
+    "local_size": true,
+    "rgba32f": true,
+    "no_fp16": true,
+    "luminance_only": true,
+    "balanced_braces": true
+  },
+  "pass": true,
+  "spirv_compiled": false,
+  "reason": "No glslangValidator/glslc/spirv-val installed in this workspace."
+}

@@ -1,0 +1,7 @@
+{
+  "schema": "TruthRawOutputAcutancePythonCppParity/4.7k",
+  "max_abs_error": 1.1920928955078125e-07,
+  "mean_abs_error": 4.282709464842327e-10,
+  "p99_abs_error": 1.4901161193847656e-08,
+  "pass": true
+}
