@@ -1,0 +1,15 @@
+{
+  "schema": "TruthRawZeroLineDynamicRangeResearchIndex/0.1",
+  "status": "RESEARCH_ARCHITECTURE_CANDIDATE_NOT_CANONICAL_CORE",
+  "external_full_package": {
+    "filename": "TRUTHRAW_ZERO_LINE_DYNAMIC_RANGE_v0_1.zip",
+    "sha256": "0b736532c7a2997ce533ed6a54a31ef10841588bfaed253a586f0a58a7efdd27"
+  },
+  "repository_files": {
+    "README_RESEARCH_INDEX.md": "2f65cb61e8b8a1eec8bb5232a69bc311b8979c25",
+    "ZERO_LINE_MODEL_v0_1.json": "0c584ef2988ecb87124df1844643fbc705f6f21a",
+    "BN_CAM_094414_ZERO_LINE_EXAMPLE_v0_1.json": "d96b0c0bb50932ae1bedb2b77229ec14b16937a8",
+    "REFERENCES_v0_1.md": "b81b2a8da45ac50f7605e3c521ac0fdf7755ff24"
+  },
+  "promotion_boundary": "No canonical core change until further testing demonstrates the coordinate and censor semantics are compatible with the exact TruthRaw latent-scene and uncertainty contracts."
+}

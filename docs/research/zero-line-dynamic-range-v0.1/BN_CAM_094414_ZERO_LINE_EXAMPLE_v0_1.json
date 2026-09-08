@@ -1,0 +1,42 @@
+{
+  "schema": "TruthRawZeroLineExample/0.1",
+  "source": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+  "source_iso": 1619,
+  "status": "ILLUSTRATIVE_DNG_NOISEPROFILE_BOUND_NOT_PHYSICAL_CALIBRATION",
+  "illustrative_reference_L0": 0.18,
+  "reference_note": "18% is used only to visualize the coordinate; a future TruthRaw gauge need not use middle gray.",
+  "source_saturation_normalized": 1.0,
+  "saturation_truth_range_ev": 2.473931188332412,
+  "channels": {
+    "R": {
+      "NoiseProfile_S": 0.0002759260066671917,
+      "NoiseProfile_O": 6.270954076802462e-07,
+      "sigma_at_zero_normalized": 0.0007918935583020272,
+      "illustrative_3sigma_dark_threshold_normalized": 0.0023756806749060818,
+      "illustrative_3sigma_truth_range_ev": -6.243512165784254,
+      "illustrative_direct_window_stops_to_saturation": 8.717443354116666
+    },
+    "G": {
+      "NoiseProfile_S": 0.00031404255497316714,
+      "NoiseProfile_O": 1.5385776267632538e-07,
+      "sigma_at_zero_normalized": 0.00039224706841010985,
+      "illustrative_3sigma_dark_threshold_normalized": 0.0011767412052303295,
+      "illustrative_3sigma_truth_range_ev": -7.257056025726985,
+      "illustrative_direct_window_stops_to_saturation": 9.730987214059398
+    },
+    "B": {
+      "NoiseProfile_S": 0.00029150043637859215,
+      "NoiseProfile_O": 5.640214845928248e-07,
+      "sigma_at_zero_normalized": 0.0007510136380871022,
+      "illustrative_3sigma_dark_threshold_normalized": 0.0022530409142613064,
+      "illustrative_3sigma_truth_range_ev": -6.319979583792315,
+      "illustrative_direct_window_stops_to_saturation": 8.793910772124727
+    }
+  },
+  "interpretation": [
+    "The mathematical TruthRange axis remains unbounded.",
+    "The direct metadata-derived observation window is finite.",
+    "Above saturation the RAW provides a lower-bound censor, not exact radiance.",
+    "Below the noise-dominated region support degrades; the axis still exists but evidence does not become infinite."
+  ]
+}

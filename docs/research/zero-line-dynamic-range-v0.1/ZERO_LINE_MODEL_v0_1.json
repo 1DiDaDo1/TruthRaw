@@ -1,0 +1,60 @@
+{
+  "schema": "TruthRawZeroLineDynamicRange/0.1",
+  "status": "RESEARCH_ARCHITECTURE_CANDIDATE_NOT_CANONICAL",
+  "coordinate": {
+    "name": "TruthRange",
+    "symbol": "T",
+    "definition": "T = log2(L/L0)",
+    "domain": "extended real stops for positive physical latent light",
+    "zero": "chosen positive reference L0",
+    "bright_limit": "+infinity as L -> +infinity",
+    "dark_limit": "-infinity as L -> 0+"
+  },
+  "gauge_invariance": {
+    "statement": "L and L0 may share any positive multiplicative scale c without changing T",
+    "equation": "log2((cL)/(cL0)) = log2(L/L0)",
+    "consequence": "relative stop structure does not require absolute radiometric scale"
+  },
+  "dynamic_range_classes": {
+    "address_space": "unbounded",
+    "evidence_window": "finite and capture/sensor dependent",
+    "reconstructed_support": "may extend beyond evidence but must carry support/uncertainty",
+    "presentation": "finite reversible projection"
+  },
+  "calibration_role": {
+    "not_required_for": [
+      "allowing the master coordinate to extend beyond source RAW range",
+      "defining a finite output ceiling",
+      "preserving relative stop differences when a common gauge is used"
+    ],
+    "still_required_for": [
+      "black/offset placement",
+      "exposure/gain/readout mapping",
+      "linearity",
+      "noise/quantization",
+      "clipping/censor interpretation",
+      "color/channel response",
+      "optical/spatial response",
+      "absolute physical-unit binding if desired"
+    ]
+  },
+  "censor_semantics": {
+    "saturated": {
+      "lower": "finite",
+      "upper": "+infinity unless narrowed by model/evidence"
+    },
+    "below_detection": {
+      "lower": "-infinity possible",
+      "upper": "finite evidence-dependent bound"
+    },
+    "uncensored": {
+      "lower": "finite",
+      "upper": "finite"
+    }
+  },
+  "dual_master_rule": {
+    "keep_signed_linear_estimator": true,
+    "reason": "negative numerical estimates/residuals are not negative physical light and cannot be naively logarithmized",
+    "truth_range_is_companion_coordinate": true
+  }
+}
