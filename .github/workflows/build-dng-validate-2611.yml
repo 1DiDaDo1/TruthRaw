@@ -38,6 +38,7 @@ jobs:
           cp -a /tmp/dng-src/xmp /tmp/dng-cmake/xmp
           test -f /tmp/dng-cmake/xmp/toolkit/XMPCore/source/WXMPDocOps.cpp
           test -f /tmp/dng-cmake/xmp/toolkit/XMPFiles/source/WXMPFiles.cpp
+          test -f /tmp/dng-cmake/dng_sdk/source/dng_jxl.cpp
 
       - name: Configure dng_validate
         run: |
@@ -46,7 +47,7 @@ jobs:
             -DBUILD_DNG_VALIDATE=ON \
             -DDNG_VALIDATE=ON \
             -DDNG_WITH_XMP=ON \
-            -DDNG_WITH_JXL=OFF \
+            -DDNG_WITH_JXL=ON \
             -DDNG_WITH_JPEG=ON \
             -DXMP_USE_SYSTEM_ZLIB=ON
 
@@ -63,8 +64,10 @@ jobs:
             echo 'Adobe DNG SDK + XMP source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
             echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
             echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
-            echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=ON DNG_WITH_JXL=OFF DNG_WITH_JPEG=ON XMP_USE_SYSTEM_ZLIB=ON'
+            echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=ON DNG_WITH_JXL=ON DNG_WITH_JPEG=ON XMP_USE_SYSTEM_ZLIB=ON'
             dpkg-query -W -f='libjxl-dev ${Version}\n' libjxl-dev || true
+            dpkg-query -W -f='libhwy-dev ${Version}\n' libhwy-dev || true
+            dpkg-query -W -f='libbrotli-dev ${Version}\n' libbrotli-dev || true
             uname -a
             c++ --version | head -n1
             cmake --version | head -n1
