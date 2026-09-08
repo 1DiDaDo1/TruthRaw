@@ -19,6 +19,9 @@ jobs:
           python-version: '3.12'
       - name: Verify byte-exact canonical provenance
         run: python tools/verify_canonical_integrity.py
+      - name: Run zero-line TruthRange architecture self-test
+        run: |
+          python docs/research/zero-line-dynamic-range-v0.1/implementation/test_truthrange_core_v0_1.py
       - name: Compile v4.7i reconstruction core
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -Werror -c \
@@ -46,6 +49,8 @@ jobs:
       - name: Python syntax smoke
         run: |
           python -m py_compile \
+            docs/research/zero-line-dynamic-range-v0.1/implementation/truthrange_core_v0_1.py \
+            docs/research/zero-line-dynamic-range-v0.1/implementation/test_truthrange_core_v0_1.py \
             canonical/ptc/v1.1/python/truthraw_ptc.py \
             canonical/output-acutance/v4.7k/output_acutance_v4_7k.py \
             canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py \

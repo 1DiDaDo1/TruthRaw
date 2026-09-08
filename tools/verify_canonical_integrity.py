@@ -2,15 +2,24 @@
 from pathlib import Path
 import hashlib, json, zlib
 ROOT=Path(__file__).resolve().parents[1]
+
 def gitblob(p):
-    b=p.read_bytes(); return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+    b=p.read_bytes()
+    return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+
 EXPECTED_BLOBS={
- 'README.md':'ac930ed451998e5c72dcabca10047e635aeaab38',
- 'START_HERE_NEW_CHAT.md':'b2bfc29fda528a6230828d136f54ced9df14bda9',
+ 'README.md':'341cdf2903e626ffd7b53d53de5edbb4fced9fc2',
+ 'START_HERE_NEW_CHAT.md':'fab115fe4303554ecd1383dcb1aaf1dc10724812',
  'docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md':'176f826a5513c5bc7075127d4419c2186ed7a3e9',
+ 'docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md':'edb6d5e96026a65512416243ef85c1c5d2f37c9e',
  'state/CURRENT_CANONICAL_STATE_2026-09-08.json':'13571f07246a12401d590757f54bcfe0c980d38b',
+ 'state/CURRENT_CANONICAL_STATE_2026-09-09.json':'0b8058ce4b68d466f431227772f6757429c63104',
  'state/REPOSITORY_MIGRATION_STATUS.json':'b7d9a2ef63bcf1e824e90ddcf56d560126d87011',
  'docs/PROJECT_STATE_AUDIT_2026-09-08.md':'069220b82de4f50c42e214b4d9213e66e9423cc8',
+ 'docs/research/zero-line-dynamic-range-v0.1/implementation/IMPLEMENTATION_INDEX_v0_1.json':'25a9411ef00c4f1fe35436ae6019afa3105699fa',
+ 'docs/research/zero-line-dynamic-range-v0.1/implementation/REPORT_v0_1.md':'8126533d3e229ee16130554e3bdf42aae2a6ed2e',
+ 'docs/research/zero-line-dynamic-range-v0.1/implementation/test_truthrange_core_v0_1.py':'e8e6017761c769b83bf2c6499f47b89222698f26',
+ 'docs/research/zero-line-dynamic-range-v0.1/implementation/truthrange_core_v0_1.py':'a6325d3a588416a8c66b0ec47438409f9adc6db8',
  'canonical/reconstruction/v4.7i/native/include/truthraw/core.h':'cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a',
  'canonical/reconstruction/v4.7i/native/src/core.cpp':'f79b951ba54cff08db400023e528e4eb91909ba6',
  'canonical/detail/v4.7j/native/include/truthraw/core.h':'ff5a6c976be8228d990aa4ee577db8613d8c9bd1',
@@ -29,23 +38,33 @@ EXPECTED_BLOBS={
  'canonical/uncertainty/v5.0g/source/train_uncertainty_v5_0g.py':'e9a9cf08c54637111bcfd0b6b8a29f0566e46075',
  'canonical/uncertainty/v5.0g/runtime/runtime_parity_test.cpp':'923f581612cb1632cc352659acd68d90dc9cec01',
 }
+
 for rel,exp in EXPECTED_BLOBS.items():
     p=ROOT/rel
-    if not p.is_file() or gitblob(p)!=exp: raise SystemExit(f'FAIL blob {rel}')
+    if not p.is_file() or gitblob(p)!=exp:
+        raise SystemExit(f'FAIL blob {rel}')
     print('PASS blob',rel)
+
 v5e=ROOT/'canonical/unified-material/v5.0e'
 data=b''.join((v5e/'source-parts'/f'unified_material_v5_0e.py.part0{i}').read_bytes() for i in range(1,5))
-if len(data)!=26771 or hashlib.sha256(data).hexdigest()!='7a60703c47a981da8aa4f9613545e1615a6a25cdbb3a8347ed1c1a4df076b1e0': raise SystemExit('FAIL v5.0e source')
+if len(data)!=26771 or hashlib.sha256(data).hexdigest()!='7a60703c47a981da8aa4f9613545e1615a6a25cdbb3a8347ed1c1a4df076b1e0':
+    raise SystemExit('FAIL v5.0e source')
 print('PASS v5.0e source reconstruction')
-u=ROOT/'canonical/uncertainty/v5.0g'; prov=json.loads((u/'EVIDENCE_PROVENANCE_v5_0g.json').read_text())
+
+u=ROOT/'canonical/uncertainty/v5.0g'
+prov=json.loads((u/'EVIDENCE_PROVENANCE_v5_0g.json').read_text())
 for rec in prov['files']:
     b=b''.join((u/x).read_bytes() for x in rec['parts'])
     if rec['encoding']=='zlib-concat':
-        if len(b)!=rec['compressed_bytes'] or hashlib.sha256(b).hexdigest()!=rec['compressed_sha256']: raise SystemExit('FAIL compressed '+rec['target'])
+        if len(b)!=rec['compressed_bytes'] or hashlib.sha256(b).hexdigest()!=rec['compressed_sha256']:
+            raise SystemExit('FAIL compressed '+rec['target'])
         b=zlib.decompress(b)
-    if len(b)!=rec['bytes'] or hashlib.sha256(b).hexdigest()!=rec['sha256']: raise SystemExit('FAIL evidence '+rec['target'])
+    if len(b)!=rec['bytes'] or hashlib.sha256(b).hexdigest()!=rec['sha256']:
+        raise SystemExit('FAIL evidence '+rec['target'])
     print('PASS evidence',rec['target'])
+
 for p in ROOT.rglob('*'):
     if p.is_file() and p.suffix.lower() in {'.dng','.rawsensor','.raw10','.raw12','.apk','.npz'}:
         raise SystemExit('FAIL forbidden payload '+str(p.relative_to(ROOT)))
+
 print('TruthRaw canonical integrity: PASS')

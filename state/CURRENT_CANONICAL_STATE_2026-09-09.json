@@ -1,0 +1,89 @@
+{
+  "schema": "TruthRawCurrentCanonicalState/2026-09-09",
+  "project": "TruthRaw",
+  "snapshot_date": "2026-09-09",
+  "supersedes_for_current_bootstrap": "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
+  "official_slogan_en": "Measured where measured. Reconstructed where necessary. Never invented.",
+  "official_slogan_nl": "Echt gemeten. Echt gereconstrueerd. Geen verzinsels.",
+  "provenance_class": "PURE_TRUTH_DERIVED",
+  "core_vision": {
+    "sealed_house": "Original RAW/CFA + capture metadata remain immutable measurement evidence.",
+    "new_house": "Latent Scene Truth / Scene Master is a separate reconstructed state and is not constrained by arbitrary source-container representation limits.",
+    "representation_boundary": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "full_physical_role": "FULL_PHYSICAL is an evidence/certification scope, not an architectural permission boundary."
+  },
+  "zero_line_truthrange": {
+    "status": "CANONICAL_ARCHITECTURE",
+    "document": "docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md",
+    "formula": "T = log2(L/L0)",
+    "zero_line": "T=0 is a chosen positive-light reference/gauge L0; it is not sensor black, absolute darkness or clipping.",
+    "bright_address_limit": "+infinity as L -> +infinity",
+    "dark_address_limit": "-infinity as L -> 0+",
+    "dynamic_range_classes": {
+      "truthrange_address_space": "UNBOUNDED_BY_CONSTRUCTION",
+      "evidence_supported_capture_range": "FINITE_CAPTURE_DEPENDENT",
+      "reconstructed_support_range": "MAY_EXCEED_EVIDENCE_WITH_BOUNDS_SUPPORT_AND_UNCERTAINTY",
+      "presentation_range": "FINITE_REVERSIBLE_PROJECTION"
+    },
+    "calibration_role": "Calibration places evidence and uncertainty on the coordinate; it does not define the permitted ceiling/floor of the master address space.",
+    "iso_role": "ISO/gain is immutable capture provenance and source-model state, not reconstructed-scene identity.",
+    "high_censor_rule": "WhiteLevel clipping yields a finite TruthRange lower bound with upper=+infinity unless narrowed by valid additional evidence/model support.",
+    "dark_rule": "Noise-limited darkness may yield lower=-infinity with a finite evidence-dependent upper bound; exact zero light is not inferred from noise alone.",
+    "dual_coordinate_rule": "Keep signed scene-linear reconstruction and positive-light TruthRange as distinct companion coordinates.",
+    "permanent_boundary": "The axis can be infinite. The evidence is finite. Reconstruction beyond evidence remains reconstruction."
+  },
+  "zero_line_v0_1_validation": {
+    "implementation_status": "RESEARCH_IMPLEMENTATION_ARCHITECTURE_VALIDATION_PASS_NOT_CANONICAL_MASTER",
+    "source_domain": "HONOR BKQ-N49 BnCam tele 22.48mm f/2.6 4080x3072 BGGR",
+    "iso_sweep": [
+      100,
+      200,
+      400,
+      800,
+      1600,
+      3200,
+      6400,
+      12800
+    ],
+    "provisional_mapping": "normalized source signal / (ISO * exposure_seconds)",
+    "mapping_status": "RESEARCH_PROVISIONAL_NOT_PHYSICAL_GAIN_CALIBRATION",
+    "truthrange_spread_ev": {
+      "p50": 0.09310940439148122,
+      "p90": 0.13213184567437408,
+      "p99": 0.13323580819828473
+    },
+    "external_package_sha256": "e6804c5423af5dad8613295e658adac5cf049bd227bd4aae6d30c89b003b0e87",
+    "next": "Bind TruthRange to exact Stage-2/Latent Scene Master plus backend uncertainty and replace the provisional ISO*exposure proxy where stronger measured gain mapping exists."
+  },
+  "canonical_reconstruction": {
+    "version": "v4.7i",
+    "core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167"
+  },
+  "tele_uncertainty": {
+    "model_version": "v5.0g",
+    "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "first_prospective_holdout": "PASS",
+    "black_white_dog_q5_ratio": 0.705044,
+    "black_white_dog_status": "FAIL_GENERALIZATION_REVIEW_OPEN",
+    "policy": "Do not retune frozen v5.0g on the black/white-dog holdout."
+  },
+  "linearraw_v0_4": {
+    "status": "DNG_SDK_VALIDATED_RELEASE_CANDIDATE",
+    "provenance": "DERIVED_RECONSTRUCTED_RAW",
+    "adobe_certified": false
+  },
+  "remaining_full_physical_blockers_tele": [
+    "independent per-lens/unit color calibration",
+    "physical illuminant calibration",
+    "electron/PTC sensor calibration",
+    "optics calibration: PSF/MTF/SFR/CA/flare/residual color shading"
+  ],
+  "apk_policy": "FROZEN_NON_CANONICAL_SIDE_EVIDENCE; no APK-derived canonical changes unless user explicitly reverses policy.",
+  "next_scientific_work": [
+    "Bind canonical TruthRange architecture to exact Stage-2/Latent Scene Master and v5.0g uncertainty.",
+    "Keep the zero-line address space unbounded while preserving finite evidence bounds.",
+    "Continue independent physical tele calibration and high-ISO uncertainty review."
+  ],
+  "legal_license_policy": "No open-source LICENSE is added unless the user explicitly chooses one."
+}
