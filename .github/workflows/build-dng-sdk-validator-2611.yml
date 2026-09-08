@@ -1,0 +1,58 @@
+name: Build DNG SDK validator 2611
+
+on:
+  push:
+    branches:
+      - tooling/dng-sdk-validator-2611
+  workflow_dispatch:
+
+jobs:
+  build-validator:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout TruthRaw tooling branch
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build g++ pkg-config zlib1g-dev libexpat1-dev libjpeg-dev libjxl-dev
+
+      - name: Fetch pinned DNG SDK mirror revision
+        run: |
+          git clone https://github.com/hfiguiere/dng_sdk.git dng-sdk-mirror
+          cd dng-sdk-mirror
+          git checkout --detach 11e5eb4259c2a7ad92d66e152e4974441d2e226a
+          test "$(git rev-parse HEAD)" = "11e5eb4259c2a7ad92d66e152e4974441d2e226a"
+          git rev-parse HEAD | tee ../DNG_SDK_MIRROR_COMMIT.txt
+
+      - name: Build dng_validate
+        run: |
+          cd dng-sdk-mirror
+          meson setup _build
+          ninja -C _build dng_validate
+          test -x _build/dng_sdk/source/dng_validate
+          _build/dng_sdk/source/dng_validate 2>&1 | head -80 || true
+
+      - name: Record binary provenance
+        run: |
+          mkdir -p validator-artifact
+          cp dng-sdk-mirror/_build/dng_sdk/source/dng_validate validator-artifact/
+          cp DNG_SDK_MIRROR_COMMIT.txt validator-artifact/
+          sha256sum validator-artifact/dng_validate | tee validator-artifact/SHA256SUMS.txt
+          ldd validator-artifact/dng_validate | tee validator-artifact/LDD.txt
+          cat > validator-artifact/PROVENANCE.txt <<'EOF'
+          Purpose: temporary independent validation tool for TruthRaw LinearRaw DNG v0.4
+          Upstream mirror: https://github.com/hfiguiere/dng_sdk
+          Pinned commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a
+          Commit message at pin: Update to DNG SDK 1.7.1 2611
+          This artifact is a mirror-built validator, not an Adobe-signed binary.
+          EOF
+
+      - name: Upload dng_validate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dng-validate-sdk-1.7.1-2611-linux
+          path: validator-artifact/
+          if-no-files-found: error
+          retention-days: 7
