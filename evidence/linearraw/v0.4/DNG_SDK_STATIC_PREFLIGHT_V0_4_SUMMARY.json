@@ -1,0 +1,24 @@
+{
+  "schema": "TruthRawDngSdkStaticPreflightSummary/0.4",
+  "basis": "Adobe/AOSP DNG SDK validation logic mirrored for relevant tags; not an execution of dng_validate",
+  "files": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "sha256": "13e32e0967dd9726f31dfbec33a1461c4f4c2f98e4f67789eed1cc5f7766b9fc",
+      "status": "PASS",
+      "checks_total": 34,
+      "checks_passed": 34,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+      "status": "PASS",
+      "checks_total": 34,
+      "checks_passed": 34,
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

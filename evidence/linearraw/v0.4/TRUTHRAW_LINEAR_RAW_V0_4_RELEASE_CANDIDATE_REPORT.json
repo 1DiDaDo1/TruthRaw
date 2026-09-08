@@ -1,0 +1,102 @@
+{
+  "schema": "TruthRawLinearRawReleaseCandidate/0.4",
+  "classification": "DERIVED_RECONSTRUCTED_LINEAR_RAW_DNG",
+  "status": "EXTERNAL_INTEROP_STRONG_PASS_ADOBE_DNG_VALIDATE_EXECUTION_OPEN",
+  "scientific_boundary": "This is a single-frame derived reconstructed LinearRaw master. Measured CFA evidence remains the source; reconstructed RGB components are not newly measured photons.",
+  "version_history": {
+    "v0.1": "REJECTED: TIFF Compression=32946/AdobeDeflate; LibRaw open failed.",
+    "v0.2": "SUPERSEDED: uncompressed and LibRaw-readable, but NewSubFileType was missing and OriginalRawFileDigest semantics were misused.",
+    "v0.3": "SUPERSEDED: structural fixes passed, but Orientation=1 did not preserve the source raster orientation metadata.",
+    "v0.4": "CURRENT RELEASE CANDIDATE: Compression=1, NewSubFileType=0, source Orientation=3, no unpaired OriginalRawFileDigest; pixel payload unchanged."
+  },
+  "gates": {
+    "byte_exact_scientific_pixel_payload_preserved": "PASS",
+    "static_relevant_dng_sdk_validation_logic": "PASS",
+    "libraw_open_unpack_process": "PASS",
+    "libtiff_full_payload_roundtrip": "PASS",
+    "adobe_dng_validate_binary_execution": "OPEN_NOT_EXECUTED"
+  },
+  "promotion_rule": "Do not label PRODUCTION_DNG_CERTIFIED until an actual Adobe DNG SDK dng_validate run against these exact SHA-256 files completes without a disqualifying validation error.",
+  "files": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "source_dng": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+      "bytes": 75205424,
+      "sha256": "13e32e0967dd9726f31dfbec33a1461c4f4c2f98e4f67789eed1cc5f7766b9fc",
+      "pixel_payload_sha256": "9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be",
+      "container": {
+        "new_subfile_type": 0,
+        "compression": 1,
+        "orientation": 3,
+        "photometric_interpretation": 34892,
+        "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+        "original_raw_file_digest_present": false
+      },
+      "static_dng_sdk_logic_preflight": {
+        "status": "PASS",
+        "errors": [],
+        "warnings": [],
+        "checks_total": 34,
+        "checks_passed": 34
+      },
+      "libraw_0_21_4": {
+        "open": 0,
+        "unpack": 0,
+        "process": 0,
+        "status": "PASS"
+      },
+      "libtiff": {
+        "status": "PASS",
+        "rows_read": 3072,
+        "payload_bytes": 75202560,
+        "decoded_payload_sha256": "9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be",
+        "matches_expected_pixel_payload": true
+      },
+      "uncertainty_scope": {
+        "decision": "GENERALIZATION_REVIEW_OPEN_HIGH_RISK_TAIL_UNDERCOVERAGE",
+        "q5_ratio": 0.7050438892783493,
+        "q5_n": 19406
+      }
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+      "bytes": 75205408,
+      "sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+      "pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+      "container": {
+        "new_subfile_type": 0,
+        "compression": 1,
+        "orientation": 3,
+        "photometric_interpretation": 34892,
+        "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+        "original_raw_file_digest_present": false
+      },
+      "static_dng_sdk_logic_preflight": {
+        "status": "PASS",
+        "errors": [],
+        "warnings": [],
+        "checks_total": 34,
+        "checks_passed": 34
+      },
+      "libraw_0_21_4": {
+        "open": 0,
+        "unpack": 0,
+        "process": 0,
+        "status": "PASS"
+      },
+      "libtiff": {
+        "status": "PASS",
+        "rows_read": 3072,
+        "payload_bytes": 75202560,
+        "decoded_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+        "matches_expected_pixel_payload": true
+      },
+      "uncertainty_scope": {
+        "decision": "FROZEN_TELE_UNCERTAINTY_TAIL_PASS",
+        "q5_ratio": 0.9171705499823999,
+        "q5_n": 19405
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+    "open": true,
+    "scanline_bytes": 24480,
+    "rows_read": 3072,
+    "payload_bytes": 75202560,
+    "sha256": "9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be",
+    "status": "PASS"
+  },
+  {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+    "open": true,
+    "scanline_bytes": 24480,
+    "rows_read": 3072,
+    "payload_bytes": 75202560,
+    "sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+    "status": "PASS"
+  }
+]

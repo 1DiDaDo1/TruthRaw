@@ -1,0 +1,31 @@
+{
+  "libraw_version": "0.21.4-Release",
+  "files": [
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "open": 0,
+      "open_text": "No error",
+      "raw_width": 4080,
+      "raw_height": 3072,
+      "iwidth": 4080,
+      "iheight": 3072,
+      "unpack": 0,
+      "unpack_text": "No error",
+      "process": 0,
+      "process_text": "No error"
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+      "open": 0,
+      "open_text": "No error",
+      "raw_width": 4080,
+      "raw_height": 3072,
+      "iwidth": 4080,
+      "iheight": 3072,
+      "unpack": 0,
+      "unpack_text": "No error",
+      "process": 0,
+      "process_text": "No error"
+    }
+  ]
+}

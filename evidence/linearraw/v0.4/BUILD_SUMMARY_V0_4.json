@@ -1,0 +1,28 @@
+[
+  {
+    "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+    "bytes": 75205424,
+    "sha256": "13e32e0967dd9726f31dfbec33a1461c4f4c2f98e4f67789eed1cc5f7766b9fc",
+    "pixel_payload_sha256": "9f08de2fbe2efdb646fd92749a732a5682d1c235eda17a85544b3bc1b11f83be",
+    "pixel_payload_exact_v03": true,
+    "new_subfile_type": 0,
+    "compression": 1,
+    "orientation": 3,
+    "photometric": 34892,
+    "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+    "has_original_raw_file_digest": false
+  },
+  {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+    "bytes": 75205408,
+    "sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+    "pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+    "pixel_payload_exact_v03": true,
+    "new_subfile_type": 0,
+    "compression": 1,
+    "orientation": 3,
+    "photometric": 34892,
+    "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+    "has_original_raw_file_digest": false
+  }
+]
