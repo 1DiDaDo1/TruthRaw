@@ -19,9 +19,50 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            cmake ninja-build build-essential \
+            cmake ninja-build build-essential pkg-config \
             libjpeg-dev zlib1g-dev libexpat1-dev \
-            libjxl-dev libhwy-dev libbrotli-dev
+            libbrotli-dev liblcms2-dev
+
+      - name: Build pinned libjxl 0.9.0
+        run: |
+          git clone \
+            --branch v0.9.0 \
+            --depth 1 \
+            --recurse-submodules \
+            --shallow-submodules \
+            https://github.com/libjxl/libjxl.git /tmp/libjxl-src
+          test "$(git -C /tmp/libjxl-src rev-parse HEAD)" = "c51cffd7587d27fdd73f0be856db3b730314f03c"
+
+          cmake -S /tmp/libjxl-src -B /tmp/libjxl-build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/tmp/libjxl-install \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TESTING=OFF \
+            -DJPEGXL_ENABLE_TOOLS=OFF \
+            -DJPEGXL_ENABLE_DEVTOOLS=OFF \
+            -DJPEGXL_ENABLE_JPEGLI=OFF \
+            -DJPEGXL_ENABLE_JPEGLI_LIBJPEG=OFF \
+            -DJPEGXL_ENABLE_DOXYGEN=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_JNI=OFF \
+            -DJPEGXL_ENABLE_SJPEG=OFF \
+            -DJPEGXL_ENABLE_OPENEXR=OFF \
+            -DJPEGXL_ENABLE_SKCMS=OFF \
+            -DJPEGXL_ENABLE_TCMALLOC=OFF \
+            -DJPEGXL_FORCE_SYSTEM_BROTLI=ON \
+            -DJPEGXL_FORCE_SYSTEM_LCMS2=ON
+          cmake --build /tmp/libjxl-build --parallel 2
+          cmake --install /tmp/libjxl-build
+
+          test -f /tmp/libjxl-install/include/jxl/encode.h
+          test -f /tmp/libjxl-install/lib/libjxl.a
+          test -f /tmp/libjxl-install/lib/libjxl_threads.a
+          test -f /tmp/libjxl-install/lib/libjxl_cms.a
+          grep -q 'JXL_ENC_FRAME_SETTING_BUFFERING' /tmp/libjxl-install/include/jxl/encode.h
+          grep -q 'JxlEncoderOutputProcessor' /tmp/libjxl-install/include/jxl/encode.h
+          grep -q 'JxlEncoderAddChunkedFrame' /tmp/libjxl-install/include/jxl/encode.h
 
       - name: Fetch pinned Adobe DNG SDK mirror and pinned Linux CMake wrapper
         run: |
@@ -40,10 +81,11 @@ jobs:
           test -f /tmp/dng-cmake/xmp/toolkit/XMPFiles/source/WXMPFiles.cpp
           test -f /tmp/dng-cmake/dng_sdk/source/dng_jxl.cpp
 
-      - name: Configure dng_validate
+      - name: Configure dng_validate against pinned libjxl
         run: |
           cmake -S /tmp/dng-cmake -B /tmp/dng-build -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=/tmp/libjxl-install \
             -DBUILD_DNG_VALIDATE=ON \
             -DDNG_VALIDATE=ON \
             -DDNG_WITH_XMP=ON \
@@ -64,14 +106,17 @@ jobs:
             echo 'Adobe DNG SDK + XMP source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
             echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
             echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
+            echo 'Pinned libjxl tag: v0.9.0'
+            echo 'Pinned libjxl commit: c51cffd7587d27fdd73f0be856db3b730314f03c'
+            echo 'libjxl linkage: static install under /tmp/libjxl-install'
             echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=ON DNG_WITH_JXL=ON DNG_WITH_JPEG=ON XMP_USE_SYSTEM_ZLIB=ON'
-            dpkg-query -W -f='libjxl-dev ${Version}\n' libjxl-dev || true
-            dpkg-query -W -f='libhwy-dev ${Version}\n' libhwy-dev || true
-            dpkg-query -W -f='libbrotli-dev ${Version}\n' libbrotli-dev || true
+            pkg-config --modversion libbrotlienc || true
+            pkg-config --modversion lcms2 || true
             uname -a
             c++ --version | head -n1
             cmake --version | head -n1
           } > /tmp/artifact/BUILD_PROVENANCE.txt
+          ldd "$BIN" > /tmp/artifact/LDD.txt || true
 
       - name: Upload validator artifact
         uses: actions/upload-artifact@v4
