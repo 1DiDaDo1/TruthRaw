@@ -19,6 +19,16 @@ jobs:
           python-version: '3.12'
       - name: Verify byte-exact canonical provenance
         run: python tools/verify_canonical_integrity.py
+      - name: Compile v4.7i reconstruction core
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -c \
+            canonical/reconstruction/v4.7i/native/src/core.cpp \
+            -Icanonical/reconstruction/v4.7i/native/include \
+            -o /tmp/truthraw_v47i_core.o
+      - name: Build v4.7k output acutance native reference
+        run: |
+          cmake -S canonical/output-acutance/v4.7k/native -B /tmp/truthraw_v47k_build
+          cmake --build /tmp/truthraw_v47k_build --parallel 2
       - name: Compile and run v5.0g uncertainty parity
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -Werror \

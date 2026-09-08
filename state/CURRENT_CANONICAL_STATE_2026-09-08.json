@@ -1,0 +1,153 @@
+{
+  "schema": "TruthRawCurrentCanonicalState/2026-09-08",
+  "project": "TruthRaw",
+  "snapshot_date": "2026-09-08",
+  "audit_basis_commit": "278e17dc7447fed4d7ed441ff2e773f9662691f3",
+  "audit_basis_tree": "94bdce119c946c2633835776a3f39ff162774bfa",
+  "official_slogan_en": "Measured where measured. Reconstructed where necessary. Never invented.",
+  "official_slogan_nl": "Echt gemeten. Echt gereconstrueerd. Geen verzinsels.",
+  "device": "HONOR BKQ-N49 / Magic 8 Pro project device",
+  "lens_mapping": {
+    "main": {
+      "zoom": "1.0x",
+      "system_id": 2,
+      "raw": "RAW10"
+    },
+    "wide": {
+      "zoom": "0.6x",
+      "system_id": 4,
+      "raw": "RAW10"
+    },
+    "tele": {
+      "zoom": "3.7x",
+      "system_id": 5,
+      "raw": "RAW10",
+      "priority": true
+    },
+    "front": {
+      "zoom": "1.0x",
+      "system_id": 1,
+      "raw": "RAW10"
+    }
+  },
+  "current_major_branch": "v5.x Pure Truth / Unified Material / backend-bound uncertainty",
+  "provenance_class": "PURE_TRUTH_DERIVED",
+  "canonical_reconstruction": {
+    "version": "v4.7i",
+    "status": "BYTE_EXACT_CANONICAL_IMPORT_PASS",
+    "core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "core_cpp_git_blob": "f79b951ba54cff08db400023e528e4eb91909ba6",
+    "core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+    "core_h_git_blob": "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a",
+    "import_ci_run": 34239251074,
+    "import_ci_conclusion": "success"
+  },
+  "canonical_detail_backend": {
+    "version": "v4.7j Adaptive Detail",
+    "core_h_sha256": "3fe491b14027638fdc56ae8157d3c93b3876a03c4fa758c8bafbcd5402dd32e0",
+    "core_cpp_sha256": "cc7cbf7af3b27cdceda240ad230823637600fc2f052c915cba68ef88b071e1",
+    "validation_decision": "DETAIL_TRUTH_NATIVE_PASS_WAITING_VULKAN_AND_DEVICE_VALIDATION",
+    "scientific_boundary": "appearance/detail compensation; does not create missing sensor/optical information"
+  },
+  "canonical_output_acutance": {
+    "version": "v4.7k",
+    "state": "OUTPUT_ACUTANCE_CPU_REFERENCE_PASS_WAITING_VULKAN_SPIRV_DEVICE_PARITY",
+    "scientific_master_modified": false,
+    "order": "final SDR resize -> output acutance -> recompute/derive HDR gain against final base -> OETF/encode/presentation orientation"
+  },
+  "canonical_unified_material": {
+    "version": "v5.0e",
+    "source_sha256": "7a60703c47a981da8aa4f9613545e1615a6a25cdbb3a8347ed1c1a4df076b1e0",
+    "role": "non-semantic evidence-based limiter; v4.7j remains detail backend"
+  },
+  "ptc": {
+    "version": "v1.1",
+    "general_status": "PURE_TRUTH_DERIVED",
+    "full_physical_requires": [
+      "source-bound noise model",
+      "backend-bound uncertainty",
+      "per-lens color",
+      "illuminant",
+      "electron/PTC",
+      "optics"
+    ]
+  },
+  "tele_uncertainty": {
+    "model_version": "v5.0g",
+    "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "status": "CLOSED_FOR_EXACT_SCOPE_WITH_LATER_GENERALIZATION_REVIEW_OPEN",
+    "scope": "HONOR BKQ-N49 tele / 22.48 mm / 3.7x / System ID 5 / HONOR vendor DNG / exact bound reconstruction backend",
+    "first_prospective_holdout": {
+      "file": "IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+      "status": "PASS",
+      "p50_coverage": 0.5010615492435173,
+      "p95_coverage": 0.9503854557447334
+    },
+    "white_dog_2026_09_07": {
+      "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+      "q5_ratio": 0.917171,
+      "status": "PASS"
+    },
+    "black_white_dog_2026_09_07": {
+      "file": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+      "q5_ratio": 0.705044,
+      "status": "FAIL_GENERALIZATION_REVIEW_OPEN",
+      "policy": "do not retune frozen model on this holdout"
+    }
+  },
+  "linearraw_v0_4": {
+    "status": "DNG_SDK_VALIDATED_RELEASE_CANDIDATE",
+    "provenance": "DERIVED_RECONSTRUCTED_RAW",
+    "validator": "dng_validate 1.7.1 (2611) 64-bit, source-built from pinned SDK/XMP mirror",
+    "adobe_certified": false,
+    "candidates": [
+      {
+        "file": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+        "sha256": "13e32e0967dd9726f31dfbec33a1461c4f4c2f98e4f67789eed1cc5f7766b9fc",
+        "validator": "PASS"
+      },
+      {
+        "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+        "sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+        "validator": "PASS"
+      }
+    ],
+    "rule": "any changed/repacked/new DNG candidate must rerun all interoperability and DNG validator gates"
+  },
+  "full_sensor_200mp_experimental": {
+    "capability": "FULL_SENSOR_MAXIMUM_RESOLUTION_CAPABILITY_PROVEN",
+    "geometry": [
+      16320,
+      12288
+    ],
+    "runtime_capture": "OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING",
+    "lens_shading_applied": true,
+    "untouched_adc_claim": false
+  },
+  "remaining_full_physical_blockers_tele": [
+    "independent per-lens/unit color calibration",
+    "physical illuminant calibration",
+    "electron/PTC sensor calibration",
+    "optics calibration: PSF/MTF/SFR/CA/flare/residual color shading"
+  ],
+  "apk_policy": {
+    "status": "FROZEN_NON_CANONICAL_SIDE_EVIDENCE",
+    "rule": "No APK-derived TruthRaw code, architecture, topology, noise, color or metadata behavior is integrated unless the user explicitly reverses this policy."
+  },
+  "repository_migration": {
+    "v4_7i_import_commit": "7f9fb86c8710ee9dd82bc7c07758155a35ff03fd",
+    "v4_7j_v4_7k_ancillary_commit": "278e17dc7447fed4d7ed441ff2e773f9662691f3",
+    "v4_7j_v4_7k_added_files": 21,
+    "canonical_integrity_run_22": {
+      "run_id": 34245535235,
+      "conclusion": "success"
+    }
+  },
+  "next_scientific_work": [
+    "capture real independent tele color/illuminant calibration targets",
+    "capture controlled tele flat/dark/PTC data by gain/readout state",
+    "capture controlled tele PSF/MTF/CA/flare/residual-shading data",
+    "investigate high-ISO green/mid-field uncertainty generalization only with new independent data"
+  ],
+  "legal_license_policy": "No open-source LICENSE is added unless the user explicitly chooses one."
+}
