@@ -33,8 +33,11 @@ jobs:
           git -C /tmp/dng-cmake checkout 685f7139ba87afba2e40d4fd24a6455db6f8e9d9
           test "$(git -C /tmp/dng-cmake rev-parse HEAD)" = "685f7139ba87afba2e40d4fd24a6455db6f8e9d9"
 
-          rm -rf /tmp/dng-cmake/dng_sdk
+          rm -rf /tmp/dng-cmake/dng_sdk /tmp/dng-cmake/xmp
           cp -a /tmp/dng-src/dng_sdk /tmp/dng-cmake/dng_sdk
+          cp -a /tmp/dng-src/xmp /tmp/dng-cmake/xmp
+          test -f /tmp/dng-cmake/xmp/toolkit/XMPCore/source/WXMPDocOps.cpp
+          test -f /tmp/dng-cmake/xmp/toolkit/XMPFiles/source/WXMPFiles.cpp
 
       - name: Configure dng_validate
         run: |
@@ -57,7 +60,7 @@ jobs:
           cp "$BIN" /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64
           sha256sum /tmp/artifact/dng_validate_1_7_1_2611_linux_x86_64 | tee /tmp/artifact/SHA256SUMS.txt
           {
-            echo 'Adobe DNG SDK source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
+            echo 'Adobe DNG SDK + XMP source mirror commit: 11e5eb4259c2a7ad92d66e152e4974441d2e226a'
             echo 'Mirror commit message: Update to DNG SDK 1.7.1 2611'
             echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
             echo 'Build options: BUILD_DNG_VALIDATE=ON DNG_VALIDATE=ON DNG_WITH_XMP=ON DNG_WITH_JXL=OFF DNG_WITH_JPEG=ON XMP_USE_SYSTEM_ZLIB=ON'
