@@ -1,0 +1,85 @@
+{
+  "schema": "TruthRawTeleFullPhysicalCampaignCanonicalIndex/0.1",
+  "campaign_id": "TRUTHRAW_TELE_FULL_PHYSICAL_v0_1",
+  "created_date": "2026-09-08",
+  "repo_design_head": "22908e335f762c2d0cddc7e440296b43d85dd13b",
+  "source_scope": {
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "role": "tele",
+    "system_id": 5,
+    "focal_length_mm": 22.48,
+    "f_number": 2.6,
+    "geometry": [
+      4080,
+      3072
+    ],
+    "cfa": "BGGR",
+    "source_class": "HONOR_VENDOR_DNG_BNCAM",
+    "original_camera_RAW_only": true
+  },
+  "current_status": "PURE_TRUTH_DERIVED",
+  "full_package": {
+    "filename": "TRUTHRAW_TELE_FULL_PHYSICAL_CAMPAIGN_v0_1.zip",
+    "sha256": "66523fe4459fd9ce75b667e37973fbcb49d26ad8f6f0761a6cb83f0f4143c0f9",
+    "repository_policy": "Large/binary campaign packages and future measurement RAW payloads remain outside Git; this index preserves the compact scientific contract and package hash."
+  },
+  "child_kits": [
+    {
+      "file": "child_kits/TRUTHRAW_TELE_L2_PHYSICAL_COLOR_CAPTURE_KIT_v0_1.zip",
+      "bytes": 5599,
+      "sha256": "0f63bf27ac4c4927ea07833504adce4c68d5c364f42a85cb4a294c9891206dde"
+    },
+    {
+      "file": "child_kits/TRUTHRAW_TELE_ILLUMINANT_PHYSICAL_CAPTURE_KIT_v0_1.zip",
+      "bytes": 1543,
+      "sha256": "ec209e4aa3f6bdc9488c1cba6b2cc0e79de6a05945307403e67fad7424afa7c1"
+    },
+    {
+      "file": "child_kits/TRUTHRAW_TELE_PTC_PHYSICAL_CAPTURE_KIT_v0_1.zip",
+      "bytes": 2358,
+      "sha256": "fbd28b6cf870d92d3a6bf86200cae625381da9671b7f27c94b854f8d54519ded"
+    },
+    {
+      "file": "child_kits/TRUTHRAW_TELE_OPTICS_PHYSICAL_CAPTURE_KIT_v0_1.zip",
+      "bytes": 9576,
+      "sha256": "1fd82309c285bae6c20c92cc9be909c5a24440f6c475c10e97e1d9adf9a597a2"
+    }
+  ],
+  "session_order": [
+    "S0_PREFLIGHT",
+    "S1_GAIN_STATE_RECON",
+    "S2_PTC_FULL",
+    "S3_COLOR_ILLUMINANT_FIT",
+    "S4_COLOR_ILLUMINANT_VALIDATION",
+    "S5_OPTICS_PSF_SFR_CA_FIT",
+    "S6_OPTICS_FLARE_SHADING_FIT",
+    "S7_OPTICS_INDEPENDENT_VALIDATION",
+    "S8_HIGH_ISO_UNCERTAINTY_INDEPENDENT_REVIEW",
+    "S9_PROMOTION_REVIEW"
+  ],
+  "key_efficiency_rules": [
+    "Run gain-state reconnaissance before full PTC.",
+    "Uniform flat RAWs may support PTC pre-GainMap and residual shading after exactly one GainMap, with separate models/validation.",
+    "Slanted edges may support both SFR and lateral CA.",
+    "Point sources may support both PSF and chromatic centroid displacement.",
+    "Neutral target fields may support Level-N illuminant mapping and neutral-axis validation."
+  ],
+  "hard_boundaries": [
+    "Use one physical color target instance as both fit target and final validation target.",
+    "Use a TruthRaw-derived/reconstructed DNG as calibration input.",
+    "Fit physical PSF/MTF from arbitrary dog/house/nature scene texture.",
+    "Use clipped WhiteLevel codes as exact latent radiance.",
+    "Apply GainMap twice.",
+    "Fit PTC in post-GainMap units.",
+    "Treat AsShotNeutral as a measured illuminant SPD.",
+    "Use the black/white-dog uncertainty holdout to retune the frozen v5.0g model."
+  ],
+  "example_preferred_frame_counts": {
+    "2_gain_states_1_illuminant_zone_shared_shading": 1587,
+    "2_gain_states_2_illuminant_zones_shared_shading": 1738,
+    "3_gain_states_2_illuminant_zones_shared_shading": 2066
+  },
+  "promotion_rule": "FULL_PHYSICAL may be asserted only for an explicitly enumerated camera/lens/mode/gain/illuminant/focus/source domain in which every required measurement and independent validation gate passes. No pass may be inferred across unmeasured domains.",
+  "broad_scope_uncertainty_rule": "The frozen black/white-dog high-risk failure is not fit data. Broad high-ISO tele scope requires new independent uncertainty evidence or an explicitly narrower certificate scope."
+}
