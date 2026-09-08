@@ -5,7 +5,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def gitblob(p):
     b=p.read_bytes(); return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
 EXPECTED_BLOBS={
- 'README.md':'cbc083c14eee370d3e2466e86c53296ae34c197f',
+ 'README.md':'ac930ed451998e5c72dcabca10047e635aeaab38',
+ 'START_HERE_NEW_CHAT.md':'b2bfc29fda528a6230828d136f54ced9df14bda9',
+ 'docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md':'176f826a5513c5bc7075127d4419c2186ed7a3e9',
  'state/CURRENT_CANONICAL_STATE_2026-09-08.json':'13571f07246a12401d590757f54bcfe0c980d38b',
  'state/REPOSITORY_MIGRATION_STATUS.json':'b7d9a2ef63bcf1e824e90ddcf56d560126d87011',
  'docs/PROJECT_STATE_AUDIT_2026-09-08.md':'069220b82de4f50c42e214b4d9213e66e9423cc8',

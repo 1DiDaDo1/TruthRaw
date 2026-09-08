@@ -17,6 +17,18 @@ TruthRaw treats RAW/CFA data as measurement evidence rather than as a finished p
 
 Pure Truth does not use generative scene content, hallucinated texture, or hidden multi-frame scene evidence. Reconstructed values are never relabelled as newly measured photons.
 
+## Core architecture: sealed house -> new house
+
+The original RAW is the **sealed original house**: immutable evidence of what the camera actually measured.
+
+TruthRaw builds a **separate new house, stone by stone**: the Latent Scene Truth / Scene Master. That new master is not required to inherit arbitrary representation limits of the source container such as RAW10 code range, `WhiteLevel` as an output ceiling, source ISO as the working image scale, source gamut, SDR range, integer storage, or DNG compatibility constraints.
+
+**ISO remains immutable capture provenance, but does not define the identity or numerical scale of the reconstructed scene.** TruthRaw may normalize capture gain into an ISO-neutral scene-domain master while preserving the original gain/readout state in provenance and uncertainty.
+
+This freedom applies to representation, not to evidence claims: reconstruction may exceed source-container limits, but reconstructed values are never relabelled as newly measured photons. `FULL_PHYSICAL` is an evidence/certification level, not the permission boundary of the reconstruction architecture.
+
+The canonical formulation is documented in `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`. New sessions should begin with `START_HERE_NEW_CHAT.md`.
+
 ## Current repository snapshot
 
 The repository now contains the canonical reconstruction/detail/output-acutance/PTC/uncertainty stack plus a separate experimental **HONOR BKQ-N49 Camera 5 full-sensor RAW path**.
