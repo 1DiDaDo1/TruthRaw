@@ -1,0 +1,1 @@
+The clean promotion candidate is built from tree f995544796ecfcf1b0cdb488cb34e54e91256f22, which excludes later staging-only notes.
