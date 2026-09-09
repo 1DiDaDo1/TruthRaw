@@ -1,0 +1,1 @@
+Ignore staging HEAD for promotion; use clean candidate tree f995544796ecfcf1b0cdb488cb34e54e91256f22 with parent 10b2927d0b631f5fc22e5399b39860f38763efad.
