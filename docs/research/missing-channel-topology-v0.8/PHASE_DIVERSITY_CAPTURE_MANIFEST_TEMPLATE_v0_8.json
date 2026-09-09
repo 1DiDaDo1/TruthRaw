@@ -1,0 +1,32 @@
+{
+  "protocol": "TRUTHRAW_TOPOLOGY_PHASE_DIVERSITY_V0_8",
+  "purpose": "validation_only_not_master_merge",
+  "source_domain": null,
+  "lens_id": null,
+  "reconstruction_backend": null,
+  "reconstruction_backend_sha256": null,
+  "fixed_capture_state": {
+    "iso": null,
+    "exposure_time_s": null,
+    "focus_state": null,
+    "stabilization_state": null,
+    "white_balance_policy": null
+  },
+  "frames": [
+    {
+      "file": null,
+      "sha256": null,
+      "capture_metadata": {},
+      "measured_green_registration": {
+        "transform": null,
+        "rms_raw_pixels": null,
+        "p95_residual_raw_pixels": null,
+        "photometric_scale": null,
+        "qualified": false
+      },
+      "phase_coverage": {}
+    }
+  ],
+  "gates_frozen_before_prospective_holdout": true,
+  "topologyCertified": false
+}
