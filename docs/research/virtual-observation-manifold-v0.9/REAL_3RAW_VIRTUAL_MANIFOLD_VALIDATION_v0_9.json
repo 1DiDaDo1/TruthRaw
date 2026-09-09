@@ -1,0 +1,67 @@
+{
+  "schema": "TruthRawVirtualObservationManifoldReal3Raw/0.9",
+  "status": "REAL_SCENE_NUMERICAL_INVARIANTS_PASS_PHYSICAL_ISO_NOISE_MODEL_OPEN",
+  "main_basis": "768fafbea8d2c8ebf5e4ac442c531be1a4117780",
+  "ev_nodes": [-6,-4,-2,0,2,4,6,8,10],
+  "virtual_iso_nodes": [100,200,400,800,1600,3200,6400,12800],
+  "results": [
+    {
+      "scene": "094414",
+      "scene_file": "094414.scene.bin",
+      "scene_sha256": "819ad7513bb046ed400bec4d75aca3d197429b8e16ff346d0737de2b4f6e3b9d",
+      "shape": [3072,4080,3],
+      "scene_min": -0.005658743903040886,
+      "scene_max": 1.0130051374435425,
+      "negative_components": 300814,
+      "over_one_components": 2,
+      "max_roundtrip_abs": 0.0,
+      "weight_sum_max_abs_error": 2.220446049250313e-16,
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "evidence_confidence_multiplier": 1.0,
+      "physical_iso_noise_simulation": "REJECT_WITHOUT_BOUND_SENSOR_FORWARD_MODEL"
+    },
+    {
+      "scene": "094416",
+      "scene_file": "094416.scene.bin",
+      "scene_sha256": "c322f5ca37b9b51d2de15b732bb1c25ef6fb59de653ae755e1630aa1bd917ed7",
+      "shape": [3072,4080,3],
+      "scene_min": -0.005020547658205032,
+      "scene_max": 1.730840802192688,
+      "negative_components": 266402,
+      "over_one_components": 6140,
+      "max_roundtrip_abs": 0.0,
+      "weight_sum_max_abs_error": 2.220446049250313e-16,
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "evidence_confidence_multiplier": 1.0,
+      "physical_iso_noise_simulation": "REJECT_WITHOUT_BOUND_SENSOR_FORWARD_MODEL"
+    },
+    {
+      "scene": "094423",
+      "scene_file": "094423.scene.bin",
+      "scene_sha256": "cece8d31a745cc903e4bba01caea7ac713583732d3adc3338ff01286e2d3ce56",
+      "shape": [3072,4080,3],
+      "scene_min": -0.0037411225493997335,
+      "scene_max": 1.0757628679275513,
+      "negative_components": 22307,
+      "over_one_components": 8465,
+      "max_roundtrip_abs": 0.0,
+      "weight_sum_max_abs_error": 3.3306690738754696e-16,
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "evidence_confidence_multiplier": 1.0,
+      "physical_iso_noise_simulation": "REJECT_WITHOUT_BOUND_SENSOR_FORWARD_MODEL"
+    }
+  ],
+  "aggregate": {
+    "scenes": 3,
+    "virtual_ev_views_total": 27,
+    "virtual_iso_encoding_views_total": 24,
+    "physical_frames_total": 3,
+    "independent_evidence_roots_total": 3,
+    "max_ev_roundtrip_abs": 0.0,
+    "max_weight_sum_abs_error": 3.3306690738754696e-16
+  },
+  "claim_boundary": "Each source scene can expose arbitrarily many deterministic virtual observations. View multiplicity never increases independent physical evidence. Virtual ISO noise physics remains unavailable until a bound sensor forward model exists."
+}
