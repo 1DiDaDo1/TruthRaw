@@ -1,0 +1,57 @@
+{
+  "schema": "TruthRawDenseUncertaintyManifest/0.3",
+  "evidence_storage": {
+    "compressed_path": "REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib",
+    "encoding": "zlib",
+    "uncompressed_target": "REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json",
+    "uncompressed_bytes": 21530,
+    "uncompressed_sha256": "34d8fcb694c23ecee55a442dc15f34844bebbecd91dd39874e7dc21db9b7b78c"
+  },
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 1395,
+      "sha256": "5cfb8ea771ad562244c4989f122dd5eea5aea304b500f875d77ae5a0df480487"
+    },
+    {
+      "path": "IMPLEMENTATION_INDEX_v0_3.json",
+      "bytes": 2609,
+      "sha256": "ba8e15fa3be1e71e096f007b0baf79ac56cb71efe32294df2df3382710feae08"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4146,
+      "sha256": "89085c13e48a691dc7785d5e25a3a8c3dcc87ae3e50720a1a7d7e4add7ea4855"
+    },
+    {
+      "path": "REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib",
+      "bytes": 4712,
+      "sha256": "b52951c90196d8d5a7349f90a782bd8a985cbe7d78e47d0b9a68c7165e671c66"
+    },
+    {
+      "path": "REPORT_v0_3.md",
+      "bytes": 3304,
+      "sha256": "fa829d44e9966c7cfb3f40f43257a5be3bcdf5e8ea244b0ebd0e69456e11d3e1"
+    },
+    {
+      "path": "TEST_OUTPUT_v0_3.txt",
+      "bytes": 325,
+      "sha256": "e74c5462a2631fa7155b58a7e992b1a5372b4fd4b9a0a22ea9071e0083a533da"
+    },
+    {
+      "path": "native/truthrange_dense_uncertainty_v0_3.cpp",
+      "bytes": 8763,
+      "sha256": "abf7419eb30bfbd6b1ff7b0679b514711c9d6de4d2a0c1a3d7a40de478035b56"
+    },
+    {
+      "path": "native/truthrange_dense_uncertainty_v0_3.h",
+      "bytes": 2725,
+      "sha256": "98996992df13af4191cef6bb222b4a88f2b5e60a28f146046f729109f4f3f3b7"
+    },
+    {
+      "path": "tests/test_truthrange_dense_uncertainty_v0_3.cpp",
+      "bytes": 8765,
+      "sha256": "75cf5ab42b37207a303d954843c8513960b3042f6d7ceedd982c82d61cd9f238"
+    }
+  ]
+}

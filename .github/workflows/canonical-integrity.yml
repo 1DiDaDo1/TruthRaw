@@ -27,6 +27,11 @@ jobs:
           cmake -S docs/research/truthrange-latent-binding-v0.2 -B /tmp/truthraw_truthrange_v02
           cmake --build /tmp/truthraw_truthrange_v02 --parallel 2
           /tmp/truthraw_truthrange_v02/test_truthrange_latent_v0_2
+      - name: Build and run TruthRange v0.3 dense uncertainty contract
+        run: |
+          cmake -S docs/research/truthrange-dense-uncertainty-v0.3 -B /tmp/truthraw_truthrange_v03
+          cmake --build /tmp/truthraw_truthrange_v03 --parallel 2
+          /tmp/truthraw_truthrange_v03/test_truthrange_dense_uncertainty_v0_3
       - name: Compile v4.7i reconstruction core
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -Werror -c \

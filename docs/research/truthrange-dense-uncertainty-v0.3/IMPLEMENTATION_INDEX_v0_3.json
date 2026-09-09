@@ -1,0 +1,70 @@
+{
+  "schema": "TruthRawTruthRangeDenseUncertainty/0.3",
+  "status": "DENSE_UNCERTAINTY_CONTRACT_RESEARCH_PASS_TOPOLOGY_PROXY_OPEN",
+  "depends_on": {
+    "truthrange_latent_v0_2": "eea263731c3c78b969054c37548192cb4799e574",
+    "reconstruction_v4_7i_core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "uncertainty_v5_0g_model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f"
+  },
+  "measured_channel": {
+    "model": "DNG NoiseProfile Gaussian-equivalent marginal uncertainty in Stage-2 units",
+    "formula": "sigma=sqrt(g*S*max(stage2,0)+g^2*O)",
+    "p50_abs_multiplier": 0.6744897501960817,
+    "p95_abs_multiplier": 1.959963984540054,
+    "physical_ptc_claim": false
+  },
+  "reconstructed_channel": {
+    "model": "v5.0g measured-role anchors -> local same-color max transport proxy",
+    "numeric_dense_field": true,
+    "topology_certified": false,
+    "co_sited_rgb_ground_truth": false
+  },
+  "covariance": {
+    "status": "MARGINAL_ONLY_OFF_DIAGONAL_UNRESOLVED",
+    "independence_assumed": false
+  },
+  "native_validation": {
+    "measured_valid": 1918,
+    "measured_clipped": 2,
+    "measured_formula_max_abs": 4.63367e-09,
+    "reconstructed_proxy": 3840,
+    "reconstructed_unresolved": 0,
+    "reconstructed_topology_certified": 0,
+    "truthrange_finite_reconstructed": 3791,
+    "dark_p95_lower_inf": 87,
+    "bright_evidence_upper_inf": 2,
+    "coordinate_rescale_interval_max_ev": 2.17723e-08,
+    "invalid_anchor_fail_closed": "PASS"
+  },
+  "real_bncam_source_diagnostic": {
+    "status": "PRE_GAINMAP_SOURCE_DIAGNOSTIC_PASS_NOT_FULL_STAGE2_BRIDGE",
+    "iso_sweep": [
+      100,
+      200,
+      400,
+      800,
+      1600,
+      3200,
+      6400,
+      12800
+    ],
+    "green_sigma_q50_iso100": 0.0009928875252372472,
+    "green_sigma_q50_iso12800": 0.009839206510685997
+  },
+  "next": [
+    "portable exact v5.0g measured-role anchor extraction",
+    "exact real-DNG OpcodeList2/GainMap bridge",
+    "missing-channel topology study",
+    "camera-RGB covariance before XYZ propagation"
+  ],
+  "real_evidence_storage": {
+    "repository_path": "docs/research/truthrange-dense-uncertainty-v0.3/REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib",
+    "encoding": "zlib",
+    "compressed_bytes": 4712,
+    "compressed_sha256": "b52951c90196d8d5a7349f90a782bd8a985cbe7d78e47d0b9a68c7165e671c66",
+    "uncompressed_target": "REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json",
+    "uncompressed_bytes": 21530,
+    "uncompressed_sha256": "34d8fcb694c23ecee55a442dc15f34844bebbecd91dd39874e7dc21db9b7b78c",
+    "semantic_change": false
+  }
+}

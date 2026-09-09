@@ -13,7 +13,7 @@ EXPECTED_BLOBS={
  'docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md':'176f826a5513c5bc7075127d4419c2186ed7a3e9',
  'docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md':'edb6d5e96026a65512416243ef85c1c5d2f37c9e',
  'state/CURRENT_CANONICAL_STATE_2026-09-08.json':'13571f07246a12401d590757f54bcfe0c980d38b',
- 'state/CURRENT_CANONICAL_STATE_2026-09-09.json':'9c00d74e1957fb3e3bbca894997672351b0ca0a8',
+ 'state/CURRENT_CANONICAL_STATE_2026-09-09.json':'db0b864667f778bbb827a333264a8fb603bf2c55',
  'state/REPOSITORY_MIGRATION_STATUS.json':'b7d9a2ef63bcf1e824e90ddcf56d560126d87011',
  'docs/PROJECT_STATE_AUDIT_2026-09-08.md':'069220b82de4f50c42e214b4d9213e66e9423cc8',
  'docs/research/zero-line-dynamic-range-v0.1/implementation/IMPLEMENTATION_INDEX_v0_1.json':'25a9411ef00c4f1fe35436ae6019afa3105699fa',
@@ -30,6 +30,17 @@ EXPECTED_BLOBS={
  'docs/research/truthrange-latent-binding-v0.2/native/truthrange_latent_v0_2.cpp':'2bf0aecd05c0b36440d14300d9ea973ffa58c62a',
  'docs/research/truthrange-latent-binding-v0.2/native/truthrange_latent_v0_2.h':'90b15bb5e4f1f9daee6babe39730f88882ecce0e',
  'docs/research/truthrange-latent-binding-v0.2/tests/test_truthrange_latent_v0_2.cpp':'676a984146bd034c56a634f15bdeb10456abd969',
+ '.github/workflows/canonical-integrity.yml':'3d1213b5fe9c0f07fabbdc1c5711bfeeeebb5297',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/CMakeLists.txt':'fe3d14a6bc837572d9858880caaa434c57379bd6',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/IMPLEMENTATION_INDEX_v0_3.json':'306346816c0fbf4270013a2efe2cf4c4c49dcabd',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/README.md':'1e7cc580f3ecbd66ab915e0ab80d7049bb7f5484',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib':'e2d36b85ab868e49eaa490ed212a8df170058c10',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/REPORT_v0_3.md':'3af36fe71c599571e62ca24eab8eeda466d0b0a0',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/SHA256_MANIFEST_v0_3.json':'d03f076145c375a617ea9182ecdd8d2bf28c9c7b',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/TEST_OUTPUT_v0_3.txt':'93324136d8336d860742e98eb8c8d307c6944bda',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/native/truthrange_dense_uncertainty_v0_3.cpp':'ceb438898dcaf5d5820d961d13d423c4672b3591',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/native/truthrange_dense_uncertainty_v0_3.h':'bd4d85af9ddc472fdc72aee38d7636704989ead8',
+ 'docs/research/truthrange-dense-uncertainty-v0.3/tests/test_truthrange_dense_uncertainty_v0_3.cpp':'c67019fd7e8ad13f89e3d0d27df7024f9ffdf87b',
  'canonical/reconstruction/v4.7i/native/include/truthraw/core.h':'cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a',
  'canonical/reconstruction/v4.7i/native/src/core.cpp':'f79b951ba54cff08db400023e528e4eb91909ba6',
  'canonical/detail/v4.7j/native/include/truthraw/core.h':'ff5a6c976be8228d990aa4ee577db8613d8c9bd1',
@@ -54,6 +65,16 @@ for rel,exp in EXPECTED_BLOBS.items():
     if not p.is_file() or gitblob(p)!=exp:
         raise SystemExit(f'FAIL blob {rel}')
     print('PASS blob',rel)
+
+# v0.3 real BnCam evidence is stored losslessly compressed; verify both container and original JSON bytes.
+v03z=ROOT/'docs/research/truthrange-dense-uncertainty-v0.3/REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib'
+v03c=v03z.read_bytes()
+if len(v03c)!=4712 or hashlib.sha256(v03c).hexdigest()!='b52951c90196d8d5a7349f90a782bd8a985cbe7d78e47d0b9a68c7165e671c66':
+    raise SystemExit('FAIL v0.3 compressed real evidence')
+v03raw=zlib.decompress(v03c)
+if len(v03raw)!=21530 or hashlib.sha256(v03raw).hexdigest()!='34d8fcb694c23ecee55a442dc15f34844bebbecd91dd39874e7dc21db9b7b78c':
+    raise SystemExit('FAIL v0.3 uncompressed real evidence')
+print('PASS v0.3 real evidence zlib -> original JSON')
 
 v5e=ROOT/'canonical/unified-material/v5.0e'
 data=b''.join((v5e/'source-parts'/f'unified_material_v5_0e.py.part0{i}').read_bytes() for i in range(1,5))

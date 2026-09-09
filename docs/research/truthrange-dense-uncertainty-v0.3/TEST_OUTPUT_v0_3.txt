@@ -1,0 +1,5 @@
+TruthRange dense uncertainty v0.3 contract: PASS
+measured_valid=1918 measured_clipped=2 formula_max_abs=4.63367e-09
+reconstructed_proxy=3840 unresolved=0 topology_certified_reconstructed=0
+truthrange_finite_reconstructed=3791 dark_lower_inf_count=87 bright_evidence_upper_inf=2
+coordinate_rescale_interval_max_ev=2.17723e-08
