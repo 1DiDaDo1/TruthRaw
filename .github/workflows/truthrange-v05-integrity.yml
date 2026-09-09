@@ -1,0 +1,31 @@
+name: TruthRange v0.5 Integrity
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  truthrange-v05:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify v0.5 byte-exact module and evidence
+        run: python tools/verify_truthrange_v05_integrity.py
+      - name: Build and run v0.5 real-latent contract
+        run: |
+          cmake -S docs/research/truthrange-real-latent-v0.5 -B /tmp/truthraw_v05
+          cmake --build /tmp/truthraw_v05 --parallel 2
+          /tmp/truthraw_v05/test_truthrange_real_latent_v0_5
+      - name: Python syntax smoke
+        run: |
+          python -m py_compile \
+            docs/research/truthrange-real-latent-v0.5/reference/probe_reference_v0_5.py \
+            tools/verify_truthrange_v05_integrity.py

@@ -1,0 +1,60 @@
+{
+  "schema": "TruthRawTruthRangeRealLatentManifest/0.5",
+  "files": [
+    {
+      "file": "CMakeLists.txt",
+      "bytes": 1918,
+      "sha256": "3af7c6816e995166b682eb3364d0dcd360dae30947705e78e1abcf2258ee2312"
+    },
+    {
+      "file": "IMPLEMENTATION_INDEX_v0_5.json",
+      "bytes": 1317,
+      "sha256": "63f745ddcc3b6175110131ffab1bcfbb8dc8f6209915ec6e220b03411beef124"
+    },
+    {
+      "file": "README.md",
+      "bytes": 2062,
+      "sha256": "a70ba2749700dcdb8391b71a4d953c8839bcf7332366ec26e78effe269565f4e"
+    },
+    {
+      "file": "REPORT_v0_5.md",
+      "bytes": 2024,
+      "sha256": "2b8312436011664d6b302646f13f30628ea7e53fdad6b386e37b6b0b1ade5aef"
+    },
+    {
+      "file": "REAL_BNCAM_LATENT_TRUTHRANGE_RESULTS_v0_5.json.zlib",
+      "bytes": 4521,
+      "sha256": "21db46b73fbe0561d173fe492d2e2961c5bc25841b87926fde0619bd6f8bef6d"
+    },
+    {
+      "file": "TEST_OUTPUT_v0_5.txt",
+      "bytes": 310,
+      "sha256": "afbf3d0d53b43541ab095dd48a07a1b37c5d9bc7c6059b58a35feb519726249a"
+    },
+    {
+      "file": "native/truthrange_real_latent_v0_5.cpp",
+      "bytes": 21085,
+      "sha256": "2ac080e9e38cfc57b6b78bdad429b5029520bebd20745e322082980c6873dbf9"
+    },
+    {
+      "file": "native/truthrange_real_latent_v0_5.h",
+      "bytes": 3251,
+      "sha256": "29cd42ee74a7906ec4d690529c00963e77015bcd5ce0fdc38b5e72f257c61857"
+    },
+    {
+      "file": "native/truthrange_real_latent_v0_5_cli.cpp",
+      "bytes": 3153,
+      "sha256": "7c0eb72176221e8a8868476966becb7b3aa2f789062e8c43a95392276c530760"
+    },
+    {
+      "file": "reference/probe_reference_v0_5.py",
+      "bytes": 7974,
+      "sha256": "f65409aa100dfcae0f478aaf37e71ebee9930ec3b1c15d3523fa9fe31df91107"
+    },
+    {
+      "file": "tests/test_truthrange_real_latent_v0_5.cpp",
+      "bytes": 3523,
+      "sha256": "437aa917eb44da58ba642bcd1840f123e19f96ad39b5f1d295c487e8249962b1"
+    }
+  ]
+}

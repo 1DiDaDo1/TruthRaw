@@ -1,0 +1,25 @@
+{
+  "schema": "TruthRawTruthRangeRealLatentImplementationIndex/0.5",
+  "status": "REAL_DNG_LATENT_DENSE_TRUTHRANGE_RESEARCH_PASS",
+  "source_domain": "HONOR BKQ-N49 BnCam tele / BGGR / 4080x3072",
+  "bindings": {
+    "v4_7i_core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "v4_7i_core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+    "v5_0g_model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "v5_0g_uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+    "v5_0g_feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+    "scene_scale_id": "DNG_STAGE2_BLACK_WHITE_GAINMAP_EXACTLY_ONCE"
+  },
+  "module_files": [
+    "CMakeLists.txt",
+    "README.md",
+    "REPORT_v0_5.md",
+    "REAL_BNCAM_LATENT_TRUTHRANGE_RESULTS_v0_5.json.zlib",
+    "native/truthrange_real_latent_v0_5.h",
+    "native/truthrange_real_latent_v0_5.cpp",
+    "native/truthrange_real_latent_v0_5_cli.cpp",
+    "reference/probe_reference_v0_5.py",
+    "tests/test_truthrange_real_latent_v0_5.cpp"
+  ],
+  "decision": "Research bridge passes real source-bound integration gates; it is not FULL_PHYSICAL and does not certify missing-channel topology/covariance."
+}

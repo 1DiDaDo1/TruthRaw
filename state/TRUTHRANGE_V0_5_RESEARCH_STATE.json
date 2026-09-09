@@ -1,0 +1,39 @@
+{
+  "schema": "TruthRawTruthRangeResearchState/0.5",
+  "status": "REAL_DNG_LATENT_DENSE_TRUTHRANGE_RESEARCH_PASS",
+  "parent_canonical_main": "8ed7658490fdb7cefc1e7392ae585f947e8c6d1d",
+  "module": "docs/research/truthrange-real-latent-v0.5",
+  "source_domain": "HONOR BKQ-N49 BnCam tele 4080x3072 BGGR classic-TIFF DNG",
+  "source_count": 8,
+  "iso_sweep": [
+    100,
+    200,
+    400,
+    800,
+    1600,
+    3200,
+    6400,
+    12800
+  ],
+  "closed_bindings": {
+    "v0_4_real_dng_stage2": "CLOSED_PASS",
+    "v0_2_latent_scene": "CLOSED_PASS",
+    "v0_3_dense_uncertainty_contract": "CLOSED_PASS",
+    "v5_0g_frozen_feature_runtime": "BOUND_EXACT_FEATURE_SCHEMA"
+  },
+  "real_gates": {
+    "stage2_parity": "PASS_8_OF_8_EXACT",
+    "measured_cfa_reinjection": "PASS_8_OF_8_EXACT",
+    "independent_probe_parity": "PASS_64_PROBES_ALL_ROLES",
+    "tile128_vs_256": "PASS_8_OF_8_EXACT",
+    "iso12800_fullfield_vs_tile256": "PASS_EXACT"
+  },
+  "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+  "historical_feature_quirk": "Frozen training one-hot order B,G1,G2,R is preserved exactly despite labels role_R,role_G1,role_G2,role_B.",
+  "claim_boundary": "Missing-channel uncertainty remains local-max transport proxy; topology is not certified, RGB covariance unresolved, NoiseProfile is not physical electron calibration, self-gauge is not absolute radiometry, FULL_PHYSICAL remains open.",
+  "repository_closure_requires": [
+    "TruthRange v0.5 Integrity workflow success",
+    "existing Canonical Integrity workflow success"
+  ],
+  "next": "v0.6 covariance-aware camera-scene uncertainty propagation toward XYZ(D50), with unresolved covariance represented explicitly rather than assumed away."
+}
