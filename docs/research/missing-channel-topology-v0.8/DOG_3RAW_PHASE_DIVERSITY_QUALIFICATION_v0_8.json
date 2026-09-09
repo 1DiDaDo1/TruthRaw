@@ -1,0 +1,34 @@
+{
+  "status": "FAIL_NOT_SUITABLE_FOR_CO_SITED_TOPOLOGY_CERTIFICATION",
+  "reference": "094414",
+  "registration_signal": "direct measured green CFA only; 2x2-cell green average; no demosaiced RGB ground truth",
+  "protocol_gate": {
+    "registration_rms_target_raw_px": 0.10,
+    "registration_p95_target_raw_px": 0.20
+  },
+  "pairs": {
+    "094414_to_094416": {
+      "ecc": 0.7878192644131439,
+      "affine_singular_values": [1.2554339405970658, 0.8898625614655339],
+      "residual_flow_raw_px_median": 0.05372612178325653,
+      "residual_flow_raw_px_p90": 26.706653594970703,
+      "residual_flow_raw_px_p95": 77.1685791015625,
+      "residual_flow_raw_px_p99": 175.5374755859375,
+      "fraction_residual_gt_0_2_raw_px": 0.402072712024189,
+      "fraction_residual_gt_1_raw_px": 0.2584174367608436,
+      "decision": "FAIL"
+    },
+    "094414_to_094423": {
+      "ecc": 0.5414366931651834,
+      "affine_singular_values": [0.8700393501753749, 0.6290991554558734],
+      "residual_flow_raw_px_median": 2.308187961578369,
+      "residual_flow_raw_px_p90": 74.23497772216797,
+      "residual_flow_raw_px_p95": 98.04288482666016,
+      "residual_flow_raw_px_p99": 126.0125503540039,
+      "fraction_residual_gt_0_2_raw_px": 0.652929510765554,
+      "fraction_residual_gt_1_raw_px": 0.5620126809366616,
+      "decision": "FAIL"
+    }
+  },
+  "claim_boundary": "These three real-life dog captures remain valid single-frame reconstruction/preview evidence, but they cannot be used to manufacture co-sited missing-channel ground truth. topologyCertified remains false."
+}
