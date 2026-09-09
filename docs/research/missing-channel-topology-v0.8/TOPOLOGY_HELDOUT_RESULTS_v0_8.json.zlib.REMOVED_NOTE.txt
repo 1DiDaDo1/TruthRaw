@@ -1,0 +1,1 @@
+The full deterministic result payload is intentionally not committed. Its SHA-256 is 758599a534ed5226d6eb3088fed30fa5cb38889df827a0c804d709617c0353ba and its uncompressed size is 67,250 bytes. Repository evidence is carried by TOPOLOGY_HELDOUT_SUMMARY_v0_8.json plus the full-result hash binding in STATE_v0_8.json.
