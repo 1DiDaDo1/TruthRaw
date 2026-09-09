@@ -1,0 +1,50 @@
+{
+  "DOG_3RAW_PHASE_DIVERSITY_QUALIFICATION_v0_8.json": {
+    "bytes": 1570,
+    "sha256": "9449512e955ab382b5045f6d08d7a4b351407c7fc700d77034719dd4b7ef756c"
+  },
+  "DOG_3RAW_PHASE_DIVERSITY_QUALIFICATION_v0_8.md": {
+    "bytes": 1096,
+    "sha256": "d76413ecb443d0205fee17f06b792c5fe9ed94935a6ad528c0ce2b6c8001e659"
+  },
+  "PHASE_DIVERSITY_CAPTURE_MANIFEST_TEMPLATE_v0_8.json": {
+    "bytes": 817,
+    "sha256": "0923035e0dbf7108def9d66d7ebd6d6d811de9102f0351ea882acb4f2d08a603"
+  },
+  "README.md": {
+    "bytes": 898,
+    "sha256": "9b48ae03c11655316a14f790f6ac617056f444a153ca3e774535a2ddaed72815"
+  },
+  "REPORT_v0_8.md": {
+    "bytes": 4746,
+    "sha256": "1bd434caae89da80604e59310c4e9f3cf5554307959327c59c8ad45ede66756e"
+  },
+  "STATE_v0_8.json": {
+    "bytes": 403,
+    "sha256": "b5ef88336c026c9397202e0443623e01b375151d5cf58d76e46a4723062c66ed"
+  },
+  "TOPOLOGY_HELDOUT_RESULTS_v0_8.json.zlib": {
+    "bytes": 11832,
+    "sha256": "1c94f79d4f4dda253aa6292245da1832556402d6f92bf7e4e4aa5b89bb13b1cc"
+  },
+  "TOPOLOGY_PHASE_DIVERSITY_CAPTURE_PROTOCOL_v0_8.md": {
+    "bytes": 7607,
+    "sha256": "a20ecdd791cc2f4747ed25d057e6f44d68dd14bf64044849e717714d64122496"
+  },
+  "dump_stage2.cpp": {
+    "bytes": 1333,
+    "sha256": "6a8d2babf0e1a4cf5045fa50a26fb985ec1f259bdd0766866794b8b564408f50"
+  },
+  "heldout_topology_study.py": {
+    "bytes": 9716,
+    "sha256": "b1e14a3189a009a933f4fd8599a4d57cf961a2fa2cf0f8507e8a8acc70a1eebf"
+  },
+  "test_synthetic_no_leak.py": {
+    "bytes": 836,
+    "sha256": "09a37076e3b1dbefc307b1c7bc6e97fc60373a69f8b59b8c47b971ba4b35f34e"
+  },
+  "verify_v0_8_integrity.py": {
+    "bytes": 1446,
+    "sha256": "e33f311be834bf6ff3629da3e15bffeb1610307369faa0cfaca2c67380184489"
+  }
+}
