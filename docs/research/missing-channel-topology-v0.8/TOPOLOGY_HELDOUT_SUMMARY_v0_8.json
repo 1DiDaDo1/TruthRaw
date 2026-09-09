@@ -1,0 +1,56 @@
+{
+  "study": "TruthRaw missing-channel topology held-out CFA proxy v0.8",
+  "main_sha": "10b2927d0b631f5fc22e5399b39860f38763efad",
+  "method": "4-fold same-channel CFA holdout; target value never used by predictor; R/B use target-independent adjacent-green color-difference guide; G uses same-channel spatial support; source-clipped targets/support excluded",
+  "claim_boundary": "Necessary-condition topology proxy only. It does not provide co-sited independent ground truth for channels that were physically absent at a Bayer pixel and therefore cannot set topologyCertified=true by itself.",
+  "full_result_sha256": "758599a534ed5226d6eb3088fed30fa5cb38889df827a0c804d709617c0353ba",
+  "full_result_bytes": 67250,
+  "deterministic_rerun_byte_exact": true,
+  "summary": {
+    "R": {
+      "samples": 720000,
+      "weighted_mae": 0.003862826806459886,
+      "weighted_p95_abs_mean": 0.012038086157314613,
+      "weighted_mae_ratio_vs_spatial_baseline": 0.986898428773086,
+      "ordering_agreement": 0.9784571895083995,
+      "ordering_pairs": 556102,
+      "curvature_agreement": 0.9093129945088683,
+      "curvature_pairs": 228004,
+      "weighted_mean_local_rank_error": 0.26793506944444445,
+      "weighted_raw_support_violation_fraction": 0.0344375,
+      "worst_fold_ordering": 0.9712867066228653,
+      "worst_fold_curvature": 0.8872773536895674,
+      "worst_fold_p95_rel_local_span": 0.5635890426130483
+    },
+    "G": {
+      "samples": 720000,
+      "weighted_mae": 0.005040503023362394,
+      "weighted_p95_abs_mean": 0.016335206028826637,
+      "weighted_mae_ratio_vs_spatial_baseline": 1.0,
+      "ordering_agreement": 0.9475036158077972,
+      "ordering_pairs": 524779,
+      "curvature_agreement": 0.8522845874119728,
+      "curvature_pairs": 182046,
+      "weighted_mean_local_rank_error": 0.25653030092592594,
+      "weighted_raw_support_violation_fraction": 0.0,
+      "worst_fold_ordering": 0.9383706735602471,
+      "worst_fold_curvature": 0.8424402610712551,
+      "worst_fold_p95_rel_local_span": 0.5431559683647879
+    },
+    "B": {
+      "samples": 720000,
+      "weighted_mae": 0.0035647814926175144,
+      "weighted_p95_abs_mean": 0.011119629675343655,
+      "weighted_mae_ratio_vs_spatial_baseline": 0.9866244048513967,
+      "ordering_agreement": 0.976970749757982,
+      "ordering_pairs": 552645,
+      "curvature_agreement": 0.90693142090282,
+      "curvature_pairs": 233978,
+      "weighted_mean_local_rank_error": 0.2700970486111111,
+      "weighted_raw_support_violation_fraction": 0.040716666666666665,
+      "worst_fold_ordering": 0.9689432225641604,
+      "worst_fold_curvature": 0.8734617614844404,
+      "worst_fold_p95_rel_local_span": 0.5693920058746641
+    }
+  }
+}

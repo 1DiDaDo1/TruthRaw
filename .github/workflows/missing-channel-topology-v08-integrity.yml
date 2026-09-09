@@ -1,0 +1,65 @@
+name: Missing Channel Topology v0.8 Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - 'research/missing-channel-topology-v0.8*'
+    paths:
+      - 'docs/research/missing-channel-topology-v0.8/**'
+      - '.github/workflows/missing-channel-topology-v08-integrity.yml'
+      - 'docs/research/truthrange-real-dng-stage2-v0.4/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/research/missing-channel-topology-v0.8/**'
+      - '.github/workflows/missing-channel-topology-v08-integrity.yml'
+      - 'docs/research/truthrange-real-dng-stage2-v0.4/**'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research dependencies
+        run: python -m pip install --disable-pip-version-check numpy tifffile
+      - name: Byte exact evidence and claim guards
+        run: python docs/research/missing-channel-topology-v0.8/verify_v0_8_integrity.py
+      - name: Python syntax and no-leak smoke
+        run: |
+          python -m py_compile docs/research/missing-channel-topology-v0.8/heldout_topology_study.py
+          python docs/research/missing-channel-topology-v0.8/test_synthetic_no_leak.py
+      - name: Compile Stage-2 dumper against closed v0.4 decoder
+        shell: bash
+        run: |
+          set -euxo pipefail
+          g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror \
+            -Idocs/research/truthrange-real-dng-stage2-v0.4/native \
+            docs/research/missing-channel-topology-v0.8/dump_stage2.cpp \
+            docs/research/truthrange-real-dng-stage2-v0.4/native/dng_stage2_v0_4.cpp \
+            -o /tmp/truthraw_topology_v08_dump_stage2
+          set +e
+          /tmp/truthraw_topology_v08_dump_stage2 >/tmp/usage.txt 2>&1
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          grep -F 'usage: dump_stage2 input.dng out.bin' /tmp/usage.txt
+      - name: Evidence smoke
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=Path('docs/research/missing-channel-topology-v0.8')
+          x=json.loads((r/'TOPOLOGY_HELDOUT_SUMMARY_v0_8.json').read_text())
+          assert x['summary']['R']['ordering_agreement'] > 0.95
+          assert x['summary']['G']['ordering_agreement'] > 0.90
+          assert x['summary']['B']['ordering_agreement'] > 0.95
+          assert 'cannot set topologyCertified=true' in x['claim_boundary']
+          q=json.loads((r/'DOG_3RAW_PHASE_DIVERSITY_QUALIFICATION_v0_8.json').read_text())
+          assert q['status'] == 'FAIL_NOT_SUITABLE_FOR_CO_SITED_TOPOLOGY_CERTIFICATION'
+          print('TRUTHRAW_TOPOLOGY_V0_8_SMOKE PASS')
+          PY
