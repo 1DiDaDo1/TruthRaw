@@ -1,0 +1,1 @@
+The clean candidate deliberately excludes this and all other staging-only marker files.
