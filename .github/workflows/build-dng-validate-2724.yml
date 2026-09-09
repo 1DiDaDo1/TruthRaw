@@ -83,6 +83,16 @@ jobs:
           test -f /tmp/dng-cmake/dng_sdk/source/dng_jxl.cpp
           test -f /tmp/dng-cmake/xmp/toolkit/XMPCore/source/WXMPDocOps.cpp
 
+      - name: Apply minimal Linux build compatibility patch
+        run: |
+          XMP_STREAM=/tmp/dng-cmake/xmp/toolkit/source/XMPStream_IO.cpp
+          test -f "$XMP_STREAM"
+          if ! grep -q '^#include <cstring>' "$XMP_STREAM"; then
+            sed -i '/#include "source\/XMP_LibUtils.hpp"/i #include <cstring>' "$XMP_STREAM"
+          fi
+          grep -n '^#include <cstring>' "$XMP_STREAM"
+          printf '%s\n' 'Compatibility-only patch: add standard <cstring> declaration required by GCC 13 for memcpy.' > /tmp/LINUX_BUILD_PATCH.txt
+
       - name: Configure dng_validate
         run: |
           cmake -S /tmp/dng-cmake -B /tmp/dng-build -GNinja \
@@ -110,6 +120,7 @@ jobs:
           cp /tmp/ADOBE_SDK_ZIP_SHA256.txt /tmp/artifact/
           cp /tmp/SDK_2724_MATCHES.txt /tmp/artifact/
           cp /tmp/DNG_VALIDATE_BANNER.txt /tmp/artifact/
+          cp /tmp/LINUX_BUILD_PATCH.txt /tmp/artifact/
           sha256sum /tmp/artifact/dng_validate_1_7_1_2724_linux_x86_64 /tmp/artifact/libjpeg.so.8 | tee /tmp/artifact/SHA256SUMS.txt
           {
             echo 'Source: official Adobe redirect https://www.adobe.com/go/dng_sdk'
@@ -117,6 +128,7 @@ jobs:
             echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
             echo 'Pinned libjxl tag: v0.9.0'
             echo 'Pinned libjxl commit: c51cffd7587d27fdd73f0be856db3b730314f03c'
+            echo 'Local compatibility patch: add <cstring> to XMPStream_IO.cpp for GCC 13 memcpy declaration'
             uname -a
             c++ --version | head -n1
             cmake --version | head -n1
