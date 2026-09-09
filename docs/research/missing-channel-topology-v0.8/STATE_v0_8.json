@@ -1,0 +1,9 @@
+{
+  "version": "v0.8",
+  "status": "HELDOUT_CFA_TOPOLOGY_NECESSARY_CONDITION_PASS_CO_SITED_CERTIFICATION_OPEN",
+  "main_parent": "10b2927d0b631f5fc22e5399b39860f38763efad",
+  "topologyCertified": false,
+  "heldout_samples_total": 2160000,
+  "result_sha256": "758599a534ed5226d6eb3088fed30fa5cb38889df827a0c804d709617c0353ba",
+  "next_gate": "independent co-sited topology validation capture protocol"
+}
