@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib,json,zlib
+import hashlib,json
 r=Path(__file__).resolve().parent
 m=json.loads((r/'SHA256_MANIFEST_v0_8.json').read_text())
 for n,v in m.items():
@@ -14,11 +14,15 @@ rep=(r/'REPORT_v0_8.md').read_text()
 for needle in ['necessary-condition topology proxy','topologyCertified` remains `false`','co-sited topology validation']:
     if needle not in rep:
         raise SystemExit('CLAIM_GUARD_FAIL '+needle)
-res=json.loads(zlib.decompress((r/'TOPOLOGY_HELDOUT_RESULTS_v0_8.json.zlib').read_bytes()))
+res=json.loads((r/'TOPOLOGY_HELDOUT_SUMMARY_v0_8.json').read_text())
 if 'cannot set topologyCertified=true' not in res.get('claim_boundary',''):
     raise SystemExit('RESULT_CLAIM_BOUNDARY_FAIL')
 if sum(x['samples'] for x in res['summary'].values())!=2160000:
     raise SystemExit('SAMPLE_COUNT_FAIL')
+if res.get('full_result_sha256') != s.get('result_sha256'):
+    raise SystemExit('RESULT_SHA_BINDING_FAIL')
+if res.get('deterministic_rerun_byte_exact') is not True:
+    raise SystemExit('DETERMINISM_GUARD_FAIL')
 q=json.loads((r/'DOG_3RAW_PHASE_DIVERSITY_QUALIFICATION_v0_8.json').read_text())
 if q.get('status')!='FAIL_NOT_SUITABLE_FOR_CO_SITED_TOPOLOGY_CERTIFICATION':
     raise SystemExit('PHASE_DIVERSITY_QUALIFICATION_GUARD_FAIL')
