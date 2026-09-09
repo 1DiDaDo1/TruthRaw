@@ -1,0 +1,1 @@
+Promotion candidate must not use staging HEAD. Use clean tree f995544796ecfcf1b0cdb488cb34e54e91256f22.
