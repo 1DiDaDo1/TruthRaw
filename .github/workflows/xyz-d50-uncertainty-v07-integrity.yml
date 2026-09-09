@@ -1,0 +1,44 @@
+name: XYZ D50 Uncertainty v0.7 Integrity
+
+on:
+  push:
+    branches: [ main, 'research/xyz-d50-uncertainty-v0.7*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xyz-d50-v07:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify v0.7 byte-exact module and claim guards
+        run: python docs/research/xyz-d50-uncertainty-v0.7/tools/verify_xyz_d50_uncertainty_v07_integrity.py
+      - name: GCC build against real closed v0.6 and upstream dependencies
+        run: |
+          cmake -S docs/research/xyz-d50-uncertainty-v0.7 -B /tmp/truthraw_xyz_v07_gcc -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw_xyz_v07_gcc --parallel 2
+          ctest --test-dir /tmp/truthraw_xyz_v07_gcc --output-on-failure
+      - name: Clang build against real closed v0.6 and upstream dependencies
+        run: |
+          cmake -S docs/research/xyz-d50-uncertainty-v0.7 -B /tmp/truthraw_xyz_v07_clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/truthraw_xyz_v07_clang --parallel 2
+          ctest --test-dir /tmp/truthraw_xyz_v07_clang --output-on-failure
+      - name: ASan and UBSan contract run
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          cmake -S docs/research/xyz-d50-uncertainty-v0.7 -B /tmp/truthraw_xyz_v07_san \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/truthraw_xyz_v07_san --parallel 2
+          ctest --test-dir /tmp/truthraw_xyz_v07_san --output-on-failure
+      - name: Python syntax smoke
+        run: python -m py_compile docs/research/xyz-d50-uncertainty-v0.7/tools/verify_xyz_d50_uncertainty_v07_integrity.py

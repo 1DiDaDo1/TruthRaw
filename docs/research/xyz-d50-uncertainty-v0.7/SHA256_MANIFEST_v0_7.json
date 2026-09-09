@@ -1,0 +1,57 @@
+{
+  "schema": "TruthRawXyzD50UncertaintySha256Manifest/0.7",
+  "base_main_commit": "fa3fcf1652f43296e527b0e1b27a19e0e29c2af4",
+  "files": [
+    {
+      "path": "BASE_MAIN_COMMIT_v0_7.txt",
+      "bytes": 41,
+      "sha256": "7af1788fceff8402dc0c0aebd344905896779be1923b774ba944c3b00b0946d6"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 1666,
+      "sha256": "321067f07f567ae66d320fe68960b5205de6ae41ef322d17a1e0e26eb22758ff"
+    },
+    {
+      "path": "IMPLEMENTATION_INDEX_v0_7.json",
+      "bytes": 877,
+      "sha256": "a0fe1b7ec2c591b4657c58acf806d94bb1ea06e03e9678bbbac00c1458fa9373"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2924,
+      "sha256": "cf7ec22c4a5709413fb44fdb951a325ab15520c21635f6ff1d53d8f32781510b"
+    },
+    {
+      "path": "REPORT_v0_7.md",
+      "bytes": 2123,
+      "sha256": "229bebcb9e3b5c6e87e0c50008a6c515d8dc040af70803124ffb0ff0d47c8952"
+    },
+    {
+      "path": "evidence/LOCAL_ALGEBRA_TEST_v0_7.txt",
+      "bytes": 629,
+      "sha256": "a5d693da6c4e05fb7ceb23bfc92e3202c620430f48c3875f7b4019d6c99fd98d"
+    },
+    {
+      "path": "native/xyz_d50_uncertainty_v0_7.cpp",
+      "bytes": 12473,
+      "sha256": "7e81a52ba1205369cf6e842c24cfa294de1edf343c000f8da923b67fae1f0da3"
+    },
+    {
+      "path": "native/xyz_d50_uncertainty_v0_7.h",
+      "bytes": 3864,
+      "sha256": "b3d068c1de706aff7094363f8e21cc9abb18d55b2310ad229e066547ed08d3f9"
+    },
+    {
+      "path": "tests/test_xyz_d50_uncertainty_v0_7.cpp",
+      "bytes": 7044,
+      "sha256": "36e0a6bb467373dcc3adce382a385971455f47c4d771d030534d605223fce082"
+    },
+    {
+      "path": "tools/verify_xyz_d50_uncertainty_v07_integrity.py",
+      "bytes": 2471,
+      "sha256": "922dbf7e8353ef1f5b3dcd661034eecedc5c93de3f926563d70fc53ab4c7e6ea"
+    }
+  ],
+  "policy": "Manifest binds module bytes only; workflow is repository-level and audited by branch diff/CI."
+}
