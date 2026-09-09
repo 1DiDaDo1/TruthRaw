@@ -1,0 +1,132 @@
+name: Build DNG Validate 2724
+
+on:
+  push:
+    branches:
+      - validation/dng-sdk-2724-build
+    paths:
+      - .github/workflows/build-dng-validate-2724.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build build-essential pkg-config unzip curl \
+            libjpeg-dev zlib1g-dev libexpat1-dev \
+            libbrotli-dev liblcms2-dev
+
+      - name: Build pinned libjxl 0.9.0
+        run: |
+          git clone \
+            --branch v0.9.0 \
+            --depth 1 \
+            --recurse-submodules \
+            --shallow-submodules \
+            https://github.com/libjxl/libjxl.git /tmp/libjxl-src
+          test "$(git -C /tmp/libjxl-src rev-parse HEAD)" = "c51cffd7587d27fdd73f0be856db3b730314f03c"
+          cmake -S /tmp/libjxl-src -B /tmp/libjxl-build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/tmp/libjxl-install \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TESTING=OFF \
+            -DJPEGXL_ENABLE_TOOLS=OFF \
+            -DJPEGXL_ENABLE_DEVTOOLS=OFF \
+            -DJPEGXL_ENABLE_JPEGLI=OFF \
+            -DJPEGXL_ENABLE_JPEGLI_LIBJPEG=OFF \
+            -DJPEGXL_ENABLE_DOXYGEN=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_JNI=OFF \
+            -DJPEGXL_ENABLE_SJPEG=OFF \
+            -DJPEGXL_ENABLE_OPENEXR=OFF \
+            -DJPEGXL_ENABLE_SKCMS=OFF \
+            -DJPEGXL_ENABLE_TCMALLOC=OFF \
+            -DJPEGXL_FORCE_SYSTEM_BROTLI=ON \
+            -DJPEGXL_FORCE_SYSTEM_LCMS2=ON
+          cmake --build /tmp/libjxl-build --parallel 2
+          cmake --install /tmp/libjxl-build
+
+      - name: Download official Adobe DNG SDK 2724
+        run: |
+          curl -fL --retry 3 --retry-delay 2 \
+            https://www.adobe.com/go/dng_sdk \
+            -o /tmp/adobe-dng-sdk.zip
+          mkdir -p /tmp/adobe-dng-sdk
+          unzip -q /tmp/adobe-dng-sdk.zip -d /tmp/adobe-dng-sdk
+          sha256sum /tmp/adobe-dng-sdk.zip | tee /tmp/ADOBE_SDK_ZIP_SHA256.txt
+          DNG_SRC="$(find /tmp/adobe-dng-sdk -type d -name dng_sdk -print -quit)"
+          XMP_SRC="$(find /tmp/adobe-dng-sdk -type d -name xmp -print -quit)"
+          test -n "$DNG_SRC"
+          test -n "$XMP_SRC"
+          test -f "$DNG_SRC/source/dng_jxl.cpp"
+          echo "DNG_SRC=$DNG_SRC" >> "$GITHUB_ENV"
+          echo "XMP_SRC=$XMP_SRC" >> "$GITHUB_ENV"
+          grep -R -n -m 10 '2724' /tmp/adobe-dng-sdk > /tmp/SDK_2724_MATCHES.txt || true
+
+      - name: Fetch pinned Linux CMake wrapper
+        run: |
+          git clone https://github.com/ssh4net/DNG-CMake.git /tmp/dng-cmake
+          git -C /tmp/dng-cmake checkout 685f7139ba87afba2e40d4fd24a6455db6f8e9d9
+          test "$(git -C /tmp/dng-cmake rev-parse HEAD)" = "685f7139ba87afba2e40d4fd24a6455db6f8e9d9"
+          rm -rf /tmp/dng-cmake/dng_sdk /tmp/dng-cmake/xmp
+          cp -a "$DNG_SRC" /tmp/dng-cmake/dng_sdk
+          cp -a "$XMP_SRC" /tmp/dng-cmake/xmp
+          test -f /tmp/dng-cmake/dng_sdk/source/dng_jxl.cpp
+          test -f /tmp/dng-cmake/xmp/toolkit/XMPCore/source/WXMPDocOps.cpp
+
+      - name: Configure dng_validate
+        run: |
+          cmake -S /tmp/dng-cmake -B /tmp/dng-build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=/tmp/libjxl-install \
+            -DBUILD_DNG_VALIDATE=ON \
+            -DDNG_VALIDATE=ON \
+            -DDNG_WITH_XMP=ON \
+            -DDNG_WITH_JXL=ON \
+            -DDNG_WITH_JPEG=ON \
+            -DXMP_USE_SYSTEM_ZLIB=ON
+
+      - name: Build and verify dng_validate 2724
+        run: |
+          cmake --build /tmp/dng-build --target dng_validate --parallel 2
+          BIN="$(find /tmp/dng-build -type f -name dng_validate -perm -111 | head -n1)"
+          test -n "$BIN"
+          "$BIN" 2>&1 | head -n 30 | tee /tmp/DNG_VALIDATE_BANNER.txt || true
+          grep -Eq '1\.7\.1.*2724|2724.*1\.7\.1' /tmp/DNG_VALIDATE_BANNER.txt
+          mkdir -p /tmp/artifact
+          cp "$BIN" /tmp/artifact/dng_validate_1_7_1_2724_linux_x86_64
+          JPEG_LIB="$(ldd "$BIN" | awk '/libjpeg\.so\.8/{print $3; exit}')"
+          test -n "$JPEG_LIB"
+          cp -L "$JPEG_LIB" /tmp/artifact/libjpeg.so.8
+          cp /tmp/ADOBE_SDK_ZIP_SHA256.txt /tmp/artifact/
+          cp /tmp/SDK_2724_MATCHES.txt /tmp/artifact/
+          cp /tmp/DNG_VALIDATE_BANNER.txt /tmp/artifact/
+          sha256sum /tmp/artifact/dng_validate_1_7_1_2724_linux_x86_64 /tmp/artifact/libjpeg.so.8 | tee /tmp/artifact/SHA256SUMS.txt
+          {
+            echo 'Source: official Adobe redirect https://www.adobe.com/go/dng_sdk'
+            echo 'Expected release: DNG SDK 1.7.1 Build 2724 (September 8, 2026)'
+            echo 'Linux CMake wrapper commit: 685f7139ba87afba2e40d4fd24a6455db6f8e9d9'
+            echo 'Pinned libjxl tag: v0.9.0'
+            echo 'Pinned libjxl commit: c51cffd7587d27fdd73f0be856db3b730314f03c'
+            uname -a
+            c++ --version | head -n1
+            cmake --version | head -n1
+          } > /tmp/artifact/BUILD_PROVENANCE.txt
+          ldd "$BIN" > /tmp/artifact/LDD.txt || true
+
+      - name: Upload validator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dng-validate-1.7.1-2724-linux-x86_64
+          path: /tmp/artifact
+          if-no-files-found: error
+          retention-days: 7
