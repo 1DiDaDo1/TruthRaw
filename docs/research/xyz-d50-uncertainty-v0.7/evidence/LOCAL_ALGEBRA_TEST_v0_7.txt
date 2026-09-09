@@ -1,0 +1,5 @@
+TRUTHRAW_XYZ_D50_UNCERTAINTY_V0_7_LOCAL_ALGEBRA_PASS
+compiler=g++ C++17 -Wall -Wextra -Wpedantic -Werror
+sanitizers=ASan+UBSan PASS when executed outside notebook preload environment
+scope=local algebra only against a minimal interface-compatible v0.6 shim
+repository_dependency_proof=NOT_CLAIMED; GitHub CI must build against real v0.6
