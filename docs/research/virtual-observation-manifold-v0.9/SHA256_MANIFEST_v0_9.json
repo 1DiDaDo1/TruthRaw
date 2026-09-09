@@ -1,0 +1,21 @@
+{
+  "architecture_files": {
+    "../../CORE_VISION_VIRTUAL_OBSERVATION_MANIFOLD.md": "d8c07f216a534645b1c111ecccd2b43cdcb2fded73e2f6f92dd1246995d253c3"
+  },
+  "files": {
+    "CMakeLists.txt": "b1a61efc7ef85c609f8ba9fa4c054492a48aab69e1f7f1ea1029580c669e2f05",
+    "IMPLEMENTATION_INDEX_v0_9.json": "c8bb5ff8077a1c35bfabb5384220e65d9897d937326fcf7beb2109eae5ae5eb8",
+    "README.md": "653ce643b82c8fe57ef1a746d39750d4e107d869c65a0b38582fcb8f06eb12a6",
+    "REAL_3RAW_VIRTUAL_MANIFOLD_VALIDATION_v0_9.json": "451a8f79d0d717136378f952713e7dbc288b4059992864d7586f891d7c08d5e8",
+    "REAL_3RAW_VIRTUAL_MANIFOLD_VALIDATION_v0_9.md": "8a1a4cdb2f72060296803db90a22a50d8b2d01f0f17eee99272094c6f6db77be",
+    "REPORT_v0_9.md": "9f3215fab87907f85e01d6975303869669fdfbcbc48d32adca4c18edde7f449f",
+    "TEST_OUTPUT_v0_9.txt": "8e90c45ae15ce0ad82d98693057cdad614e10fc082ec2622adfa65462882b122",
+    "native/virtual_observation_manifold_v0_9.cpp": "01adddf16d0c95989690c93abbd912a68f716e7bcc36abbf1301abdf3ec8b266",
+    "native/virtual_observation_manifold_v0_9.h": "3f14d3a3264e70dfb56c0564cdd2b73e29b4e1f29312be26965629ed35c817fe",
+    "reference/virtual_observation_reference_v0_9.py": "006a705dbf5a8adf83d1b8f4324f3f714eeb7c224f1e627235d547c1fb2aed98",
+    "state/VIRTUAL_OBSERVATION_MANIFOLD_V0_9_STATE.json": "8a77323bc550cd0da4cebec339c1873af9e47be44eab5ba58b3c9f2a708d4d74",
+    "tests/test_virtual_observation_manifold_v0_9.cpp": "c6e511f2453915e9d6ec9603f1da15f7a92825d64cf2a6850f0e64771a9688a5",
+    "tools/verify_virtual_observation_v09_integrity.py": "35e1f40da74301ec1e1ecbe6ad4e9a2ae391cf4cde410cd6ae44249c38decfcd"
+  },
+  "schema": "TruthRawVirtualObservationManifest/0.9"
+}
