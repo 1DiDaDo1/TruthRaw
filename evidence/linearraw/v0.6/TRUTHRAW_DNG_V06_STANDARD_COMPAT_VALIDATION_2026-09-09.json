@@ -1,0 +1,74 @@
+{
+  "schema": "TruthRawDNGCompatibilityV06Validation/1.0",
+  "created_at_utc": "2026-09-09T18:33:32.921438+00:00",
+  "status": "RESEARCH_PASS_TIFFFILE_LIBRAW__DNG_SDK_2724_OPEN",
+  "standard_factcheck": {
+    "reference": "Adobe DNG Specification 1.7.1.0, Chapter 5",
+    "finding": "raw linear reference is normalized using WhiteLevel/BlackLevel and values above 1.0 should be clipped; v0.6 therefore maps TruthRaw overrange into finite virtual headroom below DNG WhiteLevel rather than storing it above WhiteLevel",
+    "negative_note": "negative values may be preserved in early rendering stages; v0.6 stores negative TruthRaw values below BlackLevel when representable"
+  },
+  "compatibility_policy": {
+    "black_level_code": 4096,
+    "white_level_code": 65535,
+    "headroom_windows": [1.25, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0],
+    "selection": "smallest window >= scene_max; fail closed above supported windows",
+    "baseline_exposure": "source BaselineExposure + log2(selected window)",
+    "authoritative_master": "TruthRaw full-resolution signed scene-linear Scene Master remains separate; DNG is finite compatibility projection"
+  },
+  "files": [
+    {
+      "source": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+      "source_white_censored_count": 0,
+      "scene_min": -0.005658743903040886,
+      "scene_max": 1.0130051374435425,
+      "compat_window": 1.25,
+      "baseline_exposure_compensation_ev": 0.32192809488736235,
+      "dng": "IMG_BNC_TRUTHRAW20260907_094414_423__TRUTHRAW_LINEAR_V06_STANDARD_COLOR_PREVIEW.dng",
+      "bytes": 80981920,
+      "sha256": "ed0585c89f1f935ab860725cf8086410ca97561aaa17a3595b7f3f228e147635",
+      "payload_sha256": "d50ffe9a3ea1731120de19a117c13c4261be17e9acfc58c36f45f4848632aa51",
+      "quant_error": 1.0251998901367188e-05,
+      "tifffile": "PASS",
+      "libraw_0_21_4": "PASS",
+      "dng_sdk_1_7_1_2724": "OPEN_NOT_RUN"
+    },
+    {
+      "source": "IMG_BNC_TRUTHRAW20260907_094416_197.dng",
+      "source_white_censored_count": 288,
+      "scene_min": -0.005020547658205032,
+      "scene_max": 1.730840802192688,
+      "compat_window": 2.0,
+      "baseline_exposure_compensation_ev": 1.0,
+      "dng": "IMG_BNC_TRUTHRAW20260907_094416_197__TRUTHRAW_LINEAR_V06_STANDARD_COLOR_PREVIEW.dng",
+      "bytes": 80981888,
+      "sha256": "fbb69811f40a57b40b258de15fe54ab6c120fc807588d96f11e8e4f4306ec009",
+      "payload_sha256": "493144fcb0d46e6e7c507d1e4d4551d4ddd2f0a7a0409c9b3bd1b44ee31f69c8",
+      "quant_error": 1.6391277313232422e-05,
+      "tifffile": "PASS",
+      "libraw_0_21_4": "PASS",
+      "dng_sdk_1_7_1_2724": "OPEN_NOT_RUN"
+    },
+    {
+      "source": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+      "source_white_censored_count": 1607,
+      "scene_min": -0.0037411225493997335,
+      "scene_max": 1.0757628679275513,
+      "compat_window": 1.25,
+      "baseline_exposure_compensation_ev": 0.32192809488736235,
+      "dng": "IMG_BNC_TRUTHRAW20260907_094423_122__TRUTHRAW_LINEAR_V06_STANDARD_COLOR_PREVIEW.dng",
+      "bytes": 80981920,
+      "sha256": "dd2ca6522da5e0d5e148210e349afa1503532ff2027a73afe5befdc06ef3710e",
+      "payload_sha256": "261dbbbd74ace9b2eaf9f3c7ee90a3e8ac86dda94c79beeb5fec5b2f47a80a96",
+      "quant_error": 1.0251998901367188e-05,
+      "tifffile": "PASS",
+      "libraw_0_21_4": "PASS",
+      "dng_sdk_1_7_1_2724": "OPEN_NOT_RUN"
+    }
+  ],
+  "gates": {
+    "tifffile_structure_payload_roundtrip": "PASS_ALL_3",
+    "libraw_0_21_4_open_unpack_process": "PASS_ALL_3",
+    "dng_sdk_1_7_1_build_2724_exact_hash_validation": "OPEN_NOT_RUN",
+    "adobe_certification": "NOT_CLAIMED"
+  }
+}
