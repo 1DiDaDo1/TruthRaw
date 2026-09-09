@@ -1,0 +1,2 @@
+TRUTHRAW_CAMERA_RGB_COVARIANCE_V0_6_TESTS_PASS
+sizeof(PixelCameraRgbCovarianceV06)=32

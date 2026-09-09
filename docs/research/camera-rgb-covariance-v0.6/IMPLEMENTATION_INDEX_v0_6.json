@@ -1,0 +1,22 @@
+{
+  "schema": "TruthRawCameraRgbCovarianceImplementationIndex/0.6",
+  "status_before_ci": "RESEARCH_CANDIDATE",
+  "base_main_commit": "855fc7dc00a5e5006626d1e56b13d32f9590459d",
+  "module": "docs/research/camera-rgb-covariance-v0.6",
+  "native": [
+    "native/camera_rgb_covariance_v0_6.h",
+    "native/camera_rgb_covariance_v0_6.cpp",
+    "native/dense_uncertainty_v0_3_adapter_v0_6.h",
+    "native/dense_uncertainty_v0_3_adapter_v0_6.cpp"
+  ],
+  "tests": [
+    "tests/test_camera_rgb_covariance_v0_6.cpp",
+    "tests/test_dense_uncertainty_v0_3_adapter_v0_6.cpp"
+  ],
+  "closed_dependencies": [
+    "docs/research/truthrange-dense-uncertainty-v0.3/native/truthrange_dense_uncertainty_v0_3.h",
+    "docs/research/truthrange-latent-binding-v0.2/native/truthrange_latent_v0_2.h",
+    "canonical/reconstruction/v4.7i/native/include/truthraw/core.h"
+  ],
+  "claim_boundary": "Representation contract only. Unknown off-diagonals remain unknown/NaN. Quantile-only reconstructed uncertainty is not promoted to variance. No physical co-sited RGB covariance claim yet."
+}

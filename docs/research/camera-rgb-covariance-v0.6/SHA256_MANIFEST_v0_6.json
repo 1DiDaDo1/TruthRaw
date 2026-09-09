@@ -1,0 +1,77 @@
+{
+  "schema": "TruthRawCameraRgbCovarianceSha256Manifest/0.6",
+  "base_main_commit": "855fc7dc00a5e5006626d1e56b13d32f9590459d",
+  "files": [
+    {
+      "path": "BASE_MAIN_COMMIT_v0_6.txt",
+      "sha256": "5a39baf6c2b7deb8dddf52c8f024f03930136465a2dc4cebd3df9d8d4ea3cf6a",
+      "bytes": 41
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "e386ee94e406e0037e019627de6a3e734d33a807314d222246577d9fd6d25a0c",
+      "bytes": 2047
+    },
+    {
+      "path": "IMPLEMENTATION_INDEX_v0_6.json",
+      "sha256": "eeab53c0b3dc06cf308e6f0bd5218ed08a8f595d63ace373bf5c122c3ba3ddda",
+      "bytes": 1064
+    },
+    {
+      "path": "README.md",
+      "sha256": "5e84e602f766ea44a36b04f4f841e43a6826cb6ea6327f3740d18de382151dab",
+      "bytes": 1875
+    },
+    {
+      "path": "REPORT_v0_6.md",
+      "sha256": "18767d0a0b55b8b07ae73350d203fd85bbafa843c0b4a96b586bdb4064ac8eb0",
+      "bytes": 2046
+    },
+    {
+      "path": "evidence/TEST_OUTPUT_LOCAL_GCC_v0_6.txt",
+      "sha256": "7aa7830baa32ee17b7fea925b07463bd71a81ff6249eb790d3381453bc57f7eb",
+      "bytes": 86
+    },
+    {
+      "path": "evidence/TEST_OUTPUT_LOCAL_SANITIZED_v0_6.txt",
+      "sha256": "7aa7830baa32ee17b7fea925b07463bd71a81ff6249eb790d3381453bc57f7eb",
+      "bytes": 86
+    },
+    {
+      "path": "native/camera_rgb_covariance_v0_6.cpp",
+      "sha256": "479a78f599e49c935fb66aecdf32f2dc788d1524bc34492686fef7026d536f31",
+      "bytes": 10893
+    },
+    {
+      "path": "native/camera_rgb_covariance_v0_6.h",
+      "sha256": "8a01a5bae8159e00c21e05a6fe52ad272099e2aed20e274c22109fb03eb9d821",
+      "bytes": 3743
+    },
+    {
+      "path": "native/dense_uncertainty_v0_3_adapter_v0_6.cpp",
+      "sha256": "8a949dc5b6559b000c675917b700b29ed87859dc89656e47084476ff0093c828",
+      "bytes": 4878
+    },
+    {
+      "path": "native/dense_uncertainty_v0_3_adapter_v0_6.h",
+      "sha256": "c76240b30a573a283991ec9b202f0fb50bdf91fe51ed008efc6ff6af6d663613",
+      "bytes": 689
+    },
+    {
+      "path": "tests/test_camera_rgb_covariance_v0_6.cpp",
+      "sha256": "338e9e2f6f0f9da5dcef9601624943e3c21132ee3455b4566767246bbd703471",
+      "bytes": 5709
+    },
+    {
+      "path": "tests/test_dense_uncertainty_v0_3_adapter_v0_6.cpp",
+      "sha256": "84f6f2477a137eba5cae966c6f6f1390b23c0a5ba5843360507d60c314e5d01b",
+      "bytes": 2270
+    },
+    {
+      "path": "tools/verify_camera_rgb_covariance_v06_integrity.py",
+      "sha256": "aa3587abd08d4ab5910d680040e431b60b979ef8fe19f3d8e74e2f676f6d22da",
+      "bytes": 2077
+    }
+  ],
+  "claim_boundary": "Manifest binds the staged research module bytes only; it does not promote unresolved covariance to known."
+}
