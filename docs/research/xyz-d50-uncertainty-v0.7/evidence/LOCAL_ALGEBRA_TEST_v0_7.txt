@@ -1,0 +1,8 @@
+TRUTHRAW_XYZ_D50_UNCERTAINTY_V0_7_LOCAL_INTEGRATION_PASS
+GCC=Release C++17 -Wall -Wextra -Wpedantic -Werror; 3/3 ctest PASS
+Clang=Release C++17 -Wall -Wextra -Wpedantic -Werror; 3/3 ctest PASS
+sanitizers=ASan+UBSan; 3/3 ctest PASS
+dependency_replica=exact repository Git blobs for v0.6 CMake/sources/tests plus required v0.3/v0.2/v4.7i headers
+first_ci_candidate=55ff3a69d39d60c062ee3c01deab7778cb9b5d54 FAILED because assert-based tests were compiled out by NDEBUG under Release/-Werror
+correction=Release-active REQUIRE harness; failed candidate preserved
+repository_dependency_proof=NOT_CLAIMED; GitHub CI must close the gate

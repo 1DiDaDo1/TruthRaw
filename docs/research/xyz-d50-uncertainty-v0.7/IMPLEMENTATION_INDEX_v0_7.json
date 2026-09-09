@@ -1,0 +1,23 @@
+{
+  "schema": "TruthRawXyzD50UncertaintyImplementationIndex/0.7",
+  "roadmap_item": 151,
+  "status": "RESEARCH_CANDIDATE_UNTIL_REPOSITORY_CI",
+  "base_main_commit": "fa3fcf1652f43296e527b0e1b27a19e0e29c2af4",
+  "dependency": "docs/research/camera-rgb-covariance-v0.6",
+  "native": {
+    "header": "native/xyz_d50_uncertainty_v0_7.h",
+    "implementation": "native/xyz_d50_uncertainty_v0_7.cpp"
+  },
+  "tests": [
+    "tests/test_xyz_d50_uncertainty_v0_7.cpp"
+  ],
+  "exact_formula": "Sigma_XYZ = M Sigma_cameraRGB M^T",
+  "partial_policy": "known pair terms exact; unresolved pair terms expanded with Cauchy-Schwarz into conservative component variance outer bounds",
+  "prohibitions": [
+    "no implicit RGB independence",
+    "no unknown covariance -> zero",
+    "no p50/p95 -> variance conversion",
+    "no matrix inference or calibration",
+    "no topology promotion"
+  ]
+}
