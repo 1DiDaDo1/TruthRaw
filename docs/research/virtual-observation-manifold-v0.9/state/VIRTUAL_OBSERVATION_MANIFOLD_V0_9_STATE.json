@@ -1,0 +1,15 @@
+{
+  "schema": "TruthRawVirtualObservationManifold/0.9",
+  "status": "IMPLEMENTED_RESEARCH_CONTRACT_WAITING_REPOSITORY_CI",
+  "physical_frame_count": 1,
+  "independent_evidence_count": 1,
+  "virtual_views_are_independent_measurements": false,
+  "evidence_confidence_multiplier": 1.0,
+  "truthrange_exposure_identity": "T_view = T_scene + exposureEV",
+  "signed_linear_identity": "L_view = L_scene * 2^exposureEV",
+  "encoded_covariance_identity": "Sigma_view = 2^(2*(exposureEV+gainEV)) * Sigma_scene",
+  "virtual_iso_modes": ["GAIN_ENCODING_ONLY", "CALIBRATED_FORWARD_MODEL"],
+  "physical_iso_noise_without_bound_sensor_model": "REJECT",
+  "default_diagnostic_ev_nodes": [-6,-4,-2,0,2,4,6,8,10],
+  "claim_boundary": "Representation may expose unlimited virtual observation coordinates; evidence count remains fixed to the admitted physical source."
+}
