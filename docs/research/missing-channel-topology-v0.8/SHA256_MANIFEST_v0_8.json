@@ -12,8 +12,8 @@
     "sha256": "0923035e0dbf7108def9d66d7ebd6d6d811de9102f0351ea882acb4f2d08a603"
   },
   "README.md": {
-    "bytes": 898,
-    "sha256": "9b48ae03c11655316a14f790f6ac617056f444a153ca3e774535a2ddaed72815"
+    "bytes": 1122,
+    "sha256": "5c364c18d693f3f45e51d89517ce4bac40506c5877ddb0a9babd5ca00db0cf24"
   },
   "REPORT_v0_8.md": {
     "bytes": 4746,
@@ -23,9 +23,9 @@
     "bytes": 403,
     "sha256": "b5ef88336c026c9397202e0443623e01b375151d5cf58d76e46a4723062c66ed"
   },
-  "TOPOLOGY_HELDOUT_RESULTS_v0_8.json.zlib": {
-    "bytes": 11832,
-    "sha256": "1c94f79d4f4dda253aa6292245da1832556402d6f92bf7e4e4aa5b89bb13b1cc"
+  "TOPOLOGY_HELDOUT_SUMMARY_v0_8.json": {
+    "bytes": 2710,
+    "sha256": "95165a7186fbb5e9aba5b4260fb3ea8def7de284b91990410a0fbc1585cc5a74"
   },
   "TOPOLOGY_PHASE_DIVERSITY_CAPTURE_PROTOCOL_v0_8.md": {
     "bytes": 7607,
@@ -44,7 +44,7 @@
     "sha256": "09a37076e3b1dbefc307b1c7bc6e97fc60373a69f8b59b8c47b971ba4b35f34e"
   },
   "verify_v0_8_integrity.py": {
-    "bytes": 1446,
-    "sha256": "e33f311be834bf6ff3629da3e15bffeb1610307369faa0cfaca2c67380184489"
+    "bytes": 1631,
+    "sha256": "b9dce2c6798762a08b39e506ce374487846fb07a8a1503f0d42485d1eefada20"
   }
 }
