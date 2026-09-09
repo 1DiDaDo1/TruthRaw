@@ -51,10 +51,10 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import json,zlib
+          import json
           from pathlib import Path
           r=Path('docs/research/missing-channel-topology-v0.8')
-          x=json.loads(zlib.decompress((r/'TOPOLOGY_HELDOUT_RESULTS_v0_8.json.zlib').read_bytes()))
+          x=json.loads((r/'TOPOLOGY_HELDOUT_SUMMARY_v0_8.json').read_text())
           assert x['summary']['R']['ordering_agreement'] > 0.95
           assert x['summary']['G']['ordering_agreement'] > 0.90
           assert x['summary']['B']['ordering_agreement'] > 0.95
