@@ -1,0 +1,69 @@
+{
+  "schema": "TruthRawTruthRangeLatentBinding/0.2",
+  "status": "RESEARCH_PASS_NOT_CANONICAL_MASTER_FORMAT",
+  "canonical_architecture": "docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md",
+  "reconstruction_binding": {
+    "version": "v4.7i",
+    "backend": "research_edge_aware_support_limited_measured_preserving_v47i",
+    "core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167"
+  },
+  "uncertainty_binding": {
+    "version": "v5.0g",
+    "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+    "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+    "output_units": "Stage-2 normalized scene-linear absolute-error bands",
+    "claim_boundary": "hidden-CFA/backend uncertainty proxy; not co-sited RGB ground truth"
+  },
+  "latent_scene_contract": {
+    "stage2_cfa": "signed source-linear Stage-2, GainMap exactly once",
+    "camera_rgb": "signed v4.7i measured-preserving reconstructed camera RGB in Stage-2 scale",
+    "measured_channel": "explicit CFA channel identity per site",
+    "source_high_censor": "explicit source WhiteLevel censor flag",
+    "source_high_censor_lower": "finite Stage-2 lower bound at source WhiteLevel",
+    "negative_values": "preserved as numerical estimators; not negative physical light",
+    "over1_values": "preserved; 1.0 is not the TruthRange ceiling"
+  },
+  "gauge_modes": {
+    "SELF_GAUGE": {
+      "role": "multiplicative-scale-free relative TruthRange within one scene",
+      "L0_policy": "deterministic quantile of positive uncensored Stage-2 evidence",
+      "uses_iso_in_truthrange_formula": false,
+      "uses_exposure_in_truthrange_formula": false,
+      "cross_scene_absolute_comparability": false
+    },
+    "EXTERNAL_RELATIVE_GAUGE": {
+      "role": "shared relative scale when a valid common scene-scale binding exists"
+    },
+    "PHYSICAL_ABSOLUTE_GAUGE": {
+      "role": "optional physical/cross-scene radiometric binding",
+      "fails_closed_without_common_exposure_gain_normalization": true
+    }
+  },
+  "native_validation": {
+    "stage2_parity_max_abs": 0.0,
+    "measured_reinjection_max_abs": 0.0,
+    "self_gauge_scale_invariance_max_ev": 1.09062e-07,
+    "signed_negative_preservation": "PASS",
+    "over1_preservation": "PASS",
+    "high_censor_upper_infinity": "PASS",
+    "dark_uncertainty_lower_infinity": "PASS",
+    "v5g_runtime_unit_bridge": "PASS"
+  },
+  "real_bncam_self_gauge_validation": {
+    "source_domain": "HONOR BKQ-N49 BnCam tele fixed-scene sweep ISO 100..12800",
+    "iso_and_exposure_used_only_as_provenance": true,
+    "q75_spread_ev": 0.09310940439148141,
+    "q90_spread_ev": 0.17717366917995592,
+    "q95_spread_ev": 0.20825563622221832,
+    "q99_spread_ev": 0.21321299456205223
+  },
+  "open_next": [
+    "Generate a dense v5.0g uncertainty field for every reconstructed camera-RGB channel in the exact latent adapter.",
+    "Attach sensor/noise uncertainty to the directly measured CFA channel instead of treating measured as zero-error.",
+    "Run real BnCam DNGs end-to-end through a decoded-frame native adapter with exact OpcodeList2/GainMap binding.",
+    "Propagate camera-domain uncertainty/covariance into the colorimetric scene master.",
+    "Keep physical/common gauge optional unless absolute cross-scene radiometry is required."
+  ]
+}

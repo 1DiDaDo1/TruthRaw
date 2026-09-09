@@ -1,0 +1,150 @@
+{
+  "schema": "TruthRawBnCamSelfGaugeValidation/0.2",
+  "status": "AUXILIARY_REAL_DATA_SELF_GAUGE_PASS",
+  "source_domain": "HONOR BKQ-N49 BnCam tele fixed-scene ISO sweep",
+  "coordinate": {
+    "input": "per-phase-black-subtracted source-white-normalized CFA samples in fixed central ROI",
+    "gainmap": "NOT_APPLIED_IN_THIS_AUXILIARY_SWEEP; native v0.2 Stage-2 binding is validated separately",
+    "L0": "median positive uncensored source-normalized evidence per capture",
+    "T": "log2(L/L0)",
+    "ISO_used_in_formula": false,
+    "exposure_used_in_formula": false,
+    "ISO_and_exposure_retained_as_provenance": true
+  },
+  "roi": {
+    "height": 1400,
+    "width": 1800,
+    "centered": true
+  },
+  "iso_sequence": [
+    100,
+    200,
+    400,
+    800,
+    1600,
+    3200,
+    6400,
+    12800
+  ],
+  "spreads": {
+    "q75_ev": {
+      "min": 0.8073549220576041,
+      "max": 0.9004643264490855,
+      "spread_ev": 0.09310940439148141
+    },
+    "q90_ev": {
+      "min": 1.6438561897747246,
+      "max": 1.8210298589546805,
+      "spread_ev": 0.17717366917995592
+    },
+    "q95_ev": {
+      "min": 2.2942447043069647,
+      "max": 2.502500340529183,
+      "spread_ev": 0.20825563622221832
+    },
+    "q99_ev": {
+      "min": 3.4594316186372973,
+      "max": 3.6726446131993495,
+      "spread_ev": 0.21321299456205223
+    }
+  },
+  "captures": [
+    {
+      "file": "IMG_20260908_194904.dng",
+      "sha256": "a0575e7a5f0f034032dfef5880506b6d19021688c31f9bf83c270026c88e1507",
+      "iso_provenance": 100,
+      "exposure_s_provenance": 0.09940137,
+      "L0_self_gauge_source_normalized": 0.008342022940563087,
+      "q75_ev": 0.8073549220576041,
+      "q90_ev": 1.6438561897747246,
+      "q95_ev": 2.2942447043069647,
+      "q99_ev": 3.4594316186372973,
+      "clip_fraction": 0.0
+    },
+    {
+      "file": "IMG_20260908_194910.dng",
+      "sha256": "d6cdae0877f02b3e1575c6d9a3cfb528fe141708334aa2204b5c35e16be88daa",
+      "iso_provenance": 200,
+      "exposure_s_provenance": 0.09940137,
+      "L0_self_gauge_source_normalized": 0.01564129301355579,
+      "q75_ev": 0.9004643264490855,
+      "q90_ev": 1.8210298589546805,
+      "q95_ev": 2.502500340529183,
+      "q99_ev": 3.67053823242723,
+      "clip_fraction": 0.0
+    },
+    {
+      "file": "IMG_20260908_194916.dng",
+      "sha256": "06be2865d149404d96e49a221728528701180f8eadbb1e9f80fb18b7544f1369",
+      "iso_provenance": 400,
+      "exposure_s_provenance": 0.09940137,
+      "L0_self_gauge_source_normalized": 0.03128258602711158,
+      "q75_ev": 0.8479969065549499,
+      "q90_ev": 1.751320887143276,
+      "q95_ev": 2.441837558622559,
+      "q99_ev": 3.659163442562573,
+      "clip_fraction": 0.0
+    },
+    {
+      "file": "IMG_20260908_194924.dng",
+      "sha256": "b7c47c3f82efe3a7f4652d604b8a4994b049bfa9d880651754fd6558ce660c12",
+      "iso_provenance": 800,
+      "exposure_s_provenance": 0.049925934,
+      "L0_self_gauge_source_normalized": 0.03232533889468196,
+      "q75_ev": 0.8271634031377842,
+      "q90_ev": 1.6751603096927343,
+      "q95_ev": 2.367731784500487,
+      "q99_ev": 3.5926981495007615,
+      "clip_fraction": 0.0
+    },
+    {
+      "file": "IMG_20260908_194929.dng",
+      "sha256": "69875efa0aa17b611ea89c4c5141c29b990d31194a47752539054545e6aa8895",
+      "iso_provenance": 1600,
+      "exposure_s_provenance": 0.026520332,
+      "L0_self_gauge_source_normalized": 0.03441084462982273,
+      "q75_ev": 0.8382489300033878,
+      "q90_ev": 1.7104933828050153,
+      "q95_ev": 2.439421657905803,
+      "q99_ev": 3.6421064078247647,
+      "clip_fraction": 0.0
+    },
+    {
+      "file": "IMG_20260908_194939.dng",
+      "sha256": "275db1de6bfc43e5e6b7b226f58cf32a8df7d9fb60694407f4a8065805b4db23",
+      "iso_provenance": 3200,
+      "exposure_s_provenance": 0.013260166,
+      "L0_self_gauge_source_normalized": 0.03441084462982273,
+      "q75_ev": 0.8382489300033878,
+      "q90_ev": 1.7104933828050153,
+      "q95_ev": 2.447458976971221,
+      "q99_ev": 3.6350859801469926,
+      "clip_fraction": 1.4361213235294117e-06
+    },
+    {
+      "file": "IMG_20260908_194947.dng",
+      "sha256": "60d7eb1570e809dc3e138c8714a441a79a3dba130f7989d8c03b9e39143f4804",
+      "iso_provenance": 6400,
+      "exposure_s_provenance": 0.006630083,
+      "L0_self_gauge_source_normalized": 0.033620015637216574,
+      "q75_ev": 0.8471297842889806,
+      "q90_ev": 1.6926763180214097,
+      "q95_ev": 2.450252191862902,
+      "q99_ev": 3.6726446131993495,
+      "clip_fraction": 1.1967677696078431e-06
+    },
+    {
+      "file": "IMG_20260908_194951.dng",
+      "sha256": "dd26e86d20ce9f864538928fbc2c183262045468a42c53ab0908c92ca7163788",
+      "iso_provenance": 12800,
+      "exposure_s_provenance": 0.003315042,
+      "L0_self_gauge_source_normalized": 0.033620015637216574,
+      "q75_ev": 0.8279765326736899,
+      "q90_ev": 1.678770715996191,
+      "q95_ev": 2.4171329172810374,
+      "q99_ev": 3.6080756999924324,
+      "clip_fraction": 3.989225898692811e-06
+    }
+  ],
+  "claim_boundary": "Tests multiplicative-scale-free relative scene-shape stability only; not absolute radiometry and not a replacement for the exact Stage-2/GainMap latent adapter."
+}

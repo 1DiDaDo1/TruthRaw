@@ -1,0 +1,50 @@
+{
+  "schema": "TruthRawTruthRangeLatentBindingManifest/0.2",
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 1148,
+      "sha256": "6e210a8d741782098c6f3f1610a99b74e4f4c50d3357a75528307a4b38de4c9f"
+    },
+    {
+      "path": "IMPLEMENTATION_INDEX_v0_2.json",
+      "bytes": 3541,
+      "sha256": "fdc7fb7806fbce5605c8b17cc5ae0f53e601f12311c473cd5037726fd51f1973"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2918,
+      "sha256": "90ab50aff0c185b9fa689e0e9e05a280cfb7a4323e98a3e4364d1a14e89d696f"
+    },
+    {
+      "path": "REAL_BNCAM_SELF_GAUGE_RESULTS_v0_2.json",
+      "bytes": 5144,
+      "sha256": "af711b198459297a12e432539011e83d03a5204da4d9fc2884649f8ebca5626c"
+    },
+    {
+      "path": "REPORT_v0_2.md",
+      "bytes": 3151,
+      "sha256": "8bda1a18fc810d02f89fe9fa4a0d0d56439cfd6b9f698c864d6c8c89c22baac3"
+    },
+    {
+      "path": "TEST_OUTPUT_v0_2.txt",
+      "bytes": 266,
+      "sha256": "f49b079fb6070628b72ef90b49cd05efee5574c215bde82ddb3753c73cc60494"
+    },
+    {
+      "path": "native/truthrange_latent_v0_2.cpp",
+      "bytes": 9632,
+      "sha256": "da6176962a0977b4e00e3cc21e6e96f0fda7f301b9d9b65ab5ec32a98635b939"
+    },
+    {
+      "path": "native/truthrange_latent_v0_2.h",
+      "bytes": 3856,
+      "sha256": "3fd417497447d47c40d0ff1e12d4ad86bde1eea44a3b7634f00d7884a97a8247"
+    },
+    {
+      "path": "tests/test_truthrange_latent_v0_2.cpp",
+      "bytes": 7689,
+      "sha256": "1e9e8e528f5ab66c831f7a0ffb5d360205d6efbc241499abada6eb737089a744"
+    }
+  ]
+}

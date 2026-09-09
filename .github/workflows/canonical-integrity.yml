@@ -22,6 +22,11 @@ jobs:
       - name: Run zero-line TruthRange architecture self-test
         run: |
           python docs/research/zero-line-dynamic-range-v0.1/implementation/test_truthrange_core_v0_1.py
+      - name: Build and run TruthRange v0.2 latent binding
+        run: |
+          cmake -S docs/research/truthrange-latent-binding-v0.2 -B /tmp/truthraw_truthrange_v02
+          cmake --build /tmp/truthraw_truthrange_v02 --parallel 2
+          /tmp/truthraw_truthrange_v02/test_truthrange_latent_v0_2
       - name: Compile v4.7i reconstruction core
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -Werror -c \

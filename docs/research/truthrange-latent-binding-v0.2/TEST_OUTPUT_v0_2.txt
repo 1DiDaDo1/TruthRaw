@@ -1,0 +1,7 @@
+TruthRange latent binding v0.2: PASS
+stage2_parity_max_abs=0
+measured_reinjection_max_abs=0
+signed_stage2_min=-0.0106078 over1_max=1.47234
+self_gauge_L0=0.597201 scaled_L0=22.0964
+self_gauge_scale_invariance_max_ev=1.09062e-07
+v5g_p50=0.000544744 v5g_p95=0.00161325

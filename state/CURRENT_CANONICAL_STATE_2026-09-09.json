@@ -81,9 +81,45 @@
   ],
   "apk_policy": "FROZEN_NON_CANONICAL_SIDE_EVIDENCE; no APK-derived canonical changes unless user explicitly reverses policy.",
   "next_scientific_work": [
-    "Bind canonical TruthRange architecture to exact Stage-2/Latent Scene Master and v5.0g uncertainty.",
-    "Keep the zero-line address space unbounded while preserving finite evidence bounds.",
-    "Continue independent physical tele calibration and high-ISO uncertainty review."
+    "Build TruthRange v0.3 dense per-pixel/per-channel uncertainty over the exact v0.2 latent camera scene.",
+    "Attach sensor/noise/PTC uncertainty to directly measured CFA components and v5.0g backend uncertainty to reconstructed channels.",
+    "Propagate camera-domain covariance/uncertainty into the colorimetric scene master while preserving the unbounded TruthRange address space.",
+    "Continue independent physical tele calibration and high-ISO uncertainty generalization review."
   ],
-  "legal_license_policy": "No open-source LICENSE is added unless the user explicitly chooses one."
+  "legal_license_policy": "No open-source LICENSE is added unless the user explicitly chooses one.",
+  "zero_line_v0_2_latent_binding": {
+    "implementation_status": "LATENT_TRUTHRANGE_BINDING_RESEARCH_PASS_NOT_CANONICAL_MASTER_FORMAT",
+    "document": "docs/research/truthrange-latent-binding-v0.2/README.md",
+    "binding": {
+      "reconstruction": "v4.7i exact Stage-2 + measured-preserving camera-RGB",
+      "uncertainty": "v5.0g Stage-2 normalized absolute-error bands",
+      "gainmap": "exactly once in Stage-2 contract",
+      "appearance_or_display_in_master": false
+    },
+    "self_gauge": {
+      "formula": "T = log2(L/L0)",
+      "L0": "deterministic quantile of positive uncensored scene evidence",
+      "uses_iso_in_truthrange_formula": false,
+      "uses_exposure_in_truthrange_formula": false,
+      "cross_scene_absolute_comparability": false,
+      "whole_master_x37_scale_invariance_max_ev": 1.09062e-07
+    },
+    "native_validation": {
+      "stage2_parity_max_abs": 0.0,
+      "measured_cfa_reinjection_max_abs": 0.0,
+      "negative_signed_scene_values_preserved": true,
+      "over1_values_preserved": true,
+      "highlight_censor_upper_infinity": true,
+      "dark_uncertainty_lower_infinity": true,
+      "physical_common_gauge_fails_closed_without_common_scale_binding": true
+    },
+    "real_bncam_auxiliary_self_gauge_spread_ev": {
+      "q75": 0.09310940439148141,
+      "q90": 0.17717366917995592,
+      "q95": 0.20825563622221832,
+      "q99": 0.21321299456205223
+    },
+    "claim_boundary": "SELF_GAUGE removes a common positive multiplicative coordinate choice for relative structure within one scene; it is not absolute radiometry and does not enlarge captured evidence.",
+    "next": "v0.3 dense uncertainty field: measured CFA sensor/noise/PTC uncertainty + reconstructed-channel v5.0g bands, then covariance-aware colorimetric propagation."
+  }
 }
