@@ -1,0 +1,65 @@
+{
+  "schema": "TruthRawSha256Manifest/0.4",
+  "files": [
+    {
+      "file": "CMakeLists.txt",
+      "bytes": 795,
+      "sha256": "3e6ff96ce78789458e6268dbd6730bdca9623d354d23bbaa7635779b855a1d68"
+    },
+    {
+      "file": "IMPLEMENTATION_INDEX_v0_4.json",
+      "bytes": 2295,
+      "sha256": "eadc80371575a5b5d3a17577feff57f1f121cca0f0406f47698b2cbface3694f"
+    },
+    {
+      "file": "README.md",
+      "bytes": 4400,
+      "sha256": "9d65bad0d8bcb44222b7a762bf2434b86f4afcf2afb974323825fb5dcecd1e46"
+    },
+    {
+      "file": "REAL_BNCAM_STAGE2_RESULTS_v0_4.json.zlib",
+      "bytes": 8854,
+      "sha256": "eded6fcb75b9d4d6bd5066e3988e53bcc2a1d6b2514e2ec3b3e68966176375cc"
+    },
+    {
+      "file": "REPORT_v0_4.md",
+      "bytes": 2843,
+      "sha256": "02930d69f0e29b9e5a898a945fcc2a4f604de810ade23dab79589fa89779c9b8"
+    },
+    {
+      "file": "TEST_OUTPUT_v0_4.txt",
+      "bytes": 454,
+      "sha256": "c10a90e9b3a54780ece24163eb9a3d58b4a0c54923dfc87fed7f33b123cd5fdf"
+    },
+    {
+      "file": "native/dng_stage2_v0_4.cpp",
+      "bytes": 9695,
+      "sha256": "ffe4dae5dc64da6b06bedc238a122fd544deb32f0e30d12fb6d601764609a3c9"
+    },
+    {
+      "file": "native/dng_stage2_v0_4.h",
+      "bytes": 1732,
+      "sha256": "1ab33ee749adf184abaf3a473374ff578663b4456c36a837fb0f435ff531d7e6"
+    },
+    {
+      "file": "native/dng_stage2_v0_4_cli.cpp",
+      "bytes": 1769,
+      "sha256": "01aa6b8f1329d347d5a49e7e7dc6baed813a37f2b3ec0cff312c3b9e4cd6b368"
+    },
+    {
+      "file": "reference/dng_stage2_reference_v0_4.py",
+      "bytes": 11736,
+      "sha256": "41b3e5d015f86d08d29b9561f187d18ed327078093dd2913caa926cf6083682e"
+    },
+    {
+      "file": "tests/test_dng_stage2_reference_v0_4.py",
+      "bytes": 3259,
+      "sha256": "7865c173c2f34e844b61eb4b9ebca8f28053a5dc44ce6aef1364c26a89c385d1"
+    },
+    {
+      "file": "tests/test_dng_stage2_v0_4.cpp",
+      "bytes": 2256,
+      "sha256": "2d3a5ad6d029f98da6b71b8d68c358748e8fc7017284343aff0ec1f1a30070d1"
+    }
+  ]
+}

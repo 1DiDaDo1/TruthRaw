@@ -1,0 +1,9 @@
+TruthRaw v0.4 validation output
+TruthRaw v0.4 native GainMap/Stage-2 contract: PASS
+TruthRaw v0.4 stdlib DNG/Stage-2 reference: PASS
+real_bncam_sources=8
+native_vs_numpy_full_field_float_bits_sum_match=8/8
+native_vs_numpy_full_field_float_bits_xor_match=8/8
+native_vs_numpy_aggregate_max_abs_error=2.636779683484747e-16
+native_vs_stdlib_gain_sample_max_abs_error=1.1687185264008804e-07
+native_vs_stdlib_stage2_sample_max_abs_error=1.9691490826811986e-08

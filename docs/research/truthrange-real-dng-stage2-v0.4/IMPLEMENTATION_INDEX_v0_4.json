@@ -1,0 +1,60 @@
+{
+  "schema": "TruthRawRealDngStage2Implementation/0.4",
+  "status": "REAL_DNG_STAGE2_BRIDGE_BNCAM_DOMAIN_PASS",
+  "scope": "HONOR BKQ-N49 BnCam tele classic-TIFF DNG source bridge; research/domain-specific, not arbitrary-DNG support",
+  "stage2_contract": {
+    "formula": "((raw-blackPhase)/(WhiteLevel-blackPhase))*GainMap(y,x)",
+    "gainmap_application_count": 1,
+    "signed_negative_preserved": true,
+    "over1_preserved": true,
+    "source_white_clipping_remains_censor_evidence": true
+  },
+  "sdk_semantic_reference": {
+    "repository": "hfiguiere/dng_sdk",
+    "commit": "11e5eb4259c2a7ad92d66e152e4974441d2e226a",
+    "files": [
+      "dng_sdk/source/dng_opcode_list.cpp",
+      "dng_sdk/source/dng_gain_map.cpp",
+      "dng_sdk/source/dng_misc_opcodes.cpp"
+    ]
+  },
+  "implementations": {
+    "stdlib_reference": "reference/dng_stage2_reference_v0_4.py",
+    "native": "native/dng_stage2_v0_4.cpp",
+    "native_header": "native/dng_stage2_v0_4.h",
+    "native_cli": "native/dng_stage2_v0_4_cli.cpp",
+    "native_test": "tests/test_dng_stage2_v0_4.cpp",
+    "stdlib_test": "tests/test_dng_stage2_reference_v0_4.py"
+  },
+  "real_evidence": {
+    "source_count": 8,
+    "iso_sequence": [
+      100,
+      200,
+      400,
+      800,
+      1600,
+      3200,
+      6400,
+      12800
+    ],
+    "repository_file": "REAL_BNCAM_STAGE2_RESULTS_v0_4.json.zlib",
+    "compressed_bytes": 8854,
+    "compressed_sha256": "eded6fcb75b9d4d6bd5066e3988e53bcc2a1d6b2514e2ec3b3e68966176375cc",
+    "uncompressed_bytes": 52945,
+    "uncompressed_sha256": "3add20ca29045778ffedfdc9254f7dff88afd5ae6025bfa812c26023339caf0f",
+    "full_field_native_numpy_bitsum_match": "8/8",
+    "full_field_native_numpy_bitxor_match": "8/8",
+    "native_numpy_aggregate_max_abs_error": 2.636779683484747e-16,
+    "native_stdlib_gain_sample_max_abs_error": 1.1687185264008804e-07,
+    "native_stdlib_stage2_sample_max_abs_error": 1.9691490826811986e-08
+  },
+  "claim_boundary": {
+    "general_dng_decoder": false,
+    "physical_electron_calibration": false,
+    "absolute_radiometry": false,
+    "missing_channel_topology_certified": false,
+    "rgb_covariance_resolved": false
+  },
+  "next": "v0.5 real Stage-2 -> v0.2 Latent Camera Scene -> v0.3 dense uncertainty, then real v5.0g measured-role anchor extraction"
+}

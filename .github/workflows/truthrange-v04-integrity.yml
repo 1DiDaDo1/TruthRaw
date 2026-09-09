@@ -1,0 +1,34 @@
+name: TruthRange v0.4 Integrity
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  truthrange-v04:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify v0.4 byte-exact module and evidence
+        run: python tools/verify_truthrange_v04_integrity.py
+      - name: Build and run v0.4 native DNG Stage-2 contract
+        run: |
+          cmake -S docs/research/truthrange-real-dng-stage2-v0.4 -B /tmp/truthraw_v04
+          cmake --build /tmp/truthraw_v04 --parallel 2
+          /tmp/truthraw_v04/test_dng_stage2_v0_4
+      - name: Run independent stdlib DNG Stage-2 reference
+        run: python docs/research/truthrange-real-dng-stage2-v0.4/tests/test_dng_stage2_reference_v0_4.py
+      - name: Python syntax smoke
+        run: |
+          python -m py_compile \
+            docs/research/truthrange-real-dng-stage2-v0.4/reference/dng_stage2_reference_v0_4.py \
+            docs/research/truthrange-real-dng-stage2-v0.4/tests/test_dng_stage2_reference_v0_4.py \
+            tools/verify_truthrange_v04_integrity.py

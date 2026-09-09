@@ -1,0 +1,16 @@
+{
+  "schema": "TruthRawTruthRangeResearchState/0.4",
+  "status": "REAL_DNG_STAGE2_BRIDGE_BNCAM_DOMAIN_PASS_PENDING_GITHUB_WORKFLOW",
+  "parent_canonical_main": "67ce04c8d33ab487c9d07b81d83cb55e8d4669cc",
+  "module": "docs/research/truthrange-real-dng-stage2-v0.4",
+  "source_domain": "HONOR BKQ-N49 BnCam tele 4080x3072 BGGR classic-TIFF DNG",
+  "source_count": 8,
+  "iso_sweep": [100, 200, 400, 800, 1600, 3200, 6400, 12800],
+  "stage2_formula": "((raw-blackPhase)/(WhiteLevel-blackPhase))*gainMap(y,x)",
+  "gainmap_application_count": 1,
+  "full_frame_native_vs_numpy_float_bit_fingerprint": "PASS_8_OF_8",
+  "aggregate_max_abs_error": 2.636779683484747e-16,
+  "scientific_result": "Stage-2 > 1 is valid scene-linear evidence after GainMap and is not equivalent to source WhiteLevel clipping.",
+  "claim_boundary": "BnCam-domain bridge only; not arbitrary-DNG support, physical electrons, absolute radiometry, missing-channel topology certification or RGB covariance.",
+  "next": "v0.5 real Stage-2 -> v0.2 Latent Camera Scene -> v0.3 dense uncertainty + real v5.0g measured-role anchors."
+}
