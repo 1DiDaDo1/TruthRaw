@@ -15,3 +15,11 @@ The first setup command started with its cwd inside the candidate directory and 
 The first repository-layout copy brought across populated source/test directories but not the previously empty `evidence`, `state`, and `tools` directories. Writing the first evidence file therefore stopped with `No such file or directory`.
 
 **Resolution:** create the intended directory structure explicitly before writing sealed files. No module source/test byte changed.
+
+## F3 — first repository seal mismatch in test comments
+
+**Classification:** byte-transfer/seal failure before compilation.
+
+GitHub run `34539436405` failed in the integrity step on all three jobs because the staged test file omitted one explanatory comment line present in the locally validated bytes. The executable test logic was unchanged, but byte identity is part of the promotion contract.
+
+**Resolution:** restore the test file to the exact locally validated bytes and regenerate the manifest. The verifier was not weakened and compilation remained blocked until the seal matched.
