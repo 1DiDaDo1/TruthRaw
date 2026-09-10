@@ -1,0 +1,78 @@
+{
+  "schema": "TruthRawTileNativeDngSource/0.1",
+  "status": "RESEARCH_PASS_GITHUB_GCC_CLANG_ASAN_UBSAN_END_TO_END",
+  "base_main": "b4b08e54ddc57fffe72db5b11446a712535a7822",
+  "canonical_v4_7i_modified": false,
+  "full_frame_streaming_v0_1_modified": false,
+  "scientific": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "raw_samples_modified_by_source": false,
+    "gain_map_returned_separately": true,
+    "residual_black_invented": false,
+    "color_binding_explicit": true
+  },
+  "supported": {
+    "classic_tiff_magic_42": true,
+    "little_endian": true,
+    "big_endian": true,
+    "cfa_2x2_rgb": true,
+    "bits_per_sample_storage": [
+      16
+    ],
+    "compression": [
+      1
+    ],
+    "strips": true,
+    "tiles": true,
+    "black_level_scalar_or_2x2": true,
+    "white_level_scalar": true,
+    "noise_profile_optional": true,
+    "opcode_list2_gainmap_subset_optional": true,
+    "posix_pread": true
+  },
+  "blocked": [
+    "BigTIFF",
+    "compressed_DNG",
+    "packed_10_12_14_bit_TIFF_storage",
+    "non_2x2_or_non_RGB_CFA",
+    "non_GainMap_OpcodeList2_entries",
+    "implicit_ambiguous_raw_IFD_selection",
+    "implicit_DNG_color_resolution",
+    "multi_worker_concurrent_source_reads"
+  ],
+  "memory_contract": {
+    "full_file_materialized": false,
+    "full_raw_materialized": false,
+    "strile_arrays_materialized": false,
+    "strile_locator_validation": "LAZY_ON_USE",
+    "large_fixture_dimensions": [
+      16320,
+      12288
+    ],
+    "large_fixture_request": [
+      64,
+      64
+    ],
+    "steady_state_reader_bytes_sparse_200mp_fixture": 4989,
+    "open_metadata_bytes_read_sparse_200mp_fixture": 294,
+    "raw_payload_bytes_for_64x64_request": 8192,
+    "open_transient_bounded_by_caps": true,
+    "open_transient_peak_reported": false,
+    "memory_numbers_are_android_rss_benchmark": false
+  },
+  "repository_integration": {
+    "candidate_commit": "a47518c92c35e89f35b32516914de6dd04e08661",
+    "candidate_workflow_run": 34534894457,
+    "unit_against_real_headers": "PASS",
+    "streaming_end_to_end": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "sdr_max_abs": 0,
+    "half_gain_max_abs": 0,
+    "stage2_diag_max_abs": 0,
+    "documentation_governance_run": 34534894476,
+    "documentation_governance": "PASS"
+  }
+}

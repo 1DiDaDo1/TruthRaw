@@ -1,0 +1,55 @@
+name: Tile-Native DNG Source v0.1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - '.github/workflows/tile-native-dng-source-v0-1-integrity.yml'
+      - 'canonical/reconstruction/v4.7i/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+  pull_request:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - '.github/workflows/tile-native-dng-source-v0-1-integrity.yml'
+      - 'canonical/reconstruction/v4.7i/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module and upstream bindings
+        run: python3 docs/research/tile-native-dng-source-v0.1/tools/verify_integrity_v0_1.py
+      - name: GCC Release source + end-to-end
+        if: matrix.mode == 'gcc-release'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.1 -B /tmp/tile-dng-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/tile-dng-gcc --parallel 2
+          /tmp/tile-dng-gcc/test_tile_native_dng_source_v0_1
+          /tmp/tile-dng-gcc/test_tile_native_dng_streaming_integration_v0_1
+      - name: Clang Release source + end-to-end
+        if: matrix.mode == 'clang-release'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.1 -B /tmp/tile-dng-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/tile-dng-clang --parallel 2
+          /tmp/tile-dng-clang/test_tile_native_dng_source_v0_1
+          /tmp/tile-dng-clang/test_tile_native_dng_streaming_integration_v0_1
+      - name: Clang ASan/UBSan source + end-to-end
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.1 -B /tmp/tile-dng-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/tile-dng-san --parallel 2
+          /tmp/tile-dng-san/test_tile_native_dng_source_v0_1
+          /tmp/tile-dng-san/test_tile_native_dng_streaming_integration_v0_1
