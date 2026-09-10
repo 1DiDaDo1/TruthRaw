@@ -1,0 +1,20 @@
+{
+  "module": "local-illumination-room-room-capsule-v0.1",
+  "status": "RESEARCH_PASS_MOBILE_LOCAL_RELIGHT_FRAMEWORK_PHYSICAL_RELIGHT_BLOCKED",
+  "scientificMasterModified": false,
+  "zeroLineModified": false,
+  "counterfactualLightStatesAreEvidence": false,
+  "physicalFrameCount": 1,
+  "independentEvidenceCount": 1,
+  "cpuBaselineRequired": true,
+  "gpuAccelerationOptional": true,
+  "fullResolutionOutput": true,
+  "geometryIsRoiOnlyAndAdaptive": true,
+  "defaultPackedSampleBytes": 8,
+  "fullScene3dRequired": false,
+  "boundaryIlluminationEnvelope": true,
+  "physicalRelightClaim": "BLOCKED_WITHOUT_INTRINSIC_GEOMETRY_MATERIAL_SPECTRAL_BINDING",
+  "cicmDependency": "SATISFIED_ON_MAIN_CI_GREEN",
+  "cicmDependencyCommit": "71dcd031b309658ef39b99b6c2b46031f09165d9",
+  "cicmDependencyTree": "5c645005b82195659360b2ade6cebb5e16c1143a"
+}

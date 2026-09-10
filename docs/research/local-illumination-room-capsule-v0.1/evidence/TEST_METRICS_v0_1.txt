@@ -1,0 +1,11 @@
+packed_sample_bytes=8
+light_state_bytes=48
+lowram_12mp_geometry_scale=1/4
+lowram_200mp_geometry_scale=1/16
+lowram_peak_bytes=6523392
+lowram_budget_bytes=8388608
+tile_workspace_bytes=165888
+12mp_room_tiles=768
+12mp_full_tiles=2961
+1000_light_states_bytes=48000
+ROOM_CAPSULE_V0_1_PASS
