@@ -1,0 +1,63 @@
+name: Building Runtime v0.1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - '.github/workflows/building-runtime-v0-1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - '.github/workflows/building-runtime-v0-1-integrity.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream Manifold integrity
+        run: python3 docs/research/manifold-conditioning-v1/tools/verify_integrity_v1.py
+
+      - name: Upstream CICM integrity
+        run: python3 docs/research/counterfactual-illumination-capture-manifold-v1/tools/verify_integrity_v1.py
+
+      - name: Upstream Room Capsule integrity
+        run: python3 docs/research/local-illumination-room-capsule-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Building Runtime evidence integrity
+        run: python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: GCC Release
+        run: |
+          g++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Werror \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/building-runtime-v0.1/tests/test_building_runtime_v0_1.cpp \
+            -Idocs/research/building-runtime-v0.1/native -o /tmp/building_gcc
+          /tmp/building_gcc | tee /tmp/building_gcc.txt
+
+      - name: Clang Release
+        run: |
+          clang++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Werror \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/building-runtime-v0.1/tests/test_building_runtime_v0_1.cpp \
+            -Idocs/research/building-runtime-v0.1/native -o /tmp/building_clang
+          /tmp/building_clang | tee /tmp/building_clang.txt
+          cmp /tmp/building_gcc.txt /tmp/building_clang.txt
+
+      - name: ASan UBSan
+        run: |
+          clang++ -std=c++20 -O1 -g -Wall -Wextra -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/building-runtime-v0.1/tests/test_building_runtime_v0_1.cpp \
+            -Idocs/research/building-runtime-v0.1/native -o /tmp/building_san
+          ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=print_stacktrace=1 /tmp/building_san | tee /tmp/building_san.txt
+          cmp /tmp/building_gcc.txt /tmp/building_san.txt
