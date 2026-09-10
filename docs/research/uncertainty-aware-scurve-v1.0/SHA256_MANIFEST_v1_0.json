@@ -1,0 +1,21 @@
+{
+  "architecture_files": {
+    "../../CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md": "3fbb55bf0eb32b04e7df33e02ce34f9cf3ce404d37e7939b450f6bf985d61659"
+  },
+  "files": {
+    "CMakeLists.txt": "df40ebefc02340924d116c31d0c4a3db60fcd2292b08192eae1f2013006c1682",
+    "README.md": "e4c227da597e34707b72f533df71db37809e7feb7c476b8428a21469bac8ae25",
+    "REPORT_v1_0.md": "63eb5c1ddf4bea220e58b5c2e76d505d817073d7b5b96e375e44296f5ea42f8d",
+    "native/uncertainty_aware_scurve_v1.cpp": "e182edf4c009f9c824c9e3a6a5847f9771fdd6257691f0cc9c323dfecbd36d44",
+    "native/uncertainty_aware_scurve_v1.h": "ab34c07365338782bfe0a0dd28f52de84a326c97f30e0b76b1adb7fd6d1af86f",
+    "native/xyz_uncertainty_adapter_v1.cpp": "1a4999b0d87b2c1dbc705f5a72a8ad6c447ac6f3ac398bbc32723d650adbde22",
+    "native/xyz_uncertainty_adapter_v1.h": "564c3b631d784232d79bce01e76a915479330bf67162391f6f4b2fa5eef391fe",
+    "real_dog/094423_UNCERTAINTY_AWARE_SCURVE_METRICS.json": "cb8f391314f5bd539d948138596e973578e6806b42ed46c2a2fed8fb41eb6ecf",
+    "real_dog/SOURCE_SHA256.txt": "fa05ef11cbc7562be1d99096173ff59850549e554b7ac036886271dded537e29",
+    "reference/scurve_reference_v1.py": "4a612cf127846b9bbdbca49a641c243682b89e8706035774136d8c9af5eac965",
+    "state/UNCERTAINTY_AWARE_SCURVE_V1_STATE.json": "c3bc811b8b810c0b4b8ab1e868c92722b7bc9f351fd2319c4582ebfaebda3cf6",
+    "tests/test_uncertainty_aware_scurve_v1.cpp": "521434990043105ad8b294f123e8fd7bb0a9bfe748872a1357d3a43033e5871c",
+    "tools/verify_scurve_v1_integrity.py": "8f280f8f822fd3cda653840086658b4f059a6e7ebb253d61a49d6bd664f59956"
+  },
+  "schema": "TruthRawUncertaintyAwareSCurveManifest/1.0"
+}
