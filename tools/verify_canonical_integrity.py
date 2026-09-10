@@ -7,9 +7,13 @@ def gitblob(p):
     b=p.read_bytes()
     return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
 
+# Root README.md and START_HERE_NEW_CHAT.md are living navigation documents.
+# Their pre-renewed-house blob identities are preserved in the historical
+# bootstrap provenance record and current bytes are governed separately by
+# tools/verify_documentation_governance.py. They are intentionally not frozen
+# scientific/canonical evidence here.
 EXPECTED_BLOBS={
- 'README.md':'341cdf2903e626ffd7b53d53de5edbb4fced9fc2',
- 'START_HERE_NEW_CHAT.md':'fab115fe4303554ecd1383dcb1aaf1dc10724812',
+ 'state/HISTORICAL_BOOTSTRAP_BLOB_PROVENANCE_2026-09-10.json':'656138d28ec1637b014f74e99ba671d080388017',
  'docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md':'176f826a5513c5bc7075127d4419c2186ed7a3e9',
  'docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md':'edb6d5e96026a65512416243ef85c1c5d2f37c9e',
  'state/CURRENT_CANONICAL_STATE_2026-09-08.json':'13571f07246a12401d590757f54bcfe0c980d38b',
@@ -65,6 +69,14 @@ for rel,exp in EXPECTED_BLOBS.items():
     if not p.is_file() or gitblob(p)!=exp:
         raise SystemExit(f'FAIL blob {rel}')
     print('PASS blob',rel)
+
+# Validate that the historical navigation bytes remain explicitly recorded.
+bootstrap_history=json.loads((ROOT/'state/HISTORICAL_BOOTSTRAP_BLOB_PROVENANCE_2026-09-10.json').read_text())
+if bootstrap_history.get('historical_blobs',{}).get('README.md')!='341cdf2903e626ffd7b53d53de5edbb4fced9fc2':
+    raise SystemExit('FAIL historical README blob provenance')
+if bootstrap_history.get('historical_blobs',{}).get('START_HERE_NEW_CHAT.md')!='fab115fe4303554ecd1383dcb1aaf1dc10724812':
+    raise SystemExit('FAIL historical START_HERE blob provenance')
+print('PASS historical bootstrap blob provenance')
 
 # v0.3 real BnCam evidence is stored losslessly compressed; verify both container and original JSON bytes.
 v03z=ROOT/'docs/research/truthrange-dense-uncertainty-v0.3/REAL_BNCAM_NOISEPROFILE_RECON_v0_3.json.zlib'
