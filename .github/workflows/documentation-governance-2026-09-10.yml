@@ -1,0 +1,30 @@
+name: Documentation Governance 2026-09-10
+
+on:
+  push:
+    paths:
+      - 'README.md'
+      - 'START_HERE_NEW_CHAT.md'
+      - 'docs/**'
+      - 'state/**'
+      - 'tools/verify_documentation_governance.py'
+      - '.github/workflows/documentation-governance-2026-09-10.yml'
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'START_HERE_NEW_CHAT.md'
+      - 'docs/**'
+      - 'state/**'
+      - 'tools/verify_documentation_governance.py'
+      - '.github/workflows/documentation-governance-2026-09-10.yml'
+  workflow_dispatch:
+
+jobs:
+  governance:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify document authority and historical classification
+        run: python3 tools/verify_documentation_governance.py
+      - name: Validate current state JSON
+        run: python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-10.json >/dev/null
