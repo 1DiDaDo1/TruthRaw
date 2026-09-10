@@ -1,0 +1,43 @@
+name: Best Conditioning S-Curve Bridge v1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/best-conditioning-scurve-bridge-v1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - '.github/workflows/best-conditioning-scurve-bridge-v1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/best-conditioning-scurve-bridge-v1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - '.github/workflows/best-conditioning-scurve-bridge-v1-integrity.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: cmake -S docs/research/best-conditioning-scurve-bridge-v1 -B /tmp/bridge-gcc -DCMAKE_BUILD_TYPE=Release
+      - name: Build GCC Release
+        run: cmake --build /tmp/bridge-gcc -j2
+      - name: Test GCC Release
+        run: ctest --test-dir /tmp/bridge-gcc --output-on-failure
+      - name: Configure Clang Release
+        run: cmake -S docs/research/best-conditioning-scurve-bridge-v1 -B /tmp/bridge-clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release
+      - name: Build Clang Release
+        run: cmake --build /tmp/bridge-clang -j2
+      - name: Test Clang Release
+        run: ctest --test-dir /tmp/bridge-clang --output-on-failure
+      - name: Configure sanitizers
+        run: cmake -S docs/research/best-conditioning-scurve-bridge-v1 -B /tmp/bridge-asan -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Build sanitizers
+        run: cmake --build /tmp/bridge-asan -j2
+      - name: Test sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: ctest --test-dir /tmp/bridge-asan --output-on-failure
+      - name: Verify retained scientific guards
+        run: python3 docs/research/best-conditioning-scurve-bridge-v1/tools/verify_integrity_v1.py

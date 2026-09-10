@@ -1,0 +1,5 @@
+flat_max_gradient=0
+ramp_min_diff=0.00178124
+edge_retention=0.973036
+hf_energy_low_over_high=0.629412
+BEST_CONDITIONING_SCURVE_BRIDGE_V1_PASS

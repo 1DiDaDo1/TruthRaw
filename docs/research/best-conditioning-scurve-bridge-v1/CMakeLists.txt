@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.16)
+project(truthraw_best_conditioning_scurve_bridge_v1 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(best_conditioning_scurve_bridge_v1 native/best_conditioning_scurve_bridge_v1.cpp)
+target_include_directories(best_conditioning_scurve_bridge_v1 PUBLIC native)
+
+add_library(manifold_conditioning_v1_import ../manifold-conditioning-v1/native/manifold_conditioning_v1.cpp)
+target_include_directories(manifold_conditioning_v1_import PUBLIC ../manifold-conditioning-v1/native)
+
+add_executable(test_best_conditioning_scurve_bridge_v1 tests/test_best_conditioning_scurve_bridge_v1.cpp)
+target_link_libraries(test_best_conditioning_scurve_bridge_v1 PRIVATE best_conditioning_scurve_bridge_v1 manifold_conditioning_v1_import)
+enable_testing()
+add_test(NAME best_conditioning_scurve_bridge_v1 COMMAND test_best_conditioning_scurve_bridge_v1)

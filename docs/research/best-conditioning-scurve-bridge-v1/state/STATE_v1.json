@@ -1,0 +1,17 @@
+{
+  "schema": "TruthRawBestConditioningSCurveBridge/1.0",
+  "date": "2026-09-10",
+  "status": "RESEARCH_PASS_NOT_YET_CANONICAL_APPEARANCE_REPLACEMENT",
+  "scientific_master_modified": false,
+  "best_conditioning_ev_used_as_appearance_control": false,
+  "conditioning_requires_deconditioned_gauge_invariant_evidence": true,
+  "physical_frame_count": 1,
+  "independent_evidence_count": 1,
+  "virtual_ev_adds_information": false,
+  "global_scurve_spatially_constant": true,
+  "uncertainty_adaptation": "edge-aware local residual compression",
+  "censored_positive_chroma_enhancement": false,
+  "real_094423_probe_confidence": "DIAGNOSTIC_ONLY_NOT_CANONICAL_CONFIDENCE",
+  "legacy_multi_ev_reconstruction_candidate": "REJECTED_NOT_PROMOTABLE",
+  "next": "broader real-scene/HDR/censor/hue-edge/mobile validation before any appearance replacement"
+}

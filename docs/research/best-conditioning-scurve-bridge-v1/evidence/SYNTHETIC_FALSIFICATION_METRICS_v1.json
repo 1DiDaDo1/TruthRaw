@@ -1,0 +1,21 @@
+{
+  "flat_confidence_step_max_luma_gradient": 0.0,
+  "flat_confidence_step_luma_span": 0.0,
+  "ramp_min_forward_difference": 0.0008828069549053907,
+  "ramp_monotonic": true,
+  "edge_contrast_ratio_python_reference": 0.9730361911229353,
+  "shadow_hf_low_conf_ratio_vs_input": 0.5836770612813013,
+  "shadow_hf_high_conf_ratio_vs_input": 0.7355799546104856,
+  "gauge_invariance": {
+    "states": 12288,
+    "mean_roundtrip_bitexact": 12288,
+    "sigma_roundtrip_bitexact": 12288,
+    "max_abs_snr_delta": 0.0,
+    "confidence_bitexact_fraction": 1.0
+  },
+  "comparison_existing_per_pixel_luma_conf_curve_flat_seam": {
+    "old_rule_max_luma_gradient": 0.003460116684436798,
+    "bridge_v1_max_luma_gradient": 0.0,
+    "interpretation": "synthetic artifact-risk fixture only; does not invalidate existing module globally"
+  }
+}

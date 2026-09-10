@@ -1,0 +1,30 @@
+{
+  "source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+    "sha256": "ade9d84542916678d1a198c6baff219806d44fa8f050ef8d7545dfae90644f65",
+    "domain": "HONOR BKQ-N49 BnCam tele 22.48mm source class",
+    "representation": "diagnostic measured 2x2 Bayer-cell RGB after black subtraction, WhiteLevel normalization and source OpcodeList2 GainMap once",
+    "appearance_note": "AsShotNeutral white balance and a display-fit scalar were used only for this appearance stress probe; this is not an L2 color calibration."
+  },
+  "confidence_proxy": {
+    "status": "DIAGNOSTIC_ONLY_NOT_CANONICAL_CONFIDENCE",
+    "luma_sigma": "correlation-agnostic upper bound; no unknown covariance set to zero",
+    "confidence_mapping": "snr/(snr+4); arbitrary monotone stress mapping, not calibrated probability"
+  },
+  "metrics": {
+    "diagnostic_cell_rgb_shape": [384, 510, 3],
+    "dark_lowconf_flatish_fraction": 0.28283292483660133,
+    "dark_lowconf_hf_rms_baseline": 0.001889854553155601,
+    "dark_lowconf_hf_rms_bridge": 0.0017382880905643106,
+    "dark_lowconf_hf_ratio": 0.9197999238967896,
+    "strong_edge_gradient_median_baseline": 0.05662185698747635,
+    "strong_edge_gradient_median_bridge": 0.05661393702030182,
+    "strong_edge_retention_ratio": 0.9998601078987122,
+    "bridge_vs_baseline_lowfreq_difference_rms": 4.998173244530335e-05,
+    "bridge_vs_baseline_abs_difference_p95": 0.00045002263505011797,
+    "residual_gain_p05_p50_p95": [0.8213235795497894, 1.0, 1.0]
+  },
+  "scientific_master_modified": false,
+  "physical_noise_uncertainty_reduced_claim": false,
+  "virtual_ev_adds_evidence_claim": false
+}
