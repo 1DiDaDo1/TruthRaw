@@ -10,3 +10,13 @@ The following findings are intentionally preserved.
 5. **Flow-harness unused-parameter compile failure** — the first local corridor-equivalence build failed under `-Werror` because the fake appearance backend had an unused height parameter. The fake test backend was corrected (`/*h*/`); production streaming code and tolerances were unchanged.
 
 These findings are not evidence of pixel-equivalence. Real canonical equivalence remains a GitHub-CI gate for the candidate bytes.
+
+## F6 — Staging blob byte-transcription mismatch
+
+A manually transcribed upload of `native/full_frame_streaming_v0_1_internal.h` produced Git blob `87ac4625...` instead of the locally sealed `a29c0b27...` because explanatory comment lines were omitted during transfer. The blob was rejected before it entered any candidate tree. The exact local bytes were re-uploaded and matched `a29c0b270110d81dbdf33619525c186fe4db5afb`.
+
+## F7 — GitHub Clang Release blocked by frozen upstream warning
+
+First real-repository CI run `34527663822` reached the exact canonical v4.7i source. GCC Release compiled and passed the canonical equivalence executable, while Clang 18.1.3 stopped before execution on the pre-existing `-Wmisleading-indentation` diagnostic at frozen `canonical/reconstruction/v4.7i/native/src/core.cpp:196`.
+
+This is a CI-harness/upstream-warning compatibility failure, not streaming pixel evidence. Canonical v4.7i is not edited. The corrective CMake structure compiles the frozen upstream source as a separate object; new streaming/test sources retain strict `-Werror`, while Clang receives only `-Wno-error=misleading-indentation` for that frozen upstream object. The warning remains visible.

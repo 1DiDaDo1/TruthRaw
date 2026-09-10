@@ -1,6 +1,6 @@
 {
   "schema": "TruthRawFullFrameStreamingState/0.1",
-  "status": "RESEARCH_CANDIDATE_LOCAL_REFACTORED_6_OF_6_PASS_REAL_CANONICAL_EQUIVALENCE_CI_OPEN",
+  "status": "RESEARCH_CANDIDATE_CI1_GCC_EQUIVALENCE_PASS_CLANG_UPSTREAM_WARNING_HARNESS_FIX_OPEN",
   "basis_main": "4f2fc5e6cedaf929d599d6d413642e3073b2b1a9",
   "canonical_v4_7i_modified": false,
   "execution": {
@@ -56,5 +56,12 @@
     "pass2": "native/full_frame_streaming_v0_1_pass2.cpp",
     "internal_support": "native/full_frame_streaming_v0_1_internal.h",
     "test_support": "tests/streaming_test_support_v0_1.h"
+  },
+  "ci_history": {
+    "run_34527663822": {
+      "gcc_release": "PASS_REAL_CANONICAL_EQUIVALENCE",
+      "clang_release": "FAIL_COMPILE_FROZEN_UPSTREAM_MISLEADING_INDENTATION_WARNING",
+      "classification": "HARNESS_UPSTREAM_WARNING_NOT_PIXEL_EQUIVALENCE_FAILURE"
+    }
   }
 }
