@@ -20,4 +20,4 @@ Research integration layer that turns Building Runtime v0.1 resource policy into
 
 The module does **not** yet own the newer Tile-Native DNG Source or Full-Frame Streaming handles. Those are the next ABI-extension target after v0.1 is proven against real upstream CI.
 
-Status before repository CI: `RESEARCH_CANDIDATE_PENDING_REAL_UPSTREAM_CI`.
+Real-upstream GitHub CI run `34537486512` passed GCC Release, Clang Release, and Clang ASan/UBSan against the sealed upstream bindings. Current status: `RESEARCH_CANDIDATE_REAL_UPSTREAM_CI_PASS`.
