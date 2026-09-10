@@ -1,0 +1,93 @@
+name: Room ABI v0.1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/building-runtime-v0.1/native/**'
+      - 'docs/research/manifold-conditioning-v1/native/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/room-abi-v0-1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/building-runtime-v0.1/native/**'
+      - 'docs/research/manifold-conditioning-v1/native/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/room-abi-v0-1-integrity.yml'
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module and upstream bindings
+        run: python3 docs/research/room-abi-v0.1/tools/verify_integrity_v0_1.py
+      - name: GCC Release real-upstream integration
+        run: |
+          g++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
+            docs/research/room-abi-v0.1/native/room_abi_v0_1.cpp \
+            docs/research/room-abi-v0.1/tests/test_room_abi_v0_1.cpp \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/manifold-conditioning-v1/native/manifold_conditioning_v1.cpp \
+            docs/research/local-illumination-room-capsule-v0.1/native/room_capsule_v0_1.cpp \
+            -I docs/research/room-abi-v0.1/native \
+            -I docs/research/building-runtime-v0.1/native \
+            -I docs/research/manifold-conditioning-v1/native \
+            -I docs/research/local-illumination-room-capsule-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -o /tmp/test_room_abi_gcc
+          /tmp/test_room_abi_gcc | tee /tmp/room_abi_gcc.txt
+          grep -q '^ROOM_ABI_V0_1_TEST_PASS$' /tmp/room_abi_gcc.txt
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module and upstream bindings
+        run: python3 docs/research/room-abi-v0.1/tools/verify_integrity_v0_1.py
+      - name: Clang Release real-upstream integration
+        run: |
+          clang++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
+            docs/research/room-abi-v0.1/native/room_abi_v0_1.cpp \
+            docs/research/room-abi-v0.1/tests/test_room_abi_v0_1.cpp \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/manifold-conditioning-v1/native/manifold_conditioning_v1.cpp \
+            docs/research/local-illumination-room-capsule-v0.1/native/room_capsule_v0_1.cpp \
+            -I docs/research/room-abi-v0.1/native \
+            -I docs/research/building-runtime-v0.1/native \
+            -I docs/research/manifold-conditioning-v1/native \
+            -I docs/research/local-illumination-room-capsule-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -o /tmp/test_room_abi_clang
+          /tmp/test_room_abi_clang | tee /tmp/room_abi_clang.txt
+          grep -q '^ROOM_ABI_V0_1_TEST_PASS$' /tmp/room_abi_clang.txt
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module and upstream bindings
+        run: python3 docs/research/room-abi-v0.1/tools/verify_integrity_v0_1.py
+      - name: Clang ASan UBSan real-upstream integration
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          clang++ -std=c++20 -O1 -g -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            docs/research/room-abi-v0.1/native/room_abi_v0_1.cpp \
+            docs/research/room-abi-v0.1/tests/test_room_abi_v0_1.cpp \
+            docs/research/building-runtime-v0.1/native/building_runtime_v0_1.cpp \
+            docs/research/manifold-conditioning-v1/native/manifold_conditioning_v1.cpp \
+            docs/research/local-illumination-room-capsule-v0.1/native/room_capsule_v0_1.cpp \
+            -I docs/research/room-abi-v0.1/native \
+            -I docs/research/building-runtime-v0.1/native \
+            -I docs/research/manifold-conditioning-v1/native \
+            -I docs/research/local-illumination-room-capsule-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -o /tmp/test_room_abi_san
+          /tmp/test_room_abi_san | tee /tmp/room_abi_san.txt
+          grep -q '^ROOM_ABI_V0_1_TEST_PASS$' /tmp/room_abi_san.txt
