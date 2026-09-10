@@ -1,0 +1,20 @@
+{
+  "schema": "TruthRawUncertaintyAwareSCurveColorManifest/1",
+  "files": {
+    "CMakeLists.txt": "f0fafcd1aedacc6a0bb1081a5356cb3e392ce7eb36a3c7fb915ded3e7d06131c",
+    "README.md": "8da554abb4cc07377b7591013dd5a3955c193906b8b59d6744800eed69cd5339",
+    "REPORT_v1.md": "c0f64e0f23a48512a4207951f4facf454f43911d3f9ca0fc7520e082de3f3001",
+    "TEST_OUTPUT_v1.txt": "bd7eeaf0975a487eb97153d18f1f44c8c6766bc306ba2405b5eb013e0cea3046",
+    "native/uncertainty_aware_scurve_color_v1.h": "6bad8f8a82651ff9842b27b4d21af5cfb8456010710461e11e9297a62bb8fda2",
+    "native/uncertainty_aware_scurve_color_v1.cpp": "51cad41a7b76dfc9f84f46d78050bc5199b9d69dfd82bbc26cab28b466ba6510",
+    "tests/test_uncertainty_aware_scurve_color_v1.cpp": "246e22cdbdde46229caee5b63291a7e244bea960dcc32e7da7d91585e2ba87c1",
+    "reference/reference_v1.py": "02951a3bc309a414c534be3b6fb577f34c70f4c889f29911a306fa0d2ff63041",
+    "tools/verify_integrity_v1.py": "2f24b36e59afe2d4682a3e03542a8c7f978c4b4ccd3195d926af836371cc82fb",
+    "evidence/REAL_DOG_094423_v1.json": "71ef429c9e1b923e3b490e35888bc418c2884ad8afa258881587b50ba402d6a6",
+    "evidence/REAL_DOG_PROTOTYPE_METRICS_v1.json": "53d0a0bca9b2c670c026fb447a529971a74eddb6585249c66d09ba0ee4c07633",
+    "state/STATE_v1.json": "c8ef52236d8dfdba382376827e2cb94be25323dc71896e1587af6a89ca54b653"
+  },
+  "architecture_files": {
+    "../../CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md": "e35ef02a0fc76bfcb97ffb2dda4ab73c198997d2d1fa34a920e658a393c21f9a"
+  }
+}
