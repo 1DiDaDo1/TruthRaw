@@ -1,0 +1,17 @@
+{
+  "source": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+  "scene_master": "094423.scene.bin",
+  "scientific_master_modified": false,
+  "uncertainty_proxy": "source NoiseProfile with exact Stage-2 global max GainMap upper-bound and correlation-agnostic linear-form bound; appearance validation proxy, not new calibrated covariance",
+  "gain_map_global_max": 2.3595032691955566,
+  "display_exposure": 1.0874175555458412,
+  "luminance_confidence": {"median": 1.0, "p5": 0.04209774751216174, "p95": 1.0, "low_frac": 0.13539848295926848, "high_frac": 0.7710234829592685},
+  "chroma_confidence": {"median": 0.9999999403953552, "p5": 0.0, "p95": 1.0, "low_frac": 0.2470407315045719, "high_frac": 0.6525197423108895},
+  "low_confidence_shadow_sigma_out_over_in": {"median": 0.5650077306433893, "p95": 0.5807494831772018, "fraction_pixels": 0.13539848295926848},
+  "high_confidence_midtone_slope": {"median": 1.1678138619577427, "p95": 1.3770991636158465, "fraction_pixels": 0.5100763715710723},
+  "chroma_gain": {"requested_median": 1.14, "applied_median": 1.14, "applied_p5": 0.88, "applied_p95": 1.14, "gamut_limited_fraction": 0.000975166251039069},
+  "safe_color_hue_shift_vs_tone_only_deg": {"p50": 1.7914698625114927e-05, "p95": 6.76714421282678e-05, "p99": 9.474884851488159e-05, "low_chroma_conf_p95": 3.645112041817665e-05, "high_chroma_conf_p95": 7.445372164354027e-05},
+  "unsafe_per_channel_curve_hue_shift_vs_tone_only_deg": {"p50": 0.8852271206837458, "p95": 2.290093234379278, "p99": 3.70939810714449, "low_chroma_conf_p95": 3.107652557518675, "high_chroma_conf_p95": 1.9716008961636082},
+  "source_censored_neighborhood_fraction_preview": 0.00041302992518703243,
+  "claim_boundary": "Appearance-only experiment. No reconstructed scene value, sensor evidence, topology flag, or uncertainty calibration is changed."
+}
