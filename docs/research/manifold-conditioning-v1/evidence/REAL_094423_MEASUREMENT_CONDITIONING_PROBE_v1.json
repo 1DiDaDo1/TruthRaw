@@ -1,0 +1,32 @@
+{
+  "schema": "TruthRawManifoldConditioningRealSourceProbe/1.0",
+  "source": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+  "source_sha256": "ade9d84542916678d1a198c6baff219806d44fa8f050ef8d7545dfae90644f65",
+  "source_capture_metadata_used_for_gauge_selection": false,
+  "iso_provenance": 966,
+  "exposure_time_tag": [9999993, 1000000000],
+  "white_level": 1023.0,
+  "black_level_by_cfa": [64.0,64.0,64.0,64.0],
+  "cfa_pattern_plane_indices": [2,1,1,0],
+  "noise_profile": [0.00017880149710437982,5.334126880849728e-07,0.00021802253282492777,6.623652546035122e-08,0.00019284649801358354,4.6972705949645536e-07],
+  "sampled_values": 3133440,
+  "conditioning_config": {
+    "preferred_binary_exponent": -2,
+    "min_ev": -32,
+    "max_ev": 32,
+    "selection_magnitude": "max(abs(normalized_sample), NoiseProfile_sigma)"
+  },
+  "gauge_ev_distribution": {"-2":407,"-1":53283,"0":365443,"1":901332,"2":581811,"3":285888,"4":240655,"5":216439,"6":284839,"7":162510,"8":33424,"9":6542,"10":867},
+  "gauge_ev_median": 2.0,
+  "gauge_ev_p05_p95": [0.0,7.0],
+  "by_plane_role": {
+    "R":{"n":783360,"median_ev":2.0,"p05_p95_ev":[0.0,7.0]},
+    "G":{"n":1566720,"median_ev":1.0,"p05_p95_ev":[0.0,6.0]},
+    "B":{"n":783360,"median_ev":2.0,"p05_p95_ev":[1.0,7.0]}
+  },
+  "bit_exact_roundtrip_mean_fraction": 1.0,
+  "bit_exact_roundtrip_sigma_fraction": 1.0,
+  "max_snr_delta": 0.0,
+  "max_standardized_residual_delta": 0.0,
+  "interpretation": "Real DNG measurement-domain stress test only. Gauge EV depends on this normalization/target and is not a physical exposure recommendation or directly comparable to historical Best Observation EV on a different Scene Scale."
+}

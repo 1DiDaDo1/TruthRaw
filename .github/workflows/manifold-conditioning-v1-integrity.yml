@@ -1,0 +1,56 @@
+name: Manifold Conditioning v1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - '.github/workflows/manifold-conditioning-v1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - '.github/workflows/manifold-conditioning-v1-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: cmake -S docs/research/manifold-conditioning-v1 -B build-mc-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build
+        run: cmake --build build-mc-gcc -j2
+      - name: Test
+        run: ctest --test-dir build-mc-gcc --output-on-failure
+      - name: Verify evidence semantics
+        run: python3 docs/research/manifold-conditioning-v1/tools/verify_integrity_v1.py
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: cmake -S docs/research/manifold-conditioning-v1 -B build-mc-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build-mc-clang -j2
+      - name: Test
+        run: ctest --test-dir build-mc-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure ASan UBSan
+        run: cmake -S docs/research/manifold-conditioning-v1 -B build-mc-san -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Build
+        run: cmake --build build-mc-san -j2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: ctest --test-dir build-mc-san --output-on-failure

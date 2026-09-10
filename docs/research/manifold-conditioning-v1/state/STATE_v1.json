@@ -1,0 +1,19 @@
+{
+  "schema": "TruthRawManifoldConditioning/1.0",
+  "status": "EXACT_REPARAMETERIZATION_CONTRACT_LOCAL_PASS_MODEL_SELECTION_ADMISSION_OPEN",
+  "best_observation_semantics": "BEST_CONDITIONING_GAUGE_NOT_BEST_EVIDENCE",
+  "physical_frame_count_delta": 0,
+  "independent_evidence_count_delta": 0,
+  "snr_gain_claim_from_virtual_ev": 0.0,
+  "information_gain_claim_from_virtual_ev": 0.0,
+  "zero_line_redefined": false,
+  "scientific_master_modified_by_exact_mode": false,
+  "legacy_multi_ev_reconstruction_candidate": "CANDIDATE_REJECTED",
+  "candidate_admission_requires": [
+    "parameters_frozen",
+    "independent_heldout_evidence",
+    "scalar_error_gates_pass",
+    "topology_gates_pass"
+  ],
+  "variance_stabilizing_transform": "SEPARATE_FUTURE_RESEARCH_NOT_PART_OF_EXACT_REPARAMETERIZATION_V1"
+}

@@ -1,0 +1,6 @@
+Manifold Conditioning v1: PASS
+roundtrip_tested=250000 exact=250000
+max_snr_delta=0
+max_standardized_residual_delta=0
+fuzz_valid=992347 fuzz_success=992347 fuzz_range_reject=0
+candidate_fallback=CANDIDATE_REJECTED unless all admission gates pass
