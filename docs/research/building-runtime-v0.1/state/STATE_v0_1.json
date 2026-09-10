@@ -1,0 +1,57 @@
+{
+  "base_main_sha": "5ad7415acd8c6ad9daf97000ef7dad35f07600ca",
+  "base_main_tree": "990d94155e3b48c4ad2c0a5f04ecb33d0ff46d33",
+  "candidate_sha256": {
+    "native/building_runtime_v0_1.cpp": "fb181bdea6b727d34abf2254ab9a8ae26cbc3cd65a98ee07321b2a4abc32c245",
+    "native/building_runtime_v0_1.h": "7c5977418cc802d805f4e58c53300a21b22d01bdab287621d16ea494fbabc2dd",
+    "tests/test_building_runtime_v0_1.cpp": "16bd7136d3996ca9c07a8ecac6712ba74bac388047bf6239211319f49186c4fd"
+  },
+  "graph": {
+    "corridorsForwardOnly": true,
+    "externalArtifactHandleOnly": true,
+    "roomCount": 12,
+    "truthFloors": [
+      "Foundation",
+      "Measurement",
+      "Reconstruction",
+      "Scene",
+      "Counterfactual",
+      "Appearance",
+      "Projection"
+    ]
+  },
+  "module": "Building Runtime v0.1",
+  "preserved_negative_findings": [
+    "Raw memcmp determinism fixture rejected because C++ padding bytes are non-semantic.",
+    "Older 6-room staging Git blobs ca5db526/6d0819d0/29903f2e were superseded before commit and are not candidate evidence."
+  ],
+  "resource_fixtures": {
+    "high": {
+      "budgetBytes": 268435456,
+      "maxConcurrentHeavyRooms": 4,
+      "tileSize": 512,
+      "waves": 8
+    },
+    "low": {
+      "budgetBytes": 33554432,
+      "maxConcurrentHeavyRooms": 1,
+      "tileSize": 128,
+      "waves": 11
+    }
+  },
+  "schema": "truthraw.building_runtime.state.v0_1",
+  "status": "RESEARCH_CANDIDATE_LOCAL_PASS",
+  "truth_invariants": {
+    "appearanceMayFeedScientificState": false,
+    "counterfactualMayFeedScientificState": false,
+    "independentEvidenceCount": 1,
+    "physicalFrameCount": 1,
+    "runtimeMayPromoteScientificClaims": false,
+    "scientificMasterModified": false
+  },
+  "upstream_git_blob_bindings": {
+    "docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.h": "4467bb765d60da84c828513f31e5f3d8a12372ac",
+    "docs/research/local-illumination-room-capsule-v0.1/native/room_capsule_v0_1.h": "534062f4b42161c842cadc29d20a5e6667adea01",
+    "docs/research/manifold-conditioning-v1/native/manifold_conditioning_v1.h": "da5def4b1f40300548782a123420e671349f5b6b"
+  }
+}
