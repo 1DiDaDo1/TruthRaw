@@ -1,6 +1,6 @@
 {
   "module": "room-abi-v0.1",
-  "status": "RESEARCH_CANDIDATE_PENDING_REAL_UPSTREAM_CI",
+  "status": "RESEARCH_CANDIDATE_REAL_UPSTREAM_CI_PASS",
   "base_main": "c5a51610fbb7750c1e8bf95e97c4b1349fbaec7e",
   "scientific_master_modified": false,
   "physical_frame_count": 1,
@@ -33,5 +33,20 @@
   "local_stub_harness_is_integration_evidence": false,
   "tile_native_dng_bound_in_this_version": false,
   "full_frame_streaming_bound_in_this_version": false,
-  "next_extension": "bind_tile_native_dng_source_and_full_frame_streaming_handles"
+  "next_extension": "bind_tile_native_dng_source_and_full_frame_streaming_handles",
+  "real_upstream_ci": {
+    "run_id": 34537486512,
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "metrics_identical": true,
+    "low_tile": 128,
+    "high_tile": 512,
+    "low_threads": 4,
+    "high_threads": 3,
+    "manifold_gauge_ev": 3,
+    "room_capsule_peak_bytes": 2449920,
+    "lease_requests": 5,
+    "lease_releases": 5
+  }
 }
