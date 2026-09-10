@@ -1,0 +1,17 @@
+{
+  "schema": "TruthRawUncertaintyAwareSCurveRealDog/1",
+  "status": "APPEARANCE_CONCEPT_PASS_NOT_PHYSICAL_COLOR_CERTIFICATION",
+  "source_file": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+  "source_sha256": "ade9d84542916678d1a198c6baff219806d44fa8f050ef8d7545dfae90644f65",
+  "derived_linearraw_file": "IMG_BNC_TRUTHRAW20260907_094423_122__TRUTHRAW_V07_ANDROIDPREVIEW.dng",
+  "metrics": {
+    "low_chroma_confidence_fraction": 0.14445500831255195,
+    "high_chroma_confidence_fraction": 0.7616084788029925,
+    "p95_hue_shift_deg_low_confidence_aware": 0.02797645330429077,
+    "p95_hue_shift_deg_unsafe_low_conf_rgb_boost": 0.34661510586738586,
+    "dark_low_conf_hf_proxy_baseline": 0.0007269112393260002,
+    "dark_low_conf_hf_proxy_confidence_aware": 0.00044751958921551704
+  },
+  "scientific_master_modified": false,
+  "confidence_note": "Prototype used correlation-agnostic marginal NoiseProfile bounds; production module requires upstream-qualified confidence."
+}

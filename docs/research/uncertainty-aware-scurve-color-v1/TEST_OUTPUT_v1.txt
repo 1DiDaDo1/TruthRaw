@@ -1,0 +1,25 @@
+GCC RELEASE
+Internal ctest changing into directory: /mnt/data/truthraw_scurve_module_v1/build-gcc
+Test project /mnt/data/truthraw_scurve_module_v1/build-gcc
+    Start 1: uncertainty_aware_scurve_color_v1
+1/1 Test #1: uncertainty_aware_scurve_color_v1 ...   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.00 sec
+CLANG RELEASE
+Internal ctest changing into directory: /mnt/data/truthraw_scurve_module_v1/build-clang
+Test project /mnt/data/truthraw_scurve_module_v1/build-clang
+    Start 1: uncertainty_aware_scurve_color_v1
+1/1 Test #1: uncertainty_aware_scurve_color_v1 ...   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.00 sec
+CLANG ASAN+UBSAN
+[ 75%] Building CXX object CMakeFiles/test_uncertainty_aware_scurve_color_v1.dir/tests/test_uncertainty_aware_scurve_color_v1.cpp.o
+[100%] Linking CXX executable test_uncertainty_aware_scurve_color_v1
+[100%] Built target test_uncertainty_aware_scurve_color_v1
+TRUTHRAW_UNCERTAINTY_AWARE_SCURVE_COLOR_V1_TESTS_PASS
+STDLIB REFERENCE
+TRUTHRAW_UNCERTAINTY_AWARE_SCURVE_COLOR_V1_REFERENCE_PASS
