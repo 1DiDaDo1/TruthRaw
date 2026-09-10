@@ -1,0 +1,28 @@
+{
+  "schema": "truthraw.technical_backplane.state.v0_1",
+  "module": "Technical Backplane v0.1",
+  "base_main_sha": "604a62d77ea92421bfc241de51d829f02c50df9d",
+  "status": "RESEARCH_CANDIDATE_LOCAL_PASS_REPOSITORY_CI_OPEN",
+  "serialized_bytes": 180,
+  "identity_bindings": [
+    "sourceEvidenceHash",
+    "scientificMasterHash",
+    "zeroLineHash",
+    "sceneScaleHash"
+  ],
+  "truth_invariants": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "scientificMasterModified": false,
+    "zeroLineModified": false,
+    "appearanceCountedAsEvidence": false,
+    "counterfactualCountedAsEvidence": false,
+    "zeroLinePerPixelCopy": false
+  },
+  "corruption_detection": {
+    "crc32": true,
+    "cryptographic_authentication_claimed": false
+  },
+  "container_embedding": "OPEN",
+  "next_binding": "Room ABI v0.2 external shared handle"
+}
