@@ -16,9 +16,11 @@ This prevents virtual EV becoming a hidden local exposure map, virtual views bei
 
 ## 3. New appearance decomposition
 
-`display-linear RGB → global monotonic S-curve → edge-aware local base → uncertainty-aware local residual compression → confidence-aware chroma → output`
+`display-linear RGB → global monotonic S-curve → edge-aware local base → uncertainty-aware local residual compression → confidence-aware chroma → analytic gamut-headroom cap → output`
 
 For luma after the global curve, write `Y = B + r`, where `B` is an edge-aware local base and `r` is the residual. Bridge v1 uses `Y_out = B + g*r` with `g` in `[1-maxResidualCompression, 1]`, driven by shadow location and regularized upstream luma confidence. Thus a constant field (`r=0`) stays constant regardless of confidence variation.
+
+For chroma, the desired confidence-aware gain is additionally capped by the largest scalar that keeps all three RGB components inside `[0,1]` around the neutral axis. This prevents individual post-gain channel clipping from rotating the chroma direction at saturated pixels.
 
 ## 4. Native falsification results
 
@@ -27,13 +29,17 @@ GCC Release, Clang Release and ASan/UBSan all PASS.
 Synthetic native fixtures:
 - flat RGB + abrupt luma-confidence step: max output luminance gradient = `0`;
 - monotonic grayscale ramp + confidence transition: minimum forward difference = `0.00178124` (PASS);
+- deterministic adversarial monotonic-ramp fuzz: `200/200` random confidence/configuration trials without a negative forward luma step;
 - strong step edge retention = `0.973036` (>0.95 gate);
 - low-confidence/high-confidence shadow HF energy ratio = `0.629412`;
+- saturated red high-confidence fixture activates the analytic gamut-headroom cap before per-channel clamp;
 - censored support chroma gain never exceeds 1;
 - missing conditioning audit fails closed to identity;
 - integrated Manifold Conditioning power-of-two round-trip retains float32 bits and SNR.
 
 For comparison, the previous per-pixel luma-confidence curve rule produced a synthetic flat-field seam of approximately `0.00346012` luminance for the same confidence step. Bridge v1 removes that specific artifact mechanism in the constant-field fixture.
+
+The fuzz result is evidence for the tested parameter/domain distribution, not a mathematical proof that every possible 2-D confidence/image field preserves ordering. Broader no-reversal/no-halo testing remains open.
 
 ## 5. Real 094423 appearance stress probe
 
@@ -60,4 +66,4 @@ Promotable research claim after clean repo/CI gate: **Best Observation / Virtual
 
 ## 7. Open gates before replacing current S-curve v1
 
-All three dog scenes with proper upstream confidence fields; dark high-ISO scenes; colored low-light and same-luma hue-edge fixtures; heavy source-censor/highlight transitions; SDR versus HDR behavior; broader no-halo/local-gradient tests; mobile performance; and genuinely new held-out promotion evidence where applicable.
+All three dog scenes with proper upstream confidence fields; dark high-ISO scenes; colored low-light and same-luma hue-edge fixtures; heavy source-censor/highlight transitions; SDR versus HDR behavior; broader 2-D no-halo/local-gradient tests; mobile performance; and genuinely new held-out promotion evidence where applicable.
