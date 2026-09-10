@@ -1,0 +1,76 @@
+name: Uncertainty-Aware S-Curve v1.0 Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - 'research/uncertainty-aware-scurve-v1.0*'
+    paths:
+      - 'docs/research/uncertainty-aware-scurve-v1.0/**'
+      - 'docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md'
+      - 'docs/research/xyz-d50-uncertainty-v0.7/**'
+      - 'docs/research/camera-rgb-covariance-v0.6/**'
+      - '.github/workflows/uncertainty-aware-scurve-v1-integrity.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/research/uncertainty-aware-scurve-v1.0/**'
+      - 'docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md'
+      - '.github/workflows/uncertainty-aware-scurve-v1-integrity.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Byte-exact manifest and claim guards
+        run: python docs/research/uncertainty-aware-scurve-v1.0/tools/verify_scurve_v1_integrity.py
+      - name: Stdlib-only numerical reference
+        run: python docs/research/uncertainty-aware-scurve-v1.0/reference/scurve_reference_v1.py
+      - name: Real dog evidence smoke
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/uncertainty-aware-scurve-v1.0/real_dog/094423_UNCERTAINTY_AWARE_SCURVE_METRICS.json')
+          x=json.loads(p.read_text())
+          assert x['scientific_master_modified'] is False
+          assert x['low_confidence_shadow_sigma_out_over_in']['median'] < 1.0
+          assert x['high_confidence_midtone_slope']['median'] > 1.0
+          assert x['safe_color_hue_shift_vs_tone_only_deg']['p95'] < 0.01
+          assert x['unsafe_per_channel_curve_hue_shift_vs_tone_only_deg']['p95'] > 0.5
+          print('TRUTHRAW_SCURVE_V1_REAL_DOG_SMOKE PASS')
+          PY
+
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: GCC Release against real v0.7/v0.6 headers
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-v1.0 -B /tmp/scurve-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/scurve-gcc -j2
+          ctest --test-dir /tmp/scurve-gcc --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang Release against real v0.7/v0.6 headers
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-v1.0 -B /tmp/scurve-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/scurve-clang -j2
+          ctest --test-dir /tmp/scurve-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan and UBSan
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-v1.0 -B /tmp/scurve-san -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/scurve-san -j2
+          ASAN_OPTIONS=detect_leaks=1 /tmp/scurve-san/test_uncertainty_aware_scurve_v1
