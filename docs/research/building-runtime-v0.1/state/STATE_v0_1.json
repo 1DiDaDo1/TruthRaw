@@ -1,0 +1,19 @@
+{
+  "module": "building-runtime-v0.1",
+  "status": "LOCAL_PASS__GCC_CLANG_SANITIZED__RESEARCH_ORCHESTRATION_ONLY__SCIENTIFIC_PROMOTION_OPEN",
+  "base_main_sha": "5ad7415acd8c6ad9daf97000ef7dad35f07600ca",
+  "scientific_master_modified": false,
+  "physical_frame_count": 1,
+  "independent_evidence_count": 1,
+  "appearance_feedback_to_science": false,
+  "conditioning_ev_equals_appearance_ev": false,
+  "automatic_scientific_promotion": false,
+  "hot_path_heap_allocation": false,
+  "android_integration": "OPEN",
+  "local_validation": {
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "integrity": "PASS"
+  }
+}

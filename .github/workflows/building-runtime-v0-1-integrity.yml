@@ -1,0 +1,32 @@
+name: Building Runtime v0.1 Integrity
+on:
+  push:
+    branches:
+      - main
+      - 'research/building-runtime-v0.1*'
+    paths:
+      - 'docs/research/building-runtime-v0.1/**'
+      - '.github/workflows/building-runtime-v0-1-integrity.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrity
+        run: python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
+      - name: GCC Release
+        run: |
+          cmake -S docs/research/building-runtime-v0.1 -B /tmp/br-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/br-gcc --parallel
+          ctest --test-dir /tmp/br-gcc --output-on-failure
+  clang_sanitized:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang ASan UBSan
+        run: |
+          cmake -S docs/research/building-runtime-v0.1 -B /tmp/br-clang -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          cmake --build /tmp/br-clang --parallel
+          ctest --test-dir /tmp/br-clang --output-on-failure

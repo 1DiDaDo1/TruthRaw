@@ -1,0 +1,15 @@
+{
+  "integrity": "PASS",
+  "gcc_release": "PASS",
+  "clang_release": "PASS",
+  "clang_asan_ubsan": "PASS",
+  "gcc_version": "g++ (Debian 14.2.0-19) 14.2.0",
+  "clang_version": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)",
+  "physical_frame_count": 1,
+  "independent_evidence_count": 1,
+  "scientific_master_modified": false,
+  "decision_count": 6,
+  "ledger_count": 6,
+  "sizeof_runtime_result_bytes": 176,
+  "preserved_negative_test_design_result": "raw struct memcmp failed because C++ padding bytes are not semantic state; corrected to explicit field/ledger comparison"
+}

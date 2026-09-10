@@ -1,0 +1,7 @@
+BUILDING_RUNTIME_V0_1_TEST_PASS
+physicalFrameCount=1
+independentEvidenceCount=1
+scientificMasterModified=0
+decisionCount=6
+ledgerCount=6
+sizeofRuntimeResult=176

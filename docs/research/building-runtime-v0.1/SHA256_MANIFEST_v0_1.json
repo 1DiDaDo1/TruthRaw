@@ -1,0 +1,16 @@
+{
+  "algorithm": "SHA-256",
+  "files": {
+    "CMakeLists.txt": "36e7256bc4734ace120b49c805e6e8ab5a3a303d8d72c20b1cacd3d7486f2936",
+    "FACT_CHECK_v0_1.md": "f3655e62b1282cd6f1980cbd43ab4fd371ab980f37ac89e54780d269b32a1a81",
+    "README.md": "929efa8113bccd85b4caf03862cd9947a1ca8e2825419527b9ee541c50ed7317",
+    "REPORT_v0_1.md": "5e967ebb38a70930603ca62e94f04f1d0ff62337c32bba9d7746b7f4565b026a",
+    "evidence/LOCAL_VALIDATION_v0_1.json": "5c3f7f5fd15a539851dff33ee3e33d394836656c6a4ecaf88fa6be46d6ecc5d0",
+    "evidence/TEST_METRICS_v0_1.txt": "271828dca4ecc9867b5c3af8f2f987f0853ae79cf332547b0f6f41becba9313b",
+    "native/building_runtime_v0_1.cpp": "6d4bdbc8a92f95a0663973aefeade95d4c8aba3d322bc3948f190d89e8a5d994",
+    "native/building_runtime_v0_1.h": "7736d7d19f8cd3e7e7ea52636a7356bbb51838e4686ad0d42191660fa569b288",
+    "state/STATE_v0_1.json": "0dbcf3354c5c92c32a0a763a45f7260645d5a11dc34fdce6a95bd2215c00c635",
+    "tests/test_building_runtime_v0_1.cpp": "5fef4b33b411c67e5354be098131a6d07f44ca3776ec4bb975d7c102648a896c",
+    "tools/verify_integrity_v0_1.py": "731e66a0315c41aff7ae957498c4091fe620b6ed283b77183309dccdc57f05db"
+  }
+}
