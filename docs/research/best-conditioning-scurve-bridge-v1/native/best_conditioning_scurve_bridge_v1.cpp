@@ -13,6 +13,7 @@ float s_curve01(float x,float s) noexcept { const float t=clamp01(x); return cla
 bool finite_rgb(const RgbLinear& x) noexcept { return std::isfinite(x.r)&&std::isfinite(x.g)&&std::isfinite(x.b); }
 std::size_t at(std::size_t x,std::size_t y,std::size_t w) noexcept { return y*w+x; }
 std::size_t mirror(long v,std::size_t n) noexcept { if(n<=1)return 0; const long hi=static_cast<long>(n-1); while(v<0||v>hi){ if(v<0)v=-v; if(v>hi)v=2*hi-v; } return static_cast<std::size_t>(v); }
+float safe_chroma_gain(const RgbLinear& local,float neutral,float desired) noexcept { float g=desired; const float d[3]={local.r-neutral,local.g-neutral,local.b-neutral}; for(float v:d){ if(v>kEps)g=std::min(g,(1.0f-neutral)/v); else if(v<-kEps)g=std::min(g,neutral/(-v)); } return std::max(0.0f,g); }
 std::vector<float> joint_filter(std::span<const float> f,std::span<const RgbLinear> guide,std::size_t w,std::size_t h,const Config& c){
  std::vector<float> out(f.size()); const double ss2=2.0*c.sigmaSpatial*c.sigmaSpatial,sr2=2.0*c.sigmaRange*c.sigmaRange; const int r=c.filterRadius;
  for(std::size_t y=0;y<h;++y)for(std::size_t x=0;x<w;++x){ const auto& g0=guide[at(x,y,w)]; double acc=0,ws=0;
@@ -42,7 +43,7 @@ Result apply_image(std::span<const RgbLinear> rgb,std::size_t w,std::size_t h,co
  std::vector<float> y(rgb.size()),yt(rgb.size()); std::vector<RgbLinear> tone(rgb.size());
  for(std::size_t i=0;i<rgb.size();++i){ y[i]=clamp01(luminance709(rgb[i])); yt[i]=s_curve01(y[i],c.globalCurveStrength); const float s=y[i]>kEps?yt[i]/y[i]:0; tone[i]={rgb[i].r*s,rgb[i].g*s,rgb[i].b*s}; }
  const auto base=joint_filter(yt,tone,w,h,c); out.residualGain.resize(rgb.size()); out.chromaGain.resize(rgb.size()); out.rgb.resize(rgb.size());
- for(std::size_t i=0;i<rgb.size();++i){ const float sw=1.0f-smoothstep01(y[i]/c.shadowPivot); const float rg=clamp01(1.0f-c.maxResidualCompression*sw*(1.0f-out.regularizedLumaConfidence[i])); const float yl=clamp01(base[i]+rg*(yt[i]-base[i])); const float ls=yt[i]>kEps?yl/yt[i]:0; const RgbLinear local{tone[i].r*ls,tone[i].g*ls,tone[i].b*ls}; const float q=smoothstep01(out.regularizedChromaConfidence[i]); float cg=c.lowConfidenceChromaGain+q*(c.highConfidenceChromaGain-c.lowConfidenceChromaGain); if(e.sourceHighCensored[i])cg=std::min(cg,c.censoredMaxChromaGain); out.residualGain[i]=rg; out.chromaGain[i]=cg; out.rgb[i]={clamp01(yl+(local.r-yl)*cg),clamp01(yl+(local.g-yl)*cg),clamp01(yl+(local.b-yl)*cg)}; }
+ for(std::size_t i=0;i<rgb.size();++i){ const float sw=1.0f-smoothstep01(y[i]/c.shadowPivot); const float rg=clamp01(1.0f-c.maxResidualCompression*sw*(1.0f-out.regularizedLumaConfidence[i])); const float yl=clamp01(base[i]+rg*(yt[i]-base[i])); const float ls=yt[i]>kEps?yl/yt[i]:0; const RgbLinear local{tone[i].r*ls,tone[i].g*ls,tone[i].b*ls}; const float q=smoothstep01(out.regularizedChromaConfidence[i]); float cg=c.lowConfidenceChromaGain+q*(c.highConfidenceChromaGain-c.lowConfidenceChromaGain); if(e.sourceHighCensored[i])cg=std::min(cg,c.censoredMaxChromaGain); cg=safe_chroma_gain(local,yl,cg); out.residualGain[i]=rg; out.chromaGain[i]=cg; out.rgb[i]={clamp01(yl+(local.r-yl)*cg),clamp01(yl+(local.g-yl)*cg),clamp01(yl+(local.b-yl)*cg)}; }
  out.status=Status::Applied; return out;
 }
 } // namespace truthraw::appearance::bridge::v1
