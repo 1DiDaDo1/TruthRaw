@@ -1,6 +1,6 @@
 # TruthRaw Tile-Native DNG Source v0.1
 
-Status: **RESEARCH CANDIDATE — LOCAL SOURCE TESTS PASS; REAL REPOSITORY INTEGRATION CI REQUIRED**
+Status: **RESEARCH PASS — LOCAL + REPOSITORY GCC/CLANG/ASAN/UBSAN END-TO-END PASS; CLEAN-PROMOTION CI STILL REQUIRED**
 
 This module is the low-memory front door for the renewed TruthRaw house. It implements the existing Full-Frame Streaming v0.1 `IRawTileSource` contract without first materializing a complete `DecodedDngFrame.raw` or the complete DNG file in RAM.
 
@@ -51,4 +51,4 @@ LibTIFF's encoded strip/tile API normally operates on a decoded strip/tile buffe
 
 `DNG/file descriptor -> TileNativeDngSource -> Full-Frame Streaming v0.1 -> StreamedSink`
 
-Canonical v4.7i is byte-unchanged. Full-Frame Streaming v0.1 is also treated as an upstream bound dependency. End-to-end repository CI must compare the tile-native route with canonical `processFrame` on the same known CFA samples before promotion.
+Canonical v4.7i is byte-unchanged. Full-Frame Streaming v0.1 is also treated as an upstream bound dependency. Candidate workflow run `34534894457` passed GCC Release, Clang Release and Clang ASan/UBSan against the actual repository dependencies. The controlled end-to-end fixture produced `sdr_max_abs=0`, `half_gain_max_abs=0` and `stage2_diag_max_abs=0`. Documentation Governance run `34534894476` also passed. A new one-commit branch from the unchanged `main` must reproduce these gates before promotion.

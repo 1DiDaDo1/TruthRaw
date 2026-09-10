@@ -1,6 +1,6 @@
 {
   "schema": "TruthRawTileNativeDngSource/0.1",
-  "status": "LOCAL_GCC_CLANG_ASAN_UBSAN_PASS_REPOSITORY_INTEGRATION_OPEN",
+  "status": "RESEARCH_PASS_GITHUB_GCC_CLANG_ASAN_UBSAN_END_TO_END",
   "base_main": "b4b08e54ddc57fffe72db5b11446a712535a7822",
   "canonical_v4_7i_modified": false,
   "full_frame_streaming_v0_1_modified": false,
@@ -62,10 +62,17 @@
     "memory_numbers_are_android_rss_benchmark": false
   },
   "repository_integration": {
-    "unit_against_real_headers": "OPEN",
-    "streaming_end_to_end": "OPEN",
-    "gcc_release": "OPEN",
-    "clang_release": "OPEN",
-    "clang_asan_ubsan": "OPEN"
+    "candidate_commit": "a47518c92c35e89f35b32516914de6dd04e08661",
+    "candidate_workflow_run": 34534894457,
+    "unit_against_real_headers": "PASS",
+    "streaming_end_to_end": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "sdr_max_abs": 0,
+    "half_gain_max_abs": 0,
+    "stage2_diag_max_abs": 0,
+    "documentation_governance_run": 34534894476,
+    "documentation_governance": "PASS"
   }
 }

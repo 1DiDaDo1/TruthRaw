@@ -1,6 +1,6 @@
 # Implementation report — Tile-Native DNG Source v0.1
 
-## Result so far
+## Result
 
 A strict, bounded, random-access DNG/TIFF CFA source has been implemented as the front end of Full-Frame Streaming v0.1.
 
@@ -24,11 +24,30 @@ For a synthetic 16320x12288 single-strip file, the steady source state after ope
 
 The reader is a transport/metadata-binding room, not a reconstruction room. It does not alter CFA values. GainMap is returned separately for the existing Stage-2 application. Color is an explicit external binding rather than an inferred identity/default.
 
-## Promotion blockers
+## Repository integration result
 
-Repository CI must still compile against the actual current:
+Candidate commit `a47518c92c35e89f35b32516914de6dd04e08661` was tested by workflow run `34534894457` against the actual repository's byte-bound canonical v4.7i and Full-Frame Streaming v0.1 dependencies.
 
-- canonical v4.7i `core.h` / `core.cpp`;
-- Full-Frame Streaming v0.1 source and ABI.
+Repository gates:
 
-The integration test must show identical exposure, SDR, half-gain and Stage-2 diagnostic output for a synthetic DNG and the corresponding canonical in-memory frame. Until that passes, status remains research candidate.
+- GCC Release: PASS
+- Clang Release: PASS
+- Clang ASan/UBSan: PASS
+- sealed module/upstream-byte binding: PASS on all three matrix jobs
+- Documentation Governance run `34534894476`: PASS
+
+The controlled end-to-end fixture produced:
+
+- `sdr_max_abs=0`
+- `half_gain_max_abs=0`
+- `stage2_diag_max_abs=0`
+- `source_resident_bytes=8516`
+- `raw_payload_bytes_read=40716`
+
+This establishes exact numerical equivalence for the tested fixture, not universal DNG compatibility or Android device performance.
+
+The preceding failed workflow run `34534705681` is retained in `FAILURE_HISTORY_v0_1.md`; its reader build and integrity gate passed, while the integration translation unit failed under `-Werror=unused-function`. The gate was not weakened.
+
+## Remaining promotion gate
+
+Create a new single-commit research branch directly from unchanged `main` and re-run Tile-Native DNG Source v0.1 Integrity plus Documentation Governance on those exact final bytes. Only a fully green clean branch is eligible for a non-force fast-forward promotion.

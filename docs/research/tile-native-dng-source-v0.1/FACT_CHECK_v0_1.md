@@ -28,6 +28,12 @@ The virtual file exposes one uncompressed strip representing the entire frame wi
 
 This proves the implementation's steady-state ownership strategy for the synthetic fixture. It does not prove that `open()` peaks at the same few-KiB value: IFD discovery and OpcodeList2 parsing have explicit bounded transients, but v0.1 does not yet report their peak. It also does not prove device RSS, filesystem cache behavior, flash latency, Android thermal behavior, or universal DNG compatibility.
 
+## PASS — repository integration evidence
+
+Candidate workflow run `34534894457` passed GCC Release, Clang Release and Clang ASan/UBSan after verifying the sealed module and exact upstream Git blob bindings. The end-to-end synthetic DNG route matched canonical in-memory `processFrame` output exactly for exposure-plan checks, SDR (`max_abs=0`), half-log-gain (`max_abs=0`) and Stage-2 diagnostics (`max_abs=0`). Documentation Governance run `34534894476` passed.
+
+These results are evidence for the controlled fixtures and build configurations only. They do not promote compressed-DNG compatibility, real-phone performance or real Honor/MotionCam validation.
+
 ## OPEN / deliberately not claimed
 
 - compressed DNG support;
