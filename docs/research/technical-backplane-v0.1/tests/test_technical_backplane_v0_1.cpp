@@ -57,6 +57,7 @@ int main() {
 
     corrupt = a;
     corrupt[170] = 1u;
+    // Recalculate CRC to prove reserved-byte validation is independent of CRC.
     const auto c = crc32(std::span<const std::uint8_t>(corrupt.data(), 176));
     corrupt[176] = static_cast<std::uint8_t>(c & 0xffu);
     corrupt[177] = static_cast<std::uint8_t>((c >> 8u) & 0xffu);
