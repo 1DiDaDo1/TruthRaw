@@ -1,0 +1,15 @@
+{
+  "schema": "TruthRawManifoldConditioningState/1.0",
+  "implementation_status": "RESEARCH_CANDIDATE_IMPLEMENTED",
+  "repository_closure": "EXACT_COMMIT_CI_IS_AUTHORITATIVE",
+  "modes": {
+    "exact_reparameterization": "IMPLEMENTED_LOCAL_PASS",
+    "robust_model_selection": "IMPLEMENTED_FAIL_CLOSED"
+  },
+  "real_094423_exact_roundtrip": "PASS_451215360_VALUES_ZERO_BIT_CHANGES",
+  "historical_multi_ev_robust_candidate": "NOT_PROMOTABLE",
+  "physical_frame_multiplier": 1.0,
+  "independent_evidence_multiplier": 1.0,
+  "co_sited_missing_colour_certification": "OPEN",
+  "physical_virtual_iso_sensor_model": "REQUIRES_BOUND_V09_FORWARD_MODEL"
+}

@@ -1,0 +1,20 @@
+{
+  "architecture_files": {
+    "../../CORE_VISION_MANIFOLD_CONDITIONING_V1.md": "8a4368d7ef47bc01f66abb83a223a9a2c8a24321b713788ed0e775803ac1d18f"
+  },
+  "files": {
+    "CMakeLists.txt": "af9ab21b47038affb0b2675b963a798cda997012861ab57ab95028a27690ea3c",
+    "README.md": "486f9ff0b1a57e82ec23da3a0265df66602a4919e4fecf7c9403eb6618d088d6",
+    "REPORT_v1.md": "28a903367b7ff92f1049b5797f1380ba94fee8671f077b2139c8313ff1fd149c",
+    "TEST_OUTPUT_v1.txt": "838166abba5559861941c483625a2e1297800686df0144c919db69e6e277b0c3",
+    "evidence/DOG_3SCENE_HISTORICAL_MULTI_EV_EVIDENCE_v1.json": "7cfd8501927321db0ba6775cb26401c774e4ec1eb2f0b0f1efa2d1a71f218a2f",
+    "evidence/REAL_094423_EXACT_REPARAMETERIZATION_v1.json": "8943adce12359b36372a5b09f0b5f01c9f37b0706f0879cc6dfd25194c3c559c",
+    "native/manifold_conditioning_v1.cpp": "a965b1d83323f5baf841c17f60fa4e5586ae23f07df9104b52140c7fcff91366",
+    "native/manifold_conditioning_v1.h": "b1310ed31e13f9cfc007036b66bf73e871945319dd214af7a9ad840bdcba17e8",
+    "reference/manifold_conditioning_reference_v1.py": "69d1eae31cb3005f87ec4c44f1f8b4261dace21ae6413416bd4c00806dee6193",
+    "state/MANIFOLD_CONDITIONING_V1_STATE.json": "91e9225d92cb30fe974f30e12d73a1a54e1b158695e8858983db8ea802f1c8ca",
+    "tests/test_manifold_conditioning_v1.cpp": "3e53ec95a589481aa89f854ba48c33ec91f534cbce2a687e116cfe62d0eee31e",
+    "tools/verify_manifold_conditioning_v1_integrity.py": "5a839a4996998362567c6dbdac0adebd480fcb71510388c4d0aa9adfb96deab6"
+  },
+  "schema": "TruthRawManifoldConditioningManifest/1.0"
+}

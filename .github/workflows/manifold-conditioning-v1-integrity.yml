@@ -1,0 +1,77 @@
+name: Manifold Conditioning v1 Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - 'research/manifold-conditioning-v1*'
+    paths:
+      - 'docs/research/manifold-conditioning-v1.0/**'
+      - 'docs/CORE_VISION_MANIFOLD_CONDITIONING_V1.md'
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - '.github/workflows/manifold-conditioning-v1-integrity.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/research/manifold-conditioning-v1.0/**'
+      - 'docs/CORE_VISION_MANIFOLD_CONDITIONING_V1.md'
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - '.github/workflows/manifold-conditioning-v1-integrity.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Byte-exact evidence and claim guards
+        run: python docs/research/manifold-conditioning-v1.0/tools/verify_manifold_conditioning_v1_integrity.py
+      - name: Stdlib numerical/model-selection reference
+        run: python docs/research/manifold-conditioning-v1.0/reference/manifold_conditioning_reference_v1.py
+      - name: Historical dog rejection smoke
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/manifold-conditioning-v1.0/evidence/DOG_3SCENE_HISTORICAL_MULTI_EV_EVIDENCE_v1.json')
+          x=json.loads(p.read_text())
+          assert x['aggregate_interpretation']['historical_candidate_status']=='NOT_PROMOTABLE'
+          assert x['aggregate_interpretation']['qualifying_frozen_scenes_available']==2
+          assert x['aggregate_interpretation']['evidence_multiplier_from_virtual_views']==1.0
+          print('TRUTHRAW_MANIFOLD_CONDITIONING_V1_DOG_REJECTION PASS')
+          PY
+
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: GCC Release against closed v0.9 chain
+        run: |
+          cmake -S docs/research/manifold-conditioning-v1.0 -B /tmp/mc1-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/mc1-gcc --target test_manifold_conditioning_v1 -j2
+          ctest --test-dir /tmp/mc1-gcc -R '^manifold_conditioning_v1$' --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang Release against closed v0.9 chain
+        run: |
+          cmake -S docs/research/manifold-conditioning-v1.0 -B /tmp/mc1-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/mc1-clang --target test_manifold_conditioning_v1 -j2
+          ctest --test-dir /tmp/mc1-clang -R '^manifold_conditioning_v1$' --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan and UBSan
+        run: |
+          cmake -S docs/research/manifold-conditioning-v1.0 -B /tmp/mc1-san \
+            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/mc1-san --target test_manifold_conditioning_v1 -j2
+          ASAN_OPTIONS=detect_leaks=1 /tmp/mc1-san/test_manifold_conditioning_v1
