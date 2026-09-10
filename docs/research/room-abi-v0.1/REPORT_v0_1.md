@@ -43,7 +43,7 @@ Using deliberately minimal local test doubles only for syntax/runtime hardening:
 - planner full-peak reservation: PASS;
 - `leaseRequests=5`, `leaseReleases=5` in the frozen local harness.
 
-These local stubs are **not** repository integration evidence. The promotion gate remains real-source GitHub CI against the exact current upstream blobs.
+These local stubs are **not** repository integration evidence. Real-source GitHub CI run `34537486512` subsequently passed GCC Release, Clang Release, and Clang ASan/UBSan against the exact current upstream blobs.
 
 ## Preserved negative findings
 
@@ -59,6 +59,21 @@ The candidate is rebased conceptually from the old local base `d7987e2...` to cu
 
 The next ABI extension should bind the already promoted Tile-Native DNG Source and Full-Frame Streaming handles so source/sink lifetime, transient tile workspace and output ownership use the same external-memory contract. S-curve/output-acutance image buffers, Android allocator backend and optional Vulkan resource parity remain separate future gates.
 
+## Real-upstream CI evidence
+
+GitHub Actions run `34537486512` passed all three jobs. The runtime output was identical across GCC Release, Clang Release, and Clang ASan/UBSan:
+
+- `lowTile=128`;
+- `highTile=512`;
+- `lowThreads=4`;
+- `highThreads=3`;
+- `manifoldGaugeEv=3`;
+- `roomCapsulePeak=2449920`;
+- `leaseRequests=5`;
+- `leaseReleases=5`.
+
+These real-source values supersede the simplified local-stub numeric values for integration claims.
+
 ## Status
 
-`RESEARCH_CANDIDATE_PENDING_REAL_UPSTREAM_CI`
+`RESEARCH_CANDIDATE_REAL_UPSTREAM_CI_PASS`
