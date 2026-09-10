@@ -17,3 +17,9 @@ Resolution: capture the opcode byte count in a scalar before moving the vector. 
 ## 3. Manifest reseal after source split
 
 The first promotion-candidate manifest still named the former monolithic source hash after the reader was split into common/bind/read translation units. Integrity verification rejected that stale seal. The verifier was not weakened; the manifest is regenerated from the final split bytes.
+
+## F4 — first repository integration compile rejected unused upstream test helper
+
+The first real GitHub integration run passed the sealed-module/upstream-byte gate and compiled the new reader, then GCC rejected the integration test because the included upstream `streaming_test_support_v0_1.h` defines a TU-local `static make_frame()` helper that this test did not call. With the new test compiled under `-Werror`, this became `-Werror=unused-function`.
+
+Resolution: the integration test now exercises that upstream helper as an explicit smoke binding. `-Werror` remains enabled and Full-Frame Streaming v0.1 remains byte-unchanged. Failed run 34534705681 is preserved.

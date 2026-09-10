@@ -48,6 +48,9 @@ std::vector<std::uint8_t> make_dng(int w,int h,const std::vector<std::uint16_t>&
 }
 
 int main(){
+    // The upstream support header intentionally exposes a TU-local fixture helper.
+    // Exercise it rather than weakening -Werror for unused support code.
+    { auto supportFixture = make_frame(2,2); REQUIRE(supportFixture.meta.width==2 && supportFixture.meta.height==2); }
     const int w=66,h=50;DecodedDngFrame frame;frame.meta.width=w;frame.meta.height=h;frame.meta.cfa=CfaPattern::BGGR;frame.meta.orientation=Orientation::Normal;frame.meta.whiteLevel=1023.f;frame.meta.blackPhase={64,65,66,67};frame.meta.noiseProfile={0.0009f,1e-6f,0.0010f,1.2e-6f,0.0011f,1.4e-6f};frame.meta.hasNoiseProfile=true;frame.meta.hasGainField=false;frame.meta.hasResidualBlack=false;frame.meta.cameraToXyzD50={0.62f,0.21f,0.08f,0.18f,0.71f,0.07f,0.03f,0.12f,0.79f};frame.meta.sourceId="tile_dng_streaming_fixture";frame.raw.resize(std::size_t(w)*h);for(int y=0;y<h;++y)for(int x=0;x<w;++x){int v=70+((x*37+y*53+x*y*3)%900);if((x+y)%97==0)v=1023;frame.raw[std::size_t(y)*w+x]=std::uint16_t(v);}
     auto bytes=std::make_shared<DngMemSource>(make_dng(w,h,frame.raw));OpenOptions oo;oo.sourceEvidenceId=frame.meta.sourceId;oo.color.valid=true;oo.color.bindingId="fixture_color_binding";oo.color.cameraToXyzD50=frame.meta.cameraToXyzD50;std::unique_ptr<TileNativeDngSource>source;auto os=TileNativeDngSource::open(bytes,oo,source);REQUIRE(os);REQUIRE(source->metadata().noiseProfile==frame.meta.noiseProfile);
     auto recon=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();auto appearance=std::make_shared<SkinSafeDetailedCrispAppearance>();ProcessOptions po;po.tile={16,7};po.threads=1;po.hdrEnabled=true;po.appearance=AppearanceProfile::SkinSafeDetailedCrisp;po.keepScientificDiagnostics=true;po.sdrLutSize=4096;ProcessResult canonical;TruthRawProcessor cp(recon,appearance);REQUIRE(cp.processFrame(frame,po,canonical));
