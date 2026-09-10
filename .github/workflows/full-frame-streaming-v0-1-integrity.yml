@@ -1,0 +1,47 @@
+name: Full-Frame Streaming v0.1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/full-frame-streaming-v0-1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/full-frame-streaming-v0-1-integrity.yml'
+  workflow_dispatch:
+
+jobs:
+  streaming:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module and upstream bindings
+        run: python3 docs/research/full-frame-streaming-v0.1/tools/verify_integrity_v0_1.py
+      - name: GCC Release equivalence
+        if: matrix.mode == 'gcc-release'
+        run: |
+          cmake -S docs/research/full-frame-streaming-v0.1 -B /tmp/stream-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/stream-gcc --parallel 2
+          /tmp/stream-gcc/test_full_frame_streaming_v0_1
+      - name: Clang Release equivalence
+        if: matrix.mode == 'clang-release'
+        run: |
+          cmake -S docs/research/full-frame-streaming-v0.1 -B /tmp/stream-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/stream-clang --parallel 2
+          /tmp/stream-clang/test_full_frame_streaming_v0_1
+      - name: Clang ASan/UBSan equivalence
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: |
+          cmake -S docs/research/full-frame-streaming-v0.1 -B /tmp/stream-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/stream-san --parallel 2
+          /tmp/stream-san/test_full_frame_streaming_v0_1
