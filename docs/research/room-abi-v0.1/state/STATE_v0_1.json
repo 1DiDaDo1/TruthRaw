@@ -1,0 +1,37 @@
+{
+  "module": "room-abi-v0.1",
+  "status": "RESEARCH_CANDIDATE_PENDING_REAL_UPSTREAM_CI",
+  "base_main": "c5a51610fbb7750c1e8bf95e97c4b1349fbaec7e",
+  "scientific_master_modified": false,
+  "physical_frame_count": 1,
+  "independent_evidence_count": 1,
+  "canonical_algorithm_files_modified": false,
+  "adapters": [
+    "v4.7i_resource_policy_bridge",
+    "manifold_conditioning_zero_alloc_roundtrip",
+    "room_capsule_external_memory_leases"
+  ],
+  "hardening": {
+    "invalid_enum_fail_closed": true,
+    "room_capsule_counterfactual_floor_required": true,
+    "effective_budget_uses_total_and_per_room_minimum": true,
+    "actual_granted_capacity_budget_bound": true,
+    "zero_positive_lease_budget_fail_closed": true,
+    "planner_peak_reservation": true,
+    "metadata_headroom_materialized_as_fake_buffer": false
+  },
+  "upstream_git_blob_bindings": {
+    "building_runtime_h": "c15bf38df62afda21ea241f1d64aa2fab8870d1a",
+    "building_runtime_cpp": "1957456cb6e79c1a6ba56d22f66777e6513533f0",
+    "v47i_core_h": "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a",
+    "v47i_core_cpp": "f79b951ba54cff08db400023e528e4eb91909ba6",
+    "manifold_h": "da5def4b1f40300548782a123420e671349f5b6b",
+    "manifold_cpp": "e41e8c6adbfdcd10c4afac6c4148a2bbfcb66ba0",
+    "room_capsule_h": "534062f4b42161c842cadc29d20a5e6667adea01",
+    "room_capsule_cpp": "1e12d155cc5972d07a3296e91bb8c754dd257581"
+  },
+  "local_stub_harness_is_integration_evidence": false,
+  "tile_native_dng_bound_in_this_version": false,
+  "full_frame_streaming_bound_in_this_version": false,
+  "next_extension": "bind_tile_native_dng_source_and_full_frame_streaming_handles"
+}
