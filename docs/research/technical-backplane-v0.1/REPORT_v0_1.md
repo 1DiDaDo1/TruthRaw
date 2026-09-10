@@ -45,6 +45,7 @@ The first launch harness deleted/recreated its own current working directory bef
 
 Room ABI v0.2 should pass this backplane by one external handle/reference and validate its scientific invariants at corridor entry. It should not copy the 180-byte record into every tile or room. Tile-Native DNG Source and Full-Frame Streaming source/sink resident bounds can then be accounted under per-room profiles without changing scientific algorithms.
 
+
 ## Repository validation
 
 GitHub Actions run `34539553224` on staged candidate `958528e47e5d24aa76f1567c9d9c4e09fa4338d6`: GCC Release PASS, Clang Release PASS, Clang ASan/UBSan PASS. The sealed-module verifier passed before each build. Runtime metrics matched the local fixture exactly.
