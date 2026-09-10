@@ -1,0 +1,12 @@
+{
+  "schema": "TruthRawUncertaintyAwareSCurveState/1.0",
+  "status": "RESEARCH_CANDIDATE",
+  "appearance_only": true,
+  "scientific_master_mutation_allowed": false,
+  "independent_rgb_curves_admitted": false,
+  "unknown_luminance_uncertainty_policy": "CONSERVATIVE_LOW_CONFIDENCE",
+  "unknown_chroma_confidence_policy": "NO_POSITIVE_CHROMA_BOOST",
+  "source_censored_policy": "NO_POSITIVE_CHROMA_BOOST",
+  "xyz_uncertainty_source": "v0.7 exact Y variance or conservative Y upper bound",
+  "claim_boundary": "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+}
