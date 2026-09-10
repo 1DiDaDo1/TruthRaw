@@ -2,7 +2,7 @@
   "schema": "truthraw.technical_backplane.state.v0_1",
   "module": "Technical Backplane v0.1",
   "base_main_sha": "604a62d77ea92421bfc241de51d829f02c50df9d",
-  "status": "RESEARCH_CANDIDATE_LOCAL_PASS_REPOSITORY_CI_OPEN",
+  "status": "RESEARCH_CANDIDATE_REPOSITORY_CI_PASS",
   "serialized_bytes": 180,
   "identity_bindings": [
     "sourceEvidenceHash",
@@ -24,5 +24,13 @@
     "cryptographic_authentication_claimed": false
   },
   "container_embedding": "OPEN",
-  "next_binding": "Room ABI v0.2 external shared handle"
+  "next_binding": "Room ABI v0.2 external shared handle",
+  "repository_ci": {
+    "run_id": 34539553224,
+    "head_sha": "958528e47e5d24aa76f1567c9d9c4e09fa4338d6",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "integrity_before_each_build": "PASS"
+  }
 }
