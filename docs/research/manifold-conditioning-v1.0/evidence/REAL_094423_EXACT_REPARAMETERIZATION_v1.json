@@ -1,0 +1,32 @@
+{
+  "aggregate": {
+    "ev_nodes_tested": 12,
+    "max_abs_roundtrip_error": 0.0,
+    "total_bit_changed_values": 0,
+    "total_roundtrip_value_checks": 451215360
+  },
+  "claim_boundary": "Exact reparameterization tests numerical coordinate invariance only; it creates no new photons, frames, samples, or sensor evidence.",
+  "height": 3072,
+  "independent_evidence_root_count": 1,
+  "method": "float32 power-of-two ldexp condition/decondition; compare raw IEEE-754 bits",
+  "physical_frame_count": 1,
+  "results": [
+    {"bit_changed_values": 0, "ev": -20, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": -10, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": -6, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": -4, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": -2, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 0, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 2, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 4, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 6, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 8, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 10, "max_abs_roundtrip_error": 0.0},
+    {"bit_changed_values": 0, "ev": 20, "max_abs_roundtrip_error": 0.0}
+  ],
+  "rgb_values": 37601280,
+  "schema": "TruthRawManifoldConditioningRealSceneExactReparam/1.0",
+  "source_scene_master": "094423.scene.bin",
+  "source_scene_master_sha256": "cece8d31a745cc903e4bba01caea7ac713583732d3adc3338ff01286e2d3ce56",
+  "width": 4080
+}
