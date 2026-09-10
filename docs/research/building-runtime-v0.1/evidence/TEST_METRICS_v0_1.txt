@@ -1,0 +1,15 @@
+BUILDING_RUNTIME_V0_1_TEST_PASS
+physicalFrameCount=1
+independentEvidenceCount=1
+scientificMasterModified=0
+decisionCount=12
+ledgerCount=12
+sizeofRuntimeResult=240
+lowBudgetBytes=33554432
+lowConcurrency=1
+lowTile=128
+highBudgetBytes=268435456
+highConcurrency=4
+highTile=512
+lowWaves=11
+highWaves=8
