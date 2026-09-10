@@ -1,0 +1,76 @@
+{
+  "schema": "TruthRawFullFrameStreamingState/0.1",
+  "status": "RESEARCH_PASS_REAL_CANONICAL_V47I_EQUIVALENCE_GCC_CLANG_ASAN_UBSAN",
+  "basis_main": "4f2fc5e6cedaf929d599d6d413642e3073b2b1a9",
+  "canonical_v4_7i_modified": false,
+  "execution": {
+    "image_passes": 2,
+    "workers_v0_1": 1,
+    "even_tile_core_required": true,
+    "full_frame_raw_owned_by_adapter": false,
+    "full_frame_sdr_owned_by_adapter": false,
+    "full_frame_half_gain_owned_by_adapter": false,
+    "full_frame_diagnostic_owned_by_adapter": false,
+    "half_resolution_scratch_store_required": false,
+    "pass1_appearance_required": false
+  },
+  "scientific_invariants": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "gainMapAppliedExactlyOnce": true,
+    "appearance_modifies_scientific_master": false,
+    "counterfactual_observation_created": false,
+    "zero_line_modified": false
+  },
+  "local_plan_fixture": {
+    "large_dimensions": [
+      16320,
+      12288
+    ],
+    "comparison_dimensions": [
+      4000,
+      3000
+    ],
+    "tile_core": 64,
+    "halo": 7,
+    "source_resident_upper_bound_bytes": 262144,
+    "sink_resident_upper_bound_bytes": 262144,
+    "logical_workspace_upper_bound_bytes": 458920,
+    "logical_resident_upper_bound_bytes": 983208,
+    "workspace_equal_across_large_and_small_fixture": true
+  },
+  "open": [
+    "tile-native TIFF/DNG source implementation",
+    "multi-worker streaming and sink/source thread-safety",
+    "downstream room-by-room StreamedSink migration"
+  ],
+  "implementation_layout": {
+    "public_header": "native/full_frame_streaming_v0_1.h",
+    "processor": "native/full_frame_streaming_v0_1.cpp",
+    "planner": "native/full_frame_streaming_v0_1_plan.cpp",
+    "pass1": "native/full_frame_streaming_v0_1_pass1.cpp",
+    "pass2": "native/full_frame_streaming_v0_1_pass2.cpp",
+    "internal_support": "native/full_frame_streaming_v0_1_internal.h",
+    "test_support": "tests/streaming_test_support_v0_1.h"
+  },
+  "ci_history": {
+    "run_34527663822": {
+      "gcc_release": "PASS_REAL_CANONICAL_EQUIVALENCE",
+      "clang_release": "FAIL_COMPILE_FROZEN_UPSTREAM_MISLEADING_INDENTATION_WARNING",
+      "classification": "HARNESS_UPSTREAM_WARNING_NOT_PIXEL_EQUIVALENCE_FAILURE"
+    }
+  },
+  "validation": {
+    "commit": "81bc0d44f256df40175e099b13a7139f6401424c",
+    "workflow_run": 34528065758,
+    "conclusion": "SUCCESS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "equivalence_sdr_max_abs": 0,
+    "equivalence_half_gain_max_abs": 0,
+    "equivalence_stage2_diag_max_abs": 0,
+    "low_end_workspace_bytes": 458920,
+    "low_end_resident_bound_bytes": 983208
+  }
+}
