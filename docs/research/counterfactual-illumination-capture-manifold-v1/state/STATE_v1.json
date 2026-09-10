@@ -1,0 +1,26 @@
+{
+  "module": "Counterfactual Illumination & Capture Manifold",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "status": "RESEARCH_PASS_FRAMEWORK_PHYSICAL_HONOR_CALIBRATION_BLOCKED",
+  "implemented": [
+    "RELATIVE_RADIANCE_SCALE_ONLY",
+    "CALIBRATED_NEUTRAL_ILLUMINATION_FORWARD",
+    "BEST_CALIBRATED_CAPTURE_SELECTION"
+  ],
+  "blocked": [
+    "HONOR_BKQ-N49_BnCam_tele_independent_electron_PTC_calibration",
+    "physical_sun_night_illuminant_binding",
+    "geometry_BRDF_visibility_spectral_relight",
+    "atmospheric_transport",
+    "spatial_sensor_nonuniformity"
+  ],
+  "physicalFrameCount": 1,
+  "independentEvidenceCount": 1,
+  "counterfactualObservationsAreEvidence": false,
+  "scientificMasterModified": false,
+  "zeroLineModified": false,
+  "base_main_at_research_start": "a777632c82aec7ee15d159d26e97ba1a98617aa4",
+  "honorPhysicalForwardAllowed": false,
+  "fullRelightImplemented": false
+}
