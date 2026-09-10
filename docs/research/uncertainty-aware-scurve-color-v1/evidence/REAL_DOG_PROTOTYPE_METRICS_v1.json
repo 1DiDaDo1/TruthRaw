@@ -1,0 +1,18 @@
+{
+  "classification": "APPEARANCE_ONLY_REAL_DOG_PROTOTYPE_NOT_SCIENTIFIC_MASTER",
+  "source": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+  "baseline_ev_from_dng": 0.321928,
+  "decoded_scene_window": 1.249999917786368,
+  "confidence_proxy": "correlation-agnostic source NoiseProfile marginal bound; not dense RGB covariance certification",
+  "low_chroma_confidence_fraction": 0.14445500831255195,
+  "high_chroma_confidence_fraction": 0.7616084788029925,
+  "median_chroma_gain_low_conf_confidence_aware": 0.48267409205436707,
+  "median_chroma_gain_high_conf_confidence_aware": 1.0973150730133057,
+  "median_chroma_gain_low_conf_unsafe": 0.7883549332618713,
+  "p95_hue_shift_deg_low_conf_confidence_aware": 0.02797645330429077,
+  "p95_hue_shift_deg_low_conf_unsafe": 0.34661510586738586,
+  "dark_low_conf_hf_baseline": 0.0007269112393260002,
+  "dark_low_conf_hf_global_scurve": 0.00043417327105998993,
+  "dark_low_conf_hf_confidence_aware": 0.00044751958921551704,
+  "scientific_master_modified": false
+}
