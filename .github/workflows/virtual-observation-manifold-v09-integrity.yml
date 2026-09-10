@@ -1,0 +1,85 @@
+name: Virtual Observation Manifold v0.9 Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - 'research/virtual-observation-manifold-v0.9*'
+    paths:
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - 'docs/CORE_VISION_VIRTUAL_OBSERVATION_MANIFOLD.md'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/camera-rgb-covariance-v0.6/**'
+      - '.github/workflows/virtual-observation-manifold-v09-integrity.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/research/virtual-observation-manifold-v0.9/**'
+      - 'docs/CORE_VISION_VIRTUAL_OBSERVATION_MANIFOLD.md'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/camera-rgb-covariance-v0.6/**'
+      - '.github/workflows/virtual-observation-manifold-v09-integrity.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Byte-exact manifest and claim guards
+        run: python docs/research/virtual-observation-manifold-v0.9/tools/verify_virtual_observation_v09_integrity.py
+      - name: Independent numerical reference
+        run: python docs/research/virtual-observation-manifold-v0.9/reference/virtual_observation_reference_v0_9.py
+      - name: Real-scene evidence ledger smoke
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=Path('docs/research/virtual-observation-manifold-v0.9')
+          x=json.loads((r/'REAL_3RAW_VIRTUAL_MANIFOLD_VALIDATION_v0_9.json').read_text())
+          assert x['aggregate']['virtual_ev_views_total'] == 27
+          assert x['aggregate']['virtual_iso_encoding_views_total'] == 24
+          assert x['aggregate']['physical_frames_total'] == 3
+          assert x['aggregate']['independent_evidence_roots_total'] == 3
+          assert x['aggregate']['max_ev_roundtrip_abs'] == 0.0
+          assert x['aggregate']['max_weight_sum_abs_error'] < 1e-12
+          assert all(r['physical_iso_noise_simulation']=='REJECT_WITHOUT_BOUND_SENSOR_FORWARD_MODEL' for r in x['results'])
+          print('TRUTHRAW_VIRTUAL_OBSERVATION_V0_9_REAL_EVIDENCE_SMOKE PASS')
+          PY
+
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: GCC Release build against real closed dependencies
+        run: |
+          cmake -S docs/research/virtual-observation-manifold-v0.9 -B /tmp/v09-gcc \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/v09-gcc --target test_virtual_observation_manifold_v0_9 -j2
+          ctest --test-dir /tmp/v09-gcc -R '^virtual_observation_manifold_v0_9$' --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang Release build against real closed dependencies
+        run: |
+          cmake -S docs/research/virtual-observation-manifold-v0.9 -B /tmp/v09-clang \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/v09-clang --target test_virtual_observation_manifold_v0_9 -j2
+          ctest --test-dir /tmp/v09-clang -R '^virtual_observation_manifold_v0_9$' --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan and UBSan
+        run: |
+          cmake -S docs/research/virtual-observation-manifold-v0.9 -B /tmp/v09-san \
+            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/v09-san --target test_virtual_observation_manifold_v0_9 -j2
+          ASAN_OPTIONS=detect_leaks=1 /tmp/v09-san/test_virtual_observation_manifold_v0_9

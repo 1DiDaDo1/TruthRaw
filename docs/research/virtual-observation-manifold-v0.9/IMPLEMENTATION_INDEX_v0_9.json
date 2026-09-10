@@ -1,0 +1,13 @@
+{
+  "module": "virtual-observation-manifold-v0.9",
+  "depends_on": [
+    "truthrange-latent-binding-v0.2",
+    "camera-rgb-covariance-v0.6"
+  ],
+  "native_api": "native/virtual_observation_manifold_v0_9.h",
+  "native_impl": "native/virtual_observation_manifold_v0_9.cpp",
+  "test": "tests/test_virtual_observation_manifold_v0_9.cpp",
+  "reference": "reference/virtual_observation_reference_v0_9.py",
+  "scientific_role": "shared-evidence deterministic virtual exposure/gain observation manifold between Latent Scene/TruthRange and virtual-camera/output projection",
+  "does_not_create_independent_evidence": true
+}
