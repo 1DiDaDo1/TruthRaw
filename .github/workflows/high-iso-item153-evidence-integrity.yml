@@ -1,0 +1,29 @@
+name: High-ISO Item 153 Evidence Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/high-iso-uncertainty-item153-2026-09-10/**'
+      - 'canonical/uncertainty/v5.0g/**'
+      - 'canonical/reconstruction/v4.7i/native/src/core.cpp'
+      - 'canonical/reconstruction/v4.7i/native/include/truthraw/core.h'
+      - '.github/workflows/high-iso-item153-evidence-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/high-iso-uncertainty-item153-2026-09-10/**'
+      - 'canonical/uncertainty/v5.0g/**'
+      - 'canonical/reconstruction/v4.7i/native/src/core.cpp'
+      - 'canonical/reconstruction/v4.7i/native/include/truthraw/core.h'
+      - '.github/workflows/high-iso-item153-evidence-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Item 153 retained evidence and frozen bindings
+        run: python3 docs/research/high-iso-uncertainty-item153-2026-09-10/tools/verify_item153_integrity.py

@@ -1,0 +1,15 @@
+{
+  "schema": "TruthRawHighIsoItem153/1.0",
+  "date": "2026-09-10",
+  "status": "SCORED_MIXED_FAIL_GENERALIZATION_REVIEW_OPEN_NO_RETUNE",
+  "evidence_class": "POST_FREEZE_IMPLEMENTATION_EXPOSED_TARGET_SCORED_HIGH_ISO_GENERALIZATION_SET",
+  "frozen_model_retuned": false,
+  "broader_generalization_blocker_open": true,
+  "historical_094414_failure_binding": true,
+  "independent_promotion_holdout": false,
+  "isos": [1600, 3200, 6400, 12800],
+  "literal_decisions": ["FAIL", "FAIL", "FAIL", "PASS"],
+  "q5_predicted_observed_p95_ratio": [0.565435, 0.647388, 0.715192, 0.794887],
+  "frozen_q5_ratio_lower_gate": 0.75,
+  "deterministic_rerun_byte_identical": true
+}
