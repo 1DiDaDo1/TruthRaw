@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.20)
+project(truthraw_cicm_v1 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_library(cicm_v1 native/cicm_v1.cpp)
+target_include_directories(cicm_v1 PUBLIC native)
+add_executable(test_cicm_v1 tests/test_cicm_v1.cpp)
+target_link_libraries(test_cicm_v1 PRIVATE cicm_v1)

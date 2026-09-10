@@ -1,0 +1,6 @@
+relative_delta_ev=1
+fixture_snr=2.66312
+double_light_snr=4.074
+uncensored_sweep_points=741
+censored_sweep_points=259
+CICM_V1_PASS
