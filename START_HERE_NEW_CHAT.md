@@ -1,82 +1,60 @@
-# START HERE — TruthRaw new-chat bootstrap
+# START HERE — TruthRaw current bootstrap
 
-This file is the first conceptual entry point for a new TruthRaw chat/session.
+This is the authoritative session/bootstrap entry point for the renewed TruthRaw house as of 2026-09-10.
 
 ## Mandatory reading order
 
-1. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-2. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-3. `state/CURRENT_CANONICAL_STATE_2026-09-09.json`
-4. `docs/PROJECT_STATE_AUDIT_2026-09-08.md`
-5. relevant canonical module documentation for the task being continued
+1. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
+2. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
+3. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+4. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
+5. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
+6. only then: the canonical/research module documents relevant to the task
 
-## Non-negotiable core vision
+Do **not** bootstrap from `CURRENT_CANONICAL_STATE_2026-09-06.json`, `...2026-09-08.json`, `...2026-09-09.json`, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. Those are preserved historical snapshots.
 
-The original RAW is the **sealed original house**: immutable measurement evidence.
+## Non-negotiable scientific rules
 
-TruthRaw builds a **new house, stone by stone**: a separate Latent Scene Truth / Scene Master.
-
-The new master is not required to inherit the source container's arbitrary representation limits such as RAW10 range, WhiteLevel as output ceiling, source ISO as working scale, source gamut, SDR range, integer storage, or DNG compatibility constraints.
-
-**ISO remains capture provenance but does not define the identity or numerical scale of the reconstructed scene.** TruthRaw may normalize capture gain into an ISO-neutral scene master while preserving the original ISO/readout state in provenance and uncertainty.
-
-TruthRaw may reconstruct beyond source-representation limits, but may never relabel reconstructed information as newly measured photons.
+The source RAW/CFA + capture metadata are immutable sealed evidence. The scientific Scene Master is a separate reconstructed state.
 
 **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 
-FULL_PHYSICAL is an evidence/certification scope, not permission to start using the richer architecture. Calibration improves physical support and reduces uncertainty; it does not force the Latent Scene Master back inside the original RAW container.
+Measured, reconstructed, censored/unknown, counterfactual and appearance data remain distinct. `physicalFrameCount=1` and `independentEvidenceCount=1` remain the single-frame evidence invariants.
 
-## Zero-line / TruthRange rule
+For positive physical light, TruthRange may use `T = log2(L/L0)`. The zero-line `L0` is a gauge/reference; it is not sensor black, absolute darkness, DNG BlackLevel or clipping. Signed scene-linear estimates remain distinct from the positive-light log coordinate.
 
-TruthRaw's new house uses the canonical idea of a **zero-line gauge** for positive scene light:
+Source ISO/shutter remain immutable capture provenance. Virtual EV/ISO reparameterization does not create information. Counterfactual illumination/capture may create hypothetical measurements only inside the explicitly counterfactual world; it never retroactively creates evidence.
 
-`T = log2(L/L0)`.
+Appearance must never modify the scientific master. DNG/LinearRaw/export is a compatibility/presentation projection, not the scientific master.
 
-`T=0` is a reference level, not sensor black or absolute darkness.
+APK/GCam/computational-RAW content must not determine TruthRaw evidence, calibration, topology, color, noise model or architecture.
 
-The TruthRange **address space** may extend without finite source-container limits:
+`canonical/ptc/v1.1` is **Pure Truth Certificate**. Do not infer photon-transfer calibration from that path name.
 
-`L -> infinity  => T -> +infinity`
+No silent LICENSE. Preserve failed/rejected experiments and their provenance.
 
-`L -> 0+        => T -> -infinity`
+## Renewed house execution rules
 
-But every capture has only a **finite evidence-supported window** inside that address space.
+The Building Runtime owns orchestration; algorithms retain their own scientific contracts.
 
-Therefore future chats must distinguish:
+- **Truth floor** controls epistemic permission.
+- **Resource profile** controls only RAM/CPU/GPU/tile/cache execution.
+- Cheap phones may run one heavy room at a time with small tiles and disposable caches.
+- Strong phones may run more compatible rooms in parallel, use larger tiles/caches and optional acceleration.
+- Hardware capability never upgrades scientific claims.
+- Corridors carry handles/provenance rather than duplicate full-frame payloads.
+- Zero-line/source/master/scene-scale identity belongs to one immutable shared backplane binding, not per-pixel duplication.
+- Rebuildable caches may be evicted; immutable evidence/master identity may not be rewritten to satisfy memory pressure.
+- Resource policy may be re-derived between room operations, never halfway through an indivisible scientific operation.
 
-1. unbounded TruthRange address space;
-2. finite evidence-supported captured dynamic range;
-3. reconstructed-support range with bounds/uncertainty;
-4. finite presentation/export dynamic range.
+## Current implementation boundary
 
-A clipped sample is not "maximum light": it is a finite lower bound with an open `+infinity` tail until other valid evidence narrows it.
+Building Runtime v0.1 and Room Capsule v0.1 are integrated on the current repository lineage. CICM v1 and Manifold Conditioning v1 remain bounded research components in that lineage.
 
-A noise-limited dark sample is not automatically exact zero: it may carry a finite upper bound with an open `-infinity` tail.
+Technical Backplane v0.1 and the all-room adaptive resource layer are active research candidates; do not describe them as main-promoted until their own repository CI/promotion gates pass.
 
-**The axis can be infinite. The evidence is finite. The reconstruction may go beyond the evidence only as reconstruction.**
+The canonical v4.7i public API still owns full-frame `DecodedDngFrame.raw` and `ProcessResult.sdrRgb` vectors. The next production-memory migration is a validated streaming/tile-source/sink adapter. Do not silently rewrite canonical v4.7i before equivalence and integrity gates pass.
 
-Calibration locates evidence and uncertainty on this axis; calibration does not define how high or deep the new house is allowed to exist.
+## One-sentence definition
 
-The existing zero-line v0.1 `ISO * exposure` mapping is research/provisional. The **architecture is canonical**, while that specific gain proxy is not yet a physical calibration.
-
-## Permanent scientific rules
-
-- Original CFA/sample bytes + capture metadata are immutable evidence.
-- Measured, reconstructed, censored/unknown and rendered quantities remain distinguishable.
-- WhiteLevel clipping is censored/lower-bound evidence.
-- GainMap exactly once; corresponding noise/uncertainty transforms with signal.
-- Sensor black != display black.
-- Scene-linear master may contain values below 0 or above 1 where meaningful.
-- Signed scene-linear reconstruction remains distinct from positive-light TruthRange/log coordinates.
-- Noise-free appearance != zero uncertainty.
-- Uncertainty remains bound to exact backend/domain/hash.
-- Camera-native RGB != display sRGB without a documented transform.
-- DNG is an export/compatibility projection, not the scientific master.
-- No generative semantic scene invention.
-- No APK-derived canonical changes unless the user explicitly reverses that policy.
-- Do not retune the frozen v5.0g model on the black/white-dog holdout failure.
-- Do not silently add a LICENSE.
-
-## One-sentence project definition
-
-**TruthRaw preserves the original RAW as sealed evidence and constructs a new, richer, uncertainty-aware scene estimate with an unbounded TruthRange address space, while every scientific claim remains bounded by the finite evidence actually captured.**
+**TruthRaw preserves one sealed RAW observation as immutable evidence, reconstructs a separate uncertainty-aware Scene Master, and executes specialized rooms through a resource-adaptive but scientifically invariant building runtime.**
