@@ -1,0 +1,6 @@
+Local strict build results:
+- GCC Release-like -O2 -Wall -Wextra -Wpedantic -Werror: PASS
+- Clang Release-like -O2 -Wall -Wextra -Wpedantic -Werror: PASS
+- GCC ASan/UBSan: PASS
+- native tests: TRUTHRAW_MANIFOLD_CONDITIONING_V1_TESTS_PASS
+- real 094423 exact condition/decondition: 451215360 checks, 0 bit changes, max_abs_error=0.0
