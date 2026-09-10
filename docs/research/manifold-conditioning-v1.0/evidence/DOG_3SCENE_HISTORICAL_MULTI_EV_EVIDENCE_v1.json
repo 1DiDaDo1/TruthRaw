@@ -1,0 +1,165 @@
+{
+  "aggregate_interpretation": {
+    "co_sited_missing_colour_certified": false,
+    "evidence_multiplier_from_virtual_views": 1.0,
+    "historical_candidate_status": "NOT_PROMOTABLE",
+    "qualifying_frozen_scenes_available": 2,
+    "reason": "Only two frozen-parameter scenes remain after excluding development evidence, and topology regresses in those checks even where scalar MAE is slightly improved."
+  },
+  "candidate_model_id": "historical-multi-ev-robust-asinh-triple",
+  "physical_capture_rule": "Each source DNG is one physical frame. Virtual EV views do not increase evidence count.",
+  "regime_id": "HONOR-BKQ-N49-22.48mm-tele-dog-real-scenes",
+  "schema": "TruthRawManifoldConditioningHeldoutEvidence/1.0",
+  "sources": [
+    {
+      "candidate_frozen_before_evidence": false,
+      "channels": {
+        "B": {
+          "baseline_mae": 0.0041613990586775885,
+          "baseline_p95_abs_mean": 0.012536637727628258,
+          "curvature_baseline": 0.9363817326832645,
+          "curvature_multi_ev": 0.9329313677408188,
+          "mae_ratio": 1.0083744042187037,
+          "multi_ev_mae": 0.004196248296510288,
+          "multi_ev_p95_abs_mean": 0.012643416193252648,
+          "ordering_baseline": 0.9821700205802985,
+          "ordering_multi_ev": 0.9810020768676503,
+          "p95_ratio": 1.0085173128508829,
+          "samples": 400000
+        },
+        "G": {
+          "baseline_mae": 0.006492205494855656,
+          "baseline_p95_abs_mean": 0.021037510333366982,
+          "curvature_baseline": 0.8435547530400601,
+          "curvature_multi_ev": 0.8446972723350538,
+          "mae_ratio": 0.993049581997824,
+          "multi_ev_mae": 0.006447081952910385,
+          "multi_ev_p95_abs_mean": 0.020814736837806505,
+          "ordering_baseline": 0.9401316141458456,
+          "ordering_multi_ev": 0.9407709592852175,
+          "p95_ratio": 0.9894106530653894,
+          "samples": 399993
+        },
+        "R": {
+          "baseline_mae": 0.004430325528909733,
+          "baseline_p95_abs_mean": 0.013353727023895895,
+          "curvature_baseline": 0.9358068059805242,
+          "curvature_multi_ev": 0.9329828764360147,
+          "mae_ratio": 1.0072370447504062,
+          "multi_ev_mae": 0.0044623879930213205,
+          "multi_ev_p95_abs_mean": 0.013458259625377816,
+          "ordering_baseline": 0.9843543060543524,
+          "ordering_multi_ev": 0.983343248066627,
+          "p95_ratio": 1.0078279720182137,
+          "samples": 400000
+        }
+      },
+      "independent_evidence_root_count": 1,
+      "physical_frame_count": 1,
+      "role": "DEVELOPMENT_TUNING_EXPOSED",
+      "scene_id": "094423",
+      "source_dng": "IMG_BNC_TRUTHRAW20260907_094423_122.dng",
+      "source_dng_sha256": "ade9d84542916678d1a198c6baff219806d44fa8f050ef8d7545dfae90644f65"
+    },
+    {
+      "candidate_frozen_before_evidence": true,
+      "channels": {
+        "B": {
+          "baseline_mae": 0.003368242534687589,
+          "baseline_p95_abs_mean": 0.011069519621346665,
+          "curvature_baseline": 0.8879957593242727,
+          "curvature_multi_ev": 0.8836508046855991,
+          "mae_ratio": 1.0074895853398742,
+          "multi_ev_mae": 0.0033934692745965257,
+          "multi_ev_p95_abs_mean": 0.011159595664003217,
+          "ordering_baseline": 0.9731440181219495,
+          "ordering_multi_ev": 0.9719607980508006,
+          "p95_ratio": 1.0081373036715024,
+          "samples": 400000
+        },
+        "G": {
+          "baseline_mae": 0.004566985827137256,
+          "baseline_p95_abs_mean": 0.014944682955791152,
+          "curvature_baseline": 0.8468084277758305,
+          "curvature_multi_ev": 0.8413658137632901,
+          "mae_ratio": 0.9964191428954177,
+          "multi_ev_mae": 0.004550632103491625,
+          "multi_ev_p95_abs_mean": 0.014892966206303059,
+          "ordering_baseline": 0.9461642885600036,
+          "ordering_multi_ev": 0.9442165528028212,
+          "p95_ratio": 0.9965394548923466,
+          "samples": 400000
+        },
+        "R": {
+          "baseline_mae": 0.0036409426347789615,
+          "baseline_p95_abs_mean": 0.011845416636641716,
+          "curvature_baseline": 0.8934117748842842,
+          "curvature_multi_ev": 0.8890946057014318,
+          "mae_ratio": 1.0074394031625478,
+          "multi_ev_mae": 0.0036680290749307913,
+          "multi_ev_p95_abs_mean": 0.011937608110697042,
+          "ordering_baseline": 0.9724909085489448,
+          "ordering_multi_ev": 0.9711868069631573,
+          "p95_ratio": 1.0077828815045768,
+          "samples": 400000
+        }
+      },
+      "independent_evidence_root_count": 1,
+      "physical_frame_count": 1,
+      "role": "FROZEN_PARAMETER_CHECK",
+      "scene_id": "094414",
+      "source_dng": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+      "source_dng_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e"
+    },
+    {
+      "candidate_frozen_before_evidence": true,
+      "channels": {
+        "B": {
+          "baseline_mae": 0.0032266048563584218,
+          "baseline_p95_abs_mean": 0.009944530382913222,
+          "curvature_baseline": 0.874324004263214,
+          "curvature_multi_ev": 0.8699127620100264,
+          "mae_ratio": 1.006765493165044,
+          "multi_ev_mae": 0.0032484344294604127,
+          "multi_ev_p95_abs_mean": 0.010008012036980214,
+          "ordering_baseline": 0.9711282797371193,
+          "ordering_multi_ev": 0.9700956537734745,
+          "p95_ratio": 1.0063835748519676,
+          "samples": 400000
+        },
+        "G": {
+          "baseline_mae": 0.004089578055103354,
+          "baseline_p95_abs_mean": 0.012932965567090903,
+          "curvature_baseline": 0.8657227707296741,
+          "curvature_multi_ev": 0.8612681376507672,
+          "mae_ratio": 0.9996062939326558,
+          "multi_ev_mae": 0.004087967963410182,
+          "multi_ev_p95_abs_mean": 0.01293178933978209,
+          "ordering_baseline": 0.959701408766908,
+          "ordering_multi_ev": 0.957693818781544,
+          "p95_ratio": 0.9999090520033699,
+          "samples": 400000
+        },
+        "R": {
+          "baseline_mae": 0.0035539487871371436,
+          "baseline_p95_abs_mean": 0.01100813573235248,
+          "curvature_baseline": 0.8871352247778604,
+          "curvature_multi_ev": 0.8829798260574595,
+          "mae_ratio": 1.0071459024181375,
+          "multi_ev_mae": 0.0035793449583690837,
+          "multi_ev_p95_abs_mean": 0.011084955172199313,
+          "ordering_baseline": 0.9723257093452802,
+          "ordering_multi_ev": 0.9713314469857738,
+          "p95_ratio": 1.0069784241141817,
+          "samples": 400000
+        }
+      },
+      "independent_evidence_root_count": 1,
+      "physical_frame_count": 1,
+      "role": "FROZEN_PARAMETER_CHECK",
+      "scene_id": "094416",
+      "source_dng": "IMG_BNC_TRUTHRAW20260907_094416_197.dng",
+      "source_dng_sha256": "53352735e577e1465a0c10b9f162eeb2dede3c6cb23ff256f327027cb29bd8db"
+    }
+  ]
+}
