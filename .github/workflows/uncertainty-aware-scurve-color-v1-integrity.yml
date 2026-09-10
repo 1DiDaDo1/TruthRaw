@@ -1,0 +1,79 @@
+name: Uncertainty-Aware S-Curve Color v1 Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - 'research/uncertainty-aware-scurve-color-v1*'
+    paths:
+      - 'docs/research/uncertainty-aware-scurve-color-v1/**'
+      - 'docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md'
+      - '.github/workflows/uncertainty-aware-scurve-color-v1-integrity.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/research/uncertainty-aware-scurve-color-v1/**'
+      - 'docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md'
+      - '.github/workflows/uncertainty-aware-scurve-color-v1-integrity.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Closed dependency presence
+        run: |
+          test -f docs/research/camera-rgb-covariance-v0.6/native/camera_rgb_covariance_v0_6.h
+          test -f docs/research/xyz-d50-uncertainty-v0.7/native/xyz_d50_uncertainty_v0_7.h
+          test -f docs/research/missing-channel-topology-v0.8/README.md
+          test -f docs/research/virtual-observation-manifold-v0.9/README.md
+      - name: Byte-exact manifest and claim guards
+        run: python docs/research/uncertainty-aware-scurve-color-v1/tools/verify_integrity_v1.py
+      - name: Independent stdlib numerical reference
+        run: python docs/research/uncertainty-aware-scurve-color-v1/reference/reference_v1.py
+      - name: Real-dog evidence smoke
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/uncertainty-aware-scurve-color-v1/evidence/REAL_DOG_094423_v1.json')
+          x=json.loads(p.read_text())
+          m=x['metrics']
+          assert x['scientific_master_modified'] is False
+          assert m['p95_hue_shift_deg_low_confidence_aware'] < m['p95_hue_shift_deg_unsafe_low_conf_rgb_boost']
+          assert m['dark_low_conf_hf_proxy_confidence_aware'] < m['dark_low_conf_hf_proxy_baseline']
+          print('TRUTHRAW_UNCERTAINTY_AWARE_SCURVE_COLOR_V1_REAL_DOG_SMOKE PASS')
+          PY
+
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: GCC Release
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-color-v1 -B /tmp/scurve-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/scurve-gcc -j2
+          ctest --test-dir /tmp/scurve-gcc --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang Release
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-color-v1 -B /tmp/scurve-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/scurve-clang -j2
+          ctest --test-dir /tmp/scurve-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan and UBSan
+        run: |
+          cmake -S docs/research/uncertainty-aware-scurve-color-v1 -B /tmp/scurve-san -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/scurve-san -j2
+          ASAN_OPTIONS=detect_leaks=1 /tmp/scurve-san/test_uncertainty_aware_scurve_color_v1

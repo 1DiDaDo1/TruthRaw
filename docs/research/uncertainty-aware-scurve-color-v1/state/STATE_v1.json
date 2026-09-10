@@ -1,0 +1,11 @@
+{
+  "schema": "TruthRawUncertaintyAwareSCurveColorState/1",
+  "module_status": "RESEARCH_IMPLEMENTATION_PENDING_REPOSITORY_CI",
+  "appearance_only": true,
+  "scientific_master_modified": false,
+  "physical_color_claimed": false,
+  "spectral_truth_claimed": false,
+  "uncertain_chroma_policy": "RESTRAIN_OR_COUPLE",
+  "reliable_chroma_policy": "MODEST_APPEARANCE_ENHANCEMENT_ALLOWED",
+  "source_censored_positive_chroma_enhancement": "FORBIDDEN"
+}
