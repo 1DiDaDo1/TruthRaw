@@ -23,3 +23,11 @@ The first repository-layout copy brought across populated source/test directorie
 GitHub run `34539436405` failed in the integrity step on all three jobs because the staged test file omitted one explanatory comment line present in the locally validated bytes. The executable test logic was unchanged, but byte identity is part of the promotion contract.
 
 **Resolution:** restore the test file to the exact locally validated bytes and regenerate the manifest. The verifier was not weakened and compilation remained blocked until the seal matched.
+
+## F4 — final evidence report newline mismatch
+
+**Classification:** byte-transfer/seal failure before compilation.
+
+GitHub run `34539681903` failed in the integrity step because the staged `REPORT_v0_1.md` normalized one blank-line difference relative to the locally sealed evidence report. No native source, test, state semantic, or metric value changed.
+
+**Resolution:** restore the exact sealed report bytes, preserve this failure, regenerate the manifest, and rerun the unchanged compiler/sanitizer gates.
