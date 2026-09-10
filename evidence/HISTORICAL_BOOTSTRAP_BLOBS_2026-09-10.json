@@ -1,0 +1,16 @@
+{
+  "historical_blobs": {
+    ".github/workflows/canonical-integrity.yml": "3d1213b5fe9c0f07fabbdc1c5711bfeeeebb5297",
+    "README.md": "341cdf2903e626ffd7b53d53de5edbb4fced9fc2",
+    "START_HERE_NEW_CHAT.md": "fab115fe4303554ecd1383dcb1aaf1dc10724812"
+  },
+  "policy": {
+    "canonical_scientific_modules": "remain_byte_exact_under_canonical_integrity",
+    "historical_blobs": "must remain reachable in git history",
+    "living_bootstrap_docs": "validated_by_documentation_governance_not_byte_frozen",
+    "old_content_not_relabelled_current": true
+  },
+  "schema": "TruthRawHistoricalBootstrapBlobLedger/1",
+  "status": "HISTORICAL_PROVENANCE_PRESERVED_NOT_CURRENT_BOOTSTRAP",
+  "superseded_by_commit": "ab8c0e6ab078fdfc1daf51996ce30fc23d2b2433"
+}

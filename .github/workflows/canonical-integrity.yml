@@ -14,11 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Verify byte-exact canonical provenance
-        run: python tools/verify_canonical_integrity.py
+        run: python tools/verify_canonical_integrity_v2.py
       - name: Run zero-line TruthRange architecture self-test
         run: |
           python docs/research/zero-line-dynamic-range-v0.1/implementation/test_truthrange_core_v0_1.py
