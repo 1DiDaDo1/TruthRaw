@@ -1,0 +1,15 @@
+TECHNICAL_BACKPLANE_V0_1_TEST_PASS
+serializedBytes=180
+zeroLineOccurrences=1
+physicalFrameCount=1
+independentEvidenceCount=1
+crc32=1570024631
+compiler_gcc_release=PASS
+compiler_clang_release=PASS
+compiler_clang_asan_ubsan=PASS
+metric_output_identical=PASS
+repository_ci_run=34539553224
+repository_gcc_release=PASS
+repository_clang_release=PASS
+repository_clang_asan_ubsan=PASS
+repository_integrity=PASS
