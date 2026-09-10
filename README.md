@@ -1,130 +1,95 @@
 # TruthRaw
 
-TruthRaw is a post-capture RAW reconstruction research project and software-ISP built around one scientific rule:
+TruthRaw is a single-frame RAW reconstruction research project and software-ISP built around one rule:
 
 > **Measured where measured. Reconstructed where necessary. Never invented.**
 >
 > **Echt gemeten. Echt gereconstrueerd. Geen verzinsels.**
 
-## Project scope
+## Start here
 
-TruthRaw treats RAW/CFA data as measurement evidence rather than as a finished photograph. The project separates:
+For the current project state and reading order, use:
 
-- immutable source measurements and capture metadata;
-- physically/statistically reconstructed values;
-- uncertainty and provenance;
-- appearance/rendering decisions.
+1. `START_HERE_NEW_CHAT.md`
+2. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
+3. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
+4. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
 
-Pure Truth does not use generative scene content, hallucinated texture, or hidden multi-frame scene evidence. Reconstructed values are never relabelled as newly measured photons.
+Dated state files and research README files are preserved as provenance/history. They are **not** global current-state authorities unless the current document-status index explicitly says so.
 
-## Core architecture: sealed house -> new house
+## Scientific foundation
 
-The original RAW is the **sealed original house**: immutable evidence of what the camera actually measured.
+The original RAW/CFA and capture metadata are the **sealed original house**: immutable measurement evidence.
 
-TruthRaw builds a **separate new house, stone by stone**: the Latent Scene Truth / Scene Master. That new master is not required to inherit arbitrary representation limits of the source container such as RAW10 code range, `WhiteLevel` as an output ceiling, source ISO as the working image scale, source gamut, SDR range, integer storage, or DNG compatibility constraints.
+TruthRaw constructs a separate scientific Scene Master — the **new house**. Its numerical representation is not forced to inherit RAW10 range, source WhiteLevel as an output ceiling, source ISO as working scale, SDR range, integer storage, or DNG container limits.
 
-**ISO remains immutable capture provenance, but does not define the identity or numerical scale of the reconstructed scene.** TruthRaw may normalize capture gain into an ISO-neutral scene-domain master while preserving the original gain/readout state in provenance and uncertainty.
+That representational freedom never enlarges the evidence:
 
-This freedom applies to representation, not to evidence claims: reconstruction may exceed source-container limits, but reconstructed values are never relabelled as newly measured photons. `FULL_PHYSICAL` is an evidence/certification level, not the permission boundary of the reconstruction architecture.
+**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 
-The canonical formulation is documented in `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`.
+Measured, reconstructed, censored/unknown, counterfactual and appearance quantities remain distinguishable. A derived LinearRaw/DNG is an export or compatibility projection, not a relabelling of reconstructed values as original sensor measurements.
 
-## Core dynamic-range architecture: zero line / TruthRange
+## TruthRange and zero-line
 
-TruthRaw also treats dynamic range as a property of **two different worlds**.
-
-For positive latent scene light, the new house may use:
+For positive physical scene light TruthRaw may use:
 
 `T = log2(L/L0)`
 
-with a chosen zero-line reference `L0`.
+`L0` is the chosen zero-line reference. `T=0` is not sensor black, DNG `BlackLevel`, display black, clipping or “zero photons”.
 
-The TruthRange address space is allowed to continue toward `+infinity` for increasing light and toward `-infinity` as positive light approaches zero. Source RAW10, WhiteLevel, ISO, DNG and display range do not define the ceiling/floor of that address space.
+The TruthRange coordinate may be unbounded as a representation, while every real capture supplies only finite evidence. Signed scene-linear estimates remain a separate companion representation; a negative numerical estimate is not negative physical light.
 
-At the same time, any particular RAW exposes only a **finite evidence-supported interval** inside that space. Clipping is a lower-bound censor toward `+infinity`; noise-limited darkness may have an open tail toward `-infinity`.
+The detailed domain authority remains `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`.
 
-TruthRaw therefore permanently distinguishes:
+## The renewed house
 
-- unbounded TruthRange address space;
-- finite captured/evidence-supported dynamic range;
-- reconstructed-support range with explicit bounds/uncertainty;
-- finite presentation/export dynamic range.
+TruthRaw now separates scientific authority from execution resources.
 
-**The axis can be infinite. The evidence is finite. Reconstruction beyond the evidence remains reconstruction.**
+The Building Runtime defines 12 logical rooms: Archivist, Measurement Lab, Architect, Restorer, Scene Registry, Surveyor, Manifold Conditioning, Lighting Studio/CICM, Room Capsule, Colorist, Finisher and Exporter.
 
-Calibration places evidence on the axis and reduces uncertainty; it does not determine how high or deep the new house is allowed to exist.
+A room's **truth floor** determines what it is allowed to read, claim or modify. A phone's RAM, CPU, GPU and thermal state determine only how much execution space the room receives.
 
-The canonical formulation is in `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`. New sessions should begin with `START_HERE_NEW_CHAT.md`.
+A faster phone may open more compatible rooms in parallel, retain more rebuildable caches, use larger tiles or choose an optional acceleration backend. It does **not** receive more evidence or permission to make stronger scientific claims.
 
-## Current repository snapshot
+Corridors carry compact handles, provenance and authority, not duplicate full-frame images.
 
-The repository contains the canonical reconstruction/detail/output-acutance/PTC/uncertainty stack, the canonical sealed-house + zero-line conceptual architecture, and separate experimental/research branches including the HONOR BKQ-N49 Camera 5 full-sensor path and the zero-line implementation prototype.
+## Memory ownership model
 
-Current device evidence for the tele camera indicates:
+The renewed house uses five storage classes:
 
-- Camera 5 / 22.48 mm tele
-- default RAW: 4080 × 3072
-- maximum-resolution RAW route: 8160 × 6144
-- high-resolution RAW_SENSOR route: **16320 × 12288 (200.54016 MP)**
-- Android ultra-high-resolution capability advertised
-- app-visible RAW is treated as regular Bayer by the Android contract for this capability set
-- `lensShadingApplied=true`, therefore this project does **not** claim untouched photodiode/ADC truth
+1. **Immutable shared state** — one instance, referenced by handles. This includes source/master identity, scene-scale and zero-line binding.
+2. **Per-pixel scientific data** — tile/stream whenever possible; never duplicate a full master merely to cross a room boundary.
+3. **Reproducible derived data** — compact, downsampled and/or rebuildable caches.
+4. **Appearance intermediates** — tile-local and disposable.
+5. **Export data** — streamed to the destination where possible.
 
-The 200 MP capability is proven from Camera2 characteristics. A real 16320 × 12288 RAW_SENSOR payload plus matching `TotalCaptureResult` is still required to close the runtime capture gate.
+Room Capsule v0.1 already follows this model strongly: local geometry is compact/downsampled and tile-workspace is bounded independently of full image megapixels.
 
-## Scientific boundaries
+The current canonical v4.7i public API still contains full-frame vectors for decoded RAW and output RGB. Replacing those ownership points with a `TileSource -> persistent master handle -> StreamedSink` path is the next explicit production-memory migration. Until validated, the existing canonical v4.7i bytes remain unchanged.
 
-Non-negotiable rules include:
+## Technical Backplane
 
-- Original CFA/sample bytes and capture metadata are immutable evidence.
-- Measured, reconstructed, censored/unknown, and appearance data remain distinguishable.
-- White-level clipping is censored/lower-bound evidence.
-- GainMap is applied exactly once; signal and noise transform together.
-- Sensor black is not display black and is not the TruthRange `-infinity` point.
-- Signed scene-linear reconstruction remains distinct from the positive-light TruthRange/log coordinate.
-- Noise-free appearance is not perfect knowledge; uncertainty remains.
-- Uncertainty is bound to the exact reconstruction backend/hash.
-- Camera-native RGB is never treated as display sRGB without the canonical transform.
-- Exact LinearRaw v0.4 release-candidate DNGs have passed `dng_validate` 1.7.1 (2611); every changed/new DNG candidate must repeat the full interoperability/validator gates.
-- DNG SDK validation establishes container/interoperability validity; it does not turn a derived reconstruction into untouched sensor RAW or Adobe certification.
+TruthRaw is developing a compact format-neutral **Technical Backplane**: a small shared “digital backside” that can bind source evidence, scientific master, zero-line, scene-scale, provenance and room status without repeating those values per pixel or per tile.
 
-## Repository policy
+The backplane is not extra measurement evidence and is not hidden image content. DNG carriage is deferred until interoperability is explicitly validated.
 
-Large measurement/evidence files are intentionally not committed directly to Git:
+## Permanent boundaries
 
-- DNG/RAW source files
-- `.rawsensor`, RAW10/RAW12 payloads
-- large JPEG/PNG outputs
-- APKs
-- NPZ analysis dumps
-- full project backup archives
+- original CFA/sample bytes and capture metadata remain immutable;
+- physical frame count and independent evidence count remain one for the single-frame master;
+- WhiteLevel clipping is censored evidence, not exact latent radiance;
+- GainMap is applied exactly once where the canonical chain requires it;
+- appearance never modifies the scientific master;
+- counterfactual simulations never become evidence for the captured world;
+- virtual EV/ISO views never become independent measurements;
+- no generative/semantic texture enters scientific evidence;
+- APK/GCam/computational-RAW content does not determine TruthRaw;
+- `canonical/ptc/v1.1` means **Pure Truth Certificate**, not photon-transfer calibration;
+- FULL_PHYSICAL remains blocked where independent sensor/color/illuminant/optics calibration is missing;
+- no open-source LICENSE is added unless explicitly chosen.
 
-Their provenance should be represented by manifests and hashes instead.
+## Repository navigation
 
-APK reverse-engineering evidence is non-canonical side evidence under the current project rule. No APK-derived code, topology, noise, color, metadata, or architecture change is merged into canonical TruthRaw unless that policy is explicitly reversed.
+Use `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md` before treating any dated README, report, audit or state file as current.
 
-## Current work areas
-
-- `canonical/reconstruction/v4.7i/` — byte-exact production reconstruction reference core
-- `canonical/detail/v4.7j/` — Adaptive Detail Truth backend and selected release evidence
-- `canonical/output-acutance/v4.7k/` — Output Acutance CPU reference, build support and validation evidence
-- `canonical/ptc/v1.1/` — Pure Truth Certificate implementation and fail-closed export boundary
-- `canonical/uncertainty/v5.0g/` — backend-bound tele uncertainty model/runtime
-- `canonical/uncertainty/v5.0g-p1/` — prospective tele holdout PASS evidence
-- `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md` — canonical source-vs-master architecture
-- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md` — canonical unbounded TruthRange architecture
-- `docs/research/zero-line-dynamic-range-v0.1/` — research implementation/validation, not yet canonical master implementation
-- `capture/android/camera5-200mp-probe-v07/` — experimental Android Camera2 200 MP RAW_SENSOR capture probe
-- `tools/` — host-side RAW normalization, integrity verification and fail-closed runtime gates
-- `tests/` — host validation
-- `evidence/` — compact manifests/hashes, not source RAW payloads
-
-## Current status
-
-TruthRaw remains research software. The general project provenance class is **PURE_TRUTH_DERIVED / derived reconstructed RAW**, not full physical ground truth.
-
-The **zero-line / unbounded TruthRange address-space architecture is canonical**. Its current v0.1 `ISO * exposure` implementation remains a research prototype and is not treated as physical gain calibration.
-
-LinearRaw v0.4 is a **DNG_SDK_VALIDATED_RELEASE_CANDIDATE** for its exact validated hashes. It remains `DERIVED_RECONSTRUCTED_RAW` and is not labelled original sensor RAW or Adobe-certified.
-
-The Camera 5 full-sensor branch is experimental and does not silently alter the canonical reconstruction engine.
+Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.

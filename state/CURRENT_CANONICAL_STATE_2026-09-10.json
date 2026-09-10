@@ -1,0 +1,70 @@
+{
+  "schema": "TruthRawCurrentCanonicalState/2026-09-10-house-refresh-v1",
+  "project": "TruthRaw",
+  "snapshot_date": "2026-09-10",
+  "basis_main_before_document_governance_commit": "d7987e2bb7a0c8b92267fdebe235208f3e3cfaa5",
+  "authoritative_entrypoints": [
+    "README.md",
+    "START_HERE_NEW_CHAT.md",
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
+    "state/CURRENT_CANONICAL_STATE_2026-09-10.json"
+  ],
+  "historical_snapshots_not_bootstrap": [
+    "state/CURRENT_CANONICAL_STATE_2026-09-06.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-09.json",
+    "docs/PROJECT_STATE_AUDIT_2026-09-08.md",
+    "state/REPOSITORY_MIGRATION_STATUS.json"
+  ],
+  "scientific_invariants": {
+    "slogan": "Measured where measured. Reconstructed where necessary. Never invented.",
+    "sealed_direct_cfa_evidence": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "measured_reconstructed_appearance_separated": true,
+    "counterfactual_is_evidence": false,
+    "virtual_views_are_independent_evidence": false,
+    "apk_gcam_can_determine_truthraw": false,
+    "scientific_master_separate_from_export": true
+  },
+  "zero_line": {
+    "formula": "T=log2(L/L0) for positive physical light",
+    "meaning": "chosen scene-reference gauge; not sensor black, DNG BlackLevel, clipping, display black or zero photons",
+    "memory_ownership": "IMMUTABLE_SHARED_SINGLE_BINDING",
+    "per_pixel_copy_required": false
+  },
+  "house_runtime": {
+    "building_runtime_v0_1": "PROMOTED_MAIN_CI_PASS_ON_BASIS_LINEAGE",
+    "room_capsule_v0_1": "PROMOTED_MAIN_CI_PASS_ON_BASIS_LINEAGE",
+    "manifold_conditioning_v1": "INTEGRATED_RESEARCH_EXACT_REPARAMETERIZATION",
+    "cicm_v1": "INTEGRATED_RESEARCH_FRAMEWORK_PHYSICAL_HONOR_CALIBRATION_BLOCKED",
+    "rooms": 12,
+    "truth_floor_independent_from_resource_capacity": true,
+    "corridors_prefer_handles_over_payload_copies": true
+  },
+  "active_research_not_yet_main_promoted_at_snapshot": {
+    "technical_backplane_v0_1": "LOCAL_GCC_CLANG_ASAN_UBSAN_PASS_RESEARCH_BRANCH_OBJECTS_STAGED",
+    "adaptive_all_room_resources_v0_2": "LOCAL_GCC_CLANG_ASAN_UBSAN_PASS_GITHUB_OBJECT_STAGING",
+    "room_abi_v0_1": "LOCAL_STUB_HARNESS_PASS_REAL_REPOSITORY_INTEGRATION_OPEN",
+    "full_frame_streaming_v0_1": "OPEN_IMPLEMENTATION_AFTER_DOCUMENT_GOVERNANCE"
+  },
+  "memory_migration": {
+    "target": "TileSource -> bounded tile/halo workspace -> persistent artifact/master handle -> StreamedSink",
+    "current_known_full_frame_ownership": [
+      "canonical/reconstruction/v4.7i DecodedDngFrame.raw",
+      "canonical/reconstruction/v4.7i ProcessResult.sdrRgb",
+      "canonical/reconstruction/v4.7i ProcessResult.halfLogGain",
+      "canonical/reconstruction/v4.7i ProcessResult.stage2Diagnostic"
+    ],
+    "canonical_v4_7i_bytes_may_be_silently_changed": false
+  },
+  "ptc_name_guard": "canonical/ptc/v1.1 means Pure Truth Certificate, not photon-transfer-curve calibration",
+  "full_physical_status": "BLOCKED_WHERE_INDEPENDENT_ELECTRON_COLOR_ILLUMINANT_OPTICS_CALIBRATION_IS_MISSING",
+  "documentation_policy": {
+    "dated_old_current_state_files": "HISTORICAL_IMMUTABLE_SNAPSHOTS",
+    "research_readmes": "MODULE_LOCAL_NOT_GLOBAL_BOOTSTRAP",
+    "canonical_readmes": "EXACT_MODULE_VERSION_AUTHORITY_NOT_GLOBAL_STATUS",
+    "failed_rejected_history": "PRESERVE"
+  }
+}
