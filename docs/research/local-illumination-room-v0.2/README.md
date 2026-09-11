@@ -44,6 +44,10 @@ Therefore:
 
 This boundary is compile-time tested so a future change cannot silently add `nominalIso` to the relative scene/room API without breaking CI.
 
+### All-room handoff invariant
+
+Room ABI v0.2 / Adaptive All-Room Binding must preserve this same boundary for every room. A room may read immutable capture-ISO provenance only when its scientific contract explicitly needs source-acquisition context; it may not copy ISO into Scene Master identity, TruthRange coordinates, room-to-room authority, resource policy, appearance EV, counterfactual world scale, or zero-line state. Resource tier must never alter this rule.
+
 ## Day / night semantics
 
 v0.2 adds explicit scenario labels:
