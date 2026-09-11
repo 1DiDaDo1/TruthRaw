@@ -8,7 +8,7 @@ import java.util.UUID
 
 /**
  * Ingress holds only document handles and lightweight metadata.
- * It deliberately never reads RAW payload bytes into a ByteArray.
+ * It deliberately never reads RAW payload bytes into an in-memory payload buffer.
  */
 data class RawHandle(
     val uri: Uri,
