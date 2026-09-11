@@ -29,12 +29,13 @@ required_loader = [
     "MAX_PREVIEW_EDGE = 384",
     "MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024",
     "fullRawMaterialized",
+    "bitmap.setPixels(packet, HEADER_INTS",
 ]
 for token in required_loader:
     assert token in loader, f"missing Kotlin preview contract token: {token}"
 
-for forbidden in ["openInputStream", "readBytes()", "detachFd()"]:
-    assert forbidden not in loader, f"forbidden preview ingress operation: {forbidden}"
+for forbidden in ["openInputStream", "readBytes()", "detachFd()", "copyOfRange(HEADER_INTS"]:
+    assert forbidden not in loader, f"forbidden preview ingress/workspace operation: {forbidden}"
 
 assert "payload buffer" in ingress
 assert "tile_native_dng_source_v0_1.cpp" in cmake
@@ -48,5 +49,6 @@ print("caller_raw_workspace_samples=1024")
 print("preview_edge_dp_independent_max=384")
 print("native_absolute_preview_edge_max=512")
 print("source_resident_cap_bytes=8388608")
+print("java_second_pixel_array=FORBIDDEN")
 print("scientific_color_authority=NOT_GRANTED")
 print("full_raw_copy_fallback=FORBIDDEN")
