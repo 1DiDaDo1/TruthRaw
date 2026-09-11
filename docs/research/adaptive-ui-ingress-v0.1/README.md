@@ -1,6 +1,10 @@
 # TruthRaw Adaptive UI + Ingress v0.1
 
-Status: **RESEARCH PROTOTYPE — ANDROID BUILD VALIDATION PENDING**
+Status: **RESEARCH PROTOTYPE — ANDROID APK CI PASS**
+
+Validated implementation: `bed7c29b5d0773f0ccf499448e4f0c9cee9ea7ae`.
+
+Validation on that implementation: Adaptive UI + Ingress v0.1 push run `34582353230` — **SUCCESS**. The contract verifier, upstream TruthRaw integrity, no-camera-permission gate and Android APK assembly all passed. The generated debug APK was `2,380,265` bytes with SHA-256 `95e5326cd39fb1a100a1d198c157f7a5682ce806640a4bf2b178dbf957662d5e`.
 
 ## Purpose
 
@@ -27,9 +31,11 @@ Ingress stores only:
 - provider-declared byte size when available;
 - job/route state.
 
-The prototype deliberately contains no `ByteArray` RAW payload, `readBytes()` call or `openInputStream()` payload read in the ingress path. When scientific processing is later attached, the `Uri`/file descriptor is handed to the existing tile-native source path so CFA samples can be requested only for required tiles.
+The prototype deliberately contains no RAW payload byte-array/read-all path in ingress. When scientific processing is later attached, the `Uri`/file descriptor is handed to the existing tile-native source path so CFA samples can be requested only for required tiles.
 
 This is not the same as saying processing needs zero memory. Reconstruction, previews, room workspaces and output tiles still require bounded memory under Building Runtime / Room ABI admission. The rule is only that the complete source RAW is not copied into a UI-owned full-frame buffer.
+
+The CI contract reports `source_raw_full_materialization=0_by_ui_contract`.
 
 ## Four user routes
 
@@ -40,7 +46,7 @@ v0.1 exposes the requested input/output relations:
 3. `multiple different photos -> multiple independent processed outputs`
 4. `multiple captures -> enhanced photo or HDR candidate`
 
-The fourth route is intentionally **candidate-only** in this UI prototype. Selecting multiple documents does not by itself prove same-scene relation, alignment, exposure bracketing, temporal independence or valid multi-frame evidence. Until a dedicated Multi-Capture Fusion contract exists, the UI may record user intent but may not fuse the scientific evidence.
+The fourth route is intentionally **candidate-only** in this UI prototype. Selecting multiple documents does not by itself prove same-scene relation, alignment, exposure bracketing, temporal independence or valid multi-frame evidence. Until a dedicated Multi-Capture Fusion contract exists, the UI may record user intent but may not fuse the scientific evidence. CI reports `multi_capture_fusion=AUTO_DISABLED`.
 
 Selecting the exact same stored file multiple times is deduplicated by URI in the prototype and may never create additional independent evidence.
 
@@ -66,7 +72,7 @@ Prototype breakpoints:
 - Medium: `600 .. < 840 dp`
 - Expanded: `>= 840 dp`
 
-The measurement uses Android `WindowManager.currentWindowMetrics`, so rotation, multi-window and resized/foldable windows naturally re-evaluate the layout.
+The measurement uses Android `WindowManager.currentWindowMetrics`, so rotation, multi-window and resized windows naturally re-evaluate the layout. Fold/hinge occlusion-aware placement remains open work.
 
 The prototype renders:
 
@@ -92,11 +98,24 @@ Android source:
 
 `app/android/truthraw-adaptive-ui-v01/`
 
-The first prototype is intentionally dependency-light and uses platform Android views so the ingress/memory/layout contract can be compiled independently before introducing a richer Compose/Material shell. Current Android guidance supports adaptive layouts based on the current window; a later presentation revision can move to Material 3 Adaptive without changing the ingress/scientific contracts.
+The first prototype is intentionally dependency-light and uses platform Android views so the ingress/memory/layout contract can be compiled independently before introducing a richer Compose/Material shell. A later presentation revision can move to Material 3 Adaptive without changing the `RawHandle`, `RawJob`, `BatchSession`, route or scientific-boundary contracts.
+
+The first interface layouts are documented in `DESIGN_CONCEPT_v0_1.md`.
+
+## Proof boundary
+
+The current PASS proves the Android project builds and that its static ingress/UI contract is enforced. It does **not** yet prove:
+
+- execution of this UI prototype on physical Android hardware;
+- real-device UI frame times or smoothness;
+- JNI hand-off of a selected source descriptor into TileNativeDngSource;
+- progressive TruthRaw previews;
+- persisted queue recovery after process death;
+- multi-capture registration/fusion/HDR science;
+- production-quality accessibility, fold posture handling or final visual design.
 
 ## Open work
 
-- build/CI validation of this first Android prototype;
 - actual JNI hand-off of source file descriptors into the tile-native engine;
 - progressive preview transport;
 - bounded thumbnail/proxy cache;
