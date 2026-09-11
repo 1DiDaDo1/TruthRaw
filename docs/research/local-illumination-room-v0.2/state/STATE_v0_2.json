@@ -2,13 +2,15 @@
   "schema": "TruthRawIlluminationRoomState/0.2",
   "status": "RESEARCH_CANDIDATE_CI_PASS",
   "base_main_sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
-  "validated_candidate_sha": "59fa38ca4706e9c1b0c1b0c05e3499b4e7956c29",
+  "validated_candidate_sha": "7ef58e443bab79767a7de3754dfcf86e1cd9e819",
   "validation": {
-    "github_actions_run_id": 34546376103,
+    "github_actions_run_id": 34546466380,
+    "documentation_governance_run_id": 34546466379,
     "upstream_integrity": "PASS",
     "gcc_release": "PASS",
     "clang_release": "PASS",
-    "asan_ubsan": "PASS"
+    "asan_ubsan": "PASS",
+    "iso_boundary_hardening_current_head_revalidation": "PENDING"
   },
   "bindings": {
     "room_capsule": "v0.1",
@@ -26,7 +28,13 @@
     "zero_line_modified": false,
     "physical_snr_on_relative_path": false,
     "physical_geometry_brdf_spectral_relight_enabled": false,
-    "hidden_full_frame_allocation_introduced": false
+    "hidden_full_frame_allocation_introduced": false,
+    "scene_iso_axis": "ABSENT_BY_CONTRACT",
+    "relative_scenario_iso_parameter": "ABSENT_BY_CONTRACT",
+    "relative_ev_uses_iso": false,
+    "capture_iso_provenance": "OUTSIDE_ILLUMINATION_ROOM_SCENE_STATE",
+    "calibrated_sensor_forward_nominal_iso": "CICM_SENSOR_MODE_ONLY",
+    "calibrated_sensor_forward_iso_promotes_to_scene": false
   },
   "scenario_semantics": [
     "RELATIVE_DAYLIGHT_STUDY",
@@ -39,7 +47,8 @@
     "room_abi_owns_execution_leases": true,
     "geometry_resolution_may_adapt": true,
     "lighting_equations_may_change_by_resource_tier": false,
-    "truth_authority_may_change_by_resource_tier": false
+    "truth_authority_may_change_by_resource_tier": false,
+    "iso_scene_semantics_may_change_by_resource_tier": false
   },
   "open_boundaries": [
     "on-device Android RSS and thermal validation",
