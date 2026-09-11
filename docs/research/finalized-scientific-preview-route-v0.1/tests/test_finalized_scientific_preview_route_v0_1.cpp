@@ -20,7 +20,7 @@ void require_active(bool ok, const char* expr, int line) {
         std::exit(2);
     }
 }
-#define REQUIRE(expr) require_active(bool(expr), #expr, __LINE__)
+#define REQUIRE(expr) require_active(static_cast<bool>(expr), #expr, __LINE__)
 
 class DngMemSource final : public tile_dng_v0_1::IRandomAccessByteSource {
 public:
@@ -224,15 +224,14 @@ int main() {
             technical_backplane::v0_1::Status::Ok);
     REQUIRE(roundtrip.scientificMasterHash == result.scientific.scientificMasterHash);
 
-    // Exact source bytes must still match immediately before finalization.
     bytes->xor_byte(32u,0x01u);
     Result mutated{};
     const auto mutatedStatus = finalize_direct_native(prepared,bytes,reconstruction,default_options(),mutated);
     REQUIRE(!mutatedStatus);
-    REQUIRE(mutatedStatus.code == StatusCode::SourceReverificationFailed);
+    REQUIRE(mutatedStatus.code ==
+            truthraw::finalized_scientific_preview_route::v0_1::StatusCode::SourceReverificationFailed);
     bytes->xor_byte(32u,0x01u);
 
-    // Independent calibration changes color claim authority, not frame/evidence counts.
     auto calibratedPrepared = prepare(bytes, scientific_preview_binding_v0_1::ColorBindingAuthority::IndependentCalibration);
     Result calibrated{};
     REQUIRE(finalize_direct_native(calibratedPrepared,bytes,reconstruction,default_options(),calibrated));
