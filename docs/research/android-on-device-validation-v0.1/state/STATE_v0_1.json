@@ -1,0 +1,73 @@
+{
+  "schema": "TruthRawAndroidOnDeviceValidationState/0.1",
+  "status": "RESEARCH_HARNESS_HOST_CI_PASS_ANDROID_DEVICE_EVIDENCE_PENDING",
+  "stacked_base_sha": "497bbea144f2e0b30c203aa7c5b3f40c8f47a16e",
+  "validated_host_implementation_sha": "b32b7a784f01a4792550e4c47cff70c55c850cd5",
+  "validation": {
+    "host_run_id": 34566632602,
+    "building_runtime_v0_1_integrity": "PASS",
+    "technical_backplane_v0_1_integrity": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "asan_ubsan": "PASS",
+    "android_device_evidence": "PENDING"
+  },
+  "authority_boundary": {
+    "building_runtime_remains_resource_policy_authority": true,
+    "room_abi_v0_2_remains_admission_authority": true,
+    "validator_may_reschedule": false,
+    "validator_may_change_truth_authority": false,
+    "validator_may_modify_scientific_state": false,
+    "runtime_telemetry_may_become_scene_evidence": false
+  },
+  "truth_invariants": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "scene_iso_axis_present": false,
+    "global_zero_line_identity_preserved": true,
+    "complete_technical_backplane_identity_checked_before_after": true,
+    "canonical_reconstruction_v4_7i_mutated": false
+  },
+  "measurement_contract": {
+    "process_rss_source": "/proc/self/status:VmRSS",
+    "process_high_water_source": "/proc/self/status:VmHWM",
+    "budget_gate_uses_session_rss_delta": true,
+    "absolute_process_rss_used_as_job_budget": false,
+    "vmhwm_used_as_session_budget_gate": false,
+    "allocator_telemetry_optional": true,
+    "missing_allocator_coverage_reported_explicitly": true,
+    "thermal_state_reuses_building_runtime_enum": true,
+    "thermal_sdk_bridge_proven_on_android": false,
+    "telemetry_storage_unbounded": false,
+    "latency_histogram_buckets": 20
+  },
+  "host_fixture": {
+    "low_budget_bytes": 33554432,
+    "low_concurrency": 1,
+    "low_tile": 128,
+    "high_budget_bytes": 268435456,
+    "high_concurrency": 4,
+    "high_tile": 512,
+    "normal_peak_rss_delta_bytes": 8388608,
+    "normal_allocator_slack_bytes": 6291456,
+    "normal_timing_records": 3,
+    "normal_thermal_transitions": 1,
+    "memory_budget_gate": "PASS",
+    "thermal_replan_gate": "PASS",
+    "background_replan_gate": "PASS",
+    "scientific_identity_gate": "PASS"
+  },
+  "proof_boundary": {
+    "host_proc_parser_tested": true,
+    "host_live_proc_self_status_tested": true,
+    "android_proc_self_status_tested": false,
+    "android_rss_measured": false,
+    "android_allocator_telemetry_bound": false,
+    "android_thermal_source_bound": false,
+    "android_real_throughput_measured": false,
+    "android_sustained_thermal_tested": false,
+    "android_vulkan_tested": false,
+    "target_200mp_workload_tested": false,
+    "production_media_encoder_performance_tested": false
+  }
+}
