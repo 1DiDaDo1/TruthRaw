@@ -1,6 +1,6 @@
 # TruthRaw LibRaw Compatibility Probe v0.1
 
-Status: **RESEARCH CANDIDATE — METADATA/TOPOLOGY PROBE ONLY; NO RAW UNPACK/SCIENTIFIC SAMPLE ADMISSION**
+Status: **RESEARCH_CANDIDATE_REPOSITORY_CI_PASS — METADATA/TOPOLOGY PROBE ONLY; NO RAW UNPACK/SCIENTIFIC SAMPLE ADMISSION**
 
 This optional compatibility layer uses LibRaw only to recognize/probe professional RAW sources before a decoder adapter is allowed to produce scientific samples.
 
@@ -53,6 +53,14 @@ It does **not** mean:
 - the file may enter the single-frame Scientific Scene Master.
 
 Those decisions remain in Professional RAW Ingress / Decoder Adapter.
+
+## Repository validation
+
+Validated implementation head: `1d6a165cad53bfb8257cfb764ee63c4c5c5819d9`.
+
+GitHub Actions run `34595504942` passed the metadata-only contract verifier, GCC Release, Clang Release and Clang ASan/UBSan. The Ubuntu 24.04 runner provided LibRaw `0.21.2-Release` and reported 1182 camera identities. This proves build/API compatibility and topology logic; it does not certify any real vendor RAW sample stream.
+
+The preceding run `34595384703` is retained as failure evidence: GCC passed but Clang could not include the distro LibRaw OpenMP header until `libomp-dev` was explicitly installed.
 
 ## Dependency and licensing
 
