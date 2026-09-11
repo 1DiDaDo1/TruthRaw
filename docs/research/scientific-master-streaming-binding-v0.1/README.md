@@ -1,9 +1,22 @@
 # Scientific Master Streaming Binding v0.1
 
-Status: **RESEARCH IMPLEMENTATION CANDIDATE — CI PROOF REQUIRED**
+Status: **RESEARCH_CANDIDATE_CI_PASS — STREAMING_MASTER_AND_TRUTHRANGE_EQUIVALENCE_PROVEN**
+
+Validated implementation anchor:
+`2504f78b84cf016d9236a8a36be91214da2a46a9`
+
+Validated CI evidence:
+- Scientific Master Streaming Binding v0.1 run `34640922384` — **SUCCESS**
+- Documentation Governance run `34640922377` — **SUCCESS**
+- GCC Release, Clang Release and Clang ASan/UBSan — all build/test **SUCCESS**
 
 Parent validated phase-2 head:
 `ee9991d10ef0649293f0a9c951d90000cd3858d9`
+
+Historical negative evidence retained:
+- run `34640698841` failed during build because the first integration attempt qualified `TileRect` through the wrong nested namespace and retroactively applied conversion warnings to validated v0.1 headers;
+- run `34640820471` failed during build because the first test reused a historical test-support header whose general `StatusCode` and unused helpers conflicted with this stricter integration test;
+- both failures remain recorded and were corrected without editing the validated historical Full-Frame Streaming v0.1 implementation.
 
 ## Purpose
 
@@ -49,29 +62,15 @@ The resulting gauge remains:
 
 ISO is not part of this derivation.
 
-## Identity and authority
+## What the validated test proves
 
-Output identity contains:
-- actual Scientific Master SHA-256 from camera-native reconstructed RGB;
-- actual TruthRange self-gauge/zero-line state;
-- scene scale `TRUTHRANGE_SELF_GAUGE_STAGE2_V0_2`;
-- one physical frame;
-- one independent evidence root.
-
-The scientific pass does not create a second image claim. It binds the scene state that the later preview must reference.
-
-## Validation gates
-
-The test suite requires all of the following:
-
-- the bounded 64x64 streaming Scientific Master hash equals the hash of the existing full latent-scene camera RGB for the same source/backend;
-- bounded radix `L0` equals `derive_self_gauge_v0_2(..., 0.5, 0.10)` exactly;
-- the streaming identity feeds the validated Technical Backplane phase-2 finalization path successfully;
-- changing `cameraToXyzD50` cannot change Scientific Master hash or zero-line because both are pre-color;
-- a too-small logical resident budget fails closed;
-- frame/evidence counts remain 1/1.
-
-CI must pass GCC Release, Clang Release and Clang ASan/UBSan before promotion.
+For the same synthetic source and the same v4.7i research reconstruction backend:
+- the bounded canonical streaming Scientific Master hash is exactly equal to the hash of the existing full latent-scene camera RGB;
+- the bounded radix-selected `L0` is exactly equal to `derive_self_gauge_v0_2(..., 0.5, 0.10)`;
+- the streaming-generated master/gauge/scene-scale identity successfully enters Technical Backplane Phase 2 and the existing Scientific Preview finalization gate;
+- changing `cameraToXyzD50` does not change Scientific Master identity or zero-line because they are both pre-color;
+- a too-small resident-memory budget fails closed;
+- `physicalFrameCount = 1` and `independentEvidenceCount = 1` remain invariant.
 
 ## Non-claims
 
@@ -85,5 +84,9 @@ This module does not yet prove:
 - Lightroom-readable TruthRaw DNG output.
 
 Those remain later stages. In particular, the visible preview designed earlier is reused after this scientific identity chain; this module does not redesign it.
+
+## Next step
+
+Connect the already-designed reconstructed/color preview representation to the finalized phase-2 admission so a visible preview is released **only after** the exact source, Scientific Master, zero-line and scene-scale bindings have passed the Backplane gate. Then carry that same gated representation into the Android ARGB_8888/JPEG path.
 
 **Measured where measured. Reconstructed where necessary. Never invented.**
