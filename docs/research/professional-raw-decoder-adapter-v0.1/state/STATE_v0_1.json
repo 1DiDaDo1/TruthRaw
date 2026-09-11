@@ -1,0 +1,10 @@
+{
+  "module": "professional-raw-decoder-adapter-v0.1",
+  "status": "RESEARCH_CANDIDATE_PENDING_REPOSITORY_CI",
+  "native_adapter": "TileNativeDngSource-v0.1",
+  "external_vendor_codecs_implemented": false,
+  "file_extension_is_evidence": false,
+  "sample_equivalence_required_for_lossless_external_direct_cfa": true,
+  "resource_authority_separate_from_truth_authority": true,
+  "canonical_v4_7i_modified": false
+}
