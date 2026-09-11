@@ -1,0 +1,70 @@
+name: DNG Compatibility Projection v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/dng-compatibility-projection-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/dng-compatibility-projection-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/dng-compatibility-projection-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/dng-compatibility-projection-v0-1.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: >-
+          cmake -S docs/research/dng-compatibility-projection-v0.1
+          -B build/dng-projection-gcc
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=g++
+      - name: Build
+        run: cmake --build build/dng-projection-gcc --parallel 2
+      - name: Test
+        run: ctest --test-dir build/dng-projection-gcc --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: >-
+          cmake -S docs/research/dng-compatibility-projection-v0.1
+          -B build/dng-projection-clang
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build/dng-projection-clang --parallel 2
+      - name: Test
+        run: ctest --test-dir build/dng-projection-clang --output-on-failure
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang ASan UBSan
+        run: >-
+          cmake -S docs/research/dng-compatibility-projection-v0.1
+          -B build/dng-projection-asan
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_CXX_COMPILER=clang++
+          -DTRUTHRAW_DNG_PROJECTION_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build/dng-projection-asan --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/dng-projection-asan --output-on-failure
