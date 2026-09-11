@@ -14,6 +14,11 @@ set(SOURCE_BINDING_V01 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.1/
 set(SOURCE_BINDING_V02 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.2/native")
 set(DNG_COLOR "${RESEARCH_ROOT}/dng-color-binding-producer-v0.1/native")
 set(BACKPLANE "${RESEARCH_ROOT}/technical-backplane-v0.1/native")
+set(BACKPLANE_PHASE2 "${RESEARCH_ROOT}/technical-backplane-phase2-v0.1/native")
+set(SCIENTIFIC_MASTER_BINDING "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.1/native")
+set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/native")
+set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
+set(FINALIZED_RELEASE "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
@@ -31,6 +36,11 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${SOURCE_BINDING_V02}/scientific_preview_source_binding_v0_2.cpp
     ${DNG_COLOR}/dng_color_binding_producer_v0_1.cpp
     ${BACKPLANE}/technical_backplane_v0_1.cpp
+    ${BACKPLANE_PHASE2}/technical_backplane_phase2_v0_1.cpp
+    ${SCIENTIFIC_MASTER_BINDING}/scientific_master_streaming_binding_v0_1.cpp
+    ${SCIENTIFIC_MASTER_DIGEST}/scientific_master_digest_v0_1.cpp
+    ${TRUTHRANGE_LATENT}/truthrange_latent_v0_2.cpp
+    ${FINALIZED_RELEASE}/finalized_scientific_preview_release_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -41,6 +51,11 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${SOURCE_BINDING_V02}
     ${DNG_COLOR}
     ${BACKPLANE}
+    ${BACKPLANE_PHASE2}
+    ${SCIENTIFIC_MASTER_BINDING}
+    ${SCIENTIFIC_MASTER_DIGEST}
+    ${TRUTHRANGE_LATENT}
+    ${FINALIZED_RELEASE}
     ${V47I_NATIVE}/include)
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
