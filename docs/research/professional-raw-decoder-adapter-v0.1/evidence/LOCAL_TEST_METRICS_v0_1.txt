@@ -2,7 +2,11 @@ PROFESSIONAL_RAW_DECODER_ADAPTER_V0_1_LOCAL_TEST
 gcc_release=PASS
 clang_release=PASS
 clang_asan_ubsan=LOCAL_ENV_SHADOW_RESERVATION_UNAVAILABLE
-repository_ci=PENDING
+repository_ci=PASS
+repository_ci_run=34594703797
+repository_gcc_release=PASS
+repository_clang_release=PASS
+repository_clang_asan_ubsan=PASS
 cr3_direct_cfa=1
 weak_equivalence_blocked=1
 xtrans_not_bayer=1
