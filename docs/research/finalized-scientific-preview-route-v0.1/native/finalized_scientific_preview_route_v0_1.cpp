@@ -16,37 +16,45 @@ bool prepared_is_pre_master(
 
 }  // namespace
 
-Status finalize_from_streaming_source(
+Status finalize_direct_native(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    tile_dng_v0_1::IRandomAccessByteSource& sealedSourceBytes,
-    streaming_v0_1::IRawTileSource& source,
+    std::shared_ptr<tile_dng_v0_1::IRandomAccessByteSource> sealedSourceBytes,
     IReconstructionBackend& reconstruction,
     const Options& options,
     Result& out) noexcept {
     out = {};
 
-    if (!prepared_is_pre_master(prepared)) {
+    if (!prepared_is_pre_master(prepared) || !sealedSourceBytes) {
         return Status::error(StatusCode::InvalidPreparedSource,
-                             "prepared source is not a canonical pre-master state");
+                             "prepared source is not canonical or source bytes are missing");
     }
 
     const auto reverify = scientific_preview_binding_v0_1::reverify_source_sha256(
-        sealedSourceBytes, prepared.source, options.sourceReverifyChunkBytes);
+        *sealedSourceBytes, prepared.source, options.sourceReverifyChunkBytes);
     if (!reverify) {
         return Status::error(StatusCode::SourceReverificationFailed,
                              "sealed source bytes failed SHA-256 reverification: " + reverify.message);
     }
 
-    const auto& metadata = source.metadata();
-    if (metadata.sourceId.empty() || metadata.sourceId != prepared.source.sourceEvidenceId) {
+    std::unique_ptr<tile_dng_v0_1::TileNativeDngSource> tileSource;
+    const auto openStatus = tile_dng_v0_1::TileNativeDngSource::open(
+        sealedSourceBytes, prepared.tileNativeOptions, tileSource);
+    if (!openStatus || !tileSource) {
+        return Status::error(StatusCode::TileSourceOpenFailed,
+                             "TileNativeDngSource could not open the reverified source: " +
+                                 openStatus.message);
+    }
+
+    if (tileSource->metadata().sourceId != prepared.source.sourceEvidenceId ||
+        tileSource->colorBindingId() != prepared.color.bindingId) {
         return Status::error(StatusCode::SourceLineageMismatch,
-                             "IRawTileSource sourceId does not match reverified sealed source evidence");
+                             "TileNative source/color identity differs from prepared source binding");
     }
 
     Result result{};
     const auto scientificStatus =
         scientific_master_streaming_binding::v0_1::bind_scientific_master_streaming(
-            source, reconstruction, options.scientificBinding, result.scientific);
+            *tileSource, reconstruction, options.scientificBinding, result.scientific);
     if (!scientificStatus) {
         return Status::error(
             StatusCode::ScientificMasterBindingFailed,
@@ -91,6 +99,7 @@ Status finalize_from_streaming_source(
                              "final Scientific Preview admission changed prepared source/color identity");
     }
 
+    result.tileSourceAudit = tileSource->audit();
     result.scientificPreviewReleaseAllowed = true;
     result.scientificClaimAllowed =
         admission.claimScope ==
@@ -105,6 +114,7 @@ const char* status_name(StatusCode code) noexcept {
         case StatusCode::Ok: return "OK";
         case StatusCode::InvalidPreparedSource: return "INVALID_PREPARED_SOURCE";
         case StatusCode::SourceReverificationFailed: return "SOURCE_REVERIFICATION_FAILED";
+        case StatusCode::TileSourceOpenFailed: return "TILE_SOURCE_OPEN_FAILED";
         case StatusCode::SourceLineageMismatch: return "SOURCE_LINEAGE_MISMATCH";
         case StatusCode::ScientificMasterBindingFailed: return "SCIENTIFIC_MASTER_BINDING_FAILED";
         case StatusCode::Phase2FinalizationFailed: return "PHASE2_FINALIZATION_FAILED";
