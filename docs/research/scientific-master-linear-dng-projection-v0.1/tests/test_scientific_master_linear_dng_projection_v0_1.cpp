@@ -53,11 +53,15 @@ public:
 
     std::size_t residentBytesUpperBound() const noexcept override { return 0u; }
 
+    // Powers-of-two denominators make every fixture component exactly
+    // representable in binary32. This keeps the fixture independent of FMA
+    // contraction/devirtualization choices while leaving the production digest
+    // gate fully bit-exact.
     static std::array<float, 3> pixel(std::uint32_t x, std::uint32_t y) noexcept {
         return {
-            0.02f + static_cast<float>(x) * 0.003f,
-            0.03f + static_cast<float>(y) * 0.004f,
-            0.01f + static_cast<float>(x + y) * 0.002f,
+            static_cast<float>(x + 8u) / 256.0f,
+            static_cast<float>(y + 12u) / 256.0f,
+            static_cast<float>(x + y + 4u) / 512.0f,
         };
     }
 
@@ -149,7 +153,7 @@ public:
 };
 
 projection::Hash256 compute_master_hash(
-    SyntheticMasterSource& source,
+    projection::IScientificMasterTileSource& source,
     std::uint32_t width,
     std::uint32_t height) {
     digest_v0_1::ScientificMasterDigestAccumulator digest(width, height);
