@@ -21,7 +21,7 @@ Sha256 full_frame_reference_digest(
     const DecodedDngFrame& frame,
     IReconstructionBackend& reconstruction) {
     FrameSource source(frame);
-    streaming_v0_1::TileRect full{};
+    TileRect full{};
     full.x0 = 0;
     full.y0 = 0;
     full.x1 = frame.meta.width;
