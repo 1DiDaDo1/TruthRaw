@@ -19,6 +19,23 @@ void require(bool condition, const char* message) {
 bool near(double a, double b, double eps = 1.0e-9) { return std::abs(a - b) <= eps; }
 bool nearf(float a, float b, float eps = 1.0e-6F) { return std::abs(a - b) <= eps; }
 
+template <class T>
+concept HasNominalIso = requires(T value) { value.nominalIso; };
+
+static_assert(!HasNominalIso<RelativeScenario>, "ISO must not re-enter relative scene state");
+static_assert(!HasNominalIso<AdaptivePlanRequest>, "ISO must not affect room planning");
+static_assert(!HasNominalIso<AdaptivePlan>, "ISO must not become a room-plan coordinate");
+static_assert(!HasNominalIso<truthraw::counterfactual::v1::CounterfactualWorldSpec>,
+              "CICM relative world must remain scene-ISO-free");
+static_assert(!HasNominalIso<truthraw::counterfactual::v1::RelativeCaptureSpec>,
+              "relative exposure must not require ISO");
+static_assert(!HasNominalIso<truthraw::counterfactual::v1::RelativeWorldPrediction>,
+              "relative scene prediction must not expose ISO");
+static_assert(HasNominalIso<truthraw::counterfactual::v1::SensorModeCalibration>,
+              "nominal ISO belongs only to the separate calibrated sensor-mode model");
+static_assert(HasNominalIso<truthraw::counterfactual::v1::SensorPrediction>,
+              "sensor-forward prediction may report its calibrated sensor-mode ISO");
+
 struct HostState { std::uint64_t nextLeaseId = 1U; };
 
 bool request_lease(void* opaque,
@@ -67,6 +84,15 @@ int main() {
     using truthraw::building_runtime::v0_1::TruthFloor;
     using truthraw::room_capsule::v0_1::LightKind;
     using truthraw::room_capsule::v0_1::RelightSemantics;
+
+    constexpr auto isoPolicy = iso_boundary();
+    require(!isoPolicy.sceneIsoAxisPresent, "TruthRaw scene has no ISO axis");
+    require(!isoPolicy.relativeScenarioHasIsoParameter, "relative illumination scenario carries no ISO");
+    require(!isoPolicy.relativeEvUsesIso, "relative EV math is ISO-independent");
+    require(isoPolicy.calibratedSensorForwardMayCarryNominalIso,
+            "separate calibrated CICM sensor mode may retain nominal ISO");
+    require(!isoPolicy.calibratedSensorForwardIsoPromotesToScene,
+            "sensor-forward ISO can never promote into scene state");
 
     AdaptivePlanRequest low{};
     low.sourceWidth = 16320U;
@@ -217,6 +243,7 @@ int main() {
     require(acquire_runtime_leases(badAuthority, lowPlan, denied) == Status::InvalidAuthority,
             "memory availability cannot upgrade invalid truth authority");
 
+    std::cout << "scene_iso_axis=ABSENT\n";
     std::cout << "low_geometry_scale=1/" << lowPlan.capsule.geometryDownsample << '\n';
     std::cout << "high_geometry_scale=1/" << highPlan.capsule.geometryDownsample << '\n';
     std::cout << "low_tile=" << lowPlan.capsule.tileSize << '\n';
