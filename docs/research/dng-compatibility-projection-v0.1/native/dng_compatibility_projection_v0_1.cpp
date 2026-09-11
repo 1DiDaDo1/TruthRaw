@@ -337,8 +337,8 @@ Status build_header(ProjectionRole role,
     add(kTagAsShotWhiteXy, kTypeRational, 2u, std::move(whiteXy));
     const auto privateText = private_payload(role, metadata);
     std::vector<std::uint8_t> privateBytes(privateText.begin(), privateText.end());
-    add(kTagDngPrivateData, kTypeByte,
-        static_cast<std::uint32_t>(privateBytes.size()), std::move(privateBytes));
+    const auto privateByteCount = static_cast<std::uint32_t>(privateText.size());
+    add(kTagDngPrivateData, kTypeByte, privateByteCount, std::move(privateBytes));
     add(kTagCalibrationIlluminant1, kTypeShort, 1u,
         short_value(kCalibrationIlluminantD50));
 
