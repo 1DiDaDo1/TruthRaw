@@ -8,6 +8,13 @@
 #include <cstdint>
 #include <string>
 
+// Full-Frame Streaming v0.1 refers to the parent-namespace TileRect
+// unqualified. Expose the same type through its nested namespace for this new
+// integration layer without changing validated historical headers.
+namespace truthraw::streaming_v0_1 {
+using ::truthraw::TileRect;
+}
+
 namespace truthraw::scientific_master_streaming_binding::v0_1 {
 
 using Hash256 = scientific_master_digest::v0_1::Sha256;
