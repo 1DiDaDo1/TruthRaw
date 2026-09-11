@@ -9,17 +9,46 @@ get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
 set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.1/native")
 set(STREAMING "${RESEARCH_ROOT}/full-frame-streaming-v0.1/native")
+set(PREVIEW_SURFACE "${RESEARCH_ROOT}/reconstructed-color-preview-v0.1/native")
+set(SOURCE_BINDING_V01 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.1/native")
+set(SOURCE_BINDING_V02 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.2/native")
+set(DNG_COLOR "${RESEARCH_ROOT}/dng-color-binding-producer-v0.1/native")
+set(BACKPLANE "${RESEARCH_ROOT}/technical-backplane-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
+    source_bound_color_preview_bridge.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
-    ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp)
+    ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
+    ${STREAMING}/full_frame_streaming_v0_1.cpp
+    ${STREAMING}/full_frame_streaming_v0_1_pass1.cpp
+    ${STREAMING}/full_frame_streaming_v0_1_pass2.cpp
+    ${STREAMING}/full_frame_streaming_v0_1_plan.cpp
+    ${PREVIEW_SURFACE}/bounded_srgb_preview_sink_v0_1.cpp
+    ${SOURCE_BINDING_V01}/scientific_preview_source_binding_v0_1.cpp
+    ${SOURCE_BINDING_V02}/scientific_preview_source_binding_v0_2.cpp
+    ${DNG_COLOR}/dng_color_binding_producer_v0_1.cpp
+    ${BACKPLANE}/technical_backplane_v0_1.cpp
+    ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TILE_DNG}
     ${STREAMING}
+    ${PREVIEW_SURFACE}
+    ${SOURCE_BINDING_V01}
+    ${SOURCE_BINDING_V02}
+    ${DNG_COLOR}
+    ${BACKPLANE}
     ${V47I_NATIVE}/include)
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
+
+# canonical v4.7i is byte-frozen. Android NDK Clang 18 diagnoses one compact
+# canonical loop/return line as -Wmisleading-indentation. Keep the diagnostic
+# visible but non-fatal for this one frozen translation unit only; integration
+# and research sources remain under the target-wide -Werror gate above.
+set_source_files_properties(
+    ${V47I_NATIVE}/src/core.cpp
+    PROPERTIES COMPILE_OPTIONS "-Wno-error=misleading-indentation")

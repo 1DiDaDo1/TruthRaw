@@ -3,20 +3,29 @@ package com.truthraw.adaptiveui
 import android.content.ContentResolver
 import android.graphics.Bitmap
 
-private const val PREVIEW_MAGIC = 0x54525032
-private const val HEADER_INTS = 13
+private const val SOURCE_BOUND_PREVIEW_MAGIC = 0x54524331
+private const val SOURCE_BOUND_HEADER_INTS = 23
 private const val MAX_PREVIEW_EDGE = 384
 private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
+private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 
 object NativeTilePreviewBridge {
     init {
         System.loadLibrary("truthraw_ui_preview_bridge")
     }
 
+    // Legacy diagnostic CFA proxy. Retained only as a separate troubleshooting path.
     external fun buildCfaPreview(
         fd: Int,
         maxEdge: Int,
         maxSourceResidentBytes: Int,
+    ): IntArray
+
+    external fun buildSourceBoundColorPreview(
+        fd: Int,
+        maxEdge: Int,
+        maxSourceResidentBytes: Int,
+        maxLogicalResidentBytes: Int,
     ): IntArray
 }
 
@@ -30,6 +39,16 @@ data class TilePreviewMetrics(
     val fullRawMaterialized: Boolean,
     val hasGainField: Boolean,
     val orientation: Int,
+    val sourceBoundAppearanceReleaseAllowed: Boolean,
+    val scientificPreviewReleaseAllowed: Boolean,
+    val scientificClaimAllowed: Boolean,
+    val physicalFrameCount: Int,
+    val independentEvidenceCount: Int,
+    val logicalResidentUpperBoundBytes: Int,
+    val tilesProcessedPass1: Int,
+    val tilesProcessedPass2: Int,
+    val usedForwardMatrix: Boolean,
+    val cameraCalibrationApplied: Boolean,
 )
 
 sealed interface TilePreviewUiState {
@@ -48,23 +67,30 @@ object TilePreviewLoader {
         val descriptor = try {
             resolver.openFileDescriptor(job.source.uri, "r")
         } catch (error: Exception) {
-            return TilePreviewUiState.Failed(job.id, "Documentprovider gaf geen leesbare file descriptor: ${error.message ?: error.javaClass.simpleName}")
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Documentprovider gaf geen leesbare file descriptor: ${error.message ?: error.javaClass.simpleName}",
+            )
         } ?: return TilePreviewUiState.Failed(job.id, "Documentprovider gaf geen file descriptor.")
 
         val packet = try {
             descriptor.use { pfd ->
-                NativeTilePreviewBridge.buildCfaPreview(
+                NativeTilePreviewBridge.buildSourceBoundColorPreview(
                     pfd.fd,
                     MAX_PREVIEW_EDGE,
                     MAX_SOURCE_RESIDENT_BYTES,
+                    MAX_LOGICAL_RESIDENT_BYTES,
                 )
             }
         } catch (error: Throwable) {
-            return TilePreviewUiState.Failed(job.id, "Native preview bridge faalde: ${error.message ?: error.javaClass.simpleName}")
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Native source-bound kleurpreview faalde: ${error.message ?: error.javaClass.simpleName}",
+            )
         }
 
-        if (packet.size < HEADER_INTS || packet[0] != PREVIEW_MAGIC) {
-            return TilePreviewUiState.Failed(job.id, "Ongeldig native preview-pakket.")
+        if (packet.size < SOURCE_BOUND_HEADER_INTS || packet[0] != SOURCE_BOUND_PREVIEW_MAGIC) {
+            return TilePreviewUiState.Failed(job.id, "Ongeldig source-bound preview-pakket.")
         }
         val status = packet[1]
         if (status != 0) {
@@ -76,13 +102,21 @@ object TilePreviewLoader {
         if (width <= 0 || height <= 0 || width > MAX_PREVIEW_EDGE || height > MAX_PREVIEW_EDGE) {
             return TilePreviewUiState.Failed(job.id, "Native preview-afmetingen zijn buiten contract.")
         }
-        val pixelCount = width * height
-        if (packet.size != HEADER_INTS + pixelCount) {
+        val pixelCount = try {
+            Math.multiplyExact(width, height)
+        } catch (_: ArithmeticException) {
+            return TilePreviewUiState.Failed(job.id, "Native preview-afmetingen overflowden.")
+        }
+        if (packet.size != SOURCE_BOUND_HEADER_INTS + pixelCount) {
             return TilePreviewUiState.Failed(job.id, "Native preview-payload heeft een ongeldige lengte.")
         }
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.setPixels(packet, HEADER_INTS, width, 0, 0, width, height)
+        val bitmap = try {
+            PortablePreviewEncoder.createSrgbBitmap(width, height, packet, SOURCE_BOUND_HEADER_INTS)
+        } catch (error: Exception) {
+            return TilePreviewUiState.Failed(job.id, "sRGB-preview kon niet worden opgebouwd: ${error.message}")
+        }
+
         val metrics = TilePreviewMetrics(
             sourceWidth = packet[4],
             sourceHeight = packet[5],
@@ -93,33 +127,94 @@ object TilePreviewLoader {
             fullRawMaterialized = packet[10] != 0,
             hasGainField = packet[11] != 0,
             orientation = packet[12],
+            sourceBoundAppearanceReleaseAllowed = packet[13] != 0,
+            scientificPreviewReleaseAllowed = packet[14] != 0,
+            scientificClaimAllowed = packet[15] != 0,
+            physicalFrameCount = packet[16],
+            independentEvidenceCount = packet[17],
+            logicalResidentUpperBoundBytes = packet[18],
+            tilesProcessedPass1 = packet[19],
+            tilesProcessedPass2 = packet[20],
+            usedForwardMatrix = packet[21] != 0,
+            cameraCalibrationApplied = packet[22] != 0,
         )
-        if (metrics.fullRawMaterialized) {
+
+        val authorityViolation =
+            !metrics.sourceBoundAppearanceReleaseAllowed ||
+                metrics.scientificPreviewReleaseAllowed ||
+                metrics.scientificClaimAllowed ||
+                metrics.physicalFrameCount != 1 ||
+                metrics.independentEvidenceCount != 1
+        val memoryViolation =
+            metrics.fullRawMaterialized ||
+                metrics.logicalResidentUpperBoundBytes <= 0 ||
+                metrics.logicalResidentUpperBoundBytes > MAX_LOGICAL_RESIDENT_BYTES
+        val executionViolation = metrics.tilesProcessedPass1 <= 0 || metrics.tilesProcessedPass2 <= 0
+
+        if (authorityViolation || memoryViolation || executionViolation) {
             bitmap.recycle()
-            return TilePreviewUiState.Failed(job.id, "Fail-closed: de source rapporteerde fullRawMaterialized=true.")
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: native preview schond authority-, evidence-, tile- of memorycontract.",
+            )
         }
+
         return TilePreviewUiState.Ready(job.id, bitmap, metrics)
     }
 
     private fun nativeStatusDescription(status: Int): String = when (status) {
-        -1 -> "Ongeldige preview-bridge parameters."
-        -2 -> "DNG rapporteert ongeldige afmetingen."
-        -3 -> "Preview-workspace overschreed de vaste limiet."
-        -4 -> "Preview kon niet volledig uit bounded tile-reads worden gevuld."
-        1 -> "TileNativeDngSource: I/O-fout of niet-seekbare documentprovider."
-        2 -> "TileNativeDngSource: ongeldige TIFF/DNG-container."
-        3 -> "TileNativeDngSource: BigTIFF wordt in v0.1 niet ondersteund."
-        4 -> "TileNativeDngSource: compressie wordt in v0.1 niet ondersteund."
-        5 -> "TileNativeDngSource: sample-opslag wordt in v0.1 niet ondersteund."
-        6 -> "TileNativeDngSource: geen ondersteunde CFA-IFD gevonden."
-        7 -> "TileNativeDngSource: RAW-topologie wordt niet ondersteund."
-        8 -> "TileNativeDngSource: meerdere CFA-IFD's vereisen expliciete binding."
-        9 -> "TileNativeDngSource: verplichte DNG-tag ontbreekt."
-        10 -> "TileNativeDngSource: ongeldige DNG-tag."
-        11 -> "TileNativeDngSource: ongeldige strip/tile-opslag."
-        12 -> "TileNativeDngSource: vereiste binding ontbreekt."
-        13 -> "TileNativeDngSource: resident-memorybudget overschreden."
-        in 1001..1006 -> "TileNativeDngSource: tile-read faalde fail-closed (status ${status - 1000})."
-        else -> "Onbekende native preview-status $status."
+        -1 -> "Ongeldige source-bound previewparameters."
+        -2 -> "Fail-closed: twee-fasen authority-state stond appearance preview niet exact toe."
+        -3 -> "Fail-closed: streamingpad materialiseerde verboden full-frame state."
+        -4 -> "Fail-closed: frame/evidence/provenance-invariant werd geschonden."
+        -5 -> "Bounded preview-oppervlak had ongeldige afmetingen."
+        -6 -> "Bounded preview-oppervlak was onvolledig."
+
+        2001 -> "Source binding: ongeldig argument."
+        2002 -> "Source binding: bron kon niet volledig worden gelezen voor SHA-256."
+        2003 -> "Source binding: bronseal is niet canoniek."
+        2004 -> "Source binding: bronbytes verschillen van de sealed SHA-256 identiteit."
+        2005 -> "Source binding: kleurbinding heeft geen toegestane authority."
+        2006 -> "Source binding: kleurbinding hoort bij andere bronbytes."
+        2007 -> "Source binding: camera→XYZ(D50)-matrix is ongeldig."
+        2008 -> "Source binding: frame/evidence-invariant geweigerd."
+        2009 -> "Source binding: Backplane geweigerd."
+        2010 -> "Source binding: Backplane-bronhash wijkt af."
+
+        2101 -> "DNG color producer: ongeldig argument."
+        2102 -> "DNG color producer: sealed bronhash mismatch."
+        2103 -> "DNG color producer: bron kon niet worden gelezen."
+        2104 -> "DNG color producer: ongeldige TIFF/DNG-container."
+        2105 -> "DNG color producer: BigTIFF wordt in v0.1 niet ondersteund."
+        2106 -> "DNG color producer: ongeldige IFD0."
+        2107 -> "DNG color producer: ColorMatrix1 ontbreekt."
+        2108 -> "DNG color producer: AsShotNeutral ontbreekt."
+        2109 -> "DNG color producer: meerdere calibraties vereisen eerst correcte interpolatie; v0.1 stopt fail-closed."
+        2110 -> "DNG color producer: ongeldig tagtype."
+        2111 -> "DNG color producer: ongeldige tag-cardinaliteit."
+        2112 -> "DNG color producer: ongeldige matrix/neutral/calibratiewaarde."
+        2113 -> "DNG color producer: singuliere kleurmatrix."
+
+        3001 -> "TileNativeDngSource: I/O-fout of niet-seekbare documentprovider."
+        3002 -> "TileNativeDngSource: ongeldige TIFF/DNG-container."
+        3003 -> "TileNativeDngSource: BigTIFF wordt in v0.1 niet ondersteund."
+        3004 -> "TileNativeDngSource: compressie wordt in v0.1 niet ondersteund."
+        3005 -> "TileNativeDngSource: sample-opslag wordt in v0.1 niet ondersteund."
+        3006 -> "TileNativeDngSource: geen ondersteunde CFA-IFD gevonden."
+        3007 -> "TileNativeDngSource: RAW-topologie wordt niet ondersteund."
+        3008 -> "TileNativeDngSource: meerdere CFA-IFD's vereisen expliciete binding."
+        3009 -> "TileNativeDngSource: verplichte DNG-tag ontbreekt."
+        3010 -> "TileNativeDngSource: ongeldige DNG-tag."
+        3011 -> "TileNativeDngSource: ongeldige strip/tile-opslag."
+        3012 -> "TileNativeDngSource: vereiste bron/kleur-binding ontbreekt."
+        3013 -> "TileNativeDngSource: resident-memorybudget overschreden."
+
+        4001 -> "Main House streaming: ongeldig argument."
+        4002 -> "Main House streaming: tile-bron faalde."
+        4003 -> "Main House streaming: bounded preview-sink faalde."
+        4004 -> "Main House streaming: logisch memorybudget overschreden."
+        4005 -> "Main House streaming: reconstructie/appearance backend faalde."
+        4006 -> "Main House streaming: uitvoering wordt niet ondersteund."
+        else -> "Onbekende native source-bound preview-status $status."
     }
 }

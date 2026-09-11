@@ -18,12 +18,15 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Space
 import android.widget.TextView
+import java.io.IOException
 
 class MainActivity : Activity() {
     private var session = BatchSession()
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
     private var previewGeneration: Long = 0
+    private var pendingJpegJobId: String? = null
+    private var jpegStatus: String? = null
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -89,9 +92,51 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_OPEN_RAW)
     }
 
+    @Suppress("DEPRECATION")
+    private fun launchJpegExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        pendingJpegJobId = job.id
+        jpegStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/jpeg"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_source_bound_preview.jpg")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_JPEG)
+    }
+
     @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_SAVE_JPEG) {
+            val expectedJob = pendingJpegJobId
+            pendingJpegJobId = null
+            if (resultCode != RESULT_OK || data?.data == null) {
+                jpegStatus = "JPEG-export geannuleerd."
+                render()
+                return
+            }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || ready == null || ready.jobId != expectedJob) {
+                jpegStatus = "JPEG-export geblokkeerd: actieve preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            jpegStatus = try {
+                val stream = contentResolver.openOutputStream(data.data!!, "w")
+                    ?: throw IOException("Documentprovider gaf geen outputstream.")
+                stream.use { PortablePreviewEncoder.encodeJpeg(ready.bitmap, it) }
+                "JPEG opgeslagen · sRGB appearance-export · geen Scientific Master/evidence."
+            } catch (error: Exception) {
+                "JPEG-export faalde: ${error.message ?: error.javaClass.simpleName}"
+            }
+            render()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -105,6 +150,7 @@ class MainActivity : Activity() {
         val jobs = RawIngress.readHandlesOnly(contentResolver, uris, data.flags)
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
+        jpegStatus = null
         if (first == null) {
             activeJobId = null
             previewState = TilePreviewUiState.Idle
@@ -117,6 +163,8 @@ class MainActivity : Activity() {
     private fun requestPreview(job: RawJob) {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
+        jpegStatus = null
+        pendingJpegJobId = null
         val generation = ++previewGeneration
         previewState = TilePreviewUiState.Loading(job.id)
         render()
@@ -209,14 +257,22 @@ class MainActivity : Activity() {
         }
 
         addView(label(active.source.displayName, 16f, bold = true))
-        addView(label("CFA bronproxy · presentatie-only · geen scientific color/master", 11f, muted = true))
+        addView(label(
+            "Source-bound Main House kleurpreview · appearance-only · Scientific Master nog niet gefinaliseerd",
+            11f,
+            muted = true,
+        ))
         addView(space(8))
 
         when (val state = previewState) {
-            TilePreviewUiState.Idle -> addView(actionButton("Bounded preview laden") { requestPreview(active) })
-            is TilePreviewUiState.Loading -> addView(label("TileNativeDngSource leest een bounded CFA-proxy…", 13f, muted = true))
+            TilePreviewUiState.Idle -> addView(actionButton("Source-bound kleurpreview laden") { requestPreview(active) })
+            is TilePreviewUiState.Loading -> addView(label(
+                "SHA-256 bronseal → DNG kleurmetadata → v4.7i tile-native Main House…",
+                13f,
+                muted = true,
+            ))
             is TilePreviewUiState.Failed -> {
-                addView(label("Preview geblokkeerd", 14f, bold = true))
+                addView(label("Preview fail-closed geblokkeerd", 14f, bold = true))
                 addView(label(state.reason, 12f, muted = true))
                 addView(space(6))
                 addView(actionButton("Opnieuw proberen") { requestPreview(active) })
@@ -226,21 +282,34 @@ class MainActivity : Activity() {
                     setImageBitmap(state.bitmap)
                     adjustViewBounds = true
                     scaleType = ImageView.ScaleType.FIT_CENTER
-                    contentDescription = "Grijze CFA-bronproxy voor ${active.source.displayName}"
+                    contentDescription = "Brongebonden TruthRaw kleurpreview voor ${active.source.displayName}"
                 }
                 addView(image, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(space(6))
                 val m = state.metrics
                 addView(label(
-                    "bron ${m.sourceWidth}×${m.sourceHeight} · source resident ≤ ${formatBytes(m.sourceResidentUpperBoundBytes.toLong())} · RAW gelezen ${formatBytes(m.rawPayloadBytesRead.toLong())}",
-                    11f,
-                    muted = true,
-                ))
-                addView(label(
-                    "tile reads ${m.tileReadCalls} · fullRawMaterialized=${m.fullRawMaterialized} · GainMap aanwezig=${m.hasGainField} · orientation=${m.orientation}",
+                    "SOURCE_METADATA_BOUND → source-bound appearance · scientific release=${m.scientificPreviewReleaseAllowed} · claim=${m.scientificClaimAllowed}",
                     10f,
                     muted = true,
                 ))
+                addView(label(
+                    "bron ${m.sourceWidth}×${m.sourceHeight} · source resident ≤ ${formatBytes(m.sourceResidentUpperBoundBytes.toLong())} · logical resident ≤ ${formatBytes(m.logicalResidentUpperBoundBytes.toLong())}",
+                    10f,
+                    muted = true,
+                ))
+                addView(label(
+                    "RAW gelezen ${formatBytes(m.rawPayloadBytesRead.toLong())} · tile passes ${m.tilesProcessedPass1}/${m.tilesProcessedPass2} · fullRawMaterialized=${m.fullRawMaterialized}",
+                    10f,
+                    muted = true,
+                ))
+                addView(label(
+                    "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · ForwardMatrix=${m.usedForwardMatrix} · CameraCalibration toegepast=${m.cameraCalibrationApplied}",
+                    10f,
+                    muted = true,
+                ))
+                addView(space(6))
+                addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
+                jpegStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
     }
@@ -383,5 +452,6 @@ class MainActivity : Activity() {
 
     companion object {
         private const val REQUEST_OPEN_RAW = 4101
+        private const val REQUEST_SAVE_JPEG = 4102
     }
 }
