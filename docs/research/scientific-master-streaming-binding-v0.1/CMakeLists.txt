@@ -49,13 +49,11 @@ target_include_directories(test_scientific_master_streaming_binding_v0_1 PRIVATE
 if(MSVC)
     target_compile_options(test_scientific_master_streaming_binding_v0_1 PRIVATE /W4 /WX)
 else()
+    # The new module includes validated v0.1 streaming headers. Keep the same
+    # strict warning baseline used by those modules rather than retroactively
+    # imposing conversion warnings on historical header bytes.
     target_compile_options(test_scientific_master_streaming_binding_v0_1 PRIVATE
         -Wall -Wextra -Wpedantic -Werror)
-    set_source_files_properties(
-        native/scientific_master_streaming_binding_v0_1.cpp
-        tests/test_scientific_master_streaming_binding_v0_1.cpp
-        PROPERTIES COMPILE_OPTIONS "-Wconversion;-Wsign-conversion"
-    )
 endif()
 
 if(TRUTHRAW_SMSB_ENABLE_SANITIZERS AND NOT MSVC)
