@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
 
 namespace truthraw::dng_color_binding_producer_v0_1 {
 
