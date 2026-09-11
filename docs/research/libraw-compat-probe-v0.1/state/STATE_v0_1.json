@@ -1,0 +1,14 @@
+{
+  "module": "libraw-compat-probe-v0.1",
+  "status": "RESEARCH_CANDIDATE_PENDING_REPOSITORY_CI",
+  "mode": "METADATA_TOPOLOGY_PROBE_ONLY",
+  "pixel_unpack_allowed": false,
+  "sample_scientific_admission": false,
+  "filename_extension_is_evidence": false,
+  "dng_classification_from_explicit_dng_version": true,
+  "vendor_container_router_certified": false,
+  "real_professional_raw_corpus_certified": false,
+  "external_dependency": "LibRaw",
+  "external_dependency_vendored": false,
+  "canonical_v4_7i_modified": false
+}
