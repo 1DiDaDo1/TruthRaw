@@ -297,12 +297,20 @@ class MainActivity : Activity() {
         addView(actionButton("RAW kiezen") { launchRawPicker() })
     }
 
-    private fun compactLayout(): View = vertical().apply {
-        addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-        addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        if (session.jobs.isNotEmpty()) {
-            addView(jobStrip(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(132)))
-        }
+    private fun compactLayout(): View = ScrollView(this).apply {
+        isFillViewport = true
+        addView(
+            vertical().apply {
+                addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(space(8))
+                addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                if (session.jobs.isNotEmpty()) {
+                    addView(space(8))
+                    addView(jobStrip(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(132)))
+                }
+            },
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
     }
 
     private fun mediumLayout(): View = horizontal().apply {
@@ -395,8 +403,17 @@ class MainActivity : Activity() {
                     adjustViewBounds = true
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     contentDescription = "Finalized TruthRaw Scientific Preview voor ${active.source.displayName}"
+                    if (currentLayoutTier() == LayoutTier.COMPACT) {
+                        minimumHeight = dp(180)
+                        maxHeight = dp(320)
+                    }
                 }
-                addView(image, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+                val imageLayout = if (currentLayoutTier() == LayoutTier.COMPACT) {
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                } else {
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+                }
+                addView(image, imageLayout)
                 addView(space(6))
                 val m = state.metrics
                 addView(label(
