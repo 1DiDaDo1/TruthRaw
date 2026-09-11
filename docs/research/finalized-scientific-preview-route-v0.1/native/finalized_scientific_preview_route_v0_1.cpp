@@ -84,10 +84,9 @@ Status finalize_from_streaming_source(
     }
 
     result.scientificPreviewReleaseAllowed = true;
-    // A finalized preview may carry only the claim scope already authorized by
-    // the prepared color binding. This flag means lineage admission succeeded;
-    // it does not upgrade SourceMetadataBound color to FULL_PHYSICAL authority.
-    result.scientificClaimAllowed = true;
+    result.scientificClaimAllowed =
+        admission.claimScope ==
+        scientific_preview_binding_v0_1::ColorClaimScope::IndependentlyCalibratedPreview;
 
     out = result;
     return Status::ok();
