@@ -94,6 +94,7 @@ struct FixtureOptions {
     bool customSecondIlluminant = false;
     bool dualCameraCalibration = false;
     bool matchingSignatures = true;
+    bool extremeCameraCalibration = false;
 };
 
 std::vector<std::uint8_t> identity_matrix() {
@@ -167,14 +168,25 @@ std::vector<std::uint8_t> make_fixture(const FixtureOptions& opt) {
         }
 
         if (opt.dualCameraCalibration) {
-            add(50723, SRATIONAL, 9, srational({
-                {11,10},{0,1},{0,1},
-                {0,1},{1,1},{0,1},
-                {0,1},{0,1},{1,1}}));
-            add(50724, SRATIONAL, 9, srational({
-                {9,10},{0,1},{0,1},
-                {0,1},{1,1},{0,1},
-                {0,1},{0,1},{1,1}}));
+            if (opt.extremeCameraCalibration) {
+                add(50723, SRATIONAL, 9, srational({
+                    {11,10},{0,1},{0,1},
+                    {0,1},{1,1},{0,1},
+                    {0,1},{0,1},{1,1}}));
+                add(50724, SRATIONAL, 9, srational({
+                    {9,10},{0,1},{0,1},
+                    {0,1},{1,1},{0,1},
+                    {0,1},{0,1},{1,1}}));
+            } else {
+                add(50723, SRATIONAL, 9, srational({
+                    {101,100},{0,1},{0,1},
+                    {0,1},{1,1},{0,1},
+                    {0,1},{0,1},{1,1}}));
+                add(50724, SRATIONAL, 9, srational({
+                    {99,100},{0,1},{0,1},
+                    {0,1},{1,1},{0,1},
+                    {0,1},{0,1},{1,1}}));
+            }
             std::string camera = "truthraw-camera";
             std::string profile = opt.matchingSignatures ? camera : "different-profile";
             camera.push_back('\0');
@@ -364,6 +376,20 @@ void test_dual_camera_calibration_signature_rule() {
     REQUIRE(matchResult.audit.cameraCalibrationApplied);
 }
 
+void test_extreme_dual_camera_calibration_fails_closed_on_nonconvergence() {
+    FixtureOptions opt;
+    opt.dual = true;
+    opt.dualCameraCalibration = true;
+    opt.matchingSignatures = true;
+    opt.extremeCameraCalibration = true;
+    MemSource source(make_fixture(opt));
+    const auto sourceSeal = seal(source);
+    v2::ProducerResult result;
+    const auto status = v2::produce_source_metadata_color_binding(source, sourceSeal, result);
+    REQUIRE(!status);
+    REQUIRE(status.code == v2::ProducerStatusCode::NeutralSolveDidNotConverge);
+}
+
 void test_incomplete_dual_fails_closed() {
     FixtureOptions opt;
     opt.dual = true;
@@ -422,6 +448,7 @@ int main() {
         test_dual_order_swap_is_invariant();
         test_one_forward_matrix_is_explicitly_audited();
         test_dual_camera_calibration_signature_rule();
+        test_extreme_dual_camera_calibration_fails_closed_on_nonconvergence();
         test_incomplete_dual_fails_closed();
         test_custom_illuminant_fails_closed_until_illuminant_data_support();
         test_triple_calibration_fails_closed();
@@ -429,7 +456,7 @@ int main() {
         std::cout << "DNG_COLOR_BINDING_PRODUCER_V0_2_PASS\n";
         std::cout << "single_illuminant=EXACT_V0_1_DELEGATION\n";
         std::cout << "dual_interpolation=INVERSE_CORRELATED_COLOR_TEMPERATURE\n";
-        std::cout << "neutral_to_xy=ITERATIVE_MAX_30_CONVERGENCE_1E-7\n";
+        std::cout << "neutral_to_xy=ITERATIVE_MAX_30_CONVERGENCE_1E-7_FAIL_CLOSED\n";
         std::cout << "triple_calibration=FAIL_CLOSED\n";
         std::cout << "custom_illuminant_255=FAIL_CLOSED_UNTIL_ILLUMINANT_DATA\n";
         std::cout << "authority=SOURCE_METADATA_BOUND\n";
