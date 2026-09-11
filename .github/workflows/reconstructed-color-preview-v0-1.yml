@@ -1,0 +1,65 @@
+name: Reconstructed Color Preview v0.1
+
+on:
+  push:
+    branches:
+      - research/reconstructed-color-preview-v0.1-2026-09-11
+    paths:
+      - 'docs/research/reconstructed-color-preview-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/reconstructed-color-preview-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/reconstructed-color-preview-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/reconstructed-color-preview-v0-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: cmake -S docs/research/reconstructed-color-preview-v0.1 -B build/preview-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC Release
+        run: cmake --build build/preview-gcc --parallel 2
+      - name: Run GCC Release
+        run: ./build/preview-gcc/test_reconstructed_color_preview_v0_1
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: cmake -S docs/research/reconstructed-color-preview-v0.1 -B build/preview-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang Release
+        run: cmake --build build/preview-clang --parallel 2
+      - name: Run Clang Release
+        run: ./build/preview-clang/test_reconstructed_color_preview_v0_1
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang ASan+UBSan
+        run: >-
+          cmake -S docs/research/reconstructed-color-preview-v0.1 -B build/preview-san
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Build Clang ASan+UBSan
+        run: cmake --build build/preview-san --parallel 2
+      - name: Run Clang ASan+UBSan
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./build/preview-san/test_reconstructed_color_preview_v0_1
