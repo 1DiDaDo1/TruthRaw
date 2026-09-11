@@ -58,14 +58,15 @@ technical_backplane::v0_1::State complete_backplane(const SourceSeal& source) {
     return state;
 }
 
-void test_prepare_allows_compute_but_not_release() {
+void test_prepare_allows_compute_and_labeled_appearance_only() {
     const auto source = make_source_seal();
     const auto color = make_color(source);
     PreparedScientificPreviewSource prepared;
     const auto status = prepare_scientific_color_source(source, color, prepared);
     REQUIRE(status);
     REQUIRE(prepared.mainHouseComputeAllowed);
-    REQUIRE(!prepared.previewReleaseAllowed);
+    REQUIRE(prepared.sourceBoundAppearanceReleaseAllowed);
+    REQUIRE(!prepared.scientificPreviewReleaseAllowed);
     REQUIRE(!prepared.scientificClaimAllowed);
     REQUIRE(prepared.eventualClaimScope == ColorClaimScope::SourceBoundPreview);
     REQUIRE(prepared.tileNativeOptions.color.valid);
@@ -135,7 +136,7 @@ void test_backplane_source_mismatch_fails() {
 
 int main() {
     try {
-        test_prepare_allows_compute_but_not_release();
+        test_prepare_allows_compute_and_labeled_appearance_only();
         test_sentinel_cannot_prepare();
         test_wrong_source_cannot_prepare();
         test_incomplete_backplane_cannot_finalize();
@@ -143,7 +144,9 @@ int main() {
         test_backplane_source_mismatch_fails();
         std::cout << "SCIENTIFIC_PREVIEW_SOURCE_BINDING_V0_2_PASS\n";
         std::cout << "pre_master_compute=ALLOWED\n";
-        std::cout << "pre_master_preview_release=BLOCKED\n";
+        std::cout << "source_bound_appearance_release=ALLOWED_WITH_LABEL\n";
+        std::cout << "pre_master_scientific_preview_release=BLOCKED\n";
+        std::cout << "pre_master_scientific_claim=BLOCKED\n";
         std::cout << "post_master_backplane=REQUIRED\n";
         std::cout << "physical_frame_count=1 independent_evidence_count=1\n";
         return 0;
