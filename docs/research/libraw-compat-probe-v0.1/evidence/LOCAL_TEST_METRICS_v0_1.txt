@@ -1,0 +1,8 @@
+LIBRAW_COMPAT_PROBE_V0_1_LOCAL_STATUS
+local_libraw_dev=UNAVAILABLE_IN_LOCAL_HARNESS
+local_compile=NOT_RUN
+repository_ci=PENDING
+probe_mode=METADATA_ONLY
+probe_unpack_calls_allowed=0
+filename_extension_as_evidence=0
+sample_scientific_admission=0
