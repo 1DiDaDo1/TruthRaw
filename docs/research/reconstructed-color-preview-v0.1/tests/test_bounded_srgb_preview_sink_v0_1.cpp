@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <vector>
 
 using truthraw::Orientation;
 using truthraw::preview_surface_v0_1::BoundedSrgbPreviewSink;
@@ -71,6 +72,9 @@ int main() {
     REQUIRE(sink32.width() == 24);
     REQUIRE(sink32.height() == 32);
     compare_exposure(result64.exposure, result32.exposure);
+    const std::vector<float> anchors64(result64.exposure.anchorsX.begin(), result64.exposure.anchorsX.end());
+    const std::vector<float> anchors32(result32.exposure.anchorsX.begin(), result32.exposure.anchorsX.end());
+    REQUIRE(max_abs_diff(anchors64, anchors32) <= 1e-7f);
     REQUIRE(result64.stage2Over1Count == result32.stage2Over1Count);
     REQUIRE(result64.provenance.reconstructionBackend == result32.provenance.reconstructionBackend);
     REQUIRE(result64.provenance.appearanceBackend == result32.provenance.appearanceBackend);
