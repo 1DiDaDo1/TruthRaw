@@ -49,9 +49,9 @@ constexpr std::uint16_t kTagUniqueCameraModel = 50708;
 constexpr std::uint16_t kTagCfaPlaneColor = 50710;
 constexpr std::uint16_t kTagCfaLayout = 50711;
 constexpr std::uint16_t kTagColorMatrix1 = 50721;
+constexpr std::uint16_t kTagAsShotWhiteXy = 50729;
 constexpr std::uint16_t kTagDngPrivateData = 50740;
 constexpr std::uint16_t kTagCalibrationIlluminant1 = 50778;
-constexpr std::uint16_t kTagAsShotWhiteXy = 50729;
 
 constexpr std::uint16_t kCompressionUncompressed = 1;
 constexpr std::uint16_t kPhotometricCfa = 32803;
@@ -130,7 +130,8 @@ std::vector<std::uint8_t> ascii_value(const std::string& value) {
     return out;
 }
 
-std::vector<std::uint8_t> rational_value(double value, std::uint32_t denominator = 1000000000u) {
+std::vector<std::uint8_t> rational_value(double value,
+                                         std::uint32_t denominator = 1000000000u) {
     const double scaled = std::round(value * static_cast<double>(denominator));
     const auto numerator = static_cast<std::uint32_t>(std::clamp(
         scaled, 0.0, static_cast<double>(std::numeric_limits<std::uint32_t>::max())));
@@ -192,20 +193,25 @@ std::array<std::uint8_t,4> cfa_pattern_bytes(CfaPattern cfa) noexcept {
 int measured_channel(CfaPattern cfa, int x, int y) noexcept {
     const int p = ((y & 1) << 1) | (x & 1);
     switch (cfa) {
-        case CfaPattern::BGGR: {
-            constexpr int m[4] = {2,1,1,0}; return m[p];
-        }
-        case CfaPattern::RGGB: {
-            constexpr int m[4] = {0,1,1,2}; return m[p];
-        }
-        case CfaPattern::GRBG: {
-            constexpr int m[4] = {1,0,2,1}; return m[p];
-        }
-        case CfaPattern::GBRG: {
-            constexpr int m[4] = {1,2,0,1}; return m[p];
-        }
+        case CfaPattern::BGGR: { constexpr int m[4] = {2,1,1,0}; return m[p]; }
+        case CfaPattern::RGGB: { constexpr int m[4] = {0,1,1,2}; return m[p]; }
+        case CfaPattern::GRBG: { constexpr int m[4] = {1,0,2,1}; return m[p]; }
+        case CfaPattern::GBRG: { constexpr int m[4] = {1,2,0,1}; return m[p]; }
     }
     return 1;
+}
+
+const char* authority_name_local(
+    scientific_preview_binding_v0_1::ColorBindingAuthority authority) noexcept {
+    using scientific_preview_binding_v0_1::ColorBindingAuthority;
+    switch (authority) {
+        case ColorBindingAuthority::Unverified: return "UNVERIFIED";
+        case ColorBindingAuthority::PreviewSentinel: return "PREVIEW_SENTINEL";
+        case ColorBindingAuthority::SourceMetadataBound: return "SOURCE_METADATA_BOUND";
+        case ColorBindingAuthority::GatehouseCertifiedMetadata: return "GATEHOUSE_CERTIFIED_METADATA";
+        case ColorBindingAuthority::IndependentCalibration: return "INDEPENDENT_CALIBRATION";
+    }
+    return "UNKNOWN";
 }
 
 bool valid_authority(const ProjectionMetadata& metadata,
@@ -240,7 +246,7 @@ std::string private_payload(ProjectionRole role,
     text += "\nsource_evidence_id=" + metadata.sourceSeal.sourceEvidenceId;
     text += "\ncolor_binding_id=" + metadata.color.bindingId;
     text += "\ncolor_authority=";
-    text += scientific_preview_binding_v0_1::authority_name(metadata.color.authority);
+    text += authority_name_local(metadata.color.authority);
     text += "\nphysical_frame_count=1\nindependent_evidence_count=1\n";
     text += "projection_is_evidence=false\nfull_physical_color_promoted=false\n";
     text += "scientific_master_modified=false\n";
@@ -262,14 +268,16 @@ Status build_header(ProjectionRole role,
     }
 
     std::vector<IfdEntry> entries;
-    const auto add = [&](std::uint16_t tag, std::uint16_t type,
-                         std::uint32_t count, std::vector<std::uint8_t> value) mutable {
+    auto add = [&](std::uint16_t tag, std::uint16_t type,
+                   std::uint32_t count, std::vector<std::uint8_t> value) {
         entries.push_back({tag, type, count, std::move(value), 0u});
     };
 
     add(kTagNewSubFileType, kTypeLong, 1u, long_value(0u));
-    add(kTagImageWidth, kTypeLong, 1u, long_value(static_cast<std::uint32_t>(sourceMetadata.width)));
-    add(kTagImageLength, kTypeLong, 1u, long_value(static_cast<std::uint32_t>(sourceMetadata.height)));
+    add(kTagImageWidth, kTypeLong, 1u,
+        long_value(static_cast<std::uint32_t>(sourceMetadata.width)));
+    add(kTagImageLength, kTypeLong, 1u,
+        long_value(static_cast<std::uint32_t>(sourceMetadata.height)));
     if (channels == 3u) {
         add(kTagBitsPerSample, kTypeShort, 3u, shorts_value({32u,32u,32u}));
     } else {
@@ -279,17 +287,15 @@ Status build_header(ProjectionRole role,
     add(kTagPhotometricInterpretation, kTypeShort, 1u,
         short_value(role == ProjectionRole::LinearScientificMaster ?
                     kPhotometricLinearRaw : kPhotometricCfa));
+    const std::string description = role == ProjectionRole::LinearScientificMaster ?
+        "TruthRaw Linear Scientific Master compatibility projection; derived, not evidence" :
+        "TruthRaw measured-preserving CFA compatibility projection; derived, not original sensor code evidence";
     add(kTagImageDescription, kTypeAscii,
-        static_cast<std::uint32_t>(ascii_value(
-            role == ProjectionRole::LinearScientificMaster ?
-            "TruthRaw Linear Scientific Master compatibility projection; derived, not evidence" :
-            "TruthRaw measured-preserving CFA compatibility projection; derived, not original sensor code evidence").size()),
-        ascii_value(role == ProjectionRole::LinearScientificMaster ?
-            "TruthRaw Linear Scientific Master compatibility projection; derived, not evidence" :
-            "TruthRaw measured-preserving CFA compatibility projection; derived, not original sensor code evidence"));
+        static_cast<std::uint32_t>(description.size() + 1u), ascii_value(description));
     add(kTagOrientation, kTypeShort, 1u,
         short_value(static_cast<std::uint16_t>(sourceMetadata.orientation)));
-    add(kTagSamplesPerPixel, kTypeShort, 1u, short_value(static_cast<std::uint16_t>(channels)));
+    add(kTagSamplesPerPixel, kTypeShort, 1u,
+        short_value(static_cast<std::uint16_t>(channels)));
     add(kTagPlanarConfiguration, kTypeShort, 1u, short_value(1u));
     add(kTagSoftware, kTypeAscii, 9u, ascii_value("TruthRaw"));
     add(kTagTileWidth, kTypeLong, 1u, long_value(kTileEdge));
@@ -325,16 +331,16 @@ Status build_header(ProjectionRole role,
         add(kTagCfaLayout, kTypeShort, 1u, short_value(kCfaLayoutRectangular));
     }
     add(kTagColorMatrix1, kTypeSRational, 9u, srational_matrix(xyzToCamera));
+    std::vector<std::uint8_t> whiteXy = rational_value(metadata.asShotWhiteX);
+    const auto whiteY = rational_value(metadata.asShotWhiteY);
+    whiteXy.insert(whiteXy.end(), whiteY.begin(), whiteY.end());
+    add(kTagAsShotWhiteXy, kTypeRational, 2u, std::move(whiteXy));
     const auto privateText = private_payload(role, metadata);
     std::vector<std::uint8_t> privateBytes(privateText.begin(), privateText.end());
     add(kTagDngPrivateData, kTypeByte,
         static_cast<std::uint32_t>(privateBytes.size()), std::move(privateBytes));
     add(kTagCalibrationIlluminant1, kTypeShort, 1u,
         short_value(kCalibrationIlluminantD50));
-    std::vector<std::uint8_t> whiteXy = rational_value(metadata.asShotWhiteX);
-    const auto whiteY = rational_value(metadata.asShotWhiteY);
-    whiteXy.insert(whiteXy.end(), whiteY.begin(), whiteY.end());
-    add(kTagAsShotWhiteXy, kTypeRational, 2u, std::move(whiteXy));
 
     std::sort(entries.begin(), entries.end(),
               [](const IfdEntry& a, const IfdEntry& b) { return a.tag < b.tag; });
@@ -351,6 +357,9 @@ Status build_header(ProjectionRole role,
                 return Status::error(StatusCode::NumericOverflow, "TIFF metadata offset overflow");
             }
             entry.externalOffset = static_cast<std::uint32_t>(cursor);
+            if (entry.value.size() > std::numeric_limits<std::size_t>::max() - cursor) {
+                return Status::error(StatusCode::NumericOverflow, "TIFF metadata size overflow");
+            }
             cursor = align4(cursor + entry.value.size());
         }
     }
