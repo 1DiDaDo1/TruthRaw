@@ -2,14 +2,15 @@
   "schema": "TruthRawRoomAbiState/0.2",
   "status": "RESEARCH_CANDIDATE_CI_PASS",
   "stacked_base_sha": "2bceb0596f6e57b10aeb88001467124b43c8cc20",
-  "validated_implementation_sha": "3daf140f3df0be0f38bdc14c82a4b791b92776ee",
+  "validated_implementation_sha": "6649aa9e5683eaccafaefd70b26ab8879bfbb10a",
   "validation": {
-    "room_abi_v0_2_run_id": 34548187649,
-    "documentation_governance_run_id": 34548187651,
+    "room_abi_v0_2_run_id": 34548564916,
+    "documentation_governance_run_id": 34548567536,
     "upstream_integrity": "PASS",
     "gcc_release": "PASS",
     "clang_release": "PASS",
-    "asan_ubsan": "PASS"
+    "asan_ubsan": "PASS",
+    "concrete_tile_native_dng_source_binding": "PASS"
   },
   "architecture": {
     "building_runtime_remains_scheduler": true,
@@ -39,8 +40,12 @@
     "resource_tier_may_change_zero_line_identity": false
   },
   "proof_boundary": {
-    "concrete_tile_native_dng_source_session_tested": false,
+    "concrete_tile_native_dng_source_session_tested": true,
+    "concrete_source_full_file_materialized": false,
+    "concrete_source_full_raw_materialized": false,
+    "concrete_source_resident_bound_admitted_once": true,
     "production_streaming_sink_session_tested": false,
+    "bounded_test_sink_only": true,
     "android_rss_tested": false,
     "android_thermal_tested": false,
     "canonical_reconstruction_mutated": false
