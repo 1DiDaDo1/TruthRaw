@@ -1,0 +1,52 @@
+name: Scientific Master Phase2 v0.1
+
+on:
+  push:
+    branches:
+      - 'research/scientific-master-phase2-v0.1-*'
+    paths:
+      - 'docs/research/scientific-master-phase2-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - '.github/workflows/scientific-master-phase2-v0.1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/scientific-master-phase2-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - '.github/workflows/scientific-master-phase2-v0.1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC Release
+            cxx: g++
+            build_type: Release
+            sanitizers: 'OFF'
+          - name: Clang Release
+            cxx: clang++
+            build_type: Release
+            sanitizers: 'OFF'
+          - name: Clang ASan-UBSan
+            cxx: clang++
+            build_type: Debug
+            sanitizers: 'ON'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S docs/research/scientific-master-phase2-v0.1
+          -B build/scientific-master-phase2-v0.1
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DTRUTHRAW_PHASE2_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: Build
+        run: cmake --build build/scientific-master-phase2-v0.1 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/scientific-master-phase2-v0.1 --output-on-failure

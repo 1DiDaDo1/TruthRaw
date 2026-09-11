@@ -1,0 +1,42 @@
+{
+  "schema": "TruthRawScientificMasterPhase2State/0.1",
+  "status": "RESEARCH_IMPLEMENTATION_CANDIDATE_CI_REQUIRED",
+  "parent_head": "a7dd9d4ba00922a71e2099fdcb8001cdf6461b8e",
+  "scientific_master_digest_dependency": {
+    "module": "scientific-master-digest-v0.1",
+    "validated_implementation": "1be3b765c46ae4f27c6c5088374182c315fcb7b2",
+    "validated_run": 34635320632
+  },
+  "capture_point": "V47I_RECONSTRUCTED_CAMERA_NATIVE_RGB_PRE_XYZ_PRE_APPEARANCE",
+  "resource_contract": {
+    "canonical_digest_cell_edge": 64,
+    "runtime_core_must_be_multiple_of_64": true,
+    "digest_memory_included_in_resident_accounting": true,
+    "full_frame_scientific_master_buffer_added": false
+  },
+  "validation_gates": [
+    "full-frame reference digest equals streaming tile64 digest",
+    "full-frame reference digest equals streaming tile128 digest",
+    "appearance backend cannot alter Scientific Master digest",
+    "HDR/diagnostic switches cannot alter Scientific Master digest",
+    "noncanonical runtime core fails closed",
+    "digest resident state is included in memory accounting",
+    "GCC Release PASS",
+    "Clang Release PASS",
+    "Clang ASan/UBSan PASS"
+  ],
+  "phase2_identity_progress": {
+    "source_evidence": "EXISTS_FROM_SOURCE_BINDING",
+    "scientific_master": "IMPLEMENTATION_CANDIDATE_IN_THIS_MODULE",
+    "zero_line": "REAL_DETERMINISTIC_BINDING_STILL_REQUIRED",
+    "scene_scale": "REAL_DETERMINISTIC_BINDING_STILL_REQUIRED",
+    "technical_backplane_phase2": "NOT_COMPLETE",
+    "final_scientific_preview": "BLOCKED"
+  },
+  "truth_authority": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "creates_new_evidence": false,
+    "appearance_may_modify_scientific_master": false
+  }
+}
