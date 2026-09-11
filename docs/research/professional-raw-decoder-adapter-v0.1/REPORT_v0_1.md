@@ -27,3 +27,16 @@ Resource failure never retunes or weakens scientific classification. A job waits
 ## Next implementation
 
 Add a first external compatibility backend behind this ABI, initially as a capability/provenance adapter with explicit full-frame memory accounting. Do not make it canonical until real-file corpus tests prove byte/sample semantics for named codec variants.
+
+## Repository validation
+
+Validated implementation head: `39d699780cafa1fc93d03bdb3a9d77a0bf39d69c`.
+
+GitHub Actions run `34594703797` passed:
+
+- sealed-module integrity;
+- GCC Release;
+- Clang Release;
+- Clang ASan/UBSan.
+
+The run linked the real upstream TileNative DNG implementation, not a local stub. This proves the adapter contract/build integration, not real vendor-codec support.
