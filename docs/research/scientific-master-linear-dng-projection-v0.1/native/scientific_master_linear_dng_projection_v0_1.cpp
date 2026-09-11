@@ -230,6 +230,10 @@ Status make_header(
                          std::uint32_t count, std::vector<std::uint8_t> payload) {
         entries.push_back(IfdEntry{tag, type, count, std::move(payload), 0u});
     };
+    const auto add_ascii = [&](std::uint16_t tag, const std::string& text) {
+        auto payload = ascii_payload(text);
+        add(tag, kTiffAscii, static_cast<std::uint32_t>(payload.size()), std::move(payload));
+    };
 
     add(kTagNewSubFileType, kTiffLong, 1u, long_payload(0u));
     add(kTagImageWidth, kTiffLong, 1u, long_payload(descriptor.width));
@@ -245,8 +249,7 @@ Status make_header(
     add(kTagOrientation, kTiffShort, 1u, short_payload(descriptor.orientation));
     add(kTagSamplesPerPixel, kTiffShort, 1u, short_payload(3u));
     add(kTagPlanarConfiguration, kTiffShort, 1u, short_payload(1u));
-    add(kTagSoftware, kTiffAscii, 57u,
-        ascii_payload("TruthRaw scientific-master-linear-dng-projection-v0.1"));
+    add_ascii(kTagSoftware, "TruthRaw scientific-master-linear-dng-projection-v0.1");
     add(kTagTileWidth, kTiffLong, 1u, long_payload(kCanonicalTileEdge));
     add(kTagTileLength, kTiffLong, 1u, long_payload(kCanonicalTileEdge));
 
@@ -265,8 +268,7 @@ Status make_header(
     add(kTagDngVersion, kTiffByte, 4u, std::vector<std::uint8_t>{1u, 4u, 0u, 0u});
     add(kTagDngBackwardVersion, kTiffByte, 4u,
         std::vector<std::uint8_t>{1u, 4u, 0u, 0u});
-    add(kTagUniqueCameraModel, kTiffAscii, 44u,
-        ascii_payload("TruthRaw Scientific Master XYZ D50 Projection"));
+    add_ascii(kTagUniqueCameraModel, "TruthRaw Scientific Master XYZ D50 Projection");
     add(kTagColorMatrix1, kTiffSRational, 9u, identity_color_matrix_payload());
     add(kTagAsShotNeutral, kTiffRational, 3u, d50_neutral_payload());
     auto privatePayload = private_data(descriptor);
@@ -338,12 +340,6 @@ Status make_header(
         append_u32(header, entry.count);
         if (entry.payload.size() <= 4u) {
             header.insert(header.end(), entry.payload.begin(), entry.payload.end());
-            while ((header.size() % 4u) != 2u) {
-                // Each IFD value field is exactly four bytes. At this point the
-                // entry prefix consumed eight bytes, so size modulo arithmetic
-                // is not a safe field-length test; use the payload length below.
-                break;
-            }
             for (std::size_t pad = entry.payload.size(); pad < 4u; ++pad) header.push_back(0u);
         } else {
             append_u32(header, entry.outOfLineOffset);
