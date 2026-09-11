@@ -1,0 +1,67 @@
+name: Scientific Preview Source Binding v0.2
+
+on:
+  push:
+    paths:
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/scientific-preview-source-binding-v0-2.yml'
+  pull_request:
+    paths:
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/scientific-preview-source-binding-v0-2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify two-phase authority boundary
+        run: |
+          H='docs/research/scientific-preview-source-binding-v0.2/native/scientific_preview_source_binding_v0_2.h'
+          C='docs/research/scientific-preview-source-binding-v0.2/native/scientific_preview_source_binding_v0_2.cpp'
+          grep -F 'mainHouseComputeAllowed' "$H"
+          grep -F 'previewReleaseAllowed' "$H"
+          grep -F 'scientificClaimAllowed' "$H"
+          grep -F 'admit_scientific_color_preview' "$C"
+          if grep -E 'scientificMasterHash\.fill|zeroLineHash\.fill|sceneScaleHash\.fill' "$C"; then
+            echo 'Production two-phase admission must not manufacture Backplane hashes.' >&2
+            exit 1
+          fi
+
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/scientific-preview-source-binding-v0.2 -B build/spb2-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - run: cmake --build build/spb2-gcc --parallel 2
+      - run: ./build/spb2-gcc/test_scientific_preview_source_binding_v0_2
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/scientific-preview-source-binding-v0.2 -B build/spb2-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      - run: cmake --build build/spb2-clang --parallel 2
+      - run: ./build/spb2-clang/test_scientific_preview_source_binding_v0_2
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          cmake -S docs/research/scientific-preview-source-binding-v0.2 -B build/spb2-san
+          -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - run: cmake --build build/spb2-san --parallel 2
+      - env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./build/spb2-san/test_scientific_preview_source_binding_v0_2
