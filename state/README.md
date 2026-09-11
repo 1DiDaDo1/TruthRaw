@@ -2,7 +2,7 @@
 
 Current global state snapshot: `CURRENT_CANONICAL_STATE_2026-09-11.json`.
 
-Use it together with `../START_HERE_NEW_CHAT.md` and the 2026-09-11 documents under `../docs/`.
+Use it together with `../START_HERE_NEW_CHAT.md`, `../docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md` and the other 2026-09-11 documents under `../docs/`.
 
 ## Snapshot policy
 
@@ -10,5 +10,11 @@ Use it together with `../START_HERE_NEW_CHAT.md` and the 2026-09-11 documents un
 - `CURRENT_CANONICAL_STATE_2026-09-10.json`, `CURRENT_CANONICAL_STATE_2026-09-09.json`, `CURRENT_CANONICAL_STATE_2026-09-08.json` and `CURRENT_CANONICAL_STATE_2026-09-06.json` are historical immutable snapshots.
 - Historical snapshots are not rewritten to reflect later success or later architecture.
 - Research branch state files remain module-local and do not override the global state snapshot.
+
+## Mandatory synchronization
+
+Every substantive project work cycle must check whether the machine-readable current state needs updating. Changes to current branch heads, validation runs, proof boundaries, scientific authority, source routing, module promotion state or recommended continuation must be reflected here before the work is treated as the new global handoff.
+
+When only a module-local implementation changes and the global handoff does not yet move, record the exact implementation/CI proof in that module's README/state overlay first. Do not mutate older dated snapshots.
 
 The current research handoff basis is `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51`; promoted `main` remains separately identified as `514f2f4bde6aba5a6709e176c03b22c3b9aea912`.
