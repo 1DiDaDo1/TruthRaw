@@ -35,6 +35,10 @@ class MainActivity : Activity() {
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
     private var empiricalStatus: String? = null
+    private var pendingDngJobId: String? = null
+    private var pendingDngRole: DngProjectionRole? = null
+    private var dngStatus: String? = null
+    private var dngExportRunning: Boolean = false
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -131,6 +135,22 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
 
+    @Suppress("DEPRECATION")
+    private fun launchDngExport(job: RawJob, role: DngProjectionRole) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || dngExportRunning) return
+        pendingDngJobId = job.id
+        pendingDngRole = role
+        dngStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_${role.suffix}.dng")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_DNG)
+    }
+
     @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -188,6 +208,51 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_DNG) {
+            val expectedJobId = pendingDngJobId
+            val role = pendingDngRole
+            pendingDngJobId = null
+            pendingDngRole = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                dngStatus = "DNG-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJobId }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (job == null || role == null || ready == null || ready.jobId != job.id ||
+                job.id != activeJobId || dngExportRunning) {
+                runCatching { contentResolver.delete(destination, null, null) }
+                dngStatus = "DNG-export geblokkeerd: actieve finalized bron veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+
+            dngExportRunning = true
+            dngStatus = "${role.displayName}: canonical phase-2 + Master-binding opnieuw verifiëren en DNG schrijven…"
+            render()
+            Thread({
+                val result = DngProjectionExporter.export(contentResolver, job, destination, role)
+                val message = when (result) {
+                    is DngProjectionExportResult.Success -> {
+                        val m = result.metrics
+                        "${role.displayName} opgeslagen · ${formatBytes(m.bytesWritten)} · ${m.tilesWritten} tiles · Master-match=${m.scientificMasterMatched} · frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · projection_is_evidence=${m.projectionIsEvidence}."
+                    }
+                    is DngProjectionExportResult.Failed -> {
+                        runCatching { contentResolver.delete(destination, null, null) }
+                        "DNG-export fail-closed: ${result.reason} · gedeeltelijk doelbestand verwijderd."
+                    }
+                }
+                runOnUiThread {
+                    dngExportRunning = false
+                    if (activeJobId == job.id) dngStatus = message
+                    render()
+                }
+            }, "truthraw-dng-${role.nativeCode}-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -204,6 +269,7 @@ class MainActivity : Activity() {
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        dngStatus = null
         if (first == null) {
             activeJobId = null
             loadingStartedAtElapsedMs = null
@@ -223,9 +289,12 @@ class MainActivity : Activity() {
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        dngStatus = null
         pendingJpegJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
+        pendingDngJobId = null
+        pendingDngRole = null
         render()
     }
 
@@ -235,9 +304,12 @@ class MainActivity : Activity() {
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        dngStatus = null
         pendingJpegJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
+        pendingDngJobId = null
+        pendingDngRole = null
         val generation = ++previewGeneration
         loadingStartedAtElapsedMs = SystemClock.elapsedRealtime()
         previewState = TilePreviewUiState.Loading(job.id)
@@ -439,6 +511,19 @@ class MainActivity : Activity() {
                 addView(space(6))
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(space(5))
+                addView(actionButton("Linear DNG opslaan") {
+                    launchDngExport(active, DngProjectionRole.LINEAR_SCIENTIFIC_MASTER)
+                }.apply { isEnabled = !dngExportRunning })
+                addView(actionButton("CFA DNG opslaan") {
+                    launchDngExport(active, DngProjectionRole.MEASURED_PRESERVING_CFA)
+                }.apply { isEnabled = !dngExportRunning })
+                addView(label(
+                    "DNG is een downstream compatibility projection. De originele CFA blijft evidence; export maakt geen tweede fysieke meting.",
+                    10f,
+                    muted = true,
+                ))
+                dngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
@@ -625,5 +710,6 @@ class MainActivity : Activity() {
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
+        private const val REQUEST_SAVE_DNG = 4104
     }
 }
