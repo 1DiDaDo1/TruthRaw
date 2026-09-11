@@ -1,0 +1,80 @@
+name: Room ABI v0.2 Adaptive All-Room Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/room-abi-v0.2/**'
+      - 'docs/research/local-illumination-room-v0.2/**'
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - '.github/workflows/room-abi-v0-2-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/room-abi-v0.2/**'
+      - 'docs/research/local-illumination-room-v0.2/**'
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - '.github/workflows/room-abi-v0-2-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream integrity
+        run: |
+          python3 docs/research/counterfactual-illumination-capture-manifold-v1/tools/verify_integrity_v1.py
+          python3 docs/research/local-illumination-room-capsule-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/room-abi-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: GCC Release
+        run: |
+          cmake -S docs/research/room-abi-v0.2 -B /tmp/room_abi_v02_gcc \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror'
+          cmake --build /tmp/room_abi_v02_gcc --parallel 2
+          /tmp/room_abi_v02_gcc/test_room_abi_v0_2
+          /tmp/room_abi_v02_gcc/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_gcc/test_room_abi_v0_2_streaming_sink
+
+      - name: Clang Release
+        run: |
+          cmake -S docs/research/room-abi-v0.2 -B /tmp/room_abi_v02_clang \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror'
+          cmake --build /tmp/room_abi_v02_clang --parallel 2
+          /tmp/room_abi_v02_clang/test_room_abi_v0_2
+          /tmp/room_abi_v02_clang/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_clang/test_room_abi_v0_2_streaming_sink
+
+      - name: ASan UBSan
+        run: |
+          cmake -S docs/research/room-abi-v0.2 -B /tmp/room_abi_v02_san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/room_abi_v02_san --parallel 2
+          /tmp/room_abi_v02_san/test_room_abi_v0_2
+          /tmp/room_abi_v02_san/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_san/test_room_abi_v0_2_streaming_sink

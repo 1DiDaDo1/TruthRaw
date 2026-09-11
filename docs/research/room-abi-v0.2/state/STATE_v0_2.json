@@ -1,0 +1,76 @@
+{
+  "schema": "TruthRawRoomAbiState/0.2",
+  "status": "RESEARCH_CANDIDATE_CI_PASS",
+  "stacked_base_sha": "2bceb0596f6e57b10aeb88001467124b43c8cc20",
+  "validated_implementation_sha": "7d2e1a3829117cde559eef38dad07ca7a8ecc0e8",
+  "validation": {
+    "room_abi_v0_2_push_run_id": 34550111870,
+    "room_abi_v0_2_pr_run_id": 34550113743,
+    "documentation_governance_push_run_id": 34550111956,
+    "documentation_governance_pr_run_id": 34550113839,
+    "upstream_integrity": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "asan_ubsan": "PASS",
+    "concrete_tile_native_dng_source_binding": "PASS",
+    "concrete_bounded_file_streaming_sink": "PASS",
+    "end_to_end_source_processor_sink": "PASS"
+  },
+  "architecture": {
+    "building_runtime_remains_scheduler": true,
+    "one_shared_technical_backplane": true,
+    "streaming_source_sink_borrowed": true,
+    "source_sink_resident_counted_once": true,
+    "per_wave_resident_admission": true,
+    "rebuildable_cache_retention_accounted": true,
+    "non_heavy_hidden_workspace_allowed": false,
+    "manifold_zero_hidden_allocation": true
+  },
+  "iso_boundary": {
+    "scene_iso_axis": "ABSENT_BY_CONTRACT",
+    "corridor_scene_iso_authority": false,
+    "resource_policy_uses_scene_iso": false,
+    "appearance_ev_is_iso": false,
+    "counterfactual_world_scale_is_iso": false,
+    "capture_iso_provenance_read_only_where_declared": true,
+    "cicm_calibrated_sensor_forward_nominal_iso_only": true,
+    "sensor_forward_iso_promotes_to_scene": false
+  },
+  "resource_invariant": {
+    "low_and_high_device_may_change_tile_size": true,
+    "low_and_high_device_may_change_concurrency": true,
+    "low_and_high_device_may_change_cache_retention": true,
+    "resource_tier_may_change_truth_authority": false,
+    "resource_tier_may_change_zero_line_identity": false,
+    "validated_low_peak_bytes": 10485760,
+    "validated_high_peak_bytes": 22020096
+  },
+  "streaming_validation": {
+    "source_resident_bound_bytes": 4812,
+    "sink_resident_bound_bytes": 65536,
+    "output_bytes": 14336,
+    "sdr_records": 12,
+    "half_log_gain_records": 12,
+    "stage2_diagnostic_records": 12,
+    "adapter_full_frame_buffers": 0,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "scene_iso_axis": 0
+  },
+  "proof_boundary": {
+    "concrete_tile_native_dng_source_session_tested": true,
+    "concrete_source_full_file_materialized": false,
+    "concrete_source_full_raw_materialized": false,
+    "concrete_source_resident_bound_admitted_once": true,
+    "concrete_file_backed_streaming_sink_session_tested": true,
+    "concrete_sink_full_output_frame_materialized": false,
+    "concrete_sink_resident_bound_bytes": 65536,
+    "streaming_processor_full_frame_adapter_buffers": false,
+    "bounded_test_sink_only": false,
+    "production_media_encoder_sink_tested": false,
+    "android_rss_tested": false,
+    "android_thermal_tested": false,
+    "real_device_throughput_tested": false,
+    "canonical_reconstruction_mutated": false
+  }
+}
