@@ -12,9 +12,10 @@ This file is the primary bootstrap for a new ChatGPT/engineering session. Do not
 4. `docs/CURRENT_CLAIM_MAP_2026-09-11.md`
 5. `docs/CI_EVIDENCE_INDEX_2026-09-11.md`
 6. `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md`
-7. `docs/CHAT_HANDOFF_2026-09-11.md`
-8. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
-9. `README.md`
+7. `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`
+8. `docs/CHAT_HANDOFF_2026-09-11.md`
+9. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
+10. `README.md`
 
 Historical 2026-09-10 and earlier state/audit files are evidence of prior state, not current bootstrap documents.
 
@@ -40,6 +41,14 @@ The research basis is **not** equivalent to promotion into `main`. All PRs #9–
 - resource differences may affect execution only, never scientific authority;
 - zero-line is a scene-reference gauge (`T=log2(L/L0)`), not sensor black or display black;
 - canonical v4.7i scientific reconstruction remains the measured-preserving single-frame baseline; v4.7j/v4.7k are appearance/detail layers only.
+
+## Mandatory documentation maintenance
+
+Every substantive project change must be accompanied by a documentation review in the same work cycle. Update the affected module README/state overlay, and update the global current-state/handoff files whenever branch heads, proof boundaries, CI evidence, scientific authority, architecture, or recommended next work changes.
+
+Do not rewrite sealed/historical/versioned README material just to make it look current. If exact historical bytes must remain stable, add/update a current-state overlay or the global indexes instead. The full rule is `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`.
+
+A code implementation may temporarily precede its documentation overlay during validation, but it must not be declared the new global handoff until both implementation proof and documentation synchronization are complete.
 
 ## Current source routing
 
@@ -118,3 +127,5 @@ See `docs/CI_EVIDENCE_INDEX_2026-09-11.md` for exact SHAs/runs. High-level valid
 ## Workflow rules for the next chat
 
 Before saying a branch/module is current or green, fetch its fresh branch head and relevant workflow result. Preserve failed runs as failed history. Do not auto-merge draft PRs. Do not alter sealed/canonical bytes merely to satisfy a newer toolchain warning. Distinguish implementation head, documentation overlay head and promoted `main` at all times.
+
+Before ending every substantive work cycle, apply `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`: update affected module README/state, current module/claim/CI indexes as needed, and the global chat handoff when the continuation point changes.
