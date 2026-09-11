@@ -134,6 +134,7 @@ int main() {
     handoff.sourceEvidenceBindingVerified = true;
     handoff.decodedRepresentationImmutable = true;
     handoff.decodedRepresentationPersistedOrExternallyOwned = true;
+    handoff.decodedRepresentationIntegrityVerified = true;
     handoff.decoderContextLive = true;
     handoff.fullFrameMaterializedDuringDecode = true;
     handoff.decodedRepresentationResidentBytes = 416ULL * MiB;
@@ -152,6 +153,12 @@ int main() {
     CHECK_TRUE(gate::may_enter_main_house_after_detach(gate::GatehouseState::Detached, handoff));
 
     auto invalidHandoff = handoff;
+    invalidHandoff.decodedRepresentationIntegrityVerified = false;
+    invalidHandoff.sealed = false;
+    CHECK_TRUE(!gate::may_seal_external_handoff(external, highDecode, invalidHandoff));
+    CHECK_TRUE(!gate::may_enter_main_house_after_detach(gate::GatehouseState::Detached, invalidHandoff));
+
+    invalidHandoff = handoff;
     invalidHandoff.zeroLineCreatedInGatehouse = true;
     invalidHandoff.sealed = false;
     CHECK_TRUE(!gate::may_seal_external_handoff(external, highDecode, invalidHandoff));
@@ -194,6 +201,7 @@ int main() {
     std::cout << "high_budget_bytes=" << highPlan.budgetBytes << "\n";
     std::cout << "decoder_peak_bytes=" << highDecode.decoderPeakUpperBoundBytes << "\n";
     std::cout << "main_house_overlap=0\n";
+    std::cout << "decoded_handoff_integrity_required=1\n";
     std::cout << "physical_frame_count=1\n";
     std::cout << "independent_evidence_count=1\n";
     return 0;
