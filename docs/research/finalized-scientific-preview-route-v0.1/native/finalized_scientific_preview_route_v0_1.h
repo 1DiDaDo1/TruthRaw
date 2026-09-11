@@ -13,6 +13,7 @@ namespace truthraw::finalized_scientific_preview_route::v0_1 {
 enum class StatusCode : std::uint8_t {
     Ok = 0,
     InvalidPreparedSource,
+    SourceReverificationFailed,
     SourceLineageMismatch,
     ScientificMasterBindingFailed,
     Phase2FinalizationFailed,
@@ -34,6 +35,8 @@ struct Status final {
 
 struct Options final {
     scientific_master_streaming_binding::v0_1::Options scientificBinding{};
+    std::size_t sourceReverifyChunkBytes =
+        scientific_preview_binding_v0_1::kDefaultHashChunkBytes;
     std::array<technical_backplane::v0_1::RoomStatus,
                technical_backplane::v0_1::kRoomCount> roomStatus{};
     technical_backplane::v0_1::ClaimStatus claimStatus =
@@ -44,18 +47,20 @@ struct Result final {
     scientific_master_streaming_binding::v0_1::Result scientific{};
     technical_backplane_phase2::v0_1::Phase2Result phase2{};
 
-    // True only after the complete source -> master -> zero-line/scene-scale ->
-    // Backplane -> Scientific Preview admission chain succeeded.
+    // True only after exact source-byte reverification and the complete
+    // source -> master -> zero-line/scene-scale -> Backplane -> admission chain.
     bool scientificPreviewReleaseAllowed = false;
+    // Stronger color-truth claim remains independently calibration-gated.
     bool scientificClaimAllowed = false;
 };
 
 // Closes the pre-master/post-master authority gap in one fail-closed call.
-// The caller cannot supply a Scientific Master hash, zero-line hash or
-// scene-scale hash. They are derived from the actual IRawTileSource and the
-// reconstruction backend before Technical Backplane phase 2 is finalized.
+// The original random-access source bytes are reverified against the prepared
+// SHA-256 seal before the tile source may produce a Scientific Master. The
+// caller cannot supply master/zero-line/scene-scale hashes.
 Status finalize_from_streaming_source(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
+    tile_dng_v0_1::IRandomAccessByteSource& sealedSourceBytes,
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const Options& options,
