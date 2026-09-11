@@ -1,0 +1,76 @@
+{
+  "schema": "TruthRawAdaptiveUiTilePreviewState/0.2",
+  "status": "RESEARCH_PROTOTYPE_ANDROID_ARM64_APK_CI_PASS",
+  "validated_implementation_sha": "1aa38c25418ba5ed06b219e82ba48fa06323f90f",
+  "validation": {
+    "workflow_run_id": 34589023345,
+    "workflow_job_id": 103229788345,
+    "building_runtime_v0_1_integrity": "PASS",
+    "technical_backplane_v0_1_integrity": "PASS",
+    "tile_native_dng_source_v0_1_integrity": "PASS",
+    "adaptive_ui_ingress_v0_1_contract": "PASS",
+    "adaptive_ui_tile_preview_v0_2_contract": "PASS",
+    "no_camera_permission": "PASS",
+    "android_arm64_apk_build": "PASS",
+    "native_bridge_packaged": "PASS",
+    "native_bridge_path": "lib/arm64-v8a/libtruthraw_ui_preview_bridge.so",
+    "native_bridge_bytes": 605112,
+    "apk_bytes": 3014221,
+    "apk_sha256": "0fb5c06f8e09d0345a34ed00236c45ba537e008e224facad2884d1f338d1f5d8",
+    "artifact_id": 10194923633,
+    "artifact_zip_bytes": 963632,
+    "artifact_zip_sha256": "89ee82318afed183218b9878cfb5e65cf05340de02846020d37ce490b95765a0"
+  },
+  "ingress_to_source_contract": {
+    "android_document_uri": true,
+    "open_file_descriptor_read_only": true,
+    "file_descriptor_ownership": "CALLER_OWNED_BORROWED_BY_NATIVE",
+    "posix_fd_byte_source": true,
+    "tile_native_dng_source_v0_1": true,
+    "open_input_stream_fallback": false,
+    "full_raw_copy_fallback": false,
+    "source_raw_full_materialization": false
+  },
+  "preview_workspace_contract": {
+    "ui_preview_max_edge_px": 384,
+    "native_absolute_max_edge_px": 512,
+    "caller_raw_workspace_samples": 1024,
+    "gain_scratch_samples": 1024,
+    "source_resident_cap_bytes": 8388608,
+    "second_java_preview_pixel_array": false,
+    "redundant_java_pixel_array_bytes_avoided_at_384_square": 589824,
+    "workspace_scales_with_source_megapixel_area": false
+  },
+  "preview_semantics": {
+    "kind": "GRAYSCALE_CFA_SOURCE_PROXY",
+    "presentation_only": true,
+    "demosaic": false,
+    "white_balance": false,
+    "color_matrix_applied": false,
+    "gain_map_multiplied_into_preview": false,
+    "scientific_scene_master": false,
+    "new_evidence_source": false,
+    "scientific_color_authority": false
+  },
+  "temporary_parser_binding": {
+    "source_evidence_id": "ui-preview-ephemeral-not-evidence-v0.2",
+    "color_binding_id": "ui-preview-parser-sentinel-not-scientific-v0.2",
+    "scope": "JNI_PREVIEW_CALL_ONLY",
+    "may_be_reused_for_scientific_reconstruction": false,
+    "true_source_evidence_identity_bound": false,
+    "calibrated_camera_lens_color_bound": false
+  },
+  "proof_boundary": {
+    "android_ci_build_proven": true,
+    "arm64_native_link_and_packaging_proven": true,
+    "contract_static_validation_proven": true,
+    "physical_android_device_execution_proven": false,
+    "physical_target_real_dng_preview_proven": false,
+    "physical_device_frame_time_proven": false,
+    "physical_device_rss_proven": false,
+    "true_source_evidence_backplane_binding_proven": false,
+    "scientific_reconstruction_handoff_proven": false,
+    "progressive_reconstructed_color_preview_proven": false,
+    "multi_capture_fusion_proven": false
+  }
+}
