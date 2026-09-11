@@ -13,10 +13,18 @@ These define the current 2026-09-11 handoff:
 - `docs/CURRENT_MODULE_STATUS_2026-09-11.md`
 - `docs/CURRENT_CLAIM_MAP_2026-09-11.md`
 - `docs/CI_EVIDENCE_INDEX_2026-09-11.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md`
+- `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`
 - `docs/CHAT_HANDOFF_2026-09-11.md`
 - `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
 
 If these disagree with an older dated dashboard, the 2026-09-11 layer is current for handoff while the older file remains historical evidence.
+
+## Documentation synchronization authority
+
+`docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md` is a current global project policy. Every substantive implementation/architecture/science/UI/decoder/runtime work cycle must review the affected module README/state overlay and update the global handoff documents when the continuation point changes.
+
+The policy does not authorize rewriting sealed, canonical, historical or version-specific evidence. Those remain exact; current status belongs in overlays and global indexes when preservation matters.
 
 ## Historical immutable global snapshots
 
