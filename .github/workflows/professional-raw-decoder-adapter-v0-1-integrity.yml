@@ -1,0 +1,73 @@
+name: Professional RAW Decoder Adapter v0.1 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/professional-raw-decoder-adapter-v0.1/**'
+      - '.github/workflows/professional-raw-decoder-adapter-v0-1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/professional-raw-decoder-adapter-v0.1/**'
+      - '.github/workflows/professional-raw-decoder-adapter-v0-1-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  decoder-adapter:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify sealed module
+        run: python3 docs/research/professional-raw-decoder-adapter-v0.1/tools/verify_integrity_v0_1.py
+      - name: GCC Release
+        if: matrix.mode == 'gcc-release'
+        run: |
+          g++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
+            docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
+            docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
+            -I docs/research/professional-raw-decoder-adapter-v0.1/native \
+            -I docs/research/professional-raw-ingress-v0.1/native \
+            -I docs/research/tile-native-dng-source-v0.1/native \
+            -I docs/research/full-frame-streaming-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -o /tmp/pro_raw_adapter_gcc
+          /tmp/pro_raw_adapter_gcc
+      - name: Clang Release
+        if: matrix.mode == 'clang-release'
+        run: |
+          clang++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
+            docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
+            docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
+            -I docs/research/professional-raw-decoder-adapter-v0.1/native \
+            -I docs/research/professional-raw-ingress-v0.1/native \
+            -I docs/research/tile-native-dng-source-v0.1/native \
+            -I docs/research/full-frame-streaming-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -o /tmp/pro_raw_adapter_clang
+          /tmp/pro_raw_adapter_clang
+      - name: Clang ASan UBSan
+        if: matrix.mode == 'clang-asan-ubsan'
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          clang++ -std=c++20 -O1 -g -Wall -Wextra -Wpedantic -Werror \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
+            docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
+            -I docs/research/professional-raw-decoder-adapter-v0.1/native \
+            -I docs/research/professional-raw-ingress-v0.1/native \
+            -I docs/research/tile-native-dng-source-v0.1/native \
+            -I docs/research/full-frame-streaming-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            -fsanitize=address,undefined -o /tmp/pro_raw_adapter_san
+          /tmp/pro_raw_adapter_san
