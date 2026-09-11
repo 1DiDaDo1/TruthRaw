@@ -1,0 +1,81 @@
+name: Scientific Preview Source Binding v0.1
+
+on:
+  push:
+    branches:
+      - research/scientific-preview-source-binding-v0.1-2026-09-11
+    paths:
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/scientific-preview-source-binding-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/scientific-preview-source-binding-v0-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify authority and source-seal contract
+        run: |
+          H='docs/research/scientific-preview-source-binding-v0.1/native/scientific_preview_source_binding_v0_1.h'
+          C='docs/research/scientific-preview-source-binding-v0.1/native/scientific_preview_source_binding_v0_1.cpp'
+          grep -F 'PreviewSentinel' "$H"
+          grep -F 'SourceMetadataBound' "$H"
+          grep -F 'GatehouseCertifiedMetadata' "$H"
+          grep -F 'IndependentCalibration' "$H"
+          grep -F 'sha256:' "$C"
+          grep -F 'backplane.sourceEvidenceHash != sourceSeal.sha256' "$C"
+          if grep -R -F 'ui-preview-parser-sentinel-not-scientific-v0.2' docs/research/scientific-preview-source-binding-v0.1/native; then
+            echo 'Scientific binding module must never authorize the Android parser sentinel.' >&2
+            exit 1
+          fi
+
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: cmake -S docs/research/scientific-preview-source-binding-v0.1 -B build/source-bind-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC Release
+        run: cmake --build build/source-bind-gcc --parallel 2
+      - name: Run GCC Release
+        run: ./build/source-bind-gcc/test_scientific_preview_source_binding_v0_1
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: cmake -S docs/research/scientific-preview-source-binding-v0.1 -B build/source-bind-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang Release
+        run: cmake --build build/source-bind-clang --parallel 2
+      - name: Run Clang Release
+        run: ./build/source-bind-clang/test_scientific_preview_source_binding_v0_1
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang ASan+UBSan
+        run: >-
+          cmake -S docs/research/scientific-preview-source-binding-v0.1 -B build/source-bind-san
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Build Clang ASan+UBSan
+        run: cmake --build build/source-bind-san --parallel 2
+      - name: Run Clang ASan+UBSan
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./build/source-bind-san/test_scientific_preview_source_binding_v0_1
