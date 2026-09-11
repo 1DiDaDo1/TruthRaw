@@ -1,0 +1,127 @@
+name: Android Finalized Read Optimization v0.2
+
+on:
+  push:
+    branches:
+      - research/bit-exact-read-optimization-v0.1-2026-09-11
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.2/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.1/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/reconstructed-color-preview-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-finalized-read-optimization-v0-2-apk-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-equivalence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revalidate Scientific Master streaming v0.2
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.2 -B /tmp/truthraw-sm-v02 -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-sm-v02 --parallel 2
+          ctest --test-dir /tmp/truthraw-sm-v02 --output-on-failure
+
+      - name: Revalidate finalized v0.1 versus v0.2 equivalence
+        run: |
+          cmake -S docs/research/finalized-scientific-preview-release-v0.2 -B /tmp/truthraw-fspr-v02 -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-fspr-v02 --parallel 2
+          ctest --test-dir /tmp/truthraw-fspr-v02 --output-on-failure
+          /tmp/truthraw-fspr-v02/test_finalized_scientific_preview_release_v0_2
+
+  build-arm64-readopt-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Android finalized route selects v0.2 only at the finalized boundary
+        run: |
+          BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp'
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          grep -F '#include "finalized_scientific_preview_release_v0_2.h"' "$BRIDGE"
+          grep -F '#include "scientific_master_streaming_binding_v0_2.h"' "$BRIDGE"
+          grep -F 'finalized_scientific_preview_release::v0_2::create_and_release_finalized_scientific_preview' "$BRIDGE"
+          grep -F 'scientific_master_streaming_binding::v0_2::Options scientificOptions' "$BRIDGE"
+          grep -F 'FINALIZED_RELEASE_V01' "$CMAKE"
+          grep -F 'FINALIZED_RELEASE_V02' "$CMAKE"
+          grep -F 'SCIENTIFIC_MASTER_BINDING_V01' "$CMAKE"
+          grep -F 'SCIENTIFIC_MASTER_BINDING_V02' "$CMAKE"
+
+      - name: Verify execution backend remains CPU NDK with no TruthRaw Vulkan dependency
+        run: |
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          if grep -Eiq '(^|[^A-Za-z])(vulkan|libvulkan|Vk[A-Z])' "$CMAKE"; then
+            echo 'Unexpected Vulkan dependency in current CPU reference build' >&2
+            exit 1
+          fi
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble read-optimized arm64 APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify native bridge and report APK identity
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeEmpiricalBridge_probeSourceColor'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 preview bridge ABI' >&2
+            exit 1
+          fi
+          echo "readopt_apk_bytes=$(stat -c%s "$APK")"
+          echo "readopt_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'scientific_equivalence_contract=MASTER_ZERO_LINE_BACKPLANE_AUTHORITY_PIXELS_IDENTICAL'
+          echo 'scientific_master_gauge_scans=2'
+          echo 'previous_scientific_master_gauge_scans=4'
+          echo 'expected_previous_honor_tile_reads=13824'
+          echo 'predicted_readopt_honor_tile_reads=7680'
+          echo 'physical_honor_improvement=UNPROVEN_UNTIL_DEVICE_RUN'
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-finalized-readopt-v0.2-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
