@@ -3,8 +3,8 @@ package com.truthraw.adaptiveui
 import android.content.ContentResolver
 import android.graphics.Bitmap
 
-private const val SOURCE_BOUND_PREVIEW_MAGIC = 0x54524331
-private const val SOURCE_BOUND_HEADER_INTS = 23
+private const val FINALIZED_PREVIEW_MAGIC = 0x54524631
+private const val FINALIZED_HEADER_INTS = 24
 private const val MAX_PREVIEW_EDGE = 384
 private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -21,12 +21,27 @@ object NativeTilePreviewBridge {
         maxSourceResidentBytes: Int,
     ): IntArray
 
+    // Pre-master fallback/diagnostic path. It must never be presented as a finalized Scientific Preview.
     external fun buildSourceBoundColorPreview(
         fd: Int,
         maxEdge: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): IntArray
+
+    // Default UI route: exact source seal -> source-bound color -> Scientific Master/self-gauge
+    // -> Technical Backplane phase 2 -> finalized Scientific Preview -> bounded sRGB pixels.
+    external fun buildFinalizedScientificColorPreview(
+        fd: Int,
+        maxEdge: Int,
+        maxSourceResidentBytes: Int,
+        maxLogicalResidentBytes: Int,
+    ): IntArray
+}
+
+enum class PreviewAuthority {
+    FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW,
+    FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW,
 }
 
 data class TilePreviewMetrics(
@@ -49,6 +64,7 @@ data class TilePreviewMetrics(
     val tilesProcessedPass2: Int,
     val usedForwardMatrix: Boolean,
     val cameraCalibrationApplied: Boolean,
+    val previewAuthority: PreviewAuthority,
 )
 
 sealed interface TilePreviewUiState {
@@ -75,7 +91,7 @@ object TilePreviewLoader {
 
         val packet = try {
             descriptor.use { pfd ->
-                NativeTilePreviewBridge.buildSourceBoundColorPreview(
+                NativeTilePreviewBridge.buildFinalizedScientificColorPreview(
                     pfd.fd,
                     MAX_PREVIEW_EDGE,
                     MAX_SOURCE_RESIDENT_BYTES,
@@ -85,12 +101,12 @@ object TilePreviewLoader {
         } catch (error: Throwable) {
             return TilePreviewUiState.Failed(
                 job.id,
-                "Native source-bound kleurpreview faalde: ${error.message ?: error.javaClass.simpleName}",
+                "Native finalized Scientific Preview faalde: ${error.message ?: error.javaClass.simpleName}",
             )
         }
 
-        if (packet.size < SOURCE_BOUND_HEADER_INTS || packet[0] != SOURCE_BOUND_PREVIEW_MAGIC) {
-            return TilePreviewUiState.Failed(job.id, "Ongeldig source-bound preview-pakket.")
+        if (packet.size < FINALIZED_HEADER_INTS || packet[0] != FINALIZED_PREVIEW_MAGIC) {
+            return TilePreviewUiState.Failed(job.id, "Ongeldig finalized Scientific Preview-pakket.")
         }
         val status = packet[1]
         if (status != 0) {
@@ -107,12 +123,21 @@ object TilePreviewLoader {
         } catch (_: ArithmeticException) {
             return TilePreviewUiState.Failed(job.id, "Native preview-afmetingen overflowden.")
         }
-        if (packet.size != SOURCE_BOUND_HEADER_INTS + pixelCount) {
-            return TilePreviewUiState.Failed(job.id, "Native preview-payload heeft een ongeldige lengte.")
+        if (packet.size != FINALIZED_HEADER_INTS + pixelCount) {
+            return TilePreviewUiState.Failed(job.id, "Finalized preview-payload heeft een ongeldige lengte.")
+        }
+
+        val authority = when (packet[23]) {
+            1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
+            2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
+            else -> return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: finalized preview had geen bekende authority-code.",
+            )
         }
 
         val bitmap = try {
-            PortablePreviewEncoder.createSrgbBitmap(width, height, packet, SOURCE_BOUND_HEADER_INTS)
+            PortablePreviewEncoder.createSrgbBitmap(width, height, packet, FINALIZED_HEADER_INTS)
         } catch (error: Exception) {
             return TilePreviewUiState.Failed(job.id, "sRGB-preview kon niet worden opgebouwd: ${error.message}")
         }
@@ -137,12 +162,15 @@ object TilePreviewLoader {
             tilesProcessedPass2 = packet[20],
             usedForwardMatrix = packet[21] != 0,
             cameraCalibrationApplied = packet[22] != 0,
+            previewAuthority = authority,
         )
 
+        val strongerClaimExpected =
+            metrics.previewAuthority == PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
         val authorityViolation =
             !metrics.sourceBoundAppearanceReleaseAllowed ||
-                metrics.scientificPreviewReleaseAllowed ||
-                metrics.scientificClaimAllowed ||
+                !metrics.scientificPreviewReleaseAllowed ||
+                metrics.scientificClaimAllowed != strongerClaimExpected ||
                 metrics.physicalFrameCount != 1 ||
                 metrics.independentEvidenceCount != 1
         val memoryViolation =
@@ -155,7 +183,7 @@ object TilePreviewLoader {
             bitmap.recycle()
             return TilePreviewUiState.Failed(
                 job.id,
-                "Fail-closed: native preview schond authority-, evidence-, tile- of memorycontract.",
+                "Fail-closed: finalized preview schond authority-, evidence-, tile- of memorycontract.",
             )
         }
 
@@ -163,12 +191,10 @@ object TilePreviewLoader {
     }
 
     private fun nativeStatusDescription(status: Int): String = when (status) {
-        -1 -> "Ongeldige source-bound previewparameters."
-        -2 -> "Fail-closed: twee-fasen authority-state stond appearance preview niet exact toe."
-        -3 -> "Fail-closed: streamingpad materialiseerde verboden full-frame state."
-        -4 -> "Fail-closed: frame/evidence/provenance-invariant werd geschonden."
-        -5 -> "Bounded preview-oppervlak had ongeldige afmetingen."
-        -6 -> "Bounded preview-oppervlak was onvolledig."
+        -1 -> "Ongeldige finalized previewparameters."
+        -2 -> "Fail-closed: pre-master authority-state was niet canoniek."
+        -3 -> "Fail-closed: finalized route materialiseerde verboden full-frame state of leverde een onvolledig oppervlak."
+        -4 -> "Fail-closed: finalized authority/frame/evidence/provenance-invariant werd geschonden."
 
         2001 -> "Source binding: ongeldig argument."
         2002 -> "Source binding: bron kon niet volledig worden gelezen voor SHA-256."
@@ -215,6 +241,16 @@ object TilePreviewLoader {
         4004 -> "Main House streaming: logisch memorybudget overschreden."
         4005 -> "Main House streaming: reconstructie/appearance backend faalde."
         4006 -> "Main House streaming: uitvoering wordt niet ondersteund."
-        else -> "Onbekende native source-bound preview-status $status."
+
+        5001 -> "Finalized release: ongeldig argument."
+        5002 -> "Finalized release: Technical Backplane werd geweigerd."
+        5003 -> "Finalized release: bronidentiteit wijkt af."
+        5004 -> "Finalized release: kleuridentiteit wijkt af."
+        5005 -> "Finalized release: Scientific Master/TruthRange/phase-2 kon niet worden gefinaliseerd."
+        5006 -> "Finalized release: wetenschappelijke identiteit wijkt af."
+        5007 -> "Finalized release: bounded streaming faalde."
+        5008 -> "Finalized release: provenance/resource-invariant werd geweigerd."
+        5009 -> "Finalized release: preview-oppervlak bleef onvolledig."
+        else -> "Onbekende native finalized Scientific Preview-status $status."
     }
 }
