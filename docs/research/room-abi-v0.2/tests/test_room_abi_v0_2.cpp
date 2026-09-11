@@ -134,7 +134,8 @@ truthraw::building_runtime::v0_1::RuntimeResult evaluate_all_rooms() {
     request.requested.fill(true);
     const auto graph = default_room_graph();
     RuntimeResult runtime{};
-    require(evaluate(scientific, appearance, provenance, request, graph, runtime) == Status::Ok,
+    require(evaluate(scientific, appearance, provenance, request, graph, runtime) ==
+                truthraw::building_runtime::v0_1::Status::Ok,
             "Building Runtime admits full requested room graph");
     require(runtime.decisionCount == kRoomCount, "all 12 room decisions present");
     for (std::size_t i = 0; i < runtime.decisionCount; ++i) {
@@ -156,7 +157,8 @@ truthraw::building_runtime::v0_1::ExecutionPlan make_execution(
     device.thermalState = ThermalState::Nominal;
 
     ResourcePolicy policy{};
-    require(derive_resource_policy(device, policy) == Status::Ok, "resource policy derived");
+    require(derive_resource_policy(device, policy) == truthraw::building_runtime::v0_1::Status::Ok,
+            "resource policy derived");
     require(policy.valid, "resource policy valid");
     if (highTier) {
         require(policy.totalWorkingSetBudgetBytes == 256U * MiB, "high tier 256 MiB total budget");
@@ -170,9 +172,10 @@ truthraw::building_runtime::v0_1::ExecutionPlan make_execution(
 
     ExecutionPlan execution{};
     const auto graph = default_room_graph();
-    require(plan_execution(runtime, graph, policy, execution) == Status::Ok,
+    require(plan_execution(runtime, graph, policy, execution) == truthraw::building_runtime::v0_1::Status::Ok,
             "Building Runtime execution plan");
-    require(execution.status == Status::Ok, "execution plan status OK");
+    require(execution.status == truthraw::building_runtime::v0_1::Status::Ok,
+            "execution plan status OK");
     return execution;
 }
 
