@@ -2,15 +2,19 @@
   "schema": "TruthRawRoomAbiState/0.2",
   "status": "RESEARCH_CANDIDATE_CI_PASS",
   "stacked_base_sha": "2bceb0596f6e57b10aeb88001467124b43c8cc20",
-  "validated_implementation_sha": "6649aa9e5683eaccafaefd70b26ab8879bfbb10a",
+  "validated_implementation_sha": "7d2e1a3829117cde559eef38dad07ca7a8ecc0e8",
   "validation": {
-    "room_abi_v0_2_run_id": 34548564916,
-    "documentation_governance_run_id": 34548567536,
+    "room_abi_v0_2_push_run_id": 34550111870,
+    "room_abi_v0_2_pr_run_id": 34550113743,
+    "documentation_governance_push_run_id": 34550111956,
+    "documentation_governance_pr_run_id": 34550113839,
     "upstream_integrity": "PASS",
     "gcc_release": "PASS",
     "clang_release": "PASS",
     "asan_ubsan": "PASS",
-    "concrete_tile_native_dng_source_binding": "PASS"
+    "concrete_tile_native_dng_source_binding": "PASS",
+    "concrete_bounded_file_streaming_sink": "PASS",
+    "end_to_end_source_processor_sink": "PASS"
   },
   "architecture": {
     "building_runtime_remains_scheduler": true,
@@ -37,17 +41,36 @@
     "low_and_high_device_may_change_concurrency": true,
     "low_and_high_device_may_change_cache_retention": true,
     "resource_tier_may_change_truth_authority": false,
-    "resource_tier_may_change_zero_line_identity": false
+    "resource_tier_may_change_zero_line_identity": false,
+    "validated_low_peak_bytes": 10485760,
+    "validated_high_peak_bytes": 22020096
+  },
+  "streaming_validation": {
+    "source_resident_bound_bytes": 4812,
+    "sink_resident_bound_bytes": 65536,
+    "output_bytes": 14336,
+    "sdr_records": 12,
+    "half_log_gain_records": 12,
+    "stage2_diagnostic_records": 12,
+    "adapter_full_frame_buffers": 0,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "scene_iso_axis": 0
   },
   "proof_boundary": {
     "concrete_tile_native_dng_source_session_tested": true,
     "concrete_source_full_file_materialized": false,
     "concrete_source_full_raw_materialized": false,
     "concrete_source_resident_bound_admitted_once": true,
-    "production_streaming_sink_session_tested": false,
-    "bounded_test_sink_only": true,
+    "concrete_file_backed_streaming_sink_session_tested": true,
+    "concrete_sink_full_output_frame_materialized": false,
+    "concrete_sink_resident_bound_bytes": 65536,
+    "streaming_processor_full_frame_adapter_buffers": false,
+    "bounded_test_sink_only": false,
+    "production_media_encoder_sink_tested": false,
     "android_rss_tested": false,
     "android_thermal_tested": false,
+    "real_device_throughput_tested": false,
     "canonical_reconstruction_mutated": false
   }
 }
