@@ -2,15 +2,15 @@
   "schema": "TruthRawIlluminationRoomState/0.2",
   "status": "RESEARCH_CANDIDATE_CI_PASS",
   "base_main_sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
-  "validated_candidate_sha": "7ef58e443bab79767a7de3754dfcf86e1cd9e819",
+  "validated_implementation_sha": "d4afd4ceb6ff69c09bc27551a07ab41c3d6c77b5",
   "validation": {
-    "github_actions_run_id": 34546466380,
-    "documentation_governance_run_id": 34546466379,
+    "github_actions_run_id": 34547369624,
+    "documentation_governance_run_id": 34547369523,
     "upstream_integrity": "PASS",
     "gcc_release": "PASS",
     "clang_release": "PASS",
     "asan_ubsan": "PASS",
-    "iso_boundary_hardening_current_head_revalidation": "PENDING"
+    "iso_boundary_hardening": "PASS"
   },
   "bindings": {
     "room_capsule": "v0.1",
