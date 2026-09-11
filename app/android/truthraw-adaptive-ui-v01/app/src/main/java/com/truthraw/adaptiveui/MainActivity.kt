@@ -102,7 +102,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/jpeg"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_source_bound_preview.jpg")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_finalized_scientific_preview.jpg")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPEG)
     }
@@ -129,7 +129,7 @@ class MainActivity : Activity() {
                 val stream = contentResolver.openOutputStream(data.data!!, "w")
                     ?: throw IOException("Documentprovider gaf geen outputstream.")
                 stream.use { PortablePreviewEncoder.encodeJpeg(ready.bitmap, it) }
-                "JPEG opgeslagen · sRGB appearance-export · geen Scientific Master/evidence."
+                "JPEG opgeslagen · sRGB-projectie van finalized Scientific Preview · geen Scientific Master/evidence."
             } catch (error: Exception) {
                 "JPEG-export faalde: ${error.message ?: error.javaClass.simpleName}"
             }
@@ -258,16 +258,16 @@ class MainActivity : Activity() {
 
         addView(label(active.source.displayName, 16f, bold = true))
         addView(label(
-            "Source-bound Main House kleurpreview · appearance-only · Scientific Master nog niet gefinaliseerd",
+            "Finalized Scientific Preview · Scientific Master/TruthRange/Backplane-lineage vereist vóór vrijgave",
             11f,
             muted = true,
         ))
         addView(space(8))
 
         when (val state = previewState) {
-            TilePreviewUiState.Idle -> addView(actionButton("Source-bound kleurpreview laden") { requestPreview(active) })
+            TilePreviewUiState.Idle -> addView(actionButton("Finalized Scientific Preview laden") { requestPreview(active) })
             is TilePreviewUiState.Loading -> addView(label(
-                "SHA-256 bronseal → DNG kleurmetadata → v4.7i tile-native Main House…",
+                "SHA-256 bronseal → DNG kleurmetadata → Scientific Master + TruthRange → Backplane phase 2 → bounded sRGB…",
                 13f,
                 muted = true,
             ))
@@ -282,13 +282,13 @@ class MainActivity : Activity() {
                     setImageBitmap(state.bitmap)
                     adjustViewBounds = true
                     scaleType = ImageView.ScaleType.FIT_CENTER
-                    contentDescription = "Brongebonden TruthRaw kleurpreview voor ${active.source.displayName}"
+                    contentDescription = "Finalized TruthRaw Scientific Preview voor ${active.source.displayName}"
                 }
                 addView(image, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(space(6))
                 val m = state.metrics
                 addView(label(
-                    "SOURCE_METADATA_BOUND → source-bound appearance · scientific release=${m.scientificPreviewReleaseAllowed} · claim=${m.scientificClaimAllowed}",
+                    "${m.previewAuthority.name} · scientific release=${m.scientificPreviewReleaseAllowed} · stronger physical-color claim=${m.scientificClaimAllowed}",
                     10f,
                     muted = true,
                 ))
