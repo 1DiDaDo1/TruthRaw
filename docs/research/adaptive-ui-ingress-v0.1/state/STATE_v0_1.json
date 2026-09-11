@@ -1,0 +1,58 @@
+{
+  "schema": "TruthRawAdaptiveUiIngressState/0.1",
+  "status": "RESEARCH_PROTOTYPE_ANDROID_APK_CI_PASS",
+  "validated_implementation_sha": "bed7c29b5d0773f0ccf499448e4f0c9cee9ea7ae",
+  "validation": {
+    "push_run_id": 34582353230,
+    "upstream_truthraw_integrity": "PASS",
+    "adaptive_ingress_contract": "PASS",
+    "no_camera_permission": "PASS",
+    "android_apk_build": "PASS",
+    "apk_bytes": 2380265,
+    "apk_sha256": "95e5326cd39fb1a100a1d198c157f7a5682ce806640a4bf2b178dbf957662d5e",
+    "artifact_id": 10192216188
+  },
+  "ingress_contract": {
+    "multi_select": true,
+    "ui_owned_full_raw_materialization": false,
+    "stores_uri_handle": true,
+    "stores_display_name": true,
+    "stores_provider_declared_size_when_available": true,
+    "duplicate_uri_deduplication": true,
+    "multi_capture_auto_fusion": false
+  },
+  "input_output_routes": {
+    "single_to_single": true,
+    "single_to_multiple": true,
+    "multiple_independent_to_multiple": true,
+    "multi_capture_enhanced_intent": true,
+    "multi_capture_hdr_intent": true,
+    "multi_capture_scientific_fusion_implemented": false
+  },
+  "adaptive_layout": {
+    "axis": "CURRENT_WINDOW_WIDTH_DP",
+    "compact_max_exclusive_dp": 600,
+    "medium_min_dp": 600,
+    "medium_max_exclusive_dp": 840,
+    "expanded_min_dp": 840,
+    "phone_brand_specific_layout": false,
+    "processing_resource_tier_controls_layout": false
+  },
+  "scientific_boundary": {
+    "ui_is_scientific_authority": false,
+    "ui_may_modify_zero_line": false,
+    "ui_may_introduce_scene_iso_axis": false,
+    "batch_membership_creates_shared_scene_truth": false,
+    "batch_selection_increases_per_lineage_evidence_count": false,
+    "multi_capture_selection_proves_independent_evidence": false
+  },
+  "proof_boundary": {
+    "android_apk_build_proven": true,
+    "android_device_execution_proven": false,
+    "real_device_frame_time_proven": false,
+    "jni_tile_native_source_binding_proven": false,
+    "progressive_preview_proven": false,
+    "multi_capture_fusion_proven": false,
+    "production_ui_complete": false
+  }
+}
