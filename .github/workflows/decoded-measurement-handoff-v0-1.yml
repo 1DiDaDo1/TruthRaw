@@ -55,6 +55,18 @@ jobs:
           fi
           echo 'Decoded handoff contract PASS'
 
+  gatehouse-regression:
+    name: Gatehouse regression
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Gatehouse
+        run: cmake -S docs/research/professional-raw-gatehouse-runtime-v0.1 -B build-gatehouse -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build Gatehouse
+        run: cmake --build build-gatehouse --parallel 2
+      - name: Test Gatehouse
+        run: ./build-gatehouse/test_professional_raw_gatehouse_runtime_v0_1
+
   gcc-release:
     name: GCC Release
     runs-on: ubuntu-24.04
