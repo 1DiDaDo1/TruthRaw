@@ -25,6 +25,7 @@ set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
+    empirical_source_probe.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
