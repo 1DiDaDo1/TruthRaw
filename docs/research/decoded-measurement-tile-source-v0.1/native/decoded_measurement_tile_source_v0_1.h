@@ -8,6 +8,7 @@
 namespace truthraw::decoded_measurement_tile_source::v0_1 {
 
 namespace handoff = truthraw::decoded_measurement_handoff::v0_1;
+namespace ingress = truthraw::professional_raw_ingress::v0_1;
 namespace streaming = truthraw::streaming_v0_1;
 
 struct BindingAuthority {
