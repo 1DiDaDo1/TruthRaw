@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <map>
@@ -296,9 +297,12 @@ void verify_dng_structure(
     const float expectedX = matrix[0] * p[0] + matrix[1] * p[1] + matrix[2] * p[2];
     const float expectedY = matrix[3] * p[0] + matrix[4] * p[1] + matrix[5] * p[2];
     const float expectedZ = matrix[6] * p[0] + matrix[7] * p[1] + matrix[8] * p[2];
-    REQUIRE(std::memcmp(&expectedX, &f32(bytes, tile0 + 0u), sizeof(float)) == 0);
-    REQUIRE(std::memcmp(&expectedY, &f32(bytes, tile0 + 4u), sizeof(float)) == 0);
-    REQUIRE(std::memcmp(&expectedZ, &f32(bytes, tile0 + 8u), sizeof(float)) == 0);
+    const float actualX = f32(bytes, tile0 + 0u);
+    const float actualY = f32(bytes, tile0 + 4u);
+    const float actualZ = f32(bytes, tile0 + 8u);
+    REQUIRE(std::memcmp(&expectedX, &actualX, sizeof(float)) == 0);
+    REQUIRE(std::memcmp(&expectedY, &actualY, sizeof(float)) == 0);
+    REQUIRE(std::memcmp(&expectedZ, &actualZ, sizeof(float)) == 0);
 
     REQUIRE(entries.count(50740u) == 1u);
     const auto privateOff = payload_offset(entries.at(50740u));
