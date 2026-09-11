@@ -45,14 +45,14 @@ void put32(std::vector<std::uint8_t>& b, std::size_t o, std::uint32_t v) {
 std::vector<std::uint8_t> rational(std::initializer_list<std::pair<std::uint32_t,std::uint32_t>> xs) {
     std::vector<std::uint8_t> out(xs.size() * 8u);
     std::size_t i = 0;
-    for (const auto [n,d] : xs) { put32(out, 8*i, n); put32(out, 8*i+4, d); ++i; }
+    for (const auto& [n,d] : xs) { put32(out, 8*i, n); put32(out, 8*i+4, d); ++i; }
     return out;
 }
 
 std::vector<std::uint8_t> srational(std::initializer_list<std::pair<std::int32_t,std::int32_t>> xs) {
     std::vector<std::uint8_t> out(xs.size() * 8u);
     std::size_t i = 0;
-    for (const auto [n,d] : xs) {
+    for (const auto& [n,d] : xs) {
         put32(out, 8*i, static_cast<std::uint32_t>(n));
         put32(out, 8*i+4, static_cast<std::uint32_t>(d));
         ++i;
