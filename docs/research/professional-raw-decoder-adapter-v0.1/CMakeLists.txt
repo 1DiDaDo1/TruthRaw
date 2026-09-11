@@ -7,6 +7,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(test_professional_raw_decoder_adapter_v0_1
   native/professional_raw_decoder_adapter_v0_1.cpp
   ../professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp
+  ../tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1.cpp
+  ../tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_bind.cpp
+  ../tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_read.cpp
   tests/test_professional_raw_decoder_adapter_v0_1.cpp)
 
 target_include_directories(test_professional_raw_decoder_adapter_v0_1 PRIVATE
