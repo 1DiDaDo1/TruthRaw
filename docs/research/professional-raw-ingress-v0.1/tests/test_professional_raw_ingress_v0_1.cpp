@@ -1,6 +1,6 @@
 #include "professional_raw_ingress_v0_1.h"
 
-#include <cassert>
+#include <cstdlib>
 #include <iostream>
 
 using namespace truthraw::professional_raw_ingress::v0_1;
@@ -17,14 +17,21 @@ DecoderResourceProfile full_profile() {
 DecoderProvenance verified_provenance() {
     return {"fixture", "0.1", "deadbeef", "Example", "Camera", "lossless", 14, true};
 }
+
+void require(bool condition, const char* label) {
+    if (!condition) {
+        std::cerr << "REQUIRE_FAILED " << label << '\n';
+        std::exit(2);
+    }
+}
 }
 
 int main() {
     {
         IngressDescriptor d{};
-        auto r = classify(d);
-        assert(r.admission == ScientificAdmission::Blocked);
-        assert(r.evidenceClass == EvidenceClass::FailClosedUnsupported);
+        const auto r = classify(d);
+        require(r.admission == ScientificAdmission::Blocked, "unknown_blocked");
+        require(r.evidenceClass == EvidenceClass::FailClosedUnsupported, "unknown_fail_closed");
     }
     {
         IngressDescriptor d{};
@@ -37,10 +44,10 @@ int main() {
         d.singlePhysicalFrameVerified = true;
         d.singleIndependentEvidenceVerified = true;
         d.downstreamTopologyCertified = true;
-        auto r = classify(d);
-        assert(r.admission == ScientificAdmission::SingleFrameDirectCfa);
-        assert(r.evidenceClass == EvidenceClass::DirectNativeCertified);
-        assert(r.mayEnterSingleFrameScientificMaster);
+        const auto r = classify(d);
+        require(r.admission == ScientificAdmission::SingleFrameDirectCfa, "native_dng_admission");
+        require(r.evidenceClass == EvidenceClass::DirectNativeCertified, "native_dng_class");
+        require(r.mayEnterSingleFrameScientificMaster, "native_dng_master");
     }
     {
         IngressDescriptor d{};
@@ -53,9 +60,9 @@ int main() {
         d.singlePhysicalFrameVerified = true;
         d.singleIndependentEvidenceVerified = true;
         d.downstreamTopologyCertified = true;
-        auto r = classify(d);
-        assert(r.admission == ScientificAdmission::SingleFrameDirectCfa);
-        assert(r.evidenceClass == EvidenceClass::LosslessDecodedCertified);
+        const auto r = classify(d);
+        require(r.admission == ScientificAdmission::SingleFrameDirectCfa, "external_lossless_admission");
+        require(r.evidenceClass == EvidenceClass::LosslessDecodedCertified, "external_lossless_class");
     }
     {
         IngressDescriptor d{};
@@ -68,9 +75,9 @@ int main() {
         d.singlePhysicalFrameVerified = true;
         d.singleIndependentEvidenceVerified = true;
         d.downstreamTopologyCertified = false;
-        auto r = classify(d);
-        assert(r.admission == ScientificAdmission::ResearchOnly);
-        assert(!r.mayEnterSingleFrameScientificMaster);
+        const auto r = classify(d);
+        require(r.admission == ScientificAdmission::ResearchOnly, "xtrans_research_only");
+        require(!r.mayEnterSingleFrameScientificMaster, "xtrans_no_master");
     }
     {
         IngressDescriptor d{};
@@ -80,10 +87,10 @@ int main() {
         d.decodeCertification = DecodeCertification::AdapterCertified;
         d.resources = tile_profile();
         d.provenance = verified_provenance();
-        auto r = classify(d);
-        assert(r.evidenceClass == EvidenceClass::ComputationalRaw);
-        assert(r.requiresDerivedOrCounterfactualBoundary);
-        assert(!r.mayEnterSingleFrameScientificMaster);
+        const auto r = classify(d);
+        require(r.evidenceClass == EvidenceClass::ComputationalRaw, "computational_class");
+        require(r.requiresDerivedOrCounterfactualBoundary, "computational_boundary");
+        require(!r.mayEnterSingleFrameScientificMaster, "computational_no_master");
     }
     {
         IngressDescriptor d{};
@@ -93,9 +100,9 @@ int main() {
         d.decodeCertification = DecodeCertification::AdapterCertified;
         d.resources = full_profile();
         d.provenance = verified_provenance();
-        auto r = classify(d);
-        assert(r.evidenceClass == EvidenceClass::MultiCaptureRaw);
-        assert(!r.mayEnterSingleFrameScientificMaster);
+        const auto r = classify(d);
+        require(r.evidenceClass == EvidenceClass::MultiCaptureRaw, "multishot_class");
+        require(!r.mayEnterSingleFrameScientificMaster, "multishot_no_master");
     }
     {
         IngressDescriptor d{};
@@ -109,12 +116,12 @@ int main() {
         d.singlePhysicalFrameVerified = true;
         d.singleIndependentEvidenceVerified = true;
         d.downstreamTopologyCertified = true;
-        auto r = classify(d);
-        assert(r.evidenceClass == EvidenceClass::ResearchOnly);
+        const auto r = classify(d);
+        require(r.evidenceClass == EvidenceClass::ResearchOnly, "unverified_decoder_research_only");
     }
     {
-        DecoderResourceProfile impossible{DecoderMemoryMode::FullFrameMaterialized, 1, 1, true, true};
-        assert(!valid(impossible));
+        const DecoderResourceProfile impossible{DecoderMemoryMode::FullFrameMaterialized, 1, 1, true, true};
+        require(!valid(impossible), "impossible_resource_profile_rejected");
     }
 
     std::cout << "PROFESSIONAL_RAW_INGRESS_V0_1_TEST_PASS\n";
