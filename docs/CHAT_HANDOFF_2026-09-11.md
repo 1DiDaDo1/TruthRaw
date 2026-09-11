@@ -8,6 +8,12 @@ Promoted `main` remains `514f2f4bde6aba5a6709e176c03b22c3b9aea912`. The most int
 
 The documentation refresh lives on `docs/project-handoff-2026-09-11` and is based on that exact research state.
 
+## Documentation rule for every continuation
+
+Every substantive change must obey `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md` before the work cycle is considered complete. That means checking/updating the affected module README or state overlay and updating the global current handoff whenever heads, CI evidence, proof boundaries, architecture, scientific authority, or the recommended next action changed.
+
+Historical/sealed/versioned README material is not rewritten for cosmetics. Use a current overlay/index when preservation matters. A code implementation may be validated before its documentation overlay, but it must not be presented as the new global handoff until documentation synchronization is complete.
+
 ## Scientific center
 
 TruthRaw reconstructs from sealed source measurements. The scientific baseline is single-frame, measured-preserving v4.7i. Measured/reconstructed/counterfactual/appearance/projection roles never collapse into one another. Zero-line is a reference gauge. Scientific Master is separate from export/preview. Resource capability cannot alter evidence authority.
@@ -47,7 +53,7 @@ This does not prove a real Honor/MotionCam run.
 
 ## Open PR stack audited
 
-PRs #9 through #20 are open/draft research candidates. See `CURRENT_MODULE_STATUS_2026-09-11.md` for exact mapping. Before acting on them, fresh-check state/head/CI because this file is a dated snapshot.
+PRs #9 through #20 are open/draft research candidates. PR #21 is the project-wide 2026-09-11 documentation/handoff refresh above the integrated Android research head. Before acting on any PR, fresh-check state/head/CI because this file is a dated snapshot.
 
 ## Best next technical sequence
 
@@ -61,6 +67,7 @@ PRs #9 through #20 are open/draft research candidates. See `CURRENT_MODULE_STATU
 
 ## Never do
 
+- never finish substantive project work without the required documentation synchronization;
 - never force-push;
 - never merge/promote merely because a branch exists;
 - never call extension recognition scientific format support;
