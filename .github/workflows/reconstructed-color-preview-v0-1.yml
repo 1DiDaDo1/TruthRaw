@@ -9,6 +9,7 @@ on:
       - 'docs/research/full-frame-streaming-v0.1/native/**'
       - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
       - 'canonical/reconstruction/v4.7i/native/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
       - '.github/workflows/reconstructed-color-preview-v0-1.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'docs/research/full-frame-streaming-v0.1/native/**'
       - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
       - 'canonical/reconstruction/v4.7i/native/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
       - '.github/workflows/reconstructed-color-preview-v0-1.yml'
 
 permissions:
@@ -63,3 +65,37 @@ jobs:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: ./build/preview-san/test_reconstructed_color_preview_v0_1
+
+  android-jpeg-encoder:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bounded JPEG encoder contract
+        run: |
+          FILE='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/PortablePreviewEncoder.kt'
+          grep -F 'Bitmap.CompressFormat.JPEG' "$FILE"
+          grep -F 'ColorSpace.Named.SRGB' "$FILE"
+          grep -F 'OutputStream' "$FILE"
+          if grep -F 'ByteArrayOutputStream' "$FILE"; then
+            echo 'Portable preview must stream to a caller-owned OutputStream instead of creating a second encoded byte-array buffer.' >&2
+            exit 1
+          fi
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble Android preview APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
