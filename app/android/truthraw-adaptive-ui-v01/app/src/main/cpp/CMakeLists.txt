@@ -44,3 +44,11 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${V47I_NATIVE}/include)
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
+
+# canonical v4.7i is byte-frozen. Android NDK Clang 18 diagnoses one compact
+# canonical loop/return line as -Wmisleading-indentation. Keep the diagnostic
+# visible but non-fatal for this one frozen translation unit only; integration
+# and research sources remain under the target-wide -Werror gate above.
+set_source_files_properties(
+    ${V47I_NATIVE}/src/core.cpp
+    PROPERTIES COMPILE_OPTIONS "-Wno-error=misleading-indentation")
