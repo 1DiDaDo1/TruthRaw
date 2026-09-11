@@ -4,6 +4,7 @@
 #include "scientific_master_streaming_binding_v0_1.h"
 #include "technical_backplane_phase2_v0_1.h"
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -49,7 +50,23 @@ struct ReleaseResult final {
     streaming_v0_1::StreamingResult streaming{};
 };
 
-// Fail-closed release of the already-designed bounded sRGB preview.
+// In-process creation + release path. Use when the same trusted execution owns
+// source preparation, Scientific Master construction, phase-2 creation and
+// preview release (the Android JNI route). Scientific identity is computed once.
+Status create_and_release_finalized_scientific_preview(
+    const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
+    streaming_v0_1::IRawTileSource& source,
+    std::shared_ptr<IReconstructionBackend> reconstruction,
+    std::shared_ptr<IAppearanceBackend> appearance,
+    const scientific_master_streaming_binding::v0_1::Options& scientificOptions,
+    const streaming_v0_1::StreamingOptions& previewOptions,
+    const std::array<technical_backplane::v0_1::RoomStatus,
+                     technical_backplane::v0_1::kRoomCount>& roomStatus,
+    technical_backplane::v0_1::ClaimStatus claimStatus,
+    preview_surface_v0_1::BoundedSrgbPreviewSink& sink,
+    ReleaseResult& out) noexcept;
+
+// Fail-closed persisted/external Backplane release path.
 //
 // The function does not trust a caller-supplied admission object. It:
 // 1) deserializes and CRC-validates the supplied 180-byte Backplane;
@@ -58,9 +75,6 @@ struct ReleaseResult final {
 // 4) rebuilds Technical Backplane phase 2 using the supplied room/claim states;
 // 5) requires byte-for-byte equality with the supplied 180-byte Backplane;
 // 6) only then runs the existing Full-Frame Streaming + BoundedSrgbPreviewSink.
-//
-// Therefore a fabricated non-zero master/zero-line/scene-scale hash cannot open
-// the Scientific Preview release gate.
 Status release_finalized_scientific_preview(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
     const technical_backplane::v0_1::SerializedBackplane& serializedBackplane,
