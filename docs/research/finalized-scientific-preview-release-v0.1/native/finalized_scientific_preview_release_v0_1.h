@@ -1,8 +1,8 @@
 #pragma once
 
 #include "bounded_srgb_preview_sink_v0_1.h"
-#include "scientific_preview_source_binding_v0_2.h"
-#include "technical_backplane_v0_1.h"
+#include "scientific_master_streaming_binding_v0_1.h"
+#include "technical_backplane_phase2_v0_1.h"
 
 #include <cstdint>
 #include <memory>
@@ -20,9 +20,10 @@ enum class StatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
     BackplaneRejected,
-    FinalizationRejected,
     SourceIdentityMismatch,
     ColorIdentityMismatch,
+    ScientificIdentityFailed,
+    ScientificIdentityMismatch,
     StreamingFailed,
     ProvenanceRejected,
     PreviewIncomplete,
@@ -43,28 +44,31 @@ struct Status final {
 
 struct ReleaseResult final {
     PreviewAuthority authority = PreviewAuthority::None;
-    scientific_preview_binding_v0_1::ScientificPreviewAdmission admission{};
-    technical_backplane::v0_1::State backplane{};
+    scientific_master_streaming_binding::v0_1::Result scientificIdentity{};
+    technical_backplane_phase2::v0_1::Phase2Result canonicalPhase2{};
     streaming_v0_1::StreamingResult streaming{};
 };
 
-// Revalidates the serialized 180-byte Technical Backplane, recomputes the
-// existing v0.2 post-master admission from the prepared source/color state,
-// verifies that the actually opened tile source has the same source and color
-// identity, and only then permits the existing bounded sRGB preview sink to be
-// populated.
+// Fail-closed release of the already-designed bounded sRGB preview.
 //
-// The release is a finalized Scientific Preview of the admitted lineage. Its
-// color scope remains source-bound unless the existing admission explicitly
-// carries IndependentCalibration authority. It is not the Scientific Master
-// and never upgrades source metadata into FULL_PHYSICAL color truth.
+// The function does not trust a caller-supplied admission object. It:
+// 1) deserializes and CRC-validates the supplied 180-byte Backplane;
+// 2) verifies that the opened tile source matches the prepared source/color;
+// 3) recomputes Scientific Master + TruthRange self-gauge from that same source;
+// 4) rebuilds Technical Backplane phase 2 using the supplied room/claim states;
+// 5) requires byte-for-byte equality with the supplied 180-byte Backplane;
+// 6) only then runs the existing Full-Frame Streaming + BoundedSrgbPreviewSink.
+//
+// Therefore a fabricated non-zero master/zero-line/scene-scale hash cannot open
+// the Scientific Preview release gate.
 Status release_finalized_scientific_preview(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
     const technical_backplane::v0_1::SerializedBackplane& serializedBackplane,
     streaming_v0_1::IRawTileSource& source,
     std::shared_ptr<IReconstructionBackend> reconstruction,
     std::shared_ptr<IAppearanceBackend> appearance,
-    const streaming_v0_1::StreamingOptions& options,
+    const scientific_master_streaming_binding::v0_1::Options& scientificOptions,
+    const streaming_v0_1::StreamingOptions& previewOptions,
     preview_surface_v0_1::BoundedSrgbPreviewSink& sink,
     ReleaseResult& out) noexcept;
 
