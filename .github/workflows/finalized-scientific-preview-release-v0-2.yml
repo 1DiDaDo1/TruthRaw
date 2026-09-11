@@ -1,0 +1,51 @@
+name: Finalized Scientific Preview Release v0.2
+
+on:
+  push:
+    branches:
+      - research/bit-exact-read-optimization-v0.1-2026-09-11
+    paths:
+      - 'docs/research/finalized-scientific-preview-release-v0.2/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.1/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - '.github/workflows/finalized-scientific-preview-release-v0-2.yml'
+  workflow_dispatch:
+
+jobs:
+  equivalence:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+            sanitizers: OFF
+          - name: Clang
+            cc: clang
+            cxx: clang++
+            sanitizers: OFF
+          - name: ASan-UBSan
+            cc: gcc
+            cxx: g++
+            sanitizers: ON
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S docs/research/finalized-scientific-preview-release-v0.2
+          -B build/finalized-scientific-preview-release-v0.2
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DTRUTHRAW_FSPR_V02_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: Build
+        run: cmake --build build/finalized-scientific-preview-release-v0.2 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/finalized-scientific-preview-release-v0.2 --output-on-failure
+      - name: Direct equivalence evidence
+        run: build/finalized-scientific-preview-release-v0.2/test_finalized_scientific_preview_release_v0_2
