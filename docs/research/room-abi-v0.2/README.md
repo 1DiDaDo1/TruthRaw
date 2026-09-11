@@ -1,6 +1,10 @@
 # TruthRaw Room ABI v0.2 — Adaptive All-Room Binding
 
-Status: **RESEARCH_CANDIDATE — STACKED ON ILLUMINATION ROOM v0.2**
+Status: **RESEARCH_CANDIDATE_CI_PASS — STACKED ON ILLUMINATION ROOM v0.2**
+
+Validated implementation: `6649aa9e5683eaccafaefd70b26ab8879bfbb10a`.
+
+Validation: Room ABI v0.2 run `34548564916` — **SUCCESS**; Documentation Governance run `34548567536` — **SUCCESS**.
 
 This module generalizes the resource/lifetime strategy first proven by the photographer-selected Illumination Room to the whole TruthRaw house without changing scientific authority.
 
@@ -65,6 +69,14 @@ Source and sink resident memory are counted **once** in the whole-house admissio
 
 The ABI does not own or materialize source/sink frames.
 
+### Concrete source-side validation
+
+The validated v0.2 test suite now opens a synthetic valid DNG through the repository's real `TileNativeDngSource`, reads a bounded RAW tile and binds that exact source object into Room ABI v0.2.
+
+The test confirms that the concrete source does not materialize the full DNG file or full RAW, and that its actual reported resident upper bound is counted exactly once in whole-house admission.
+
+The sink side remains a bounded non-materializing **test** implementation of the real `IStreamingSink` interface. A production streaming sink has not yet been identified/proven, so v0.2 does not claim a complete production source-to-sink pipeline.
+
 ## Existing scheduler remains authoritative
 
 v0.2 does not invent a second scheduler. Building Runtime v0.1 still determines:
@@ -114,6 +126,7 @@ A non-heavy room cannot silently allocate workspace because Building Runtime v0.
 
 - Building Runtime v0.1
 - Full-Frame Streaming v0.1 interfaces
+- Tile-Native DNG Source v0.1 concrete source implementation
 - Technical Backplane v0.1
 - Room ABI v0.1 upstream contracts
 - Illumination Room v0.2 ISO-free scene contract
@@ -126,4 +139,4 @@ A non-heavy room cannot silently allocate workspace because Building Runtime v0.
 
 This module is execution/resource architecture. It does not improve reconstruction truth, invent scene information, calibrate ISO, close physical colour/light calibration, or promote counterfactual observations to evidence.
 
-Host CI proves the declared C++/memory-accounting contracts only. On-device Android RSS, allocator fragmentation, thermal behavior and real device throughput remain separate validation work.
+Host CI now proves the declared C++/memory-accounting contracts and the concrete TileNativeDngSource source-side bridge. It does not yet prove a production sink, Android RSS, allocator fragmentation, thermal behavior or real-device throughput.
