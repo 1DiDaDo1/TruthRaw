@@ -8,13 +8,16 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.Button
+import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.Space
 import android.widget.TextView
@@ -25,6 +28,7 @@ class MainActivity : Activity() {
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
     private var previewGeneration: Long = 0
+    private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
@@ -176,7 +180,7 @@ class MainActivity : Activity() {
                 val stream = contentResolver.openOutputStream(data.data!!, "w")
                     ?: throw IOException("Documentprovider gaf geen outputstream.")
                 stream.bufferedWriter(Charsets.UTF_8).use { it.write(report) }
-                "Empirical JSON opgeslagen · meetlaag בלבד · verandert geen Scientific Master/authority."
+                "Empirical JSON opgeslagen · meetlaag only · verandert geen Scientific Master/authority."
             } catch (error: Exception) {
                 "Empirical JSON-export faalde: ${error.message ?: error.javaClass.simpleName}"
             }
@@ -202,11 +206,27 @@ class MainActivity : Activity() {
         empiricalAudit = null
         if (first == null) {
             activeJobId = null
+            loadingStartedAtElapsedMs = null
             previewState = TilePreviewUiState.Idle
             render()
         } else {
-            requestPreview(first)
+            selectJob(first)
         }
+    }
+
+    private fun selectJob(job: RawJob) {
+        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        ++previewGeneration
+        activeJobId = job.id
+        loadingStartedAtElapsedMs = null
+        previewState = TilePreviewUiState.Idle
+        jpegStatus = null
+        empiricalStatus = null
+        empiricalAudit = null
+        pendingJpegJobId = null
+        pendingEmpiricalJobId = null
+        pendingEmpiricalJson = null
+        render()
     }
 
     private fun requestPreview(job: RawJob) {
@@ -219,6 +239,7 @@ class MainActivity : Activity() {
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         val generation = ++previewGeneration
+        loadingStartedAtElapsedMs = SystemClock.elapsedRealtime()
         previewState = TilePreviewUiState.Loading(job.id)
         val frameSampler = UiFramePacingSampler().also { it.start() }
         render()
@@ -230,6 +251,7 @@ class MainActivity : Activity() {
                     (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                     return@runOnUiThread
                 }
+                loadingStartedAtElapsedMs = null
                 previewState = result.state
                 empiricalAudit = result.audit.copy(framePacing = pacing)
                 render()
@@ -321,12 +343,46 @@ class MainActivity : Activity() {
         addView(space(8))
 
         when (val state = previewState) {
-            TilePreviewUiState.Idle -> addView(actionButton("Finalized Scientific Preview laden") { requestPreview(active) })
-            is TilePreviewUiState.Loading -> addView(label(
-                "Empirical pre-probe → onveranderde finalized route → empirical post-probe · SHA-256, DNG-profiel, RSS, latency, thermiek en framepacing worden gemeten.",
-                13f,
-                muted = true,
-            ))
+            TilePreviewUiState.Idle -> {
+                addView(label(
+                    "RAW is geselecteerd en nog niet verwerkt. Start hieronder bewust de empirical + finalized TruthRaw-route.",
+                    13f,
+                    muted = true,
+                ))
+                addView(space(8))
+                addView(actionButton("Start TruthRaw") { requestPreview(active) })
+            }
+            is TilePreviewUiState.Loading -> {
+                addView(horizontal().apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(ProgressBar(this@MainActivity).apply { isIndeterminate = true }, LinearLayout.LayoutParams(dp(36), dp(36)).apply {
+                        marginEnd = dp(10)
+                    })
+                    addView(vertical().apply {
+                        addView(label("Bezig met verwerken…", 15f, bold = true))
+                        loadingStartedAtElapsedMs?.let { started ->
+                            addView(Chronometer(this@MainActivity).apply {
+                                base = started
+                                textSize = 12f
+                                setTextColor(palette.textMuted)
+                                format = "Looptijd %s"
+                                start()
+                            })
+                        }
+                    })
+                })
+                addView(space(8))
+                addView(label(
+                    "Empirical pre-probe → onveranderde finalized route → empirical post-probe · SHA-256, DNG-profiel, RSS, latency, thermiek en framepacing worden gemeten.",
+                    13f,
+                    muted = true,
+                ))
+                addView(label(
+                    "De route kan op een echte volledige RAW merkbaar rekenen. Zolang de looptijd doorloopt en Android de app niet als fout beëindigt, is de worker actief.",
+                    11f,
+                    muted = true,
+                ))
+            }
             is TilePreviewUiState.Failed -> {
                 addView(label("Preview fail-closed geblokkeerd", 14f, bold = true))
                 addView(label(state.reason, 12f, muted = true))
@@ -466,7 +522,7 @@ class MainActivity : Activity() {
         val size = job.source.declaredSizeBytes?.let { " · ${formatBytes(it)}" } ?: ""
         addView(label("${job.state.name.lowercase()}$size", 11f, muted = true))
         addView(label("lineage: afzonderlijk totdat expliciete fusion-validatie bestaat", 10f, muted = true))
-        setOnClickListener { requestPreview(job) }
+        setOnClickListener { selectJob(job) }
     }.also {
         it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             bottomMargin = dp(6)
