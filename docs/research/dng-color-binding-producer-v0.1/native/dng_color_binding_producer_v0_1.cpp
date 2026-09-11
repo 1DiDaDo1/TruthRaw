@@ -20,8 +20,6 @@ using tile_dng_v0_1::IRandomAccessByteSource;
 
 constexpr std::uint16_t kTiffAscii = 2;
 constexpr std::uint16_t kTiffByte = 1;
-constexpr std::uint16_t kTiffShort = 3;
-constexpr std::uint16_t kTiffLong = 4;
 constexpr std::uint16_t kTiffRational = 5;
 constexpr std::uint16_t kTiffSRational = 10;
 
