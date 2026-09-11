@@ -1,0 +1,58 @@
+name: Android On-Device Validation v0.1 Host Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/android-on-device-validation-v0.1/**'
+      - '.github/workflows/android-on-device-validation-v0-1-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/android-on-device-validation-v0.1/**'
+      - '.github/workflows/android-on-device-validation-v0-1-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream integrity
+        run: |
+          python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Candidate integrity
+        run: |
+          python3 docs/research/android-on-device-validation-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: GCC Release
+        run: |
+          cmake -S docs/research/android-on-device-validation-v0.1 -B /tmp/android_validation_v01_gcc \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror'
+          cmake --build /tmp/android_validation_v01_gcc --parallel 2
+          /tmp/android_validation_v01_gcc/test_android_on_device_validation_v0_1
+
+      - name: Clang Release
+        run: |
+          cmake -S docs/research/android-on-device-validation-v0.1 -B /tmp/android_validation_v01_clang \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror'
+          cmake --build /tmp/android_validation_v01_clang --parallel 2
+          /tmp/android_validation_v01_clang/test_android_on_device_validation_v0_1
+
+      - name: ASan UBSan
+        run: |
+          cmake -S docs/research/android-on-device-validation-v0.1 -B /tmp/android_validation_v01_san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/android_validation_v01_san --parallel 2
+          /tmp/android_validation_v01_san/test_android_on_device_validation_v0_1
