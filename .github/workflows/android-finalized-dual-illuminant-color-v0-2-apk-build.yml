@@ -1,0 +1,135 @@
+name: Android Finalized Dual-Illuminant Color v0.2 APK Build
+
+on:
+  push:
+    branches:
+      - research/dng-dual-illuminant-color-v0.2-2026-09-11
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.1/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/reconstructed-color-preview-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-finalized-dual-illuminant-color-v0-2-apk-build.yml'
+  pull_request:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.1/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/reconstructed-color-preview-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-finalized-dual-illuminant-color-v0-2-apk-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  host-science-and-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revalidate DNG color producer v0.2
+        run: |
+          cmake -S docs/research/dng-color-binding-producer-v0.2 -B /tmp/truthraw-dng-color-v02 -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-dng-color-v02 --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-color-v02 --output-on-failure
+
+      - name: Revalidate finalized release gate
+        run: |
+          cmake -S docs/research/finalized-scientific-preview-release-v0.1 -B /tmp/truthraw-fspr -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-fspr --parallel 2
+          ctest --test-dir /tmp/truthraw-fspr --output-on-failure
+
+  build-arm64-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.2 authority integration contract
+        run: |
+          grep -F '#include "dng_color_binding_producer_v0_2.h"' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'dng_color_binding_producer_v0_2::produce_source_metadata_color_binding' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'DNG_COLOR_V01' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt
+          grep -F 'DNG_COLOR_V02' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt
+          grep -F 'buildFinalizedScientificColorPreview' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt
+          grep -F 'create_and_release_finalized_scientific_preview' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'reverify_source_sha256' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'scientificPreviewReleaseAllowed' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt
+          grep -F 'FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt
+
+      - name: UI still has no camera permission
+        run: |
+          if grep -R "android.permission.CAMERA" app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml; then
+            echo "Adaptive UI must not acquire capture authority" >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble finalized dual-illuminant Scientific Preview APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify native bridge packaged and report evidence
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 preview bridge ABI' >&2
+            exit 1
+          fi
+          echo "android_finalized_dual_color_apk_bytes=$(stat -c%s "$APK")"
+          echo "android_finalized_dual_color_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo "dng_color_producer=V0_2_WITH_EXACT_V0_1_SINGLE_DELEGATION"
+          echo "dual_interpolation=INVERSE_CORRELATED_COLOR_TEMPERATURE"
+          echo "color_authority=SOURCE_METADATA_BOUND"
+          echo "preview_role=FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW_or_stronger"
+          echo "source_reverification=PRE_AND_POST_RENDER"
+          echo "scientific_claim=INDEPENDENT_CALIBRATION_ONLY"
+          echo "physical_frame_count=1 independent_evidence_count=1"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-android-finalized-dual-illuminant-color-v0.2-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
