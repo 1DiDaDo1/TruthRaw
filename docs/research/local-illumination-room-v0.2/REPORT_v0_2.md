@@ -6,15 +6,13 @@ Branch: `research/illumination-room-v0.2-2026-09-11`
 
 Base `main`: `514f2f4bde6aba5a6709e176c03b22c3b9aea912`
 
-Initial validated candidate head: `59fa38ca4706e9c1b0c1b0c05e3499b4e7956c29`
+Validated ISO-hardened implementation head: `d4afd4ceb6ff69c09bc27551a07ab41c3d6c77b5`
 
-Initial GitHub Actions run: `34546376103` — **SUCCESS**
+Illumination Room GitHub Actions run: `34547369624` — **SUCCESS**
 
-Pre-ISO-hardening documented head: `7ef58e443bab79767a7de3754dfcf86e1cd9e819`
+Documentation Governance run on the same implementation head: `34547369523` — **SUCCESS**
 
-GitHub Actions run: `34546466380` — **SUCCESS**; Documentation Governance run `34546466379` — **SUCCESS**.
-
-The later ISO-boundary hardening preserves the same research-candidate scientific scope and is required to pass the same CI before its head is treated as the latest validated candidate.
+The report/state commits that record these results are documentation-only descendants. The validated implementation SHA above is intentionally kept distinct from later self-documenting commits.
 
 ## What passed
 
@@ -25,7 +23,8 @@ The later ISO-boundary hardening preserves the same research-candidate scientifi
 5. GCC Release build + test.
 6. Clang Release build + test.
 7. Clang ASan + UBSan build + test.
-8. Documentation Governance on the documented candidate state.
+8. Documentation Governance and state JSON validation.
+9. Compile-time ISO-boundary guards.
 
 ## Implemented v0.2 contracts
 
@@ -56,7 +55,7 @@ The following room/relative-world types are compile-time guarded against a `nomi
 - CICM `RelativeCaptureSpec`;
 - CICM `RelativeWorldPrediction`.
 
-The runtime-exposed `IsoBoundary` additionally declares:
+The runtime-exposed `IsoBoundary` declares:
 
 - scene ISO axis absent;
 - relative scenario ISO parameter absent;
