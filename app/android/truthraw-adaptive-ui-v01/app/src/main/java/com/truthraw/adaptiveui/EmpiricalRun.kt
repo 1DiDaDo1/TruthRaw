@@ -17,6 +17,7 @@ import kotlin.math.ceil
 
 private const val EMPIRICAL_MAGIC = 0x54524531
 private const val EMPIRICAL_PACKET_INTS = 32
+private const val RUNTIME_SAMPLE_INTERVAL_MS = 50L
 private const val VALIDATED_SCIENTIFIC_ROUTE_SHA = "42b49ba16a6c5a0d2d6dbc407330acde3e161a46"
 private const val EMPIRICAL_SCHEMA = "TRUTHRAW_ANDROID_HONOR_EMPIRICAL_V0_1"
 
@@ -206,24 +207,31 @@ object EmpiricalPreviewRunner {
         if (packet.size != EMPIRICAL_PACKET_INTS || packet[0] != EMPIRICAL_MAGIC) {
             return transportProbe("Ongeldig empirical native auditpakket.", wallMs)
         }
-        val sha = if ((2..9).all { packet[it] == 0 }) null else buildString(64) {
+        val status = packet[1]
+        // The native probe only writes a seal after seal_source_sha256 succeeds. Producer failures
+        // therefore still carry an exact seal; binding/transport failures do not. Do not infer
+        // seal absence from an all-zero digest because every 256-bit digest is a valid value.
+        val sealPresent = status == 0 || status in 2100..2199
+        val sha = if (!sealPresent) null else buildString(64) {
             for (index in 2..9) append(packet[index].toUInt().toString(16).padStart(8, '0'))
         }
-        val byteLength = if (sha == null) null else {
+        val byteLength = if (!sealPresent) null else {
             ((packet[10].toLong() and 0xffffffffL) shl 32) or
                 (packet[11].toLong() and 0xffffffffL)
         }
-        val temperatureK = packet[25].takeIf { it != 0 }?.div(1000.0)
-        val interpolationWeight = packet[26].takeIf { it != 0 }?.div(1_000_000_000.0)
+        val dualIlluminantUsed = packet[16] != 0
+        val temperatureK = if (dualIlluminantUsed && packet[25] != 0) packet[25] / 1000.0 else null
+        // A valid endpoint has interpolation weight exactly 0.0, so zero cannot be used as a null sentinel.
+        val interpolationWeight = if (dualIlluminantUsed) packet[26] / 1_000_000_000.0 else null
         return SourceColorProbe(
-            statusCode = packet[1],
+            statusCode = status,
             sourceSha256 = sha,
             sourceByteLength = byteLength,
             metadataBytesRead = packet[12],
             ifdEntriesVisited = packet[13],
             parserWorkspacePeakBytes = packet[14],
             delegatedSingleIlluminantV01 = packet[15] != 0,
-            dualIlluminantUsed = packet[16] != 0,
+            dualIlluminantUsed = dualIlluminantUsed,
             thirdCalibrationSeen = packet[17] != 0,
             usedForwardMatrix = packet[18] != 0,
             usedSingleForwardMatrixAcrossTemperatures = packet[19] != 0,
@@ -343,7 +351,7 @@ private class RuntimeSampler(context: Context) {
                 pssPeakKb = maxOf(pssPeakKb, currentPssKb())
                 thermalPeak = maxOf(thermalPeak, powerManager.currentThermalStatus)
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(RUNTIME_SAMPLE_INTERVAL_MS)
                 } catch (_: InterruptedException) {
                     break
                 }
@@ -412,8 +420,10 @@ object EmpiricalReportEncoder {
                 .put("pre_probe", probeJson(audit.preProbe))
                 .put("post_probe", probeJson(audit.postProbe)))
             .put("runtime", JSONObject()
+                .put("scope", "FINALIZED_TILE_PREVIEW_LOADER_ONLY; PRE_POST_PROBES_EXCLUDED")
+                .put("sampling_interval_ms", RUNTIME_SAMPLE_INTERVAL_MS)
                 .put("pipeline_wall_ms", audit.runtime.pipelineWallMs)
-                .put("worker_cpu_ms", audit.runtime.workerCpuMs)
+                .put("worker_thread_cpu_ms", audit.runtime.workerCpuMs)
                 .put("pss_before_kb", audit.runtime.pssBeforeKb)
                 .put("pss_peak_kb", audit.runtime.pssPeakKb)
                 .put("pss_after_kb", audit.runtime.pssAfterKb)
@@ -423,6 +433,7 @@ object EmpiricalReportEncoder {
 
         val pacing = audit.framePacing
         root.put("ui_frame_pacing", if (pacing == null) JSONObject.NULL else JSONObject()
+            .put("scope", "FULL_VISIBLE_EMPIRICAL_RUN_INCLUDING_PRE_POST_PROBES")
             .put("interval_count", pacing.intervalCount)
             .put("p50_ms", pacing.p50Ms ?: JSONObject.NULL)
             .put("p95_ms", pacing.p95Ms ?: JSONObject.NULL)
