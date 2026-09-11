@@ -7,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace truthraw;
@@ -128,9 +129,9 @@ Phase2Input make_valid_input() {
     input.sceneBinding.gainNormalizedToCommonScene = false;
 
     input.roomStatus.fill(technical_backplane::v0_1::RoomStatus::ResearchOnly);
-    input.roomStatus[0] = technical_backplane::v0_1::RoomStatus::Available; // Archivist/source identity
-    input.roomStatus[1] = technical_backplane::v0_1::RoomStatus::Available; // Measurement binding
-    input.roomStatus[2] = technical_backplane::v0_1::RoomStatus::Available; // Architect/reconstruction present
+    input.roomStatus[0] = technical_backplane::v0_1::RoomStatus::Available;
+    input.roomStatus[1] = technical_backplane::v0_1::RoomStatus::Available;
+    input.roomStatus[2] = technical_backplane::v0_1::RoomStatus::Available;
     input.claimStatus = technical_backplane::v0_1::ClaimStatus::Candidate;
     return input;
 }
@@ -198,13 +199,14 @@ int test_binding_determinism_and_mutation() {
 }
 
 int test_fail_closed_paths() {
+    using Phase2StatusCode = truthraw::technical_backplane_phase2::v0_1::StatusCode;
     {
         auto input = make_valid_input();
         input.scientificMasterHash.fill(0u);
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidScientificMasterDigest);
+        CHECK(status.code == Phase2StatusCode::InvalidScientificMasterDigest);
     }
     {
         auto input = make_valid_input();
@@ -212,7 +214,7 @@ int test_fail_closed_paths() {
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidZeroLine);
+        CHECK(status.code == Phase2StatusCode::InvalidZeroLine);
     }
     {
         auto input = make_valid_input();
@@ -220,7 +222,7 @@ int test_fail_closed_paths() {
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidSceneScale);
+        CHECK(status.code == Phase2StatusCode::InvalidSceneScale);
     }
     {
         auto input = make_valid_input();
@@ -228,7 +230,7 @@ int test_fail_closed_paths() {
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidSceneScale);
+        CHECK(status.code == Phase2StatusCode::InvalidSceneScale);
     }
     {
         auto input = make_valid_input();
@@ -236,7 +238,7 @@ int test_fail_closed_paths() {
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidPreparedSource);
+        CHECK(status.code == Phase2StatusCode::InvalidPreparedSource);
     }
     {
         auto input = make_valid_input();
@@ -247,7 +249,7 @@ int test_fail_closed_paths() {
         Phase2Result out{};
         const auto status = finalize_phase2(input, out);
         CHECK(!status);
-        CHECK(status.code == StatusCode::InvalidZeroLine);
+        CHECK(status.code == Phase2StatusCode::InvalidZeroLine);
     }
     return 0;
 }
