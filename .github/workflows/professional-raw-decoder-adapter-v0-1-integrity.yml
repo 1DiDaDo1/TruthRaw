@@ -31,6 +31,9 @@ jobs:
           g++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
             docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
             docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_bind.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_read.cpp \
             docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
             -I docs/research/professional-raw-decoder-adapter-v0.1/native \
             -I docs/research/professional-raw-ingress-v0.1/native \
@@ -45,6 +48,9 @@ jobs:
           clang++ -std=c++20 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror \
             docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
             docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_bind.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_read.cpp \
             docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
             -I docs/research/professional-raw-decoder-adapter-v0.1/native \
             -I docs/research/professional-raw-ingress-v0.1/native \
@@ -63,6 +69,9 @@ jobs:
             -fsanitize=address,undefined -fno-omit-frame-pointer \
             docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp \
             docs/research/professional-raw-ingress-v0.1/native/professional_raw_ingress_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_bind.cpp \
+            docs/research/tile-native-dng-source-v0.1/native/tile_native_dng_source_v0_1_read.cpp \
             docs/research/professional-raw-decoder-adapter-v0.1/tests/test_professional_raw_decoder_adapter_v0_1.cpp \
             -I docs/research/professional-raw-decoder-adapter-v0.1/native \
             -I docs/research/professional-raw-ingress-v0.1/native \
