@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Space
@@ -20,6 +21,9 @@ import android.widget.TextView
 
 class MainActivity : Activity() {
     private var session = BatchSession()
+    private var activeJobId: String? = null
+    private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
+    private var previewGeneration: Long = 0
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -63,6 +67,11 @@ class MainActivity : Activity() {
         render()
     }
 
+    override fun onDestroy() {
+        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        super.onDestroy()
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         render()
@@ -80,7 +89,7 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_OPEN_RAW)
     }
 
-    @Deprecated("Platform result bridge is intentionally dependency-light in this v0.1 prototype")
+    @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
@@ -95,7 +104,33 @@ class MainActivity : Activity() {
 
         val jobs = RawIngress.readHandlesOnly(contentResolver, uris, data.flags)
         session = session.withJobs(jobs)
+        val first = session.jobs.firstOrNull()
+        if (first == null) {
+            activeJobId = null
+            previewState = TilePreviewUiState.Idle
+            render()
+        } else {
+            requestPreview(first)
+        }
+    }
+
+    private fun requestPreview(job: RawJob) {
+        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        activeJobId = job.id
+        val generation = ++previewGeneration
+        previewState = TilePreviewUiState.Loading(job.id)
         render()
+        Thread({
+            val result = TilePreviewLoader.load(contentResolver, job)
+            runOnUiThread {
+                if (generation != previewGeneration || activeJobId != job.id) {
+                    (result as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+                    return@runOnUiThread
+                }
+                previewState = result
+                render()
+            }
+        }, "truthraw-preview-${job.id.take(8)}").start()
     }
 
     private fun render() {
@@ -160,21 +195,54 @@ class MainActivity : Activity() {
     }
 
     private fun previewPane(): View = card().apply {
-        gravity = Gravity.CENTER
-        val title = if (session.jobs.isEmpty()) "Selecteer één of meerdere RAW-bestanden" else "TruthRaw Scene Preview"
-        addView(label(title, 20f, bold = true).apply { gravity = Gravity.CENTER })
-        addView(space(10))
-        addView(label(
-            if (session.jobs.isEmpty()) {
-                "De ingang bewaart alleen documenthandles en metadata. RAW-sensorwaarden worden later tile-voor-tile opgevraagd."
-            } else {
-                "${session.selectedCount} bronhandle(s) · 0 volledige RAW-bytearrays in de UI-laag"
-            },
-            13f,
-            muted = true,
-        ).apply { gravity = Gravity.CENTER })
-        addView(space(14))
-        addView(label("Preview pipeline: proxy → tiled preview → final", 12f, muted = true).apply { gravity = Gravity.CENTER })
+        val active = session.jobs.firstOrNull { it.id == activeJobId } ?: session.jobs.firstOrNull()
+        if (active == null) {
+            gravity = Gravity.CENTER
+            addView(label("Selecteer één of meerdere RAW-bestanden", 20f, bold = true).apply { gravity = Gravity.CENTER })
+            addView(space(10))
+            addView(label(
+                "De ingang bewaart alleen documenthandles en metadata. RAW-sensorwaarden worden pas tile-voor-tile opgevraagd.",
+                13f,
+                muted = true,
+            ).apply { gravity = Gravity.CENTER })
+            return@apply
+        }
+
+        addView(label(active.source.displayName, 16f, bold = true))
+        addView(label("CFA bronproxy · presentatie-only · geen scientific color/master", 11f, muted = true))
+        addView(space(8))
+
+        when (val state = previewState) {
+            TilePreviewUiState.Idle -> addView(actionButton("Bounded preview laden") { requestPreview(active) })
+            is TilePreviewUiState.Loading -> addView(label("TileNativeDngSource leest een bounded CFA-proxy…", 13f, muted = true))
+            is TilePreviewUiState.Failed -> {
+                addView(label("Preview geblokkeerd", 14f, bold = true))
+                addView(label(state.reason, 12f, muted = true))
+                addView(space(6))
+                addView(actionButton("Opnieuw proberen") { requestPreview(active) })
+            }
+            is TilePreviewUiState.Ready -> {
+                val image = ImageView(this@MainActivity).apply {
+                    setImageBitmap(state.bitmap)
+                    adjustViewBounds = true
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    contentDescription = "Grijze CFA-bronproxy voor ${active.source.displayName}"
+                }
+                addView(image, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+                addView(space(6))
+                val m = state.metrics
+                addView(label(
+                    "bron ${m.sourceWidth}×${m.sourceHeight} · source resident ≤ ${formatBytes(m.sourceResidentUpperBoundBytes.toLong())} · RAW gelezen ${formatBytes(m.rawPayloadBytesRead.toLong())}",
+                    11f,
+                    muted = true,
+                ))
+                addView(label(
+                    "tile reads ${m.tileReadCalls} · fullRawMaterialized=${m.fullRawMaterialized} · GainMap aanwezig=${m.hasGainField} · orientation=${m.orientation}",
+                    10f,
+                    muted = true,
+                ))
+            }
+        }
     }
 
     private fun routePane(): View = card().apply {
@@ -192,7 +260,7 @@ class MainActivity : Activity() {
                 addView(routeButton("Verbeterde foto", InputRoute.MULTI_CAPTURE_ENHANCED))
                 addView(routeButton("HDR", InputRoute.MULTI_CAPTURE_HDR))
                 addView(label(
-                    "Fusion/HDR is in v0.1 alleen een expliciete kandidaatroute. Frames worden niet automatisch als gezamenlijk bewijs behandeld.",
+                    "Fusion/HDR is nog alleen een expliciete kandidaatroute. Frames worden niet automatisch als gezamenlijk bewijs behandeld.",
                     11f,
                     muted = true,
                 ))
@@ -238,10 +306,11 @@ class MainActivity : Activity() {
     private fun jobRow(index: Int, job: RawJob): View = vertical().apply {
         setPadding(dp(10), dp(8), dp(10), dp(8))
         background = rounded(palette.surfaceAlt, 12f)
-        addView(label("${index + 1}. ${job.source.displayName}", 13f, bold = true))
+        addView(label("${if (job.id == activeJobId) "▶ " else ""}${index + 1}. ${job.source.displayName}", 13f, bold = true))
         val size = job.source.declaredSizeBytes?.let { " · ${formatBytes(it)}" } ?: ""
         addView(label("${job.state.name.lowercase()}$size", 11f, muted = true))
         addView(label("lineage: afzonderlijk totdat expliciete fusion-validatie bestaat", 10f, muted = true))
+        setOnClickListener { requestPreview(job) }
     }.also {
         it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             bottomMargin = dp(6)
