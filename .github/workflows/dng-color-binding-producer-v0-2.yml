@@ -1,0 +1,60 @@
+name: DNG Color Binding Producer v0.2
+
+on:
+  push:
+    branches:
+      - research/dng-dual-illuminant-color-v0.2-2026-09-11
+    paths:
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - '.github/workflows/dng-color-binding-producer-v0-2.yml'
+  pull_request:
+    paths:
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - '.github/workflows/dng-color-binding-producer-v0-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: GCC release build and test
+        run: |
+          cmake -S docs/research/dng-color-binding-producer-v0.2 -B /tmp/truthraw-dng-color-v02-gcc -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-dng-color-v02-gcc --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-color-v02-gcc --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clang release build and test
+        run: |
+          cmake -S docs/research/dng-color-binding-producer-v0.2 -B /tmp/truthraw-dng-color-v02-clang -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-dng-color-v02-clang --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-color-v02-clang --output-on-failure
+
+  asan-ubsan:
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sanitized build and test
+        run: |
+          cmake -S docs/research/dng-color-binding-producer-v0.2 -B /tmp/truthraw-dng-color-v02-san -DCMAKE_BUILD_TYPE=Debug -DTRUTHRAW_DNG_COLOR_V02_ENABLE_SANITIZERS=ON
+          cmake --build /tmp/truthraw-dng-color-v02-san --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-color-v02-san --output-on-failure
