@@ -1,7 +1,18 @@
 {
   "schema": "TruthRawScientificMasterDigestState/0.1",
-  "status": "RESEARCH_IMPLEMENTATION_CANDIDATE_CI_REQUIRED",
+  "status": "VALIDATED_RESEARCH_NATIVE_CI_PASS",
   "parent_integration_head": "2fdf05ca1bbbc59cd8867df0cae117d1eec92d51",
+  "validated_implementation_commit": "1be3b765c46ae4f27c6c5088374182c315fcb7b2",
+  "ci": {
+    "workflow": "Scientific Master Digest v0.1",
+    "run_id": 34635320632,
+    "conclusion": "SUCCESS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS",
+    "documentation_governance_run_id": 34635320448,
+    "documentation_governance": "SUCCESS"
+  },
   "scientific_role": "V47I_RECONSTRUCTED_CAMERA_SCENE_PRE_XYZ_PRE_APPEARANCE",
   "digest": {
     "algorithm": "SHA-256",
@@ -30,7 +41,7 @@
     "honor_candidate_200mp_cell_count": 48960,
     "honor_candidate_200mp_digest_bookkeeping_target": "<2 MiB"
   },
-  "next_after_ci_pass": [
+  "next": [
     "bind actual Full-Frame Streaming reconstructed camera-native tiles",
     "produce real Scientific Master SHA-256",
     "complete Technical Backplane phase 2 using real master/zero-line/scene-scale identities",

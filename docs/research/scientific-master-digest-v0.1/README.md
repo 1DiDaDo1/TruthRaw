@@ -1,9 +1,21 @@
 # Scientific Master Digest v0.1
 
-Status: **RESEARCH IMPLEMENTATION CANDIDATE — CI PROOF REQUIRED BEFORE PROMOTION**
+Status: **VALIDATED RESEARCH v0.1 — NATIVE CI PASS**
 
 Parent integration head:
 `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51`
+
+Validated implementation commit:
+`1be3b765c46ae4f27c6c5088374182c315fcb7b2`
+
+Dedicated CI:
+- workflow: `Scientific Master Digest v0.1`
+- run: `34635320632`
+- conclusion: **SUCCESS**
+- GCC Release: PASS
+- Clang Release: PASS
+- Clang ASan/UBSan: PASS
+- Documentation Governance on the same implementation commit: run `34635320448` — **SUCCESS**
 
 ## Why this module exists
 
@@ -78,16 +90,16 @@ Technical Backplane v0.1 already has four distinct identity bindings:
 
 This module produces **only** the Scientific Master binding. It deliberately does not merge the zero-line or scene-scale into the Scientific Master digest. Those concepts remain separately authoritative and independently mutation-protected by the Backplane.
 
-The next integration step after this module passes CI is:
+The next integration step after this validated digest contract is:
 1. feed actual reconstructed camera-native tiles into this accumulator from the streaming scientific route;
 2. finalize the real Scientific Master SHA-256;
 3. populate Technical Backplane phase 2 with that digest plus real zero-line and scene-scale bindings;
 4. run the existing Scientific Preview Source Binding v0.2 finalization gate with no fixture hashes.
 
-## Validation gates
+## Validation gates — PASS
 
-The native test suite requires:
-- an independently calculated known SHA-256 vector to match;
+The dedicated native suite proves:
+- independently calculated known SHA-256 vector matches;
 - identical digest for 64/128/256 runtime tile partitions;
 - identical digest for reversed runtime tile traversal order;
 - one-float-bit mutation changes digest;
@@ -98,7 +110,7 @@ The native test suite requires:
 - non-canonical tile origin fails closed;
 - 200MP-class digest bookkeeping remains below 2 MiB.
 
-CI must pass GCC Release, Clang Release and Clang ASan/UBSan before this module may be called validated.
+These gates passed under GCC Release, Clang Release and Clang ASan/UBSan in run `34635320632`.
 
 ## Non-claims
 
