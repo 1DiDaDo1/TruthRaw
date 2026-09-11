@@ -24,10 +24,17 @@ The documentation refresh is maintained on `docs/project-handoff-2026-09-11`, cr
 5. `docs/CURRENT_CLAIM_MAP_2026-09-11.md`
 6. `docs/CI_EVIDENCE_INDEX_2026-09-11.md`
 7. `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md`
-8. `docs/CHAT_HANDOFF_2026-09-11.md`
-9. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
+8. `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`
+9. `docs/CHAT_HANDOFF_2026-09-11.md`
+10. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
 
 Dated 2026-09-10 and earlier current-state files remain immutable historical snapshots. They are not the current bootstrap.
+
+## Mandatory documentation synchronization
+
+Every substantive TruthRaw change must review and update the affected module README/state overlay and, when the global continuation point changes, the current handoff/state documents in the same work cycle. A validated implementation head may temporarily precede its documentation overlay, but it must not become the new global handoff until the documentation/state synchronization is committed and governance-checked.
+
+Historical, sealed and versioned evidence is never rewritten merely to look current. When an older README must remain exact for reproducibility, current status belongs in an overlay/global index instead. See `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`.
 
 ## Scientific invariants
 
@@ -137,10 +144,11 @@ Still open / not claimed:
 
 ## Documentation policy
 
-- `canonical/**` READMEs are version/module authority, not global current-state dashboards.
-- `docs/research/**` READMEs are module-local research contracts/evidence and may describe the state of their own branch at a specific time.
-- dated old `CURRENT_*` and project-audit files remain historical snapshots and are never silently rewritten into success.
-- failure histories are preserved as failures.
+- every substantive project change must obey `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`;
+- `canonical/**` READMEs are version/module authority, not global current-state dashboards;
+- `docs/research/**` READMEs are module-local research contracts/evidence and may describe the state of their own branch at a specific time;
+- dated old `CURRENT_*` and project-audit files remain historical snapshots and are never silently rewritten into success;
+- failure histories are preserved as failures;
 - global current status is defined only by the 2026-09-11 entrypoints listed above.
 
 See `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md` for the authority map.
