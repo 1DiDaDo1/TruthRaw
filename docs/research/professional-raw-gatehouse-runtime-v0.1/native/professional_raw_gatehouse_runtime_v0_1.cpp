@@ -172,7 +172,8 @@ bool may_seal_external_handoff(
     if (!proposed.originalSourceStillSealed ||
         !proposed.sourceEvidenceBindingVerified ||
         !proposed.decodedRepresentationImmutable ||
-        !proposed.decodedRepresentationPersistedOrExternallyOwned) {
+        !proposed.decodedRepresentationPersistedOrExternallyOwned ||
+        !proposed.decodedRepresentationIntegrityVerified) {
         return false;
     }
     if (proposed.zeroLineCreatedInGatehouse ||
@@ -200,6 +201,7 @@ bool may_enter_main_house_after_detach(
         handoff.sourceEvidenceBindingVerified &&
         handoff.decodedRepresentationImmutable &&
         handoff.decodedRepresentationPersistedOrExternallyOwned &&
+        handoff.decodedRepresentationIntegrityVerified &&
         !handoff.decoderContextLive &&
         !handoff.mutableDecoderStateSharedWithMainHouse &&
         !handoff.zeroLineCreatedInGatehouse &&

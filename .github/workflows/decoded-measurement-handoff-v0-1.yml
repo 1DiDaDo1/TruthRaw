@@ -1,0 +1,110 @@
+name: Decoded Measurement Handoff v0.1
+
+on:
+  push:
+    branches:
+      - research/decoded-measurement-handoff-v0.1
+    paths:
+      - 'docs/research/decoded-measurement-handoff-v0.1/**'
+      - 'docs/research/professional-raw-gatehouse-runtime-v0.1/**'
+      - 'docs/research/professional-raw-decoder-adapter-v0.1/**'
+      - 'docs/research/professional-raw-ingress-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/decoded-measurement-handoff-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/decoded-measurement-handoff-v0.1/**'
+      - 'docs/research/professional-raw-gatehouse-runtime-v0.1/**'
+      - 'docs/research/professional-raw-decoder-adapter-v0.1/**'
+      - 'docs/research/professional-raw-ingress-v0.1/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/decoded-measurement-handoff-v0-1.yml'
+
+jobs:
+  contract:
+    name: Handoff contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bounded detached handoff contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          H=docs/research/decoded-measurement-handoff-v0.1/native/decoded_measurement_handoff_v0_1.h
+          C=docs/research/decoded-measurement-handoff-v0.1/native/decoded_measurement_handoff_v0_1.cpp
+          G=docs/research/professional-raw-gatehouse-runtime-v0.1/native/professional_raw_gatehouse_runtime_v0_1.cpp
+          R=docs/research/decoded-measurement-handoff-v0.1/README.md
+          grep -q 'kHeaderBytes = 256' "$H"
+          grep -q 'append_samples' "$H"
+          grep -q 'verify_payload_integrity' "$H"
+          grep -q 'read_rect' "$H"
+          grep -q 'kIoChunkBytes = 4096' "$C"
+          grep -q 'decodedRepresentationIntegrityVerified' "$G"
+          grep -q 'decoderContextLive' "$G"
+          grep -q 'CRC32 is not cryptographic evidence identity' "$R"
+          grep -q 'no zero-line is created here' "$R"
+          grep -q 'no Scientific Master is created here' "$R"
+          if grep -R -E 'std::vector|new\[|malloc\(' \
+            docs/research/decoded-measurement-handoff-v0.1/native; then
+            echo 'Forbidden dynamic/full-frame ownership primitive in handoff native module'
+            exit 1
+          fi
+          echo 'Decoded handoff contract PASS'
+
+  gatehouse-regression:
+    name: Gatehouse regression
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Gatehouse
+        run: cmake -S docs/research/professional-raw-gatehouse-runtime-v0.1 -B build-gatehouse -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build Gatehouse
+        run: cmake --build build-gatehouse --parallel 2
+      - name: Test Gatehouse
+        run: ./build-gatehouse/test_professional_raw_gatehouse_runtime_v0_1
+
+  gcc-release:
+    name: GCC Release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S docs/research/decoded-measurement-handoff-v0.1 -B build-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build
+        run: cmake --build build-gcc --parallel 2
+      - name: Test
+        run: ./build-gcc/test_decoded_measurement_handoff_v0_1
+
+  clang-release:
+    name: Clang Release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S docs/research/decoded-measurement-handoff-v0.1 -B build-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build-clang --parallel 2
+      - name: Test
+        run: ./build-clang/test_decoded_measurement_handoff_v0_1
+
+  clang-sanitizers:
+    name: Clang ASan UBSan
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+          LDFLAGS: -fsanitize=address,undefined
+        run: cmake -S docs/research/decoded-measurement-handoff-v0.1 -B build-san -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build-san --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./build-san/test_decoded_measurement_handoff_v0_1

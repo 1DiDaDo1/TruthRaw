@@ -1,0 +1,54 @@
+{
+  "module": "Decoded Measurement Handoff v0.1",
+  "status": "RESEARCH_CANDIDATE_CI_PASS",
+  "implementation_head": "fa2455592a4bc9ded19fd58c8273994a00423e6b",
+  "validated_handoff_run_id": 34599394482,
+  "validated_handoff_run_conclusion": "success",
+  "validated_gatehouse_regression_run_id": 34599394507,
+  "validated_gatehouse_regression_run_conclusion": "success",
+  "base_branch": "research/professional-raw-gatehouse-runtime-v0.1",
+  "base_sha_at_pr_open": "8d417d2c8bda7eb011b68c5acadac0dc01405cfe",
+  "pr": 14,
+  "transport": {
+    "magic": "TRDMH001",
+    "header_bytes": 256,
+    "io_chunk_bytes": 4096,
+    "caller_owned_seekable_fd": true,
+    "full_frame_handoff_buffer": false,
+    "payload_crc32": true,
+    "crc32_is_cryptographic_evidence_identity": false,
+    "source_evidence_hash_binding_bytes": 32,
+    "decoder_audit_hash_binding_bytes": 32
+  },
+  "admission": {
+    "required_topology": "Bayer2x2",
+    "required_evidence_class": "LosslessDecodedCertified",
+    "required_physical_frame_count": 1,
+    "required_independent_evidence_count": 1,
+    "payload_integrity_required_before_rect_reads": true,
+    "payload_integrity_required_before_gatehouse_seal": true,
+    "decoder_context_must_be_dead_before_main_house": true
+  },
+  "scientific_boundaries": {
+    "creates_new_evidence": false,
+    "creates_zero_line": false,
+    "creates_scientific_master": false,
+    "performs_reconstruction": false,
+    "performs_color_rendering": false,
+    "performs_appearance_processing": false
+  },
+  "validated_jobs": [
+    "Handoff contract",
+    "Gatehouse regression",
+    "GCC Release",
+    "Clang Release",
+    "Clang ASan UBSan"
+  ],
+  "not_proven": [
+    "real professional-camera RAW decode into this handoff",
+    "physical Android storage throughput/RSS/thermal behavior",
+    "cryptographic payload identity beyond upstream source/audit bindings",
+    "production crash recovery and cleanup",
+    "production Main House IRawTileSource bridge"
+  ]
+}
