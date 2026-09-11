@@ -27,6 +27,10 @@ class MainActivity : Activity() {
     private var previewGeneration: Long = 0
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
+    private var empiricalAudit: EmpiricalRunAudit? = null
+    private var pendingEmpiricalJobId: String? = null
+    private var pendingEmpiricalJson: String? = null
+    private var empiricalStatus: String? = null
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -107,6 +111,22 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_SAVE_JPEG)
     }
 
+    @Suppress("DEPRECATION")
+    private fun launchEmpiricalExport(job: RawJob) {
+        val audit = empiricalAudit ?: return
+        if (job.id != activeJobId) return
+        pendingEmpiricalJobId = job.id
+        pendingEmpiricalJson = EmpiricalReportEncoder.toJson(this, job, previewState, audit)
+        empiricalStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_honor_empirical_v0_1.json")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
+    }
+
     @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -137,6 +157,33 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_EMPIRICAL_JSON) {
+            val expectedJob = pendingEmpiricalJobId
+            val report = pendingEmpiricalJson
+            pendingEmpiricalJobId = null
+            pendingEmpiricalJson = null
+            if (resultCode != RESULT_OK || data?.data == null) {
+                empiricalStatus = "Empirical JSON-export geannuleerd."
+                render()
+                return
+            }
+            if (expectedJob == null || expectedJob != activeJobId || report == null) {
+                empiricalStatus = "Empirical JSON-export geblokkeerd: actieve run veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            empiricalStatus = try {
+                val stream = contentResolver.openOutputStream(data.data!!, "w")
+                    ?: throw IOException("Documentprovider gaf geen outputstream.")
+                stream.bufferedWriter(Charsets.UTF_8).use { it.write(report) }
+                "Empirical JSON opgeslagen · meetlaag בלבד · verandert geen Scientific Master/authority."
+            } catch (error: Exception) {
+                "Empirical JSON-export faalde: ${error.message ?: error.javaClass.simpleName}"
+            }
+            render()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -151,6 +198,8 @@ class MainActivity : Activity() {
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
         jpegStatus = null
+        empiricalStatus = null
+        empiricalAudit = null
         if (first == null) {
             activeJobId = null
             previewState = TilePreviewUiState.Idle
@@ -164,18 +213,25 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
         jpegStatus = null
+        empiricalStatus = null
+        empiricalAudit = null
         pendingJpegJobId = null
+        pendingEmpiricalJobId = null
+        pendingEmpiricalJson = null
         val generation = ++previewGeneration
         previewState = TilePreviewUiState.Loading(job.id)
+        val frameSampler = UiFramePacingSampler().also { it.start() }
         render()
         Thread({
-            val result = TilePreviewLoader.load(contentResolver, job)
+            val result = EmpiricalPreviewRunner.run(this@MainActivity, contentResolver, job)
             runOnUiThread {
+                val pacing = frameSampler.stop()
                 if (generation != previewGeneration || activeJobId != job.id) {
-                    (result as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+                    (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                     return@runOnUiThread
                 }
-                previewState = result
+                previewState = result.state
+                empiricalAudit = result.audit.copy(framePacing = pacing)
                 render()
             }
         }, "truthraw-preview-${job.id.take(8)}").start()
@@ -267,7 +323,7 @@ class MainActivity : Activity() {
         when (val state = previewState) {
             TilePreviewUiState.Idle -> addView(actionButton("Finalized Scientific Preview laden") { requestPreview(active) })
             is TilePreviewUiState.Loading -> addView(label(
-                "SHA-256 bronseal → DNG kleurmetadata → Scientific Master + TruthRange → Backplane phase 2 → bounded sRGB…",
+                "Empirical pre-probe → onveranderde finalized route → empirical post-probe · SHA-256, DNG-profiel, RSS, latency, thermiek en framepacing worden gemeten.",
                 13f,
                 muted = true,
             ))
@@ -311,6 +367,37 @@ class MainActivity : Activity() {
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
             }
+        }
+
+        empiricalAudit?.let { audit ->
+            addView(space(8))
+            addView(label("Honor/MotionCam empirical v0.1", 13f, bold = true))
+            val probe = audit.preProbe
+            val shaShort = probe.sourceSha256?.let { if (it.length > 16) "${it.take(16)}…" else it } ?: "onbekend"
+            addView(label(
+                "source SHA=$shaShort · stabiel=${audit.sourceStableAcrossHarness} · DNG-kleur=${probe.metadataForm} · probe status=${probe.statusCode}",
+                10f,
+                muted = true,
+            ))
+            addView(label(
+                "pipeline=${"%.1f".format(audit.runtime.pipelineWallMs)} ms · worker CPU=${"%.1f".format(audit.runtime.workerCpuMs)} ms · PSS piek=${formatBytes(audit.runtime.pssPeakKb.toLong() * 1024L)}",
+                10f,
+                muted = true,
+            ))
+            val pacing = audit.framePacing
+            addView(label(
+                "thermal ${thermalLabel(audit.runtime.thermalStart)}→${thermalLabel(audit.runtime.thermalEnd)} (piek ${thermalLabel(audit.runtime.thermalPeak)}) · UI p95=${pacing?.p95Ms?.let { "%.1f ms".format(it) } ?: "n/a"}",
+                10f,
+                muted = true,
+            ))
+            addView(label(
+                "Meetlaag only: deze waarden sturen geen reconstructie, kleurmatrix, TruthRange, zero-line of scientific authority.",
+                10f,
+                muted = true,
+            ))
+            addView(space(5))
+            addView(actionButton("Empirical JSON opslaan") { launchEmpiricalExport(active) })
+            empiricalStatus?.let { addView(label(it, 10f, muted = true)) }
         }
     }
 
@@ -440,6 +527,17 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun thermalLabel(status: Int): String = when (status) {
+        0 -> "NONE"
+        1 -> "LIGHT"
+        2 -> "MODERATE"
+        3 -> "SEVERE"
+        4 -> "CRITICAL"
+        5 -> "EMERGENCY"
+        6 -> "SHUTDOWN"
+        else -> "UNKNOWN($status)"
+    }
+
     private fun formatBytes(bytes: Long): String = when {
         bytes >= 1024L * 1024L * 1024L -> "%.1f GB".format(bytes / (1024.0 * 1024.0 * 1024.0))
         bytes >= 1024L * 1024L -> "%.1f MB".format(bytes / (1024.0 * 1024.0))
@@ -453,5 +551,6 @@ class MainActivity : Activity() {
     companion object {
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
+        private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
     }
 }
