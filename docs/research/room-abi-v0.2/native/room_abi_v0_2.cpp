@@ -14,6 +14,16 @@ bool valid_room(RoomId room) noexcept {
     return idx(room) < kRoomCount;
 }
 
+bool valid_iso_access(CaptureIsoAccess access) noexcept {
+    return static_cast<std::uint8_t>(access) <=
+        static_cast<std::uint8_t>(CaptureIsoAccess::CalibratedSensorForwardOnly);
+}
+
+bool valid_workspace(WorkspaceClass workspace) noexcept {
+    return static_cast<std::uint8_t>(workspace) <=
+        static_cast<std::uint8_t>(WorkspaceClass::ZeroHiddenAllocation);
+}
+
 bool add_u64(std::uint64_t a, std::uint64_t b, std::uint64_t& out) noexcept {
     if (a > std::numeric_limits<std::uint64_t>::max() - b) return false;
     out = a + b;
@@ -29,6 +39,24 @@ bool execution_contains_room(const ExecutionPlan& execution, RoomId room) noexce
         if (execution.placements[i].room == room) return true;
     }
     return false;
+}
+
+Status validate_demand_against_profile(const RoomResourceDemand& demand,
+                                       const RoomBindingProfile& profile) noexcept {
+    std::uint64_t total = 0;
+    if (!room_total(demand, total)) return Status::InvalidRoomDemand;
+    switch (profile.workspace) {
+        case WorkspaceClass::None:
+        case WorkspaceClass::ZeroHiddenAllocation:
+            return total == 0U ? Status::Ok : Status::InvalidRoomDemand;
+        case WorkspaceClass::BoundedTransient:
+            return demand.rebuildableCacheBytes == 0U ? Status::Ok : Status::InvalidRoomDemand;
+        case WorkspaceClass::RebuildableCache:
+            return demand.transientPeakBytes == 0U ? Status::Ok : Status::InvalidRoomDemand;
+        case WorkspaceClass::MixedBounded:
+            return Status::Ok;
+    }
+    return Status::InvalidRoomProfile;
 }
 
 } // namespace
@@ -68,7 +96,10 @@ std::array<RoomBindingProfile, kRoomCount> default_room_profiles() noexcept {
 Status validate_room_profiles(const std::array<RoomBindingProfile, kRoomCount>& profiles) noexcept {
     for (std::size_t i = 0; i < profiles.size(); ++i) {
         const auto& p = profiles[i];
-        if (!valid_room(p.room) || idx(p.room) != i) return Status::InvalidRoomProfile;
+        if (!valid_room(p.room) || idx(p.room) != i || !valid_iso_access(p.captureIsoAccess) ||
+            !valid_workspace(p.workspace)) {
+            return Status::InvalidRoomProfile;
+        }
         if (p.mayWriteSceneIso || p.isoMayAffectSceneCoordinates || p.isoMayAffectResourcePolicy ||
             p.resourceTierMayChangeTruthAuthority) {
             return Status::IsoSceneViolation;
@@ -109,12 +140,10 @@ Status bind_streaming_endpoints(streaming_v0_1::IRawTileSource& source,
                                 streaming_v0_1::IStreamingSink& sink,
                                 StreamingEndpointBinding& out) noexcept {
     out = {};
+    static_assert(sizeof(std::size_t) <= sizeof(std::uint64_t),
+                  "Room ABI v0.2 requires size_t to fit in uint64_t accounting");
     const std::size_t sourceBytes = source.residentBytesUpperBound();
     const std::size_t sinkBytes = sink.residentBytesUpperBound();
-    if (sourceBytes > std::numeric_limits<std::uint64_t>::max() ||
-        sinkBytes > std::numeric_limits<std::uint64_t>::max()) {
-        return Status::InvalidEndpoint;
-    }
     out.source = &source;
     out.sink = &sink;
     out.sourceResidentUpperBound = static_cast<std::uint64_t>(sourceBytes);
@@ -156,7 +185,8 @@ Status plan_adaptive_all_room_binding(const AdaptiveAllRoomRequest& request,
     if (!request.endpoints.valid || request.endpoints.source == nullptr || request.endpoints.sink == nullptr) {
         return Status::InvalidEndpoint;
     }
-    if (validate_room_profiles(request.profiles) != Status::Ok) return Status::IsoSceneViolation;
+    const Status profileStatus = validate_room_profiles(request.profiles);
+    if (profileStatus != Status::Ok) return profileStatus;
     const Status demandStatus = validate_room_demands(request.demands);
     if (demandStatus != Status::Ok) return demandStatus;
     const Status isoStatus = validate_illumination_iso_boundary();
@@ -200,6 +230,10 @@ Status plan_adaptive_all_room_binding(const AdaptiveAllRoomRequest& request,
             if (!valid_room(placement.room)) return Status::InvalidExecutionPlan;
 
             const auto& demand = request.demands[idx(placement.room)];
+            const auto& profile = request.profiles[idx(placement.room)];
+            const Status profileDemandStatus = validate_demand_against_profile(demand, profile);
+            if (profileDemandStatus != Status::Ok) return profileDemandStatus;
+
             std::uint64_t demandTotal = 0;
             if (!room_total(demand, demandTotal)) return Status::InvalidRoomDemand;
 
