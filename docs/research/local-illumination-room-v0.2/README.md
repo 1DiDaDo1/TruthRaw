@@ -1,8 +1,12 @@
 # TruthRaw Illumination Room v0.2
 
-Status: **RESEARCH_CANDIDATE — ADAPTIVE_RUNTIME_BOUND_RELATIVE_DAY_NIGHT**
+Status: **RESEARCH_CANDIDATE_CI_PASS — ADAPTIVE_RUNTIME_BOUND_RELATIVE_DAY_NIGHT_ISO_FREE_SCENE**
 
 Illumination Room v0.2 continues the photographer-selected Local Illumination Room without changing its scientific claim boundary. It is an orchestration/binding layer over the proven v0.1 Room Capsule light solver.
+
+Validated ISO-hardened implementation: `d4afd4ceb6ff69c09bc27551a07ab41c3d6c77b5`.
+
+Validation: Illumination Room run `34547369624` — **SUCCESS**; Documentation Governance run `34547369523` — **SUCCESS**.
 
 ## Purpose
 
@@ -128,4 +132,4 @@ Counterfactual observations never become independent source evidence and never m
 
 ## Intended next step
 
-If v0.2 passes upstream-integrity, GCC, Clang and sanitizer CI, its adaptive planning/lease contract should become an input to the future Room ABI v0.2 / Adaptive All-Room Binding work rather than remaining a special-case room implementation.
+The validated adaptive planning/lease and ISO-free scene contracts should become inputs to Room ABI v0.2 / Adaptive All-Room Binding rather than remaining special-case Illumination Room behavior.
