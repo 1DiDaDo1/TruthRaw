@@ -1,12 +1,16 @@
 # Android Source-Bound Color Preview v0.1
 
-Status: RESEARCH PROTOTYPE — CI PENDING
+Status: **RESEARCH PROTOTYPE — ANDROID ARM64 APK CI PASS**
 
 Date: 2026-09-11
 
+Validated implementation SHA: `65818f529d4588c2ed907fb11787e3dd83d4432c`
+
+Validation workflow run: `34613390230`
+
 ## Purpose
 
-This candidate replaces the Android UI's gray CFA parser-sentinel path with a real source-bound color preview path while preserving TruthRaw's evidence and authority boundaries.
+This candidate replaces the Android UI's active gray CFA parser-sentinel path with a real source-bound color preview path while preserving TruthRaw's evidence and authority boundaries.
 
 Execution path:
 
@@ -19,6 +23,8 @@ Execution path:
 → `BoundedSrgbPreviewSink`
 → Android sRGB `Bitmap`
 → optional JPEG appearance export.
+
+The old gray CFA sentinel bridge remains present only as a separately governed diagnostic path. `TilePreviewLoader` does not silently fall back to it.
 
 ## Authority boundary
 
@@ -45,21 +51,23 @@ This is source-faithful DNG rendering metadata. It is not independent camera/len
 
 The Android proof uses:
 
-- `ResearchEdgeAwareMeasuredPreservingReconstruction` (v4.7i),
-- `NeutralReferenceAppearance`,
-- the existing two-pass Full-Frame Streaming processor,
-- one worker,
-- 128-pixel core / 16-pixel halo,
-- bounded preview long edge (384 px in Kotlin),
+- `ResearchEdgeAwareMeasuredPreservingReconstruction` from frozen canonical v4.7i;
+- `NeutralReferenceAppearance`;
+- the existing two-pass Full-Frame Streaming processor;
+- one worker;
+- 128-pixel core / 16-pixel halo;
+- bounded preview long edge of 384 px in Kotlin;
 - no scientific diagnostic full frame.
 
 The preview sink owns only the bounded ARGB preview plus write-ownership bookkeeping. The streaming adapter must report that it owns no full RAW, SDR, half-gain, or diagnostic frame.
+
+Canonical v4.7i bytes remain unchanged. Android NDK Clang 18 reports one `-Wmisleading-indentation` warning in the frozen compact `core.cpp`; the Android CMake integration makes only that one warning non-fatal for that one canonical translation unit. Integration/research sources remain under target-wide `-Wall -Wextra -Werror`. The contract verifier prohibits broadening this exception.
 
 ## Source and memory
 
 The source file is never copied into a UI byte array. SHA-256 verification reads the source through bounded chunks. `TileNativeDngSource` reads CFA payload by requested tiles/striles. The research UI currently supplies:
 
-- source resident ceiling: 8 MiB,
+- source resident ceiling: 8 MiB;
 - logical streaming resident ceiling: 64 MiB.
 
 These are v0.1 preview proof limits, not the final Building Runtime resource policy. Scientific output authority cannot depend on these limits.
@@ -84,6 +92,55 @@ The color preview is blocked when any of the following occurs:
 
 There is no automatic fallback to the gray sentinel preview inside `TilePreviewLoader`.
 
+## Validated Android build
+
+The exact implementation at `65818f529d4588c2ed907fb11787e3dd83d4432c` passed workflow run `34613390230`.
+
+Observed proof:
+
+- Android source-bound color-preview contract: PASS;
+- Building Runtime v0.1 integrity: PASS;
+- Technical Backplane v0.1 integrity: PASS;
+- Tile-Native DNG Source v0.1 integrity: PASS;
+- Adaptive UI Ingress v0.1 contract: PASS;
+- source/color authority boundary: PASS;
+- no camera permission: PASS;
+- Kotlin compilation: PASS, with only the already-known `setDecorFitsSystemWindows` deprecation warning;
+- Android NDK/CMake arm64 compilation and JNI link: PASS;
+- APK assembly: PASS (`BUILD SUCCESSFUL in 2m 22s`);
+- packaged native bridge: `lib/arm64-v8a/libtruthraw_ui_preview_bridge.so`, 931,048 bytes;
+- APK size: 3,356,541 bytes;
+- APK SHA-256: `b377ba11f6dff14ddf0375e7f1146650e62e3d28b3f4e4608de0289e6604af66`;
+- artifact name: `truthraw-android-source-bound-color-preview-v0.1-debug-arm64`;
+- artifact ID: `10269945881`;
+- uploaded artifact ZIP size: 1,078,019 bytes;
+- uploaded artifact ZIP SHA-256: `7f72f3fae7f28756f2e34be3e56bb3fe4c9206a54d10ab06049c1d0ed6b76780`;
+- CI reports `color_authority=SOURCE_METADATA_BOUND`;
+- CI reports `appearance_release=ALLOWED_LABELED`;
+- CI reports `scientific_preview_release=BLOCKED_PRE_MASTER`;
+- CI reports `scientific_claim=BLOCKED_PRE_MASTER`;
+- CI reports `source_raw_full_materialization=0_by_contract`;
+- CI reports `physical_frame_count=1 independent_evidence_count=1`.
+
+## Preserved failure history
+
+The first Android integration candidate at `3ea45d9e65a3281b862378e9affefec643b4af19` failed workflow run `34612805148` during `assembleDebug` because Android NDK Clang 18 promoted the frozen canonical v4.7i `-Wmisleading-indentation` style diagnostic to an error under target-wide `-Werror`.
+
+That run remains **FAIL**. The repair did not modify canonical v4.7i bytes and did not globally weaken `-Werror`; it introduced one source-scoped toolchain-compatibility exception for frozen `core.cpp`. Full details are preserved in `FAILURE_HISTORY_v0_1.md`.
+
 ## Proof boundary
 
-Until CI and physical-device testing exist, this branch proves only source-level integration intent. APK build success will not equal physical Honor/MotionCam DNG proof. A real MotionCam/Honor DNG, on-device RSS/thermal/frame-time observations, and the future deterministic Scientific Master digest/Backplane phase-2 finalization remain separate validation steps.
+This proves build/package/static-contract integration for the arm64 Android candidate. It does **not** yet prove:
+
+- successful execution on the physical Honor target;
+- successful preview of a real MotionCam/Honor DNG on-device;
+- on-device RSS, thermal behavior, latency or frame time;
+- arbitrary provider compatibility beyond the existing seekable-fd contract;
+- independently calibrated camera/lens color;
+- `FULL_PHYSICAL` color truth;
+- a deterministic Scientific Master digest;
+- a real phase-2 Technical Backplane finalization;
+- finalized Scientific Preview authority;
+- multi-capture fusion/HDR science.
+
+A real MotionCam/Honor DNG and physical-device run are therefore the next empirical validation boundary, while Scientific Master digest/Backplane phase 2 remains a separate architecture step.
