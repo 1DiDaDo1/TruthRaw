@@ -12,7 +12,7 @@ Illumination Room GitHub Actions run: `34547369624` — **SUCCESS**
 
 Documentation Governance run on the same implementation head: `34547369523` — **SUCCESS**
 
-The report/state commits that record these results are documentation-only descendants. The validated implementation SHA above is intentionally kept distinct from later self-documenting commits.
+Later branch heads only document the already validated implementation and all-room handoff invariant. They do not alter the v0.2 native implementation or canonical reconstruction. The validated implementation SHA is therefore intentionally distinct from the current documentation-only branch head.
 
 ## What passed
 
