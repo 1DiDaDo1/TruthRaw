@@ -1,0 +1,72 @@
+name: Adaptive UI + Ingress v0.1 APK Build
+
+on:
+  push:
+    branches:
+      - research/adaptive-ui-ingress-v0.1-2026-09-11
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/adaptive-ui-ingress-v0.1/**'
+      - '.github/workflows/adaptive-ui-ingress-v0-1-apk-build.yml'
+  pull_request:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/adaptive-ui-ingress-v0.1/**'
+      - '.github/workflows/adaptive-ui-ingress-v0-1-apk-build.yml'
+
+jobs:
+  build-adaptive-ui:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream TruthRaw integrity
+        run: |
+          python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/android-on-device-validation-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Adaptive UI ingress contract
+        run: python3 docs/research/adaptive-ui-ingress-v0.1/tools/verify_contract_v0_1.py
+
+      - name: UI has no camera permission
+        run: |
+          if grep -R "android.permission.CAMERA" app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml; then
+            echo "Adaptive UI prototype must not acquire capture authority"
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble adaptive UI APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Report APK evidence
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$APK"
+          echo "adaptive_ui_apk_bytes=$(stat -c%s "$APK")"
+          echo "adaptive_ui_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo "source_raw_full_materialization=0_by_ingress_contract"
+          echo "multi_capture_auto_fusion=0"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-adaptive-ui-v0.1-debug-apk
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
