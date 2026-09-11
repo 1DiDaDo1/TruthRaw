@@ -1,9 +1,22 @@
 # Finalized Scientific Preview Route v0.1
 
-Status: **RESEARCH IMPLEMENTATION CANDIDATE — CI PROOF REQUIRED BEFORE PROMOTION**
+Status: **VALIDATED RESEARCH IMPLEMENTATION — DIRECT-NATIVE AUTHORITY ROUTE**
 
 Parent validated streaming Scientific Master head:
 `5af2d3474539dc3911d8e3420c08b3e17149b987`
+
+Validated implementation head:
+`89544bdced5fb225000adf3657673f37478f63c3`
+
+Validation evidence:
+- Finalized Scientific Preview Route v0.1 run `34642089037` — SUCCESS
+  - GCC Release — SUCCESS
+  - Clang Release — SUCCESS
+  - Clang ASan/UBSan — SUCCESS
+- Documentation Governance run `34642089078` — SUCCESS on the same implementation head
+
+Negative evidence retained:
+- run `34641953582` failed during compilation before tests because the new test used an ambiguous status name / cast form; this failed run remains part of project history and was not reclassified or erased.
 
 ## Purpose
 
@@ -26,7 +39,7 @@ A source ID string alone is not accepted as sufficient proof. `finalize_direct_n
 
 This prevents a caller from supplying a second unrelated CFA tile stream while reusing the original source ID.
 
-A one-byte mutation after preparation must fail during source reverification before Scientific Master computation.
+A one-byte mutation after preparation fails during source reverification before Scientific Master computation.
 
 ## Color authority remains bounded
 
@@ -38,7 +51,7 @@ A complete Scientific Master/Backplane lineage does not manufacture stronger col
 
 ## Scientific state
 
-The route uses the already validated Scientific Master Streaming Binding v0.1:
+The route uses the validated Scientific Master Streaming Binding v0.1:
 - fixed 64x64 scientific grid;
 - camera-native reconstructed RGB before XYZ/appearance;
 - deterministic Scientific Master SHA-256;
@@ -55,23 +68,21 @@ Technical Backplane phase 2 then binds separately:
 
 The serialized Backplane remains exactly 180 bytes.
 
-## Validation gates
+## Validated gates
 
-The end-to-end synthetic DNG test requires:
+The end-to-end synthetic DNG test proves the implementation can:
 1. build a valid uncompressed 16-bit 2x2 CFA DNG in memory;
 2. compute its real source SHA-256 seal;
 3. prepare source-metadata-bound color authority;
-4. reverify the same bytes;
-5. open TileNativeDngSource from the same bytes;
+4. reverify the same bytes immediately before finalization;
+5. open TileNativeDngSource from those same bytes;
 6. compute the streaming Scientific Master and self-gauge;
 7. complete Technical Backplane phase 2;
 8. finalize the existing Scientific Preview admission;
 9. deserialize and validate the 180-byte Backplane;
-10. prove a one-byte source mutation is rejected;
-11. prove source-bound finalization does not gain independent physical color authority;
-12. prove an independently calibrated binding can carry the stronger calibrated claim flag without changing frame/evidence counts.
-
-CI must pass GCC Release, Clang Release and Clang ASan/UBSan.
+10. reject a one-byte source mutation;
+11. keep source-bound finalization from gaining independent physical color authority;
+12. allow an independently calibrated binding to carry the stronger calibrated claim flag without changing frame/evidence counts.
 
 ## Scope / non-claims
 
@@ -85,6 +96,8 @@ This v0.1 closes the **direct-native** authority route only. It does not yet pro
 - Gatehouse decoded-measurement finalization (requires a separate certified-handoff route);
 - cross-CPU bit-identical v4.7i floating-point reconstruction.
 
-The next output task after CI proof is to use this admission as the release gate for the already designed Scientific Preview representation, then generate a phone-viewable JPEG/ARGB preview without confusing that projection with the Scientific Master.
+## Next integration step
+
+Use this validated admission as the release gate for the already designed Android Scientific Preview representation. The existing bounded sRGB/ARGB_8888/JPEG renderer is retained; the new work is an authority/release integration, not a new preview design. Source-bound appearance may remain available as a correctly labeled pre-finalization fallback, but it must never be relabeled as a finalized Scientific Preview when this gate has not passed.
 
 **Measured where measured. Reconstructed where necessary. Never invented.**
