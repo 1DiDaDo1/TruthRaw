@@ -88,6 +88,7 @@ struct TransitHandoff {
     bool sourceEvidenceBindingVerified = false;
     bool decodedRepresentationImmutable = false;
     bool decodedRepresentationPersistedOrExternallyOwned = false;
+    bool decodedRepresentationIntegrityVerified = false;
     bool decoderContextLive = false;
     bool mutableDecoderStateSharedWithMainHouse = false;
     bool zeroLineCreatedInGatehouse = false;
