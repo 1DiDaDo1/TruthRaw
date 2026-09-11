@@ -22,9 +22,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_compile_options(truthraw_v47i_frozen_core_fspr PRIVATE -Wno-error=misleading-indentation)
 endif()
 
-add_executable(test_finalized_scientific_preview_release_v0_1
+set(FSPR_COMMON_SOURCES
     native/finalized_scientific_preview_release_v0_1.cpp
-    tests/test_finalized_scientific_preview_release_v0_1.cpp
     "${PREVIEW}/bounded_srgb_preview_sink_v0_1.cpp"
     "${STREAMING}/full_frame_streaming_v0_1.cpp"
     "${STREAMING}/full_frame_streaming_v0_1_plan.cpp"
@@ -40,8 +39,9 @@ add_executable(test_finalized_scientific_preview_release_v0_1
     $<TARGET_OBJECTS:truthraw_v47i_frozen_core_fspr>
 )
 
-target_include_directories(test_finalized_scientific_preview_release_v0_1 PRIVATE
+set(FSPR_COMMON_INCLUDES
     native
+    tests
     "${PREVIEW}"
     "${STREAMING}"
     ../scientific-master-streaming-binding-v0.1/native
@@ -55,20 +55,35 @@ target_include_directories(test_finalized_scientific_preview_release_v0_1 PRIVAT
     "${V47I}/include"
 )
 
-if(MSVC)
-    target_compile_options(test_finalized_scientific_preview_release_v0_1 PRIVATE /W4 /WX)
-else()
-    target_compile_options(test_finalized_scientific_preview_release_v0_1 PRIVATE
-        -Wall -Wextra -Wpedantic -Werror)
-endif()
+function(configure_fspr_test target)
+  target_include_directories(${target} PRIVATE ${FSPR_COMMON_INCLUDES})
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4 /WX)
+  else()
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  endif()
+  if(TRUTHRAW_FSPR_ENABLE_SANITIZERS AND NOT MSVC)
+    target_compile_options(${target} PRIVATE
+        -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(${target} PRIVATE
+        -fsanitize=address,undefined -fno-omit-frame-pointer)
+  endif()
+endfunction()
 
-if(TRUTHRAW_FSPR_ENABLE_SANITIZERS AND NOT MSVC)
-    target_compile_options(test_finalized_scientific_preview_release_v0_1 PRIVATE
-        -fsanitize=address,undefined -fno-omit-frame-pointer)
-    target_link_options(test_finalized_scientific_preview_release_v0_1 PRIVATE
-        -fsanitize=address,undefined -fno-omit-frame-pointer)
-endif()
+add_executable(test_finalized_scientific_preview_release_v0_1
+    tests/test_finalized_scientific_preview_release_v0_1.cpp
+    ${FSPR_COMMON_SOURCES}
+)
+configure_fspr_test(test_finalized_scientific_preview_release_v0_1)
+
+add_executable(test_inprocess_finalized_preview_equivalence_v0_1
+    tests/test_inprocess_finalized_preview_equivalence_v0_1.cpp
+    ${FSPR_COMMON_SOURCES}
+)
+configure_fspr_test(test_inprocess_finalized_preview_equivalence_v0_1)
 
 enable_testing()
 add_test(NAME finalized_scientific_preview_release_v0_1
          COMMAND test_finalized_scientific_preview_release_v0_1)
+add_test(NAME inprocess_finalized_preview_equivalence_v0_1
+         COMMAND test_inprocess_finalized_preview_equivalence_v0_1)
