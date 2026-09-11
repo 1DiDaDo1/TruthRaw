@@ -1,0 +1,22 @@
+truthraw_android_validation_android_arm64_build_v0_1
+status=PASS
+source_commit=74d10a84a02a8019d4a3c31e9e91050b5e1d0354
+workflow=Android On-Device Validation v0.1 APK Build
+run_id=34571628677
+job_id=103174785811
+compile_sdk=35
+target_sdk=35
+min_sdk=31
+ndk=27.2.12479018
+cmake=3.22.1
+gradle=8.9
+abi=arm64-v8a
+jni_library=lib/arm64-v8a/libtruthraw_validation_bridge.so
+jni_library_size_bytes=992968
+apk_sha256=9e35956667e3d54eda139253c7664ee0d6940155831738e69517602e3f42d6c6
+artifact_name=truthraw-on-device-validation-v01-debug-arm64
+artifact_archive_sha256=950ed07a9057270aa5c042973940e7f7c6d5eb16337037480303f384343ac952
+host_validation_run_id=34566632602
+android_device_execution=NOT_RUN
+scene_iso_axis=ABSENT_BY_CONTRACT
+scientific_state_mutation=FORBIDDEN

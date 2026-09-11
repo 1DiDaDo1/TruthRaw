@@ -1,6 +1,6 @@
 {
   "schema": "TruthRawAndroidOnDeviceValidationState/0.1",
-  "status": "RESEARCH_HARNESS_HOST_CI_PASS_ANDROID_DEVICE_EVIDENCE_PENDING",
+  "status": "RESEARCH_HARNESS_HOST_CI_AND_ANDROID_ARM64_BUILD_PASS_DEVICE_EXECUTION_PENDING",
   "stacked_base_sha": "497bbea144f2e0b30c203aa7c5b3f40c8f47a16e",
   "validated_host_implementation_sha": "b32b7a784f01a4792550e4c47cff70c55c850cd5",
   "validation": {
@@ -10,6 +10,13 @@
     "gcc_release": "PASS",
     "clang_release": "PASS",
     "asan_ubsan": "PASS",
+    "android_arm64_build_run_id": 34571628677,
+    "android_arm64_build_job_id": 103174785811,
+    "android_arm64_build_source_commit": "74d10a84a02a8019d4a3c31e9e91050b5e1d0354",
+    "android_arm64_build_result": "PASS",
+    "apk_sha256": "9e35956667e3d54eda139253c7664ee0d6940155831738e69517602e3f42d6c6",
+    "jni_bridge_size_bytes": 992968,
+    "artifact_archive_sha256": "950ed07a9057270aa5c042973940e7f7c6d5eb16337037480303f384343ac952",
     "android_device_evidence": "PENDING"
   },
   "authority_boundary": {
@@ -37,7 +44,8 @@
     "allocator_telemetry_optional": true,
     "missing_allocator_coverage_reported_explicitly": true,
     "thermal_state_reuses_building_runtime_enum": true,
-    "thermal_sdk_bridge_proven_on_android": false,
+    "thermal_sdk_bridge_compiled_for_android": true,
+    "thermal_sdk_bridge_proven_on_physical_android": false,
     "telemetry_storage_unbounded": false,
     "latency_histogram_buckets": 20
   },
@@ -60,10 +68,14 @@
   "proof_boundary": {
     "host_proc_parser_tested": true,
     "host_live_proc_self_status_tested": true,
+    "android_arm64_apk_build": true,
+    "android_native_bridge_packaged": true,
+    "android_thermal_sdk_bridge_compiled": true,
+    "android_device_execution": false,
     "android_proc_self_status_tested": false,
     "android_rss_measured": false,
     "android_allocator_telemetry_bound": false,
-    "android_thermal_source_bound": false,
+    "android_thermal_source_bound_on_device": false,
     "android_real_throughput_measured": false,
     "android_sustained_thermal_tested": false,
     "android_vulkan_tested": false,

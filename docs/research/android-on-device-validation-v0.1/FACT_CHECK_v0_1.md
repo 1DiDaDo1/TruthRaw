@@ -2,75 +2,41 @@
 
 ## Proven on host CI
 
-Validated implementation: `b32b7a784f01a4792550e4c47cff70c55c850cd5`.
+Implementation `b32b7a784f01a4792550e4c47cff70c55c850cd5` passed run `34566632602` with Building Runtime integrity, Technical Backplane integrity, GCC Release, Clang Release and ASan+UBSan.
 
-GitHub Actions run `34566632602` completed successfully with:
+The host proof covers the measurement contract: session-relative RSS budgeting, bounded telemetry, thermal/background replan signaling, full 180-byte Backplane identity preservation, physical frame count 1, independent evidence count 1, and absence of a scene ISO axis.
 
-- Building Runtime v0.1 integrity PASS;
-- Technical Backplane v0.1 integrity PASS;
-- GCC Release PASS;
-- Clang Release PASS;
-- ASan+UBSan PASS.
+## Proven as Android arm64 build/integration
 
-The host tests prove the C++ contracts below.
+Source commit `74d10a84a02a8019d4a3c31e9e91050b5e1d0354` passed Android build run `34571628677` / job `103174785811`.
 
-### Resource authority remains upstream
+Verified by CI:
+- Android SDK/target 35, minSdk 31;
+- NDK `27.2.12479018`;
+- CMake `3.22.1`;
+- Gradle 8.9;
+- `arm64-v8a` only;
+- same native validation core compiled through the NDK;
+- JNI bridge packaged at `lib/arm64-v8a/libtruthraw_validation_bridge.so`;
+- JNI bridge packaged size 992,968 bytes;
+- APK SHA-256 `9e35956667e3d54eda139253c7664ee0d6940155831738e69517602e3f42d6c6`;
+- artifact archive digest `950ed07a9057270aa5c042973940e7f7c6d5eb16337037480303f384343ac952`;
+- Kotlin `PowerManager.currentThermalStatus` adapter compiled.
 
-The validator consumes `ResourcePolicy` from Building Runtime and an admitted `AdaptiveAllRoomPlan` from Room ABI v0.2. It does not derive a competing scheduler policy or modify the plan.
+This is a build/integration proof. It is **not** evidence that the APK has executed on physical Android hardware.
 
-### Truth identity is protected
+## Preserved failures
 
-The exact 180-byte Technical Backplane before-state is serialized into the session contract. Finalization requires the complete serialized after-state to match. A changed zero-line hash is rejected with `SCIENTIFIC_IDENTITY_CHANGED`.
+- `02e4ac...` / run `34571063395`: build stopped on an unnecessary AndroidX dependency. Fix: remove the unused dependency.
+- `8ea6f426...` / run `34571334332`: Java/Kotlin JVM target mismatch. Fix: align both to 17.
+- `74d10a84...` / run `34571628677`: APK build, native-library packaging check and artifact upload PASS.
 
-The host fixture retains:
-
-- physical frame count = 1;
-- independent evidence count = 1;
-- forbidden flags = 0;
-- scene ISO axis absent.
-
-### RSS budget gate is session-relative
-
-The validator uses peak `VmRSS` growth relative to the first valid session RSS sample. It does not compare absolute process RSS against the TruthRaw job budget.
-
-The deterministic fixture has:
-
-- baseline RSS = 100 MiB;
-- peak RSS = 108 MiB;
-- peak session delta = 8 MiB;
-- low Runtime budget = 32 MiB.
-
-A 40 MiB session delta against the same 32 MiB budget is rejected with `MEMORY_BUDGET_EXCEEDED`.
-
-### Thermal/background replan is fail-closed
-
-A nominal high-tier policy (four heavy rooms / 512 px tile) presented with severe thermal state is rejected with `RUNTIME_REPLAN_REQUIRED`.
-
-The real Building Runtime severe-thermal policy is accepted: one heavy room, 128 px tile and CPU baseline.
-
-A high-tier foreground policy observed after moving to background is also marked for replan when its concurrency/cache behavior is no longer conservative.
-
-### Telemetry is bounded
-
-The recorder stores aggregates and a fixed 20-bucket latency histogram. It does not retain full frame buffers, tile payloads or an unbounded telemetry vector.
+No truth, ISO, Backplane, memory-admission or reconstruction gate was weakened to obtain the Android build PASS.
 
 ## Not proven
 
-The successful host run does **not** prove:
-
-- execution on Android;
-- Android `/proc/self/status` availability/semantics on the target device;
-- real target-device RSS or RSS peak;
-- Android allocator statistics or allocator fragmentation;
-- Android thermal callback integration;
-- real target-device throughput;
-- thermal throttling under sustained processing;
-- Vulkan performance/correctness on Android;
-- 200 MP target workload behavior;
-- production media encoder performance.
-
-`read_proc_self_status()` was live-tested on the Ubuntu 24.04 GitHub runner only. The shared Linux procfs mechanism makes it a plausible Android probe, but that is an implementation hypothesis until device execution records it.
+Still open are physical-device APK execution, Android RSS/allocator measurements, real thermal behavior, real throughput/throttling, Vulkan behavior, 200 MP processing and production media encoding performance.
 
 ## Scientific conclusion
 
-This v0.1 result promotes only the **measurement harness contract** to host-CI-pass status. It does not promote Android-device performance, reconstruction quality, FULL_PHYSICAL calibration, or any new scene evidence.
+The result promotes only the validation harness from host-only proof to **host-CI plus Android arm64 build/integration proof**. Runtime telemetry remains execution evidence, never scene evidence. The global zero-line and scientific identity remain immutable, and ISO remains absent as a scene axis.
