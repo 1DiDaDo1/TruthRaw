@@ -50,9 +50,21 @@ required_cmake = [
     "bounded_srgb_preview_sink_v0_1.cpp",
     "technical_backplane_v0_1.cpp",
     "core.cpp",
+    "target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)",
 ]
 for token in required_cmake:
     assert token in cmake, f"missing CMake integration: {token}"
+
+# Frozen canonical v4.7i contains one compact line rejected by Android Clang 18
+# under -Werror=misleading-indentation. The compatibility exception must remain
+# exactly source-scoped to core.cpp; a global warning downgrade is forbidden.
+compat = '-Wno-error=misleading-indentation'
+assert cmake.count(compat) == 1, "canonical warning adapter must occur exactly once"
+assert "set_source_files_properties(" in cmake
+assert "${V47I_NATIVE}/src/core.cpp" in cmake
+assert "PROPERTIES COMPILE_OPTIONS \"-Wno-error=misleading-indentation\"" in cmake
+assert f"target_compile_options(truthraw_ui_preview_bridge PRIVATE {compat}" not in cmake
+assert "-Wno-error" not in cmake.replace(compat, ""), "no additional warning downgrade is allowed"
 
 required_kotlin = [
     "buildSourceBoundColorPreview",
@@ -79,4 +91,7 @@ print("scientific_preview_release=BLOCKED_PRE_MASTER")
 print("scientific_claim=BLOCKED_PRE_MASTER")
 print("full_raw_materialization=FORBIDDEN")
 print("preview_sentinel_fallback=AUTO_DISABLED")
+print("canonical_v4_7i_bytes=UNCHANGED")
+print("canonical_android_clang_warning_adapter=SOURCE_SCOPED_ONLY")
+print("strict_werror=RETAINED_FOR_INTEGRATION_SOURCES")
 print("physical_frame_count=1 independent_evidence_count=1")
