@@ -1,0 +1,92 @@
+name: Android On-Device Validation v0.1 APK Build
+
+on:
+  push:
+    paths:
+      - 'capture/android/on-device-validation-v01/**'
+      - 'docs/research/android-on-device-validation-v0.1/**'
+      - 'docs/research/room-abi-v0.2/native/**'
+      - 'docs/research/building-runtime-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - 'docs/research/local-illumination-room-v0.2/native/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
+      - 'docs/research/room-abi-v0.1/native/**'
+      - 'docs/research/manifold-conditioning-v1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/include/**'
+      - '.github/workflows/android-on-device-validation-v0-1-apk-build.yml'
+  pull_request:
+    paths:
+      - 'capture/android/on-device-validation-v01/**'
+      - 'docs/research/android-on-device-validation-v0.1/**'
+      - 'docs/research/room-abi-v0.2/native/**'
+      - 'docs/research/building-runtime-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - 'docs/research/local-illumination-room-v0.2/native/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
+      - 'docs/research/room-abi-v0.1/native/**'
+      - 'docs/research/manifold-conditioning-v1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/include/**'
+      - '.github/workflows/android-on-device-validation-v0-1-apk-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-arm64-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream scientific and runtime integrity
+        run: |
+          python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/android-on-device-validation-v0.1/tools/verify_integrity_v0_1.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 validation APK
+        working-directory: capture/android/on-device-validation-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify native bridge packaged
+        working-directory: capture/android/on-device-validation-v01
+        run: |
+          APK='app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_validation_bridge.so'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_validation_bridge.so'; then
+            echo 'Unexpected non-arm64 validation bridge ABI' >&2
+            exit 1
+          fi
+          sha256sum "$APK"
+
+      - name: Upload validation APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-on-device-validation-v01-debug-arm64
+          path: capture/android/on-device-validation-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
