@@ -17,6 +17,7 @@ bootstrap = need("START_HERE_NEW_CHAT.md")
 state_readme = need("state/README.md")
 state_text = need("state/CURRENT_CANONICAL_STATE_2026-09-11.json")
 index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-11.md")
+policy = need("docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md")
 house = need("docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-11.md")
 modules = need("docs/CURRENT_MODULE_STATUS_2026-09-11.md")
 claims = need("docs/CURRENT_CLAIM_MAP_2026-09-11.md")
@@ -32,6 +33,7 @@ current_required = (
     "docs/CURRENT_CLAIM_MAP_2026-09-11.md",
     "docs/CI_EVIDENCE_INDEX_2026-09-11.md",
     "docs/DOCUMENT_STATUS_INDEX_2026-09-11.md",
+    "docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md",
     "docs/CHAT_HANDOFF_2026-09-11.md",
     "docs/PROJECT_STATE_AUDIT_2026-09-11.md",
 )
@@ -39,7 +41,7 @@ for required in current_required:
     if required not in root_readme:
         errors.append(f"root_readme_missing_pointer:{required}")
 
-for required in current_required[:7]:
+for required in current_required[:8]:
     if required not in bootstrap:
         errors.append(f"bootstrap_missing_pointer:{required}")
 
@@ -96,6 +98,7 @@ expected_entries = {
     "docs/CURRENT_CLAIM_MAP_2026-09-11.md",
     "docs/CI_EVIDENCE_INDEX_2026-09-11.md",
     "docs/DOCUMENT_STATUS_INDEX_2026-09-11.md",
+    "docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md",
     "docs/CHAT_HANDOFF_2026-09-11.md",
     "state/CURRENT_CANONICAL_STATE_2026-09-11.json",
 }
@@ -106,6 +109,28 @@ for p in entries:
     if p.startswith("docs/research/"):
         errors.append(f"research_readme_must_not_be_global_entrypoint:{p}")
 
+sync = state.get("documentation_sync", {})
+if sync.get("policy") != "docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md":
+    errors.append("documentation_sync_policy_not_bound")
+if sync.get("required_for_every_substantive_work_cycle") is not True:
+    errors.append("documentation_sync_not_mandatory")
+if sync.get("historical_or_sealed_bytes_may_be_rewritten_for_cosmetic_currency") is not False:
+    errors.append("documentation_sync_historical_guard_missing")
+
+for token in (
+    "Every substantive TruthRaw project change must update documentation",
+    "Historical and sealed material",
+    "Required check before ending a work cycle",
+):
+    if token not in policy:
+        errors.append(f"documentation_sync_policy_token_missing:{token[:24]}")
+
+if "DOCUMENTATION_SYNC_POLICY_2026-09-11.md" not in root_readme:
+    errors.append("root_missing_documentation_sync_policy")
+if "DOCUMENTATION_SYNC_POLICY_2026-09-11.md" not in bootstrap:
+    errors.append("bootstrap_missing_documentation_sync_policy")
+if "DOCUMENTATION_SYNC_POLICY_2026-09-11.md" not in handoff:
+    errors.append("handoff_missing_documentation_sync_policy")
 if "CURRENT_CANONICAL_STATE_2026-09-11.json" not in state_readme:
     errors.append("state_readme_not_pointing_to_2026_09_11")
 
@@ -121,7 +146,6 @@ for text, label in ((root_readme,"root"),(bootstrap,"bootstrap"),(house,"house")
     if "canonical/ptc/v1.1" in text and "Pure Truth Certificate" not in text:
         errors.append(f"ptc_name_guard_missing:{label}")
 
-# Guard key proof boundaries against documentation drift.
 for token, label in (
     ("SOURCE_BOUND_APPEARANCE_PREVIEW", "appearance_role"),
     ("scientificPreviewReleaseAllowed=false", "scientific_preview_block"),
@@ -137,10 +161,6 @@ if "Never rewrite any of these failed runs as success" not in ci_index:
 if "immutable historical" not in audit.lower():
     errors.append("audit_historical_preservation_missing")
 
-# README-like files outside the global entrypoints are module-local by directory.
-# They are allowed to preserve exact version/history semantics and must not be
-# rewritten merely to look globally current. This scan only rejects an unknown
-# top-level/global-like location that has not been classified deliberately.
 module_prefixes = (
     "canonical/",
     "docs/research/",
@@ -180,6 +200,7 @@ if errors:
 print("DOCUMENTATION_GOVERNANCE_PASS")
 print("snapshot=2026-09-11")
 print(f"authoritative_entrypoints={len(expected_entries)}")
+print("documentation_sync=MANDATORY")
 print("historical_snapshots_preserved=2026-09-10_and_earlier")
 print("zero_line_storage=IMMUTABLE_SHARED_SINGLE_BINDING")
 print("research_vs_main=EXPLICIT")
