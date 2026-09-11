@@ -1,1 +1,0 @@
-Temporary wiring note; superseded by final documentation synchronization commit.
