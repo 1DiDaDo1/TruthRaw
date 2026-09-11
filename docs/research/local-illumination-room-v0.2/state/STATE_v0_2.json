@@ -34,7 +34,9 @@
     "relative_ev_uses_iso": false,
     "capture_iso_provenance": "OUTSIDE_ILLUMINATION_ROOM_SCENE_STATE",
     "calibrated_sensor_forward_nominal_iso": "CICM_SENSOR_MODE_ONLY",
-    "calibrated_sensor_forward_iso_promotes_to_scene": false
+    "calibrated_sensor_forward_iso_promotes_to_scene": false,
+    "all_room_binding_must_preserve_iso_free_scene": true,
+    "room_may_promote_capture_iso_to_scene_authority": false
   },
   "scenario_semantics": [
     "RELATIVE_DAYLIGHT_STUDY",
