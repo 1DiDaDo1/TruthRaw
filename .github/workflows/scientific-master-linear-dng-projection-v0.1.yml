@@ -1,0 +1,55 @@
+name: Scientific Master Linear DNG Projection v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - '.github/workflows/scientific-master-linear-dng-projection-v0.1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - '.github/workflows/scientific-master-linear-dng-projection-v0.1.yml'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC Release
+            cc: gcc
+            cxx: g++
+            build_type: Release
+            sanitizers: OFF
+          - name: Clang Release
+            cc: clang
+            cxx: clang++
+            build_type: Release
+            sanitizers: OFF
+          - name: Clang ASan UBSan
+            cc: clang
+            cxx: clang++
+            build_type: Debug
+            sanitizers: ON
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: >-
+          cmake -S docs/research/scientific-master-linear-dng-projection-v0.1
+          -B build/scientific-master-linear-dng-projection-v0.1
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DTRUTHRAW_SMLDP_V01_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: Build
+        run: cmake --build build/scientific-master-linear-dng-projection-v0.1 --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/scientific-master-linear-dng-projection-v0.1 --output-on-failure
