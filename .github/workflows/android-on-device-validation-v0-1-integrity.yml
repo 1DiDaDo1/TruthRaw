@@ -25,6 +25,20 @@ jobs:
           python3 docs/research/building-runtime-v0.1/tools/verify_integrity_v0_1.py
           python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
 
+      - name: Candidate SHA256
+        run: |
+          cd docs/research/android-on-device-validation-v0.1
+          sha256sum \
+            CMakeLists.txt \
+            README.md \
+            FACT_CHECK_v0_1.md \
+            REPORT_v0_1.md \
+            native/android_on_device_validation_v0_1.h \
+            native/android_on_device_validation_v0_1.cpp \
+            tests/test_android_on_device_validation_v0_1.cpp \
+            evidence/HOST_TEST_METRICS_v0_1.txt \
+            state/STATE_v0_1.json
+
       - name: GCC Release
         run: |
           cmake -S docs/research/android-on-device-validation-v0.1 -B /tmp/android_validation_v01_gcc \
