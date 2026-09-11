@@ -1,0 +1,133 @@
+{
+  "schema": "TruthRawCurrentCanonicalState/2026-09-11-handoff-v1",
+  "project": "TruthRaw",
+  "snapshot_date": "2026-09-11",
+  "promoted_main_head": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "integrated_research_handoff_head": "2fdf05ca1bbbc59cd8867df0cae117d1eec92d51",
+  "integrated_research_branch": "research/android-source-bound-color-preview-v0.1-2026-09-11",
+  "documentation_branch": "docs/project-handoff-2026-09-11",
+  "authoritative_entrypoints": [
+    "README.md",
+    "START_HERE_NEW_CHAT.md",
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-11.md",
+    "docs/CURRENT_MODULE_STATUS_2026-09-11.md",
+    "docs/CURRENT_CLAIM_MAP_2026-09-11.md",
+    "docs/CI_EVIDENCE_INDEX_2026-09-11.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-11.md",
+    "docs/CHAT_HANDOFF_2026-09-11.md",
+    "state/CURRENT_CANONICAL_STATE_2026-09-11.json"
+  ],
+  "historical_snapshots_not_bootstrap": [
+    "state/CURRENT_CANONICAL_STATE_2026-09-10.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-09.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-06.json",
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
+    "docs/PROJECT_STATE_AUDIT_2026-09-08.md",
+    "state/REPOSITORY_MIGRATION_STATUS.json"
+  ],
+  "scientific_invariants": {
+    "slogan": "Measured where measured. Reconstructed where necessary. Never invented.",
+    "sealed_direct_cfa_evidence": true,
+    "ordinary_single_frame_physical_frame_count": 1,
+    "ordinary_single_frame_independent_evidence_count": 1,
+    "measured_reconstructed_counterfactual_appearance_projection_separated": true,
+    "counterfactual_is_original_world_evidence": false,
+    "virtual_views_are_independent_evidence": false,
+    "apk_gcam_can_determine_truthraw": false,
+    "scientific_master_separate_from_export": true,
+    "resource_capacity_changes_truth_authority": false
+  },
+  "zero_line": {
+    "formula": "T=log2(L/L0), L0>0",
+    "meaning": "shared scene-reference gauge; not DNG BlackLevel, sensor black, clipping, display black or zero photons",
+    "memory_ownership": "IMMUTABLE_SHARED_SINGLE_BINDING"
+  },
+  "promoted_main": {
+    "head": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+    "latest_named_promotion": "Technical Backplane v0.1",
+    "research_stack_auto_promoted": false
+  },
+  "native_direct_route": {
+    "module": "TileNativeDngSource v0.1",
+    "status": "VALIDATED_STRICT_SUBSET_RESEARCH_USED_BY_STACKED_INTEGRATION",
+    "supported_subset": "classic TIFF/DNG; 2x2 RGB Bayer; one unsigned 16-bit sample/pixel; Compression=1; supported metadata/opcode subset",
+    "unsupported_fail_closed_examples": ["packed 10/12/14-bit", "compressed DNG", "BigTIFF", "X-Trans/non-2x2 CFA", "unsupported opcodes/topology"]
+  },
+  "main_house": {
+    "rooms": 12,
+    "streaming_processor": "Full-Frame Streaming v0.1",
+    "canonical_scientific_reconstruction": "v4.7i measured-preserving single-frame baseline",
+    "appearance_successors_do_not_replace_science": true,
+    "resource_truth_separation": true
+  },
+  "professional_raw": {
+    "ingress_head": "dadc6f95c82007da7060462cb10ced39921fc366",
+    "decoder_adapter_head": "5bfff6aa5e042efe782fc629cca5605a11713531",
+    "libraw_probe_branch_head": "4f2232278fcff4cb4e7d9dff99e03fcf8ec7efff",
+    "libraw_probe_validated_implementation": "1d6a165cad53bfb8257cfb764ee63c4c5c5819d9",
+    "libraw_probe_validation_run": 34595504942,
+    "libraw_fd_datastream_head": "f428394dcb6a6ee2ff2e683927a9d1dd632377c0",
+    "gatehouse_head": "8d417d2c8bda7eb011b68c5acadac0dc01405cfe",
+    "decoded_handoff_head": "b4c25c267867769313ce7c79be1fb14968a8b13f",
+    "decoded_tile_source_head": "0edca8edab8afed9aad83b133c8f578e8b7860e4",
+    "decoded_main_house_e2e_head": "b45b32f1302df0355cf733bf0d42fc6eca90d561",
+    "decoded_main_house_e2e_ci_proven": false,
+    "certified_production_vendor_pixel_decode": false,
+    "blanket_all_raw_support_claim_allowed": false
+  },
+  "android_preview": {
+    "branch_head": "2fdf05ca1bbbc59cd8867df0cae117d1eec92d51",
+    "validated_implementation_anchor": "65818f529d4588c2ed907fb11787e3dd83d4432c",
+    "implementation_validation_run": 34613390230,
+    "current_head_validation_run": 34614165763,
+    "color_authority": "SOURCE_METADATA_BOUND",
+    "visible_role": "SOURCE_BOUND_APPEARANCE_PREVIEW",
+    "mainHouseComputeAllowed": true,
+    "sourceBoundAppearanceReleaseAllowed": true,
+    "scientificPreviewReleaseAllowed": false,
+    "scientificClaimAllowed": false,
+    "physical_device_execution_proven": false,
+    "independent_camera_lens_calibration_proven": false,
+    "phase2_backplane_finalization_proven": false
+  },
+  "preview_representation": {
+    "runtime_sdr": "bounded ARGB_8888 + explicit sRGB",
+    "portable_compatibility": "baseline JPEG 8-bit sRGB",
+    "lossless_diagnostics": "PNG",
+    "optional_future_hdr": "Ultra HDR JPEG after SDR/device proof",
+    "preview_is_evidence": false
+  },
+  "open_draft_prs_audited": {
+    "9": "Adaptive All-Room Binding v0.2",
+    "10": "Android On-Device Validation v0.1 host harness",
+    "11": "Adaptive UI + Ingress v0.1 prototype",
+    "12": "bounded TileNative Android preview v0.2",
+    "13": "Professional RAW Gatehouse Runtime v0.1",
+    "14": "Decoded Measurement Handoff v0.1",
+    "15": "Decoded Measurement Tile Source v0.1",
+    "16": "Preview Representation v0.1",
+    "17": "Reconstructed Color Preview v0.1",
+    "18": "Scientific Preview Source Binding v0.1",
+    "19": "DNG Color Binding Producer v0.1",
+    "20": "Android Source-Bound Color Preview v0.1"
+  },
+  "current_open_proof_boundaries": [
+    "physical Honor/MotionCam execution of latest source-bound color preview",
+    "on-device RSS/thermal/latency/frame-time proof",
+    "independent camera/lens calibration and FULL_PHYSICAL color",
+    "deterministic Scientific Master digest and Technical Backplane phase-2 finalization",
+    "certified real vendor RAW pixel decode adapter/corpus",
+    "CI-proven decoded-measurement Main-House E2E on current b45b32f head",
+    "multi-capture registration/fusion/HDR science"
+  ],
+  "documentation_policy": {
+    "dated_old_current_state_files": "HISTORICAL_IMMUTABLE_SNAPSHOTS",
+    "research_readmes": "MODULE_LOCAL_VERSIONED_AUTHORITY_NOT_GLOBAL_BOOTSTRAP",
+    "canonical_readmes": "EXACT_MODULE_VERSION_AUTHORITY_NOT_GLOBAL_STATUS",
+    "failed_rejected_history": "PRESERVE_AS_FAILURE",
+    "global_current_status": "ONLY_2026_09_11_ENTRYPOINTS"
+  },
+  "ptc_name_guard": "canonical/ptc/v1.1 means Pure Truth Certificate, not photon-transfer-curve calibration"
+}

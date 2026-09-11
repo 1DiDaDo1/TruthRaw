@@ -1,60 +1,120 @@
-# START HERE — TruthRaw current bootstrap
+# START HERE — TruthRaw new-chat handoff
 
-This is the authoritative session/bootstrap entry point for the renewed TruthRaw house as of 2026-09-10.
+Current handoff snapshot: **2026-09-11**
+
+This file is the primary bootstrap for a new ChatGPT/engineering session. Do not infer project status from an older dated state file or from one research README in isolation.
 
 ## Mandatory reading order
 
-1. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-2. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-3. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-4. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-5. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
-6. only then: the canonical/research module documents relevant to the task
+1. `state/CURRENT_CANONICAL_STATE_2026-09-11.json`
+2. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-11.md`
+3. `docs/CURRENT_MODULE_STATUS_2026-09-11.md`
+4. `docs/CURRENT_CLAIM_MAP_2026-09-11.md`
+5. `docs/CI_EVIDENCE_INDEX_2026-09-11.md`
+6. `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md`
+7. `docs/CHAT_HANDOFF_2026-09-11.md`
+8. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
+9. `README.md`
 
-Do **not** bootstrap from `CURRENT_CANONICAL_STATE_2026-09-06.json`, `...2026-09-08.json`, `...2026-09-09.json`, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. Those are preserved historical snapshots.
+Historical 2026-09-10 and earlier state/audit files are evidence of prior state, not current bootstrap documents.
 
-## Non-negotiable scientific rules
+## Repository coordinates
 
-The source RAW/CFA + capture metadata are immutable sealed evidence. The scientific Scene Master is a separate reconstructed state.
+- Repository: `1DiDaDo1/TruthRaw`
+- Promoted `main`: `514f2f4bde6aba5a6709e176c03b22c3b9aea912`
+- Current integrated research basis: `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51`
+- Integrated research branch: `research/android-source-bound-color-preview-v0.1-2026-09-11`
+- Documentation/handoff branch: `docs/project-handoff-2026-09-11`
 
-**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+The research basis is **not** equivalent to promotion into `main`. All PRs #9–#20 audited on 2026-09-11 remain open/draft unless a fresh GitHub check proves otherwise.
 
-Measured, reconstructed, censored/unknown, counterfactual and appearance data remain distinct. `physicalFrameCount=1` and `independentEvidenceCount=1` remain the single-frame evidence invariants.
+## Non-negotiable canon
 
-For positive physical light, TruthRange may use `T = log2(L/L0)`. The zero-line `L0` is a gauge/reference; it is not sensor black, absolute darkness, DNG BlackLevel or clipping. Signed scene-linear estimates remain distinct from the positive-light log coordinate.
+- **Measured where measured. Reconstructed where necessary. Never invented.**
+- sealed/original Direct-CFA evidence is immutable;
+- one ordinary single-frame lineage means one physical frame and one independent evidence source;
+- measured / reconstructed / counterfactual / appearance / projection are separate authorities;
+- no virtual observation can add evidence, photons or SNR;
+- no appearance operation may mutate scientific evidence;
+- APK/GCam/computational RAW cannot determine TruthRaw evidence/calibration/topology/color/noise authority;
+- resource differences may affect execution only, never scientific authority;
+- zero-line is a scene-reference gauge (`T=log2(L/L0)`), not sensor black or display black;
+- canonical v4.7i scientific reconstruction remains the measured-preserving single-frame baseline; v4.7j/v4.7k are appearance/detail layers only.
 
-Source ISO/shutter remain immutable capture provenance. Virtual EV/ISO reparameterization does not create information. Counterfactual illumination/capture may create hypothetical measurements only inside the explicitly counterfactual world; it never retroactively creates evidence.
+## Current source routing
 
-Appearance must never modify the scientific master. DNG/LinearRaw/export is a compatibility/presentation projection, not the scientific master.
+```text
+source
+  |
+  +-- native-certified strict DNG subset --> Main House
+  |
+  +-- external professional RAW --> Gatehouse
+                                  --> decode/audit/resource isolation
+                                  --> integrity-verified persisted handoff
+                                  --> decoder/context detached
+                                  --> Main House
+  |
+  +-- unknown/unsupported/unverified --> fail closed or ResearchOnly
+```
 
-APK/GCam/computational-RAW content must not determine TruthRaw evidence, calibration, topology, color, noise model or architecture.
+The Gatehouse can be started and destroyed independently of the Main House. It is a resource/failure/provenance boundary, not a second truth pipeline.
 
-`canonical/ptc/v1.1` is **Pure Truth Certificate**. Do not infer photon-transfer calibration from that path name.
+## Current Android preview route
 
-No silent LICENSE. Preserve failed/rejected experiments and their provenance.
+The newest integrated Android research route is:
 
-## Renewed house execution rules
+`ParcelFileDescriptor -> exact source SHA-256 -> source-bound DNG color metadata -> phase-1 source binding -> TileNativeDngSource -> v4.7i streaming reconstruction -> bounded sRGB appearance preview -> Bitmap/JPEG`.
 
-The Building Runtime owns orchestration; algorithms retain their own scientific contracts.
+Its visible output is **SOURCE_BOUND_APPEARANCE_PREVIEW**, not a finalized Scientific Preview or Scientific Master.
 
-- **Truth floor** controls epistemic permission.
-- **Resource profile** controls only RAM/CPU/GPU/tile/cache execution.
-- Cheap phones may run one heavy room at a time with small tiles and disposable caches.
-- Strong phones may run more compatible rooms in parallel, use larger tiles/caches and optional acceleration.
-- Hardware capability never upgrades scientific claims.
-- Corridors carry handles/provenance rather than duplicate full-frame payloads.
-- Zero-line/source/master/scene-scale identity belongs to one immutable shared backplane binding, not per-pixel duplication.
-- Rebuildable caches may be evicted; immutable evidence/master identity may not be rewritten to satisfy memory pressure.
-- Resource policy may be re-derived between room operations, never halfway through an indivisible scientific operation.
+Expected phase-1 authority:
 
-## Current implementation boundary
+- `mainHouseComputeAllowed=true`
+- `sourceBoundAppearanceReleaseAllowed=true`
+- `scientificPreviewReleaseAllowed=false`
+- `scientificClaimAllowed=false`
+- `physicalFrameCount=1`
+- `independentEvidenceCount=1`
 
-Building Runtime v0.1 and Room Capsule v0.1 are integrated on the current repository lineage. CICM v1 and Manifold Conditioning v1 remain bounded research components in that lineage.
+The gray CFA `SOURCE_PROXY` remains historical/diagnostic; it must never silently become the scientific color path.
 
-Technical Backplane v0.1 and the all-room adaptive resource layer are active research candidates; do not describe them as main-promoted until their own repository CI/promotion gates pass.
+## Professional RAW reality check
 
-The canonical v4.7i public API still owns full-frame `DecodedDngFrame.raw` and `ProcessResult.sdrRgb` vectors. The next production-memory migration is a validated streaming/tile-source/sink adapter. Do not silently rewrite canonical v4.7i before equivalence and integrity gates pass.
+Do not say “TruthRaw supports all RAWs.” Current truth is narrower:
 
-## One-sentence definition
+- routing/classification architecture exists;
+- decoder adapter contract exists;
+- LibRaw metadata compatibility probe exists and is validated with LibRaw 0.21.2;
+- borrowed-fd LibRaw datastream exists;
+- Gatehouse + persisted decoded-measurement handoff + tile-source bridge exist as research branches;
+- there is **no certified production LibRaw pixel `unpack()` adapter/corpus proving real vendor formats yet**.
 
-**TruthRaw preserves one sealed RAW observation as immutable evidence, reconstructs a separate uncertainty-aware Scene Master, and executes specialized rooms through a resource-adaptive but scientifically invariant building runtime.**
+Container extension, camera brand and successful library open are not evidence.
+
+## What is proven now
+
+See `docs/CI_EVIDENCE_INDEX_2026-09-11.md` for exact SHAs/runs. High-level validated research includes Room ABI v0.2, Android host validation harness, Android UI/Ingress, bounded gray TileNative preview, Professional RAW Ingress/Decoder Adapter/LibRaw metadata probe, Gatehouse Runtime, decoded handoff, decoded tile-source bridge, preview representation/reconstructed color, source binding, DNG color binding, and Android source-bound color-preview build integration.
+
+## What is not proven now
+
+- physical target-device execution of the latest color preview;
+- physical-device memory/thermal/frame-time behavior;
+- independent camera/lens calibration;
+- final Scientific Master digest / Backplane phase 2;
+- production professional vendor RAW pixel decode certification;
+- `decoded-measurement-main-house-e2e-v0.1` CI on its current head;
+- multi-capture fusion/HDR evidence model;
+- blanket RAW-format support.
+
+## Recommended next work
+
+1. Run the source-bound color-preview APK on the physical Honor target with a real MotionCam DNG and capture objective device evidence.
+2. Define deterministic Scientific Master serialization/digest semantics, then implement Technical Backplane phase-2 finalization without dummy hashes.
+3. Finish a real LibRaw Decode Adapter in the Gatehouse only; permit `unpack()` there, report full-frame memory honestly, and keep default admission ResearchOnly until named codec/camera sample-equivalence is proven.
+4. Build a cryptographically indexed real-file professional RAW corpus and certification matrix.
+5. Put CI around `decoded-measurement-main-house-e2e-v0.1`; do not promote it from existence alone.
+6. Only after stacked review, decide which research chain is safe to promote toward `main`; never force-push.
+
+## Workflow rules for the next chat
+
+Before saying a branch/module is current or green, fetch its fresh branch head and relevant workflow result. Preserve failed runs as failed history. Do not auto-merge draft PRs. Do not alter sealed/canonical bytes merely to satisfy a newer toolchain warning. Distinguish implementation head, documentation overlay head and promoted `main` at all times.

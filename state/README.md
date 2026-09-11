@@ -1,18 +1,14 @@
-# TruthRaw state directory
+# TruthRaw state snapshots
 
-`state/` contains both current and historical state snapshots.
+Current global state snapshot: `CURRENT_CANONICAL_STATE_2026-09-11.json`.
 
-## Current
+Use it together with `../START_HERE_NEW_CHAT.md` and the 2026-09-11 documents under `../docs/`.
 
-Use `CURRENT_CANONICAL_STATE_2026-09-10.json`.
+## Snapshot policy
 
-## Historical — preserved, not current bootstrap
+- `CURRENT_CANONICAL_STATE_2026-09-11.json` is the current machine-readable handoff snapshot for this documentation branch.
+- `CURRENT_CANONICAL_STATE_2026-09-10.json`, `CURRENT_CANONICAL_STATE_2026-09-09.json`, `CURRENT_CANONICAL_STATE_2026-09-08.json` and `CURRENT_CANONICAL_STATE_2026-09-06.json` are historical immutable snapshots.
+- Historical snapshots are not rewritten to reflect later success or later architecture.
+- Research branch state files remain module-local and do not override the global state snapshot.
 
-- `CURRENT_CANONICAL_STATE_2026-09-06.json`
-- `CURRENT_CANONICAL_STATE_2026-09-08.json`
-- `CURRENT_CANONICAL_STATE_2026-09-09.json`
-- `REPOSITORY_MIGRATION_STATUS.json` is a migration-era integrity/status record.
-
-Do not overwrite old snapshots to make them current. Their dated contents are provenance.
-
-For document classification and supersession rules, use `../docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`.
+The current research handoff basis is `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51`; promoted `main` remains separately identified as `514f2f4bde6aba5a6709e176c03b22c3b9aea912`.
