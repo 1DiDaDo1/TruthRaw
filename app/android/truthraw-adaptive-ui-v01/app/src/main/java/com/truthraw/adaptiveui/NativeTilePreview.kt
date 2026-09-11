@@ -81,8 +81,8 @@ object TilePreviewLoader {
             return TilePreviewUiState.Failed(job.id, "Native preview-payload heeft een ongeldige lengte.")
         }
 
-        val pixels = packet.copyOfRange(HEADER_INTS, packet.size)
-        val bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmap.setPixels(packet, HEADER_INTS, width, 0, 0, width, height)
         val metrics = TilePreviewMetrics(
             sourceWidth = packet[4],
             sourceHeight = packet[5],
