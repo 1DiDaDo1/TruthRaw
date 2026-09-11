@@ -294,9 +294,21 @@ void verify_dng_structure(
                                   projection::kCanonicalTileEdge * 3u * 4u);
 
     const auto p = SyntheticMasterSource::pixel(0u, 0u);
-    const float expectedX = matrix[0] * p[0] + matrix[1] * p[1] + matrix[2] * p[2];
-    const float expectedY = matrix[3] * p[0] + matrix[4] * p[1] + matrix[5] * p[2];
-    const float expectedZ = matrix[6] * p[0] + matrix[7] * p[1] + matrix[8] * p[2];
+    const double r = static_cast<double>(p[0]);
+    const double g = static_cast<double>(p[1]);
+    const double b = static_cast<double>(p[2]);
+    const float expectedX = static_cast<float>(
+        static_cast<double>(matrix[0]) * r +
+        static_cast<double>(matrix[1]) * g +
+        static_cast<double>(matrix[2]) * b);
+    const float expectedY = static_cast<float>(
+        static_cast<double>(matrix[3]) * r +
+        static_cast<double>(matrix[4]) * g +
+        static_cast<double>(matrix[5]) * b);
+    const float expectedZ = static_cast<float>(
+        static_cast<double>(matrix[6]) * r +
+        static_cast<double>(matrix[7]) * g +
+        static_cast<double>(matrix[8]) * b);
     const float actualX = f32(bytes, tile0 + 0u);
     const float actualY = f32(bytes, tile0 + 4u);
     const float actualZ = f32(bytes, tile0 + 8u);
