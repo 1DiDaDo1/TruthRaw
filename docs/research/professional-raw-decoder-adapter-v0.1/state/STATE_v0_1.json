@@ -1,6 +1,12 @@
 {
   "module": "professional-raw-decoder-adapter-v0.1",
-  "status": "RESEARCH_CANDIDATE_PENDING_REPOSITORY_CI",
+  "status": "REPOSITORY_CI_PASS_ADAPTER_CONTRACT_REAL_VENDOR_CODECS_PENDING",
+  "validated_implementation_head": "39d699780cafa1fc93d03bdb3a9d77a0bf39d69c",
+  "repository_ci_run": 34594703797,
+  "repository_integrity": "PASS",
+  "gcc_release": "PASS",
+  "clang_release": "PASS",
+  "clang_asan_ubsan": "PASS",
   "native_adapter": "TileNativeDngSource-v0.1",
   "external_vendor_codecs_implemented": false,
   "file_extension_is_evidence": false,
