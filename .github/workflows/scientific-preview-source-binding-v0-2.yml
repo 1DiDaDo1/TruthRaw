@@ -27,7 +27,8 @@ jobs:
           H='docs/research/scientific-preview-source-binding-v0.2/native/scientific_preview_source_binding_v0_2.h'
           C='docs/research/scientific-preview-source-binding-v0.2/native/scientific_preview_source_binding_v0_2.cpp'
           grep -F 'mainHouseComputeAllowed' "$H"
-          grep -F 'previewReleaseAllowed' "$H"
+          grep -F 'sourceBoundAppearanceReleaseAllowed' "$H"
+          grep -F 'scientificPreviewReleaseAllowed' "$H"
           grep -F 'scientificClaimAllowed' "$H"
           grep -F 'admit_scientific_color_preview' "$C"
           if grep -E 'scientificMasterHash\.fill|zeroLineHash\.fill|sceneScaleHash\.fill' "$C"; then
