@@ -18,7 +18,7 @@ import kotlin.math.ceil
 private const val EMPIRICAL_MAGIC = 0x54524531
 private const val EMPIRICAL_PACKET_INTS = 32
 private const val RUNTIME_SAMPLE_INTERVAL_MS = 50L
-private const val VALIDATED_SCIENTIFIC_ROUTE_SHA = "42b49ba16a6c5a0d2d6dbc407330acde3e161a46"
+private const val VALIDATED_SCIENTIFIC_ROUTE_SHA = "a84186969b9c767c6e291d9697490e63867b7b82"
 private const val EMPIRICAL_SCHEMA = "TRUTHRAW_ANDROID_HONOR_EMPIRICAL_V0_1"
 
 object NativeEmpiricalBridge {
