@@ -1,95 +1,154 @@
 # TruthRaw
 
-TruthRaw is a single-frame RAW reconstruction research project and software-ISP built around one rule:
+TruthRaw is a single-frame RAW reconstruction system built around one rule:
 
 > **Measured where measured. Reconstructed where necessary. Never invented.**
->
-> **Echt gemeten. Echt gereconstrueerd. Geen verzinsels.**
 
-## Start here
+## Current repository state — 2026-09-11
 
-For the current project state and reading order, use:
+This README is the current global entrypoint for the project state as audited on 2026-09-11.
+
+Two repository states must be kept distinct:
+
+- **promoted `main` head:** `514f2f4bde6aba5a6709e176c03b22c3b9aea912` — validated Technical Backplane v0.1 is the latest promoted main commit;
+- **current integrated research/handoff basis:** `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51` on `research/android-source-bound-color-preview-v0.1-2026-09-11` — this is a stacked research state, not a claim that all research has been promoted to `main`.
+
+The documentation refresh is maintained on `docs/project-handoff-2026-09-11`, created from that exact integrated research head.
+
+### Read these first
 
 1. `START_HERE_NEW_CHAT.md`
-2. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-3. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-4. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
+2. `state/CURRENT_CANONICAL_STATE_2026-09-11.json`
+3. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-11.md`
+4. `docs/CURRENT_MODULE_STATUS_2026-09-11.md`
+5. `docs/CURRENT_CLAIM_MAP_2026-09-11.md`
+6. `docs/CI_EVIDENCE_INDEX_2026-09-11.md`
+7. `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md`
+8. `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`
+9. `docs/CHAT_HANDOFF_2026-09-11.md`
+10. `docs/PROJECT_STATE_AUDIT_2026-09-11.md`
 
-Dated state files and research README files are preserved as provenance/history. They are **not** global current-state authorities unless the current document-status index explicitly says so.
+Dated 2026-09-10 and earlier current-state files remain immutable historical snapshots. They are not the current bootstrap.
 
-## Scientific foundation
+## Mandatory documentation synchronization
 
-The original RAW/CFA and capture metadata are the **sealed original house**: immutable measurement evidence.
+Every substantive TruthRaw change must review and update the affected module README/state overlay and, when the global continuation point changes, the current handoff/state documents in the same work cycle. A validated implementation head may temporarily precede its documentation overlay, but it must not become the new global handoff until the documentation/state synchronization is committed and governance-checked.
 
-TruthRaw constructs a separate scientific Scene Master — the **new house**. Its numerical representation is not forced to inherit RAW10 range, source WhiteLevel as an output ceiling, source ISO as working scale, SDR range, integer storage, or DNG container limits.
+Historical, sealed and versioned evidence is never rewritten merely to look current. When an older README must remain exact for reproducibility, current status belongs in an overlay/global index instead. See `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`.
 
-That representational freedom never enlarges the evidence:
+## Scientific invariants
 
-**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+- Direct CFA/original source evidence is immutable and sealed.
+- Ordinary single-frame lineage remains `physicalFrameCount = 1` and `independentEvidenceCount = 1`.
+- Measured, reconstructed, counterfactual, appearance and projection roles remain separate.
+- A representation may exceed source/output range; knowledge claims may not exceed evidence.
+- Virtual observations do not add photons, measurements, SNR or independent evidence.
+- Counterfactual illumination/capture worlds never become evidence for the original captured world.
+- Appearance processing may not mutate scientific evidence or the Scientific Scene Master.
+- APK/GCam/computational-RAW data may not determine TruthRaw evidence, calibration, topology, color or noise authority.
+- Resource capacity may change tile size, concurrency, caching, scheduling or admission; it may not change truth authority.
 
-Measured, reconstructed, censored/unknown, counterfactual and appearance quantities remain distinguishable. A derived LinearRaw/DNG is an export or compatibility projection, not a relabelling of reconstructed values as original sensor measurements.
+The zero-line remains a shared scene-reference gauge: `T = log2(L/L0)` for `L0 > 0`. It is not DNG BlackLevel, zero photons, clipping, display black or sensor black.
 
-## TruthRange and zero-line
+## Current architecture
 
-For positive physical scene light TruthRaw may use:
+TruthRaw now has two admitted source routes:
 
-`T = log2(L/L0)`
+```text
+                         +--> native-certified source --> Main House
+sealed source --> router |
+                         +--> external decode needed --> Professional RAW Gatehouse
+                                                       --> sealed decoded-measurement handoff
+                                                       --> decoder detached
+                                                       --> Main House
+```
 
-`L0` is the chosen zero-line reference. `T=0` is not sensor black, DNG `BlackLevel`, display black, clipping or “zero photons”.
+The **Gatehouse is not a second scientific house**. It may decode, audit topology/provenance, enforce a separate memory envelope and produce a sealed handoff. It may not create a second zero-line, Scientific Master or evidence source.
 
-The TruthRange coordinate may be unbounded as a representation, while every real capture supplies only finite evidence. Signed scene-linear estimates remain a separate companion representation; a negative numerical estimate is not negative physical light.
+The Main House keeps the 12-room model:
 
-The detailed domain authority remains `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`.
+1. Archivist
+2. MeasurementLab
+3. Architect
+4. Restorer
+5. SceneRegistry
+6. Surveyor
+7. ManifoldConditioning
+8. LightingStudioCicm
+9. RoomCapsule
+10. Colorist
+11. Finisher
+12. Exporter
 
-## The renewed house
+## Native-direct RAW support
 
-TruthRaw now separates scientific authority from execution resources.
+The current native scientific route is intentionally strict. `TileNativeDngSource v0.1` supports the proven classic TIFF/DNG subset used by its contract: 2x2 RGB Bayer, one unsigned 16-bit sample per pixel, `Compression=1`, supported scalar metadata/opcode conditions and bounded tile/strip reads.
 
-The Building Runtime defines 12 logical rooms: Archivist, Measurement Lab, Architect, Restorer, Scene Registry, Surveyor, Manifold Conditioning, Lighting Studio/CICM, Room Capsule, Colorist, Finisher and Exporter.
+Packed 10/12/14-bit, compressed DNG, BigTIFF, X-Trans/non-2x2 CFA and other unsupported variants must fail closed until separately implemented and certified. A `.dng` extension alone is never sufficient scientific admission.
 
-A room's **truth floor** determines what it is allowed to read, claim or modify. A phone's RAM, CPU, GPU and thermal state determine only how much execution space the room receives.
+## Professional RAW status
 
-A faster phone may open more compatible rooms in parallel, retain more rebuildable caches, use larger tiles or choose an optional acceleration backend. It does **not** receive more evidence or permission to make stronger scientific claims.
+Professional RAW compatibility is being built as adapters around, not replacements for, the native Main-House path.
 
-Corridors carry compact handles, provenance and authority, not duplicate full-frame images.
+Implemented research layers include:
 
-## Memory ownership model
+- Professional RAW Ingress v0.1: container/topology/compression/certification/evidence/resource classification;
+- Professional RAW Decoder Adapter v0.1: decoder provenance/resource/sample-equivalence contract;
+- LibRaw Compatibility Probe v0.1: metadata-only `open_file/open_datastream` probing with no pixel `unpack()` authority;
+- borrowed-fd LibRaw datastream implementation;
+- Professional RAW Gatehouse Runtime v0.1;
+- Decoded Measurement Handoff v0.1;
+- Decoded Measurement Tile Source v0.1.
 
-The renewed house uses five storage classes:
+**Do not claim universal professional RAW decode support.** The current project does not yet contain a certified production LibRaw pixel-decode adapter for real CR3/NEF/ARW/RAF/IIQ/etc. A library being able to open a file is not scientific certification.
 
-1. **Immutable shared state** — one instance, referenced by handles. This includes source/master identity, scene-scale and zero-line binding.
-2. **Per-pixel scientific data** — tile/stream whenever possible; never duplicate a full master merely to cross a room boundary.
-3. **Reproducible derived data** — compact, downsampled and/or rebuildable caches.
-4. **Appearance intermediates** — tile-local and disposable.
-5. **Export data** — streamed to the destination where possible.
+## Android and preview status
 
-Room Capsule v0.1 already follows this model strongly: local geometry is compact/downsampled and tile-workspace is bounded independently of full image megapixels.
+The current Android research stack has progressed beyond the historical gray CFA proxy:
 
-The current canonical v4.7i public API still contains full-frame vectors for decoded RAW and output RGB. Replacing those ownership points with a `TileSource -> persistent master handle -> StreamedSink` path is the next explicit production-memory migration. Until validated, the existing canonical v4.7i bytes remain unchanged.
+`ParcelFileDescriptor -> source SHA-256 -> DNG Color Binding Producer -> Scientific Preview Source Binding v0.2 phase 1 -> TileNativeDngSource -> v4.7i StreamingTruthRawProcessor -> bounded sRGB preview -> Android Bitmap -> optional JPEG`.
 
-## Technical Backplane
+Current role of the visible result is **`SOURCE_BOUND_APPEARANCE_PREVIEW`** with color authority **`SOURCE_METADATA_BOUND`**.
 
-TruthRaw is developing a compact format-neutral **Technical Backplane**: a small shared “digital backside” that can bind source evidence, scientific master, zero-line, scene-scale, provenance and room status without repeating those values per pixel or per tile.
+That means:
 
-The backplane is not extra measurement evidence and is not hidden image content. DNG carriage is deferred until interoperability is explicitly validated.
+- source-bound appearance release is allowed;
+- final Scientific Preview release is still blocked pre-master;
+- scientific claim is still blocked pre-master;
+- no dummy Scientific Master, zero-line or scene-scale hash is generated;
+- the historical parser sentinel/identity matrix is not permitted as scientific color authority.
 
-## Permanent boundaries
+The current integrated Android branch head `2fdf05ca1bbbc59cd8867df0cae117d1eec92d51` has green repository CI for the source-bound color-preview APK build, reconstructed color preview, Adaptive UI/Ingress, Adaptive UI Tile Preview and canonical integrity. This proves build/package/static-contract integration, **not physical Honor execution**.
 
-- original CFA/sample bytes and capture metadata remain immutable;
-- physical frame count and independent evidence count remain one for the single-frame master;
-- WhiteLevel clipping is censored evidence, not exact latent radiance;
-- GainMap is applied exactly once where the canonical chain requires it;
-- appearance never modifies the scientific master;
-- counterfactual simulations never become evidence for the captured world;
-- virtual EV/ISO views never become independent measurements;
-- no generative/semantic texture enters scientific evidence;
-- APK/GCam/computational-RAW content does not determine TruthRaw;
-- `canonical/ptc/v1.1` means **Pure Truth Certificate**, not photon-transfer calibration;
-- FULL_PHYSICAL remains blocked where independent sensor/color/illuminant/optics calibration is missing;
-- no open-source LICENSE is added unless explicitly chosen.
+Preview representation policy:
 
-## Repository navigation
+- live UI baseline: bounded `ARGB_8888`, explicit sRGB;
+- portable compatibility preview: baseline JPEG, 8-bit sRGB;
+- PNG: lossless diagnostics/regression only;
+- Ultra HDR JPEG: optional future display derivative after SDR validation;
+- preview bytes are never source evidence or Scientific Master identity.
 
-Use `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md` before treating any dated README, report, audit or state file as current.
+## Current proof boundary
 
-Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
+Still open / not claimed:
+
+- physical Honor/MotionCam DNG execution of the new source-bound color route;
+- on-device RSS, thermal, latency and frame-time validation;
+- independent camera/lens spectral calibration or `FULL_PHYSICAL` color truth;
+- deterministic Scientific Master digest and phase-2 Technical Backplane finalization;
+- finalized Scientific Preview authority;
+- certified real vendor RAW pixel decoding through LibRaw/Gatehouse;
+- a real-file professional RAW certification corpus;
+- validated decoded-measurement Gatehouse-to-Main-House E2E on the current `decoded-measurement-main-house-e2e-v0.1` head;
+- multi-capture registration/fusion/HDR science.
+
+## Documentation policy
+
+- every substantive project change must obey `docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md`;
+- `canonical/**` READMEs are version/module authority, not global current-state dashboards;
+- `docs/research/**` READMEs are module-local research contracts/evidence and may describe the state of their own branch at a specific time;
+- dated old `CURRENT_*` and project-audit files remain historical snapshots and are never silently rewritten into success;
+- failure histories are preserved as failures;
+- global current status is defined only by the 2026-09-11 entrypoints listed above.
+
+See `docs/DOCUMENT_STATUS_INDEX_2026-09-11.md` for the authority map.

@@ -1,4 +1,4 @@
-name: Documentation Governance 2026-09-10
+name: Documentation Governance current (2026-09-11 snapshot)
 
 on:
   push:
@@ -24,7 +24,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify document authority and historical classification
+      - name: Verify current document authority and historical classification
         run: python3 tools/verify_documentation_governance.py
-      - name: Validate current state JSON
+      - name: Validate current 2026-09-11 state JSON
+        run: python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-11.json >/dev/null
+      - name: Preserve/validate prior 2026-09-10 snapshot JSON
         run: python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-10.json >/dev/null
