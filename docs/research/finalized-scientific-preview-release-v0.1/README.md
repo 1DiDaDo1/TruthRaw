@@ -1,6 +1,14 @@
 # Finalized Scientific Preview Release v0.1
 
-Status: **RESEARCH IMPLEMENTATION CANDIDATE — CI PROOF REQUIRED**
+Status: **RESEARCH_CANDIDATE_CI_PASS — FINALIZED_PREVIEW_RELEASE_GATE_PROVEN**
+
+Validated implementation anchor:
+`ad3809f0431c5dd6915c0c21a092cd05ba805661`
+
+Validated CI evidence:
+- Finalized Scientific Preview Release v0.1 run `34641570528` — **SUCCESS**
+- Documentation Governance run `34641570537` — **SUCCESS**
+- GCC Release, Clang Release and Clang ASan/UBSan — all build/test **SUCCESS**
 
 Parent validated streaming Scientific Master head:
 `5af2d3474539dc3911d8e3420c08b3e17149b987`
@@ -84,34 +92,36 @@ Even after admission, the produced preview is rejected if streaming reports:
 - adapter-owned full RAW/SDR/half-gain/diagnostic frames;
 - incomplete bounded preview pixel ownership.
 
-## Validation targets
+## What the validated test proves
 
-The CI candidate must prove:
-- valid phase-2 lineage opens a non-empty non-gray bounded sRGB preview;
-- the recomputed Scientific Master equals the Backplane master identity;
-- source-bound color authority remains source-bound;
-- a valid-CRC Backplane with a fabricated Scientific Master hash is rejected **before preview pixels are allocated**;
-- a wrong source identity is rejected before preview;
-- a wrong color matrix is rejected before preview;
-- a corrupted serialized Backplane is rejected before preview;
-- physical frame/evidence counts remain 1/1;
-- GCC Release, Clang Release and Clang ASan/UBSan all pass.
+The validated host implementation proves all of the following:
+- a real phase-2 lineage opens a non-empty, non-gray bounded sRGB preview;
+- the preview gate recomputes Scientific Master and TruthRange identity from the same tile source before release;
+- the rebuilt 180-byte Backplane must equal the supplied Backplane byte-for-byte;
+- source-bound color authority remains source-bound after finalization;
+- a valid-CRC Backplane containing a fabricated Scientific Master hash is rejected before preview pixel allocation;
+- a wrong source identity is rejected before preview pixel allocation;
+- a wrong camera-to-XYZ color matrix is rejected before preview pixel allocation;
+- a corrupt serialized Backplane is rejected before preview pixel allocation;
+- successful preview provenance remains `physicalFrameCount = 1`, `independentEvidenceCount = 1`;
+- appearance does not modify Scientific Master and creates no counterfactual observation;
+- no adapter-owned full RAW/SDR/half-gain/diagnostic frame is introduced.
 
 ## Android implication
 
-Once this host releasegate is validated, the current Android `SOURCE_BOUND_APPEARANCE_PREVIEW` path can be upgraded without redesigning its Bitmap/JPEG presentation layer:
+The current Android `SOURCE_BOUND_APPEARANCE_PREVIEW` path can now be upgraded without redesigning its Bitmap/JPEG presentation layer:
 
 `PFD exact source seal`
 `-> source-bound DNG color binding`
 `-> TileNativeDngSource`
 `-> bounded Scientific Master/TruthRange identity`
 `-> Technical Backplane phase 2`
-`-> this release gate`
+`-> this validated release gate`
 `-> existing BoundedSrgbPreviewSink`
 `-> Android ARGB_8888 sRGB Bitmap`
 `-> optional presentation-only JPEG`.
 
-That Android integration will still require a new arm64 APK CI proof and then physical Honor/MotionCam execution.
+That Android integration still requires a new arm64 APK CI proof and then physical Honor/MotionCam execution.
 
 ## Non-claims
 
@@ -123,5 +133,9 @@ This module does not yet prove:
 - dual-illuminant interpolation;
 - FULL_PHYSICAL color truth;
 - Lightroom-readable TruthRaw compatibility DNG.
+
+## Next step
+
+Replace the Android phase-1-only release decision with this finalized release gate while keeping the existing `BoundedSrgbPreviewSink -> Bitmap.Config.ARGB_8888 -> optional JPEG` presentation path unchanged. Build/package the arm64 APK in CI and keep physical-device execution as the next empirical boundary.
 
 **Measured where measured. Reconstructed where necessary. Never invented.**
