@@ -30,7 +30,7 @@ jobs:
       - name: Install LibRaw development package
         run: |
           sudo apt-get update
-          sudo apt-get install -y libraw-dev pkg-config
+          sudo apt-get install -y libraw-dev libomp-dev pkg-config
           echo "libraw_pkg_version=$(pkg-config --modversion libraw)"
       - name: Verify metadata-only probe contract
         run: python3 docs/research/libraw-compat-probe-v0.1/tools/verify_probe_contract_v0_1.py
