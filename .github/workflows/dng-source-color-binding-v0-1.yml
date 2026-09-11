@@ -1,0 +1,81 @@
+name: DNG Source Color Binding v0.1
+
+on:
+  push:
+    branches:
+      - research/dng-source-color-binding-v0.1-2026-09-11
+    paths:
+      - 'docs/research/dng-source-color-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/dng-source-color-binding-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/dng-source-color-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - '.github/workflows/dng-source-color-binding-v0-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify strict DNG color contract
+        run: |
+          H='docs/research/dng-source-color-binding-v0.1/native/dng_source_color_binding_v0_1.h'
+          C='docs/research/dng-source-color-binding-v0.1/native/dng_source_color_binding_v0_1.cpp'
+          grep -F 'SourceMetadataBound' "$C"
+          grep -F 'dng-source-color-v0.1:single-forward@' "$C"
+          grep -F 'UnsupportedProfileTopology' "$H"
+          grep -F 'kTagColorMatrix2' "$C"
+          grep -F 'kTagColorMatrix3' "$C"
+          grep -F 'reverify_source_sha256' "$C"
+          if grep -R -F 'PreviewSentinel' docs/research/dng-source-color-binding-v0.1/native; then
+            echo 'DNG source color producer must never emit/use PreviewSentinel authority.' >&2
+            exit 1
+          fi
+
+  gcc-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: cmake -S docs/research/dng-source-color-binding-v0.1 -B build/dng-color-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC Release
+        run: cmake --build build/dng-color-gcc --parallel 2
+      - name: Run GCC Release
+        run: ./build/dng-color-gcc/test_dng_source_color_binding_v0_1
+
+  clang-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: cmake -S docs/research/dng-source-color-binding-v0.1 -B build/dng-color-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang Release
+        run: cmake --build build/dng-color-clang --parallel 2
+      - name: Run Clang Release
+        run: ./build/dng-color-clang/test_dng_source_color_binding_v0_1
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang ASan+UBSan
+        run: >-
+          cmake -S docs/research/dng-source-color-binding-v0.1 -B build/dng-color-san
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+      - name: Build Clang ASan+UBSan
+        run: cmake --build build/dng-color-san --parallel 2
+      - name: Run Clang ASan+UBSan
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./build/dng-color-san/test_dng_source_color_binding_v0_1
