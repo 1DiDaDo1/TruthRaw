@@ -1,1 +1,0 @@
-This note will be superseded by the synchronized handoff commit that wires DOCUMENTATION_SYNC_POLICY_2026-09-11.md into all current entrypoints and governance.
