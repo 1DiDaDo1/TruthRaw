@@ -6,11 +6,13 @@ Branch: `research/room-abi-v0.2-adaptive-all-room-2026-09-11`
 
 Stacked base: Illumination Room v0.2 branch / PR #8 state `2bceb0596f6e57b10aeb88001467124b43c8cc20`.
 
-Validated implementation SHA: `3daf140f3df0be0f38bdc14c82a4b791b92776ee`.
+Validated implementation SHA: `6649aa9e5683eaccafaefd70b26ab8879bfbb10a`.
 
-Room ABI v0.2 GitHub Actions run: `34548187649` — **SUCCESS**.
+Room ABI v0.2 GitHub Actions run: `34548564916` — **SUCCESS**.
 
-Documentation Governance run on the same SHA: `34548187651` — **SUCCESS**.
+Documentation Governance run on the same SHA: `34548567536` — **SUCCESS**.
+
+The validated implementation now includes a concrete `TileNativeDngSource` binding test in addition to the original whole-house dummy-endpoint admission test.
 
 ## Validated contracts
 
@@ -25,9 +27,27 @@ Documentation Governance run on the same SHA: `34548187651` — **SUCCESS**.
 - Manifold Conditioning remains `ZERO_HIDDEN_ALLOCATION` and any nonzero demand fails closed.
 - Every wave must fit `totalWorkingSetBudgetBytes` after source, sink, retained cache and active room demand are combined.
 
+## Concrete TileNativeDngSource bridge
+
+The second integration test constructs a small valid synthetic DNG container and opens it through the repository's real `TileNativeDngSource` implementation.
+
+It verifies:
+
+- concrete DNG parser/source construction succeeds;
+- metadata geometry is bound correctly;
+- opening the source does not materialize the complete file or complete RAW;
+- a bounded 4x4 RAW tile is read and maps exactly to the source samples;
+- RAW payload I/O is recorded while `fullRawMaterialized` remains false;
+- the exact concrete `TileNativeDngSource` object is borrowed by Room ABI v0.2;
+- its actual `residentBytesUpperBound()` is copied exactly into the endpoint binding;
+- source resident memory is counted once together with sink resident memory and active room demand;
+- the concrete source bridge cannot reintroduce a scene ISO axis.
+
+The sink in this test is intentionally a bounded non-materializing test implementation of `IStreamingSink`. No production streaming sink has yet been established in the repository, so this result must not be described as a complete production source-to-sink session.
+
 ## Low/high device invariant
 
-The integration test runs the same complete 12-room Building Runtime graph under two device envelopes:
+The all-room integration test runs the same complete 12-room Building Runtime graph under two device envelopes:
 
 - low: 256 MiB app memory class, 4 CPU threads, low-RAM; Runtime derives 32 MiB total budget, one concurrent heavy room and tile 128;
 - high: 2048 MiB app memory class, 12 CPU threads, optional Vulkan; Runtime derives 256 MiB total budget, up to four concurrent heavy rooms and tile 512.
@@ -65,12 +85,12 @@ The validated test suite rejects:
 
 The first CI run `34548027485` failed in GCC after upstream integrity had passed. Review identified an ambiguity in the test helper where unqualified `Status::Ok` could refer to either Room ABI v0.2 or Building Runtime v0.1. The test was changed to explicitly qualify Building Runtime status values. No scientific/resource gate was weakened.
 
-The corrected implementation `3daf140f...` then passed upstream integrity, GCC Release, Clang Release and ASan+UBSan.
+The corrected pre-source implementation `3daf140f...` passed all compilers/sanitizers. The later concrete-source implementation `6649aa9e...` also passed upstream integrity, GCC Release, Clang Release and ASan+UBSan with both all-room tests enabled.
 
 ## Current proof boundary
 
-The source/sink bridge is compiled against the actual Full-Frame Streaming v0.1 interfaces, but the v0.2 integration test currently uses bounded dummy implementations of those interfaces. Therefore this PASS does not yet prove a concrete TileNativeDngSource + production streaming sink session.
+The real `TileNativeDngSource` source side is now integrated and CI-tested. The sink side remains a bounded test implementation of the real `IStreamingSink` interface because no production sink has yet been identified in the repository.
 
-It also does not prove Android RSS, allocator fragmentation, thermal behavior, Vulkan behavior, or real-device throughput.
+This result still does not prove Android RSS, allocator fragmentation, thermal behavior, Vulkan behavior, or real-device throughput.
 
 The candidate is execution/resource architecture only. It does not alter canonical reconstruction v4.7i, create new scene evidence, close FULL_PHYSICAL blockers or change the global zero-line.
