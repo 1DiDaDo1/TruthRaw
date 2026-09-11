@@ -33,7 +33,8 @@ Status release_finalized_scientific_preview(
     streaming_v0_1::IRawTileSource& source,
     std::shared_ptr<IReconstructionBackend> reconstruction,
     std::shared_ptr<IAppearanceBackend> appearance,
-    const streaming_v0_1::StreamingOptions& options,
+    const scientific_master_streaming_binding::v0_1::Options& scientificOptions,
+    const streaming_v0_1::StreamingOptions& previewOptions,
     preview_surface_v0_1::BoundedSrgbPreviewSink& sink,
     ReleaseResult& out) noexcept {
     out = {};
@@ -42,9 +43,9 @@ Status release_finalized_scientific_preview(
                              "preview release requires reconstruction and appearance backends");
     }
 
-    ReleaseResult result{};
+    technical_backplane::v0_1::State suppliedBackplane{};
     const auto backplaneStatus = technical_backplane::v0_1::deserialize(
-        serializedBackplane, result.backplane);
+        serializedBackplane, suppliedBackplane);
     if (backplaneStatus != technical_backplane::v0_1::Status::Ok) {
         return Status::error(
             StatusCode::BackplaneRejected,
@@ -52,39 +53,68 @@ Status release_finalized_scientific_preview(
                 technical_backplane::v0_1::status_name(backplaneStatus));
     }
 
-    const auto finalizeStatus =
-        scientific_preview_binding_v0_2::finalize_scientific_color_lineage(
-            prepared, result.backplane, result.admission);
-    if (!finalizeStatus) {
-        return Status::error(StatusCode::FinalizationRejected,
-                             "post-master preview admission rejected: " + finalizeStatus.message);
-    }
-
-    result.authority = authority_from_scope(result.admission.claimScope);
-    if (result.authority == PreviewAuthority::None) {
-        return Status::error(StatusCode::FinalizationRejected,
-                             "finalized preview admission has no authorized color scope");
-    }
-
     const auto& metadata = source.metadata();
-    if (metadata.sourceId != result.admission.tileNativeOptions.sourceEvidenceId ||
-        metadata.sourceId != prepared.source.sourceEvidenceId) {
+    if (metadata.sourceId != prepared.source.sourceEvidenceId) {
         return Status::error(StatusCode::SourceIdentityMismatch,
-                             "opened tile source does not match finalized source evidence identity");
+                             "opened tile source does not match prepared source evidence identity");
     }
-
-    if (!result.admission.tileNativeOptions.color.valid ||
-        result.admission.tileNativeOptions.color.bindingId != prepared.color.bindingId ||
-        !color_matrix_matches(metadata.cameraToXyzD50,
-                              result.admission.tileNativeOptions.color.cameraToXyzD50) ||
+    if (prepared.color.bindingId.empty() ||
         !color_matrix_matches(metadata.cameraToXyzD50, prepared.color.cameraToXyzD50)) {
         return Status::error(StatusCode::ColorIdentityMismatch,
-                             "opened tile source color identity differs from finalized admission");
+                             "opened tile source color matrix differs from prepared color binding");
     }
 
-    streaming_v0_1::StreamingTruthRawProcessor processor(
-        std::move(reconstruction), std::move(appearance));
-    const auto streamStatus = processor.process(source, sink, options, result.streaming);
+    ReleaseResult result{};
+    const auto scientificStatus =
+        scientific_master_streaming_binding::v0_1::bind_scientific_master_streaming(
+            source, *reconstruction, scientificOptions, result.scientificIdentity);
+    if (!scientificStatus) {
+        return Status::error(StatusCode::ScientificIdentityFailed,
+                             "Scientific Master/TruthRange streaming identity failed: " +
+                                 scientificStatus.message);
+    }
+
+    technical_backplane_phase2::v0_1::Phase2Input phase2Input{};
+    phase2Input.prepared = prepared;
+    phase2Input.scientificMasterHash = result.scientificIdentity.scientificMasterHash;
+    phase2Input.zeroLineGauge = result.scientificIdentity.zeroLineGauge;
+    phase2Input.sceneBinding = result.scientificIdentity.sceneBinding;
+    phase2Input.roomStatus = suppliedBackplane.roomStatus;
+    phase2Input.claimStatus = suppliedBackplane.claimStatus;
+
+    const auto phase2Status = technical_backplane_phase2::v0_1::finalize_phase2(
+        phase2Input, result.canonicalPhase2);
+    if (!phase2Status) {
+        return Status::error(StatusCode::ScientificIdentityFailed,
+                             "canonical phase-2 rebuild failed: " + phase2Status.message);
+    }
+
+    if (result.canonicalPhase2.serializedBackplane != serializedBackplane) {
+        return Status::error(StatusCode::ScientificIdentityMismatch,
+                             "supplied Backplane does not equal recomputed source/master/gauge/scale lineage");
+    }
+
+    if (result.canonicalPhase2.admission.tileNativeOptions.sourceEvidenceId != metadata.sourceId ||
+        result.canonicalPhase2.admission.tileNativeOptions.color.bindingId != prepared.color.bindingId) {
+        return Status::error(StatusCode::SourceIdentityMismatch,
+                             "recomputed phase-2 admission differs from opened source identity");
+    }
+    if (!result.canonicalPhase2.admission.tileNativeOptions.color.valid ||
+        !color_matrix_matches(
+            metadata.cameraToXyzD50,
+            result.canonicalPhase2.admission.tileNativeOptions.color.cameraToXyzD50)) {
+        return Status::error(StatusCode::ColorIdentityMismatch,
+                             "recomputed phase-2 admission differs from opened source color identity");
+    }
+
+    result.authority = authority_from_scope(result.canonicalPhase2.admission.claimScope);
+    if (result.authority == PreviewAuthority::None) {
+        return Status::error(StatusCode::ScientificIdentityFailed,
+                             "canonical phase-2 admission has no authorized preview color scope");
+    }
+
+    streaming_v0_1::StreamingTruthRawProcessor processor(reconstruction, std::move(appearance));
+    const auto streamStatus = processor.process(source, sink, previewOptions, result.streaming);
     if (!streamStatus) {
         return Status::error(StatusCode::StreamingFailed,
                              "finalized preview streaming failed: " + streamStatus.message);
@@ -132,9 +162,10 @@ const char* status_name(StatusCode code) noexcept {
         case StatusCode::Ok: return "OK";
         case StatusCode::InvalidArgument: return "INVALID_ARGUMENT";
         case StatusCode::BackplaneRejected: return "BACKPLANE_REJECTED";
-        case StatusCode::FinalizationRejected: return "FINALIZATION_REJECTED";
         case StatusCode::SourceIdentityMismatch: return "SOURCE_IDENTITY_MISMATCH";
         case StatusCode::ColorIdentityMismatch: return "COLOR_IDENTITY_MISMATCH";
+        case StatusCode::ScientificIdentityFailed: return "SCIENTIFIC_IDENTITY_FAILED";
+        case StatusCode::ScientificIdentityMismatch: return "SCIENTIFIC_IDENTITY_MISMATCH";
         case StatusCode::StreamingFailed: return "STREAMING_FAILED";
         case StatusCode::ProvenanceRejected: return "PROVENANCE_REJECTED";
         case StatusCode::PreviewIncomplete: return "PREVIEW_INCOMPLETE";
