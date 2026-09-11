@@ -18,6 +18,28 @@ This lets a cheaper phone use coarser local geometry, smaller tiles and one boun
 
 No full-frame allocation is introduced by this module.
 
+## ISO boundary — absent from the new scene
+
+ISO is **not** a coordinate, scale, identity, sensitivity axis, or processing parameter of the TruthRaw Scene Master, TruthRange, zero-line, Illumination Room, or relative day/night world.
+
+Capture ISO belongs to the sealed capture history/provenance together with the physical sensor mode and original exposure conditions. It may help interpret how the original evidence was acquired, but it does not label or rescale the reconstructed scene.
+
+Consequently:
+
+- `RelativeScenario` has no ISO member;
+- `AdaptivePlanRequest` and `AdaptivePlan` have no ISO member;
+- CICM `CounterfactualWorldSpec`, `RelativeCaptureSpec`, and `RelativeWorldPrediction` have no nominal-ISO member;
+- relative EV is computed only from illumination and relative shutter scale;
+- room planning, local light incidence, zero-line binding and resource adaptation are ISO-independent.
+
+The only retained nominal ISO in this dependency graph is inside CICM's **separate calibrated sensor-forward model** (`SensorModeCalibration` / `SensorPrediction`). There it describes a hypothetical calibrated camera/sensor mode. That value never promotes into scene state, never changes `L0`, and is not an input to the Illumination Room relative-light path.
+
+Therefore:
+
+`capture ISO provenance != scene coordinate != relative EV != TruthRange zero-line`
+
+This boundary is compile-time tested so a future change cannot silently add `nominalIso` to the relative scene/room API without breaking CI.
+
 ## Day / night semantics
 
 v0.2 adds explicit scenario labels:
@@ -37,7 +59,7 @@ Examples used by tests:
 - `4x` neutral illumination, unchanged shutter -> `+2 EV`
 - `1/16` neutral illumination, unchanged shutter -> `-4 EV`
 
-CICM deliberately reports no physical SNR for this path. Physical ISO/noise/electron predictions still require the separately calibrated CICM forward path.
+CICM deliberately reports no physical SNR for this path. A nominal ISO may appear only in the separately calibrated CICM sensor-forward path as a sensor-mode property; it is not part of this scene/world calculation.
 
 ## Local colour and light incidence
 
@@ -72,7 +94,8 @@ Resource tier may not change:
 - physical-frame count;
 - independent-evidence count;
 - the local illumination equations;
-- the physical-relight claim boundary.
+- the physical-relight claim boundary;
+- the absence of an ISO axis from scene state.
 
 The test suite evaluates the same local sample/light state under low- and high-tier plans and requires identical relative-light math.
 
