@@ -8,7 +8,7 @@ v0.1 correctly required a complete Technical Backplane before scientific-preview
 
 A unit test can provide a fixture hash. A real Android execution must not invent one.
 
-v0.2 therefore separates **compute admission** from **result release** without weakening either source/color checks or the final Backplane check.
+v0.2 therefore separates **compute/appearance admission** from **final scientific release** without weakening either source/color checks or the final Backplane check.
 
 ## Phase 1 — PREPARED_SOURCE
 
@@ -26,10 +26,11 @@ It emits the `TileNativeDngSource::OpenOptions` needed to start Main-House compu
 It explicitly reports:
 
 - `mainHouseComputeAllowed = true`;
-- `previewReleaseAllowed = false`;
+- `sourceBoundAppearanceReleaseAllowed = true`;
+- `scientificPreviewReleaseAllowed = false`;
 - `scientificClaimAllowed = false`.
 
-So computed preview pixels may be held transiently, but cannot yet be presented as a finalized scientific-preview result.
+This means a reconstructed result may be shown or exported only as a clearly labeled **source-bound appearance preview**. It is not yet a finalized Scientific Preview and is not a Scientific Master claim.
 
 ## Phase 2 — FINALIZED_LINEAGE
 
@@ -43,10 +44,12 @@ Only this phase returns a `ScientificPreviewAdmission` carrying the final claim 
 - no temporary zero-line hash;
 - no PreviewSentinel authority;
 - no source-ID substitution between phases;
+- appearance preview never becomes evidence;
+- phase-1 visibility never implies Scientific Master finalization;
 - one physical frame and one independent evidence source;
 - v0.1 Backplane validation remains unchanged;
 - v0.1 source/color admission remains the final authority gate.
 
 ## Next dependency
 
-A production Android path still needs a deterministic streaming Scientific Master digest/binding so phase 2 can receive a real Backplane rather than a test fixture. Until that exists, a reconstructed color surface can be computed/held under phase 1 but must not be released as finalized scientific-preview output.
+The Android path may now render a bounded source-bound appearance preview from the prepared source, while a deterministic streaming Scientific Master digest/binding is still required before phase 2 can receive a real Backplane. Until that exists, `scientificPreviewReleaseAllowed` and `scientificClaimAllowed` remain false.
