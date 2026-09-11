@@ -1,0 +1,62 @@
+name: Illumination Room v0.2 Integrity
+
+on:
+  push:
+    paths:
+      - 'docs/research/local-illumination-room-v0.2/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'canonical/reconstruction/v4.7i/native/include/**'
+      - '.github/workflows/illumination-room-v0-2-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/local-illumination-room-v0.2/**'
+      - 'docs/research/local-illumination-room-capsule-v0.1/**'
+      - 'docs/research/counterfactual-illumination-capture-manifold-v1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/room-abi-v0.1/**'
+      - 'docs/research/building-runtime-v0.1/**'
+      - 'docs/research/manifold-conditioning-v1/**'
+      - 'canonical/reconstruction/v4.7i/native/include/**'
+      - '.github/workflows/illumination-room-v0-2-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream scientific and ABI integrity
+        run: |
+          python3 docs/research/counterfactual-illumination-capture-manifold-v1/tools/verify_integrity_v1.py
+          python3 docs/research/local-illumination-room-capsule-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/room-abi-v0.1/tools/verify_integrity_v0_1.py
+          python3 docs/research/technical-backplane-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: GCC Release
+        run: |
+          cmake -S docs/research/local-illumination-room-v0.2 -B /tmp/illumination_gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/illumination_gcc --parallel 2
+          ctest --test-dir /tmp/illumination_gcc --output-on-failure
+
+      - name: Clang Release
+        run: |
+          cmake -S docs/research/local-illumination-room-v0.2 -B /tmp/illumination_clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/illumination_clang --parallel 2
+          ctest --test-dir /tmp/illumination_clang --output-on-failure
+
+      - name: ASan UBSan
+        run: |
+          cmake -S docs/research/local-illumination-room-v0.2 -B /tmp/illumination_san \
+            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          cmake --build /tmp/illumination_san --parallel 2
+          ctest --test-dir /tmp/illumination_san --output-on-failure
