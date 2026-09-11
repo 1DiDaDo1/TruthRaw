@@ -10,7 +10,8 @@
     "gcc_release": "PASS",
     "clang_release": "PASS",
     "asan_ubsan": "PASS",
-    "iso_boundary_hardening": "PASS"
+    "iso_boundary_hardening": "PASS",
+    "note": "Validated implementation SHA is intentionally distinct from later documentation-only branch heads."
   },
   "bindings": {
     "room_capsule": "v0.1",
