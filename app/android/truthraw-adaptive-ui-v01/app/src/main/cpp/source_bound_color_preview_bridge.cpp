@@ -1,7 +1,7 @@
 #include <jni.h>
 
 #include "bounded_srgb_preview_sink_v0_1.h"
-#include "dng_color_binding_producer_v0_1.h"
+#include "dng_color_binding_producer_v0_2.h"
 #include "finalized_scientific_preview_release_v0_1.h"
 #include "full_frame_streaming_v0_1.h"
 #include "scientific_master_streaming_binding_v0_1.h"
@@ -22,7 +22,7 @@ namespace {
 
 using truthraw::NeutralReferenceAppearance;
 using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
-using truthraw::dng_color_binding_producer_v0_1::ProducerResult;
+using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::finalized_scientific_preview_release::v0_1::PreviewAuthority;
 using truthraw::finalized_scientific_preview_release::v0_1::ReleaseResult;
 using truthraw::preview_surface_v0_1::BoundedSrgbPreviewSink;
@@ -62,7 +62,7 @@ jint binding_status(const truthraw::scientific_preview_binding_v0_1::BindingStat
     return 2000 + static_cast<jint>(status.code);
 }
 
-jint producer_status(const truthraw::dng_color_binding_producer_v0_1::ProducerStatus& status) {
+jint producer_status(const truthraw::dng_color_binding_producer_v0_2::ProducerStatus& status) {
     return 2100 + static_cast<jint>(status.code);
 }
 
@@ -122,7 +122,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildSourceBoundColorPrevie
     if (!sealed) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, binding_status(sealed));
 
     ProducerResult produced;
-    const auto colorStatus = truthraw::dng_color_binding_producer_v0_1::produce_source_metadata_color_binding(
+    const auto colorStatus = truthraw::dng_color_binding_producer_v0_2::produce_source_metadata_color_binding(
         *bytes, sourceSeal, produced);
     if (!colorStatus) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, producer_status(colorStatus));
 
@@ -229,7 +229,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificCol
     if (!sealed) return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, binding_status(sealed));
 
     ProducerResult produced;
-    const auto colorStatus = truthraw::dng_color_binding_producer_v0_1::produce_source_metadata_color_binding(
+    const auto colorStatus = truthraw::dng_color_binding_producer_v0_2::produce_source_metadata_color_binding(
         *bytes, sourceSeal, produced);
     if (!colorStatus) return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, producer_status(colorStatus));
 
