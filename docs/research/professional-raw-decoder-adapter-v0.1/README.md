@@ -1,6 +1,6 @@
 # TruthRaw Professional RAW Decoder Adapter v0.1
 
-Status: **RESEARCH CANDIDATE — DECODER ADAPTER CONTRACT; REAL VENDOR CODECS NOT YET IMPLEMENTED**
+Status: **RESEARCH_CANDIDATE_REPOSITORY_CI_PASS — DECODER ADAPTER CONTRACT; REAL VENDOR CODECS NOT YET IMPLEMENTED**
 
 This module connects the format-neutral Professional RAW Ingress classification to concrete decoder implementations without allowing “file can be opened” to become “scientific evidence is certified”.
 
