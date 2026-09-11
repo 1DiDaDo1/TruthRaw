@@ -18,6 +18,7 @@ bool prepared_is_pre_master(
 
 Status finalize_from_streaming_source(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
+    tile_dng_v0_1::IRandomAccessByteSource& sealedSourceBytes,
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const Options& options,
@@ -29,10 +30,17 @@ Status finalize_from_streaming_source(
                              "prepared source is not a canonical pre-master state");
     }
 
+    const auto reverify = scientific_preview_binding_v0_1::reverify_source_sha256(
+        sealedSourceBytes, prepared.source, options.sourceReverifyChunkBytes);
+    if (!reverify) {
+        return Status::error(StatusCode::SourceReverificationFailed,
+                             "sealed source bytes failed SHA-256 reverification: " + reverify.message);
+    }
+
     const auto& metadata = source.metadata();
     if (metadata.sourceId.empty() || metadata.sourceId != prepared.source.sourceEvidenceId) {
         return Status::error(StatusCode::SourceLineageMismatch,
-                             "IRawTileSource sourceId does not match prepared sealed source evidence");
+                             "IRawTileSource sourceId does not match reverified sealed source evidence");
     }
 
     Result result{};
@@ -96,6 +104,7 @@ const char* status_name(StatusCode code) noexcept {
     switch (code) {
         case StatusCode::Ok: return "OK";
         case StatusCode::InvalidPreparedSource: return "INVALID_PREPARED_SOURCE";
+        case StatusCode::SourceReverificationFailed: return "SOURCE_REVERIFICATION_FAILED";
         case StatusCode::SourceLineageMismatch: return "SOURCE_LINEAGE_MISMATCH";
         case StatusCode::ScientificMasterBindingFailed: return "SCIENTIFIC_MASTER_BINDING_FAILED";
         case StatusCode::Phase2FinalizationFailed: return "PHASE2_FINALIZATION_FAILED";
