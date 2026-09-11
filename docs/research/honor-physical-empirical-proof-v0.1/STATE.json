@@ -1,0 +1,115 @@
+{
+  "schema": "TruthRawHonorPhysicalEmpiricalProof/0.1",
+  "status": "PHYSICAL_DEVICE_PASS_SCOPED",
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "device": "HNBKQ",
+    "android_release": "16",
+    "android_sdk": 36
+  },
+  "software": {
+    "package": "com.truthraw.adaptiveui",
+    "version_name": "0.3",
+    "version_code": 3,
+    "installed_apk_sha256": "fb89764b235ae3895e558f8e023ff8d3e8a3d4b4eb47040827f66d32113f9aa9",
+    "validated_scientific_route_sha": "42b49ba16a6c5a0d2d6dbc407330acde3e161a46",
+    "tested_ui_head": "257aff1470619c2ef40460ad2a2205412a273fbf"
+  },
+  "source": {
+    "filename": "IMG_260830_143012_297_014.dng",
+    "declared_size_bytes": 25369034,
+    "sha256": "fac842110cfd5b527aae2fa46237824d444aa5701017c2b68021962ebce47da3",
+    "stable_across_empirical_wrapper": true,
+    "color_probe_stable_across_empirical_wrapper": true,
+    "width": 4080,
+    "height": 3072
+  },
+  "user_artifacts": {
+    "empirical_json": {
+      "bytes": 4846,
+      "sha256": "319d8b17f8d7c5b51ec0db5b6b06d327157228e7a43e8ea6728518068ea8364d"
+    },
+    "visible_preview_jpeg": {
+      "bytes": 125852,
+      "width": 1536,
+      "height": 1156,
+      "sha256": "da225f57726051d123a91ed3a07fd2a9cf7f8fcb605d15dd3db672bcdc65f43d",
+      "stored_in_repo": false
+    }
+  },
+  "color": {
+    "metadata_form": "DUAL_ILLUMINANT_V0_2",
+    "dual_illuminant_used": true,
+    "third_calibration_seen": false,
+    "used_forward_matrix": true,
+    "used_single_forward_matrix_across_temperatures": false,
+    "camera_calibration_present": true,
+    "camera_calibration_signature_matched": true,
+    "camera_calibration_applied": true,
+    "calibration_illuminant_1": 21,
+    "calibration_illuminant_2": 17,
+    "resolved_white_temperature_k": 4841.036,
+    "interpolation_weight_low": 0.267578212,
+    "neutral_solve_iterations": 8,
+    "authority": "SOURCE_METADATA_BOUND"
+  },
+  "preview": {
+    "outcome": "READY",
+    "authority": "FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW",
+    "source_bound_appearance_release_allowed": true,
+    "scientific_preview_release_allowed": true,
+    "scientific_claim_allowed": false,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "full_raw_materialized": false,
+    "has_gain_field": true,
+    "orientation": 1,
+    "tiles_processed_pass_1": 768,
+    "tiles_processed_pass_2": 768
+  },
+  "runtime": {
+    "pipeline_wall_ms": 110860.745531,
+    "worker_thread_cpu_ms": 108010.258178,
+    "pss_before_kb": 87215,
+    "pss_peak_kb": 90586,
+    "pss_after_kb": 87102,
+    "thermal_start": "NONE",
+    "thermal_peak": "NONE",
+    "thermal_end": "NONE",
+    "raw_payload_bytes_read": 196873760,
+    "metadata_bytes_read": 8824391,
+    "tile_read_calls": 13824,
+    "source_resident_upper_bound_bytes": 5254,
+    "logical_resident_upper_bound_bytes": 1679366,
+    "ui_frame_pacing": {
+      "interval_count": 7657,
+      "p50_ms": 16.59243,
+      "p95_ms": 16.59735,
+      "max_ms": 17.5
+    }
+  },
+  "claim_boundary": {
+    "all_honor_raws_proven": false,
+    "all_motioncam_raws_proven": false,
+    "all_lenses_proven": false,
+    "full_physical_color": false,
+    "source_metadata_color_is_independent_physical_calibration": false,
+    "multi_frame_evidence": false
+  },
+  "next_phase": {
+    "name": "BIT_EXACT_PERFORMANCE_OPTIMIZATION",
+    "primary_target": "reduce redundant tile/source reads and wall time",
+    "must_preserve": [
+      "source SHA-256",
+      "physicalFrameCount=1",
+      "independentEvidenceCount=1",
+      "Scientific Master identity",
+      "zero-line binding",
+      "scene-scale binding",
+      "Technical Backplane phase-2 bytes",
+      "finalized preview pixels",
+      "SOURCE_METADATA_BOUND color authority"
+    ]
+  }
+}
