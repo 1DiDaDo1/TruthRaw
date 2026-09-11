@@ -69,6 +69,10 @@ Therefore the project boundary is:
 
 `capture ISO provenance != scene coordinate != relative EV != TruthRange zero-line`
 
+## All-room handoff requirement
+
+Room ABI v0.2 / Adaptive All-Room Binding must generalize the same ISO boundary to every room. Immutable capture-ISO provenance may be read only by a room whose declared contract requires acquisition context. ISO may not become a Scene Master coordinate, TruthRange coordinate, zero-line input, corridor authority, resource-tier input, appearance EV, counterfactual illumination scale, or room identity. No low/mid/high device tier may alter this scientific rule.
+
 ## Mobile adaptation exercised by tests
 
 The test constructs a 16320x12288 local-domain planning case with two runtime policies:
