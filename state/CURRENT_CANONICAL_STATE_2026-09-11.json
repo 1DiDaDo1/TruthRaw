@@ -14,6 +14,7 @@
     "docs/CURRENT_CLAIM_MAP_2026-09-11.md",
     "docs/CI_EVIDENCE_INDEX_2026-09-11.md",
     "docs/DOCUMENT_STATUS_INDEX_2026-09-11.md",
+    "docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md",
     "docs/CHAT_HANDOFF_2026-09-11.md",
     "state/CURRENT_CANONICAL_STATE_2026-09-11.json"
   ],
@@ -111,7 +112,8 @@
     "17": "Reconstructed Color Preview v0.1",
     "18": "Scientific Preview Source Binding v0.1",
     "19": "DNG Color Binding Producer v0.1",
-    "20": "Android Source-Bound Color Preview v0.1"
+    "20": "Android Source-Bound Color Preview v0.1",
+    "21": "Project-wide 2026-09-11 handoff documentation refresh"
   },
   "current_open_proof_boundaries": [
     "physical Honor/MotionCam execution of latest source-bound color preview",
@@ -122,6 +124,15 @@
     "CI-proven decoded-measurement Main-House E2E on current b45b32f head",
     "multi-capture registration/fusion/HDR science"
   ],
+  "documentation_sync": {
+    "policy": "docs/DOCUMENTATION_SYNC_POLICY_2026-09-11.md",
+    "required_for_every_substantive_work_cycle": true,
+    "affected_module_readme_or_state_overlay_must_be_reviewed": true,
+    "global_handoff_must_follow_current_continuation_point": true,
+    "historical_or_sealed_bytes_may_be_rewritten_for_cosmetic_currency": false,
+    "implementation_can_precede_overlay_during_validation": true,
+    "implementation_becomes_global_handoff_before_overlay": false
+  },
   "documentation_policy": {
     "dated_old_current_state_files": "HISTORICAL_IMMUTABLE_SNAPSHOTS",
     "research_readmes": "MODULE_LOCAL_VERSIONED_AUTHORITY_NOT_GLOBAL_BOOTSTRAP",
