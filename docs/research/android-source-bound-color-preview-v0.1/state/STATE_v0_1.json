@@ -1,0 +1,83 @@
+{
+  "schema": "truthraw.android_source_bound_color_preview.state.v0.1",
+  "date": "2026-09-11",
+  "status": "RESEARCH_PROTOTYPE_ANDROID_APK_CI_PASS",
+  "validated_implementation": {
+    "commit": "65818f529d4588c2ed907fb11787e3dd83d4432c",
+    "workflow_run": 34613390230,
+    "contract": "PASS",
+    "upstream_integrity": "PASS",
+    "arm64_ndk_cmake": "PASS",
+    "apk_assembly": "PASS",
+    "jni_packaging": "PASS",
+    "artifact_upload": "PASS"
+  },
+  "artifact": {
+    "apk_bytes": 3356541,
+    "apk_sha256": "b377ba11f6dff14ddf0375e7f1146650e62e3d28b3f4e4608de0289e6604af66",
+    "native_bridge_arm64_bytes": 931048,
+    "artifact_name": "truthraw-android-source-bound-color-preview-v0.1-debug-arm64",
+    "artifact_id": 10269945881,
+    "artifact_zip_bytes": 1078019,
+    "artifact_zip_sha256": "7f72f3fae7f28756f2e34be3e56bb3fe4c9206a54d10ab06049c1d0ed6b76780"
+  },
+  "authority": {
+    "color_authority": "SOURCE_METADATA_BOUND",
+    "result_role": "SOURCE_BOUND_APPEARANCE_PREVIEW",
+    "main_house_compute_allowed": true,
+    "source_bound_appearance_release_allowed": true,
+    "scientific_preview_release_allowed": false,
+    "scientific_claim_allowed": false,
+    "jpeg_export_role": "PRESENTATION_ONLY"
+  },
+  "execution": {
+    "source_sha256_sealed": true,
+    "dng_color_binding_producer": true,
+    "tile_native_dng_source": true,
+    "canonical_v4_7i_reconstruction": true,
+    "neutral_reference_appearance": true,
+    "full_frame_streaming_two_pass": true,
+    "bounded_srgb_preview_sink": true,
+    "workers": 1,
+    "tile_core": 128,
+    "tile_halo": 16,
+    "preview_max_edge": 384,
+    "source_resident_cap_bytes": 8388608,
+    "logical_resident_cap_bytes": 67108864
+  },
+  "invariants": {
+    "canonical_v4_7i_bytes_unchanged": true,
+    "canonical_android_clang_warning_adapter_source_scoped_only": true,
+    "strict_werror_retained_for_integration_sources": true,
+    "full_raw_materialized": false,
+    "automatic_gray_sentinel_fallback": false,
+    "dummy_scientific_master_hash": false,
+    "dummy_zero_line_hash": false,
+    "dummy_scene_scale_hash": false,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "appearance_promotes_to_evidence": false
+  },
+  "proof_boundary": {
+    "real_motioncam_honor_dng_validated": false,
+    "physical_android_device_validated": false,
+    "on_device_rss_validated": false,
+    "on_device_thermal_validated": false,
+    "on_device_latency_or_frame_time_validated": false,
+    "scientific_master_digest_implemented": false,
+    "technical_backplane_phase2_finalized": false,
+    "finalized_scientific_preview_authority": false,
+    "independent_camera_lens_calibration": false,
+    "full_physical_color_claim": false,
+    "multi_capture_fusion_science": false
+  },
+  "failure_history": [
+    {
+      "commit": "3ea45d9e65a3281b862378e9affefec643b4af19",
+      "workflow_run": 34612805148,
+      "job": 103307239253,
+      "classification": "FROZEN_CANONICAL_V47I_ANDROID_CLANG_STYLE_WARNING",
+      "result": "FAIL"
+    }
+  ]
+}
