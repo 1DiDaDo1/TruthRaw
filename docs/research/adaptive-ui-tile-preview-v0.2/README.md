@@ -1,6 +1,10 @@
 # TruthRaw Adaptive UI Tile Preview v0.2
 
-Status: **RESEARCH CANDIDATE — BUILD VALIDATION PENDING**
+Status: **RESEARCH PROTOTYPE — ANDROID ARM64 APK CI PASS**
+
+Validated implementation SHA: `1aa38c25418ba5ed06b219e82ba48fa06323f90f`
+
+Validation run: `34589023345`
 
 ## Purpose
 
@@ -30,6 +34,8 @@ Native caller workspace is independent of source megapixel count:
 - TileNativeDngSource resident cap: 8 MiB.
 
 The bridge scans only source rows needed by the preview and reads them in 1024-sample horizontal chunks. It never allocates a source-width row, much less a full source frame.
+
+On the Kotlin side, the JNI packet is copied directly into the Bitmap via `Bitmap.setPixels`. A second preview-sized `IntArray` is explicitly forbidden by the v0.2 verifier. At the current 384 px UI cap this avoids an otherwise redundant 589,824-byte pixel array, excluding normal object overhead.
 
 Total bytes read may grow with source width and preview height; resident caller workspace does not scale with megapixel area.
 
@@ -71,13 +77,41 @@ The JNI packet returns lightweight audit fields to the UI:
 
 The Kotlin layer fails closed if `fullRawMaterialized=true` is ever reported.
 
+## Validated Android build
+
+The exact implementation at `1aa38c25418ba5ed06b219e82ba48fa06323f90f` passed the arm64 Android CI workflow on run `34589023345`.
+
+Observed proof:
+
+- Building Runtime v0.1 integrity: PASS;
+- Technical Backplane v0.1 integrity: PASS;
+- Tile-Native DNG Source v0.1 integrity: PASS;
+- Adaptive UI Ingress v0.1 contract: PASS;
+- Adaptive UI Tile Preview v0.2 contract: PASS;
+- no camera permission: PASS;
+- Kotlin/Java compilation: PASS;
+- CMake/NDK arm64 compilation and JNI link: PASS;
+- APK assembly: PASS;
+- packaged native bridge: `lib/arm64-v8a/libtruthraw_ui_preview_bridge.so`, 605,112 bytes;
+- APK size: 3,014,221 bytes;
+- APK SHA-256: `0fb5c06f8e09d0345a34ed00236c45ba537e008e224facad2884d1f338d1f5d8`;
+- artifact ID: `10194923633`;
+- uploaded artifact ZIP SHA-256: `89ee82318afed183218b9878cfb5e65cf05340de02846020d37ce490b95765a0`;
+- CI reports `source_raw_full_materialization=0_by_contract`;
+- CI reports `preview_source_workspace=BOUNDED_CHUNKS`;
+- CI reports `scientific_color_authority=0`;
+- v0.2 verifier reports `java_second_pixel_array=FORBIDDEN`.
+
+These results prove build/package/contract behavior in CI. They do **not** prove successful physical-device execution or successful parsing/preview of an arbitrary real DNG on the target phone.
+
 ## Provider constraint
 
 `PosixFdByteSource` uses `pread` and `fstat`; therefore v0.2 requires a seekable document-provider file descriptor with a usable size. A provider backed only by a stream/pipe is rejected rather than copied into a temporary full RAW file.
 
 ## Still open
 
-- real Android-device execution and frame-time profiling;
+- real Android-device execution and frame-time/RSS profiling;
+- successful real-DNG preview on the physical target device;
 - true sourceEvidenceId/backplane binding from selected document bytes;
 - accepted camera/lens color binding before scientific processing;
 - Room ABI v0.2 source-handle admission for the selected descriptor;
