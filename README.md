@@ -53,6 +53,22 @@ A faster phone may open more compatible rooms in parallel, retain more rebuildab
 
 Corridors carry compact handles, provenance and authority, not duplicate full-frame images.
 
+## Professional RAW ingress
+
+TruthRaw does **not** treat “the file can be opened” as equivalent to “the sensor measurement is scientifically understood”, and it does not currently claim universal RAW support.
+
+The existing Tile-Native DNG Source v0.1 remains a deliberately strict native low-memory path. Broader professional-camera support is added through a format-neutral decoder-adapter boundary that keeps three decisions separate:
+
+1. container/codec recognition;
+2. byte-to-sample decode certification;
+3. measurement-topology/scientific admission.
+
+The original CR3/NEF/ARW/RAF/RW2/ORF/PEF/3FR/IIQ/DNG/etc. container remains sealed evidence. Decoder output is derived from that object and may not replace the original evidence identity. Filename extension alone never certifies evidence.
+
+Bayer, X-Trans, monochrome, layered/Foveon, linear-RGB, multi-shot composite and computational RAW are distinct measurement topologies. A generic decoder may expose samples, but topology-specific downstream science must be independently certified before those samples can enter the single-frame scientific master.
+
+The active research contract is `docs/research/professional-raw-ingress-v0.1/README.md`. Its format-family registry is a target map, not a supported-camera marketing list.
+
 ## Memory ownership model
 
 The renewed house uses five storage classes:
@@ -67,15 +83,21 @@ Room Capsule v0.1 already follows this model strongly: local geometry is compact
 
 The current canonical v4.7i public API still contains full-frame vectors for decoded RAW and output RGB. Replacing those ownership points with a `TileSource -> persistent master handle -> StreamedSink` path is the next explicit production-memory migration. Until validated, the existing canonical v4.7i bytes remain unchanged.
 
+Professional RAW decoder adapters must also report their resident/scratch memory shape. A weak phone may reject a full-frame decoder lease that a stronger phone can admit, but device class never changes the evidence class. The preferred endpoint is tile/streaming decode so the same certified science can run under different resource envelopes.
+
 ## Technical Backplane
 
 TruthRaw is developing a compact format-neutral **Technical Backplane**: a small shared “digital backside” that can bind source evidence, scientific master, zero-line, scene-scale, provenance and room status without repeating those values per pixel or per tile.
 
 The backplane is not extra measurement evidence and is not hidden image content. DNG carriage is deferred until interoperability is explicitly validated.
 
+Verbose decoder identity/version/codec metadata belongs behind immutable provenance handles/registries; it must not cause the fixed backplane to be duplicated per room or tile.
+
 ## Permanent boundaries
 
 - original CFA/sample bytes and capture metadata remain immutable;
+- the original source container remains immutable even when a decoder produces a derived sample view;
+- filename extension or successful parsing alone never certifies a RAW evidence class;
 - physical frame count and independent evidence count remain one for the single-frame master;
 - WhiteLevel clipping is censored evidence, not exact latent radiance;
 - GainMap is applied exactly once where the canonical chain requires it;
@@ -83,6 +105,7 @@ The backplane is not extra measurement evidence and is not hidden image content.
 - counterfactual simulations never become evidence for the captured world;
 - virtual EV/ISO views never become independent measurements;
 - no generative/semantic texture enters scientific evidence;
+- computational/multi-shot RAW cannot be silently relabelled as Direct-CFA single-frame evidence;
 - APK/GCam/computational-RAW content does not determine TruthRaw;
 - `canonical/ptc/v1.1` means **Pure Truth Certificate**, not photon-transfer calibration;
 - FULL_PHYSICAL remains blocked where independent sensor/color/illuminant/optics calibration is missing;
