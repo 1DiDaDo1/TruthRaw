@@ -1,0 +1,11 @@
+PROFESSIONAL_RAW_DECODER_ADAPTER_V0_1_LOCAL_TEST
+gcc_release=PASS
+clang_release=PASS
+clang_asan_ubsan=LOCAL_ENV_SHADOW_RESERVATION_UNAVAILABLE
+repository_ci=PENDING
+cr3_direct_cfa=1
+weak_equivalence_blocked=1
+xtrans_not_bayer=1
+computational_derived=1
+multishot_separate=1
+resource_truth_orthogonal=1
