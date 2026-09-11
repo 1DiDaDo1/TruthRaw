@@ -69,7 +69,8 @@ BindingStatus prepare_scientific_color_source(
     prepared.color = color;
     prepared.eventualClaimScope = eventualScope;
     prepared.mainHouseComputeAllowed = true;
-    prepared.previewReleaseAllowed = false;
+    prepared.sourceBoundAppearanceReleaseAllowed = true;
+    prepared.scientificPreviewReleaseAllowed = false;
     prepared.scientificClaimAllowed = false;
     prepared.physicalFrameCount = 1;
     prepared.independentEvidenceCount = 1;
@@ -85,7 +86,8 @@ BindingStatus finalize_scientific_color_lineage(
     const PreparedScientificPreviewSource& prepared,
     const technical_backplane::v0_1::State& backplane,
     ScientificPreviewAdmission& out) noexcept {
-    if (!prepared.mainHouseComputeAllowed || prepared.previewReleaseAllowed || prepared.scientificClaimAllowed ||
+    if (!prepared.mainHouseComputeAllowed || !prepared.sourceBoundAppearanceReleaseAllowed ||
+        prepared.scientificPreviewReleaseAllowed || prepared.scientificClaimAllowed ||
         prepared.physicalFrameCount != 1u || prepared.independentEvidenceCount != 1u) {
         return BindingStatus::error(BindingStatusCode::EvidenceInvariantViolation,
                                     "prepared source is not in the required pre-master state");
