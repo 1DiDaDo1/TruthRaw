@@ -172,9 +172,6 @@ std::vector<std::uint8_t> identity_color_matrix_payload() {
 }
 
 std::vector<std::uint8_t> d50_neutral_payload() {
-    // D50 xy = (0.3457, 0.3585). With Y=1 this is approximately
-    // XYZ = (0.9643, 1.0000, 0.8251). The stored LinearRaw color space is
-    // exactly XYZ D50, so this is the synthetic camera-neutral coordinate.
     std::vector<std::uint8_t> out;
     out.reserve(3u * 8u);
     append_u32(out, 9643u); append_u32(out, 10000u);
@@ -232,7 +229,8 @@ Status make_header(
     };
     const auto add_ascii = [&](std::uint16_t tag, const std::string& text) {
         auto payload = ascii_payload(text);
-        add(tag, kTiffAscii, static_cast<std::uint32_t>(payload.size()), std::move(payload));
+        const auto count = static_cast<std::uint32_t>(payload.size());
+        add(tag, kTiffAscii, count, std::move(payload));
     };
 
     add(kTagNewSubFileType, kTiffLong, 1u, long_payload(0u));
@@ -272,8 +270,8 @@ Status make_header(
     add(kTagColorMatrix1, kTiffSRational, 9u, identity_color_matrix_payload());
     add(kTagAsShotNeutral, kTiffRational, 3u, d50_neutral_payload());
     auto privatePayload = private_data(descriptor);
-    add(kTagDngPrivateData, kTiffByte,
-        static_cast<std::uint32_t>(privatePayload.size()), std::move(privatePayload));
+    const auto privateCount = static_cast<std::uint32_t>(privatePayload.size());
+    add(kTagDngPrivateData, kTiffByte, privateCount, std::move(privatePayload));
     add(kTagCalibrationIlluminant1, kTiffShort, 1u,
         short_payload(kCalibrationIlluminantD50));
 
