@@ -1,0 +1,46 @@
+{
+  "schema": "TruthRawScientificMasterDigestState/0.1",
+  "status": "RESEARCH_IMPLEMENTATION_CANDIDATE_CI_REQUIRED",
+  "parent_integration_head": "2fdf05ca1bbbc59cd8867df0cae117d1eec92d51",
+  "scientific_role": "V47I_RECONSTRUCTED_CAMERA_SCENE_PRE_XYZ_PRE_APPEARANCE",
+  "digest": {
+    "algorithm": "SHA-256",
+    "hierarchical": true,
+    "canonical_cell_edge": 64,
+    "sample_encoding": "IEEE754_BINARY32_LITTLE_ENDIAN",
+    "channel_order": "CAMERA_NATIVE_RGB",
+    "nan_inf": "FAIL_CLOSED",
+    "signed_zero": "BIT_SIGNIFICANT",
+    "runtime_tile_partition_invariant_by_contract": true,
+    "runtime_tile_order_invariant_by_contract": true
+  },
+  "truth_authority": {
+    "creates_new_evidence": false,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "source_evidence_binding_included": false,
+    "zero_line_binding_included": false,
+    "scene_scale_binding_included": false,
+    "appearance_included": false
+  },
+  "resource_contract": {
+    "full_frame_master_materialization_required": false,
+    "digest_state_limit_bytes": 67108864,
+    "honor_candidate_200mp_dimensions": [16320, 12288],
+    "honor_candidate_200mp_cell_count": 48960,
+    "honor_candidate_200mp_digest_bookkeeping_target": "<2 MiB"
+  },
+  "next_after_ci_pass": [
+    "bind actual Full-Frame Streaming reconstructed camera-native tiles",
+    "produce real Scientific Master SHA-256",
+    "complete Technical Backplane phase 2 using real master/zero-line/scene-scale identities",
+    "finalize Scientific Preview admission without fixture hashes"
+  ],
+  "nonclaims": [
+    "physical Honor/MotionCam execution",
+    "cross-CPU floating-point bit identity",
+    "FULL_PHYSICAL color",
+    "Technical Backplane phase 2 complete",
+    "final Scientific Preview authority"
+  ]
+}
