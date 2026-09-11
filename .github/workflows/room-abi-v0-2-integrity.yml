@@ -54,6 +54,7 @@ jobs:
           cmake --build /tmp/room_abi_v02_gcc --parallel 2
           /tmp/room_abi_v02_gcc/test_room_abi_v0_2
           /tmp/room_abi_v02_gcc/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_gcc/test_room_abi_v0_2_streaming_sink
 
       - name: Clang Release
         run: |
@@ -64,6 +65,7 @@ jobs:
           cmake --build /tmp/room_abi_v02_clang --parallel 2
           /tmp/room_abi_v02_clang/test_room_abi_v0_2
           /tmp/room_abi_v02_clang/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_clang/test_room_abi_v0_2_streaming_sink
 
       - name: ASan UBSan
         run: |
@@ -75,3 +77,4 @@ jobs:
           cmake --build /tmp/room_abi_v02_san --parallel 2
           /tmp/room_abi_v02_san/test_room_abi_v0_2
           /tmp/room_abi_v02_san/test_room_abi_v0_2_tile_source
+          /tmp/room_abi_v02_san/test_room_abi_v0_2_streaming_sink
