@@ -42,6 +42,21 @@ enum class ScenarioKind : std::uint8_t {
     CustomRelative = 2
 };
 
+// ISO is deliberately absent from the TruthRaw scene/room coordinate system.
+// Capture ISO remains immutable provenance outside this room. CICM may carry a
+// nominal ISO only inside its separately calibrated sensor-forward model; that
+// sensor-mode property never becomes a Scene Master, TruthRange or zero-line
+// coordinate and is not an input to relative illumination/EV math.
+struct IsoBoundary {
+    bool sceneIsoAxisPresent = false;
+    bool relativeScenarioHasIsoParameter = false;
+    bool relativeEvUsesIso = false;
+    bool calibratedSensorForwardMayCarryNominalIso = true;
+    bool calibratedSensorForwardIsoPromotesToScene = false;
+};
+
+constexpr IsoBoundary iso_boundary() noexcept { return {}; }
+
 struct AdaptivePlanRequest {
     std::uint32_t sourceWidth = 0;
     std::uint32_t sourceHeight = 0;
@@ -58,7 +73,8 @@ struct AdaptivePlan {
 
 // The neutral scale is the CICM relative-world axis used for EV comparison.
 // Boundary/light descriptors remain local appearance modulation. Neither is a
-// calibrated sun/moon/spectral/BRDF claim.
+// calibrated sun/moon/spectral/BRDF claim. ISO is intentionally not a member:
+// the new scene has no ISO axis.
 struct RelativeScenario {
     ScenarioKind kind = ScenarioKind::CustomRelative;
     double neutralIlluminationScale = 1.0;
@@ -73,7 +89,9 @@ Status bind_scene_from_backplane(const technical_backplane::v0_1::State& backpla
                                  counterfactual::v1::SceneBinding& out) noexcept;
 
 // Relative day/night/custom world comparison. The result deliberately has no
-// physical SNR unless a separate calibrated CICM path is used elsewhere.
+// physical SNR and has no ISO dependency. A separately calibrated CICM sensor
+// forward path may model a nominal sensor-mode ISO, but that is outside this
+// scene/room contract.
 Status simulate_relative_scenario(double nonnegativeSceneSignal,
                                   double shutterScale,
                                   const std::string& worldId,
