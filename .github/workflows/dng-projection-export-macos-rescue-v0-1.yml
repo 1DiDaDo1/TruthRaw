@@ -1,0 +1,112 @@
+name: DNG Projection Export v0.1 macOS Rescue
+
+on:
+  push:
+    branches:
+      - research/dng-projection-export-v0.1-2026-09-12
+    paths:
+      - 'docs/research/dng-projection-export-v0.1/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - '.github/workflows/dng-projection-export-macos-rescue-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-clang:
+    name: macOS Clang host falsification
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: |
+          cmake -S docs/research/dng-projection-export-v0.1 \
+            -B /tmp/truthraw-dng-export \
+            -DCMAKE_BUILD_TYPE=Release
+      - name: Build and test
+        run: |
+          cmake --build /tmp/truthraw-dng-export --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-export --output-on-failure
+          /tmp/truthraw-dng-export/test_dng_projection_export_v0_1
+
+  host-sanitized:
+    name: macOS Clang ASan UBSan
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure sanitized
+        run: |
+          cmake -S docs/research/dng-projection-export-v0.1 \
+            -B /tmp/truthraw-dng-export-san \
+            -DCMAKE_BUILD_TYPE=Debug \
+            '-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            '-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined'
+      - name: Build and test sanitized
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          cmake --build /tmp/truthraw-dng-export-san --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-export-san --output-on-failure
+          /tmp/truthraw-dng-export-san/test_dng_projection_export_v0_1
+
+  build-arm64-apk:
+    name: macOS arm64 Android APK
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify role/authority boundary
+        run: |
+          grep -F 'ScientificIdentityMismatch' docs/research/dng-projection-export-v0.1/native/dng_projection_export_v0_1.h
+          grep -F 'CFA_DNG_16_RECONSTRUCTED_PROJECTION' docs/research/dng-projection-export-v0.1/native/dng_projection_export_v0_1.cpp
+          grep -F 'LINEAR_DNG_16_COMPATIBILITY_PROJECTION' docs/research/dng-projection-export-v0.1/native/dng_projection_export_v0_1.cpp
+          grep -F 'reverify_source_sha256' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/projection_export_bridge.cpp
+          grep -F 'reset_output' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/projection_export_bridge.cpp
+          echo 'projection_scientific_authority=NONE'
+          echo 'projection_changes_evidence=FALSE'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned SDK/NDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 DNG-export APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK and JNI symbols
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          READELF="$ANDROID_SDK_ROOT/ndk/27.2.12479018/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf"
+          test -x "$READELF"
+          "$READELF" -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeProjectionExportBridge_exportScientificProjection'
+          "$READELF" -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          echo "dng_export_apk_bytes=$(stat -f%z "$APK")"
+          echo "dng_export_apk_sha256=$(shasum -a 256 "$APK" | awk '{print $1}')"
+          echo 'physical_lightroom_compatibility=UNPROVEN_UNTIL_DEVICE_EXPORT_AND_IMPORT'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-dng-projection-export-v0.1-debug-arm64-macos
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
