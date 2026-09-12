@@ -47,9 +47,9 @@ class ProjectionExportActivity : Activity() {
             ProjectionExportKind.LINEAR_DNG_16 ->
                 "Linear DNG doel kiezen · camera-native reconstructed RGB compatibility projection."
             ProjectionExportKind.CFA_DNG_16 ->
-                "CFA DNG doel kiezen · normalized Stage-2 reconstructed projection, niet gemeten sensor-counts."
-            ProjectionExportKind.SCIENTIFIC_RAWSENSOR_F32 ->
-                "Scientific .rawsensor doel kiezen · exact float32 camera-native Scientific Master RGB."
+                "CFA DNG/rawsensor-doel kiezen · normalized Stage-2 Bayer-projectie, niet de originele gemeten sensor-counts."
+            ProjectionExportKind.SCIENTIFIC_MASTER_F32 ->
+                "Scientific Master .trmaster doel kiezen · exact float32 camera-native reconstructed RGB."
         }
         render()
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
@@ -113,8 +113,8 @@ class ProjectionExportActivity : Activity() {
                     onSuccess = { m ->
                         val role = when (kind) {
                             ProjectionExportKind.LINEAR_DNG_16 -> "Linear DNG compatibility projection"
-                            ProjectionExportKind.CFA_DNG_16 -> "CFA reconstructed projection"
-                            ProjectionExportKind.SCIENTIFIC_RAWSENSOR_F32 -> "Scientific Master .rawsensor"
+                            ProjectionExportKind.CFA_DNG_16 -> "CFA DNG rawsensor-projectie"
+                            ProjectionExportKind.SCIENTIFIC_MASTER_F32 -> "Scientific Master .trmaster"
                         }
                         "$role opgeslagen · ${formatBytes(m.bytesWritten)} · " +
                             "master-digest verified=${m.scientificMasterDigestVerified} · " +
@@ -160,22 +160,24 @@ class ProjectionExportActivity : Activity() {
             ))
             root.addView(button("Linear DNG opslaan") { chooseDestination(ProjectionExportKind.LINEAR_DNG_16) })
 
-            root.addView(text("RAW-achtige compatibility test", 15f, true))
+            root.addView(text("DNG rawsensor-projectie", 15f, true))
             root.addView(text(
-                "CFA DNG: normalized Stage-2 Bayer-projectie. Dit is reconstructed/corrected representation, niet de originele gemeten fotosite-counts.",
+                "CFA DNG: normalized Stage-2 Bayer-projectie met de oorspronkelijke CFA-topologie. Dit is reconstructed/corrected representation, niet de immutable originele sensor-count evidence.",
                 12f,
                 false,
             ))
-            root.addView(button("CFA DNG opslaan") { chooseDestination(ProjectionExportKind.CFA_DNG_16) })
+            root.addView(button("CFA DNG (rawsensor-projectie) opslaan") {
+                chooseDestination(ProjectionExportKind.CFA_DNG_16)
+            })
 
-            root.addView(text("Exact TruthRaw wetenschappelijk payload", 15f, true))
+            root.addView(text("Exact Scientific Master payload", 15f, true))
             root.addView(text(
-                ".rawsensor: float32 camera-native reconstructed Scientific Master RGB met source/master lineage-header. Niet bedoeld als Lightroom-container.",
+                ".trmaster: float32 camera-native reconstructed Scientific Master RGB met source/master lineage-header. Dit is bewust geen .rawsensor en geen Lightroom-container.",
                 12f,
                 false,
             ))
-            root.addView(button("Scientific .rawsensor opslaan") {
-                chooseDestination(ProjectionExportKind.SCIENTIFIC_RAWSENSOR_F32)
+            root.addView(button("Scientific Master .trmaster opslaan") {
+                chooseDestination(ProjectionExportKind.SCIENTIFIC_MASTER_F32)
             })
         }
 
@@ -204,8 +206,8 @@ class ProjectionExportActivity : Activity() {
         root.addView(text(statusText, 12f, false))
         root.addView(space())
         root.addView(text(
-            "Authority-grens: measured source blijft immutable evidence; DNG-uitvoer is projection; " +
-                ".rawsensor is een private Scientific-Master-serialisatie. Geen van deze exports verandert de Backplane.",
+            "Authority-grens: measured source blijft immutable evidence; beide DNG's zijn projections; " +
+                ".trmaster is een private Scientific-Master-serialisatie. Geen van deze outputs verandert de Backplane.",
             11f,
             false,
         ))
