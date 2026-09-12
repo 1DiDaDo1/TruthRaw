@@ -6,6 +6,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
+
+// Full-Frame Streaming historically refers to the parent TileRect type
+// unqualified. Expose the same type in its nested namespace for this new
+// integration module without modifying validated historical headers.
+namespace truthraw::streaming_v0_1 {
+using ::truthraw::TileRect;
+}
 
 namespace truthraw::raw_projection_export::v0_1 {
 
