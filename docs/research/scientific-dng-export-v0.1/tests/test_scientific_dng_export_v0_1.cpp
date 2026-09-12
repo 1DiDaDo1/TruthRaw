@@ -2,8 +2,6 @@
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "streaming_test_support_v0_1.h"
 
-#include <algorithm>
-#include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -25,38 +23,40 @@ public:
     bool flush() override { return !fail_; }
     std::uint64_t bytesWritten() const noexcept override { return bytes_.size(); }
     const std::vector<std::uint8_t>& bytes() const noexcept { return bytes_; }
-    void fail(bool value) noexcept { fail_ = value; }
 private:
     std::vector<std::uint8_t> bytes_;
     bool fail_ = false;
 };
 
 std::uint16_t u16(const std::vector<std::uint8_t>& b, std::size_t at) {
-    REQUIRE(at + 2 <= b.size());
+    REQUIRE(at + 2u <= b.size());
     return static_cast<std::uint16_t>(b[at]) |
-           static_cast<std::uint16_t>(static_cast<std::uint16_t>(b[at+1]) << 8u);
-}
-std::uint32_t u32(const std::vector<std::uint8_t>& b, std::size_t at) {
-    REQUIRE(at + 4 <= b.size());
-    return static_cast<std::uint32_t>(b[at]) |
-           (static_cast<std::uint32_t>(b[at+1]) << 8u) |
-           (static_cast<std::uint32_t>(b[at+2]) << 16u) |
-           (static_cast<std::uint32_t>(b[at+3]) << 24u);
+           static_cast<std::uint16_t>(static_cast<std::uint16_t>(b[at + 1u]) << 8u);
 }
 
-std::uint32_t tag_value(const std::vector<std::uint8_t>& b, std::uint16_t wanted,
-                        std::uint16_t* typeOut=nullptr, std::uint32_t* countOut=nullptr) {
+std::uint32_t u32(const std::vector<std::uint8_t>& b, std::size_t at) {
+    REQUIRE(at + 4u <= b.size());
+    return static_cast<std::uint32_t>(b[at]) |
+           (static_cast<std::uint32_t>(b[at + 1u]) << 8u) |
+           (static_cast<std::uint32_t>(b[at + 2u]) << 16u) |
+           (static_cast<std::uint32_t>(b[at + 3u]) << 24u);
+}
+
+std::uint32_t tag_value(const std::vector<std::uint8_t>& b,
+                        std::uint16_t wanted,
+                        std::uint16_t* typeOut = nullptr,
+                        std::uint32_t* countOut = nullptr) {
     REQUIRE(b.size() >= 8u);
     REQUIRE(b[0] == 'I' && b[1] == 'I');
-    REQUIRE(u16(b,2) == 42u);
-    const std::uint32_t ifd = u32(b,4);
-    const std::uint16_t count = u16(b,ifd);
-    for (std::uint16_t i=0;i<count;++i) {
-        const std::size_t at = static_cast<std::size_t>(ifd) + 2u + 12u*i;
-        if (u16(b,at) == wanted) {
-            if (typeOut) *typeOut = u16(b,at+2u);
-            if (countOut) *countOut = u32(b,at+4u);
-            return u32(b,at+8u);
+    REQUIRE(u16(b, 2u) == 42u);
+    const std::uint32_t ifd = u32(b, 4u);
+    const std::uint16_t count = u16(b, ifd);
+    for (std::uint16_t i = 0; i < count; ++i) {
+        const std::size_t at = static_cast<std::size_t>(ifd) + 2u + 12u * i;
+        if (u16(b, at) == wanted) {
+            if (typeOut) *typeOut = u16(b, at + 2u);
+            if (countOut) *countOut = u32(b, at + 4u);
+            return u32(b, at + 8u);
         }
     }
     std::cerr << "missing tag " << wanted << "\n";
@@ -89,22 +89,22 @@ scientific_preview_binding_v0_2::PreparedScientificPreviewSource prepared_for(
 }
 
 void check_common_dng(const std::vector<std::uint8_t>& b, int w, int h) {
-    REQUIRE(u32(b, tag_value(b,256)) == 0u || true); // keep tag_value use explicit below
-    REQUIRE(tag_value(b,256) == static_cast<std::uint32_t>(w));
-    REQUIRE(tag_value(b,257) == static_cast<std::uint32_t>(h));
-    REQUIRE(tag_value(b,259) == 1u);
-    REQUIRE(tag_value(b,322) == 64u);
-    REQUIRE(tag_value(b,323) == 64u);
-    REQUIRE(tag_value(b,274) == 1u);
-    std::uint16_t type=0; std::uint32_t count=0;
-    const std::uint32_t dngv = tag_value(b,50706,&type,&count);
+    REQUIRE(tag_value(b, 256u) == static_cast<std::uint32_t>(w));
+    REQUIRE(tag_value(b, 257u) == static_cast<std::uint32_t>(h));
+    REQUIRE(tag_value(b, 259u) == 1u);
+    REQUIRE(tag_value(b, 322u) == 64u);
+    REQUIRE(tag_value(b, 323u) == 64u);
+    REQUIRE(tag_value(b, 274u) == 1u);
+    std::uint16_t type = 0;
+    std::uint32_t count = 0;
+    const std::uint32_t dngv = tag_value(b, 50706u, &type, &count);
     REQUIRE(type == 1u && count == 4u);
     REQUIRE((dngv & 0xffu) == 1u);
     REQUIRE(((dngv >> 8u) & 0xffu) == 4u);
-    REQUIRE(tag_value(b,50778) == 23u);
-    REQUIRE(tag_value(b,50721,&type,&count) > 0u && type == 10u && count == 9u);
-    REQUIRE(tag_value(b,50728,&type,&count) > 0u && type == 5u && count == 3u);
-    REQUIRE(tag_value(b,50964,&type,&count) > 0u && type == 10u && count == 9u);
+    REQUIRE(tag_value(b, 50778u) == 23u);
+    REQUIRE(tag_value(b, 50721u, &type, &count) > 0u && type == 10u && count == 9u);
+    REQUIRE(tag_value(b, 50728u, &type, &count) > 0u && type == 5u && count == 3u);
+    REQUIRE(tag_value(b, 50964u, &type, &count) > 0u && type == 10u && count == 9u);
 }
 
 } // namespace
@@ -141,12 +141,13 @@ int main() {
     REQUIRE(linear.tileCount == 2u);
     REQUIRE(linear.bytesWritten == linearSink.bytes().size());
     check_common_dng(linearSink.bytes(), 66, 50);
-    REQUIRE(tag_value(linearSink.bytes(),262) == 34892u);
-    REQUIRE(tag_value(linearSink.bytes(),277) == 3u);
-    std::uint16_t type=0; std::uint32_t count=0;
-    REQUIRE(tag_value(linearSink.bytes(),258,&type,&count) > 0u && type == 3u && count == 3u);
-    REQUIRE(tag_value(linearSink.bytes(),339,&type,&count) > 0u && type == 3u && count == 3u);
-    REQUIRE(tag_value(linearSink.bytes(),50717,&type,&count) > 0u && type == 4u && count == 3u);
+    REQUIRE(tag_value(linearSink.bytes(), 262u) == 34892u);
+    REQUIRE(tag_value(linearSink.bytes(), 277u) == 3u);
+    std::uint16_t type = 0;
+    std::uint32_t count = 0;
+    REQUIRE(tag_value(linearSink.bytes(), 258u, &type, &count) > 0u && type == 3u && count == 3u);
+    REQUIRE(tag_value(linearSink.bytes(), 339u, &type, &count) > 0u && type == 3u && count == 3u);
+    REQUIRE(tag_value(linearSink.bytes(), 50717u, &type, &count) > 0u && type == 4u && count == 3u);
 
     VectorSink cfaSink;
     Result cfa{};
@@ -159,11 +160,11 @@ int main() {
     REQUIRE(cfa.replayedScientificMasterHash == scientific.scientificMasterHash);
     REQUIRE(cfa.tileCount == 2u);
     check_common_dng(cfaSink.bytes(), 66, 50);
-    REQUIRE(tag_value(cfaSink.bytes(),262) == 32803u);
-    REQUIRE(tag_value(cfaSink.bytes(),277) == 1u);
-    REQUIRE(tag_value(cfaSink.bytes(),33421,&type,&count) != 0u && type == 3u && count == 2u);
-    REQUIRE(tag_value(cfaSink.bytes(),33422,&type,&count) != 0u && type == 1u && count == 4u);
-    REQUIRE(tag_value(cfaSink.bytes(),50710,&type,&count) != 0u && type == 1u && count == 3u);
+    REQUIRE(tag_value(cfaSink.bytes(), 262u) == 32803u);
+    REQUIRE(tag_value(cfaSink.bytes(), 277u) == 1u);
+    REQUIRE(tag_value(cfaSink.bytes(), 33421u, &type, &count) != 0u && type == 3u && count == 2u);
+    REQUIRE(tag_value(cfaSink.bytes(), 33422u, &type, &count) != 0u && type == 1u && count == 4u);
+    REQUIRE(tag_value(cfaSink.bytes(), 50710u, &type, &count) != 0u && type == 1u && count == 3u);
 
     auto wrongHash = scientific.scientificMasterHash;
     wrongHash[0] ^= 0x01u;
@@ -172,10 +173,11 @@ int main() {
     const auto wrongStatus = export_scientific_dng(
         source, reconstruction, prepared, wrongHash, wrongSink, linearOptions, wrong);
     REQUIRE(!static_cast<bool>(wrongStatus));
-    REQUIRE(wrongStatus.code == StatusCode::ScientificIdentityMismatch);
+    REQUIRE(wrongStatus.code ==
+            truthraw::scientific_dng_export::v0_1::StatusCode::ScientificIdentityMismatch);
     REQUIRE(wrongSink.bytes().empty());
 
-    auto unauthorized = prepared_for(
+    const auto unauthorized = prepared_for(
         frame.meta, scientific_preview_binding_v0_1::ColorBindingAuthority::PreviewSentinel);
     VectorSink unauthorizedSink;
     Result unauthorizedResult{};
@@ -183,7 +185,8 @@ int main() {
         source, reconstruction, unauthorized, scientific.scientificMasterHash,
         unauthorizedSink, linearOptions, unauthorizedResult);
     REQUIRE(!static_cast<bool>(unauthorizedStatus));
-    REQUIRE(unauthorizedStatus.code == StatusCode::InvalidAuthority);
+    REQUIRE(unauthorizedStatus.code ==
+            truthraw::scientific_dng_export::v0_1::StatusCode::InvalidAuthority);
     REQUIRE(unauthorizedSink.bytes().empty());
 
     std::cout << "SCIENTIFIC_DNG_EXPORT_V0_1_PASS\n"
