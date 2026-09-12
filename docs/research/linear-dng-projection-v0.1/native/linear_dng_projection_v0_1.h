@@ -1,5 +1,7 @@
 #pragma once
 
+// This product includes DNG technology under license by Adobe.
+
 #include "finalized_scientific_preview_release_v0_2.h"
 #include "tile_native_dng_source_v0_1.h"
 
