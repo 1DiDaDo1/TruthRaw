@@ -16,7 +16,7 @@ set(STREAMING "${TRUTHRAW_REPO_ROOT}/docs/research/full-frame-streaming-v0.1/nat
 set(PREVIEW "${TRUTHRAW_REPO_ROOT}/docs/research/reconstructed-color-preview-v0.1/native")
 
 add_executable(test_linear_dng_projection_v0_1
-    tests/test_linear_dng_projection_v0_1.cpp
+    tests/test_linear_dng_projection_v0_1_qualified.cpp
     native/linear_dng_projection_v0_1.cpp
 )
 
