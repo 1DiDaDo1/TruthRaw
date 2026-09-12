@@ -45,6 +45,15 @@ else()
       -Wall -Wextra -Wpedantic -Werror)
 endif()
 
+# canonical v4.7i is byte-frozen. Keep the known compact-loop indentation
+# diagnostic non-fatal for that one historical translation unit only; the new
+# v0.2 writer/wrapper and its test remain under -Werror.
+if(NOT MSVC)
+  set_source_files_properties(
+      "${V47I}/src/core.cpp"
+      PROPERTIES COMPILE_OPTIONS "-Wno-error=misleading-indentation")
+endif()
+
 if(TRUTHRAW_DNG_PROJECTION_V02_ENABLE_SANITIZERS AND NOT MSVC)
   target_compile_options(test_dng_compatibility_projection_v0_2 PRIVATE
       -fsanitize=address,undefined -fno-omit-frame-pointer)
