@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(TRUTHRAW_RAW_EXPORT_SANITIZERS "Enable ASan/UBSan" OFF)
+
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
@@ -37,6 +39,13 @@ target_compile_options(test_raw_projection_export_v0_1 PRIVATE -Wall -Wextra -We
 set_source_files_properties(
     ${V47I_NATIVE}/src/core.cpp
     PROPERTIES COMPILE_OPTIONS "-Wno-error=misleading-indentation")
+
+if(TRUTHRAW_RAW_EXPORT_SANITIZERS AND NOT MSVC)
+    target_compile_options(test_raw_projection_export_v0_1 PRIVATE
+        -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(test_raw_projection_export_v0_1 PRIVATE
+        -fsanitize=address,undefined -fno-omit-frame-pointer)
+endif()
 
 enable_testing()
 add_test(NAME raw_projection_export_v0_1 COMMAND test_raw_projection_export_v0_1)
