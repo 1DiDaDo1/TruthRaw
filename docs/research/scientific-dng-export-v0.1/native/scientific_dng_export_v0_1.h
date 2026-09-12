@@ -3,11 +3,10 @@
 #include "full_frame_streaming_v0_1.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_preview_source_binding_v0_2.h"
+#include "technical_backplane_phase2_v0_1.h"
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <string>
 #include <utility>
 
@@ -22,6 +21,7 @@ enum class StatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
     InvalidAuthority,
+    InvalidFinalizedLineage,
     InvalidColorTransform,
     SourceFailed,
     ReconstructionFailed,
@@ -66,6 +66,7 @@ struct Result final {
     std::uint64_t bytesWritten = 0;
     std::size_t logicalWorkspacePeakBytes = 0;
     bool scientificMasterIdentityMatched = false;
+    bool finalizedLineageValidated = false;
     bool boundedCompatibilityProjection = true;
     bool fullScientificMasterMaterialized = false;
     bool sourceMetadataBoundColor = false;
@@ -74,10 +75,15 @@ struct Result final {
     std::uint32_t independentEvidenceCount = 1;
 };
 
-// Writes a standards-oriented classic-TIFF DNG projection of the already
+// Writes a standards-oriented classic-TIFF DNG projection of an already
 // finalized Scientific Master lineage. Pixel output is deliberately bounded to
 // unsigned 16-bit [0, 65535] after clamp-to-[0,1]. The Scientific Master itself
 // remains float32 camera-native RGB and is not modified or replaced.
+//
+// The caller must supply the exact Phase-2 result that finalized this prepared
+// source. The exporter validates the Technical Backplane, source seal, admitted
+// TileNative color binding, claim scope, 1/1 evidence invariant, and master hash
+// before any output byte can be written.
 //
 // LinearRawCompatibility stores three camera-native reconstructed components per
 // pixel using PhotometricInterpretation=LinearRaw.
@@ -87,12 +93,12 @@ struct Result final {
 //
 // During export the camera-native reconstruction is replayed on the canonical
 // 64x64 Scientific Master grid and hashed again. The function fails closed if
-// that digest differs from expectedScientificMasterHash.
+// that digest differs from the Scientific Master hash sealed in Phase 2.
 Status export_scientific_dng(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    const scientific_master_digest::v0_1::Sha256& expectedScientificMasterHash,
+    const technical_backplane_phase2::v0_1::Phase2Result& finalizedLineage,
     ISequentialByteSink& sink,
     const Options& options,
     Result& out) noexcept;
