@@ -1,0 +1,54 @@
+name: Linear DNG Projection v0.1
+
+on:
+  push:
+    branches:
+      - research/bit-exact-read-optimization-v0.1-2026-09-11
+    paths:
+      - 'docs/research/linear-dng-projection-v0.1/**'
+      - '.github/workflows/linear-dng-projection-v0-1.yml'
+  workflow_dispatch:
+
+jobs:
+  host:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC Release
+            cxx: g++
+            build_type: Release
+          - name: Clang Release
+            cxx: clang++
+            build_type: Release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: cmake -S docs/research/linear-dng-projection-v0.1 -B build-linear-dng -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Build
+        run: cmake --build build-linear-dng --parallel 2
+      - name: Test
+        run: ctest --test-dir build-linear-dng --output-on-failure
+
+  sanitizers:
+    name: Clang ASan/UBSan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CXX: clang++
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g
+          LDFLAGS: -fsanitize=address,undefined
+        run: cmake -S docs/research/linear-dng-projection-v0.1 -B build-linear-dng-san -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build-linear-dng-san --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build-linear-dng-san --output-on-failure
