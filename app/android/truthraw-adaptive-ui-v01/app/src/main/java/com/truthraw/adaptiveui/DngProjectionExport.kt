@@ -11,13 +11,13 @@ private const val DNG_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 enum class DngProjectionRole(val nativeCode: Int, val suffix: String, val displayName: String) {
     LINEAR_SCIENTIFIC_MASTER(
         0,
-        "truthraw_linear",
-        "Linear Scientific Master DNG",
+        "truthraw_linear_fixed_d50",
+        "Linear Scientific Master DNG (fixed-D50 compatibility)",
     ),
     MEASURED_PRESERVING_CFA(
         1,
-        "truthraw_cfa",
-        "Measured-preserving CFA DNG",
+        "truthraw_reconstructed_cfa",
+        "Reconstructed CFA DNG (derived)",
     ),
 }
 
@@ -152,11 +152,11 @@ object DngProjectionExporter {
 
     private fun nativeDngStatusDescription(status: Long): String = when (status) {
         -1L -> "DNG-export: ongeldige file descriptor, projectierol of memorygrens."
-        -2L -> "DNG-export v0.1: resolved source white ontbreekt; single-illuminant export blijft voorlopig fail-closed."
+        -2L -> "DNG-export v0.2: resolved source-white provenance ontbreekt; single-illuminant export blijft voorlopig fail-closed."
         -3L -> "DNG-export: pre-master source/color authority-state was niet canoniek."
         -4L -> "DNG-export: Scientific Master frame/evidence/readopt-invariant werd geschonden."
         -5L -> "DNG-export: canonical phase-2 admission wijkt af van de sealed source/color lineage."
-        -6L -> "DNG-export: eindresultaat schond Master-, evidence-, materialisatie- of memorycontract."
+        -6L -> "DNG-export: eindresultaat schond Master-, evidence-, materialisatie-, fixed-D50- of memorycontract."
 
         in 2001L..2010L -> "DNG-export source binding faalde (status $status)."
         in 2101L..2116L -> "DNG-export color producer v0.2 faalde (status $status)."
@@ -171,7 +171,7 @@ object DngProjectionExporter {
         7001L -> "DNG-writer: ongeldig argument."
         7002L -> "DNG-writer: kleur/source authority niet toegelaten."
         7003L -> "DNG-writer: compatibility kleurmatrix ongeldig."
-        7004L -> "DNG-writer: resolved AsShotWhiteXY ongeldig."
+        7004L -> "DNG-writer: resolved source white of fixed-D50 encoding ongeldig."
         7005L -> "DNG-writer: classic TIFF/DNG offset/size overflow."
         7006L -> "DNG-writer: Stage-2 bronread faalde."
         7007L -> "DNG-writer: camera-native reconstructie faalde."
