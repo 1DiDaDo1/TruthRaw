@@ -14,6 +14,12 @@ namespace master_binding = truthraw::scientific_master_streaming_binding::v0_2;
 namespace master_digest = truthraw::scientific_master_digest::v0_1;
 
 int main() {
+    // This test intentionally reuses the established streaming fixture header.
+    // Mark its two comparison helpers as used so -Werror does not reject this
+    // narrower consumer merely because it does not need preview comparisons.
+    (void)&max_abs_diff;
+    (void)&compare_exposure;
+
     constexpr int width = 130;
     constexpr int height = 70;
     auto frame = make_frame(width, height);
