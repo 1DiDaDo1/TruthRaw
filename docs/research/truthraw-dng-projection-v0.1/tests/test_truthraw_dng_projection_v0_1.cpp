@@ -1,6 +1,5 @@
 #include "truthraw_dng_projection_v0_1.h"
 
-#include "full_frame_streaming_v0_1_internal.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "technical_backplane_phase2_v0_1.h"
 
@@ -21,7 +20,6 @@ namespace binding1 = truthraw::scientific_preview_binding_v0_1;
 namespace binding2 = truthraw::scientific_preview_binding_v0_2;
 namespace master2 = truthraw::scientific_master_streaming_binding::v0_2;
 namespace phase2 = truthraw::technical_backplane_phase2::v0_1;
-namespace release2 = truthraw::finalized_scientific_preview_release::v0_2;
 
 #define REQUIRE(x) do { if (!(x)) throw std::runtime_error(std::string("REQUIRE failed: ") + #x); } while (0)
 
@@ -85,7 +83,7 @@ std::vector<std::uint8_t> make_color_tiff() {
     std::vector<FixtureEntry> entries;
     entries.push_back({50721u, 10u, 9u, identity_srational()});
     entries.push_back({50728u, 5u, 3u, rational3()});
-    entries.push_back({50778u, 3u, 1u, {21u, 0u}}); // D65
+    entries.push_back({50778u, 3u, 1u, {21u, 0u}});
     std::sort(entries.begin(), entries.end(),
               [](const FixtureEntry& a, const FixtureEntry& b) { return a.tag < b.tag; });
 
@@ -128,7 +126,6 @@ struct MemBytes final : tile_dng_v0_1::IRandomAccessByteSource {
 
 struct SyntheticTileSource final : streaming_v0_1::IRawTileSource {
     DngMetadata meta;
-
     const DngMetadata& metadata() const override { return meta; }
     std::size_t residentBytesUpperBound() const override { return sizeof(*this); }
 
@@ -152,13 +149,11 @@ struct SyntheticTileSource final : streaming_v0_1::IRawTileSource {
         for (int yy = 0; yy < h; ++yy) {
             for (int xx = 0; xx < w; ++xx) {
                 rawOut[static_cast<std::size_t>(yy) * static_cast<std::size_t>(w) +
-                       static_cast<std::size_t>(xx)] =
-                    raw_value(rect.hx0 + xx, rect.hy0 + yy);
+                       static_cast<std::size_t>(xx)] = raw_value(rect.hx0 + xx, rect.hy0 + yy);
             }
         }
         return streaming_v0_1::StreamStatus::ok();
     }
-
     streaming_v0_1::StreamStatus readRowBias(int, int, float*, std::size_t) override {
         return streaming_v0_1::StreamStatus::ok();
     }
@@ -223,7 +218,7 @@ bool has_tag(const std::vector<std::uint8_t>& dng, std::uint16_t wanted) {
 
 std::string ascii_tag(const std::vector<std::uint8_t>& dng, std::uint16_t tag) {
     const auto v = find_tag(dng, tag);
-    REQUIRE(v.type == 2u);
+    REQUIRE(v.type == 2u && v.dataBytes >= 1u);
     const char* p = reinterpret_cast<const char*>(dng.data() + v.dataOffset);
     return std::string(p, p + v.dataBytes - 1u);
 }
@@ -241,7 +236,8 @@ struct Fixture final {
     binding2::PreparedScientificPreviewSource prepared{};
     SyntheticTileSource source{};
     ResearchEdgeAwareMeasuredPreservingReconstruction reconstruction{};
-    release2::ReleaseResult release{};
+    master2::Result identity{};
+    phase2::Phase2Result finalized{};
 
     Fixture() {
         REQUIRE(binding1::seal_source_sha256(bytes, seal, 64u));
@@ -270,26 +266,21 @@ struct Fixture final {
         source.meta.cameraToXyzD50 = color.cameraToXyzD50;
 
         master2::Options options;
-        master2::Result identity;
         REQUIRE(master2::bind_scientific_master_streaming(source, reconstruction, options, identity));
+        finalized = finalize(identity);
+    }
 
+    phase2::Phase2Result finalize(const master2::Result& scientific) const {
         phase2::Phase2Input input;
         input.prepared = prepared;
-        input.scientificMasterHash = identity.scientificMasterHash;
-        input.zeroLineGauge = identity.zeroLineGauge;
-        input.sceneBinding = identity.sceneBinding;
+        input.scientificMasterHash = scientific.scientificMasterHash;
+        input.zeroLineGauge = scientific.zeroLineGauge;
+        input.sceneBinding = scientific.sceneBinding;
         input.roomStatus.fill(technical_backplane::v0_1::RoomStatus::ResearchOnly);
         input.claimStatus = technical_backplane::v0_1::ClaimStatus::Candidate;
-        phase2::Phase2Result finalized;
-        REQUIRE(phase2::finalize_phase2(input, finalized));
-
-        release.authority = release2::PreviewAuthority::FinalizedSourceBoundScientificPreview;
-        release.scientificIdentity = identity;
-        release.canonicalPhase2 = finalized;
-        release.streaming.provenance.physicalFrameCount = 1u;
-        release.streaming.provenance.independentEvidenceCount = 1u;
-        release.streaming.provenance.scientificMasterModifiedByAppearance = false;
-        release.streaming.provenance.counterfactualObservationCreated = false;
+        phase2::Phase2Result result;
+        REQUIRE(phase2::finalize_phase2(input, result));
+        return result;
     }
 };
 
@@ -301,7 +292,7 @@ void verify_common_dng(const Fixture& fixture,
     REQUIRE(result.sourceVerifiedBefore);
     REQUIRE(result.sourceVerifiedAfter);
     REQUIRE(result.scientificMasterHashMatched);
-    REQUIRE(result.recomputedScientificMasterHash == fixture.release.scientificIdentity.scientificMasterHash);
+    REQUIRE(result.recomputedScientificMasterHash == fixture.identity.scientificMasterHash);
     REQUIRE(!result.fullFrameMaterialized);
     REQUIRE(!result.createsEvidence);
     REQUIRE(result.physicalFrameCount == 1u);
@@ -313,9 +304,12 @@ void verify_common_dng(const Fixture& fixture,
     const auto photometric = find_tag(sink.bytes, 262u);
     REQUIRE(photometric.type == 3u && photometric.count == 1u);
     REQUIRE(get16(sink.bytes, photometric.dataOffset) == expectedPhotometric);
-
     const auto spp = find_tag(sink.bytes, 277u);
     REQUIRE(get16(sink.bytes, spp.dataOffset) == expectedSamplesPerPixel);
+
+    const auto sampleFormat = find_tag(sink.bytes, 339u);
+    REQUIRE(sampleFormat.type == 3u);
+    REQUIRE(get16(sink.bytes, sampleFormat.dataOffset) == 3u);
 
     const auto dngVersion = find_tag(sink.bytes, 50706u);
     REQUIRE(dngVersion.type == 1u && dngVersion.count == 4u);
@@ -323,7 +317,6 @@ void verify_common_dng(const Fixture& fixture,
     REQUIRE(sink.bytes[dngVersion.dataOffset + 1u] == 4u);
     REQUIRE(sink.bytes[dngVersion.dataOffset + 2u] == 0u);
     REQUIRE(sink.bytes[dngVersion.dataOffset + 3u] == 0u);
-
     const auto backward = find_tag(sink.bytes, 50707u);
     REQUIRE(backward.type == 1u && backward.count == 4u);
     REQUIRE(sink.bytes[backward.dataOffset] == 1u);
@@ -334,7 +327,7 @@ void verify_common_dng(const Fixture& fixture,
     const std::string description = ascii_tag(sink.bytes, 270u);
     REQUIRE(description.find(fixture.seal.sourceEvidenceId) != std::string::npos);
     REQUIRE(description.find(scientific_master_digest::v0_1::to_hex(
-        fixture.release.scientificIdentity.scientificMasterHash)) != std::string::npos);
+        fixture.identity.scientificMasterHash)) != std::string::npos);
 
     const auto offsets = find_tag(sink.bytes, 273u);
     const auto counts = find_tag(sink.bytes, 279u);
@@ -356,8 +349,8 @@ void test_stage2_cfa_projection() {
     options.kind = projection::ProjectionKind::Stage2CfaFloat32;
     projection::Result result;
     const auto status = projection::export_projection(
-        fixture.prepared, fixture.release, fixture.bytes, fixture.source,
-        fixture.reconstruction, sink, options, result);
+        fixture.prepared, fixture.identity, fixture.finalized,
+        fixture.bytes, fixture.source, fixture.reconstruction, sink, options, result);
     if (!status) std::cerr << projection::status_name(status.code) << ": " << status.message << '\n';
     REQUIRE(status);
     verify_common_dng(fixture, sink, result, 32803u, 1u);
@@ -382,8 +375,8 @@ void test_linear_raw_projection() {
     options.kind = projection::ProjectionKind::LinearRawCameraRgbFloat32;
     projection::Result result;
     const auto status = projection::export_projection(
-        fixture.prepared, fixture.release, fixture.bytes, fixture.source,
-        fixture.reconstruction, sink, options, result);
+        fixture.prepared, fixture.identity, fixture.finalized,
+        fixture.bytes, fixture.source, fixture.reconstruction, sink, options, result);
     if (!status) std::cerr << projection::status_name(status.code) << ": " << status.message << '\n';
     REQUIRE(status);
     verify_common_dng(fixture, sink, result, 34892u, 3u);
@@ -399,14 +392,14 @@ void test_linear_raw_projection() {
     REQUIRE(float_at(sink.bytes, pixel0 + 8u) == measuredBlue);
 }
 
-void test_unfinalized_release_is_rejected_without_output() {
+void test_missing_final_admission_is_rejected_without_output() {
     Fixture fixture;
-    fixture.release.authority = release2::PreviewAuthority::None;
+    fixture.finalized.admission.claimScope = binding1::ColorClaimScope::None;
     VectorSink sink;
     projection::Result result;
     const auto status = projection::export_projection(
-        fixture.prepared, fixture.release, fixture.bytes, fixture.source,
-        fixture.reconstruction, sink, {}, result);
+        fixture.prepared, fixture.identity, fixture.finalized,
+        fixture.bytes, fixture.source, fixture.reconstruction, sink, {}, result);
     REQUIRE(!status);
     REQUIRE(status.code == projection::StatusCode::AdmissionRejected);
     REQUIRE(sink.bytes.empty());
@@ -418,8 +411,8 @@ void test_source_mutation_is_rejected_without_output() {
     VectorSink sink;
     projection::Result result;
     const auto status = projection::export_projection(
-        fixture.prepared, fixture.release, fixture.bytes, fixture.source,
-        fixture.reconstruction, sink, {}, result);
+        fixture.prepared, fixture.identity, fixture.finalized,
+        fixture.bytes, fixture.source, fixture.reconstruction, sink, {}, result);
     REQUIRE(!status);
     REQUIRE(status.code == projection::StatusCode::SourceSealMismatch);
     REQUIRE(sink.bytes.empty());
@@ -427,14 +420,14 @@ void test_source_mutation_is_rejected_without_output() {
 
 void test_digest_mismatch_fails_closed() {
     Fixture fixture;
-    fixture.release.scientificIdentity.scientificMasterHash[0] ^= 0x01u;
-    fixture.release.canonicalPhase2.backplane.scientificMasterHash =
-        fixture.release.scientificIdentity.scientificMasterHash;
+    auto falseIdentity = fixture.identity;
+    falseIdentity.scientificMasterHash[0] ^= 0x01u;
+    auto falseFinalized = fixture.finalize(falseIdentity);
     VectorSink sink;
     projection::Result result;
     const auto status = projection::export_projection(
-        fixture.prepared, fixture.release, fixture.bytes, fixture.source,
-        fixture.reconstruction, sink, {}, result);
+        fixture.prepared, falseIdentity, falseFinalized,
+        fixture.bytes, fixture.source, fixture.reconstruction, sink, {}, result);
     REQUIRE(!status);
     REQUIRE(status.code == projection::StatusCode::DigestMismatch);
     REQUIRE(!result.scientificMasterHashMatched);
@@ -447,7 +440,7 @@ int main() {
     try {
         test_stage2_cfa_projection();
         test_linear_raw_projection();
-        test_unfinalized_release_is_rejected_without_output();
+        test_missing_final_admission_is_rejected_without_output();
         test_source_mutation_is_rejected_without_output();
         test_digest_mismatch_fails_closed();
         std::cout << "TRUTHRAW_DNG_PROJECTION_V0_1_PASS\n";
