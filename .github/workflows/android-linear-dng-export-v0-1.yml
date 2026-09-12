@@ -30,7 +30,7 @@ permissions:
 jobs:
   host-projection:
     name: Host ${{ matrix.name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -75,7 +75,7 @@ jobs:
           /tmp/truthraw-linear-dng/linear_dng_projection_v0_1_test
 
   host-finalized-regression:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -92,7 +92,7 @@ jobs:
           ctest --test-dir /tmp/truthraw-fspr-v02 --output-on-failure
 
   build-arm64-apk:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
