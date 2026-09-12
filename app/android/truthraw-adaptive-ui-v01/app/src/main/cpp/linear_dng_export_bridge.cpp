@@ -12,12 +12,9 @@
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
 
-#include <algorithm>
 #include <array>
 #include <cstdint>
-#include <limits>
 #include <memory>
-#include <vector>
 
 namespace {
 
@@ -84,7 +81,7 @@ StreamingOptions gate_preview_options(std::size_t memoryBudgetBytes) {
 } // namespace
 
 extern "C" JNIEXPORT jlongArray JNICALL
-Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedLinearDng(
+Java_com_truthraw_adaptiveui_NativeLinearDngBridge_exportFinalizedLinearDng(
     JNIEnv* env,
     jobject,
     jint sourceFd,
@@ -187,6 +184,9 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedLinearDng(
         return packet(env, -4);
     }
 
+    const bool independentlyCalibrated =
+        release.authority == PreviewAuthority::FinalizedIndependentlyCalibratedScientificPreview;
+
     std::array<jlong, kPacketLongs> values{};
     values[0] = kLinearDngMagic;
     values[1] = 0;
@@ -200,7 +200,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedLinearDng(
     values[9] = static_cast<jlong>(projection.logicalWorkspacePeakBytes);
     values[10] = static_cast<jlong>(projection.physicalFrameCount);
     values[11] = static_cast<jlong>(projection.independentEvidenceCount);
-    values[12] = release.canonicalPhase2.admission.scientificClaimAllowed ? 1ll : 0ll;
+    values[12] = independentlyCalibrated ? 1ll : 0ll;
     values[13] = static_cast<jlong>(release.authority);
 
     jlongArray out = env->NewLongArray(static_cast<jsize>(values.size()));
