@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstring>
 #include <iomanip>
 #include <limits>
 #include <sstream>
@@ -14,242 +13,209 @@ namespace {
 
 using Hash256 = std::array<std::uint8_t, 32>;
 
-constexpr std::uint16_t kTiffTypeByte = 1;
-constexpr std::uint16_t kTiffTypeAscii = 2;
-constexpr std::uint16_t kTiffTypeShort = 3;
-constexpr std::uint16_t kTiffTypeLong = 4;
-constexpr std::uint16_t kTiffTypeRational = 5;
-constexpr std::uint16_t kTiffTypeSRational = 10;
+constexpr std::uint16_t BYTE = 1;
+constexpr std::uint16_t ASCII = 2;
+constexpr std::uint16_t SHORT = 3;
+constexpr std::uint16_t LONG = 4;
+constexpr std::uint16_t RATIONAL = 5;
+constexpr std::uint16_t SRATIONAL = 10;
 
-constexpr std::uint16_t kTagNewSubFileType = 254;
-constexpr std::uint16_t kTagImageWidth = 256;
-constexpr std::uint16_t kTagImageLength = 257;
-constexpr std::uint16_t kTagBitsPerSample = 258;
-constexpr std::uint16_t kTagCompression = 259;
-constexpr std::uint16_t kTagPhotometricInterpretation = 262;
-constexpr std::uint16_t kTagImageDescription = 270;
-constexpr std::uint16_t kTagOrientation = 274;
-constexpr std::uint16_t kTagSamplesPerPixel = 277;
-constexpr std::uint16_t kTagPlanarConfiguration = 284;
-constexpr std::uint16_t kTagSoftware = 305;
-constexpr std::uint16_t kTagTileWidth = 322;
-constexpr std::uint16_t kTagTileLength = 323;
-constexpr std::uint16_t kTagTileOffsets = 324;
-constexpr std::uint16_t kTagTileByteCounts = 325;
-constexpr std::uint16_t kTagSampleFormat = 339;
-constexpr std::uint16_t kTagDngVersion = 50706;
-constexpr std::uint16_t kTagDngBackwardVersion = 50707;
-constexpr std::uint16_t kTagUniqueCameraModel = 50708;
-constexpr std::uint16_t kTagWhiteLevel = 50717;
-constexpr std::uint16_t kTagColorMatrix1 = 50721;
-constexpr std::uint16_t kTagAsShotNeutral = 50728;
-constexpr std::uint16_t kTagCalibrationIlluminant1 = 50778;
+constexpr std::uint16_t TAG_NewSubFileType = 254;
+constexpr std::uint16_t TAG_ImageWidth = 256;
+constexpr std::uint16_t TAG_ImageLength = 257;
+constexpr std::uint16_t TAG_BitsPerSample = 258;
+constexpr std::uint16_t TAG_Compression = 259;
+constexpr std::uint16_t TAG_PhotometricInterpretation = 262;
+constexpr std::uint16_t TAG_ImageDescription = 270;
+constexpr std::uint16_t TAG_Orientation = 274;
+constexpr std::uint16_t TAG_SamplesPerPixel = 277;
+constexpr std::uint16_t TAG_PlanarConfiguration = 284;
+constexpr std::uint16_t TAG_Software = 305;
+constexpr std::uint16_t TAG_TileWidth = 322;
+constexpr std::uint16_t TAG_TileLength = 323;
+constexpr std::uint16_t TAG_TileOffsets = 324;
+constexpr std::uint16_t TAG_TileByteCounts = 325;
+constexpr std::uint16_t TAG_SampleFormat = 339;
+constexpr std::uint16_t TAG_DNGVersion = 50706;
+constexpr std::uint16_t TAG_DNGBackwardVersion = 50707;
+constexpr std::uint16_t TAG_UniqueCameraModel = 50708;
+constexpr std::uint16_t TAG_WhiteLevel = 50717;
+constexpr std::uint16_t TAG_ColorMatrix1 = 50721;
+constexpr std::uint16_t TAG_AsShotNeutral = 50728;
+constexpr std::uint16_t TAG_CalibrationIlluminant1 = 50778;
 
-constexpr std::uint16_t kPhotometricLinearRaw = 34892;
-constexpr std::uint16_t kCompressionNone = 1;
-constexpr std::uint16_t kPlanarChunky = 1;
-constexpr std::uint16_t kSampleFormatUnsigned = 1;
-constexpr std::uint16_t kCalibrationIlluminantD50 = 23;
-constexpr std::uint16_t kBitsPerSample = 16;
-constexpr std::uint32_t kWhiteLevel = 65535u;
-constexpr std::size_t kIfdEntryCount = 21;
-constexpr double kD50X = 0.96422;
-constexpr double kD50Y = 1.0;
-constexpr double kD50Z = 0.82521;
-constexpr double kMatrixSingularEpsilon = 1.0e-12;
-constexpr std::int64_t kRationalDenominator = 1000000;
+constexpr std::uint16_t PHOTOMETRIC_LinearRaw = 34892;
+constexpr std::uint16_t LIGHTSOURCE_D50 = 23;
+constexpr std::uint16_t BITS = 16;
+constexpr std::uint16_t WHITE = 65535;
+constexpr std::size_t IFD_COUNT = 23;
+constexpr double D50_X = 0.96422;
+constexpr double D50_Y = 1.0;
+constexpr double D50_Z = 0.82521;
+constexpr double DET_EPS = 1.0e-12;
+constexpr std::int64_t RAT_DEN = 1000000;
 
-struct Mat3 final {
-    std::array<double, 9> v{};
-};
-
-struct Vec3 final {
-    std::array<double, 3> v{};
-};
-
-struct IfdEntry final {
+struct Mat3 { std::array<double, 9> v{}; };
+struct Vec3 { std::array<double, 3> v{}; };
+struct Entry {
     std::uint16_t tag = 0;
     std::uint16_t type = 0;
     std::uint32_t count = 0;
     std::uint32_t value = 0;
 };
 
-bool hash_is_zero(const Hash256& hash) noexcept {
-    for (const auto b : hash) {
-        if (b != 0) return false;
-    }
+bool zero_hash(const Hash256& h) noexcept {
+    for (const auto b : h) if (b != 0) return false;
     return true;
 }
 
-bool same_hash(const Hash256& a, const Hash256& b) noexcept {
-    return a == b;
-}
-
-std::string hex_hash(const Hash256& hash) {
+std::string hash_hex(const Hash256& h) {
     std::ostringstream ss;
     ss << std::hex << std::setfill('0');
-    for (const auto b : hash) ss << std::setw(2) << static_cast<unsigned>(b);
+    for (const auto b : h) ss << std::setw(2) << static_cast<unsigned>(b);
     return ss.str();
 }
 
-std::uint32_t align4(std::uint32_t value) noexcept {
-    return (value + 3u) & ~3u;
+const char* authority_text(
+    scientific_preview_binding_v0_1::ColorBindingAuthority a) noexcept {
+    using A = scientific_preview_binding_v0_1::ColorBindingAuthority;
+    switch (a) {
+        case A::Unverified: return "UNVERIFIED";
+        case A::PreviewSentinel: return "PREVIEW_SENTINEL";
+        case A::SourceMetadataBound: return "SOURCE_METADATA_BOUND";
+        case A::GatehouseCertifiedMetadata: return "GATEHOUSE_CERTIFIED_METADATA";
+        case A::IndependentCalibration: return "INDEPENDENT_CALIBRATION";
+    }
+    return "UNKNOWN";
 }
 
-void put_u16(std::vector<std::uint8_t>& bytes,
-             std::size_t offset,
-             std::uint16_t value) {
-    bytes[offset + 0] = static_cast<std::uint8_t>(value & 0xffu);
-    bytes[offset + 1] = static_cast<std::uint8_t>((value >> 8u) & 0xffu);
+std::uint32_t align4(std::uint32_t v) noexcept { return (v + 3u) & ~3u; }
+
+void put16(std::vector<std::uint8_t>& b, std::size_t o, std::uint16_t v) {
+    b[o] = static_cast<std::uint8_t>(v);
+    b[o + 1] = static_cast<std::uint8_t>(v >> 8u);
 }
 
-void put_u32(std::vector<std::uint8_t>& bytes,
-             std::size_t offset,
-             std::uint32_t value) {
-    bytes[offset + 0] = static_cast<std::uint8_t>(value & 0xffu);
-    bytes[offset + 1] = static_cast<std::uint8_t>((value >> 8u) & 0xffu);
-    bytes[offset + 2] = static_cast<std::uint8_t>((value >> 16u) & 0xffu);
-    bytes[offset + 3] = static_cast<std::uint8_t>((value >> 24u) & 0xffu);
+void put32(std::vector<std::uint8_t>& b, std::size_t o, std::uint32_t v) {
+    b[o] = static_cast<std::uint8_t>(v);
+    b[o + 1] = static_cast<std::uint8_t>(v >> 8u);
+    b[o + 2] = static_cast<std::uint8_t>(v >> 16u);
+    b[o + 3] = static_cast<std::uint8_t>(v >> 24u);
 }
 
-void put_i32(std::vector<std::uint8_t>& bytes,
-             std::size_t offset,
-             std::int32_t value) {
-    put_u32(bytes, offset, static_cast<std::uint32_t>(value));
+void append16(std::vector<std::uint8_t>& b, std::uint16_t v) {
+    b.push_back(static_cast<std::uint8_t>(v));
+    b.push_back(static_cast<std::uint8_t>(v >> 8u));
 }
 
-void append_u16(std::vector<std::uint8_t>& bytes, std::uint16_t value) {
-    bytes.push_back(static_cast<std::uint8_t>(value & 0xffu));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 8u) & 0xffu));
+void append32(std::vector<std::uint8_t>& b, std::uint32_t v) {
+    b.push_back(static_cast<std::uint8_t>(v));
+    b.push_back(static_cast<std::uint8_t>(v >> 8u));
+    b.push_back(static_cast<std::uint8_t>(v >> 16u));
+    b.push_back(static_cast<std::uint8_t>(v >> 24u));
 }
 
-void append_u32(std::vector<std::uint8_t>& bytes, std::uint32_t value) {
-    bytes.push_back(static_cast<std::uint8_t>(value & 0xffu));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 8u) & 0xffu));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 16u) & 0xffu));
-    bytes.push_back(static_cast<std::uint8_t>((value >> 24u) & 0xffu));
+void append_i32(std::vector<std::uint8_t>& b, std::int32_t v) {
+    append32(b, static_cast<std::uint32_t>(v));
 }
 
-void append_i32(std::vector<std::uint8_t>& bytes, std::int32_t value) {
-    append_u32(bytes, static_cast<std::uint32_t>(value));
-}
-
-std::uint32_t add_blob(std::vector<std::uint8_t>& extras,
-                       std::uint32_t extraStart,
-                       const std::vector<std::uint8_t>& data,
-                       std::size_t alignment = 2u) {
-    const std::uint32_t current = extraStart + static_cast<std::uint32_t>(extras.size());
-    const std::uint32_t aligned = alignment == 4u ? align4(current)
-                                                   : ((current + 1u) & ~1u);
-    extras.insert(extras.end(), aligned - current, 0u);
-    const std::uint32_t offset = extraStart + static_cast<std::uint32_t>(extras.size());
-    extras.insert(extras.end(), data.begin(), data.end());
-    return offset;
-}
-
-std::vector<std::uint8_t> ascii_blob(const std::string& text) {
-    std::vector<std::uint8_t> out(text.begin(), text.end());
+std::vector<std::uint8_t> ascii(const std::string& s) {
+    std::vector<std::uint8_t> out(s.begin(), s.end());
     out.push_back(0);
     return out;
 }
 
-std::vector<std::uint8_t> shorts_blob(std::initializer_list<std::uint16_t> values) {
+std::vector<std::uint8_t> shorts(std::initializer_list<std::uint16_t> x) {
     std::vector<std::uint8_t> out;
-    out.reserve(values.size() * 2u);
-    for (const auto v : values) append_u16(out, v);
+    out.reserve(x.size() * 2u);
+    for (const auto v : x) append16(out, v);
     return out;
 }
 
-std::vector<std::uint8_t> longs_blob(const std::vector<std::uint32_t>& values) {
+std::vector<std::uint8_t> longs(const std::vector<std::uint32_t>& x) {
     std::vector<std::uint8_t> out;
-    out.reserve(values.size() * 4u);
-    for (const auto v : values) append_u32(out, v);
+    out.reserve(x.size() * 4u);
+    for (const auto v : x) append32(out, v);
     return out;
 }
 
-double determinant(const Mat3& m) noexcept {
+std::uint32_t add_blob(std::vector<std::uint8_t>& extra,
+                       std::uint32_t base,
+                       const std::vector<std::uint8_t>& data,
+                       std::uint32_t align) {
+    const auto absolute = base + static_cast<std::uint32_t>(extra.size());
+    const auto aligned = align == 4u ? align4(absolute) : ((absolute + 1u) & ~1u);
+    extra.insert(extra.end(), aligned - absolute, 0u);
+    const auto offset = base + static_cast<std::uint32_t>(extra.size());
+    extra.insert(extra.end(), data.begin(), data.end());
+    return offset;
+}
+
+double det(const Mat3& m) noexcept {
     const auto& a = m.v;
     return a[0] * (a[4] * a[8] - a[5] * a[7]) -
            a[1] * (a[3] * a[8] - a[5] * a[6]) +
            a[2] * (a[3] * a[7] - a[4] * a[6]);
 }
 
-bool inverse(const Mat3& m, Mat3& out) noexcept {
-    const double d = determinant(m);
-    if (!std::isfinite(d) || std::abs(d) <= kMatrixSingularEpsilon) return false;
+bool inv(const Mat3& m, Mat3& r) noexcept {
+    const double d = det(m);
+    if (!std::isfinite(d) || std::abs(d) <= DET_EPS) return false;
     const auto& a = m.v;
-    auto& r = out.v;
-    r[0] =  (a[4] * a[8] - a[5] * a[7]) / d;
-    r[1] = -(a[1] * a[8] - a[2] * a[7]) / d;
-    r[2] =  (a[1] * a[5] - a[2] * a[4]) / d;
-    r[3] = -(a[3] * a[8] - a[5] * a[6]) / d;
-    r[4] =  (a[0] * a[8] - a[2] * a[6]) / d;
-    r[5] = -(a[0] * a[5] - a[2] * a[3]) / d;
-    r[6] =  (a[3] * a[7] - a[4] * a[6]) / d;
-    r[7] = -(a[0] * a[7] - a[1] * a[6]) / d;
-    r[8] =  (a[0] * a[4] - a[1] * a[3]) / d;
-    for (const auto v : r) {
-        if (!std::isfinite(v) || std::abs(v) > 1000.0) return false;
-    }
+    r.v = {
+         (a[4]*a[8]-a[5]*a[7])/d, -(a[1]*a[8]-a[2]*a[7])/d,  (a[1]*a[5]-a[2]*a[4])/d,
+        -(a[3]*a[8]-a[5]*a[6])/d,  (a[0]*a[8]-a[2]*a[6])/d, -(a[0]*a[5]-a[2]*a[3])/d,
+         (a[3]*a[7]-a[4]*a[6])/d, -(a[0]*a[7]-a[1]*a[6])/d,  (a[0]*a[4]-a[1]*a[3])/d
+    };
+    for (const auto v : r.v) if (!std::isfinite(v) || std::abs(v) > 1000.0) return false;
     return true;
 }
 
 Vec3 mul(const Mat3& m, const Vec3& x) noexcept {
-    Vec3 out;
-    for (int row = 0; row < 3; ++row) {
-        out.v[row] = m.v[row * 3 + 0] * x.v[0] +
-                     m.v[row * 3 + 1] * x.v[1] +
-                     m.v[row * 3 + 2] * x.v[2];
+    Vec3 y;
+    for (int r = 0; r < 3; ++r) {
+        y.v[r] = m.v[r*3] * x.v[0] + m.v[r*3+1] * x.v[1] + m.v[r*3+2] * x.v[2];
     }
-    return out;
+    return y;
 }
 
-bool make_srational_blob(const Mat3& matrix, std::vector<std::uint8_t>& out) {
+bool srational_matrix(const Mat3& m, std::vector<std::uint8_t>& out) {
     out.clear();
-    out.reserve(9u * 8u);
-    for (const double v : matrix.v) {
-        if (!std::isfinite(v)) return false;
-        const double scaled = std::round(v * static_cast<double>(kRationalDenominator));
-        if (scaled < static_cast<double>(std::numeric_limits<std::int32_t>::min()) ||
-            scaled > static_cast<double>(std::numeric_limits<std::int32_t>::max())) {
-            return false;
-        }
-        append_i32(out, static_cast<std::int32_t>(scaled));
-        append_i32(out, static_cast<std::int32_t>(kRationalDenominator));
+    out.reserve(72u);
+    for (const auto v : m.v) {
+        const double n = std::round(v * static_cast<double>(RAT_DEN));
+        if (!std::isfinite(n) ||
+            n < static_cast<double>(std::numeric_limits<std::int32_t>::min()) ||
+            n > static_cast<double>(std::numeric_limits<std::int32_t>::max())) return false;
+        append_i32(out, static_cast<std::int32_t>(n));
+        append_i32(out, static_cast<std::int32_t>(RAT_DEN));
     }
     return true;
 }
 
-bool make_rational_blob(const Vec3& value, std::vector<std::uint8_t>& out) {
+bool rational_vec(const Vec3& x, std::vector<std::uint8_t>& out) {
     out.clear();
-    out.reserve(3u * 8u);
-    for (const double v : value.v) {
-        if (!std::isfinite(v) || !(v > 0.0)) return false;
-        const double scaled = std::round(v * static_cast<double>(kRationalDenominator));
-        if (!(scaled > 0.0) ||
-            scaled > static_cast<double>(std::numeric_limits<std::uint32_t>::max())) {
-            return false;
-        }
-        append_u32(out, static_cast<std::uint32_t>(scaled));
-        append_u32(out, static_cast<std::uint32_t>(kRationalDenominator));
+    out.reserve(24u);
+    for (const auto v : x.v) {
+        const double n = std::round(v * static_cast<double>(RAT_DEN));
+        if (!std::isfinite(n) || !(n > 0.0) ||
+            n > static_cast<double>(std::numeric_limits<std::uint32_t>::max())) return false;
+        append32(out, static_cast<std::uint32_t>(n));
+        append32(out, static_cast<std::uint32_t>(RAT_DEN));
     }
     return true;
 }
 
-void write_ifd_entry(std::vector<std::uint8_t>& prefix,
-                     std::size_t entryOffset,
-                     const IfdEntry& entry) {
-    put_u16(prefix, entryOffset + 0u, entry.tag);
-    put_u16(prefix, entryOffset + 2u, entry.type);
-    put_u32(prefix, entryOffset + 4u, entry.count);
-    put_u32(prefix, entryOffset + 8u, entry.value);
+std::uint32_t inline4(std::array<std::uint8_t, 4> x) noexcept {
+    return std::uint32_t(x[0]) | (std::uint32_t(x[1]) << 8u) |
+           (std::uint32_t(x[2]) << 16u) | (std::uint32_t(x[3]) << 24u);
 }
 
-std::uint32_t inline_bytes4(std::array<std::uint8_t, 4> bytes) noexcept {
-    return static_cast<std::uint32_t>(bytes[0]) |
-           (static_cast<std::uint32_t>(bytes[1]) << 8u) |
-           (static_cast<std::uint32_t>(bytes[2]) << 16u) |
-           (static_cast<std::uint32_t>(bytes[3]) << 24u);
+void write_entry(std::vector<std::uint8_t>& b, std::size_t o, const Entry& e) {
+    put16(b, o, e.tag);
+    put16(b, o + 2u, e.type);
+    put32(b, o + 4u, e.count);
+    put32(b, o + 8u, e.value);
 }
 
 }  // namespace
@@ -258,72 +224,63 @@ Status admit_linear_dng_projection(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
     const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
     ProjectionAdmission& out) noexcept {
-    using finalized_scientific_preview_release::v0_2::PreviewAuthority;
-    using scientific_preview_binding_v0_1::ColorBindingAuthority;
+    using A = scientific_preview_binding_v0_1::ColorBindingAuthority;
+    using P = finalized_scientific_preview_release::v0_2::PreviewAuthority;
 
-    ProjectionAdmission result;
-    if (release.authority == PreviewAuthority::None) {
+    if (release.authority == P::None || !prepared.mainHouseComputeAllowed || !prepared.color.validated) {
         return Status::error(StatusCode::FinalizedLineageRequired,
-                             "Linear DNG projection requires a finalized Scientific Preview lineage");
+                             "Linear DNG requires an already-finalized scientific lineage");
     }
-    if (!prepared.mainHouseComputeAllowed || !prepared.color.validated) {
-        return Status::error(StatusCode::FinalizedLineageRequired,
-                             "prepared source/color lineage is not valid for Main-House projection");
-    }
-    if (prepared.physicalFrameCount != 1u ||
-        prepared.independentEvidenceCount != 1u ||
+    if (prepared.physicalFrameCount != 1u || prepared.independentEvidenceCount != 1u ||
         release.scientificIdentity.physicalFrameCount != 1u ||
         release.scientificIdentity.independentEvidenceCount != 1u ||
         release.canonicalPhase2.backplane.physicalFrameCount != 1u ||
         release.canonicalPhase2.backplane.independentEvidenceCount != 1u) {
         return Status::error(StatusCode::FinalizedLineageRequired,
-                             "v0.1 Linear DNG projection requires one physical frame/evidence root");
+                             "Linear DNG v0.1 preserves one physical frame/evidence root");
     }
-    if (prepared.color.authority == ColorBindingAuthority::Unverified ||
-        prepared.color.authority == ColorBindingAuthority::PreviewSentinel) {
+    if (prepared.color.authority == A::Unverified || prepared.color.authority == A::PreviewSentinel) {
         return Status::error(StatusCode::UnauthorizedColorBinding,
-                             "unverified/sentinel color cannot enter Linear DNG projection");
+                             "unverified/sentinel color is not export-authoritative");
     }
-    const auto& admissionSeal = release.canonicalPhase2.admission.sourceSeal;
-    if (!same_hash(prepared.source.sha256, admissionSeal.sha256) ||
-        prepared.source.byteLength != admissionSeal.byteLength ||
-        prepared.source.sourceEvidenceId != admissionSeal.sourceEvidenceId ||
-        !same_hash(prepared.source.sha256,
-                   release.canonicalPhase2.backplane.sourceEvidenceHash)) {
+
+    const auto& seal = release.canonicalPhase2.admission.sourceSeal;
+    if (prepared.source.sha256 != seal.sha256 || prepared.source.byteLength != seal.byteLength ||
+        prepared.source.sourceEvidenceId != seal.sourceEvidenceId ||
+        prepared.source.sha256 != release.canonicalPhase2.backplane.sourceEvidenceHash) {
         return Status::error(StatusCode::SourceIdentityMismatch,
-                             "finalized release source identity does not match prepared source");
+                             "projection source identity does not match finalized Backplane");
     }
-    if (hash_is_zero(release.scientificIdentity.scientificMasterHash) ||
-        !same_hash(release.scientificIdentity.scientificMasterHash,
-                   release.canonicalPhase2.backplane.scientificMasterHash)) {
+    if (zero_hash(release.scientificIdentity.scientificMasterHash) ||
+        release.scientificIdentity.scientificMasterHash !=
+            release.canonicalPhase2.backplane.scientificMasterHash) {
         return Status::error(StatusCode::ScientificIdentityMismatch,
-                             "finalized release Scientific Master identity is missing/mismatched");
+                             "projection Scientific Master identity is missing/mismatched");
     }
-    for (const float value : prepared.color.cameraToXyzD50) {
-        if (!std::isfinite(value)) {
-            return Status::error(StatusCode::InvalidArgument,
-                                 "cameraToXyzD50 contains non-finite value");
+    for (const auto v : prepared.color.cameraToXyzD50) {
+        if (!std::isfinite(v)) {
+            return Status::error(StatusCode::InvalidArgument, "non-finite cameraToXyzD50");
         }
     }
 
-    result.source = prepared.source;
-    result.scientificMasterHash = release.scientificIdentity.scientificMasterHash;
-    result.cameraToXyzD50 = prepared.color.cameraToXyzD50;
-    result.colorAuthority = prepared.color.authority;
-    result.strongerPhysicalColorClaim =
-        release.authority == PreviewAuthority::FinalizedIndependentlyCalibratedScientificPreview;
-    result.physicalFrameCount = 1;
-    result.independentEvidenceCount = 1;
-    out = result;
+    ProjectionAdmission admitted;
+    admitted.source = prepared.source;
+    admitted.scientificMasterHash = release.scientificIdentity.scientificMasterHash;
+    admitted.cameraToXyzD50 = prepared.color.cameraToXyzD50;
+    admitted.colorAuthority = prepared.color.authority;
+    admitted.strongerPhysicalColorClaim =
+        release.authority == P::FinalizedIndependentlyCalibratedScientificPreview;
+    admitted.physicalFrameCount = 1;
+    admitted.independentEvidenceCount = 1;
+    out = admitted;
     return Status::ok();
 }
 
-Status write_linear_dng(
-    ICameraRgbTileSource& source,
-    ISequentialByteSink& sink,
-    const ProjectionAdmission& admission,
-    const Options& options,
-    Audit& out) noexcept {
+Status write_linear_dng(ICameraRgbTileSource& source,
+                        ISequentialByteSink& sink,
+                        const ProjectionAdmission& admission,
+                        const Options& options,
+                        Audit& out) noexcept {
     Audit audit;
     audit.strongerPhysicalColorClaim = admission.strongerPhysicalColorClaim;
     audit.sourceMetadataColorOnly =
@@ -337,281 +294,224 @@ Status write_linear_dng(
         !std::isfinite(options.linearScale) || !(options.linearScale > 0.0) ||
         options.uniqueCameraModel.size() < 4u || options.software.size() < 4u ||
         sink.bytesWritten() != 0u || admission.physicalFrameCount != 1u ||
-        admission.independentEvidenceCount != 1u || hash_is_zero(admission.scientificMasterHash)) {
-        return Status::error(StatusCode::InvalidArgument,
-                             "invalid Linear DNG projection arguments/admission");
+        admission.independentEvidenceCount != 1u || zero_hash(admission.source.sha256) ||
+        zero_hash(admission.scientificMasterHash)) {
+        return Status::error(StatusCode::InvalidArgument, "invalid Linear DNG projection state");
     }
 
     Mat3 cameraToXyz;
     for (std::size_t i = 0; i < 9u; ++i) {
-        cameraToXyz.v[i] = static_cast<double>(admission.cameraToXyzD50[i]);
+        cameraToXyz.v[i] = admission.cameraToXyzD50[i];
         if (!std::isfinite(cameraToXyz.v[i])) {
-            return Status::error(StatusCode::InvalidArgument,
-                                 "cameraToXyzD50 contains non-finite value");
+            return Status::error(StatusCode::InvalidArgument, "non-finite camera matrix");
         }
     }
     Mat3 xyzToCamera;
-    if (!inverse(cameraToXyz, xyzToCamera)) {
+    if (!inv(cameraToXyz, xyzToCamera)) {
         return Status::error(StatusCode::SingularColorMatrix,
-                             "cameraToXyzD50 cannot be inverted into DNG ColorMatrix1");
+                             "cameraToXyzD50 cannot form DNG ColorMatrix1");
     }
 
-    Vec3 d50{{kD50X, kD50Y, kD50Z}};
-    Vec3 neutral = mul(xyzToCamera, d50);
+    Vec3 neutral = mul(xyzToCamera, Vec3{{D50_X, D50_Y, D50_Z}});
     if (!std::isfinite(neutral.v[1]) || !(neutral.v[1] > 0.0)) {
-        return Status::error(StatusCode::InvalidNeutral,
-                             "effective D50 profile produced invalid camera neutral");
+        return Status::error(StatusCode::InvalidNeutral, "invalid effective D50 camera neutral");
     }
-    for (double& v : neutral.v) v /= neutral.v[1];
-    for (const double v : neutral.v) {
+    const double g = neutral.v[1];
+    for (auto& v : neutral.v) v /= g;
+    for (const auto v : neutral.v) {
         if (!std::isfinite(v) || !(v > 0.0) || v > 64.0) {
             return Status::error(StatusCode::InvalidNeutral,
-                                 "effective AsShotNeutral is outside projection bounds");
+                                 "effective AsShotNeutral outside projection bounds");
         }
     }
 
-    const std::uint64_t tilesX =
-        (static_cast<std::uint64_t>(width) + static_cast<std::uint64_t>(options.tileEdge) - 1u) /
-        static_cast<std::uint64_t>(options.tileEdge);
-    const std::uint64_t tilesY =
-        (static_cast<std::uint64_t>(height) + static_cast<std::uint64_t>(options.tileEdge) - 1u) /
-        static_cast<std::uint64_t>(options.tileEdge);
+    const std::uint64_t edge = static_cast<std::uint64_t>(options.tileEdge);
+    const std::uint64_t tilesX = (static_cast<std::uint64_t>(width) + edge - 1u) / edge;
+    const std::uint64_t tilesY = (static_cast<std::uint64_t>(height) + edge - 1u) / edge;
     const std::uint64_t tileCount64 = tilesX * tilesY;
-    const std::uint64_t samplesPerTile =
-        static_cast<std::uint64_t>(options.tileEdge) *
-        static_cast<std::uint64_t>(options.tileEdge) * 3u;
-    const std::uint64_t tileBytes64 = samplesPerTile * sizeof(std::uint16_t);
+    const std::uint64_t samplesPerTile = edge * edge * 3u;
+    const std::uint64_t tileBytes64 = samplesPerTile * 2u;
     if (tileCount64 == 0u || tileCount64 > std::numeric_limits<std::uint32_t>::max() ||
         tileBytes64 > std::numeric_limits<std::uint32_t>::max()) {
-        return Status::error(StatusCode::OutputTooLarge,
-                             "Linear DNG tile geometry exceeds classic TIFF bounds");
+        return Status::error(StatusCode::OutputTooLarge, "tile geometry exceeds classic TIFF");
     }
-    const std::uint32_t tileCount = static_cast<std::uint32_t>(tileCount64);
-    const std::uint32_t tileBytes = static_cast<std::uint32_t>(tileBytes64);
+    const auto tileCount = static_cast<std::uint32_t>(tileCount64);
+    const auto tileBytes = static_cast<std::uint32_t>(tileBytes64);
 
     const std::uint32_t ifdOffset = 8u;
-    const std::uint32_t ifdBytes = 2u + static_cast<std::uint32_t>(kIfdEntryCount) * 12u + 4u;
+    const std::uint32_t ifdBytes = 2u + static_cast<std::uint32_t>(IFD_COUNT) * 12u + 4u;
     const std::uint32_t extraStart = align4(ifdOffset + ifdBytes);
-    std::vector<std::uint8_t> extras;
+    std::vector<std::uint8_t> extra;
 
-    const auto bits = shorts_blob({kBitsPerSample, kBitsPerSample, kBitsPerSample});
-    const std::uint32_t bitsOffset = add_blob(extras, extraStart, bits, 2u);
+    const auto bitsData = shorts({BITS, BITS, BITS});
+    const auto bitsOff = add_blob(extra, extraStart, bitsData, 2u);
 
     const std::string description =
-        std::string("TruthRaw role=LINEAR_DNG_COMPATIBILITY_PROJECTION; creates_evidence=0; ") +
-        "source=" + admission.source.sourceEvidenceId +
-        "; scientific_master_sha256=" + hex_hash(admission.scientificMasterHash) +
-        "; color_authority=" +
-        scientific_preview_binding_v0_1::authority_name(admission.colorAuthority) +
-        "; stronger_physical_color_claim=" +
+        std::string("TruthRaw role=LINEAR_DNG_COMPATIBILITY_PROJECTION; creates_evidence=0; source=") +
+        admission.source.sourceEvidenceId + "; scientific_master_sha256=" +
+        hash_hex(admission.scientificMasterHash) + "; color_authority=" +
+        authority_text(admission.colorAuthority) + "; stronger_physical_color_claim=" +
         (admission.strongerPhysicalColorClaim ? "1" : "0");
-    const auto descriptionData = ascii_blob(description);
-    const std::uint32_t descriptionOffset = add_blob(extras, extraStart, descriptionData, 2u);
+    const auto descData = ascii(description);
+    const auto descOff = add_blob(extra, extraStart, descData, 2u);
+    const auto softwareData = ascii(options.software);
+    const auto softwareOff = add_blob(extra, extraStart, softwareData, 2u);
 
-    const auto softwareData = ascii_blob(options.software);
-    const std::uint32_t softwareOffset = add_blob(extras, extraStart, softwareData, 2u);
+    std::vector<std::uint32_t> offsets(tileCount, 0u);
+    const auto offsetsData = longs(offsets);
+    const auto offsetsOff = tileCount == 1u ? 0u : add_blob(extra, extraStart, offsetsData, 4u);
+    const auto offsetsRelative = tileCount == 1u ? 0u : offsetsOff - extraStart;
 
-    std::vector<std::uint32_t> zeroOffsets(tileCount, 0u);
-    const auto tileOffsetsData = longs_blob(zeroOffsets);
-    const std::uint32_t tileOffsetsOffset =
-        tileCount == 1u ? 0u : add_blob(extras, extraStart, tileOffsetsData, 4u);
-    const std::size_t tileOffsetsRelative =
-        tileCount == 1u ? 0u : static_cast<std::size_t>(tileOffsetsOffset - extraStart);
+    std::vector<std::uint32_t> counts(tileCount, tileBytes);
+    const auto countsData = longs(counts);
+    const auto countsOff = tileCount == 1u ? 0u : add_blob(extra, extraStart, countsData, 4u);
 
-    std::vector<std::uint32_t> byteCounts(tileCount, tileBytes);
-    const auto tileByteCountsData = longs_blob(byteCounts);
-    const std::uint32_t tileByteCountsOffset =
-        tileCount == 1u ? 0u : add_blob(extras, extraStart, tileByteCountsData, 4u);
+    const auto sampleFormatData = shorts({1u, 1u, 1u});
+    const auto sampleFormatOff = add_blob(extra, extraStart, sampleFormatData, 2u);
+    const auto modelData = ascii(options.uniqueCameraModel);
+    const auto modelOff = add_blob(extra, extraStart, modelData, 2u);
+    const auto whiteData = shorts({WHITE, WHITE, WHITE});
+    const auto whiteOff = add_blob(extra, extraStart, whiteData, 2u);
 
-    const auto sampleFormatData = shorts_blob({kSampleFormatUnsigned,
-                                                kSampleFormatUnsigned,
-                                                kSampleFormatUnsigned});
-    const std::uint32_t sampleFormatOffset =
-        add_blob(extras, extraStart, sampleFormatData, 2u);
-
-    const auto modelData = ascii_blob(options.uniqueCameraModel);
-    const std::uint32_t modelOffset = add_blob(extras, extraStart, modelData, 2u);
-
-    const auto whiteData = shorts_blob({static_cast<std::uint16_t>(kWhiteLevel),
-                                        static_cast<std::uint16_t>(kWhiteLevel),
-                                        static_cast<std::uint16_t>(kWhiteLevel)});
-    const std::uint32_t whiteOffset = add_blob(extras, extraStart, whiteData, 2u);
-
-    std::vector<std::uint8_t> colorMatrixData;
-    if (!make_srational_blob(xyzToCamera, colorMatrixData)) {
+    std::vector<std::uint8_t> matrixData;
+    if (!srational_matrix(xyzToCamera, matrixData)) {
         return Status::error(StatusCode::SingularColorMatrix,
-                             "effective DNG ColorMatrix1 cannot be represented as SRATIONAL");
+                             "ColorMatrix1 cannot be represented as SRATIONAL");
     }
-    const std::uint32_t colorMatrixOffset =
-        add_blob(extras, extraStart, colorMatrixData, 4u);
-
+    const auto matrixOff = add_blob(extra, extraStart, matrixData, 4u);
     std::vector<std::uint8_t> neutralData;
-    if (!make_rational_blob(neutral, neutralData)) {
+    if (!rational_vec(neutral, neutralData)) {
         return Status::error(StatusCode::InvalidNeutral,
-                             "effective AsShotNeutral cannot be represented as RATIONAL");
+                             "AsShotNeutral cannot be represented as RATIONAL");
     }
-    const std::uint32_t neutralOffset = add_blob(extras, extraStart, neutralData, 4u);
+    const auto neutralOff = add_blob(extra, extraStart, neutralData, 4u);
 
-    std::uint64_t pixelStart64 = align4(extraStart + static_cast<std::uint32_t>(extras.size()));
-    const std::uint64_t outputBytes64 = pixelStart64 + tileCount64 * tileBytes64;
+    const std::uint64_t pixelStart64 =
+        align4(extraStart + static_cast<std::uint32_t>(extra.size()));
+    const std::uint64_t outputSize64 = pixelStart64 + tileCount64 * tileBytes64;
     if (pixelStart64 > std::numeric_limits<std::uint32_t>::max() ||
-        outputBytes64 > std::numeric_limits<std::uint32_t>::max()) {
-        return Status::error(StatusCode::OutputTooLarge,
-                             "Linear DNG output exceeds classic TIFF 32-bit offset limit");
+        outputSize64 > std::numeric_limits<std::uint32_t>::max()) {
+        return Status::error(StatusCode::OutputTooLarge, "DNG exceeds classic TIFF 32-bit offsets");
     }
-    const std::uint32_t pixelStart = static_cast<std::uint32_t>(pixelStart64);
-    extras.insert(extras.end(), pixelStart - (extraStart + static_cast<std::uint32_t>(extras.size())), 0u);
-
+    const auto pixelStart = static_cast<std::uint32_t>(pixelStart64);
+    extra.insert(extra.end(),
+                 pixelStart - (extraStart + static_cast<std::uint32_t>(extra.size())), 0u);
     if (tileCount > 1u) {
         for (std::uint32_t i = 0; i < tileCount; ++i) {
-            const std::uint32_t offset = pixelStart + i * tileBytes;
-            put_u32(extras, tileOffsetsRelative + static_cast<std::size_t>(i) * 4u, offset);
+            put32(extra, offsetsRelative + static_cast<std::size_t>(i) * 4u,
+                  pixelStart + i * tileBytes);
         }
     }
 
-    std::vector<IfdEntry> entries;
-    entries.reserve(kIfdEntryCount);
-    entries.push_back({kTagNewSubFileType, kTiffTypeLong, 1u, 0u});
-    entries.push_back({kTagImageWidth, kTiffTypeLong, 1u, static_cast<std::uint32_t>(width)});
-    entries.push_back({kTagImageLength, kTiffTypeLong, 1u, static_cast<std::uint32_t>(height)});
-    entries.push_back({kTagBitsPerSample, kTiffTypeShort, 3u, bitsOffset});
-    entries.push_back({kTagCompression, kTiffTypeShort, 1u, kCompressionNone});
-    entries.push_back({kTagPhotometricInterpretation, kTiffTypeShort, 1u, kPhotometricLinearRaw});
-    entries.push_back({kTagImageDescription, kTiffTypeAscii,
-                       static_cast<std::uint32_t>(descriptionData.size()), descriptionOffset});
-    entries.push_back({kTagOrientation, kTiffTypeShort, 1u,
-                       static_cast<std::uint32_t>(source.orientation())});
-    entries.push_back({kTagSamplesPerPixel, kTiffTypeShort, 1u, 3u});
-    entries.push_back({kTagPlanarConfiguration, kTiffTypeShort, 1u, kPlanarChunky});
-    entries.push_back({kTagSoftware, kTiffTypeAscii,
-                       static_cast<std::uint32_t>(softwareData.size()), softwareOffset});
-    entries.push_back({kTagTileWidth, kTiffTypeLong, 1u,
-                       static_cast<std::uint32_t>(options.tileEdge)});
-    entries.push_back({kTagTileLength, kTiffTypeLong, 1u,
-                       static_cast<std::uint32_t>(options.tileEdge)});
-    entries.push_back({kTagTileOffsets, kTiffTypeLong, tileCount,
-                       tileCount == 1u ? pixelStart : tileOffsetsOffset});
-    entries.push_back({kTagTileByteCounts, kTiffTypeLong, tileCount,
-                       tileCount == 1u ? tileBytes : tileByteCountsOffset});
-    entries.push_back({kTagSampleFormat, kTiffTypeShort, 3u, sampleFormatOffset});
-    entries.push_back({kTagDngVersion, kTiffTypeByte, 4u,
-                       inline_bytes4({1u, 4u, 0u, 0u})});
-    entries.push_back({kTagDngBackwardVersion, kTiffTypeByte, 4u,
-                       inline_bytes4({1u, 4u, 0u, 0u})});
-    entries.push_back({kTagUniqueCameraModel, kTiffTypeAscii,
-                       static_cast<std::uint32_t>(modelData.size()), modelOffset});
-    entries.push_back({kTagWhiteLevel, kTiffTypeShort, 3u, whiteOffset});
-    entries.push_back({kTagColorMatrix1, kTiffTypeSRational, 9u, colorMatrixOffset});
-    entries.push_back({kTagAsShotNeutral, kTiffTypeRational, 3u, neutralOffset});
-    entries.push_back({kTagCalibrationIlluminant1, kTiffTypeShort, 1u,
-                       kCalibrationIlluminantD50});
-
-    // Keep the compile-time count honest if tags are added/removed.
-    if (entries.size() != kIfdEntryCount) {
-        return Status::error(StatusCode::InvalidArgument,
-                             "internal Linear DNG IFD entry-count mismatch");
+    std::vector<Entry> e;
+    e.reserve(IFD_COUNT);
+    e.push_back({TAG_NewSubFileType, LONG, 1u, 0u});
+    e.push_back({TAG_ImageWidth, LONG, 1u, static_cast<std::uint32_t>(width)});
+    e.push_back({TAG_ImageLength, LONG, 1u, static_cast<std::uint32_t>(height)});
+    e.push_back({TAG_BitsPerSample, SHORT, 3u, bitsOff});
+    e.push_back({TAG_Compression, SHORT, 1u, 1u});
+    e.push_back({TAG_PhotometricInterpretation, SHORT, 1u, PHOTOMETRIC_LinearRaw});
+    e.push_back({TAG_ImageDescription, ASCII, static_cast<std::uint32_t>(descData.size()), descOff});
+    e.push_back({TAG_Orientation, SHORT, 1u, static_cast<std::uint32_t>(source.orientation())});
+    e.push_back({TAG_SamplesPerPixel, SHORT, 1u, 3u});
+    e.push_back({TAG_PlanarConfiguration, SHORT, 1u, 1u});
+    e.push_back({TAG_Software, ASCII, static_cast<std::uint32_t>(softwareData.size()), softwareOff});
+    e.push_back({TAG_TileWidth, LONG, 1u, static_cast<std::uint32_t>(options.tileEdge)});
+    e.push_back({TAG_TileLength, LONG, 1u, static_cast<std::uint32_t>(options.tileEdge)});
+    e.push_back({TAG_TileOffsets, LONG, tileCount, tileCount == 1u ? pixelStart : offsetsOff});
+    e.push_back({TAG_TileByteCounts, LONG, tileCount, tileCount == 1u ? tileBytes : countsOff});
+    e.push_back({TAG_SampleFormat, SHORT, 3u, sampleFormatOff});
+    e.push_back({TAG_DNGVersion, BYTE, 4u, inline4({1u, 4u, 0u, 0u})});
+    e.push_back({TAG_DNGBackwardVersion, BYTE, 4u, inline4({1u, 4u, 0u, 0u})});
+    e.push_back({TAG_UniqueCameraModel, ASCII, static_cast<std::uint32_t>(modelData.size()), modelOff});
+    e.push_back({TAG_WhiteLevel, SHORT, 3u, whiteOff});
+    e.push_back({TAG_ColorMatrix1, SRATIONAL, 9u, matrixOff});
+    e.push_back({TAG_AsShotNeutral, RATIONAL, 3u, neutralOff});
+    e.push_back({TAG_CalibrationIlluminant1, SHORT, 1u, LIGHTSOURCE_D50});
+    if (e.size() != IFD_COUNT) {
+        return Status::error(StatusCode::InvalidArgument, "internal IFD tag-count mismatch");
     }
-    std::sort(entries.begin(), entries.end(),
-              [](const IfdEntry& a, const IfdEntry& b) { return a.tag < b.tag; });
+    std::sort(e.begin(), e.end(), [](const Entry& a, const Entry& b) { return a.tag < b.tag; });
 
     std::vector<std::uint8_t> prefix(pixelStart, 0u);
-    prefix[0] = 'I';
-    prefix[1] = 'I';
-    put_u16(prefix, 2u, 42u);
-    put_u32(prefix, 4u, ifdOffset);
-    put_u16(prefix, ifdOffset, static_cast<std::uint16_t>(entries.size()));
-    std::size_t entryOffset = ifdOffset + 2u;
-    for (const auto& entry : entries) {
-        write_ifd_entry(prefix, entryOffset, entry);
-        entryOffset += 12u;
-    }
-    put_u32(prefix, entryOffset, 0u);
-    std::copy(extras.begin(), extras.end(), prefix.begin() + extraStart);
+    prefix[0] = 'I'; prefix[1] = 'I';
+    put16(prefix, 2u, 42u);
+    put32(prefix, 4u, ifdOffset);
+    put16(prefix, ifdOffset, static_cast<std::uint16_t>(e.size()));
+    std::size_t p = ifdOffset + 2u;
+    for (const auto& x : e) { write_entry(prefix, p, x); p += 12u; }
+    put32(prefix, p, 0u);
+    std::copy(extra.begin(), extra.end(), prefix.begin() + extraStart);
 
     auto status = sink.append(prefix.data(), prefix.size());
-    if (!status) {
-        return Status::error(StatusCode::SinkFailed, status.message);
-    }
+    if (!status) return Status::error(StatusCode::SinkFailed, status.message);
     audit.logicalWorkspacePeakBytes = prefix.size();
     std::vector<std::uint8_t>().swap(prefix);
-    std::vector<std::uint8_t>().swap(extras);
+    std::vector<std::uint8_t>().swap(extra);
 
-    const std::size_t encodedBytes = static_cast<std::size_t>(tileBytes);
-    std::vector<std::uint8_t> encoded(encodedBytes, 0u);
-    std::vector<float> cameraRgb;
-    cameraRgb.reserve(static_cast<std::size_t>(samplesPerTile));
+    std::vector<std::uint8_t> encoded(static_cast<std::size_t>(tileBytes), 0u);
+    std::vector<float> rgb;
+    rgb.reserve(static_cast<std::size_t>(samplesPerTile));
     audit.logicalWorkspacePeakBytes = std::max(
         audit.logicalWorkspacePeakBytes,
         encoded.capacity() + static_cast<std::size_t>(samplesPerTile) * sizeof(float));
 
-    for (std::uint32_t ty = 0; ty < static_cast<std::uint32_t>(tilesY); ++ty) {
-        for (std::uint32_t tx = 0; tx < static_cast<std::uint32_t>(tilesX); ++tx) {
+    for (std::uint32_t ty = 0; ty < tilesY; ++ty) {
+        for (std::uint32_t tx = 0; tx < tilesX; ++tx) {
             const int x0 = static_cast<int>(tx) * options.tileEdge;
             const int y0 = static_cast<int>(ty) * options.tileEdge;
             const int x1 = std::min(width, x0 + options.tileEdge);
             const int y1 = std::min(height, y0 + options.tileEdge);
             const int validW = x1 - x0;
             const int validH = y1 - y0;
-            const std::size_t validSamples =
-                static_cast<std::size_t>(validW) * static_cast<std::size_t>(validH) * 3u;
-            cameraRgb.resize(validSamples);
-            status = source.readCameraRgbTile(
-                x0, y0, x1, y1, cameraRgb.data(), cameraRgb.size());
-            if (!status) {
-                return Status::error(StatusCode::SourceFailed, status.message);
-            }
+            rgb.resize(static_cast<std::size_t>(validW) * static_cast<std::size_t>(validH) * 3u);
+            status = source.readCameraRgbTile(x0, y0, x1, y1, rgb.data(), rgb.size());
+            if (!status) return Status::error(StatusCode::SourceFailed, status.message);
             std::fill(encoded.begin(), encoded.end(), 0u);
-            for (int py = 0; py < validH; ++py) {
-                for (int px = 0; px < validW; ++px) {
+
+            for (int y = 0; y < validH; ++y) {
+                for (int x = 0; x < validW; ++x) {
                     for (int c = 0; c < 3; ++c) {
-                        const std::size_t inputIndex =
-                            (static_cast<std::size_t>(py) * static_cast<std::size_t>(validW) +
-                             static_cast<std::size_t>(px)) * 3u + static_cast<std::size_t>(c);
-                        double value = static_cast<double>(cameraRgb[inputIndex]);
+                        const auto si = (static_cast<std::size_t>(y) * validW + x) * 3u + c;
+                        double v = rgb[si];
                         ++audit.cameraRgbSamplesRead;
-                        if (!std::isfinite(value)) {
+                        if (!std::isfinite(v)) {
                             return Status::error(StatusCode::NonFiniteSample,
-                                                 "non-finite camera RGB sample in Linear DNG projection");
+                                                 "non-finite reconstructed camera RGB sample");
                         }
-                        value *= options.linearScale;
-                        if (value < 0.0) {
+                        v *= options.linearScale;
+                        if (v < 0.0) {
                             if (!options.clampToLinearReferenceRange) {
                                 return Status::error(StatusCode::InvalidArgument,
-                                                     "negative sample requires bounded projection clamp");
+                                                     "negative sample requires explicit bounded projection");
                             }
-                            value = 0.0;
+                            v = 0.0;
                             ++audit.negativeSamplesClamped;
-                        } else if (value > 1.0) {
+                        } else if (v > 1.0) {
                             if (!options.clampToLinearReferenceRange) {
                                 return Status::error(StatusCode::InvalidArgument,
-                                                     "overrange sample requires bounded projection clamp");
+                                                     "overrange sample requires explicit bounded projection");
                             }
-                            value = 1.0;
+                            v = 1.0;
                             ++audit.overrangeSamplesClamped;
                         }
-                        const auto q = static_cast<std::uint16_t>(
-                            std::llround(value * static_cast<double>(kWhiteLevel)));
+                        const auto q = static_cast<std::uint16_t>(std::llround(v * WHITE));
                         ++audit.quantizedSamples;
-                        const std::size_t outputIndex =
-                            (static_cast<std::size_t>(py) * static_cast<std::size_t>(options.tileEdge) +
-                             static_cast<std::size_t>(px)) * 3u + static_cast<std::size_t>(c);
-                        encoded[outputIndex * 2u + 0u] = static_cast<std::uint8_t>(q & 0xffu);
-                        encoded[outputIndex * 2u + 1u] = static_cast<std::uint8_t>((q >> 8u) & 0xffu);
+                        const auto di = (static_cast<std::size_t>(y) * options.tileEdge + x) * 3u + c;
+                        encoded[di * 2u] = static_cast<std::uint8_t>(q);
+                        encoded[di * 2u + 1u] = static_cast<std::uint8_t>(q >> 8u);
                     }
                 }
             }
             status = sink.append(encoded.data(), encoded.size());
-            if (!status) {
-                return Status::error(StatusCode::SinkFailed, status.message);
-            }
+            if (!status) return Status::error(StatusCode::SinkFailed, status.message);
             ++audit.tilesWritten;
         }
     }
 
     audit.outputBytes = sink.bytesWritten();
-    if (audit.outputBytes != outputBytes64) {
-        return Status::error(StatusCode::SinkFailed,
-                             "Linear DNG sink byte count does not match planned TIFF size");
+    if (audit.outputBytes != outputSize64) {
+        return Status::error(StatusCode::SinkFailed, "DNG byte count differs from planned TIFF layout");
     }
     out = audit;
     return Status::ok();
