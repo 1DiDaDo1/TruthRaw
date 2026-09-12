@@ -4,8 +4,18 @@
         android:allowBackup="false"
         android:label="TruthRaw">
         <activity
+            android:name=".DngExportActivity"
+            android:exported="true"
+            android:label="TruthRaw DNG Export">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:label="TruthRaw">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
