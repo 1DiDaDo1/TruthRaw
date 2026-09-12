@@ -60,8 +60,9 @@ struct ProjectionAdmission final {
     std::uint32_t independentEvidenceCount = 1;
 };
 
-// Builds an immutable downstream projection admission from the already-finalized
-// Scientific Preview lineage. This function cannot create a stronger color claim.
+// Builds a downstream projection admission from the already-finalized
+// Scientific Preview lineage. The writer independently re-checks the admission
+// invariants; constructing this struct manually cannot promote authority.
 Status admit_linear_dng_projection(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
     const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
@@ -91,6 +92,17 @@ public:
     virtual ~ISequentialByteSink() = default;
     virtual Status append(const std::uint8_t* data, std::size_t size) = 0;
     virtual std::uint64_t bytesWritten() const noexcept = 0;
+};
+
+// Required by the finalized Scientific-Master-bound export path. Bytes may be
+// staged while the export digest is being recomputed, but they become a valid
+// output only after commit(). Any pre-commit failure calls abort(), which must
+// leave no usable DNG payload behind (an empty destination is acceptable).
+class ITransactionalByteSink : public ISequentialByteSink {
+public:
+    ~ITransactionalByteSink() override = default;
+    virtual Status commit() = 0;
+    virtual void abort() noexcept = 0;
 };
 
 struct Options final {
