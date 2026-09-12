@@ -29,27 +29,27 @@ jlongArray failure(JNIEnv* env, jlong code) {
 }
 
 jlong map_binding(truthraw::scientific_preview_binding_v0_1::BindingStatusCode code) {
-    return 2000LL + static_cast<jlong>(code) + 1LL;
+    return 2000LL + static_cast<jlong>(code);
 }
 
 jlong map_color(truthraw::dng_color_binding_producer_v0_2::ProducerStatusCode code) {
-    return 2100LL + static_cast<jlong>(code) + 1LL;
+    return 2100LL + static_cast<jlong>(code);
 }
 
 jlong map_source(truthraw::tile_dng_v0_1::DngSourceCode code) {
-    return 3000LL + static_cast<jlong>(code) + 1LL;
+    return 3000LL + static_cast<jlong>(code);
 }
 
 jlong map_master(truthraw::scientific_master_streaming_binding::v0_2::StatusCode code) {
-    return 5500LL + static_cast<jlong>(code) + 1LL;
+    return 5500LL + static_cast<jlong>(code);
 }
 
 jlong map_phase2(truthraw::technical_backplane_phase2::v0_1::StatusCode code) {
-    return 5600LL + static_cast<jlong>(code) + 1LL;
+    return 5600LL + static_cast<jlong>(code);
 }
 
 jlong map_projection(truthraw::dng_projection::v0_1::StatusCode code) {
-    return 6000LL + static_cast<jlong>(code) + 1LL;
+    return 6000LL + static_cast<jlong>(code);
 }
 
 class PosixFdSequentialSink final : public truthraw::dng_projection::v0_1::ISequentialByteSink {
