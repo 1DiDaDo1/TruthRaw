@@ -22,12 +22,14 @@ set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/nat
 set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
+set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
+    linear_dng_export_bridge.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
@@ -48,6 +50,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHRANGE_LATENT}/truthrange_latent_v0_2.cpp
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
+    ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -66,6 +69,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHRANGE_LATENT}
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
+    ${LINEAR_DNG_PROJECTION}
     ${V47I_NATIVE}/include)
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
