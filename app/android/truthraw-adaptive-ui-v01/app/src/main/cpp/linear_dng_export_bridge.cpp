@@ -82,7 +82,7 @@ truthraw::streaming_v0_1::StreamingOptions preview_options(std::size_t memoryBud
 } // namespace
 
 extern "C" JNIEXPORT jlongArray JNICALL
-Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedLinearDng(
+Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
     JNIEnv* env,
     jobject,
     jint sourceFd,
