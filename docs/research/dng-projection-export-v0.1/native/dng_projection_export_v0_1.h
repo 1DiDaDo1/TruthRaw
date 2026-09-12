@@ -18,7 +18,11 @@ using ScientificColorBindingRecord =
 enum class ProjectionKind : std::uint8_t {
     LinearDng16 = 1,
     CfaDng16 = 2,
-    ScientificRawSensorF32 = 3,
+    ScientificMasterF32 = 3,
+    // Historical compatibility alias for the first implementation name only.
+    // User-facing/canonical naming is ScientificMasterF32 / .trmaster; the
+    // rawsensor role remains reserved for CFA/sensor-grid representations.
+    ScientificRawSensorF32 = ScientificMasterF32,
 };
 
 enum class StatusCode : std::uint8_t {
@@ -88,10 +92,11 @@ struct Result final {
 // Scientific Master digest.
 //
 // LinearDng16: bounded 16-bit LinearRaw DNG, camera-native reconstructed RGB.
-// CfaDng16: bounded 16-bit normalized Stage-2 CFA projection; reconstructed/
+// CfaDng16: bounded 16-bit normalized Stage-2 CFA/rawsensor projection;
 //           corrected representation, never relabeled as measured sensor data.
-// ScientificRawSensorF32: TruthRaw-private exact float32 camera-native RGB
-//           serialization plus source/master provenance; not a DNG container.
+// ScientificMasterF32: TruthRaw-private exact float32 camera-native RGB
+//           Scientific Master serialization plus source/master provenance;
+//           canonical file suffix is .trmaster, not .rawsensor.
 Status export_projection(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
