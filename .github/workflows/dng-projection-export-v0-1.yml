@@ -3,7 +3,7 @@ name: DNG Projection Export v0.1
 on:
   push:
     branches:
-      - research/dng-projection-export-v0.1-2026-09-12
+      - research/dng-projection-export-v0.1-2026-09-12-ci-fix
     paths:
       - 'docs/research/dng-projection-export-v0.1/**'
       - 'app/android/truthraw-adaptive-ui-v01/**'
@@ -28,7 +28,7 @@ permissions:
 jobs:
   host-export:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -71,7 +71,7 @@ jobs:
           /tmp/truthraw-dng-export/test_dng_projection_export_v0_1
 
   build-arm64-export-apk:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
