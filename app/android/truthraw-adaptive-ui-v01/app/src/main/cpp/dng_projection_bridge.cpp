@@ -1,7 +1,7 @@
 #include <jni.h>
 
 #include "dng_color_binding_producer_v0_2.h"
-#include "dng_compatibility_projection_v0_1.h"
+#include "dng_compatibility_projection_v0_2.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
 #include "scientific_preview_source_binding_v0_2.h"
@@ -24,10 +24,10 @@ namespace {
 
 using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
-using truthraw::dng_compatibility_projection::v0_1::ISequentialByteSink;
-using truthraw::dng_compatibility_projection::v0_1::ProjectionMetadata;
-using truthraw::dng_compatibility_projection::v0_1::ProjectionRole;
-using truthraw::dng_compatibility_projection::v0_1::Result;
+using truthraw::dng_compatibility_projection::v0_2::ISequentialByteSink;
+using truthraw::dng_compatibility_projection::v0_2::ProjectionMetadata;
+using truthraw::dng_compatibility_projection::v0_2::ProjectionRole;
+using truthraw::dng_compatibility_projection::v0_2::Result;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
 using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource;
@@ -74,18 +74,19 @@ jlongArray packet(JNIEnv* env,
     out[1] = status;
     out[2] = role;
     if (result != nullptr) {
-        out[3] = static_cast<jlong>(result->bytesWritten);
-        out[4] = static_cast<jlong>(result->tilesWritten);
-        out[5] = result->scientificMasterMatched ? 1 : 0;
-        out[6] = result->fullFrameMaterialized ? 1 : 0;
+        const auto& writer = result->writer;
+        out[3] = static_cast<jlong>(writer.bytesWritten);
+        out[4] = static_cast<jlong>(writer.tilesWritten);
+        out[5] = writer.scientificMasterMatched ? 1 : 0;
+        out[6] = writer.fullFrameMaterialized ? 1 : 0;
         out[7] = result->projectionIsEvidence ? 1 : 0;
         out[8] = result->colorAuthorityPromoted ? 1 : 0;
-        out[9] = static_cast<jlong>(result->physicalFrameCount);
-        out[10] = static_cast<jlong>(result->independentEvidenceCount);
+        out[9] = static_cast<jlong>(writer.physicalFrameCount);
+        out[10] = static_cast<jlong>(writer.independentEvidenceCount);
         out[11] = static_cast<jlong>(std::min<std::size_t>(
-            result->logicalResidentUpperBound,
+            writer.logicalResidentUpperBound,
             static_cast<std::size_t>(std::numeric_limits<jlong>::max())));
-        out[15] = static_cast<jlong>(result->colorAuthority);
+        out[15] = static_cast<jlong>(writer.colorAuthority);
     }
     if (audit != nullptr) {
         out[12] = static_cast<jlong>(std::min<std::uint64_t>(
@@ -125,7 +126,7 @@ jlong phase2_status(const truthraw::technical_backplane_phase2::v0_1::Status& st
     return 6100LL + static_cast<jlong>(status.code);
 }
 
-jlong projection_status(const truthraw::dng_compatibility_projection::v0_1::Status& status) {
+jlong projection_status(const truthraw::dng_compatibility_projection::v0_2::Status& status) {
     return 7000LL + static_cast<jlong>(status.code);
 }
 
@@ -173,9 +174,9 @@ Java_com_truthraw_adaptiveui_NativeDngProjectionBridge_exportFinalizedProjection
             *bytes, sourceSeal, produced);
     if (!colorStatus) return packet(env, producer_status(colorStatus), projectionRole);
 
-    // v0.1 compatibility projection requires an explicit resolved scene white.
-    // Dual-illuminant v0.2 supplies it. Delegated single-illuminant export stays
-    // fail-closed until its exact white is surfaced by the color producer.
+    // v0.2 compatibility projection requires an explicit resolved source white
+    // as provenance. Dual-illuminant v0.2 supplies it. Delegated single-
+    // illuminant export remains fail-closed until that exact white is surfaced.
     if (!(produced.audit.resolvedWhiteX > 0.0) ||
         !(produced.audit.resolvedWhiteY > 0.0) ||
         produced.audit.resolvedWhiteX + produced.audit.resolvedWhiteY >= 1.0) {
@@ -248,19 +249,21 @@ Java_com_truthraw_adaptiveui_NativeDngProjectionBridge_exportFinalizedProjection
     projectionMetadata.sourceSeal = sourceSeal;
     projectionMetadata.color = produced.color;
     projectionMetadata.expectedScientificMasterHash = scientificIdentity.scientificMasterHash;
-    projectionMetadata.asShotWhiteX = produced.audit.resolvedWhiteX;
-    projectionMetadata.asShotWhiteY = produced.audit.resolvedWhiteY;
+    projectionMetadata.sourceResolvedWhiteX = produced.audit.resolvedWhiteX;
+    projectionMetadata.sourceResolvedWhiteY = produced.audit.resolvedWhiteY;
+    projectionMetadata.sourceResolvedWhiteTemperatureK =
+        produced.audit.resolvedWhiteTemperatureK;
 
     PosixFdSequentialSink sink(static_cast<int>(destinationFd));
     Result result{};
-    truthraw::dng_compatibility_projection::v0_1::Status projected;
+    truthraw::dng_compatibility_projection::v0_2::Status projected;
     if (projectionRole == 0) {
         projected =
-            truthraw::dng_compatibility_projection::v0_1::write_linear_scientific_master_dng(
+            truthraw::dng_compatibility_projection::v0_2::write_linear_scientific_master_dng(
                 *source, *reconstruction, projectionMetadata, sink, result);
     } else {
         projected =
-            truthraw::dng_compatibility_projection::v0_1::write_measured_preserving_cfa_dng(
+            truthraw::dng_compatibility_projection::v0_2::write_reconstructed_cfa_dng(
                 *source, *reconstruction, projectionMetadata, sink, result);
     }
     if (!projected) {
@@ -275,11 +278,13 @@ Java_com_truthraw_adaptiveui_NativeDngProjectionBridge_exportFinalizedProjection
                       &result, &source->audit(), scientificIdentity.stage2GaugeScanPasses);
     }
 
-    if (!result.scientificMasterMatched || result.fullFrameMaterialized ||
-        result.projectionIsEvidence || result.colorAuthorityPromoted ||
-        result.physicalFrameCount != 1u || result.independentEvidenceCount != 1u ||
-        result.logicalResidentUpperBound == 0u ||
-        result.logicalResidentUpperBound > static_cast<std::size_t>(maxLogicalResidentBytes) ||
+    const auto& writer = result.writer;
+    if (!writer.scientificMasterMatched || !result.fixedD50CompatibilityWhite ||
+        writer.fullFrameMaterialized || result.projectionIsEvidence ||
+        result.colorAuthorityPromoted || writer.physicalFrameCount != 1u ||
+        writer.independentEvidenceCount != 1u ||
+        writer.logicalResidentUpperBound == 0u ||
+        writer.logicalResidentUpperBound > static_cast<std::size_t>(maxLogicalResidentBytes) ||
         source->audit().fullRawMaterialized || source->audit().fullFileMaterialized) {
         return packet(env, -6, projectionRole,
                       &result, &source->audit(), scientificIdentity.stage2GaugeScanPasses);
