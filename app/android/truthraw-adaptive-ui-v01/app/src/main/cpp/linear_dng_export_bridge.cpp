@@ -79,6 +79,19 @@ truthraw::streaming_v0_1::StreamingOptions preview_options(std::size_t memoryBud
     return options;
 }
 
+bool release_matches_source(
+    const ReleaseResult& release,
+    const SourceSeal& seal,
+    const truthraw::streaming_v0_1::IRawTileSource& source) noexcept {
+    const auto& phase2 = release.canonicalPhase2;
+    return phase2.admission.sourceSeal.sha256 == seal.sha256 &&
+           phase2.admission.sourceSeal.byteLength == seal.byteLength &&
+           phase2.admission.sourceSeal.sourceEvidenceId == seal.sourceEvidenceId &&
+           phase2.backplane.sourceEvidenceHash == seal.sha256 &&
+           phase2.backplane.scientificMasterHash == release.scientificIdentity.scientificMasterHash &&
+           source.metadata().sourceId == seal.sourceEvidenceId;
+}
+
 } // namespace
 
 extern "C" JNIEXPORT jlongArray JNICALL
@@ -151,6 +164,9 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
         release.scientificIdentity.independentEvidenceCount != 1u) {
         return packet(env, -3);
     }
+    if (!release_matches_source(release, sourceSeal, *source)) {
+        return packet(env, -5);
+    }
 
     const auto verifiedBeforeProjection =
         truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes, sourceSeal);
@@ -172,6 +188,9 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
 
     const auto postVerified = truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes, sourceSeal);
     if (!postVerified) return packet(env, binding_status(postVerified));
+    if (!release_matches_source(release, sourceSeal, *source)) {
+        return packet(env, -5);
+    }
 
     if (!projection.linearRawPhotometric || !projection.boundedUnsigned16Projection ||
         !projection.sourceColorMetadataCopied || projection.fullScientificMasterMaterialized ||
