@@ -35,6 +35,10 @@ class MainActivity : Activity() {
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
     private var empiricalStatus: String? = null
+    private var pendingProjectionJobId: String? = null
+    private var pendingProjectionKind: RawProjectionKind? = null
+    private var projectionStatus: String? = null
+    private var projectionGeneration: Long = 0
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -131,6 +135,22 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
 
+    @Suppress("DEPRECATION")
+    private fun launchProjectionExport(job: RawJob, kind: RawProjectionKind) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || activeJobId != job.id) return
+        pendingProjectionJobId = job.id
+        pendingProjectionKind = kind
+        projectionStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = kind.mimeType
+            putExtra(Intent.EXTRA_TITLE, "${stem}_${kind.fileSuffix}")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_RAW_PROJECTION)
+    }
+
     @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -188,6 +208,39 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_RAW_PROJECTION) {
+            val expectedJob = pendingProjectionJobId
+            val kind = pendingProjectionKind
+            pendingProjectionJobId = null
+            pendingProjectionKind = null
+            if (resultCode != RESULT_OK || data?.data == null) {
+                projectionStatus = "RAW/DNG projection-export geannuleerd."
+                render()
+                return
+            }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            if (expectedJob == null || kind == null || job == null ||
+                activeJobId != expectedJob || ready == null || ready.jobId != expectedJob) {
+                projectionStatus = "RAW/DNG projection-export geblokkeerd: actieve finalized preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            val target = data.data!!
+            val generation = ++projectionGeneration
+            projectionStatus = "${kind.buttonLabel} · finalized gate + streaming export bezig…"
+            render()
+            Thread({
+                val result = RawProjectionExporter.export(contentResolver, job, target, kind)
+                runOnUiThread {
+                    if (generation != projectionGeneration || activeJobId != expectedJob) return@runOnUiThread
+                    projectionStatus = result.message
+                    render()
+                }
+            }, "truthraw-export-${kind.nativeCode}-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -204,6 +257,8 @@ class MainActivity : Activity() {
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        projectionStatus = null
+        ++projectionGeneration
         if (first == null) {
             activeJobId = null
             loadingStartedAtElapsedMs = null
@@ -217,15 +272,19 @@ class MainActivity : Activity() {
     private fun selectJob(job: RawJob) {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         ++previewGeneration
+        ++projectionGeneration
         activeJobId = job.id
         loadingStartedAtElapsedMs = null
         previewState = TilePreviewUiState.Idle
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        projectionStatus = null
         pendingJpegJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
+        pendingProjectionJobId = null
+        pendingProjectionKind = null
         render()
     }
 
@@ -235,9 +294,13 @@ class MainActivity : Activity() {
         jpegStatus = null
         empiricalStatus = null
         empiricalAudit = null
+        projectionStatus = null
         pendingJpegJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
+        pendingProjectionJobId = null
+        pendingProjectionKind = null
+        ++projectionGeneration
         val generation = ++previewGeneration
         loadingStartedAtElapsedMs = SystemClock.elapsedRealtime()
         previewState = TilePreviewUiState.Loading(job.id)
@@ -439,6 +502,21 @@ class MainActivity : Activity() {
                 addView(space(6))
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(space(8))
+                addView(label("RAW/DNG projecties", 13f, bold = true))
+                addView(label(
+                    "Downstream export van dezelfde finalized lineage. CFA/Linear samples zijn reconstructie/projectie en worden nooit als gemeten sensor-evidence gelabeld.",
+                    10f,
+                    muted = true,
+                ))
+                RawProjectionKind.entries.forEach { kind ->
+                    addView(actionButton(kind.buttonLabel) { launchProjectionExport(active, kind) }.also {
+                        it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            topMargin = dp(4)
+                        }
+                    })
+                }
+                projectionStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
@@ -625,5 +703,6 @@ class MainActivity : Activity() {
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
+        private const val REQUEST_SAVE_RAW_PROJECTION = 4104
     }
 }
