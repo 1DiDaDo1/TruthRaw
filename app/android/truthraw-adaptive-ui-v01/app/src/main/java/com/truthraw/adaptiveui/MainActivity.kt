@@ -31,6 +31,8 @@ class MainActivity : Activity() {
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
+    private var pendingLinearDngJobId: String? = null
+    private var linearDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
@@ -116,6 +118,21 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchLinearDngExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        pendingLinearDngJobId = job.id
+        linearDngStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_linear_v0_1.dng")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_LINEAR_DNG)
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchEmpiricalExport(job: RawJob) {
         val audit = empiricalAudit ?: return
         if (job.id != activeJobId) return
@@ -161,6 +178,44 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
+            val expectedJob = pendingLinearDngJobId
+            pendingLinearDngJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                linearDngStatus = "Linear DNG-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null || ready.jobId != expectedJob || activeJobId != expectedJob) {
+                linearDngStatus = "Linear DNG-export geblokkeerd: actieve finalized preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            linearDngStatus = "Linear DNG wordt opgebouwd… finalized gate + camera-native RGB-projectie."
+            render()
+            Thread({
+                val exportResult = LinearDngExporter.export(contentResolver, job, destination)
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    linearDngStatus = when (exportResult) {
+                        is LinearDngExportResult.Failed -> exportResult.reason
+                        is LinearDngExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "Linear DNG opgeslagen · ${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
+                                "tiles=${m.tilesWritten} · clipped low/high=${m.samplesClippedLow}/${m.samplesClippedHigh} · " +
+                                "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
+                                "bounded compatibility projection, geen nieuwe evidence/authority."
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-linear-dng-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_EMPIRICAL_JSON) {
             val expectedJob = pendingEmpiricalJobId
             val report = pendingEmpiricalJson
@@ -202,6 +257,7 @@ class MainActivity : Activity() {
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
         jpegStatus = null
+        linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         if (first == null) {
@@ -221,9 +277,11 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         previewState = TilePreviewUiState.Idle
         jpegStatus = null
+        linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         render()
@@ -233,9 +291,11 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
         jpegStatus = null
+        linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         val generation = ++previewGeneration
@@ -439,6 +499,9 @@ class MainActivity : Activity() {
                 addView(space(6))
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(space(5))
+                addView(actionButton("Linear DNG opslaan") { launchLinearDngExport(active) })
+                linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
@@ -625,5 +688,6 @@ class MainActivity : Activity() {
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
+        private const val REQUEST_SAVE_LINEAR_DNG = 4104
     }
 }
