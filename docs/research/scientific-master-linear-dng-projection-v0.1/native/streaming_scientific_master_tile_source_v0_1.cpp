@@ -83,7 +83,7 @@ Status StreamingScientificMasterTileSource::readCameraNativeTile(
                                  "reconstruction backend returned negative halo");
         }
 
-        streaming_v0_1::TileRect tile{};
+        ::truthraw::TileRect tile{};
         tile.x0 = static_cast<int>(x);
         tile.y0 = static_cast<int>(y);
         tile.x1 = static_cast<int>(x + width);
