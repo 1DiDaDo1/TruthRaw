@@ -1,0 +1,163 @@
+name: Android RawSensor DNG Export v0.1
+
+on:
+  push:
+    branches:
+      - research/android-rawsensor-dng-export-v0.1-2026-09-12
+    paths:
+      - 'docs/research/raw-projection-export-v0.1/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-rawsensor-dng-export-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-export-tests:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC Release
+            cc: gcc
+            cxx: g++
+            build_type: Release
+            sanitize: 'OFF'
+          - name: Clang Release
+            cc: clang
+            cxx: clang++
+            build_type: Release
+            sanitize: 'OFF'
+          - name: Clang ASan UBSan
+            cc: clang
+            cxx: clang++
+            build_type: Debug
+            sanitize: 'ON'
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure projection export tests
+        run: |
+          EXTRA=''
+          if [ '${{ matrix.sanitize }}' = 'ON' ]; then
+            EXTRA='-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined'
+          fi
+          cmake -S docs/research/raw-projection-export-v0.1 \
+            -B /tmp/truthraw-raw-export \
+            -DCMAKE_BUILD_TYPE='${{ matrix.build_type }}' \
+            $EXTRA
+
+      - name: Build projection export tests
+        run: cmake --build /tmp/truthraw-raw-export --parallel 2
+
+      - name: Run projection export falsification tests
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          ctest --test-dir /tmp/truthraw-raw-export --output-on-failure
+          /tmp/truthraw-raw-export/test_raw_projection_export_v0_1
+
+      - name: Revalidate optimized Scientific Master binding
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.2 -B /tmp/truthraw-sm-v02 -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-sm-v02 --parallel 2
+          ctest --test-dir /tmp/truthraw-sm-v02 --output-on-failure
+
+  android-arm64-export-apk:
+    name: Android arm64 APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify projection authority contract in source
+        run: |
+          HEADER='docs/research/raw-projection-export-v0.1/native/raw_projection_export_v0_1.h'
+          JNI='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/raw_projection_export_bridge.cpp'
+          UI='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          grep -F 'bool sourcePixelsClaimedMeasured = false' "$HEADER"
+          grep -F 'bool projectionOnly = true' "$HEADER"
+          grep -F 'fullScientificMasterMaterialized = false' "$HEADER"
+          grep -F 'finalize_phase2' "$JNI"
+          grep -F 'reverify_source_sha256' "$JNI"
+          grep -F 'projection-only, geen nieuwe evidence' 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/RawProjectionExport.kt'
+          grep -F 'nooit als gemeten sensor-evidence' "$UI"
+
+      - name: Verify CPU reference execution remains Vulkan-free
+        run: |
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          if grep -Eiq '(^|[^A-Za-z])(vulkan|libvulkan|Vk[A-Z])' "$CMAKE"; then
+            echo 'Unexpected Vulkan dependency in raw projection build' >&2
+            exit 1
+          fi
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble raw/DNG export arm64 APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify native export symbols and APK identity
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeRawProjectionBridge_exportFinalizedProjection'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeEmpiricalBridge_probeSourceColor'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 bridge ABI' >&2
+            exit 1
+          fi
+          echo "raw_export_apk_bytes=$(stat -c%s "$APK")"
+          echo "raw_export_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'rawsensor_role=RECONSTRUCTED_CFA_PROJECTION_NOT_MEASURED_SENSOR_EVIDENCE'
+          echo 'cfa_dng_role=RECONSTRUCTED_CFA_PROJECTION_NOT_MEASURED_SENSOR_EVIDENCE'
+          echo 'linear_dng_role=LINEARRAW_COMPATIBILITY_PROJECTION_NOT_SCIENTIFIC_MASTER'
+          echo 'physical_frame_count=1'
+          echo 'independent_evidence_count=1'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-rawsensor-dng-export-v0.1-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
