@@ -21,10 +21,15 @@ endif()
 
 add_executable(test_scientific_dng_export_v0_1
     native/scientific_dng_export_v0_1.cpp
+    native/scientific_dng_export_finalized_v0_1.cpp
     tests/test_scientific_dng_export_v0_1.cpp
     ../scientific-master-streaming-binding-v0.2/native/scientific_master_streaming_binding_v0_2.cpp
     ../scientific-master-streaming-binding-v0.1/native/scientific_master_streaming_binding_v0_1.cpp
     ../scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.cpp
+    ../technical-backplane-phase2-v0.1/native/technical_backplane_phase2_v0_1.cpp
+    ../technical-backplane-v0.1/native/technical_backplane_v0_1.cpp
+    ../scientific-preview-source-binding-v0.1/native/scientific_preview_source_binding_v0_1.cpp
+    ../scientific-preview-source-binding-v0.2/native/scientific_preview_source_binding_v0_2.cpp
     ../truthrange-latent-binding-v0.2/native/truthrange_latent_v0_2.cpp
     $<TARGET_OBJECTS:truthraw_v47i_frozen_core_dng_export>
 )
@@ -35,10 +40,11 @@ target_include_directories(test_scientific_dng_export_v0_1 PRIVATE
     ../scientific-master-streaming-binding-v0.2/native
     ../scientific-master-streaming-binding-v0.1/native
     ../scientific-master-digest-v0.1/native
+    ../technical-backplane-phase2-v0.1/native
+    ../technical-backplane-v0.1/native
     ../truthrange-latent-binding-v0.2/native
     ../scientific-preview-source-binding-v0.2/native
     ../scientific-preview-source-binding-v0.1/native
-    ../technical-backplane-v0.1/native
     ../tile-native-dng-source-v0.1/native
     ../full-frame-streaming-v0.1/native
     ../full-frame-streaming-v0.1/tests
