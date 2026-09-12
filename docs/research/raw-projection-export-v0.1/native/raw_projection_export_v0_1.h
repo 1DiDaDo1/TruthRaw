@@ -8,13 +8,6 @@
 #include <string>
 #include <utility>
 
-// Full-Frame Streaming historically refers to the parent TileRect type
-// unqualified. Expose the same type in its nested namespace for this new
-// integration module without modifying validated historical headers.
-namespace truthraw::streaming_v0_1 {
-using ::truthraw::TileRect;
-}
-
 namespace truthraw::raw_projection_export::v0_1 {
 
 enum class ProjectionKind : std::uint8_t {
@@ -51,10 +44,7 @@ struct Status final {
 };
 
 struct Options final {
-    // Streaming output row block. 32 keeps the 4080px Honor path bounded while
-    // retaining a simple strip-based classic TIFF/DNG representation.
     int rowsPerStrip = 32;
-    // 0 means no caller-imposed logical resident ceiling.
     std::size_t memoryBudgetBytes = 0;
 };
 
