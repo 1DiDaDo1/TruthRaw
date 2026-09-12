@@ -1,6 +1,6 @@
 # DNG Projection Export v0.1
 
-Status: **RESEARCH IMPLEMENTATION — HOST/ANDROID VALIDATION IN PROGRESS**
+Status: **RESEARCH IMPLEMENTATION COMPLETE — EXECUTION VALIDATION BLOCKED BEFORE HOSTED-RUNNER ASSIGNMENT**
 
 ## Purpose
 
@@ -84,22 +84,42 @@ Canonical rule:
 
 **Measured where measured. Reconstructed where necessary. Never invented.**
 
+## Implementation state
+
+The repository implementation now contains:
+
+- bounded Linear DNG writer;
+- bounded reconstructed-CFA/rawsensor DNG writer;
+- exact float32 `.trmaster` Scientific Master transport;
+- host falsification tests for all three roles and digest tamper rejection;
+- Android JNI bridge that re-seals/re-verifies the source, re-runs finalized phase-2 admission, exports through the Storage Access Framework descriptor, and truncates failed output to zero bytes;
+- dedicated Android export UI with separate `Linear DNG`, `CFA DNG (rawsensor-projectie)`, and `Scientific Master .trmaster` actions;
+- arm64-only Android build wiring and explicit no-Vulkan execution contract.
+
 ## Validation status
 
-The implementation includes host falsification tests for:
+The intended executable validation covers:
 
 - LinearRaw DNG topology and 3-channel payload contract;
 - CFA DNG topology/Bayer metadata;
 - `.trmaster` exact payload size/header role;
 - exact Scientific Master digest re-verification;
-- fail-closed rejection of a tampered Scientific Master identity.
+- fail-closed rejection of a tampered Scientific Master identity;
+- GCC and Clang release builds;
+- Clang ASan/UBSan;
+- Android NDK/JNI symbol linkage and arm64 APK assembly.
 
-Android CI additionally verifies the JNI symbol and arm64 APK build.
+As of 2026-09-12, the GitHub-hosted validation is blocked **before runner assignment**, not by an observed code/test failure. Linux run `34677365672` and macOS rescue run `34677499457` both produced jobs with no executed steps and `runner_id = 0`. Earlier DNG-export run `34663000063` shows the same condition and produced no artifact.
 
-**Not yet proven until the corresponding CI/device evidence exists:**
+See `VALIDATION_BLOCKER_2026-09-12.md` for the exact evidence and recovery condition.
 
-- successful host/ASan/Android build for this exact head;
+**Therefore still unproven:**
+
+- successful host compile/test/ASan execution for this exact export head;
+- successful Android NDK/JNI/APK execution for this exact export head;
 - successful physical export on HONOR BKQ-N49;
 - import/display/edit behavior in Lightroom or other third-party DNG consumers;
 - universal compatibility across DNG readers;
 - `FULL_PHYSICAL` color.
+
+No APK is labeled validated until a runner actually executes and passes the build. The hosted-runner infrastructure failures are retained as negative infrastructure evidence and are not rewritten as TruthRaw research failures.
