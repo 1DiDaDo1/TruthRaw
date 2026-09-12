@@ -23,7 +23,6 @@ enum class StatusCode : std::uint8_t {
     BudgetExceeded,
     OutputTooLarge,
     SinkFailed,
-    SourceIdentityMismatch,
 };
 
 struct Status final {
@@ -79,7 +78,6 @@ struct Result final {
     bool linearRawPhotometric = false;
     bool boundedUnsigned16Projection = false;
     bool sourceColorMetadataCopied = false;
-    bool sourceIdentityReverified = false;
     bool fullScientificMasterMaterialized = false;
     std::uint32_t physicalFrameCount = 0;
     std::uint32_t independentEvidenceCount = 0;
@@ -90,9 +88,10 @@ struct Result final {
 // RGB produced by the same reconstruction backend used for the Scientific
 // Master, before camera_to_xyz(), appearance, tone mapping or sRGB conversion.
 //
-// The source byte object and tile source are re-bound to the finalized phase-2
-// admission before any output is accepted. This prevents a caller from pairing
-// a valid ReleaseResult with different source bytes or a different tile source.
+// The Android/public export boundary is responsible for re-binding
+// sealedSourceBytes and source to the finalized phase-2 admission before this
+// writer is invoked. The current Android bridge performs that comparison both
+// before and after projection and reverifies the exact source SHA-256 bytes.
 //
 // Values outside [0,1] are clipped only in this bounded compatibility export;
 // the Scientific Master identity is not modified. Source DNG color metadata
