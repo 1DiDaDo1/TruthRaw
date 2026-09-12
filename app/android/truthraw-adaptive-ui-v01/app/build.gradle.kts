@@ -21,8 +21,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4-readopt"
+        versionCode = 5
+        versionName = "0.5-raw-dng-export"
 
         ndk {
             abiFilters += listOf("arm64-v8a")
