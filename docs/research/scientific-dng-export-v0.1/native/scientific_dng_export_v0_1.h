@@ -21,7 +21,6 @@ enum class StatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
     InvalidAuthority,
-    InvalidFinalizedLineage,
     InvalidColorTransform,
     SourceFailed,
     ReconstructionFailed,
