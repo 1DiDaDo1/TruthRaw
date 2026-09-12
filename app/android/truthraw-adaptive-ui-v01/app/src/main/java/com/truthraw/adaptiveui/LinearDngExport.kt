@@ -64,8 +64,13 @@ object LinearDngExporter {
                     )
                 }
             }
-            decode(packet)
+            val decoded = decode(packet)
+            if (decoded is LinearDngExportResult.Failed) {
+                runCatching { resolver.delete(destination, null, null) }
+            }
+            decoded
         } catch (error: Throwable) {
+            runCatching { resolver.delete(destination, null, null) }
             LinearDngExportResult.Failed(
                 "Linear DNG-export faalde: ${error.message ?: error.javaClass.simpleName}",
             )
@@ -112,6 +117,7 @@ object LinearDngExporter {
         -2L -> "Fail-closed: pre-master authority-state was niet canoniek."
         -3L -> "Fail-closed: finalized admission/evidence was niet geldig voor export."
         -4L -> "Fail-closed: geschreven projectie schond het Linear DNG-contract."
+        -5L -> "Fail-closed: finalized Backplane/admission en exportbron hebben niet exact dezelfde bronidentiteit."
 
         2001L -> "Source binding: ongeldig argument."
         2002L -> "Source binding: bron kon niet volledig worden gelezen voor SHA-256."
