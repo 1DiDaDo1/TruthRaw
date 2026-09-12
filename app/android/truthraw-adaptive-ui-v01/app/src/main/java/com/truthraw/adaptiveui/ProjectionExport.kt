@@ -22,15 +22,15 @@ enum class ProjectionExportKind(
     ),
     CFA_DNG_16(
         2,
-        "CFA DNG opslaan",
+        "CFA DNG (rawsensor-projectie) opslaan",
         "image/x-adobe-dng",
-        "_truthraw_cfa_projection.dng",
+        "_truthraw_cfa_rawsensor_projection.dng",
     ),
-    SCIENTIFIC_RAWSENSOR_F32(
+    SCIENTIFIC_MASTER_F32(
         3,
-        "Scientific .rawsensor opslaan",
+        "Scientific Master .trmaster opslaan",
         "application/octet-stream",
-        "_truthraw_scientific_master.rawsensor",
+        "_truthraw_scientific_master.trmaster",
     ),
 }
 
@@ -113,7 +113,7 @@ object ProjectionExporter {
             colorAuthorityCode = packet[15],
         )
 
-        val expectedCompatibility = kind != ProjectionExportKind.SCIENTIFIC_RAWSENSOR_F32
+        val expectedCompatibility = kind != ProjectionExportKind.SCIENTIFIC_MASTER_F32
         require(metrics.bytesWritten > 0L && metrics.tilesProcessed > 0L) {
             "Projection-export leverde geen volledige uitvoer."
         }
@@ -148,7 +148,7 @@ object ProjectionExporter {
         6007L -> "Projection export: opnieuw berekende Scientific Master wijkt af; doelbestand is leeggemaakt."
         6008L -> "Projection export: projectietype wordt niet ondersteund."
         6009L -> "Projection export: schrijven naar doelbestand faalde."
-        6010L -> "Projection export: DNG/rawsensor metadata kon niet veilig worden opgebouwd."
+        6010L -> "Projection export: DNG/.trmaster metadata kon niet veilig worden opgebouwd."
         else -> "Projection-export faalde met native status $status."
     }
 }
