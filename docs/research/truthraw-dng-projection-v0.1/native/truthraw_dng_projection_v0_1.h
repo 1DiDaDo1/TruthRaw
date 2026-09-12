@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
 
 namespace truthraw::dng_projection::v0_1 {
 
