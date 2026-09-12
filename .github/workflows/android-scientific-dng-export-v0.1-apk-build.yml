@@ -1,0 +1,126 @@
+name: Android Scientific DNG Export v0.1
+
+on:
+  push:
+    branches:
+      - research/scientific-dng-export-v0.1-2026-09-12
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/scientific-dng-export-v0.1/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-scientific-dng-export-v0.1-apk-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-dng-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate standalone Scientific DNG export contract
+        run: |
+          cmake -S docs/research/scientific-dng-export-v0.1 -B /tmp/truthraw-dng-v01 -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/truthraw-dng-v01 --parallel 2
+          ctest --test-dir /tmp/truthraw-dng-v01 --output-on-failure
+          /tmp/truthraw-dng-v01/test_scientific_dng_export_v0_1
+
+      - name: Verify proven preview implementation bytes were not edited
+        run: |
+          BASE='4f842d8fe86eca2b5808afb10fbb9f11a2631fed'
+          git diff --exit-code "$BASE" -- \
+            app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp \
+            app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt \
+            app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          echo 'existing_finalized_preview_route_bytes=UNCHANGED'
+
+  build-arm64-dng-export-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify DNG export authority and representation boundaries
+        run: |
+          JNI='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/scientific_dng_export_bridge.cpp'
+          WRITER='docs/research/scientific-dng-export-v0.1/native/scientific_dng_export_v0_1.cpp'
+          FINALIZED='docs/research/scientific-dng-export-v0.1/native/scientific_dng_export_finalized_v0_1.cpp'
+          grep -F 'technical_backplane_phase2::v0_1::finalize_phase2' "$JNI"
+          grep -F 'scientificMasterIdentityMatched' "$JNI"
+          grep -F 'finalizedLineageValidated' "$JNI"
+          grep -F 'RECONSTRUCTED_CFA_PROJECTION' "$WRITER"
+          grep -F 'LINEAR_RAW_COMPATIBILITY_PROJECTION' "$WRITER"
+          grep -F 'valid_finalized_lineage' "$FINALIZED"
+          grep -F 'physicalFrameCount != 1u' "$FINALIZED"
+          grep -F 'independentEvidenceCount != 1u' "$FINALIZED"
+          echo 'dng_export_scientific_authority=NONE_NEW_PROJECTION_ONLY'
+
+      - name: Verify execution backend remains CPU NDK with no TruthRaw Vulkan dependency
+        run: |
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          if grep -Eiq '(^|[^A-Za-z])(vulkan|libvulkan|Vk[A-Z])' "$CMAKE"; then
+            echo 'Unexpected Vulkan dependency in current CPU reference build' >&2
+            exit 1
+          fi
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble DNG-export arm64 APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify native DNG bridge and report APK identity
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeScientificDngBridge_exportScientificDng'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 bridge ABI' >&2
+            exit 1
+          fi
+          echo "dng_export_apk_bytes=$(stat -c%s "$APK")"
+          echo "dng_export_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'dng_projection_roles=LINEAR_RAW_COMPATIBILITY_PROJECTION,RECONSTRUCTED_CFA_PROJECTION'
+          echo 'full_scientific_master_materialization=FORBIDDEN'
+          echo 'new_scientific_authority=NONE'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-scientific-dng-export-v0.1-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
