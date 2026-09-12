@@ -6,7 +6,10 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <exception>
 #include <limits>
+#include <new>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -14,10 +17,10 @@
 namespace truthraw::dng_projection::v0_1 {
 namespace {
 
-using finalized_scientific_preview_release::v0_2::PreviewAuthority;
 using scientific_master_digest::v0_1::ScientificMasterDigestAccumulator;
 using scientific_master_digest::v0_1::TileView;
 using scientific_preview_binding_v0_1::BindingStatusCode;
+using scientific_preview_binding_v0_1::ColorClaimScope;
 using streaming_v0_1::TileRect;
 using streaming_v0_1::detail::Workspace;
 using streaming_v0_1::detail::fill_stage2;
@@ -25,8 +28,8 @@ using streaming_v0_1::detail::vector_bytes;
 
 constexpr int kCanonicalCore = scientific_master_digest::v0_1::kCanonicalCellEdge;
 constexpr std::uint32_t kRowsPerStrip = kCanonicalCore;
-constexpr std::uint32_t kPhotometricCfa = 32803u;
-constexpr std::uint32_t kPhotometricLinearRaw = 34892u;
+constexpr std::uint16_t kPhotometricCfa = 32803u;
+constexpr std::uint16_t kPhotometricLinearRaw = 34892u;
 constexpr std::uint16_t kSampleFormatIeeeFloat = 3u;
 constexpr std::uint16_t kCompressionNone = 1u;
 constexpr std::uint16_t kPlanarChunky = 1u;
@@ -62,19 +65,8 @@ constexpr std::uint16_t kTagCfaPlaneColor = 50710u;
 constexpr std::uint16_t kTagCfaLayout = 50711u;
 
 constexpr std::array<std::uint16_t, 13> kCopiedColorTags{{
-    50721u, // ColorMatrix1
-    50722u, // ColorMatrix2
-    50723u, // CameraCalibration1
-    50724u, // CameraCalibration2
-    50727u, // AnalogBalance
-    50728u, // AsShotNeutral
-    50729u, // AsShotWhiteXY
-    50778u, // CalibrationIlluminant1
-    50779u, // CalibrationIlluminant2
-    50931u, // CameraCalibrationSignature
-    50932u, // ProfileCalibrationSignature
-    50964u, // ForwardMatrix1
-    50965u, // ForwardMatrix2
+    50721u, 50722u, 50723u, 50724u, 50727u, 50728u, 50729u,
+    50778u, 50779u, 50931u, 50932u, 50964u, 50965u,
 }};
 
 struct Entry final {
@@ -106,8 +98,22 @@ bool checked_mul(std::uint64_t a, std::uint64_t b, std::uint64_t& out) noexcept 
     return true;
 }
 
-std::size_t align4(std::size_t value) noexcept {
-    return (value + 3u) & ~std::size_t(3u);
+bool add_size(std::size_t a, std::size_t b, std::size_t& out) noexcept {
+    if (a > std::numeric_limits<std::size_t>::max() - b) return false;
+    out = a + b;
+    return true;
+}
+
+bool mul_size(std::size_t a, std::size_t b, std::size_t& out) noexcept {
+    if (a != 0u && b > std::numeric_limits<std::size_t>::max() / a) return false;
+    out = a * b;
+    return true;
+}
+
+bool align4(std::size_t value, std::size_t& out) noexcept {
+    if (value > std::numeric_limits<std::size_t>::max() - 3u) return false;
+    out = (value + 3u) & ~std::size_t(3u);
+    return true;
 }
 
 void put16(std::vector<std::uint8_t>& out, std::size_t offset, std::uint16_t value) {
@@ -173,8 +179,9 @@ Entry make_ascii(std::uint16_t tag, const std::string& value) {
     return Entry{tag, kTypeAscii, static_cast<std::uint32_t>(bytes.size()), std::move(bytes)};
 }
 
-Entry make_byte4(std::uint16_t tag, std::array<std::uint8_t, 4> value) {
-    return Entry{tag, kTypeByte, 4u, {value.begin(), value.end()}};
+Entry make_byte4(std::uint16_t tag, const std::array<std::uint8_t, 4>& value) {
+    return Entry{tag, kTypeByte, 4u,
+                 std::vector<std::uint8_t>(value.begin(), value.end())};
 }
 
 bool copied_color_tag(std::uint16_t tag) noexcept {
@@ -182,9 +189,8 @@ bool copied_color_tag(std::uint16_t tag) noexcept {
            kCopiedColorTags.end();
 }
 
-Status read_source_color_tags(
-    tile_dng_v0_1::IRandomAccessByteSource& source,
-    std::vector<Entry>& out) {
+Status read_source_color_tags(tile_dng_v0_1::IRandomAccessByteSource& source,
+                              std::vector<Entry>& out) {
     out.clear();
     std::array<std::uint8_t, 8> header{};
     if (!source.readExact(0u, header.data(), header.size())) {
@@ -195,13 +201,10 @@ Status read_source_color_tags(
                              "DNG projection v0.1 requires little-endian classic TIFF source metadata");
     }
     const std::uint16_t magic = dec16le(header.data() + 2u);
-    if (magic == 43u) {
-        return Status::error(StatusCode::UnsupportedSourceTiff,
-                             "BigTIFF source metadata is not supported by DNG projection v0.1");
-    }
     if (magic != 42u) {
         return Status::error(StatusCode::UnsupportedSourceTiff,
-                             "classic TIFF magic 42 required");
+                             magic == 43u ? "BigTIFF source metadata is unsupported in v0.1"
+                                          : "classic TIFF magic 42 required");
     }
     const std::uint32_t root = dec32le(header.data() + 4u);
     if (root == 0u || root > source.sizeBytes() || source.sizeBytes() - root < 2u) {
@@ -216,15 +219,12 @@ Status read_source_color_tags(
     if (count > kMaxRootEntries) {
         return Status::error(StatusCode::UnsupportedSourceTiff, "source IFD0 entry cap exceeded");
     }
-
-    std::uint64_t ifdBytes = 0u;
-    if (!checked_mul(count, 12u, ifdBytes)) {
-        return Status::error(StatusCode::UnsupportedSourceTiff, "source IFD0 size overflow");
-    }
+    std::uint64_t entryBytes = 0u;
     std::uint64_t ifdEnd = 0u;
-    if (!checked_add(static_cast<std::uint64_t>(root) + 2u, ifdBytes + 4u, ifdEnd) ||
+    if (!checked_mul(count, 12u, entryBytes) ||
+        !checked_add(static_cast<std::uint64_t>(root) + 2u, entryBytes + 4u, ifdEnd) ||
         ifdEnd > source.sizeBytes()) {
-        return Status::error(StatusCode::UnsupportedSourceTiff, "source IFD0 is truncated");
+        return Status::error(StatusCode::UnsupportedSourceTiff, "source IFD0 is truncated/overflowed");
     }
 
     bool hasColorMatrix1 = false;
@@ -238,20 +238,20 @@ Status read_source_color_tags(
         const std::uint16_t tag = dec16le(rawEntry.data());
         if (!copied_color_tag(tag)) continue;
         const std::uint16_t type = dec16le(rawEntry.data() + 2u);
-        const std::uint32_t itemCount = dec32le(rawEntry.data() + 4u);
+        const std::uint32_t countItems = dec32le(rawEntry.data() + 4u);
         const std::size_t itemSize = type_size(type);
-        if (itemSize == 0u || itemCount == 0u) {
-            return Status::error(StatusCode::UnsupportedSourceTiff,
-                                 "required source color tag has unsupported TIFF type/cardinality");
-        }
         std::uint64_t dataBytes64 = 0u;
-        if (!checked_mul(itemCount, itemSize, dataBytes64) ||
-            dataBytes64 > kMaxCopiedTagBytes ||
-            copiedBytes > kMaxCopiedTagBytes - static_cast<std::size_t>(dataBytes64)) {
+        if (itemSize == 0u || countItems == 0u ||
+            !checked_mul(countItems, itemSize, dataBytes64) ||
+            dataBytes64 > kMaxCopiedTagBytes) {
+            return Status::error(StatusCode::UnsupportedSourceTiff,
+                                 "source color tag has unsupported type/cardinality/size");
+        }
+        const std::size_t dataBytes = static_cast<std::size_t>(dataBytes64);
+        if (copiedBytes > kMaxCopiedTagBytes - dataBytes) {
             return Status::error(StatusCode::UnsupportedSourceTiff,
                                  "source color metadata exceeds bounded copy limit");
         }
-        const std::size_t dataBytes = static_cast<std::size_t>(dataBytes64);
         std::vector<std::uint8_t> data(dataBytes, 0u);
         if (dataBytes <= 4u) {
             std::copy_n(rawEntry.data() + 8u, dataBytes, data.data());
@@ -268,7 +268,7 @@ Status read_source_color_tags(
         }
         copiedBytes += dataBytes;
         if (tag == 50721u) hasColorMatrix1 = true;
-        out.push_back(Entry{tag, type, itemCount, std::move(data)});
+        out.push_back(Entry{tag, type, countItems, std::move(data)});
     }
     if (!hasColorMatrix1) {
         return Status::error(StatusCode::MissingRequiredColorMetadata,
@@ -279,27 +279,28 @@ Status read_source_color_tags(
 
 std::array<std::uint8_t, 4> cfa_pattern(CfaPattern cfa) noexcept {
     switch (cfa) {
-        case CfaPattern::BGGR: return {2u, 1u, 1u, 0u};
-        case CfaPattern::RGGB: return {0u, 1u, 1u, 2u};
-        case CfaPattern::GRBG: return {1u, 0u, 2u, 1u};
-        case CfaPattern::GBRG: return {1u, 2u, 0u, 1u};
+        case CfaPattern::BGGR: return {2u,1u,1u,0u};
+        case CfaPattern::RGGB: return {0u,1u,1u,2u};
+        case CfaPattern::GRBG: return {1u,0u,2u,1u};
+        case CfaPattern::GBRG: return {1u,2u,0u,1u};
     }
-    return {2u, 1u, 1u, 0u};
+    return {2u,1u,1u,0u};
 }
 
-std::size_t header_size_for(const std::vector<Entry>& entries) {
-    std::size_t cursor = 8u + 2u + entries.size() * 12u + 4u;
+bool header_size_for(const std::vector<Entry>& entries, std::size_t& out) noexcept {
+    std::size_t entriesBytes = 0u;
+    if (!mul_size(entries.size(), 12u, entriesBytes)) return false;
+    std::size_t cursor = 0u;
+    if (!add_size(8u + 2u + 4u, entriesBytes, cursor)) return false;
     for (const auto& entry : entries) {
         if (entry.data.size() <= 4u) continue;
-        cursor = align4(cursor);
-        cursor += entry.data.size();
+        std::size_t aligned = 0u;
+        if (!align4(cursor, aligned) || !add_size(aligned, entry.data.size(), cursor)) return false;
     }
-    return align4(cursor);
+    return align4(cursor, out);
 }
 
-Status build_header(const std::vector<Entry>& inputEntries,
-                    std::vector<std::uint8_t>& headerOut) {
-    auto entries = inputEntries;
+Status build_header(std::vector<Entry>& entries, std::vector<std::uint8_t>& headerOut) {
     std::sort(entries.begin(), entries.end(),
               [](const Entry& a, const Entry& b) { return a.tag < b.tag; });
     for (std::size_t i = 1u; i < entries.size(); ++i) {
@@ -310,9 +311,9 @@ Status build_header(const std::vector<Entry>& inputEntries,
     if (entries.size() > std::numeric_limits<std::uint16_t>::max()) {
         return Status::error(StatusCode::TiffOverflow, "too many output IFD entries");
     }
-
-    const std::size_t totalHeader = header_size_for(entries);
-    if (totalHeader > std::numeric_limits<std::uint32_t>::max()) {
+    std::size_t totalHeader = 0u;
+    if (!header_size_for(entries, totalHeader) ||
+        totalHeader > std::numeric_limits<std::uint32_t>::max()) {
         return Status::error(StatusCode::TiffOverflow, "output TIFF header exceeds classic offset range");
     }
     headerOut.assign(totalHeader, 0u);
@@ -333,12 +334,13 @@ Status build_header(const std::vector<Entry>& inputEntries,
             std::copy(entry.data.begin(), entry.data.end(),
                       headerOut.begin() + static_cast<std::ptrdiff_t>(pos + 8u));
         } else {
-            external = align4(external);
-            if (external > std::numeric_limits<std::uint32_t>::max()) {
-                return Status::error(StatusCode::TiffOverflow, "output tag offset exceeds classic TIFF range");
+            std::size_t aligned = 0u;
+            if (!align4(external, aligned) || aligned > std::numeric_limits<std::uint32_t>::max()) {
+                return Status::error(StatusCode::TiffOverflow, "output tag offset overflow");
             }
+            external = aligned;
             put32(headerOut, pos + 8u, static_cast<std::uint32_t>(external));
-            if (external + entry.data.size() > headerOut.size()) {
+            if (entry.data.size() > headerOut.size() - external) {
                 return Status::error(StatusCode::TiffOverflow, "internal TIFF header layout overflow");
             }
             std::copy(entry.data.begin(), entry.data.end(),
@@ -346,19 +348,10 @@ Status build_header(const std::vector<Entry>& inputEntries,
             external += entry.data.size();
         }
     }
-    // next IFD offset remains zero in the pre-zeroed buffer.
     return Status::ok();
 }
 
 bool same_matrix(const std::array<float, 9>& a, const std::array<float, 9>& b) noexcept {
-    for (std::size_t i = 0u; i < a.size(); ++i) {
-        if (a[i] != b[i]) return false;
-    }
-    return true;
-}
-
-bool same_hash(const scientific_master_digest::v0_1::Sha256& a,
-               const scientific_master_digest::v0_1::Sha256& b) noexcept {
     return a == b;
 }
 
@@ -369,32 +362,65 @@ Status map_reverify(const scientific_preview_binding_v0_1::BindingStatus& status
     return Status::error(StatusCode::SourceSealMismatch, status.message);
 }
 
+bool backplane_states_equal(const technical_backplane::v0_1::State& a,
+                            const technical_backplane::v0_1::State& b) noexcept {
+    return a.sourceEvidenceHash == b.sourceEvidenceHash &&
+           a.scientificMasterHash == b.scientificMasterHash &&
+           a.zeroLineHash == b.zeroLineHash &&
+           a.sceneScaleHash == b.sceneScaleHash &&
+           a.physicalFrameCount == b.physicalFrameCount &&
+           a.independentEvidenceCount == b.independentEvidenceCount &&
+           a.roomStatus == b.roomStatus &&
+           a.claimStatus == b.claimStatus &&
+           a.forbiddenFlags == b.forbiddenFlags;
+}
+
 Status validate_admission(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
+    const scientific_master_streaming_binding::v0_2::Result& scientificIdentity,
+    const technical_backplane_phase2::v0_1::Phase2Result& finalizedPhase2,
     const streaming_v0_1::IRawTileSource& source) {
     if (!prepared.mainHouseComputeAllowed || !prepared.sourceBoundAppearanceReleaseAllowed ||
+        prepared.scientificPreviewReleaseAllowed || prepared.scientificClaimAllowed ||
         prepared.physicalFrameCount != 1u || prepared.independentEvidenceCount != 1u) {
         return Status::error(StatusCode::AdmissionRejected,
-                             "prepared source is not a single-frame admitted TruthRaw source");
+                             "prepared source is not in the required single-frame pre-master state");
     }
-    if (release.authority == PreviewAuthority::None ||
-        release.streaming.provenance.physicalFrameCount != 1u ||
-        release.streaming.provenance.independentEvidenceCount != 1u ||
-        release.streaming.provenance.scientificMasterModifiedByAppearance ||
-        release.streaming.provenance.counterfactualObservationCreated ||
-        release.scientificIdentity.physicalFrameCount != 1u ||
-        release.scientificIdentity.independentEvidenceCount != 1u) {
+    if (scientificIdentity.physicalFrameCount != 1u ||
+        scientificIdentity.independentEvidenceCount != 1u ||
+        scientificIdentity.masterTilesProcessed == 0u) {
         return Status::error(StatusCode::AdmissionRejected,
-                             "finalized release/provenance does not authorize downstream projection");
+                             "Scientific Master identity violates frame/evidence/master contract");
     }
-    if (release.canonicalPhase2.backplane.physicalFrameCount != 1u ||
-        release.canonicalPhase2.backplane.independentEvidenceCount != 1u ||
-        release.canonicalPhase2.backplane.sourceEvidenceHash != prepared.source.sha256 ||
-        release.canonicalPhase2.backplane.scientificMasterHash !=
-            release.scientificIdentity.scientificMasterHash) {
+    const auto& backplane = finalizedPhase2.backplane;
+    if (technical_backplane::v0_1::validate(backplane) != technical_backplane::v0_1::Status::Ok ||
+        backplane.physicalFrameCount != 1u || backplane.independentEvidenceCount != 1u ||
+        backplane.sourceEvidenceHash != prepared.source.sha256 ||
+        backplane.scientificMasterHash != scientificIdentity.scientificMasterHash) {
         return Status::error(StatusCode::AdmissionRejected,
-                             "Technical Backplane identity does not match finalized projection source/master");
+                             "Technical Backplane does not finalize the supplied source/master identity");
+    }
+    technical_backplane::v0_1::State decoded{};
+    if (technical_backplane::v0_1::deserialize(
+            std::span<const std::uint8_t>(finalizedPhase2.serializedBackplane.data(),
+                                          finalizedPhase2.serializedBackplane.size()),
+            decoded) != technical_backplane::v0_1::Status::Ok ||
+        !backplane_states_equal(decoded, backplane)) {
+        return Status::error(StatusCode::AdmissionRejected,
+                             "serialized Technical Backplane does not round-trip to finalized state");
+    }
+    const auto& admission = finalizedPhase2.admission;
+    if (admission.claimScope == ColorClaimScope::None ||
+        admission.claimScope != prepared.eventualClaimScope ||
+        admission.sourceSeal.sha256 != prepared.source.sha256 ||
+        admission.sourceSeal.byteLength != prepared.source.byteLength ||
+        admission.sourceSeal.sourceEvidenceId != prepared.source.sourceEvidenceId ||
+        admission.tileNativeOptions.sourceEvidenceId != prepared.tileNativeOptions.sourceEvidenceId ||
+        admission.tileNativeOptions.color.bindingId != prepared.tileNativeOptions.color.bindingId ||
+        admission.tileNativeOptions.color.cameraToXyzD50 !=
+            prepared.tileNativeOptions.color.cameraToXyzD50) {
+        return Status::error(StatusCode::AdmissionRejected,
+                             "phase-2 admission differs from prepared source/color identity");
     }
     if (source.metadata().sourceId != prepared.source.sourceEvidenceId ||
         prepared.color.sourceEvidenceId != prepared.source.sourceEvidenceId ||
@@ -405,11 +431,22 @@ Status validate_admission(
     return Status::ok();
 }
 
+std::size_t entry_resident_bytes(const std::vector<Entry>& entries) noexcept {
+    std::size_t total = entries.capacity() * sizeof(Entry);
+    for (const auto& entry : entries) {
+        if (entry.data.capacity() > std::numeric_limits<std::size_t>::max() - total) {
+            return std::numeric_limits<std::size_t>::max();
+        }
+        total += entry.data.capacity();
+    }
+    return total;
+}
+
 Status make_output_entries(
     ProjectionKind kind,
     const DngMetadata& metadata,
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
+    const scientific_master_streaming_binding::v0_2::Result& scientificIdentity,
     std::vector<Entry> colorEntries,
     std::vector<Entry>& entriesOut,
     std::vector<std::uint32_t>& stripByteCountsOut) {
@@ -421,8 +458,6 @@ Status make_output_entries(
     const std::uint32_t stripCount =
         (static_cast<std::uint32_t>(metadata.height) + kRowsPerStrip - 1u) / kRowsPerStrip;
     stripByteCountsOut.assign(stripCount, 0u);
-
-    std::uint64_t totalPixelBytes = 0u;
     for (std::uint32_t strip = 0u; strip < stripCount; ++strip) {
         const std::uint32_t y0 = strip * kRowsPerStrip;
         const std::uint32_t rows = std::min<std::uint32_t>(
@@ -435,9 +470,6 @@ Status make_output_entries(
             return Status::error(StatusCode::TiffOverflow, "output strip byte count overflow");
         }
         stripByteCountsOut[strip] = static_cast<std::uint32_t>(bytes);
-        if (!checked_add(totalPixelBytes, bytes, totalPixelBytes)) {
-            return Status::error(StatusCode::TiffOverflow, "output pixel byte count overflow");
-        }
     }
 
     entriesOut.clear();
@@ -453,17 +485,17 @@ Status make_output_entries(
     entriesOut.push_back(make_short(kTagCompression, kCompressionNone));
     entriesOut.push_back(make_short(
         kTagPhotometric,
-        static_cast<std::uint16_t>(kind == ProjectionKind::Stage2CfaFloat32
-            ? kPhotometricCfa : kPhotometricLinearRaw)));
+        kind == ProjectionKind::Stage2CfaFloat32 ? kPhotometricCfa : kPhotometricLinearRaw));
 
     const std::string masterHex = scientific_master_digest::v0_1::to_hex(
-        release.scientificIdentity.scientificMasterHash);
+        scientificIdentity.scientificMasterHash);
     const std::string role = kind == ProjectionKind::Stage2CfaFloat32
         ? "TRUTHRAW_STAGE2_CFA_PROJECTION;DERIVED_MEASUREMENT;NOT_DIRECT_SENSOR_EVIDENCE"
         : "TRUTHRAW_LINEAR_RAW_PROJECTION;RECONSTRUCTED_COMPATIBILITY_PROJECTION;NOT_SENSOR_EVIDENCE";
     entriesOut.push_back(make_ascii(
         kTagImageDescription,
-        role + ";SOURCE=" + prepared.source.sourceEvidenceId + ";SCIENTIFIC_MASTER_SHA256=" + masterHex));
+        role + ";SOURCE=" + prepared.source.sourceEvidenceId +
+        ";SCIENTIFIC_MASTER_SHA256=" + masterHex));
 
     entriesOut.push_back(Entry{kTagStripOffsets, kTypeLong, stripCount,
                                std::vector<std::uint8_t>(static_cast<std::size_t>(stripCount) * 4u, 0u)});
@@ -493,14 +525,15 @@ Status make_output_entries(
     if (kind == ProjectionKind::Stage2CfaFloat32) {
         entriesOut.push_back(Entry{kTagCfaRepeatPatternDim, kTypeShort, 2u, short_data({2u,2u})});
         entriesOut.push_back(make_byte4(kTagCfaPattern, cfa_pattern(metadata.cfa)));
-        entriesOut.push_back(Entry{kTagCfaPlaneColor, kTypeByte, 3u, {0u,1u,2u}});
+        entriesOut.push_back(Entry{kTagCfaPlaneColor, kTypeByte, 3u,
+                                   std::vector<std::uint8_t>{0u,1u,2u}});
         entriesOut.push_back(make_short(kTagCfaLayout, 1u));
     }
-
     for (auto& entry : colorEntries) entriesOut.push_back(std::move(entry));
 
-    const std::size_t provisionalHeader = header_size_for(entriesOut);
-    if (provisionalHeader > std::numeric_limits<std::uint32_t>::max()) {
+    std::size_t provisionalHeader = 0u;
+    if (!header_size_for(entriesOut, provisionalHeader) ||
+        provisionalHeader > std::numeric_limits<std::uint32_t>::max()) {
         return Status::error(StatusCode::TiffOverflow, "output header exceeds classic TIFF offset range");
     }
     std::vector<std::uint32_t> stripOffsets(stripCount, 0u);
@@ -516,23 +549,20 @@ Status make_output_entries(
                                  "DNG projection exceeds classic TIFF 4 GiB offset range");
         }
     }
-    (void)totalPixelBytes;
     for (auto& entry : entriesOut) {
         if (entry.tag == kTagStripOffsets) {
             entry.data = long_data(stripOffsets);
             break;
         }
     }
-    if (header_size_for(entriesOut) != provisionalHeader) {
+    std::size_t finalHeader = 0u;
+    if (!header_size_for(entriesOut, finalHeader) || finalHeader != provisionalHeader) {
         return Status::error(StatusCode::TiffOverflow, "strip offset layout changed unexpectedly");
     }
     return Status::ok();
 }
 
-Status write_sink(ISequentialByteSink& sink,
-                  const void* data,
-                  std::size_t bytes,
-                  Result& result) {
+Status write_sink(ISequentialByteSink& sink, const void* data, std::size_t bytes, Result& result) {
     if (bytes == 0u) return Status::ok();
     if (!sink.write(data, bytes)) {
         return Status::error(StatusCode::OutputFailed, "output sink write failed");
@@ -545,21 +575,30 @@ Status write_sink(ISequentialByteSink& sink,
 }
 
 Status account_budget(const Options& options,
+                      tile_dng_v0_1::IRandomAccessByteSource& sourceBytes,
                       streaming_v0_1::IRawTileSource& source,
                       const Workspace& workspace,
                       const ScientificMasterDigestAccumulator& digest,
                       const std::vector<float>& strip,
                       const std::vector<std::uint8_t>& rowBytes,
-                      const std::vector<std::uint8_t>& header,
+                      std::size_t metadataResidentBytes,
                       Result& result) {
-    const std::size_t workspaceBytes = vector_bytes(workspace);
-    result.logicalWorkspacePeakBytes = std::max(
-        result.logicalWorkspacePeakBytes,
-        workspaceBytes + strip.capacity() * sizeof(float) + rowBytes.capacity() + header.capacity());
-    const auto digestMetrics = digest.metrics();
+    std::size_t stripBytes = 0u;
+    if (!mul_size(strip.capacity(), sizeof(float), stripBytes)) {
+        return Status::error(StatusCode::BudgetExceeded, "projection strip accounting overflow");
+    }
+    std::size_t workspace = vector_bytes(workspace);
+    if (!add_size(workspace, stripBytes, workspace) ||
+        !add_size(workspace, rowBytes.capacity(), workspace) ||
+        !add_size(workspace, metadataResidentBytes, workspace)) {
+        return Status::error(StatusCode::BudgetExceeded, "projection workspace accounting overflow");
+    }
+    result.logicalWorkspacePeakBytes = std::max(result.logicalWorkspacePeakBytes, workspace);
+
     std::uint64_t resident = source.residentBytesUpperBound();
-    if (!checked_add(resident, result.logicalWorkspacePeakBytes, resident) ||
-        !checked_add(resident, digestMetrics.residentBytesUpperBound, resident) ||
+    if (!checked_add(resident, sourceBytes.residentBytesUpperBound(), resident) ||
+        !checked_add(resident, result.logicalWorkspacePeakBytes, resident) ||
+        !checked_add(resident, digest.metrics().residentBytesUpperBound, resident) ||
         resident > std::numeric_limits<std::size_t>::max()) {
         return Status::error(StatusCode::BudgetExceeded, "projection resident accounting overflow");
     }
@@ -579,35 +618,27 @@ void encode_float_row_le(const float* samples,
     out.resize(count * sizeof(float));
     for (std::size_t i = 0u; i < count; ++i) {
         std::uint32_t bits = 0u;
-        static_assert(sizeof(bits) == sizeof(samples[i]), "float32 projection requires 32-bit float");
+        static_assert(sizeof(bits) == sizeof(float), "float32 projection requires 32-bit float");
         std::memcpy(&bits, samples + i, sizeof(bits));
         put32(out, i * 4u, bits);
     }
 }
 
-} // namespace
-
-Status export_projection(
+Status export_projection_impl(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
+    const scientific_master_streaming_binding::v0_2::Result& scientificIdentity,
+    const technical_backplane_phase2::v0_1::Phase2Result& finalizedPhase2,
     tile_dng_v0_1::IRandomAccessByteSource& sourceBytes,
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     ISequentialByteSink& output,
     const Options& options,
-    Result& out) noexcept {
-    out = {};
-    out.kind = options.kind;
-    out.physicalFrameCount = 1u;
-    out.independentEvidenceCount = 1u;
-    out.createsEvidence = false;
-    out.fullFrameMaterialized = false;
-
+    Result& out) {
     if (options.kind != ProjectionKind::Stage2CfaFloat32 &&
         options.kind != ProjectionKind::LinearRawCameraRgbFloat32) {
         return Status::error(StatusCode::InvalidArgument, "unknown DNG projection kind");
     }
-    const auto admission = validate_admission(prepared, release, source);
+    const auto admission = validate_admission(prepared, scientificIdentity, finalizedPhase2, source);
     if (!admission) return admission;
 
     const auto preVerified = scientific_preview_binding_v0_1::reverify_source_sha256(
@@ -616,20 +647,17 @@ Status export_projection(
     out.sourceVerifiedBefore = true;
 
     std::vector<Entry> colorEntries;
-    const auto colorStatus = read_source_color_tags(sourceBytes, colorEntries);
-    if (!colorStatus) return colorStatus;
+    auto status = read_source_color_tags(sourceBytes, colorEntries);
+    if (!status) return status;
 
     std::vector<Entry> entries;
     std::vector<std::uint32_t> stripByteCounts;
-    const auto entryStatus = make_output_entries(
-        options.kind, source.metadata(), prepared, release,
-        std::move(colorEntries), entries, stripByteCounts);
-    if (!entryStatus) return entryStatus;
+    status = make_output_entries(options.kind, source.metadata(), prepared, scientificIdentity,
+                                 std::move(colorEntries), entries, stripByteCounts);
+    if (!status) return status;
 
     std::vector<std::uint8_t> header;
-    const auto headerStatus = build_header(entries, header);
-    if (!headerStatus) return headerStatus;
-    auto status = write_sink(output, header.data(), header.size(), out);
+    status = build_header(entries, header);
     if (!status) return status;
 
     const auto& metadata = source.metadata();
@@ -646,27 +674,47 @@ Status export_projection(
                              "projection Scientific Master digest initialization failed: " + digest.error());
     }
 
+    const int samplesPerPixel =
+        options.kind == ProjectionKind::LinearRawCameraRgbFloat32 ? 3 : 1;
+    std::size_t rowSampleCount = 0u;
+    std::size_t rowByteCount = 0u;
+    if (!mul_size(static_cast<std::size_t>(metadata.width),
+                  static_cast<std::size_t>(samplesPerPixel), rowSampleCount) ||
+        !mul_size(rowSampleCount, sizeof(float), rowByteCount)) {
+        return Status::error(StatusCode::TiffOverflow, "output row size overflow");
+    }
+
     Workspace workspace{};
     std::vector<float> strip;
     std::vector<std::uint8_t> rowBytes;
-    const int samplesPerPixel =
-        options.kind == ProjectionKind::LinearRawCameraRgbFloat32 ? 3 : 1;
+    rowBytes.reserve(rowByteCount);
+    std::size_t metadataResident = entry_resident_bytes(entries);
+    if (metadataResident == std::numeric_limits<std::size_t>::max() ||
+        !add_size(metadataResident, header.capacity(), metadataResident) ||
+        !add_size(metadataResident,
+                  stripByteCounts.capacity() * sizeof(std::uint32_t), metadataResident)) {
+        return Status::error(StatusCode::BudgetExceeded, "projection metadata accounting overflow");
+    }
+
+    status = account_budget(options, sourceBytes, source, workspace, digest,
+                            strip, rowBytes, metadataResident, out);
+    if (!status) return status;
+    status = write_sink(output, header.data(), header.size(), out);
+    if (!status) return status;
 
     for (int y0 = 0; y0 < metadata.height; y0 += static_cast<int>(kRowsPerStrip)) {
         const int y1 = std::min(metadata.height, y0 + static_cast<int>(kRowsPerStrip));
         const int rows = y1 - y0;
-        const std::size_t stripSamples =
-            static_cast<std::size_t>(rows) * static_cast<std::size_t>(metadata.width) *
-            static_cast<std::size_t>(samplesPerPixel);
+        std::size_t stripSamples = 0u;
+        if (!mul_size(static_cast<std::size_t>(rows), rowSampleCount, stripSamples)) {
+            return Status::error(StatusCode::TiffOverflow, "output strip sample count overflow");
+        }
         strip.assign(stripSamples, 0.0f);
 
         for (int x0 = 0; x0 < metadata.width; x0 += kCanonicalCore) {
             const int x1 = std::min(metadata.width, x0 + kCanonicalCore);
             TileRect tile{};
-            tile.x0 = x0;
-            tile.y0 = y0;
-            tile.x1 = x1;
-            tile.y1 = y1;
+            tile.x0 = x0; tile.y0 = y0; tile.x1 = x1; tile.y1 = y1;
             tile.hx0 = std::max(0, x0 - halo);
             tile.hy0 = std::max(0, y0 - halo);
             tile.hx1 = std::min(metadata.width, x1 + halo);
@@ -733,15 +781,14 @@ Status export_projection(
                 }
             }
             ++out.canonicalTilesProcessed;
-            status = account_budget(options, source, workspace, digest, strip, rowBytes, header, out);
+            status = account_budget(options, sourceBytes, source, workspace, digest,
+                                    strip, rowBytes, metadataResident, out);
             if (!status) return status;
         }
 
-        const std::size_t rowSamples =
-            static_cast<std::size_t>(metadata.width) * static_cast<std::size_t>(samplesPerPixel);
         for (int row = 0; row < rows; ++row) {
-            encode_float_row_le(strip.data() + static_cast<std::size_t>(row) * rowSamples,
-                                rowSamples, rowBytes);
+            encode_float_row_le(strip.data() + static_cast<std::size_t>(row) * rowSampleCount,
+                                rowSampleCount, rowBytes);
             status = write_sink(output, rowBytes.data(), rowBytes.size(), out);
             if (!status) return status;
         }
@@ -752,19 +799,49 @@ Status export_projection(
         return Status::error(StatusCode::DigestFailed,
                              "projection Scientific Master digest finalization failed: " + digest.error());
     }
-
     const auto postVerified = scientific_preview_binding_v0_1::reverify_source_sha256(
         sourceBytes, prepared.source);
     if (!postVerified) return map_reverify(postVerified);
     out.sourceVerifiedAfter = true;
 
-    if (!same_hash(out.recomputedScientificMasterHash,
-                   release.scientificIdentity.scientificMasterHash)) {
+    if (out.recomputedScientificMasterHash != scientificIdentity.scientificMasterHash) {
         return Status::error(StatusCode::DigestMismatch,
-                             "exported projection reconstruction does not match finalized Scientific Master digest");
+                             "projection reconstruction does not match finalized Scientific Master digest");
     }
     out.scientificMasterHashMatched = true;
     return Status::ok();
+}
+
+} // namespace
+
+Status export_projection(
+    const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
+    const scientific_master_streaming_binding::v0_2::Result& scientificIdentity,
+    const technical_backplane_phase2::v0_1::Phase2Result& finalizedPhase2,
+    tile_dng_v0_1::IRandomAccessByteSource& sourceBytes,
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    ISequentialByteSink& output,
+    const Options& options,
+    Result& out) noexcept {
+    out = {};
+    out.kind = options.kind;
+    out.physicalFrameCount = 1u;
+    out.independentEvidenceCount = 1u;
+    out.createsEvidence = false;
+    out.fullFrameMaterialized = false;
+    try {
+        return export_projection_impl(prepared, scientificIdentity, finalizedPhase2,
+                                      sourceBytes, source, reconstruction, output, options, out);
+    } catch (const std::bad_alloc&) {
+        return Status::error(StatusCode::BudgetExceeded,
+                             "DNG projection allocation failed within bounded execution");
+    } catch (const std::exception& error) {
+        return Status::error(StatusCode::OutputFailed,
+                             std::string("DNG projection exception: ") + error.what());
+    } catch (...) {
+        return Status::error(StatusCode::OutputFailed, "DNG projection unknown exception");
+    }
 }
 
 const char* projection_name(ProjectionKind kind) noexcept {
