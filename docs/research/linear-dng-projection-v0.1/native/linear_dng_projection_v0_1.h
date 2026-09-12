@@ -43,13 +43,16 @@ struct Status final {
 };
 
 enum class ProjectionRole : std::uint8_t {
-    LinearDngCompatibilityProjection = 1,
+    LinearDngXyzD50CompatibilityProjection = 1,
 };
 
 struct ProjectionAdmission final {
-    ProjectionRole role = ProjectionRole::LinearDngCompatibilityProjection;
+    ProjectionRole role = ProjectionRole::LinearDngXyzD50CompatibilityProjection;
     scientific_preview_binding_v0_1::SourceSeal source{};
     std::array<std::uint8_t, 32> scientificMasterHash{};
+    // Exact source-bound transform already validated for the finalized lineage.
+    // It is applied exactly once by the Scientific-Master export adapter before
+    // the bounded DNG writer sees any samples.
     std::array<float, 9> cameraToXyzD50 = {1.f, 0.f, 0.f,
                                            0.f, 1.f, 0.f,
                                            0.f, 0.f, 1.f};
@@ -68,22 +71,22 @@ Status admit_linear_dng_projection(
     const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
     ProjectionAdmission& out) noexcept;
 
-class ICameraRgbTileSource {
+class ILinearRawTileSource {
 public:
-    virtual ~ICameraRgbTileSource() = default;
+    virtual ~ILinearRawTileSource() = default;
     virtual int width() const noexcept = 0;
     virtual int height() const noexcept = 0;
     virtual Orientation orientation() const noexcept = 0;
 
-    // Returns camera-native reconstructed RGB for exactly the requested core
-    // rectangle in interleaved RGB float32 order. This interface represents a
-    // reconstruction/projection source, not measured CFA evidence.
-    virtual Status readCameraRgbTile(
+    // Returns 3-channel scene-linear XYZ(D50) compatibility samples for exactly
+    // the requested core rectangle. This is an output projection interface,
+    // never measured CFA evidence and never the Scientific Master itself.
+    virtual Status readLinearRawTile(
         int x0,
         int y0,
         int x1,
         int y1,
-        float* rgbOut,
+        float* xyzD50Out,
         std::size_t floatCount) = 0;
 };
 
@@ -107,19 +110,20 @@ public:
 
 struct Options final {
     int tileEdge = 64;
-    // Explicit compatibility-projection scale. No automatic exposure or tone
-    // mapping is permitted in this writer.
+    // Explicit output-scale only. There is no auto exposure, tone curve or
+    // appearance operation in this writer.
     double linearScale = 1.0;
-    // DNG linear reference range is bounded. v0.1 therefore maps values below
-    // 0 to 0 and values above 1 to 1, while auditing every such sample.
+    // The compatibility DNG is a bounded 16-bit projection. Values below 0 and
+    // above 1 are clamped only when this explicit projection flag is enabled;
+    // every clamp is counted in Audit. The Scientific Master remains untouched.
     bool clampToLinearReferenceRange = true;
-    std::string uniqueCameraModel = "TruthRaw Source-Bound Linear Projection";
+    std::string uniqueCameraModel = "TruthRaw XYZ D50 Linear Projection";
     std::string software = "TruthRaw Linear DNG Projection v0.1";
 };
 
 struct Audit final {
-    ProjectionRole role = ProjectionRole::LinearDngCompatibilityProjection;
-    std::uint64_t cameraRgbSamplesRead = 0;
+    ProjectionRole role = ProjectionRole::LinearDngXyzD50CompatibilityProjection;
+    std::uint64_t linearSamplesRead = 0;
     std::uint64_t negativeSamplesClamped = 0;
     std::uint64_t overrangeSamplesClamped = 0;
     std::uint64_t quantizedSamples = 0;
@@ -131,6 +135,7 @@ struct Audit final {
     bool scientificMasterModified = false;
     bool createsEvidence = false;
     bool fullFrameMaterialized = false;
+    bool outputEncodingXyzD50 = true;
     bool sourceMetadataColorOnly = true;
     bool strongerPhysicalColorClaim = false;
     std::uint32_t physicalFrameCount = 1;
@@ -139,16 +144,16 @@ struct Audit final {
 
 // Writes a classic little-endian TIFF/DNG raw IFD using:
 // - PhotometricInterpretation = LinearRaw (34892)
-// - 3 interleaved camera-native channels
-// - 16-bit unsigned integer linear-reference samples
+// - 3 interleaved XYZ(D50) scene-linear compatibility channels
+// - 16-bit unsigned integer bounded samples
 // - uncompressed 64x64-style tiles by default
-// - one effective D50 ColorMatrix derived from the already-resolved
-//   cameraToXyzD50 source-bound transform.
+// - identity ColorMatrix1 (XYZ -> declared projection space)
+// - CalibrationIlluminant1 = D50 and AsShotNeutral = D50 XYZ.
 //
 // The output is a compatibility projection. It is never the Scientific Master
 // and never measured CFA evidence.
 Status write_linear_dng(
-    ICameraRgbTileSource& source,
+    ILinearRawTileSource& source,
     ISequentialByteSink& sink,
     const ProjectionAdmission& admission,
     const Options& options,
