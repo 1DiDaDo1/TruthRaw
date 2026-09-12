@@ -12,6 +12,9 @@
 
 namespace truthraw::dng_projection_export::v0_1 {
 
+using ScientificColorBindingRecord =
+    scientific_preview_binding_v0_1::ScientificColorBindingRecord;
+
 enum class ProjectionKind : std::uint8_t {
     LinearDng16 = 1,
     CfaDng16 = 2,
@@ -55,7 +58,7 @@ struct AuthorityContext final {
     scientific_preview_binding_v0_2::PreparedScientificPreviewSource prepared{};
     scientific_master_streaming_binding::v0_2::Result scientificIdentity{};
     technical_backplane_phase2::v0_1::Phase2Result phase2{};
-    scientific_preview_binding_v0_1::ScientificColorBindingRecord color{};
+    ScientificColorBindingRecord color{};
 };
 
 struct Options final {
