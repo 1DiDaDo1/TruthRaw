@@ -35,6 +35,9 @@ class MainActivity : Activity() {
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
     private var empiricalStatus: String? = null
+    private var pendingLinearDngJobId: String? = null
+    private var linearDngStatus: String? = null
+    private var linearDngExporting: Boolean = false
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -116,6 +119,21 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchLinearDngExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || linearDngExporting) return
+        pendingLinearDngJobId = job.id
+        linearDngStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_reconstructed_linear.dng")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_LINEAR_DNG)
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchEmpiricalExport(job: RawJob) {
         val audit = empiricalAudit ?: return
         if (job.id != activeJobId) return
@@ -161,6 +179,50 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
+            val expectedJob = pendingLinearDngJobId
+            pendingLinearDngJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                linearDngStatus = "Linear DNG-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (job == null || ready == null || ready.jobId != expectedJob || expectedJob != activeJobId) {
+                linearDngStatus = "Linear DNG-export geblokkeerd: actieve finalized preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            linearDngExporting = true
+            linearDngStatus = "Linear DNG wordt opgebouwd… finalized gate + camera-native reconstructie worden opnieuw geverifieerd."
+            render()
+            Thread({
+                val outcome = LinearDngExporter.export(contentResolver, job, destination)
+                runOnUiThread {
+                    linearDngExporting = false
+                    if (activeJobId != expectedJob) {
+                        linearDngStatus = "Linear DNG-export eindigde, maar de actieve RAW is intussen gewijzigd."
+                        render()
+                        return@runOnUiThread
+                    }
+                    linearDngStatus = when (outcome) {
+                        is LinearDngExportOutcome.Failed -> "Linear DNG-export faalde: ${outcome.reason}"
+                        is LinearDngExportOutcome.Success -> {
+                            val m = outcome.metrics
+                            "Linear DNG opgeslagen · ${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
+                                "tiles=${m.tilesWritten} · clamp<0=${m.clippedBelowZero} · clamp>1=${m.clippedAboveOne} · " +
+                                "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
+                                "compatibility projection, geen gemeten sensor-CFA/Scientific Master."
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-linear-dng-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_EMPIRICAL_JSON) {
             val expectedJob = pendingEmpiricalJobId
             val report = pendingEmpiricalJson
@@ -202,6 +264,8 @@ class MainActivity : Activity() {
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
         jpegStatus = null
+        linearDngStatus = null
+        linearDngExporting = false
         empiricalStatus = null
         empiricalAudit = null
         if (first == null) {
@@ -221,9 +285,12 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         previewState = TilePreviewUiState.Idle
         jpegStatus = null
+        linearDngStatus = null
+        linearDngExporting = false
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         render()
@@ -233,9 +300,12 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
         jpegStatus = null
+        linearDngStatus = null
+        linearDngExporting = false
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         val generation = ++previewGeneration
@@ -439,6 +509,20 @@ class MainActivity : Activity() {
                 addView(space(6))
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(space(5))
+                val dngButton = actionButton(
+                    if (linearDngExporting) "Linear DNG wordt opgebouwd…" else "Linear DNG (reconstructed) opslaan",
+                ) {
+                    if (!linearDngExporting) launchLinearDngExport(active)
+                }
+                dngButton.isEnabled = !linearDngExporting
+                addView(dngButton)
+                addView(label(
+                    "DNG = 16-bit tiled LinearRaw compatibility projection van camera-native reconstructed RGB vóór appearance/sRGB. Geen gemeten sensor-CFA en geen vervanging van de Scientific Master.",
+                    10f,
+                    muted = true,
+                ))
+                linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
@@ -625,5 +709,6 @@ class MainActivity : Activity() {
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
+        private const val REQUEST_SAVE_LINEAR_DNG = 4104
     }
 }
