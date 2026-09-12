@@ -1,5 +1,6 @@
 name: DNG Projection Export v0.1
 
+# Retry marker 2026-09-12: prior hosted jobs failed before a runner was assigned.
 on:
   push:
     branches:
