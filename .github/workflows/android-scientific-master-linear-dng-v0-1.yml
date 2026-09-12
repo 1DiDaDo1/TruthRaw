@@ -49,11 +49,12 @@ jobs:
           ctest --test-dir /tmp/truthraw-release-v02 --output-on-failure
 
   build-arm64-apk:
-    runs-on: ubuntu-24.04
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
       - name: Verify downstream-only export contract
+        shell: bash
         run: |
           BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/scientific_master_linear_dng_bridge.cpp'
           grep -F 'write_xyz_d50_linear_dng_projection' "$BRIDGE"
@@ -75,6 +76,7 @@ jobs:
       - uses: android-actions/setup-android@v3
 
       - name: Install pinned Android SDK/NDK
+        shell: bash
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager \
@@ -92,19 +94,20 @@ jobs:
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Verify native symbols and artifact
+        shell: bash
         run: |
           APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$APK"
           unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
           test -s /tmp/libtruthraw_ui_preview_bridge.so
-          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeScientificDngBridge_exportFinalizedScientificMasterLinearDng'
-          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeScientificDngBridge_exportFinalizedScientificMasterLinearDng'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
           if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
             echo 'Unexpected non-arm64 ABI' >&2
             exit 1
           fi
-          echo "apk_bytes=$(stat -c%s "$APK")"
-          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo "apk_bytes=$(stat -f%z "$APK")"
+          echo "apk_sha256=$(shasum -a 256 "$APK" | awk '{print $1}')"
           echo 'dng_role=LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION'
           echo 'scientific_authority_from_export=NONE'
           echo 'output=float32_XYZ_D50_LinearRaw'
