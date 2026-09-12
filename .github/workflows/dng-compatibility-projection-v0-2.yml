@@ -7,8 +7,14 @@ on:
       - 'docs/research/dng-compatibility-projection-v0.1/**'
       - 'docs/research/scientific-master-digest-v0.1/**'
       - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
       - 'docs/research/full-frame-streaming-v0.1/**'
       - 'canonical/reconstruction/v4.7i/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
       - '.github/workflows/dng-compatibility-projection-v0-2.yml'
   pull_request:
     paths:
@@ -16,10 +22,19 @@ on:
       - 'docs/research/dng-compatibility-projection-v0.1/**'
       - 'docs/research/scientific-master-digest-v0.1/**'
       - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/technical-backplane-phase2-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
       - 'docs/research/full-frame-streaming-v0.1/**'
       - 'canonical/reconstruction/v4.7i/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
       - '.github/workflows/dng-compatibility-projection-v0-2.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   gcc-release:
@@ -70,3 +85,77 @@ jobs:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: ctest --test-dir build/dng-projection-v02-asan --output-on-failure
+
+  android-arm64-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Android DNG route selects v0.2 behind finalized gate
+        run: |
+          BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/dng_projection_bridge.cpp'
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          grep -F '#include "dng_compatibility_projection_v0_2.h"' "$BRIDGE"
+          grep -F 'dng_compatibility_projection::v0_2::write_linear_scientific_master_dng' "$BRIDGE"
+          grep -F 'dng_compatibility_projection::v0_2::write_reconstructed_cfa_dng' "$BRIDGE"
+          grep -F 'scientific_master_streaming_binding::v0_2::bind_scientific_master_streaming' "$BRIDGE"
+          grep -F 'technical_backplane_phase2::v0_1::finalize_phase2' "$BRIDGE"
+          grep -F 'DNG_PROJECTION_V01' "$CMAKE"
+          grep -F 'DNG_PROJECTION_V02' "$CMAKE"
+
+      - name: Verify no TruthRaw Vulkan dependency in export build
+        run: |
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          if grep -Eiq '(^|[^A-Za-z])(vulkan|libvulkan|Vk[A-Z])' "$CMAKE"; then
+            echo 'Unexpected Vulkan dependency in DNG compatibility build' >&2
+            exit 1
+          fi
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble fixed-D50 DNG projection arm64 APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify JNI export symbol and APK identity
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeDngProjectionBridge_exportFinalizedProjection'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 DNG bridge ABI' >&2
+            exit 1
+          fi
+          echo "dng_projection_apk_bytes=$(stat -c%s "$APK")"
+          echo "dng_projection_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'dng_color_encoding=FIXED_AS_SHOT_CAMERA_TO_XYZ_D50'
+          echo 'linear_projection_is_evidence=0'
+          echo 'reconstructed_cfa_projection_is_evidence=0'
+          echo 'full_physical_color_promoted=0'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-dng-compatibility-v0.2-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
