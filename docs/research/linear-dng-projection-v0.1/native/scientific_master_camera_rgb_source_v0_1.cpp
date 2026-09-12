@@ -169,24 +169,39 @@ private:
 Status write_linear_dng_from_finalized_scientific_source(
     streaming_v0_1::IRawTileSource& source,
     std::shared_ptr<IReconstructionBackend> reconstruction,
-    ISequentialByteSink& sink,
+    ITransactionalByteSink& sink,
     const ProjectionAdmission& admission,
     const Options& options,
     ScientificExportAudit& out) noexcept {
+    out = {};
+    const auto fail = [&](Status status) -> Status {
+        sink.abort();
+        return status;
+    };
+
     if (options.tileEdge != static_cast<int>(scientific_master_digest::v0_1::kCanonicalCellEdge)) {
-        return Status::error(StatusCode::InvalidArgument,
-                             "scientifically rebound Linear DNG export requires canonical 64x64 tiles");
+        return fail(Status::error(
+            StatusCode::InvalidArgument,
+            "scientifically rebound Linear DNG export requires canonical 64x64 tiles"));
     }
+
     ScientificCameraRgbSource cameraSource(source, std::move(reconstruction), admission);
     auto status = cameraSource.initialize();
-    if (!status) return status;
+    if (!status) return fail(status);
 
     Audit projection;
     status = write_linear_dng(cameraSource, sink, admission, options, projection);
-    if (!status) return status;
+    if (!status) return fail(status);
 
     status = cameraSource.finalize_identity();
-    if (!status) return status;
+    if (!status) return fail(status);
+
+    status = sink.commit();
+    if (!status) {
+        sink.abort();
+        return Status::error(StatusCode::SinkFailed,
+                             "Linear DNG transaction commit failed: " + status.message);
+    }
 
     ScientificExportAudit audit;
     audit.projection = projection;
@@ -194,6 +209,7 @@ Status write_linear_dng_from_finalized_scientific_source(
     audit.reconstructionWorkspacePeakBytes = cameraSource.workspacePeak();
     audit.sourceIdentityChecked = true;
     audit.scientificMasterDigestReverified = true;
+    audit.transactionCommitted = true;
     audit.appearanceApplied = false;
     audit.cameraToXyzApplied = false;
     out = audit;
