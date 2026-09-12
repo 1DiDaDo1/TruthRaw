@@ -30,6 +30,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
     raw_projection_export_bridge.cpp
+    raw_projection_export_alias.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
