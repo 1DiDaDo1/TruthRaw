@@ -1,8 +1,9 @@
 #pragma once
 
-#include "finalized_scientific_preview_release_v0_2.h"
 #include "scientific_master_digest_v0_1.h"
+#include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_2.h"
+#include "technical_backplane_phase2_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
 
@@ -81,10 +82,12 @@ struct Result final {
     scientific_master_digest::v0_1::Sha256 recomputedScientificMasterHash{};
 };
 
-// Writes a bounded-memory DNG projection only after the exact source has already
-// passed Finalized Scientific Preview release. The exporter recomputes the
-// camera-native Scientific Master digest while producing pixels and requires an
-// exact digest match before returning Ok.
+// Writes a bounded-memory DNG projection only after Technical Backplane phase 2
+// has finalized the exact sealed source + Scientific Master lineage. Display
+// preview rendering is deliberately not an export precondition.
+//
+// The exporter recomputes the camera-native Scientific Master digest while
+// producing pixels and requires an exact digest match before returning Ok.
 //
 // Stage2CfaFloat32 writes one measured CFA channel per sensor site after the
 // existing Stage-2 black/white/gain normalization. It is a derived-measurement
@@ -96,7 +99,8 @@ struct Result final {
 // projection, not sensor evidence.
 Status export_projection(
     const scientific_preview_binding_v0_2::PreparedScientificPreviewSource& prepared,
-    const finalized_scientific_preview_release::v0_2::ReleaseResult& release,
+    const scientific_master_streaming_binding::v0_2::Result& scientificIdentity,
+    const technical_backplane_phase2::v0_1::Phase2Result& finalizedPhase2,
     tile_dng_v0_1::IRandomAccessByteSource& sourceBytes,
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
