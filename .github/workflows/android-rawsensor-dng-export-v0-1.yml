@@ -29,42 +29,33 @@ permissions:
 jobs:
   host-export-tests:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: GCC Release
-            cc: gcc
             cxx: g++
             build_type: Release
-            sanitize: 'OFF'
+            sanitizers: 'OFF'
           - name: Clang Release
-            cc: clang
             cxx: clang++
             build_type: Release
-            sanitize: 'OFF'
-          - name: Clang ASan UBSan
-            cc: clang
+            sanitizers: 'OFF'
+          - name: Clang ASan-UBSan
             cxx: clang++
             build_type: Debug
-            sanitize: 'ON'
-    env:
-      CC: ${{ matrix.cc }}
-      CXX: ${{ matrix.cxx }}
+            sanitizers: 'ON'
     steps:
       - uses: actions/checkout@v4
 
       - name: Configure projection export tests
-        run: |
-          EXTRA=''
-          if [ '${{ matrix.sanitize }}' = 'ON' ]; then
-            EXTRA='-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined'
-          fi
-          cmake -S docs/research/raw-projection-export-v0.1 \
-            -B /tmp/truthraw-raw-export \
-            -DCMAKE_BUILD_TYPE='${{ matrix.build_type }}' \
-            $EXTRA
+        run: >-
+          cmake -S docs/research/raw-projection-export-v0.1
+          -B /tmp/truthraw-raw-export
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DTRUTHRAW_RAW_EXPORT_SANITIZERS=${{ matrix.sanitizers }}
 
       - name: Build projection export tests
         run: cmake --build /tmp/truthraw-raw-export --parallel 2
@@ -85,7 +76,7 @@ jobs:
 
   android-arm64-export-apk:
     name: Android arm64 APK
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -118,7 +109,7 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Install pinned Android SDK and NDK components
+      - name: Install pinned Android SDK and NK components
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager \
