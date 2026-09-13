@@ -17,20 +17,20 @@ enum class RawProjectionKind(
     RECONSTRUCTED_CFA_RAWSENSOR(
         1,
         "application/octet-stream",
-        "truthraw_reconstructed_cfa_v0_1.rawsensor",
-        "Reconstructed CFA .rawsensor opslaan",
+        "truthraw_reconstructed_cfa_compat_v0_2.rawsensor",
+        "Reconstructed CFA .rawsensor (compatibiliteit) opslaan",
     ),
     RECONSTRUCTED_CFA_DNG(
         2,
         "image/x-adobe-dng",
-        "truthraw_reconstructed_cfa_v0_1.dng",
-        "Reconstructed CFA DNG opslaan",
+        "truthraw_reconstructed_cfa_compat_v0_2.dng",
+        "Reconstructed CFA DNG (compatibiliteit) opslaan",
     ),
     LINEAR_DNG(
         3,
         "image/x-adobe-dng",
-        "truthraw_linear_v0_1.dng",
-        "Linear DNG opslaan",
+        "truthraw_rgb_linearraw_v0_2.dng",
+        "TruthRaw RGB RAW (Linear DNG) opslaan",
     ),
 }
 
@@ -148,9 +148,12 @@ object RawProjectionExporter {
         }
 
         val format = when (kind) {
-            RawProjectionKind.RECONSTRUCTED_CFA_RAWSENSOR -> "headerless little-endian uint16 reconstructed CFA"
-            RawProjectionKind.RECONSTRUCTED_CFA_DNG -> "uncompressed 16-bit reconstructed CFA DNG"
-            RawProjectionKind.LINEAR_DNG -> "uncompressed 16-bit LinearRaw DNG"
+            RawProjectionKind.RECONSTRUCTED_CFA_RAWSENSOR ->
+                "reconstructed CFA .rawsensor compatibility projection"
+            RawProjectionKind.RECONSTRUCTED_CFA_DNG ->
+                "reconstructed CFA DNG compatibility projection"
+            RawProjectionKind.LINEAR_DNG ->
+                "TruthRaw camera-native RGB LinearRaw DNG high-fidelity projection"
         }
         return RawProjectionExportResult(
             metrics = metrics,
