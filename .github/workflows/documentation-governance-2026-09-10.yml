@@ -1,4 +1,4 @@
-name: Documentation Governance 2026-09-10
+name: Documentation Governance Current
 
 on:
   push:
@@ -24,7 +24,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify document authority and historical classification
+      - name: Compile governance checker
+        run: python3 -m py_compile tools/verify_documentation_governance.py
+      - name: Verify document authority and scientific governance invariants
         run: python3 tools/verify_documentation_governance.py
-      - name: Validate current state JSON
-        run: python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-10.json >/dev/null
+      - name: Validate all dated current-state JSON snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in state/CURRENT_CANONICAL_STATE_*.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
