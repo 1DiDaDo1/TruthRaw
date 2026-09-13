@@ -61,23 +61,25 @@ house_rel = f"docs/CURRENT_HOUSE_ARCHITECTURE_{current_date}.md" if current_date
 index_rel = f"docs/DOCUMENT_STATUS_INDEX_{current_date}.md" if current_date else ""
 project_map_rel = f"docs/TRUTHRAW_PROJECT_MAP_{current_date}.md" if current_date else ""
 audit_rel = f"docs/audit/PROJECT_FACT_CHECK_{current_date}.md" if current_date else ""
+genealogy_rel = f"docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_{current_date}.md" if current_date else ""
 
 root_readme = need("README.md")
 bootstrap = need("START_HERE_NEW_CHAT.md")
 state_text = need(state_rel) if state_rel else ""
 house = need(house_rel) if house_rel else ""
 index = need(index_rel) if index_rel else ""
+genealogy = need(genealogy_rel) if genealogy_rel else ""
 need("state/README.md")
 
-for required in (state_rel, house_rel, index_rel, project_map_rel, audit_rel):
+for required in (state_rel, house_rel, index_rel, project_map_rel, audit_rel, genealogy_rel):
     if required:
         need(required)
 
-for required in (state_rel, house_rel, index_rel, project_map_rel, audit_rel):
+for required in (state_rel, house_rel, index_rel, project_map_rel, audit_rel, genealogy_rel):
     if required and required not in root_readme:
         errors.append(f"root_readme_missing_pointer:{required}")
 
-for required in (state_rel, index_rel, project_map_rel, audit_rel):
+for required in (state_rel, index_rel, project_map_rel, audit_rel, genealogy_rel):
     if required and required not in bootstrap:
         errors.append(f"bootstrap_missing_pointer:{required}")
 
@@ -111,6 +113,7 @@ if state:
         index_rel,
         project_map_rel,
         audit_rel,
+        genealogy_rel,
         "docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md",
         "docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md",
     }
@@ -142,6 +145,14 @@ if state:
     if evidence.get("appearance_can_modify_scientific_master") is not False:
         errors.append("appearance_master_guard_failed")
 
+    rationale = state.get("house_design_rationale", {})
+    if rationale.get("status") != "ACTIVE_DESIGN_CONTEXT":
+        errors.append("house_design_rationale_not_active")
+    if rationale.get("genealogy_document") != genealogy_rel:
+        errors.append("house_genealogy_document_mismatch")
+    if rationale.get("verified_sealed_house_canon_commit") != "13075856895ee6815c8a72fcf733d52bad596583":
+        errors.append("sealed_house_canon_commit_mismatch")
+
     truthrange = state.get("truthrange", {})
     if truthrange.get("zero_line_role") != "GAUGE_REFERENCE":
         errors.append("zero_line_role_not_gauge_reference")
@@ -153,6 +164,12 @@ if state:
     color = state.get("color", {})
     if color.get("full_physical_general_claim_allowed") is not False:
         errors.append("full_physical_general_claim_must_be_blocked")
+
+    backplane = state.get("technical_backplane", {})
+    if backplane.get("is_image_evidence") is not False:
+        errors.append("technical_backplane_must_not_be_image_evidence")
+    if backplane.get("is_second_scientific_master") is not False:
+        errors.append("technical_backplane_must_not_be_second_master")
 
     readopt = state.get("read_optimization", {})
     if readopt.get("memory_improvement_claim_allowed") is not False:
@@ -179,6 +196,14 @@ if state:
     if house_state.get("gpu_vulkan_may_create_truth_authority") is not False:
         errors.append("gpu_truth_authority_guard_failed")
 
+    gatehouse = state.get("gatehouse", {})
+    if gatehouse.get("is_second_truth_source") is not False:
+        errors.append("gatehouse_must_not_be_second_truth_source")
+    if gatehouse.get("is_alternative_main_house") is not False:
+        errors.append("gatehouse_must_not_be_alternative_main_house")
+    if gatehouse.get("lifecycle") != ["ATTACHED", "SEALED_HANDOFF", "DETACHED", "MAIN_HOUSE_ACTIVE"]:
+        errors.append("gatehouse_lifecycle_mismatch")
+
 # Current high-level docs must retain the core law wording.
 for text, label in (
     (root_readme, "root"),
@@ -191,6 +216,13 @@ for text, label in (
 
 if "Representation can exceed the source. Knowledge claims cannot exceed the evidence." not in root_readme:
     errors.append("root_secondary_law_missing")
+
+for required_phrase in ("sealed house", "Technical Backplane", "Gatehouse", "alle vrijheid"):
+    if required_phrase.lower() not in genealogy.lower():
+        errors.append(f"genealogy_missing_core_phrase:{required_phrase}")
+
+if "Preview is a window onto TruthRaw, never the source of TruthRaw." not in genealogy:
+    errors.append("genealogy_preview_window_rule_missing")
 
 # Readme-like files outside known/documented scopes should not silently become bootstrap authorities.
 for p in repo.rglob("*"):
@@ -231,3 +263,6 @@ print(f"historical_current_state_snapshots={max(0, len(state_versions) - 1)}")
 print("zero_line_role=GAUGE_REFERENCE")
 print("sensor_dynamic_range_infinite=false")
 print("read_optimization_memory_claim_allowed=false")
+print("house_design_rationale=ACTIVE_DESIGN_CONTEXT")
+print("technical_backplane_is_image_evidence=false")
+print("gatehouse_lifecycle=ATTACHED->SEALED_HANDOFF->DETACHED->MAIN_HOUSE_ACTIVE")
