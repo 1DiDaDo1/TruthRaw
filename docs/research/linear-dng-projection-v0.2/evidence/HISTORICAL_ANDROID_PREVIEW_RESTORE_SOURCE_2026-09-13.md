@@ -1,6 +1,10 @@
-# Historical Android preview restoration source — 2026-09-13
+# Historical Android preview container evidence — 2026-09-13
 
-This evidence note records the previously solved TruthRaw DNG preview regression that must be reapplied to the current RGB / LinearRaw restoration branch.
+This evidence note records a previously solved TruthRaw DNG preview regression. It is **historical container/interoperability evidence**, not the leading TruthRaw preview architecture.
+
+For the later finalized Scientific Preview / Preview Representation architecture, read:
+
+`MODERN_FINALIZED_PREVIEW_ARCHITECTURE_2026-09-13.md`
 
 ## Historical source documents recovered
 
@@ -57,18 +61,31 @@ Historical DNG SDK result for every corrected file:
 
 This is interoperability evidence for those historical exact files, not Adobe certification.
 
-## Relationship to current v0.2 restoration
+## Correct relationship to the later preview architecture
 
-The current 2026-09-13 Work-derived v0.1 writer writes only a single primary LinearRaw IFD and therefore omitted the already discovered Android-preview container solution.
+The current 2026-09-13 Work-derived v0.1 writer writes only a single primary LinearRaw IFD and omitted an embedded compatibility preview.
 
-The current restoration sequence is therefore:
+However, the restoration target is **not** defined as “copy the old v0.7 IFD layout unchanged”.
 
-1. restore RGB finite headroom and source camera identity without changing Scientific Master semantics;
-2. keep the primary RGB LinearRaw payload authoritative only as a compatibility projection;
-3. restore the historical multi-IFD preview layout downstream of the same finalized source-bound release;
-4. generate preview pixels through a display-only color route;
-5. prove the LinearRaw payload is identical before and after adding the preview container structure;
-6. validate the exact new file in Android/piex/Lightroom and independent DNG readers.
+The later 2026-09-11 Preview Representation architecture established a stronger separation:
+
+```text
+finalized Scientific Preview surface
+        |-> runtime ARGB_8888 / sRGB
+        |-> portable JPEG / sRGB
+        |-> embedded DNG JPEG compatibility preview
+```
+
+The preview representation is defined before the DNG container. The container transports it.
+
+Therefore the old v0.7 layout is used for:
+
+1. proof that a JPEG preview can coexist with unchanged LinearRaw bytes;
+2. proof that Android preview discovery improved with JPEG-compatible packaging;
+3. a tested TIFF/DNG topology candidate;
+4. a regression reference for payload independence.
+
+It is **not** automatically the final topology for the modern v0.2/vNext DNG.
 
 ## Preview color authority
 
@@ -84,11 +101,12 @@ The historical preview was described as Colorimetric-V3 L1 / source-bound color.
 
 Do not:
 
-- make the large preview uncompressed again and expect Android discovery to behave the same;
+- make a large uncompressed preview the only compatibility path and assume Android will discover it;
 - replace the primary RGB LinearRaw with the JPEG preview;
 - rebayer the Scientific Master merely for Lightroom compatibility;
 - let preview generation modify the LinearRaw payload;
 - claim the preview is independently calibrated physical color;
-- silently discard the historical v0.1 single-IFD failure state.
+- silently discard the historical v0.1 single-IFD failure state;
+- promote this old IFD arrangement above the later finalized Scientific Preview / Preview Representation architecture.
 
-The desired restoration is the old proven **container pattern** applied to the newer bounded/finalized architecture.
+The correct restoration is: **reuse the proven container lessons underneath the newer finalized-preview representation contract, then validate the exact new bytes.**
