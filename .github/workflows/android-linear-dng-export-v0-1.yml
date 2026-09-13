@@ -26,7 +26,7 @@ permissions:
 jobs:
   host-linear-dng:
     name: Host Linear DNG writer
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Configure
@@ -38,7 +38,7 @@ jobs:
 
   build-arm64-linear-dng-apk:
     name: Android arm64 Linear DNG APK
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
