@@ -3,7 +3,7 @@
 #include "bounded_srgb_preview_sink_v0_1.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "finalized_scientific_preview_release_v0_2.h"
-#include "linear_dng_projection_v0_1.h"
+#include "linear_dng_projection_v0_2.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
 #include "scientific_preview_source_binding_v0_2.h"
@@ -26,7 +26,7 @@ using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::finalized_scientific_preview_release::v0_2::PreviewAuthority;
 using truthraw::finalized_scientific_preview_release::v0_2::ReleaseResult;
 using truthraw::linear_dng_projection::v0_1::PosixFdByteSink;
-using truthraw::linear_dng_projection::v0_1::Result;
+using truthraw::linear_dng_projection::v0_2::Result;
 using truthraw::preview_surface_v0_1::BoundedSrgbPreviewSink;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
 using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource;
@@ -64,8 +64,8 @@ jlong finalized_status(const truthraw::finalized_scientific_preview_release::v0_
     return 5000 + static_cast<jlong>(status.code);
 }
 
-jlong projection_status(const truthraw::linear_dng_projection::v0_1::Status& status) {
-    return 6000 + static_cast<jlong>(status.code);
+jlong projection_status(const truthraw::linear_dng_projection::v0_2::Status& status) {
+    return 6100 + static_cast<jlong>(status.code);
 }
 
 truthraw::streaming_v0_1::StreamingOptions preview_options(std::size_t memoryBudgetBytes) {
@@ -173,10 +173,10 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
     if (!verifiedBeforeProjection) return packet(env, binding_status(verifiedBeforeProjection));
 
     PosixFdByteSink destination(static_cast<int>(destinationFd));
-    truthraw::linear_dng_projection::v0_1::Options projectionOptions;
+    truthraw::linear_dng_projection::v0_2::Options projectionOptions;
     projectionOptions.memoryBudgetBytes = static_cast<std::size_t>(maxLogicalResidentBytes);
     Result projection;
-    const auto projected = truthraw::linear_dng_projection::v0_1::write_finalized_linear_dng(
+    const auto projected = truthraw::linear_dng_projection::v0_2::write_finalized_linear_dng(
         release,
         *bytes,
         *source,
@@ -192,26 +192,29 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
         return packet(env, -5);
     }
 
-    if (!projection.linearRawPhotometric || !projection.boundedUnsigned16Projection ||
-        !projection.sourceColorMetadataCopied || projection.fullScientificMasterMaterialized ||
-        projection.physicalFrameCount != 1u || projection.independentEvidenceCount != 1u) {
+    const auto& baseProjection = projection.base;
+    if (!baseProjection.linearRawPhotometric || !baseProjection.boundedUnsigned16Projection ||
+        !baseProjection.sourceColorMetadataCopied || baseProjection.fullScientificMasterMaterialized ||
+        baseProjection.physicalFrameCount != 1u || baseProjection.independentEvidenceCount != 1u ||
+        !projection.sourceCameraIdentityPreserved || projection.overWindowRejected ||
+        projection.compatibilityWindow != 2.0 || projection.baselineExposureEv != 1.0) {
         return packet(env, -4);
     }
 
     std::array<jlong, kPacketLongs> values{};
     values[0] = kMagic;
     values[1] = 0;
-    values[2] = projection.width;
-    values[3] = projection.height;
-    values[4] = static_cast<jlong>(std::min<std::uint64_t>(projection.outputBytes, std::numeric_limits<jlong>::max()));
-    values[5] = static_cast<jlong>(std::min<std::uint64_t>(projection.pixelPayloadBytes, std::numeric_limits<jlong>::max()));
-    values[6] = static_cast<jlong>(std::min<std::uint64_t>(projection.tilesWritten, std::numeric_limits<jlong>::max()));
-    values[7] = static_cast<jlong>(std::min<std::uint64_t>(projection.samplesClippedLow, std::numeric_limits<jlong>::max()));
-    values[8] = static_cast<jlong>(std::min<std::uint64_t>(projection.samplesClippedHigh, std::numeric_limits<jlong>::max()));
-    values[9] = static_cast<jlong>(projection.logicalResidentUpperBound);
-    values[10] = projection.fullScientificMasterMaterialized ? 1 : 0;
-    values[11] = projection.physicalFrameCount;
-    values[12] = projection.independentEvidenceCount;
+    values[2] = baseProjection.width;
+    values[3] = baseProjection.height;
+    values[4] = static_cast<jlong>(std::min<std::uint64_t>(baseProjection.outputBytes, std::numeric_limits<jlong>::max()));
+    values[5] = static_cast<jlong>(std::min<std::uint64_t>(baseProjection.pixelPayloadBytes, std::numeric_limits<jlong>::max()));
+    values[6] = static_cast<jlong>(std::min<std::uint64_t>(baseProjection.tilesWritten, std::numeric_limits<jlong>::max()));
+    values[7] = static_cast<jlong>(std::min<std::uint64_t>(baseProjection.samplesClippedLow, std::numeric_limits<jlong>::max()));
+    values[8] = static_cast<jlong>(std::min<std::uint64_t>(baseProjection.samplesClippedHigh, std::numeric_limits<jlong>::max()));
+    values[9] = static_cast<jlong>(baseProjection.logicalResidentUpperBound);
+    values[10] = baseProjection.fullScientificMasterMaterialized ? 1 : 0;
+    values[11] = baseProjection.physicalFrameCount;
+    values[12] = baseProjection.independentEvidenceCount;
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) env->SetLongArrayRegion(out, 0, static_cast<jsize>(values.size()), values.data());
