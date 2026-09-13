@@ -18,8 +18,9 @@ For the current project state and reading order, use:
 2. `docs/TRUTHRAW_PROJECT_MAP_2026-09-13.md`
 3. `docs/audit/PROJECT_FACT_CHECK_2026-09-13.md`
 4. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-13.md`
-5. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
-6. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
+5. `docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+6. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
+7. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
 
 The previous 2026-09-10 house/state/index files and older dated snapshots remain preserved as provenance/history. They are **not** global current-state authorities after this audit unless a module-local document explicitly needs them as historical evidence.
 
@@ -32,6 +33,23 @@ TruthRaw constructs a separate Scientific/Scene Master — the **new house**. It
 That representational freedom never enlarges the evidence. Measured, reconstructed, censored/unknown, counterfactual, appearance and projection quantities remain distinguishable.
 
 The normal scientific route remains single-frame: `physicalFrameCount=1` and `independentEvidenceCount=1`.
+
+The house is not merely a runtime/performance metaphor. It is also an **epistemic and provenance architecture**: the sealed source, reconstruction rooms, Technical Backplane, counterfactual/appearance floors and export projections have different authority.
+
+## Recovered house design rationale
+
+The current architecture is the convergence of four historical ideas:
+
+- **gezegelde woning / sealed house** — preserve the original RAW as immutable evidence;
+- **alle vrijheid / new house** — allow a richer reconstructed scene representation without inventing stronger evidence;
+- **achterkant van de foto / Technical Backplane** — bind source/master/zero-line/provenance behind the visible image;
+- **tussenwoning / Gatehouse** — isolate external RAW decoding and detach it after a sealed handoff before heavy Main-House work.
+
+The recovered chronology and current interpretation are documented in:
+
+`docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+
+Historical chat-derived rationale does not replace module-local tests/manifests. It explains why the current boundaries exist.
 
 ## TruthRange and zero-line
 
@@ -60,6 +78,8 @@ The Scientific Master is a reconstructed camera-native RGB scientific scene stat
 
 A digest/identity proves content identity under its declared serialization. It does not, by itself, prove physical truth.
 
+Do not flatten historical terminology: early Latent/Scene Master experiments explored richer scene representations, while the current project-level Scientific Master definition is specifically reconstructed camera-native RGB before the normal `camera_to_xyz()` route and before appearance.
+
 ## Color authority
 
 Source DNG metadata can bind a reproducible source-specific color transform. That authority is `SOURCE_METADATA_BOUND`, not automatically `FULL_PHYSICAL`.
@@ -80,11 +100,15 @@ The next production runtime optimization is explicit `RoomLease + CorridorToken 
 
 ## Gatehouse and external RAW
 
-Native/direct supported RAW should take the shortest validated route. External/proprietary decode uses a controlled Gatehouse:
+Native/direct supported RAW should take the shortest validated route. External/proprietary decode uses a controlled Gatehouse / **tussenwoning**:
 
 `sealed source -> decode/audit/topology/provenance/resource check -> sealed handoff -> detach Gatehouse -> Main House`
 
-Decoder support is environment/tooling, not scientific authority. Ambiguous or unsupported topology fails closed.
+Lifecycle shorthand:
+
+`ATTACHED -> SEALED_HANDOFF -> DETACHED -> MAIN_HOUSE_ACTIVE`
+
+Decoder support is environment/tooling, not scientific authority. Ambiguous or unsupported topology fails closed. The Gatehouse is not a second truth source and must not define TruthRaw color, calibration or Scientific Master semantics.
 
 ## Memory ownership and streaming
 
@@ -127,11 +151,15 @@ Virtual EV/ISO/gain/camera views and relighting can be useful numerical/counterf
 
 Counterfactual illumination never becomes evidence for the captured world. Relative/Room-Lite relighting remains appearance-level unless the physical calibration/geometry/material/spectral requirements for a stronger claim are actually met.
 
-## Technical Backplane
+## Technical Backplane — the digital backside
 
-TruthRaw uses/develops a compact Technical Backplane: a digital backside that can bind source identity, Scientific Master identity, zero-line/scene-scale, frame/evidence counts, color authority, provenance and projection status without repeating those values per pixel.
+TruthRaw uses/develops a compact Technical Backplane: the **digital backside of the photo**. The visible preview/export is the front; the Backplane binds source identity, Scientific Master identity, zero-line/scene-scale, frame/evidence counts, color authority, provenance and projection status without repeating those values per pixel.
+
+Historical Backplane work included a compact fixed serialization of roughly 180 bytes for one validated phase. That exact byte layout is module/version-specific and must not be generalized without checking its evidence.
 
 The backplane is metadata/control-plane state, not hidden image evidence.
+
+> **Preview is a window onto TruthRaw, never the source of TruthRaw.**
 
 ## Permanent boundaries
 
@@ -153,4 +181,4 @@ The backplane is metadata/control-plane state, not hidden image evidence.
 
 Use `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md` before treating any dated README, report, audit or state file as current.
 
-Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
+Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context, design rationale and scientific provenance.
