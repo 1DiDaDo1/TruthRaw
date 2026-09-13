@@ -88,6 +88,22 @@ The backplane is not extra measurement evidence and is not hidden image content.
 - FULL_PHYSICAL remains blocked where independent sensor/color/illuminant/optics calibration is missing;
 - no open-source LICENSE is added unless explicitly chosen.
 
+## Active branch-local RGB / LinearRaw restoration candidate — 2026-09-13
+
+On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, TruthRaw is restoring the earlier RGB / LinearRaw DNG compatibility behavior on top of the newer finalized-release and bounded-streaming Android route.
+
+Read:
+
+`docs/research/linear-dng-projection-v0.2/README.md`
+
+Exact Work-APK forensic binding:
+
+`docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+
+This is a **research candidate**, not a global canonical-state promotion. The current changes restore a finite `2x` LinearRaw headroom representation with `BaselineExposure=+1 EV`, preserve source camera identity for source-bound color metadata, and fail closed if the reconstructed scene exceeds that validated finite window. The Scientific Master, zero-line, Backplane, frame/evidence counts and color authority remain unchanged.
+
+Still open on this branch are host/CI execution, Android v0.2 wiring, arm64 build, physical Honor validation, Lightroom interoperability and embedded-preview/multi-IFD restoration.
+
 ## Repository navigation
 
 Use `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md` before treating any dated README, report, audit or state file as current.
