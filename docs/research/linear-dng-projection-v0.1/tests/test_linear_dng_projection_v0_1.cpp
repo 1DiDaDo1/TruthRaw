@@ -279,6 +279,29 @@ int main() {
     CHECK(outBytes[dngVersion.entryOffset + 8u] == 1u);
     CHECK(outBytes[dngVersion.entryOffset + 9u] == 4u);
 
+    ParsedEntry backwardVersion{};
+    CHECK(find_entry(outBytes, 50707, backwardVersion));
+    CHECK(backwardVersion.type == 1u && backwardVersion.count == 4u);
+    CHECK(outBytes[backwardVersion.entryOffset + 8u] == 1u);
+    CHECK(outBytes[backwardVersion.entryOffset + 9u] == 2u);
+    CHECK(outBytes[backwardVersion.entryOffset + 10u] == 0u);
+    CHECK(outBytes[backwardVersion.entryOffset + 11u] == 0u);
+
+    ParsedEntry blackLevel{};
+    CHECK(find_entry(outBytes, 50714, blackLevel));
+    CHECK(blackLevel.type == 5u && blackLevel.count == 3u);
+
+    ParsedEntry whiteLevel{};
+    CHECK(find_entry(outBytes, 50717, whiteLevel));
+    CHECK(whiteLevel.type == 4u && whiteLevel.count == 3u);
+
+    ParsedEntry linearResponseLimit{};
+    CHECK(find_entry(outBytes, 50734, linearResponseLimit));
+    CHECK(linearResponseLimit.type == 5u && linearResponseLimit.count == 1u);
+    CHECK(linearResponseLimit.valueOrOffset + 8u <= outBytes.size());
+    CHECK(get32(outBytes, linearResponseLimit.valueOrOffset) == 1u);
+    CHECK(get32(outBytes, linearResponseLimit.valueOrOffset + 4u) == 1u);
+
     ParsedEntry colorMatrix{};
     CHECK(find_entry(outBytes, 50721, colorMatrix));
     CHECK(colorMatrix.type == 10u && colorMatrix.count == 9u);
@@ -314,6 +337,7 @@ int main() {
     std::cout << "output_bytes=" << result.outputBytes << '\n';
     std::cout << "pixel_bytes=" << result.pixelPayloadBytes << '\n';
     std::cout << "tiles=" << result.tilesWritten << '\n';
+    std::cout << "dng_backward=1.2.0.0\n";
     std::cout << "full_master_materialized=" << result.fullScientificMasterMaterialized << '\n';
     return 0;
 }
