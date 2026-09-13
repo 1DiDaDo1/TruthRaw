@@ -7,12 +7,13 @@ This is the authoritative session/bootstrap entry point for the audited TruthRaw
 1. `docs/TRUTHRAW_PROJECT_MAP_2026-09-13.md`
 2. `docs/audit/PROJECT_FACT_CHECK_2026-09-13.md`
 3. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-13.md`
-4. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-5. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-6. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
-7. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
-8. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
-9. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
+4. `docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+5. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
+6. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
+8. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
+9. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
+10. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
 
 Do **not** bootstrap from older `CURRENT_CANONICAL_STATE_*.json`, the 2026-09-10 house/index, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. They remain preserved historical snapshots/evidence.
 
@@ -39,6 +40,17 @@ APK/GCam/computational-RAW content must not determine TruthRaw evidence, calibra
 `canonical/ptc/v1.1` is **Pure Truth Certificate**. Do not infer photon-transfer calibration from that path name.
 
 No silent LICENSE. Preserve failed/rejected experiments and their provenance.
+
+## Recovered house rationale is active design context
+
+The current house architecture is not only a performance metaphor. It combines four recovered historical concepts:
+
+- **gezegelde woning / sealed house** — immutable original RAW evidence;
+- **alle vrijheid / new house** — richer reconstructed scene representation without stronger evidence claims;
+- **achterkant van de foto / Technical Backplane** — compact source/master/zero-line/provenance binding behind the visible image;
+- **tussenwoning / Gatehouse** — isolated external RAW decode followed by a sealed handoff and detach before heavy Main-House work.
+
+Read `docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md` before changing house/runtime boundaries.
 
 ## Scientific authority direction
 
@@ -78,6 +90,12 @@ The finalized source-bound scientific preview may be release-allowed while `scie
 
 Do not remosaic reconstructed RGB and call it original sensor RAW. A direct-CFA evidence repack is a separate measured-preserving class.
 
+## Historical/current Scene Master distinction
+
+Do not flatten the project's terminology across time. Early Latent/Scene Master experiments explored richer scene representations and at times colorimetric/device-independent state. The current project-level Scientific Master is specifically reconstructed **camera-native RGB before the normal `camera_to_xyz()` route and before appearance**.
+
+History is provenance, not permission to silently redefine the current Scientific Master.
+
 ## Renewed house execution rules
 
 The Building Runtime owns orchestration; algorithms retain their scientific contracts.
@@ -116,7 +134,19 @@ External/proprietary RAW decode is isolated:
 
 `sealed source -> Gatehouse decode/audit/topology/provenance/resource check -> sealed handoff -> detach/free Gatehouse -> Main House`
 
-A decoder's camera support/version is tooling provenance, not scientific authority. Unsupported or ambiguous topology fails closed.
+Lifecycle shorthand:
+
+`ATTACHED -> SEALED_HANDOFF -> DETACHED -> MAIN_HOUSE_ACTIVE`
+
+A decoder's camera support/version is tooling provenance, not scientific authority. Unsupported or ambiguous topology fails closed. The Gatehouse is a **tussenwoning**, not a second scientific source or alternate Main House.
+
+## Technical Backplane / achterkant van de foto
+
+The visible image is the front-facing projection. The Technical Backplane is the compact digital backside that binds source identity, master identity, zero-line/scene-scale, evidence counts, authority and projection status.
+
+It is not hidden image evidence and must not duplicate or secretly replace the Scientific Master.
+
+> **Preview is a window onto TruthRaw, never the source of TruthRaw.**
 
 ## DNG/export boundary
 
@@ -140,4 +170,4 @@ at:
 
 ## One-sentence definition
 
-**TruthRaw preserves one sealed RAW observation as immutable evidence, reconstructs a separate uncertainty-aware Scientific/Scene Master, represents that scene without inheriting arbitrary source-container limits, and executes specialized rooms through a resource-adaptive but scientifically invariant runtime.**
+**TruthRaw preserves one sealed RAW observation as immutable evidence, optionally passes unsupported external formats through an isolated Gatehouse, reconstructs a separate uncertainty-aware Scientific/Scene Master, binds that state through a compact Technical Backplane, represents the scene without inheriting arbitrary source-container limits, and executes specialized rooms through a resource-adaptive but scientifically invariant runtime.**
