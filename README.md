@@ -96,13 +96,22 @@ Read:
 
 `docs/research/linear-dng-projection-v0.2/README.md`
 
-Exact Work-APK forensic binding:
+Evidence is recorded inside the same module, including:
 
-`docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+- exact Work-v0.1 APK forensic binding;
+- v0.2 GCC/Clang/ASan/UBSan host CI;
+- exact successful arm64 Android build identity;
+- recovered historical Android-preview container design and validated old hashes.
 
 This is a **research candidate**, not a global canonical-state promotion. The current changes restore a finite `2x` LinearRaw headroom representation with `BaselineExposure=+1 EV`, preserve source camera identity for source-bound color metadata, and fail closed if the reconstructed scene exceeds that validated finite window. The Scientific Master, zero-line, Backplane, frame/evidence counts and color authority remain unchanged.
 
-Still open on this branch are host/CI execution, Android v0.2 wiring, arm64 build, physical Honor validation, Lightroom interoperability and embedded-preview/multi-IFD restoration.
+Host validation and the arm64 Android v0.2 build are now green. Exact built APK identity:
+
+- version: `0.6-linear-dng-restore`
+- bytes: `4335889`
+- SHA-256: `93e51245e0950c5c3140b83f2f3429d2f52ad48adcd5630409134e4c430b5654`
+
+Still open on this branch are physical Honor execution, Lightroom interoperability, independent validation of a newly produced v0.2 DNG, and reimplementation of the historically validated multi-IFD/JPEG preview container.
 
 ## Repository navigation
 
