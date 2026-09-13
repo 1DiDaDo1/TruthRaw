@@ -1,6 +1,6 @@
 # TruthRaw Linear DNG Projection v0.2 — RGB output restoration
 
-**Status:** `DEVELOPMENT_CANDIDATE__HOST_TEST_AND_ANDROID_WIRING_PENDING`
+**Status:** `HOST_VALIDATED__ANDROID_BUILD_AND_PHYSICAL_INTEROP_PENDING`
 
 **Branch:** `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`
 
@@ -110,19 +110,41 @@ v0.2 reads the source TIFF/DNG identity and restores source-bound:
 
 The source color metadata does not acquire stronger authority. It remains source-bound metadata.
 
-## 5. Files added in this candidate
+## 5. Files and Android integration in this candidate
+
+New v0.2 module files:
 
 - `native/linear_dng_projection_v0_2.h`
 - `native/linear_dng_projection_v0_2.cpp`
 - `tests/test_linear_dng_projection_v0_2.cpp`
+- `CMakeLists.txt`
 
-The historical v0.1 module remains preserved unchanged.
+Android integration now points the Work-derived export route at v0.2 through:
 
-## 6. Required tests
+- `app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt`
+- `app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/linear_dng_export_bridge.cpp`
+- `app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/LinearDngExport.kt`
+- app identity `versionCode=6`, `versionName=0.6-linear-dng-restore`
 
-The v0.2 host regression test is designed to prove at minimum:
+The historical v0.1 module and v0.1 workflow remain preserved unchanged.
 
-- a synthetic reconstructed RGB value `1.5` does not clip;
+## 6. Host validation — PASS
+
+GitHub Actions run `34780375681` completed successfully at head `c3bdf39c5f48e576d97446074ead19705bef688c`.
+
+PASS:
+
+- GCC Release;
+- Clang Release;
+- Clang ASan/UBSan.
+
+Evidence:
+
+`evidence/HOST_CI_34780375681_2026-09-13.md`
+
+The host regression test proves within its synthetic contract:
+
+- a reconstructed RGB value `1.5` does not clip;
 - its encoded 16-bit value decodes back to approximately `1.5` under the 2x window;
 - `BaselineExposure` is exactly `+1/1 EV`;
 - source `Make = HONOR` survives;
@@ -135,7 +157,7 @@ The v0.2 host regression test is designed to prove at minimum:
 
 The separate Work-built APK is useful as executable forensic evidence for the v0.1 Android path. It is not allowed to determine scientific evidence, calibration, color truth, noise authority or topology.
 
-The good parts of that Android line to retain are:
+The good parts of that Android line retained in v0.2 are:
 
 - finalized Scientific Preview admission before export;
 - exact source SHA re-verification;
@@ -144,22 +166,25 @@ The good parts of that Android line to retain are:
 - Android SAF destination handling;
 - no full Scientific Master materialization merely for export.
 
-The compatibility container behavior is what v0.2 is restoring.
+The compatibility container behavior is what v0.2 restores.
+
+A dedicated Android workflow now exists:
+
+`.github/workflows/android-linear-dng-export-v0-2.yml`
+
+At this README revision its first run has been created but is not yet claimed successful.
 
 ## 8. Still open after the current code additions
 
-The following are **not yet claimed complete** at this README revision:
+The following are **not yet claimed complete**:
 
-1. host compile/test execution of v0.2;
-2. Android CMake wiring from v0.1 to v0.2;
-3. JNI status/result wiring for the v0.2 failure modes;
-4. arm64 APK build of the v0.2 branch;
-5. physical run on the Honor BKQ-N49;
-6. Lightroom open/edit test on the resulting file;
-7. independent parser / LibRaw / DNG SDK validation of the new exact v0.2 bytes;
-8. embedded JPEG preview / multi-IFD restoration;
-9. final decision whether a per-image `1x/1.25x/2x` selector can be obtained without an unacceptable extra reconstruction pass;
-10. reconstructed CFA DNG and rawsensor outputs, which remain separate projection classes.
+1. arm64 APK build success for the v0.2 branch;
+2. physical run on the Honor BKQ-N49;
+3. Lightroom open/edit test on the resulting file;
+4. independent parser / LibRaw / DNG SDK validation of the new exact v0.2 bytes;
+5. embedded JPEG preview / multi-IFD restoration;
+6. final decision whether a per-image `1x/1.25x/2x` selector can be obtained without an unacceptable extra reconstruction pass;
+7. reconstructed CFA DNG and rawsensor outputs, which remain separate projection classes.
 
 ## 9. Preview restoration remains a separate container task
 
@@ -178,6 +203,8 @@ Do not solve preview absence by replacing the RGB LinearRaw primary image with a
 
 ## 10. Promotion rule
 
-Do not call v0.2 validated, Lightroom-compatible, production-ready or physically proven until its exact built bytes pass the relevant host, Android, parser/LibRaw/DNG validation and physical-device gates.
+Do not call v0.2 Lightroom-compatible, production-ready or physically proven until its exact built bytes pass the relevant Android, parser/LibRaw/DNG validation and physical-device gates.
+
+Host validation is green; that does not by itself close Android or interoperability gates.
 
 Failures remain evidence and must not be hidden by retuning labels or thresholds.
