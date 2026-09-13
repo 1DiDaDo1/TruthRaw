@@ -2,7 +2,7 @@
 
 Status: **IMPLEMENTED RESEARCH CANDIDATE — AWAITING EXECUTED HOST/ANDROID CI**
 
-The first GitHub Actions attempts for this module and the Android integration ended before runner allocation (`runner_id=0`, zero executed steps). Those runs are infrastructure/startup failures, not compiler/test evidence. This module is therefore not promoted to validated until GCC, Clang, ASan/UBSan and the Android arm64 build actually execute successfully.
+The first GitHub Actions attempts for this module and the Android integration ended before runner allocation (`runner_id=0`, zero executed steps). Fresh attempts on 2026-09-13, including host run `34770189394` and Android run `34770189340`, again ended without allocated runners or executed steps. Those runs are infrastructure/startup failures, not compiler/test evidence. This module is therefore not promoted to validated until GCC, Clang, ASan/UBSan and the Android arm64 build actually execute successfully.
 
 ## Purpose
 
@@ -70,8 +70,14 @@ v0.1 writes classic TIFF/DNG with:
 - source Orientation;
 - `BlackLevel = 0,0,0` with `BlackLevelRepeatDim = 1,1`;
 - `WhiteLevel = 65535,65535,65535`;
+- `LinearResponseLimit = 1/1`;
 - full-frame ActiveArea and default crop;
-- DNG version metadata.
+- `DNGVersion = 1.4.0.0`;
+- `DNGBackwardVersion = 1.2.0.0`.
+
+The backward-version floor is deliberately conservative. The projection can carry DNG 1.2 camera-profile metadata such as `ForwardMatrix1/2`, `CameraCalibrationSignature` and `ProfileCalibrationSignature`; moreover DNG 1.2 defines the inverse-correlated-color-temperature interpolation semantics used for dual-illuminant calibration. Declaring 1.2.0.0 prevents the file from advertising a weaker reader contract than the intended downstream color semantics.
+
+Tag `50734` is `LinearResponseLimit`; the explicit `1/1` value states that the bounded reconstructed LinearRaw encoding is treated as linear across its full compatibility range. It is not a BaselineExposure tag.
 
 The source DNG's camera-space color metadata is copied byte-for-byte where present for these tags:
 
@@ -85,6 +91,20 @@ The source DNG's camera-space color metadata is copied byte-for-byte where prese
 - ForwardMatrix1/2.
 
 Opcode lists are deliberately not copied because Stage-2 corrections handled by TruthRaw must not be applied again by the downstream DNG reader.
+
+## Standards audit — Adobe DNG 1.7.1.0
+
+The v0.1 container contract was re-audited against Adobe Digital Negative Specification 1.7.1.0 before physical export promotion. Relevant conclusions used by this module are:
+
+- `LinearRaw` (`PhotometricInterpretation = 34892`) is valid for a raw IFD and may represent CFA data that has already been demosaiced;
+- Orientation is required and is written explicitly;
+- `BlackLevel` cardinality is `BlackLevelRepeatRows × BlackLevelRepeatCols × SamplesPerPixel`, therefore `1 × 1 × 3 = 3` here;
+- `WhiteLevel` cardinality is `SamplesPerPixel`, therefore 3 here;
+- `LinearResponseLimit` is tag 50734, type RATIONAL, default 1.0;
+- DNG 1.2 formalized camera profiles and the inverse-CCT interpolation rule for multiple color calibrations;
+- ForwardMatrix1/2 and the calibration-signature tags belong to the DNG 1.2 camera-profile feature set.
+
+This audit strengthens only compatibility metadata. It does not add evidence or alter reconstructed samples.
 
 ## Bounded-memory execution
 
@@ -107,6 +127,10 @@ The export reruns the finalized gate; the UI cannot authorize DNG creation with 
 - `LinearRaw` PhotometricInterpretation;
 - 3-channel 16-bit payload sizing;
 - DNG version tag;
+- `DNGBackwardVersion = 1.2.0.0`;
+- `BlackLevel` type/count for three LinearRaw samples;
+- `WhiteLevel` type/count for three LinearRaw samples;
+- `LinearResponseLimit = 1/1`;
 - byte-exact copied ColorMatrix payload;
 - AsShotNeutral presence;
 - coherent strip offset/byte count;
