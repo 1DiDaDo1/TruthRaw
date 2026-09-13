@@ -1,0 +1,56 @@
+name: Linear DNG Preview Container v0.3
+
+on:
+  push:
+    branches:
+      - research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13
+    paths:
+      - 'docs/research/linear-dng-preview-container-v0.3/**'
+      - 'docs/research/linear-dng-projection-v0.2/native/**'
+      - 'docs/research/linear-dng-projection-v0.1/native/**'
+      - '.github/workflows/linear-dng-preview-container-v0-3.yml'
+  workflow_dispatch:
+
+jobs:
+  host:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC Release
+            cxx: g++
+            build_type: Release
+          - name: Clang Release
+            cxx: clang++
+            build_type: Release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: cmake -S docs/research/linear-dng-preview-container-v0.3 -B build-linear-dng-preview-v03 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Build
+        run: cmake --build build-linear-dng-preview-v03 --parallel 2
+      - name: Test
+        run: ctest --test-dir build-linear-dng-preview-v03 --output-on-failure
+
+  sanitizers:
+    name: Clang ASan/UBSan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CXX: clang++
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g
+          LDFLAGS: -fsanitize=address,undefined
+        run: cmake -S docs/research/linear-dng-preview-container-v0.3 -B build-linear-dng-preview-v03-san -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build-linear-dng-preview-v03-san --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build-linear-dng-preview-v03-san --output-on-failure
