@@ -26,7 +26,7 @@ permissions:
 jobs:
   host-linear-dng:
     name: Host Linear DNG writer
-    runs-on: ubuntu-22.04
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Configure
@@ -38,7 +38,7 @@ jobs:
 
   build-arm64-linear-dng-apk:
     name: Android arm64 Linear DNG APK
-    runs-on: ubuntu-22.04
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
@@ -91,14 +91,16 @@ jobs:
           test -s "$APK"
           unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
           test -s /tmp/libtruthraw_ui_preview_bridge.so
-          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng'
-          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          READELF=$(find "$ANDROID_HOME/ndk/27.2.12479018/toolchains/llvm/prebuilt" -type f -name llvm-readelf | head -n1)
+          test -n "$READELF"
+          "$READELF" -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng'
+          "$READELF" -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
           if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
             echo 'Unexpected non-arm64 TruthRaw bridge ABI' >&2
             exit 1
           fi
-          echo "linear_dng_apk_bytes=$(stat -c%s "$APK")"
-          echo "linear_dng_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo "linear_dng_apk_bytes=$(wc -c < "$APK" | tr -d ' ')"
+          echo "linear_dng_apk_sha256=$(shasum -a 256 "$APK" | awk '{print $1}')"
           echo 'linear_dng_photometric=LinearRaw_34892'
           echo 'linear_dng_storage=UNCOMPRESSED_UINT16_RGB'
           echo 'full_scientific_master_materialization=FORBIDDEN'
