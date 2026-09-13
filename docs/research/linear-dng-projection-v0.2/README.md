@@ -1,6 +1,6 @@
 # TruthRaw Linear DNG Projection v0.2 — RGB output restoration
 
-**Status:** `HOST_VALIDATED__ANDROID_BUILD_AND_PHYSICAL_INTEROP_PENDING`
+**Status:** `HOST_AND_ANDROID_BUILD_VALIDATED__PHYSICAL_LIGHTROOM_PREVIEW_INTEROP_PENDING`
 
 **Branch:** `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`
 
@@ -54,6 +54,10 @@ The older release-candidate line also retained the physical source camera identi
 `UniqueCameraModel = BKQ-N49-HONOR-HONOR`
 
 Those exact v0.4 candidates passed a source-built DNG SDK 1.7.1/2611 `dng_validate` run with `Validation complete`. This is interoperability evidence for those exact historical files, not Adobe certification and not a physical-truth promotion.
+
+The historical Android preview regression was also already solved. Its exact source/layout/hashes are recorded in:
+
+`evidence/HISTORICAL_ANDROID_PREVIEW_RESTORE_SOURCE_2026-09-13.md`
 
 ## 3. Regression identified in v0.1 / Work-built Android Linear DNG
 
@@ -119,7 +123,7 @@ New v0.2 module files:
 - `tests/test_linear_dng_projection_v0_2.cpp`
 - `CMakeLists.txt`
 
-Android integration now points the Work-derived export route at v0.2 through:
+Android integration points the Work-derived export route at v0.2 through:
 
 - `app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt`
 - `app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/linear_dng_export_bridge.cpp`
@@ -153,9 +157,45 @@ The host regression test proves within its synthetic contract:
 - an original reconstructed value `>2.0` fails closed and leaves no completed DNG;
 - scientific frame/evidence invariants remain inherited from the finalized release.
 
-## 7. Work / Android relationship
+## 7. Android arm64 build — PASS
 
-The separate Work-built APK is useful as executable forensic evidence for the v0.1 Android path. It is not allowed to determine scientific evidence, calibration, color truth, noise authority or topology.
+Dedicated workflow:
+
+`.github/workflows/android-linear-dng-export-v0-2.yml`
+
+GitHub Actions run `34780463331` completed successfully for built head:
+
+`e7bcb103215f97bc0ca68e526bd07453ade46a1c`
+
+Exact APK:
+
+- file: `app-debug.apk`
+- bytes: `4335889`
+- SHA-256: `93e51245e0950c5c3140b83f2f3429d2f52ad48adcd5630409134e4c430b5654`
+- `versionCode=6`
+- `versionName=0.6-linear-dng-restore`
+- ABI: `arm64-v8a`
+
+Exact GitHub artifact:
+
+- name: `truthraw-linear-dng-v0.2-restore-debug-arm64`
+- artifact ID: `10325007080`
+- ZIP bytes: `1380123`
+- ZIP SHA-256: `6db62333d1100cc4d6cabb928b3e986d39bed7a0d02421c95d007b738293f41f`
+
+The artifact was downloaded and unpacked after CI; the APK reproduced the exact byte length and SHA-256 above.
+
+Evidence:
+
+`evidence/ANDROID_CI_34780463331_2026-09-13.md`
+
+The build verified the v0.2 JNI path, finite 2x wrapper, fail-closed over-window string, CPU/NDK execution path and absence of a TruthRaw Vulkan dependency. The known warning in byte-frozen canonical v4.7i remains visible rather than being rewritten away.
+
+This build proof does not equal physical Honor or Lightroom proof.
+
+## 8. Work / Android relationship
+
+The separate Work-built v0.1 APK is useful as executable forensic evidence for the regression. It is not allowed to determine scientific evidence, calibration, color truth, noise authority or topology.
 
 The good parts of that Android line retained in v0.2 are:
 
@@ -166,45 +206,41 @@ The good parts of that Android line retained in v0.2 are:
 - Android SAF destination handling;
 - no full Scientific Master materialization merely for export.
 
-The compatibility container behavior is what v0.2 restores.
+The downstream compatibility container behavior is what v0.2 restores.
 
-A dedicated Android workflow now exists:
-
-`.github/workflows/android-linear-dng-export-v0-2.yml`
-
-At this README revision its first run has been created but is not yet claimed successful.
-
-## 8. Still open after the current code additions
+## 9. Still open
 
 The following are **not yet claimed complete**:
 
-1. arm64 APK build success for the v0.2 branch;
-2. physical run on the Honor BKQ-N49;
-3. Lightroom open/edit test on the resulting file;
-4. independent parser / LibRaw / DNG SDK validation of the new exact v0.2 bytes;
-5. embedded JPEG preview / multi-IFD restoration;
-6. final decision whether a per-image `1x/1.25x/2x` selector can be obtained without an unacceptable extra reconstruction pass;
-7. reconstructed CFA DNG and rawsensor outputs, which remain separate projection classes.
+1. physical execution on the Honor BKQ-N49;
+2. Lightroom open/edit test on a v0.2 on-device DNG;
+3. independent parser / LibRaw / DNG SDK validation of the new exact v0.2 DNG bytes;
+4. embedded JPEG preview / multi-IFD restoration in the new native writer;
+5. final decision whether a per-image `1x/1.25x/2x` selector can be obtained without an unacceptable extra reconstruction pass;
+6. reconstructed CFA DNG and rawsensor outputs, which remain separate projection classes.
 
-## 9. Preview restoration remains a separate container task
+## 10. Preview restoration — historical design recovered, implementation pending
 
 The finite-window and camera-identity repair does not by itself add an embedded JPEG preview.
 
-The desired final compatibility container should be investigated as a multi-IFD DNG design in which:
+The exact previously successful TruthRaw pattern has now been recovered and recorded:
 
-- the primary image remains the RGB LinearRaw compatibility projection;
-- an embedded preview is a display derivative only;
-- the preview cannot feed back into science;
-- the preview cannot alter source/master authority;
-- orientation and source-bound color remain coherent;
-- downstream readers such as Lightroom see an immediately usable RAW container.
+- **IFD0:** `385x512` reduced RGB thumbnail, uncompressed, `NewSubFileType=1`;
+- **SubIFD0:** full `4080x3072x3` 16-bit TruthRaw LinearRaw primary payload;
+- **SubIFD1:** `1600x1203` JPEG-compressed Colorimetric-V3 L1 preview;
+- preview `PhotometricInterpretation=YCbCr`;
+- preview `PreviewColorSpace=sRGB`.
+
+Historically, adding that preview/container structure left the full LinearRaw payload exactly unchanged and the corrected files passed DNG SDK 1.7.1.2724 with zero errors and warnings.
+
+Current implementation rule: restore that **container pattern** on top of v0.2 without letting the preview alter the primary RGB LinearRaw payload, Scientific Master, zero-line, Backplane or authority.
 
 Do not solve preview absence by replacing the RGB LinearRaw primary image with a rendered JPEG or by rebayering the Scientific Master.
 
-## 10. Promotion rule
+## 11. Promotion rule
 
-Do not call v0.2 Lightroom-compatible, production-ready or physically proven until its exact built bytes pass the relevant Android, parser/LibRaw/DNG validation and physical-device gates.
+Do not call v0.2 Lightroom-compatible, production-ready or physically proven until the exact produced DNG bytes pass the relevant physical-device, Android preview/piex, Lightroom and independent DNG-reader gates.
 
-Host validation is green; that does not by itself close Android or interoperability gates.
+Host and Android build validation are green. They do not by themselves close physical or interoperability gates.
 
 Failures remain evidence and must not be hidden by retuning labels or thresholds.
