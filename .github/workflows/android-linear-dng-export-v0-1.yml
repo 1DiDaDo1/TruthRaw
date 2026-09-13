@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - research/bit-exact-read-optimization-v0.1-2026-09-11
+      - research/android-dng-projection-v0.1-2026-09-13
     paths:
       - 'app/android/truthraw-adaptive-ui-v01/**'
       - 'docs/research/linear-dng-projection-v0.1/**'
