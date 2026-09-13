@@ -3,7 +3,7 @@ name: Android Linear DNG Export v0.1
 on:
   push:
     branches:
-      - research/bit-exact-read-optimization-v0.1-2026-09-11
+      - research/android-dng-export-v0.1-2026-09-13
     paths:
       - 'app/android/truthraw-adaptive-ui-v01/**'
       - 'docs/research/linear-dng-projection-v0.1/**'
@@ -25,7 +25,7 @@ permissions:
 jobs:
   host-linear-dng:
     name: Host Linear DNG writer
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Configure
@@ -37,10 +37,9 @@ jobs:
 
   build-arm64-linear-dng-apk:
     name: Android arm64 Linear DNG APK
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Verify export boundary and no scientific-authority promotion
         run: |
           BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/linear_dng_export_bridge.cpp'
@@ -59,31 +58,21 @@ jobs:
           fi
           echo 'linear_dng_authority=REPRESENTATION_ONLY'
           echo 'scientific_authority_promotion=FORBIDDEN'
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - uses: android-actions/setup-android@v3
-
       - name: Install pinned Android SDK and NDK components
         run: |
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager \
-            'platforms;android-35' \
-            'build-tools;35.0.0' \
-            'cmake;3.22.1' \
-            'ndk;27.2.12479018'
-
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-
       - name: Assemble arm64 APK
         working-directory: app/android/truthraw-adaptive-ui-v01
         run: gradle --no-daemon :app:assembleDebug
-
       - name: Verify Linear DNG JNI symbol and APK identity
         run: |
           APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
@@ -102,7 +91,6 @@ jobs:
           echo 'linear_dng_storage=UNCOMPRESSED_UINT16_RGB'
           echo 'full_scientific_master_materialization=FORBIDDEN'
           echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
-
       - uses: actions/upload-artifact@v4
         with:
           name: truthraw-linear-dng-v0.1-debug-arm64
