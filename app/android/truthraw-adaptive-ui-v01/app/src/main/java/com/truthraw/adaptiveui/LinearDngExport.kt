@@ -104,9 +104,10 @@ object LinearDngExporter {
             metrics.logicalResidentUpperBoundBytes <= 0L ||
             metrics.logicalResidentUpperBoundBytes > LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
             metrics.fullScientificMasterMaterialized ||
+            metrics.samplesClippedHigh != 0L ||
             metrics.physicalFrameCount != 1L || metrics.independentEvidenceCount != 1L) {
             return LinearDngExportResult.Failed(
-                "Fail-closed: Linear DNG schond output-, memory- of evidencecontract.",
+                "Fail-closed: Linear DNG schond output-, headroom-, memory- of evidencecontract.",
             )
         }
         return LinearDngExportResult.Success(metrics)
@@ -149,17 +150,25 @@ object LinearDngExporter {
 
         in 3001L..3999L -> "Native DNG-source faalde met code $status."
         in 5001L..5999L -> "Finalized Scientific Preview-gate faalde met code $status."
-        6001L -> "Linear DNG writer: ongeldig argument."
-        6002L -> "Linear DNG writer: finalized release ontbreekt."
-        6003L -> "Linear DNG writer: frame/evidence/provenance-invariant geweigerd."
-        6004L -> "Linear DNG writer: bronkleurmetadata kon niet veilig worden overgenomen."
-        6005L -> "Linear DNG writer: bronread faalde."
-        6006L -> "Linear DNG writer: broncontainer wordt niet ondersteund."
-        6007L -> "Linear DNG writer: camera-native reconstructie faalde."
-        6008L -> "Linear DNG writer: niet-finiete Scientific-Master sample werd geweigerd."
-        6009L -> "Linear DNG writer: memorybudget overschreden."
-        6010L -> "Linear DNG writer: output is te groot voor classic TIFF/DNG v0.1."
-        6011L -> "Linear DNG writer: Android-bestemming ondersteunt de vereiste writes niet."
+
+        6101L -> "Linear DNG v0.2: ongeldige exportparameters."
+        6102L -> "Linear DNG v0.2: broncamera-identiteit ontbreekt of is ongeldig."
+        6103L -> "Linear DNG v0.2: onderliggende bounded RGB-projectie faalde."
+        6104L -> "Linear DNG v0.2: gereconstrueerde scene overschrijdt het gevalideerde 2× finite headroom-venster; export is geweigerd in plaats van geclipt."
+        6105L -> "Linear DNG v0.2: camera-identiteit/BaselineExposure kon niet veilig in de DNG-container worden hersteld."
+
+        // Historical v0.1 status vocabulary is retained for forensic/debug readability.
+        6001L -> "Linear DNG writer v0.1: ongeldig argument."
+        6002L -> "Linear DNG writer v0.1: finalized release ontbreekt."
+        6003L -> "Linear DNG writer v0.1: frame/evidence/provenance-invariant geweigerd."
+        6004L -> "Linear DNG writer v0.1: bronkleurmetadata kon niet veilig worden overgenomen."
+        6005L -> "Linear DNG writer v0.1: bronread faalde."
+        6006L -> "Linear DNG writer v0.1: broncontainer wordt niet ondersteund."
+        6007L -> "Linear DNG writer v0.1: camera-native reconstructie faalde."
+        6008L -> "Linear DNG writer v0.1: niet-finiete Scientific-Master sample werd geweigerd."
+        6009L -> "Linear DNG writer v0.1: memorybudget overschreden."
+        6010L -> "Linear DNG writer v0.1: output is te groot voor classic TIFF/DNG."
+        6011L -> "Linear DNG writer v0.1: Android-bestemming ondersteunt de vereiste writes niet."
         else -> "Linear DNG-export faalde met native status $status."
     }
 }
