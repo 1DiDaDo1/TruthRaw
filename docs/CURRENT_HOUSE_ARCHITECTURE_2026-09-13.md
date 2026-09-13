@@ -13,6 +13,17 @@ The house architecture exists to make two dimensions independent:
 
 A stronger device may execute the same science faster. It does not receive more evidence or stronger truth authority.
 
+The recovered project history makes one additional point explicit: the house is **not merely a runtime/performance metaphor**. It is also an evidence-boundary, authority-separation and provenance architecture.
+
+The four historical concepts that converge here are:
+
+- **gezegelde woning / sealed house** — immutable original RAW evidence;
+- **alle vrijheid / new house** — a richer reconstructed scene representation without stronger evidence claims;
+- **achterkant van de foto / Technical Backplane** — compact scientific identity/provenance behind the visible image;
+- **tussenwoning / Gatehouse** — isolated external RAW decode followed by a sealed handoff and detach.
+
+See `docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md` for the recovered design rationale.
+
 ## 2. The sealed foundation
 
 The original Direct-CFA/source RAW and capture metadata form the sealed foundation/vault.
@@ -26,6 +37,8 @@ Properties:
 - the single-frame path remains `physicalFrameCount=1`, `independentEvidenceCount=1`.
 
 The Scientific Master is built above this foundation. It is not a replacement for the foundation.
+
+The sealed foundation answers what was actually observed. It does not force the reconstructed master to inherit RAW10 range, WhiteLevel as output ceiling, ISO as scene identity, integer-only storage, SDR range or DNG-container limitations.
 
 ## 3. The 12 logical rooms
 
@@ -105,6 +118,8 @@ The token is conceptual until the production ABI is implemented, but the invaria
 
 Pixels should travel as little as possible. Identity and authority should travel exactly.
 
+The historical “achterkant van de foto” idea belongs here: compact Backplane/identity state follows the work, while image payloads remain bounded and need not be duplicated just to preserve lineage.
+
 ## 6. Room leases
 
 A production `RoomLease` should define:
@@ -158,7 +173,7 @@ The key rule is that global statistics may persist compactly, but full-frame scr
 
 The historical full-frame-streaming work showed that very large output dimensions do not inherently require equally large algorithmic working memory.
 
-## 10. Gatehouse
+## 10. Gatehouse / tussenwoning
 
 External/proprietary RAW decode is isolated from the Main House.
 
@@ -166,13 +181,18 @@ Route:
 
 `sealed source -> Gatehouse -> decode + audit + topology + provenance + resource check -> sealed persisted handoff -> Gatehouse detach/free -> Main House`
 
+Lifecycle shorthand:
+
+`ATTACHED -> SEALED_HANDOFF -> DETACHED -> MAIN_HOUSE_ACTIVE`
+
 Rules:
 
 - native/direct supported formats keep the shortest path;
 - external decoder version is recorded as environment provenance;
 - decoder output does not acquire scientific authority merely because the decoder supports a camera name;
 - unsupported/ambiguous topology fails closed;
-- Gatehouse memory/threads/cache are released before heavy Main House work where practical.
+- Gatehouse memory/threads/cache are released before heavy Main House work where practical;
+- Gatehouse is a temporary ingress building, not an alternate scientific Main House and not a second source of truth.
 
 ## 11. Scientific Master streaming
 
@@ -181,6 +201,8 @@ The Scientific Master must be consumable as a bounded/tiled scientific state rat
 A digest/identity is computed under a defined canonical ordering/serialization. Optimizations may change execution schedule, but they must not change the master identity when the contract requires bit-exact equivalence.
 
 The validated read optimization is an example: the median schedule changed, but the canonical sample set/median definition and master identity did not.
+
+Historical note: do not conflate early Latent/Scene Master representations with the current project-level Scientific Master. The current master is reconstructed camera-native RGB before the normal `camera_to_xyz()` route and before appearance.
 
 ## 12. Execution fusion without authority fusion
 
@@ -273,9 +295,9 @@ Exporter should consume a streaming/tile interface and should not force full mas
 
 Writer validation is separate from scientific validation.
 
-## 19. Technical Backplane
+## 19. Technical Backplane / achterkant van de foto
 
-The Backplane is the compact digital backside of the house. It binds identity/provenance/authority without duplicating image payloads.
+The Backplane is the compact **digital backside of the photo/house**. The visible preview/export is the front-facing projection; the Backplane binds identity/provenance/authority without duplicating image payloads.
 
 It may contain compact records such as:
 
@@ -287,9 +309,19 @@ It may contain compact records such as:
 - room/projection roles;
 - validation/release state.
 
-It is metadata/control-plane state, not hidden new image evidence.
+Historical Backplane work included a compact fixed serialization of roughly 180 bytes for one validated phase. That exact byte layout belongs to its module/version and is not a universal ABI unless explicitly promoted.
 
-## 20. Current implementation priority
+It is metadata/control-plane state, not hidden new image evidence and not a secret second master.
+
+> **Preview is a window onto TruthRaw, never the source of TruthRaw.**
+
+## 20. “Alle vrijheid” as a runtime/science rule
+
+The new house may be richer than the source container: wider numerical range, float precision, signed values where meaningful, uncertainty/censor bounds, reconstructed channels, virtual observations and multiple downstream projections are all permitted when their roles are explicit.
+
+That freedom stops at the evidence boundary. A richer representation does not create new photons, new independent frames or stronger physical calibration.
+
+## 21. Current implementation priority
 
 The highest-value general optimization after this audit is:
 
