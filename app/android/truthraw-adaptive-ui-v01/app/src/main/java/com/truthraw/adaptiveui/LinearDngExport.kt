@@ -1,10 +1,15 @@
 package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import android.os.ParcelFileDescriptor
+import java.io.File
+import java.io.FileOutputStream
 
 private const val LINEAR_DNG_MAGIC = 0x5452444cL
-private const val LINEAR_DNG_PACKET_LONGS = 13
+private const val LINEAR_DNG_PACKET_LONGS = 17
 private const val LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 
@@ -16,6 +21,9 @@ object LinearDngNativeBridge {
     external fun exportFinalizedLinearDng(
         sourceFd: Int,
         destinationFd: Int,
+        previewJpegFd: Int,
+        previewWidth: Int,
+        previewHeight: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -33,6 +41,10 @@ data class LinearDngExportMetrics(
     val fullScientificMasterMaterialized: Boolean,
     val physicalFrameCount: Long,
     val independentEvidenceCount: Long,
+    val previewWidth: Long,
+    val previewHeight: Long,
+    val previewJpegBytes: Long,
+    val embeddedFinalizedPreview: Boolean,
 )
 
 sealed interface LinearDngExportResult {
@@ -42,11 +54,29 @@ sealed interface LinearDngExportResult {
 
 object LinearDngExporter {
     fun export(
+        context: Context,
         resolver: ContentResolver,
         job: RawJob,
+        finalizedPreview: Bitmap,
         destination: Uri,
     ): LinearDngExportResult {
+        if (finalizedPreview.isRecycled) {
+            return LinearDngExportResult.Failed("Finalized previewbitmap was al vrijgegeven vóór DNG-export.")
+        }
+        if (finalizedPreview.width <= 0 || finalizedPreview.height <= 0) {
+            return LinearDngExportResult.Failed("Finalized preview had ongeldige afmetingen.")
+        }
+
+        var previewFile: File? = null
         return try {
+            previewFile = File.createTempFile("truthraw-finalized-preview-", ".jpg", context.cacheDir)
+            FileOutputStream(previewFile).use { stream ->
+                PortablePreviewEncoder.encodeJpeg(finalizedPreview, stream)
+            }
+            if (!previewFile.isFile || previewFile.length() <= 0L) {
+                return LinearDngExportResult.Failed("Finalized preview-JPEG kon niet worden opgebouwd.")
+            }
+
             val source = resolver.openFileDescriptor(job.source.uri, "r")
                 ?: return LinearDngExportResult.Failed("Bronprovider gaf geen leesbare file descriptor.")
             val output = resolver.openFileDescriptor(destination, "rw")
@@ -54,14 +84,21 @@ object LinearDngExporter {
                     source.close()
                     return LinearDngExportResult.Failed("Bestemmingsprovider gaf geen schrijfbare file descriptor.")
                 }
+            val preview = ParcelFileDescriptor.open(previewFile, ParcelFileDescriptor.MODE_READ_ONLY)
+
             val packet = source.use { sourcePfd ->
                 output.use { outputPfd ->
-                    LinearDngNativeBridge.exportFinalizedLinearDng(
-                        sourcePfd.fd,
-                        outputPfd.fd,
-                        LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES,
-                        LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES,
-                    )
+                    preview.use { previewPfd ->
+                        LinearDngNativeBridge.exportFinalizedLinearDng(
+                            sourcePfd.fd,
+                            outputPfd.fd,
+                            previewPfd.fd,
+                            finalizedPreview.width,
+                            finalizedPreview.height,
+                            LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES,
+                            LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES,
+                        )
+                    }
                 }
             }
             val decoded = decode(packet)
@@ -74,6 +111,8 @@ object LinearDngExporter {
             LinearDngExportResult.Failed(
                 "Linear DNG-export faalde: ${error.message ?: error.javaClass.simpleName}",
             )
+        } finally {
+            previewFile?.let { runCatching { it.delete() } }
         }
     }
 
@@ -98,6 +137,10 @@ object LinearDngExporter {
             fullScientificMasterMaterialized = packet[10] != 0L,
             physicalFrameCount = packet[11],
             independentEvidenceCount = packet[12],
+            previewWidth = packet[13],
+            previewHeight = packet[14],
+            previewJpegBytes = packet[15],
+            embeddedFinalizedPreview = packet[16] != 0L,
         )
         if (metrics.width <= 0L || metrics.height <= 0L || metrics.outputBytes <= 0L ||
             metrics.pixelPayloadBytes <= 0L || metrics.tilesWritten <= 0L ||
@@ -105,9 +148,11 @@ object LinearDngExporter {
             metrics.logicalResidentUpperBoundBytes > LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
             metrics.fullScientificMasterMaterialized ||
             metrics.samplesClippedHigh != 0L ||
-            metrics.physicalFrameCount != 1L || metrics.independentEvidenceCount != 1L) {
+            metrics.physicalFrameCount != 1L || metrics.independentEvidenceCount != 1L ||
+            metrics.previewWidth <= 0L || metrics.previewHeight <= 0L || metrics.previewJpegBytes <= 0L ||
+            !metrics.embeddedFinalizedPreview) {
             return LinearDngExportResult.Failed(
-                "Fail-closed: Linear DNG schond output-, headroom-, memory- of evidencecontract.",
+                "Fail-closed: Linear DNG schond RAW-, preview-, memory- of evidencecontract.",
             )
         }
         return LinearDngExportResult.Success(metrics)
@@ -156,6 +201,14 @@ object LinearDngExporter {
         6103L -> "Linear DNG v0.2: onderliggende bounded RGB-projectie faalde."
         6104L -> "Linear DNG v0.2: gereconstrueerde scene overschrijdt het gevalideerde 2× finite headroom-venster; export is geweigerd in plaats van geclipt."
         6105L -> "Linear DNG v0.2: camera-identiteit/BaselineExposure kon niet veilig in de DNG-container worden hersteld."
+
+        6201L -> "Linear DNG preview v0.3: ongeldige preview/exportparameters."
+        6202L -> "Linear DNG preview v0.3: JPEG-preview overschrijdt het bounded previewcontract."
+        6203L -> "Linear DNG preview v0.3: JPEG-preview kon niet volledig worden gelezen."
+        6204L -> "Linear DNG preview v0.3: preview is geen geldige baseline 8-bit JPEG voor de opgegeven finalized sRGB-afmetingen."
+        6205L -> "Linear DNG preview v0.3: onderliggende v0.2 RGB LinearRaw-projectie faalde."
+        6206L -> "Linear DNG preview v0.3: DNG-containerpatch kon niet veilig worden uitgevoerd."
+        6207L -> "Linear DNG preview v0.3: embedded preview kon niet veilig worden afgerond."
 
         // Historical v0.1 status vocabulary is retained for forensic/debug readability.
         6001L -> "Linear DNG writer v0.1: ongeldig argument."
