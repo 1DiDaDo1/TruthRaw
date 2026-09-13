@@ -316,7 +316,11 @@ Status write_container_header(IRandomAccessByteSink& sink,
     add_entry(entries, 305, kTiffAscii, static_cast<std::uint32_t>(software.size() + 1u), ascii_payload(software));
     add_entry(entries, 339, kTiffShort, 3, short_payload(little, {1u,1u,1u}));
     add_entry(entries, 50706, kTiffByte, 4, std::vector<std::uint8_t>{1u,4u,0u,0u});
-    add_entry(entries, 50707, kTiffByte, 4, std::vector<std::uint8_t>{1u,1u,0u,0u});
+    // The export may carry DNG 1.2 camera-profile semantics (for example
+    // ForwardMatrix* and calibration signatures), and dual-illuminant color
+    // must retain the DNG 1.2 inverse-CCT interpretation downstream. Declare
+    // 1.2.0.0 as the conservative oldest compatible reader contract.
+    add_entry(entries, 50707, kTiffByte, 4, std::vector<std::uint8_t>{1u,2u,0u,0u});
     const std::string uniqueModel = "TruthRaw LinearRaw Projection v0.1";
     add_entry(entries, 50708, kTiffAscii, static_cast<std::uint32_t>(uniqueModel.size() + 1u), ascii_payload(uniqueModel));
     add_entry(entries, 50713, kTiffShort, 2, short_payload(little, {1u,1u}));
