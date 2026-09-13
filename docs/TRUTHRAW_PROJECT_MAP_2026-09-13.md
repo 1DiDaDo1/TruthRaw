@@ -56,6 +56,8 @@ The source CFA and the Scientific Master therefore have different roles:
 
 The Scientific Master must retain its identity/digest through downstream projections. Export is not allowed to promote the master to a stronger evidence class.
 
+Historical note: early Latent/Scene Master work explored richer scene representations and at times colorimetric/device-independent state. That history is design provenance; it does not silently redefine the current Scientific Master, which is camera-native reconstructed RGB before the normal `camera_to_xyz()` route and before appearance.
+
 ## 5. TruthRange and the zero-line
 
 For positive scene light:
@@ -118,15 +120,46 @@ Large pixel payloads should move as little as possible. Identity, provenance and
 
 The next runtime optimization target is a real **Building Runtime + Room Lease + Corridor Token + per-room profiler** applied to production paths without changing scientific outputs.
 
-## 8. Gatehouse / external RAW ingress
+## 8. Recovered house genealogy and design rationale
 
-Native/direct supported RAW should take the shortest validated route. Formats requiring an external decoder enter through a temporary Gatehouse:
+The house is not only a performance metaphor. Recovered project history shows four ideas converging into the current architecture:
+
+- **gezegelde woning / sealed house** — immutable original RAW evidence;
+- **alle vrijheid / new house** — a richer reconstructed scene representation unconstrained by arbitrary source-container limits, while evidence claims remain bounded;
+- **achterkant van de foto / Technical Backplane** — compact scientific identity/provenance behind the visible image;
+- **tussenwoning / Gatehouse** — isolated external RAW decode, sealed handoff, then detach before heavy Main-House work.
+
+Repository verification confirms the sealed-house vision was formally canonized by commit:
+
+`13075856895ee6815c8a72fcf733d52bad596583` — `Canonize sealed-house TruthRaw core vision`.
+
+The full recovered genealogy and current interpretation live in:
+
+`docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+
+That document is active design rationale, not a substitute for module-level validation.
+
+## 9. Gatehouse / external RAW ingress
+
+Native/direct supported RAW should take the shortest validated route. Formats requiring an external decoder enter through a temporary Gatehouse / **tussenwoning**:
 
 `sealed source -> Gatehouse decode/audit/topology/provenance/resource check -> persisted sealed handoff -> Gatehouse detach/free -> Main House`
 
+Lifecycle shorthand:
+
+`ATTACHED -> SEALED_HANDOFF -> DETACHED -> MAIN_HOUSE_ACTIVE`
+
 The Gatehouse is a controlled ingress stage, not a second source of truth. Decoder support must fail closed when topology, metadata, or sample interpretation cannot be established safely.
 
-## 9. Streaming and memory
+## 10. Technical Backplane / backside of the photo
+
+The visible image is only the front-facing projection. The **Technical Backplane** is the compact digital backside that binds source/master identity, zero-line/scene-scale, frame/evidence counts, authority and projection status.
+
+Historical Backplane work included a compact fixed serialization of roughly 180 bytes for one validated phase; the exact layout is module/version-specific.
+
+The Backplane is metadata/control-plane state, not image evidence and not a secret second master.
+
+## 11. Streaming and memory
 
 The project already established the key production direction:
 
@@ -136,7 +169,7 @@ A full frame must not be materialized merely because the final image is large. R
 
 Historical 200-MP streaming experiments demonstrated that algorithmic workspace can remain sub-megabyte even when output resolution is huge; those numbers are historical engineering measurements/estimates for specific test modules, not universal RAM guarantees.
 
-## 10. Physically exercised read optimization
+## 12. Physically exercised read optimization
 
 The finalized read optimization reduced exact tile reads from 13,824 to 7,680 by replacing four exact median passes with two exact radix scans while preserving the canonical sample set/median definition and Scientific Master identity.
 
@@ -149,7 +182,7 @@ On the physical HONOR run this corresponded to:
 
 Peak PSS rose slightly in that run, so **no memory-improvement claim is allowed from this measurement**.
 
-## 11. Output taxonomy
+## 13. Output taxonomy
 
 Keep these output classes separate:
 
@@ -163,7 +196,7 @@ Keep these output classes separate:
 
 No export may create photons, independent evidence, `FULL_PHYSICAL`, a new zero-line, or a different Scientific Master digest.
 
-## 12. DNG interoperability boundary
+## 14. DNG interoperability boundary
 
 The current DNG projection/export work is a downstream compatibility problem. Writer correctness must be established independently from scientific correctness.
 
@@ -180,7 +213,7 @@ Minimum writer gates include:
 
 The 2026-09-13 restore branch contains active RGB LinearRaw restoration and Android DNG export work; these remain implementation/validation work rather than a reason to redefine source evidence.
 
-## 13. Counterfactual / virtual observations
+## 15. Counterfactual / virtual observations
 
 Virtual EV, virtual ISO/gain, relighting, and virtual camera forward models can be useful numerical observations of one latent scene. They do not create independent captures.
 
@@ -188,7 +221,7 @@ A virtual observation may improve numerical conditioning or provide an appearanc
 
 Counterfactual illumination must never be written back as observed evidence.
 
-## 14. Light and material claims
+## 16. Light and material claims
 
 Illumination reasoning may use geometry, normals, visibility, BRDF/material response, source direction, falloff, spectrum and boundary illumination when those inputs are actually supported.
 
@@ -196,7 +229,9 @@ Illumination reasoning may use geometry, normals, visibility, BRDF/material resp
 
 Semantic labels such as “wood”, “grass” or “skin” must not be used as scientific evidence for missing texture/detail. Measurable texture support may be used without claiming the semantic material identity.
 
-## 15. Current validation posture
+Recovered history also contains a separate material/detail chain such as `RAW evidence -> v4.7j detail -> Unified Material Truth Limiter -> PTC v1.1 -> export`. It is related claim-governance history, not a replacement for the house/reconstruction pipeline.
+
+## 17. Current validation posture
 
 The strongest project posture is deliberately asymmetric:
 
@@ -209,7 +244,7 @@ The strongest project posture is deliberately asymmetric:
 - `FULL_PHYSICAL` color/light/material truth: blocked until independent calibration exists;
 - Vulkan/GPU execution: future optional execution backend only, never a truth source.
 
-## 16. Current authoritative project-level documents
+## 18. Current authoritative project-level documents
 
 Read in this order:
 
@@ -217,11 +252,12 @@ Read in this order:
 2. `docs/TRUTHRAW_PROJECT_MAP_2026-09-13.md`
 3. `docs/audit/PROJECT_FACT_CHECK_2026-09-13.md`
 4. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-13.md`
-5. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-6. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
-8. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
-9. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
-10. then the module-local canonical/research documents relevant to the task.
+5. `docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+6. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
+7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+8. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
+9. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
+10. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
+11. then the module-local canonical/research documents relevant to the task.
 
 Older dated state and architecture documents remain provenance/history and must not silently be treated as the latest global state.
