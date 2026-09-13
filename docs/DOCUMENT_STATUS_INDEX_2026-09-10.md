@@ -25,29 +25,20 @@ A canonical module README describes that exact frozen/versioned module. It does 
 
 ## Historical snapshots — preserve, never bootstrap
 
-The following are historical records:
-
-- `state/CURRENT_CANONICAL_STATE_2026-09-06.json`
-- `state/CURRENT_CANONICAL_STATE_2026-09-08.json`
-- `state/CURRENT_CANONICAL_STATE_2026-09-09.json`
-- `docs/PROJECT_STATE_AUDIT_2026-09-08.md`
-- `state/REPOSITORY_MIGRATION_STATUS.json` — migration-era status record; not current project status.
-
-Do not edit these merely to make them look current. Their old content is part of provenance.
+Earlier dated state/audit files remain historical provenance and must not be rewritten merely to make them look current.
 
 ## Research README rule
 
-Every `docs/research/**/README*.md` is **module-local research documentation**.
+Every `docs/research/**/README*.md` is **module-local research documentation** unless explicitly classified otherwise by this current index.
 
-It may still be scientifically useful, promoted in part, rejected/superseded in part, or dependent on later work. It is never a global current-state authority by filename alone. Check the current state/index and the module's state/report/integrity evidence.
-
-This applies to, among others: zero-line/TruthRange studies, camera-RGB covariance v0.6, XYZ D50 uncertainty v0.7, missing-channel topology v0.8, virtual observation manifold v0.9, uncertainty-aware S-curve/color v1, high-ISO Item153, Manifold Conditioning v1, CICM v1, Room Capsule v0.1 and Building Runtime v0.1.
+It may be scientifically useful, promoted in part, rejected/superseded in part, or dependent on later work. It is never a global current-state authority by filename alone.
 
 ## Branch-local research candidate: RGB / LinearRaw DNG restoration — 2026-09-13
 
-On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, the following files are the module-local authority for the active RGB / LinearRaw restoration candidate:
+On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, the module-local restoration authority includes:
 
 - `docs/research/linear-dng-projection-v0.2/README.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/MODERN_FINALIZED_PREVIEW_ARCHITECTURE_2026-09-13.md`
 - `docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
 - `docs/research/linear-dng-projection-v0.2/evidence/HOST_CI_34780375681_2026-09-13.md`
 - `docs/research/linear-dng-projection-v0.2/evidence/ANDROID_CI_34780463331_2026-09-13.md`
@@ -55,18 +46,34 @@ On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, the 
 
 Classification: **research candidate / branch-local continuation**, not a global canonical-state promotion.
 
-The branch preserves the historical v0.1 writer and its build path as provenance while adding a v0.2 downstream compatibility restoration. Current v0.2 work restores the historically exercised finite `2x` RGB LinearRaw representation with `BaselineExposure=+1 EV`, source camera identity binding, fail-closed over-window behavior, and Android wiring on top of the finalized source-bound Scientific Preview admission path.
+### Preview authority within this branch-local work
 
-Recorded green gates:
+For preview restoration, the later 2026-09-11 modules are architecturally newer than the old v0.7 DNG preview packaging fix:
+
+- `docs/research/preview-representation-v0.1/README.md`
+- `docs/research/preview-representation-v0.1/DNG_EMBEDDED_PREVIEW_NOTE.md`
+- `docs/research/preview-representation-v0.1/ANDROID_JPEG_NOTE.md`
+- `docs/research/finalized-scientific-preview-release-v0.2/README.md`
+- `docs/research/reconstructed-color-preview-v0.1/README.md`
+
+The leading rule is **finalized preview first, representation/container second**.
+
+A live `ARGB_8888/sRGB` surface, standalone JPEG and embedded DNG JPEG may all represent the same finalized downstream preview without becoming scientific evidence.
+
+The historical v0.7 IFD layout is classified as **container/interoperability evidence only**. It is not the definition of Scientific Preview and is not automatically the final v0.2/vNext DNG topology.
+
+The exact historical phase label remembered as approximately `1.3` / `1.4` is not assigned because no exact source has yet proved that label.
+
+### Current green gates
 
 - GCC Release host build/test;
 - Clang Release host build/test;
 - Clang ASan/UBSan host build/test;
 - Android arm64 debug APK assembly;
 - JNI/v0.2 native-path verification;
-- exact APK SHA/size and artifact ZIP SHA/size binding.
+- exact APK and artifact hashes recorded.
 
-Exact Android restoration APK recorded by evidence:
+Exact pre-embedded-preview Android restoration APK:
 
 - version `0.6-linear-dng-restore`;
 - bytes `4335889`;
@@ -75,14 +82,12 @@ Exact Android restoration APK recorded by evidence:
 Still-independent gates:
 
 - physical Honor BKQ-N49 execution;
-- newly produced v0.2 DNG parsing/LibRaw/DNG SDK interoperability;
+- newly produced DNG parsing/LibRaw/DNG SDK interoperability;
 - Lightroom open/edit behavior;
-- Android/piex embedded-preview discovery;
-- native reimplementation of the historically validated multi-IFD/JPEG preview container.
+- embedded finalized-JPEG DNG integration and Android/piex discovery;
+- portable-preview size/performance policy above the low-memory live UI surface.
 
-The historical preview evidence now explicitly records the previous successful container pattern: reduced IFD0 thumbnail, full LinearRaw SubIFD0 and JPEG/sRGB preview SubIFD1, with unchanged LinearRaw payload and DNG SDK 1.7.1.2724 PASS for the old exact files.
-
-This branch-local section does not alter the authority of `state/CURRENT_CANONICAL_STATE_2026-09-10.json` and does not make the v0.2 research README a global bootstrap authority.
+This branch-local section does not alter the authority of `state/CURRENT_CANONICAL_STATE_2026-09-10.json`.
 
 ## Other README classes
 
@@ -95,13 +100,13 @@ None is a global bootstrap source.
 
 ## Current supersession map
 
-The renewed house architecture supersedes older *project-wide navigation/orchestration assumptions*, not their scientific evidence.
+The renewed house architecture supersedes older project-wide navigation/orchestration assumptions, not their scientific evidence.
 
 - Building Runtime v0.1 supersedes the assumption that modules are unrelated standalone execution islands.
 - Room Capsule v0.1 establishes the local-domain/tile memory pattern for relighting.
-- Current mobile work generalizes resource ownership across all rooms.
-- Technical Backplane research generalizes one-copy immutable shared state, including the zero-line binding.
-- The streaming-frame migration will supersede full-frame public buffer ownership where equivalence is proven.
+- current mobile work generalizes resource ownership across rooms;
+- Technical Backplane generalizes one-copy immutable shared state;
+- the streaming-frame migration supersedes full-frame ownership only where equivalence is proven.
 
 No historical evidence file is deleted by this supersession.
 
@@ -109,15 +114,8 @@ No historical evidence file is deleted by this supersession.
 
 `canonical/ptc/v1.1` = **Pure Truth Certificate v1.1**.
 
-It is not a photon-transfer-curve calibration directory. References to missing electron/PTC calibration elsewhere mean physical sensor calibration and remain an independent blocker.
+It is not a photon-transfer-curve calibration directory.
 
 ## Machine-enforced rules
 
-`tools/verify_documentation_governance.py` checks that:
-
-1. root bootstrap points to the 2026-09-10 state/index;
-2. root bootstrap does not point to earlier dated current-state snapshots in its mandatory list;
-3. all earlier dated current-state files still exist as historical snapshots;
-4. the current state file declares the earlier snapshots historical;
-5. README-like path classes are covered by this governance policy;
-6. no research README is declared as a global current bootstrap by the current state file.
+`tools/verify_documentation_governance.py` checks the current bootstrap/state/index relationship and ensures research README files are not silently promoted to global authority.
