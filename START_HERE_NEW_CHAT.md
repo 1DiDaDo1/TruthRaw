@@ -55,6 +55,35 @@ Technical Backplane v0.1 and the all-room adaptive resource layer are active res
 
 The canonical v4.7i public API still owns full-frame `DecodedDngFrame.raw` and `ProcessResult.sdrRgb` vectors. The next production-memory migration is a validated streaming/tile-source/sink adapter. Do not silently rewrite canonical v4.7i before equivalence and integrity gates pass.
 
+## Branch-local continuation: RGB / LinearRaw DNG restoration — 2026-09-13
+
+When the active branch is:
+
+`research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`
+
+read this module immediately after the mandatory architecture documents:
+
+`docs/research/linear-dng-projection-v0.2/README.md`
+
+and its exact Work-build forensic binding:
+
+`docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+
+This branch starts from the actually built 2026-09-13 Android Linear-DNG line (`7c040218f6c5d43c6faeff6ab95d9fec763a1046`) and restores compatibility behavior that existed in the older RGB / LinearRaw work without redesigning the Scientific Master.
+
+Current branch-local restoration rules:
+
+- retain finalized Scientific Preview admission and exact source re-verification;
+- retain bounded streaming and do not materialize a full RGB Scientific Master merely for DNG export;
+- encode the first restoration candidate through the historically exercised finite `2x` window;
+- write `BaselineExposure=+1 EV` for that finite representation;
+- preserve source `Make`, `Model` and `UniqueCameraModel` so copied source-bound color metadata remains tied to the source camera identity;
+- reject output if original reconstructed RGB still exceeds the finite `2x` window;
+- never let export alter Scientific Master hash, zero-line, Backplane, frame/evidence counts or color authority;
+- preserve the old v0.1 writer as historical/negative evidence rather than rewriting its history.
+
+Do not claim this branch is validated until host tests, Android wiring/build, physical Honor execution, Lightroom open/edit, DNG interoperability and embedded-preview work have passed for the exact new bytes.
+
 ## One-sentence definition
 
 **TruthRaw preserves one sealed RAW observation as immutable evidence, reconstructs a separate uncertainty-aware Scene Master, and executes specialized rooms through a resource-adaptive but scientifically invariant building runtime.**
