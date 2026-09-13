@@ -1,0 +1,122 @@
+name: Android Linear DNG Export v0.2 Restore
+
+on:
+  push:
+    branches:
+      - research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/linear-dng-projection-v0.2/**'
+      - 'docs/research/linear-dng-projection-v0.1/native/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-preview-source-binding-v0.1/**'
+      - 'docs/research/scientific-preview-source-binding-v0.2/**'
+      - 'docs/research/dng-color-binding-producer-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - 'docs/research/tile-native-dng-source-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'canonical/reconstruction/v4.7i/native/**'
+      - '.github/workflows/android-linear-dng-export-v0-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-linear-dng-v02:
+    name: Host Linear DNG v0.2 writer
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S docs/research/linear-dng-projection-v0.2 -B /tmp/truthraw-linear-dng-v02 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build /tmp/truthraw-linear-dng-v02 --parallel 2
+      - name: Test
+        run: ctest --test-dir /tmp/truthraw-linear-dng-v02 --output-on-failure
+
+  build-arm64-linear-dng-v02-apk:
+    name: Android arm64 Linear DNG v0.2 restore APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify export boundary and no scientific-authority promotion
+        run: |
+          BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/linear_dng_export_bridge.cpp'
+          KOTLIN='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/LinearDngExport.kt'
+          CMAKE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists.txt'
+          GRADLE='app/android/truthraw-adaptive-ui-v01/app/build.gradle.kts'
+          README='docs/research/linear-dng-projection-v0.2/README.md'
+          grep -F 'create_and_release_finalized_scientific_preview' "$BRIDGE"
+          grep -F 'reverify_source_sha256' "$BRIDGE"
+          grep -F 'release_matches_source' "$BRIDGE"
+          grep -F 'linear_dng_projection::v0_2::write_finalized_linear_dng' "$BRIDGE"
+          grep -F 'projection.compatibilityWindow != 2.0' "$BRIDGE"
+          grep -F 'projection.baselineExposureEv != 1.0' "$BRIDGE"
+          grep -F 'LINEAR_DNG_PROJECTION_V02' "$CMAKE"
+          grep -F 'linear_dng_projection_v0_2.cpp' "$CMAKE"
+          grep -F '6104L' "$KOTLIN"
+          grep -F 'versionName = "0.6-linear-dng-restore"' "$GRADLE"
+          grep -F 'BaselineExposure = +1 EV' "$README"
+          if grep -Eiq '(^|[^A-Za-z])(vulkan|libvulkan|Vk[A-Z])' "$CMAKE"; then
+            echo 'Unexpected Vulkan dependency in Linear DNG v0.2 CPU reference build' >&2
+            exit 1
+          fi
+          echo 'linear_dng_authority=COMPATIBILITY_PROJECTION_ONLY'
+          echo 'scientific_authority_promotion=FORBIDDEN'
+          echo 'finite_window=2x'
+          echo 'baseline_exposure_ev=+1'
+          echo 'source_camera_identity=PRESERVED'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify v0.2 JNI symbol, native restore path and APK identity
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'write_finalized_linear_dng'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'linear_dng_v0_2_finite_2x_representation_wrapper'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'validated 2x LinearRaw compatibility window'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw bridge ABI' >&2
+            exit 1
+          fi
+          echo "linear_dng_v02_apk_bytes=$(stat -c%s "$APK")"
+          echo "linear_dng_v02_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'linear_dng_photometric=LinearRaw_34892'
+          echo 'linear_dng_storage=UNCOMPRESSED_UINT16_RGB'
+          echo 'full_scientific_master_materialization=FORBIDDEN'
+          echo 'truthraw_execution_backend=CPU_NDK_REFERENCE_NO_VULKAN'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-linear-dng-v0.2-restore-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
