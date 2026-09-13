@@ -43,6 +43,22 @@ It may still be scientifically useful, promoted in part, rejected/superseded in 
 
 This applies to, among others: zero-line/TruthRange studies, camera-RGB covariance v0.6, XYZ D50 uncertainty v0.7, missing-channel topology v0.8, virtual observation manifold v0.9, uncertainty-aware S-curve/color v1, high-ISO Item153, Manifold Conditioning v1, CICM v1, Room Capsule v0.1 and Building Runtime v0.1.
 
+## Branch-local research candidate: RGB / LinearRaw DNG restoration — 2026-09-13
+
+On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, the following files are the module-local authority for the active RGB / LinearRaw restoration candidate:
+
+- `docs/research/linear-dng-projection-v0.2/README.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/HOST_CI_34780375681_2026-09-13.md`
+
+Classification: **research candidate / branch-local continuation**, not a global canonical-state promotion.
+
+The branch preserves the historical v0.1 writer and its build path as provenance while adding a v0.2 downstream compatibility restoration. Current v0.2 work restores the historically exercised finite `2x` RGB LinearRaw representation with `BaselineExposure=+1 EV`, source camera identity binding, fail-closed over-window behavior, and Android wiring on top of the finalized source-bound Scientific Preview admission path.
+
+Host validation for the v0.2 module is recorded as green. Android arm64 build, physical Honor execution, Lightroom interoperability, independent DNG reader validation and embedded-preview/multi-IFD restoration remain independent gates until their exact evidence is recorded.
+
+This branch-local section does not alter the authority of `state/CURRENT_CANONICAL_STATE_2026-09-10.json` and does not make the v0.2 research README a global bootstrap authority.
+
 ## Other README classes
 
 - `capture/**/README*.md` — capture experiment/module-local.
