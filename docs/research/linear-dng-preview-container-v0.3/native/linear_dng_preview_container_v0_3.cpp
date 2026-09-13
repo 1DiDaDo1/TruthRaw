@@ -295,6 +295,10 @@ void add_preview_entry(std::vector<PreviewEntry>& entries,
                        std::uint16_t type,
                        std::uint32_t count,
                        std::vector<std::uint8_t> payload) {
+    // For ASCII the TIFF count is the actual encoded payload length including
+    // its NUL terminator. Derive it after the payload has arrived here so the
+    // result is independent of function-argument evaluation order around move.
+    if (type == kTiffAscii) count = static_cast<std::uint32_t>(payload.size());
     entries.push_back(PreviewEntry{tag, type, count, std::move(payload), 0u});
 }
 
