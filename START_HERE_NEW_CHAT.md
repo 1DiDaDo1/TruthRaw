@@ -65,9 +65,12 @@ read this module immediately after the mandatory architecture documents:
 
 `docs/research/linear-dng-projection-v0.2/README.md`
 
-and its exact Work-build forensic binding:
+then read its evidence files:
 
-`docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/HOST_CI_34780375681_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/ANDROID_CI_34780463331_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/HISTORICAL_ANDROID_PREVIEW_RESTORE_SOURCE_2026-09-13.md`
 
 This branch starts from the actually built 2026-09-13 Android Linear-DNG line (`7c040218f6c5d43c6faeff6ab95d9fec763a1046`) and restores compatibility behavior that existed in the older RGB / LinearRaw work without redesigning the Scientific Master.
 
@@ -82,7 +85,20 @@ Current branch-local restoration rules:
 - never let export alter Scientific Master hash, zero-line, Backplane, frame/evidence counts or color authority;
 - preserve the old v0.1 writer as historical/negative evidence rather than rewriting its history.
 
-Do not claim this branch is validated until host tests, Android wiring/build, physical Honor execution, Lightroom open/edit, DNG interoperability and embedded-preview work have passed for the exact new bytes.
+Validated on this branch so far:
+
+- GCC Release host test;
+- Clang Release host test;
+- Clang ASan/UBSan host test;
+- Android arm64 debug APK build and v0.2 JNI/native-path verification.
+
+Exact built restoration APK:
+
+- version `0.6-linear-dng-restore`;
+- bytes `4335889`;
+- SHA-256 `93e51245e0950c5c3140b83f2f3429d2f52ad48adcd5630409134e4c430b5654`.
+
+Do **not** promote those build results into claims of physical Honor success or Lightroom compatibility. The next independent gates are physical device execution, production of an exact v0.2 DNG, Lightroom/reader interoperability and restoration of the historically validated `IFD0 thumbnail + LinearRaw SubIFD0 + JPEG preview SubIFD1` container pattern.
 
 ## One-sentence definition
 
