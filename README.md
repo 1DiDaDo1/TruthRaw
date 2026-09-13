@@ -39,39 +39,32 @@ For positive physical scene light TruthRaw may use:
 
 The TruthRange coordinate may be unbounded as a representation, while every real capture supplies only finite evidence. Signed scene-linear estimates remain a separate companion representation; a negative numerical estimate is not negative physical light.
 
-The detailed domain authority remains `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`.
-
 ## The renewed house
 
-TruthRaw now separates scientific authority from execution resources.
+TruthRaw separates scientific authority from execution resources.
 
-The Building Runtime defines 12 logical rooms: Archivist, Measurement Lab, Architect, Restorer, Scene Registry, Surveyor, Manifold Conditioning, Lighting Studio/CICM, Room Capsule, Colorist, Finisher and Exporter.
+The Building Runtime defines 12 logical rooms. A room's truth floor determines what it may read, claim or modify. RAM, CPU, GPU and thermal state determine only execution resources.
 
-A room's **truth floor** determines what it is allowed to read, claim or modify. A phone's RAM, CPU, GPU and thermal state determine only how much execution space the room receives.
-
-A faster phone may open more compatible rooms in parallel, retain more rebuildable caches, use larger tiles or choose an optional acceleration backend. It does **not** receive more evidence or permission to make stronger scientific claims.
+A faster phone may open more compatible rooms in parallel, retain more rebuildable caches or use larger tiles. It does **not** receive more evidence or permission to make stronger scientific claims.
 
 Corridors carry compact handles, provenance and authority, not duplicate full-frame images.
 
-## Memory ownership model
+## Preview architecture
 
-The renewed house uses five storage classes:
+TruthRaw does **not** define preview by one file/container format.
 
-1. **Immutable shared state** — one instance, referenced by handles. This includes source/master identity, scene-scale and zero-line binding.
-2. **Per-pixel scientific data** — tile/stream whenever possible; never duplicate a full master merely to cross a room boundary.
-3. **Reproducible derived data** — compact, downsampled and/or rebuildable caches.
-4. **Appearance intermediates** — tile-local and disposable.
-5. **Export data** — streamed to the destination where possible.
+The later finalized preview architecture separates:
 
-Room Capsule v0.1 already follows this model strongly: local geometry is compact/downsampled and tile-workspace is bounded independently of full image megapixels.
+- Scientific Master — camera-native reconstructed scientific RGB;
+- Finalized Scientific Preview — derivative bound to source/master/zero-line/Backplane identity;
+- runtime preview representation — bounded `ARGB_8888/sRGB`;
+- portable compatibility preview — baseline JPEG/sRGB;
+- optional HDR display derivative;
+- embedded DNG JPEG preview — compatibility transport only.
 
-The current canonical v4.7i public API still contains full-frame vectors for decoded RAW and output RGB. Replacing those ownership points with a `TileSource -> persistent master handle -> StreamedSink` path is the next explicit production-memory migration. Until validated, the existing canonical v4.7i bytes remain unchanged.
+The same preview pixels may be represented as a live bitmap, standalone JPEG or embedded DNG preview without any of those encodings becoming scientific evidence.
 
-## Technical Backplane
-
-TruthRaw is developing a compact format-neutral **Technical Backplane**: a small shared “digital backside” that can bind source evidence, scientific master, zero-line, scene-scale, provenance and room status without repeating those values per pixel or per tile.
-
-The backplane is not extra measurement evidence and is not hidden image content. DNG carriage is deferred until interoperability is explicitly validated.
+The older v0.7 `IFD0 + LinearRaw SubIFD + JPEG preview SubIFD` layout remains useful interoperability evidence, not the definition of the modern preview architecture.
 
 ## Permanent boundaries
 
@@ -90,31 +83,32 @@ The backplane is not extra measurement evidence and is not hidden image content.
 
 ## Active branch-local RGB / LinearRaw restoration candidate — 2026-09-13
 
-On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, TruthRaw is restoring the earlier RGB / LinearRaw DNG compatibility behavior on top of the newer finalized-release and bounded-streaming Android route.
+Branch:
+
+`research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`
 
 Read:
 
 `docs/research/linear-dng-projection-v0.2/README.md`
 
-Evidence is recorded inside the same module, including:
+Preview restoration source:
 
-- exact Work-v0.1 APK forensic binding;
-- v0.2 GCC/Clang/ASan/UBSan host CI;
-- exact successful arm64 Android build identity;
-- recovered historical Android-preview container design and validated old hashes.
+`docs/research/linear-dng-projection-v0.2/evidence/MODERN_FINALIZED_PREVIEW_ARCHITECTURE_2026-09-13.md`
 
-This is a **research candidate**, not a global canonical-state promotion. The current changes restore a finite `2x` LinearRaw headroom representation with `BaselineExposure=+1 EV`, preserve source camera identity for source-bound color metadata, and fail closed if the reconstructed scene exceeds that validated finite window. The Scientific Master, zero-line, Backplane, frame/evidence counts and color authority remain unchanged.
+The branch restores finite RGB LinearRaw headroom (`2x`, `BaselineExposure=+1 EV`) and source camera identity on top of the finalized Scientific Preview / bounded-streaming route.
 
-Host validation and the arm64 Android v0.2 build are now green. Exact built APK identity:
+Host validation and the arm64 Android v0.2 build are green. Exact built APK identity before embedded-preview integration:
 
 - version: `0.6-linear-dng-restore`
 - bytes: `4335889`
 - SHA-256: `93e51245e0950c5c3140b83f2f3429d2f52ad48adcd5630409134e4c430b5654`
 
-Still open on this branch are physical Honor execution, Lightroom interoperability, independent validation of a newly produced v0.2 DNG, and reimplementation of the historically validated multi-IFD/JPEG preview container.
+Still open are physical Honor execution, Lightroom interoperability, independent validation of a newly produced DNG, and embedding the **modern finalized JPEG representation** in DNG without altering the RGB LinearRaw payload.
+
+The exact historical phase label remembered as approximately `1.3` / `1.4` is not assigned until an exact source proves it.
 
 ## Repository navigation
 
 Use `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md` before treating any dated README, report, audit or state file as current.
 
-Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
+Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
