@@ -1,0 +1,168 @@
+{
+  "schema": "truthraw.current-canonical-state.v2",
+  "date": "2026-09-13",
+  "status": "AUDITED_RESEARCH_LINEAGE",
+  "audit_branch": "research/project-factcheck-optimization-v0.1-2026-09-13",
+  "source_lineage": {
+    "base_branch": "research/restore-rgb-linearraw-output-v0.2-2026-09-13",
+    "base_sha": "0e8291f3300b5a1aa1ffe7652be5908da57a889e",
+    "base_tree_sha": "abbb4d77786aa11ad76495d4b3db2de2d8c25112",
+    "note": "Audit/documentation/runtime-governance branch created from the verified restore-rgb-linearraw-output v0.2 head. Branch head itself is intentionally not self-recorded because this state file is part of subsequent commits."
+  },
+  "authoritative_entrypoints": [
+    "README.md",
+    "START_HERE_NEW_CHAT.md",
+    "docs/TRUTHRAW_PROJECT_MAP_2026-09-13.md",
+    "docs/audit/PROJECT_FACT_CHECK_2026-09-13.md",
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-13.md",
+    "docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md",
+    "docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md",
+    "docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-13.md",
+    "state/CURRENT_CANONICAL_STATE_2026-09-13.json"
+  ],
+  "core_laws": {
+    "primary": "Measured where measured. Reconstructed where necessary. Never invented.",
+    "secondary": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "authority_order": [
+      "Foundation",
+      "Measurement",
+      "Reconstruction",
+      "Scene",
+      "Counterfactual",
+      "Appearance",
+      "Projection"
+    ]
+  },
+  "evidence_invariants": {
+    "source_direct_cfa_immutable": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "virtual_observations_are_independent_evidence": false,
+    "export_creates_evidence": false,
+    "appearance_can_modify_scientific_master": false,
+    "gcam_or_apk_can_define_truthraw_science": false
+  },
+  "reference_physical_source": {
+    "device": "HONOR BKQ-N49",
+    "source": "IMG_260830_143012_297_014.dng",
+    "width": 4080,
+    "height": 3072,
+    "bytes": 25369034,
+    "sha256": "fac842110cfd5b527aae2fa46237824d444aa5701017c2b68021962ebce47da3"
+  },
+  "scientific_master": {
+    "role": "RECONSTRUCTED_SCIENTIFIC_SCENE_STATE",
+    "original_sensor_evidence": false,
+    "appearance_applied": false,
+    "normal_camera_to_xyz_display_conversion_applied": false,
+    "downstream_export_may_change_master_identity": false
+  },
+  "truthrange": {
+    "positive_light_coordinate": "T=log2(L/L0)",
+    "zero_line_role": "GAUGE_REFERENCE",
+    "address_space_unbounded": true,
+    "sensor_dynamic_range_infinite": false,
+    "clipping_semantics": "CENSORED_BOUND",
+    "self_gauge_relative_scene_supported": true,
+    "capture_iso_exposure_required_in_relative_coordinate_definition": false,
+    "capture_iso_exposure_remain_provenance_and_may_enter_physical_models": true
+  },
+  "color": {
+    "current_highest_general_authority": "SOURCE_METADATA_BOUND",
+    "full_physical_general_claim_allowed": false,
+    "independent_camera_lens_illuminant_calibration_required_for_full_physical": true,
+    "synthetic_neutral_nonconvergence_negative_test_preserved": true
+  },
+  "preview": {
+    "physical_reference_route_status": "FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW",
+    "scientificPreviewReleaseAllowed": true,
+    "scientificClaimAllowed": false,
+    "preview_is_source_evidence": false
+  },
+  "read_optimization": {
+    "physical_reference_validated": true,
+    "old_exact_tile_reads": 13824,
+    "new_exact_tile_reads": 7680,
+    "tile_read_reduction_percent": 44.4444444444,
+    "raw_payload_reduction_approx_percent": 30.4,
+    "wall_time_reduction_approx_percent": 11.5,
+    "worker_time_reduction_approx_percent": 10.0,
+    "memory_improvement_claim_allowed": false,
+    "reason_memory_claim_blocked": "Peak PSS rose slightly in the physical optimized run."
+  },
+  "outputs": {
+    "DIRECT_CFA": "MEASURED_EVIDENCE",
+    "SCIENTIFIC_MASTER": "RECONSTRUCTED_SCIENTIFIC_SCENE_STATE",
+    "RECONSTRUCTED_CFA_DNG": "RECONSTRUCTED_CFA_PROJECTION",
+    "LINEAR_DNG": "COMPATIBILITY_PROJECTION",
+    "JPEG_ARGB_HDR": "APPEARANCE_OR_PRESENTATION_PROJECTION",
+    "RAWSENSOR": "NONSTANDARD_INTERNAL_PAYLOAD_REQUIRES_EXPLICIT_ABI"
+  },
+  "dng_export": {
+    "status": "ACTIVE_VALIDATION",
+    "must_be_streaming_or_bounded": true,
+    "may_materialize_full_master_solely_for_serialization": false,
+    "writer_validity_separate_from_scientific_validity": true,
+    "android_dng_export_branch_observed": "research/android-dng-export-v0.1-2026-09-13",
+    "android_dng_export_observed_sha": "c823a78af3faaca21d6afdc93a5669986051e7af",
+    "restore_rgb_linearraw_base_sha": "0e8291f3300b5a1aa1ffe7652be5908da57a889e",
+    "observed_branch_relation": "DIVERGED",
+    "integration_guard": "Compare actual trees and run relevant tests before promotion; do not infer content from branch names."
+  },
+  "house": {
+    "room_count": 12,
+    "rooms": [
+      "Archivist",
+      "MeasurementLab",
+      "Architect",
+      "Restorer",
+      "SceneRegistry",
+      "Surveyor",
+      "ManifoldConditioning",
+      "LightingStudioCicm",
+      "RoomCapsule",
+      "Colorist",
+      "Finisher",
+      "Exporter"
+    ],
+    "runtime_science_must_be_device_invariant": true,
+    "preferred_dataflow": "TILE_STREAMING_WITH_COMPACT_CORRIDOR_TOKENS",
+    "next_runtime_priority": "RoomLease + CorridorToken + deterministic tile scheduler + per-room profiler + bounded buffer pools",
+    "cpu_reference_first": true,
+    "gpu_vulkan_may_create_truth_authority": false
+  },
+  "gatehouse": {
+    "role": "CONTROLLED_EXTERNAL_RAW_DECODE_AND_AUDIT",
+    "is_second_truth_source": false,
+    "detach_before_heavy_main_house_work": true,
+    "unsupported_or_ambiguous_topology": "FAIL_CLOSED",
+    "decoder_version_is_environment_provenance_not_scientific_authority": true
+  },
+  "blocked_claims": [
+    "infinite physical sensor dynamic range",
+    "new measured photons from reconstruction or virtual views",
+    "perfect spectral/material color from generic three-channel RAW",
+    "FULL_PHYSICAL color without independent calibration",
+    "physical relighting without required geometry/material/spectral calibration",
+    "memory improvement from the recorded Honor read-optimization run",
+    "reconstructed CFA is original measured CFA",
+    "virtual EV/ISO views are independent evidence",
+    "structurally valid DNG automatically proves scientific correctness",
+    "faster hardware creates stronger scientific truth"
+  ],
+  "historical_snapshots_not_bootstrap": [
+    "state/CURRENT_CANONICAL_STATE_2026-09-06.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-09.json",
+    "state/CURRENT_CANONICAL_STATE_2026-09-10.json",
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
+    "docs/PROJECT_STATE_AUDIT_2026-09-08.md"
+  ],
+  "audit_notes": [
+    "No scientific algorithm is promoted or rewritten merely because this project-level audit prefers a cleaner architecture.",
+    "Failed and negative evidence remains historical evidence.",
+    "Research-module README files remain authoritative only for their own module/version, not automatically for global current state."
+  ]
+}
