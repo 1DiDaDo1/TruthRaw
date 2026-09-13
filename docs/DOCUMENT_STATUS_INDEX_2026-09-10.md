@@ -50,12 +50,37 @@ On branch `research/restore-rgb-linearraw-output-v0.2-workbase-2026-09-13`, the 
 - `docs/research/linear-dng-projection-v0.2/README.md`
 - `docs/research/linear-dng-projection-v0.2/evidence/WORK_APK_FORENSIC_2026-09-13.md`
 - `docs/research/linear-dng-projection-v0.2/evidence/HOST_CI_34780375681_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/ANDROID_CI_34780463331_2026-09-13.md`
+- `docs/research/linear-dng-projection-v0.2/evidence/HISTORICAL_ANDROID_PREVIEW_RESTORE_SOURCE_2026-09-13.md`
 
 Classification: **research candidate / branch-local continuation**, not a global canonical-state promotion.
 
 The branch preserves the historical v0.1 writer and its build path as provenance while adding a v0.2 downstream compatibility restoration. Current v0.2 work restores the historically exercised finite `2x` RGB LinearRaw representation with `BaselineExposure=+1 EV`, source camera identity binding, fail-closed over-window behavior, and Android wiring on top of the finalized source-bound Scientific Preview admission path.
 
-Host validation for the v0.2 module is recorded as green. Android arm64 build, physical Honor execution, Lightroom interoperability, independent DNG reader validation and embedded-preview/multi-IFD restoration remain independent gates until their exact evidence is recorded.
+Recorded green gates:
+
+- GCC Release host build/test;
+- Clang Release host build/test;
+- Clang ASan/UBSan host build/test;
+- Android arm64 debug APK assembly;
+- JNI/v0.2 native-path verification;
+- exact APK SHA/size and artifact ZIP SHA/size binding.
+
+Exact Android restoration APK recorded by evidence:
+
+- version `0.6-linear-dng-restore`;
+- bytes `4335889`;
+- SHA-256 `93e51245e0950c5c3140b83f2f3429d2f52ad48adcd5630409134e4c430b5654`.
+
+Still-independent gates:
+
+- physical Honor BKQ-N49 execution;
+- newly produced v0.2 DNG parsing/LibRaw/DNG SDK interoperability;
+- Lightroom open/edit behavior;
+- Android/piex embedded-preview discovery;
+- native reimplementation of the historically validated multi-IFD/JPEG preview container.
+
+The historical preview evidence now explicitly records the previous successful container pattern: reduced IFD0 thumbnail, full LinearRaw SubIFD0 and JPEG/sRGB preview SubIFD1, with unchanged LinearRaw payload and DNG SDK 1.7.1.2724 PASS for the old exact files.
 
 This branch-local section does not alter the authority of `state/CURRENT_CANONICAL_STATE_2026-09-10.json` and does not make the v0.2 research README a global bootstrap authority.
 
