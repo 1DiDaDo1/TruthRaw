@@ -194,3 +194,30 @@ The canonical conceptual formula is:
 And the permanent boundary is:
 
 **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+## 11. The house is also provenance and authority architecture
+
+Recovered project history clarifies that the house metaphor is broader than reconstruction freedom alone.
+
+Four concepts now belong together:
+
+- **sealed house** — immutable source evidence;
+- **new house / alle vrijheid** — richer reconstruction space above the evidence boundary;
+- **Technical Backplane / achterkant van de foto** — compact binding of source/master/zero-line/authority behind the visible projection;
+- **Gatehouse / tussenwoning** — isolated external RAW ingress that produces a sealed handoff and then detaches before heavy Main-House work.
+
+These concepts are documented together in:
+
+`docs/CORE_VISION_HOUSE_GENEALOGY_BACKPLANE_GATEHOUSE_2026-09-13.md`
+
+Repository history verifies that the sealed-house vision was canonized by commit:
+
+`13075856895ee6815c8a72fcf733d52bad596583` — `Canonize sealed-house TruthRaw core vision`.
+
+## 12. Current Scientific Master terminology
+
+Historical Scene/Latent Master experiments evolved. Do not silently flatten them into the current definition.
+
+The **current project-level Scientific Master** is the reconstructed **camera-native RGB scientific state before the normal `camera_to_xyz()` route and before appearance**.
+
+Historical richer/colorimetric Scene Master ideas remain valuable design provenance, but they do not override the current master definition unless a future explicit canonical change does so.
