@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TruthRaw</string>
+    <string name="choose_output">Ausgabe wählen</string>
+    <string name="choose_output_subtitle">Wähle, wie TruthRaw das Foto ausgeben soll. Wissenschaftliche Autorität wird durch Darstellungsoptionen nie verändert.</string>
+    <string name="mode_jpg">JPG</string>
+    <string name="mode_jpg_subtitle">Universell</string>
+    <string name="mode_jxl">JPG XL</string>
+    <string name="mode_jxl_subtitle">Hohe Qualität</string>
+    <string name="mode_pure">TRUTHRAW PURE</string>
+    <string name="mode_pure_subtitle">Wissenschaftlich</string>
+    <string name="mode_advanced">TRUTHRAW ADVANCED</string>
+    <string name="mode_advanced_subtitle">Volle Kontrolle</string>
+    <string name="appearance_options">Darstellungsoptionen</string>
+    <string name="appearance_options_hint">Diese Optionen wirken nur auf die nachgelagerte Darstellung. Versiegelte Evidenz und Scientific Master bleiben unverändert.</string>
+    <string name="option_colourful">Colourful</string>
+    <string name="option_detailed">Detailed</string>
+    <string name="option_soft">Soft</string>
+    <string name="option_hdr">HDR</string>
+    <string name="pure_locked_hint">TRUTHRAW PURE hat bewusst keine kreativen Darstellungsoptionen.</string>
+    <string name="continue_to_raw">RAW / DNG öffnen</string>
+    <string name="selected_mode">Ausgewählt: %1$s</string>
+    <string name="jxl_pending">Die Validierung des JPEG-XL-Encoders ist noch nicht abgeschlossen; der Modus ist bereits in der Oberfläche reserviert.</string>
+    <string name="certificate_hint">TruthRaw RAW/DNG-Ausgaben enthalten technische Lineage-Metadaten. Eine kryptografische Markensignatur wird erst nach Bereitstellung eines vertrauenswürdigen Signierschlüssels als verifiziert angezeigt.</string>
+</resources>
