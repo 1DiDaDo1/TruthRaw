@@ -12,7 +12,6 @@ namespace truthraw::linear_dng_preview_container::v0_3 {
 namespace {
 
 constexpr std::uint16_t kClassicTiffMagic = 42u;
-constexpr std::uint16_t kTiffByte = 1u;
 constexpr std::uint16_t kTiffAscii = 2u;
 constexpr std::uint16_t kTiffShort = 3u;
 constexpr std::uint16_t kTiffLong = 4u;
@@ -39,7 +38,12 @@ constexpr std::uint16_t kTagPreviewColorSpace = 50970u;
 constexpr std::uint32_t kPreviewColorSpaceSrgb = 2u;
 constexpr std::uint32_t kMaxIfdEntries = 512u;
 constexpr std::uint64_t kIfdInsertionBytes = 12u;
+constexpr std::size_t kPreviewEntryCount = 19u;
 constexpr std::size_t kCopyChunk = 64u * 1024u;
+constexpr char kSoftware[] = "TruthRaw Linear DNG Preview v0.3";
+constexpr char kPreviewApplication[] = "TruthRaw";
+constexpr char kPreviewVersion[] = "0.3";
+constexpr char kPreviewSettings[] = "FINALIZED_SCIENTIFIC_PREVIEW";
 
 std::uint16_t dec16(const std::uint8_t* p, bool little) noexcept {
     if (little) {
@@ -134,12 +138,14 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
     if (preview.bytes == nullptr || preview.width <= 0 || preview.height <= 0) {
         return Status::error(StatusCode::InvalidArgument, "preview source/dimensions are invalid");
     }
-    const int longEdge = std::max(preview.width, preview.height);
-    if (options.maxPreviewLongEdge <= 0 || longEdge > options.maxPreviewLongEdge) {
+    if (options.maxPreviewLongEdge <= 0 ||
+        std::max(preview.width, preview.height) > options.maxPreviewLongEdge) {
         return Status::error(StatusCode::PreviewTooLarge, "preview exceeds configured portable-preview edge");
     }
-    const std::uint64_t bytes = preview.bytes->sizeBytes();
-    if (bytes < 16u || options.maxPreviewJpegBytes == 0u || bytes > options.maxPreviewJpegBytes) {
+    const std::uint64_t byteCount = preview.bytes->sizeBytes();
+    if (byteCount < 16u || options.maxPreviewJpegBytes == 0u ||
+        byteCount > options.maxPreviewJpegBytes ||
+        byteCount > std::numeric_limits<std::uint32_t>::max()) {
         return Status::error(StatusCode::PreviewTooLarge, "preview JPEG byte length is outside contract");
     }
 
@@ -150,7 +156,7 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
     if (pair[0] != 0xffu || pair[1] != 0xd8u) {
         return Status::error(StatusCode::PreviewJpegInvalid, "preview is not a JPEG SOI stream");
     }
-    if (!read_exact(*preview.bytes, bytes - 2u, pair.data(), pair.size())) {
+    if (!read_exact(*preview.bytes, byteCount - 2u, pair.data(), pair.size())) {
         return Status::error(StatusCode::PreviewReadFailed, "cannot read preview JPEG EOI");
     }
     if (pair[0] != 0xffu || pair[1] != 0xd9u) {
@@ -159,27 +165,31 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
 
     bool sof0Seen = false;
     std::uint64_t cursor = 2u;
-    while (cursor + 4u <= bytes) {
-        std::uint8_t markerPrefix = 0u;
-        if (!read_exact(*preview.bytes, cursor, &markerPrefix, 1u)) {
+    while (cursor + 4u <= byteCount) {
+        std::uint8_t markerByte = 0u;
+        if (!read_exact(*preview.bytes, cursor, &markerByte, 1u)) {
             return Status::error(StatusCode::PreviewReadFailed, "cannot read JPEG marker prefix");
         }
-        if (markerPrefix != 0xffu) {
+        if (markerByte != 0xffu) {
             return Status::error(StatusCode::PreviewJpegInvalid, "unexpected byte before JPEG scan data");
         }
         do {
             ++cursor;
-            if (cursor >= bytes) return Status::error(StatusCode::PreviewJpegInvalid, "unterminated JPEG marker");
-            if (!read_exact(*preview.bytes, cursor, &markerPrefix, 1u)) {
+            if (cursor >= byteCount) {
+                return Status::error(StatusCode::PreviewJpegInvalid, "unterminated JPEG marker");
+            }
+            if (!read_exact(*preview.bytes, cursor, &markerByte, 1u)) {
                 return Status::error(StatusCode::PreviewReadFailed, "cannot read JPEG marker");
             }
-        } while (markerPrefix == 0xffu);
-        const std::uint8_t marker = markerPrefix;
+        } while (markerByte == 0xffu);
+        const std::uint8_t marker = markerByte;
         ++cursor;
 
         if (marker == 0xd9u) break;
         if (marker == 0xdau) {
-            if (!sof0Seen) return Status::error(StatusCode::PreviewJpegInvalid, "JPEG scan begins before baseline SOF0");
+            if (!sof0Seen) {
+                return Status::error(StatusCode::PreviewJpegInvalid, "JPEG scan begins before baseline SOF0");
+            }
             break;
         }
         if (marker == 0x01u || (marker >= 0xd0u && marker <= 0xd7u)) continue;
@@ -189,7 +199,7 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
             return Status::error(StatusCode::PreviewReadFailed, "cannot read JPEG segment length");
         }
         const std::uint16_t segmentLength = dec16be(lenBytes.data());
-        if (segmentLength < 2u || cursor + segmentLength > bytes) {
+        if (segmentLength < 2u || cursor + segmentLength > byteCount) {
             return Status::error(StatusCode::PreviewJpegInvalid, "JPEG segment length is invalid");
         }
 
@@ -200,7 +210,8 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
         }
         if (marker == 0xc0u) {
             if (segmentLength < 17u) {
-                return Status::error(StatusCode::PreviewJpegInvalid, "baseline JPEG SOF0 is too short for three components");
+                return Status::error(StatusCode::PreviewJpegInvalid,
+                                     "baseline JPEG SOF0 is too short for three components");
             }
             std::array<std::uint8_t,15> sof{};
             if (!read_exact(*preview.bytes, cursor + 2u, sof.data(), sof.size())) {
@@ -211,7 +222,8 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
             const int width = dec16be(sof.data() + 3u);
             const int components = sof[5];
             if (precision != 8 || width != preview.width || height != preview.height || components != 3) {
-                return Status::error(StatusCode::PreviewJpegInvalid, "baseline JPEG dimensions/components do not match preview contract");
+                return Status::error(StatusCode::PreviewJpegInvalid,
+                                     "baseline JPEG dimensions/components do not match preview contract");
             }
             const std::uint8_t ySampling = sof[7];
             const std::uint8_t cbSampling = sof[10];
@@ -222,9 +234,10 @@ Status validate_baseline_jpeg(const PreviewJpeg& preview,
             const std::uint16_t cbv = static_cast<std::uint16_t>(cbSampling & 0x0fu);
             const std::uint16_t crh = static_cast<std::uint16_t>((crSampling >> 4u) & 0x0fu);
             const std::uint16_t crv = static_cast<std::uint16_t>(crSampling & 0x0fu);
-            if (yh == 0u || yv == 0u || cbh != 1u || cbv != 1u || crh != 1u || crv != 1u ||
-                yh > 4u || yv > 4u) {
-                return Status::error(StatusCode::PreviewJpegInvalid, "unsupported baseline JPEG chroma subsampling layout");
+            if (yh == 0u || yv == 0u || yh > 4u || yv > 4u ||
+                cbh != 1u || cbv != 1u || crh != 1u || crv != 1u) {
+                return Status::error(StatusCode::PreviewJpegInvalid,
+                                     "unsupported baseline JPEG chroma subsampling layout");
             }
             out.width = width;
             out.height = height;
@@ -248,13 +261,15 @@ struct PreviewEntry final {
     std::uint32_t externalOffset = 0u;
 };
 
-std::vector<std::uint8_t> ascii_payload(const std::string& text) {
-    std::vector<std::uint8_t> out(text.begin(), text.end());
+std::vector<std::uint8_t> ascii_payload(const char* text) {
+    const std::size_t n = std::strlen(text);
+    std::vector<std::uint8_t> out(text, text + n);
     out.push_back(0u);
     return out;
 }
 
-std::vector<std::uint8_t> short_payload(bool little, std::initializer_list<std::uint16_t> values) {
+std::vector<std::uint8_t> short_payload(bool little,
+                                        std::initializer_list<std::uint16_t> values) {
     std::vector<std::uint8_t> out(values.size() * 2u, 0u);
     std::size_t offset = 0u;
     for (const auto value : values) {
@@ -264,7 +279,8 @@ std::vector<std::uint8_t> short_payload(bool little, std::initializer_list<std::
     return out;
 }
 
-std::vector<std::uint8_t> long_payload(bool little, std::initializer_list<std::uint32_t> values) {
+std::vector<std::uint8_t> long_payload(bool little,
+                                       std::initializer_list<std::uint32_t> values) {
     std::vector<std::uint8_t> out(values.size() * 4u, 0u);
     std::size_t offset = 0u;
     for (const auto value : values) {
@@ -301,12 +317,12 @@ public:
         baseBytes_ = bytes;
         std::uint64_t expandedRawEnd = 0u;
         if (!add_ok(baseBytes_, kIfdInsertionBytes, expandedRawEnd)) return fail();
-        const std::uint64_t previewIfd = align4(expandedRawEnd);
+        expandedRawEnd_ = expandedRawEnd;
+        const std::uint64_t previewIfd = align4(expandedRawEnd_);
         if (previewIfd > std::numeric_limits<std::uint32_t>::max()) return fail();
         previewIfdOffset_ = static_cast<std::uint32_t>(previewIfd);
 
-        constexpr std::size_t entryCount = 17u;
-        previewIfdBytes_ = 2u + 12u * entryCount + 4u;
+        previewIfdBytes_ = 2u + 12u * kPreviewEntryCount + 4u;
         std::uint64_t cursor = previewIfd + previewIfdBytes_;
         const auto accountPayload = [&cursor](std::size_t size) -> bool {
             if (size <= 4u) return true;
@@ -314,17 +330,18 @@ public:
             return add_ok(cursor, size, cursor);
         };
         if (!accountPayload(6u) ||
-            !accountPayload(std::string("TruthRaw Linear DNG Preview v0.3").size() + 1u) ||
-            !accountPayload(std::string("TruthRaw").size() + 1u) ||
-            !accountPayload(std::string("0.3").size() + 1u) ||
-            !accountPayload(std::string("FINALIZED_SCIENTIFIC_PREVIEW").size() + 1u)) {
+            !accountPayload(sizeof(kSoftware)) ||
+            !accountPayload(sizeof(kPreviewApplication)) ||
+            !accountPayload(sizeof(kPreviewVersion)) ||
+            !accountPayload(sizeof(kPreviewSettings))) {
             return fail();
         }
         cursor = align4(cursor);
         if (cursor > std::numeric_limits<std::uint32_t>::max()) return fail();
         previewJpegOffset_ = static_cast<std::uint32_t>(cursor);
         std::uint64_t finalBytes = 0u;
-        if (!add_ok(cursor, jpeg_.sizeBytes(), finalBytes) || finalBytes > std::numeric_limits<std::uint32_t>::max()) {
+        if (!add_ok(cursor, jpeg_.sizeBytes(), finalBytes) ||
+            finalBytes > std::numeric_limits<std::uint32_t>::max()) {
             return fail();
         }
         finalBytes_ = finalBytes;
@@ -341,9 +358,10 @@ public:
             if (p[0] == 'I' && p[1] == 'I') little_ = true;
             else if (p[0] == 'M' && p[1] == 'M') little_ = false;
             else return fail();
-            if (dec16(p + 2u, little_) != kClassicTiffMagic || dec32(p + 4u, little_) != 8u) return fail();
+            if (dec16(p + 2u, little_) != kClassicTiffMagic ||
+                dec32(p + 4u, little_) != 8u) return fail();
             headerSeen_ = true;
-            return sink_.writeExact(offset, src, bytes);
+            return sink_.writeExact(0u, src, bytes);
         }
         if (offset == 8u) {
             if (!headerSeen_ || ifdSeen_) return fail();
@@ -364,24 +382,25 @@ public:
 
     bool finish_preview() noexcept {
         if (failed_ || !resized_ || !headerSeen_ || !ifdSeen_) return false;
+        if (!zero_range(expandedRawEnd_, previewJpegOffset_)) return fail();
         if (!write_preview_ifd()) return fail();
+
         std::vector<std::uint8_t> buffer(kCopyChunk, 0u);
         std::uint64_t copied = 0u;
         while (copied < jpeg_.sizeBytes()) {
             const std::uint64_t remaining = jpeg_.sizeBytes() - copied;
-            const std::size_t chunk = static_cast<std::size_t>(std::min<std::uint64_t>(remaining, buffer.size()));
+            const std::size_t chunk = static_cast<std::size_t>(
+                std::min<std::uint64_t>(remaining, buffer.size()));
             if (!jpeg_.readExact(copied, buffer.data(), chunk)) return fail();
-            if (!sink_.writeExact(static_cast<std::uint64_t>(previewJpegOffset_) + copied, buffer.data(), chunk)) return fail();
+            if (!sink_.writeExact(static_cast<std::uint64_t>(previewJpegOffset_) + copied,
+                                  buffer.data(), chunk)) return fail();
             copied += chunk;
         }
         previewFinished_ = copied == jpeg_.sizeBytes();
         return previewFinished_;
     }
 
-    bool complete() const noexcept {
-        return !failed_ && previewFinished_;
-    }
-
+    bool complete() const noexcept { return !failed_ && previewFinished_; }
     std::uint64_t finalBytes() const noexcept { return finalBytes_; }
     std::uint32_t previewIfdOffset() const noexcept { return previewIfdOffset_; }
     std::uint32_t previewJpegOffset() const noexcept { return previewJpegOffset_; }
@@ -399,11 +418,26 @@ private:
         previewFinished_ = false;
         failed_ = false;
         baseBytes_ = 0u;
+        expandedRawEnd_ = 0u;
         finalBytes_ = 0u;
         oldIfdBytes_ = 0u;
         previewIfdBytes_ = 0u;
         previewIfdOffset_ = 0u;
         previewJpegOffset_ = 0u;
+    }
+
+    bool zero_range(std::uint64_t begin, std::uint64_t end) noexcept {
+        if (end < begin) return false;
+        std::array<std::uint8_t,4096> zeroes{};
+        std::uint64_t cursor = begin;
+        while (cursor < end) {
+            const std::uint64_t remaining = end - cursor;
+            const std::size_t chunk = static_cast<std::size_t>(
+                std::min<std::uint64_t>(remaining, zeroes.size()));
+            if (!sink_.writeExact(cursor, zeroes.data(), chunk)) return false;
+            cursor += chunk;
+        }
+        return true;
     }
 
     bool write_expanded_raw_ifd(const void* src, std::size_t bytes) noexcept {
@@ -415,29 +449,38 @@ private:
         if (bytes != expected) return fail();
         oldIfdBytes_ = bytes;
 
-        struct RawEntry final { std::array<std::uint8_t,12> bytes{}; std::uint16_t tag = 0u; };
+        struct RawEntry final {
+            std::array<std::uint8_t,12> bytes{};
+            std::uint16_t tag = 0u;
+        };
         std::vector<RawEntry> entries;
         entries.reserve(static_cast<std::size_t>(count) + 1u);
         bool subIfdAlreadyPresent = false;
+
         for (std::uint16_t i = 0; i < count; ++i) {
             RawEntry e;
             std::memcpy(e.bytes.data(), p + 2u + 12u * i, 12u);
             e.tag = dec16(e.bytes.data(), little_);
             if (e.tag == kTagSubIfds) subIfdAlreadyPresent = true;
+
             const std::uint16_t type = dec16(e.bytes.data() + 2u, little_);
             const std::uint32_t itemCount = dec32(e.bytes.data() + 4u, little_);
             const std::uint64_t itemSize = type_size(type);
-            if (itemSize == 0u || itemCount == 0u) return fail();
-            std::uint64_t payloadBytes = itemSize * static_cast<std::uint64_t>(itemCount);
+            if (itemSize == 0u || itemCount == 0u ||
+                itemSize > std::numeric_limits<std::uint64_t>::max() / itemCount) return fail();
+            const std::uint64_t payloadBytes = itemSize * static_cast<std::uint64_t>(itemCount);
             if (payloadBytes > 4u) {
                 const std::uint32_t oldOffset = dec32(e.bytes.data() + 8u, little_);
-                if (oldOffset == 0u || oldOffset > std::numeric_limits<std::uint32_t>::max() - kIfdInsertionBytes) return fail();
-                put32(e.bytes.data() + 8u, static_cast<std::uint32_t>(oldOffset + kIfdInsertionBytes), little_);
+                if (oldOffset == 0u ||
+                    oldOffset > std::numeric_limits<std::uint32_t>::max() - kIfdInsertionBytes) return fail();
+                put32(e.bytes.data() + 8u,
+                      static_cast<std::uint32_t>(oldOffset + kIfdInsertionBytes), little_);
             } else if (e.tag == kTagStripOffsets) {
                 if (type != kTiffLong || itemCount != 1u) return fail();
                 const std::uint32_t oldOffset = dec32(e.bytes.data() + 8u, little_);
                 if (oldOffset > std::numeric_limits<std::uint32_t>::max() - kIfdInsertionBytes) return fail();
-                put32(e.bytes.data() + 8u, static_cast<std::uint32_t>(oldOffset + kIfdInsertionBytes), little_);
+                put32(e.bytes.data() + 8u,
+                      static_cast<std::uint32_t>(oldOffset + kIfdInsertionBytes), little_);
             }
             entries.push_back(e);
         }
@@ -450,16 +493,18 @@ private:
         put32(sub.bytes.data() + 4u, 1u, little_);
         put32(sub.bytes.data() + 8u, previewIfdOffset_, little_);
         entries.push_back(sub);
-        std::sort(entries.begin(), entries.end(), [](const RawEntry& a, const RawEntry& b) { return a.tag < b.tag; });
-        for (std::size_t i = 1; i < entries.size(); ++i) if (entries[i-1].tag == entries[i].tag) return fail();
+        std::sort(entries.begin(), entries.end(),
+                  [](const RawEntry& a, const RawEntry& b) { return a.tag < b.tag; });
+        for (std::size_t i = 1; i < entries.size(); ++i) {
+            if (entries[i-1].tag == entries[i].tag) return fail();
+        }
 
         std::vector<std::uint8_t> expanded(bytes + kIfdInsertionBytes, 0u);
         put16(expanded.data(), static_cast<std::uint16_t>(entries.size()), little_);
         for (std::size_t i = 0; i < entries.size(); ++i) {
             std::memcpy(expanded.data() + 2u + 12u * i, entries[i].bytes.data(), 12u);
         }
-        const std::uint32_t oldNext = dec32(p + bytes - 4u, little_);
-        if (oldNext != 0u) return fail();
+        if (dec32(p + bytes - 4u, little_) != 0u) return fail();
         put32(expanded.data() + expanded.size() - 4u, 0u, little_);
         ifdSeen_ = sink_.writeExact(8u, expanded.data(), expanded.size());
         if (!ifdSeen_) failed_ = true;
@@ -468,31 +513,57 @@ private:
 
     bool write_preview_ifd() noexcept {
         std::vector<PreviewEntry> entries;
-        add_preview_entry(entries, kTagNewSubFileType, kTiffLong, 1u, long_payload(little_, {1u}));
-        add_preview_entry(entries, kTagImageWidth, kTiffLong, 1u, long_payload(little_, {static_cast<std::uint32_t>(previewWidth_)}));
-        add_preview_entry(entries, kTagImageLength, kTiffLong, 1u, long_payload(little_, {static_cast<std::uint32_t>(previewHeight_)}));
-        add_preview_entry(entries, kTagBitsPerSample, kTiffShort, 3u, short_payload(little_, {8u,8u,8u}));
-        add_preview_entry(entries, kTagCompression, kTiffShort, 1u, short_payload(little_, {7u}));
-        add_preview_entry(entries, kTagPhotometricInterpretation, kTiffShort, 1u, short_payload(little_, {6u}));
-        add_preview_entry(entries, kTagStripOffsets, kTiffLong, 1u, long_payload(little_, {previewJpegOffset_}));
-        add_preview_entry(entries, kTagOrientation, kTiffShort, 1u, short_payload(little_, {1u}));
-        add_preview_entry(entries, kTagSamplesPerPixel, kTiffShort, 1u, short_payload(little_, {3u}));
-        add_preview_entry(entries, kTagRowsPerStrip, kTiffLong, 1u, long_payload(little_, {static_cast<std::uint32_t>(previewHeight_)}));
-        add_preview_entry(entries, kTagStripByteCounts, kTiffLong, 1u, long_payload(little_, {static_cast<std::uint32_t>(jpeg_.sizeBytes())}));
-        add_preview_entry(entries, kTagPlanarConfiguration, kTiffShort, 1u, short_payload(little_, {1u}));
-        add_preview_entry(entries, kTagSoftware, kTiffAscii, 34u, ascii_payload("TruthRaw Linear DNG Preview v0.3"));
-        add_preview_entry(entries, kTagYCbCrSubSampling, kTiffShort, 2u, short_payload(little_, {subsamplingH_, subsamplingV_}));
-        add_preview_entry(entries, kTagYCbCrPositioning, kTiffShort, 1u, short_payload(little_, {1u}));
-        add_preview_entry(entries, kTagPreviewApplicationName, kTiffAscii, 9u, ascii_payload("TruthRaw"));
-        add_preview_entry(entries, kTagPreviewApplicationVersion, kTiffAscii, 4u, ascii_payload("0.3"));
-        add_preview_entry(entries, kTagPreviewSettingsName, kTiffAscii, 29u, ascii_payload("FINALIZED_SCIENTIFIC_PREVIEW"));
-        add_preview_entry(entries, kTagPreviewColorSpace, kTiffLong, 1u, long_payload(little_, {kPreviewColorSpaceSrgb}));
+        add_preview_entry(entries, kTagNewSubFileType, kTiffLong, 1u,
+                          long_payload(little_, {1u}));
+        add_preview_entry(entries, kTagImageWidth, kTiffLong, 1u,
+                          long_payload(little_, {static_cast<std::uint32_t>(previewWidth_)}));
+        add_preview_entry(entries, kTagImageLength, kTiffLong, 1u,
+                          long_payload(little_, {static_cast<std::uint32_t>(previewHeight_)}));
+        add_preview_entry(entries, kTagBitsPerSample, kTiffShort, 3u,
+                          short_payload(little_, {8u,8u,8u}));
+        add_preview_entry(entries, kTagCompression, kTiffShort, 1u,
+                          short_payload(little_, {7u}));
+        add_preview_entry(entries, kTagPhotometricInterpretation, kTiffShort, 1u,
+                          short_payload(little_, {6u}));
+        add_preview_entry(entries, kTagStripOffsets, kTiffLong, 1u,
+                          long_payload(little_, {previewJpegOffset_}));
+        add_preview_entry(entries, kTagOrientation, kTiffShort, 1u,
+                          short_payload(little_, {1u}));
+        add_preview_entry(entries, kTagSamplesPerPixel, kTiffShort, 1u,
+                          short_payload(little_, {3u}));
+        add_preview_entry(entries, kTagRowsPerStrip, kTiffLong, 1u,
+                          long_payload(little_, {static_cast<std::uint32_t>(previewHeight_)}));
+        add_preview_entry(entries, kTagStripByteCounts, kTiffLong, 1u,
+                          long_payload(little_, {static_cast<std::uint32_t>(jpeg_.sizeBytes())}));
+        add_preview_entry(entries, kTagPlanarConfiguration, kTiffShort, 1u,
+                          short_payload(little_, {1u}));
 
-        // Keep entry count synchronized with resize() accounting.
-        if (entries.size() != 19u) return false;
-        std::sort(entries.begin(), entries.end(), [](const PreviewEntry& a, const PreviewEntry& b) { return a.tag < b.tag; });
+        auto software = ascii_payload(kSoftware);
+        add_preview_entry(entries, kTagSoftware, kTiffAscii,
+                          static_cast<std::uint32_t>(software.size()), std::move(software));
+        add_preview_entry(entries, kTagYCbCrSubSampling, kTiffShort, 2u,
+                          short_payload(little_, {subsamplingH_, subsamplingV_}));
+        add_preview_entry(entries, kTagYCbCrPositioning, kTiffShort, 1u,
+                          short_payload(little_, {1u}));
+
+        auto application = ascii_payload(kPreviewApplication);
+        add_preview_entry(entries, kTagPreviewApplicationName, kTiffAscii,
+                          static_cast<std::uint32_t>(application.size()), std::move(application));
+        auto version = ascii_payload(kPreviewVersion);
+        add_preview_entry(entries, kTagPreviewApplicationVersion, kTiffAscii,
+                          static_cast<std::uint32_t>(version.size()), std::move(version));
+        auto settings = ascii_payload(kPreviewSettings);
+        add_preview_entry(entries, kTagPreviewSettingsName, kTiffAscii,
+                          static_cast<std::uint32_t>(settings.size()), std::move(settings));
+        add_preview_entry(entries, kTagPreviewColorSpace, kTiffLong, 1u,
+                          long_payload(little_, {kPreviewColorSpaceSrgb}));
+
+        if (entries.size() != kPreviewEntryCount) return false;
+        std::sort(entries.begin(), entries.end(),
+                  [](const PreviewEntry& a, const PreviewEntry& b) { return a.tag < b.tag; });
 
         const std::uint64_t ifdBytes = 2u + 12u * entries.size() + 4u;
+        if (ifdBytes != previewIfdBytes_) return false;
         std::uint64_t cursor = static_cast<std::uint64_t>(previewIfdOffset_) + ifdBytes;
         for (auto& entry : entries) {
             if (entry.payload.size() <= 4u) continue;
@@ -522,7 +593,8 @@ private:
         if (!sink_.writeExact(previewIfdOffset_, ifd.data(), ifd.size())) return false;
         for (const auto& entry : entries) {
             if (entry.payload.size() <= 4u) continue;
-            if (!sink_.writeExact(entry.externalOffset, entry.payload.data(), entry.payload.size())) return false;
+            if (!sink_.writeExact(entry.externalOffset,
+                                  entry.payload.data(), entry.payload.size())) return false;
         }
         return true;
     }
@@ -540,6 +612,7 @@ private:
     bool previewFinished_ = false;
     bool failed_ = false;
     std::uint64_t baseBytes_ = 0u;
+    std::uint64_t expandedRawEnd_ = 0u;
     std::uint64_t finalBytes_ = 0u;
     std::size_t oldIfdBytes_ = 0u;
     std::size_t previewIfdBytes_ = 0u;
@@ -564,7 +637,7 @@ Status write_finalized_linear_dng_with_preview(
     }
 
     JpegInfo jpegInfo;
-    auto jpegStatus = validate_baseline_jpeg(preview, options, jpegInfo);
+    const auto jpegStatus = validate_baseline_jpeg(preview, options, jpegInfo);
     if (!jpegStatus) return jpegStatus;
 
     PreviewInjectingSink injectingSink(
@@ -584,7 +657,8 @@ Status write_finalized_linear_dng_with_preview(
     }
     if (!injectingSink.finish_preview() || !injectingSink.complete()) {
         (void)sink.resize(0u);
-        return Status::error(StatusCode::SinkFailed, "failed to finalize embedded JPEG preview SubIFD");
+        return Status::error(StatusCode::SinkFailed,
+                             "failed to finalize embedded JPEG preview SubIFD");
     }
 
     out.linearRaw = v02Result;
