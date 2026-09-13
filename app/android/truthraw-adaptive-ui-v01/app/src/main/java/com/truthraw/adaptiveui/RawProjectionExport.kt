@@ -18,19 +18,25 @@ enum class RawProjectionKind(
         1,
         "application/octet-stream",
         "truthraw_reconstructed_cfa_compat_v0_2.rawsensor",
-        "Reconstructed CFA .rawsensor (compatibiliteit) opslaan",
+        "Save reconstructed CFA .rawsensor (compatibility)",
     ),
     RECONSTRUCTED_CFA_DNG(
         2,
         "image/x-adobe-dng",
         "truthraw_reconstructed_cfa_compat_v0_2.dng",
-        "Reconstructed CFA DNG (compatibiliteit) opslaan",
+        "Save reconstructed CFA DNG (compatibility)",
     ),
     LINEAR_DNG(
         3,
         "image/x-adobe-dng",
         "truthraw_rgb_linearraw_v0_2.dng",
-        "TruthRaw RGB RAW (Linear DNG) opslaan",
+        "Save 16-bit TruthRaw RGB Linear DNG (compatibility)",
+    ),
+    TRUTHRAW_PURE_FLOAT32_DNG(
+        4,
+        "image/x-adobe-dng",
+        "truthraw_pure_float32_v0_1.dng",
+        "Save TRUTHRAW PURE · Float32 Scientific DNG",
     ),
 }
 
@@ -80,17 +86,17 @@ object RawProjectionExporter {
         val source = try {
             resolver.openFileDescriptor(job.source.uri, "r")
         } catch (error: Exception) {
-            return failure("Bron kon niet opnieuw worden geopend: ${error.message ?: error.javaClass.simpleName}")
-        } ?: return failure("Documentprovider gaf geen bron-file-descriptor.")
+            return failure("Source could not be reopened: ${error.message ?: error.javaClass.simpleName}")
+        } ?: return failure("The document provider did not return a source file descriptor.")
 
         val output = try {
             resolver.openFileDescriptor(outputUri, "rw")
         } catch (error: Exception) {
             source.close()
-            return failure("Doelbestand kon niet worden geopend: ${error.message ?: error.javaClass.simpleName}")
+            return failure("Output file could not be opened: ${error.message ?: error.javaClass.simpleName}")
         } ?: run {
             source.close()
-            return failure("Documentprovider gaf geen output-file-descriptor.")
+            return failure("The document provider did not return an output file descriptor.")
         }
 
         val packet = try {
@@ -106,14 +112,14 @@ object RawProjectionExporter {
                 }
             }
         } catch (error: Throwable) {
-            return failure("Native projection-export faalde: ${error.message ?: error.javaClass.simpleName}")
+            return failure("Native projection export failed: ${error.message ?: error.javaClass.simpleName}")
         }
 
         if (packet.size != RAW_EXPORT_HEADER_INTS || packet[0] != RAW_EXPORT_MAGIC) {
-            return failure("Ongeldig native projection-exportpakket.")
+            return failure("Invalid native projection export packet.")
         }
         if (packet[1] != 0) return failure(nativeStatusDescription(packet[1]))
-        if (packet[2] != kind.nativeCode) return failure("Fail-closed: native projection-kind wijkt af van de gekozen export.")
+        if (packet[2] != kind.nativeCode) return failure("Fail-closed: native projection kind differs from the selected export.")
 
         val metrics = RawProjectionMetrics(
             kind = kind,
@@ -131,7 +137,12 @@ object RawProjectionExporter {
             cameraCalibrationApplied = packet[18] != 0,
         )
 
-        val expectedSamples = if (kind == RawProjectionKind.LINEAR_DNG) 3 else 1
+        val expectedSamples = when (kind) {
+            RawProjectionKind.RECONSTRUCTED_CFA_RAWSENSOR,
+            RawProjectionKind.RECONSTRUCTED_CFA_DNG -> 1
+            RawProjectionKind.LINEAR_DNG,
+            RawProjectionKind.TRUTHRAW_PURE_FLOAT32_DNG -> 3
+        }
         val contractViolation =
             metrics.width <= 0 || metrics.height <= 0 ||
                 metrics.samplesPerPixel != expectedSamples ||
@@ -144,7 +155,7 @@ object RawProjectionExporter {
                 metrics.scientificGaugeScanPasses != 2 ||
                 metrics.colorClaimScopeCode !in 1..2
         if (contractViolation) {
-            return failure("Fail-closed: export schond projection-, evidence-, scan- of memorycontract.")
+            return failure("Fail-closed: export violated the projection, evidence, scan, or memory contract.")
         }
 
         val format = when (kind) {
@@ -153,13 +164,20 @@ object RawProjectionExporter {
             RawProjectionKind.RECONSTRUCTED_CFA_DNG ->
                 "reconstructed CFA DNG compatibility projection"
             RawProjectionKind.LINEAR_DNG ->
-                "TruthRaw camera-native RGB LinearRaw DNG high-fidelity projection"
+                "16-bit TruthRaw camera-native RGB LinearRaw DNG compatibility projection"
+            RawProjectionKind.TRUTHRAW_PURE_FLOAT32_DNG ->
+                "TRUTHRAW PURE float32 XYZ-D50 LinearRaw DNG projection"
+        }
+        val rangeSummary = if (kind == RawProjectionKind.TRUTHRAW_PURE_FLOAT32_DNG) {
+            "negative/>1 components retained=${metrics.clippedLowSamples}/${metrics.clippedHighSamples}"
+        } else {
+            "clipping low/high=${metrics.clippedLowSamples}/${metrics.clippedHighSamples}"
         }
         return RawProjectionExportResult(
             metrics = metrics,
             success = true,
-            message = "$format opgeslagen · ${metrics.width}×${metrics.height} · ${formatBytes(metrics.outputBytes.toLong())} · " +
-                "clipping low/high=${metrics.clippedLowSamples}/${metrics.clippedHighSamples} · projection-only, geen nieuwe evidence.",
+            message = "$format saved · ${metrics.width}×${metrics.height} · ${formatBytes(metrics.outputBytes.toLong())} · " +
+                "$rangeSummary · projection-only, no new evidence.",
         )
     }
 
@@ -173,29 +191,39 @@ object RawProjectionExporter {
     }
 
     private fun nativeStatusDescription(status: Int): String = when (status) {
-        -1 -> "Ongeldige projection-exportparameters."
-        -2 -> "Fail-closed: pre-master authority-state was niet canoniek."
-        -3 -> "Fail-closed: Technical Backplane/admission was niet aan exact dezelfde bron gebonden."
-        -4 -> "Fail-closed: projection probeerde evidence/master-invariant te schenden."
+        -1 -> "Invalid projection export parameters."
+        -2 -> "Fail-closed: pre-master authority state was not canonical."
+        -3 -> "Fail-closed: Technical Backplane/admission was not bound to the exact same source."
+        -4 -> "Fail-closed: projection attempted to violate an evidence/master invariant."
 
-        in 2001..2099 -> "Source binding/finalization faalde (status $status)."
-        in 2101..2199 -> "DNG color producer v0.2 faalde (status $status)."
-        in 3001..3099 -> "TileNative DNG-bron faalde (status $status)."
+        in 2001..2099 -> "Source binding/finalization failed (status $status)."
+        in 2101..2199 -> "DNG color producer v0.2 failed (status $status)."
+        in 3001..3099 -> "TileNative DNG source failed (status $status)."
         in 6001..6099 -> when (status) {
-            6001 -> "Projection writer: ongeldig argument."
-            6002 -> "Projection writer: niet ondersteunde projection-kind."
-            6003 -> "Projection writer: brongebonden kleurmatrix kan niet veilig naar DNG-tags worden geschreven."
-            6004 -> "Projection writer: Stage-2 bronread faalde."
-            6005 -> "Projection writer: camera-native reconstructie faalde."
-            6006 -> "Projection writer: niet-finite Scientific-Master sample; fail-closed."
-            6007 -> "Projection writer: logical memorybudget overschreden."
-            6008 -> "Projection writer: Android-doelbestand is niet seekable/truncatable."
-            6009 -> "Projection writer: schrijven naar Android-doelbestand faalde."
-            6010 -> "Projection writer: classic TIFF/DNG offsetbereik overschreden."
-            else -> "Projection writer faalde (status $status)."
+            6001 -> "Projection writer: invalid argument."
+            6002 -> "Projection writer: unsupported projection kind."
+            6003 -> "Projection writer: source-bound color matrix cannot be written safely to DNG tags."
+            6004 -> "Projection writer: Stage-2 source read failed."
+            6005 -> "Projection writer: camera-native reconstruction failed."
+            6006 -> "Projection writer: non-finite Scientific Master sample; fail-closed."
+            6007 -> "Projection writer: logical memory budget exceeded."
+            6008 -> "Projection writer: Android output is not seekable/truncatable."
+            6009 -> "Projection writer: Android output write failed."
+            6010 -> "Projection writer: classic TIFF/DNG offset range exceeded."
+            else -> "Projection writer failed (status $status)."
         }
-        in 7001..7099 -> "Technical Backplane phase 2 weigerde exportfinalisatie (status $status)."
-        in 8001..8099 -> "Scientific Master/TruthRange streaming weigerde exportfinalisatie (status $status)."
-        else -> "Onbekende projection-exportstatus $status."
+        in 7001..7099 -> "Technical Backplane phase 2 rejected export finalization (status $status)."
+        in 8001..8099 -> "Scientific Master/TruthRange streaming rejected export finalization (status $status)."
+        in 9001..9099 -> when (status) {
+            9001 -> "Float32 Scientific DNG writer: invalid argument."
+            9002 -> "Float32 Scientific DNG writer: invalid color transform."
+            9003 -> "Float32 Scientific DNG writer: TIFF/DNG size overflow."
+            9004 -> "Float32 Scientific DNG writer: Scientific Master tile source failed."
+            9005 -> "Float32 Scientific DNG writer: master digest failed."
+            9006 -> "Float32 Scientific DNG writer: replayed master identity did not match the admitted Scientific Master."
+            9007 -> "Float32 Scientific DNG writer: transactional output sink failed."
+            else -> "Float32 Scientific DNG writer failed (status $status)."
+        }
+        else -> "Unknown projection export status $status."
     }
 }
