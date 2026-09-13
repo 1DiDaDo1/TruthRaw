@@ -11,6 +11,11 @@
 
 namespace truthraw::streaming_v0_1 {
 
+// TileRect is canonically owned by truthraw::core. Keep this zero-cost alias in
+// the streaming namespace so research adapters that qualify streaming_v0_1::TileRect
+// resolve to the same type without creating a second geometry contract.
+using TileRect = ::truthraw::TileRect;
+
 enum class StreamStatusCode : int {
     Ok = 0,
     InvalidArgument,
