@@ -58,24 +58,21 @@ internal object HonorCameraProbe {
         val inventories = ids.mapNotNull { cameraId ->
             runCatching {
                 val c = manager.getCameraCharacteristics(cameraId)
-                val caps = c.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES).orEmpty().toList()
+                val caps: List<Int> = (c.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+                    ?: intArrayOf()).toList()
                 val streamMap = c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                 val rawSizes = streamMap?.getOutputSizes(ImageFormat.RAW_SENSOR)
                     ?.toList().orEmpty().sortedByDescending { it.width.toLong() * it.height.toLong() }
                 val maxMap = if (Build.VERSION.SDK_INT >= 31) {
                     c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION)
-                } else {
-                    null
-                }
+                } else null
                 val maxRawSizes = maxMap?.getOutputSizes(ImageFormat.RAW_SENSOR)
                     ?.toList().orEmpty().sortedByDescending { it.width.toLong() * it.height.toLong() }
 
                 val honorCharacteristics = c.keys.asSequence()
                     .filter { it.name.startsWith(HONOR_PREFIX) }
                     .map { key ->
-                        val value = runCatching {
-                            c.get(key as CameraCharacteristics.Key<Any>)
-                        }.getOrNull()
+                        val value = runCatching { c.get(key as CameraCharacteristics.Key<Any>) }.getOrNull()
                         HonorVendorValue(key.name, value?.javaClass?.name, render(value))
                     }
                     .sortedBy { it.name }
@@ -89,7 +86,6 @@ internal object HonorCameraProbe {
                     c.availablePhysicalCameraRequestKeys
                         .map { it.name }.filter { it.startsWith(HONOR_PREFIX) }.sorted()
                 } else emptyList()
-
                 val physicalIds = if (Build.VERSION.SDK_INT >= 28) {
                     c.physicalCameraIds.toList().sorted()
                 } else emptyList()
@@ -129,9 +125,8 @@ internal object HonorCameraProbe {
         inventories: List<HonorCameraInventory>,
     ): List<HonorRawRoute> {
         val routes = mutableListOf<HonorRawRoute>()
+        val proTeleIds = inventories.mapNotNull { it.professionalTeleRawLogicalCameraId }.distinct()
 
-        val proTeleIds = inventories.mapNotNull { it.professionalTeleRawLogicalCameraId }
-            .distinct()
         for (proTeleId in proTeleIds) {
             val id = proTeleId.toString()
             val inventory = inventories.firstOrNull { it.cameraId == id }
