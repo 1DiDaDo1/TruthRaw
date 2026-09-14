@@ -81,6 +81,8 @@
       "sourceEvidenceSha256",
       "packId",
       "datasetManifestSha256",
+      "protocolSha256",
+      "modelSha256",
       "calibrationScopeSha256",
       "quantity",
       "modelId",
