@@ -4,7 +4,7 @@
 
 This document extends the canonical sealed-house/new-house vision. Future TruthRaw work and future chats must preserve this distinction unless the user explicitly changes it.
 
-## 1. The zero line
+## 1. The zero line / nul-lijn
 
 TruthRaw may describe positive latent scene light on a logarithmic relative-light coordinate:
 
@@ -14,7 +14,7 @@ where:
 
 - `L` is a positive latent scene-light quantity in a documented relative or physical gauge;
 - `L0 > 0` is the chosen project/reference level;
-- `T = 0` is the **zero line**.
+- `T = 0` is the **zero line / nul-lijn**.
 
 The zero line is a reference/gauge. It is **not sensor black, display black, absolute darkness, middle gray by definition, or a clipping point**.
 
@@ -23,6 +23,18 @@ If `L -> +infinity`, then `T -> +infinity`.
 If `L -> 0+`, then `T -> -infinity`.
 
 Therefore the TruthRange address space is not required to have a finite bright ceiling or dark floor.
+
+### Historical design intent: both directions
+
+The recovered house metaphor was deliberately two-sided around the nul-lijn. The new reconstructed house was intended to be extensible without a finite representational ceiling **above** the line and without a finite representational floor **below** the line.
+
+Conceptually:
+
+`darkness <- ... <- -EV <- nul-lijn -> +EV -> ... -> brighter light`
+
+This is the project meaning of saying the new house can keep being built upward and downward. It is an address-space property, not a physical-sensor claim.
+
+**The house can be unbounded in both directions. The evidence inside it is finite.**
 
 ## 2. Dynamic range has four different meanings
 
@@ -104,6 +116,18 @@ Black/offset, exposure, gain/readout, linearity, clipping, noise/quantization, c
 
 **Calibration locates evidence in the house; it does not determine how high or deep the house is allowed to exist.**
 
+### Capture/sample-domain identity
+
+The 2026-09-14 Honor dark-frame experiments add a specific measurement-layer rule:
+
+**noise calibration must be bound to the exact capture/sample domain, not to ISO magnitude alone.**
+
+Two independent exact-ISO8192 dark captures reproduced an unusual high-scale/censored domain, while nearby ISO8184 and higher ISO10244 at the same exposure remained in the ordinary domain. A simple monotonic `ISO >= 8192` rule is therefore rejected.
+
+Until the causal control variable is independently identified, this is named the **reproducible discrete ISO8192-associated capture/sample domain**.
+
+A calibrated noise model must fail closed rather than interpolate across such an observed domain discontinuity. This affects evidence placement/uncertainty; it does not redefine TruthRange or the Scientific Master.
+
 ## 6. ISO rule
 
 ISO/gain remains immutable capture provenance.
@@ -121,6 +145,8 @@ It does **not** have to remain the numerical identity of the reconstructed scene
 The TruthRange master may be ISO-neutral after the documented source forward model is accounted for.
 
 **ISO belongs to the measurement history, not to the scene coordinate.**
+
+The capture/sample-domain finding above also means ISO alone may be insufficient to identify the relevant sensor/noise coordinate regime.
 
 ## 7. Highlight censoring
 
@@ -152,6 +178,28 @@ with a lower tail toward `-infinity`.
 
 Exact physical darkness is not asserted merely because the coordinate permits `-infinity`.
 
+### Empirical dark-side reinforcement — 2026-09-14
+
+Honor/MotionCam source measurements now provide direct physical test evidence that post-black numerical values below zero occur in real dark/shadow data.
+
+In one real-scene tele ISO series, below-black samples increased to 59,573 sensels at ISO12800, about `0.4753%` of all sensels, with a minimum observed black-corrected value of `-22 DN`.
+
+Covered/dark-frame repeats then showed approximately `0.79 DN` temporal sigma at ISO100 and `0.87 DN` at ISO400 across CFA channels.
+
+These observations reinforce the existing rule:
+
+**do not hard-clip the signed post-black/scientific estimator to zero.**
+
+They do not mean physical light is negative. They mean the estimator must remain signed around an uncertain measurement zero while the positive-light TruthRange coordinate carries the physical-light interpretation and its dark-side bounds.
+
+Detailed evidence is recorded in:
+
+`docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`
+
+and:
+
+`docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_EMPIRICAL_STATE_2026-09-14.json`
+
 ## 9. Dual-coordinate master
 
 TruthRange does not replace TruthRaw's signed scene-linear reconstruction domain.
@@ -162,6 +210,8 @@ TruthRaw should retain both:
 2. **TruthRange companion coordinate** — used to express positive latent light relative to the zero-line gauge, including bounds and unbounded tails.
 
 Small negative numerical scene-linear estimates are not negative physical light and must not be naively transformed through `log2`.
+
+The new dark-frame evidence makes this separation empirically important rather than merely theoretical.
 
 ## 10. Required TruthRange semantics
 
@@ -187,6 +237,8 @@ Support classes remain distinguishable, including:
 - unknown;
 - appearance only.
 
+Future empirical calibration identity may additionally need a versioned `capture_sample_domain_id` or equivalent. It must not be inserted silently into a frozen Backplane/certificate serialization; any such addition requires an explicit versioned schema.
+
 ## 11. Current practical validation
 
 TruthRaw zero-line implementation v0.1 tested an eight-capture HONOR BKQ-N49 BnCam tele sweep from ISO 100 through ISO 12800.
@@ -205,6 +257,8 @@ This is practical evidence that an ISO-neutral relative scene coordinate is viab
 
 However, the specific `ISO * exposure` mapping is **research/provisional**, not a canonical physical gain calibration. The next implementation must bind TruthRange to the exact Stage-2 / Latent Scene Master and backend uncertainty, using stronger measured gain mapping where available.
 
+The 2026-09-14 MotionCam campaigns add source-bound evidence for gain response, repeatability, signed below-black behavior and dark-frame temporal noise. They do not turn the provisional TruthRange mapping into absolute radiometric calibration.
+
 ## 12. Permanent claim boundary
 
 The canonical TruthRaw statement is:
@@ -213,6 +267,6 @@ The canonical TruthRaw statement is:
 
 In shorter form:
 
-**The axis can be infinite. The evidence is finite. The reconstruction may go beyond the evidence only as reconstruction.**
+**The axis can be infinite in both directions. The evidence is finite. The reconstruction may go beyond the evidence only as reconstruction.**
 
 This architecture is part of the sealed-house vision and must be read before interpreting dynamic-range, ISO, clipping, calibration or HDR work.
