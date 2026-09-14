@@ -92,7 +92,7 @@ Preferred temperature sources, in order of authority:
 
 Ambient temperature, battery temperature and CPU temperature are useful context but are not silently treated as sensor temperature.
 
-If no suitable temperature observation exists, the pack may still validate a narrowly scoped state but may not claim a temperature-compensated physical model.
+If no suitable temperature observation exists, the pack may still validate a narrowly scoped state but may not claim a temperature-compensated physical model. If a pack does claim temperature calibration, every validated module used by that temperature-dependent claim must cover the declared temperature bins; a C1-only temperature sweep is not enough to justify temperature compensation of C2/C3/C4/C5/C6/C7 quantities.
 
 ---
 
@@ -280,6 +280,7 @@ A quantity may carry `CALIBRATED_PHYSICAL` only when every listed module is pres
 | relative scene radiance | C0 + C1 + C2 + C3 + C5 |
 | absolute scene radiance | C0 + C1 + C2 + C3 + C5 + C6 |
 | validated incident-light inference | C0 + C2 + C7 |
+| absolute incident irradiance | C0 + C1 + C2 + C3 + C5 + C6 + C7 |
 
 For every calibrated claim, fit and validation datasets are disjoint. Final admission thresholds are fixed before the final fit is evaluated. A low training residual is never sufficient by itself.
 
@@ -293,7 +294,7 @@ This protocol lets FotoGraaf answer three previously ambiguous questions in a ph
 
 **Real HDR range:** after C1/C2, FotoGraaf can report a calibrated capture-domain dynamic-range envelope in stops, including uncertainty and censoring boundaries. This is scientific scene/capture range, not the JPG/HDR appearance toggle.
 
-**Light incidence:** C0-C6 can improve radiance interpretation, but local incident-light values remain `INFERRED_SCENE` until a C7-like geometry/material/light reference validates the particular inference model. Even then, authority is bounded to the validated domain.
+**Light incidence:** C0-C6 can improve radiance interpretation, but local incident-light values remain `INFERRED_SCENE` until a C7-like geometry/material/light reference validates the particular inference model. A relative/structural incident-light validation may use C7; an absolute incident-irradiance claim additionally requires the C6 absolute chain and a traceable cosine-corrected irradiance reference. Even then, authority is bounded to the validated domain.
 
 ---
 

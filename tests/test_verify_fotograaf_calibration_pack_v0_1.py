@@ -57,6 +57,7 @@ def valid_relative_pack():
         "independentEvidenceCountForLaterScene": 1,
         "fitValidationSeparated": True,
         "thresholdProtocolSealedBeforeFit": True,
+        "temperature": {"calibrated": False, "bins": []},
         "modules": {
             "C0_IDENTITY": module({
                 "captureFileSha256ForEveryFrame": True,
@@ -191,6 +192,45 @@ class CalibrationPackV01Tests(unittest.TestCase):
     def test_scene_evidence_count_cannot_increase(self):
         pack = valid_relative_pack()
         pack["independentEvidenceCountForLaterScene"] = 2
+        with self.assertRaises(ValidationError):
+            validate_pack(pack, self.contract)
+
+    def test_temperature_calibrated_pack_requires_three_bins_and_module_coverage(self):
+        pack = valid_relative_pack()
+        pack["temperature"] = {"calibrated": True, "bins": [20.0, 30.0, 40.0]}
+        with self.assertRaises(ValidationError):
+            validate_pack(pack, self.contract)
+
+    def test_absolute_incident_irradiance_requires_traceable_irradiance_reference(self):
+        pack = valid_relative_pack()
+        pack["status"] = "VALIDATED_ABSOLUTE_FOR_DECLARED_QUANTITY"
+        pack["modules"]["C6_ABSOLUTE_RADIOMETRY"] = module({
+            "referenceLevels": 5,
+            "minRepeatsPerLevel": 5,
+            "traceableReference": True,
+            "instrumentModelSerialPresent": True,
+            "calibrationCertificateIdentityPresent": True,
+            "certificateValidAtAcquisition": True,
+            "measurementUncertaintyPresent": True,
+            "spectralBandpassPresent": True,
+            "geometryAndAngularConditionsPresent": True,
+        })
+        pack["modules"]["C7_INCIDENT_LIGHT_GEOMETRY"] = module({
+            "distinctLightDirections": 3,
+            "distinctLightLevelsOrDistances": 3,
+            "knownOrMeasuredGeometry": True,
+            "surfaceNormals": True,
+            "materialReflectanceOrBrdfReference": True,
+            "lightPositionDirection": True,
+            "cosineCorrectedIrradianceReference": True,
+            "shadowVisibilityGroundTruth": True,
+        })
+        pack["traceability"] = {"absolute": True}
+        pack["claims"] = [{
+            "quantity": "absolute_incident_irradiance",
+            "authority": "CALIBRATED_PHYSICAL",
+            "validated": True,
+        }]
         with self.assertRaises(ValidationError):
             validate_pack(pack, self.contract)
 

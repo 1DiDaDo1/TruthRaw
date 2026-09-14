@@ -45,7 +45,12 @@
       "battery_temperature_only",
       "cpu_temperature_only"
     ],
-    "stabilityRule": "Each temperature bin must satisfy the protocol-sealed soak/stability criterion before captures begin."
+    "stabilityRule": "Each temperature bin must satisfy the protocol-sealed soak/stability criterion before captures begin.",
+    "packTemperatureAdmission": {
+      "temperatureCalibrationFlagRequired": true,
+      "minBinsWhenTemperatureCalibrated": 3,
+      "allValidatedModulesUsedByTemperatureDependentClaimMustCoverDeclaredBins": true
+    }
   },
   "modules": {
     "C0_IDENTITY": {
@@ -291,6 +296,15 @@
       "C0_IDENTITY",
       "C2_LINEARITY_GAIN_SATURATION",
       "C7_INCIDENT_LIGHT_GEOMETRY"
+    ],
+    "absolute_incident_irradiance": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING",
+      "C5_RELATIVE_RADIOMETRY",
+      "C6_ABSOLUTE_RADIOMETRY",
+      "C7_INCIDENT_LIGHT_GEOMETRY"
     ]
   },
   "fitValidationSeparation": {
@@ -305,6 +319,7 @@
     "missingExternalTraceabilityForAbsoluteClaim": "REJECT_ABSOLUTE_CLAIM",
     "missingGeometryMaterialSupportForIncidentLight": "KEEP_INFERRED_SCENE_OR_UNKNOWN",
     "unmodeledTemperatureDrift": "OUT_OF_SCOPE_OR_WIDEN_UNCERTAINTY_ONLY_IF_VALIDATED",
-    "calibrationPackMayIncreaseLaterSceneEvidenceCount": false
+    "calibrationPackMayIncreaseLaterSceneEvidenceCount": false,
+    "absoluteIncidentIrradianceWithoutC6C7": "REJECT_ABSOLUTE_CLAIM"
   }
 }

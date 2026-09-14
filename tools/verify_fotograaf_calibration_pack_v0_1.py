@@ -239,6 +239,21 @@ def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[
             "fitValidationSeparated must be true")
     require(pack.get("thresholdProtocolSealedBeforeFit") is True,
             "thresholdProtocolSealedBeforeFit must be true")
+    temperature = pack.get("temperature")
+    require(isinstance(temperature, dict), "temperature record missing")
+    require(isinstance(temperature.get("calibrated"), bool), "temperature.calibrated must be boolean")
+    bins = temperature.get("bins")
+    require(isinstance(bins, list), "temperature.bins must be a list")
+    if temperature["calibrated"]:
+        min_bins = int(contract["environment"]["packTemperatureAdmission"]["minBinsWhenTemperatureCalibrated"])
+        require(len(bins) >= min_bins, f"temperature-calibrated pack requires at least {min_bins} bins")
+        for module_name, module_record in pack.get("modules", {}).items():
+            if isinstance(module_record, dict) and module_record.get("validated") is True:
+                metrics = module_record.get("metrics", {})
+                require(isinstance(metrics, dict), f"{module_name}.metrics missing")
+                covered = metrics.get("temperatureBinsCovered")
+                require(isinstance(covered, int) and covered >= min_bins,
+                        f"{module_name}.metrics.temperatureBinsCovered must be >= {min_bins} for temperature-calibrated pack")
 
     claims = pack.get("claims")
     require(isinstance(claims, list), "claims must be a list")
@@ -279,6 +294,14 @@ def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[
             if quantity == "validated_incident_light_inference":
                 require(_has_external_reference(pack, "cosine_corrected_irradiance_reference"),
                         "validated incident-light inference requires cosine-corrected irradiance reference")
+            if quantity == "absolute_incident_irradiance":
+                require(status == "VALIDATED_ABSOLUTE_FOR_DECLARED_QUANTITY",
+                        "absolute_incident_irradiance requires absolute pack status")
+                traceability = pack.get("traceability")
+                require(isinstance(traceability, dict) and traceability.get("absolute") is True,
+                        "absolute_incident_irradiance requires absolute traceability")
+                require(_has_external_reference(pack, "cosine_corrected_irradiance_reference", absolute=True),
+                        "absolute_incident_irradiance requires traceable cosine-corrected irradiance reference")
             if quantity == "independent_colorimetry":
                 require(_has_external_reference(pack, "illuminant_spd_measurement"),
                         "independent_colorimetry requires illuminant SPD reference")
