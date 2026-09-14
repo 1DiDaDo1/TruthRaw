@@ -17,6 +17,7 @@
         android:strokeWidth="2.2" />
 
     <path
+        android:fillType="evenOdd"
         android:pathData="M20,30h49c13,0 22,8 22,20c0,9 -5,16 -13,19l14,19h-15l-13,-18h-3v18h-12V41H20zM61,41v18h8c6,0 10,-3 10,-9c0,-6 -4,-9 -10,-9zM38,41h11v47H38z">
         <aapt:attr name="android:fillColor">
             <gradient
@@ -35,6 +36,7 @@
 
     <path
         android:fillColor="@android:color/transparent"
+        android:fillType="evenOdd"
         android:pathData="M20,30h49c13,0 22,8 22,20c0,9 -5,16 -13,19l14,19h-15l-13,-18h-3v18h-12V41H20zM61,41v18h8c6,0 10,-3 10,-9c0,-6 -4,-9 -10,-9zM38,41h11v47H38z"
         android:strokeColor="#5594E8FF"
         android:strokeWidth="0.8" />
