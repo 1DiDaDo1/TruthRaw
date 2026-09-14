@@ -1,0 +1,41 @@
+name: FotoGraaf C0 Capture Identity Gate v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_GATE_V0_1_2026-09-14.md'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_CONTRACT_V0_1.json'
+      - 'tools/verify_fotograaf_c0_capture_identity_v0_1.py'
+      - 'tests/test_verify_fotograaf_c0_capture_identity_v0_1.py'
+      - '.github/workflows/fotograaf-c0-capture-identity-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_GATE_V0_1_2026-09-14.md'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_CONTRACT_V0_1.json'
+      - 'tools/verify_fotograaf_c0_capture_identity_v0_1.py'
+      - 'tests/test_verify_fotograaf_c0_capture_identity_v0_1.py'
+      - '.github/workflows/fotograaf-c0-capture-identity-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  c0-capture-identity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile C0 identity verifier
+        run: python3 -m py_compile tools/verify_fotograaf_c0_capture_identity_v0_1.py
+
+      - name: Validate fail-closed C0 contract
+        run: >-
+          python3 tools/verify_fotograaf_c0_capture_identity_v0_1.py
+          --contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_CONTRACT_V0_1.json
+
+      - name: Run C0 identity regression tests
+        run: >-
+          python3 -m unittest
+          tests/test_verify_fotograaf_c0_capture_identity_v0_1.py
+          -v

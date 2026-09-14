@@ -1,0 +1,82 @@
+{
+  "schema": "truthraw.fotograaf-c0-capture-identity-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "recordSchema": "truthraw.fotograaf-c0-capture-identity-record.v0.1",
+  "scopeSchema": "truthraw.fotograaf-calibration-scope-key.v0.1",
+  "requiredScopeFields": [
+    "deviceMake",
+    "deviceModel",
+    "cameraSystemId",
+    "physicalCameraId",
+    "lensRole",
+    "captureApiDomain",
+    "captureMode",
+    "rawWidth",
+    "rawHeight",
+    "cfaPattern",
+    "sampleRepresentation",
+    "captureSampleDomainId",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState",
+    "protocolVersion"
+  ],
+  "requiredIdentityObservationFields": [
+    "cameraSystemId",
+    "physicalCameraId",
+    "captureApiDomain",
+    "captureSampleDomainId",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState"
+  ],
+  "requiredTopologyFields": [
+    "rawWidth",
+    "rawHeight",
+    "cfaPattern",
+    "sampleRepresentation",
+    "directCfaMeasurement",
+    "processedRgbInput",
+    "multiFrameEvidenceMerged",
+    "parserBackendId"
+  ],
+  "forbiddenPlaceholderTokens": [
+    "UNRESOLVED",
+    "UNKNOWN",
+    "TBD",
+    "TODO",
+    "MUST_BE",
+    "NOT_SET",
+    "PLACEHOLDER",
+    "N/A"
+  ],
+  "expectedHonorTeleProfile": {
+    "deviceMake": "HONOR",
+    "deviceModel": "BKQ-N49",
+    "cameraSystemId": "5",
+    "lensRole": "TELE",
+    "rawWidth": 4080,
+    "rawHeight": 3072,
+    "cfaPattern": "BGGR"
+  },
+  "rules": {
+    "sourceBytesMustBeRehashedForSeal": true,
+    "metadataSnapshotMustBeRehashedForSeal": true,
+    "cameraSystemIdMustBeObservedAtAcquisition": true,
+    "physicalCameraIdMustBeObservedAtAcquisition": true,
+    "scopeObservationMismatch": "FAIL",
+    "sourceHashMismatch": "FAIL",
+    "metadataSnapshotHashMismatch": "FAIL",
+    "processedRgbInput": "FAIL",
+    "multiFrameEvidenceMerged": "FAIL",
+    "directCfaMeasurementRequired": true,
+    "ordinaryDngMetadataAloneMayProvePhysicalCameraId": false,
+    "isoMagnitudeMaySelectCaptureSampleDomain": false,
+    "sceneEvidenceCountsChangedByCalibration": false
+  },
+  "canonicalDigests": {
+    "scopeKeySha256": "SHA-256 over canonical UTF-8 JSON of scope: sort_keys=true, separators=(',',':'), ensure_ascii=false",
+    "c0RecordSha256": "SHA-256 over canonical UTF-8 JSON of record with top-level c0RecordSha256 omitted"
+  }
+}
