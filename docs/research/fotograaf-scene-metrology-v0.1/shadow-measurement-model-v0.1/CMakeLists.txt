@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Threads REQUIRED)
+
 add_library(fotograaf_shadow_measurement_model_v0_1 STATIC
     shadow_measurement_model_v0_1.cpp
 )
@@ -20,6 +22,7 @@ add_executable(test_fotograaf_shadow_measurement_model_v0_1
 )
 target_link_libraries(test_fotograaf_shadow_measurement_model_v0_1 PRIVATE
     fotograaf_shadow_measurement_model_v0_1
+    Threads::Threads
 )
 target_compile_options(test_fotograaf_shadow_measurement_model_v0_1 PRIVATE
     -Wall -Wextra -Wpedantic -Werror
