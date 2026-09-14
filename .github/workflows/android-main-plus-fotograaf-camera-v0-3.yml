@@ -1,0 +1,96 @@
+name: Android Main plus FotoGraaf Camera v0.3 Discovery
+
+on:
+  push:
+    branches:
+      - research/main-plus-fotograaf-camera-v0.3-discovery-2026-09-14
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - '.github/workflows/android-main-plus-fotograaf-camera-v0-3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-main-plus-fotograaf-v03:
+    name: Build TruthRaw Suite Main + FotoGraaf discovery v0.3 arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify discovery is fail-visible and science boundary unchanged
+        run: |
+          APP='app/android/truthraw-adaptive-ui-v01'
+          MANIFEST="$APP/app/src/main/AndroidManifest.xml"
+          JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
+          CPP="$APP/app/src/main/cpp"
+
+          grep -F 'TruthRawSuiteApplication' "$MANIFEST"
+          grep -F 'android.permission.CAMERA' "$MANIFEST"
+          grep -F 'raw CameraManager.cameraIdList' "$JAVA/HonorCameraProbe.kt"
+          grep -F 'IDs are never dropped because one field failed' "$JAVA/HonorCameraProbe.kt"
+          grep -F 'discoveredAsPhysical' "$JAVA/HonorCameraProbe.kt"
+          grep -F 'professionalTeleRawLogicalCameraID' "$JAVA/HonorCameraProbe.kt"
+          grep -F 'WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()' "$JAVA/TruthRawSuiteApplication.kt"
+          grep -F 'physicalCameraResults' "$JAVA/FotoGraafCameraActivity.kt"
+          grep -F 'SENSOR_TIMESTAMP' "$JAVA/FotoGraafCameraActivity.kt"
+          grep -F 'vendorRequestsWritten", false' "$JAVA/FotoGraafCameraActivity.kt"
+          grep -F 'object LinearDngExporter' "$JAVA/LinearDngExport.kt"
+          grep -F 'linear_dng_export_bridge.cpp' "$CPP/CMakeLists.txt"
+
+          echo 'suite_lineage=MAIN_PLUS_FOTOGRAAF'
+          echo 'discovery_policy=FAIL_VISIBLE_NO_SILENT_CAMERA_DROP'
+          echo 'physical_topology=DISCOVER_FROM_LOGICAL_MEMBERSHIP'
+          echo 'camera_authority=CAMERA2_ACQUISITION_OBSERVATION_ONLY'
+          echo 'scientific_processor=UNCHANGED_MAIN_ACTIVITY_PLUS_NATIVE_ENGINE'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          test -n "$ANDROID_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: app/android/truthraw-adaptive-ui-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK keeps TruthRaw native processor and FotoGraaf classes
+        run: |
+          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng'
+          unzip -l "$APK" | grep -F 'classes.dex'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-main-plus-fotograaf-camera-v0.3-discovery-debug-arm64
+          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
