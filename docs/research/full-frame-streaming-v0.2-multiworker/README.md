@@ -1,6 +1,6 @@
 # TruthRaw Full-Frame Streaming v0.2 Multi-Worker Candidate
 
-**Status: RESEARCH CANDIDATE / NOT PRODUCTION / DOES NOT MODIFY v0.1 OR CANONICAL v4.7i**
+**Status: HOST RESEARCH PASS / NOT ANDROID PRODUCTION / DOES NOT MODIFY v0.1 OR CANONICAL v4.7i**
 
 This module is the first concrete implementation step after recovering the older canonical v4.7i multithreading history.
 
@@ -15,6 +15,8 @@ The scientific contract remains single-frame:
 `independentEvidenceCount = 1`
 
 More workers are execution resources only.
+
+Host validation is recorded in `VALIDATION_2026-09-14.md`. Workflow run `34833317060` passed GCC Release, Clang Release and Clang ASan/UBSan at head `28a13e905dd07600432c259c2ac957a5c809e5b1`.
 
 ## Why this candidate exists
 
@@ -64,9 +66,9 @@ The candidate computes a conservative resident-memory admission bound from:
 
 This is deliberately conservative. A later production planner can tighten the bound, but it may not hide worker-private scratch or queue residency.
 
-## Validation target
+## Validated host result
 
-The test uses the unchanged v0.1 one-worker streaming processor as the byte-level reference. The v0.2 candidate is run with 2 and 4 workers and must reproduce exactly:
+The unchanged v0.1 one-worker streaming processor is the byte-level reference. The v0.2 candidate was run with 2 and 4 workers and reproduced exactly:
 
 - `ExposurePlan`;
 - SDR float bytes;
@@ -76,27 +78,30 @@ The test uses the unchanged v0.1 one-worker streaming processor as the byte-leve
 - tile counts;
 - single-frame evidence provenance.
 
-It also requires:
+It also passed these scheduling/resource assertions:
 
 - source concurrency peak exactly 1;
 - sink writes in canonical tile order;
 - bounded reorder-window occupancy;
-- the same two-pass source-read count (no extra scientific reread caused by worker count).
+- same two-pass RAW tile-read count regardless of worker count;
+- repeated four-worker execution without byte drift;
+- GCC, Clang and Clang ASan/UBSan host runs all green.
 
-The four-worker case is repeated to look for schedule-dependent drift.
+The first Clang candidate build exposed a most-vexing-parse implementation error in the worker-workspace declaration. That failed run is intentionally preserved in `VALIDATION_2026-09-14.md`; the source was corrected and the full matrix rerun rather than weakening compiler checks.
 
 ## Current authority boundary
 
-A host-CI PASS is evidence that the candidate scheduler is deterministic and bounded for the synthetic regression and tested compilers/runtimes. It is **not** yet proof that Android/Honor is faster, cooler, or production-safe.
+The host PASS is evidence that the candidate scheduler is deterministic and bounded for the synthetic regression and tested compilers/runtimes. It is **not** yet proof that Android/Honor is faster, cooler, or production-safe.
 
-Still OPEN after host PASS:
+Still OPEN:
 
 - TileNativeDngSource integration;
 - Android JNI/runtime integration;
 - physical Honor 1/2/4-worker exact artifact comparison;
 - wall-time/CPU/PSS/thermal profiling;
 - long-run stress/race testing on device;
-- resource-governor worker admission.
+- resource-governor worker admission;
+- PURE Scientific Master/artifact identity comparison across worker counts where exact identity is required.
 
 ## Promotion law
 
