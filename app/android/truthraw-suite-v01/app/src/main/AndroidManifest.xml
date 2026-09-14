@@ -34,5 +34,9 @@
         <activity
             android:name="com.truthraw.fotograafcapture.HonorTeleActivity"
             android:exported="false" />
+
+        <activity
+            android:name="com.truthraw.fotograafcapture.HonorCapabilityProbeActivity"
+            android:exported="false" />
     </application>
 </manifest>
