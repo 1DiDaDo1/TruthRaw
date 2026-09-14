@@ -1,0 +1,48 @@
+{
+  "schema": "TruthRawHonorVendorTagRegistry/v0.2",
+  "status": "STATIC_APK_GUIDANCE_ONLY_RUNTIME_VERIFICATION_REQUIRED",
+  "stockCameraApk": {
+    "filename": "Camera.apk",
+    "sha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+    "authority": "TECHNICAL_ROUTE_HINT_ONLY",
+    "mayGrantTruthRawEvidenceOrCalibrationAuthority": false
+  },
+  "rules": [
+    "A tag found in the stock APK is not evidence that the current device exposes or honors it.",
+    "Runtime Camera2 key enumeration and capture results are authoritative for route availability only.",
+    "No vendor tag may upgrade physicalFrameCount, independentEvidenceCount, color authority, noise authority or calibration authority.",
+    "Unknown type or semantics fails closed; do not guess a request value."
+  ],
+  "characteristics": [
+    {"name":"com.hihonor.device.capabilities.professionalTeleRawLogicalCameraID","apkStaticExpectedType":"int","purpose":"Stock ProPhoto RAW tele logical-camera candidate","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.rawSensorResolution","apkStaticExpectedType":"int[]","purpose":"RAW sensor-resolution descriptor","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.rawCaptureSize","apkStaticExpectedType":"int[]","purpose":"RAW capture-size descriptor","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.hwCaptureRawStreamConfigurations","apkStaticExpectedType":"int[]","purpose":"HONOR RAW stream configuration descriptor","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.hwProfessionalRawCaptureMode","apkStaticExpectedType":"byte","purpose":"Professional RAW capture-mode capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.rawZoomSupported","apkStaticExpectedType":"byte","purpose":"RAW zoom capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.needOpenPhysicalCamera","apkStaticExpectedType":"int[]","purpose":"Physical-camera opening policy hint","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.physicalCameraScene","apkStaticExpectedType":"int[]","purpose":"Physical-camera scene mapping/policy hint","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.opticalZoomSupported","apkStaticExpectedType":"byte","purpose":"Optical zoom capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.opticalZoomThreshold","apkStaticExpectedType":"byte[]","purpose":"Optical switch threshold descriptor","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.teleModeSupported","apkStaticExpectedType":"byte","purpose":"Tele mode capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.teleSupport","apkStaticExpectedType":"byte","purpose":"Tele support capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.sensorRemosaicSupported","apkStaticExpectedType":"byte","purpose":"Sensor remosaic capability","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.device.capabilities.rearSensorZoomRemosaicSupported","apkStaticExpectedType":"int","purpose":"Rear zoom/remosaic capability","runtimeStatus":"UNVERIFIED"}
+  ],
+  "captureRequests": [
+    {"name":"com.hihonor.capture.metadata.cameraSaveRawMode","apkStaticExpectedType":"int","policy":"OBSERVE_FIRST_SET_ONLY_IN_EXPERIMENTAL_AB_TEST","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.opticalZoomMode","apkStaticExpectedType":"byte","policy":"OBSERVE_FIRST_SET_ONLY_IN_EXPERIMENTAL_AB_TEST","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.quadraRemosaicHdMode","apkStaticExpectedType":"byte","policy":"MAX_RES_REMOSAIC_EXPERIMENT_ONLY","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.teleconverterEnable","apkStaticExpectedType":"boolean","policy":"NON_EVIDENCE_EXPERIMENT_ONLY","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.superTelephotoEnable","apkStaticExpectedType":"java.lang.Boolean","policy":"NON_EVIDENCE_EXPERIMENT_ONLY","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.macroEnable","apkStaticExpectedType":"int[]","policy":"DO_NOT_SET_UNTIL_RUNTIME_SEMANTICS_ARE_MAPPED","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.qcomRemosaicEnable","apkStaticExpectedType":"int","policy":"MAX_RES_REMOSAIC_EXPERIMENT_ONLY","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.zoomRatio","apkStaticExpectedType":"float","policy":"COMPARE_WITH_STANDARD_CONTROL_ZOOM_RATIO","runtimeStatus":"UNVERIFIED"}
+  ],
+  "captureResults": [
+    {"name":"com.hihonor.capture.metadata.previewCameraPhysicalId","apkStaticExpectedType":"java.lang.Byte","purpose":"Observed active preview physical-camera hint","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.opticalSwitchStatus","apkStaticExpectedType":"byte","purpose":"Observed optical-switch status","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.switchMacroType","apkStaticExpectedType":"int","purpose":"Observed macro-switch state","runtimeStatus":"UNVERIFIED"},
+    {"name":"com.hihonor.capture.metadata.superTelephotoEnable","apkStaticExpectedType":"java.lang.Boolean","purpose":"Observed super-telephoto state","runtimeStatus":"UNVERIFIED"}
+  ]
+}

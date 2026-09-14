@@ -1,0 +1,98 @@
+name: Android FotoGraaf HONOR Route Proof v0.3
+
+on:
+  push:
+    branches:
+      - research/fotograaf-honor-native-probe-world-studio-v0.1-2026-09-14
+    paths:
+      - 'app/android/truthraw-fotograaf-honor-v03/**'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
+      - 'docs/research/honor-native-camera-probe-v0.2/**'
+      - '.github/workflows/android-fotograaf-honor-route-proof-v0-3.yml'
+  pull_request:
+    paths:
+      - 'app/android/truthraw-fotograaf-honor-v03/**'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
+      - 'docs/research/honor-native-camera-probe-v0.2/**'
+      - '.github/workflows/android-fotograaf-honor-route-proof-v0-3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-arm64-fotograaf-apk:
+    name: Android arm64 FotoGraaf route-proof APK
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify acquisition/science boundary
+        run: |
+          ACT='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+          PROBE='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
+          MANIFEST='app/android/truthraw-fotograaf-honor-v03/app/src/main/AndroidManifest.xml'
+          grep -F 'CAMERA2_ACQUISITION_OBSERVATION_ONLY' "$ACT"
+          grep -F 'calibrationAuthorityGranted' "$ACT"
+          grep -F 'scientificMasterModified' "$ACT"
+          grep -F 'independentEvidenceCount' "$ACT"
+          grep -F 'vendorRequestsWritten' "$ACT"
+          grep -F 'professionalTeleRawLogicalCameraID' "$PROBE"
+          grep -F 'LOGICAL_MULTI_CAMERA_FORCED_PHYSICAL_OUTPUT' "$PROBE"
+          grep -F 'FotoGraafCameraActivity' "$MANIFEST"
+          grep -F 'android.permission.CAMERA' "$MANIFEST"
+          if grep -E 'CaptureRequest.Key<|com\.hihonor\.capture\.metadata\..*CaptureRequest.Key' "$ACT"; then
+            echo 'Direct guessed HONOR vendor request construction is forbidden in baseline route proof' >&2
+            exit 1
+          fi
+          echo 'stock_apk_authority=TECHNICAL_ROUTE_HINT_ONLY'
+          echo 'capture_authority=CAMERA2_ACQUISITION_OBSERVATION_ONLY'
+          echo 'vendor_request_baseline=NONE'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            'platforms;android-35' \
+            'build-tools;35.0.0' \
+            'cmake;3.22.1' \
+            'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 APK
+        working-directory: app/android/truthraw-fotograaf-honor-v03
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK and native TruthRaw engine retained
+        run: |
+          APK='app/android/truthraw-fotograaf-honor-v03/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificColorPreview'
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw bridge ABI' >&2
+            exit 1
+          fi
+          echo "fotograaf_apk_bytes=$(stat -c%s "$APK")"
+          echo "fotograaf_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'scientific_engine=RETAINED_EXISTING_CPU_NDK_REFERENCE'
+          echo 'camera_layer=FOTOGRAAF_RUNTIME_PROBE_AND_SINGLE_RAW_ROUTE_PROOF'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-fotograaf-honor-route-proof-v0.3-debug-arm64
+          path: app/android/truthraw-fotograaf-honor-v03/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
