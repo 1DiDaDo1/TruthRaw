@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModeActivity.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModePolicy.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/RawProjectionExport.kt'
@@ -13,6 +14,7 @@ on:
   push:
     paths:
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModeActivity.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModePolicy.kt'
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/RawProjectionExport.kt'
