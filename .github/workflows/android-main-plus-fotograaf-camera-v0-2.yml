@@ -49,12 +49,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
       - name: Install pinned Android SDK and NDK components
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager \
+          test -n "$ANDROID_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" \
             'platforms;android-35' \
             'build-tools;35.0.0' \
             'cmake;3.22.1' \
