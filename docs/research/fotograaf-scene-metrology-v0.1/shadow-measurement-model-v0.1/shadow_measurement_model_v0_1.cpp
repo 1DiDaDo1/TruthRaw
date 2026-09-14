@@ -37,9 +37,11 @@ BranchDiagnostics makeBranch(float rawCode,
                              float gainField,
                              float darkSnrThreshold,
                              bool preserveSourceCensor,
+                             bool canonicalSourceDenominator,
                              float sourceWhite) {
     BranchDiagnostics out{};
-    const float denom = std::max(saturation - black, 1.0e-12f);
+    const float rawDenom = saturation - black;
+    const float denom = canonicalSourceDenominator ? std::max(rawDenom, 1.f) : rawDenom;
     const float preGain = (rawCode - black) / denom;
     out.signedNormalized = preGain * responseScale * gainField;
 
@@ -133,6 +135,7 @@ ValidationResult compareSample(const SourceMeasurementModel& source,
                             input.sourceGainField,
                             calibrated.darkSnrThreshold,
                             false,
+                            true,
                             source.whiteLevelCode);
 
     const float calibratedBlack = calibrated.useCalibratedBlack
@@ -157,6 +160,7 @@ ValidationResult compareSample(const SourceMeasurementModel& source,
                                       input.sourceGainField,
                                       calibrated.darkSnrThreshold,
                                       true,
+                                      false,
                                       source.whiteLevelCode);
     out.calibratedMinusSource = out.calibratedShadow.signedNormalized - out.source.signedNormalized;
     out.calibratedBlackUsed = calibrated.useCalibratedBlack;
