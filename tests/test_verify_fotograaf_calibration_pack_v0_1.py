@@ -27,6 +27,22 @@ def module(metrics):
     }
 
 
+def calibrated_claim(quantity: str, **extra):
+    claim = {
+        "quantity": quantity,
+        "authority": "CALIBRATED_PHYSICAL",
+        "validated": True,
+        "modelId": f"fixture-{quantity}-model-v1",
+        "uncertaintyModelId": f"fixture-{quantity}-uncertainty-v1",
+        "validDomain": {"scopeBound": True, "description": "fixture bounded domain"},
+        "acceptanceProtocolId": "truthraw-fotograaf-calibration-v0.1-fixture",
+        "validationReportSha256": sha("d"),
+        "uncertaintyReportSha256": sha("e"),
+    }
+    claim.update(extra)
+    return claim
+
+
 def valid_relative_pack():
     return {
         "schema": "truthraw.fotograaf-calibration-pack.v0.1",
@@ -102,21 +118,15 @@ def valid_relative_pack():
         "externalReferences": [],
         "traceability": {"absolute": False},
         "claims": [
-            {
-                "quantity": "capture_dynamic_range",
-                "authority": "CALIBRATED_PHYSICAL",
-                "validated": True,
-                "dynamicRange": {
+            calibrated_claim(
+                "capture_dynamic_range",
+                dynamicRange={
                     "snrThreshold": 1.0,
                     "saturationModelId": "fixture-saturation-v1",
                     "noiseFloorModelId": "fixture-noise-v1",
                 },
-            },
-            {
-                "quantity": "relative_scene_radiance",
-                "authority": "CALIBRATED_PHYSICAL",
-                "validated": True,
-            },
+            ),
+            calibrated_claim("relative_scene_radiance"),
         ],
     }
 
@@ -132,10 +142,7 @@ class CalibrationPackV01Tests(unittest.TestCase):
     def test_relative_pack_admitted(self):
         result = validate_pack(valid_relative_pack(), self.contract)
         self.assertTrue(result["valid"])
-        self.assertEqual(
-            result["promotionEligibility"]["capture_dynamic_range"],
-            "CALIBRATED_PHYSICAL_ADMITTED",
-        )
+        self.assertEqual(result["promotionEligibility"]["capture_dynamic_range"], "CALIBRATED_PHYSICAL_ADMITTED")
         self.assertEqual(result["sceneEvidenceCounts"]["physicalFrameCount"], 1)
 
     def test_missing_dark_repeat_count_fails(self):
@@ -156,6 +163,47 @@ class CalibrationPackV01Tests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate_pack(pack, self.contract)
 
+    def test_calibrated_claim_requires_model_uncertainty_domain_and_reports(self):
+        for field in (
+            "modelId", "uncertaintyModelId", "validDomain", "acceptanceProtocolId",
+            "validationReportSha256", "uncertaintyReportSha256",
+        ):
+            pack = valid_relative_pack()
+            del pack["claims"][0][field]
+            with self.subTest(field=field), self.assertRaises(ValidationError):
+                validate_pack(pack, self.contract)
+
+    def test_valid_domain_must_be_scope_bound(self):
+        pack = valid_relative_pack()
+        pack["claims"][0]["validDomain"] = {"scopeBound": False, "description": "bad"}
+        with self.assertRaises(ValidationError):
+            validate_pack(pack, self.contract)
+
+    def test_duplicate_quantity_claim_fails(self):
+        pack = valid_relative_pack()
+        pack["claims"].append(dict(pack["claims"][0]))
+        with self.assertRaises(ValidationError):
+            validate_pack(pack, self.contract)
+
+    def test_absolute_claim_requires_physical_unit(self):
+        pack = valid_relative_pack()
+        pack["status"] = "VALIDATED_ABSOLUTE_FOR_DECLARED_QUANTITY"
+        pack["modules"]["C6_ABSOLUTE_RADIOMETRY"] = module({
+            "referenceLevels": 5,
+            "minRepeatsPerLevel": 5,
+            "traceableReference": True,
+            "instrumentModelSerialPresent": True,
+            "calibrationCertificateIdentityPresent": True,
+            "certificateValidAtAcquisition": True,
+            "measurementUncertaintyPresent": True,
+            "spectralBandpassPresent": True,
+            "geometryAndAngularConditionsPresent": True,
+        })
+        pack["claims"] = [calibrated_claim("absolute_scene_radiance")]
+        pack["traceability"] = {"absolute": True}
+        with self.assertRaises(ValidationError):
+            validate_pack(pack, self.contract)
+
     def test_absolute_claim_requires_traceable_reference(self):
         pack = valid_relative_pack()
         pack["status"] = "VALIDATED_ABSOLUTE_FOR_DECLARED_QUANTITY"
@@ -170,22 +218,14 @@ class CalibrationPackV01Tests(unittest.TestCase):
             "spectralBandpassPresent": True,
             "geometryAndAngularConditionsPresent": True,
         })
-        pack["claims"] = [{
-            "quantity": "absolute_scene_radiance",
-            "authority": "CALIBRATED_PHYSICAL",
-            "validated": True,
-        }]
+        pack["claims"] = [calibrated_claim("absolute_scene_radiance", unit="W sr^-1 m^-2")]
         pack["traceability"] = {"absolute": True}
         with self.assertRaises(ValidationError):
             validate_pack(pack, self.contract)
 
     def test_incident_light_stays_inferred_without_c7(self):
         pack = valid_relative_pack()
-        pack["claims"] = [{
-            "quantity": "validated_incident_light_inference",
-            "authority": "CALIBRATED_PHYSICAL",
-            "validated": True,
-        }]
+        pack["claims"] = [calibrated_claim("validated_incident_light_inference")]
         with self.assertRaises(ValidationError):
             validate_pack(pack, self.contract)
 
@@ -226,11 +266,7 @@ class CalibrationPackV01Tests(unittest.TestCase):
             "shadowVisibilityGroundTruth": True,
         })
         pack["traceability"] = {"absolute": True}
-        pack["claims"] = [{
-            "quantity": "absolute_incident_irradiance",
-            "authority": "CALIBRATED_PHYSICAL",
-            "validated": True,
-        }]
+        pack["claims"] = [calibrated_claim("absolute_incident_irradiance", unit="W m^-2")]
         with self.assertRaises(ValidationError):
             validate_pack(pack, self.contract)
 

@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Validate TruthRaw FotoGraaf Calibration Pack v0.1 records.
 
-This is a fail-closed structural/admission verifier. It does not establish that
-the underlying laboratory measurements are truthful; it verifies that a pack
-cannot *claim* CALIBRATED_PHYSICAL authority unless the required scope,
-acquisition counts, fit/validation separation, and external-reference fields
-declared by the v0.1 contract are present.
+Fail-closed structural/admission verifier. Passing proves that the record is
+eligible for the declared authority under the v0.1 contract; it does not prove
+that the laboratory measurements themselves were physically correct.
 """
 from __future__ import annotations
 
@@ -27,12 +25,14 @@ VALID_PACK_STATUS = {
     "EXPIRED_OR_OUT_OF_SCOPE",
 }
 VALID_AUTHORITY = {
-    "MEASURED_SOURCE",
-    "CALIBRATED_PHYSICAL",
-    "INFERRED_SCENE",
-    "BOUNDED_CENSORED",
-    "UNKNOWN",
+    "MEASURED_SOURCE", "CALIBRATED_PHYSICAL", "INFERRED_SCENE",
+    "BOUNDED_CENSORED", "UNKNOWN",
 }
+CALIBRATED_CLAIM_REQUIRED_FIELDS = (
+    "modelId", "uncertaintyModelId", "validDomain", "acceptanceProtocolId",
+    "validationReportSha256", "uncertaintyReportSha256",
+)
+ABSOLUTE_QUANTITIES = {"absolute_scene_radiance", "absolute_incident_irradiance"}
 
 
 class ValidationError(RuntimeError):
@@ -112,11 +112,10 @@ def _validated_module(pack: Mapping[str, Any], name: str) -> Mapping[str, Any]:
     require(isinstance(rec, dict), f"pack.modules.{name} must be an object")
     require(rec.get("present") is True and rec.get("validated") is True,
             f"{name} must be present and validated")
-    fit_ids = rec.get("fitDatasetIds")
-    val_ids = rec.get("validationDatasetIds")
-    require(isinstance(fit_ids, list) and all(isinstance(x, str) and x for x in fit_ids),
+    fit_ids, val_ids = rec.get("fitDatasetIds"), rec.get("validationDatasetIds")
+    require(isinstance(fit_ids, list) and fit_ids and all(isinstance(x, str) and x for x in fit_ids),
             f"{name}.fitDatasetIds invalid")
-    require(isinstance(val_ids, list) and all(isinstance(x, str) and x for x in val_ids),
+    require(isinstance(val_ids, list) and val_ids and all(isinstance(x, str) and x for x in val_ids),
             f"{name}.validationDatasetIds invalid")
     require(set(fit_ids).isdisjoint(val_ids), f"{name}: fit and validation datasets overlap")
     return rec
@@ -139,8 +138,8 @@ def validate_module_acquisition(pack: Mapping[str, Any], contract: Mapping[str, 
     acquisition = _module(contract, name).get("acquisition", {})
     if name == "C0_IDENTITY":
         minimum = _module(contract, name).get("minimum", {})
-        for key in ("captureFileSha256ForEveryFrame", "parserBackendIdentity",
-                    "scopeKeyComplete", "metadataSnapshotPerFrame", "gainMapOpcodeIdentity"):
+        for key in ("captureFileSha256ForEveryFrame", "parserBackendIdentity", "scopeKeyComplete",
+                    "metadataSnapshotPerFrame", "gainMapOpcodeIdentity"):
             if minimum.get(key) is True:
                 _metric_true(metrics, key, name)
     elif name == "C1_DARK_NOISE":
@@ -153,11 +152,9 @@ def validate_module_acquisition(pack: Mapping[str, Any], contract: Mapping[str, 
         if metrics.get("temperatureCalibrated") is True:
             _metric_int(metrics, "temperatureBins", int(acquisition["temperatureBinsForTemperatureClaim"]), name)
     elif name == "C2_LINEARITY_GAIN_SATURATION":
-        _metric_int(metrics, "signalLevelsPerGainReadoutState",
-                    int(acquisition["minSignalLevelsPerGainReadoutState"]), name)
+        _metric_int(metrics, "signalLevelsPerGainReadoutState", int(acquisition["minSignalLevelsPerGainReadoutState"]), name)
         _metric_int(metrics, "minRepeatsPerSignalLevel", int(acquisition["minRepeatsPerSignalLevel"]), name)
-        _metric_int(metrics, "levelsBracketingSaturationOnset",
-                    int(acquisition["minLevelsBracketingSaturationOnset"]), name)
+        _metric_int(metrics, "levelsBracketingSaturationOnset", int(acquisition["minLevelsBracketingSaturationOnset"]), name)
         _metric_int(metrics, "independentValidationLevelsNotUsedForFit",
                     int(acquisition["independentValidationLevelsNotUsedForFit"]), name)
         _metric_true(metrics, "darkReferenceUsed", name)
@@ -185,18 +182,15 @@ def validate_module_acquisition(pack: Mapping[str, Any], contract: Mapping[str, 
     elif name == "C6_ABSOLUTE_RADIOMETRY":
         _metric_int(metrics, "referenceLevels", int(acquisition["minReferenceLevels"]), name)
         _metric_int(metrics, "minRepeatsPerLevel", int(acquisition["minRepeatsPerLevel"]), name)
-        for key in ("traceableReference", "instrumentModelSerialPresent",
-                    "calibrationCertificateIdentityPresent", "certificateValidAtAcquisition",
-                    "measurementUncertaintyPresent", "spectralBandpassPresent",
+        for key in ("traceableReference", "instrumentModelSerialPresent", "calibrationCertificateIdentityPresent",
+                    "certificateValidAtAcquisition", "measurementUncertaintyPresent", "spectralBandpassPresent",
                     "geometryAndAngularConditionsPresent"):
             _metric_true(metrics, key, name)
     elif name == "C7_INCIDENT_LIGHT_GEOMETRY":
         _metric_int(metrics, "distinctLightDirections", int(acquisition["minDistinctLightDirections"]), name)
-        _metric_int(metrics, "distinctLightLevelsOrDistances",
-                    int(acquisition["minDistinctLightLevelsOrDistances"]), name)
+        _metric_int(metrics, "distinctLightLevelsOrDistances", int(acquisition["minDistinctLightLevelsOrDistances"]), name)
         for key in ("knownOrMeasuredGeometry", "surfaceNormals", "materialReflectanceOrBrdfReference",
-                    "lightPositionDirection", "cosineCorrectedIrradianceReference",
-                    "shadowVisibilityGroundTruth"):
+                    "lightPositionDirection", "cosineCorrectedIrradianceReference", "shadowVisibilityGroundTruth"):
             _metric_true(metrics, key, name)
 
 
@@ -207,12 +201,26 @@ def _has_external_reference(pack: Mapping[str, Any], kind: str, absolute: bool =
     for ref in refs:
         if not isinstance(ref, dict) or ref.get("kind") != kind:
             continue
-        if absolute:
-            if not (ref.get("traceable") is True and ref.get("certificateId") and
-                    ref.get("uncertainty") and ref.get("serial")):
-                continue
+        if absolute and not (ref.get("traceable") is True and ref.get("certificateId") and
+                             ref.get("uncertainty") and ref.get("serial")):
+            continue
         return True
     return False
+
+
+def _validate_calibrated_claim_record(claim: Mapping[str, Any], quantity: str) -> None:
+    for field in CALIBRATED_CLAIM_REQUIRED_FIELDS:
+        require(field in claim, f"{quantity}: calibrated claim missing {field}")
+    require_nonempty_string(claim.get("modelId"), f"{quantity}.modelId")
+    require_nonempty_string(claim.get("uncertaintyModelId"), f"{quantity}.uncertaintyModelId")
+    require_nonempty_string(claim.get("acceptanceProtocolId"), f"{quantity}.acceptanceProtocolId")
+    domain = claim.get("validDomain")
+    require(isinstance(domain, dict) and bool(domain), f"{quantity}.validDomain must be a non-empty object")
+    require(domain.get("scopeBound") is True, f"{quantity}.validDomain.scopeBound must be true")
+    require_hex64(claim.get("validationReportSha256"), f"{quantity}.validationReportSha256")
+    require_hex64(claim.get("uncertaintyReportSha256"), f"{quantity}.uncertaintyReportSha256")
+    if quantity in ABSOLUTE_QUANTITIES:
+        require_nonempty_string(claim.get("unit"), f"{quantity}.unit")
 
 
 def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[str, Any]:
@@ -226,7 +234,8 @@ def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[
     for field in contract["scopeRequiredFields"]:
         value = scope.get(field)
         if field in ("rawWidth", "rawHeight"):
-            require(isinstance(value, int) and value > 0, f"scope.{field} must be positive integer")
+            require(isinstance(value, int) and not isinstance(value, bool) and value > 0,
+                    f"scope.{field} must be positive integer")
         else:
             require_nonempty_string(value, f"scope.{field}")
     for field in ("datasetManifestSha256", "protocolSha256", "modelSha256"):
@@ -235,10 +244,9 @@ def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[
             "calibration pack may not change later scene physicalFrameCount")
     require(pack.get("independentEvidenceCountForLaterScene") == 1,
             "calibration pack may not change later scene independentEvidenceCount")
-    require(pack.get("fitValidationSeparated") is True,
-            "fitValidationSeparated must be true")
-    require(pack.get("thresholdProtocolSealedBeforeFit") is True,
-            "thresholdProtocolSealedBeforeFit must be true")
+    require(pack.get("fitValidationSeparated") is True, "fitValidationSeparated must be true")
+    require(pack.get("thresholdProtocolSealedBeforeFit") is True, "thresholdProtocolSealedBeforeFit must be true")
+
     temperature = pack.get("temperature")
     require(isinstance(temperature, dict), "temperature record missing")
     require(isinstance(temperature.get("calibrated"), bool), "temperature.calibrated must be boolean")
@@ -252,37 +260,36 @@ def validate_pack(pack: Mapping[str, Any], contract: Mapping[str, Any]) -> Dict[
                 metrics = module_record.get("metrics", {})
                 require(isinstance(metrics, dict), f"{module_name}.metrics missing")
                 covered = metrics.get("temperatureBinsCovered")
-                require(isinstance(covered, int) and covered >= min_bins,
+                require(isinstance(covered, int) and not isinstance(covered, bool) and covered >= min_bins,
                         f"{module_name}.metrics.temperatureBinsCovered must be >= {min_bins} for temperature-calibrated pack")
 
     claims = pack.get("claims")
     require(isinstance(claims, list), "claims must be a list")
     eligibility: Dict[str, str] = {}
     rules = contract["promotionRules"]
-
+    seen_quantities = set()
     for claim in claims:
         require(isinstance(claim, dict), "claim must be an object")
-        quantity = claim.get("quantity")
-        authority = claim.get("authority")
+        quantity, authority = claim.get("quantity"), claim.get("authority")
         require(quantity in rules, f"unknown calibrated quantity {quantity!r}")
+        require(quantity not in seen_quantities, f"duplicate claim quantity {quantity}")
+        seen_quantities.add(quantity)
         require(authority in VALID_AUTHORITY, f"invalid authority {authority!r} for {quantity}")
-        validated = claim.get("validated") is True
         if authority == "CALIBRATED_PHYSICAL":
-            require(validated, f"{quantity}: CALIBRATED_PHYSICAL requires validated=true")
+            require(claim.get("validated") is True, f"{quantity}: CALIBRATED_PHYSICAL requires validated=true")
             require(status not in {"RESEARCH_ONLY", "REJECTED", "EXPIRED_OR_OUT_OF_SCOPE"},
                     f"{quantity}: pack status {status} cannot emit CALIBRATED_PHYSICAL")
+            _validate_calibrated_claim_record(claim, quantity)
             for dependency in rules[quantity]:
                 validate_module_acquisition(pack, contract, dependency)
             if quantity == "capture_dynamic_range":
                 dynamic_range = claim.get("dynamicRange")
                 require(isinstance(dynamic_range, dict), "capture_dynamic_range.dynamicRange missing")
-                require(isinstance(dynamic_range.get("snrThreshold"), (int, float)) and
-                        dynamic_range["snrThreshold"] > 0,
+                snr = dynamic_range.get("snrThreshold")
+                require(isinstance(snr, (int, float)) and not isinstance(snr, bool) and snr > 0,
                         "capture_dynamic_range requires positive snrThreshold")
-                require_nonempty_string(dynamic_range.get("saturationModelId"),
-                                        "capture_dynamic_range.saturationModelId")
-                require_nonempty_string(dynamic_range.get("noiseFloorModelId"),
-                                        "capture_dynamic_range.noiseFloorModelId")
+                require_nonempty_string(dynamic_range.get("saturationModelId"), "capture_dynamic_range.saturationModelId")
+                require_nonempty_string(dynamic_range.get("noiseFloorModelId"), "capture_dynamic_range.noiseFloorModelId")
             if quantity == "absolute_scene_radiance":
                 require(status == "VALIDATED_ABSOLUTE_FOR_DECLARED_QUANTITY",
                         "absolute_scene_radiance requires absolute pack status")

@@ -1,0 +1,38 @@
+{
+  "schema": "truthraw.fotograaf-calibrated-claim-record.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "appliesWhenAuthority": "CALIBRATED_PHYSICAL",
+  "requiredFields": [
+    "modelId",
+    "uncertaintyModelId",
+    "validDomain",
+    "acceptanceProtocolId",
+    "validationReportSha256",
+    "uncertaintyReportSha256"
+  ],
+  "validDomainRules": {
+    "type": "non-empty object",
+    "scopeBound": true,
+    "mustNotImplyExtrapolationBeyondValidatedDomain": true
+  },
+  "artifactRules": {
+    "validationReportSha256": "lowercase 64-hex SHA-256",
+    "uncertaintyReportSha256": "lowercase 64-hex SHA-256",
+    "reportsMustBeBoundBeforePromotion": true
+  },
+  "absoluteQuantities": [
+    "absolute_scene_radiance",
+    "absolute_incident_irradiance"
+  ],
+  "absoluteQuantityAdditionalRequiredFields": [
+    "unit"
+  ],
+  "laws": [
+    "No CALIBRATED_PHYSICAL claim exists without a declared model identity.",
+    "No CALIBRATED_PHYSICAL claim exists without an uncertainty model.",
+    "No CALIBRATED_PHYSICAL claim exists outside a declared validated domain.",
+    "No CALIBRATED_PHYSICAL claim exists without held-out validation evidence bound by SHA-256.",
+    "Absolute physical claims must serialize their physical unit and external traceability remains separately required."
+  ]
+}
