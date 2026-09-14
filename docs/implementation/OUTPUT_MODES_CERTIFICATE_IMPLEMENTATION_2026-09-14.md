@@ -2,6 +2,10 @@
 
 Status: ACTIVE IMPLEMENTATION CONTRACT
 
+For session continuity, also read:
+
+`docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`
+
 ## User-facing modes
 
 TruthRaw exposes four primary output choices:
@@ -61,6 +65,36 @@ No private brand-signing key may be embedded in the APK or repository. Until a t
 
 The long-term signature covers a canonical certificate payload so changing any covered lineage or authority field invalidates verification. Brand/legal protection and cryptographic provenance are related but distinct: the certificate provides technical authenticity/integrity; trademark rights are not created by EXIF/XMP/DNG metadata alone.
 
+## Physical regression inputs
+
+The active branch now records the five uploaded Honor/MotionCam DNGs as a formal physical regression set in:
+
+`docs/research/physical-dng-test-set-v0.1/TRUTHRAW_PHYSICAL_TESTSET_2026-09-14.json`
+
+They are test evidence, not automatically calibration evidence. The manifest records source SHA-256, ISO/exposure, black levels, AsShotNeutral, NoiseProfile, clipping/below-black statistics and the shared GainMap OpcodeList2 identity.
+
+The five filenames are:
+
+- `IMG_260816_134122_304_005.dng`
+- `IMG_260816_134204_911_008.dng`
+- `IMG_260816_143716_085_041.dng`
+- `IMG_260830_143012_297_014.dng`
+- `IMG_260908_193845_662_027.dng`
+
+## Validated implementation snapshot
+
+Active implementation branch:
+
+`research/ui-output-modes-certificate-v0.1-2026-09-14`
+
+Draft PR:
+
+`#23 — Integrate four-mode output policy + TRUTHRAW PURE float32 DNG`
+
+The implementation head `ef5175707d2b69973601408d6053fd234b2c6906` was re-checked before the session handoff and all observed PR-triggered workflows for that head were successful, including certificate, DNG certificate embed, product UI contract, output-mode policy, float32 Scientific Master DNG, Android adaptive UI/preview/finalized-color builds, Honor empirical harness, canonical/documentation governance and TruthRange/uncertainty integrity workflows.
+
+Subsequent handoff/documentation commits move the branch head without changing the validated implementation code. A future chat must therefore re-fetch the live head/workflow state before repeating an all-green claim.
+
 ## Current implementation boundary
 
 Implemented on this branch:
@@ -77,12 +111,18 @@ Implemented on this branch:
 - adaptive launcher icon resource structure;
 - TruthRaw Certificate v0.1 canonical record;
 - DNG certificate embedding with explicit unsigned/development state;
-- host validation workflows for float32 DNG, certificate, certificate embedding, and output-mode policy.
+- host validation workflows for float32 DNG, certificate, certificate embedding, output-mode policy and product UI contract;
+- five-file physical regression manifest for the supplied Honor/MotionCam test photos.
 
 Still blocked from production claim until separately validated:
 
 - JPEG XL encoder;
 - final profile rendering semantics for Colourful/Detailed/Soft/HDR;
 - cryptographic issuer signing key and verifier trust distribution;
-- real-device Honor/MotionCam end-to-end float32 DNG output;
-- Adobe/Lightroom ingestion.
+- real-device Honor/MotionCam end-to-end float32 DNG output over the five-file physical set;
+- extraction/integrity verification of the embedded certificate from the actual Android-produced DNG;
+- Adobe/Lightroom ingestion and behavior.
+
+## Next continuation gate
+
+Do not redesign the scientific authority model in the next chat. Continue by validating the existing green implementation on real device/data first: five-source PURE float32 export, certificate extraction, exact source/master/backplane/evidence invariants, then Adobe/Lightroom interoperability. Only after that should the downstream profile renderers, JPEG XL encoder and trusted signing path be promoted.
