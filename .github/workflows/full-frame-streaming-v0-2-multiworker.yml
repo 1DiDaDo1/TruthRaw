@@ -1,0 +1,84 @@
+name: Full Frame Streaming v0.2 Multi-Worker
+
+on:
+  push:
+    paths:
+      - 'docs/research/full-frame-streaming-v0.2-multiworker/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/full-frame-streaming-v0-2-multiworker.yml'
+  pull_request:
+    paths:
+      - 'docs/research/full-frame-streaming-v0.2-multiworker/**'
+      - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/full-frame-streaming-v0.1/tests/streaming_test_support_v0_1.h'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/full-frame-streaming-v0-2-multiworker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-multiworker-equivalence:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure GCC Release
+        if: matrix.mode == 'gcc-release'
+        run: >-
+          cmake -S docs/research/full-frame-streaming-v0.2-multiworker
+          -B /tmp/stream-v02-gcc
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=g++
+
+      - name: Configure Clang Release
+        if: matrix.mode == 'clang-release'
+        run: >-
+          cmake -S docs/research/full-frame-streaming-v0.2-multiworker
+          -B /tmp/stream-v02-clang
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Configure Clang ASan UBSan
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: >-
+          cmake -S docs/research/full-frame-streaming-v0.2-multiworker
+          -B /tmp/stream-v02-san
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+
+      - name: Build GCC
+        if: matrix.mode == 'gcc-release'
+        run: cmake --build /tmp/stream-v02-gcc --parallel 2
+
+      - name: Build Clang
+        if: matrix.mode == 'clang-release'
+        run: cmake --build /tmp/stream-v02-clang --parallel 2
+
+      - name: Build Sanitized
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: cmake --build /tmp/stream-v02-san --parallel 2
+
+      - name: Test GCC
+        if: matrix.mode == 'gcc-release'
+        run: ctest --test-dir /tmp/stream-v02-gcc --output-on-failure
+
+      - name: Test Clang
+        if: matrix.mode == 'clang-release'
+        run: ctest --test-dir /tmp/stream-v02-clang --output-on-failure
+
+      - name: Test Sanitized
+        if: matrix.mode == 'clang-asan-ubsan'
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir /tmp/stream-v02-san --output-on-failure
