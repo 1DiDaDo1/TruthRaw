@@ -1,0 +1,80 @@
+name: TruthRaw Suite APK Build v0.1
+
+on:
+  push:
+    paths:
+      - 'app/android/truthraw-suite-v01/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'app/android/truthraw-fotograaf-capture-v01/**'
+      - '.github/workflows/truthraw-suite-apk-build-v0-1.yml'
+  pull_request:
+    paths:
+      - 'app/android/truthraw-suite-v01/**'
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'app/android/truthraw-fotograaf-capture-v01/**'
+      - '.github/workflows/truthraw-suite-apk-build-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-suite-apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify one-APK authority separation
+        run: |
+          grep -q 'android.permission.CAMERA' app/android/truthraw-suite-v01/app/src/main/AndroidManifest.xml
+          grep -q 'com.truthraw.fotograafcapture.MainActivity' app/android/truthraw-suite-v01/app/src/main/AndroidManifest.xml
+          grep -q 'com.truthraw.adaptiveui.OutputModeActivity' app/android/truthraw-suite-v01/app/src/main/AndroidManifest.xml
+          if grep -R 'put("captureSampleDomainId"' app/android/truthraw-fotograaf-capture-v01/app/src/main/java; then
+            echo "FAIL: FotoGraaf capture code must not emit sample-domain classification"
+            exit 1
+          fi
+          if grep -R 'put("gainReadoutStateId"' app/android/truthraw-fotograaf-capture-v01/app/src/main/java; then
+            echo "FAIL: FotoGraaf capture code must not emit gain/readout classification"
+            exit 1
+          fi
+          echo "suite_permission_boundary=app_level"
+          echo "suite_scientific_authority_boundary=contract_level"
+          echo "calibration_authority_granted_by_suite=0"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.2.12479018' 'cmake;3.22.1'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble combined TruthRaw Suite APK
+        working-directory: app/android/truthraw-suite-v01
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Report suite APK evidence
+        run: |
+          APK='app/android/truthraw-suite-v01/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$APK"
+          cp "$APK" 'app/android/truthraw-suite-v01/TruthRaw_Main_plus_FotoGraaf_v0.1_debug.apk'
+          echo "suite_apk_bytes=$(stat -c%s "$APK")"
+          echo "suite_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo "contains_main_truthraw=1"
+          echo "contains_fotograaf_camera2=1"
+          echo "scientific_master_route_changed=0"
+          echo "calibration_authority_granted=0"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-main-plus-fotograaf-v0.1-debug-apk
+          path: app/android/truthraw-suite-v01/TruthRaw_Main_plus_FotoGraaf_v0.1_debug.apk
+          if-no-files-found: error
