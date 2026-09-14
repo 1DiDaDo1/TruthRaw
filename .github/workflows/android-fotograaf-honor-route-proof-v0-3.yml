@@ -5,7 +5,9 @@ on:
     branches:
       - research/fotograaf-honor-native-probe-world-studio-v0.1-2026-09-14
     paths:
-      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'app/android/truthraw-fotograaf-honor-v03/**'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
       - 'docs/research/honor-native-camera-probe-v0.2/**'
       - '.github/workflows/android-fotograaf-honor-route-proof-v0-3.yml'
   workflow_dispatch:
@@ -24,7 +26,7 @@ jobs:
         run: |
           ACT='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
           PROBE='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
-          MANIFEST='app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml'
+          MANIFEST='app/android/truthraw-fotograaf-honor-v03/app/src/main/AndroidManifest.xml'
           grep -F 'CAMERA2_ACQUISITION_OBSERVATION_ONLY' "$ACT"
           grep -F 'calibrationAuthorityGranted' "$ACT"
           grep -F 'scientificMasterModified' "$ACT"
@@ -33,6 +35,7 @@ jobs:
           grep -F 'professionalTeleRawLogicalCameraID' "$PROBE"
           grep -F 'LOGICAL_MULTI_CAMERA_FORCED_PHYSICAL_OUTPUT' "$PROBE"
           grep -F 'FotoGraafCameraActivity' "$MANIFEST"
+          grep -F 'android.permission.CAMERA' "$MANIFEST"
           if grep -E 'CaptureRequest.Key<|com\.hihonor\.capture\.metadata\..*CaptureRequest.Key' "$ACT"; then
             echo 'Direct guessed HONOR vendor request construction is forbidden in baseline route proof' >&2
             exit 1
@@ -62,12 +65,12 @@ jobs:
           gradle-version: '8.9'
 
       - name: Assemble arm64 APK
-        working-directory: app/android/truthraw-adaptive-ui-v01
+        working-directory: app/android/truthraw-fotograaf-honor-v03
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Verify APK and native TruthRaw engine retained
         run: |
-          APK='app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk'
+          APK='app/android/truthraw-fotograaf-honor-v03/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$APK"
           unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
           test -s /tmp/libtruthraw_ui_preview_bridge.so
@@ -84,5 +87,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: truthraw-fotograaf-honor-route-proof-v0.3-debug-arm64
-          path: app/android/truthraw-adaptive-ui-v01/app/build/outputs/apk/debug/app-debug.apk
+          path: app/android/truthraw-fotograaf-honor-v03/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
