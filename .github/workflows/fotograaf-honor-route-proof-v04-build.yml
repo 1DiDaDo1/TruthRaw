@@ -21,14 +21,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Verify Android SDK
+      - name: Locate Android SDK tools
+        shell: bash
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          command -v sdkmanager
-          sdkmanager --version
+          set -euxo pipefail
+          echo "ANDROID_HOME=${ANDROID_HOME:-}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-}"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -n 1)"
+          test -n "$SDKMANAGER"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+          "$SDKMANAGER" --version
 
       - name: Install Android SDK 35
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: "$SDKMANAGER 'platforms;android-35' 'build-tools;35.0.0'"
 
       - uses: gradle/actions/setup-gradle@v4
         with:
