@@ -22,6 +22,8 @@ struct AdmittedCalibrationBinding {
     bool admitted = false;
     std::string sourceEvidenceSha256;
     std::string bindingSha256;
+    std::string protocolSha256;
+    std::string modelSha256;
     std::string modelId;
     std::string uncertaintyModelId;
     std::uint32_t physicalFrameCount = 1;
@@ -30,6 +32,8 @@ struct AdmittedCalibrationBinding {
 
 struct CalibrationMeasurementModel {
     std::string bindingSha256;
+    std::string protocolSha256;
+    std::string modelSha256;
     bool useCalibratedBlack = false;
     bool useCalibratedNoise = false;
     bool useCalibratedResponseScale = false;
