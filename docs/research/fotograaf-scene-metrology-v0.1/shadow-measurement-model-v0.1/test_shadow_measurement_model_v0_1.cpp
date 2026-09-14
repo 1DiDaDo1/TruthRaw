@@ -1,9 +1,8 @@
 #include "shadow_measurement_model_v0_1.h"
 
 #include <bit>
-#include <cassert>
-#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -11,6 +10,13 @@
 using namespace truthraw::fotograaf::shadow_v0_1;
 
 namespace {
+
+void require(bool condition, const char* message) {
+    if (!condition) {
+        std::cerr << "FAIL: " << message << "\n";
+        std::exit(1);
+    }
+}
 
 std::string sha(char c) { return std::string(64, c); }
 
@@ -58,18 +64,18 @@ bool sameFloat(float a, float b) {
     return std::bit_cast<std::uint32_t>(a) == std::bit_cast<std::uint32_t>(b);
 }
 
-void assertSame(const ShadowSampleComparison& a, const ShadowSampleComparison& b) {
-    assert(sameFloat(a.source.signedNormalized, b.source.signedNormalized));
-    assert(sameFloat(a.source.noiseSigmaNormalized, b.source.noiseSigmaNormalized));
-    assert(a.source.noiseSigmaAvailable == b.source.noiseSigmaAvailable);
-    assert(a.source.highCensored == b.source.highCensored);
-    assert(a.source.darkNoiseLimited == b.source.darkNoiseLimited);
-    assert(sameFloat(a.calibratedShadow.signedNormalized, b.calibratedShadow.signedNormalized));
-    assert(sameFloat(a.calibratedShadow.noiseSigmaNormalized, b.calibratedShadow.noiseSigmaNormalized));
-    assert(a.calibratedShadow.noiseSigmaAvailable == b.calibratedShadow.noiseSigmaAvailable);
-    assert(a.calibratedShadow.highCensored == b.calibratedShadow.highCensored);
-    assert(a.calibratedShadow.darkNoiseLimited == b.calibratedShadow.darkNoiseLimited);
-    assert(sameFloat(a.calibratedMinusSource, b.calibratedMinusSource));
+void requireSame(const ShadowSampleComparison& a, const ShadowSampleComparison& b) {
+    require(sameFloat(a.source.signedNormalized, b.source.signedNormalized), "source signal differs by worker count");
+    require(sameFloat(a.source.noiseSigmaNormalized, b.source.noiseSigmaNormalized), "source sigma differs by worker count");
+    require(a.source.noiseSigmaAvailable == b.source.noiseSigmaAvailable, "source noise-availability differs");
+    require(a.source.highCensored == b.source.highCensored, "source censor state differs");
+    require(a.source.darkNoiseLimited == b.source.darkNoiseLimited, "source dark state differs");
+    require(sameFloat(a.calibratedShadow.signedNormalized, b.calibratedShadow.signedNormalized), "calibrated signal differs by worker count");
+    require(sameFloat(a.calibratedShadow.noiseSigmaNormalized, b.calibratedShadow.noiseSigmaNormalized), "calibrated sigma differs by worker count");
+    require(a.calibratedShadow.noiseSigmaAvailable == b.calibratedShadow.noiseSigmaAvailable, "calibrated noise-availability differs");
+    require(a.calibratedShadow.highCensored == b.calibratedShadow.highCensored, "calibrated censor state differs");
+    require(a.calibratedShadow.darkNoiseLimited == b.calibratedShadow.darkNoiseLimited, "calibrated dark state differs");
+    require(sameFloat(a.calibratedMinusSource, b.calibratedMinusSource), "shadow delta differs by worker count");
 }
 
 std::vector<ShadowSampleComparison> runWorkers(int workerCount,
@@ -83,7 +89,7 @@ std::vector<ShadowSampleComparison> runWorkers(int workerCount,
         threads.emplace_back([&, worker] {
             for (std::size_t i = static_cast<std::size_t>(worker); i < inputs.size(); i += static_cast<std::size_t>(workerCount)) {
                 const auto status = compareSample(source, admitted, model, inputs[i], out[i]);
-                assert(status.ok);
+                require(status.ok, "parallel compareSample failed");
             }
         });
     }
@@ -98,46 +104,42 @@ int main() {
     const auto admitted = binding();
     auto model = calibratedModel();
 
-    {
-        const auto status = validateShadowInputs(source, admitted, model);
-        assert(status.ok);
-    }
+    require(validateShadowInputs(source, admitted, model).ok, "valid shadow fixture rejected");
 
-    // Source branch must preserve the byte-level arithmetic shape of canonical v4.7i Stage-2:
-    // ((raw - phaseBlack) / max(white - phaseBlack, 1)) * existing GainMap.
+    // Source branch must preserve the arithmetic shape of canonical v4.7i Stage-2.
     {
         SampleInput input{100.f, 0, 2, 1.25f};
         ShadowSampleComparison out;
-        const auto status = compareSample(source, admitted, model, input, out);
-        assert(status.ok);
+        require(compareSample(source, admitted, model, input, out).ok, "source-equivalence sample failed");
         const float expected = ((100.f - 64.f) / (1023.f - 64.f)) * 1.25f;
-        assert(sameFloat(out.source.signedNormalized, expected));
-        assert(out.calibratedBlackUsed && out.calibratedNoiseUsed &&
-               out.calibratedResponseScaleUsed && out.calibratedSaturationUsed);
+        require(sameFloat(out.source.signedNormalized, expected), "source Stage-2 arithmetic changed");
+        require(out.calibratedBlackUsed && out.calibratedNoiseUsed &&
+                out.calibratedResponseScaleUsed && out.calibratedSaturationUsed,
+                "enabled calibration parameters not reported");
     }
 
     // True below-black numerical values remain signed; shadow calibration cannot force them to zero.
     {
         SampleInput input{60.f, 1, 1, 1.f};
         ShadowSampleComparison out;
-        assert(compareSample(source, admitted, model, input, out).ok);
-        assert(out.source.signedNormalized < 0.f);
-        assert(out.calibratedShadow.signedNormalized < 0.f);
+        require(compareSample(source, admitted, model, input, out).ok, "below-black sample failed");
+        require(out.source.signedNormalized < 0.f, "source below-black value was clipped");
+        require(out.calibratedShadow.signedNormalized < 0.f, "calibrated below-black value was clipped");
     }
 
     // A calibrated saturation model may tighten censoring, never uncensor source WhiteLevel censoring.
     {
         SampleInput input{1023.f, 2, 1, 1.f};
         ShadowSampleComparison out;
-        assert(compareSample(source, admitted, model, input, out).ok);
-        assert(out.source.highCensored);
-        assert(out.calibratedShadow.highCensored);
+        require(compareSample(source, admitted, model, input, out).ok, "source-censor sample failed");
+        require(out.source.highCensored, "source WhiteLevel censor lost");
+        require(out.calibratedShadow.highCensored, "calibrated branch lost source censor");
 
         auto higherSaturation = model;
         higherSaturation.calibratedSaturationCode = 1100.f;
         ShadowSampleComparison higherOut;
-        assert(compareSample(source, admitted, higherSaturation, input, higherOut).ok);
-        assert(higherOut.calibratedShadow.highCensored); // source censor is preserved
+        require(compareSample(source, admitted, higherSaturation, input, higherOut).ok, "higher saturation model failed");
+        require(higherOut.calibratedShadow.highCensored, "calibration illegally uncensored source clip");
     }
 
     // Partial calibration is explicit: calibrating only noise must not move the Stage-2 signal coordinate.
@@ -148,32 +150,34 @@ int main() {
         noiseOnly.useCalibratedSaturation = false;
         SampleInput input{180.f, 3, 0, 1.f};
         ShadowSampleComparison out;
-        assert(compareSample(source, admitted, noiseOnly, input, out).ok);
-        assert(sameFloat(out.source.signedNormalized, out.calibratedShadow.signedNormalized));
-        assert(!sameFloat(out.source.noiseSigmaNormalized, out.calibratedShadow.noiseSigmaNormalized));
+        require(compareSample(source, admitted, noiseOnly, input, out).ok, "noise-only model failed");
+        require(sameFloat(out.source.signedNormalized, out.calibratedShadow.signedNormalized),
+                "noise-only calibration moved signal coordinate");
+        require(!sameFloat(out.source.noiseSigmaNormalized, out.calibratedShadow.noiseSigmaNormalized),
+                "noise-only calibration did not change sigma");
     }
 
     // Binding identity, exact model/protocol bytes and exactly-once source correction are hard gates.
     {
         auto badBinding = admitted;
         badBinding.sourceEvidenceSha256 = sha('e');
-        assert(!validateShadowInputs(source, badBinding, model).ok);
+        require(!validateShadowInputs(source, badBinding, model).ok, "wrong source binding was admitted");
 
         auto badModelHash = model;
         badModelHash.modelSha256 = sha('e');
-        assert(!validateShadowInputs(source, admitted, badModelHash).ok);
+        require(!validateShadowInputs(source, admitted, badModelHash).ok, "wrong model hash was admitted");
 
         auto badProtocolHash = model;
         badProtocolHash.protocolSha256 = sha('f');
-        assert(!validateShadowInputs(source, admitted, badProtocolHash).ok);
+        require(!validateShadowInputs(source, admitted, badProtocolHash).ok, "wrong protocol hash was admitted");
 
         auto secondGain = model;
         secondGain.requestsAdditionalGainMapCorrection = true;
-        assert(!validateShadowInputs(source, admitted, secondGain).ok);
+        require(!validateShadowInputs(source, admitted, secondGain).ok, "second GainMap correction was admitted");
 
         auto extraEvidence = admitted;
         extraEvidence.independentEvidenceCount = 2;
-        assert(!validateShadowInputs(source, extraEvidence, model).ok);
+        require(!validateShadowInputs(source, extraEvidence, model).ok, "extra scene evidence root was admitted");
     }
 
     // Worker count is execution only. 1 and 4 photographers must produce bit-identical diagnostics.
@@ -188,20 +192,20 @@ int main() {
     }
     const auto one = runWorkers(1, inputs);
     const auto four = runWorkers(4, inputs);
-    assert(one.size() == four.size());
-    for (std::size_t i = 0; i < one.size(); ++i) assertSame(one[i], four[i]);
+    require(one.size() == four.size(), "worker outputs have different size");
+    for (std::size_t i = 0; i < one.size(); ++i) requireSame(one[i], four[i]);
 
     const auto summaryOne = summarize(one);
     const auto summaryFour = summarize(four);
-    assert(summaryOne.sampleCount == summaryFour.sampleCount);
-    assert(summaryOne.sourceNegativeCount == summaryFour.sourceNegativeCount);
-    assert(summaryOne.calibratedNegativeCount == summaryFour.calibratedNegativeCount);
-    assert(summaryOne.sourceHighCensoredCount == summaryFour.sourceHighCensoredCount);
-    assert(summaryOne.calibratedHighCensoredCount == summaryFour.calibratedHighCensoredCount);
-    assert(summaryOne.sourceDarkNoiseLimitedCount == summaryFour.sourceDarkNoiseLimitedCount);
-    assert(summaryOne.calibratedDarkNoiseLimitedCount == summaryFour.calibratedDarkNoiseLimitedCount);
-    assert(summaryOne.meanAbsoluteDelta == summaryFour.meanAbsoluteDelta);
-    assert(sameFloat(summaryOne.maxAbsoluteDelta, summaryFour.maxAbsoluteDelta));
+    require(summaryOne.sampleCount == summaryFour.sampleCount, "summary sample count differs");
+    require(summaryOne.sourceNegativeCount == summaryFour.sourceNegativeCount, "summary source negative count differs");
+    require(summaryOne.calibratedNegativeCount == summaryFour.calibratedNegativeCount, "summary calibrated negative count differs");
+    require(summaryOne.sourceHighCensoredCount == summaryFour.sourceHighCensoredCount, "summary source censor count differs");
+    require(summaryOne.calibratedHighCensoredCount == summaryFour.calibratedHighCensoredCount, "summary calibrated censor count differs");
+    require(summaryOne.sourceDarkNoiseLimitedCount == summaryFour.sourceDarkNoiseLimitedCount, "summary source dark count differs");
+    require(summaryOne.calibratedDarkNoiseLimitedCount == summaryFour.calibratedDarkNoiseLimitedCount, "summary calibrated dark count differs");
+    require(summaryOne.meanAbsoluteDelta == summaryFour.meanAbsoluteDelta, "summary mean delta differs");
+    require(sameFloat(summaryOne.maxAbsoluteDelta, summaryFour.maxAbsoluteDelta), "summary max delta differs");
 
     std::cout << "FotoGraaf shadow MeasurementLab adapter v0.1 PASS\n";
     std::cout << "samples=" << summaryOne.sampleCount
