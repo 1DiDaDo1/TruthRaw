@@ -13,32 +13,25 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/**
- * Permission gate before FotoGraaf live Camera2 discovery/session startup.
- *
- * Important: Android may call onResume around the permission-result delivery.
- * v0.4 could therefore launch the live camera from both callbacks. This gate
- * serializes that transition so exactly one FotoGraaf live activity is started.
- */
+/** Permission gate before the staged FotoGraaf v0.4.2 safe preview bootstrap. */
 class FotoGraafPermissionGateActivity : Activity() {
 
     private lateinit var statusView: TextView
     private lateinit var allowButton: Button
     private lateinit var settingsButton: Button
-
     private var permissionRequestInFlight = false
-    private var liveCameraLaunched = false
+    private var launched = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        liveCameraLaunched = savedInstanceState?.getBoolean(STATE_LAUNCHED, false) ?: false
+        launched = savedInstanceState?.getBoolean(STATE_LAUNCHED, false) ?: false
         permissionRequestInFlight = savedInstanceState?.getBoolean(STATE_PERMISSION_IN_FLIGHT, false) ?: false
         setContentView(buildUi())
         continueWhenPermitted()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(STATE_LAUNCHED, liveCameraLaunched)
+        outState.putBoolean(STATE_LAUNCHED, launched)
         outState.putBoolean(STATE_PERMISSION_IN_FLIGHT, permissionRequestInFlight)
         super.onSaveInstanceState(outState)
     }
@@ -46,16 +39,16 @@ class FotoGraafPermissionGateActivity : Activity() {
     override fun onResume() {
         super.onResume()
         if (::statusView.isInitialized && hasCameraPermission() && !permissionRequestInFlight) {
-            launchFotoGraafOnce()
+            launchSafePreviewOnce()
         }
     }
 
     private fun continueWhenPermitted() {
         if (hasCameraPermission()) {
-            launchFotoGraafOnce()
+            launchSafePreviewOnce()
             return
         }
-        statusView.text = "Camera-toestemming is nodig vóór FotoGraaf de HONOR Camera2-routes en live preview opent."
+        statusView.text = "Camera-toestemming is nodig. Na toestemming opent eerst alleen de crash-veilige discovery/preview bootstrap; de camera wordt daar nog niet automatisch geopend."
         allowButton.isEnabled = false
         settingsButton.visibility = android.view.View.GONE
         if (!permissionRequestInFlight) {
@@ -71,32 +64,29 @@ class FotoGraafPermissionGateActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_CAMERA_PERMISSION) return
-
         permissionRequestInFlight = false
         if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            statusView.text = "Camera-toestemming verleend. FotoGraaf Live Camera wordt éénmalig geopend…"
-            // Post onto the UI queue after the permission dialog has fully left
-            // the foreground. launchFotoGraafOnce() is idempotent.
-            window.decorView.post { launchFotoGraafOnce() }
+            statusView.text = "Camera-toestemming verleend. Safe Preview bootstrap wordt geopend…"
+            window.decorView.post { launchSafePreviewOnce() }
         } else {
-            statusView.text = "Camera-toestemming is niet verleend. Zonder deze toestemming opent FotoGraaf geen Camera2-sessie."
+            statusView.text = "Camera-toestemming niet verleend."
             allowButton.isEnabled = true
             settingsButton.visibility = android.view.View.VISIBLE
         }
     }
 
-    private fun launchFotoGraafOnce() {
-        if (!hasCameraPermission() || liveCameraLaunched || isFinishing || isDestroyed) return
-        liveCameraLaunched = true
+    private fun launchSafePreviewOnce() {
+        if (!hasCameraPermission() || launched || isFinishing || isDestroyed) return
+        launched = true
         allowButton.isEnabled = false
         runCatching {
-            startActivity(Intent(this, FotoGraafLiveCameraActivity::class.java).apply {
+            startActivity(Intent(this, FotoGraafSafePreviewActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             })
         }.onFailure { error ->
-            liveCameraLaunched = false
+            launched = false
             allowButton.isEnabled = true
-            statusView.text = "Live Camera kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
+            statusView.text = "Safe Preview kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
             return
         }
         finish()
@@ -111,10 +101,7 @@ class FotoGraafPermissionGateActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(24), dp(32), dp(24), dp(32))
             setBackgroundColor(Color.rgb(18, 20, 24))
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
         root.addView(TextView(this).apply {
             text = "FotoGraaf · Camera toegang"
@@ -122,16 +109,10 @@ class FotoGraafPermissionGateActivity : Activity() {
             setTextColor(Color.WHITE)
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })
-        root.addView(TextView(this).apply {
-            text = "Na toestemming opent FotoGraaf precies één live Camera2-sessie. De sealed RAW blijft de enige capture-evidence."
-            textSize = 15f
-            setTextColor(Color.rgb(195, 200, 210))
-            setPadding(0, dp(12), 0, dp(20))
-        })
         statusView = TextView(this).apply {
             textSize = 15f
             setTextColor(Color.WHITE)
-            setPadding(0, 0, 0, dp(18))
+            setPadding(0, dp(16), 0, dp(18))
         }
         root.addView(statusView)
         allowButton = Button(this).apply {
@@ -158,7 +139,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 401
-        private const val STATE_LAUNCHED = "fotograaf_live_launched"
-        private const val STATE_PERMISSION_IN_FLIGHT = "fotograaf_permission_in_flight"
+        private const val STATE_LAUNCHED = "truthraw.fotograaf.safe.launched"
+        private const val STATE_PERMISSION_IN_FLIGHT = "truthraw.fotograaf.safe.permission_in_flight"
     }
 }
