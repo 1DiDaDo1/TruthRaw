@@ -80,6 +80,11 @@ def validate_admission_contract(contract: Mapping[str, Any]) -> None:
     runtime_domain = contract.get("runtimeValidDomainRequiredFields")
     require(isinstance(runtime_domain, list) and runtime_domain,
             "runtimeValidDomainRequiredFields missing")
+    binding_packet = contract.get("bindingPacket")
+    require(isinstance(binding_packet, dict), "bindingPacket missing")
+    must_bind = binding_packet.get("mustBind")
+    require(isinstance(must_bind, list) and "modelSha256" in must_bind and "protocolSha256" in must_bind,
+            "bindingPacket must bind exact modelSha256 and protocolSha256")
     worker = contract.get("workerInvariance")
     require(isinstance(worker, dict) and worker.get("workerCountMayChangeBinding") is False and
             worker.get("executionWorkerCountExcludedFromBindingDigest") is True,
@@ -215,6 +220,8 @@ def _make_binding(scene: Mapping[str, Any], pack: Mapping[str, Any], claim: Mapp
         "sourceEvidenceSha256": scene["sourceEvidenceSha256"],
         "packId": pack["packId"],
         "datasetManifestSha256": pack["datasetManifestSha256"],
+        "protocolSha256": pack["protocolSha256"],
+        "modelSha256": pack["modelSha256"],
         "calibrationScopeSha256": scope_digest,
         "quantity": claim["quantity"],
         "authority": "CALIBRATED_PHYSICAL",
