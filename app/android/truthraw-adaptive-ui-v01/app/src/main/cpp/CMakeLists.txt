@@ -9,6 +9,7 @@ get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
 set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.1/native")
 set(STREAMING "${RESEARCH_ROOT}/full-frame-streaming-v0.1/native")
+set(STREAMING_V02_MULTIWORKER "${RESEARCH_ROOT}/full-frame-streaming-v0.2-multiworker")
 set(PREVIEW_SURFACE "${RESEARCH_ROOT}/reconstructed-color-preview-v0.1/native")
 set(SOURCE_BINDING_V01 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.1/native")
 set(SOURCE_BINDING_V02 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.2/native")
@@ -41,6 +42,10 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${STREAMING}/full_frame_streaming_v0_1_pass1.cpp
     ${STREAMING}/full_frame_streaming_v0_1_pass2.cpp
     ${STREAMING}/full_frame_streaming_v0_1_plan.cpp
+    # Compile-only Android admission for the research multi-worker scheduler.
+    # Runtime routes remain on streaming v0.1 until physical 1/2/4-worker
+    # Honor equivalence/performance validation is complete.
+    ${STREAMING_V02_MULTIWORKER}/multiworker_streaming_v0_2.cpp
     ${PREVIEW_SURFACE}/bounded_srgb_preview_sink_v0_1.cpp
     ${SOURCE_BINDING_V01}/scientific_preview_source_binding_v0_1.cpp
     ${SOURCE_BINDING_V02}/scientific_preview_source_binding_v0_2.cpp
@@ -64,6 +69,7 @@ add_library(truthraw_ui_preview_bridge SHARED
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TILE_DNG}
     ${STREAMING}
+    ${STREAMING_V02_MULTIWORKER}
     ${PREVIEW_SURFACE}
     ${SOURCE_BINDING_V01}
     ${SOURCE_BINDING_V02}
