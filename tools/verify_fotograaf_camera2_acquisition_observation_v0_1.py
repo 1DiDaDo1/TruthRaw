@@ -14,11 +14,12 @@ import math
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping
+from typing import Any, Dict, Iterable, Mapping, Set
 
 CONTRACT_SCHEMA = "truthraw.fotograaf-camera2-acquisition-observation-contract.v0.1"
 OBSERVATION_SCHEMA = "truthraw.fotograaf-camera2-acquisition-observation.v0.1"
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
+FORBIDDEN_PRECLASSIFICATION_KEYS = frozenset({"captureSampleDomainId", "gainReadoutStateId"})
 
 
 class ObservationError(RuntimeError):
@@ -66,6 +67,25 @@ def finite_or_null(value: Any, name: str) -> float | None:
     return out
 
 
+def find_forbidden_keys(value: Any, forbidden: Set[str] | frozenset[str], path: str = "$") -> list[str]:
+    """Return JSON object paths where forbidden *keys* occur.
+
+    String values are intentionally ignored. This allows the authority record to
+    say that a field is still missing without accidentally emitting that field.
+    """
+    found: list[str] = []
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            child_path = f"{path}.{key}"
+            if key in forbidden:
+                found.append(child_path)
+            found.extend(find_forbidden_keys(child, forbidden, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(find_forbidden_keys(child, forbidden, f"{path}[{index}]"))
+    return found
+
+
 def validate_contract(contract: Mapping[str, Any]) -> None:
     require(contract.get("schema") == CONTRACT_SCHEMA, "wrong Camera2 observation contract schema")
     require(contract.get("observationSchema") == OBSERVATION_SCHEMA, "observation schema mismatch")
@@ -109,6 +129,10 @@ def validate_observation(observation: Mapping[str, Any], contract: Mapping[str, 
         require(field in observation, f"observation missing {field}")
     nonempty(observation.get("captureId"), "captureId")
     nonempty(observation.get("createdAtUtc"), "createdAtUtc")
+
+    forbidden_paths = find_forbidden_keys(observation, FORBIDDEN_PRECLASSIFICATION_KEYS)
+    require(not forbidden_paths,
+            "pre-classification observation emits forbidden classifier field(s): " + ", ".join(forbidden_paths))
 
     source_info = observation["source"]
     require(isinstance(source_info, dict), "source must be object")
@@ -217,10 +241,6 @@ def validate_observation(observation: Mapping[str, Any], contract: Mapping[str, 
     missing = authority.get("missingBeforeC0Envelope")
     require(isinstance(missing, list) and "captureSampleDomainId" in missing and "gainReadoutStateId" in missing,
             "authority must explicitly retain sample/gain classification as missing")
-
-    text = json.dumps(observation, sort_keys=True)
-    require('"captureSampleDomainId"' not in text, "captureSampleDomainId is forbidden in Camera2 observation")
-    require('"gainReadoutStateId"' not in text, "gainReadoutStateId is forbidden in Camera2 observation")
 
     physical_measured = status != "NOT_AVAILABLE"
     honor = contract.get("honorTeleResearchTarget", {})
