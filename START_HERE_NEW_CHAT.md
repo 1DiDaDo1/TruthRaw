@@ -1,6 +1,24 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the authoritative session/bootstrap entry point for the audited TruthRaw research lineage as of 2026-09-13.
+This is the authoritative session/bootstrap entry point for the audited TruthRaw research lineage, with the active 2026-09-14 implementation overlay called out explicitly below.
+
+## Active 2026-09-14 implementation overlay
+
+The project-wide audited architecture remains the 2026-09-13 baseline. The current Android/output implementation work lives on:
+
+`research/ui-output-modes-certificate-v0.1-2026-09-14`
+
+Draft PR:
+
+`#23 — Integrate four-mode output policy + TRUTHRAW PURE float32 DNG`
+
+Before changing the current output/UI/certificate work, read:
+
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`
+- `docs/implementation/OUTPUT_MODES_CERTIFICATE_IMPLEMENTATION_2026-09-14.md`
+- `docs/research/physical-dng-test-set-v0.1/TRUTHRAW_PHYSICAL_TESTSET_2026-09-14.json`
+
+The handoff records the four-mode product contract, float32 PURE DNG route, certificate state, multilingual/icon work, the five-file physical test set, the last fully green implementation snapshot, and the exact remaining validation gates. Re-fetch the live PR head/workflows before claiming the handoff SHA is still current.
 
 ## Mandatory reading order
 
@@ -13,7 +31,8 @@ This is the authoritative session/bootstrap entry point for the audited TruthRaw
 7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
 8. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
 9. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
-10. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
+10. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md` when continuing the active output/UI/certificate branch
+11. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
 
 Do **not** bootstrap from older `CURRENT_CANONICAL_STATE_*.json`, the 2026-09-10 house/index, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. They remain preserved historical snapshots/evidence.
 
@@ -79,16 +98,36 @@ The physically exercised finalized-preview/read-optimization reference remains t
 
 The finalized source-bound scientific preview may be release-allowed while `scientificClaimAllowed=false`. Source metadata color is not automatically independent physical calibration.
 
+The active branch also records a five-file physical regression set in `docs/research/physical-dng-test-set-v0.1/TRUTHRAW_PHYSICAL_TESTSET_2026-09-14.json`. Those DNGs are test evidence, not automatically calibration evidence.
+
 ## Current output roles
 
 - Direct CFA = `MEASURED_EVIDENCE`.
 - Scientific Master = reconstructed scientific scene state.
 - reconstructed CFA DNG = `RECONSTRUCTED_CFA_PROJECTION`.
-- Linear DNG = `COMPATIBILITY_PROJECTION` from reconstructed RGB Scientific Master.
+- 16-bit Linear DNG compatibility writer = `COMPATIBILITY_PROJECTION` from reconstructed RGB Scientific Master.
+- TRUTHRAW PURE float32 LinearRaw DNG = high-fidelity scientific **projection** of the same verified Scientific Master into float32 XYZ-D50; it remains downstream representation, not new measurement evidence.
 - JPEG/ARGB/HDR = appearance/presentation projection.
 - rawsensor = nonstandard internal payload until an explicit ABI/provenance definition makes its role precise.
 
 Do not remosaic reconstructed RGB and call it original sensor RAW. A direct-CFA evidence repack is a separate measured-preserving class.
+
+## Active four-mode UI contract
+
+The current implementation branch exposes:
+
+- `JPG`
+- `JPG XL`
+- `TRUTHRAW PURE`
+- `TRUTHRAW ADVANCED`
+
+`Colourful`, `Detailed`, `Soft`, and `HDR` are downstream appearance controls for JPG, JPG XL and TRUTHRAW ADVANCED only. PURE stays appearance-neutral. JPEG XL stays fail-closed until an encoder is separately validated.
+
+English is the canonical fallback language, with current Android resources for English, Dutch, German and French.
+
+The TruthRaw certificate belongs inside the file/technical backside, not visibly on the image. Until a trusted issuer key exists, certificate status must remain `UNSIGNED DEVELOPMENT`; no private signing key may be committed to the repository or APK.
+
+Read the 2026-09-14 handoff/implementation contract for exact current behavior and remaining blockers.
 
 ## Historical/current Scene Master distinction
 
@@ -114,7 +153,7 @@ The 12 logical rooms are Archivist, MeasurementLab, Architect, Restorer, SceneRe
 
 ## Next production optimization
 
-The highest-value general runtime step is:
+The highest-value general runtime step remains:
 
 **RoomLease + CorridorToken + deterministic tile scheduler + per-room profiler + bounded buffer pools.**
 
@@ -123,6 +162,8 @@ Implement this around already-validated algorithms first. Measure wall/CPU/stall
 Execution fusion is allowed only when it keeps adjacent tile data resident without merging their scientific authority roles.
 
 CPU/reference behavior remains the validation floor. Vulkan/GPU may later be an optional execution backend only.
+
+For the active output/UI branch, however, the immediate continuation priority is the validation sequence in `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`: real-device five-DNG PURE export, certificate extraction/integrity, interoperability, appearance-profile semantics, JPEG XL encoder validation, then trusted signing.
 
 ## Read-optimization fact
 
@@ -156,6 +197,8 @@ Linear DNG should be a bounded/streaming downstream sink from the finalized RGB 
 
 Android `DngCreator` is appropriate for RAW_SENSOR/Bayer-style carriage; it is not by itself proof of the intended RGB LinearRaw semantics. Native RGB LinearRaw writer validation therefore remains a separate responsibility.
 
+The current PURE route intentionally uses the native float32 Scientific Master LinearRaw writer and preserves negative and greater-than-one components. The older 16-bit route remains compatibility-only.
+
 ## Current repository lineage warning
 
 The observed 2026-09-13 Android-DNG-export and RGB-LinearRaw-restoration research heads were divergent in Git ancestry during this audit. Do not infer completeness from branch names. Compare actual trees and preserve unique commits before any promotion/merge.
@@ -168,6 +211,8 @@ at:
 
 `0e8291f3300b5a1aa1ffe7652be5908da57a889e`
 
+The active four-mode/certificate branch is layered on the audited project branch rather than redefining canonical science. PR `#23` remains draft until the remaining real-device/interoperability/signing/profile gates are satisfied.
+
 ## One-sentence definition
 
-**TruthRaw preserves one sealed RAW observation as immutable evidence, optionally passes unsupported external formats through an isolated Gatehouse, reconstructs a separate uncertainty-aware Scientific/Scene Master, binds that state through a compact Technical Backplane, represents the scene without inheriting arbitrary source-container limits, and executes specialized rooms through a resource-adaptive but scientifically invariant runtime.**
+**TruthRaw preserves one sealed RAW observation as immutable evidence, optionally passes unsupported external formats through an isolated Gatehouse, reconstructs a separate uncertainty-aware Scientific/Scene Master, binds that state through a compact Technical Backplane and in-file provenance certificate, represents the scene without inheriting arbitrary source-container limits, and exposes JPG/JPG XL/TRUTHRAW PURE/TRUTHRAW ADVANCED as downstream product surfaces without allowing presentation choices to rewrite scientific authority.**
