@@ -1,0 +1,36 @@
+name: FotoGraaf Calibration Pack v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/**'
+      - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_pack_v0_1.py'
+      - '.github/workflows/fotograaf-calibration-pack-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/**'
+      - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_pack_v0_1.py'
+      - '.github/workflows/fotograaf-calibration-pack-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibration-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate machine-readable calibration contract
+        run: >-
+          python3 tools/verify_fotograaf_calibration_pack_v0_1.py
+          --contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_CONTRACT_V0_1.json
+
+      - name: Run fail-closed calibration admission tests
+        run: >-
+          python3 -m unittest
+          tests/test_verify_fotograaf_calibration_pack_v0_1.py
+          -v
