@@ -1,6 +1,6 @@
 # TruthRaw Project Map — 2026-09-13
 
-Status: current project-level navigation map for the 2026-09-13 audit branch.
+Status: current project-level navigation map for the 2026-09-13 audit branch, with the active 2026-09-14 zero-line empirical overlay recorded in section 19.
 
 This file summarizes the useful project-wide information without replacing module-local evidence, manifests, hashes, tests, or historical documents.
 
@@ -58,7 +58,7 @@ The Scientific Master must retain its identity/digest through downstream project
 
 Historical note: early Latent/Scene Master work explored richer scene representations and at times colorimetric/device-independent state. That history is design provenance; it does not silently redefine the current Scientific Master, which is camera-native reconstructed RGB before the normal `camera_to_xyz()` route and before appearance.
 
-## 5. TruthRange and the zero-line
+## 5. TruthRange and the zero-line / nul-lijn
 
 For positive scene light:
 
@@ -72,9 +72,17 @@ Three concepts must never be conflated:
 2. **Evidence support** — finite, uncertain and possibly censored because it comes from a real sensor observation.
 3. **Gauge** — selects the coordinate origin and removes a multiplicative scene-scale ambiguity; it does not create information.
 
+The historical house intent is explicitly two-sided: the reconstructed/new house may continue without a finite representational ceiling above the nul-lijn and without a finite representational floor below it.
+
 Therefore the project must not say that a physical sensor has infinite dynamic range. The unbounded property belongs to the representational coordinate space, not the measurement.
 
+The signed scene-linear estimator remains separate from positive-light TruthRange. Real 2026-09-14 Honor dark/shadow measurements now empirically reinforce the need to preserve below-black signed numerical values rather than clipping them to zero.
+
 Historical evolution is documented in `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`.
+
+The newest source-bound evidence synthesis is in:
+
+`docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`.
 
 ## 6. Color authority
 
@@ -129,6 +137,8 @@ The house is not only a performance metaphor. Recovered project history shows fo
 - **achterkant van de foto / Technical Backplane** — compact scientific identity/provenance behind the visible image;
 - **tussenwoning / Gatehouse** — isolated external RAW decode, sealed handoff, then detach before heavy Main-House work.
 
+The zero-line/nul-lijn belongs to the **new-house freedom**: it supplies a scene gauge around which the representational house is not forced to stop at the source container's bright or dark limits.
+
 Repository verification confirms the sealed-house vision was formally canonized by commit:
 
 `13075856895ee6815c8a72fcf733d52bad596583` — `Canonize sealed-house TruthRaw core vision`.
@@ -158,6 +168,8 @@ The visible image is only the front-facing projection. The **Technical Backplane
 Historical Backplane work included a compact fixed serialization of roughly 180 bytes for one validated phase; the exact layout is module/version-specific.
 
 The Backplane is metadata/control-plane state, not image evidence and not a secret second master.
+
+The 2026-09-14 dark-frame work suggests that future empirical calibration identity may need a versioned capture/sample-domain identifier. This must not be inserted silently into any frozen Backplane/certificate layout; it requires an explicit schema/version change if adopted.
 
 ## 11. Streaming and memory
 
@@ -195,6 +207,8 @@ Keep these output classes separate:
 - **rawsensor** — internal/nonstandard low-level payload; it requires an explicit ABI/provenance definition before it can be called canonical.
 
 No export may create photons, independent evidence, `FULL_PHYSICAL`, a new zero-line, or a different Scientific Master digest.
+
+The current float32 PURE projection intentionally preserves negative and greater-than-one numerical components. This is compatible with the richer Scientific Master representation; it does not turn those components into new measurement evidence.
 
 ## 14. DNG interoperability boundary
 
@@ -239,9 +253,15 @@ The strongest project posture is deliberately asymmetric:
 - single-frame evidence accounting: strong;
 - bounded streaming/read optimization: physically exercised on the reference Honor source;
 - source-bound DNG color: reproducible but not independently physical;
+- signed post-black preservation: empirically reinforced by real-scene and covered dark data;
+- ISO100/400 temporal dark-noise measurement: physically exercised for the tested duplicate pairs;
+- source-bound DNG NoiseProfile high-ISO consistency: supported, while exact MotionCam/device semantics remain open;
+- simple monotonic ISO8192 noise-domain threshold: rejected;
+- reproducible discrete exact-ISO8192-associated capture/sample domain: observed across independent sessions; physical cause open;
 - DNG projection/export: active validation work;
 - universal external RAW support: dependent on decoder/topology validation;
 - `FULL_PHYSICAL` color/light/material truth: blocked until independent calibration exists;
+- physical PTC/conversion-gain/DCG certification: open until controlled repeated dark + flat protocols exist;
 - Vulkan/GPU execution: future optional execution backend only, never a truth source.
 
 ## 18. Current authoritative project-level documents
@@ -256,8 +276,29 @@ Read in this order:
 6. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
 7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
 8. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
-9. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
-10. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
-11. then the module-local canonical/research documents relevant to the task.
+9. `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`
+10. `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_EMPIRICAL_STATE_2026-09-14.json`
+11. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
+12. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
+13. then the module-local canonical/research documents relevant to the task.
 
 Older dated state and architecture documents remain provenance/history and must not silently be treated as the latest global state.
+
+## 19. 2026-09-14 zero-line / noise empirical overlay
+
+The 2026-09-14 Honor tele campaigns must now be carried forward with the project history rather than treated as isolated chat experiments.
+
+The combined result is:
+
+- the nul-lijn remains the two-sided gauge of an unbounded **representational** address space;
+- the sealed sensor evidence remains finite, noisy, quantized and censored;
+- real below-black source values reinforce signed scientific storage on the dark side;
+- dark/noise-limited physical light is represented by uncertainty/bounds, not by declaring negative photons or exact darkness;
+- source ISO remains provenance, but ISO magnitude alone is insufficient as a future empirical-noise calibration key;
+- calibration must fail closed across an observed capture/sample-domain discontinuity;
+- exact ISO8192 repeatedly selected a high-scale/censored source domain while nearby ISO8184 and higher ISO10244 stayed ordinary, so the simple threshold model is rejected;
+- no Scientific Master/reconstruction algorithm change is justified from these measurements alone.
+
+Permanent project wording:
+
+**The nul-lijn allows the new house to extend without a finite representational ceiling upward and without a finite representational floor downward. Calibration locates finite evidence inside that house; it never grants the house its extent and never upgrades uncertainty into measured photons.**
