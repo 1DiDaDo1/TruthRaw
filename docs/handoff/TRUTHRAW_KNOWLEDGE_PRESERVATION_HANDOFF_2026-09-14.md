@@ -7,7 +7,7 @@ This handoff exists to prevent the long-running TruthRaw project knowledge from 
 Before making architectural, scientific, calibration, output, Gatehouse, FotoGraaf, color, light, noise, optics, zero-line, or reconstruction changes, read:
 
 1. `TRUTHRAW_KNOWLEDGE_PRESERVATION_2026-09-14.md` at repository root.
-2. `docs/knowledge/README.md`
+2. `docs/knowledge/TRUTHRAW_KNOWLEDGE_BOOTSTRAP_2026-09-14.md`
 3. `docs/knowledge/TRUTHRAW_COMPLETE_PROJECT_KNOWLEDGE_2026-09-14.md`
 4. `docs/knowledge/TRUTHRAW_GENEALOGY_DECISION_LEDGER_2026-09-14.md`
 5. `docs/knowledge/TRUTHRAW_ACTIVE_RESEARCH_AND_VALIDATION_STATE_2026-09-14.md`
