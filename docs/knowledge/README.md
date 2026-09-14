@@ -21,9 +21,11 @@ Read these together:
    - historical project genealogy: sealed/new house, float32, nul-lijn, Technical Backplane, FotoGraaf, water/material tests, RGB RAW recovery, Gatehouse, accepted/rejected experiments, and why later corrections happened.
 3. `TRUTHRAW_ACTIVE_RESEARCH_AND_VALIDATION_STATE_2026-09-14.md`
    - PR #23, PURE float32 DNG, Certificate v0.1, physical regression sources, empirical Honor results, calibration-pack/shadow-model work, CI findings, and still-open gates.
-4. `TRUTHRAW_KNOWLEDGE_INDEX_2026-09-14.json`
+4. `TRUTHRAW_TOPIC_COVERAGE_CHECKLIST_2026-09-14.md`
+   - topic-by-topic preservation audit showing which major conversation/research areas are repository-resident and where uncertainty is intentionally retained.
+5. `TRUTHRAW_KNOWLEDGE_INDEX_2026-09-14.json`
    - machine-readable index of preserved topic families and authority/status labels.
-5. `../handoff/TRUTHRAW_KNOWLEDGE_PRESERVATION_HANDOFF_2026-09-14.md`
+6. `../handoff/TRUTHRAW_KNOWLEDGE_PRESERVATION_HANDOFF_2026-09-14.md`
    - short bootstrap pointer for future sessions.
 
 ## Non-negotiable preservation laws
