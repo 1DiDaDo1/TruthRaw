@@ -175,11 +175,20 @@ class FotoGraafSceneAdmissionV01Tests(unittest.TestCase):
         self.assertIsNotNone(item["binding"])
         self.assertEqual(item["binding"]["physicalFrameCount"], 1)
         self.assertEqual(item["binding"]["independentEvidenceCount"], 1)
+        self.assertEqual(item["binding"]["protocolSha256"], sha("b"))
+        self.assertEqual(item["binding"]["modelSha256"], sha("c"))
 
     def test_worker_count_does_not_change_binding_digest(self):
         one = self.run_admission(valid_scene(1))["results"][0]["binding"]["bindingSha256"]
         four = self.run_admission(valid_scene(4))["results"][0]["binding"]["bindingSha256"]
         self.assertEqual(one, four)
+
+    def test_model_hash_change_changes_binding_digest(self):
+        original = self.run_admission()["results"][0]["binding"]["bindingSha256"]
+        changed_pack = valid_pack()
+        changed_pack["modelSha256"] = sha("9")
+        changed = self.run_admission(pack=changed_pack)["results"][0]["binding"]["bindingSha256"]
+        self.assertNotEqual(original, changed)
 
     def test_same_iso_different_capture_sample_domain_does_not_bind(self):
         scene = valid_scene()
