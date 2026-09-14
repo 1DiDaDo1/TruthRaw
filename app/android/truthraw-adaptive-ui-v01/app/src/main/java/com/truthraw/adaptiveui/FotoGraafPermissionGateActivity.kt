@@ -13,14 +13,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/**
- * Permission gate in front of FotoGraafCameraActivity.
- *
- * The route inventory must never run before CAMERA permission has been granted
- * on devices that hide/deny Camera2 characteristics without runtime access.
- * This also avoids the v0.3 deadlock where zero routes disabled the only path
- * that could have triggered the permission request.
- */
+/** Permission gate before FotoGraaf live Camera2 discovery/session startup. */
 class FotoGraafPermissionGateActivity : Activity() {
 
     private lateinit var statusView: TextView
@@ -35,9 +28,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        if (::statusView.isInitialized && hasCameraPermission()) {
-            launchFotoGraaf()
-        }
+        if (::statusView.isInitialized && hasCameraPermission()) launchFotoGraaf()
     }
 
     private fun continueWhenPermitted() {
@@ -45,7 +36,7 @@ class FotoGraafPermissionGateActivity : Activity() {
             launchFotoGraaf()
             return
         }
-        statusView.text = "Camera-toestemming is nodig vóór de HONOR Camera2 inventory kan worden gelezen."
+        statusView.text = "Camera-toestemming is nodig vóór FotoGraaf de HONOR Camera2-routes en live preview opent."
         allowButton.isEnabled = true
         settingsButton.visibility = android.view.View.GONE
         requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
@@ -58,13 +49,11 @@ class FotoGraafPermissionGateActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_CAMERA_PERMISSION) return
-
         if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            statusView.text = "Camera-toestemming verleend. HONOR inventory wordt geopend…"
+            statusView.text = "Camera-toestemming verleend. FotoGraaf Live Camera wordt geopend…"
             launchFotoGraaf()
         } else {
-            statusView.text =
-                "Camera-toestemming is niet verleend. Zonder deze toestemming start FotoGraaf geen route-scan."
+            statusView.text = "Camera-toestemming is niet verleend. Zonder deze toestemming opent FotoGraaf geen Camera2-sessie."
             allowButton.isEnabled = true
             settingsButton.visibility = android.view.View.VISIBLE
         }
@@ -72,7 +61,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     private fun launchFotoGraaf() {
         if (!hasCameraPermission()) return
-        startActivity(Intent(this, FotoGraafCameraActivity::class.java))
+        startActivity(Intent(this, FotoGraafLiveCameraActivity::class.java))
         finish()
     }
 
@@ -90,7 +79,6 @@ class FotoGraafPermissionGateActivity : Activity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
             )
         }
-
         root.addView(TextView(this).apply {
             text = "FotoGraaf · Camera toegang"
             textSize = 28f
@@ -98,26 +86,23 @@ class FotoGraafPermissionGateActivity : Activity() {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "De Camera2/HONOR inventory wordt pas gelezen nadat Android de camera-toestemming heeft verleend."
+            text = "Na toestemming opent FotoGraaf de live Camera2-sessie. De sealed RAW blijft de enige capture-evidence."
             textSize = 15f
             setTextColor(Color.rgb(195, 200, 210))
             setPadding(0, dp(12), 0, dp(20))
         })
-
         statusView = TextView(this).apply {
             textSize = 15f
             setTextColor(Color.WHITE)
             setPadding(0, 0, 0, dp(18))
         }
         root.addView(statusView)
-
         allowButton = Button(this).apply {
             text = "Camera-toestemming geven"
             isAllCaps = false
             setOnClickListener { continueWhenPermitted() }
         }
         root.addView(allowButton)
-
         settingsButton = Button(this).apply {
             text = "Open app-instellingen"
             isAllCaps = false
