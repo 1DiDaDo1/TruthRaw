@@ -41,7 +41,7 @@ class SuiteLauncherActivity : Activity() {
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         root.addView(Button(this).apply {
-            text = "Open FotoGraaf"
+            text = "Open FotoGraaf · generiek Camera2"
             setOnClickListener {
                 startActivity(Intent().setClassName(
                     this@SuiteLauncherActivity,
@@ -52,8 +52,20 @@ class SuiteLauncherActivity : Activity() {
             topMargin = pad / 2
         })
 
+        root.addView(Button(this).apply {
+            text = "Open FotoGraaf · HONOR tele fysieke ID 5"
+            setOnClickListener {
+                startActivity(Intent().setClassName(
+                    this@SuiteLauncherActivity,
+                    "com.truthraw.fotograafcapture.HonorTeleActivity"
+                ))
+            }
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = pad / 2
+        })
+
         root.addView(TextView(this).apply {
-            text = "FotoGraaf registreert capture-time Camera2-evidence en één RAW_SENSOR-frame. Het pad mag geen captureSampleDomainId of gainReadoutStateId uit ISO afleiden en verleent op zichzelf geen CALIBRATED_PHYSICAL-authoriteit."
+            text = "De HONOR-tele route vraagt fysieke camera-ID 5 expliciet via de logical multi-camera en accepteert het RAW alleen wanneer Camera2 een fysiek TotalCaptureResult voor ID 5 teruggeeft. Dit bevestigt de route, maar verleent nog geen CalibrationPack-authoriteit en classificeert sample-domain/gain-readout niet uit ISO."
             textSize = 12f
             setPadding(0, pad, 0, 0)
         })
