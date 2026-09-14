@@ -36,7 +36,7 @@ jobs:
           grep -F 'physicalCameraResults' "$JAVA/FotoGraafCameraActivity.kt"
           grep -F 'SENSOR_TIMESTAMP' "$JAVA/FotoGraafCameraActivity.kt"
           grep -F 'vendorRequestsWritten", false' "$JAVA/FotoGraafCameraActivity.kt"
-          grep -F 'class LinearDngExporter' "$JAVA/LinearDngExport.kt"
+          grep -F 'object LinearDngExporter' "$JAVA/LinearDngExport.kt"
           grep -F 'linear_dng_export_bridge.cpp' "$CPP/CMakeLists.txt"
 
           echo 'suite_lineage=MAIN_PLUS_FOTOGRAAF'
