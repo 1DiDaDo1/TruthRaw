@@ -45,7 +45,11 @@ Canonical interpretation:
 
 Around 23:55 the architectural metaphor became explicit: the reconstructed/new house should have a zero-line/reference, with the coordinate extending conceptually upward toward light and downward toward darkness without inheriting RAW10/WhiteLevel as a hard representational ceiling/floor.
 
-This is an architectural visualization of the log-ratio coordinate, not a claim of infinite measured photons.
+The historical wording is best preserved as a two-sided image:
+
+`darkness <- ... <- -EV <- nul-lijn -> +EV -> ... -> brighter light`
+
+The new house can conceptually continue to be built upward and downward around the nul-lijn. This is an architectural visualization of the log-ratio coordinate, not a claim of infinite measured photons.
 
 ## 4. Clipping became censoring, not a scene endpoint
 
@@ -164,9 +168,9 @@ Avoid unless immediately qualified:
 - “virtual exposures recover new measured photons”;
 - “the zero-line proves absolute brightness”.
 
-## 13. Historical conclusion
+## 13. Historical conclusion as recovered by 2026-09-13
 
-The recovered genealogy is now:
+The recovered genealogy was:
 
 `zero-line house vision`
 
@@ -187,3 +191,81 @@ The recovered genealogy is now:
 The important historical correction is therefore:
 
 **v0.2 did not invent the zero-line. v0.2 made the already-existing zero-line concept scene-internal/self-gauged and removed the temporary ISO/exposure dependency from the relative coordinate definition.**
+
+## 14. 2026-09-14 — the dark side becomes empirically concrete
+
+A new Honor/MotionCam tele ISO campaign measured real below-black values rather than treating signed support as a purely numerical design choice.
+
+In the ISO200-12800 real-scene ladder, below-black samples increased to 59,573 sensels at ISO12800, about `0.4753%` of all sensels, with a most-negative observed black-corrected value of `-22 DN`.
+
+Covered/dark-frame repeats then provided direct temporal-noise estimates:
+
+- ISO100: approximately `0.789-0.790 DN` sigma across CFA channels;
+- ISO400: approximately `0.867-0.870 DN` sigma across CFA channels.
+
+This does not mean physical light can be negative. It demonstrates why the signed scientific estimator must remain signed below the numerical black/zero reference while TruthRange separately carries the positive-light interpretation and an open dark-side bound.
+
+Historical consequence:
+
+**the lower half of the nul-lijn house is no longer only a conceptual symmetry with the highlight side; real source measurements now directly demonstrate the need to preserve signed noise/residual state below the source black reference.**
+
+## 15. 2026-09-14 — ISO alone is shown to be an insufficient calibration key
+
+One covered ISO8192 capture exhibited about `54-55 DN` dark sigma and about `7.12%` raw-zero censoring with a DNG NoiseProfile scaled by roughly `S x16`, `O x267` relative to an ordinary higher-ISO dark sample.
+
+A later same-exposure series then compared exact ISO8192 with ISO8184 and ISO10244.
+
+Two independent exact-ISO8192 captures reproduced:
+
+- identical BlackLevel values;
+- identical six-value DNG NoiseProfile;
+- about `54-55 DN` trimmed dark sigma;
+- about `7.1%` raw-zero censoring.
+
+At the same exposure, ISO8184 showed no raw-zero censoring and about `2.6 DN` sigma. ISO10244, despite being numerically higher than 8192, also stayed in the ordinary domain with no raw-zero censoring and about `3.2 DN` sigma.
+
+Therefore a simple monotonic `ISO >= 8192` boundary is rejected.
+
+The current label is deliberately descriptive rather than causal:
+
+**reproducible discrete ISO8192-associated capture/sample domain**.
+
+Its physical/software cause remains open.
+
+This adds a new measurement-layer rule to the historical architecture:
+
+**calibration locates evidence in the house, and the location key may require capture/sample-domain identity in addition to ISO/gain/exposure.**
+
+It does not change the fact that the house itself is unbounded upward and downward around the nul-lijn.
+
+## 16. 2026-09-14 integration point
+
+The newest history/evidence synthesis is recorded in:
+
+`docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`
+
+with a machine-readable state summary in:
+
+`docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_EMPIRICAL_STATE_2026-09-14.json`
+
+The updated genealogy is now:
+
+`nul-lijn / unbounded house in both directions`
+
+`-> signed scientific estimator + positive-light TruthRange`
+
+`-> source clipping as +infinity-side censoring`
+
+`-> dark/noise support as -infinity-side bound`
+
+`-> self-gauge + explicit uncertainty`
+
+`-> source-bound empirical ISO/response tests`
+
+`-> real dark-frame temporal-noise measurements`
+
+`-> capture/sample-domain-aware calibration requirement`
+
+without changing the permanent law:
+
+**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
