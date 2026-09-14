@@ -8,11 +8,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.truthraw.fullsensorprobe"
+        applicationId = "com.truthraw.fullsensorprobe.v04"
         minSdk = 31
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.7"
+        versionCode = 8
+        versionName = "0.4-sample-domain"
     }
 }
 
