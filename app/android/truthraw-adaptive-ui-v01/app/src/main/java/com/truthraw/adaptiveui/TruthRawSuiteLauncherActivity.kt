@@ -51,7 +51,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "0.1-main-plus-FotoGraaf · camera v0.2"
+            text = "0.1-main-plus-FotoGraaf · camera v0.3 discovery"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
