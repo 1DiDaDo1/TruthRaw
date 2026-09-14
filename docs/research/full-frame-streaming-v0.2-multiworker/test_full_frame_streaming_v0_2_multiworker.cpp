@@ -401,7 +401,7 @@ StreamStatus run_candidate(IRawTileSource& source,
     std::size_t readyCount = 0;
     bool cancel = false;
     std::vector<std::unique_ptr<TilePacket>> ready(tiles.size());
-    std::vector<Workspace> p2Workspace(std::size_t(workerCount));
+    std::vector<Workspace> p2Workspace{std::size_t(workerCount)};
 
     for (int wi = 0; wi < workerCount; ++wi) {
         threads.emplace_back([&, wi] {
