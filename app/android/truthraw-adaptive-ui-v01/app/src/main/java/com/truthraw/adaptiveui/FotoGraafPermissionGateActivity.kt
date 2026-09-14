@@ -13,33 +13,55 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/** Permission gate before FotoGraaf live Camera2 discovery/session startup. */
+/**
+ * Permission gate before FotoGraaf live Camera2 discovery/session startup.
+ *
+ * Important: Android may call onResume around the permission-result delivery.
+ * v0.4 could therefore launch the live camera from both callbacks. This gate
+ * serializes that transition so exactly one FotoGraaf live activity is started.
+ */
 class FotoGraafPermissionGateActivity : Activity() {
 
     private lateinit var statusView: TextView
     private lateinit var allowButton: Button
     private lateinit var settingsButton: Button
 
+    private var permissionRequestInFlight = false
+    private var liveCameraLaunched = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        liveCameraLaunched = savedInstanceState?.getBoolean(STATE_LAUNCHED, false) ?: false
+        permissionRequestInFlight = savedInstanceState?.getBoolean(STATE_PERMISSION_IN_FLIGHT, false) ?: false
         setContentView(buildUi())
         continueWhenPermitted()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_LAUNCHED, liveCameraLaunched)
+        outState.putBoolean(STATE_PERMISSION_IN_FLIGHT, permissionRequestInFlight)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onResume() {
         super.onResume()
-        if (::statusView.isInitialized && hasCameraPermission()) launchFotoGraaf()
+        if (::statusView.isInitialized && hasCameraPermission() && !permissionRequestInFlight) {
+            launchFotoGraafOnce()
+        }
     }
 
     private fun continueWhenPermitted() {
         if (hasCameraPermission()) {
-            launchFotoGraaf()
+            launchFotoGraafOnce()
             return
         }
         statusView.text = "Camera-toestemming is nodig vóór FotoGraaf de HONOR Camera2-routes en live preview opent."
-        allowButton.isEnabled = true
+        allowButton.isEnabled = false
         settingsButton.visibility = android.view.View.GONE
-        requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        if (!permissionRequestInFlight) {
+            permissionRequestInFlight = true
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -49,9 +71,13 @@ class FotoGraafPermissionGateActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_CAMERA_PERMISSION) return
+
+        permissionRequestInFlight = false
         if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            statusView.text = "Camera-toestemming verleend. FotoGraaf Live Camera wordt geopend…"
-            launchFotoGraaf()
+            statusView.text = "Camera-toestemming verleend. FotoGraaf Live Camera wordt éénmalig geopend…"
+            // Post onto the UI queue after the permission dialog has fully left
+            // the foreground. launchFotoGraafOnce() is idempotent.
+            window.decorView.post { launchFotoGraafOnce() }
         } else {
             statusView.text = "Camera-toestemming is niet verleend. Zonder deze toestemming opent FotoGraaf geen Camera2-sessie."
             allowButton.isEnabled = true
@@ -59,9 +85,20 @@ class FotoGraafPermissionGateActivity : Activity() {
         }
     }
 
-    private fun launchFotoGraaf() {
-        if (!hasCameraPermission()) return
-        startActivity(Intent(this, FotoGraafLiveCameraActivity::class.java))
+    private fun launchFotoGraafOnce() {
+        if (!hasCameraPermission() || liveCameraLaunched || isFinishing || isDestroyed) return
+        liveCameraLaunched = true
+        allowButton.isEnabled = false
+        runCatching {
+            startActivity(Intent(this, FotoGraafLiveCameraActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            })
+        }.onFailure { error ->
+            liveCameraLaunched = false
+            allowButton.isEnabled = true
+            statusView.text = "Live Camera kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
+            return
+        }
         finish()
     }
 
@@ -86,7 +123,7 @@ class FotoGraafPermissionGateActivity : Activity() {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Na toestemming opent FotoGraaf de live Camera2-sessie. De sealed RAW blijft de enige capture-evidence."
+            text = "Na toestemming opent FotoGraaf precies één live Camera2-sessie. De sealed RAW blijft de enige capture-evidence."
             textSize = 15f
             setTextColor(Color.rgb(195, 200, 210))
             setPadding(0, dp(12), 0, dp(20))
@@ -121,5 +158,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 401
+        private const val STATE_LAUNCHED = "fotograaf_live_launched"
+        private const val STATE_PERMISSION_IN_FLIGHT = "fotograaf_permission_in_flight"
     }
 }
