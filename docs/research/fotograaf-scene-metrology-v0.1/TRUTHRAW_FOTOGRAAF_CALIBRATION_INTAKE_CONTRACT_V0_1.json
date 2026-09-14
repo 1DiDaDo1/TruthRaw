@@ -1,0 +1,65 @@
+{
+  "schema": "truthraw.fotograaf-calibration-intake-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "sessionSchema": "truthraw.fotograaf-calibration-intake-session.v0.1",
+  "metadataSnapshotSchema": "truthraw.fotograaf-calibration-capture-metadata-snapshot.v0.1",
+  "bundleSchema": "truthraw.fotograaf-calibration-intake-bundle.v0.1",
+  "scopePartitionRule": "Every C0 scopeKeySha256 becomes a separate dataset-manifest candidate. Captures from different captureSampleDomainId, physicalCameraId, firmware, focus/stabilization state, or any other C0 scope field may never be flattened into one manifest.",
+  "requiredSessionEntryFields": [
+    "captureId",
+    "module",
+    "role",
+    "split",
+    "sourceFileName",
+    "metadataSnapshotFileName",
+    "c0RecordFileName",
+    "acquisitionAnchorId"
+  ],
+  "allowedModuleRoles": {
+    "C1_DARK_NOISE": ["DARK"],
+    "C2_LINEARITY_GAIN_SATURATION": ["UNIFORM_SIGNAL", "SATURATION_BRACKET"]
+  },
+  "metadataRequiredMeasurementFields": [
+    "exposureTimeNs",
+    "isoMetadata",
+    "gainReadoutStateId",
+    "blackLevelIdentity",
+    "whiteLevelIdentity",
+    "gainMapOpcodeIdentity",
+    "focusState",
+    "stabilizationState",
+    "temperatureObservation"
+  ],
+  "c2RequiredMetadataFields": [
+    "controlledSignalLevelId",
+    "sourceStabilityReferenceId",
+    "isSaturationBracket"
+  ],
+  "phaseACompleteness": {
+    "minimumAcquisitionAnchors": 7,
+    "C1_DARK_NOISE": {
+      "minimumDistinctExposureTimesPerAnchor": 4,
+      "minimumIndependentRepeatsPerAnchorExposure": 16
+    },
+    "C2_LINEARITY_GAIN_SATURATION": {
+      "minimumDistinctSignalLevelsPerAnchor": 12,
+      "minimumIndependentRepeatsPerSignalLevel": 8,
+      "minimumHeldOutValidationLevelsPerAnchor": 4,
+      "minimumSaturationBracketLevelsPerAnchor": 3
+    }
+  },
+  "rules": {
+    "everyCaptureMustPassC0AgainDuringIntake": true,
+    "sourceBytesMustBeRehashed": true,
+    "metadataSnapshotBytesMustBeRehashedByC0": true,
+    "metadataSnapshotMustBindSourceSha256": true,
+    "duplicateSourceSha256AcrossSession": "FAIL",
+    "differentScopeKeysInOneManifest": "FAIL_PARTITION_INSTEAD",
+    "isoMagnitudeMaySelectCaptureSampleDomain": false,
+    "ordinarySceneFramesMayBePromotedToCalibrationByIntake": false,
+    "incompleteAcquisitionMayProduceCandidateManifest": true,
+    "incompleteAcquisitionMayPassRequireComplete": false,
+    "sceneEvidenceCountsChangedByCalibration": false
+  }
+}
