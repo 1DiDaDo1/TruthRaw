@@ -19,18 +19,6 @@ import android.widget.Space
 import android.widget.TextView
 
 class OutputModeActivity : Activity() {
-    private enum class OutputMode(
-        val wireName: String,
-        val titleRes: Int,
-        val subtitleRes: Int,
-        val supportsAppearanceOptions: Boolean,
-    ) {
-        JPG("JPG", R.string.mode_jpg, R.string.mode_jpg_subtitle, true),
-        JPG_XL("JPG_XL", R.string.mode_jxl, R.string.mode_jxl_subtitle, true),
-        TRUTHRAW_PURE("TRUTHRAW_PURE", R.string.mode_pure, R.string.mode_pure_subtitle, false),
-        TRUTHRAW_ADVANCED("TRUTHRAW_ADVANCED", R.string.mode_advanced, R.string.mode_advanced_subtitle, true),
-    }
-
     private data class Palette(
         val background: Int,
         val surface: Int,
@@ -41,7 +29,7 @@ class OutputModeActivity : Activity() {
         val accent: Int,
     )
 
-    private var selectedMode = OutputMode.TRUTHRAW_PURE
+    private var selectedMode = TruthRawOutputMode.TRUTHRAW_PURE
     private var colourful = false
     private var detailed = false
     private var soft = false
@@ -102,9 +90,9 @@ class OutputModeActivity : Activity() {
         content.addView(label(getString(R.string.choose_output_subtitle), 13f, muted = true))
         content.addView(space(16))
 
-        content.addView(modeRow(OutputMode.JPG, OutputMode.JPG_XL))
+        content.addView(modeRow(TruthRawOutputMode.JPG, TruthRawOutputMode.JPG_XL))
         content.addView(space(10))
-        content.addView(modeRow(OutputMode.TRUTHRAW_PURE, OutputMode.TRUTHRAW_ADVANCED))
+        content.addView(modeRow(TruthRawOutputMode.TRUTHRAW_PURE, TruthRawOutputMode.TRUTHRAW_ADVANCED))
         content.addView(space(14))
 
         content.addView(label(getString(R.string.selected_mode, getString(selectedMode.titleRes)), 13f, bold = true))
@@ -116,7 +104,7 @@ class OutputModeActivity : Activity() {
             content.addView(infoCard(getString(R.string.pure_locked_hint)))
         }
 
-        if (selectedMode == OutputMode.JPG_XL) {
+        if (selectedMode == TruthRawOutputMode.JPG_XL && !OutputModePolicy.JPEG_XL_ENCODER_VALIDATED) {
             content.addView(space(8))
             content.addView(infoCard(getString(R.string.jxl_pending)))
         }
@@ -143,7 +131,7 @@ class OutputModeActivity : Activity() {
         setContentView(root)
     }
 
-    private fun modeRow(left: OutputMode, right: OutputMode): View = horizontal().apply {
+    private fun modeRow(left: TruthRawOutputMode, right: TruthRawOutputMode): View = horizontal().apply {
         addView(modeCard(left), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
             marginEnd = dp(5)
         })
@@ -152,7 +140,7 @@ class OutputModeActivity : Activity() {
         })
     }
 
-    private fun modeCard(mode: OutputMode): View = vertical().apply {
+    private fun modeCard(mode: TruthRawOutputMode): View = vertical().apply {
         minimumHeight = dp(112)
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(15), dp(14), dp(15), dp(14))
@@ -162,12 +150,11 @@ class OutputModeActivity : Activity() {
         addView(label(getString(mode.subtitleRes), 12f, muted = mode != selectedMode))
         setOnClickListener {
             selectedMode = mode
-            if (!mode.supportsAppearanceOptions) {
-                colourful = false
-                detailed = false
-                soft = false
-                hdr = false
-            }
+            val sanitized = OutputModePolicy.selection(mode, colourful, detailed, soft, hdr)
+            colourful = sanitized.appearance.colourful
+            detailed = sanitized.appearance.detailed
+            soft = sanitized.appearance.soft
+            hdr = sanitized.appearance.hdr
             render()
         }
     }
@@ -201,12 +188,13 @@ class OutputModeActivity : Activity() {
     }
 
     private fun openMainProcessingUi() {
+        val selection = OutputModePolicy.selection(selectedMode, colourful, detailed, soft, hdr)
         startActivity(Intent(this, MainActivity::class.java).apply {
-            putExtra(EXTRA_OUTPUT_MODE, selectedMode.wireName)
-            putExtra(EXTRA_COLOURFUL, colourful)
-            putExtra(EXTRA_DETAILED, detailed)
-            putExtra(EXTRA_SOFT, soft)
-            putExtra(EXTRA_HDR, hdr)
+            putExtra(EXTRA_OUTPUT_MODE, selection.mode.wireName)
+            putExtra(EXTRA_COLOURFUL, selection.appearance.colourful)
+            putExtra(EXTRA_DETAILED, selection.appearance.detailed)
+            putExtra(EXTRA_SOFT, selection.appearance.soft)
+            putExtra(EXTRA_HDR, selection.appearance.hdr)
         })
     }
 
