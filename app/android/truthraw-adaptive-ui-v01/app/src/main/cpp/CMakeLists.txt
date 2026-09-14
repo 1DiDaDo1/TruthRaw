@@ -33,6 +33,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
+    multiworker_empirical_probe.cpp
     raw_projection_export_bridge.cpp
     raw_projection_export_alias.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
@@ -42,9 +43,9 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${STREAMING}/full_frame_streaming_v0_1_pass1.cpp
     ${STREAMING}/full_frame_streaming_v0_1_pass2.cpp
     ${STREAMING}/full_frame_streaming_v0_1_plan.cpp
-    # Compile-only Android admission for the research multi-worker scheduler.
-    # Runtime routes remain on streaming v0.1 until physical 1/2/4-worker
-    # Honor equivalence/performance validation is complete.
+    # Android research admission for the v0.2 scheduler. Normal UI/scientific
+    # routes stay on streaming v0.1; only the explicit empirical JNI probe may
+    # request v0.2 until physical 1/2/4-worker validation is complete.
     ${STREAMING_V02_MULTIWORKER}/multiworker_streaming_v0_2.cpp
     ${PREVIEW_SURFACE}/bounded_srgb_preview_sink_v0_1.cpp
     ${SOURCE_BINDING_V01}/scientific_preview_source_binding_v0_1.cpp
