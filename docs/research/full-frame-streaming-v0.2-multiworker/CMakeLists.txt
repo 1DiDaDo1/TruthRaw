@@ -26,22 +26,39 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     -Wno-error=misleading-indentation)
 endif()
 
-add_executable(test_full_frame_streaming_v0_2_multiworker
+add_library(full_frame_streaming_v0_1_for_v02 STATIC
   "${STREAM_V01}/native/full_frame_streaming_v0_1.cpp"
   "${STREAM_V01}/native/full_frame_streaming_v0_1_plan.cpp"
   "${STREAM_V01}/native/full_frame_streaming_v0_1_pass1.cpp"
   "${STREAM_V01}/native/full_frame_streaming_v0_1_pass2.cpp"
-  test_full_frame_streaming_v0_2_multiworker.cpp
   $<TARGET_OBJECTS:truthraw_v47i_frozen_core_v02>)
+target_include_directories(full_frame_streaming_v0_1_for_v02 PUBLIC
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(full_frame_streaming_v0_1_for_v02 PRIVATE
+  -Wall -Wextra -Werror)
 
+add_library(multiworker_streaming_v0_2 STATIC
+  multiworker_streaming_v0_2.cpp)
+target_include_directories(multiworker_streaming_v0_2 PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(multiworker_streaming_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(multiworker_streaming_v0_2 PUBLIC
+  full_frame_streaming_v0_1_for_v02 Threads::Threads)
+
+add_executable(test_full_frame_streaming_v0_2_multiworker
+  test_full_frame_streaming_v0_2_multiworker.cpp)
 target_include_directories(test_full_frame_streaming_v0_2_multiworker PRIVATE
   "${STREAM_V01}/native"
   "${STREAM_V01}/tests"
   "${V47I}/include")
-
 target_compile_options(test_full_frame_streaming_v0_2_multiworker PRIVATE
   -Wall -Wextra -Werror)
-target_link_libraries(test_full_frame_streaming_v0_2_multiworker PRIVATE Threads::Threads)
+target_link_libraries(test_full_frame_streaming_v0_2_multiworker PRIVATE
+  full_frame_streaming_v0_1_for_v02 Threads::Threads)
 
 add_library(tile_native_dng_source_v0_1_for_multiworker STATIC
   "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1.cpp"
@@ -65,8 +82,25 @@ target_compile_options(test_tile_native_source_gate_v0_2 PRIVATE
 target_link_libraries(test_tile_native_source_gate_v0_2 PRIVATE
   tile_native_dng_source_v0_1_for_multiworker Threads::Threads)
 
+add_executable(test_tile_native_multiworker_streaming_v0_2
+  test_tile_native_multiworker_streaming_v0_2.cpp)
+target_include_directories(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${STREAM_V01}/tests"
+  "${V47I}/include")
+target_compile_options(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  multiworker_streaming_v0_2
+  tile_native_dng_source_v0_1_for_multiworker
+  Threads::Threads)
+
 enable_testing()
 add_test(NAME full_frame_streaming_v0_2_multiworker
   COMMAND test_full_frame_streaming_v0_2_multiworker)
 add_test(NAME tile_native_source_gate_v0_2
   COMMAND test_tile_native_source_gate_v0_2)
+add_test(NAME tile_native_multiworker_streaming_v0_2
+  COMMAND test_tile_native_multiworker_streaming_v0_2)
