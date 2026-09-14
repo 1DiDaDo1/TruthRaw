@@ -1,0 +1,109 @@
+{
+  "schema": "truthraw.fotograaf-calibration-dataset-manifest-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "manifestSchema": "truthraw.fotograaf-calibration-dataset-manifest.v0.1",
+  "sceneEvidenceCountsChangedByCalibration": false,
+  "requiredScopeFields": [
+    "deviceMake",
+    "deviceModel",
+    "cameraSystemId",
+    "physicalCameraId",
+    "lensRole",
+    "captureApiDomain",
+    "captureMode",
+    "rawWidth",
+    "rawHeight",
+    "cfaPattern",
+    "sampleRepresentation",
+    "captureSampleDomainId",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState",
+    "protocolVersion"
+  ],
+  "captureModules": {
+    "C1_DARK_NOISE": [
+      "DARK"
+    ],
+    "C2_LINEARITY_GAIN_SATURATION": [
+      "UNIFORM_SIGNAL",
+      "SATURATION_BRACKET"
+    ],
+    "C3_FLAT_SHADING": [
+      "FLAT"
+    ],
+    "C4_COLOR_SPECTRAL": [
+      "COLOR_TARGET"
+    ],
+    "C5_RELATIVE_RADIOMETRY": [
+      "RELATIVE_RADIANCE"
+    ],
+    "C6_ABSOLUTE_RADIOMETRY": [
+      "ABSOLUTE_RADIANCE"
+    ],
+    "C7_INCIDENT_LIGHT_GEOMETRY": [
+      "LIGHT_RIG"
+    ]
+  },
+  "splitValues": [
+    "FIT",
+    "VALIDATION"
+  ],
+  "captureRequiredFields": [
+    "captureId",
+    "module",
+    "role",
+    "split",
+    "fileName",
+    "sha256",
+    "byteLength",
+    "scopeKeySha256",
+    "metadataSnapshotSha256",
+    "exposureTimeNs",
+    "isoMetadata",
+    "blackLevelIdentity",
+    "whiteLevelIdentity",
+    "gainMapOpcodeIdentity",
+    "focusState",
+    "stabilizationState",
+    "temperatureObservation"
+  ],
+  "temperatureObservation": {
+    "statuses": [
+      "MEASURED",
+      "UNAVAILABLE"
+    ],
+    "measuredRequiredFields": [
+      "sensorId",
+      "valueC"
+    ],
+    "unavailableRequiredFields": [
+      "reason"
+    ]
+  },
+  "externalReferenceKinds": [
+    "SOURCE_STABILITY_MONITOR",
+    "ILLUMINANT_SPD",
+    "SPECTRAL_TARGET",
+    "RADIANCE_REFERENCE",
+    "IRRADIANCE_REFERENCE",
+    "GEOMETRY_REFERENCE",
+    "MATERIAL_BRDF_REFERENCE"
+  ],
+  "canonicalDigest": {
+    "algorithm": "SHA-256",
+    "serialization": "UTF-8 JSON, sort_keys=true, separators=(',',':'), ensure_ascii=false, with top-level manifestSha256 omitted",
+    "purpose": "datasetManifestSha256 binding inside FotoGraafCalibrationPack"
+  },
+  "rules": {
+    "duplicateCaptureId": "FAIL",
+    "duplicateCaptureSha256": "FAIL_INDEPENDENT_REPEAT_CANNOT_REUSE_SAME_FILE",
+    "fitValidationCaptureOverlap": "FAIL",
+    "captureScopeMismatch": "FAIL",
+    "actualFileHashMismatchWhenRootProvided": "FAIL",
+    "actualFileLengthMismatchWhenRootProvided": "FAIL",
+    "externalReferenceHashMismatchWhenRootProvided": "FAIL",
+    "ordinarySceneFramesMayBeListedAsCalibrationRolesWithoutProtocolControl": false
+  }
+}

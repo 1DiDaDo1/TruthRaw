@@ -5,13 +5,17 @@ on:
     paths:
       - 'docs/research/fotograaf-scene-metrology-v0.1/**'
       - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_dataset_manifest_v0_1.py'
       - 'tests/test_verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_dataset_manifest_v0_1.py'
       - '.github/workflows/fotograaf-calibration-pack-v0-1.yml'
   pull_request:
     paths:
       - 'docs/research/fotograaf-scene-metrology-v0.1/**'
       - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_dataset_manifest_v0_1.py'
       - 'tests/test_verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_dataset_manifest_v0_1.py'
       - '.github/workflows/fotograaf-calibration-pack-v0-1.yml'
   workflow_dispatch:
 
@@ -33,4 +37,10 @@ jobs:
         run: >-
           python3 -m unittest
           tests/test_verify_fotograaf_calibration_pack_v0_1.py
+          -v
+
+      - name: Run dataset-manifest evidence-binding tests
+        run: >-
+          python3 -m unittest
+          tests/test_verify_fotograaf_calibration_dataset_manifest_v0_1.py
           -v
