@@ -1,6 +1,6 @@
 {
   "schema": "TRUTHRAW_FOTOGRAAF_PARALLEL_EXECUTION_CONTRACT_V0_1",
-  "status": "RESEARCH_EXECUTION_CONTRACT",
+  "status": "RESEARCH_EXECUTION_CONTRACT_WITH_HOST_MULTIWORKER_PASS",
   "scientificRouteChange": false,
   "laws": [
     "Measured where measured. Reconstructed where necessary. Never invented.",
@@ -70,7 +70,28 @@
     "androidPreviewWorkers": 1,
     "hdrEnabledInAndroidPreview": true,
     "multiWorkerAccepted": false,
-    "multiWorkerStatus": "BLOCKED_PENDING_V0_2_OR_SEPARATE_CANDIDATE"
+    "multiWorkerStatus": "REFERENCE_ROUTE_REMAINS_SINGLE_WORKER"
+  },
+  "multiWorkerCandidateV0_2": {
+    "status": "HOST_PASS_ANDROID_COMPILE_ADMITTED_NOT_RUNTIME_PROMOTED",
+    "architecture": "SERIALIZED_SOURCE_TO_N_COMPUTE_WORKERS_TO_BOUNDED_REORDER_TO_ORDERED_SINK",
+    "workersHostValidated": [2, 4],
+    "realTileNativeDngSourceInHostGate": true,
+    "exactFloatByteEquivalence": [
+      "SDR",
+      "HDR_HALF_LOG_GAIN",
+      "STAGE2_DIAGNOSTIC"
+    ],
+    "globalExposurePlanEquivalent": true,
+    "sourceConcurrencyPeak": 1,
+    "fullRawMaterializationIntroduced": false,
+    "fullFileMaterializationIntroduced": false,
+    "androidNdkCompileAdmission": true,
+    "androidRuntimeActivated": false,
+    "hostValidatedHead": "8de8aab8a4f0fe57e29b1377cd02b3591822e618",
+    "hostWorkflowRun": 34834874747,
+    "androidCompileWorkflowRun": 34834874785,
+    "scientificAuthorityChange": false
   },
   "multiWorkerCandidateRequirements": [
     "WORKER_LOCAL_WORKSPACE",
@@ -82,6 +103,23 @@
     "EXACT_1_2_4_WORKER_INVARIANCE_TEST",
     "THREAD_SANITIZER_OR_EQUIVALENT_RACE_VALIDATION",
     "REAL_DEVICE_PERFORMANCE_MEMORY_UI_THERMAL_BENCHMARK"
+  ],
+  "closedCandidateRequirementsOnHost": [
+    "WORKER_LOCAL_WORKSPACE",
+    "SERIALIZED_SOURCE_ACCESS_WITH_REAL_TILENATIVEDNGSOURCE",
+    "DETERMINISTIC_PASS1_HISTOGRAM_AND_COUNTER_REDUCTION",
+    "PARALLEL_PASS2_COMPUTE_WITH_CANONICAL_ORDERED_COMMIT",
+    "WORKER_AWARE_CONSERVATIVE_MEMORY_PLANNING",
+    "EXACT_2_4_WORKER_OUTPUT_INVARIANCE_AGAINST_1_WORKER_REFERENCE",
+    "ASAN_UBSAN_HOST_VALIDATION",
+    "ANDROID_NDK_COMPILE_ADMISSION"
+  ],
+  "stillOpenCandidateRequirements": [
+    "EXPLICIT_CONCURRENT_BACKEND_SAFETY_CERTIFICATION",
+    "THREAD_SANITIZER_OR_EQUIVALENT_RACE_VALIDATION_BEYOND_ASAN_UBSAN",
+    "PHYSICAL_HONOR_1_2_4_WORKER_EXACT_IDENTITY_TEST",
+    "REAL_DEVICE_PERFORMANCE_MEMORY_UI_THERMAL_BENCHMARK",
+    "DEVICE_RESOURCE_GOVERNOR_VALIDATION"
   ],
   "adaptiveWorkerPolicy": {
     "scientificConstant": false,
@@ -98,9 +136,10 @@
   },
   "decision": {
     "parallelRoomsAfterDependencies": "PASS_ARCHITECTURE",
-    "multipleWorkersInsideOneRoom": "PASS_ARCHITECTURE",
-    "hdrIndependentOfIsoAfterRequiredBarriers": "PASS_ARCHITECTURE",
-    "fullFrameStreamingV0_1MultiWorker": "OPEN_NOT_IMPLEMENTED",
-    "androidFourWorkerScientificRoute": "BLOCKED"
+    "multipleWorkersInsideOneRoom": "PASS_ARCHITECTURE_AND_HOST_EXECUTION",
+    "hdrIndependentOfIsoAfterRequiredBarriers": "PASS_ARCHITECTURE_AND_HOST_EXECUTION",
+    "fullFrameStreamingV0_2MultiWorker": "HOST_PASS_WITH_REAL_TILENATIVE_SOURCE",
+    "androidMultiWorkerCompileAdmission": "PASS",
+    "androidFourWorkerScientificRuntime": "BLOCKED_PENDING_PHYSICAL_DEVICE_IDENTITY_AND_RESOURCE_VALIDATION"
   }
 }
