@@ -1,0 +1,65 @@
+name: Scientific Master Linear DNG Projection v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - '.github/workflows/scientific-master-linear-dng-projection-v0-1.yml'
+  push:
+    paths:
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - '.github/workflows/scientific-master-linear-dng-projection-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC Release
+        run: >-
+          cmake -S docs/research/scientific-master-linear-dng-projection-v0.1
+          -B build-smldp-gcc
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=g++
+      - name: Build
+        run: cmake --build build-smldp-gcc --parallel 2
+      - name: Test
+        run: ctest --test-dir build-smldp-gcc --output-on-failure
+
+  clang-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang Release
+        run: >-
+          cmake -S docs/research/scientific-master-linear-dng-projection-v0.1
+          -B build-smldp-clang
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=clang++
+      - name: Build
+        run: cmake --build build-smldp-clang --parallel 2
+      - name: Test
+        run: ctest --test-dir build-smldp-clang --output-on-failure
+
+  clang-asan-ubsan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang ASan UBSan
+        run: >-
+          cmake -S docs/research/scientific-master-linear-dng-projection-v0.1
+          -B build-smldp-sanitized
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_CXX_COMPILER=clang++
+          -DTRUTHRAW_SMLDP_V01_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build-smldp-sanitized --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build-smldp-sanitized --output-on-failure

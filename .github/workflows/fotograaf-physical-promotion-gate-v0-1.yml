@@ -1,0 +1,54 @@
+name: FotoGraaf Physical Promotion Gate v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_PHYSICAL_PROMOTION_GATE_V0_1_2026-09-14.md'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_PHYSICAL_PROMOTION_GATE_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_SCENE_ADMISSION_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json'
+      - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_scene_admission_v0_1.py'
+      - 'tools/verify_fotograaf_physical_promotion_gate_v0_1.py'
+      - 'tests/test_verify_fotograaf_physical_promotion_gate_v0_1.py'
+      - '.github/workflows/fotograaf-physical-promotion-gate-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_PHYSICAL_PROMOTION_GATE_V0_1_2026-09-14.md'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_PHYSICAL_PROMOTION_GATE_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_SCENE_ADMISSION_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json'
+      - 'tools/verify_fotograaf_calibration_pack_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_scene_admission_v0_1.py'
+      - 'tools/verify_fotograaf_physical_promotion_gate_v0_1.py'
+      - 'tests/test_verify_fotograaf_physical_promotion_gate_v0_1.py'
+      - '.github/workflows/fotograaf-physical-promotion-gate-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  physical-promotion-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile promotion verifier
+        run: python3 -m py_compile tools/verify_fotograaf_physical_promotion_gate_v0_1.py
+
+      - name: Validate non-mutating promotion contract
+        run: >-
+          python3 tools/verify_fotograaf_physical_promotion_gate_v0_1.py
+          --calibration-contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_CONTRACT_V0_1.json
+          --admission-contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_SCENE_ADMISSION_CONTRACT_V0_1.json
+          --shadow-contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json
+          --promotion-contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_PHYSICAL_PROMOTION_GATE_CONTRACT_V0_1.json
+
+      - name: Run fail-closed promotion tests
+        run: >-
+          python3 -m unittest
+          tests/test_verify_fotograaf_physical_promotion_gate_v0_1.py
+          -v

@@ -1,0 +1,53 @@
+name: Worker Resource Invariance v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/worker-resource-invariance-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/worker-resource-invariance-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/worker-resource-invariance-v0.1/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/worker-resource-invariance-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-equivalence:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GCC exact 1/2/4-worker equivalence
+        if: matrix.mode == 'gcc-release'
+        run: |
+          cmake -S docs/research/worker-resource-invariance-v0.1 -B /tmp/worker-gcc \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/worker-gcc --parallel 2
+          ctest --test-dir /tmp/worker-gcc --output-on-failure
+
+      - name: Clang exact 1/2/4-worker equivalence
+        if: matrix.mode == 'clang-release'
+        run: |
+          cmake -S docs/research/worker-resource-invariance-v0.1 -B /tmp/worker-clang \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/worker-clang --parallel 2
+          ctest --test-dir /tmp/worker-clang --output-on-failure
+
+      - name: Clang ASan/UBSan exact equivalence
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: |
+          cmake -S docs/research/worker-resource-invariance-v0.1 -B /tmp/worker-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/worker-san --parallel 2
+          ctest --test-dir /tmp/worker-san --output-on-failure

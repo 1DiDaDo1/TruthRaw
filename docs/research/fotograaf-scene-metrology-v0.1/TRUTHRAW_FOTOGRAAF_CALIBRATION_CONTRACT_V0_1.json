@@ -1,0 +1,325 @@
+{
+  "schema": "truthraw.fotograaf-calibration-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_PROTOCOL_FAIL_CLOSED",
+  "scientificMasterRouteChange": false,
+  "sceneEvidenceCountsChangedByCalibration": false,
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "authorityClasses": [
+    "MEASURED_SOURCE",
+    "CALIBRATED_PHYSICAL",
+    "INFERRED_SCENE",
+    "BOUNDED_CENSORED",
+    "UNKNOWN"
+  ],
+  "scopeRequiredFields": [
+    "deviceMake",
+    "deviceModel",
+    "cameraSystemId",
+    "physicalCameraId",
+    "lensRole",
+    "captureApiDomain",
+    "captureMode",
+    "rawWidth",
+    "rawHeight",
+    "cfaPattern",
+    "sampleRepresentation",
+    "captureSampleDomainId",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState",
+    "protocolVersion"
+  ],
+  "environment": {
+    "temperatureClaimRule": "Temperature-dependent promotion requires measured temperature at each capture and at least three validated temperature bins spanning the declared domain.",
+    "acceptedTemperatureSources": [
+      "sensor_or_camera_hal_temperature_if_exposed",
+      "device_internal_temperature_with_declared_sensor_identity",
+      "external_probe_physically_coupled_to_camera_module_with_declared_uncertainty"
+    ],
+    "notEquivalentToSensorTemperature": [
+      "ambient_air_only",
+      "battery_temperature_only",
+      "cpu_temperature_only"
+    ],
+    "stabilityRule": "Each temperature bin must satisfy the protocol-sealed soak/stability criterion before captures begin.",
+    "packTemperatureAdmission": {
+      "temperatureCalibrationFlagRequired": true,
+      "minBinsWhenTemperatureCalibrated": 3,
+      "allValidatedModulesUsedByTemperatureDependentClaimMustCoverDeclaredBins": true
+    }
+  },
+  "modules": {
+    "C0_IDENTITY": {
+      "required": true,
+      "minimum": {
+        "captureFileSha256ForEveryFrame": true,
+        "parserBackendIdentity": true,
+        "scopeKeyComplete": true,
+        "metadataSnapshotPerFrame": true,
+        "gainMapOpcodeIdentity": true,
+        "physicalFrameCountForLaterScene": 1,
+        "independentEvidenceCountForLaterScene": 1
+      }
+    },
+    "C1_DARK_NOISE": {
+      "requiredFor": [
+        "black_offset",
+        "read_noise",
+        "dark_current",
+        "capture_dynamic_range",
+        "relative_radiometry",
+        "absolute_radiometry"
+      ],
+      "acquisition": {
+        "darkCondition": "photon_blocked_camera_input_not_merely_a_black_scene",
+        "gainReadoutCoverage": "every captureSampleDomainId and every gain/readout state intended for calibrated use, including states immediately below and above every detected gain switch",
+        "minExposureTimesPerState": 4,
+        "exposurePlacement": [
+          "shortest_relevant",
+          "normal_relevant",
+          "long_relevant",
+          "longest_relevant"
+        ],
+        "minRepeatsPerGainExposureTemperatureCell": 16,
+        "temperatureBinsForTemperatureClaim": 3,
+        "recordPerCapture": [
+          "exposureTime",
+          "isoMetadata",
+          "captureSampleDomainId",
+          "temperatureValue",
+          "temperatureSensorId",
+          "blackLevel",
+          "whiteLevel"
+        ]
+      }
+    },
+    "C2_LINEARITY_GAIN_SATURATION": {
+      "requiredFor": [
+        "gain_response",
+        "linearity",
+        "saturation",
+        "capture_dynamic_range",
+        "relative_radiometry",
+        "absolute_radiometry"
+      ],
+      "acquisition": {
+        "field": "stable_spatially_uniform_source",
+        "minSignalLevelsPerGainReadoutState": 12,
+        "minRepeatsPerSignalLevel": 8,
+        "requiredSignalRegionsOfFullScale": [
+          "near_black_above_noise",
+          "low",
+          "mid",
+          "high_unsaturated",
+          "near_saturation"
+        ],
+        "minLevelsBracketingSaturationOnset": 3,
+        "darkReferenceRequired": true,
+        "independentValidationLevelsNotUsedForFit": 4,
+        "sourceStabilityMonitorRequired": true
+      }
+    },
+    "C3_FLAT_SHADING": {
+      "requiredFor": [
+        "flat_field",
+        "lens_shading",
+        "color_shading",
+        "relative_radiometry",
+        "absolute_radiometry"
+      ],
+      "acquisition": {
+        "field": "uniform_diffuse_or_integrating_source_with_uniformity_characterized",
+        "minSignalLevels": 3,
+        "targetSignalFractionsApprox": [
+          0.1,
+          0.5,
+          0.8
+        ],
+        "minRepeatsPerSignalLevel": 8,
+        "darkReferenceRequired": true,
+        "focusStates": "all focus-state classes intended for calibrated use, otherwise scope to one fixed class",
+        "lensModeSeparated": true,
+        "upstreamLensShadingRule": "if shading is already applied upstream, calibrate the app-visible operator and prohibit blind second inverse correction"
+      }
+    },
+    "C4_COLOR_SPECTRAL": {
+      "requiredFor": [
+        "independent_colorimetry",
+        "spectral_claim"
+      ],
+      "acquisition": {
+        "minCharacterizedIlluminants": 3,
+        "illuminantCoverage": [
+          "warm_nominal_2850K",
+          "mid_nominal_5000K",
+          "cool_daylight_nominal_6500K"
+        ],
+        "spdMeasurementRequired": true,
+        "nominalCctAloneInsufficient": true,
+        "minTargetPatches": 24,
+        "spectralReflectanceOrTransmittanceRequiredForIndependentPhysicalColor": true,
+        "maxRecommendedSpectralSampleIntervalNm": 10,
+        "minRepeatsPerIlluminant": 3,
+        "validationIlluminantOrPatchSubsetHeldOut": true,
+        "metamerismRemains": true
+      }
+    },
+    "C5_RELATIVE_RADIOMETRY": {
+      "requiredFor": [
+        "relative_scene_radiance"
+      ],
+      "dependencies": [
+        "C0_IDENTITY",
+        "C1_DARK_NOISE",
+        "C2_LINEARITY_GAIN_SATURATION",
+        "C3_FLAT_SHADING"
+      ],
+      "acquisition": {
+        "minReferenceLevels": 8,
+        "minRepeatsPerLevel": 5,
+        "referenceStabilityMeasured": true,
+        "geometryFixedAndRecorded": true,
+        "exposureAndApertureProvenanceRequired": true,
+        "heldOutValidationLevels": 2,
+        "absoluteSiTraceabilityRequired": false
+      }
+    },
+    "C6_ABSOLUTE_RADIOMETRY": {
+      "requiredFor": [
+        "absolute_scene_radiance",
+        "absolute_photometric_quantity"
+      ],
+      "dependencies": [
+        "C0_IDENTITY",
+        "C1_DARK_NOISE",
+        "C2_LINEARITY_GAIN_SATURATION",
+        "C3_FLAT_SHADING",
+        "C5_RELATIVE_RADIOMETRY"
+      ],
+      "acquisition": {
+        "traceableReferenceRequired": true,
+        "instrumentModelSerialRequired": true,
+        "calibrationCertificateIdentityRequired": true,
+        "certificateValidityAtAcquisitionRequired": true,
+        "measurementUncertaintyRequired": true,
+        "spectralBandpassRequired": true,
+        "geometryAndAngularConditionsRequired": true,
+        "minReferenceLevels": 5,
+        "minRepeatsPerLevel": 5
+      }
+    },
+    "C7_INCIDENT_LIGHT_GEOMETRY": {
+      "requiredFor": [
+        "validated_incident_light_inference"
+      ],
+      "dependencies": [
+        "C0_IDENTITY",
+        "C2_LINEARITY_GAIN_SATURATION"
+      ],
+      "acquisition": {
+        "knownOrMeasuredGeometryRequired": true,
+        "surfaceNormalsRequired": true,
+        "materialReflectanceOrBrdfReferenceRequired": true,
+        "lightPositionDirectionRequired": true,
+        "cosineCorrectedIrradianceReferenceRequired": true,
+        "minDistinctLightDirections": 3,
+        "minDistinctLightLevelsOrDistances": 3,
+        "shadowVisibilityGroundTruthRequired": true,
+        "counterfactualDataCannotBeSoleOriginalWorldEvidence": true
+      }
+    }
+  },
+  "dynamicRange": {
+    "scientificMeaning": "capture-domain dynamic range, not display HDR",
+    "requires": [
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION"
+    ],
+    "primaryMetric": "log2(usable_unsaturated_signal / noise_floor_signal)",
+    "snrThresholdMustBeProtocolSealed": true,
+    "reportBoth": [
+      "SNR1_engineering_bound",
+      "protocol_usable_SNR_threshold"
+    ],
+    "clippedHighlightRule": "calibration improves the saturation boundary but clipped samples remain BOUNDED_CENSORED"
+  },
+  "promotionRules": {
+    "black_offset": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE"
+    ],
+    "read_noise": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE"
+    ],
+    "gain_response": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION"
+    ],
+    "capture_dynamic_range": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION"
+    ],
+    "lens_shading": [
+      "C0_IDENTITY",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING"
+    ],
+    "independent_colorimetry": [
+      "C0_IDENTITY",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING",
+      "C4_COLOR_SPECTRAL"
+    ],
+    "relative_scene_radiance": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING",
+      "C5_RELATIVE_RADIOMETRY"
+    ],
+    "absolute_scene_radiance": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING",
+      "C5_RELATIVE_RADIOMETRY",
+      "C6_ABSOLUTE_RADIOMETRY"
+    ],
+    "validated_incident_light_inference": [
+      "C0_IDENTITY",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C7_INCIDENT_LIGHT_GEOMETRY"
+    ],
+    "absolute_incident_irradiance": [
+      "C0_IDENTITY",
+      "C1_DARK_NOISE",
+      "C2_LINEARITY_GAIN_SATURATION",
+      "C3_FLAT_SHADING",
+      "C5_RELATIVE_RADIOMETRY",
+      "C6_ABSOLUTE_RADIOMETRY",
+      "C7_INCIDENT_LIGHT_GEOMETRY"
+    ]
+  },
+  "fitValidationSeparation": {
+    "required": true,
+    "protocolThresholdsSealedBeforeFinalFit": true,
+    "validationCapturesMayNotBeUsedToFit": true,
+    "residualAndUncertaintyReportRequired": true
+  },
+  "failurePolicy": {
+    "scopeMismatch": "DOWNGRADE_OR_FAIL_CLOSED",
+    "missingRequiredModule": "NO_CALIBRATED_PHYSICAL_PROMOTION",
+    "missingExternalTraceabilityForAbsoluteClaim": "REJECT_ABSOLUTE_CLAIM",
+    "missingGeometryMaterialSupportForIncidentLight": "KEEP_INFERRED_SCENE_OR_UNKNOWN",
+    "unmodeledTemperatureDrift": "OUT_OF_SCOPE_OR_WIDEN_UNCERTAINTY_ONLY_IF_VALIDATED",
+    "calibrationPackMayIncreaseLaterSceneEvidenceCount": false,
+    "absoluteIncidentIrradianceWithoutC6C7": "REJECT_ABSOLUTE_CLAIM"
+  }
+}

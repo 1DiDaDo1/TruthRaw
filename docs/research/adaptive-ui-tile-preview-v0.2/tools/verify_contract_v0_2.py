@@ -6,15 +6,15 @@ APP = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main"
 KOTLIN = APP / "java/com/truthraw/adaptiveui"
 CPP = APP / "cpp"
 
-native = (CPP / "native_tile_preview_bridge.cpp").read_text()
-loader = (KOTLIN / "NativeTilePreview.kt").read_text()
-ingress = (KOTLIN / "IngressModels.kt").read_text()
-cmake = (CPP / "CMakeLists.txt").read_text()
-gradle = (ROOT / "app/android/truthraw-adaptive-ui-v01/app/build.gradle.kts").read_text()
+native = (CPP / "native_tile_preview_bridge.cpp").read_text(encoding="utf-8")
+loader = (KOTLIN / "NativeTilePreview.kt").read_text(encoding="utf-8")
+ingress = (KOTLIN / "IngressModels.kt").read_text(encoding="utf-8")
+cmake = (CPP / "CMakeLists.txt").read_text(encoding="utf-8")
+gradle = (ROOT / "app/android/truthraw-adaptive-ui-v01/app/build.gradle.kts").read_text(encoding="utf-8")
 
 # The historical v0.2 diagnostic bridge remains required even when a newer
-# source-bound color route owns the active UI. Its sentinel stays diagnostic
-# only and may never be promoted into scientific color authority.
+# color/finalized route owns the active UI. Its sentinel stays diagnostic only
+# and may never be promoted into scientific color authority.
 required_native = [
     "PosixFdByteSource",
     "TileNativeDngSource::open",
@@ -39,14 +39,16 @@ for token in required_common_loader:
 for forbidden in ["openInputStream", "readBytes()", "detachFd()", "copyOfRange(HEADER_INTS"]:
     assert forbidden not in loader, f"forbidden preview ingress/workspace operation: {forbidden}"
 
-active_source_bound = "buildSourceBoundColorPreview" in loader
-if active_source_bound:
-    # v0.2 remains as an available gray diagnostic implementation, but the
-    # active UI is explicitly superseded by v0.1 source-bound color preview.
-    new_contract = ROOT / "docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py"
-    new_readme = ROOT / "docs/research/android-source-bound-color-preview-v0.1/README.md"
-    assert new_contract.is_file(), "active source-bound route requires its own contract verifier"
-    assert new_readme.is_file(), "active source-bound route requires its own research boundary document"
+active_finalized = "NativeTilePreviewBridge.buildFinalizedScientificColorPreview(" in loader
+active_source_bound = "NativeTilePreviewBridge.buildSourceBoundColorPreview(" in loader
+
+if active_finalized:
+    # Current route: source-bound color is an upstream prerequisite/diagnostic,
+    # while the UI consumes only a finalized Scientific Preview packet.
+    source_contract = ROOT / "docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py"
+    finalized_readme = ROOT / "docs/research/finalized-scientific-preview-release-v0.1/README.md"
+    assert source_contract.is_file(), "finalized route requires source-bound contract validation"
+    assert finalized_readme.is_file(), "finalized route requires its release-boundary document"
     for token in [
         "PortablePreviewEncoder.createSrgbBitmap",
         "sourceBoundAppearanceReleaseAllowed",
@@ -54,15 +56,27 @@ if active_source_bound:
         "scientificClaimAllowed",
         "physicalFrameCount",
         "independentEvidenceCount",
+        "FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW",
     ]:
-        assert token in loader, f"missing source-bound supersession token: {token}"
+        assert token in loader, f"missing finalized route token: {token}"
+    assert "NativeTilePreviewBridge.buildCfaPreview(" not in loader, (
+        "active UI must not silently fall back to the historical gray sentinel proxy"
+    )
+    active_route = "FINALIZED_SCIENTIFIC_COLOR_PREVIEW"
+elif active_source_bound:
+    # Historical successor stage: source-bound color is active before Scientific
+    # Master finalization was connected to the UI.
+    source_contract = ROOT / "docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py"
+    source_readme = ROOT / "docs/research/android-source-bound-color-preview-v0.1/README.md"
+    assert source_contract.is_file(), "active source-bound route requires its own contract verifier"
+    assert source_readme.is_file(), "active source-bound route requires its own research boundary document"
     assert "NativeTilePreviewBridge.buildCfaPreview(" not in loader, (
         "active UI must not silently fall back to the historical gray sentinel proxy"
     )
     active_route = "SOURCE_BOUND_COLOR_PREVIEW_V0_1"
 else:
     # Exact historical UI proof path retained for branches that have not yet
-    # adopted the explicit source-bound color successor.
+    # adopted an explicit color successor.
     assert "bitmap.setPixels(packet, HEADER_INTS" in loader, (
         "legacy v0.2 route must retain its direct bitmap copy contract"
     )

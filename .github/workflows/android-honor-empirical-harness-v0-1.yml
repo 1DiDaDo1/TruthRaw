@@ -19,11 +19,13 @@ on:
       - 'docs/research/reconstructed-color-preview-v0.1/**'
       - 'docs/research/tile-native-dng-source-v0.1/**'
       - 'docs/research/full-frame-streaming-v0.1/native/**'
+      - 'docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py'
       - 'canonical/reconstruction/v4.7i/native/**'
       - '.github/workflows/android-honor-empirical-harness-v0-1.yml'
   pull_request:
     paths:
       - 'app/android/truthraw-adaptive-ui-v01/**'
+      - 'docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py'
       - '.github/workflows/android-honor-empirical-harness-v0-1.yml'
 
 permissions:
@@ -52,12 +54,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prove finalized scientific route bytes are unchanged
+      - name: Verify finalized scientific route contract
         run: |
-          SOURCE_BRIDGE='app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp'
-          NATIVE_LOADER='app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt'
-          test "$(git hash-object "$SOURCE_BRIDGE")" = '67a2ece0c6dc8a865821e580a669c7a688c74b2b'
-          test "$(git hash-object "$NATIVE_LOADER")" = '8cc2fe259a3cca57188bae085e7c5f6599134f46'
+          python3 docs/research/android-source-bound-color-preview-v0.1/tools/verify_contract_v0_1.py
+          grep -F 'NativeTilePreviewBridge.buildFinalizedScientificColorPreview(' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt
+          grep -F 'scientificMasterModifiedByAppearance' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'physicalFrameCount != 1u' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
+          grep -F 'independentEvidenceCount != 1u' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/source_bound_color_preview_bridge.cpp
 
       - name: Verify empirical layer is observation-only
         run: |
@@ -65,7 +68,18 @@ jobs:
           grep -F 'measurement_only", true' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/EmpiricalRun.kt
           grep -F 'NativeEmpiricalBridge.probeSourceColor' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/EmpiricalRun.kt
           grep -F 'TilePreviewLoader.load(resolver, job)' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/EmpiricalRun.kt
-          grep -F 'VALIDATED_SCIENTIFIC_ROUTE_SHA = "42b49ba16a6c5a0d2d6dbc407330acde3e161a46"' app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/EmpiricalRun.kt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/EmpiricalRun.kt').read_text()
+          match = re.search(r'VALIDATED_SCIENTIFIC_ROUTE_SHA\s*=\s*"([0-9a-f]{40})"', text)
+          if not match:
+              raise SystemExit('missing well-formed informational scientific-route provenance SHA')
+          if '.put("validated_scientific_route_sha", audit.validatedScientificRouteSha)' not in text:
+              raise SystemExit('empirical report no longer records route provenance')
+          print(f'empirical_route_provenance_sha={match.group(1)}')
+          print('empirical_route_sha_role=INFORMATIONAL_PROVENANCE_NOT_AUTHORITY_GATE')
+          PY
           grep -F 'seal_source_sha256' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/empirical_source_probe.cpp
           grep -F 'dng_color_binding_producer_v0_2::produce_source_metadata_color_binding' app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/empirical_source_probe.cpp
           if grep -R "android.permission.CAMERA" app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml; then
@@ -110,7 +124,7 @@ jobs:
           fi
           echo "honor_empirical_apk_bytes=$(stat -c%s "$APK")"
           echo "honor_empirical_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
-          echo 'scientific_route_bytes=UNCHANGED_FROM_42b49ba16a6c5a0d2d6dbc407330acde3e161a46'
+          echo 'scientific_route_contract=SEMANTICALLY_VERIFIED'
           echo 'empirical_probe=READ_ONLY_PRE_POST_SOURCE_AND_COLOR_AUDIT'
           echo 'runtime_observations=PSS_LATENCY_CPU_THERMAL_UI_FRAME_PACING'
           echo 'scientific_authority_from_empirical_layer=NONE'

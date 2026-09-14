@@ -1,0 +1,73 @@
+{
+  "schema": "truthraw.fotograaf-calibration-measurement-model-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_SERIALIZED_MODEL_CONTRACT_FAIL_CLOSED",
+  "artifactSchema": "truthraw.fotograaf-calibration-measurement-model.v0.1",
+  "scientificMasterRouteChange": false,
+  "selfHashFieldAllowed": false,
+  "digestRule": "modelSha256 is SHA-256 of canonical UTF-8 JSON of the complete model artifact with sorted object keys and compact separators; the artifact itself contains no modelSha256 field",
+  "requiredIdentityFields": [
+    "modelId",
+    "protocolSha256",
+    "datasetManifestSha256",
+    "calibrationScopeSha256",
+    "claimQuantity",
+    "captureSampleDomainId"
+  ],
+  "coordinateContract": {
+    "rawCodeUnit": "SOURCE_CODE_VALUE",
+    "blackOffsetUnit": "SOURCE_CODE_VALUE",
+    "saturationUnit": "SOURCE_CODE_VALUE",
+    "noiseCoordinate": "NORMALIZED_PRE_EXISTING_GAINMAP",
+    "responseScale": "POSITIVE_SCALAR_ONLY_V0_1",
+    "existingSourceGainMapApplication": "EXACTLY_ONCE_AFTER_NORMALIZATION",
+    "perChannelResponseScaleAllowed": false,
+    "negativePostBlackAllowed": true
+  },
+  "parameterBlocks": {
+    "black": {
+      "module": "C1_DARK_NOISE",
+      "shape": "four CFA-phase code offsets",
+      "optional": true
+    },
+    "noise": {
+      "module": "C1_DARK_NOISE",
+      "shape": "R,G,B affine variance pairs [S,O]",
+      "optional": true
+    },
+    "response": {
+      "modules": ["C2_LINEARITY_GAIN_SATURATION", "C5_RELATIVE_RADIOMETRY"],
+      "shape": "one positive scalar",
+      "optional": true
+    },
+    "saturation": {
+      "module": "C2_LINEARITY_GAIN_SATURATION",
+      "shape": "one source-code threshold",
+      "optional": true
+    }
+  },
+  "requiredCommonFields": [
+    "schema",
+    "modelId",
+    "protocolSha256",
+    "datasetManifestSha256",
+    "calibrationScopeSha256",
+    "claimQuantity",
+    "captureSampleDomainId",
+    "coordinateContract",
+    "parameters",
+    "darkSnrThreshold",
+    "requestsAdditionalGainMapCorrection"
+  ],
+  "failClosedRules": {
+    "noEnabledParameterBlocks": "REJECT",
+    "unknownParameterBlock": "REJECT",
+    "nonFiniteParameter": "REJECT",
+    "nonPositiveResponseScale": "REJECT",
+    "additionalGainMapRequested": "REJECT",
+    "perChannelResponseScale": "REJECT",
+    "modelSelfHashPresent": "REJECT",
+    "scopeOrDomainIdentityMissing": "REJECT"
+  },
+  "authorityBoundary": "A structurally valid model artifact is not physical calibration proof. It is consumable only after its exact canonical SHA-256 is bound by a validated CalibrationPack claim and admitted to the current sealed scene."
+}

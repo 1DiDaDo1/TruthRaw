@@ -1,0 +1,44 @@
+name: FotoGraaf Capture Evidence Seal v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CAPTURE_EVIDENCE_ENVELOPE_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CAPTURE_SIDE_EVIDENCE_SEAL_V0_1_2026-09-14.md'
+      - 'tools/seal_fotograaf_calibration_capture_v0_1.py'
+      - 'tools/verify_fotograaf_c0_capture_identity_v0_1.py'
+      - 'tests/test_seal_fotograaf_calibration_capture_v0_1.py'
+      - '.github/workflows/fotograaf-capture-evidence-seal-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CAPTURE_EVIDENCE_ENVELOPE_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CAPTURE_SIDE_EVIDENCE_SEAL_V0_1_2026-09-14.md'
+      - 'tools/seal_fotograaf_calibration_capture_v0_1.py'
+      - 'tools/verify_fotograaf_c0_capture_identity_v0_1.py'
+      - 'tests/test_seal_fotograaf_calibration_capture_v0_1.py'
+      - '.github/workflows/fotograaf-capture-evidence-seal-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture-evidence-seal:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile capture sealer
+        run: python3 -m py_compile tools/seal_fotograaf_calibration_capture_v0_1.py
+
+      - name: Validate envelope contract
+        run: >-
+          python3 tools/seal_fotograaf_calibration_capture_v0_1.py
+          --contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CAPTURE_EVIDENCE_ENVELOPE_CONTRACT_V0_1.json
+          --c0-contract docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_C0_CAPTURE_IDENTITY_CONTRACT_V0_1.json
+
+      - name: Run fail-closed capture-seal tests
+        run: >-
+          python3 -m unittest
+          tests/test_seal_fotograaf_calibration_capture_v0_1.py
+          -v

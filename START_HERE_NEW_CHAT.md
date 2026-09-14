@@ -1,6 +1,31 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the authoritative session/bootstrap entry point for the audited TruthRaw research lineage as of 2026-09-13.
+This is the authoritative session/bootstrap entry point for the audited TruthRaw research lineage, with the active 2026-09-14 implementation and zero-line empirical overlays called out explicitly below.
+
+## Active 2026-09-14 implementation overlay
+
+The project-wide audited architecture remains the 2026-09-13 baseline. The current Android/output implementation work lives on:
+
+`research/ui-output-modes-certificate-v0.1-2026-09-14`
+
+Draft PR:
+
+`#23 — Integrate four-mode output policy + TRUTHRAW PURE float32 DNG`
+
+Before changing the current output/UI/certificate work, read:
+
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`
+- `docs/implementation/OUTPUT_MODES_CERTIFICATE_IMPLEMENTATION_2026-09-14.md`
+- `docs/research/physical-dng-test-set-v0.1/TRUTHRAW_PHYSICAL_TESTSET_2026-09-14.json`
+
+Before changing zero-line, noise, gain, dark-side uncertainty or empirical calibration-domain logic, also read:
+
+- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
+- `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`
+- `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_EMPIRICAL_STATE_2026-09-14.json`
+
+The handoff records the four-mode product contract, float32 PURE DNG route, certificate state, multilingual/icon work, the five-file physical test set, the last fully green implementation snapshot, and the exact remaining validation gates. Re-fetch the live PR head/workflows before claiming the handoff SHA is still current.
 
 ## Mandatory reading order
 
@@ -11,9 +36,12 @@ This is the authoritative session/bootstrap entry point for the audited TruthRaw
 5. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
 6. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
 7. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_EVOLUTION_2026-09-13.md`
-8. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
-9. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
-10. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
+8. `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_HISTORY_AND_EMPIRICAL_STATE_2026-09-14.md`
+9. `docs/research/zero-line-empirical-validation-v0.1/TRUTHRAW_ZERO_LINE_EMPIRICAL_STATE_2026-09-14.json`
+10. `state/CURRENT_CANONICAL_STATE_2026-09-13.json`
+11. `docs/DOCUMENT_STATUS_INDEX_2026-09-13.md`
+12. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md` when continuing the active output/UI/certificate branch
+13. only then: the canonical/research module documents, manifests, tests and evidence relevant to the task
 
 Do **not** bootstrap from older `CURRENT_CANONICAL_STATE_*.json`, the 2026-09-10 house/index, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. They remain preserved historical snapshots/evidence.
 
@@ -27,11 +55,19 @@ The source RAW/CFA + capture metadata are immutable sealed evidence. The Scienti
 
 Measured, reconstructed, censored/unknown, counterfactual, appearance and projection data remain distinct. `physicalFrameCount=1` and `independentEvidenceCount=1` remain the normal single-frame evidence invariants.
 
-For positive physical light, TruthRange may use `T = log2(L/L0)`. The zero-line `L0` is a gauge/reference; it is not sensor black, absolute darkness, DNG BlackLevel, clipping or display middle grey.
+For positive physical light, TruthRange may use `T = log2(L/L0)`. The zero-line / **nul-lijn** `L0` is a gauge/reference; it is not sensor black, absolute darkness, DNG BlackLevel, clipping or display middle grey.
 
-The TruthRange address space may be mathematically unbounded while sensor evidence remains finite/noisy/quantized/censored. Never convert this into a claim of infinite physical sensor dynamic range.
+The nul-lijn was historically intended as the reference around which the **new house can extend without a finite representational ceiling upward and without a finite representational floor downward**:
+
+`darkness <- ... <- -EV <- nul-lijn -> +EV -> ... -> brighter light`
+
+The TruthRange address space may therefore be mathematically unbounded in both directions while sensor evidence remains finite/noisy/quantized/censored. Never convert this into a claim of infinite physical sensor dynamic range.
+
+TruthRaw must retain a signed scene-linear estimator alongside positive-light TruthRange. Negative post-black numerical values are not negative physical light and must not be clipped away merely to make `log2` convenient.
 
 Source ISO/shutter remain immutable capture provenance and may remain relevant to sensor/noise/forward models. Relative `SELF_GAUGE` TruthRange need not use them inside its coordinate definition. Virtual EV/ISO reparameterization does not create information or extra evidence.
+
+The 2026-09-14 Honor dark-frame work adds a measurement rule: **empirical noise calibration must be bound to exact capture/sample-domain identity, not ISO magnitude alone.** A simple monotonic `ISO >= 8192` domain rule has been rejected by physical source data.
 
 Appearance must never modify the Scientific Master. DNG/LinearRaw/JPEG/HDR output is a downstream compatibility/presentation projection unless an explicit contract says otherwise.
 
@@ -46,7 +82,7 @@ No silent LICENSE. Preserve failed/rejected experiments and their provenance.
 The current house architecture is not only a performance metaphor. It combines four recovered historical concepts:
 
 - **gezegelde woning / sealed house** — immutable original RAW evidence;
-- **alle vrijheid / new house** — richer reconstructed scene representation without stronger evidence claims;
+- **alle vrijheid / new house** — richer reconstructed scene representation without stronger evidence claims, including the two-sided unbounded nul-lijn address space;
 - **achterkant van de foto / Technical Backplane** — compact source/master/zero-line/provenance binding behind the visible image;
 - **tussenwoning / Gatehouse** — isolated external RAW decode followed by a sealed handoff and detach before heavy Main-House work.
 
@@ -69,7 +105,7 @@ Examples:
 - a structurally valid DNG does not automatically prove scientific correctness;
 - a digest proves identity under its serialization, not physical truth by itself.
 
-## Current source-bound physical reference
+## Current source-bound physical references
 
 The physically exercised finalized-preview/read-optimization reference remains the HONOR BKQ-N49 MotionCam DNG:
 
@@ -79,16 +115,46 @@ The physically exercised finalized-preview/read-optimization reference remains t
 
 The finalized source-bound scientific preview may be release-allowed while `scientificClaimAllowed=false`. Source metadata color is not automatically independent physical calibration.
 
+The active branch also records a five-file physical regression set in `docs/research/physical-dng-test-set-v0.1/TRUTHRAW_PHYSICAL_TESTSET_2026-09-14.json`. Those DNGs are test evidence, not automatically calibration evidence.
+
+A separate 2026-09-14 Honor tele research campaign now adds source-bound ISO/response/dark evidence. Its important current results are:
+
+- real below-black samples physically reinforce signed post-black storage;
+- same-condition dark pairs measured about `0.79 DN` temporal sigma at ISO100 and about `0.87 DN` at ISO400;
+- exact ISO8192 repeatedly selected a high-scale/censored capture/sample domain with roughly `54-55 DN` dark sigma and about `7.1%` raw-zero censoring;
+- nearby ISO8184 and higher ISO10244 at the same exposure remained in the ordinary domain, so a simple high-ISO threshold model is rejected;
+- physical cause remains open and no PTC/DCG/read-noise certification is claimed.
+
+Read the zero-line empirical synthesis before changing calibration logic.
+
 ## Current output roles
 
 - Direct CFA = `MEASURED_EVIDENCE`.
 - Scientific Master = reconstructed scientific scene state.
 - reconstructed CFA DNG = `RECONSTRUCTED_CFA_PROJECTION`.
-- Linear DNG = `COMPATIBILITY_PROJECTION` from reconstructed RGB Scientific Master.
+- 16-bit Linear DNG compatibility writer = `COMPATIBILITY_PROJECTION` from reconstructed RGB Scientific Master.
+- TRUTHRAW PURE float32 LinearRaw DNG = high-fidelity scientific **projection** of the same verified Scientific Master into float32 XYZ-D50; it remains downstream representation, not new measurement evidence.
 - JPEG/ARGB/HDR = appearance/presentation projection.
 - rawsensor = nonstandard internal payload until an explicit ABI/provenance definition makes its role precise.
 
 Do not remosaic reconstructed RGB and call it original sensor RAW. A direct-CFA evidence repack is a separate measured-preserving class.
+
+## Active four-mode UI contract
+
+The current implementation branch exposes:
+
+- `JPG`
+- `JPG XL`
+- `TRUTHRAW PURE`
+- `TRUTHRAW ADVANCED`
+
+`Colourful`, `Detailed`, `Soft`, and `HDR` are downstream appearance controls for JPG, JPG XL and TRUTHRAW ADVANCED only. PURE stays appearance-neutral. JPEG XL stays fail-closed until an encoder is separately validated.
+
+English is the canonical fallback language, with current Android resources for English, Dutch, German and French.
+
+The TruthRaw certificate belongs inside the file/technical backside, not visibly on the image. Until a trusted issuer key exists, certificate status must remain `UNSIGNED DEVELOPMENT`; no private signing key may be committed to the repository or APK.
+
+Read the 2026-09-14 handoff/implementation contract for exact current behavior and remaining blockers.
 
 ## Historical/current Scene Master distinction
 
@@ -114,7 +180,7 @@ The 12 logical rooms are Archivist, MeasurementLab, Architect, Restorer, SceneRe
 
 ## Next production optimization
 
-The highest-value general runtime step is:
+The highest-value general runtime step remains:
 
 **RoomLease + CorridorToken + deterministic tile scheduler + per-room profiler + bounded buffer pools.**
 
@@ -123,6 +189,8 @@ Implement this around already-validated algorithms first. Measure wall/CPU/stall
 Execution fusion is allowed only when it keeps adjacent tile data resident without merging their scientific authority roles.
 
 CPU/reference behavior remains the validation floor. Vulkan/GPU may later be an optional execution backend only.
+
+For the active output/UI branch, the immediate continuation priority remains the validation sequence in `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`. For any measurement/noise/calibration change, the zero-line empirical overlay is now mandatory context first.
 
 ## Read-optimization fact
 
@@ -146,6 +214,8 @@ The visible image is the front-facing projection. The Technical Backplane is the
 
 It is not hidden image evidence and must not duplicate or secretly replace the Scientific Master.
 
+A future empirical-noise calibration domain may require a versioned domain identity. Do not silently alter the frozen Backplane/certificate layout to add it.
+
 > **Preview is a window onto TruthRaw, never the source of TruthRaw.**
 
 ## DNG/export boundary
@@ -155,6 +225,8 @@ DNG writer correctness and scientific correctness are separate gates.
 Linear DNG should be a bounded/streaming downstream sink from the finalized RGB Scientific Master. Reconstructed CFA must remain explicitly reconstructed. Export may not create photons, extra frames/evidence, a stronger color claim, or a different master/zero-line merely through serialization.
 
 Android `DngCreator` is appropriate for RAW_SENSOR/Bayer-style carriage; it is not by itself proof of the intended RGB LinearRaw semantics. Native RGB LinearRaw writer validation therefore remains a separate responsibility.
+
+The current PURE route intentionally uses the native float32 Scientific Master LinearRaw writer and preserves negative and greater-than-one components. The older 16-bit route remains compatibility-only.
 
 ## Current repository lineage warning
 
@@ -168,6 +240,8 @@ at:
 
 `0e8291f3300b5a1aa1ffe7652be5908da57a889e`
 
+The active four-mode/certificate branch is layered on the audited project branch rather than redefining canonical science. PR `#23` remains draft until the remaining real-device/interoperability/signing/profile gates are satisfied.
+
 ## One-sentence definition
 
-**TruthRaw preserves one sealed RAW observation as immutable evidence, optionally passes unsupported external formats through an isolated Gatehouse, reconstructs a separate uncertainty-aware Scientific/Scene Master, binds that state through a compact Technical Backplane, represents the scene without inheriting arbitrary source-container limits, and executes specialized rooms through a resource-adaptive but scientifically invariant runtime.**
+**TruthRaw preserves one sealed RAW observation as immutable evidence, optionally passes unsupported external formats through an isolated Gatehouse, reconstructs a separate uncertainty-aware Scientific/Scene Master inside a nul-lijn scene address space with no finite representational ceiling above or floor below, binds that state through a compact Technical Backplane and in-file provenance certificate, and exposes JPG/JPG XL/TRUTHRAW PURE/TRUTHRAW ADVANCED as downstream product surfaces without allowing presentation choices to rewrite scientific authority.**

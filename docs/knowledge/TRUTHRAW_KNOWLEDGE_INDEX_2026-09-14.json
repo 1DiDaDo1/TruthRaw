@@ -1,0 +1,197 @@
+{
+  "schema": "truthraw.project-knowledge-index.v0.1",
+  "date": "2026-09-14",
+  "status": "ACTIVE_KNOWLEDGE_PRESERVATION_OVERLAY",
+  "authorityNote": "This index preserves cross-session knowledge. Live repository state and explicit current/canonical documents outrank historical synthesis where they conflict.",
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "documents": [
+    {
+      "path": "docs/knowledge/TRUTHRAW_KNOWLEDGE_BOOTSTRAP_2026-09-14.md",
+      "role": "knowledge bootstrap index"
+    },
+    {
+      "path": "docs/knowledge/TRUTHRAW_COMPLETE_PROJECT_KNOWLEDGE_2026-09-14.md",
+      "role": "consolidated scientific and architectural knowledge"
+    },
+    {
+      "path": "docs/knowledge/TRUTHRAW_GENEALOGY_DECISION_LEDGER_2026-09-14.md",
+      "role": "history, rejected paths, corrections, rationale"
+    },
+    {
+      "path": "docs/knowledge/TRUTHRAW_ACTIVE_RESEARCH_AND_VALIDATION_STATE_2026-09-14.md",
+      "role": "active PR, physical evidence, validation and calibration state"
+    },
+    {
+      "path": "docs/knowledge/TRUTHRAW_TOPIC_COVERAGE_CHECKLIST_2026-09-14.md",
+      "role": "topic-by-topic preservation coverage audit"
+    },
+    {
+      "path": "docs/handoff/TRUTHRAW_KNOWLEDGE_PRESERVATION_HANDOFF_2026-09-14.md",
+      "role": "future-session bootstrap overlay"
+    }
+  ],
+  "topicFamilies": {
+    "foundation": {
+      "status": "CANON_CONTEXT",
+      "topics": [
+        "RAW as measurement data",
+        "single-frame evidence",
+        "sealed source",
+        "scientific master",
+        "uncertainty and censoring",
+        "measured/reconstructed/appearance separation"
+      ]
+    },
+    "houseGenealogy": {
+      "status": "ACTIVE_DESIGN_CONTEXT",
+      "topics": [
+        "gezegelde woning",
+        "new house / alle vrijheid",
+        "Technical Backplane / achterkant van de foto",
+        "Gatehouse / tussenwoning",
+        "Building Runtime and twelve rooms"
+      ]
+    },
+    "representation": {
+      "status": "PASS",
+      "topics": [
+        "float32 scene representation",
+        "signed post-black state",
+        "TruthRange / nul-lijn",
+        "RGB Scientific Master",
+        "float32 LinearRaw projection"
+      ]
+    },
+    "reconstruction": {
+      "status": "PASS_WITH_VERSION_BOUNDARIES",
+      "topics": [
+        "v4.7i measured-preserving reconstruction",
+        "v4.7j appearance/detail",
+        "v4.7k output acutance",
+        "older v3 restriction",
+        "reconstructed CFA compatibility role"
+      ]
+    },
+    "scenePhysics": {
+      "status": "PARTIAL_PHYSICAL_AUTHORITY",
+      "topics": [
+        "light transport",
+        "darkness and indirect light",
+        "color truth and metamerism",
+        "optics as measurement operator",
+        "water/material ambiguity",
+        "counterfactual relighting"
+      ]
+    },
+    "fotograaf": {
+      "status": "RESEARCH_FAIL_CLOSED",
+      "topics": [
+        "Room Capsule",
+        "local scene metrology",
+        "CalibrationPack",
+        "scene admission",
+        "binding packet",
+        "measurement-model shadow adapter",
+        "worker invariance"
+      ]
+    },
+    "deviceCapture": {
+      "status": "SOURCE_BOUND",
+      "topics": [
+        "HONOR BKQ-N49",
+        "Main System ID 2",
+        "Wide System ID 4",
+        "Tele System ID 5",
+        "Front System ID 1",
+        "MotionCam direct-CFA domain",
+        "full-sensor/high-resolution proof",
+        "TileNativeDngSource"
+      ]
+    },
+    "empiricalNoise": {
+      "status": "PASS_AS_OBSERVATION_OPEN_AS_FULL_CALIBRATION",
+      "topics": [
+        "seven-file ISO ladder",
+        "covered dark-frame temporal sigma",
+        "below-black samples",
+        "NoiseProfile semantics open",
+        "exact-ISO8192-associated sample domain",
+        "ISO magnitude alone rejected as domain selector"
+      ]
+    },
+    "product": {
+      "status": "ACTIVE_IMPLEMENTATION",
+      "topics": [
+        "JPG",
+        "JPG XL",
+        "TRUTHRAW PURE",
+        "TRUTHRAW ADVANCED",
+        "Colourful",
+        "Detailed",
+        "Soft",
+        "HDR",
+        "Certificate v0.1"
+      ]
+    },
+    "rejectedOrBlocked": {
+      "status": "PRESERVE_FAILURE_HISTORY",
+      "topics": [
+        "constructed RAW as source truth",
+        "virtual EV as extra evidence",
+        "display black as zero-line",
+        "generic object-camera inverse square prior",
+        "uncalibrated physical deconvolution",
+        "full physical color without calibration",
+        "GCam/APK authority",
+        "simple ISO>=8192 calibration-domain rule",
+        "trusted signing before key infrastructure",
+        "JPEG XL production before encoder validation"
+      ]
+    }
+  },
+  "historicalTriggerKeywords": [
+    "kleur echtheid",
+    "licht",
+    "pure RAW",
+    "geen verzinsels",
+    "single-frame",
+    "constructed RAW",
+    "Multi-Light",
+    "achterkant foto",
+    "Foto graaf",
+    "verzegelde woning",
+    "waterdruppels",
+    "midden lijn",
+    "float32",
+    "goedkope en dure telefoon",
+    "RGB RAW weer terug",
+    "tussenwoning"
+  ],
+  "genealogyRecoveryPattern": [
+    "original motivation",
+    "hypothesis",
+    "experiment/source RAW",
+    "finding",
+    "limitation or failure",
+    "fact-check",
+    "correction",
+    "later integration",
+    "current meaning"
+  ],
+  "singleFrameInvariants": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "calibrationFramesMayIncreaseSceneEvidence": false
+  },
+  "hardExclusions": [
+    "APK/GCam/computational-RAW content may not determine TruthRaw evidence, calibration, topology, color, noise or architecture",
+    "Counterfactual output may not retroactively become captured-world evidence",
+    "Appearance may not modify the Scientific Master",
+    "Resource profile may not change truth authority",
+    "Calibration may not uncensor source clipping",
+    "Frozen Backplane/certificate layouts may not be silently changed"
+  ]
+}

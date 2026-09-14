@@ -1,0 +1,236 @@
+{
+  "schema": "truthraw.fotograaf-scene-metrology.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_ARCHITECTURE_NO_SCIENTIFIC_MASTER_ROUTE_CHANGE",
+  "canonical_room_count_unchanged": 12,
+  "is_new_room": false,
+  "role": "cross-room authority-tagged metrology protocol",
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "authority_direction": [
+    "Foundation",
+    "Measurement",
+    "Reconstruction",
+    "Scene",
+    "Counterfactual",
+    "Appearance",
+    "Projection"
+  ],
+  "room_bindings": {
+    "MeasurementLab": [
+      "capture-domain interpretation",
+      "black/white handling",
+      "clipping/censoring",
+      "ISO/gain/readout provenance",
+      "exposure/aperture provenance",
+      "source noise metadata",
+      "captureSampleDomainId",
+      "measurement likelihood and uncertainty"
+    ],
+    "Architect_Restorer": [
+      "consume measurement model",
+      "factor validated capture gain/exposure effects out of scene identity",
+      "preserve capture provenance and uncertainty",
+      "construct one Scientific Master"
+    ],
+    "SceneRegistry": [
+      "bind Scientific Master identity",
+      "bind zero-line/scene-scale identity",
+      "bind metrology provenance and authority handles"
+    ],
+    "Surveyor": [
+      "scene-range diagnostics",
+      "relative or calibrated radiance support",
+      "geometry-support descriptors",
+      "shadow/specular/illumination diagnostics",
+      "identifiability and uncertainty"
+    ],
+    "RoomCapsule": [
+      "local ROI support only",
+      "retain authority and uncertainty",
+      "no promotion to source-measurement authority"
+    ],
+    "LightingStudioCicm": [
+      "counterfactual illumination only",
+      "may consume metrology estimates",
+      "may not write hypothetical lighting back as captured evidence"
+    ],
+    "Finisher_Exporter": [
+      "display HDR/tone mapping",
+      "appearance and serialization only",
+      "may not redefine scientific scene range"
+    ]
+  },
+  "authority_classes": {
+    "MEASURED_SOURCE": "direct sealed source or validated exact source metadata semantics",
+    "CALIBRATED_PHYSICAL": "source-derived quantity supported by independently validated scope-matched physical calibration",
+    "INFERRED_SCENE": "best-supported physical scene estimate from evidence plus declared model, with uncertainty",
+    "BOUNDED_CENSORED": "source provides a one-sided or interval constraint without exact latent value",
+    "UNKNOWN": "insufficient evidence/model support for a useful scientific claim",
+    "COUNTERFACTUAL": "hypothetical changed world or illumination; never captured evidence",
+    "APPEARANCE": "display/output decision; never modifies Scientific Master"
+  },
+  "phases": {
+    "M0_CAPTURE_DOMAIN_METROLOGY": {
+      "owner": "MeasurementLab",
+      "output": "CaptureMetrologyPacket",
+      "required_concepts": [
+        "sourceEvidenceId",
+        "camera/lens/mode identity where source-bound",
+        "CFA topology",
+        "exposure time",
+        "f-number where present",
+        "ISO/gain/readout provenance",
+        "BlackLevel",
+        "WhiteLevel",
+        "clipping/censoring",
+        "source NoiseProfile identity and semantics status",
+        "source GainMap/opcode identity",
+        "captureSampleDomainId",
+        "parser/backend identity",
+        "uncertainty/calibration binding"
+      ],
+      "iso_rule": "ISO is factored out of scene identity only after documented measurement interpretation; ISO is never erased from provenance",
+      "capture_domain_rule": "captureSampleDomainId is not a function of ISO magnitude alone"
+    },
+    "M1_SCIENTIFIC_MASTER_CONSTRUCTION": {
+      "owners": ["Architect", "Restorer"],
+      "output": "existing Scientific Master",
+      "new_master_created": false,
+      "rule": "same latent scene may become ISO-neutral in scene identity while preserving capture-dependent uncertainty"
+    },
+    "M2_SCENE_METROLOGY": {
+      "owner": "Surveyor",
+      "output": "SceneMetrologyPacket",
+      "possible_fields": [
+        "nul-line-relative scene-light coordinate",
+        "uncertainty/support class",
+        "SceneRangeEnvelope",
+        "high-side clipping lower bounds",
+        "dark/noise-side upper bounds",
+        "geometry/depth/normal support",
+        "shadow/occlusion likelihood",
+        "specular confidence",
+        "diffuse-support confidence",
+        "dominant-light-direction hypothesis",
+        "relative illumination-field hypothesis",
+        "calibration level",
+        "identifiability flags"
+      ],
+      "no_backward_authority_upgrade": true
+    },
+    "M3_LOCAL_ROOMCAPSULE_HANDOFF": {
+      "owners": ["Surveyor", "SceneRegistry", "RoomCapsule"],
+      "output": "MetrologyRoomCapsuleBinding",
+      "rule": "local bounded support only; preserve master/zero-line/source identity and authority tags"
+    }
+  },
+  "data_products": {
+    "CaptureMetrologyPacket": "source-facing capture domain, measurement and uncertainty state",
+    "SceneRangeEnvelope": "nul-line-relative evidence/reconstruction range with dark/high censor bounds",
+    "SceneRadianceEvidenceField": "relative camera-bound or physically calibrated scene-radiance support with explicit calibration level",
+    "IncidentLightHypothesisField": "illumination/irradiance hypotheses with geometry/material model identity and uncertainty; default INFERRED_SCENE",
+    "MetrologyAuthorityMask": "per-region/tile authority and support class",
+    "MetrologyRoomCapsuleBinding": "local authority-preserving handoff to RoomCapsule/LightingStudio"
+  },
+  "hdr_contract": {
+    "scientific_scene_hdr": "SceneRangeEnvelope around nul-line; measured/reconstructed support and censor bounds",
+    "product_hdr": "downstream Finisher/Exporter appearance intent",
+    "product_hdr_may_change_master": false,
+    "product_hdr_may_create_evidence": false,
+    "clipped_highlight_is_exact_latent_value": false,
+    "noise_limited_dark_is_exact_physical_zero": false
+  },
+  "light_contract": {
+    "camera_directly_measures_per_surface_irradiance_from_one_rgb_raw": false,
+    "camera_observation_primary_radiometric_constraint": "directional scene radiance arriving at the camera, under camera response",
+    "incident_light_requires_model_support": [
+      "geometry/surface normals",
+      "visibility/occlusion",
+      "reflectance/BRDF",
+      "illumination model",
+      "spectral/channel calibration where physical claims require it"
+    ],
+    "generic_object_camera_inverse_square_brightness_prior_allowed": false,
+    "point_source_irradiance_inverse_square_under_assumptions": true,
+    "single_rgb_full_geometry_brdf_illumination_spectrum_uniquely_identifiable": false
+  },
+  "calibration_pack": {
+    "name": "FotoGraafCalibrationPack",
+    "potential_components": [
+      "dark-frame statistics per capture/sample domain",
+      "temporal-noise repeats",
+      "controlled flat fields",
+      "linearity curve",
+      "gain/conversion mapping",
+      "radiometric responsivity",
+      "temperature dependence where material",
+      "lens shading/color shading",
+      "controlled PSF/MTF/CA/flare measurements",
+      "spectral/color calibration under characterized illuminants",
+      "external illuminance/irradiance reference measurements"
+    ],
+    "current_2026_09_14_honor_tests_are_full_calibration_pack": false,
+    "multicapture_calibration_changes_photographic_evidence_count": false
+  },
+  "calibration_domain_key_research_shape": [
+    "cameraId",
+    "lensModeId",
+    "sourceFormatDomain",
+    "cfaTopology",
+    "captureMode",
+    "sampleDomainId",
+    "gainReadoutState",
+    "exposureClass",
+    "temperatureClass_optional",
+    "calibrationVersion"
+  ],
+  "schema_rules": {
+    "silently_modify_current_backplane": false,
+    "silently_modify_certificate_v0_1": false,
+    "future_capture_domain_binding_requires_versioned_schema": true
+  },
+  "2026_09_14_empirical_constraints": {
+    "signed_post_black_preservation": "EMPIRICALLY_REINFORCED_PASS",
+    "simple_iso_greater_equal_8192_threshold": "REJECTED",
+    "discrete_exact_iso8192_associated_domain": "PASS_AS_OBSERVATION",
+    "discrete_domain_physical_cause": "OPEN",
+    "calibration_selection_key": "EXACT_CAPTURE_SAMPLE_DOMAIN_NOT_ISO_MAGNITUDE_ALONE",
+    "scientific_master_route_change_justified": false
+  },
+  "fail_closed_conditions": [
+    "ambiguous source topology/sample semantics",
+    "required calibration domain not exactly matched",
+    "calibration camera/lens/mode/domain mismatch",
+    "saturation without valid narrowing evidence",
+    "dark signal below reliable identifiability",
+    "underdetermined geometry/material/light decomposition",
+    "spectral claim exceeds spectral calibration",
+    "counterfactual data is sole support for original-world claim"
+  ],
+  "invariants": [
+    "Direct-CFA source immutable",
+    "normal physicalFrameCount=1",
+    "normal independentEvidenceCount=1",
+    "ISO/gain provenance preserved",
+    "signed post-black scientific values not hard-clipped to zero",
+    "nul-line is not BlackLevel",
+    "scene HDR is not display HDR",
+    "irradiance is not silently equated to observed radiance",
+    "counterfactual light never becomes captured evidence",
+    "FotoGraaf creates neither a 13th room nor a second Scientific Master"
+  ],
+  "status_summary": {
+    "iso_factorization_architecture": "PASS",
+    "scene_range_envelope_architecture": "PASS",
+    "capture_sample_domain_calibration_rule": "PASS",
+    "local_metrology_to_roomcapsule_architecture": "PASS",
+    "absolute_honor_tele_radiometric_calibration": "OPEN",
+    "motioncam_noiseprofile_exact_semantics": "OPEN",
+    "general_single_frame_absolute_irradiance_field": "BLOCKED_WITHOUT_ADDITIONAL_CALIBRATION_AND_SCENE_CONSTRAINTS",
+    "full_spectrum_single_rgb_recovery": "BLOCKED",
+    "counterfactual_to_evidence_promotion": "REJECTED"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schema": "truthraw.v47i-multithreading-state.v0.1",
+  "date": "2026-09-14",
+  "status": "HISTORICAL_CANONICAL_CAPABILITY_ACTIVE_REGRESSION_VNEXT_STREAMING_OPEN",
+  "canonical_v47i": {
+    "source": "canonical/reconstruction/v4.7i/native/src/core.cpp",
+    "interface": "canonical/reconstruction/v4.7i/native/include/truthraw/core.h",
+    "canonical_bytes_modified": false,
+    "process_option": "ProcessOptions::threads",
+    "execution_features": {
+      "multithreaded_tile_workers": true,
+      "atomic_next_tile_distribution": true,
+      "per_worker_private_scratch": true,
+      "per_worker_private_histograms": true,
+      "global_barrier_before_exposure_plan": true,
+      "parallel_sdr_row_application": true,
+      "parallel_half_resolution_hdr_gain": true,
+      "even_tile_core_required_when_parallel": true
+    },
+    "authority": {
+      "worker_count_changes_scientific_authority": false,
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1
+    }
+  },
+  "current_regression": {
+    "module": "docs/research/worker-resource-invariance-v0.1",
+    "threads_tested": [1, 2, 4],
+    "exact_fields": [
+      "ExposurePlan",
+      "provenance",
+      "sdrRgb bytes",
+      "halfLogGain bytes",
+      "stage2Diagnostic bytes"
+    ],
+    "four_worker_repeat_runs": 3,
+    "ci_modes": [
+      "gcc-release",
+      "clang-release",
+      "clang-asan-ubsan"
+    ],
+    "timing_resource_telemetry_part_of_identity": false
+  },
+  "bounded_streaming_v0_1": {
+    "module": "docs/research/full-frame-streaming-v0.1",
+    "workers_allowed": 1,
+    "multiworker_status": "OPEN",
+    "reason": "source/sink concurrency, deterministic commit ordering, per-worker bounded-memory accounting and physical-device validation require separate proof"
+  },
+  "vnext": {
+    "principle": "one truth, one room contract, as many validated workers as hardware can safely use",
+    "proposed_components": [
+      "persistent WorkerPool",
+      "RoomLease",
+      "WorkerScratchLease",
+      "deterministic TileScheduler",
+      "explicit tile and half-cell ownership",
+      "deterministic ReductionBarrier",
+      "bounded producer-compute-ordered-commit pipeline",
+      "per-room profiler",
+      "thermal and memory ResourceGovernor"
+    ],
+    "concurrency_levels": {
+      "within_room": "multiple workers on disjoint tiles under one scientific contract",
+      "between_rooms": "independent downstream rooms may overlap after shared prerequisites and Scientific Master identity are sealed"
+    },
+    "iso_hdr_boundary": {
+      "iso_gain_capture_domain": "upstream MeasurementLab/capture metrology",
+      "hdr_scene_display_gain": "downstream scene/appearance processing",
+      "repeat_iso_normalization_for_hdr": false
+    },
+    "promotion_gates": [
+      "exact 1/2/4 worker equivalence",
+      "race-free sanitizer validation",
+      "deterministic output order and digests",
+      "source-reader concurrency or serialized producer contract",
+      "sink concurrency or ordered single-writer contract",
+      "bounded resident memory proof for N workers",
+      "physical Honor 1/2/4 worker run",
+      "wall CPU PSS thermal measurements",
+      "Scientific Master/output identity invariance"
+    ]
+  },
+  "permanent_rule": "More cores may give more photographers. They may never give more truth."
+}

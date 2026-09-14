@@ -1,0 +1,107 @@
+name: FotoGraaf Calibration Model Shadow v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MEASUREMENT_MODEL_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1/**'
+      - 'tools/verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_model_binding_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_model_binding_v0_1.py'
+      - '.github/workflows/fotograaf-calibration-model-shadow-v0-1.yml'
+  pull_request:
+    paths:
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MEASUREMENT_MODEL_CONTRACT_V0_1.json'
+      - 'docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1/**'
+      - 'tools/verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_model_binding_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_model_binding_v0_1.py'
+      - '.github/workflows/fotograaf-calibration-model-shadow-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-model:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prove shadow module is not wired into canonical or Android production routes
+        run: |
+          if grep -R --line-number --fixed-string 'shadow_measurement_model_v0_1' canonical app/android 2>/dev/null; then
+            echo 'Shadow model must remain research-only in v0.1' >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MODEL_SHADOW_CONTRACT_V0_1.json')
+          c = json.loads(p.read_text())
+          assert c['scientificMasterRouteChange'] is False
+          assert c['sourceEvidenceMutation'] is False
+          assert c['sceneEvidenceCountsChanged'] is False
+          assert c['censorRule']['calibrationMayUncensorSourceClip'] is False
+          assert 'second GainMap/lens-shading application' in c['forbiddenV0_1']
+          print('shadow_contract=PASS')
+          PY
+
+      - name: Validate serialized measurement-model and admitted-binding bridge
+        run: |
+          python3 -m py_compile \
+            tools/verify_fotograaf_calibration_measurement_model_v0_1.py \
+            tools/verify_fotograaf_calibration_model_binding_v0_1.py
+          python3 -m unittest \
+            tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py \
+            tests/test_verify_fotograaf_calibration_model_binding_v0_1.py \
+            -v
+
+      - name: Configure GCC Release
+        if: matrix.mode == 'gcc-release'
+        run: >-
+          cmake -S docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1
+          -B /tmp/fotograaf-shadow-gcc
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=g++
+
+      - name: Configure Clang Release
+        if: matrix.mode == 'clang-release'
+        run: >-
+          cmake -S docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1
+          -B /tmp/fotograaf-shadow-clang
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Configure Clang ASan UBSan
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: >-
+          cmake -S docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1
+          -B /tmp/fotograaf-shadow-san
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
+          -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+
+      - name: Build and test GCC
+        if: matrix.mode == 'gcc-release'
+        run: cmake --build /tmp/fotograaf-shadow-gcc --parallel 2 && ctest --test-dir /tmp/fotograaf-shadow-gcc --output-on-failure
+
+      - name: Build and test Clang
+        if: matrix.mode == 'clang-release'
+        run: cmake --build /tmp/fotograaf-shadow-clang --parallel 2 && ctest --test-dir /tmp/fotograaf-shadow-clang --output-on-failure
+
+      - name: Build and test Sanitized
+        if: matrix.mode == 'clang-asan-ubsan'
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: cmake --build /tmp/fotograaf-shadow-san --parallel 2 && ctest --test-dir /tmp/fotograaf-shadow-san --output-on-failure

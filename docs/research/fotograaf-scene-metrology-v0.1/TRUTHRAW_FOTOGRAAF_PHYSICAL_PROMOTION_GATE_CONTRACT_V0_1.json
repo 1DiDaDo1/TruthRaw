@@ -1,0 +1,124 @@
+{
+  "schema": "truthraw.fotograaf-physical-promotion-gate-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_ELIGIBILITY_GATE_FAIL_CLOSED",
+  "scientificMasterRouteChange": false,
+  "productionRouteMutation": false,
+  "promotionEligibilityOnly": true,
+  "sceneEvidenceCountsChanged": false,
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "purpose": "Decide whether an already admitted and shadow-tested calibration claim is scientifically eligible for a separate explicit production-promotion review. Passing this gate does not itself alter source bytes, the Scientific Master route, Backplane, certificate, pixels, or evidence counts.",
+  "decisionStates": [
+    "ELIGIBLE_FOR_EXPLICIT_PROMOTION_REVIEW",
+    "REMAIN_SHADOW_ONLY",
+    "PROMOTION_REJECTED"
+  ],
+  "requiredChain": [
+    "validated CalibrationPack",
+    "CALIBRATED_PHYSICAL_ADMITTED CalibrationBindingPacket",
+    "exact modelSha256 and protocolSha256 binding",
+    "held-out physical validation report",
+    "uncertainty validation report",
+    "shadow comparison report",
+    "source/master identity regression",
+    "source censor preservation",
+    "no-double-correction proof",
+    "capture/sample-domain regression",
+    "1/2/4-worker exact invariance",
+    "explicit authority review after gate"
+  ],
+  "reportSchemas": {
+    "promotionRequest": "truthraw.fotograaf-physical-promotion-request.v0.1",
+    "physicalValidation": "truthraw.fotograaf-physical-validation-report.v0.1",
+    "uncertaintyValidation": "truthraw.fotograaf-uncertainty-validation-report.v0.1",
+    "shadowComparison": "truthraw.fotograaf-shadow-comparison-report.v0.1",
+    "promotionResult": "truthraw.fotograaf-physical-promotion-result.v0.1"
+  },
+  "heldOutValidationRules": {
+    "passedRequired": true,
+    "fitDataMayBeReusedAsHeldOutValidation": false,
+    "protocolSealedBeforeFitRequired": true,
+    "quantityExactMatchRequired": true,
+    "modelIdExactMatchRequired": true,
+    "captureSampleDomainCoveredRequired": true,
+    "acceptanceProtocolExactMatchRequired": true
+  },
+  "uncertaintyRules": {
+    "passedRequired": true,
+    "quantityExactMatchRequired": true,
+    "uncertaintyModelIdExactMatchRequired": true,
+    "validDomainBoundRequired": true,
+    "declaredCoverageAcceptanceRequired": true
+  },
+  "shadowRules": {
+    "shadowOnlyRequired": true,
+    "productionRouteChangedMustBeFalse": true,
+    "bindingSha256ExactMatchRequired": true,
+    "modelSha256ExactMatchRequired": true,
+    "protocolSha256ExactMatchRequired": true,
+    "sourceIdentityRegressionPassedRequired": true,
+    "productionScientificMasterIdentityUnchangedRequired": true,
+    "sourceCensorPreservedRequired": true,
+    "noDoubleCorrectionPassedRequired": true,
+    "captureSampleDomainRegressionPassedRequired": true,
+    "comparisonThresholdsPassedRequired": true,
+    "thresholdProtocolMustMatchAcceptanceProtocol": true,
+    "workerResultSha256sRequired": [
+      "1",
+      "2",
+      "4"
+    ],
+    "workerResultSha256sMustBeIdentical": true
+  },
+  "noiseOnlyQuantities": [
+    "read_noise"
+  ],
+  "noiseOnlyRule": "For a noise-only promoted quantity, shadow validation must prove that the source signal coordinate is bit-identical before/after applying the noise calibration; only the uncertainty/noise model may change.",
+  "dependencyRule": "Every module named by calibrationContract.promotionRules[quantity] must be present and validated in the exact CalibrationPack.",
+  "absoluteQuantityRules": {
+    "absolute_scene_radiance": {
+      "unitRequired": true,
+      "traceabilityRequired": true,
+      "requiredModules": [
+        "C0_IDENTITY",
+        "C1_DARK_NOISE",
+        "C2_LINEARITY_GAIN_SATURATION",
+        "C3_FLAT_SHADING",
+        "C5_RELATIVE_RADIOMETRY",
+        "C6_ABSOLUTE_RADIOMETRY"
+      ]
+    },
+    "absolute_incident_irradiance": {
+      "unitRequired": true,
+      "traceabilityRequired": true,
+      "requiredModules": [
+        "C0_IDENTITY",
+        "C1_DARK_NOISE",
+        "C2_LINEARITY_GAIN_SATURATION",
+        "C3_FLAT_SHADING",
+        "C5_RELATIVE_RADIOMETRY",
+        "C6_ABSOLUTE_RADIOMETRY",
+        "C7_INCIDENT_LIGHT_GEOMETRY"
+      ]
+    }
+  },
+  "identityRules": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "workerCountAffectsAuthority": false,
+    "calibrationFramesBecomeSceneEvidence": false,
+    "calibrationMayUncensorSourceClip": false,
+    "calibrationMayReapplySourceGainMap": false
+  },
+  "schemaGovernance": {
+    "writePromotionIntoBackplaneV0_1": false,
+    "writePromotionIntoCertificateV0_1": false,
+    "promotionRecordMayChangeProductionPixelsByItself": false,
+    "futurePersistentPromotionRequiresVersionedSchema": true
+  },
+  "passingMeaning": "Structural and evidence-chain eligibility under supplied validation artifacts, not independent proof that laboratory measurements were physically correct.",
+  "postPassState": "Still blocked from production-route activation until an explicit separately reviewed promotion/wiring change is made and regression-tested."
+}

@@ -1,0 +1,51 @@
+name: TruthRaw Certificate v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthraw-certificate-v0.1/**'
+      - '.github/workflows/truthraw-certificate-v0-1.yml'
+  push:
+    paths:
+      - 'docs/research/truthraw-certificate-v0.1/**'
+      - '.github/workflows/truthraw-certificate-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certificate:
+    strategy:
+      matrix:
+        include:
+          - name: gcc-release
+            compiler: g++
+            build_type: Release
+            sanitizers: OFF
+          - name: clang-release
+            compiler: clang++
+            build_type: Release
+            sanitizers: OFF
+          - name: clang-asan-ubsan
+            compiler: clang++
+            build_type: RelWithDebInfo
+            sanitizers: ON
+    name: certificate (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S docs/research/truthraw-certificate-v0.1
+          -B build-cert-${{ matrix.name }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+          -DTRUTHRAW_CERT_V01_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: Build
+        run: cmake --build build-cert-${{ matrix.name }} --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build-cert-${{ matrix.name }} --output-on-failure

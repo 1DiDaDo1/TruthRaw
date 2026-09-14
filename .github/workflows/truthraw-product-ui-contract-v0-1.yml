@@ -1,0 +1,23 @@
+name: TruthRaw Product UI Contract v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - '.github/workflows/truthraw-product-ui-contract-v0-1.yml'
+  push:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/**'
+      - '.github/workflows/truthraw-product-ui-contract-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  product-ui-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify four-mode UI, options, languages and launcher icon
+        run: python3 app/android/truthraw-adaptive-ui-v01/tools/verify_product_ui_contract_v0_1.py

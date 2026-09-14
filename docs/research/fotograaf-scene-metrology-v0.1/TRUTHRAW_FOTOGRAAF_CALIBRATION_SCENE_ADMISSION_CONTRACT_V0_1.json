@@ -1,0 +1,119 @@
+{
+  "schema": "truthraw.fotograaf-calibration-scene-admission-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED_RUNTIME_BINDING_CONTRACT",
+  "scientificMasterRouteChange": false,
+  "sceneEvidenceCountsChangedByCalibration": false,
+  "sceneRequestSchema": "truthraw.fotograaf-calibration-scene-request.v0.1",
+  "bindingSchema": "truthraw.fotograaf-calibration-binding.v0.1",
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "exactScopeFields": [
+    "deviceMake",
+    "deviceModel",
+    "cameraSystemId",
+    "physicalCameraId",
+    "lensRole",
+    "captureApiDomain",
+    "captureMode",
+    "rawWidth",
+    "rawHeight",
+    "cfaPattern",
+    "sampleRepresentation",
+    "captureSampleDomainId",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState"
+  ],
+  "sceneMeasurementRequiredFields": [
+    "exposureTimeSeconds",
+    "isoMetadata",
+    "fNumber",
+    "gainReadoutStateId"
+  ],
+  "runtimeValidDomainRequiredFields": [
+    "scopeBound",
+    "exposureTimeSeconds",
+    "isoMetadata",
+    "fNumber",
+    "gainReadoutStateIds"
+  ],
+  "numericRangeShape": {
+    "minInclusive": "finite number",
+    "maxInclusive": "finite number",
+    "rule": "minInclusive <= value <= maxInclusive"
+  },
+  "temperatureRule": {
+    "packTemperatureCalibratedTrue": "claim.validDomain.temperatureC and scene.measurement.temperatureC are both required",
+    "packTemperatureCalibratedFalse": "temperature may be recorded but it cannot strengthen the calibration authority",
+    "cpuBatteryAmbientAloneAreNotSensorTemperature": true
+  },
+  "selectionRules": {
+    "isoAloneMaySelectCalibrationDomain": false,
+    "captureSampleDomainIdExactMatchRequired": true,
+    "gainReadoutStateIdMustBeInsideClaimDomain": true,
+    "operationalRangeExtrapolationAllowed": false,
+    "oneSceneMayUseMultipleQuantityClaimsFromSamePack": true,
+    "differentPacksPerQuantityFuturePossible": true,
+    "v0_1VerifierAcceptsOnePackPerInvocation": true
+  },
+  "decisionStates": [
+    "CALIBRATED_PHYSICAL_ADMITTED",
+    "NO_CALIBRATED_PHYSICAL_BINDING",
+    "FAIL_CLOSED_REQUIRED_CALIBRATION_UNAVAILABLE"
+  ],
+  "mismatchPolicy": {
+    "hardScopeMismatch": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "captureSampleDomainMismatch": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "gainReadoutStateOutsideDomain": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "exposureOutsideDomain": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "isoMetadataOutsideDomain": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "fNumberOutsideDomain": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "temperatureMissingOrOutsideValidatedDomain": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "requestedClaimMissing": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "requestedClaimNotCalibratedPhysical": "NO_CALIBRATED_PHYSICAL_BINDING",
+    "requireCalibratedPhysicalTrueAndNotAdmitted": "FAIL_CLOSED_REQUIRED_CALIBRATION_UNAVAILABLE"
+  },
+  "bindingPacket": {
+    "mustBind": [
+      "sourceEvidenceSha256",
+      "packId",
+      "datasetManifestSha256",
+      "protocolSha256",
+      "modelSha256",
+      "calibrationScopeSha256",
+      "quantity",
+      "modelId",
+      "uncertaintyModelId",
+      "validDomainSha256",
+      "validationReportSha256",
+      "uncertaintyReportSha256",
+      "acceptanceProtocolId"
+    ],
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "authority": "CALIBRATED_PHYSICAL",
+    "changesScientificMasterByItself": false,
+    "changesSourceEvidence": false
+  },
+  "workerInvariance": {
+    "rule": "calibration admission is resolved once as immutable shared state before dependent workers",
+    "workerCountMayChangeBinding": false,
+    "workersMaySelectDifferentPackForSameQuantity": false,
+    "executionWorkerCountExcludedFromBindingDigest": true
+  },
+  "hdrRule": {
+    "captureDynamicRangeMayUseCalibrationBinding": true,
+    "scientificSceneRangeMayConsumeCaptureDynamicRangeCalibration": true,
+    "productHdrAppearanceIsCalibrationClaim": false,
+    "productHdrMayTriggerIsoGainReinterpretation": false,
+    "displayHdrMayCreatePhysicalAuthority": false
+  },
+  "schemaGovernance": {
+    "writeBindingIntoBackplaneV0_1": false,
+    "writeBindingIntoCertificateV0_1": false,
+    "futurePersistentBindingRequiresVersionedSchema": true
+  }
+}

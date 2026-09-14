@@ -1,0 +1,184 @@
+{
+  "schema": "truthraw.fotograaf-calibration-acquisition-plan.v0.1",
+  "date": "2026-09-14",
+  "status": "PLANNED_NOT_ACQUIRED",
+  "device": {
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "lensRole": "TELE",
+    "projectDeclaredCameraSystemId": "5",
+    "cameraSystemIdMustBeReverifiedAtAcquisition": true,
+    "physicalCameraId": "UNRESOLVED_MUST_BE_CAPTURE_BOUND",
+    "captureApiDomain": "UNRESOLVED_MUST_BE_CAPTURE_BOUND",
+    "captureSampleDomainId": "UNRESOLVED_MUST_BE_CLASSIFIED",
+    "firmwareBuildId": "MUST_BE_CAPTURE_BOUND",
+    "captureMode": "4080x3072_DIRECT_CFA_TARGET",
+    "rawWidth": 4080,
+    "rawHeight": 3072,
+    "cfaPattern": "BGGR",
+    "sampleRepresentation": "RAW10_MEASUREMENT_EXPECTED_BUT_MUST_BE_REVERIFIED",
+    "focusStateClass": "MUST_BE_DECLARED_PER_RUN",
+    "stabilizationState": "MUST_BE_DECLARED_PER_RUN"
+  },
+  "initialIsoMetadataAnchors": [
+    200,
+    400,
+    800,
+    1600,
+    3200,
+    6400,
+    12800
+  ],
+  "isoRule": "These are acquisition anchors only. Actual gain/readout/sample-domain states must be classified from capture evidence; ISO magnitude alone cannot select a calibration domain.",
+  "phaseA": {
+    "goal": "nominal-temperature relative physical calibration candidate",
+    "temperatureCalibrationClaim": false,
+    "temperatureBins": 1,
+    "temperatureObservationStillRequired": true,
+    "modules": {
+      "C0_IDENTITY": {
+        "frames": 0,
+        "note": "Identity/metadata/hash record for every capture; no extra photographic frames solely for C0."
+      },
+      "C1_DARK_NOISE": {
+        "gainReadoutAnchorCount": 7,
+        "exposureTimesPerState": 4,
+        "temperatureBins": 1,
+        "repeatsPerCell": 16,
+        "plannedDarkFrames": 448,
+        "exposureSelectionRule": [
+          "shortest_relevant",
+          "normal_relevant",
+          "long_relevant",
+          "longest_relevant"
+        ],
+        "darkCondition": "photon-blocked camera input"
+      },
+      "C2_LINEARITY_GAIN_SATURATION": {
+        "gainReadoutAnchorCount": 7,
+        "signalLevelsPerState": 12,
+        "repeatsPerLevel": 8,
+        "plannedUniformSourceFrames": 672,
+        "heldOutValidationLevelsWithinTwelve": 4,
+        "saturationBracketLevelsMinimum": 3,
+        "matchingDarkReference": true
+      },
+      "C3_FLAT_SHADING": {
+        "signalLevels": 3,
+        "approxFractionsOfUsableRange": [
+          0.1,
+          0.5,
+          0.8
+        ],
+        "repeatsPerLevelPerFocusState": 8,
+        "initialFocusStateCount": 1,
+        "plannedFlatFramesForOneFocusState": 24,
+        "additionalFramesPerExtraFocusState": 24
+      },
+      "C4_COLOR_SPECTRAL": {
+        "characterizedIlluminants": 3,
+        "nominalAnchorsK": [
+          2850,
+          5000,
+          6500
+        ],
+        "spdMeasured": true,
+        "targetPatchesMinimum": 24,
+        "repeatsPerIlluminant": 3,
+        "plannedTargetFrames": 9,
+        "spectralTargetReferenceRequired": true
+      },
+      "C5_RELATIVE_RADIOMETRY": {
+        "referenceLevels": 8,
+        "repeatsPerLevel": 5,
+        "plannedReferenceFrames": 40,
+        "heldOutValidationLevelsWithinEight": 2
+      }
+    },
+    "plannedMinimumFramesC1toC5OneFocusState": 1193
+  },
+  "phaseB": {
+    "goal": "temperature-dependent extension",
+    "status": "OPTIONAL_AFTER_PHASE_A",
+    "minimumTemperatureBins": 3,
+    "rule": "All validated modules used by a temperature-dependent claim must cover the declared temperature bins. C1-only thermal coverage is insufficient."
+  },
+  "phaseC": {
+    "goal": "absolute radiometric extension",
+    "status": "BLOCKED_UNTIL_TRACEABLE_REFERENCE_CHAIN_AVAILABLE",
+    "C6_ABSOLUTE_RADIOMETRY": {
+      "referenceLevels": 5,
+      "repeatsPerLevel": 5,
+      "plannedMinimumFrames": 25,
+      "traceableRadianceReferenceRequired": true
+    }
+  },
+  "phaseD": {
+    "goal": "incident-light inference validation",
+    "status": "BLOCKED_UNTIL_CONTROLLED_GEOMETRY_LIGHT_RIG_AVAILABLE",
+    "C7_INCIDENT_LIGHT_GEOMETRY": {
+      "distinctLightDirections": 3,
+      "distinctLightLevelsOrDistances": 3,
+      "recommendedRepeatsPerCondition": 3,
+      "plannedRigFramesRecommended": 27,
+      "cosineCorrectedIrradianceReferenceRequired": true,
+      "geometryNormalsMaterialReferenceRequired": true
+    },
+    "absoluteIncidentIrradianceRule": "Requires C6 absolute traceability plus C7, not C7 alone."
+  },
+  "externalReferenceChecklist": {
+    "sourceStabilityMonitor": [
+      "instrumentModel",
+      "serial",
+      "samplingInterval",
+      "uncertaintyOrRepeatability"
+    ],
+    "spectralColor": [
+      "spectrometerOrSpectroradiometerModel",
+      "serial",
+      "calibrationState",
+      "spectralBandpassOrSampling",
+      "uncertainty",
+      "illuminantSpdFilesSha256",
+      "targetSpectralReferenceSha256"
+    ],
+    "absoluteRadiometry": [
+      "radianceReferenceModel",
+      "serial",
+      "calibrationCertificateId",
+      "certificateSha256",
+      "certificateValidAtAcquisition",
+      "traceabilityStatement",
+      "units",
+      "spectralBandpass",
+      "uncertainty",
+      "geometry"
+    ],
+    "incidentIrradiance": [
+      "cosineCorrectedIrradianceMeterModel",
+      "serial",
+      "calibrationCertificateId",
+      "uncertainty",
+      "sensorPlanePosition",
+      "surfaceNormal",
+      "lightPositionDirectionDistance"
+    ]
+  },
+  "admission": {
+    "ordinarySceneIsoSeriesCountsAsCalibration": false,
+    "scientificMasterRouteChanged": false,
+    "laterScenePhysicalFrameCount": 1,
+    "laterSceneIndependentEvidenceCount": 1,
+    "promotionTargetAfterPhaseA": [
+      "black_offset",
+      "read_noise",
+      "gain_response",
+      "capture_dynamic_range",
+      "lens_shading",
+      "independent_colorimetry_if_C4_passes",
+      "relative_scene_radiance_if_C5_passes"
+    ],
+    "absoluteSceneRadianceAfterPhaseA": "OPEN_NOT_AUTHORIZED",
+    "absoluteIncidentIrradianceAfterPhaseA": "OPEN_NOT_AUTHORIZED"
+  }
+}

@@ -39,6 +39,7 @@ class MainActivity : Activity() {
     private var pendingProjectionKind: RawProjectionKind? = null
     private var projectionStatus: String? = null
     private var projectionGeneration: Long = 0
+    private var outputSelection: OutputModeSelection = OutputModePolicy.fromWireName(null)
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -78,6 +79,13 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        outputSelection = OutputModePolicy.fromWireName(
+            intent.getStringExtra(OutputModeActivity.EXTRA_OUTPUT_MODE),
+            intent.getBooleanExtra(OutputModeActivity.EXTRA_COLOURFUL, false),
+            intent.getBooleanExtra(OutputModeActivity.EXTRA_DETAILED, false),
+            intent.getBooleanExtra(OutputModeActivity.EXTRA_SOFT, false),
+            intent.getBooleanExtra(OutputModeActivity.EXTRA_HDR, false),
+        )
         window.setDecorFitsSystemWindows(false)
         render()
     }
@@ -106,6 +114,11 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun launchJpegExport(job: RawJob) {
+        if (!OutputModePolicy.allowsJpeg(outputSelection)) {
+            jpegStatus = "JPEG-export geblokkeerd door de gekozen uitvoermodus."
+            render()
+            return
+        }
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
         pendingJpegJobId = job.id
@@ -137,6 +150,11 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun launchProjectionExport(job: RawJob, kind: RawProjectionKind) {
+        if (kind !in OutputModePolicy.allowedRawProjectionKinds(outputSelection)) {
+            projectionStatus = "RAW/DNG-export geblokkeerd door de gekozen uitvoermodus."
+            render()
+            return
+        }
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id || activeJobId != job.id) return
         pendingProjectionJobId = job.id
@@ -223,6 +241,11 @@ class MainActivity : Activity() {
             if (expectedJob == null || kind == null || job == null ||
                 activeJobId != expectedJob || ready == null || ready.jobId != expectedJob) {
                 projectionStatus = "RAW/DNG projection-export geblokkeerd: actieve finalized preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            if (kind !in OutputModePolicy.allowedRawProjectionKinds(outputSelection)) {
+                projectionStatus = "RAW/DNG projection-export geblokkeerd: uitvoermodus veranderde of staat dit formaat niet toe."
                 render()
                 return
             }
@@ -354,7 +377,8 @@ class MainActivity : Activity() {
 
         addView(vertical().apply {
             addView(label("TruthRaw", 22f, bold = true))
-            addView(label("${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · ${session.selectedCount} RAW geselecteerd", 12f, muted = true))
+            val outputName = getString(outputSelection.mode.titleRes)
+            addView(label("${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · ${session.selectedCount} RAW geselecteerd · $outputName", 12f, muted = true))
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
 
         addView(actionButton("RAW kiezen") { launchRawPicker() })
@@ -500,23 +524,7 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
                 addView(space(6))
-                addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
-                jpegStatus?.let { addView(label(it, 10f, muted = true)) }
-                addView(space(8))
-                addView(label("RAW/DNG projecties", 13f, bold = true))
-                addView(label(
-                    "Downstream export van dezelfde finalized lineage. CFA/Linear samples zijn reconstructie/projectie en worden nooit als gemeten sensor-evidence gelabeld.",
-                    10f,
-                    muted = true,
-                ))
-                RawProjectionKind.entries.forEach { kind ->
-                    addView(actionButton(kind.buttonLabel) { launchProjectionExport(active, kind) }.also {
-                        it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                            topMargin = dp(4)
-                        }
-                    })
-                }
-                projectionStatus?.let { addView(label(it, 10f, muted = true)) }
+                addModeExportControls(active)
             }
         }
 
@@ -550,6 +558,72 @@ class MainActivity : Activity() {
             addView(actionButton("Empirical JSON opslaan") { launchEmpiricalExport(active) })
             empiricalStatus?.let { addView(label(it, 10f, muted = true)) }
         }
+    }
+
+    private fun LinearLayout.addModeExportControls(active: RawJob) {
+        addView(label("Uitvoermodus · ${getString(outputSelection.mode.titleRes)}", 13f, bold = true))
+        addView(label(
+            "De modus stuurt alleen downstream presentatie/export. Scientific Master, TruthRange, zero-line, evidence-counts en Backplane blijven onveranderd.",
+            10f,
+            muted = true,
+        ))
+        if (!outputSelection.appearance.isNeutral()) {
+            addView(label(
+                "Appearance-intent: ${appearanceIntentLabel()} · geselecteerd maar nog niet gekoppeld aan de wetenschappelijk gevalideerde renderer.",
+                10f,
+                muted = true,
+            ))
+        }
+
+        when (outputSelection.mode) {
+            TruthRawOutputMode.JPG -> {
+                addView(space(6))
+                addView(actionButton("JPG opslaan") { launchJpegExport(active) })
+                jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+            }
+            TruthRawOutputMode.JPG_XL -> {
+                addView(space(6))
+                addView(label(
+                    "JPG XL blijft fail-closed: de encoder is gereserveerd in de interface maar nog niet gevalideerd voor productie-export.",
+                    10f,
+                    muted = true,
+                ))
+            }
+            TruthRawOutputMode.TRUTHRAW_PURE,
+            TruthRawOutputMode.TRUTHRAW_ADVANCED -> {
+                if (OutputModePolicy.allowsJpeg(outputSelection)) {
+                    addView(space(6))
+                    addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
+                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                }
+                addView(space(8))
+                addView(label("RAW/DNG projecties", 13f, bold = true))
+                addView(label(
+                    "Downstream export van dezelfde finalized lineage. CFA/Linear samples zijn reconstructie/projectie en worden nooit als gemeten sensor-evidence gelabeld.",
+                    10f,
+                    muted = true,
+                ))
+                val allowed = OutputModePolicy.allowedRawProjectionKinds(outputSelection)
+                RawProjectionKind.entries.filter { it in allowed }.forEach { kind ->
+                    addView(actionButton(kind.buttonLabel) { launchProjectionExport(active, kind) }.also {
+                        it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            topMargin = dp(4)
+                        }
+                    })
+                }
+                projectionStatus?.let { addView(label(it, 10f, muted = true)) }
+            }
+        }
+    }
+
+    private fun appearanceIntentLabel(): String {
+        val enabled = buildList {
+            if (outputSelection.appearance.colourful) add("Colourful")
+            if (outputSelection.appearance.detailed) add("Detailed")
+            if (outputSelection.appearance.soft) add("Soft")
+            if (outputSelection.appearance.hdr) add("HDR")
+        }
+        return if (enabled.isEmpty()) "Neutral" else enabled.joinToString(" · ")
     }
 
     private fun routePane(): View = card().apply {

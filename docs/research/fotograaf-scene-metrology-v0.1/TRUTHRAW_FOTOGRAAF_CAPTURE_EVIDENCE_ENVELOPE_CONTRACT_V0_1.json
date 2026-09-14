@@ -1,0 +1,89 @@
+{
+  "schema": "truthraw.fotograaf-capture-evidence-envelope-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "envelopeSchema": "truthraw.fotograaf-capture-evidence-envelope.v0.1",
+  "metadataSnapshotSchema": "truthraw.fotograaf-calibration-capture-metadata-snapshot.v0.1",
+  "c0RecordSchema": "truthraw.fotograaf-c0-capture-identity-record.v0.1",
+  "purpose": "Bridge acquisition-time camera/capture evidence to exact post-finalization source hashing, metadata sidecar sealing, and C0 identity-record generation without inventing missing identity from DNG metadata.",
+  "requiredEnvelopeFields": [
+    "captureId",
+    "sourceFileName",
+    "scope",
+    "identityObservations",
+    "topologyEvidence",
+    "measurement",
+    "acquisition"
+  ],
+  "acquisitionRequiredFields": [
+    "module",
+    "role",
+    "split",
+    "acquisitionAnchorId"
+  ],
+  "allowedModuleRoles": {
+    "C1_DARK_NOISE": ["DARK"],
+    "C2_LINEARITY_GAIN_SATURATION": ["UNIFORM_SIGNAL", "SATURATION_BRACKET"]
+  },
+  "requiredAcquisitionTimeIdentityFields": [
+    "cameraSystemId",
+    "physicalCameraId",
+    "captureApiDomain",
+    "firmwareBuildId",
+    "focusStateClass",
+    "stabilizationState"
+  ],
+  "allowedIdentityObservationMethods": {
+    "cameraSystemId": ["CAMERA2_LOGICAL_CAMERA_ID_QUERY", "SOURCE_APP_LOGICAL_CAMERA_ID"],
+    "physicalCameraId": ["CAMERA2_PHYSICAL_CAMERA_RESULT", "SOURCE_APP_PHYSICAL_CAMERA_ID"],
+    "captureApiDomain": ["CAPTURE_APPLICATION_ROUTE", "SOURCE_APP_CAPTURE_API_DOMAIN"],
+    "captureSampleDomainId": ["RAW_PAYLOAD_AND_METADATA_CLASSIFIER", "CAPTURE_STACK_DOMAIN_OBSERVATION", "SOURCE_APP_SAMPLE_DOMAIN_ID"],
+    "firmwareBuildId": ["ANDROID_BUILD_FINGERPRINT", "SOURCE_APP_BUILD_FINGERPRINT"],
+    "focusStateClass": ["CAPTURE_CONTROL_AND_RESULT", "SOURCE_APP_FOCUS_STATE"],
+    "stabilizationState": ["CAPTURE_CONTROL_AND_RESULT", "SOURCE_APP_STABILIZATION_STATE"]
+  },
+  "gainReadoutObservationMethods": [
+    "CAPTURE_STACK_GAIN_READOUT_CLASSIFIER",
+    "SOURCE_APP_GAIN_READOUT_STATE_ID",
+    "CALIBRATION_CLASSIFIER_V0_1"
+  ],
+  "forbiddenInferenceMethods": [
+    "DNG_METADATA_ONLY",
+    "EXIF_ONLY",
+    "ISO_ONLY",
+    "ISO_DERIVED",
+    "FILENAME_GUESS",
+    "USER_GUESS"
+  ],
+  "measurementRequiredFields": [
+    "exposureTimeNs",
+    "isoMetadata",
+    "gainReadoutStateObservation",
+    "blackLevelIdentity",
+    "whiteLevelIdentity",
+    "gainMapOpcodeIdentity",
+    "focusState",
+    "stabilizationState",
+    "temperatureObservation"
+  ],
+  "c2RequiredMeasurementFields": [
+    "controlledSignalLevelId",
+    "sourceStabilityReferenceId",
+    "isSaturationBracket"
+  ],
+  "rules": {
+    "sourceMustExistAndBeFinalizedBeforeSeal": true,
+    "sourceBytesRehashedBySealer": true,
+    "metadataSnapshotGeneratedBySealer": true,
+    "c0RecordGeneratedBySealer": true,
+    "physicalCameraIdMayBeRecoveredFromOrdinaryDngMetadataAfterTheFact": false,
+    "captureSampleDomainMayBeSelectedFromIsoMagnitude": false,
+    "gainReadoutStateMayBeSelectedFromIsoMagnitude": false,
+    "processedRgbInput": "FAIL",
+    "multiFrameEvidenceMerged": "FAIL",
+    "directCfaMeasurementRequired": true,
+    "sealingGrantsCalibrationAuthority": false,
+    "sceneEvidenceCountsChangedBySealing": false,
+    "importOnlyTruthRawAppMayInventMissingAcquisitionIdentity": false
+  }
+}

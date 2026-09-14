@@ -1,0 +1,37 @@
+name: Output Mode Policy v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModeActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModePolicy.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/RawProjectionExport.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/res/values*/strings.xml'
+      - 'tools/verify_output_mode_policy.py'
+      - '.github/workflows/output-mode-policy-v0-1.yml'
+  push:
+    paths:
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModeActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModePolicy.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/RawProjectionExport.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/res/values*/strings.xml'
+      - 'tools/verify_output_mode_policy.py'
+      - '.github/workflows/output-mode-policy-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile verifier
+        run: python3 -m py_compile tools/verify_output_mode_policy.py
+      - name: Verify downstream output-mode contract
+        run: python3 tools/verify_output_mode_policy.py

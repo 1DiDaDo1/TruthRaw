@@ -84,7 +84,9 @@ jobs:
           echo "adaptive_ui_tile_preview_apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
           echo "source_raw_full_materialization=0_by_contract"
           echo "preview_source_workspace=BOUNDED_CHUNKS"
-          echo "scientific_color_authority=0"
+          echo "legacy_diagnostic_scientific_color_authority=NONE"
+          echo "default_ui_route=FINALIZED_SCIENTIFIC_COLOR_PREVIEW"
+          echo "physical_frame_count=1 independent_evidence_count=1"
 
       - uses: actions/upload-artifact@v4
         with:

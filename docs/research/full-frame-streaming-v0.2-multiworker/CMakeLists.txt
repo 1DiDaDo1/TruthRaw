@@ -1,0 +1,106 @@
+cmake_minimum_required(VERSION 3.16)
+project(truthraw_full_frame_streaming_v0_2_multiworker LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(NOT DEFINED TRUTHRAW_REPO_ROOT)
+  get_filename_component(TRUTHRAW_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
+endif()
+
+set(V47I "${TRUTHRAW_REPO_ROOT}/canonical/reconstruction/v4.7i/native")
+set(STREAM_V01 "${TRUTHRAW_REPO_ROOT}/docs/research/full-frame-streaming-v0.1")
+set(TILE_DNG_V01 "${TRUTHRAW_REPO_ROOT}/docs/research/tile-native-dng-source-v0.1")
+
+find_package(Threads REQUIRED)
+
+add_library(truthraw_v47i_frozen_core_v02 OBJECT
+  "${V47I}/src/core.cpp")
+target_include_directories(truthraw_v47i_frozen_core_v02 PRIVATE
+  "${V47I}/include")
+target_compile_options(truthraw_v47i_frozen_core_v02 PRIVATE
+  -Wall -Wextra -Werror)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  target_compile_options(truthraw_v47i_frozen_core_v02 PRIVATE
+    -Wno-error=misleading-indentation)
+endif()
+
+add_library(full_frame_streaming_v0_1_for_v02 STATIC
+  "${STREAM_V01}/native/full_frame_streaming_v0_1.cpp"
+  "${STREAM_V01}/native/full_frame_streaming_v0_1_plan.cpp"
+  "${STREAM_V01}/native/full_frame_streaming_v0_1_pass1.cpp"
+  "${STREAM_V01}/native/full_frame_streaming_v0_1_pass2.cpp"
+  $<TARGET_OBJECTS:truthraw_v47i_frozen_core_v02>)
+target_include_directories(full_frame_streaming_v0_1_for_v02 PUBLIC
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(full_frame_streaming_v0_1_for_v02 PRIVATE
+  -Wall -Wextra -Werror)
+
+add_library(multiworker_streaming_v0_2 STATIC
+  multiworker_streaming_v0_2.cpp)
+target_include_directories(multiworker_streaming_v0_2 PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(multiworker_streaming_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(multiworker_streaming_v0_2 PUBLIC
+  full_frame_streaming_v0_1_for_v02 Threads::Threads)
+
+add_executable(test_full_frame_streaming_v0_2_multiworker
+  test_full_frame_streaming_v0_2_multiworker.cpp)
+target_include_directories(test_full_frame_streaming_v0_2_multiworker PRIVATE
+  "${STREAM_V01}/native"
+  "${STREAM_V01}/tests"
+  "${V47I}/include")
+target_compile_options(test_full_frame_streaming_v0_2_multiworker PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(test_full_frame_streaming_v0_2_multiworker PRIVATE
+  full_frame_streaming_v0_1_for_v02 Threads::Threads)
+
+add_library(tile_native_dng_source_v0_1_for_multiworker STATIC
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1.cpp"
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1_bind.cpp"
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1_read.cpp")
+target_include_directories(tile_native_dng_source_v0_1_for_multiworker PUBLIC
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(tile_native_dng_source_v0_1_for_multiworker PRIVATE
+  -Wall -Wextra -Werror)
+
+add_executable(test_tile_native_source_gate_v0_2
+  test_tile_native_source_gate_v0_2.cpp)
+target_include_directories(test_tile_native_source_gate_v0_2 PRIVATE
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(test_tile_native_source_gate_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(test_tile_native_source_gate_v0_2 PRIVATE
+  tile_native_dng_source_v0_1_for_multiworker Threads::Threads)
+
+add_executable(test_tile_native_multiworker_streaming_v0_2
+  test_tile_native_multiworker_streaming_v0_2.cpp)
+target_include_directories(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${STREAM_V01}/tests"
+  "${V47I}/include")
+target_compile_options(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(test_tile_native_multiworker_streaming_v0_2 PRIVATE
+  multiworker_streaming_v0_2
+  tile_native_dng_source_v0_1_for_multiworker
+  Threads::Threads)
+
+enable_testing()
+add_test(NAME full_frame_streaming_v0_2_multiworker
+  COMMAND test_full_frame_streaming_v0_2_multiworker)
+add_test(NAME tile_native_source_gate_v0_2
+  COMMAND test_tile_native_source_gate_v0_2)
+add_test(NAME tile_native_multiworker_streaming_v0_2
+  COMMAND test_tile_native_multiworker_streaming_v0_2)

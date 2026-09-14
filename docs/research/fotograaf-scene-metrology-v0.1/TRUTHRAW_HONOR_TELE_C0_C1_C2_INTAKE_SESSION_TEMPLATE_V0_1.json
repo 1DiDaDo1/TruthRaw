@@ -1,0 +1,34 @@
+{
+  "schema": "truthraw.fotograaf-calibration-intake-session.v0.1",
+  "sessionId": "HONOR_TELE_PHASE_A_C1_C2_REPLACE_WITH_RUN_ID",
+  "status": "TEMPLATE_NOT_ACQUISITION_EVIDENCE",
+  "notes": [
+    "Populate only with controlled captures from the FotoGraaf acquisition protocol.",
+    "Every capture must have exact source bytes, exact metadata sidecar bytes, and a C0 record that passes the C0 identity gate.",
+    "Do not merge exact-ISO8192-associated sample-domain captures with the ordinary sample domain; the intake builder partitions by exact C0 scopeKeySha256.",
+    "ISO anchors are acquisition-planning labels only and may not define captureSampleDomainId or gainReadoutStateId."
+  ],
+  "captures": [
+    {
+      "captureId": "EXAMPLE_DARK_CAPTURE_REMOVE_ME",
+      "module": "C1_DARK_NOISE",
+      "role": "DARK",
+      "split": "FIT",
+      "sourceFileName": "captures/example_dark.dng",
+      "metadataSnapshotFileName": "metadata/example_dark.json",
+      "c0RecordFileName": "c0/example_dark.json",
+      "acquisitionAnchorId": "ISO_ANCHOR_100"
+    },
+    {
+      "captureId": "EXAMPLE_UNIFORM_SIGNAL_CAPTURE_REMOVE_ME",
+      "module": "C2_LINEARITY_GAIN_SATURATION",
+      "role": "UNIFORM_SIGNAL",
+      "split": "VALIDATION",
+      "sourceFileName": "captures/example_uniform.dng",
+      "metadataSnapshotFileName": "metadata/example_uniform.json",
+      "c0RecordFileName": "c0/example_uniform.json",
+      "acquisitionAnchorId": "ISO_ANCHOR_100"
+    }
+  ],
+  "externalReferences": []
+}

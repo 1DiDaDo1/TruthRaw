@@ -1,0 +1,59 @@
+{
+  "schema": "truthraw.fotograaf-camera2-acquisition-observation-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_FAIL_CLOSED",
+  "observationSchema": "truthraw.fotograaf-camera2-acquisition-observation.v0.1",
+  "purpose": "Record source-side Camera2 capture facts and exact finalized DNG identity without pretending that an unvalidated sample-domain or gain/readout classifier already exists.",
+  "requiredTopLevelFields": ["captureId", "createdAtUtc", "source", "device", "camera", "topology", "request", "result", "authority"],
+  "physicalCameraObservationStatuses": [
+    "MEASURED_PHYSICAL_OUTPUT_RESULT",
+    "MEASURED_ACTIVE_PHYSICAL_RESULT",
+    "MEASURED_DIRECT_CAMERA_RESULT",
+    "NOT_AVAILABLE"
+  ],
+  "requiredCameraFields": [
+    "logicalCameraId",
+    "logicalMultiCamera",
+    "requestedPhysicalCameraId",
+    "advertisedPhysicalCameraIds",
+    "physicalCameraObservation",
+    "resultCameraId"
+  ],
+  "requiredTopologyFields": ["format", "rawWidth", "rawHeight", "cfaPattern", "rawCapability", "directCfaMeasurement", "processedRgbInput", "multiFrameEvidenceMerged"],
+  "requiredRequestFields": ["sensorSensitivityIso", "exposureTimeNs", "focusDistanceDiopters", "oisRequestedOff"],
+  "requiredResultFields": ["sensorSensitivityIso", "exposureTimeNs", "sensorTimestampNs", "imageTimestampNs", "timestampMatch", "focusDistanceDiopters", "oisMode", "noiseReductionMode"],
+  "authorityRules": {
+    "sourceBytesMustBeHashedAfterDngFinalization": true,
+    "camera2LogicalIdIsCaptureTimeEvidence": true,
+    "directNonLogicalCameraResultMayIdentifyOpenedPhysicalEndpoint": true,
+    "physicalIdRequiresCaptureResultEvidence": true,
+    "ordinaryDngMetadataMayRecoverPhysicalCameraId": false,
+    "observationMayContainCaptureSampleDomainId": false,
+    "observationMayContainGainReadoutStateId": false,
+    "isoMayClassifyCaptureSampleDomain": false,
+    "isoMayClassifyGainReadoutState": false,
+    "cameraSystemIdMappingMayBeAssumedFromHistoricalLensLabel": false,
+    "calibrationAuthorityGranted": false,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1
+  },
+  "c0PromotionPrerequisites": [
+    "exact finalized source bytes available",
+    "MEASURED physical camera identity or separately admitted source-app equivalent",
+    "validated captureSampleDomainId classifier decision",
+    "validated gainReadoutStateId classifier decision",
+    "focusStateClass classification bound to capture result",
+    "stabilizationState classification bound to capture control/result",
+    "complete C0 scope compatible with the active C0 contract"
+  ],
+  "honorTeleResearchTarget": {
+    "deviceMake": "HONOR",
+    "deviceModel": "BKQ-N49",
+    "historicalLensRole": "TELE",
+    "historicalSystemId": "5",
+    "targetRawWidth": 4080,
+    "targetRawHeight": 3072,
+    "targetCfaPattern": "BGGR",
+    "camera2IdMustBeObservedRatherThanAssumedFromHistoricalSystemId": true
+  }
+}

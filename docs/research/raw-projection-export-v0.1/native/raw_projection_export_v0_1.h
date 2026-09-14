@@ -8,6 +8,14 @@
 #include <string>
 #include <utility>
 
+// Compatibility bridge for the historical raw-projection implementation.
+// TileRect remains canonically owned by truthraw::core; this alias does not
+// create or modify a second geometry contract and is deliberately local to
+// the projection module instead of changing the sealed streaming interface.
+namespace truthraw::streaming_v0_1 {
+using TileRect = ::truthraw::TileRect;
+}
+
 namespace truthraw::raw_projection_export::v0_1 {
 
 enum class ProjectionKind : std::uint8_t {

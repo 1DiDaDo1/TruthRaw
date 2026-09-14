@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TruthRaw</string>
+    <string name="choose_output">Choose Output</string>
+    <string name="choose_output_subtitle">Select how TruthRaw should deliver the photo. Scientific authority never changes with presentation choices.</string>
+    <string name="mode_jpg">JPG</string>
+    <string name="mode_jpg_subtitle">Universal</string>
+    <string name="mode_jxl">JPG XL</string>
+    <string name="mode_jxl_subtitle">High Quality</string>
+    <string name="mode_pure">TRUTHRAW PURE</string>
+    <string name="mode_pure_subtitle">Scientific</string>
+    <string name="mode_advanced">TRUTHRAW ADVANCED</string>
+    <string name="mode_advanced_subtitle">Full Control</string>
+    <string name="appearance_options">Appearance options</string>
+    <string name="appearance_options_hint">These options are downstream appearance controls. They never rewrite sealed evidence or the Scientific Master.</string>
+    <string name="option_colourful">Colourful</string>
+    <string name="option_detailed">Detailed</string>
+    <string name="option_soft">Soft</string>
+    <string name="option_hdr">HDR</string>
+    <string name="pure_locked_hint">TRUTHRAW PURE deliberately has no creative appearance options.</string>
+    <string name="continue_to_raw">Open RAW / DNG</string>
+    <string name="selected_mode">Selected: %1$s</string>
+    <string name="jxl_pending">JPEG XL encoder validation is still pending; the mode is reserved in the interface.</string>
+    <string name="certificate_hint">TruthRaw RAW/DNG exports carry technical lineage metadata. Cryptographic brand signing is only marked verified after a trusted signing key is provisioned.</string>
+</resources>

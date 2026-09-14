@@ -7,10 +7,10 @@ CMAKE = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/cpp/CMakeLists
 KOTLIN = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt"
 ACTIVITY = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt"
 
-cpp = CPP.read_text()
-cmake = CMAKE.read_text()
-kotlin = KOTLIN.read_text()
-activity = ACTIVITY.read_text()
+cpp = CPP.read_text(encoding="utf-8")
+cmake = CMAKE.read_text(encoding="utf-8")
+kotlin = KOTLIN.read_text(encoding="utf-8")
+activity = ACTIVITY.read_text(encoding="utf-8")
 
 required_cpp = [
     "seal_source_sha256",
@@ -68,6 +68,7 @@ assert "-Wno-error" not in cmake.replace(compat, ""), "no additional warning dow
 
 required_kotlin = [
     "buildSourceBoundColorPreview",
+    "buildFinalizedScientificColorPreview",
     "sourceBoundAppearanceReleaseAllowed",
     "scientificPreviewReleaseAllowed",
     "scientificClaimAllowed",
@@ -78,17 +79,26 @@ required_kotlin = [
 for token in required_kotlin:
     assert token in kotlin, f"missing Kotlin contract token: {token}"
 
-assert "NativeTilePreviewBridge.buildCfaPreview(" not in kotlin, "UI loader must not silently fall back to gray sentinel proxy"
-assert "JPEG preview opslaan" in activity
-assert "Source-bound Main House kleurpreview" in activity
+# The source-bound path is retained as a diagnostic/pre-master route, but the
+# default UI must consume the finalized route. This replaces old assertions on
+# presentation copy, which were brittle and no longer represented authority.
+assert "NativeTilePreviewBridge.buildCfaPreview(" not in kotlin, \
+    "UI loader must not silently fall back to gray sentinel proxy"
+assert "NativeTilePreviewBridge.buildFinalizedScientificColorPreview(" in kotlin, \
+    "default UI loader must use the finalized Scientific Preview route"
+assert "Pre-master fallback/diagnostic path" in kotlin, \
+    "source-bound path must stay explicitly diagnostic/pre-master"
+assert "Finalized Scientific Preview" in activity
+assert "Scientific Master/TruthRange/Backplane-lineage" in activity
 assert "PortablePreviewEncoder.encodeJpeg" in activity
-assert "Scientific Master nog niet gefinaliseerd" in activity
+assert "Source-bound Main House kleurpreview" not in activity, \
+    "obsolete pre-master label must not be presented as the current finalized UI"
 
 print("ANDROID_SOURCE_BOUND_COLOR_PREVIEW_V0_1_CONTRACT_PASS")
 print("color_authority=SOURCE_METADATA_BOUND")
-print("appearance_release=ALLOWED_LABELED")
-print("scientific_preview_release=BLOCKED_PRE_MASTER")
-print("scientific_claim=BLOCKED_PRE_MASTER")
+print("source_bound_path=DIAGNOSTIC_PRE_MASTER_ONLY")
+print("default_ui_route=FINALIZED_SCIENTIFIC_PREVIEW")
+print("scientific_claim=AUTHORITY_GATED")
 print("full_raw_materialization=FORBIDDEN")
 print("preview_sentinel_fallback=AUTO_DISABLED")
 print("canonical_v4_7i_bytes=UNCHANGED")

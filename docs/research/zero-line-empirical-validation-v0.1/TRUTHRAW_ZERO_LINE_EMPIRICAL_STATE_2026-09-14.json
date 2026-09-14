@@ -1,0 +1,163 @@
+{
+  "schema": "truthraw.zero-line-empirical-state.v0.1",
+  "date": "2026-09-14",
+  "status": "ACTIVE_RESEARCH_EVIDENCE_CANONICAL_SEMANTICS_UNCHANGED",
+  "zero_line": {
+    "equation": "T = log2(L/L0)",
+    "meaning": "L0 is a gauge/reference, not sensor black, darkness, clipping or display middle grey",
+    "address_space": {
+      "bright_side": "+infinity as L -> +infinity",
+      "dark_side": "-infinity as L -> 0+",
+      "claim": "unbounded representation, finite evidence"
+    },
+    "dual_coordinate_requirement": {
+      "signed_linear_estimator": true,
+      "positive_light_truthrange": true,
+      "negative_estimator_is_negative_physical_light": false,
+      "hard_clip_post_black_to_zero_allowed": false
+    }
+  },
+  "campaigns": [
+    {
+      "id": "HONOR_TELE_ISO_SERIES",
+      "kind": "real_scene_iso_ladder",
+      "files": [
+        "IMG_20260908_194910.dng",
+        "IMG_20260908_194916.dng",
+        "IMG_20260908_194924.dng",
+        "IMG_20260908_194929.dng",
+        "IMG_20260908_194939.dng",
+        "IMG_20260908_194947.dng",
+        "IMG_20260908_194951.dng"
+      ],
+      "iso_sequence": [200, 400, 800, 1600, 3200, 6400, 12800],
+      "key_results": {
+        "iso200_to_400_same_exposure_signal_ratio": "approximately 0.50 for B/G when expressed 200 relative to 400",
+        "high_iso_green_noiseprofile_observed_to_predicted": [1.009, 1.024, 1.033, 1.053],
+        "below_black_count_iso3200": 109,
+        "below_black_count_iso6400": 4974,
+        "below_black_count_iso12800": 59573,
+        "below_black_percent_iso12800": 0.4753,
+        "minimum_black_corrected_dn_iso12800": -22
+      },
+      "authority": "SOURCE_BOUND_TEST_EVIDENCE_NOT_CALIBRATION_CERTIFICATION"
+    },
+    {
+      "id": "HONOR_TELE_FOLLOWUP_RESPONSE_SERIES_2026-09-14",
+      "kind": "response_repeatability",
+      "files": [
+        "IMG_260914_104212_969_001.dng",
+        "IMG_260914_104222_376_003.dng",
+        "IMG_260914_104225_763_005.dng",
+        "IMG_260914_104228_111_007.dng",
+        "IMG_260914_104230_455_009.dng",
+        "IMG_260914_104232_099_011.dng",
+        "IMG_260914_104243_236_013.dng"
+      ],
+      "iso_sequence": [100, 100, 200, 800, 800, 1600, 6444],
+      "same_exposure_iso100_to_200": {
+        "exposure_s": 0.03273479640483856,
+        "expected_ratio": 2.0,
+        "observed_B": 1.9086837768554688,
+        "observed_G1": 1.967944622039795,
+        "observed_G2": 1.9906624555587769,
+        "observed_R": 1.9994415044784546
+      },
+      "iso800_repeat_ratio": {
+        "B": 0.9905133843421936,
+        "G1": 1.0,
+        "G2": 1.0,
+        "R": 1.0
+      },
+      "authority": "SOURCE_BOUND_RESPONSE_REPEATABILITY_NOT_CALIBRATION_CERTIFICATION"
+    },
+    {
+      "id": "HONOR_TELE_DARK_SERIES_2026-09-14",
+      "kind": "dark_frame_research",
+      "files": [
+        "IMG_260914_104858_011_015.dng",
+        "IMG_260914_104916_112_017.dng",
+        "IMG_260914_104919_216_019.dng",
+        "IMG_260914_104921_224_021.dng",
+        "IMG_260914_104923_408_023.dng",
+        "IMG_260914_104925_197_025.dng",
+        "IMG_260914_104927_269_027.dng",
+        "IMG_260914_104944_692_029.dng",
+        "IMG_260914_104948_936_031.dng",
+        "IMG_260914_104952_817_033.dng"
+      ],
+      "common_exposure_first_nine_s": 0.03273479640483856,
+      "first_nine_iso_sequence": [100, 100, 400, 400, 800, 1600, 3200, 6397, 12522],
+      "temporal_sigma_dn": {
+        "iso100_range": [0.7891, 0.7902],
+        "iso400_range": [0.8671, 0.8699]
+      },
+      "exact_iso8192_first_observation": {
+        "file": "IMG_260914_104952_817_033.dng",
+        "sha256": "06bf9afdf6a71d4c0b3995dec641f33a8d205cd022139440960131b348650ec3",
+        "exposure_s": 0.01636739820241928,
+        "raw_zero_percent": 7.120441112642974,
+        "trimmed_dark_sigma_dn": {
+          "B": 54.52521514892578,
+          "G1": 54.97111892700195,
+          "G2": 54.81290817260742,
+          "R": 54.13798141479492
+        },
+        "noiseprofile_scaling_vs_iso12522": {
+          "S_approx": 16.0,
+          "O_approx": 267.0,
+          "sqrt_O_approx": 16.34
+        }
+      },
+      "noiseprofile_semantics": "OPEN_DEVICE_APP_SPECIFIC_SEMANTICS_CALIBRATION_ISSUE",
+      "authority": "DARK_FRAME_SOURCE_BOUND_EVIDENCE_NOT_FULL_PHYSICAL_CALIBRATION"
+    },
+    {
+      "id": "HONOR_TELE_ISO8192_DISCRETE_DOMAIN_AUDIT_2026-09-14",
+      "kind": "discrete_capture_sample_domain_repeat",
+      "iso_sequence": [8192, 10244, 8184, 6500, 3200, 1600, 800, 400, 200, 100],
+      "common_exposure_s": 0.01648959144949913,
+      "exact_iso8192_repeat": {
+        "file": "IMG_260914_110550_363_001.dng",
+        "sha256": "2dae19d2e9d144c4d257808432e58a7246764e1259d6a5033de2e1eff76c644e",
+        "raw_zero_percent": 7.13086097069036,
+        "trimmed_dark_sigma_dn": {
+          "B": 54.59912109375,
+          "G1": 54.95985412597656,
+          "G2": 54.725948333740234,
+          "R": 54.12757873535156
+        },
+        "black_level_identical_to_previous_exact_8192": true,
+        "noise_profile_identical_to_previous_exact_8192": true
+      },
+      "same_exposure_iso8184": {
+        "raw_zero_percent": 0.0,
+        "trimmed_dark_sigma_dn_approx": 2.62
+      },
+      "same_exposure_iso10244": {
+        "raw_zero_percent": 0.0,
+        "trimmed_dark_sigma_dn_approx": 3.2
+      },
+      "noiseprofile_scale_8192_over_8184": {
+        "S_range": [23.5977, 24.3507],
+        "O_range": [583.7565, 624.3368],
+        "sqrt_O_range": [24.1611, 24.9867]
+      },
+      "simple_iso_greater_equal_8192_threshold": "REJECTED",
+      "current_label": "REPRODUCIBLE_DISCRETE_ISO8192_ASSOCIATED_CAPTURE_SAMPLE_DOMAIN",
+      "physical_cause": "OPEN"
+    }
+  ],
+  "project_decisions": {
+    "signed_post_black_preservation": "EMPIRICALLY_REINFORCED_PASS",
+    "dark_noise_side_as_bound_not_hard_zero": "CANONICAL_PASS_WITH_EMPIRICAL_SUPPORT",
+    "calibration_key": "EXACT_CAPTURE_SAMPLE_DOMAIN_NOT_ISO_MAGNITUDE_ALONE",
+    "interpolate_across_observed_domain_discontinuity": false,
+    "scientific_master_change_from_these_tests": false,
+    "simple_iso8192_threshold": "REJECTED",
+    "discrete_iso8192_associated_domain_observation": "PASS",
+    "discrete_domain_physical_cause": "OPEN",
+    "independent_physical_ptc_conversion_gain_calibration": "OPEN"
+  },
+  "authority_boundary": "These measurements constrain source interpretation, uncertainty and future calibration-domain identity. They do not create infinite sensor dynamic range, negative physical light, new photons, extra photographic evidence, or a physical explanation for the ISO8192-associated domain."
+}

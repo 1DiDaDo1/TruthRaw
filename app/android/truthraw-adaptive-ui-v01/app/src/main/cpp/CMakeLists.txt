@@ -9,6 +9,7 @@ get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
 set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.1/native")
 set(STREAMING "${RESEARCH_ROOT}/full-frame-streaming-v0.1/native")
+set(STREAMING_V02_MULTIWORKER "${RESEARCH_ROOT}/full-frame-streaming-v0.2-multiworker")
 set(PREVIEW_SURFACE "${RESEARCH_ROOT}/reconstructed-color-preview-v0.1/native")
 set(SOURCE_BINDING_V01 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.1/native")
 set(SOURCE_BINDING_V02 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.2/native")
@@ -19,6 +20,9 @@ set(BACKPLANE_PHASE2 "${RESEARCH_ROOT}/technical-backplane-phase2-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V01 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V02 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.2/native")
 set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/native")
+set(SCIENTIFIC_MASTER_FLOAT_DNG "${RESEARCH_ROOT}/scientific-master-linear-dng-projection-v0.1/native")
+set(TRUTHRAW_CERTIFICATE "${RESEARCH_ROOT}/truthraw-certificate-v0.1/native")
+set(TRUTHRAW_DNG_CERT_EMBED "${RESEARCH_ROOT}/truthraw-dng-certificate-embed-v0.1/native")
 set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
@@ -29,6 +33,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
+    multiworker_empirical_probe.cpp
     raw_projection_export_bridge.cpp
     raw_projection_export_alias.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
@@ -38,6 +43,10 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${STREAMING}/full_frame_streaming_v0_1_pass1.cpp
     ${STREAMING}/full_frame_streaming_v0_1_pass2.cpp
     ${STREAMING}/full_frame_streaming_v0_1_plan.cpp
+    # Android research admission for the v0.2 scheduler. Normal UI/scientific
+    # routes stay on streaming v0.1; only the explicit empirical JNI probe may
+    # request v0.2 until physical 1/2/4-worker validation is complete.
+    ${STREAMING_V02_MULTIWORKER}/multiworker_streaming_v0_2.cpp
     ${PREVIEW_SURFACE}/bounded_srgb_preview_sink_v0_1.cpp
     ${SOURCE_BINDING_V01}/scientific_preview_source_binding_v0_1.cpp
     ${SOURCE_BINDING_V02}/scientific_preview_source_binding_v0_2.cpp
@@ -48,6 +57,10 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${SCIENTIFIC_MASTER_BINDING_V01}/scientific_master_streaming_binding_v0_1.cpp
     ${SCIENTIFIC_MASTER_BINDING_V02}/scientific_master_streaming_binding_v0_2.cpp
     ${SCIENTIFIC_MASTER_DIGEST}/scientific_master_digest_v0_1.cpp
+    ${SCIENTIFIC_MASTER_FLOAT_DNG}/scientific_master_linear_dng_projection_v0_1.cpp
+    ${SCIENTIFIC_MASTER_FLOAT_DNG}/streaming_scientific_master_tile_source_v0_1.cpp
+    ${TRUTHRAW_CERTIFICATE}/truthraw_certificate_v0_1.cpp
+    ${TRUTHRAW_DNG_CERT_EMBED}/truthraw_dng_certificate_embed_v0_1.cpp
     ${TRUTHRANGE_LATENT}/truthrange_latent_v0_2.cpp
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
@@ -57,6 +70,7 @@ add_library(truthraw_ui_preview_bridge SHARED
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TILE_DNG}
     ${STREAMING}
+    ${STREAMING_V02_MULTIWORKER}
     ${PREVIEW_SURFACE}
     ${SOURCE_BINDING_V01}
     ${SOURCE_BINDING_V02}
@@ -67,6 +81,9 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${SCIENTIFIC_MASTER_BINDING_V01}
     ${SCIENTIFIC_MASTER_BINDING_V02}
     ${SCIENTIFIC_MASTER_DIGEST}
+    ${SCIENTIFIC_MASTER_FLOAT_DNG}
+    ${TRUTHRAW_CERTIFICATE}
+    ${TRUTHRAW_DNG_CERT_EMBED}
     ${TRUTHRANGE_LATENT}
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
