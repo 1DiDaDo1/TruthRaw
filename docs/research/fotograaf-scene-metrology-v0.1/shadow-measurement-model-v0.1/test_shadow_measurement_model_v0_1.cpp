@@ -30,6 +30,8 @@ AdmittedCalibrationBinding binding() {
     b.admitted = true;
     b.sourceEvidenceSha256 = sha('a');
     b.bindingSha256 = sha('b');
+    b.protocolSha256 = sha('c');
+    b.modelSha256 = sha('d');
     b.modelId = "fixture-relative-radiometry-v1";
     b.uncertaintyModelId = "fixture-relative-radiometry-uncertainty-v1";
     return b;
@@ -38,6 +40,8 @@ AdmittedCalibrationBinding binding() {
 CalibrationMeasurementModel calibratedModel() {
     CalibrationMeasurementModel m;
     m.bindingSha256 = sha('b');
+    m.protocolSha256 = sha('c');
+    m.modelSha256 = sha('d');
     m.useCalibratedBlack = true;
     m.useCalibratedNoise = true;
     m.useCalibratedResponseScale = true;
@@ -149,14 +153,24 @@ int main() {
         assert(!sameFloat(out.source.noiseSigmaNormalized, out.calibratedShadow.noiseSigmaNormalized));
     }
 
-    // Binding and exactly-once source correction are hard gates.
+    // Binding identity, exact model/protocol bytes and exactly-once source correction are hard gates.
     {
         auto badBinding = admitted;
-        badBinding.sourceEvidenceSha256 = sha('c');
+        badBinding.sourceEvidenceSha256 = sha('e');
         assert(!validateShadowInputs(source, badBinding, model).ok);
+
+        auto badModelHash = model;
+        badModelHash.modelSha256 = sha('e');
+        assert(!validateShadowInputs(source, admitted, badModelHash).ok);
+
+        auto badProtocolHash = model;
+        badProtocolHash.protocolSha256 = sha('f');
+        assert(!validateShadowInputs(source, admitted, badProtocolHash).ok);
+
         auto secondGain = model;
         secondGain.requestsAdditionalGainMapCorrection = true;
         assert(!validateShadowInputs(source, admitted, secondGain).ok);
+
         auto extraEvidence = admitted;
         extraEvidence.independentEvidenceCount = 2;
         assert(!validateShadowInputs(source, extraEvidence, model).ok);
