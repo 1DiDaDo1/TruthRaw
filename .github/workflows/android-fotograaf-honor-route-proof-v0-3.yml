@@ -10,6 +10,13 @@ on:
       - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
       - 'docs/research/honor-native-camera-probe-v0.2/**'
       - '.github/workflows/android-fotograaf-honor-route-proof-v0-3.yml'
+  pull_request:
+    paths:
+      - 'app/android/truthraw-fotograaf-honor-v03/**'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+      - 'app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/HonorCameraProbe.kt'
+      - 'docs/research/honor-native-camera-probe-v0.2/**'
+      - '.github/workflows/android-fotograaf-honor-route-proof-v0-3.yml'
   workflow_dispatch:
 
 permissions:
