@@ -1,0 +1,99 @@
+{
+  "schema": "truthraw.honor-physical-camera-handoff.v0.1",
+  "date": "2026-09-14",
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "android": 16,
+    "sdk": 36,
+    "logicalCameraId": "0",
+    "advertisedPhysicalCameraIds": ["2", "4", "5"]
+  },
+  "projectLensRoleHypotheses": {
+    "2": "MAIN_CANDIDATE",
+    "4": "ULTRAWIDE_CANDIDATE",
+    "5": "TELE_3_7X_CANDIDATE"
+  },
+  "forcedTeleObservation": {
+    "status": "PASS_AS_ROUTE_OBSERVATION",
+    "captureId": "C2TELE_20260914_184028_242",
+    "routeClass": "LOGICAL_MULTI_CAMERA_FORCED_PHYSICAL_OUTPUT",
+    "logicalCameraId": "0",
+    "requestedPhysicalCameraId": "5",
+    "confirmedPhysicalResultCameraId": "5",
+    "activeLogicalPhysicalId": "5",
+    "sourceSha256": "865a1decf87a0f43e281d0fcab12e0ebf39f2bfcde554ca9700466d7973f37db",
+    "byteLength": 25097676,
+    "format": "RAW_SENSOR",
+    "width": 4080,
+    "height": 3072,
+    "cfa": "BGGR",
+    "whiteLevel": 1023,
+    "blackLevelApproxDn": 64,
+    "iso": 100,
+    "exposureNs": 16367382,
+    "focalLengthMm": 22.48,
+    "timestampMatch": true,
+    "sensorInfoLensShadingApplied": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "calibrationAuthorityGranted": false,
+    "c0EnvelopeReady": false,
+    "missingBeforeC0Envelope": [
+      "cameraSystemIdMappingIndependentValidation",
+      "captureSampleDomainId",
+      "gainReadoutStateId",
+      "focusStateClass",
+      "stabilizationState"
+    ],
+    "orientationTagObservation": {
+      "value": 9,
+      "status": "OPEN_NONSTANDARD_SOURCE_METADATA_QUIRK"
+    }
+  },
+  "capabilityScreenshotObservation": {
+    "status": "PASS_AS_SCREENSHOT_DERIVED_CAPABILITY_OBSERVATION",
+    "machineReadableJsonUploaded": false,
+    "raw14PlatformFieldPresent": false,
+    "physicalRouteCount": 3,
+    "physical2": {
+      "maxRaw": "PHYSICAL_MAX_RAW_ADVERTISED_REQUIRES_CAPTURE_PROOF",
+      "maxRawMegapixelsApprox": 50.33,
+      "native200MpPublicCamera2": "NOT_ADVERTISED",
+      "macro": "AF_MACRO_ADVERTISED_REQUIRES_CAPTURE_VALIDATION",
+      "raw14": "PLATFORM_FIELD_NOT_PRESENT"
+    },
+    "physical4": {
+      "maxRaw": "NO_MAXIMUM_RESOLUTION_RAW_SENSOR_STREAM_ADVERTISED",
+      "native200MpPublicCamera2": "NOT_ADVERTISED",
+      "macro": "AF_MACRO_ADVERTISED_REQUIRES_CAPTURE_VALIDATION",
+      "raw14": "PLATFORM_FIELD_NOT_PRESENT"
+    },
+    "physical5": {
+      "maxRaw": "PHYSICAL_MAX_RAW_ADVERTISED_REQUIRES_CAPTURE_PROOF",
+      "maxRawMegapixelsApprox": 50.14,
+      "native200MpPublicCamera2": "NOT_ADVERTISED",
+      "macro": "AF_MACRO_ADVERTISED_REQUIRES_CAPTURE_VALIDATION",
+      "raw14": "PLATFORM_FIELD_NOT_PRESENT"
+    }
+  },
+  "hardRules": [
+    "Capability advertisement is not capture proof",
+    "Physical TotalCaptureResult plus timestamp-matched sealed RAW is mandatory for physical-route proof",
+    "ISO may not define captureSampleDomainId or gainReadoutStateId",
+    "200MP and RAW14 are independent capabilities",
+    "Maximum-resolution RAW and standard RAW may require separate calibration scopes",
+    "Macro advertisement is not macro photographic proof",
+    "Vendor/private 200MP path remains OPEN even when public Camera2 does not advertise >=180MP RAW"
+  ],
+  "nextValidationOrder": [
+    "Re-ingest actual capability JSON and hash it when available",
+    "Repeat forced physical ID5 standard RAW for reproducibility",
+    "Capture forced physical ID5 advertised max-resolution RAW around 50.14MP",
+    "Capture forced physical ID2 advertised max-resolution RAW around 50.33MP",
+    "Preserve physical ID4 no-max-RAW observation unless new evidence changes it",
+    "Validate close-focus/macro per forced physical route without lens auto-switch",
+    "On Android17/API37, re-probe RAW14 per physical route and per pixel mode",
+    "Keep CalibrationPack authority blocked until exact domain calibration completes"
+  ]
+}
