@@ -6,13 +6,15 @@ This handoff exists to prevent the long-running TruthRaw project knowledge from 
 
 Before making architectural, scientific, calibration, output, Gatehouse, FotoGraaf, color, light, noise, optics, zero-line, or reconstruction changes, read:
 
-1. `docs/knowledge/README.md`
-2. `docs/knowledge/TRUTHRAW_COMPLETE_PROJECT_KNOWLEDGE_2026-09-14.md`
-3. `docs/knowledge/TRUTHRAW_GENEALOGY_DECISION_LEDGER_2026-09-14.md`
-4. `docs/knowledge/TRUTHRAW_ACTIVE_RESEARCH_AND_VALIDATION_STATE_2026-09-14.md`
-5. `docs/knowledge/TRUTHRAW_KNOWLEDGE_INDEX_2026-09-14.json`
-6. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`
-7. the explicit current/canonical module documents relevant to the task.
+1. `TRUTHRAW_KNOWLEDGE_PRESERVATION_2026-09-14.md` at repository root.
+2. `docs/knowledge/README.md`
+3. `docs/knowledge/TRUTHRAW_COMPLETE_PROJECT_KNOWLEDGE_2026-09-14.md`
+4. `docs/knowledge/TRUTHRAW_GENEALOGY_DECISION_LEDGER_2026-09-14.md`
+5. `docs/knowledge/TRUTHRAW_ACTIVE_RESEARCH_AND_VALIDATION_STATE_2026-09-14.md`
+6. `docs/knowledge/TRUTHRAW_TOPIC_COVERAGE_CHECKLIST_2026-09-14.md`
+7. `docs/knowledge/TRUTHRAW_KNOWLEDGE_INDEX_2026-09-14.json`
+8. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-14.md`
+9. the explicit current/canonical module documents relevant to the task.
 
 ## What this preservation pack protects
 
@@ -43,9 +45,18 @@ It records, in repository form, the knowledge that had previously existed partly
 - covered dark-frame temporal-noise evidence;
 - exact-ISO8192-associated domain and rejection of a simple ISO-threshold rule;
 - CalibrationPack/scene-admission/measurement-model shadow architecture;
+- exact model/protocol binding direction;
+- worker-invariance / multiple-photographer execution concept;
 - preserved CI failures and why their corrections were scientifically necessary;
+- existing-app integration guidance;
 - current open/rejected/blocked gates;
 - the rule that GCam/APK/computational RAW cannot determine TruthRaw scientific authority.
+
+## Coverage audit
+
+`docs/knowledge/TRUTHRAW_TOPIC_COVERAGE_CHECKLIST_2026-09-14.md` explicitly maps the major recovered discussion topics to repository records and marks historical uncertainty where it exists. This prevents a future session from claiming that an undocumented detail is canonical merely because it is remembered conversationally.
+
+Coverage is **PASS for the major durable project knowledge**. This is not a claim that every historical chat sentence has been transcribed verbatim. The target is the preserved engineering/scientific content: laws, architecture, measurements, hashes, conclusions, rejected paths, uncertainty, and current validation state.
 
 ## Continuation protocol
 
