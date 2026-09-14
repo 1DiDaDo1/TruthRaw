@@ -118,7 +118,7 @@ class OutputModeActivity : Activity() {
             textSize = 16f
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(Color.WHITE)
-            background = rounded(palette.accent, 16f)
+            background = rounded(palette.accent, 16)
             setPadding(dp(16), dp(13), dp(16), dp(13))
             setOnClickListener { openMainProcessingUi() }
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
@@ -161,7 +161,7 @@ class OutputModeActivity : Activity() {
 
     private fun appearanceCard(): View = vertical().apply {
         setPadding(dp(15), dp(14), dp(15), dp(14))
-        background = rounded(palette.surface, 17f)
+        background = rounded(palette.surface, 17)
         addView(label(getString(R.string.appearance_options), 15f, bold = true))
         addView(space(3))
         addView(label(getString(R.string.appearance_options_hint), 11f, muted = true))
@@ -183,7 +183,7 @@ class OutputModeActivity : Activity() {
 
     private fun infoCard(text: String): View = vertical().apply {
         setPadding(dp(14), dp(12), dp(14), dp(12))
-        background = rounded(palette.surfaceAlt, 15f)
+        background = rounded(palette.surfaceAlt, 15)
         addView(label(text, 11f, muted = true))
     }
 
