@@ -70,7 +70,11 @@ ValidationResult validateShadowInputs(const SourceMeasurementModel& source,
     if (!binding.admitted) return fail("calibration binding is not admitted");
     if (binding.sourceEvidenceSha256 != source.sourceEvidenceSha256) return fail("binding/source evidence mismatch");
     if (!hex64(binding.bindingSha256)) return fail("bindingSha256 must be lowercase 64-hex");
+    if (!hex64(binding.protocolSha256)) return fail("protocolSha256 must be lowercase 64-hex");
+    if (!hex64(binding.modelSha256)) return fail("modelSha256 must be lowercase 64-hex");
     if (calibrated.bindingSha256 != binding.bindingSha256) return fail("measurement model is not bound to admitted binding");
+    if (calibrated.protocolSha256 != binding.protocolSha256) return fail("measurement model protocol hash does not match admitted binding");
+    if (calibrated.modelSha256 != binding.modelSha256) return fail("measurement model hash does not match admitted binding");
     if (binding.modelId.empty() || binding.uncertaintyModelId.empty()) return fail("binding model identities are required");
     if (source.physicalFrameCount != 1 || source.independentEvidenceCount != 1 ||
         binding.physicalFrameCount != 1 || binding.independentEvidenceCount != 1) {
