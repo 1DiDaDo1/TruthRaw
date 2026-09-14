@@ -4,6 +4,12 @@
 
 This harness tests the execution claim behind the FotoGraaf metaphor **"one room, multiple photographers"** against the existing byte-frozen canonical v4.7i in-memory processor.
 
+Important historical fact: canonical v4.7i already contains real multithreaded tile workers, parallel SDR application and parallel half-resolution HDR-gain calculation. The later bounded streaming route deliberately returned to one worker as a correctness/memory baseline; multithreading itself was not removed from the scientific design.
+
+Full source-grounded history and forward plan:
+
+`V47I_MULTITHREADING_HISTORY_AND_VNEXT_PLAN_2026-09-14.md`
+
 It does not promote the current bounded Android streaming route to multiple workers. `full-frame-streaming-v0.1` remains intentionally single-worker until its source/audit, sink ordering and memory contracts are evolved separately.
 
 ## Contract under test
@@ -32,6 +38,33 @@ The four-worker case is repeated three additional times to expose schedule-depen
 
 Timing and execution-resource telemetry are intentionally excluded from identity because worker count is allowed to change speed and resource use, not truth.
 
+## Existing v4.7i execution model
+
+The full canonical processor already:
+
+- derives a worker count from `ProcessOptions::threads` and tile count;
+- assigns tiles dynamically through an atomic next-tile counter;
+- gives each worker private scratch buffers, private histograms and private counters;
+- joins workers before deriving the one global `ExposurePlan`;
+- parallelizes SDR application by row ranges;
+- parallelizes HDR `halfLogGain` generation by half-resolution row ranges;
+- requires an even tile core when multiple workers are used so 2x2 HDR cells retain one tile owner.
+
+This is the historical implementation basis for the newer room/photographer metaphor.
+
+## vNext improvement direction
+
+Do not rewrite frozen v4.7i just to modernize threading. Carry the proven idea forward through the Building Runtime:
+
+- persistent worker pool instead of repeated thread creation/join;
+- explicit tile/half-cell ownership;
+- bounded per-worker `WorkerScratchLease`;
+- deterministic reductions and canonical commit order;
+- producer -> compute workers -> ordered sink when source/sink cannot be concurrent;
+- resource governor chooses worker count from CPU, RAM and thermal budget only;
+- separate room-level concurrency after shared prerequisites are sealed;
+- ISO/gain interpretation remains upstream; HDR remains downstream and must not trigger a second ISO normalization.
+
 ## Authority boundary
 
 A PASS proves only that this canonical synthetic in-memory path is resource-invariant for the tested 1/2/4 worker configurations and compilers/runtimes exercised by CI.
@@ -50,3 +83,5 @@ Those remain separate gates for the future bounded streaming candidate.
 ## Principle
 
 **One truth, one room contract, as many validated workers as the hardware can use safely.**
+
+**More cores may give more photographers. They may never give more truth.**
