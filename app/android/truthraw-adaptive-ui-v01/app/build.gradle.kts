@@ -21,8 +21,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.10-main-plus-fotograaf-camera-v0.4.2-safe-preview"
+        versionCode = 11
+        versionName = "0.11-main-plus-fotograaf-camera-v0.4.3-diagnostic-bootstrap"
 
         ndk {
             abiFilters += listOf("arm64-v8a")
