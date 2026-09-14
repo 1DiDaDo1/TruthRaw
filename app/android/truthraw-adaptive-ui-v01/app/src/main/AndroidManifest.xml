@@ -10,6 +10,7 @@
         android:required="false" />
 
     <application
+        android:name=".TruthRawSuiteApplication"
         android:allowBackup="false"
         android:label="TruthRaw Suite"
         android:theme="@android:style/Theme.Material.NoActionBar">
