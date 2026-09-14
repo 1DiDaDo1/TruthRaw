@@ -10,14 +10,9 @@ import android.view.WindowInsets
 /**
  * Suite-level Android plumbing only.
  *
- * targetSdk 35 is edge-to-edge by default. FotoGraaf activities are research
- * instruments and must never hide controls/status behind the status/navigation
- * bars. MainActivity and the Suite launcher already manage their own insets,
- * so this lifecycle hook intentionally scopes itself to the two FotoGraaf
- * activities that do not.
- *
- * The process also keeps a Camera2 availability journal. This is diagnostics
- * only: availability callbacks never grant capture/evidence/calibration authority.
+ * targetSdk 35 is edge-to-edge by default. FotoGraaf activities must never hide
+ * controls/status behind system bars. Camera availability is diagnostics only
+ * and never grants capture/evidence/calibration authority.
  */
 class TruthRawSuiteApplication : Application() {
     override fun onCreate() {
@@ -25,7 +20,11 @@ class TruthRawSuiteApplication : Application() {
         registerCameraAvailabilityDiagnostics()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) {
-                if (activity !is FotoGraafCameraActivity && activity !is FotoGraafPermissionGateActivity) return
+                val fotoGraaf = activity is FotoGraafCameraActivity ||
+                    activity is FotoGraafLiveCameraActivity ||
+                    activity is FotoGraafPermissionGateActivity
+                if (!fotoGraaf) return
+
                 activity.window.setDecorFitsSystemWindows(false)
                 val content = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
                 content.setOnApplyWindowInsetsListener { view, insets ->
