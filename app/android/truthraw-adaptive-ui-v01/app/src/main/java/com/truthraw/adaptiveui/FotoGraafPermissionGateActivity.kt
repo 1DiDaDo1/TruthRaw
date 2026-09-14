@@ -13,42 +13,48 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/**
- * Permission gate in front of FotoGraafCameraActivity.
- *
- * The route inventory must never run before CAMERA permission has been granted
- * on devices that hide/deny Camera2 characteristics without runtime access.
- * This also avoids the v0.3 deadlock where zero routes disabled the only path
- * that could have triggered the permission request.
- */
+/** Permission gate before FotoGraaf v0.4.3 zero-camera diagnostic bootstrap. */
 class FotoGraafPermissionGateActivity : Activity() {
 
     private lateinit var statusView: TextView
     private lateinit var allowButton: Button
     private lateinit var settingsButton: Button
+    private var permissionRequestInFlight = false
+    private var launched = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        launched = savedInstanceState?.getBoolean(STATE_LAUNCHED, false) ?: false
+        permissionRequestInFlight = savedInstanceState?.getBoolean(STATE_PERMISSION_IN_FLIGHT, false) ?: false
         setContentView(buildUi())
         continueWhenPermitted()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_LAUNCHED, launched)
+        outState.putBoolean(STATE_PERMISSION_IN_FLIGHT, permissionRequestInFlight)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onResume() {
         super.onResume()
-        if (::statusView.isInitialized && hasCameraPermission()) {
-            launchFotoGraaf()
+        if (::statusView.isInitialized && hasCameraPermission() && !permissionRequestInFlight) {
+            launchDiagnosticOnce()
         }
     }
 
     private fun continueWhenPermitted() {
         if (hasCameraPermission()) {
-            launchFotoGraaf()
+            launchDiagnosticOnce()
             return
         }
-        statusView.text = "Camera-toestemming is nodig vóór de HONOR Camera2 inventory kan worden gelezen."
-        allowButton.isEnabled = true
+        statusView.text = "Camera-toestemming is nodig. Na toestemming opent FotoGraaf v0.4.3 eerst een nul-camera diagnostisch scherm; er wordt nog geen CameraManager, HONOR-scan of preview gestart."
+        allowButton.isEnabled = false
         settingsButton.visibility = android.view.View.GONE
-        requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        if (!permissionRequestInFlight) {
+            permissionRequestInFlight = true
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -58,21 +64,31 @@ class FotoGraafPermissionGateActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_CAMERA_PERMISSION) return
-
+        permissionRequestInFlight = false
         if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            statusView.text = "Camera-toestemming verleend. HONOR inventory wordt geopend…"
-            launchFotoGraaf()
+            statusView.text = "Camera-toestemming verleend. Diagnostic Bootstrap wordt geopend…"
+            window.decorView.post { launchDiagnosticOnce() }
         } else {
-            statusView.text =
-                "Camera-toestemming is niet verleend. Zonder deze toestemming start FotoGraaf geen route-scan."
+            statusView.text = "Camera-toestemming niet verleend."
             allowButton.isEnabled = true
             settingsButton.visibility = android.view.View.VISIBLE
         }
     }
 
-    private fun launchFotoGraaf() {
-        if (!hasCameraPermission()) return
-        startActivity(Intent(this, FotoGraafCameraActivity::class.java))
+    private fun launchDiagnosticOnce() {
+        if (!hasCameraPermission() || launched || isFinishing || isDestroyed) return
+        launched = true
+        allowButton.isEnabled = false
+        runCatching {
+            startActivity(Intent(this, FotoGraafDiagnosticBootstrapActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            })
+        }.onFailure { error ->
+            launched = false
+            allowButton.isEnabled = true
+            statusView.text = "Diagnostic Bootstrap kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
+            return
+        }
         finish()
     }
 
@@ -85,39 +101,26 @@ class FotoGraafPermissionGateActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(24), dp(32), dp(24), dp(32))
             setBackgroundColor(Color.rgb(18, 20, 24))
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-            )
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
-
         root.addView(TextView(this).apply {
             text = "FotoGraaf · Camera toegang"
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })
-        root.addView(TextView(this).apply {
-            text = "De Camera2/HONOR inventory wordt pas gelezen nadat Android de camera-toestemming heeft verleend."
-            textSize = 15f
-            setTextColor(Color.rgb(195, 200, 210))
-            setPadding(0, dp(12), 0, dp(20))
-        })
-
         statusView = TextView(this).apply {
             textSize = 15f
             setTextColor(Color.WHITE)
-            setPadding(0, 0, 0, dp(18))
+            setPadding(0, dp(16), 0, dp(18))
         }
         root.addView(statusView)
-
         allowButton = Button(this).apply {
             text = "Camera-toestemming geven"
             isAllCaps = false
             setOnClickListener { continueWhenPermitted() }
         }
         root.addView(allowButton)
-
         settingsButton = Button(this).apply {
             text = "Open app-instellingen"
             isAllCaps = false
@@ -136,5 +139,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 401
+        private const val STATE_LAUNCHED = "truthraw.fotograaf.diagnostic.launched"
+        private const val STATE_PERMISSION_IN_FLIGHT = "truthraw.fotograaf.diagnostic.permission_in_flight"
     }
 }

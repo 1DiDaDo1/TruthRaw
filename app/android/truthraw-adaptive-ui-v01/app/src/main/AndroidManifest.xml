@@ -33,6 +33,24 @@
             android:exported="false" />
 
         <activity
+            android:name=".FotoGraafDiagnosticBootstrapActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
+            android:name=".FotoGraafSafePreviewActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
+            android:name=".FotoGraafLiveCameraActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
             android:name=".FotoGraafCameraActivity"
             android:exported="false" />
     </application>

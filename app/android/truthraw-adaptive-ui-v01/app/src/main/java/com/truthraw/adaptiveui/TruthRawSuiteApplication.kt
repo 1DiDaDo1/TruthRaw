@@ -2,7 +2,6 @@ package com.truthraw.adaptiveui
 
 import android.app.Activity
 import android.app.Application
-import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -10,22 +9,22 @@ import android.view.WindowInsets
 /**
  * Suite-level Android plumbing only.
  *
- * targetSdk 35 is edge-to-edge by default. FotoGraaf activities are research
- * instruments and must never hide controls/status behind the status/navigation
- * bars. MainActivity and the Suite launcher already manage their own insets,
- * so this lifecycle hook intentionally scopes itself to the two FotoGraaf
- * activities that do not.
- *
- * The process also keeps a Camera2 availability journal. This is diagnostics
- * only: availability callbacks never grant capture/evidence/calibration authority.
+ * v0.4.3 deliberately performs no CameraManager access from Application.onCreate().
+ * Camera2 is entered only from the explicit diagnostic steps. This keeps the
+ * bootstrap layer genuinely camera-free and makes crash localization truthful.
  */
 class TruthRawSuiteApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        registerCameraAvailabilityDiagnostics()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) {
-                if (activity !is FotoGraafCameraActivity && activity !is FotoGraafPermissionGateActivity) return
+                val fotoGraaf = activity is FotoGraafCameraActivity ||
+                    activity is FotoGraafLiveCameraActivity ||
+                    activity is FotoGraafSafePreviewActivity ||
+                    activity is FotoGraafDiagnosticBootstrapActivity ||
+                    activity is FotoGraafPermissionGateActivity
+                if (!fotoGraaf) return
+
                 activity.window.setDecorFitsSystemWindows(false)
                 val content = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
                 content.setOnApplyWindowInsetsListener { view, insets ->
@@ -45,29 +44,5 @@ class TruthRawSuiteApplication : Application() {
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
             override fun onActivityDestroyed(activity: Activity) = Unit
         })
-    }
-
-    private fun registerCameraAvailabilityDiagnostics() {
-        val manager = getSystemService(CameraManager::class.java)
-        manager.registerAvailabilityCallback(
-            mainExecutor,
-            object : CameraManager.AvailabilityCallback() {
-                override fun onCameraAvailable(cameraId: String) {
-                    CameraAvailabilityJournal.cameraAvailable(cameraId)
-                }
-
-                override fun onCameraUnavailable(cameraId: String) {
-                    CameraAvailabilityJournal.cameraUnavailable(cameraId)
-                }
-
-                override fun onPhysicalCameraAvailable(cameraId: String, physicalCameraId: String) {
-                    CameraAvailabilityJournal.physicalAvailable(cameraId, physicalCameraId)
-                }
-
-                override fun onPhysicalCameraUnavailable(cameraId: String, physicalCameraId: String) {
-                    CameraAvailabilityJournal.physicalUnavailable(cameraId, physicalCameraId)
-                }
-            },
-        )
     }
 }
