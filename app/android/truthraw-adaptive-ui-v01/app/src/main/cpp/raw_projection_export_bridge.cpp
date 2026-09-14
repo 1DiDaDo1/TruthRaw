@@ -10,6 +10,8 @@
 #include "technical_backplane_phase2_v0_1.h"
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
+#include "truthraw_certificate_v0_1.h"
+#include "truthraw_dng_certificate_embed_v0_1.h"
 #include "truthraw/core.h"
 
 #include <algorithm>
@@ -17,6 +19,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <span>
 #include <unistd.h>
 #include <vector>
 
@@ -32,10 +35,21 @@ using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 using truthraw::tile_dng_v0_1::TileNativeDngSource;
 namespace float_dng = truthraw::scientific_master_linear_dng_projection::v0_1;
+namespace certificate = truthraw::certificate::v0_1;
+namespace certificate_embed = truthraw::dng_certificate_embed::v0_1;
 
 constexpr jint kExportMagic = 0x54525831; // TRX1
 constexpr std::size_t kHeaderInts = 19u;
 constexpr jint kFloat32ScientificDngKind = 4;
+
+// Public pipeline identity, not a secret signing key. SHA-256 of:
+// "TruthRaw Android TRUTHRAW PURE float32 certificate pipeline v0.1".
+constexpr certificate::Hash256 kPurePipelineIdentity = {
+    0xe8u,0xedu,0x38u,0xccu,0x9bu,0x92u,0x37u,0x87u,
+    0x60u,0xf6u,0x0au,0xe1u,0x7du,0x90u,0xdcu,0x6bu,
+    0x31u,0x49u,0xf7u,0xe4u,0x40u,0x5cu,0xc9u,0x7eu,
+    0xb7u,0xa9u,0xf3u,0x61u,0x66u,0xccu,0x8eu,0x55u,
+};
 
 class FdTransactionalByteSink final : public float_dng::ITransactionalByteSink {
 public:
@@ -134,6 +148,14 @@ jint float_dng_status(const float_dng::Status& status) {
     return 9000 + static_cast<jint>(status.code);
 }
 
+jint certificate_status(certificate::Status status) {
+    return 12000 + static_cast<jint>(status);
+}
+
+jint certificate_embed_status(const certificate_embed::Status& status) {
+    return 13000 + static_cast<jint>(status.code);
+}
+
 bool decode_kind(jint value, ProjectionKind& out) noexcept {
     switch (value) {
         case 1: out = ProjectionKind::RawSensorCfa16; return true;
@@ -141,6 +163,29 @@ bool decode_kind(jint value, ProjectionKind& out) noexcept {
         case 3: out = ProjectionKind::LinearDng16; return true;
         default: return false;
     }
+}
+
+certificate::State make_unsigned_pure_certificate(
+    const SourceSeal& sourceSeal,
+    const truthraw::scientific_master_streaming_binding::v0_2::Result& scientific,
+    const truthraw::technical_backplane_phase2::v0_1::Phase2Result& phase2) noexcept {
+    certificate::State state{};
+    state.projectionClass = certificate::ProjectionClass::TruthRawPureFloat32Dng;
+    state.claimClass = certificate::ClaimClass::Reconstructed;
+    state.signatureState = certificate::SignatureState::UnsignedDevelopment;
+    state.signatureAlgorithm = certificate::SignatureAlgorithm::None;
+    state.colorClaimScope = static_cast<std::uint8_t>(phase2.admission.claimScope);
+    state.sourceEvidenceSha256 = sourceSeal.sha256;
+    state.scientificMasterSha256 = scientific.scientificMasterHash;
+    state.zeroLineSha256 = phase2.backplane.zeroLineHash;
+    state.sceneScaleSha256 = phase2.backplane.sceneScaleHash;
+    state.technicalBackplaneCrc32 = truthraw::technical_backplane::v0_1::crc32(
+        std::span<const std::uint8_t>(
+            phase2.serializedBackplane.data(), phase2.serializedBackplane.size()));
+    state.physicalFrameCount = scientific.physicalFrameCount;
+    state.independentEvidenceCount = scientific.independentEvidenceCount;
+    state.buildIdentitySha256 = kPurePipelineIdentity;
+    return state;
 }
 
 } // namespace
@@ -237,18 +282,43 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedProjection(
             masterSource, descriptor, produced.color.cameraToXyzD50, sink, exported);
         if (!exportedStatus) return packet(env, float_dng_status(exportedStatus));
 
-        const auto postVerified = truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes, sourceSeal);
-        if (!postVerified) {
-            sink.abort();
-            return packet(env, binding_status(postVerified));
-        }
-
         if (!exported.representationOnly || exported.scientificMasterModified ||
             exported.appearanceApplied || exported.counterfactualObservationCreated ||
             !exported.scientificMasterIdentityVerified || !exported.artifactCommitted ||
             exported.physicalFrameCount != 1u || exported.independentEvidenceCount != 1u) {
             sink.abort();
             return packet(env, -4);
+        }
+
+        const auto certificateState = make_unsigned_pure_certificate(sourceSeal, scientific, phase2);
+        certificate::SerializedCertificate serializedCertificate{};
+        const auto certificateStatus = certificate::serialize(certificateState, serializedCertificate);
+        if (certificateStatus != certificate::Status::Ok) {
+            sink.abort();
+            return packet(env, certificate_status(certificateStatus));
+        }
+        if (certificate::verified_badge_allowed(certificateState, false)) {
+            sink.abort();
+            return packet(env, -5);
+        }
+
+        certificate_embed::Result embedded{};
+        const auto embeddedStatus = certificate_embed::embed_certificate(
+            static_cast<int>(outputFd),
+            std::span<const std::uint8_t>(serializedCertificate.data(), serializedCertificate.size()),
+            embedded);
+        if (!embeddedStatus || !embedded.existingPrivateDataPreserved ||
+            !embedded.ifdCommitApplied ||
+            embedded.certificateBytes != serializedCertificate.size()) {
+            sink.abort();
+            if (!embeddedStatus) return packet(env, certificate_embed_status(embeddedStatus));
+            return packet(env, -6);
+        }
+
+        const auto postVerified = truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes, sourceSeal);
+        if (!postVerified) {
+            sink.abort();
+            return packet(env, binding_status(postVerified));
         }
 
         std::vector<jint> out(kHeaderInts, 0);
@@ -259,7 +329,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_exportFinalizedProjection(
         out[4] = static_cast<jint>(descriptor.height);
         out[5] = 3;
         out[6] = clamp_metric(exported.tilesWritten);
-        out[7] = clamp_metric(exported.bytesWritten);
+        out[7] = clamp_metric(embedded.outputBytes);
         out[8] = clamp_metric(exported.projectedPixels);
         out[9] = clamp_metric(exported.negativeComponentCount);
         out[10] = clamp_metric(exported.overOneComponentCount);
