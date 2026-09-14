@@ -11,6 +11,7 @@ endif()
 
 set(V47I "${TRUTHRAW_REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 set(STREAM_V01 "${TRUTHRAW_REPO_ROOT}/docs/research/full-frame-streaming-v0.1")
+set(TILE_DNG_V01 "${TRUTHRAW_REPO_ROOT}/docs/research/tile-native-dng-source-v0.1")
 
 find_package(Threads REQUIRED)
 
@@ -42,6 +43,30 @@ target_compile_options(test_full_frame_streaming_v0_2_multiworker PRIVATE
   -Wall -Wextra -Werror)
 target_link_libraries(test_full_frame_streaming_v0_2_multiworker PRIVATE Threads::Threads)
 
+add_library(tile_native_dng_source_v0_1_for_multiworker STATIC
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1.cpp"
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1_bind.cpp"
+  "${TILE_DNG_V01}/native/tile_native_dng_source_v0_1_read.cpp")
+target_include_directories(tile_native_dng_source_v0_1_for_multiworker PUBLIC
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(tile_native_dng_source_v0_1_for_multiworker PRIVATE
+  -Wall -Wextra -Werror)
+
+add_executable(test_tile_native_source_gate_v0_2
+  test_tile_native_source_gate_v0_2.cpp)
+target_include_directories(test_tile_native_source_gate_v0_2 PRIVATE
+  "${TILE_DNG_V01}/native"
+  "${STREAM_V01}/native"
+  "${V47I}/include")
+target_compile_options(test_tile_native_source_gate_v0_2 PRIVATE
+  -Wall -Wextra -Werror)
+target_link_libraries(test_tile_native_source_gate_v0_2 PRIVATE
+  tile_native_dng_source_v0_1_for_multiworker Threads::Threads)
+
 enable_testing()
 add_test(NAME full_frame_streaming_v0_2_multiworker
   COMMAND test_full_frame_streaming_v0_2_multiworker)
+add_test(NAME tile_native_source_gate_v0_2
+  COMMAND test_tile_native_source_gate_v0_2)
