@@ -173,11 +173,16 @@ object RawProjectionExporter {
         } else {
             "clipping low/high=${metrics.clippedLowSamples}/${metrics.clippedHighSamples}"
         }
+        val certificateSummary = if (kind == RawProjectionKind.TRUTHRAW_PURE_FLOAT32_DNG) {
+            " · embedded TruthRaw Certificate v0.1 · UNSIGNED DEVELOPMENT"
+        } else {
+            ""
+        }
         return RawProjectionExportResult(
             metrics = metrics,
             success = true,
             message = "$format saved · ${metrics.width}×${metrics.height} · ${formatBytes(metrics.outputBytes.toLong())} · " +
-                "$rangeSummary · projection-only, no new evidence.",
+                "$rangeSummary$certificateSummary · projection-only, no new evidence.",
         )
     }
 
@@ -195,6 +200,8 @@ object RawProjectionExporter {
         -2 -> "Fail-closed: pre-master authority state was not canonical."
         -3 -> "Fail-closed: Technical Backplane/admission was not bound to the exact same source."
         -4 -> "Fail-closed: projection attempted to violate an evidence/master invariant."
+        -5 -> "Fail-closed: an unsigned TruthRaw Certificate unexpectedly passed the VERIFIED badge gate."
+        -6 -> "Fail-closed: TruthRaw Certificate embedding returned an inconsistent success state."
 
         in 2001..2099 -> "Source binding/finalization failed (status $status)."
         in 2101..2199 -> "DNG color producer v0.2 failed (status $status)."
@@ -223,6 +230,25 @@ object RawProjectionExporter {
             9006 -> "Float32 Scientific DNG writer: replayed master identity did not match the admitted Scientific Master."
             9007 -> "Float32 Scientific DNG writer: transactional output sink failed."
             else -> "Float32 Scientific DNG writer failed (status $status)."
+        }
+        in 12001..12099 -> when (status) {
+            12001 -> "TruthRaw Certificate: invalid lineage or certificate input."
+            12002 -> "TruthRaw Certificate: physical-frame/evidence-count invariant violated."
+            12003 -> "TruthRaw Certificate: projection class and scientific claim class are incompatible."
+            12004 -> "TruthRaw Certificate: signature state is inconsistent with issuer/signature fields."
+            12005 -> "TruthRaw Certificate: canonical record is corrupt."
+            12006 -> "TruthRaw Certificate: unsupported certificate version."
+            else -> "TruthRaw Certificate serialization failed (status $status)."
+        }
+        in 13001..13099 -> when (status) {
+            13001 -> "TruthRaw Certificate embed: invalid DNG/certificate input."
+            13002 -> "TruthRaw Certificate embed: output is not supported classic little-endian TIFF/DNG."
+            13003 -> "TruthRaw Certificate embed: DNGPrivateData tag is missing."
+            13004 -> "TruthRaw Certificate embed: DNG metadata layout is corrupt."
+            13005 -> "TruthRaw Certificate embed: DNG metadata read failed."
+            13006 -> "TruthRaw Certificate embed: transactional metadata write failed."
+            13007 -> "TruthRaw Certificate embed: classic TIFF/DNG size limit exceeded."
+            else -> "TruthRaw Certificate embed failed (status $status)."
         }
         else -> "Unknown projection export status $status."
     }
