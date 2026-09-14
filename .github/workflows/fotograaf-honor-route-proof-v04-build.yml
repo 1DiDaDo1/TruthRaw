@@ -41,11 +41,30 @@ jobs:
           gradle-version: '8.9'
 
       - name: Assemble debug APK
+        id: assemble
+        continue-on-error: true
         working-directory: capture/android/camera5-200mp-probe-v07
-        run: gradle --no-daemon :app:assembleDebug
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle --no-daemon :app:assembleDebug 2>&1 | tee "$GITHUB_WORKSPACE/fotograaf-v04-build.log"
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TruthRaw_HONOR_Route_Proof_v0_4_build_diagnostics
+          path: fotograaf-v04-build.log
+          if-no-files-found: error
+
+      - name: Upload debug APK
+        if: steps.assemble.outcome == 'success'
+        uses: actions/upload-artifact@v4
         with:
           name: TruthRaw_HONOR_Route_Proof_v0_4_debug
           path: capture/android/camera5-200mp-probe-v07/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Enforce build result
+        if: steps.assemble.outcome != 'success'
+        run: exit 1
