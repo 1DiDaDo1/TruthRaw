@@ -21,8 +21,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 35
-        versionCode = 6
-        versionName = "0.6-fotograaf-honor-route-proof"
+        versionCode = 7
+        versionName = "0.7-fotograaf-permission-gate"
 
         ndk {
             abiFilters += listOf("arm64-v8a")
