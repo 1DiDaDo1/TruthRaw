@@ -13,7 +13,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/** Permission gate before the staged FotoGraaf v0.4.2 safe preview bootstrap. */
+/** Permission gate before FotoGraaf v0.4.3 zero-camera diagnostic bootstrap. */
 class FotoGraafPermissionGateActivity : Activity() {
 
     private lateinit var statusView: TextView
@@ -39,16 +39,16 @@ class FotoGraafPermissionGateActivity : Activity() {
     override fun onResume() {
         super.onResume()
         if (::statusView.isInitialized && hasCameraPermission() && !permissionRequestInFlight) {
-            launchSafePreviewOnce()
+            launchDiagnosticOnce()
         }
     }
 
     private fun continueWhenPermitted() {
         if (hasCameraPermission()) {
-            launchSafePreviewOnce()
+            launchDiagnosticOnce()
             return
         }
-        statusView.text = "Camera-toestemming is nodig. Na toestemming opent eerst alleen de crash-veilige discovery/preview bootstrap; de camera wordt daar nog niet automatisch geopend."
+        statusView.text = "Camera-toestemming is nodig. Na toestemming opent FotoGraaf v0.4.3 eerst een nul-camera diagnostisch scherm; er wordt nog geen CameraManager, HONOR-scan of preview gestart."
         allowButton.isEnabled = false
         settingsButton.visibility = android.view.View.GONE
         if (!permissionRequestInFlight) {
@@ -66,8 +66,8 @@ class FotoGraafPermissionGateActivity : Activity() {
         if (requestCode != REQUEST_CAMERA_PERMISSION) return
         permissionRequestInFlight = false
         if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            statusView.text = "Camera-toestemming verleend. Safe Preview bootstrap wordt geopend…"
-            window.decorView.post { launchSafePreviewOnce() }
+            statusView.text = "Camera-toestemming verleend. Diagnostic Bootstrap wordt geopend…"
+            window.decorView.post { launchDiagnosticOnce() }
         } else {
             statusView.text = "Camera-toestemming niet verleend."
             allowButton.isEnabled = true
@@ -75,18 +75,18 @@ class FotoGraafPermissionGateActivity : Activity() {
         }
     }
 
-    private fun launchSafePreviewOnce() {
+    private fun launchDiagnosticOnce() {
         if (!hasCameraPermission() || launched || isFinishing || isDestroyed) return
         launched = true
         allowButton.isEnabled = false
         runCatching {
-            startActivity(Intent(this, FotoGraafSafePreviewActivity::class.java).apply {
+            startActivity(Intent(this, FotoGraafDiagnosticBootstrapActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             })
         }.onFailure { error ->
             launched = false
             allowButton.isEnabled = true
-            statusView.text = "Safe Preview kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
+            statusView.text = "Diagnostic Bootstrap kon niet starten: ${error.javaClass.simpleName}: ${error.message ?: "onbekende fout"}"
             return
         }
         finish()
@@ -139,7 +139,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 401
-        private const val STATE_LAUNCHED = "truthraw.fotograaf.safe.launched"
-        private const val STATE_PERMISSION_IN_FLIGHT = "truthraw.fotograaf.safe.permission_in_flight"
+        private const val STATE_LAUNCHED = "truthraw.fotograaf.diagnostic.launched"
+        private const val STATE_PERMISSION_IN_FLIGHT = "truthraw.fotograaf.diagnostic.permission_in_flight"
     }
 }
