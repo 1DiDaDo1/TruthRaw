@@ -39,6 +39,11 @@ bool pwrite_all(int fd, std::uint64_t offset, const std::uint8_t* data, std::siz
     return true;
 }
 
+void best_effort_truncate(int fd, std::uint64_t size) noexcept {
+    const int result = ::ftruncate(fd, static_cast<off_t>(size));
+    (void)result;
+}
+
 std::uint16_t u16(const std::uint8_t* p) noexcept {
     return static_cast<std::uint16_t>(p[0]) |
            static_cast<std::uint16_t>(static_cast<std::uint16_t>(p[1]) << 8u);
@@ -170,7 +175,7 @@ Status embed_certificate(
             }
         }
         if (!pwrite_all(fd, appendOffset, combined.data(), combined.size())) {
-            (void)::ftruncate(fd, static_cast<off_t>(originalSize));
+            best_effort_truncate(fd, originalSize);
             return Status::error(StatusCode::WriteFailed,
                                  "failed staging expanded DNGPrivateData payload");
         }
@@ -179,7 +184,7 @@ Status embed_certificate(
         put_u32(patch.data(), static_cast<std::uint32_t>(newCount64));
         put_u32(patch.data() + 4u, static_cast<std::uint32_t>(appendOffset));
         if (!pwrite_all(fd, privateEntryOffset + 4u, patch.data(), patch.size())) {
-            (void)::ftruncate(fd, static_cast<off_t>(originalSize));
+            best_effort_truncate(fd, originalSize);
             return Status::error(StatusCode::WriteFailed, "failed committing DNGPrivateData IFD patch");
         }
 
@@ -188,8 +193,9 @@ Status embed_certificate(
             put_u32(restore.data(), oldCount);
             put_u32(restore.data() + 4u, oldOffset);
             (void)pwrite_all(fd, privateEntryOffset + 4u, restore.data(), restore.size());
-            (void)::ftruncate(fd, static_cast<off_t>(originalSize));
-            (void)::fsync(fd);
+            best_effort_truncate(fd, originalSize);
+            const int rollbackSync = ::fsync(fd);
+            (void)rollbackSync;
             return Status::error(StatusCode::WriteFailed,
                                  "certificate commit fsync failed and was rolled back");
         }
