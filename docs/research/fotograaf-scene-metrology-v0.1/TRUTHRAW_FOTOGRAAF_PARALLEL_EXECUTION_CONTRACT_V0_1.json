@@ -1,0 +1,106 @@
+{
+  "schema": "TRUTHRAW_FOTOGRAAF_PARALLEL_EXECUTION_CONTRACT_V0_1",
+  "status": "RESEARCH_EXECUTION_CONTRACT",
+  "scientificRouteChange": false,
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "definitions": {
+    "room": "authority owner / scientific responsibility",
+    "worker": "execution lane only",
+    "workerAlias": "photographer",
+    "evidenceRule": "worker count never changes physicalFrameCount or independentEvidenceCount"
+  },
+  "authorityGraph": [
+    "SEALED_SOURCE",
+    "CAPTURE_MEASUREMENT_INTERPRETATION",
+    "RECONSTRUCTION",
+    "SCIENTIFIC_MASTER_SEAL",
+    "SCENE_ANALYSIS",
+    "COUNTERFACTUAL_OR_APPEARANCE",
+    "PROJECTION"
+  ],
+  "parallelFanoutAfterScientificMasterSeal": [
+    "SURVEYOR_FOTOGRAAF_SCENE_METROLOGY",
+    "TRUTHRAW_PURE_PROJECTION",
+    "FINISHER_HDR_JPG_APPEARANCE",
+    "ROOM_CAPSULE_LOCAL_ANALYSIS",
+    "OTHER_READ_ONLY_DIAGNOSTICS"
+  ],
+  "barriers": {
+    "captureInterpretation": "required capture-domain model must be finalized before dependent reconstruction",
+    "scientificMaster": "consumers claiming finalized-master input wait for exact master seal/identity",
+    "counterfactual": "counterfactual output cannot feed captured-world Scientific Master",
+    "export": "artifact release waits for its exact scientific/provenance dependencies"
+  },
+  "resourceInvariance": {
+    "required": true,
+    "target": "EXACT_AUTHORITATIVE_DIGEST_EQUALITY",
+    "dimensions": [
+      "workerCount",
+      "workerSchedulingOrder",
+      "tileQueueOrder",
+      "devicePerformanceClass"
+    ],
+    "mustNotChange": [
+      "physicalFrameCount",
+      "independentEvidenceCount",
+      "sourceIdentity",
+      "calibrationAuthority",
+      "scientificMasterIdentity",
+      "zeroLineIdentity",
+      "sceneScaleIdentity",
+      "censoringAndSupportSemantics",
+      "reconstructedValues",
+      "uncertaintyAndProvenanceSemantics",
+      "finalizedProjectionContent"
+    ],
+    "allowedToChange": [
+      "wallTime",
+      "workerCpuTime",
+      "peakResidentMemory",
+      "thermalTelemetry",
+      "nonScientificSchedulingTelemetry"
+    ],
+    "failurePolicy": "FAIL_CLOSED_TO_VALIDATED_WORKER_COUNT"
+  },
+  "currentStreamingV0_1": {
+    "validatedWorkers": 1,
+    "androidPreviewWorkers": 1,
+    "hdrEnabledInAndroidPreview": true,
+    "multiWorkerAccepted": false,
+    "multiWorkerStatus": "BLOCKED_PENDING_V0_2_OR_SEPARATE_CANDIDATE"
+  },
+  "multiWorkerCandidateRequirements": [
+    "WORKER_LOCAL_WORKSPACE",
+    "WORKER_LOCAL_OR_THREAD_SAFE_SOURCE_AUDIT",
+    "WORKER_LOCAL_OR_CERTIFIED_DETERMINISTIC_RECONSTRUCTION_BACKEND",
+    "DETERMINISTIC_PASS1_HISTOGRAM_AND_COUNTER_REDUCTION",
+    "PARALLEL_PASS2_COMPUTE_WITH_CANONICAL_ORDERED_COMMIT_OR_CERTIFIED_DISJOINT_SINK",
+    "WORKER_AWARE_MEMORY_PLANNING",
+    "EXACT_1_2_4_WORKER_INVARIANCE_TEST",
+    "THREAD_SANITIZER_OR_EQUIVALENT_RACE_VALIDATION",
+    "REAL_DEVICE_PERFORMANCE_MEMORY_UI_THERMAL_BENCHMARK"
+  ],
+  "adaptiveWorkerPolicy": {
+    "scientificConstant": false,
+    "inputsMayInclude": [
+      "effectiveCpuCapacity",
+      "tileCount",
+      "memoryBudget",
+      "perWorkerWorkspaceBound",
+      "thermalState",
+      "uiResponsivenessBudget",
+      "validatedDeviceThroughputHistory"
+    ],
+    "qualityOrAuthorityDowngradeAllowed": false
+  },
+  "decision": {
+    "parallelRoomsAfterDependencies": "PASS_ARCHITECTURE",
+    "multipleWorkersInsideOneRoom": "PASS_ARCHITECTURE",
+    "hdrIndependentOfIsoAfterRequiredBarriers": "PASS_ARCHITECTURE",
+    "fullFrameStreamingV0_1MultiWorker": "OPEN_NOT_IMPLEMENTED",
+    "androidFourWorkerScientificRoute": "BLOCKED"
+  }
+}
