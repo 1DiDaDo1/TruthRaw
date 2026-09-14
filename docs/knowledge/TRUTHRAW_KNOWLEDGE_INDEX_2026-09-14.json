@@ -25,6 +25,10 @@
       "role": "active PR, physical evidence, validation and calibration state"
     },
     {
+      "path": "docs/knowledge/TRUTHRAW_TOPIC_COVERAGE_CHECKLIST_2026-09-14.md",
+      "role": "topic-by-topic preservation coverage audit"
+    },
+    {
       "path": "docs/handoff/TRUTHRAW_KNOWLEDGE_PRESERVATION_HANDOFF_2026-09-14.md",
       "role": "future-session bootstrap overlay"
     }
