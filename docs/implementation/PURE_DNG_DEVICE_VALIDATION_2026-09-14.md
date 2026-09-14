@@ -50,6 +50,51 @@ Therefore the saved file can prove its PURE projection/claim class, representati
 
 This is a validation finding, not permission to redesign the certificate during the current frozen-export gate. A later certificate/schema revision may add explicit treatment/appearance/counterfactual fields if that can be done without weakening backward compatibility or authority boundaries.
 
+## Completed source-bound Honor smoke run
+
+A supplemental real-device Honor run has now been closed all the way from the exact sealed source bytes to the saved TRUTHRAW PURE artifact. This capture is **not one of the formal five regression sources listed below**, so it advances the real-device smoke/validator evidence but does not count as one of the required five-file gate entries.
+
+Device/app binding:
+
+- device: `HONOR BKQ-N49`, Android 16;
+- app: `0.7-four-mode-certificate`;
+- installed APK SHA-256: `1c1acd4855a77c2547efdc3e540ebc96a9455f396ff0ddf8eb69fa8a519392f6`;
+- empirical wrapper validated scientific-route SHA: `a84186969b9c767c6e291d9697490e63867b7b82`.
+
+Exact source:
+
+- file: `IMG_260908_193753_205_015.dng`;
+- bytes: `25899870`;
+- dimensions: `4080x3072`;
+- SHA-256: `757f6aaa0b45a0e68270ee8073d338895d2df284d8ae57bca5683a5ca2ba2573`;
+- the empirical pre-probe and post-probe both reported this exact SHA and byte length.
+
+Saved PURE artifact:
+
+- file: `IMG_260908_193753_205_015_truthraw_pure_float32_v0_1.dng`;
+- bytes: `151021352`;
+- SHA-256: `a80390deb51e315e73973782f151555521eed819383ebe45a2906a9b321dc788`;
+- `4080x3072`, `LinearRaw`, 3 samples/pixel, IEEE float32, uncompressed, chunky 64x64 tiling;
+- 37,601,280 real XYZ-D50 float components checked and all finite;
+- 288,739 serialized components are negative;
+- 218,566 serialized components are greater than 1;
+- measured serialized real-component range: approximately `-0.0091582136 .. 1.45196819`;
+- 147,456 tile-padding components were checked and all were exactly zero.
+
+Provenance/certificate binding:
+
+- the actual source SHA, `DNGPrivateData.sealed_source_sha256` and `TRCERT01.sourceEvidenceSha256` are identical;
+- `DNGPrivateData.scientific_master_sha256` and the certificate Scientific Master SHA agree at `dc747bc3bc9d7ab24614560ead67008455742c6732faf6f1a3167d56670eae97`;
+- certificate record CRC32 verifies as `9bc43cf5`;
+- Technical Backplane CRC32 in the certificate is `2144df1c`;
+- certificate build identity matches `e8ed38cc9b92378760f60ae17d90dc6b3149f7e4405cc97eb7a9f36166cc8e55`;
+- `physicalFrameCount=1` and `independentEvidenceCount=1` remain intact;
+- signature state remains exactly `UNSIGNED DEVELOPMENT` with no issuer key/signature material.
+
+Authority boundary remains unchanged: the artifact is a representation-only projection, not a new measurement; the empirical harness keeps `scientific_claim_allowed=false`, does not claim source-metadata color as independent physical calibration, and does not treat counterfactuals as evidence. Certificate v0.1 still does not serialize the two internal appearance/counterfactual booleans discussed above.
+
+**Result for this supplemental run: PASS — exact-source artifact/projection integrity + device/app cross-binding.** This does not close the formal five-source device gate, Adobe/Lightroom interoperability, independent physical color calibration, or trusted cryptographic issuer validation.
+
 ## Five-source device run
 
 Run the verifier on Android-produced PURE outputs made from the existing physical regression set:
