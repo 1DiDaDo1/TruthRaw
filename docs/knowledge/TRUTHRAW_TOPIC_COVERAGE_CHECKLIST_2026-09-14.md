@@ -66,7 +66,7 @@ Purpose: verify that the major topics recovered from the long-running project di
 | Rejected paths and failure provenance | PASS | complete knowledge, genealogy ledger |
 | OPEN/BLOCKED production gates | PASS | complete knowledge, active research ledger |
 | Historical trigger keywords and genealogy reconstruction pattern | PASS | complete knowledge, genealogy ledger, JSON index |
-| Future short-command continuation behavior | PASS | `docs/knowledge/README.md`, knowledge-preservation handoff |
+| Future short-command continuation behavior | PASS | `TRUTHRAW_KNOWLEDGE_BOOTSTRAP_2026-09-14.md`, knowledge-preservation handoff |
 
 ## Coverage conclusion
 
