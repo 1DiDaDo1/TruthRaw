@@ -7,12 +7,16 @@
 
     <application
         android:allowBackup="false"
-        android:label="TruthRaw FotoGraaf">
+        android:label="TruthRaw FotoGraaf"
+        android:theme="@style/Theme.TruthRawFotoGraaf">
         <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".FotoGraafCameraActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FotoGraafLauncherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
