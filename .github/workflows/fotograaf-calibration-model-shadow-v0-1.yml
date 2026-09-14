@@ -7,7 +7,9 @@ on:
       - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MEASUREMENT_MODEL_CONTRACT_V0_1.json'
       - 'docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1/**'
       - 'tools/verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_model_binding_v0_1.py'
       - 'tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_model_binding_v0_1.py'
       - '.github/workflows/fotograaf-calibration-model-shadow-v0-1.yml'
   pull_request:
     paths:
@@ -15,7 +17,9 @@ on:
       - 'docs/research/fotograaf-scene-metrology-v0.1/TRUTHRAW_FOTOGRAAF_CALIBRATION_MEASUREMENT_MODEL_CONTRACT_V0_1.json'
       - 'docs/research/fotograaf-scene-metrology-v0.1/shadow-measurement-model-v0.1/**'
       - 'tools/verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tools/verify_fotograaf_calibration_model_binding_v0_1.py'
       - 'tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py'
+      - 'tests/test_verify_fotograaf_calibration_model_binding_v0_1.py'
       - '.github/workflows/fotograaf-calibration-model-shadow-v0-1.yml'
   workflow_dispatch:
 
@@ -51,10 +55,15 @@ jobs:
           print('shadow_contract=PASS')
           PY
 
-      - name: Validate serialized measurement-model contract
+      - name: Validate serialized measurement-model and admitted-binding bridge
         run: |
-          python3 -m py_compile tools/verify_fotograaf_calibration_measurement_model_v0_1.py
-          python3 -m unittest tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py -v
+          python3 -m py_compile \
+            tools/verify_fotograaf_calibration_measurement_model_v0_1.py \
+            tools/verify_fotograaf_calibration_model_binding_v0_1.py
+          python3 -m unittest \
+            tests/test_verify_fotograaf_calibration_measurement_model_v0_1.py \
+            tests/test_verify_fotograaf_calibration_model_binding_v0_1.py \
+            -v
 
       - name: Configure GCC Release
         if: matrix.mode == 'gcc-release'
