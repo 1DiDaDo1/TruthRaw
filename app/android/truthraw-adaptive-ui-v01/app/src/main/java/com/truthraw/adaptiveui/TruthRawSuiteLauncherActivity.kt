@@ -45,19 +45,19 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "0.1-main-plus-FotoGraaf · camera v0.4 live"
+            text = "0.1-main-plus-FotoGraaf · camera v0.4.3 diagnostic bootstrap"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "FotoGraaf gebruikt nu een live Camera2-sessie zodat AF/AE/OIS vóór de single-frame RAW kunnen stabiliseren. De bestaande TruthRaw processor blijft de reconstructie- en exportlaag."
+            text = "Deze build opent FotoGraaf eerst zonder CameraManager of preview. Camera2, HONOR inventory en preview worden daarna afzonderlijk gestart zodat een crash exact aan één laag kan worden gekoppeld."
             textSize = 14f
             setTextColor(Color.rgb(170, 177, 188))
             setPadding(0, 0, 0, dp(22))
         })
 
-        root.addView(actionButton("FotoGraaf Live camera openen") {
+        root.addView(actionButton("FotoGraaf diagnostic openen") {
             startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
         })
         root.addView(space())
@@ -66,7 +66,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(TextView(this).apply {
-            text = "Authority boundary: live preview en HONOR metadata veranderen geen evidence. Alleen runtime Camera2-resultaat + sealed RAW kunnen capture-evidence leveren."
+            text = "BUILD-ID zichtbaar: v0.4.3. Zie je hier nog ‘v0.4 live’, dan draait Android nog een oudere APK."
+            textSize = 12f
+            setTextColor(Color.rgb(220, 190, 120))
+            setPadding(0, 0, 0, dp(12))
+        })
+        root.addView(TextView(this).apply {
+            text = "Authority boundary: discovery, preview en HONOR metadata veranderen geen evidence. Alleen runtime Camera2-resultaat + sealed RAW kunnen capture-evidence leveren."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
