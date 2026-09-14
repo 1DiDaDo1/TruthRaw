@@ -81,9 +81,11 @@ Status deserialize(std::span<const std::uint8_t> bytes, State& out) noexcept;
 std::uint32_t crc32(std::span<const std::uint8_t> bytes) noexcept;
 const char* status_name(Status status) noexcept;
 
-// UI/consumer gate: only cryptographically verified records may display a
-// VERIFIED brand/provenance badge. Unsigned development metadata must never be
-// upgraded by presentation code.
-bool verified_badge_allowed(const State& state) noexcept;
+// UI/consumer gate: metadata is never allowed to self-assert verification.
+// A VERIFIED badge requires both a structurally valid record marked Verified
+// and an independently computed cryptographic verification result.
+bool verified_badge_allowed(
+    const State& state,
+    bool signatureCryptographicallyVerified) noexcept;
 
 }  // namespace truthraw::certificate::v0_1
