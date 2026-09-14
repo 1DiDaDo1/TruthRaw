@@ -33,6 +33,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".FotoGraafLiveCameraActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
             android:name=".FotoGraafCameraActivity"
             android:exported="false" />
     </application>
