@@ -3,12 +3,15 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModePolicy.kt"
-ACTIVITY = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui/OutputModeActivity.kt"
+JAVA_ROOT = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/java/com/truthraw/adaptiveui"
+POLICY = JAVA_ROOT / "OutputModePolicy.kt"
+ACTIVITY = JAVA_ROOT / "OutputModeActivity.kt"
+PROCESSING = JAVA_ROOT / "MainActivity.kt"
 MANIFEST = ROOT / "app/android/truthraw-adaptive-ui-v01/app/src/main/AndroidManifest.xml"
 
 policy = POLICY.read_text(encoding="utf-8")
 activity = ACTIVITY.read_text(encoding="utf-8")
+processing = PROCESSING.read_text(encoding="utf-8")
 manifest = MANIFEST.read_text(encoding="utf-8")
 
 required_modes = {
@@ -39,6 +42,24 @@ assert 'OutputModePolicy.selection(selectedMode, colourful, detailed, soft, hdr)
     "launcher must sanitize through shared policy before handoff"
 assert 'OutputModePolicy.JPEG_XL_ENCODER_VALIDATED' in activity, \
     "launcher must expose JPEG XL pending state from policy"
+
+assert 'private var outputSelection: OutputModeSelection = OutputModePolicy.fromWireName(null)' in processing, \
+    "processing UI must fail safe to TRUTHRAW PURE when no handoff is present"
+assert 'intent.getStringExtra(OutputModeActivity.EXTRA_OUTPUT_MODE)' in processing, \
+    "processing UI must consume the launcher output-mode handoff"
+assert 'OutputModePolicy.allowsJpeg(outputSelection)' in processing, \
+    "JPEG export must be policy-gated"
+assert processing.count('kind !in OutputModePolicy.allowedRawProjectionKinds(outputSelection)') >= 2, \
+    "RAW/DNG export must be policy-gated before and after the document dialog"
+assert 'RawProjectionKind.entries.filter { it in allowed }' in processing, \
+    "processing UI must expose only policy-allowed RAW/DNG projectors"
+assert 'JPG XL blijft fail-closed' in processing, \
+    "JPEG XL must visibly remain blocked while validation is pending"
+assert 'Appearance-intent:' in processing and 'nog niet gekoppeld' in processing, \
+    "unvalidated appearance semantics must be presented as intent-only"
+assert 'Scientific Master, TruthRange, zero-line, evidence-counts en Backplane blijven onveranderd.' in processing, \
+    "processing UI must preserve the authority boundary in user-facing text"
+
 assert '.OutputModeActivity' in manifest and 'android.intent.action.MAIN' in manifest, \
     "OutputModeActivity must remain the launcher"
 assert '<activity\n            android:name=".MainActivity"\n            android:exported="false"' in manifest, \
@@ -68,6 +89,7 @@ for path in locale_paths:
 
 print("OUTPUT_MODE_POLICY_PASS")
 print("modes=4")
+print("launcher_to_processing_handoff=ENFORCED")
 print("pure_appearance=LOCKED_NEUTRAL")
 print("pure_raw_projection=TRUTHRAW_PURE_FLOAT32_DNG_ONLY")
 print("jpeg_xl_encoder_validated=false")
