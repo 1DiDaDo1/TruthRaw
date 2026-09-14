@@ -1,0 +1,80 @@
+{
+  "schema": "truthraw.fotograaf-calibration-model-shadow-contract.v0.1",
+  "date": "2026-09-14",
+  "status": "RESEARCH_SHADOW_ONLY_FAIL_CLOSED",
+  "scientificMasterRouteChange": false,
+  "sourceEvidenceMutation": false,
+  "sceneEvidenceCountsChanged": false,
+  "laws": [
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence."
+  ],
+  "purpose": "Compare the current source-bound measurement interpretation and an admitted calibration-assisted interpretation side by side without feeding calibrated values into the production Scientific Master route.",
+  "requiredInputs": [
+    "sealed source measurement metadata",
+    "admitted CalibrationBindingPacket",
+    "calibration measurement-model parameters bound to that exact binding",
+    "raw sample plus CFA phase/color and existing source gain-field value"
+  ],
+  "sourceReferenceFormula": "stage2_source = ((rawCode - sourceBlackPhase) / max(sourceWhiteLevel - sourceBlackPhase, 1)) * sourceGainField",
+  "calibratedShadowFormula": "stage2_calibrated_shadow = ((rawCode - calibratedBlackPhase) / (calibratedSaturationCode - calibratedBlackPhase)) * responseScale * sourceGainField",
+  "noiseRule": {
+    "source": "sigma_source = sqrt(max(S_source * max(preGainSourceSignal,0) + O_source,0)) * sourceGainField",
+    "calibrated": "sigma_cal = sqrt(max(S_cal * max(preGainCalibratedSignal,0) + O_cal,0)) * responseScale * sourceGainField",
+    "noiseProfileColorOrder": "R,G,B",
+    "negativeScientificValuesMayBePreserved": true
+  },
+  "censorRule": {
+    "sourceHighCensored": "rawCode >= sourceWhiteLevel",
+    "calibratedHighCensored": "sourceHighCensored OR rawCode >= calibratedSaturationCode",
+    "calibrationMayUncensorSourceClip": false,
+    "darkNoiseLimited": "max(signal,0) <= snrThreshold * sigma when sigma is available"
+  },
+  "allowedCalibrationParametersV0_1": [
+    "phase black offset",
+    "R/G/B affine noise profile",
+    "scalar response scale",
+    "calibrated saturation code",
+    "dark-side SNR threshold"
+  ],
+  "forbiddenV0_1": [
+    "changing sealed source bytes",
+    "writing shadow values into the Scientific Master",
+    "changing physicalFrameCount or independentEvidenceCount",
+    "per-channel response scaling without independent color calibration",
+    "second GainMap/lens-shading application",
+    "uncensoring a source-clipped sample",
+    "using worker count to select or alter calibration",
+    "using product HDR appearance to trigger another ISO/gain interpretation"
+  ],
+  "partialCalibrationRule": "A parameter not independently admitted remains source-bound; the shadow branch may mix calibrated and source-bound parameters only when each changed parameter is explicitly enabled and bound by the admitted model.",
+  "identityRules": {
+    "sourceEvidenceSha256ExactMatchRequired": true,
+    "bindingSha256ExactMatchRequired": true,
+    "modelMustBindBindingSha256": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "workerCountAffectsModel": false
+  },
+  "shadowOutputs": [
+    "source signed normalized sample",
+    "calibration-assisted signed normalized sample",
+    "source/calibrated noise sigma when available",
+    "high-side censor state",
+    "dark/noise-limited state",
+    "per-sample delta",
+    "summary counts and max/mean absolute delta"
+  ],
+  "promotionGate": {
+    "shadowPassIsProductionPromotion": false,
+    "requiredBeforeAnyScientificRoutePromotion": [
+      "held-out physical validation",
+      "uncertainty calibration",
+      "source/master identity regression",
+      "1/2/4-worker exact invariance",
+      "no-double-correction proof",
+      "capture/sample-domain regression",
+      "explicit authority review"
+    ]
+  }
+}
