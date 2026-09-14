@@ -1,0 +1,5 @@
+# TruthRaw launcher artwork source
+
+Approved launcher artwork source in the implementation session: `strak_tr_logo_met_blauwe_gloed.png`.
+
+The adaptive-icon resource currently uses a vector-safe TR fallback until the exact binary artwork is committed through a binary-safe Git path.
