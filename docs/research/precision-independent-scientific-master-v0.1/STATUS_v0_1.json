@@ -1,0 +1,53 @@
+{
+  "schema": "TruthRawPrecisionIndependentScientificMasterStatus/0.1",
+  "date": "2026-09-15",
+  "status": "RESEARCH_HOST_CI_PASS_REAL_STAGE2_EVIDENCE_PASS",
+  "canonical_promoted": false,
+  "scientific_authority_changed": false,
+  "implemented": {
+    "exact_integer_evidence_descriptor": true,
+    "f32_tiled_normalization": true,
+    "f64_tiled_normalization": true,
+    "f64_compensated_reductions": true,
+    "f64_running_moments": true,
+    "f64_covariance_propagation": true,
+    "unknown_covariance_remains_nan": true,
+    "arbitrary_precision_decimal_oracle": true,
+    "v47i_stage2_f32_adapter": true,
+    "v47i_stage2_f64_adapter": true,
+    "real_honor_dng_precision_audit": true,
+    "full_f64_reconstruction_backend": false,
+    "real_nonunity_gainmap_f32_f64_audit": false,
+    "android_runtime_precision_governor": false,
+    "float128_or_mpfr_native_backend": false
+  },
+  "host_ci": {
+    "cmake_configure": "PASS",
+    "cpp_build": "PASS",
+    "cpp_tests": "2/2 PASS",
+    "python_high_precision_tests": "PASS",
+    "oracle_report": "PASS"
+  },
+  "oracle": {
+    "normalization_max_abs_error_f32": 2.21252441e-07,
+    "normalization_max_abs_error_f64": 2.4472243940578576e-17,
+    "covariance_max_abs_error_f32": 6.800222212714221e-07,
+    "covariance_max_abs_error_f64": 1.7285779241877742e-15
+  },
+  "real_evidence": {
+    "motioncam_direct_cfa_sha256": "04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5",
+    "motioncam_stage2_max_dn_error_f32_vs_f64": 2.855062483053672e-05,
+    "motioncam_max_error_over_modeled_sigma": 5.725768463395471e-06,
+    "vendor_tele_holdout_sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+    "vendor_pre_gainmap_stage2_max_dn_error_f32_vs_f64": 4.3526887890592554e-05,
+    "vendor_pre_gainmap_max_error_over_modeled_sigma": 2.2400328612667652e-06
+  },
+  "current_precision_policy": {
+    "exact_raw_evidence": "PRESERVE INTEGER/PACKED BYTES",
+    "stage2_black_white_normalization": "F32 HOT-PATH CANDIDATE WITH F64 REFERENCE FOR TESTED HONOR SOURCES",
+    "calibration_optimization_covariance": "F64 DEFAULT_REFERENCE",
+    "float128_arbitrary_precision": "OFFLINE_REFERENCE_VALIDATOR_ONLY",
+    "selection_rule": "use the cheapest precision whose measured numerical error is safely below the physical/model uncertainty budget"
+  },
+  "next_gate": "Decode and compare the real non-unity HONOR vendor GainMap in F32/F64, then build a separate double-precision reference reconstruction backend without modifying canonical v4.7i."
+}
