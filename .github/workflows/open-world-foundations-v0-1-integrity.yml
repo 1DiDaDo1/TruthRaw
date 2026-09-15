@@ -8,6 +8,7 @@ on:
       - 'tools/open_world_integration_v03.py'
       - 'tools/open_world_structure_runtime_v04.py'
       - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tools/open_world_dynamic_runtime_v06.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -16,16 +17,20 @@ on:
       - 'tests/test_open_world_integration_v03.py'
       - 'tests/test_open_world_structure_runtime_v04.py'
       - 'tests/test_open_world_dynamic_authority_v05.py'
+      - 'tests/test_open_world_dynamic_runtime_v06.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
       - 'docs/research/open-world-native-integration-v0.3/**'
       - 'docs/research/open-world-structure-runtime-v0.4/**'
       - 'docs/research/open-world-dynamic-authority-v0.5/**'
+      - 'docs/research/open-world-dynamic-runtime-v0.6/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/tests/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/tests/**'
       - '.github/workflows/open-world-foundations-v0-1-integrity.yml'
   pull_request:
     paths:
@@ -34,6 +39,7 @@ on:
       - 'tools/open_world_integration_v03.py'
       - 'tools/open_world_structure_runtime_v04.py'
       - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tools/open_world_dynamic_runtime_v06.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -42,16 +48,20 @@ on:
       - 'tests/test_open_world_integration_v03.py'
       - 'tests/test_open_world_structure_runtime_v04.py'
       - 'tests/test_open_world_dynamic_authority_v05.py'
+      - 'tests/test_open_world_dynamic_runtime_v06.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
       - 'docs/research/open-world-native-integration-v0.3/**'
       - 'docs/research/open-world-structure-runtime-v0.4/**'
       - 'docs/research/open-world-dynamic-authority-v0.5/**'
+      - 'docs/research/open-world-dynamic-runtime-v0.6/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/tests/**'
+      - 'docs/research/technical-backplane-v0.1/native/**'
+      - 'docs/research/technical-backplane-v0.1/tests/**'
       - '.github/workflows/open-world-foundations-v0-1-integrity.yml'
 
 jobs:
@@ -70,10 +80,19 @@ jobs:
             tests.test_open_world_integration_v03 \
             tests.test_open_world_structure_runtime_v04 \
             tests.test_open_world_dynamic_authority_v05 \
+            tests.test_open_world_dynamic_runtime_v06 \
             tests.test_camera5_200mp_cfa_identity_v01
-      - name: Compile and run CICM v1 regression
+      - name: Compile and run Technical Backplane v0.1 regression
         run: |
           mkdir -p build/open-world-native-v03
+          g++ -std=c++20 -O2 -Wall -Wextra \
+            -Idocs/research/technical-backplane-v0.1/native \
+            docs/research/technical-backplane-v0.1/native/technical_backplane_v0_1.cpp \
+            docs/research/technical-backplane-v0.1/tests/test_technical_backplane_v0_1.cpp \
+            -o build/open-world-native-v03/test_technical_backplane_v0_1
+          build/open-world-native-v03/test_technical_backplane_v0_1
+      - name: Compile and run CICM v1 regression
+        run: |
           g++ -std=c++20 -O2 -Wall -Wextra \
             -Idocs/research/counterfactual-illumination-capture-manifold-v1/native \
             docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.cpp \
