@@ -8,7 +8,7 @@ Matrix3dV01 multiply_v0_1(const Matrix3dV01& a, const Matrix3dV01& b) {
     Matrix3dV01 out{};
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 3; ++c) {
-            KahanSum64V01 acc;
+            CompensatedSum64V01 acc;
             for (int k = 0; k < 3; ++k) {
                 acc.add(a.at(r,k) * b.at(k,c));
             }
@@ -48,7 +48,7 @@ bool propagate_full_covariance_v0_1(
 
 double mean_float64_v0_1(const double* values, std::size_t count) {
     if (!values || count == 0) return std::numeric_limits<double>::quiet_NaN();
-    KahanSum64V01 acc;
+    CompensatedSum64V01 acc;
     for (std::size_t i = 0; i < count; ++i) acc.add(values[i]);
     return acc.value() / static_cast<double>(count);
 }
