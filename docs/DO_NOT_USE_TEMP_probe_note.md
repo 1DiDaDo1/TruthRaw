@@ -1,0 +1,1 @@
+Temporary probe file created during connector verification; superseded by PROJECT_UPDATE_DISCIPLINE_2026-09-15.md.
