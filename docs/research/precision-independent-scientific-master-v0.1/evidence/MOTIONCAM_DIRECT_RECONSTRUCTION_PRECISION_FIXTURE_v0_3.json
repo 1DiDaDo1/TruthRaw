@@ -1,0 +1,35 @@
+{
+  "schema": "TruthRawRealReconstructionPrecisionFixture/0.3",
+  "date": "2026-09-15",
+  "authority": "NUMERICAL_REFERENCE_FROM_ONE_SOURCE_NO_EVIDENCE_UPGRADE",
+  "canonical_promoted": false,
+  "source": {
+    "filename": "IMG_260816_134122_304_005.dng",
+    "lineage": "MOTIONCAM_DIRECT_CFA",
+    "sha256": "04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5",
+    "gainmap_character": "UNITY_IN_TESTED_SOURCE"
+  },
+  "fixture": {
+    "width": 7,
+    "height": 7,
+    "global_halo_x0": 3620,
+    "global_halo_y0": 92,
+    "core_x": 3623,
+    "core_y": 95,
+    "core_width": 1,
+    "core_height": 1,
+    "cfa": "BGGR"
+  },
+  "observed": {
+    "f32_green_direction": "WeightedBlend",
+    "f64_green_direction": "Horizontal",
+    "f64_on_promoted_f32_green_direction": "WeightedBlend",
+    "green_end_to_end_error": ">2.0e-4 and <2.5e-4 normalized",
+    "green_arithmetic_only_error_after_promoting_same_f32_samples": "<1e-6 normalized",
+    "measured_channel": "Red",
+    "measured_channel_violations_f32": 0,
+    "measured_channel_violations_f64": 0
+  },
+  "interpretation": "The branch-sensitive precision hazard is reproduced on a MotionCam Direct-CFA source with unity GainMaps. It is therefore not specific to the HONOR vendor non-unity GainMap path.",
+  "policy_consequence": "F64 remains the scientific reference precision for branch-sensitive reconstruction; an F32 runtime path requires explicit branch-stability and output-error validation against F64."
+}
