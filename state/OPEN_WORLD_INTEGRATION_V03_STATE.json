@@ -1,0 +1,95 @@
+{
+  "schema": "TruthRawOpenWorldIntegrationState/0.3",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "base_main_commit": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "validated_implementation_commit": "910bf3a74ea9fd28168d0bd83fa185d345bbeaba",
+  "documentation_commit": "ad31763b8238fa671ea4b66d9a0aeec0d15f670b",
+  "validated_workflow_run_id": 35020581837,
+  "validated_workflow_conclusion": "success",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "open_world_meaning": "Local capsules are bounded compute domains only. They are not boundaries of the represented world. Interiors, exteriors, streets, landscapes, sky and future scene-graph regions may remain connected beyond any one capsule.",
+  "scientific_invariant": "Representation may remain open-ended; evidence authority may never silently increase.",
+  "components": {
+    "native_illumination_authority_corridor": {
+      "status": "IMPLEMENTED_NATIVE_CPP_TESTED",
+      "paths": [
+        "docs/research/open-world-native-integration-v0.3/native/open_world_native_v03.h",
+        "docs/research/open-world-native-integration-v0.3/native/open_world_native_v03.cpp"
+      ],
+      "authorities": ["MEASURED", "CALIBRATED_ESTIMATE", "INFERRED", "COUNTERFACTUAL"],
+      "consumers": ["CICM_RELATIVE", "CICM_CALIBRATED_SENSOR_FORWARD", "ROOM_CAPSULE_RELATIVE"],
+      "output_authority": "COUNTERFACTUAL",
+      "scientific_master_write_allowed": false,
+      "independent_evidence_added": false
+    },
+    "structure_evidence_derivation": {
+      "status": "IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v03.py",
+      "inputs": [
+        "MEASURED_CFA_SUPPORT",
+        "RECONSTRUCTED_TOPOLOGY_SUPPORT",
+        "OPTICAL_MTF_SUPPORT",
+        "UNCERTAINTY_CONFIDENCE",
+        "CENSORING_RISK"
+      ],
+      "policy": "CONSERVATIVE_LOWER_ENVELOPE_NO_RENDERED_RGB_OR_SEMANTIC_AUTHORITY_UPGRADE"
+    },
+    "native_tele_calibration_registry_binding": {
+      "status": "ROUTE_BINDING_IMPLEMENTED_TESTED_REAL_CALIBRATION_RECORDS_PENDING",
+      "path": "tools/open_world_integration_v03.py",
+      "route": {
+        "device": "HONOR BKQ-N49",
+        "physical_camera_id": "5",
+        "sensor_pixel_mode": "MAXIMUM_RESOLUTION",
+        "width": 16320,
+        "height": 12288,
+        "cfa": "BGGR"
+      },
+      "default_holdout_requirement": "PASS"
+    },
+    "restoration_graph": {
+      "status": "BRANCHING_HASH_BOUND_REVERSIBLE_GRAPH_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v03.py",
+      "source_overwrite_allowed": false,
+      "visual_taint_scope": "ANCESTRY_ONLY",
+      "clean_sibling_branch_allowed": true,
+      "authority_upgrade_from_visual_ancestor_allowed": false
+    },
+    "camera5_200mp_cfa_topology_binding": {
+      "status": "IMPLEMENTED_SYNTHETIC_CONTRACT_TESTED_REAL_CAPTURE_PENDING",
+      "path": "tools/camera5_200mp_evidence_bundle_v03.py",
+      "target_dimensions": [16320, 12288],
+      "target_samples": 200540160,
+      "target_classification": "CAMERA5_200MP_CAPTURE_CHAIN_CFA_TOPOLOGY_BOUND_APP_VISIBLE",
+      "requires_camera2_dng_cfa_match": true,
+      "rejects_explicit_raw_binning_true": true,
+      "physicalFrameCount": 1,
+      "independentEvidenceCount": 1
+    }
+  },
+  "validation": {
+    "workflow": ".github/workflows/open-world-foundations-v0-1-integrity.yml",
+    "workflow_run_id": 35020581837,
+    "implementation_head_sha": "910bf3a74ea9fd28168d0bd83fa185d345bbeaba",
+    "conclusion": "success",
+    "coverage": [
+      "PYTHON_FOUNDATIONS_V01",
+      "PYTHON_INTEGRATION_V02",
+      "PYTHON_INTEGRATION_V03",
+      "CAMERA5_CFA_IDENTITY_V01",
+      "CICM_V1_NATIVE_REGRESSION",
+      "ROOM_CAPSULE_V01_NATIVE_REGRESSION",
+      "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+    ]
+  },
+  "documentation": "docs/research/open-world-native-integration-v0.3/README.md",
+  "next_gates": [
+    "derive structure-support inputs directly from v4.7i measured/reconstructed topology plus uncertainty/censoring artifacts",
+    "ingest independently measured Camera-5 MTF/PSF calibration into the route-bound registry",
+    "ingest independently measured colour and artificial-light spectral calibration with domain and hold-out evidence",
+    "connect route-bound structure support to v4.7j and v4.7k at runtime without allowing appearance to alter scientific authority",
+    "run a real HONOR BKQ-N49 Camera-5 16320x12288 manifest plus RAW_SENSOR plus DNG through v0.2 and v0.3 proof gates"
+  ],
+  "promotion_rule": "Do not promote to main until real Camera-5 proof evidence and real calibration-backed integration gates have been reviewed."
+}
