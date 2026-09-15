@@ -3,6 +3,16 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "classification": "ADOBE_SECOND_GENERATION_HDR_RENDER_PARENT_ROUTE_NOT_PROVEN",
+  "implementation_commits": {
+    "runtime": "53ceddab5aafa71bb1a450731a4d44af9de6a838",
+    "tests": "880b96b74afaaf01919ffd3d0124305ad5e17a16",
+    "documentation": "c5426ffe198ffbf7ee7c52cc02eac6cff00648aa",
+    "initial_state": "5162da33c969d561e82f0304084cc6de62bc1e1d",
+    "ci_wiring_initial": "77caae253c3f1ca42a0dce7d306034e64de5ec5c",
+    "ci_wiring_fix": "cecc16e02d961f1aa6467e55abc659410c092143"
+  },
+  "validated_workflow_run_id": 35033902410,
+  "validated_workflow_conclusion": "success",
   "source_authority": {
     "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
     "immutable_source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
