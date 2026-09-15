@@ -1,0 +1,91 @@
+{
+  "schema": "TruthRawOpenWorldDynamicAuthorityState/0.5",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "implementation_commit": "da288a65f182138e4a97c13f7df860c593dbe172",
+  "validated_workflow_run_id": 35022837851,
+  "validated_workflow_conclusion": "success",
+  "runtime": {
+    "path": "tools/open_world_dynamic_authority_v05.py",
+    "test": "tests/test_open_world_dynamic_authority_v05.py",
+    "documentation": "docs/research/open-world-dynamic-authority-v0.5/README.md"
+  },
+  "dynamic_authorities": [
+    "MEASURED",
+    "CALIBRATED_ESTIMATE",
+    "RECONSTRUCTED",
+    "CENSORED",
+    "UNKNOWN",
+    "COUNTERFACTUAL",
+    "APPEARANCE_ONLY"
+  ],
+  "truthrange": {
+    "definition": "T=log2(L/L0)",
+    "positive_light_only": true,
+    "silent_clamp_allowed": false,
+    "signed_scene_linear_preserved": true,
+    "fixed_dynamic_range_limit_ev": null,
+    "interpretation": "Open-ended scene representation, not infinite measured sensor dynamic range or mathematically infinite finite-precision storage."
+  },
+  "dynamic_range_slices": {
+    "representation": "all represented positive scene values in the field",
+    "evidence_supported": "MEASURED plus CALIBRATED_ESTIMATE positive values only",
+    "reconstruction_supported": "RECONSTRUCTED positive values only",
+    "scientific_supported": "evidence-supported union reconstruction-supported; excludes counterfactual and appearance"
+  },
+  "scientific_boundaries": {
+    "source_evidence_immutable": true,
+    "counterfactual_writeback_to_scientific_master": false,
+    "appearance_writeback_to_scientific_master": false,
+    "censored_promoted_to_reconstructed_without_new_evidence": false,
+    "unknown_promoted_to_measured_without_new_evidence": false
+  },
+  "streaming": {
+    "global_raster_order_required": true,
+    "chunk_boundaries_affect_content_sha256": false,
+    "bounded_memory_supported": true,
+    "same_sample_sequence_same_content_sha256_across_chunk_sizes": true
+  },
+  "hardware_scaling": {
+    "policy": "EXECUTION_GEOMETRY_ONLY",
+    "adaptive_parameters": [
+      "tile_core_pixels",
+      "halo_pixels",
+      "concurrency",
+      "working_memory_budget"
+    ],
+    "scientific_policy_changes_with_hardware": false,
+    "cheap_phone_rule": "Use smaller bounded workspaces and/or lower concurrency; preserve identical scientific authority semantics.",
+    "heavy_hardware_rule": "Use larger bounded workspaces and/or higher concurrency; do not gain additional evidence authority merely from compute power."
+  },
+  "validation_coverage": [
+    "TRUTHRANGE_NO_ARTIFICIAL_EV_CLAMP",
+    "SIGNED_NONPOSITIVE_ESTIMATOR_PRESERVATION",
+    "MEASURED_CALIBRATED_RECONSTRUCTED_CENSORED_UNKNOWN_SEPARATION",
+    "COUNTERFACTUAL_APPEARANCE_SCIENTIFIC_MASTER_EXCLUSION",
+    "CHUNK_SIZE_INDEPENDENT_CONTENT_HASH",
+    "GLOBAL_RASTER_ORDER_ENFORCEMENT",
+    "LOW_AND_HIGH_HARDWARE_SAME_SCIENTIFIC_POLICY",
+    "CENSORED_SUPPORT_PROMOTION_REJECTED",
+    "LEGACY_OPEN_WORLD_PYTHON_TESTS",
+    "CICM_NATIVE_REGRESSION",
+    "ROOM_CAPSULE_NATIVE_REGRESSION",
+    "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+  ],
+  "carry_forward_domain_correction": {
+    "v5_0g_p1_uncertainty_geometry": [4080, 3072],
+    "camera5_maximum_resolution_geometry": [16320, 12288],
+    "uncertainty_authority_transfer_allowed": false,
+    "reason": "The current prospective uncertainty certification is source-class and geometry bound; maximum-resolution uncertainty requires separate validation or independently proven equivalence."
+  },
+  "next_gates": [
+    "construct Dynamic Authority Field samples directly from real Scene Master and v0.4 runtime artifacts",
+    "persist the field through the Technical Backplane and streamed artifact store without full-frame RAM residency",
+    "bind censoring inequalities and uncertainty bands to real per-pixel or per-tile runtime outputs",
+    "add a presentation projection layer that consumes the field without changing scientific authority",
+    "independently validate 16320x12288 Camera-5 uncertainty before granting maximum-resolution reconstructed dynamic authority",
+    "run real Camera-5 16320x12288 manifest plus RAW_SENSOR plus DNG through the existing capture proof chain"
+  ],
+  "promotion_rule": "Do not promote to main until real runtime field construction and maximum-resolution domain gates have been reviewed."
+}
