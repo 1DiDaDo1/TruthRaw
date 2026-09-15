@@ -21,6 +21,7 @@ add_library(truthraw_precision_v01 STATIC
     native/mixed_precision_runtime_v0_6.cpp
     native/uncertainty_relative_storage_v0_7.cpp
     native/mixed_precision_uncertainty_audit_v0_8.cpp
+    native/v5g_p1_uncertainty_runtime_v0_9.cpp
     adapters/v47i_stage2_precision_adapter_v0_1.cpp
     adapters/camera_rgb_covariance_v0_6_storage_adapter_v0_7.cpp
 )
@@ -72,6 +73,9 @@ target_link_libraries(test_camera_rgb_covariance_v0_6_storage_adapter_v0_7 PRIVA
 add_executable(test_mixed_precision_uncertainty_audit_v0_8 native/test_mixed_precision_uncertainty_audit_v0_8.cpp)
 target_link_libraries(test_mixed_precision_uncertainty_audit_v0_8 PRIVATE truthraw_precision_v01)
 
+add_executable(test_v5g_p1_uncertainty_runtime_v0_9 native/test_v5g_p1_uncertainty_runtime_v0_9.cpp)
+target_link_libraries(test_v5g_p1_uncertainty_runtime_v0_9 PRIVATE truthraw_precision_v01)
+
 add_executable(reconstruction_precision_cli_v0_3 tools/reconstruction_precision_cli_v0_3.cpp)
 target_link_libraries(reconstruction_precision_cli_v0_3 PRIVATE truthraw_precision_v01)
 
@@ -93,6 +97,7 @@ set(TRUTHRAW_PRECISION_TEST_TARGETS
     test_uncertainty_relative_storage_v0_7
     test_camera_rgb_covariance_v0_6_storage_adapter_v0_7
     test_mixed_precision_uncertainty_audit_v0_8
+    test_v5g_p1_uncertainty_runtime_v0_9
 )
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     foreach(t IN LISTS TRUTHRAW_PRECISION_TEST_TARGETS)
@@ -114,3 +119,4 @@ add_test(NAME mixed_precision_runtime_v0_6 COMMAND test_mixed_precision_runtime_
 add_test(NAME uncertainty_relative_storage_v0_7 COMMAND test_uncertainty_relative_storage_v0_7)
 add_test(NAME camera_rgb_covariance_v0_6_storage_adapter_v0_7 COMMAND test_camera_rgb_covariance_v0_6_storage_adapter_v0_7)
 add_test(NAME mixed_precision_uncertainty_audit_v0_8 COMMAND test_mixed_precision_uncertainty_audit_v0_8)
+add_test(NAME v5g_p1_uncertainty_runtime_v0_9 COMMAND test_v5g_p1_uncertainty_runtime_v0_9)
