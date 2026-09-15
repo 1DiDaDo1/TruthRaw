@@ -52,6 +52,23 @@ add_executable(test_real_reconstruction_precision_fixture_v0_3
 )
 target_link_libraries(test_real_reconstruction_precision_fixture_v0_3 PRIVATE truthraw_precision_v01)
 
+# These tests intentionally use assert() for scientific invariants. CMake's
+# Release mode normally defines NDEBUG, which would remove both the checks and
+# any function calls embedded in assert expressions. Explicitly undefine it so
+# Release CI actually executes the scientific test bodies.
+set(TRUTHRAW_PRECISION_TEST_TARGETS
+    test_precision_policy_v0_1
+    test_gainmap_precision_v0_2
+    test_v47i_stage2_precision_adapter_v0_1
+    test_reconstruction_precision_reference_v0_3
+    test_real_reconstruction_precision_fixture_v0_3
+)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    foreach(t IN LISTS TRUTHRAW_PRECISION_TEST_TARGETS)
+        target_compile_options(${t} PRIVATE -UNDEBUG)
+    endforeach()
+endif()
+
 enable_testing()
 add_test(NAME precision_policy_v0_1 COMMAND test_precision_policy_v0_1)
 add_test(NAME gainmap_precision_v0_2 COMMAND test_gainmap_precision_v0_2)
