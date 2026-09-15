@@ -1,0 +1,122 @@
+{
+  "schema": "TruthRawAdobeLightroomHdrFieldTrialState/0.8",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "REAL_SINGLE_EXPOSURE_DYNAMIC_SCENE_TO_ADOBE_HDR_NO_FAKE_STACK",
+  "implementation_commits": {
+    "field_trial_contract": "793c99be4ef8b925e1c4a884eeb079461b10edb7",
+    "tests": "48b9724e57124710cc86243c0ebfe382f9b25699",
+    "real_source_manifest": "e7abd909ff1d13de961f7e2d8e74184c428175d3",
+    "documentation": "474f3679bfe08c55a5fc0fef790c2c9ed16b5dac",
+    "ci_wiring": "6af83714370d8c8c2caf63619fa43d6bd389839b"
+  },
+  "validated_workflow_run_id": 35027427760,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id": 35027394464,
+  "documentation_governance_conclusion": "success",
+  "runtime": {
+    "path": "tools/adobe_hdr_field_trial_v08.py",
+    "test": "tests/test_adobe_hdr_field_trial_v08.py",
+    "documentation": "docs/research/adobe-lightroom-hdr-field-trial-v0.8/README.md",
+    "real_source_manifest": "docs/research/adobe-lightroom-hdr-field-trial-v0.8/REAL_TELE_CANDIDATE.json"
+  },
+  "real_source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "bytes": 25106120,
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "physical_camera_id": "5",
+    "focal_length_mm": 22.48,
+    "f_number": 2.6,
+    "iso": 638,
+    "exposure_s": 0.009999993,
+    "width": 4080,
+    "height": 3072,
+    "cfa": "BGGR",
+    "white_level": 1023.0,
+    "black_level": [64.0, 64.0, 64.0, 64.0],
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "existing_truthraw_dynamic_evidence": {
+    "uncertainty_decision": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+    "stage2_min": -0.006340971682220697,
+    "stage2_max": 1.2977731227874756,
+    "stage2_over1_count": 62643,
+    "stage2_over1_fraction": 0.004997941559436275,
+    "source_white_count": 217,
+    "source_white_fraction": 0.000017313240400326797,
+    "q99_pre_display_exposure": 0.9892458261670347,
+    "legacy_sdr_display_scalar": 0.72782718001423,
+    "legacy_sdr_preview_peak": 0.9445545522566694,
+    "stage2_over_unity_headroom_ev": 0.3760381928606498,
+    "q99_anchored_headroom_ev": 0.39163721456628425
+  },
+  "scientific_boundary": {
+    "stage2_overrange_equals_adobe_hdr_headroom": false,
+    "stage2_overrange_role": "SOURCE_PIPELINE_DIAGNOSTIC",
+    "adobe_hdr_observation_role": "PRESENTATION_EVIDENCE_ONLY",
+    "exposure_merge_allowed": false,
+    "fake_hdr_merge_metadata_allowed": false,
+    "synthetic_exposure_copies_allowed": false,
+    "counterfactual_illumination_as_scientific_hdr_signal_allowed": false,
+    "ai_scene_edit_in_scientific_field_trial_allowed": false,
+    "source_white_semantics": "CENSORED_LOWER_BOUND_NOT_EXACT_RECOVERED_RADIANCE",
+    "exact_censored_radiance_recovery_allowed": false,
+    "scientific_master_writeback_from_adobe": false,
+    "new_measured_evidence_created_by_hdr_editing": false,
+    "scientific_master_fixed_hdr_limit_ev": null
+  },
+  "adobe_field_trial": {
+    "route": "SINGLE_EXPOSURE_RAW",
+    "input_format": "DNG",
+    "activation": "MANUAL_EDIT_HDR_ON_REAL_SINGLE_EXPOSURE_DNG",
+    "automatic_hdr_activation_assumed": false,
+    "original_dng_must_remain_unchanged": true,
+    "status": "PREPARED_NOT_YET_EXECUTED_INSIDE_ADOBE_LIGHTROOM",
+    "required_observations": [
+      "LIGHTROOM_VERSION",
+      "HDR_BUTTON_AVAILABLE",
+      "HDR_MODE_ENABLED",
+      "HDR_LIMIT_EV_SETTING",
+      "VISUALIZE_HDR_HISTOGRAM_HEADROOM",
+      "DISPLAY_HEADROOM_AVAILABLE_EV_IF_REPORTED",
+      "PROFILE_AND_PROCESS_VERSION",
+      "EXPOSURE_AND_TONE_SETTINGS",
+      "EXPORT_FORMAT_AND_SHA256"
+    ],
+    "requested_return_artifacts": [
+      "ADOBE_SETTINGS_XMP_OR_EXPORTED_METADATA",
+      "HDR_TIFF_16BIT_IF_AVAILABLE",
+      "HDR_AVIF_OR_JPEG_XL_IF_AVAILABLE",
+      "GAIN_MAP_JPEG_OPTIONAL_PRESENTATION_TEST"
+    ]
+  },
+  "validation_coverage": [
+    "EXACT_REAL_SOURCE_IDENTITY",
+    "ONE_PHYSICAL_FRAME_AND_ONE_EVIDENCE_ITEM",
+    "FROZEN_PROSPECTIVE_PASS_SOURCE_REQUIRED",
+    "STAGE2_OVERRANGE_DIAGNOSTIC_NOT_ADOBE_HEADROOM",
+    "LEGACY_SDR_PREVIEW_CAN_COMPRESS_OVERRANGE_BELOW_UNITY",
+    "CENSORED_HIGHLIGHT_REMAINS_LOWER_BOUND",
+    "NO_EXPOSURE_MERGE",
+    "NO_FAKE_HDR_MERGE_METADATA",
+    "NO_AI_SCENE_EDIT_IN_SCIENTIFIC_TRIAL",
+    "ADOBE_OBSERVATION_PRESENTATION_ONLY",
+    "NO_SCIENTIFIC_AUTHORITY_WRITEBACK",
+    "OPEN_WORLD_V01_TO_V07_PYTHON_REGRESSION",
+    "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+    "CICM_NATIVE_REGRESSION",
+    "ROOM_CAPSULE_NATIVE_REGRESSION",
+    "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+  ],
+  "next_gates": [
+    "execute Adobe Lightroom HDR mode manually on the exact bound DNG without merge or synthetic exposure copies",
+    "return Lightroom XMP/exported settings metadata and at least one HDR rendered output",
+    "ingest the real Lightroom round-trip observation with source and export SHA-256 bindings",
+    "compare Adobe HDR histogram EV zones and display headroom with TruthRaw TruthRange/Dynamic Authority diagnostics",
+    "validate at least one true HDR rendered exchange round-trip before implementing a production Scene Master to Adobe HDR encoder"
+  ],
+  "promotion_rule": "Do not promote to main until the exact real-source Lightroom round-trip and at least one true rendered HDR exchange round-trip are empirically validated."
+}
