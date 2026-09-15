@@ -10,10 +10,16 @@
     "unknown_off_diagonal": "NEVER_ASSUME_ZERO",
     "gaussian_sigma": "ONLY_EXPLICIT_GAUSSIAN_EQUIVALENT_SIGMA_OR_KNOWN_MARGINAL_VARIANCE",
     "quantile_anchor": "MAY_BE_USED_ONLY_AS_QUANTILE_RELATIVE_SCALE; NEVER_CONVERT_TO_SIGMA_OR_VARIANCE",
-    "storage_precision": "NUMERICAL_REPRESENTATION_ONLY; CANNOT_UPGRADE_EVIDENCE"
+    "storage_precision": "NUMERICAL_REPRESENTATION_ONLY; CANNOT_UPGRADE_EVIDENCE",
+    "censored_uncertainty": "NOT_ADMITTED_TO_STORAGE_SAFETY_CLAIM",
+    "free_scientific_space": "F64_SCENE_VALUES_ARE_NOT_BOUNDED_BY_F32; F32_OVERFLOW_OR_NONFINITE_STORAGE_FAILS_CLOSED"
   },
   "bindings": {
-    "canonical_uncertainty": "canonical/uncertainty/v5.0g-p1/README_v5_0g_p1.md",
+    "canonical_uncertainty": "canonical/uncertainty/v5.0g-p1/UNCERTAINTY_MODEL_v5_0g.json",
+    "v5g_p1_uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+    "v5g_p1_feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3",
+    "v5g_p1_runtime_output_units": "Stage-2 normalized scene-linear absolute-error bands",
+    "v5g_p1_quantile_semantics": "BOUND_P50_P95_REMAIN_ERROR_QUANTILES_NOT_GAUSSIAN_SIGMA",
     "covariance_contract": "docs/research/camera-rgb-covariance-v0.6/README.md",
     "precision_storage": "docs/research/precision-independent-scientific-master-v0.1/native/mixed_precision_storage_v0_4.*",
     "uncertainty_relative_contract": "docs/research/precision-independent-scientific-master-v0.1/native/uncertainty_relative_storage_v0_7.*"
@@ -34,11 +40,23 @@
     "may_be_called_sigma": false,
     "may_close_local_storage_gate": false
   },
+  "runtime_fail_closed_rules": {
+    "binding_mismatch": "UNKNOWN_NOT_ADMITTED",
+    "feature_schema_mismatch": "UNKNOWN_NOT_ADMITTED",
+    "censored_sample": "UNKNOWN_NOT_ADMITTED",
+    "unknown_anchor": "UNKNOWN_NOT_ADMITTED",
+    "invalid_or_negative_variance": "UNKNOWN_NOT_ADMITTED",
+    "unknown_off_diagonal": "PRESERVE_NAN",
+    "finite_f64_to_nonfinite_f32": "STORAGE_OVERFLOW_NOT_ADMITTED",
+    "zero_uncertainty": "PASS_ONLY_IF_STORAGE_IS_EXACTLY_LOSSLESS"
+  },
   "required_for_close": [
     "local per-output-channel uncertainty authority in the same numerical space as the stored Scientific Master",
+    "exact v5.0g-p1 model binding and feature-schema binding for every quantile-derived comparison",
     "componentwise Gaussian-equivalent comparison only where a real marginal sigma/variance is admitted",
     "quantile-relative comparison retained separately for reconstructed channels whose uncertainty is quantile-only",
-    "unknown local uncertainty remains unknown and cannot count as pass",
+    "censored or unknown local uncertainty remains unresolved and cannot count as pass",
+    "finite Free-Scientific-Space F64 values that overflow F32 remain unresolved and cannot count as pass",
     "F64 reconstruction remains the branch-sensitive compute reference",
     "measured/reconstructed authority remains unchanged by storage quantization",
     "repeat on physically proven 16320x12288 FotoGraaf RAW_SENSOR before 200MP promotion"
@@ -46,7 +64,7 @@
   "current_result": {
     "f64_compute_f32_storage_absolute_gate": "PROVISIONAL_PASS_FOR_TESTED_4080x3072_SCOPE",
     "uncertainty_relative_local_gate": "OPEN",
-    "reason": "Existing storage error is tiny relative to global prospective tele error anchors, but TruthRaw does not yet have a valid local Gaussian-equivalent sigma/covariance for every reconstructed RGB output. Global p50/p95 anchors cannot be converted into covariance."
+    "reason": "Existing storage error is tiny relative to global prospective tele error anchors, but TruthRaw does not yet have a valid local Gaussian-equivalent sigma/covariance or exact bound local p50/p95 output for every reconstructed RGB output. Global p50/p95 anchors cannot be converted into covariance."
   },
-  "next_gate": "Bind admitted local marginal sigma/variance where it exists, preserve reconstructed-channel quantile semantics where sigma is unavailable, and produce separate coverage statistics for Gaussian-comparable, quantile-comparable, and unresolved Scientific-Master samples."
+  "next_gate": "Bind exact v5.0g-p1 local p50/p95 outputs where available and admitted local marginal sigma/variance where it exists; preserve censored/unknown states; then produce separate coverage statistics for Gaussian-comparable, bound-quantile-comparable, storage-overflow, censored, and unresolved Scientific-Master samples."
 }
