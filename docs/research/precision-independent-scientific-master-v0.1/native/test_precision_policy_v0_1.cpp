@@ -27,10 +27,10 @@ int main() {
     assert(std::abs(static_cast<double>(f32) - expected) < 1e-7);
     assert(near(f64, expected));
 
-    // Compensated double reduction must preserve small contributions better than naive summation.
+    // Compensated double reduction recovers small terms through large cancellation.
     const double values[] = {1.0e16, 1.0, -1.0e16, 3.0};
     const double mean = mean_float64_v0_1(values, 4);
-    assert(std::isfinite(mean));
+    assert(near(mean, 1.0));
 
     // Unknown covariance must remain unknown and must not be silently converted to zero.
     Covariance3dV01 unknown;
@@ -61,6 +61,13 @@ int main() {
     assert(near(out.at(0,1), 0.5));
     assert(near(out.at(0,2), 0.75));
     assert(near(out.at(1,2), 0.5625));
+
+    // Precision choices are execution choices; changing the reconstruction scalar
+    // must not grant new evidence authority.
+    p.reconstruction = ReconstructionScalarV01::Float64;
+    assert(precision_policy_authority_invariant_v0_1(p));
+    p.mayChangeEvidenceAuthority = true;
+    assert(!precision_policy_authority_invariant_v0_1(p));
 
     std::cout << "precision_policy_v0_1 PASS\n";
     return 0;
