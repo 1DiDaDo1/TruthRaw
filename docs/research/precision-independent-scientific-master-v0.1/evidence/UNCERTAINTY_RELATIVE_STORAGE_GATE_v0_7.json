@@ -1,0 +1,52 @@
+{
+  "schema": "TruthRawUncertaintyRelativeStorageGate/0.7",
+  "date": "2026-09-15",
+  "authority": "NUMERICAL_UNCERTAINTY_BINDING_RESEARCH_ONLY_NO_EVIDENCE_UPGRADE",
+  "status": "OPEN_LOCAL_UNCERTAINTY_BINDING_REQUIRED",
+  "canonical_promoted": false,
+  "scientific_authority_changed": false,
+  "doctrine": {
+    "unknown_covariance": "REMAIN_NAN_AND_UNKNOWN",
+    "unknown_off_diagonal": "NEVER_ASSUME_ZERO",
+    "gaussian_sigma": "ONLY_EXPLICIT_GAUSSIAN_EQUIVALENT_SIGMA_OR_KNOWN_MARGINAL_VARIANCE",
+    "quantile_anchor": "MAY_BE_USED_ONLY_AS_QUANTILE_RELATIVE_SCALE; NEVER_CONVERT_TO_SIGMA_OR_VARIANCE",
+    "storage_precision": "NUMERICAL_REPRESENTATION_ONLY; CANNOT_UPGRADE_EVIDENCE"
+  },
+  "bindings": {
+    "canonical_uncertainty": "canonical/uncertainty/v5.0g-p1/README_v5_0g_p1.md",
+    "covariance_contract": "docs/research/camera-rgb-covariance-v0.6/README.md",
+    "precision_storage": "docs/research/precision-independent-scientific-master-v0.1/native/mixed_precision_storage_v0_4.*",
+    "uncertainty_relative_contract": "docs/research/precision-independent-scientific-master-v0.1/native/uncertainty_relative_storage_v0_7.*"
+  },
+  "existing_storage_error": {
+    "tested_files": 8,
+    "max_f64_to_f32_abs_normalized": 5.960448645758731e-8,
+    "max_per_file_rms_normalized": 8.554030586872098e-9,
+    "source": "evidence/MIXED_PRECISION_PROMOTION_GATE_v0_4.json"
+  },
+  "prospective_tele_quantile_scale_check": {
+    "scope": "BKQ-N49 22.48mm tele HONOR vendor-DNG exact v5.0g-p1 backend only",
+    "observed_median_error_stage2": 0.008743,
+    "observed_p95_error_stage2": 0.036181,
+    "max_storage_error_over_observed_median_error": 6.817395225619044e-6,
+    "max_storage_error_over_observed_p95_error": 1.6473974311817614e-6,
+    "interpretation": "COARSE_QUANTILE_SCALE_COMPARISON_ONLY",
+    "may_be_called_sigma": false,
+    "may_close_local_storage_gate": false
+  },
+  "required_for_close": [
+    "local per-output-channel uncertainty authority in the same numerical space as the stored Scientific Master",
+    "componentwise Gaussian-equivalent comparison only where a real marginal sigma/variance is admitted",
+    "quantile-relative comparison retained separately for reconstructed channels whose uncertainty is quantile-only",
+    "unknown local uncertainty remains unknown and cannot count as pass",
+    "F64 reconstruction remains the branch-sensitive compute reference",
+    "measured/reconstructed authority remains unchanged by storage quantization",
+    "repeat on physically proven 16320x12288 FotoGraaf RAW_SENSOR before 200MP promotion"
+  ],
+  "current_result": {
+    "f64_compute_f32_storage_absolute_gate": "PROVISIONAL_PASS_FOR_TESTED_4080x3072_SCOPE",
+    "uncertainty_relative_local_gate": "OPEN",
+    "reason": "Existing storage error is tiny relative to global prospective tele error anchors, but TruthRaw does not yet have a valid local Gaussian-equivalent sigma/covariance for every reconstructed RGB output. Global p50/p95 anchors cannot be converted into covariance."
+  },
+  "next_gate": "Bind admitted local marginal sigma/variance where it exists, preserve reconstructed-channel quantile semantics where sigma is unavailable, and produce separate coverage statistics for Gaussian-comparable, quantile-comparable, and unresolved Scientific-Master samples."
+}
