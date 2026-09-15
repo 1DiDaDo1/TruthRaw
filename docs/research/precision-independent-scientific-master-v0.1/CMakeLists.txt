@@ -47,8 +47,14 @@ target_link_libraries(test_reconstruction_precision_reference_v0_3 PRIVATE
     Threads::Threads
 )
 
+add_executable(test_real_reconstruction_precision_fixture_v0_3
+    native/test_real_reconstruction_precision_fixture_v0_3.cpp
+)
+target_link_libraries(test_real_reconstruction_precision_fixture_v0_3 PRIVATE truthraw_precision_v01)
+
 enable_testing()
 add_test(NAME precision_policy_v0_1 COMMAND test_precision_policy_v0_1)
 add_test(NAME gainmap_precision_v0_2 COMMAND test_gainmap_precision_v0_2)
 add_test(NAME v47i_stage2_precision_adapter_v0_1 COMMAND test_v47i_stage2_precision_adapter_v0_1)
 add_test(NAME reconstruction_precision_reference_v0_3 COMMAND test_reconstruction_precision_reference_v0_3)
+add_test(NAME real_reconstruction_precision_fixture_v0_3 COMMAND test_real_reconstruction_precision_fixture_v0_3)
