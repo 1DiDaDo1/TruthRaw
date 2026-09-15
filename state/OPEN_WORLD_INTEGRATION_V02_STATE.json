@@ -1,0 +1,72 @@
+{
+  "schema": "TruthRawOpenWorldIntegrationState/0.2",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "base_main_commit": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "validated_branch_commit": "a6967209a08800298504cd9fbe788e80bea236a7",
+  "validated_workflow_run_id": 35019757563,
+  "validated_workflow_conclusion": "success",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "integration_invariant": "Source evidence is immutable; world representation is open; authority never upgrades silently.",
+  "components": {
+    "illumination_dispatch": {
+      "status": "IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v02.py",
+      "consumers": [
+        "SCIENTIFIC_SCENE",
+        "CICM_RELATIVE_WORLD",
+        "CICM_CALIBRATED_FORWARD",
+        "ROOM_CAPSULE_RELATIVE"
+      ],
+      "counterfactual_to_scientific_master": "BLOCKED"
+    },
+    "calibration_registry_resolver": {
+      "status": "IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v02.py",
+      "fail_closed_states": ["NOT_FOUND", "OUT_OF_DOMAIN", "UNCERTIFIED", "AMBIGUOUS"],
+      "automatic_overlap_ranking": false
+    },
+    "structure_to_detail_acutance_gate": {
+      "status": "IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v02.py",
+      "canonical_bytes_modified": false,
+      "weak_or_unknown_policy": "NEUTRAL_ONLY",
+      "appearance_output_may_write_scientific_master": false
+    },
+    "restoration_artifact_stack": {
+      "status": "HASH_CHAINED_REVERSIBLE_LINEAR_STACK_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_integration_v02.py",
+      "source_overwrite_allowed": false,
+      "authority_upgrade_after_hypothetical_visual_layer": false
+    },
+    "camera5_200mp_evidence_bundle": {
+      "status": "END_TO_END_ORCHESTRATOR_AND_BUNDLE_CONTRACT_IMPLEMENTED_TESTED_REAL_CAPTURE_PENDING",
+      "path": "tools/camera5_200mp_evidence_bundle_v02.py",
+      "target_dimensions": [16320, 12288],
+      "target_classification": "CAMERA5_200MP_CAPTURE_CHAIN_PROVEN_APP_VISIBLE_CFA",
+      "physicalFrameCount": 1,
+      "independentEvidenceCount": 1,
+      "real_capture_gate": "PENDING_CAPTURE_BOUND_MANIFEST_RAWSENSOR_DNG_PAIR"
+    }
+  },
+  "tests": [
+    "tests/test_open_world_foundations_v01.py",
+    "tests/test_open_world_integration_v02.py",
+    "tests/test_camera5_200mp_cfa_identity_v01.py"
+  ],
+  "workflow": ".github/workflows/open-world-foundations-v0-1-integrity.yml",
+  "workflow_run": {
+    "id": 35019757563,
+    "head_sha": "a6967209a08800298504cd9fbe788e80bea236a7",
+    "conclusion": "success"
+  },
+  "documentation": "docs/research/open-world-integration-v0.2/README.md",
+  "next_gates": [
+    "transport illumination authority natively through CICM and Room Capsule provenance",
+    "populate calibration registry from real measured tele campaigns with independent hold-outs",
+    "derive Structure Evidence Map from reconstruction/uncertainty/optics measurements and validate against v4.7j/v4.7k outputs",
+    "persist restoration artefact stacks and support explicit clean-parent branching",
+    "run real HONOR BKQ-N49 Camera-5 16320x12288 manifest+RAW_SENSOR+DNG through full evidence-bundle CLI"
+  ],
+  "promotion_rule": "Do not promote to main until the real Camera-5 200MP proof and native module integration gates are reviewed."
+}
