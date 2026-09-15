@@ -1,0 +1,72 @@
+{
+  "schema": "TruthRawMixedPrecisionPromotionGate/0.4",
+  "date": "2026-09-15",
+  "authority": "NUMERICAL_RESEARCH_GATE_ONLY_NO_EVIDENCE_UPGRADE_NO_CANONICAL_PROMOTION",
+  "scope": "v4.7i-equivalent branch-sensitive reconstruction on tested 4080x3072 HONOR/MotionCam CFA sources",
+  "canonical_promoted": false,
+  "scientific_authority_changed": false,
+  "decisions": {
+    "f32_branch_sensitive_compute": "REJECT_AS_SCIENTIFIC_REFERENCE",
+    "f64_branch_sensitive_compute": "REQUIRED_SCIENTIFIC_REFERENCE",
+    "f64_compute_f32_storage": "PROVISIONAL_NUMERICAL_PASS_FOR_TESTED_SCOPE_ONLY",
+    "exact_raw_evidence": "PRESERVE_INTEGER_OR_PACKED_BYTES_SEPARATELY",
+    "f32_stage2_normalization": "HOT_PATH_CANDIDATE_WITH_F64_REFERENCE_FOR_TESTED_SCOPE",
+    "f32_gainmap": "HOT_PATH_CANDIDATE_WITH_F64_REFERENCE_FOR_TESTED_SCOPE",
+    "float128_or_arbitrary_precision": "OFFLINE_ORACLE_ONLY"
+  },
+  "research_acceptance_budget": {
+    "storage_max_abs_normalized": 1e-7,
+    "storage_rms_normalized": 1e-8,
+    "measured_channel_violations_f64_compute": 0,
+    "minimum_real_files": 8,
+    "minimum_source_classes": 2,
+    "require_cpp_branch_hazard_fixtures": true,
+    "note": "Engineering/numerical research budget only. It is not a physical uncertainty or photographic-evidence threshold."
+  },
+  "aggregate_full_file_sweep": {
+    "files": 8,
+    "total_cfa_samples": 100270080,
+    "total_branch_sites": 50135040,
+    "total_direction_divergence": 3549,
+    "max_direction_divergence_rate": 0.0003033407373366013,
+    "max_f32_f64_rgb_abs": 0.03754055533836806,
+    "max_f32_f64_rgb_rms": 1.7511959875338222e-5,
+    "max_f64_to_f32_storage_abs": 5.960448645758731e-8,
+    "max_f64_to_f32_storage_rms": 8.554030586872098e-9,
+    "total_green_clamp_divergence": 44,
+    "total_color_clamp_divergence": 2580,
+    "measured_channel_violations_f32": 0,
+    "measured_channel_violations_f64": 0,
+    "source_classes": ["MOTIONCAM_DIRECT_CFA", "HONOR_VENDOR_DNG"],
+    "authority_note": "Full-file host sweep is locator/research evidence. Critical branch hazards are independently retained as deterministic C++ CI fixtures."
+  },
+  "per_file": [
+    {"file":"IMG_260816_134122_304_005.dng","sha256":"04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5","source_class":"MOTIONCAM_DIRECT_CFA","direction_divergence":1901,"direction_divergence_rate":0.0003033407373366013,"stage2_max_abs":2.9771245912968425e-8,"rgb_max_abs":0.004119728090454855,"rgb_rms":6.112842976818589e-6,"storage_max_abs":5.895194976623941e-8,"storage_rms":2.6795150328731013e-9},
+    {"file":"IMG_260816_134204_911_008.dng","sha256":"cf8ccfd48afe3cff6214f7cfb8707221c3722afa3e5d332464cd9d7f485d3521","source_class":"MOTIONCAM_DIRECT_CFA","direction_divergence":1509,"direction_divergence_rate":0.00024078967524509805,"stage2_max_abs":2.9771245912968425e-8,"rgb_max_abs":0.015604908448674404,"rgb_rms":1.7511959875338222e-5,"storage_max_abs":5.934572810950556e-8,"storage_rms":3.4757556272562363e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142935_568.dng","sha256":"b79a423d1631b573a9aec53e4a773f115a223db7c0c8416417e15618f17b73ba","source_class":"HONOR_VENDOR_DNG","direction_divergence":4,"direction_divergence_rate":6.382761437908496e-7,"stage2_max_abs":1.667153675111166e-7,"rgb_max_abs":0.015314372815226962,"rgb_rms":4.762726441711948e-6,"storage_max_abs":5.952563375544173e-8,"storage_rms":4.787581867153333e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142941_853.dng","source_class":"HONOR_VENDOR_DNG","direction_divergence":23,"direction_divergence_rate":3.6700878267973857e-6,"stage2_max_abs":1.8794748779527026e-7,"rgb_max_abs":0.037489710851514646,"rgb_rms":6.293131996225241e-6,"storage_max_abs":5.9604378765953925e-8,"storage_rms":6.74920706e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142950_144.dng","sha256":"f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce","source_class":"HONOR_VENDOR_DNG","direction_divergence":1,"direction_divergence_rate":1.595690359477124e-7,"stage2_max_abs":1.442165763476666e-7,"rgb_max_abs":0.03754055533836806,"rgb_rms":6.6951231812401e-6,"storage_max_abs":5.937037417247382e-8,"storage_rms":3.2699071086343973e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151110_490.dng","source_class":"HONOR_VENDOR_DNG","direction_divergence":12,"direction_divergence_rate":1.914828431372549e-6,"stage2_max_abs":1.448193024389255e-7,"rgb_max_abs":0.0025022562041207563,"rgb_rms":7.179081373383124e-7,"storage_max_abs":5.941729419589592e-8,"storage_rms":2.81191296e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151129_256.dng","sha256":"f900c9d8911072530d43c532a02328c62ed1e380ab6659c36bc2ed0f2dc9b229","source_class":"HONOR_VENDOR_DNG","direction_divergence":91,"direction_divergence_rate":1.452078227124183e-5,"stage2_max_abs":1.9488667812872507e-7,"rgb_max_abs":0.019482031462431104,"rgb_rms":4.047569058163212e-6,"storage_max_abs":5.960448645758731e-8,"storage_rms":8.554030586872098e-9},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151349_043.dng","sha256":"7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344","source_class":"HONOR_VENDOR_DNG","direction_divergence":8,"direction_divergence_rate":1.2765522875816993e-6,"stage2_max_abs":1.330595703619153e-7,"rgb_max_abs":0.013086394297470827,"rgb_rms":3.7516907036636095e-6,"storage_max_abs":2.980231506022335e-8,"storage_rms":6.52635747e-9}
+  ],
+  "cpp_ci": {
+    "workflow": "precision-independent-scientific-master-v0.1",
+    "run_id": 34987242806,
+    "commit": "996a132e0ad2ea958205a9aa416afa3ba5967ac8",
+    "tests": "8/8 PASS",
+    "fixtures": [
+      {"source":"IMG_BNC_TRUTHRAW20260906_151129_256.dng","coordinate":[1408,884],"f32_direction":"Vertical","f64_direction":"WeightedBlend","error_range":[0.019,0.020]},
+      {"source":"IMG_260816_134122_304_005.dng","coordinate":[3623,95],"f32_direction":"WeightedBlend","f64_direction":"Horizontal","error_range":[0.0002,0.00025]},
+      {"source":"IMG_BNC_TRUTHRAW20260906_142950_144.dng","coordinate":[332,2164],"f32_direction":"Horizontal","f64_direction":"WeightedBlend","error_range":[0.037,0.038]}
+    ]
+  },
+  "gate_result": {
+    "f32_compute_reference": "FAIL",
+    "f64_compute_reference": "PASS",
+    "f64_compute_f32_storage": "PROVISIONAL_PASS",
+    "reason": "Across eight real files, F32 compute changes branch choices and can amplify tiny Stage-2 differences into percent-scale reconstructed-channel differences, while F64-to-F32 output storage remained below the provisional numerical research budget.",
+    "not_proven": ["uncertainty-relative storage safety at every pixel","Android runtime/memory/thermal performance","16320x12288 maximum-resolution RAW route","other reconstruction algorithms or future canonical masters","canonical promotion"]
+  },
+  "next_gate": "Propagate local uncertainty/covariance through F64 reconstruction and compare F64-to-F32 storage quantization against local uncertainty; then repeat the same policy on a physically proven 16320x12288 FotoGraaf capture."
+}
