@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -37,18 +38,23 @@ inline WorkT normalize_raw_u16_v0_1(std::uint16_t code, const Stage2ParamsV01& p
     return static_cast<WorkT>(normalized);
 }
 
-struct KahanSum64V01 {
+// Neumaier-style compensated summation. The extra correction term is retained
+// separately so large cancellation does not discard small scientific terms.
+struct CompensatedSum64V01 {
     double sum = 0.0;
     double correction = 0.0;
 
     void add(double x) {
-        const double y = x - correction;
-        const double t = sum + y;
-        correction = (t - sum) - y;
+        const double t = sum + x;
+        if (std::abs(sum) >= std::abs(x)) {
+            correction += (sum - t) + x;
+        } else {
+            correction += (x - t) + sum;
+        }
         sum = t;
     }
 
-    double value() const { return sum; }
+    double value() const { return sum + correction; }
 };
 
 struct Matrix3dV01 {
