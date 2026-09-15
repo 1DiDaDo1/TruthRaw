@@ -9,6 +9,7 @@ on:
       - 'tools/open_world_structure_runtime_v04.py'
       - 'tools/open_world_dynamic_authority_v05.py'
       - 'tools/open_world_dynamic_runtime_v06.py'
+      - 'tools/adobe_hdr_interop_v07.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -18,6 +19,7 @@ on:
       - 'tests/test_open_world_structure_runtime_v04.py'
       - 'tests/test_open_world_dynamic_authority_v05.py'
       - 'tests/test_open_world_dynamic_runtime_v06.py'
+      - 'tests/test_adobe_hdr_interop_v07.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -25,6 +27,7 @@ on:
       - 'docs/research/open-world-structure-runtime-v0.4/**'
       - 'docs/research/open-world-dynamic-authority-v0.5/**'
       - 'docs/research/open-world-dynamic-runtime-v0.6/**'
+      - 'docs/research/adobe-lightroom-real-hdr-v0.7/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -40,6 +43,7 @@ on:
       - 'tools/open_world_structure_runtime_v04.py'
       - 'tools/open_world_dynamic_authority_v05.py'
       - 'tools/open_world_dynamic_runtime_v06.py'
+      - 'tools/adobe_hdr_interop_v07.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -49,6 +53,7 @@ on:
       - 'tests/test_open_world_structure_runtime_v04.py'
       - 'tests/test_open_world_dynamic_authority_v05.py'
       - 'tests/test_open_world_dynamic_runtime_v06.py'
+      - 'tests/test_adobe_hdr_interop_v07.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -56,6 +61,7 @@ on:
       - 'docs/research/open-world-structure-runtime-v0.4/**'
       - 'docs/research/open-world-dynamic-authority-v0.5/**'
       - 'docs/research/open-world-dynamic-runtime-v0.6/**'
+      - 'docs/research/adobe-lightroom-real-hdr-v0.7/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -81,6 +87,7 @@ jobs:
             tests.test_open_world_structure_runtime_v04 \
             tests.test_open_world_dynamic_authority_v05 \
             tests.test_open_world_dynamic_runtime_v06 \
+            tests.test_adobe_hdr_interop_v07 \
             tests.test_camera5_200mp_cfa_identity_v01
       - name: Compile and run Technical Backplane v0.1 regression
         run: |
