@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawPrecisionIndependentScientificMasterStatus/0.1",
   "date": "2026-09-15",
-  "status": "RESEARCH_HOST_CI_PASS_DUAL_SOURCE_RECONSTRUCTION_HAZARD_MIXED_STORAGE_PRIMITIVE_PASS",
+  "status": "RESEARCH_HOST_CPP_8_FILE_SWEEP_PASS_F64_COMPUTE_F32_STORAGE_CANDIDATE",
   "canonical_promoted": false,
   "scientific_authority_changed": false,
   "implemented": {
@@ -23,9 +23,11 @@
     "f64_reconstruction_scientific_reference": true,
     "real_honor_vendor_reconstruction_branch_divergence_fixture": true,
     "real_motioncam_direct_cfa_reconstruction_branch_divergence_fixture": true,
+    "real_honor_vendor_worstcase_reconstruction_precision_fixture": true,
     "f64_compute_f32_storage_quantization_primitive": true,
     "real_dng_stage2_tile_exporter": true,
     "real_tile_reconstruction_precision_cli": true,
+    "real_cpp_8_file_full_frame_precision_sweep": true,
     "mixed_precision_reconstruction_policy_promoted": false,
     "android_runtime_precision_governor": false,
     "float128_or_mpfr_native_backend": false
@@ -33,10 +35,11 @@
   "host_ci": {
     "cmake_configure": "PASS",
     "cpp_build": "PASS",
-    "cpp_tests": "7/7 PASS",
+    "cpp_tests": "8/8 PASS",
     "python_high_precision_tests": "PASS",
     "oracle_report": "PASS",
-    "workflow_run": 34985844135
+    "workflow_run": 34987242806,
+    "commit": "996a132e0ad2ea958205a9aa416afa3ba5967ac8"
   },
   "oracle": {
     "normalization_max_abs_error_f32": 2.21252441e-07,
@@ -48,42 +51,61 @@
   },
   "real_evidence": {
     "motioncam_direct_cfa_sha256": "04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5",
-    "motioncam_stage2_max_dn_error_f32_vs_f64": 2.855062483053672e-05,
-    "motioncam_max_error_over_modeled_sigma": 5.725768463395471e-06,
     "vendor_tele_holdout_sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
-    "vendor_pre_gainmap_stage2_max_dn_error_f32_vs_f64": 4.3526887890592554e-05,
-    "vendor_pre_gainmap_max_error_over_modeled_sigma": 2.2400328612667652e-06,
     "vendor_gainmap_audit_files": 6,
     "vendor_gainmap_audit_samples": 75202560,
     "vendor_gainmap_max_gain_error_f32_vs_f64": 2.5431315098245477e-07,
     "vendor_post_gainmap_max_signal_error_f32_vs_f64": 1.9488667812872507e-07,
-    "vendor_post_gainmap_max_dn_error_f32_vs_f64": 0.00018689632432544734,
-    "vendor_post_gainmap_max_error_over_modeled_sigma": 2.27139300707584e-05,
-    "vendor_gainmap_highlight_samples": 1129687,
-    "vendor_gainmap_post_gain_over1_samples": 1053655,
     "honor_vendor_reconstruction_fixture": {
       "source": "IMG_BNC_TRUTHRAW20260906_151129_256.dng",
       "sha256": "f900c9d8911072530d43c532a02328c62ed1e380ab6659c36bc2ed0f2dc9b229",
       "global_x": 1408,
       "global_y": 884,
-      "stage2_delta_bound": "<2e-7 normalized",
       "f32_direction": "Vertical",
       "f64_direction": "WeightedBlend",
       "reconstructed_red_end_to_end_error": ">1.9e-2 and <2.0e-2 normalized",
-      "arithmetic_only_error_after_f32_promotion": "<1e-5 normalized",
       "measured_channel_violations_f32": 0,
       "measured_channel_violations_f64": 0
     },
     "motioncam_direct_reconstruction_fixture": {
-      "source": "IMG_260816_134122_304_005.dng",
+      "source": "IMG_260816_134122_304_005(2).dng",
       "sha256": "04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5",
       "global_x": 3623,
       "global_y": 95,
       "gainmap_character": "UNITY",
       "f32_direction": "WeightedBlend",
       "f64_direction": "Horizontal",
-      "reconstructed_green_end_to_end_error": ">2.0e-4 and <2.5e-4 normalized",
-      "arithmetic_only_error_after_f32_promotion": "<1e-6 normalized",
+      "measured_channel_violations_f32": 0,
+      "measured_channel_violations_f64": 0
+    },
+    "honor_vendor_worstcase_fixture": {
+      "source": "IMG_BNC_TRUTHRAW20260906_142950_144.dng",
+      "sha256": "f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce",
+      "global_x": 332,
+      "global_y": 2164,
+      "f32_direction": "Horizontal",
+      "f64_direction": "WeightedBlend",
+      "max_abs_reconstruction_error": ">3.7e-2 and <3.8e-2 normalized",
+      "measured_channel_violations_f32": 0,
+      "measured_channel_violations_f64": 0
+    },
+    "cpp_full_frame_sweep": {
+      "report": "TRUTHRAW_REAL_RECONSTRUCTION_PRECISION_CPP_SWEEP_v0_4.json",
+      "files": 8,
+      "resolution": "4080x3072",
+      "pixels": 100270080,
+      "rgb_samples": 300810240,
+      "green_reconstructed_sites": 50135040,
+      "green_direction_divergence": 3549,
+      "green_direction_divergence_fraction": 7.078881357230393e-05,
+      "green_clamp_divergence": 44,
+      "color_clamp_divergence": 2580,
+      "max_abs_reconstruction_error": 0.0375406,
+      "rms_reconstruction_error": 7.76307013676986e-06,
+      "max_stage2_abs_f32_vs_f64": 1.9488667812872507e-07,
+      "max_f64_compute_to_f32_storage_error": 5.96045e-08,
+      "rms_f64_compute_to_f32_storage_error": 5.2689828979984366e-09,
+      "max_compute_to_storage_error_ratio": 629828.2847771561,
       "measured_channel_violations_f32": 0,
       "measured_channel_violations_f64": 0
     }
@@ -92,11 +114,11 @@
     "exact_raw_evidence": "PRESERVE INTEGER/PACKED BYTES",
     "stage2_black_white_normalization": "F32 HOT-PATH CANDIDATE WITH F64 REFERENCE FOR TESTED HONOR SOURCES",
     "stage2_gainmap": "F32 HOT-PATH CANDIDATE WITH F64 REFERENCE FOR TESTED HONOR VENDOR DNG GAINMAP FAMILY",
-    "branch_sensitive_reconstruction_compute": "F64 SCIENTIFIC REFERENCE; F32 REQUIRES BRANCH-STABILITY AND OUTPUT-ERROR GATE",
-    "scientific_master_storage": "F32 STORAGE IS A RESEARCH CANDIDATE ONLY AFTER F64 COMPUTE; QUANTIZATION PRIMITIVE PASS, REAL MULTI-FILE STORAGE GATE STILL OPEN",
+    "branch_sensitive_reconstruction_compute": "F64 SCIENTIFIC REFERENCE; F32 REJECTED AS SCIENTIFIC REFERENCE FOR TESTED V4.7I TOPOLOGY",
+    "scientific_master_storage": "F32 STORAGE AFTER F64 COMPUTE PASSES THE 8-FILE 4080x3072 HOST RESEARCH GATE; REMAINS NON-CANONICAL UNTIL RUNTIME/200MP VALIDATION",
     "calibration_optimization_covariance": "F64 DEFAULT_REFERENCE",
     "float128_arbitrary_precision": "OFFLINE_REFERENCE_VALIDATOR_ONLY",
     "selection_rule": "choose compute precision by numerical error plus branch stability; choose storage precision separately by post-compute quantization error relative to physical/model uncertainty"
   },
-  "next_gate": "Run the real-DNG tile exporter plus C++ reconstruction CLI across multiple complete HONOR/MotionCam files; aggregate branch divergence, support-clamp divergence, RGB max/RMS error and F64-compute-to-F32-storage error. Then decide whether F32 Scientific Master storage can be admitted while reconstruction compute remains F64."
+  "next_gate": "Implement a tile-local F64 branch-sensitive reconstruction path with explicit post-compute F32 Scientific Master storage in the research runtime. Validate parity, memory and runtime, then repeat on physically proven FotoGraaf 16320x12288 evidence before any canonical promotion."
 }
