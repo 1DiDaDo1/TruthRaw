@@ -15,6 +15,7 @@ add_library(truthraw_precision_v01 STATIC
     native/precision_policy_v0_1.cpp
     native/gainmap_precision_v0_2.cpp
     native/reconstruction_precision_reference_v0_3.cpp
+    native/mixed_precision_storage_v0_4.cpp
     adapters/v47i_stage2_precision_adapter_v0_1.cpp
 )
 target_include_directories(truthraw_precision_v01 PUBLIC
@@ -57,6 +58,11 @@ add_executable(test_motioncam_direct_reconstruction_precision_fixture_v0_3
 )
 target_link_libraries(test_motioncam_direct_reconstruction_precision_fixture_v0_3 PRIVATE truthraw_precision_v01)
 
+add_executable(test_mixed_precision_storage_v0_4
+    native/test_mixed_precision_storage_v0_4.cpp
+)
+target_link_libraries(test_mixed_precision_storage_v0_4 PRIVATE truthraw_precision_v01)
+
 add_executable(reconstruction_precision_cli_v0_3
     tools/reconstruction_precision_cli_v0_3.cpp
 )
@@ -73,6 +79,7 @@ set(TRUTHRAW_PRECISION_TEST_TARGETS
     test_reconstruction_precision_reference_v0_3
     test_real_reconstruction_precision_fixture_v0_3
     test_motioncam_direct_reconstruction_precision_fixture_v0_3
+    test_mixed_precision_storage_v0_4
 )
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     foreach(t IN LISTS TRUTHRAW_PRECISION_TEST_TARGETS)
@@ -87,3 +94,4 @@ add_test(NAME v47i_stage2_precision_adapter_v0_1 COMMAND test_v47i_stage2_precis
 add_test(NAME reconstruction_precision_reference_v0_3 COMMAND test_reconstruction_precision_reference_v0_3)
 add_test(NAME real_reconstruction_precision_fixture_v0_3 COMMAND test_real_reconstruction_precision_fixture_v0_3)
 add_test(NAME motioncam_direct_reconstruction_precision_fixture_v0_3 COMMAND test_motioncam_direct_reconstruction_precision_fixture_v0_3)
+add_test(NAME mixed_precision_storage_v0_4 COMMAND test_mixed_precision_storage_v0_4)
