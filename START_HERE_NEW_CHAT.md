@@ -5,13 +5,14 @@ This file originated as the authoritative renewed-house bootstrap on 2026-09-10.
 ## Mandatory reading order
 
 1. `docs/TRUTHRAW_EXPERTISE_FOUNDATION_FREE_SPACE_200MP_2026-09-15.md` — current scientific expertise foundation; Free Scientific Space; colour/light/calibration/sharpness/restoration; float precision; current 200MP Step 3B
-2. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md` — current core vision
-3. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` — historical/project-wide continuity; this does not replace module-local scientific authority
-4. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-5. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-6. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-7. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
-8. only then: the current claim/status documents and canonical/research module documents relevant to the task
+2. `docs/TRUTHRAW_EXPERTISE_200MP_ROUTE_v0_8_ADDENDUM_2026-09-15.md` — mandatory routing correction: preserve logical-0 -> physical-5 parentage; do not resume from v0.7 direct-open assumptions
+3. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md` — current core vision
+4. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` — historical/project-wide continuity; this does not replace module-local scientific authority
+5. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
+6. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+7. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
+8. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
+9. only then: the current claim/status documents and canonical/research module documents relevant to the task
 
 `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md` is retained as **historical provenance only**. Its old sealed-house wording is no longer the active architectural metaphor.
 
@@ -85,7 +86,7 @@ Android FotoGraaf is a subsystem of the larger trajectory, not a replacement for
 
 Camera 5 exposes a real static Camera2 maximum-resolution high-resolution `RAW_SENSOR 16320x12288` route. The static capability gate is proven; the physical capture gate remains open until a real payload plus matching `TotalCaptureResult` and hash/timestamp evidence are returned.
 
-The current independent v0.7 proof code already requests `SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION`, marks the OutputConfiguration for maximum-resolution use, uses a bounded ImageReader, writes/hashes the direct raw buffer and checks timestamp binding.
+The standalone v0.7 probe contains much of the correct maximum-resolution evidence machinery, but **v0.8 is the route authority** because it preserves the logical-parent/physical-child relationship. If camera 5 is exposed as physical child of logical camera 0, Step 3B must use `logical 0 -> OutputConfiguration physical 5 -> matching physical CaptureResult`, not assume `openCamera("5")` is valid.
 
 `SENSOR_RAW_BINNING_FACTOR_USED` is an optional Boolean result key and must not be confused with `SENSOR_INFO_BINNING_FACTOR` (`Size`). A null binning-result flag is not by itself failure on this Honor route.
 
