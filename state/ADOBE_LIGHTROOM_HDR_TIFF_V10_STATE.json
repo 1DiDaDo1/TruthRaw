@@ -1,0 +1,66 @@
+{
+  "schema": "TruthRawAdobeLightroomHdrTiffState/1.0",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "ADOBE_HDR_TIFF_IS_PRESENTATION_INTERCHANGE_NOT_NEW_SENSOR_EVIDENCE",
+  "real_tiff": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (1).tif",
+    "sha256": "03da35eb8c708eac09de55850e868a728378501ded5e6a91db0dbae7f74f8af9",
+    "bytes": 74559418,
+    "geometry": [4064, 3056],
+    "photometric": "RGB",
+    "bits_per_sample": [16, 16, 16],
+    "sample_storage": "UINT16",
+    "compression": "NONE",
+    "icc_profile": "Adobe RGB (1998)",
+    "lightroom_software": "Adobe Lightroom 11.5.22 (Android)",
+    "xmp_bytes": 19878,
+    "hdr_edit_mode": true,
+    "hdr_max_value_ev": 8.0,
+    "exposure_2012_ev": 0.0,
+    "whites_2012": 2.0,
+    "tone_curve_name": "Custom",
+    "extended_tone_curve_points": [[0,12],[152,228],[386,500]],
+    "any_channel_code_65535_fraction": 0.004926896102156079,
+    "red_code_65535_fraction": 0.0021820376592323865,
+    "green_code_65535_fraction": 0.002792122505874593,
+    "blue_code_65535_fraction": 0.00457624023477759
+  },
+  "companion_tone_expanded_avif": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (2).avif",
+    "sha256": "60f8cd7a51f8b011f131ecb10932bbda28b03d3444e06d135c2828865fb77d8e",
+    "transfer": "SMPTE_ST_2084_PQ",
+    "primaries": "REC709",
+    "bit_depth": 10,
+    "decoded_max_channel_code": 958,
+    "decoded_code_ceiling": 1023,
+    "ccv_max_luminance_nits": 5315.807728,
+    "maxcll_nits": 5259
+  },
+  "assessment": {
+    "classification": "ADOBE_ECOSYSTEM_HDR_INTERCHANGE",
+    "adobe_hdr_edit_state_present": true,
+    "generic_decoder_self_describing_hdr_transport_proven": false,
+    "standard_pixel_payload_may_be_assumed_pq_without_extra_contract": false,
+    "reason": "The real Android TIFF exposes Adobe RGB (1998) ICC plus HDR XMP state, while the exact TIFF tag set does not independently expose the companion AVIF's explicit ST-2084/PQ transport semantics.",
+    "code_ceiling_requires_caution": true,
+    "adobe_reimport_roundtrip_status": "PENDING",
+    "scientific_master_writeback_allowed": false,
+    "creates_new_measured_dynamic_range": false,
+    "censored_exact_radiance_recovery_allowed": false
+  },
+  "implementation": {
+    "runtime": "tools/adobe_hdr_tiff_audit_v10.py",
+    "tests": "tests/test_adobe_hdr_tiff_audit_v10.py",
+    "documentation": "docs/research/adobe-lightroom-hdr-tiff-v1.0/README.md"
+  },
+  "next_gates": [
+    "re-import the exact TIFF into Lightroom mobile",
+    "record whether HDR mode remains active without manual reactivation",
+    "record HDR histogram and HDR Limit after TIFF re-import",
+    "re-export the re-imported TIFF as HDR AVIF with no tone changes",
+    "compare second-generation AVIF PQ output against the original tone-expanded AVIF",
+    "promote TIFF transport classification only if the HDR round-trip is independently preserved within a defined tolerance"
+  ],
+  "promotion_rule": "Do not promote to main. Do not call the exact mobile TIFF self-describing PQ until its Adobe and independent-decoder HDR transport has been round-trip validated."
+}
