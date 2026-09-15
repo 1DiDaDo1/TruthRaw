@@ -38,6 +38,31 @@ UncertaintyAnchorV07 p95_error_anchor_v0_7(double p95Error) {
     return make_anchor(UncertaintySemanticsV07::ErrorQuantileP95, p95Error);
 }
 
+bool v5g_p1_binding_exact_v0_7(const std::string& uncertaintyBindingSha256,
+                               const std::string& featureSchemaSha256) {
+    return uncertaintyBindingSha256 == kV5gP1UncertaintyBindingSha256V07 &&
+           featureSchemaSha256 == kV5gP1FeatureSchemaSha256V07;
+}
+
+V5gP1QuantileBindingV07 bind_v5g_p1_quantiles_v0_7(
+    double p50Error,
+    double p95Error,
+    bool censored,
+    const std::string& uncertaintyBindingSha256,
+    const std::string& featureSchemaSha256) {
+    V5gP1QuantileBindingV07 out;
+    out.censored = censored;
+    out.bindingAccepted = v5g_p1_binding_exact_v0_7(
+        uncertaintyBindingSha256, featureSchemaSha256);
+    if (!out.bindingAccepted || censored) return out;
+    if (!finite_nonnegative(p50Error) || !finite_nonnegative(p95Error) || p95Error < p50Error) {
+        return out;
+    }
+    out.p50 = p50_error_anchor_v0_7(p50Error);
+    out.p95 = p95_error_anchor_v0_7(p95Error);
+    return out;
+}
+
 UncertaintyAnchorV07 covariance_diagonal_sigma_anchor_v0_7(
     const truthraw_precision_v01::Covariance3dV01& covariance,
     int channel) {
@@ -68,7 +93,10 @@ StorageRelativeAssessmentV07 assess_f64_to_f32_storage_v0_7(
     }
 
     out.f32Stored = static_cast<float>(f64Reference);
-    if (!std::isfinite(out.f32Stored)) return out;
+    if (!std::isfinite(out.f32Stored)) {
+        out.storageNonFinite = true;
+        return out;
+    }
     out.absStorageError = std::abs(static_cast<double>(out.f32Stored) - f64Reference);
 
     if (anchor.value == 0.0) {
@@ -102,7 +130,8 @@ StorageRelativeBatchStatsV07 assess_f64_to_f32_storage_batch_v0_7(
         const auto a = assess_f64_to_f32_storage_v0_7(
             f64Reference[i], anchors[i], maxErrorOverAnchor);
         if (!a.comparable) {
-            ++stats.unknownOrInvalidAnchors;
+            if (a.storageNonFinite) ++stats.storageNonFinite;
+            else ++stats.unknownOrInvalidAnchors;
             continue;
         }
         stats.maxAbsStorageError = std::max(stats.maxAbsStorageError, a.absStorageError);
