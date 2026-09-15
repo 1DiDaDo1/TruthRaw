@@ -52,9 +52,12 @@ template <typename WorkT>
 inline WorkT normalize_raw_u16_v0_1(std::uint16_t code, const Stage2ParamsV01& p) {
     static_assert(std::is_same<WorkT, float>::value || std::is_same<WorkT, double>::value,
                   "TruthRaw v0.1 reconstruction work type must be float or double");
-    const double denom = std::max(p.white - p.black, 1.0);
-    const double normalized = ((static_cast<double>(code) - p.black) / denom) * p.gain;
-    return static_cast<WorkT>(normalized);
+    const WorkT black = static_cast<WorkT>(p.black);
+    const WorkT white = static_cast<WorkT>(p.white);
+    const WorkT gain = static_cast<WorkT>(p.gain);
+    const WorkT denom = std::max(static_cast<WorkT>(white - black), static_cast<WorkT>(1));
+    return static_cast<WorkT>(
+        static_cast<WorkT>(static_cast<WorkT>(code) - black) / denom * gain);
 }
 
 // Convert a rectangular tile from exact unpacked uint16 evidence into a selected
