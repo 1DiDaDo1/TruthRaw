@@ -1,0 +1,37 @@
+name: precision-independent-scientific-master-v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/precision-independent-scientific-master-v0.1/**'
+      - '.github/workflows/precision-independent-scientific-master-v01.yml'
+  pull_request:
+    paths:
+      - 'docs/research/precision-independent-scientific-master-v0.1/**'
+      - '.github/workflows/precision-independent-scientific-master-v01.yml'
+
+jobs:
+  host-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure C++ reference
+        run: cmake -S docs/research/precision-independent-scientific-master-v0.1 -B build/precision-v01 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build C++ reference
+        run: cmake --build build/precision-v01 --config Release --parallel 2
+
+      - name: Run C++ tests
+        run: ctest --test-dir build/precision-v01 --output-on-failure
+
+      - name: Run arbitrary-precision Python regressions
+        run: python3 docs/research/precision-independent-scientific-master-v0.1/tests/test_high_precision_validator_v0_1.py
+
+      - name: Emit precision oracle report
+        run: |
+          mkdir -p build/precision-v01/report
+          python3 docs/research/precision-independent-scientific-master-v0.1/tools/high_precision_validator_v0_1.py \
+            --out build/precision-v01/report/precision_oracle_v0_1.json \
+            > build/precision-v01/report/precision_oracle_v0_1.stdout.json
+          cat build/precision-v01/report/precision_oracle_v0_1.json
