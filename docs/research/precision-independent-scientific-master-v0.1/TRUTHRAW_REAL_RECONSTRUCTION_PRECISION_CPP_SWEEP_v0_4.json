@@ -1,0 +1,61 @@
+{
+  "schema": "TruthRawRealReconstructionPrecisionCppSweep/0.4",
+  "date": "2026-09-15",
+  "status": "RESEARCH_HOST_CPP_SWEEP_PASS_F64_COMPUTE_F32_STORAGE_CANDIDATE",
+  "authority": "NUMERICAL_RESEARCH_ONLY_NO_PHOTOGRAPHIC_EVIDENCE_UPGRADE_NO_CANONICAL_PROMOTION",
+  "scope": {
+    "files": 8,
+    "resolution": "4080x3072",
+    "motioncam_direct_cfa": 2,
+    "honor_vendor_dng": 6,
+    "physical_frames_per_source": 1
+  },
+  "method": {
+    "raw_and_stage2": "DNG decode plus per-phase black/white normalization; non-unity GainMaps use SDK-structured F32 row stepping and F64 bilinear reference.",
+    "reconstruction": "Full-frame tiled sweep in compiled C++ using the frozen-v4.7i precision-instrumented topology (core=256, halo=4).",
+    "storage": "After F64 reconstruction only, cast each reconstructed RGB scalar once to float32 and compare with the F64 value.",
+    "authority_boundary": "Precision changes numerical execution/storage only. Measured/reconstructed/appearance authority is unchanged."
+  },
+  "summary": {
+    "files": 8,
+    "pixels": 100270080,
+    "rgbSamples": 300810240,
+    "greenReconstructedSites": 50135040,
+    "greenDirectionDivergence": 3549,
+    "greenClampDivergence": 44,
+    "colorClampDivergence": 2580,
+    "measuredChannelViolationsF32": 0,
+    "measuredChannelViolationsF64": 0,
+    "maxAbsError": 0.0375406,
+    "maxStage2Abs": 1.9488667812872507e-07,
+    "maxF64ToF32StorageAbs": 5.96045e-08,
+    "overallBranchDivergenceFraction": 7.078881357230393e-05,
+    "rmsError": 7.76307013676986e-06,
+    "f64ToF32StorageRms": 5.2689828979984366e-09,
+    "maxComputeToStorageRatio": 629828.2847771561
+  },
+  "worstCase": {
+    "file": "IMG_BNC_TRUTHRAW20260906_142950_144.dng",
+    "sha256": "f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce",
+    "greenDirectionDivergence": 1,
+    "maxAbsError": 0.0375406,
+    "f64ToF32StorageMaxAbs": 5.93704e-08
+  },
+  "results": [
+    {"file":"IMG_260816_134122_304_005(2).dng","sha256":"04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5","stage2MaxAbs":2.9771245912968425e-08,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":1901,"greenClampDivergence":1,"colorClampDivergence":1773,"maxAbsError":0.00411973,"rmsError":6.11284e-06,"f64ToF32StorageMaxAbs":5.89519e-08,"f64ToF32StorageRms":2.67952e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_260816_134204_911_008(1).dng","sha256":"cf8ccfd48afe3cff6214f7cfb8707221c3722afa3e5d332464cd9d7f485d3521","stage2MaxAbs":2.9771245912968425e-08,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":1509,"greenClampDivergence":31,"colorClampDivergence":547,"maxAbsError":0.0156049,"rmsError":1.7512e-05,"f64ToF32StorageMaxAbs":5.93457e-08,"f64ToF32StorageRms":3.47576e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142935_568.dng","sha256":"b79a423d1631b573a9aec53e4a773f115a223db7c0c8416417e15618f17b73ba","stage2MaxAbs":1.667153675111166e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":4,"greenClampDivergence":0,"colorClampDivergence":16,"maxAbsError":0.0153144,"rmsError":4.76273e-06,"f64ToF32StorageMaxAbs":5.95256e-08,"f64ToF32StorageRms":4.78758e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142941_853.dng","sha256":"ad07c4c97cd2cf7d28a65575c6a16a3efa569b058738a2898c57190bbca88591","stage2MaxAbs":1.8794748779527026e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":23,"greenClampDivergence":1,"colorClampDivergence":49,"maxAbsError":0.0374897,"rmsError":6.29313e-06,"f64ToF32StorageMaxAbs":5.96044e-08,"f64ToF32StorageRms":6.74921e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_142950_144.dng","sha256":"f640875800adf4aeca131dabe0845f10bbda07886396d562ca16324421e9a3ce","stage2MaxAbs":1.442165763476666e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":1,"greenClampDivergence":0,"colorClampDivergence":6,"maxAbsError":0.0375406,"rmsError":6.69512e-06,"f64ToF32StorageMaxAbs":5.93704e-08,"f64ToF32StorageRms":3.26991e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151110_490.dng","sha256":"784b941a1d06f5b38e206db2f6472c7e74f732bb53b075cdd1cb45303eaff057","stage2MaxAbs":1.448193024389255e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":12,"greenClampDivergence":1,"colorClampDivergence":27,"maxAbsError":0.00250226,"rmsError":7.17908e-07,"f64ToF32StorageMaxAbs":5.94173e-08,"f64ToF32StorageRms":2.81191e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151129_256.dng","sha256":"f900c9d8911072530d43c532a02328c62ed1e380ab6659c36bc2ed0f2dc9b229","stage2MaxAbs":1.9488667812872507e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":91,"greenClampDivergence":8,"colorClampDivergence":144,"maxAbsError":0.019482,"rmsError":4.04757e-06,"f64ToF32StorageMaxAbs":5.96045e-08,"f64ToF32StorageRms":8.55403e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0},
+    {"file":"IMG_BNC_TRUTHRAW20260906_151349_043.dng","sha256":"7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344","stage2MaxAbs":1.330595703619153e-07,"rgbSamples":37601280,"greenReconstructedSites":6266880,"greenDirectionDivergence":8,"greenClampDivergence":2,"colorClampDivergence":18,"maxAbsError":0.0130864,"rmsError":3.75169e-06,"f64ToF32StorageMaxAbs":2.98023e-08,"f64ToF32StorageRms":6.52636e-09,"measuredChannelViolationsF32":0,"measuredChannelViolationsF64":0}
+  ],
+  "decision": {
+    "f32BranchSensitiveReconstructionCompute": "REJECT_AS_SCIENTIFIC_REFERENCE_FOR_TESTED_V47I_TOPOLOGY",
+    "f64BranchSensitiveReconstructionCompute": "RETAIN_AS_SCIENTIFIC_REFERENCE",
+    "f32StorageAfterF64Compute": "RESEARCH_CANDIDATE_PASS_FOR_THIS_8_FILE_4080x3072_HOST_SWEEP",
+    "canonicalPromotion": "NO",
+    "nextGate": "Integrate tile-local F64 compute with explicit F32 Scientific Master storage into a research runtime path; validate parity, memory, runtime and 16320x12288 FotoGraaf data before canonical promotion."
+  }
+}
