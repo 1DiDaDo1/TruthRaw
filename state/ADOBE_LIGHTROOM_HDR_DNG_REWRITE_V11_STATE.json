@@ -3,6 +3,17 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "classification": "ADOBE_HDR_DNG_REWRITE_CFA_SAMPLE_EXACT_METADATA_NOT_SOURCE_EXACT",
+  "implementation_commits": {
+    "runtime": "8ba70331804910033f18f58132146a2d2491aabb",
+    "tests": "ccf64d2d2fac08cfb84beb26683163f689257cd5",
+    "documentation": "6542dd022105a9cead5dbbd994626edf05022330",
+    "initial_state": "980b991ba2c7220d785a99f8e6a6b7107be32e6d",
+    "ci_wiring": "c82c07f40f89b335ce750a672d41bbd88e2c4471"
+  },
+  "validated_workflow_run_id": 35032520890,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id_before_final_state": 35032489479,
+  "documentation_governance_conclusion_before_final_state": "success",
   "original_source": {
     "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
     "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
