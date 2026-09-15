@@ -1,0 +1,78 @@
+{
+  "schema": "TruthRawOpenWorldStructureRuntimeState/0.4",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "implementation_commit": "e4678f8d10c61edf894301a00cc1e0766f8b26fe",
+  "documentation_commit": "84732acf0c66bf4f2d66a630315fb5d0f24b5d47",
+  "validated_workflow_run_id": 35021531427,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id": 35021531538,
+  "documentation_governance_conclusion": "success",
+  "runtime": {
+    "path": "tools/open_world_structure_runtime_v04.py",
+    "test": "tests/test_open_world_structure_runtime_v04.py",
+    "documentation": "docs/research/open-world-structure-runtime-v0.4/README.md"
+  },
+  "canonical_bindings": {
+    "reconstruction_backend": "ResearchEdgeAwareMeasuredPreservingReconstruction",
+    "production_backend_combined_sha256": "8d3a2ad2a97729c2a6a72028099dca7eda6190fcc4df3a3a4020f1c92e15c7ca",
+    "uncertainty_binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+    "uncertainty_source_class": {
+      "make": "HONOR",
+      "model": "BKQ-N49",
+      "physical_camera_id": "5",
+      "focal_length_mm": 22.48,
+      "cfa": "BGGR",
+      "prospective_geometry": [4080, 3072]
+    },
+    "prospective_uncertainty_status": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+    "missing_channel_topology_status": "PROXY_ONLY_NOT_CO_SITED_CERTIFIED",
+    "topology_certified": false
+  },
+  "structure_runtime_gates": {
+    "exact_measured_channel_reinjection": "HARD_GATE",
+    "measured_structure_source": "SAME_COLOUR_CFA_PAIRS_WITH_SOURCE_NOISE_AND_CENSORING",
+    "reconstructed_topology_source": "V0_8_WORST_FOLD_PROXY_CEILING_ONLY",
+    "uncertainty_source": "V5_0G_P1_P95_BANDS_EXACT_SOURCE_CLASS_AND_BACKEND_ONLY",
+    "censoring": "EXPLICIT_REMOVAL_OF_SUPPORT",
+    "optics_mtf": "REQUIRED_FOR_ADAPTIVE_DETAIL_ADMISSION",
+    "appearance_may_write_scientific_master": false,
+    "appearance_may_claim_new_measured_detail": false
+  },
+  "critical_domain_correction": {
+    "finding": "The current v5.0g-p1 prospective uncertainty certification is bound to a 4080x3072 BGGR HONOR BKQ-N49 22.48mm tele vendor-DNG source, not the 16320x12288 Camera-5 maximum-resolution RAW route.",
+    "camera5_16320x12288_capture_proof_status": "SEPARATE_QUESTION_REAL_CAPTURE_STILL_PENDING",
+    "camera5_16320x12288_uncertainty_status": "BLOCKED_PENDING_SEPARATE_MAXIMUM_RESOLUTION_UNCERTAINTY_VALIDATION",
+    "transfer_4080x3072_uncertainty_to_16320x12288_allowed": false
+  },
+  "current_detail_policy": {
+    "without_independent_optics_mtf": "NEUTRAL_ONLY",
+    "with_domain_matched_holdout_optics_mtf": "APPEARANCE_DETAIL_MAY_BE_ADMITTED",
+    "scientific_authority_upgrade": false
+  },
+  "validation_coverage": [
+    "REAL_CANONICAL_BINDING_FILES_LOADED_AND_CROSS_CHECKED",
+    "TOPOLOGY_REMAINS_UNCERTIFIED",
+    "EXACT_MEASURED_REINJECTION_HARD_GATE",
+    "MEASURED_CFA_STRUCTURE_DERIVATION",
+    "UNCERTAINTY_DOMAIN_GATE",
+    "200MP_UNCERTAINTY_DOMAIN_REUSE_REJECTED",
+    "MISSING_OPTICS_FORCES_NEUTRAL",
+    "DOMAIN_MATCHED_OPTICS_FIXTURE_APPEARANCE_ONLY",
+    "FULL_CENSORING_REMOVES_STRUCTURE_SUPPORT",
+    "LEGACY_OPEN_WORLD_PYTHON_TESTS",
+    "CICM_NATIVE_REGRESSION",
+    "ROOM_CAPSULE_NATIVE_REGRESSION",
+    "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+  ],
+  "next_gates": [
+    "export real per-tile v5.0g-p1 uncertainty bands from the current 4080x3072 tele runtime and run v0.4 on real captures",
+    "perform independent Camera-5 optics/MTF calibration with holdout evidence",
+    "build and prospectively validate a separate 16320x12288 maximum-resolution uncertainty model or demonstrate defensible cross-mode equivalence",
+    "connect v0.4 admission to actual v4.7j and v4.7k runtime selection without altering Scientific Master authority",
+    "keep co-sited topology certification open until independent phase-diverse/reference evidence exists",
+    "run real Camera-5 16320x12288 manifest plus RAW_SENSOR plus DNG through the v0.2/v0.3 capture proof chain"
+  ],
+  "promotion_rule": "Do not promote to main until real runtime evidence and calibration-domain gates are reviewed; in particular do not transfer 4080x3072 uncertainty authority to 16320x12288 by assumption."
+}
