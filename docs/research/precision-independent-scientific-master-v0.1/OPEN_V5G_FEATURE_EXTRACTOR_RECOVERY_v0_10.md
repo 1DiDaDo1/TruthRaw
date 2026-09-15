@@ -73,9 +73,71 @@ Expected-path direct retrieval has been attempted against:
 
 1. current `research/history-code-audit-2026-09-15` tree — not present;
 2. archived `4f842d8fe86eca2b5808afb10fbb9f11a2631fed` state — expected path not present;
-3. `docs/project-handoff-2026-09-11` commit `a8ad01df0dcf83a6e69fd49f9469522024a1240b` — expected path not present.
+3. `docs/project-handoff-2026-09-11` commit `a8ad01df0dcf83a6e69fd49f9469522024a1240b` — expected path not present;
+4. persistent ChatGPT Library exact-title search for `uncertainty_core_v5_0g.py` — no standalone source file surfaced;
+5. `complete_conversation_transcript.md` exact searches for the filename, `def extract_dataset`, `mean_abs_demosaic_extra`, and `support_std_over_sigma` — no source-body match surfaced.
 
-This does not prove the bytes do not exist in another retained archive, old handoff bundle, Library upload or unreachable Git object. It proves only that the checked expected paths do not recover them.
+This does not prove the bytes do not exist in another retained archive, old handoff bundle, unindexed Library upload or unreachable Git object. It proves only that the checked paths/searchable retained sources do not recover the exact 10023-byte file.
+
+## Retained Library provenance recovered on 2026-09-15
+
+The broader Library audit recovered strong provenance that the exact extractor did exist and was used successfully, even though its standalone source bytes are still missing.
+
+### `TRUTHRAW_COMPLETE_PROJECT_HANDOFF_2026-09-09.md`
+
+This retained handoff records:
+
+- feature-schema SHA-256: `8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3`;
+- Stage-2 parity: 8/8 exact;
+- measured CFA reinjection: 8/8 exact;
+- independent probe parity: 64 probes across all four CFA roles;
+- maximum feature absolute error: `4.76837158203125e-7`;
+- maximum scalar absolute error: `1.9073486328125e-6`;
+- maximum scalar relative error: approximately `1.50581e-6`;
+- tile128 versus tile256: 8/8 JSON-exact;
+- ISO12800 one-full-frame-tile versus tile256: exact;
+- synthetic anti-leak: exact;
+- historical role-onehot quirk preserved.
+
+It also records the anti-leak rule: feature/prediction construction must not read the central hidden measured CFA target; that target is read only after prediction for error calibration.
+
+Historical trained role quirk that must remain frozen:
+
+- feature labels: `role_R, role_G1, role_G2, role_B`;
+- historical training iteration order: `B, G1, G2, R`;
+- therefore B activates the column labelled `role_R` and R activates the column labelled `role_B`;
+- G1/G2 align normally;
+- runtime role codes remain `R=0, G1=1, G2=2, B=3`.
+
+### `PROSPECTIVE_TELE_HOLDOUT_RESULT_v5_0g_p1.json`
+
+The retained prospective result records an actual asset-integrity check in the historical scoring environment:
+
+- extractor file: `uncertainty_core_v5_0g.py`;
+- expected SHA-256: `b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d`;
+- observed SHA-256: `b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d`;
+- integrity result: PASS.
+
+This is strong proof that the exact historical extractor bytes were present when that prospective holdout was scored. It is **not** a substitute for recovering those bytes now.
+
+### `prospective_holdout_v5_0g.py`
+
+The retained runner imports exactly:
+
+`from uncertainty_core_v5_0g import extract_dataset, source_admission, sha256_file`
+
+It verifies all frozen asset hashes before scoring, calls `extract_dataset(path)`, and rejects a feature-schema hash mismatch. This establishes the historical API surface used by the scoring protocol but still does not define the internal feature formulas.
+
+### `BACKEND_BINDING_v5_0g.json`
+
+Retained binding evidence records:
+
+- production backend combined SHA-256: `8d3a2ad2a97729c2a6a72028099dca7eda6190fcc4df3a3a4020f1c92e15c7ca`;
+- hidden-CFA proxy/backend SHA-256 equal to the historical extractor SHA: `b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d`;
+- feature-schema SHA-256: `8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3`;
+- uncertainty-binding SHA-256: `61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0`.
+
+Its claim boundary remains important: leakage-free hidden-CFA recovery calibrates uncertainty behavior of the exact reconstruction family; it does not create co-sited RGB ground truth for missing Bayer channels.
 
 ## Valid recovery criteria
 
@@ -84,7 +146,7 @@ A candidate extractor may be admitted as the historical extractor only if:
 1. byte length is exactly `10023` bytes; and
 2. SHA-256 is exactly `b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d`.
 
-If the exact bytes cannot be recovered but a purported equivalent implementation is proposed, it must **not** be called historical parity merely because feature names match. It requires a separately documented equivalence proof against retained canonical training/validation/parity evidence. Until such equivalence is demonstrated, status remains OPEN.
+If the exact bytes cannot be recovered but a purported equivalent implementation is proposed, it must **not** be called historical parity merely because feature names, role ordering or aggregate metrics match. It requires a separately documented equivalence proof against retained canonical training/validation/parity evidence. Until such equivalence is demonstrated, status remains OPEN.
 
 ## Forbidden shortcuts
 
@@ -96,6 +158,7 @@ Do not:
 - derive hidden-CFA errors using held-out truth in a production path;
 - use scene ID or source labels as predictors;
 - silently change the 18-feature order;
+- “correct” the frozen historical role-onehot quirk;
 - reinterpret model quantiles as covariance or sigma when they are not defined as such;
 - call v0.7 synthetic analytic sigma a replacement for canonical local uncertainty;
 - promote F64->F32 storage universally because its absolute error is small.
@@ -117,15 +180,16 @@ If and only if the extractor hash is verified:
 
 1. preserve the recovered bytes unchanged as historical/canonical provenance;
 2. document exact feature and coordinate semantics;
-3. build an adapter from the F64 reconstruction path to the exact 18 features;
-4. prove no hidden-CFA/self-label leakage in the deployed feature path;
-5. validate against recovered parity vectors if available;
-6. evaluate local uncertainty only where every required feature is valid;
-7. leave all unsupported pixels/features unresolved;
-8. bind admitted local uncertainty into the v0.8 pre/post-storage audit;
-9. re-run the F64-compute -> F32-storage gate relative to admitted local uncertainty;
-10. repeat the complete gate on a physically proven 16320x12288 FotoGraaf source before 200MP precision promotion.
+3. preserve the frozen role-order quirk exactly;
+4. build an adapter from the F64 reconstruction path to the exact 18 features;
+5. prove no hidden-CFA/self-label leakage in the deployed feature path;
+6. validate against recovered parity vectors if available;
+7. evaluate local uncertainty only where every required feature is valid;
+8. leave all unsupported pixels/features unresolved;
+9. bind admitted local uncertainty into the v0.8 pre/post-storage audit;
+10. re-run the F64-compute -> F32-storage gate relative to admitted local uncertainty;
+11. repeat the complete gate on a physically proven 16320x12288 FotoGraaf source before 200MP precision promotion.
 
 ## Authority boundary
 
-This document defines a blocker and recovery protocol. It does not promote the v0.9 research runtime, change the frozen v5.0g/p1 model, or create new scientific evidence.
+This document defines a blocker, retained provenance and recovery protocol. It does not promote the v0.9 research runtime, change the frozen v5.0g/p1 model, recover the historical extractor merely from hashes/metrics, or create new scientific evidence.
