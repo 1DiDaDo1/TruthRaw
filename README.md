@@ -10,16 +10,18 @@ TruthRaw is a single-frame RAW reconstruction research project and software-ISP 
 
 For project continuity and the current reading order, use:
 
-1. `START_HERE_NEW_CHAT.md`
-2. `docs/TRUTHRAW_EXPERTISE_FOUNDATION_FREE_SPACE_200MP_2026-09-15.md`
-3. `docs/TRUTHRAW_EXPERTISE_200MP_ROUTE_v0_8_ADDENDUM_2026-09-15.md`
-4. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md`
-5. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md`
-6. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-7. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-8. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
+1. `docs/TRUTHRAW_PRECISION_200MP_NEXT_CHAT_HANDOFF_2026-09-15.md` — first continuity source for the current precision/uncertainty/200MP state
+2. `START_HERE_NEW_CHAT.md`
+3. `docs/TRUTHRAW_EXPERTISE_FOUNDATION_FREE_SPACE_200MP_2026-09-15.md`
+4. `docs/TRUTHRAW_EXPERTISE_200MP_ROUTE_v0_8_ADDENDUM_2026-09-15.md`
+5. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md`
+6. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md`
+7. `docs/research/precision-independent-scientific-master-v0.1/STATUS_v0_1.json`
+8. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
+9. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
+10. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
 
-The 2026-09-15 expertise/history documents are **continuity authorities**, not replacements for module-local scientific, CI or promotion authority. They record the full development line and the current corrected scientific interpretation so future chats do not bootstrap from a narrow interruption point.
+The 2026-09-15 continuity documents are **project/navigation authorities**, not replacements for module-local scientific, CI or promotion authority. They preserve the corrected development line so future chats do not bootstrap from a narrow Camera2 interruption point or stale research status.
 
 Dated state files and research README files are preserved as provenance/history. They are **not** global current-state authorities unless the relevant current status/promotion evidence says so.
 
@@ -35,17 +37,44 @@ That representational freedom never enlarges the evidence:
 
 **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 
-Measured, reconstructed, censored/unknown, counterfactual and appearance quantities remain distinguishable. A derived LinearRaw/DNG is an export or compatibility projection, not a relabelling of reconstructed values as original sensor measurements.
+Measured, reconstructed, censored/unknown, counterfactual and appearance quantities remain distinguishishable. A derived LinearRaw/DNG is an export or compatibility projection, not a relabelling of reconstructed values as original sensor measurements.
 
 The older `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md` is retained as historical provenance only. The active vision is `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md`.
 
-## Numeric precision
+## Numeric precision — current research result
 
 The scientific master is **precision-independent**. `float32`, `float64`, 128-bit floating point and arbitrary-precision arithmetic are implementation/reference profiles rather than different kinds of scientific truth.
 
-Original integer/packed source bytes remain exact evidence. float64 is particularly appropriate for calibration fits, reductions, covariance-sensitive calculations and scientific reference paths; float32 may remain a validated high-throughput per-pixel path. Higher precision never creates new photons or stronger evidence by itself.
+Original integer/packed source bytes remain exact evidence.
 
-At the 16320x12288 Camera-5 lattice, one scalar plane is approximately 0.747 GiB in float32 and 1.494 GiB in float64, so the renewed tiled/streamed execution model remains essential.
+Current measured policy is stage-specific:
+
+- simple Stage-2 black/white normalization is an F32 hot-path candidate in the tested 4080x3072 scope, with F64 reference;
+- the tested HONOR DNG GainMap family is also an F32 hot-path candidate with F64 reference;
+- **branch-sensitive v4.7i-class reconstruction requires F64 compute as the current scientific reference** because tiny F32 differences can cross the direction threshold and amplify strongly in reconstructed channels;
+- calibration fits, reductions, optimization and covariance use F64 as default reference;
+- after F64 reconstruction compute, F32 Scientific-Master storage has a retained numerical PASS in the eight-file v0.4 4080x3072 scope;
+- arbitrary/high precision remains an offline/reference validator.
+
+The authoritative v0.4 eight-file result is `3545` direction differences, `0` green-clamp differences, `0` colour-clamp differences and `0` measured-channel violations across `50,135,040` direction-checked sites. The maximum local F32-vs-F64 reconstruction difference was `0.03754056890225277`; the maximum tested F64-compute -> F32-storage absolute error was only `5.960464477539063e-08`.
+
+Older `3549 / 44 / 2580` locator values are explicitly superseded provisional output and must not be treated as retained gate authority.
+
+At the 16320x12288 Camera-5 lattice, one scalar plane is approximately 0.747 GiB in F32 and 1.494 GiB in F64, so the tiled/streamed execution model remains essential.
+
+## Current uncertainty blocker
+
+Canonical local uncertainty is **not yet bound** into the mixed-precision Scientific-Master conversion.
+
+The frozen v5.0g/p1 model requires 18 historically defined features. The canonical manifest records `uncertainty_core_v5_0g.py`, but the exact historical extractor is absent from the current tree and has not been recovered from the expected historical paths checked so far. The current reconstruction trace is not sufficient to recreate all 18 feature semantics with proven parity and no hidden-CFA leakage.
+
+Current blocker:
+
+`OPEN_NEEDS_EXACT_V5G_FEATURE_EXTRACTOR_RECOVERY_OR_HASH_VERIFIED_EQUIVALENT_FEATURE_DEFINITION`
+
+Do not invent an approximate feature adapter. v0.7 remains a synthetic uncertainty-relative storage gate; v0.8 remains correctly fail-closed with canonical uncertainty unbound; v0.9 provides a model-spec/runtime research bridge but not a canonical feature binding.
+
+This blocker does not prevent the separate physical 200MP capture programme from continuing.
 
 ## TruthRange and zero-line
 
@@ -83,7 +112,7 @@ Android FotoGraaf is a consequence of the older TruthRaw requirement that the or
 
 ## 200MP Camera-5 programme
 
-Camera 5 exposes a static maximum-resolution high-resolution `RAW_SENSOR 16320x12288` route. The capability gate is proven, while the actual physical 200MP payload gate remains open until a real device capture returns the exact raw payload plus matching result/timestamp/hash evidence.
+Camera 5 exposes a static maximum-resolution high-resolution `RAW_SENSOR 16320x12288` route. The capability/session gate is proven, while the actual physical 200MP payload gate remains open until a real device capture returns the exact raw payload plus matching result/timestamp/hash evidence.
 
 The standalone v0.7 probe contains much of the correct maximum-resolution evidence machinery, but **v0.8 is the current route authority**. v0.7 can discard `parent_logical_id` and then try to open camera 5 directly. When Android exposes camera 5 as a physical child of logical camera 0, Step 3B must preserve the real route:
 
@@ -94,10 +123,10 @@ Important interpretation:
 - `SENSOR_INFO_BINNING_FACTOR` is a characteristics `Size`;
 - `SENSOR_RAW_BINNING_FACTOR_USED` is an optional Boolean result key;
 - they must not be conflated;
-- a null binning-result flag is not by itself failure for this Honor route;
+- a null binning-result flag is not by itself failure for this HONOR route;
 - `SENSOR_INFO_LENS_SHADING_APPLIED=true` prevents an automatic claim of untouched physical optical falloff / photodiode-ADC purity.
 
-After the physical 200MP capture succeeds, the 4080x3072, 8160x6144 and 16320x12288 modes must be characterised separately for noise, shading, colour and optical SFR/MTF before physical calibration is transferred between them.
+After physical 200MP capture succeeds, 4080x3072, 8160x6144 and 16320x12288 must be characterised separately for noise, shading, colour and optical SFR/MTF before physical calibration is transferred between them. The mixed-precision gate must also be repeated on the physically proven 200MP source.
 
 ## Memory ownership model
 
@@ -108,8 +137,6 @@ The renewed house uses five storage classes:
 3. **Reproducible derived data** — compact, downsampled and/or rebuildable caches.
 4. **Appearance intermediates** — tile-local and disposable.
 5. **Export data** — streamed to the destination where possible.
-
-Room Capsule v0.1 already follows this model strongly: local geometry is compact/downsampled and tile-workspace is bounded independently of full image megapixels.
 
 Historical canonical public APIs may contain full-frame vectors. Later branches must prove equivalence/integrity when changing that ownership model; historical canonical bytes are not silently rewritten.
 
@@ -131,7 +158,7 @@ The backplane is not extra measurement evidence and is not hidden image content.
 - virtual EV/ISO views never become independent measurements;
 - no generative/semantic texture enters scientific evidence;
 - numeric precision is not evidence authority;
-- APK/GCam/computational-RAW content does not determine TruthRaw scientific authority or Direct-CFA calibration;
+- APK/GCam/computational-RAW content does not determine TruthRaw Direct-CFA calibration authority;
 - historical GCam/MotionCam work remains part of project provenance as the precursor to confidence/evidence-aware mobile photography;
 - `canonical/ptc/v1.1` means **Pure Truth Certificate**, not photon-transfer calibration;
 - FULL_PHYSICAL remains blocked where required independent sensor/color/illuminant/optics calibration is missing;
@@ -140,6 +167,6 @@ The backplane is not extra measurement evidence and is not hidden image content.
 
 ## Repository navigation
 
-Read `START_HERE_NEW_CHAT.md` first. The expertise foundation and its v0.8 routing addendum then give the current scientific interpretation and exact 200MP continuation point. Use `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` to understand why the recent Camera2 work exists and where it sits in the larger history. Then use the relevant status/claim/promotion documents before treating any dated README, report, audit or state file as current.
+Read `docs/TRUTHRAW_PRECISION_200MP_NEXT_CHAT_HANDOFF_2026-09-15.md` and `START_HERE_NEW_CHAT.md` first. Use the expertise foundation and v0.8 routing addendum for the 200MP continuation point, and the precision module `STATUS_v0_1.json` for the machine-readable research boundary. Use `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` to understand where FotoGraaf sits in the larger history.
 
 Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
