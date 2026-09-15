@@ -15,10 +15,8 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Optional
 
 from camera5_200mp_runtime_gate_v07 import evaluate as evaluate_runtime
-from normalize_camera5_200mp_raw_v07 import normalize as normalize_raw
 from camera5_200mp_cfa_identity_v01 import evaluate_identity
 
 TARGET = (16320, 12288)
@@ -96,7 +94,15 @@ def evaluate_bundle(manifest: dict, runtime_gate: dict, canonical_report: dict, 
 
 
 def prove_from_files(manifest_path: Path, source_raw: Path, dng_path: Path, workdir: Path) -> dict:
-    """Run the whole existing proof chain on one real capture, streaming where available."""
+    """Run the whole existing proof chain on one real capture, streaming where available.
+
+    The normalizer currently uses NumPy for row diagnostics. It is imported
+    lazily here so the pure proof-contract module and unit tests stay usable in
+    a dependency-free environment. A real end-to-end run must provide the
+    normalizer's runtime dependency.
+    """
+    from normalize_camera5_200mp_raw_v07 import normalize as normalize_raw
+
     workdir.mkdir(parents=True, exist_ok=True)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
