@@ -49,6 +49,7 @@ struct UncertaintyRelativeStorageStatsV05 {
     std::uint64_t censored = 0;
     std::uint64_t invalid = 0;
     std::uint64_t nonFiniteValues = 0;
+    std::uint64_t storageNonFinite = 0;
     std::uint64_t measuredContributionSamples = 0;
     std::uint64_t reconstructedSamples = 0;
 
@@ -70,11 +71,12 @@ bool uncertainty_binding_exact_v0_5(const std::string& uncertaintyBindingSha256,
 // Compare Float64 scientific results with their Float32 storage representation.
 // A sample is admitted only when:
 //  - binding + feature schema are exact;
-//  - value is finite;
+//  - input value and stored Float32 value are finite;
 //  - uncertainty state is Known;
 //  - p50 and p95 are finite, positive, and p95 >= p50.
 // Unknown/censored/invalid samples stay out of the safety claim. No missing band
-// is converted to zero uncertainty.
+// is converted to zero uncertainty. Float32 overflow/Inf is always fail-closed,
+// which is essential because the Free Scientific Space is not bounded by F32.
 UncertaintyRelativeStorageStatsV05 evaluate_f64_to_f32_storage_against_bound_uncertainty_v0_5(
     const StorageUncertaintySampleV05* samples,
     std::size_t count,
