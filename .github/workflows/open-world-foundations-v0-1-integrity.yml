@@ -1,21 +1,29 @@
-name: open-world-foundations-v0-1-integrity
+name: open-world-foundations-integrity
 
 on:
   push:
     paths:
       - 'tools/open_world_foundations_v01.py'
+      - 'tools/open_world_integration_v02.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
+      - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tests/test_open_world_foundations_v01.py'
+      - 'tests/test_open_world_integration_v02.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
+      - 'docs/research/open-world-integration-v0.2/**'
       - '.github/workflows/open-world-foundations-v0-1-integrity.yml'
   pull_request:
     paths:
       - 'tools/open_world_foundations_v01.py'
+      - 'tools/open_world_integration_v02.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
+      - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tests/test_open_world_foundations_v01.py'
+      - 'tests/test_open_world_integration_v02.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
+      - 'docs/research/open-world-integration-v0.2/**'
       - '.github/workflows/open-world-foundations-v0-1-integrity.yml'
 
 jobs:
@@ -26,5 +34,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run open-world foundation tests
-        run: python -m unittest discover -s tests -p 'test_*v01.py' -v
+      - name: Run open-world foundation and integration tests
+        run: |
+          python -m unittest -v \
+            tests.test_open_world_foundations_v01 \
+            tests.test_open_world_integration_v02 \
+            tests.test_camera5_200mp_cfa_identity_v01
