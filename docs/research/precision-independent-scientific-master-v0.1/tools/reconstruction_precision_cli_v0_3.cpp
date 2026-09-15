@@ -1,4 +1,5 @@
 #include "reconstruction_precision_reference_v0_3.h"
+#include "mixed_precision_storage_v0_4.h"
 
 #include <cstdint>
 #include <fstream>
@@ -76,6 +77,10 @@ int main(int argc, char** argv) {
     const auto s = truthraw_precision_v03::compare_reconstruction_precision_v0_3(
         out32, trace32, out64, trace64);
 
+    std::vector<float> storedF32;
+    const auto storage = truthraw_precision_v04::quantize_f64_to_f32_storage_v0_4(
+        out64.data(), out64.size(), storedF32);
+
     std::cout
         << "{"
         << "\"rgbSamples\":" << s.rgbSamples << ","
@@ -85,7 +90,12 @@ int main(int argc, char** argv) {
         << "\"greenClampDivergence\":" << s.greenClampDivergence << ","
         << "\"colorClampDivergence\":" << s.colorClampDivergence << ","
         << "\"measuredChannelViolationsF32\":" << s.measuredChannelViolationsF32 << ","
-        << "\"measuredChannelViolationsF64\":" << s.measuredChannelViolationsF64
+        << "\"measuredChannelViolationsF64\":" << s.measuredChannelViolationsF64 << ","
+        << "\"f64ComputeF32StorageSamples\":" << storage.samples << ","
+        << "\"f64ComputeF32StorageMaxAbsError\":" << storage.maxAbsError << ","
+        << "\"f64ComputeF32StorageRmsError\":" << storage.rmsError << ","
+        << "\"f64ComputeF32StorageMaxRelativeError\":" << storage.maxRelativeError << ","
+        << "\"f64ComputeF32StorageFiniteFailures\":" << storage.finiteRoundTripFailures
         << "}" << std::endl;
     return 0;
 }
