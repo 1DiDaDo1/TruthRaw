@@ -12,11 +12,12 @@ For project continuity and the current reading order, use:
 
 1. `START_HERE_NEW_CHAT.md`
 2. `docs/TRUTHRAW_EXPERTISE_FOUNDATION_FREE_SPACE_200MP_2026-09-15.md`
-3. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md`
-4. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md`
-5. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-6. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-7. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
+3. `docs/TRUTHRAW_EXPERTISE_200MP_ROUTE_v0_8_ADDENDUM_2026-09-15.md`
+4. `docs/CORE_VISION_FREE_SCIENTIFIC_SPACE_ARCHITECTURE.md`
+5. `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md`
+6. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
+7. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
+8. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
 
 The 2026-09-15 expertise/history documents are **continuity authorities**, not replacements for module-local scientific, CI or promotion authority. They record the full development line and the current corrected scientific interpretation so future chats do not bootstrap from a narrow interruption point.
 
@@ -84,7 +85,9 @@ Android FotoGraaf is a consequence of the older TruthRaw requirement that the or
 
 Camera 5 exposes a static maximum-resolution high-resolution `RAW_SENSOR 16320x12288` route. The capability gate is proven, while the actual physical 200MP payload gate remains open until a real device capture returns the exact raw payload plus matching result/timestamp/hash evidence.
 
-The existing independent v0.7 probe already performs the key Camera2 steps: it selects the high-resolution route, uses a bounded ImageReader, marks the output for `SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION`, requests the same pixel mode, hashes/writes the direct raw buffer, records applied capture state and treats DNG as a derivative container.
+The standalone v0.7 probe contains much of the correct maximum-resolution evidence machinery, but **v0.8 is the current route authority**. v0.7 can discard `parent_logical_id` and then try to open camera 5 directly. When Android exposes camera 5 as a physical child of logical camera 0, Step 3B must preserve the real route:
+
+`logical 0 -> OutputConfiguration physical 5 -> RAW_SENSOR 16320x12288 -> physical CaptureResult 5`
 
 Important interpretation:
 
@@ -137,6 +140,6 @@ The backplane is not extra measurement evidence and is not hidden image content.
 
 ## Repository navigation
 
-Read `START_HERE_NEW_CHAT.md` first. The expertise foundation then gives the current scientific interpretation and exact 200MP continuation point. Use `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` to understand why the recent Camera2 work exists and where it sits in the larger history. Then use the relevant status/claim/promotion documents before treating any dated README, report, audit or state file as current.
+Read `START_HERE_NEW_CHAT.md` first. The expertise foundation and its v0.8 routing addendum then give the current scientific interpretation and exact 200MP continuation point. Use `docs/PROJECT_HISTORY_AND_FOTOGRAAF_CONTEXT_2026-09-15.md` to understand why the recent Camera2 work exists and where it sits in the larger history. Then use the relevant status/claim/promotion documents before treating any dated README, report, audit or state file as current.
 
 Canonical module documentation remains authoritative for the exact module/version it accompanies. Historical material is intentionally retained to preserve failures, rejected candidates, validation context and scientific provenance.
