@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -8,6 +9,24 @@
 #include <type_traits>
 
 namespace truthraw_precision_v01 {
+
+enum class EvidenceEncodingV01 : std::uint8_t {
+    Unknown = 0,
+    RawSensorU16 = 1,
+    Raw10Packed = 2,
+    Raw12Packed = 3,
+    Raw14Packed = 4,
+};
+
+struct ExactEvidenceDescriptorV01 {
+    EvidenceEncodingV01 encoding = EvidenceEncodingV01::Unknown;
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+    std::uint32_t rowStrideBytes = 0;
+    std::uint32_t pixelStrideBytes = 0;
+    std::uint64_t payloadBytes = 0;
+    bool exactSourceBytesRetained = false;
+};
 
 enum class ReconstructionScalarV01 : std::uint8_t {
     Float32 = 0,
@@ -38,6 +57,53 @@ inline WorkT normalize_raw_u16_v0_1(std::uint16_t code, const Stage2ParamsV01& p
     return static_cast<WorkT>(normalized);
 }
 
+// Convert a rectangular tile from exact unpacked uint16 evidence into a selected
+// floating work type. CFA black phase is evaluated in GLOBAL coordinates so tile
+// boundaries cannot silently shift phase. The source integer buffer is read-only.
+template <typename WorkT>
+inline bool normalize_raw_tile_u16_v0_1(
+    const std::uint16_t* raw,
+    int rawWidth,
+    int rawHeight,
+    int rawRowStrideSamples,
+    int x0,
+    int y0,
+    int tileWidth,
+    int tileHeight,
+    const std::array<double,4>& blackPhase,
+    double white,
+    const double* gainField,
+    int gainRowStrideSamples,
+    WorkT* out,
+    int outRowStrideSamples) {
+
+    static_assert(std::is_same<WorkT, float>::value || std::is_same<WorkT, double>::value,
+                  "TruthRaw v0.1 reconstruction work type must be float or double");
+    if (!raw || !out || rawWidth <= 0 || rawHeight <= 0 || rawRowStrideSamples < rawWidth ||
+        tileWidth <= 0 || tileHeight <= 0 || x0 < 0 || y0 < 0 ||
+        x0 + tileWidth > rawWidth || y0 + tileHeight > rawHeight ||
+        outRowStrideSamples < tileWidth) return false;
+    if (gainField && gainRowStrideSamples < rawWidth) return false;
+
+    for (int yy = 0; yy < tileHeight; ++yy) {
+        const int gy = y0 + yy;
+        for (int xx = 0; xx < tileWidth; ++xx) {
+            const int gx = x0 + xx;
+            const std::size_t ri = static_cast<std::size_t>(gy) * static_cast<std::size_t>(rawRowStrideSamples) + static_cast<std::size_t>(gx);
+            const int phase = (gy & 1) * 2 + (gx & 1);
+            Stage2ParamsV01 p;
+            p.black = blackPhase[static_cast<std::size_t>(phase)];
+            p.white = white;
+            p.gain = gainField
+                ? gainField[static_cast<std::size_t>(gy) * static_cast<std::size_t>(gainRowStrideSamples) + static_cast<std::size_t>(gx)]
+                : 1.0;
+            out[static_cast<std::size_t>(yy) * static_cast<std::size_t>(outRowStrideSamples) + static_cast<std::size_t>(xx)] =
+                normalize_raw_u16_v0_1<WorkT>(raw[ri], p);
+        }
+    }
+    return true;
+}
+
 // Neumaier-style compensated summation. The extra correction term is retained
 // separately so large cancellation does not discard small scientific terms.
 struct CompensatedSum64V01 {
@@ -55,6 +121,29 @@ struct CompensatedSum64V01 {
     }
 
     double value() const { return sum + correction; }
+};
+
+// Welford running moments for dark/noise/PTC and calibration statistics.
+struct RunningMoments64V01 {
+    std::uint64_t count = 0;
+    double mean = 0.0;
+    double m2 = 0.0;
+
+    void add(double x) {
+        ++count;
+        const double delta = x - mean;
+        mean += delta / static_cast<double>(count);
+        const double delta2 = x - mean;
+        m2 += delta * delta2;
+    }
+
+    double populationVariance() const {
+        return count ? m2 / static_cast<double>(count) : std::numeric_limits<double>::quiet_NaN();
+    }
+
+    double sampleVariance() const {
+        return count > 1 ? m2 / static_cast<double>(count - 1) : std::numeric_limits<double>::quiet_NaN();
+    }
 };
 
 struct Matrix3dV01 {
