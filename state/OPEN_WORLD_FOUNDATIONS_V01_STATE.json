@@ -1,0 +1,47 @@
+{
+  "schema": "TruthRawOpenWorldFoundationsState/0.1",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "base_main_commit": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "validated_branch_commit": "aba4acb394ac1665eea2b1cfb667a3255fb1b2a4",
+  "validated_workflow_run_id": 35019043944,
+  "validated_workflow_conclusion": "success",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "scientific_boundary": "Evidence is locally finite and immutable; the reconstructed world representation is not required to be enclosed or globally bounded. Authority may never be silently upgraded.",
+  "components": {
+    "authority_typed_illumination": {
+      "status": "FOUNDATION_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_foundations_v01.py",
+      "types": ["MEASURED", "CALIBRATED_ESTIMATE", "INFERRED", "COUNTERFACTUAL"]
+    },
+    "calibration_registry": {
+      "status": "DOMAIN_CONTRACT_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_foundations_v01.py",
+      "fail_closed_states": ["OUT_OF_DOMAIN", "UNCERTIFIED"]
+    },
+    "structure_evidence_map": {
+      "status": "FOUNDATION_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_foundations_v01.py",
+      "policy_boundary": "NO_SHARPENING_GAIN_FORMULA_IN_V0_1"
+    },
+    "conservation_restoration": {
+      "status": "REVERSIBLE_LAYER_CONTRACT_IMPLEMENTED_TESTED",
+      "path": "tools/open_world_foundations_v01.py",
+      "source_overwrite_allowed": false
+    },
+    "camera5_200mp_cfa_identity": {
+      "status": "VERIFIER_IMPLEMENTED_SYNTHETIC_TESTED_REAL_CAPTURE_PENDING",
+      "path": "tools/camera5_200mp_cfa_identity_v01.py",
+      "target_dimensions": [16320, 12288],
+      "target_classification": "CAMERA5_200MP_RAW_DNG_CFA_IDENTITY_PROVEN",
+      "real_capture_gate": "PENDING_CAPTURE_BOUND_MANIFEST_CANONICAL_REPORT_RAWSENSOR_DNG_PAIR"
+    }
+  },
+  "tests": [
+    "tests/test_open_world_foundations_v01.py",
+    "tests/test_camera5_200mp_cfa_identity_v01.py"
+  ],
+  "workflow": ".github/workflows/open-world-foundations-v0-1-integrity.yml",
+  "documentation": "docs/research/open-world-foundations-v0.1/README.md",
+  "promotion_rule": "Do not promote to main until real 200MP CFA identity evidence and module-specific integration gates are reviewed."
+}
