@@ -1,7 +1,7 @@
 # TruthRaw FotoGraaf Acquisition Domain v0.8
 
 ## Scope
-This is a **research/acquisition overlay**, not a change to sealed TruthRaw scientific evidence or reconstruction authority.
+This is a **research/acquisition overlay**, not a change to the preserved TruthRaw Source Evidence Record or reconstruction authority.
 
 The v0.8 goal is to keep four concepts separate on-device:
 
@@ -12,12 +12,14 @@ The v0.8 goal is to keep four concepts separate on-device:
 
 No inventory is counted as an independent captured frame. A single route-proof capture remains `physicalFrameCount=1` and `independentEvidenceCount=1`.
 
+The Source Evidence Record is preserved exactly enough to prove what the camera returned, but TruthRaw reconstruction itself remains a separate **Free Scientific Space** and is not numerically constrained by the source RAW container.
+
 ## Device evidence already observed
 On the HONOR BKQ-N49, device-runtime observations have repeatedly shown a forced physical route:
 
 `logical 0 -> physical 5 -> RAW_SENSOR 4080x3072 -> 22.48 mm`
 
-The 4080x3072 output has been observed as BGGR Camera2 RAW_SENSOR with identical sensor/image timestamps. This is strong route evidence, but it does not by itself seal physical ID 5 as the project tele calibration authority.
+The 4080x3072 output has been observed as BGGR Camera2 RAW_SENSOR with identical sensor/image timestamps. This is strong route evidence, but it does not by itself grant physical ID 5 the project tele calibration authority.
 
 ## Coordinate/sample-domain problem
 The HONOR observation also exposes a 16320x12288 sensor-coordinate domain while the regular RAW output is 4080x3072. The linear ratio is exactly 4 and the area ratio is 16. HONOR vendor metadata has also reported `com.hihonor.capture.metadata.binningFactor = 4`.
@@ -87,7 +89,7 @@ A capture does not pass its route-proof gate unless all applicable requirements 
 - payload bytes are persisted without a whole-frame Java/Kotlin byte-array copy;
 - payload SHA-256 and byte count are stored;
 - `physicalFrameCount=1` and `independentEvidenceCount=1`;
-- `calibrationAuthorityGranted=false` and `c0IdentitySealed=false` remain unchanged.
+- `calibrationAuthorityGranted=false` and legacy field `c0IdentitySealed=false` remain unchanged until the dedicated identity/calibration authority gate is satisfied.
 
 ## Scientific boundary
 The strongest claim v0.8 may make is:
@@ -105,3 +107,8 @@ It may not claim:
 
 ## Next device gate
 Run the regular 4080x3072 proof first. If it reproduces the existing logical-0 -> physical-5 route and records the new standard sample-domain fields, run the 16320x12288 maximum-resolution proof. The returned inventory + observation + raw payload + DNG (when DngCreator succeeds) are then evaluated off-device before any promotion of camera identity or sample-domain authority.
+
+For the wider scientific continuation, read:
+
+- `docs/TRUTHRAW_EXPERTISE_FOUNDATION_FREE_SPACE_200MP_2026-09-15.md`
+- `docs/TRUTHRAW_EXPERTISE_200MP_ROUTE_v0_8_ADDENDUM_2026-09-15.md`
