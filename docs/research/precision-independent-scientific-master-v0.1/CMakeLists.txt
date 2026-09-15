@@ -10,6 +10,7 @@ set(TRUTHRAW_V47I_INCLUDE "${TRUTHRAW_REPO_ROOT}/canonical/reconstruction/v4.7i/
 
 add_library(truthraw_precision_v01 STATIC
     native/precision_policy_v0_1.cpp
+    native/gainmap_precision_v0_2.cpp
     adapters/v47i_stage2_precision_adapter_v0_1.cpp
 )
 target_include_directories(truthraw_precision_v01 PUBLIC
@@ -23,6 +24,11 @@ add_executable(test_precision_policy_v0_1
 )
 target_link_libraries(test_precision_policy_v0_1 PRIVATE truthraw_precision_v01)
 
+add_executable(test_gainmap_precision_v0_2
+    native/test_gainmap_precision_v0_2.cpp
+)
+target_link_libraries(test_gainmap_precision_v0_2 PRIVATE truthraw_precision_v01)
+
 add_executable(test_v47i_stage2_precision_adapter_v0_1
     adapters/test_v47i_stage2_precision_adapter_v0_1.cpp
 )
@@ -30,4 +36,5 @@ target_link_libraries(test_v47i_stage2_precision_adapter_v0_1 PRIVATE truthraw_p
 
 enable_testing()
 add_test(NAME precision_policy_v0_1 COMMAND test_precision_policy_v0_1)
+add_test(NAME gainmap_precision_v0_2 COMMAND test_gainmap_precision_v0_2)
 add_test(NAME v47i_stage2_precision_adapter_v0_1 COMMAND test_v47i_stage2_precision_adapter_v0_1)
