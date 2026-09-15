@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
 
 namespace truthraw_precision_v05 {
 
@@ -47,6 +46,11 @@ UncertaintyRelativeStorageStatsV05 evaluate_f64_to_f32_storage_against_bound_unc
 
         if (!std::isfinite(s.f64Value)) {
             ++out.nonFiniteValues;
+            ++out.invalid;
+            continue;
+        }
+        if (!std::isfinite(q)) {
+            ++out.storageNonFinite;
             ++out.invalid;
             continue;
         }
