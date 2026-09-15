@@ -1,0 +1,101 @@
+{
+  "schema": "TruthRawOpenWorldDynamicRuntimeState/0.6",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "SOURCE_EVIDENCE_SEALED_WORLD_RECONSTRUCTION_OPEN",
+  "implementation_commit": "587e8062c0492535ccfecbf3c2ca5b8defa721f7",
+  "documentation_commit": "91febccb986d347d5b822d43885d317be9fcd0d6",
+  "validated_workflow_run_id": 35023594020,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id": 35023558837,
+  "documentation_governance_conclusion": "success",
+  "runtime": {
+    "path": "tools/open_world_dynamic_runtime_v06.py",
+    "test": "tests/test_open_world_dynamic_runtime_v06.py",
+    "documentation": "docs/research/open-world-dynamic-runtime-v0.6/README.md"
+  },
+  "rgb_authority_model": {
+    "granularity": "PER_PIXEL_PER_RGB_CHANNEL",
+    "reason": "A Bayer pixel has one sampled colour role and two absent colour roles; one authority label per pixel would erase that distinction.",
+    "direct_stage2_default_authority": "CALIBRATED_ESTIMATE",
+    "direct_stage2_reason": "Stage-2 is a calibrated transform of the raw sensor code and should not be mislabeled as an untouched measured code value.",
+    "missing_channel_authority_when_v04_in_domain": "RECONSTRUCTED",
+    "missing_channel_authority_when_v04_out_of_domain": "UNKNOWN"
+  },
+  "censoring": {
+    "highlight_saturation_relation": "SCENE_VALUE_GE_BOUND",
+    "shadow_floor_relation": "SCENE_VALUE_LE_BOUND",
+    "censored_sample_positive_recovered_support_allowed": false,
+    "missing_channels_at_censored_site": "UNKNOWN"
+  },
+  "technical_backplane": {
+    "version": "0.1",
+    "serialized_bytes": 180,
+    "modified_by_v06": false,
+    "binding_mode": "EXTERNAL_HASH_BOUND_SIDECAR",
+    "validated_fields": [
+      "MAGIC_VERSION_SIZE",
+      "CRC32_FIRST_176_BYTES",
+      "SOURCE_EVIDENCE_SHA256",
+      "SCIENTIFIC_MASTER_SHA256",
+      "ZERO_LINE_SHA256",
+      "SCENE_SCALE_SHA256",
+      "PHYSICAL_FRAME_COUNT_EQ_1",
+      "INDEPENDENT_EVIDENCE_COUNT_EQ_1",
+      "FORBIDDEN_FLAGS_EQ_0",
+      "ROOM_STATUS_RANGE",
+      "CLAIM_STATUS_RANGE",
+      "RESERVED_BYTES_ZERO"
+    ]
+  },
+  "streamed_artifact": {
+    "schema": "TruthRawDynamicAuthorityArtifact/0.6",
+    "encoding": "NDJSON_RGB_PIXEL_RECORDS_GLOBAL_RASTER_ORDER",
+    "full_frame_pixel_vector_required": false,
+    "global_raster_order_required": true,
+    "span_boundaries_persisted_as_scientific_content": false,
+    "same_pixel_sequence_same_artifact_bytes_across_span_sizes": true,
+    "scientific_master_writeback_from_sidecar": false,
+    "fixed_dynamic_range_limit_ev": null
+  },
+  "hardware_scaling": {
+    "cheap_phone_rule": "Use smaller compute workspaces and smaller persistence spans; do not change authority semantics.",
+    "heavy_hardware_rule": "Use larger workspaces and spans or more throughput; compute power alone grants no evidence authority.",
+    "compute_tile_is_authority_boundary": false,
+    "open_gate": "v0.4 authority-region geometry must be made explicitly canonical and independent from hardware execution tiling."
+  },
+  "carry_forward_200mp_boundary": {
+    "current_uncertainty_certified_geometry": [4080, 3072],
+    "camera5_maximum_resolution_geometry": [16320, 12288],
+    "transfer_allowed": false,
+    "v06_behavior_when_max_resolution_uncertainty_unvalidated": "PRESERVE_SOURCE_BOUND_CFA_CHANNEL_AND_KEEP_MISSING_CHANNELS_UNKNOWN"
+  },
+  "validation_coverage": [
+    "TECHNICAL_BACKPLANE_NATIVE_CPP_REGRESSION",
+    "TECHNICAL_BACKPLANE_PYTHON_LAYOUT_AND_CRC_BINDING",
+    "FORBIDDEN_BACKPLANE_MUTATION_FLAGS_REJECTED",
+    "RGB_PER_CHANNEL_AUTHORITY_SEPARATION",
+    "STAGE2_DIRECT_CHANNEL_CALIBRATED_ESTIMATE_DEFAULT",
+    "V04_IN_DOMAIN_MISSING_CHANNEL_RECONSTRUCTION",
+    "V04_OUT_OF_DOMAIN_MISSING_CHANNEL_UNKNOWN",
+    "EXACT_MEASURED_REINJECTION_HARD_GATE",
+    "HIGHLIGHT_CENSOR_LOWER_BOUND_PRESERVED",
+    "BACKPLANE_RUNTIME_LINEAGE_MISMATCH_REJECTED",
+    "SPAN_SIZE_INDEPENDENT_BYTE_EXACT_ARTIFACT",
+    "LEGACY_OPEN_WORLD_V01_TO_V05_PYTHON_TESTS",
+    "CAMERA5_CFA_IDENTITY_V01",
+    "CICM_NATIVE_REGRESSION",
+    "ROOM_CAPSULE_NATIVE_REGRESSION",
+    "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+  ],
+  "next_gates": [
+    "persist the first real 4080x3072 tele Dynamic Authority sidecar from actual Scene Master and v0.4 runtime artifacts",
+    "separate canonical v0.4 authority-region geometry from device-specific compute tile geometry",
+    "bind real measured-channel p95 uncertainty rather than test fixtures",
+    "bind real per-sample censor bounds and inequality kinds from acquisition/reconstruction artifacts",
+    "connect HDR/SDR presentation projection to v0.6 without scientific authority writeback",
+    "independently validate 16320x12288 Camera-5 uncertainty before any reconstructed 200MP dynamic authority is admitted",
+    "run a real Camera-5 16320x12288 manifest plus RAW_SENSOR plus DNG through the capture proof chain"
+  ],
+  "promotion_rule": "Do not promote to main until real runtime sidecar generation, canonical authority-region semantics and maximum-resolution uncertainty-domain review are complete."
+}
