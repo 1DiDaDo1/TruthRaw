@@ -1,0 +1,95 @@
+{
+  "schema": "TruthRawAdobeLightroomRealHdrState/0.7",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "scope_rule": "ONE_PHYSICAL_EXPOSURE_REAL_SCENE_DYNAMIC_RANGE_NO_FAKE_HDR_MERGE",
+  "implementation_commit": "2d1fe9a8c8f7b5cfae89752396fc35fff082620a",
+  "documentation_commit": "409b8ddcc14aec95b8106c6ac1daf200f3e1948a",
+  "validated_workflow_run_id": 35026409392,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id": 35026378759,
+  "documentation_governance_conclusion": "success",
+  "runtime": {
+    "path": "tools/adobe_hdr_interop_v07.py",
+    "test": "tests/test_adobe_hdr_interop_v07.py",
+    "documentation": "docs/research/adobe-lightroom-real-hdr-v0.7/README.md"
+  },
+  "adobe_research_finding": {
+    "single_exposure_raw_can_use_hdr_edit_mode": true,
+    "hdr_merge_required": false,
+    "fake_hdr_merge_metadata_allowed": false,
+    "hdr_pipeline_may_render_values_above_sdr_white": true,
+    "hdr_histogram_uses_ev_zones_above_sdr_white": true,
+    "gain_map_role": "PRESENTATION_AND_DISPLAY_ADAPTATION_ONLY",
+    "gain_map_standard": "ISO_21496_1",
+    "generic_single_raw_auto_hdr_activation_public_metadata_contract_documented": false
+  },
+  "interop_routes": {
+    "SINGLE_EXPOSURE_RAW": {
+      "input": "REAL_SINGLE_EXPOSURE_DNG",
+      "adobe_role": "RAW_DEVELOPMENT_IN_HDR_MODE",
+      "truthraw_scene_master_directly_imported": false,
+      "exposure_merge": false
+    },
+    "TRUTHRAW_SCENE_MASTER_RENDER": {
+      "input": "FUTURE_VALIDATED_RENDERED_HDR_EXCHANGE",
+      "candidate_formats": [
+        "AVIF",
+        "JPEG_XL",
+        "TIFF",
+        "PSD",
+        "PNG",
+        "JPEG_GAIN_MAP"
+      ],
+      "masquerade_as_raw_dng_allowed": false,
+      "encoder_status": "NOT_IMPLEMENTED_V07"
+    }
+  },
+  "dynamic_authority_rules": {
+    "may_contribute_scene_hdr_radiance": [
+      "MEASURED",
+      "CALIBRATED_ESTIMATE",
+      "RECONSTRUCTED"
+    ],
+    "censored_exact_radiance_recovery_allowed": false,
+    "unknown_contributes_hdr_headroom": false,
+    "counterfactual_contributes_scientific_hdr_headroom": false,
+    "appearance_only_contributes_scientific_hdr_headroom": false,
+    "conservative_headroom_formula": "max(0, log2(max(value-p95,0)/SDR_WHITE))",
+    "scientific_master_fixed_hdr_limit_ev": null
+  },
+  "honor_android_status": {
+    "device": "HONOR BKQ-N49 / Magic 8 Pro",
+    "explicitly_named_in_current_adobe_device_list": false,
+    "adobe_documentation_consistent": false,
+    "required_resolution": "RUNTIME_LIGHTROOM_DEVICE_COMPATIBILITY_TEST",
+    "failure_interpretation": "DEVICE_MAY_ACT_AS_SDR_PREVIEW_EDITOR_WITHOUT_INVALIDATING_HDR_SCENE_DATA"
+  },
+  "validation_coverage": [
+    "SINGLE_EXPOSURE_RAW_ROUTE_WITHOUT_HDR_MERGE",
+    "EXPOSURE_MERGE_REJECTED",
+    "FAKE_HDR_MERGE_METADATA_REJECTED",
+    "COUNTERFACTUAL_HDR_AUTHORITY_REJECTED",
+    "APPEARANCE_ONLY_HDR_AUTHORITY_REJECTED",
+    "P95_CONSERVATIVE_REAL_HEADROOM",
+    "CENSORED_HIGHLIGHT_NOT_PROMOTED_TO_EXACT_HDR_RADIANCE",
+    "UNKNOWN_DOES_NOT_ADD_HDR_HEADROOM",
+    "SCENE_MASTER_RENDER_CANNOT_MASQUERADE_AS_RAW_DNG",
+    "GAIN_MAP_PRESENTATION_ONLY",
+    "MULTIPLE_PHYSICAL_FRAMES_REJECTED",
+    "OPEN_WORLD_V01_TO_V06_REGRESSION_SUITE",
+    "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+    "CICM_NATIVE_REGRESSION",
+    "ROOM_CAPSULE_NATIVE_REGRESSION",
+    "OPEN_WORLD_NATIVE_AUTHORITY_V03"
+  ],
+  "next_gates": [
+    "run one real HONOR single-exposure tele DNG through Lightroom HDR mode and record the actual HDR histogram/headroom behavior",
+    "resolve HONOR BKQ-N49 Lightroom native HDR-display compatibility with Adobe's in-app compatibility indicator",
+    "compare Adobe HDR EV zones against TruthRaw scene-linear TruthRange and censoring data",
+    "produce and round-trip a genuinely HDR-encoded AVIF/JPEG XL/TIFF or gain-map JPEG from a TruthRaw presentation projection",
+    "validate that Adobe export/display adaptation never writes authority back into the Scientific Master",
+    "implement the production TruthRaw Scene Master to Adobe HDR exchange encoder only after round-trip validation"
+  ],
+  "promotion_rule": "Do not promote to main until real Lightroom single-exposure HDR behavior and at least one rendered HDR exchange round-trip are validated."
+}
