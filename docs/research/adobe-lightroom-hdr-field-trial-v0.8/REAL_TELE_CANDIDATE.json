@@ -1,0 +1,47 @@
+{
+  "schema": "TruthRawAdobeLightroomHdrRealTeleCandidate/0.8",
+  "status": "REAL_SOURCE_BOUND_FIELD_TRIAL_CANDIDATE",
+  "source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "bytes": 25106120,
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "physical_camera_id": "5",
+    "focal_length_mm": 22.48,
+    "f_number": 2.6,
+    "iso": 638,
+    "exposure_s": 0.009999993,
+    "width": 4080,
+    "height": 3072,
+    "cfa": "BGGR",
+    "white_level": 1023.0,
+    "black_level": [64.0, 64.0, 64.0, 64.0],
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "existing_truthraw_evidence": {
+    "uncertainty_decision": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+    "stage2_min": -0.006340971682220697,
+    "stage2_max": 1.2977731227874756,
+    "stage2_over1_count": 62643,
+    "stage2_over1_fraction": 0.004997941559436275,
+    "source_white_count": 217,
+    "source_white_fraction": 0.000017313240400326797,
+    "q99_pre_display_exposure": 0.9892458261670347,
+    "legacy_sdr_display_scalar": 0.72782718001423,
+    "legacy_sdr_preview_peak": 0.9445545522566694,
+    "stage2_over_unity_headroom_ev": 0.3760381928606498,
+    "q99_anchored_headroom_ev": 0.39163721456628425
+  },
+  "scientific_boundary": {
+    "uses_exposure_merge": false,
+    "fake_hdr_merge_metadata": false,
+    "counterfactual_illumination_used_as_hdr_signal": false,
+    "source_white_semantics": "CENSORED_LOWER_BOUND_NOT_EXACT_RECOVERED_RADIANCE",
+    "stage2_overrange_is_same_as_adobe_hdr_headroom": false,
+    "adobe_hdr_observation_is_presentation_evidence": true,
+    "adobe_may_write_scientific_authority_back": false
+  },
+  "field_trial_status": "PREPARED_NOT_YET_EXECUTED_IN_ADOBE_LIGHTROOM"
+}
