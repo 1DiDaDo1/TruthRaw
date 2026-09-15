@@ -31,6 +31,9 @@ jobs:
       - name: Enforce mixed-precision promotion gate
         run: python3 docs/research/precision-independent-scientific-master-v0.1/tests/test_mixed_precision_promotion_gate_v0_4.py
 
+      - name: Enforce uncertainty-relative storage semantics
+        run: python3 docs/research/precision-independent-scientific-master-v0.1/tests/test_uncertainty_relative_storage_gate_v0_7.py
+
       - name: Emit precision oracle report
         run: |
           mkdir -p build/precision-v01/report
