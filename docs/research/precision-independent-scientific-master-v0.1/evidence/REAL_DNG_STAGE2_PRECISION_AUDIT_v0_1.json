@@ -1,0 +1,90 @@
+{
+  "schema": "TruthRawRealEvidencePrecisionAudit/0.1",
+  "date": "2026-09-15",
+  "authority": "NUMERICAL_EXECUTION_AUDIT_ONLY_NO_EVIDENCE_UPGRADE",
+  "method": {
+    "description": "Exact DNG uint16 CFA samples were decoded losslessly, then the historical Stage-2 black/white normalization formula was evaluated once in genuine float32 arithmetic and once in float64 arithmetic. Differences are arithmetic representation error, not scene error.",
+    "source_evidence_unchanged": true,
+    "residual_black_terms": "No BlackLevelDeltaH/V tags were observed in either audited DNG; no synthetic residual-black correction was introduced.",
+    "gainmap_boundary": "OpcodeList2 GainMap was parsed. When all gain maps are unity, the comparison is post-GainMap-equivalent. For non-unity maps this v0.1 real-file audit reports pre-GainMap normalization only; the C++ compatibility adapter separately supports decoded gainField input."
+  },
+  "sources": [
+    {
+      "file": "IMG_260816_134122_304_005.dng",
+      "sha256": "04068eabc681f241b9fa102e46b27b964a636be13361e1d8bacabe0db60471e5",
+      "classification": "HONOR_MOTIONCAM_DIRECT_CFA_REAL_FILE",
+      "width": 4080,
+      "height": 3072,
+      "sample_count": 12533760,
+      "dtype": "uint16",
+      "raw_min": 62,
+      "raw_max": 1023,
+      "white_level": 1023.0,
+      "black_2x2": [[64.0, 63.75], [64.0, 64.0]],
+      "cfa_pattern_codes": [2, 1, 1, 0],
+      "noise_profile": [6.201294308993965e-05, 4.1815820850388263e-07, 9.068204235518351e-05, 1.8317194871997344e-08, 4.9996251618722454e-05, 4.82178393212962e-07],
+      "gain_maps": {"count": 4, "all_unity": true, "min": 1.0, "max": 1.0},
+      "comparison_scope": "black/white normalization; GainMap is unity so this is also post-GainMap-equivalent for the file",
+      "f32_vs_f64": {
+        "max_abs_normalized": 2.9771245912968425e-08,
+        "mean_abs_normalized": 1.3566816974960917e-09,
+        "rms_normalized": 2.8527748151500108e-09,
+        "p99_abs_normalized": 1.3052111946798561e-08,
+        "p999_abs_normalized": 2.5848873819178664e-08,
+        "max_abs_dn_equivalent": 2.855062483053672e-05,
+        "p999_abs_dn_equivalent": 2.4795532211047133e-05,
+        "max_error_over_modeled_sigma": 5.725768463395471e-06,
+        "p999_error_over_modeled_sigma": 3.6562298931105363e-06
+      },
+      "regions": {
+        "below_black": {"count": 7346, "max_abs_dn_equivalent": 1.606531435920794e-08},
+        "near_black_le4dn": {"count": 1111752, "max_abs_dn_equivalent": 8.754432209321858e-08},
+        "midtone_0p1_0p9": {"count": 2462603, "max_abs_dn_equivalent": 2.855062483053672e-05},
+        "highlight_ge0p9": {"count": 2373, "max_abs_dn_equivalent": 2.8342008574627764e-05},
+        "clipped_code_ge_white": {"count": 1741, "max_abs_dn_equivalent": 0.0}
+      }
+    },
+    {
+      "file": "IMG_BNC_TRUTHRAW20260906_151349_043.dng",
+      "sha256": "7f64a628ff431272fc76f17b63179c93af8e496c40cdbd3b45d7dd67fd58b344",
+      "classification": "HONOR_VENDOR_TELE_PROSPECTIVE_HOLDOUT_REAL_FILE",
+      "width": 4080,
+      "height": 3072,
+      "sample_count": 12533760,
+      "dtype": "uint16",
+      "raw_min": 58,
+      "raw_max": 603,
+      "white_level": 1023.0,
+      "black_2x2": [[64.0, 63.75], [63.98, 63.75]],
+      "cfa_pattern_codes": [2, 1, 1, 0],
+      "noise_profile": [0.000762143497878267, 1.8076375322549172e-06, 0.0007947308434916886, 1.2580161601661667e-06, 0.0007853744402303735, 1.752272011688235e-06],
+      "gain_maps": {"count": 4, "all_unity": false, "min": 1.0009765625, "max": 2.365234375},
+      "comparison_scope": "pre-GainMap normalization only",
+      "f32_vs_f64": {
+        "max_abs_normalized": 4.538684061916598e-08,
+        "mean_abs_normalized": 5.073886005630763e-09,
+        "rms_normalized": 8.066023794212365e-09,
+        "p99_abs_normalized": 2.8526349671320617e-08,
+        "p999_abs_normalized": 2.9732091066936306e-08,
+        "max_abs_dn_equivalent": 4.3526887890592554e-05,
+        "p999_abs_dn_equivalent": 2.8513669975013256e-05,
+        "max_error_over_modeled_sigma": 2.2400328612667652e-06,
+        "p999_error_over_modeled_sigma": 1.80517342647321e-06
+      },
+      "regions": {
+        "below_black": {"count": 442, "max_abs_dn_equivalent": 5.075149205844513e-07},
+        "near_black_le4dn": {"count": 18358, "max_abs_dn_equivalent": 5.075149205844513e-07},
+        "midtone_0p1_0p9": {"count": 7603443, "max_abs_dn_equivalent": 4.3526887890592554e-05},
+        "highlight_ge0p9": {"count": 0, "max_abs_dn_equivalent": null},
+        "clipped_code_ge_white": {"count": 0, "max_abs_dn_equivalent": null}
+      }
+    }
+  ],
+  "decision": {
+    "stage2_f32_status": "SUPPORTED_AS_HOT_PATH_CANDIDATE_FOR_THESE_TWO_FILES",
+    "reason": "Observed float32 black/white-normalization error is many orders below the DNG-declared modeled sensor uncertainty. This does not authorize float32 for all later reconstruction, optimization, color, or calibration stages.",
+    "calibration_covariance_status": "KEEP_FLOAT64_REFERENCE",
+    "higher_precision_status": "REFERENCE_VALIDATOR_ONLY",
+    "next_gate": "Run decoded non-unity GainMap and later reconstruction operations through paired F32/F64 paths, then compare numerical error to propagated physical/model uncertainty."
+  }
+}
