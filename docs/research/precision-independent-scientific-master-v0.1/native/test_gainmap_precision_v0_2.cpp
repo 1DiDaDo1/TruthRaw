@@ -31,7 +31,9 @@ int main() {
     GainMapGridV02 map = make_map();
     assert(map.valid());
 
-    // A constant map must agree exactly because no interpolation slope exists.
+    // A constant map must remain constant to double-roundoff scale. The F64
+    // bilinear expression can incur a final machine-epsilon rounding even when
+    // every stored F32 map sample is exactly 1.25.
     GainMapGridV02 constant = map;
     for (float& x : constant.samples) x = 1.25f;
     std::vector<float> c32;
@@ -39,7 +41,9 @@ int main() {
     assert(gainmap_row_sdk_f32_v0_2(constant, bounds, area, 1535, 0, c32));
     assert(gainmap_row_f64_reference_v0_2(constant, bounds, area, 1535, 0, c64));
     assert(c32.size() == c64.size());
-    for (std::size_t i = 0; i < c32.size(); ++i) assert(static_cast<double>(c32[i]) == c64[i]);
+    for (std::size_t i = 0; i < c32.size(); ++i) {
+        assert(std::abs(static_cast<double>(c32[i]) - c64[i]) <= 4.0e-16);
+    }
 
     // A varying map should expose real F32 arithmetic error, but remain small.
     std::vector<float> f32;
