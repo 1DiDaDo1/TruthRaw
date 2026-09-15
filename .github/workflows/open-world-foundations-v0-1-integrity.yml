@@ -7,6 +7,7 @@ on:
       - 'tools/open_world_integration_v02.py'
       - 'tools/open_world_integration_v03.py'
       - 'tools/open_world_structure_runtime_v04.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -14,11 +15,13 @@ on:
       - 'tests/test_open_world_integration_v02.py'
       - 'tests/test_open_world_integration_v03.py'
       - 'tests/test_open_world_structure_runtime_v04.py'
+      - 'tests/test_open_world_dynamic_authority_v05.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
       - 'docs/research/open-world-native-integration-v0.3/**'
       - 'docs/research/open-world-structure-runtime-v0.4/**'
+      - 'docs/research/open-world-dynamic-authority-v0.5/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -30,6 +33,7 @@ on:
       - 'tools/open_world_integration_v02.py'
       - 'tools/open_world_integration_v03.py'
       - 'tools/open_world_structure_runtime_v04.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -37,11 +41,13 @@ on:
       - 'tests/test_open_world_integration_v02.py'
       - 'tests/test_open_world_integration_v03.py'
       - 'tests/test_open_world_structure_runtime_v04.py'
+      - 'tests/test_open_world_dynamic_authority_v05.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
       - 'docs/research/open-world-native-integration-v0.3/**'
       - 'docs/research/open-world-structure-runtime-v0.4/**'
+      - 'docs/research/open-world-dynamic-authority-v0.5/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -63,6 +69,7 @@ jobs:
             tests.test_open_world_integration_v02 \
             tests.test_open_world_integration_v03 \
             tests.test_open_world_structure_runtime_v04 \
+            tests.test_open_world_dynamic_authority_v05 \
             tests.test_camera5_200mp_cfa_identity_v01
       - name: Compile and run CICM v1 regression
         run: |
