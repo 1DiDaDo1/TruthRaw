@@ -52,6 +52,11 @@ add_executable(test_real_reconstruction_precision_fixture_v0_3
 )
 target_link_libraries(test_real_reconstruction_precision_fixture_v0_3 PRIVATE truthraw_precision_v01)
 
+add_executable(reconstruction_precision_cli_v0_3
+    tools/reconstruction_precision_cli_v0_3.cpp
+)
+target_link_libraries(reconstruction_precision_cli_v0_3 PRIVATE truthraw_precision_v01)
+
 # These tests intentionally use assert() for scientific invariants. CMake's
 # Release mode normally defines NDEBUG, which would remove both the checks and
 # any function calls embedded in assert expressions. Explicitly undefine it so
