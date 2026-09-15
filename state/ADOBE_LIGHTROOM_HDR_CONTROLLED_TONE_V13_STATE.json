@@ -3,6 +3,15 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "classification": "CONTROLLED_TONE_ONLY_PRESENTATION_EXPERIMENT",
+  "implementation_commits": {
+    "runtime": "bdd482676c6b30e9ddfcde170058d368ba19a49c",
+    "tests": "069deefc21bc770b65a4b70b4a767b7ed3b33ac0",
+    "documentation": "60255a77c6a36002c26e89b7be2f30fcc3cd5431",
+    "initial_state": "fa3ffb8fc4b60065baf9caae0e563d4839ea17a0",
+    "ci_wiring": "540ee7a06c6ce692a0323cfa4f572b783082a1fc"
+  },
+  "validated_workflow_run_id": 35035737184,
+  "validated_workflow_conclusion": "success",
   "source_authority": {
     "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
     "immutable_source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
