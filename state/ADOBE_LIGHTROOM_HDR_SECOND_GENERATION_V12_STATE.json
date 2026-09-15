@@ -1,0 +1,96 @@
+{
+  "schema": "TruthRawAdobeLightroomHdrSecondGenerationState/1.2",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "ADOBE_SECOND_GENERATION_HDR_RENDER_PARENT_ROUTE_NOT_PROVEN",
+  "source_authority": {
+    "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "immutable_source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "source_white_censored_samples": 217,
+    "scientific_master_writeback_from_adobe": false
+  },
+  "new_avif": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (4).avif",
+    "sha256": "552a463095103d9d74baec594994a438c070e9c57beadae1b2f503b847d5bc9f",
+    "bytes": 10641173,
+    "geometry": [4064, 3056],
+    "bit_depth": 10,
+    "chroma": "4:4:4",
+    "transfer": "SMPTE_ST_2084_PQ",
+    "primaries": "P3_D65",
+    "gainmap_stream_present": true,
+    "tmap_brand_present": true,
+    "lightroom_software": "Adobe Lightroom 11.5.22 (Android)",
+    "hdr_edit_mode": true,
+    "hdr_limit_ev": 8.0,
+    "exposure_2012_ev": 0.0,
+    "whites_2012": 2.0,
+    "tone_curve_points": [[0,0],[133,196],[255,255]],
+    "extended_tone_curve_points": [[0,0],[133,196],[332,446],[500,500]],
+    "maxcll_nits": 2878,
+    "decoded_luma_max_code": 889,
+    "decoded_luma_p99_code": 841,
+    "decoded_luma_p999_code": 857,
+    "decoded_luma_p9999_code": 862,
+    "decoded_luma_code_ceiling": 1023,
+    "pq_eotf_luma_peak_diagnostic_nits": 2932.2980962808233,
+    "immediate_parent_route": null
+  },
+  "first_generation_tone_expanded_control": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (2).avif",
+    "sha256": "60f8cd7a51f8b011f131ecb10932bbda28b03d3444e06d135c2828865fb77d8e",
+    "primaries": "REC709",
+    "hdr_limit_ev": 8.0,
+    "exposure_2012_ev": 0.0,
+    "whites_2012": 2.0,
+    "tone_curve_points": [[0,12],[152,228],[255,255]],
+    "extended_tone_curve_points": [[0,12],[152,228],[386,500]],
+    "maxcll_nits": 5259,
+    "decoded_luma_max_code": 956,
+    "decoded_luma_p99_code": 842
+  },
+  "unedited_p3_control": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (1).avif",
+    "sha256": "e4ddf68cc4f286dcad979a01776f2755b8116235d375b569d7f3ed8b2cc39b31",
+    "primaries": "P3_D65",
+    "hdr_limit_ev": 8.0,
+    "exposure_2012_ev": 0.0,
+    "whites_2012": 0.0,
+    "maxcll_nits": 1383,
+    "decoded_luma_max_code": 815,
+    "decoded_luma_p99_code": 696
+  },
+  "findings": {
+    "same_hdr_limit_old_tone_vs_new": true,
+    "same_exposure_old_tone_vs_new": true,
+    "same_whites_old_tone_vs_new": true,
+    "same_tone_curve_old_tone_vs_new": false,
+    "new_vs_old_tone_maxcll_ratio": 0.5472523293401788,
+    "new_vs_old_tone_maxcll_delta_ev": -0.8697219047403963,
+    "new_vs_unedited_p3_maxcll_ratio": 2.0809833694866233,
+    "new_vs_unedited_p3_maxcll_delta_ev": 1.0572654355898037,
+    "nominal_hdr_limit_exposure_whites_are_render_identity": false,
+    "encoded_output_and_tone_curve_must_be_bound": true,
+    "scientific_authority_changed": false
+  },
+  "authority_rules": {
+    "adobe_hdr_output_is_presentation_evidence_only": true,
+    "tone_curve_expansion_creates_new_measured_dynamic_range": false,
+    "gainmap_is_scientific_evidence": false,
+    "censored_source_samples_gain_exact_radiance": false,
+    "parent_route_may_be_inferred_from_rawfilename_string": false
+  },
+  "implementation": {
+    "runtime": "tools/adobe_hdr_second_generation_v12.py",
+    "tests": "tests/test_adobe_hdr_second_generation_v12.py",
+    "documentation": "docs/research/adobe-lightroom-hdr-second-generation-v1.2/README.md"
+  },
+  "next_gates": [
+    "bind exact parent file SHA before Adobe re-import and exact child SHA after export",
+    "build TruthRaw-owned HDR presentation manifest with source/CFA/Scientific-Master/Dynamic-Authority hashes",
+    "preserve Adobe presentation state separately from scientific authority",
+    "compare a TruthRaw-owned PQ P3 output against the measured Adobe controls"
+  ],
+  "promotion_rule": "Do not promote to main until immediate-parent provenance is hash-bound and a TruthRaw-owned HDR projection preserves authority, censoring, uncertainty and color semantics through a verified round-trip."
+}
