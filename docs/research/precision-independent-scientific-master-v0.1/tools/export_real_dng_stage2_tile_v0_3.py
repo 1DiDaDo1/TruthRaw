@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""Export one exact real-DNG Stage-2 tile as F32 and F64 research inputs.
+"""Export one real-DNG Stage-2 tile as paired F32/F64 research inputs.
 
 Host research tool only. It does not create or upgrade photographic evidence.
 It currently accepts the uncompressed single-IFD CFA DNG family used by the
 TruthRaw HONOR/MotionCam precision audit and fails closed for unsupported forms.
+
+The F32 GainMap lane intentionally reproduces the validated SDK-structured row
+interpolation/stepping used by `gainmap_precision_v0_2.cpp`. This matters for
+branch-sensitive downstream reconstruction: per-pixel recomputation is not a
+valid substitute for the historical incremental F32 row semantics.
 """
 
 import argparse
@@ -65,6 +70,8 @@ def _parse_gainmaps(blob):
         off += 4 * n
         if off - start != byte_count:
             raise ValueError("GainMap opcode byte-count mismatch")
+        if map_planes != 1:
+            raise ValueError("unsupported GainMap mapPlanes != 1")
         maps.append({
             "version": version,
             "flags": flags,
@@ -88,13 +95,14 @@ def _parse_gainmaps(blob):
     return maps
 
 
-def _sdk_f32_gain(m, height, width, row, col):
+def _sdk_f32_row(m, height, width, row):
+    """Return full AreaSpec phase-row columns/gains with incremental F32 stepping."""
+    if row < m["top"] or row >= m["bottom"] or ((row - m["top"]) % m["rowPitch"]):
+        return None, None
+
     scale_v = 1.0 / float(height)
     scale_h = 1.0 / float(width)
-    offset_v = 0.5
-    offset_h = 0.5
-
-    row_f = (scale_v * (float(row) + offset_v) - m["originV"]) / m["spacingV"]
+    row_f = (scale_v * (float(row) + 0.5) - m["originV"]) / m["spacingV"]
     last_r = m["pointsV"] - 1
     if row_f <= 0.0:
         r0 = r1 = 0
@@ -107,40 +115,94 @@ def _sdk_f32_gain(m, height, width, row, col):
         r1 = r0 + 1
         fy = np.float32(row_f - float(r0))
 
-    knots = (
-        m["samples"][r0, :, 0] * (np.float32(1.0) - fy)
-        + m["samples"][r1, :, 0] * fy
-    ).astype(np.float32)
+    one = np.float32(1.0)
+    a = m["samples"][r0, :, 0]
+    b = m["samples"][r1, :, 0]
+    knots = (a * (one - fy) + b * fy).astype(np.float32)
 
-    col_f = (scale_h * (float(col) + offset_h) - m["originH"]) / m["spacingH"]
-    if col_f <= 0.0:
-        return np.float32(knots[0])
-    last_c = m["pointsH"] - 1
-    if col_f >= float(last_c):
-        return np.float32(knots[last_c])
-    c0 = int(col_f)
-    base = float(knots[c0])
-    delta = float(knots[c0 + 1]) - base
-    # For an isolated pixel this is equivalent to the SDK reset value. Full-row
-    # audits use gainmap_precision_v0_2.cpp to test incremental stepping itself.
-    return np.float32(base + delta * (col_f - float(c0)))
+    cols = np.arange(m["left"], m["right"], m["colPitch"], dtype=np.int32)
+    gains = np.empty(cols.size, dtype=np.float32)
+    col_f = ((scale_h * (cols.astype(np.float64) + 0.5) - m["originH"]) / m["spacingH"])
+    seg = np.floor(col_f).astype(np.int32)
+    seg = np.clip(seg, 0, m["pointsH"] - 1)
+
+    for s in np.unique(seg):
+        mask = seg == s
+        c = cols[mask]
+        cf = col_f[mask]
+        if s <= 0 and np.all(cf <= 0.0):
+            gains[mask] = knots[0]
+            continue
+        if s >= m["pointsH"] - 1:
+            gains[mask] = knots[-1]
+            continue
+
+        # Match the SDK-style reset at the first phase sample in the segment,
+        # then advance using a Float32 per-pixel step. valueIndex is expressed
+        # in sensor columns, so colPitch is naturally represented in c-c0.
+        c0 = int(c[0])
+        cf0 = (scale_h * (float(c0) + 0.5) - m["originH"]) / m["spacingH"]
+        base = float(knots[s])
+        delta = float(knots[s + 1]) - base
+        value_base = np.float32(base + delta * (cf0 - float(s)))
+        value_step = np.float32((delta * scale_h) / m["spacingH"])
+        value_index = (c - c0).astype(np.float32)
+        gains[mask] = (value_base + value_step * value_index).astype(np.float32)
+
+    return cols, gains
 
 
-def _f64_gain(m, height, width, row, col):
+def _f64_row(m, height, width, row):
+    if row < m["top"] or row >= m["bottom"] or ((row - m["top"]) % m["rowPitch"]):
+        return None, None
+
     scale_v = 1.0 / float(height)
     scale_h = 1.0 / float(width)
+    cols = np.arange(m["left"], m["right"], m["colPitch"], dtype=np.int32)
     row_f = (scale_v * (float(row) + 0.5) - m["originV"]) / m["spacingV"]
-    col_f = (scale_h * (float(col) + 0.5) - m["originH"]) / m["spacingH"]
-    row_f = min(max(row_f, 0.0), float(m["pointsV"] - 1))
-    col_f = min(max(col_f, 0.0), float(m["pointsH"] - 1))
-    r0, c0 = int(math.floor(row_f)), int(math.floor(col_f))
+    col_f = (scale_h * (cols.astype(np.float64) + 0.5) - m["originH"]) / m["spacingH"]
+    row_f = np.clip(row_f, 0.0, float(m["pointsV"] - 1))
+    col_f = np.clip(col_f, 0.0, float(m["pointsH"] - 1))
+
+    r0 = int(math.floor(float(row_f)))
     r1 = min(r0 + 1, m["pointsV"] - 1)
-    c1 = min(c0 + 1, m["pointsH"] - 1)
-    fy, fx = row_f - r0, col_f - c0
+    fy = float(row_f) - r0
+    c0 = np.floor(col_f).astype(np.int32)
+    c1 = np.minimum(c0 + 1, m["pointsH"] - 1)
+    fx = col_f - c0
+
     s = m["samples"][:, :, 0].astype(np.float64)
     v0 = s[r0, c0] * (1.0 - fy) + s[r1, c0] * fy
     v1 = s[r0, c1] * (1.0 - fy) + s[r1, c1] * fy
-    return v0 * (1.0 - fx) + v1 * fx
+    return cols, v0 * (1.0 - fx) + v1 * fx
+
+
+def _gain_tiles(maps, height, width, x0, y0, tw, th):
+    g32 = np.ones((th, tw), dtype=np.float32)
+    g64 = np.ones((th, tw), dtype=np.float64)
+
+    for m in maps:
+        row_start = max(y0, m["top"])
+        row_end = min(y0 + th, m["bottom"])
+        # Align first row to AreaSpec rowPitch.
+        rem = (row_start - m["top"]) % m["rowPitch"]
+        if rem:
+            row_start += m["rowPitch"] - rem
+        for gy in range(row_start, row_end, m["rowPitch"]):
+            cols32, gains32 = _sdk_f32_row(m, height, width, gy)
+            cols64, gains64 = _f64_row(m, height, width, gy)
+            if cols32 is None:
+                continue
+            if not np.array_equal(cols32, cols64):
+                raise ValueError("F32/F64 GainMap row coordinate mismatch")
+            mask = (cols32 >= x0) & (cols32 < x0 + tw)
+            if np.any(mask):
+                lx = cols32[mask] - x0
+                ly = gy - y0
+                g32[ly, lx] = gains32[mask]
+                g64[ly, lx] = gains64[mask]
+
+    return g32, g64
 
 
 def main():
@@ -184,36 +246,20 @@ def main():
             raise SystemExit("unsupported CFA pattern")
         maps = _parse_gainmaps(page.tags["OpcodeList2"].value) if "OpcodeList2" in page.tags else []
 
-    f32 = np.empty((th, tw), dtype=np.float32)
-    f64 = np.empty((th, tw), dtype=np.float64)
+    g32, g64 = _gain_tiles(maps, H, W, x0, y0, tw, th)
+    tile_raw = raw[y0:y0 + th, x0:x0 + tw]
+    yy = np.arange(y0, y0 + th, dtype=np.int64)[:, None]
+    xx = np.arange(x0, x0 + tw, dtype=np.int64)[None, :]
+    phase = ((yy & 1) * 2 + (xx & 1)).astype(np.intp)
 
-    for yy in range(th):
-        gy = y0 + yy
-        for xx in range(tw):
-            gx = x0 + xx
-            phase = (gy & 1) * 2 + (gx & 1)
-            g32 = np.float32(1.0)
-            g64 = 1.0
-            for m in maps:
-                in_area = (
-                    gy >= m["top"] and gy < m["bottom"]
-                    and gx >= m["left"] and gx < m["right"]
-                    and ((gy - m["top"]) % m["rowPitch"] == 0)
-                    and ((gx - m["left"]) % m["colPitch"] == 0)
-                )
-                if in_area:
-                    g32 = _sdk_f32_gain(m, H, W, gy, gx)
-                    g64 = _f64_gain(m, H, W, gy, gx)
-                    break
-            b32 = np.float32(black[phase])
-            w32 = np.float32(white)
-            denom32 = max(np.float32(w32 - b32), np.float32(1.0))
-            s32 = np.float32(np.float32(np.float32(raw[gy, gx]) - b32) / denom32)
-            f32[yy, xx] = np.float32(s32 * g32)
+    b32 = np.take(np.asarray(black, dtype=np.float32), phase)
+    b64 = np.take(np.asarray(black, dtype=np.float64), phase)
+    w32 = np.float32(white)
+    denom32 = np.maximum(w32 - b32, np.float32(1.0))
+    denom64 = np.maximum(white - b64, 1.0)
 
-            b64 = float(black[phase])
-            denom64 = max(white - b64, 1.0)
-            f64[yy, xx] = ((float(raw[gy, gx]) - b64) / denom64) * g64
+    f32 = ((tile_raw.astype(np.float32) - b32) / denom32 * g32).astype(np.float32)
+    f64 = (tile_raw.astype(np.float64) - b64) / denom64 * g64
 
     prefix = Path(args.out_prefix)
     p32 = Path(str(prefix) + ".f32.bin")
@@ -233,6 +279,8 @@ def main():
         "black_phase": black,
         "white": white,
         "gainmap_count": len(maps),
+        "f32_gain_semantics": "SDK_STRUCTURED_ROW_INCREMENTAL",
+        "f64_gain_semantics": "DIRECT_DOUBLE_BILINEAR_REFERENCE",
         "f32_sha256": hashlib.sha256(p32.read_bytes()).hexdigest(),
         "f64_sha256": hashlib.sha256(p64.read_bytes()).hexdigest(),
         "max_abs_stage2_delta": float(np.max(np.abs(f32.astype(np.float64) - f64))),
