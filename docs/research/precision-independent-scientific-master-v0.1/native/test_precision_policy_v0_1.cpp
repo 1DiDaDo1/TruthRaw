@@ -1,5 +1,6 @@
 #include "precision_policy_v0_1.h"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -15,6 +16,16 @@ int main() {
     PrecisionPolicyV01 p;
     assert(precision_policy_authority_invariant_v0_1(p));
 
+    ExactEvidenceDescriptorV01 evidence;
+    evidence.encoding = EvidenceEncodingV01::RawSensorU16;
+    evidence.width = 4;
+    evidence.height = 4;
+    evidence.rowStrideBytes = 8;
+    evidence.pixelStrideBytes = 2;
+    evidence.payloadBytes = 32;
+    evidence.exactSourceBytesRetained = true;
+    assert(evidence.exactSourceBytesRetained);
+
     // Exact integer evidence enters both work paths from the same code value.
     Stage2ParamsV01 s;
     s.black = 64.0;
@@ -27,10 +38,32 @@ int main() {
     assert(std::abs(static_cast<double>(f32) - expected) < 1e-7);
     assert(near(f64, expected));
 
+    // Tile path preserves global CFA phase and can emit either float32 or float64.
+    const std::uint16_t raw[16] = {
+        64, 100, 200, 300,
+        400,500,600,700,
+        800,900,1000,1023,
+        65,66,67,68
+    };
+    const std::array<double,4> blackPhase = {64.0, 65.0, 66.0, 67.0};
+    float tile32[4] = {};
+    double tile64[4] = {};
+    assert(normalize_raw_tile_u16_v0_1<float>(raw,4,4,4,1,1,2,2,blackPhase,1023.0,nullptr,0,tile32,2));
+    assert(normalize_raw_tile_u16_v0_1<double>(raw,4,4,4,1,1,2,2,blackPhase,1023.0,nullptr,0,tile64,2));
+    for (int i=0;i<4;++i) assert(std::abs(static_cast<double>(tile32[i])-tile64[i]) < 1e-7);
+
     // Compensated double reduction recovers small terms through large cancellation.
     const double values[] = {1.0e16, 1.0, -1.0e16, 3.0};
     const double mean = mean_float64_v0_1(values, 4);
     assert(near(mean, 1.0));
+
+    // Running moments are double precision calibration primitives.
+    RunningMoments64V01 moments;
+    moments.add(1.0); moments.add(2.0); moments.add(3.0); moments.add(4.0);
+    assert(moments.count == 4);
+    assert(near(moments.mean, 2.5));
+    assert(near(moments.populationVariance(), 1.25));
+    assert(near(moments.sampleVariance(), 5.0/3.0));
 
     // Unknown covariance must remain unknown and must not be silently converted to zero.
     Covariance3dV01 unknown;
