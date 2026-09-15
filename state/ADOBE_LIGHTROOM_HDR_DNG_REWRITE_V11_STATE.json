@@ -1,0 +1,83 @@
+{
+  "schema": "TruthRawAdobeLightroomHdrDngRewriteState/1.1",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "ADOBE_HDR_DNG_REWRITE_CFA_SAMPLE_EXACT_METADATA_NOT_SOURCE_EXACT",
+  "original_source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "bytes": 25106120,
+    "orientation": 3,
+    "width": 4080,
+    "height": 3072,
+    "cfa": "BGGR"
+  },
+  "adobe_rewrite": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "a69e434c53277f612ae3afea265dfdaf5ba5d7b20c5ab8f4c588000b3f1ede1e",
+    "bytes": 7839986,
+    "software": "Adobe Lightroom 11.5.22 (Android)",
+    "orientation": 1,
+    "raw_subifd": {
+      "width": 4080,
+      "height": 3072,
+      "cfa": "BGGR",
+      "compression": "LOSSLESS_JPEG_SOF3",
+      "tile": [256, 256],
+      "tile_count": 192,
+      "new_raw_image_digest": "6faea350add53e0841d80a210d9cf3a0"
+    },
+    "hdr_xmp": {
+      "hdr_edit_mode": true,
+      "hdr_max_value_ev": 8.0,
+      "exposure_2012_ev": 0.0,
+      "whites_2012": 2.0,
+      "tone_curve": "Custom"
+    }
+  },
+  "cfa_identity": {
+    "sample_count": 12533760,
+    "mismatch_count": 0,
+    "max_abs_difference": 0,
+    "raw_min": 61,
+    "raw_max": 1023,
+    "source_white_count": 217,
+    "original_raw_sample_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "rewritten_raw_sample_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "proven": true
+  },
+  "metadata_comparison": {
+    "noise_profile_exact": true,
+    "opcode_list2_exact": true,
+    "opcode_list2_sha256": "43f87e514c4726bb3690134f985b5f3fe8afad0b8339e257ce84e8155ee56e5c",
+    "opcode_list3_exact": true,
+    "black_level_numeric_exact": true,
+    "white_level_exact": true,
+    "as_shot_neutral_max_abs_delta": 3.125e-7,
+    "forward_matrix_max_abs_delta": 5e-5,
+    "camera_calibration_max_abs_delta": 1.25e-5,
+    "color_matrix1_max_abs_delta": 0.02985,
+    "color_matrix2_max_abs_delta": 0.2094875,
+    "metadata_source_exact": false
+  },
+  "authority_rules": {
+    "immutable_original_remains_source_authority": true,
+    "measured_cfa_authority_may_transfer_only_with_full_sample_identity_proof": true,
+    "adobe_hdr_xmp_is_scientific_evidence": false,
+    "rewritten_metadata_may_replace_original_calibration_authority": false,
+    "scientific_master_writeback_from_adobe": false,
+    "single_sample_difference_revokes_cfa_authority_transfer": true
+  },
+  "implementation": {
+    "runtime": "tools/adobe_hdr_dng_rewrite_audit_v11.py",
+    "tests": "tests/test_adobe_hdr_dng_rewrite_audit_v11.py",
+    "documentation": "docs/research/adobe-lightroom-hdr-dng-rewrite-v1.1/README.md"
+  },
+  "next_gates": [
+    "bind immutable source SHA and decoded CFA SHA into a TruthRaw-owned Adobe interoperability sidecar",
+    "bind Scientific Master and Dynamic Authority Field hashes without modifying the original DNG",
+    "carry Adobe HDR presentation settings separately from scientific calibration authority",
+    "validate future Adobe DNG rewrites fail closed if any CFA sample differs"
+  ],
+  "promotion_rule": "Do not promote to main until the derived DNG carrier and authority sidecar round-trip preserve exact CFA identity and field-specific metadata authority."
+}
