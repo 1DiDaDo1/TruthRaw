@@ -3,6 +3,17 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "scope_rule": "ADOBE_HDR_TIFF_IS_PRESENTATION_INTERCHANGE_NOT_NEW_SENSOR_EVIDENCE",
+  "implementation_commits": {
+    "runtime": "25c6f172ef4e95bb3f6d2d93806689da2521fdc8",
+    "tests": "23d8aa16ebff676de8fc811a830b21a3d2bd1402",
+    "documentation": "a84e93720877baead033207612321886aefeb44e",
+    "initial_state": "398bb4d552e09116c9dc0cfa62689346a290debd",
+    "ci_wiring": "5933061071939e545491fdf0a85aad17ce162702"
+  },
+  "validated_workflow_run_id": 35031757972,
+  "validated_workflow_conclusion": "success",
+  "documentation_governance_run_id_before_final_state": 35031723987,
+  "documentation_governance_conclusion_before_final_state": "success",
   "real_tiff": {
     "file": "IMG_BNC_TRUTHRAW20260907_094449_565 (1).tif",
     "sha256": "03da35eb8c708eac09de55850e868a728378501ded5e6a91db0dbae7f74f8af9",
