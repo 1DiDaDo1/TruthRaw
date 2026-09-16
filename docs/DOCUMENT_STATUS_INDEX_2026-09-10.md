@@ -49,6 +49,7 @@ This applies to, among others: zero-line/TruthRange studies, camera-RGB covarian
 - `docs/calibration/**/README*.md` — calibration campaign/module-local.
 - `tests/**/README*.md` — test/regression documentation.
 - `canonical/**/README*.md` — exact canonical module/version authority only.
+- `android/**/README*.md` — Android integration/debug-client documentation; non-canonical/module-local unless a later governed promotion explicitly says otherwise.
 
 None is a global bootstrap source.
 
