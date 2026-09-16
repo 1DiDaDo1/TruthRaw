@@ -1,0 +1,34 @@
+name: open-scene-region-runtime-v0-7
+
+on:
+  push:
+    paths:
+      - 'tools/open_scene_region_runtime_v07.py'
+      - 'tools/restoration_authority_v01.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tools/open_world_structure_runtime_v04.py'
+      - 'tests/test_open_scene_region_runtime_v07.py'
+      - 'docs/research/open-scene-region-runtime-v0.7/**'
+      - '.github/workflows/open-scene-region-runtime-v0-7.yml'
+  pull_request:
+    paths:
+      - 'tools/open_scene_region_runtime_v07.py'
+      - 'tools/restoration_authority_v01.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tools/open_world_structure_runtime_v04.py'
+      - 'tests/test_open_scene_region_runtime_v07.py'
+      - 'docs/research/open-scene-region-runtime-v0.7/**'
+      - '.github/workflows/open-scene-region-runtime-v0-7.yml'
+
+jobs:
+  open-scene-region-authority:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Open Scene Region v0.7 tests
+        run: python -m unittest -v tests.test_open_scene_region_runtime_v07
+      - name: Re-run conservation restoration authority guard
+        run: python -m unittest -v tests.test_restoration_authority_v01
