@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import io.truthraw.debug.MainActivity as DeviceVerificationActivity
 
 /** Stable front door for the Main + FotoGraaf lineage. */
 class TruthRawSuiteLauncherActivity : Activity() {
@@ -72,7 +73,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(actionButton("Device verification v0.3 · source + CFA") {
-            startActivity(Intent(this, io.truthraw.debug.MainActivity::class.java))
+            startActivity(Intent(this, DeviceVerificationActivity::class.java))
         })
         root.addView(space())
         root.addView(TextView(this).apply {
