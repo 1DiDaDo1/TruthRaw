@@ -1,0 +1,39 @@
+name: dynamic-authority-v19-regeneration-readiness-v0-1
+
+on:
+  push:
+    paths:
+      - 'tools/dynamic_authority_v19_regeneration_readiness_v01.py'
+      - 'tests/test_dynamic_authority_v19_regeneration_readiness_v01.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - 'canonical/native/**'
+      - 'src/**'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/dynamic-authority-v19-regeneration-readiness-v0-1.yml'
+  pull_request:
+    paths:
+      - 'tools/dynamic_authority_v19_regeneration_readiness_v01.py'
+      - 'tests/test_dynamic_authority_v19_regeneration_readiness_v01.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - 'canonical/native/**'
+      - 'src/**'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/dynamic-authority-v19-regeneration-readiness-v0-1.yml'
+
+jobs:
+  regeneration-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run v1.9 regeneration-readiness regression tests
+        run: python -m unittest -v tests.test_dynamic_authority_v19_regeneration_readiness_v01
+      - name: Emit bounded readiness report
+        run: |
+          mkdir -p build
+          python tools/dynamic_authority_v19_regeneration_readiness_v01.py \
+            --out build/dynamic-authority-v19-regeneration-readiness-v01.json
