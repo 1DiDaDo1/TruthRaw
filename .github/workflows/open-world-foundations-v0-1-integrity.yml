@@ -17,6 +17,7 @@ on:
       - 'tools/adobe_hdr_second_generation_v12.py'
       - 'tools/adobe_hdr_controlled_tone_v13.py'
       - 'tools/adobe_hdr_counterbalanced_tone_v14.py'
+      - 'tools/truthraw_hdr_projection_v15.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -34,6 +35,7 @@ on:
       - 'tests/test_adobe_hdr_second_generation_v12.py'
       - 'tests/test_adobe_hdr_controlled_tone_v13.py'
       - 'tests/test_adobe_hdr_counterbalanced_tone_v14.py'
+      - 'tests/test_truthraw_hdr_projection_v15.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -49,6 +51,7 @@ on:
       - 'docs/research/adobe-lightroom-hdr-second-generation-v1.2/**'
       - 'docs/research/adobe-lightroom-hdr-controlled-tone-v1.3/**'
       - 'docs/research/adobe-lightroom-hdr-counterbalanced-tone-v1.4/**'
+      - 'docs/research/truthraw-hdr-projection-v1.5/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -72,6 +75,7 @@ on:
       - 'tools/adobe_hdr_second_generation_v12.py'
       - 'tools/adobe_hdr_controlled_tone_v13.py'
       - 'tools/adobe_hdr_counterbalanced_tone_v14.py'
+      - 'tools/truthraw_hdr_projection_v15.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -89,6 +93,7 @@ on:
       - 'tests/test_adobe_hdr_second_generation_v12.py'
       - 'tests/test_adobe_hdr_controlled_tone_v13.py'
       - 'tests/test_adobe_hdr_counterbalanced_tone_v14.py'
+      - 'tests/test_truthraw_hdr_projection_v15.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -104,6 +109,7 @@ on:
       - 'docs/research/adobe-lightroom-hdr-second-generation-v1.2/**'
       - 'docs/research/adobe-lightroom-hdr-controlled-tone-v1.3/**'
       - 'docs/research/adobe-lightroom-hdr-counterbalanced-tone-v1.4/**'
+      - 'docs/research/truthraw-hdr-projection-v1.5/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -137,6 +143,7 @@ jobs:
             tests.test_adobe_hdr_second_generation_v12 \
             tests.test_adobe_hdr_controlled_tone_v13 \
             tests.test_adobe_hdr_counterbalanced_tone_v14 \
+            tests.test_truthraw_hdr_projection_v15 \
             tests.test_camera5_200mp_cfa_identity_v01
       - name: Compile and run Technical Backplane v0.1 regression
         run: |
