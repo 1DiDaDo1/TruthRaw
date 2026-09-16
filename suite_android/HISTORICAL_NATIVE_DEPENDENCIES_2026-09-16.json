@@ -1,0 +1,22 @@
+{
+  "schema": "TruthRawRecoveredAndroidNativeDependencies/2026-09-16",
+  "historical_source_branch": "research/main-plus-fotograaf-camera-v0.4-live-preview-2026-09-14",
+  "purpose": "Build the recovered Main+FotoGraaf Android suite against the exact historical scientific/native modules it originally referenced, without reinterpreting or rewriting those modules.",
+  "restored_only_when_missing_from_current_integration": [
+    "docs/research/reconstructed-color-preview-v0.1",
+    "docs/research/scientific-preview-source-binding-v0.1",
+    "docs/research/scientific-preview-source-binding-v0.2",
+    "docs/research/dng-color-binding-producer-v0.1",
+    "docs/research/dng-color-binding-producer-v0.2",
+    "docs/research/technical-backplane-phase2-v0.1",
+    "docs/research/scientific-master-streaming-binding-v0.1",
+    "docs/research/scientific-master-streaming-binding-v0.2",
+    "docs/research/scientific-master-digest-v0.1",
+    "docs/research/finalized-scientific-preview-release-v0.1",
+    "docs/research/finalized-scientific-preview-release-v0.2",
+    "docs/research/linear-dng-projection-v0.1"
+  ],
+  "scientific_authority_changed": false,
+  "creates_new_sensor_evidence": false,
+  "note": "This file is also inside suite_android so the APK build gate reruns when the dependency recovery is recorded."
+}
