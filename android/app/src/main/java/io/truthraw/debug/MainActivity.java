@@ -6,10 +6,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -27,11 +28,9 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         openButton = findViewById(R.id.open_dng);
         statusView = findViewById(R.id.status);
         detailsView = findViewById(R.id.details);
-
         detailsView.setText(referenceText());
         openButton.setOnClickListener(v -> openDocument());
     }
@@ -47,9 +46,7 @@ public final class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != REQUEST_OPEN_DNG || resultCode != RESULT_OK || data == null || data.getData() == null) {
-            return;
-        }
+        if (requestCode != REQUEST_OPEN_DNG || resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         openButton.setEnabled(false);
         statusView.setText("Hashing selected file…");
@@ -59,25 +56,49 @@ public final class MainActivity extends Activity {
     private void inspect(Uri uri) {
         final String displayName = displayName(uri);
         try (InputStream in = getContentResolver().openInputStream(uri)) {
-            if (in == null) {
-                throw new IllegalStateException("Content resolver returned no stream");
-            }
+            if (in == null) throw new IllegalStateException("Content resolver returned no stream");
             Sha256.DigestResult digest = Sha256.digest(in);
-            final boolean exact = IdentityContract.isExactFrozenSource(digest.byteCount, digest.sha256);
-            final String status = IdentityContract.admissionLabel(digest.byteCount, digest.sha256);
-            final String detail = resultText(displayName, digest, exact);
-            runOnUiThread(() -> {
-                statusView.setText(status);
-                detailsView.setText(detail);
-                openButton.setEnabled(true);
-            });
+            boolean exactSource = IdentityContract.isExactFrozenSource(digest.byteCount, digest.sha256);
+            if (!exactSource) {
+                publish(IdentityContract.admissionLabel(digest.byteCount, digest.sha256), resultText(displayName, digest, null));
+                return;
+            }
+            runOnUiThread(() -> statusView.setText("Source exact. Verifying decoded CFA…"));
+            File cached = copyToCache(uri);
+            try {
+                DngCfaHasher.Result cfa = DngCfaHasher.hash(cached);
+                boolean cfaExact = IdentityContract.DECODED_CFA_SHA256.equals(cfa.decodedCfaSha256)
+                        && cfa.width == 4080 && cfa.height == 3072;
+                String status = cfaExact
+                        ? "PASS — exact source + decoded CFA verified on-device"
+                        : "FAIL — source bytes exact but decoded CFA identity mismatch";
+                publish(status, resultText(displayName, digest, cfa));
+            } finally {
+                if (!cached.delete()) cached.deleteOnExit();
+            }
         } catch (Exception e) {
-            runOnUiThread(() -> {
-                statusView.setText("ERROR — source admission not completed");
-                detailsView.setText("Selected: " + displayName + "\n\n" + e.getClass().getSimpleName() + ": " + e.getMessage() + "\n\n" + referenceText());
-                openButton.setEnabled(true);
-            });
+            publish("ERROR — admission/CFA verification not completed",
+                    "Selected: " + displayName + "\n\n" + e.getClass().getSimpleName() + ": " + e.getMessage() + "\n\n" + referenceText());
         }
+    }
+
+    private File copyToCache(Uri uri) throws Exception {
+        File out = File.createTempFile("truthraw-source-", ".dng", getCacheDir());
+        try (InputStream in = getContentResolver().openInputStream(uri); FileOutputStream fos = new FileOutputStream(out)) {
+            if (in == null) throw new IllegalStateException("Content resolver returned no second stream");
+            byte[] buffer = new byte[1024 * 1024];
+            int n;
+            while ((n = in.read(buffer)) != -1) fos.write(buffer, 0, n);
+        }
+        return out;
+    }
+
+    private void publish(String status, String details) {
+        runOnUiThread(() -> {
+            statusView.setText(status);
+            detailsView.setText(details);
+            openButton.setEnabled(true);
+        });
     }
 
     private String displayName(Uri uri) {
@@ -86,26 +107,29 @@ public final class MainActivity extends Activity {
                 int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 if (index >= 0) {
                     String value = cursor.getString(index);
-                    if (value != null && !value.isEmpty()) {
-                        return value;
-                    }
+                    if (value != null && !value.isEmpty()) return value;
                 }
             }
         } catch (Exception ignored) {
-            // Display name is informational only and never participates in admission.
+            // Informational only; never participates in scientific admission.
         }
         return uri.toString();
     }
 
-    private static String resultText(String name, Sha256.DigestResult digest, boolean exact) {
+    private static String resultText(String name, Sha256.DigestResult digest, DngCfaHasher.Result cfa) {
         StringBuilder s = new StringBuilder();
         s.append("Selected: ").append(name).append('\n');
         s.append("Observed bytes: ").append(digest.byteCount).append('\n');
-        s.append("Observed SHA-256: ").append(digest.sha256).append("\n\n");
-        if (exact) {
-            s.append("Exact source admission is verified on-device. The identities below are frozen research references bound to this exact source; this debug client has NOT independently recomputed them.\n\n");
+        s.append("Observed file SHA-256: ").append(digest.sha256).append("\n\n");
+        if (cfa == null) {
+            s.append("The file is not the exact frozen source. No downstream scientific identity is inherited.\n\n");
         } else {
-            s.append("The file is not the frozen source. No decoded-CFA, Scientific-Master, Dynamic-Authority or HDR identity may be inherited from the reference capture.\n\n");
+            s.append("Decoded CFA: ").append(cfa.width).append('x').append(cfa.height).append('\n');
+            s.append("CFA strips: ").append(cfa.stripCount).append('\n');
+            s.append("Decoded CFA bytes: ").append(cfa.decodedBytes).append('\n');
+            s.append("Decoded CFA SHA-256: ").append(cfa.decodedCfaSha256).append('\n');
+            s.append("CFA identity match: ").append(IdentityContract.DECODED_CFA_SHA256.equals(cfa.decodedCfaSha256) ? "PASS" : "FAIL").append("\n\n");
+            s.append("Source and decoded CFA are now independently verified by this APK. Scientific Master, Dynamic Authority and HDR projection remain frozen references until their exact native runtimes are ported.\n\n");
         }
         s.append(referenceText());
         return s.toString();
@@ -114,14 +138,17 @@ public final class MainActivity extends Activity {
     private static String referenceText() {
         return String.format(Locale.ROOT,
                 "NON-CANONICAL DEBUG CLIENT\n" +
-                "Scientific processing: NOT RUN\n" +
+                "Source byte/SHA admission: IMPLEMENTED\n" +
+                "Uncompressed 16-bit DNG CFA verification: IMPLEMENTED\n" +
+                "Scientific Master recomputation: NOT RUN\n" +
+                "Dynamic Authority recomputation: NOT RUN\n" +
                 "HDR projection: NOT RUN\n" +
                 "Scientific writeback: FORBIDDEN\n\n" +
                 "Frozen source bytes: %d\n" +
                 "Frozen source SHA-256: %s\n" +
-                "Decoded CFA SHA-256 (reference only): %s\n" +
-                "Scientific Master SHA-256 (reference only): %s\n" +
-                "Dynamic Authority SHA-256 (reference only): %s\n" +
+                "Decoded CFA SHA-256: %s\n" +
+                "Scientific Master SHA-256 (reference): %s\n" +
+                "Dynamic Authority SHA-256 (reference): %s\n" +
                 "Reference L0: %.17g\n" +
                 "P3-D65 transform SHA-256 (L1 source-bound, not physical calibration): %s\n\n" +
                 "Rule: Representation may exceed the source; knowledge claims may not exceed the evidence.",
