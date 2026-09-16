@@ -5,6 +5,7 @@ on:
     branches:
       - integration/truthraw-suite-apk-2026-09-16
       - integration/truthraw-suite-v0-6-200mp-preview-first-2026-09-16
+      - integration/truthraw-suite-v0-10-200mp-max-highres
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-truthraw-suite-apk-2026-09-16.yml'
@@ -41,26 +42,35 @@ jobs:
           grep -F 'truthraw_last_crash.txt' "$APPCLASS"
           grep -F 'Crashrapport opslaan' "$CRASH"
 
-          # v0.9 regression guard: TextureView must never receive a background drawable/color.
-          grep -F 'TruthRaw · 200MP Tele Test v0.9' "$STAGED"
+          # TextureView regression guard remains permanent.
+          grep -F 'TruthRaw · 200MP Tele Test v0.10' "$STAGED"
           if grep -F 'setBackgroundColor(Color.BLACK)' "$STAGED"; then
             echo 'Forbidden TextureView background regression in staged 200MP activity' >&2
             exit 1
           fi
           grep -F 'TextureView rejects background drawables/background colors' "$STAGED"
 
-          # Staged science path remains intact behind the crash-isolation entry.
+          # v0.10 restores the exact v0.7 200MP discovery route.
+          grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$STAGED"
+          grep -F 'maximumMap?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$STAGED"
+          grep -F 'MAXIMUM_MAP_HIGH_RESOLUTION' "$STAGED"
+
+          # Staged science/acquisition path remains explicit and fail-closed.
           grep -F 'STAGE 0 PASS' "$STAGED"
-          grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$STAGED"
           grep -F 'CONTROL_ZOOM_RATIO' "$STAGED"
           grep -F 'LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID' "$STAGED"
           grep -F 'TARGET_W = 16320' "$STAGED"
           grep -F 'TARGET_H = 12288' "$STAGED"
           grep -F 'TARGET_SAMPLES = 200_540_160L' "$STAGED"
           grep -F 'output.setPhysicalCameraId(PHYSICAL_ID)' "$STAGED"
+          grep -F 'output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' "$STAGED"
           grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$STAGED"
+          grep -F 'persistOriginalRawBuffer' "$STAGED"
+          grep -F 'canonicalContiguousRawsensor' "$STAGED"
           grep -F 'sha256ValidSampleBytes' "$STAGED"
+          grep -F 'AUXILIARY_DERIVED_CONTAINER' "$STAGED"
           grep -F 'creator.setOrientation(1)' "$STAGED"
+          grep -F 'APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_NOT_UNTOUCHED_NATIVE_ADC_PROOF' "$STAGED"
 
           # Existing runtime route discovery and verifier remain integrated.
           grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$ROUTES"
@@ -110,6 +120,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-suite-main-plus-fotograaf-v0-9-textureview-crash-fixed-200mp-debug-arm64
+          name: truthraw-suite-main-plus-fotograaf-v0-10-max-highres-rawbuffer-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
