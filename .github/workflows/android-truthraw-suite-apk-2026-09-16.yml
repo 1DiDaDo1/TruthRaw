@@ -31,19 +31,17 @@ jobs:
           ROUTES="$JAVA/FotoGraafProRoutes.kt"
           CPP="$APP/app/src/main/cpp"
 
-          # Historical proven Camera2 path remains present.
           grep -F 'FotoGraafLiveCameraActivity' "$MANIFEST"
           grep -F 'TextureView.SurfaceTextureListener' "$JAVA/FotoGraafLiveCameraActivity.kt"
           grep -F 'setRepeatingRequest' "$JAVA/FotoGraafLiveCameraActivity.kt"
           grep -F 'creator.setOrientation(1)' "$JAVA/FotoGraafLiveCameraActivity.kt"
 
-          # Existing full Pro camera remains registered.
           grep -F 'FotoGraafProCameraActivity' "$MANIFEST"
           grep -F 'TextureView.SurfaceTextureListener' "$PRO"
           grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$PRO"
           grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$ROUTES"
+          grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$ROUTES"
 
-          # v0.6: explicit preview-first Camera-5 200MP route.
           grep -F 'FotoGraaf200MpTestActivity' "$MANIFEST"
           grep -F 'logical 0 → physical 5 → MAX RAW 16320×12288' "$JAVA/TruthRawSuiteLauncherActivity.kt"
           grep -F 'TARGET_W = 16320' "$MAX200"
@@ -61,12 +59,10 @@ jobs:
           grep -F 'creator.setOrientation(1)' "$MAX200"
           grep -F 'APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_NOT_UNTOUCHED_NATIVE_ADC_PROOF' "$MAX200"
 
-          # Proven v0.3 exact source/CFA verifier is integrated, not replaced.
           grep -F 'class MainActivity extends Activity' "$DEBUGJAVA/MainActivity.java"
           grep -F 'IdentityContract.isExactFrozenSource' "$DEBUGJAVA/MainActivity.java"
           grep -F 'DngCfaHasher.hash' "$DEBUGJAVA/MainActivity.java"
 
-          # Existing native TruthRaw processor/export bridge remains linked.
           grep -F 'object LinearDngExporter' "$JAVA/LinearDngExport.kt"
           grep -F 'linear_dng_export_bridge.cpp' "$CPP/CMakeLists.txt"
 
