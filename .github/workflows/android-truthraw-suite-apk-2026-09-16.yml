@@ -19,22 +19,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify recovered camera evidence boundaries
+      - name: Verify integrated camera and evidence boundaries
         run: |
           APP='suite_android'
           MANIFEST="$APP/app/src/main/AndroidManifest.xml"
           JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
+          DEBUGJAVA="$APP/app/src/main/java/io/truthraw/debug"
+          PRO="$JAVA/FotoGraafProCameraActivity.kt"
+          ROUTES="$JAVA/FotoGraafProRoutes.kt"
           CPP="$APP/app/src/main/cpp"
+
+          # Historical proven Camera2 path remains present.
           grep -F 'FotoGraafLiveCameraActivity' "$MANIFEST"
           grep -F 'TextureView.SurfaceTextureListener' "$JAVA/FotoGraafLiveCameraActivity.kt"
           grep -F 'setRepeatingRequest' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'setPhysicalCameraKey' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'physicalCameraResults' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'SENSOR_TIMESTAMP' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'physicalFrameCount", 1' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'independentEvidenceCount", 1' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'vendorRequestsWritten", false' "$JAVA/FotoGraafLiveCameraActivity.kt"
           grep -F 'creator.setOrientation(1)' "$JAVA/FotoGraafLiveCameraActivity.kt"
+
+          # Full Pro camera must be a real registered Camera2 activity.
+          grep -F 'FotoGraafProCameraActivity' "$MANIFEST"
+          grep -F 'TextureView.SurfaceTextureListener' "$PRO"
+          grep -F 'setPhysicalCameraId' "$PRO"
+          grep -F 'setPhysicalCameraKey' "$PRO"
+          grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$PRO"
+          grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$ROUTES"
+          grep -F 'CONTROL_AE_MODE_OFF' "$PRO"
+          grep -F 'SENSOR_SENSITIVITY' "$PRO"
+          grep -F 'SENSOR_EXPOSURE_TIME' "$PRO"
+          grep -F 'CONTROL_AE_EXPOSURE_COMPENSATION' "$PRO"
+          grep -F 'CONTROL_AF_REGIONS' "$PRO"
+          grep -F 'LENS_FOCUS_DISTANCE' "$PRO"
+          grep -F 'LENS_OPTICAL_STABILIZATION_MODE' "$PRO"
+
+          # Capture admission remains fail-closed and one-frame.
+          grep -F 'physicalCameraResults' "$PRO"
+          grep -F 'SENSOR_TIMESTAMP' "$PRO"
+          grep -F 'physicalFrameCount", 1' "$PRO"
+          grep -F 'independentEvidenceCount", 1' "$PRO"
+          grep -F 'scientificMasterModified", false' "$PRO"
+          grep -F 'scientificWriteback", false' "$PRO"
+          grep -F 'vendorRequestsWritten", false' "$PRO"
+          grep -F 'APP_VISIBLE_RAW_SENSOR_PLANE_NOT_UNTOUCHED_ADC_PROOF' "$PRO"
+          grep -F 'maximumResolutionCaptureConfirmed' "$PRO"
+
+          # Proven v0.3 exact source/CFA verifier is integrated, not replaced.
+          grep -F 'class MainActivity extends Activity' "$DEBUGJAVA/MainActivity.java"
+          grep -F 'IdentityContract.isExactFrozenSource' "$DEBUGJAVA/MainActivity.java"
+          grep -F 'DngCfaHasher.hash' "$DEBUGJAVA/MainActivity.java"
+
+          # Existing native TruthRaw processor/export bridge remains linked.
           grep -F 'object LinearDngExporter' "$JAVA/LinearDngExport.kt"
           grep -F 'linear_dng_export_bridge.cpp' "$CPP/CMakeLists.txt"
 
@@ -66,7 +98,7 @@ jobs:
         working-directory: suite_android
         run: gradle --no-daemon :app:assembleDebug
 
-      - name: Verify APK native processor and capture class
+      - name: Verify APK native processor and package
         run: |
           APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$APK"
@@ -84,6 +116,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-suite-main-plus-fotograaf-debug-arm64
+          name: truthraw-suite-main-plus-fotograaf-v0-5-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
