@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TruthRaw Debug"
+            android:text="TruthRaw Debug v0.3"
             android:textSize="26sp"
             android:textStyle="bold" />
 
@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="This build admits only the exact frozen DNG and independently hashes its decoded uncompressed 16-bit CFA raster. Scientific Master, Dynamic Authority and HDR projection are not yet recomputed on-device." />
+            android:text="This build admits only the exact frozen DNG and independently hashes its decoded uncompressed 16-bit CFA raster. It can export a device-validation JSON report. Scientific Master, Dynamic Authority and HDR projection are not yet recomputed on-device." />
 
         <Button
             android:id="@+id/open_dng"
@@ -37,6 +37,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Select DNG" />
+
+        <Button
+            android:id="@+id/export_report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Export verification report" />
 
         <TextView
             android:id="@+id/status"

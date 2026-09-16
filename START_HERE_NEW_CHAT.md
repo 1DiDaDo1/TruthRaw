@@ -2,6 +2,12 @@
 
 This is the authoritative session/bootstrap entry point for the renewed TruthRaw house as of 2026-09-10.
 
+## Current live research handoff — 2026-09-16
+
+After the governed mandatory reading below, read `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md` for the current Scientific Master, Dynamic Authority, Adobe-HDR and Android on-device CFA-verification state. That handoff is a **research-branch current-work supplement**, not a replacement for the canonical 2026-09-10 architecture/state and not a main promotion.
+
+The permanent open-world clarification is: source evidence is sealed/immutable, but the represented/reconstructed world is not a sealed finite house. Room Capsules are local computational domains only. **Representation may exceed the source; knowledge claims may not exceed the evidence.**
+
 ## Mandatory reading order
 
 1. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`

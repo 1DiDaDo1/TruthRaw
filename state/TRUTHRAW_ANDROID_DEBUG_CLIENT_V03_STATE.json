@@ -1,0 +1,76 @@
+{
+  "schema": "TruthRawAndroidDebugClientState/0.3",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "INSTALLABLE_DEBUG_APK_WITH_EXACT_SOURCE_CFA_VERIFICATION_AND_EXPORTABLE_DEVICE_REPORT",
+  "application": {
+    "application_id": "io.truthraw.debug",
+    "version_code": 3,
+    "version_name": "0.3-debug",
+    "min_sdk": 26,
+    "target_sdk": 35,
+    "release_signing_authority": false
+  },
+  "target_device_evidence": {
+    "v02_source_and_cfa_pass_user_supplied": true,
+    "screenshot_bytes": 206919,
+    "screenshot_sha256": "f92e6461a9fa74b09854bc59f83c00c074648128e64fc9dedea93cfe2f479fb9",
+    "visible_result": "PASS — exact source + decoded CFA verified on-device",
+    "scope": "SOURCE_AND_DECODED_CFA_IDENTITY_ONLY",
+    "creates_new_sensor_evidence": false
+  },
+  "source_admission": {
+    "bytes": 25106120,
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_width": 4080,
+    "decoded_cfa_height": 3072,
+    "decoded_cfa_strips": 3072,
+    "decoded_cfa_bytes": 25067520,
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "file_byte_sha_verification_on_device": true,
+    "decoded_cfa_verification_on_device": true,
+    "non_matching_input_inherits_downstream_identity": false
+  },
+  "v03_report_export": {
+    "implemented": true,
+    "schema": "TruthRawAndroidVerificationReport/0.3",
+    "classification": "DEVICE_VALIDATION_ONLY_NO_SCIENTIFIC_WRITEBACK",
+    "storage_access_framework_create_document": true,
+    "source_and_cfa_result_recorded": true,
+    "frozen_downstream_references_recorded": true,
+    "device_and_timestamp_are_observational_only": true,
+    "scientific_writeback_allowed": false
+  },
+  "frozen_downstream_references": {
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "dynamic_authority_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+    "source_bound_p3_transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "reference_l0": 0.12564234435558319,
+    "scientific_master_recomputed_on_device": false,
+    "dynamic_authority_recomputed_on_device": false,
+    "hdr_projection_run_on_device": false
+  },
+  "scientific_rules": {
+    "apk_may_modify_canonical_truthraw_evidence": false,
+    "apk_reference_values_are_new_scientific_recomputation": false,
+    "appearance_or_transport_may_write_back_scientific_authority": false,
+    "representation_may_exceed_source_but_knowledge_claims_may_not": true
+  },
+  "validation": {
+    "implementation_commit": null,
+    "ci_run_id": null,
+    "ci_conclusion": null,
+    "artifact_id": null,
+    "apk_sha256": null,
+    "canonical_payload_sha256": null,
+    "target_device_v03_report_export_tested": false
+  },
+  "handoff": "docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md",
+  "next_gates": [
+    "build and install v0.3 on the target Honor device and export a PASS JSON verification report",
+    "port the exact Scientific Master runtime and reproduce the frozen Scientific Master SHA on-device",
+    "port Dynamic Authority v1.9 and reproduce the frozen field/channel identities on-device",
+    "only then enable authority-aware P3-D65/PQ projection on-device"
+  ],
+  "promotion_rule": "Do not promote this debug client to main or call the mobile scientific pipeline complete until Scientific Master and Dynamic Authority identities are independently recomputed and matched on-device."
+}
