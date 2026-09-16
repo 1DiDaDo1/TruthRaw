@@ -52,8 +52,12 @@ jobs:
       - name: Assemble debug APK
         run: gradle -p android --no-daemon assembleDebug
 
-      - name: Hash APK
-        run: sha256sum android/app/build/outputs/apk/debug/app-debug.apk | tee android/app/build/outputs/apk/debug/app-debug.apk.sha256
+      - name: Hash APK and canonical ZIP payload
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum "$APK" | tee "$APK.sha256"
+          PAYLOAD_SHA=$(python android/tools/apk_payload_digest.py "$APK")
+          printf '%s  %s\n' "$PAYLOAD_SHA" "$APK" | tee "$APK.payload.sha256"
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -62,5 +66,6 @@ jobs:
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/apk/debug/app-debug.apk.sha256
+            android/app/build/outputs/apk/debug/app-debug.apk.payload.sha256
           if-no-files-found: error
           retention-days: 30
