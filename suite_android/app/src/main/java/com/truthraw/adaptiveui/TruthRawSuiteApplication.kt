@@ -5,17 +5,34 @@ import android.app.Application
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.WindowInsets
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.time.Instant
 
-/**
- * Suite-level Android plumbing only.
- *
- * v0.4.3 deliberately performs no CameraManager access from Application.onCreate().
- * Camera2 is entered only from the explicit diagnostic steps. This keeps the
- * bootstrap layer genuinely camera-free and makes crash localization truthful.
- */
+/** Suite-level Android plumbing and fail-safe crash provenance. */
 class TruthRawSuiteApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        val previous = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            runCatching {
+                val sw = StringWriter()
+                throwable.printStackTrace(PrintWriter(sw))
+                val report = buildString {
+                    appendLine("TruthRaw Android crash report v0.8")
+                    appendLine("createdAtUtc=${Instant.now()}")
+                    appendLine("thread=${thread.name}")
+                    appendLine("exception=${throwable.javaClass.name}")
+                    appendLine("message=${throwable.message ?: ""}")
+                    appendLine("--- stacktrace ---")
+                    append(sw.toString())
+                }
+                openFileOutput(CRASH_FILE, MODE_PRIVATE).bufferedWriter().use { it.write(report) }
+            }
+            previous?.uncaughtException(thread, throwable)
+        }
+
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) {
                 val fotoGraaf = activity is FotoGraafCameraActivity ||
@@ -44,5 +61,9 @@ class TruthRawSuiteApplication : Application() {
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
             override fun onActivityDestroyed(activity: Activity) = Unit
         })
+    }
+
+    companion object {
+        const val CRASH_FILE = "truthraw_last_crash.txt"
     }
 }
