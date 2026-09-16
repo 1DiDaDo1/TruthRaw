@@ -62,6 +62,12 @@
             android:exported="false" />
 
         <activity
+            android:name=".FotoGraaf200MpTestActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
             android:name=".FotoGraafCameraActivity"
             android:exported="false" />
     </application>
