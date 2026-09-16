@@ -27,42 +27,48 @@ jobs:
           JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
           DEBUGJAVA="$APP/app/src/main/java/io/truthraw/debug"
           PRO="$JAVA/FotoGraafProCameraActivity.kt"
-          MAX200="$JAVA/FotoGraaf200MpTestActivity.kt"
+          STAGED="$JAVA/FotoGraaf200MpStagedActivity.kt"
           ROUTES="$JAVA/FotoGraafProRoutes.kt"
           CPP="$APP/app/src/main/cpp"
 
+          # Historical paths remain present.
           grep -F 'FotoGraafLiveCameraActivity' "$MANIFEST"
-          grep -F 'TextureView.SurfaceTextureListener' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'setRepeatingRequest' "$JAVA/FotoGraafLiveCameraActivity.kt"
-          grep -F 'creator.setOrientation(1)' "$JAVA/FotoGraafLiveCameraActivity.kt"
-
           grep -F 'FotoGraafProCameraActivity' "$MANIFEST"
-          grep -F 'TextureView.SurfaceTextureListener' "$PRO"
           grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$PRO"
           grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$ROUTES"
           grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$ROUTES"
 
-          grep -F 'FotoGraaf200MpTestActivity' "$MANIFEST"
-          grep -F 'logical 0 → physical 5 → MAX RAW 16320×12288' "$JAVA/TruthRawSuiteLauncherActivity.kt"
-          grep -F 'TARGET_W = 16320' "$MAX200"
-          grep -F 'TARGET_H = 12288' "$MAX200"
-          grep -F 'TARGET_SAMPLES = 200_540_160L' "$MAX200"
-          grep -F 'ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW_SENSOR, 1)' "$MAX200"
-          grep -F 'output.setPhysicalCameraId("5")' "$MAX200"
-          grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$MAX200"
-          grep -F 'physical Camera-5 TotalCaptureResult' "$JAVA/TruthRawSuiteLauncherActivity.kt"
-          grep -F 'pixelStride != 2' "$MAX200"
-          grep -F 'sha256ValidSampleBytes' "$MAX200"
-          grep -F 'CONTROL_AWB_STATE' "$MAX200"
-          grep -F 'COLOR_CORRECTION_GAINS' "$MAX200"
-          grep -F 'COLOR_CORRECTION_TRANSFORM' "$MAX200"
-          grep -F 'creator.setOrientation(1)' "$MAX200"
-          grep -F 'APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_NOT_UNTOUCHED_NATIVE_ADC_PROOF' "$MAX200"
+          # v0.7 staged route must start without Camera2 and separate the three facts.
+          grep -F 'FotoGraaf200MpStagedActivity' "$MANIFEST"
+          grep -F '200MP TELE TEST v0.7 · staged · physical 5' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'STAGE 0 PASS' "$STAGED"
+          grep -F 'Stap 1 · lees Camera-5 200MP capability' "$STAGED"
+          grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$STAGED"
+          grep -F 'Stap 2 · start live beeld via logical 0 · 3.7×' "$STAGED"
+          grep -F 'OutputConfiguration(surface) // Deliberately no setPhysicalCameraId().' "$STAGED"
+          grep -F 'CONTROL_ZOOM_RATIO' "$STAGED"
+          grep -F 'LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID' "$STAGED"
+          grep -F 'Stap 3 · CAPTURE physical 5 · 16320×12288' "$STAGED"
+          grep -F 'TARGET_W = 16320' "$STAGED"
+          grep -F 'TARGET_H = 12288' "$STAGED"
+          grep -F 'TARGET_SAMPLES = 200_540_160L' "$STAGED"
+          grep -F 'ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW_SENSOR, 1)' "$STAGED"
+          grep -F 'output.setPhysicalCameraId(PHYSICAL_ID)' "$STAGED"
+          grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$STAGED"
+          grep -F 'physical Camera-5 TotalCaptureResult ontbreekt' "$STAGED"
+          grep -F 'sha256ValidSampleBytes' "$STAGED"
+          grep -F 'CONTROL_AWB_STATE' "$STAGED"
+          grep -F 'COLOR_CORRECTION_GAINS' "$STAGED"
+          grep -F 'COLOR_CORRECTION_TRANSFORM' "$STAGED"
+          grep -F 'creator.setOrientation(1)' "$STAGED"
+          grep -F 'APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_NOT_UNTOUCHED_NATIVE_ADC_PROOF' "$STAGED"
 
+          # Existing v0.3 exact source/CFA verifier is integrated, not replaced.
           grep -F 'class MainActivity extends Activity' "$DEBUGJAVA/MainActivity.java"
           grep -F 'IdentityContract.isExactFrozenSource' "$DEBUGJAVA/MainActivity.java"
           grep -F 'DngCfaHasher.hash' "$DEBUGJAVA/MainActivity.java"
 
+          # Existing native TruthRaw processor/export bridge remains linked.
           grep -F 'object LinearDngExporter' "$JAVA/LinearDngExport.kt"
           grep -F 'linear_dng_export_bridge.cpp' "$CPP/CMakeLists.txt"
 
@@ -112,6 +118,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-suite-main-plus-fotograaf-v0-6-preview-first-200mp-debug-arm64
+          name: truthraw-suite-main-plus-fotograaf-v0-7-staged-200mp-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
