@@ -30,10 +30,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run v1.9 regeneration-readiness regression tests
-        run: python -m unittest -v tests.test_dynamic_authority_v19_regeneration_readiness_v01
-      - name: Emit bounded readiness report
+      - name: Emit diagnostic bounded readiness report
+        continue-on-error: true
         run: |
           mkdir -p build
+          python tools/dynamic_authority_v19_regeneration_readiness_v01.py \
+            --out build/dynamic-authority-v19-regeneration-readiness-v01.json
+      - name: Run v1.9 regeneration-readiness regression tests
+        run: python -m unittest -v tests.test_dynamic_authority_v19_regeneration_readiness_v01
+      - name: Emit final bounded readiness report
+        run: |
           python tools/dynamic_authority_v19_regeneration_readiness_v01.py \
             --out build/dynamic-authority-v19-regeneration-readiness-v01.json
