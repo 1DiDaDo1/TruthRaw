@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Recover exact TruthRaw v1.9/v5.0g historical source bytes from Git history.
 
-This tool deliberately searches Git objects/history, not only the current worktree.
-It exists because several files used by the frozen Dynamic Authority v1.9 and
-historical v5.0g uncertainty work were later removed from the live tree.
+This tool searches both normal Git history and explicit historical commit:path
+locations. Several files used by frozen Dynamic Authority v1.9 / v5.0g were
+later removed or detached from advertised branches.
 
-A candidate is considered recovered only when its raw blob bytes produce the
-frozen SHA-256. File names, similar code, Git blob SHA-1 identity, or matching
-size are not sufficient.
+A candidate is recovered only when its raw bytes produce the frozen SHA-256.
+Filename, size, Git blob SHA-1 identity, or similar code are never sufficient.
 """
 from __future__ import annotations
 
@@ -19,11 +18,15 @@ import subprocess
 from typing import Callable
 
 SCHEMA = "TruthRawHistoricalLineageRecovery/0.1"
+V47I_STAGING_COMMIT = "36cd2ca16946a412fa28f04b70ae2f423167fb43"
 
 TARGETS = {
     "canonical_v4_7i_core.cpp": {
         "sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
         "required": True,
+        "direct_locations": [
+            (V47I_STAGING_COMMIT, "staging/v47i-byte-exact/core.cpp"),
+        ],
         "path_match": lambda p: p.endswith("/canonical_v4_7i_core.cpp")
         or p == "canonical_v4_7i_core.cpp"
         or p.endswith("/v47i-byte-exact/core.cpp"),
@@ -31,6 +34,9 @@ TARGETS = {
     "canonical_v4_7i_core.h": {
         "sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
         "required": True,
+        "direct_locations": [
+            (V47I_STAGING_COMMIT, "staging/v47i-byte-exact/core.h"),
+        ],
         "path_match": lambda p: p.endswith("/canonical_v4_7i_core.h")
         or p == "canonical_v4_7i_core.h"
         or p.endswith("/v47i-byte-exact/core.h"),
@@ -73,9 +79,6 @@ def _git(repo: Path, *args: str, binary: bool = False):
 
 
 def enumerate_historical_objects(repo: Path) -> list[tuple[str, str]]:
-    # `git rev-list --all` does not guarantee inclusion of arbitrary custom refs
-    # such as refs/recovery/*. Enumerate every local ref explicitly so detached
-    # recovery refs fetched by CI become part of the search domain.
     refs = [
         r.strip()
         for r in _git(repo, "for-each-ref", "--format=%(refname)").splitlines()
@@ -104,6 +107,42 @@ def blob_bytes(repo: Path, oid: str) -> bytes:
     return _git(repo, "cat-file", "-p", oid, binary=True)
 
 
+def _candidate_from_direct_location(
+    repo: Path, commit: str, path: str, expected: str
+) -> dict | None:
+    spec = f"{commit}:{path}"
+    try:
+        oid = _git(repo, "rev-parse", spec).strip()
+        raw = _git(repo, "show", spec, binary=True)
+    except subprocess.CalledProcessError:
+        return None
+    actual = hashlib.sha256(raw).hexdigest()
+    return {
+        "path": path,
+        "historical_commit": commit,
+        "git_blob_sha1": oid,
+        "bytes": len(raw),
+        "sha256": actual,
+        "expected_sha256": expected,
+        "exact": actual == expected,
+        "discovery": "DIRECT_COMMIT_PATH",
+    }
+
+
+def _candidate_from_blob(repo: Path, oid: str, path: str, expected: str) -> dict:
+    raw = blob_bytes(repo, oid)
+    actual = hashlib.sha256(raw).hexdigest()
+    return {
+        "path": path,
+        "git_blob_sha1": oid,
+        "bytes": len(raw),
+        "sha256": actual,
+        "expected_sha256": expected,
+        "exact": actual == expected,
+        "discovery": "HISTORICAL_OBJECT_SCAN",
+    }
+
+
 def scan_history(repo: Path, targets: dict | None = None) -> dict:
     targets = targets or TARGETS
     objects = enumerate_historical_objects(repo)
@@ -114,25 +153,25 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
         expected = spec["sha256"]
         candidates: list[dict] = []
         seen_blobs: set[str] = set()
+
+        # Known detached/renamed historical paths are inspected directly. This
+        # avoids relying on rev-list's non-authoritative path alias selection.
+        for commit, path in spec.get("direct_locations", []):
+            c = _candidate_from_direct_location(repo, commit, path, expected)
+            if c is None:
+                continue
+            candidates.append(c)
+            seen_blobs.add(c["git_blob_sha1"])
+
         for oid, path in objects:
             if not matcher(path) or oid in seen_blobs:
                 continue
-            seen_blobs.add(oid)
             try:
-                raw = blob_bytes(repo, oid)
+                c = _candidate_from_blob(repo, oid, path, expected)
             except ValueError:
                 continue
-            actual = hashlib.sha256(raw).hexdigest()
-            candidates.append(
-                {
-                    "path": path,
-                    "git_blob_sha1": oid,
-                    "bytes": len(raw),
-                    "sha256": actual,
-                    "expected_sha256": expected,
-                    "exact": actual == expected,
-                }
-            )
+            seen_blobs.add(oid)
+            candidates.append(c)
 
         exact = [c for c in candidates if c["exact"]]
         if len(exact) == 1:
@@ -155,7 +194,6 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
 
     required = [n for n, s in targets.items() if s["required"]]
     required_exact = all(records[n]["exact_recovered"] for n in required)
-
     probe_rec = records.get("probe_dynamic_authority_v19.cpp")
     extractor_rec = records.get("uncertainty_core_v5_0g.py")
     probe_exact = bool(probe_rec and probe_rec["exact_recovered"])
@@ -196,7 +234,15 @@ def materialize_exact(repo: Path, report: dict, dest: Path) -> list[str]:
         if not rec["exact_recovered"]:
             continue
         chosen = rec["exact_occurrences"][0]
-        raw = blob_bytes(repo, chosen["git_blob_sha1"])
+        if chosen.get("historical_commit"):
+            raw = _git(
+                repo,
+                "show",
+                f"{chosen['historical_commit']}:{chosen['path']}",
+                binary=True,
+            )
+        else:
+            raw = blob_bytes(repo, chosen["git_blob_sha1"])
         out = dest / name
         out.write_bytes(raw)
         written.append(out.as_posix())
@@ -212,7 +258,9 @@ def main() -> None:
     repo = Path(ns.repo_root).resolve()
     report = scan_history(repo)
     if ns.materialize_dir:
-        report["materialized"] = materialize_exact(repo, report, Path(ns.materialize_dir).resolve())
+        report["materialized"] = materialize_exact(
+            repo, report, Path(ns.materialize_dir).resolve()
+        )
     text = json.dumps(report, indent=2, sort_keys=True)
     if ns.out:
         Path(ns.out).write_text(text + "\n", encoding="utf-8")
