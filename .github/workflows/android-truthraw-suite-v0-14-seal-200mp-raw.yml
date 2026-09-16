@@ -1,0 +1,68 @@
+name: TruthRaw Suite FotoGraaf v0.14 Seal 200MP RAW
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-12-forced-physical-max
+    paths:
+      - 'suite_android/**'
+      - 'tools/patch_fotograaf_v012_forced_physical_max.py'
+      - 'tools/patch_fotograaf_v013_physical_only_max_submit.py'
+      - 'tools/patch_fotograaf_v014_seal_raw_before_result_mode_gate.py'
+      - '.github/workflows/android-truthraw-suite-v0-14-seal-200mp-raw.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-suite:
+    name: Build TruthRaw Suite FotoGraaf v0.14 arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply v0.14 seal-first 200MP RAW patch
+        run: |
+          python3 tools/patch_fotograaf_v014_seal_raw_before_result_mode_gate.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          grep -F 'TruthRaw · 200MP Tele Test v0.14' "$APP"
+          grep -F 'STAGE 3 RAW SEALED' "$APP"
+          grep -F 'returnedSensorPixelModeMismatchPreserved' "$APP"
+          grep -F 'sealBeforePixelModeInterpretation' "$APP"
+          grep -F 'APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF' "$APP"
+          ! grep -F 'MAXIMUM_RESOLUTION vereist' "$APP"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-14-seal-200mp-raw-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
