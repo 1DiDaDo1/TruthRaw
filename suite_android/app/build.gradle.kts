@@ -13,26 +13,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
 
     defaultConfig {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.14-main-plus-fotograaf-v0.7-staged-200mp-logical-preview"
+        versionCode = 15
+        versionName = "0.15-main-plus-fotograaf-v0.8-crash-diagnostic-200mp"
 
-        ndk {
-            abiFilters += listOf("arm64-v8a")
-        }
-
-        externalNativeBuild {
-            cmake {
-                cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror")
-            }
-        }
+        ndk { abiFilters += listOf("arm64-v8a") }
+        externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
     }
 
     externalNativeBuild {
