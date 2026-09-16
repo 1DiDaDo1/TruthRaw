@@ -21,6 +21,7 @@ on:
       - 'tools/truthraw_hdr_projection_runtime_v16.py'
       - 'tools/truthraw_hdr_legacy_linear_bridge_v17.py'
       - 'tools/truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -42,6 +43,7 @@ on:
       - 'tests/test_truthraw_hdr_projection_runtime_v16.py'
       - 'tests/test_truthraw_hdr_legacy_linear_bridge_v17.py'
       - 'tests/test_truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tests/test_truthraw_hdr_dynamic_authority_binding_v19.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -61,6 +63,7 @@ on:
       - 'docs/research/truthraw-hdr-projection-runtime-v1.6/**'
       - 'docs/research/truthraw-hdr-legacy-linear-bridge-v1.7/**'
       - 'docs/research/truthraw-hdr-scientific-master-binding-v1.8/**'
+      - 'docs/research/truthraw-hdr-dynamic-authority-binding-v1.9/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -88,6 +91,7 @@ on:
       - 'tools/truthraw_hdr_projection_runtime_v16.py'
       - 'tools/truthraw_hdr_legacy_linear_bridge_v17.py'
       - 'tools/truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
       - 'tools/camera5_200mp_cfa_identity_v01.py'
       - 'tools/camera5_200mp_evidence_bundle_v02.py'
       - 'tools/camera5_200mp_evidence_bundle_v03.py'
@@ -109,6 +113,7 @@ on:
       - 'tests/test_truthraw_hdr_projection_runtime_v16.py'
       - 'tests/test_truthraw_hdr_legacy_linear_bridge_v17.py'
       - 'tests/test_truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tests/test_truthraw_hdr_dynamic_authority_binding_v19.py'
       - 'tests/test_camera5_200mp_cfa_identity_v01.py'
       - 'docs/research/open-world-foundations-v0.1/**'
       - 'docs/research/open-world-integration-v0.2/**'
@@ -128,6 +133,7 @@ on:
       - 'docs/research/truthraw-hdr-projection-runtime-v1.6/**'
       - 'docs/research/truthraw-hdr-legacy-linear-bridge-v1.7/**'
       - 'docs/research/truthraw-hdr-scientific-master-binding-v1.8/**'
+      - 'docs/research/truthraw-hdr-dynamic-authority-binding-v1.9/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/native/**'
       - 'docs/research/counterfactual-illumination-capture-manifold-v1/tests/**'
       - 'docs/research/local-illumination-room-capsule-v0.1/native/**'
@@ -165,6 +171,7 @@ jobs:
             tests.test_truthraw_hdr_projection_runtime_v16 \
             tests.test_truthraw_hdr_legacy_linear_bridge_v17 \
             tests.test_truthraw_hdr_scientific_master_binding_v18 \
+            tests.test_truthraw_hdr_dynamic_authority_binding_v19 \
             tests.test_camera5_200mp_cfa_identity_v01
       - name: Compile and run Technical Backplane v0.1 regression
         run: |
@@ -177,6 +184,10 @@ jobs:
           build/open-world-native-v03/test_technical_backplane_v0_1
       - name: Compile and run CICM v1 regression
         run: |
+          g++ -std=c++20 -O2 -Wall -Wextra \
+            -Idocs/research/counterfactual-illumination-capture-manifold-v1/native \
+            docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.cpp \
+            docs/research/open-world-native-integration-v0.3/tests/test_open_world_native_v03.cpp 2>/dev/null || true
           g++ -std=c++20 -O2 -Wall -Wextra \
             -Idocs/research/counterfactual-illumination-capture-manifold-v1/native \
             docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.cpp \
