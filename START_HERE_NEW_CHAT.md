@@ -1,66 +1,155 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the authoritative session/bootstrap entry point for the renewed TruthRaw house as of 2026-09-10.
+This is the living bootstrap entry point for the consolidated TruthRaw research state as reconstructed and updated on 2026-09-16.
 
-## Current live research handoff — 2026-09-16
+It supersedes older bootstrap ordering as a **current-navigation document**. It does not rewrite or invalidate frozen historical evidence, dated handoffs, module-local validation or canonical bytes.
 
-After the governed mandatory reading below, read `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md` for the current Scientific Master, Dynamic Authority, Adobe-HDR and Android on-device CFA-verification state. That handoff is a **research-branch current-work supplement**, not a replacement for the canonical 2026-09-10 architecture/state and not a main promotion.
+## Mandatory current reading order
 
-The permanent open-world clarification is: source evidence is sealed/immutable, but the represented/reconstructed world is not a sealed finite house. Room Capsules are local computational domains only. **Representation may exceed the source; knowledge claims may not exceed the evidence.**
+Read in this order:
 
-## Mandatory reading order
+1. `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+2. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
+3. `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
+4. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+5. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+6. `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md`
+7. only then the exact canonical/research module documents relevant to the task
 
-1. `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md`
-2. `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-3. `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-4. `state/CURRENT_CANONICAL_STATE_2026-09-10.json`
-5. `docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`
-6. only then: the canonical/research module documents relevant to the task
+Historical architecture documents remain required background when their domain is involved:
 
-Do **not** bootstrap from `CURRENT_CANONICAL_STATE_2026-09-06.json`, `...2026-09-08.json`, `...2026-09-09.json`, or `docs/PROJECT_STATE_AUDIT_2026-09-08.md`. Those are preserved historical snapshots.
+- `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
+- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+- `docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md`
+- `docs/CORE_VISION_VIRTUAL_OBSERVATION_MANIFOLD.md`
+- `docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md` — historical 2026-09-10 current-house snapshot, not the 2026-09-16 global state
 
-## Non-negotiable scientific rules
+Do not bootstrap global current state from older `CURRENT_CANONICAL_STATE_*` snapshots or old project audits merely because their filenames contain `CURRENT`. Their date and the 2026-09-16 document-status index control their interpretation.
 
-The source RAW/CFA + capture metadata are immutable sealed evidence. The scientific Scene Master is a separate reconstructed state.
+## One-sentence current definition
 
-**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+**TruthRaw seals one app-visible RAW/CFA observation as immutable source evidence, reconstructs a separate uncertainty- and authority-aware Scientific Master in Free Scientific Space, and permits open-world/counterfactual/appearance projections only without upgrading what the capture actually measured.**
 
-Measured, reconstructed, censored/unknown, counterfactual and appearance data remain distinct. `physicalFrameCount=1` and `independentEvidenceCount=1` remain the single-frame evidence invariants.
+## Permanent scientific laws
 
-For positive physical light, TruthRange may use `T = log2(L/L0)`. The zero-line `L0` is a gauge/reference; it is not sensor black, absolute darkness, DNG BlackLevel or clipping. Signed scene-linear estimates remain distinct from the positive-light log coordinate.
+1. **Source evidence is immutable.** Original admitted bytes, decoded CFA identity and capture provenance are history, not a workspace to rewrite.
+2. **Representation can exceed the source. Knowledge claims cannot exceed the evidence.** Free Scientific Space may exceed RAW10, `WhiteLevel`, `[0,1]`, source ISO scale, original CFA lattice, SDR, integer storage and DNG.
+3. **Measured is not reconstructed.** `MEASURED`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `COUNTERFACTUAL` and appearance/transport state must remain distinguishable.
+4. **Single-frame evidence count stays one.** `physicalFrameCount=1`, `independentEvidenceCount=1`; virtual observations do not create additional measurements.
+5. **Censoring is a bound, not a guessed exact value.** Saturation may justify an inequality; it does not reveal exact latent radiance.
+6. **Uncertainty/support must be locally bound.** Wrong identity, wrong coordinate, missing runtime field or missing feature semantics fails closed.
+7. **Numerical precision is stage-specific.** F64 is required where branch-sensitive reconstruction has demonstrated F32 hazards; controlled F32 storage is a separate gate.
+8. **Counterfactual state never becomes capture evidence.** CICM/relighting/virtual cameras may describe hypothetical worlds only in their proper authority class.
+9. **Appearance and transport never write back into science.** Lightroom, Gain Maps, tone, display HDR and exports are downstream projections.
+10. **Compute resources never increase truth authority.** Device class changes execution strategy, not evidence.
 
-Source ISO/shutter remain immutable capture provenance. Virtual EV/ISO reparameterization does not create information. Counterfactual illumination/capture may create hypothetical measurements only inside the explicitly counterfactual world; it never retroactively creates evidence.
+## Terminology correction: house -> Free Scientific Space
 
-Appearance must never modify the scientific master. DNG/LinearRaw/export is a compatibility/presentation projection, not the scientific master.
+The sealed-house/new-house language is retained because it records how the architecture was discovered.
 
-APK/GCam/computational-RAW content must not determine TruthRaw evidence, calibration, topology, color, noise model or architecture.
+Current formal reading:
 
-`canonical/ptc/v1.1` is **Pure Truth Certificate**. Do not infer photon-transfer calibration from that path name.
+- **sealed house** = historical metaphor for immutable Source Evidence;
+- **new house** = historical metaphor for the reconstructed scientific world;
+- **Free Scientific Space** = current formal reconstructed representation domain;
+- **open-world correction** = Free Scientific Space is not bounded to an interior, finite house or Room Capsule. Exterior, street, landscape, sky, distant structure and other scene graphs are allowed as reconstruction when authority/support permits them;
+- **Room Capsule** = bounded local compute, not a boundary on the possible represented world.
 
-No silent LICENSE. Preserve failed/rejected experiments and their provenance.
+## Current project flow
 
-## Renewed house execution rules
+`Source Evidence`
+`-> measurement/de-ISP`
+`-> Scientific Master in Free Scientific Space`
+`-> Dynamic Authority / uncertainty / support`
+`-> Open Scene State`
+`-> optional counterfactual world`
+`-> appearance / HDR / transport`
+`-> finite export`
 
-The Building Runtime owns orchestration; algorithms retain their own scientific contracts.
+DNG, LinearRaw, reconstructed CFA and display files are projections/compatibility products. They do not replace the Scientific Master or retroactively become original measurement evidence.
 
-- **Truth floor** controls epistemic permission.
-- **Resource profile** controls only RAM/CPU/GPU/tile/cache execution.
-- Cheap phones may run one heavy room at a time with small tiles and disposable caches.
-- Strong phones may run more compatible rooms in parallel, use larger tiles/caches and optional acceleration.
-- Hardware capability never upgrades scientific claims.
-- Corridors carry handles/provenance rather than duplicate full-frame payloads.
-- Zero-line/source/master/scene-scale identity belongs to one immutable shared backplane binding, not per-pixel duplication.
-- Rebuildable caches may be evicted; immutable evidence/master identity may not be rewritten to satisfy memory pressure.
-- Resource policy may be re-derived between room operations, never halfway through an indivisible scientific operation.
+## Precision and uncertainty continuity
 
-## Current implementation boundary
+The current precision direction was not chosen by preference. Real MotionCam and Honor data showed that tiny F32/F64 differences before a branch threshold can select different reconstruction paths.
 
-Building Runtime v0.1 and Room Capsule v0.1 are integrated on the current repository lineage. CICM v1 and Manifold Conditioning v1 remain bounded research components in that lineage.
+The retained direction is:
 
-Technical Backplane v0.1 and the all-room adaptive resource layer are active research candidates; do not describe them as main-promoted until their own repository CI/promotion gates pass.
+`exact RAW integer/packed evidence`
+`-> F32 only where proven safe`
+`-> F64 branch-sensitive reconstruction`
+`-> F64 calibration / optimization / covariance`
+`-> optional controlled F32 storage after F64 compute`
+`-> arbitrary/high precision as reference validation`
 
-The canonical v4.7i public API still owns full-frame `DecodedDngFrame.raw` and `ProcessResult.sdrRgb` vectors. The next production-memory migration is a validated streaming/tile-source/sink adapter. Do not silently rewrite canonical v4.7i before equivalence and integrity gates pass.
+The retained eight-file promotion evidence supersedes provisional locator counts. Historical `3549/44/2580` values are provenance only; the retained v0.4 authority result is `3545/0/0` for branch differences / green-clamp differences / colour-clamp differences, with no measured-channel violations.
 
-## One-sentence definition
+The historical v5.0g/p1 uncertainty model specification is known, but the exact historical feature extractor source is not. The missing 10,023-byte `uncertainty_core_v5_0g.py` remains a formal blocker. Do not infer the 18 feature semantics from names and do not “clean up” the historical role-order quirk.
 
-**TruthRaw preserves one sealed RAW observation as immutable evidence, reconstructs a separate uncertainty-aware Scene Master, and executes specialized rooms through a resource-adaptive but scientifically invariant building runtime.**
+## Current Android/device evidence
+
+The v0.3 Android report supplied from the target Honor device is now part of the current research evidence set:
+
+- `schema = TruthRawAndroidVerificationReport/0.3`
+- `classification = DEVICE_VALIDATION_ONLY_NO_SCIENTIFIC_WRITEBACK`
+- `app_version = 0.3-debug`
+- device: `HONOR BKQ-N49`
+- Android: `16 (API 36)`
+- selected source: `IMG_BNC_TRUTHRAW20260907_094449_565.dng`
+- result: `PASS_EXACT_SOURCE_AND_DECODED_CFA`
+- source SHA-256: `7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67`
+- decoded CFA SHA-256: `883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c`
+
+It proves exact source/CFA identity for the scoped verifier. It explicitly does **not** prove that Scientific Master, Dynamic Authority or HDR have been recomputed on-device.
+
+The v0.3 build identity retained in `android/README.md` includes exact signed APK SHA-256:
+
+`01f94593ebd9dcb8d7e5f8c5681eed1f79f469de3862b98723912fb9a36d8b61`
+
+## Scientific Master / Dynamic Authority frozen references
+
+Current source-bound research identities carried by the v0.3 report:
+
+- Scientific Master SHA-256: `a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640`
+- Dynamic Authority v1.9 SHA-256: `7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098`
+- source-bound P3 transform SHA-256: `2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533`
+- reference `L0`: `0.12564234435558320`
+
+Treat these as frozen downstream references for the validated source, not as values recomputed by Android v0.3.
+
+## 200 MP / FotoGraaf continuation gate
+
+Do not call advertised/static maximum resolution “200 MP RAW truth”. The next physical promotion must establish an actual Camera-5 maximum-resolution RAW_SENSOR observation and its bound capture result.
+
+Desired physical chain:
+
+`logical camera 0 -> physical camera 5 -> SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION -> RAW_SENSOR 16320x12288 -> physical TotalCaptureResult 5`
+
+A successful result is bounded to an app-visible Camera2/HAL RAW_SENSOR CFA claim. It is **not** automatically proof of untouched native photodiode/ADC output.
+
+After a genuine qualifying sample exists, the correct order is:
+
+`physical RAW proof -> readout-domain-specific precision gate -> noise/PTC -> shading -> color/illuminant -> SFR/MTF -> held-out calibration -> Scientific Master admission`
+
+Do not borrow 4080x3072 uncertainty/calibration into 16320x12288 merely because the same physical camera is involved.
+
+## HDR / Adobe boundary
+
+Scientific HDR headroom belongs to the Scientific Master + authority/support. `UNKNOWN` contributes no scientific headroom. `CENSORED` may carry a lower/upper bound as appropriate but not an invented exact radiance.
+
+Adobe Gain Map is downstream presentation/display adaptation. A viewer's HDR capability changes presentation, not source evidence or Scientific Master authority.
+
+## Repository/governance rules
+
+- Preserve historical/read-only snapshots as provenance rather than rewriting their past claims.
+- Use `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md` to determine global-current versus historical/version-local authority.
+- Do not promote research success into canonical/main status without the explicit relevant gate.
+- APK/GCam/computational-RAW material does not determine scientific evidence, calibration, noise, topology or color truth.
+- No silent LICENSE changes.
+- Keep rejected/failed experiments and superseded counts visible as historical evidence.
+
+## Immediate continuation
+
+The safe current implementation work is to strengthen machine-readable evidence binding and regression coverage around the real Android v0.3 report, while keeping the two major physical/scientific blockers open:
+
+1. exact historical v5.0g feature extractor recovery or hash-verified equivalent feature definition;
+2. real qualifying Camera-5 16320x12288 RAW_SENSOR evidence set.
