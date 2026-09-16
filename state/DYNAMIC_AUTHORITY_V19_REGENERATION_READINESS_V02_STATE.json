@@ -1,0 +1,79 @@
+{
+  "schema": "TruthRawDynamicAuthorityV19RegenerationReadinessState/0.2",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "classification": "PASS_FROZEN_V19_IDENTITY_COHERENT_HISTORICAL_LOCAL_SOURCES_NOT_PERSISTED",
+  "historical_v19_scientific_observation_valid": true,
+  "regeneration_ready": false,
+  "independent_reimplementation_permitted_only_with_exact_falsification": true,
+  "frozen_identity": {
+    "source_dng_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "dynamic_authority_field_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+    "channel_sha256": [
+      "d0b8febb3e62d18968e72036a76f577453554553e117692a1fdd9d2c9b23e86f",
+      "38b742784513e7f70fc31a6f39c6227617fe8719705f544c48524ffbfacc8a1f",
+      "ab2ab62c7d6d2d29fc915374773ccdb805e1ee4870a38d7e523ae9074efe932f"
+    ],
+    "authority_counts": {
+      "CALIBRATED_ESTIMATE": 12533543,
+      "RECONSTRUCTED": 25067086,
+      "CENSORED": 217,
+      "UNKNOWN": 434
+    },
+    "payload_persisted_by_v19": false,
+    "identity_deterministically_recomputable": true,
+    "partition_invariance_192_vs_257": "PASS_IDENTICAL"
+  },
+  "lineage": {
+    "frozen_sha_bound_entries": 13,
+    "repository_persisted_dependencies": 8,
+    "repository_persisted_dependencies_exact": true,
+    "historical_local_sources_not_persisted": 5,
+    "historical_local_source_names": [
+      "probe_dynamic_authority_v19.cpp",
+      "canonical_v4_7i_core.cpp",
+      "canonical_v4_7i_core.h",
+      "scientific_master_digest_v0_1.cpp",
+      "scientific_master_digest_v0_1.h"
+    ],
+    "historical_local_expected_sha256": {
+      "probe_dynamic_authority_v19.cpp": "d82fc539643650fc68e4d307c3080cf0f4f1ada8dc7311ed7d8fb5005e7ce8c2",
+      "canonical_v4_7i_core.cpp": "7249a4d56da04fca0ee0a544c7f636242e5ea9eafc720acefec8f66e91a4f45b",
+      "canonical_v4_7i_core.h": "183cc64ea82fe36d091c93b3e0d009ebdb2ebe90ec14aac121e2bc7464519b11",
+      "scientific_master_digest_v0_1.cpp": "8c98f06d25522efd4a677bbed15e611370776fe35f14769996952fab6456dbe0",
+      "scientific_master_digest_v0_1.h": "3ad67126f5ccfe7aab6afcf5ef8e58eabccf9c55d3e12e565def4d402bdc8081"
+    }
+  },
+  "historical_archive_recovery": {
+    "archive_filename": "TruthRaw-4f842d8fe86eca2b5808afb10fbb9f11a2631fed (1).zip",
+    "archive_bytes": 1096461,
+    "archive_commit_label": "4f842d8fe86eca2b5808afb10fbb9f11a2631fed",
+    "v18_core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "v18_core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+    "v18_scientific_master_digest_cpp_sha256": "70dfd24b86f9472a98cded66ecc1130da6dd7a838322fadd55ff5152d22bbbdf",
+    "finding": "THE_RECOVERED_4F842D8_ARCHIVE_EXPLAINS_V18_BUT_DOES_NOT_CONTAIN_THE_LATER_V19_LOCAL_SOURCE_VARIANTS"
+  },
+  "older_project_backup_recovery": {
+    "archive_filename": "TruthRaw_NEXT_CHAT_PROJECT_2026-09-09.zip",
+    "archive_bytes": 65087853,
+    "v47i_core_cpp_sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+    "v47i_core_h_sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+    "finding": "OLDER_PROJECT_BACKUP_CONFIRMS_V18_V47I_CORE_IDENTITY_NOT_THE_LATER_V19_LOCAL_VARIANT"
+  },
+  "negative_evidence": {
+    "readiness_v01_initial_ci_import_failure": "PRESERVED_IMPORT_ENVIRONMENT_FAILURE_NOT_SCIENCE_FAILURE",
+    "readiness_v01_second_ci": "6_OF_7_PASS_CURRENT_STATE_EXPECTED_PASS_FAILED",
+    "readiness_v01_diagnostic_finding": "FOUR_NON_PROBE_LOCAL_V19_SOURCES_ABSENT_FROM_CURRENT_CHECKOUT_PLUS_EXPECTED_LOCAL_PROBE_ABSENT",
+    "v19_original_git_tree_contains_five_local_sources": false,
+    "do_not_relabel_absence_as_v19_invalidity": true
+  },
+  "scientific_rules": {
+    "aggregate_counts_may_reconstruct_field": false,
+    "aggregate_counts_may_be_falsification_checks": true,
+    "new_regenerator_equivalent_before_exact_digest_match": false,
+    "historical_v19_identity_may_be_rewritten": false,
+    "open_scene_may_fabricate_v19_field_from_summary": false
+  },
+  "next_gate": "RECOVER_FIVE_HISTORICAL_LOCAL_SOURCES_OR_INDEPENDENTLY_REIMPLEMENT_THEN_REQUIRE_EXACT_V19_FIELD_CHANNEL_COUNTS_STATISTICS_AND_PARTITION_INVARIANCE"
+}
