@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawFotoGraaf200MpStagedPreviewState/0.7",
   "date": "2026-09-16",
-  "status": "IMPLEMENTED_BUILD_VALIDATION_IN_PROGRESS",
+  "status": "ANDROID_BUILD_PASS__DEVICE_STAGE1_STAGE2_STAGE3_VALIDATION_OPEN",
   "device_observations": {
     "device": "HONOR BKQ-N49",
     "v0_5_combined_preview_raw_useful_live_preview": false,
@@ -32,6 +32,14 @@
       "requires_pixel_stride": 2,
       "valid_sample_sha256_streamed": true
     }
+  },
+  "build_validation": {
+    "workflow_run_id": 35120999159,
+    "result": "SUCCESS",
+    "artifact_name": "truthraw-suite-main-plus-fotograaf-v0-7-staged-200mp-debug-arm64",
+    "artifact_zip_sha256": "b9cb8dfce48824fde3ca0a8c173c733242ba903af6868f7a20d9dff9b7f89b8c",
+    "apk_sha256": "c068419ee9035efd467da765e5bea36eb424792a96c8c354f4bd6e1ae417483b",
+    "device_execution": "OPEN_NEEDS_REAL_BKQ_N49_STAGE1_STAGE2_STAGE3_RUN"
   },
   "scientific_boundary": {
     "preview_authority": "OBSERVATION_ONLY",
