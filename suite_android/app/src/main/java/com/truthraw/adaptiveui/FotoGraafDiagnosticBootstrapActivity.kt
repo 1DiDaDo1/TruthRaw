@@ -17,14 +17,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 
-/**
- * FotoGraaf diagnostic bootstrap.
- *
- * Important safety property: onCreate() touches NO CameraManager and opens NO
- * camera. Camera2 is entered only after explicit user actions, one layer at a
- * time. This keeps HONOR/HAL failures observable instead of collapsing startup.
- * No step in this Activity grants evidence or calibration authority.
- */
+/** Staged Camera2/HONOR diagnostics. No diagnostic step grants scientific authority. */
 class FotoGraafDiagnosticBootstrapActivity : Activity() {
 
     private lateinit var statusView: TextView
@@ -32,14 +25,13 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
     private lateinit var honorButton: Button
     private lateinit var previewButton: Button
     private var standardPassed = false
-    private var honorPassed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
         setContentView(buildUi())
-        show("BOOT_OK · geïntegreerde suite · nog geen CameraManager aangeraakt.\n" +
-            "Launcher + permission gate + Activity-start zijn los van de camera-HAL gehouden.")
+        show("BOOT_OK · nog geen CameraManager aangeraakt.\n" +
+            "Aanbevolen: Preview-only om lenzen te bekijken; 200MP Tele Test voor de fysieke 200MP-gate.")
     }
 
     private fun buildUi(): View {
@@ -59,22 +51,31 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
-        root.addView(label("FotoGraaf · Diagnostic Bootstrap", 26f, true))
+        root.addView(label("FotoGraaf · Camera routes", 26f, true))
         root.addView(label(
-            "nul-camera startup → standaard Camera2 → HONOR scan → preview → Pro RAW",
+            "v0.6 · kies bewust tussen preview-only, 200MP test en legacy diagnostics",
             13f,
             false,
             Color.rgb(185, 191, 202),
         ))
         root.addView(space(12))
 
+        root.addView(button("200MP TELE TEST · physical 5 · 16320×12288") {
+            startActivity(Intent(this, FotoGraaf200MpTestActivity::class.java))
+        })
+        root.addView(space(6))
+        root.addView(button("PREVIEW-ONLY · bekijk wide / main / tele veilig") {
+            startActivity(Intent(this, FotoGraafSafePreviewActivity::class.java))
+        })
+        root.addView(space(14))
+
         statusView = label("Initialiseren…", 13f, false, Color.WHITE)
         root.addView(statusView)
         root.addView(space(14))
 
-        standardButton = button("Stap 1 · standaard Camera2 inventaris") { runStandardInventory() }
-        honorButton = button("Stap 2 · HONOR uitgebreide scan") { runHonorInventory() }.apply { isEnabled = false }
-        previewButton = button("Stap 3 · preview-only test openen") {
+        standardButton = button("Diagnose stap 1 · standaard Camera2 inventaris") { runStandardInventory() }
+        honorButton = button("Diagnose stap 2 · HONOR uitgebreide scan") { runHonorInventory() }.apply { isEnabled = false }
+        previewButton = button("Diagnose stap 3 · preview-only test") {
             startActivity(Intent(this@FotoGraafDiagnosticBootstrapActivity, FotoGraafSafePreviewActivity::class.java))
         }.apply { isEnabled = false }
 
@@ -85,11 +86,11 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         root.addView(previewButton)
         root.addView(space(14))
 
-        root.addView(button("Open FotoGraaf Pro · live RAW + ISO/tijd/EV/AF/MF/OIS") {
+        root.addView(button("LEGACY Pro v0.5 · preview+RAW gecombineerde session (niet aanbevolen)") {
             startActivity(Intent(this, FotoGraafProCameraActivity::class.java))
         })
         root.addView(space(6))
-        root.addView(button("Open historische bewezen single-RAW route-capture") {
+        root.addView(button("Historische bewezen single-RAW route-capture") {
             startActivity(Intent(this, FotoGraafCameraActivity::class.java))
         })
         root.addView(space(6))
@@ -99,7 +100,14 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         root.addView(space(16))
 
         root.addView(label(
-            "Authority: DIAGNOSTIC_ONLY. Discovery/preview/vendor metadata verhogen physicalFrameCount of independentEvidenceCount niet. Alleen een werkelijk gekoppelde RAW-capture kan nieuwe capture-evidence vormen.",
+            "Waarom legacy? v0.5 combineert preview en RAW ImageReader in één Camera2-session. De veldtest liet zien dat dit op HONOR een zwarte/afwezige preview kan geven. v0.6 200MP gebruikt daarom preview-only → RAW-only als twee afzonderlijke sessions.",
+            11f,
+            false,
+            Color.rgb(160, 169, 182),
+        ))
+        root.addView(space(8))
+        root.addView(label(
+            "Authority: DIAGNOSTIC_ONLY. Discovery en preview verhogen physicalFrameCount of independentEvidenceCount niet. Alleen een werkelijk gekoppelde RAW-capture kan nieuwe capture-evidence vormen.",
             11f,
             false,
             Color.rgb(145, 153, 165),
@@ -115,7 +123,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         standardButton.isEnabled = false
         honorButton.isEnabled = false
         previewButton.isEnabled = false
-        show("Stap 1 bezig · alleen Android standaard Camera2; geen com.hihonor.* request writes…")
+        show("Stap 1 bezig · alleen Android standaard Camera2…")
 
         Thread({
             val report = runCatching {
@@ -140,7 +148,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
                     standardPassed = true
                     honorButton.isEnabled = true
                     standardButton.isEnabled = true
-                    show(text + "\nStap 1 is stabiel. Je kunt nu Stap 2 starten.")
+                    show(text + "\nStap 1 stabiel; stap 2 is nu beschikbaar.")
                 }.onFailure { error ->
                     standardPassed = false
                     standardButton.isEnabled = true
@@ -157,7 +165,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         }
         honorButton.isEnabled = false
         previewButton.isEnabled = false
-        show("Stap 2 bezig · bestaande HONOR runtime inventory wordt nu pas aangeroepen…")
+        show("Stap 2 bezig · HONOR runtime inventory…")
 
         Thread({
             val result = runCatching {
@@ -166,7 +174,6 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
             }
             runOnUiThread {
                 result.onSuccess { report ->
-                    honorPassed = true
                     honorButton.isEnabled = true
                     previewButton.isEnabled = report.routes.isNotEmpty()
                     show(buildString {
@@ -177,10 +184,9 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
                         report.routes.take(12).forEachIndexed { index, route ->
                             append(index).append(": ").append(route.label).append('\n')
                         }
-                        append("\nStap 2 is stabiel. Preview-only en Pro-camera kunnen apart worden getest.")
+                        append("\nGebruik Preview-only voor beeld; gebruik 200MP Tele Test voor 16320×12288.")
                     })
                 }.onFailure { error ->
-                    honorPassed = false
                     honorButton.isEnabled = true
                     show("HONOR_SCAN_FAIL · ${error.javaClass.name}: ${error.message}")
                 }
