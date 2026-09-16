@@ -1,0 +1,57 @@
+{
+  "schema": "TruthRawFotoGraafTextureViewRuntimeCrashFix/0.9",
+  "date": "2026-09-16",
+  "device": "HONOR BKQ-N49",
+  "input_crash_report": {
+    "file": "TruthRaw_last_crash.txt",
+    "bytes": 2453,
+    "sha256": "33ee672716797df903917278ff11c3770c3867bfbba3e5d72796d83d7f615d45",
+    "createdAtUtc": "2026-09-16T16:47:20.285286Z",
+    "thread": "main",
+    "exception": "java.lang.RuntimeException",
+    "rootCause": "java.lang.UnsupportedOperationException: TextureView doesn't support displaying a background drawable",
+    "sourceLocation": "FotoGraaf200MpStagedActivity.kt:145",
+    "callChain": [
+      "FotoGraaf200MpStagedActivity.onCreate",
+      "FotoGraaf200MpStagedActivity.buildUi",
+      "TextureView.setBackgroundColor",
+      "View.setBackground",
+      "TextureView.setBackgroundDrawable"
+    ]
+  },
+  "interpretation": {
+    "camera2Reached": false,
+    "camera5CapabilityReached": false,
+    "logicalPreviewReached": false,
+    "physical5RawCaptureReached": false,
+    "proves200MpRouteAbsent": false,
+    "provesPhysicalCamera5Broken": false,
+    "classification": "ANDROID_UI_RUNTIME_BUG_BEFORE_CAMERA2"
+  },
+  "fix": {
+    "stagedActivity": "FotoGraaf200MpStagedActivity",
+    "removed": "TextureView.setBackgroundColor(Color.BLACK)",
+    "parentLayoutOwnsBackground": true,
+    "textureViewBackgroundDrawableAllowed": false,
+    "ciRegressionGuard": true,
+    "fixCommit": "4c84a3492abb87e75e92c7ce03de043093c7bfa9"
+  },
+  "relatedAudit": {
+    "sameRiskPatternObservedInLegacyActivities": [
+      "FotoGraaf200MpTestActivity",
+      "FotoGraafProCameraActivity",
+      "FotoGraafSafePreviewActivity",
+      "FotoGraafLiveCameraActivity"
+    ],
+    "legacyActivitiesPromotedAsFixed": false,
+    "recommended200MpPath": "v0.9 staged activity only"
+  },
+  "scientificBoundary": {
+    "createsSensorEvidence": false,
+    "changesCamera5StaticCapability": false,
+    "changesScientificMaster": false,
+    "changesDynamicAuthority": false,
+    "changes200MpCaptureGate": false
+  },
+  "nextGate": "ANDROID_BUILD_PASS__THEN_REAL_DEVICE_STAGE0_STAGE1_STAGE2_STAGE3"
+}
