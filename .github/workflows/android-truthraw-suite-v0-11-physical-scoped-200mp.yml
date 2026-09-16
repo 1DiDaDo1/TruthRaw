@@ -1,0 +1,81 @@
+name: TruthRaw Suite FotoGraaf v0.11 Physical Scoped 200MP
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-11-physical-scoped-200mp
+    paths:
+      - 'suite_android/**'
+      - '.github/workflows/android-truthraw-suite-v0-11-physical-scoped-200mp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-suite:
+    name: Build TruthRaw Suite FotoGraaf v0.11 arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.11 physical-scoped 200MP gates
+        run: |
+          STAGED='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          grep -F '200MP Tele Test v0.11' "$STAGED"
+          grep -F 'MAXIMUM_MAP_HIGH_RESOLUTION' "$STAGED"
+          grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$STAGED"
+          grep -F 'output.setPhysicalCameraId(PHYSICAL_ID)' "$STAGED"
+          grep -F 'output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' "$STAGED"
+          grep -F 'createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE, setOf(PHYSICAL_ID))' "$STAGED"
+          grep -F 'setPhysicalCameraKey(' "$STAGED"
+          grep -F 'CaptureRequest.SENSOR_PIXEL_MODE' "$STAGED"
+          grep -F 'failure.wasImageCaptured()' "$STAGED"
+          grep -F 'persistOriginalRawBuffer' "$STAGED"
+          grep -F 'CAMERA2_ACQUISITION_OBSERVATION_ONLY' "$STAGED"
+          if grep -F 'setBackgroundColor(Color.BLACK)' "$STAGED"; then
+            echo 'Forbidden TextureView background regression' >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          test -n "$ANDROID_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-11-physical-scoped-200mp-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
