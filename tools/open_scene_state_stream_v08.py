@@ -76,7 +76,6 @@ class OpenSceneStateSummaryV08:
     colour_authority_pixel_counts: Dict[str, int]
     illumination_authority_pixel_counts: Dict[str, int]
     detail_status_pixel_counts: Dict[str, int]
-    restoration_blocked_pixel_count: int
     full_physical_colour_claim_pixel_count: int
     counterfactual_illumination_pixel_count: int
     creates_new_evidence: bool
@@ -103,7 +102,6 @@ class StreamingOpenSceneStateV08:
         self._colour = Counter()
         self._illumination = Counter()
         self._detail = Counter()
-        self._restoration_blocked_pixels = 0
         self._full_physical_colour_pixels = 0
         self._counterfactual_illumination_pixels = 0
 
@@ -124,6 +122,7 @@ class StreamingOpenSceneStateV08:
             "physical_frame_count": 1,
             "independent_evidence_count": 1,
             "chunking_changes_scientific_identity": False,
+            "blocked_restoration_regions_admitted": False,
             "creates_new_evidence": False,
             "scientific_master_writeback_allowed": False,
         }
@@ -145,6 +144,8 @@ class StreamingOpenSceneStateV08:
             raise ContractError("Open Scene Region may not create new evidence")
         if region.detail_scientific_writeback_allowed or region.restoration_scientific_writeback_allowed:
             raise ContractError("appearance/restoration scientific writeback is forbidden")
+        if not all(region.restoration_allowed):
+            raise ContractError("region with blocked restoration decision cannot enter full-frame Open Scene State")
 
     def _flush_pending(self) -> None:
         if self._pending_sha is None or self._pending_length <= 0:
@@ -185,8 +186,6 @@ class StreamingOpenSceneStateV08:
         self._colour[region.colour_authority] += pixel_count
         self._illumination[region.illumination_authority] += pixel_count
         self._detail[region.detail_status] += pixel_count
-        if not all(region.restoration_allowed):
-            self._restoration_blocked_pixels += pixel_count
         if region.full_physical_colour_claim_allowed:
             self._full_physical_colour_pixels += pixel_count
         if not region.captured_world_illumination_writeback_allowed:
@@ -212,7 +211,6 @@ class StreamingOpenSceneStateV08:
             colour_authority_pixel_counts=dict(sorted(self._colour.items())),
             illumination_authority_pixel_counts=dict(sorted(self._illumination.items())),
             detail_status_pixel_counts=dict(sorted(self._detail.items())),
-            restoration_blocked_pixel_count=self._restoration_blocked_pixels,
             full_physical_colour_claim_pixel_count=self._full_physical_colour_pixels,
             counterfactual_illumination_pixel_count=self._counterfactual_illumination_pixels,
             creates_new_evidence=False,
