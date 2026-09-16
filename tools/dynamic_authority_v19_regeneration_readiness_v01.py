@@ -21,11 +21,16 @@ import json
 from copy import deepcopy
 from pathlib import Path
 import sys
-from typing import Dict, Iterable, Mapping
+from typing import Dict, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+TOOLS = ROOT / "tools"
+# Historical open-world modules use a mixture of package-style `tools.x` imports
+# and same-directory top-level imports such as `open_world_foundations_v01`.
+# Both paths are required to exercise the frozen v1.9 binding unchanged.
+for import_root in (ROOT, TOOLS):
+    if str(import_root) not in sys.path:
+        sys.path.insert(0, str(import_root))
 
 from tools.truthraw_hdr_dynamic_authority_binding_v19 import (  # noqa: E402
     DYNAMIC_AUTHORITY_CHANNEL_SHA256_V19,
