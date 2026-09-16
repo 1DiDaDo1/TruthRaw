@@ -48,13 +48,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.8 · crash-diagnostic 200MP staging"
+            text = "v0.9 · TextureView crash-fixed · staged 200MP"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "De 200MP-ingang opent nu eerst een minimale Activity zonder Camera2, worker thread of TextureView. Als de volgende staged stap crasht, bewaart de app de echte stacktrace voor de volgende start."
+            text = "De vorige staged test crashte vóór Camera2 door een verboden TextureView-background. Dat is nu exact verwijderd. De 200MP-ingang blijft eerst een minimale crash-isolatie Activity; daarna open je bewust de v0.9 staged test."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(18))
@@ -72,7 +72,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             root.addView(space())
         }
 
-        root.addView(actionButton("FotoGraaf camera & diagnostics") {
+        root.addView(actionButton("FotoGraaf camera & diagnostics · legacy") {
             startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
         })
         root.addView(space())
@@ -85,7 +85,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(TextView(this).apply {
-            text = "200MP blijft fail-closed: pas een echte 16320×12288 RAW_SENSOR Image + physical Camera-5 result + timestamp identity + MAXIMUM_RESOLUTION pixel mode kan de capture-gate passeren."
+            text = "200MP blijft fail-closed: pas een echte 16320×12288 RAW_SENSOR Image + physical Camera-5 result + timestamp identity + MAXIMUM_RESOLUTION pixel mode kan de capture-gate passeren. Legacy previewactivities zijn nog niet als TextureView-crash-fixed gepromoveerd."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
