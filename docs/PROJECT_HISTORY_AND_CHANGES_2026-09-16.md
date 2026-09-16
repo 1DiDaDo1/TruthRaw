@@ -309,7 +309,7 @@ This closes the scoped device source/CFA identity gate only.
 
 ## 22. Current change in this consolidation line
 
-The 2026-09-16 integration branch now makes the recovered knowledge operational by:
+The 2026-09-16 integration branch made the recovered knowledge operational by:
 
 - replacing the stale root/bootstrap reading order;
 - adding a current Free Scientific Space/open-world architecture document;
@@ -320,18 +320,111 @@ The 2026-09-16 integration branch now makes the recovered knowledge operational 
 - explicitly wiring that regression into open-world CI;
 - updating Android documentation from “v0.2 screenshot passed / v0.3 awaiting real run” to the real v0.3 exported PASS.
 
-## 23. What remains open
+## 23. Historical light / colour / detail / HDR research is made explicit
+
+The earlier chats repeatedly returned to four coupled photographic questions: how light actually falls, how colour should be calibrated, what detail/sharpness really means, and what constitutes real HDR rather than display manipulation.
+
+The later research consolidated these into one forward/inverse scene model:
+
+`illumination -> geometry/visibility -> material response -> radiance -> optics -> sensor/CFA/noise -> RAW evidence`
+
+Important corrections that now survive as formal project knowledge:
+
+- inverse-square falloff is conditional on source geometry and source-to-surface distance, not generic camera distance;
+- shadow is not necessarily a scalar EV reduction because direct, ambient/bounce and spectral components can differ;
+- relighting without sufficient geometry/material/visibility/illumination support is counterfactual;
+- standard illuminants such as D65 are reference distributions, not proof of the actual scene illuminant;
+- DNG/source matrices can be reproducible source-bound colour transforms without being independent physical calibration;
+- pixel/sample count is not optical resolution;
+- SFR/MTF/PSF/detail support is distinct from sharpening/acutance;
+- physical scene radiance range, capture evidence range, Scientific-Master representation range and display/HDR transport range remain separate.
+
+This is now documented in `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md` and `docs/research/scene-physics-calibration-structure-hdr-v0.1/README.md`.
+
+## 24. Restoration/conservation analogy becomes an engineering contract
+
+The historical interest in restoration of paintings and photographs was not merely visual inspiration. It supplied a strong provenance model.
+
+Professional conservation commonly separates examination, condition documentation, scientific investigation, stabilization, treatment/loss compensation and documentation of intervention. Compensation for loss should remain detectable/provenanced and, where practicable, reversible/retreatable; surviving original material should not be hidden by needless overpainting.
+
+TruthRaw maps this directly:
+
+- sealed source evidence = original artifact/material record;
+- condition/evidence assessment = what is present, missing, censored, uncertain or altered;
+- stable Scientific Master = stabilized derived state;
+- loss compensation = `RECONSTRUCTED`, never original measurement;
+- aesthetic reintegration = appearance-only, no scientific writeback;
+- valid measured CFA support may not be replaced by a prettier inferred value;
+- unsupported loss remains unresolved;
+- provenance/hashes/authority masks make digital intervention exactly detectable.
+
+The research model is in `docs/research/conservation-restoration-authority-v0.1/README.md`. The machine-readable guard is `tools/restoration_authority_v01.py` with regression tests in `tests/test_restoration_authority_v01.py`.
+
+This also clarifies an important evidence rule: raking light, UV, IR, XRF or another genuinely independent physical modality can add evidence if separately admitted; a virtual relight, tone curve, generative fill or digital restoration cannot.
+
+## 25. Camera-5 200 MP Android contract becomes more precise
+
+Static Camera-5 evidence now has a bounded Android interpretation:
+
+- physical camera `5`;
+- `ULTRA_HIGH_RESOLUTION_SENSOR=true`;
+- `REMOSAIC_REPROCESSING=false`;
+- maximum array `16320x12288` = `200,540,160` samples;
+- advertised high-resolution `RAW_SENSOR 16320x12288` and `RAW10 16320x12288`;
+- `SENSOR_INFO_BINNING_FACTOR=2x2` is nevertheless present.
+
+Android's UHR contract indicates that RAW_SENSOR is already regular Bayer when remosaic reprocessing is not advertised. The simultaneous 2x2 binning-factor key is therefore retained as **vendor-metadata tension**, not promoted into a claim that the app-visible 200 MP RAW uses a 2x2 same-colour CFA.
+
+A dedicated guard was added:
+
+- `tools/camera5_200mp_android_contract_v04.py`;
+- `tests/test_camera5_200mp_android_contract_v04.py`;
+- `.github/workflows/camera5-200mp-android-contract-v0-4.yml`.
+
+The physical promotion gate remains unchanged in substance:
+
+`OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING`
+
+The future strongest bounded capture claim remains `APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_PROVEN`, not `UNTOUCHED_NATIVE_200MP_ADC`.
+
+## 26. 200 MP raster is separated from 200 MP optical detail
+
+A further correction now becomes explicit: even a perfect sample-exact 16320x12288 RAW_SENSOR capture proves a 200,540,160-sample app-visible raster, not 200,540,160 independent scene details.
+
+Optical/detail authority still requires separate evidence such as SFR/MTF/PSF behaviour across field position, focus distance/state, stabilization and colour/wavelength context.
+
+Likewise 4080x3072, 8160x6144 and 16320x12288 remain separate readout domains for noise, uncertainty, shading and calibration until measured transferability is demonstrated.
+
+## 27. Documentation governance itself is updated
+
+The original documentation-governance verifier still encoded the 2026-09-10 bootstrap as if it were globally current. Once the new research docs were added, that stale verifier failed for the right operational reason but the wrong historical assumption.
+
+It has now been rewritten to:
+
+- recognize the 2026-09-16 current architecture/state/index/history/handoff;
+- retain the 2026-09-06/08/09/10 snapshots as historical provenance;
+- fail if the 200 MP physical gate is prematurely closed;
+- require current scene-physics and restoration foundations to remain indexed;
+- preserve the Pure Truth Certificate naming guard;
+- preserve the distinction between research success and main/canonical promotion.
+
+This change is itself part of the project history: governance rules must evolve without pretending older documents were wrong in their own time.
+
+## 28. What remains open
 
 The project must continue fail-closed on at least these points:
 
 1. exact historical v5.0g extractor recovery/equivalence;
 2. true qualifying Camera-5 16320x12288 RAW_SENSOR evidence;
-3. readout-domain-specific uncertainty/precision/calibration for that future 200 MP route;
-4. independent physical color/illuminant/optics calibration for stronger FULL_PHYSICAL claims;
-5. counterfactual light remains hypothetical;
-6. research success does not automatically become canonical/main promotion.
+3. readout-domain-specific precision/uncertainty for that future 200 MP route;
+4. independent 200 MP noise/PTC and shading characterization;
+5. independent physical colour/illuminant calibration for stronger FULL_PHYSICAL claims;
+6. separate optical/SFR/MTF validation for useful resolved detail;
+7. counterfactual light remains hypothetical;
+8. restoration/loss compensation remains reconstructed or appearance-only according to authority;
+9. research success does not automatically become canonical/main promotion.
 
-## 24. Historical interpretation
+## 29. Historical interpretation
 
 The project should no longer be narrated as:
 
@@ -339,6 +432,6 @@ The project should no longer be narrated as:
 
 A more faithful line is:
 
-`natural/lens-aware RAW idea -> RAW as measurements -> inverse scene reconstruction -> uncertainty and information limits -> Scientific Master beyond DNG -> unlimited/new-house representation idea -> TruthRange -> rooms/backplane/counterfactual projections -> Free Scientific Space -> precision authority -> local uncertainty authority -> FotoGraaf physical promotion -> Dynamic Authority -> open-world correction -> HDR/Adobe authority -> real device identity verification`
+`natural/lens-aware RAW idea -> RAW as measurements -> inverse scene reconstruction -> uncertainty and information limits -> Scientific Master beyond DNG -> unlimited/new-house representation idea -> TruthRange -> rooms/backplane/restoration/counterfactual projections -> Free Scientific Space -> precision authority -> local uncertainty authority -> FotoGraaf physical promotion -> Dynamic Authority -> open-world correction -> HDR/Adobe authority -> real device identity verification -> explicit scene physics/colour/detail/HDR foundation -> conservation/restoration authority -> bounded Camera-5 200 MP Android contract`
 
-The original ambition was not discarded. It was made progressively more explicit about what is measured, what is reconstructed and what must remain unknown.
+The original ambition was not discarded. It was made progressively more explicit about what is measured, what is reconstructed, what is presentation, what can be restored, and what must remain unknown.
