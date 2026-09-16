@@ -56,7 +56,7 @@ jobs:
           APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$APK"
           unzip -l "$APK" | grep -F 'classes.dex'
-          unzip -p "$APK" classes.dex | strings | grep -F '200MP Tele Test v0.12'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
           echo "apk_bytes=$(stat -c%s "$APK")"
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
 
