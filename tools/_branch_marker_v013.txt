@@ -1,0 +1,1 @@
+Prepared source state for integration/truthraw-suite-v0-13-physical-only-max. v0.13 removes the app-invented requirement that logical camera 0 must advertise/write SENSOR_PIXEL_MODE when the only high-resolution target is bound to physical camera 5 and physical MAX builder read-back succeeds.
