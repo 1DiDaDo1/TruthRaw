@@ -1,0 +1,91 @@
+{
+  "schema": "TruthRawV5GExactFeatureSemanticsBinding/2026-09-16",
+  "status": "PASS_EXACT_HISTORICAL_FEATURE_SEMANTICS_REPLAY__FULL_FRAME_AUTHORITY_REGENERATION_STILL_OPEN",
+  "source_of_truth": {
+    "extractor": "canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py",
+    "extractor_bytes": 10023,
+    "extractor_sha256": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+    "model": "canonical/uncertainty/v5.0g/UNCERTAINTY_MODEL_v5_0g.json",
+    "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "feature_schema_sha256": "8c8e56b762b83a5a846c5201ab3ba43c9a2549d896873cc0ceb66574e74a83e3"
+  },
+  "exact_feature_names": [
+    "log1p_abs_prediction_stage2",
+    "log1p_sigma_stage2_x1e4",
+    "log1p_predicted_snr",
+    "log1p_support_std_over_sigma",
+    "log1p_support_range_over_sigma",
+    "log1p_pair_min_disagreement_over_sigma",
+    "log1p_pair_median_disagreement_over_sigma",
+    "log1p_green_direction_disagreement_over_sigma",
+    "log1p_local_mosaic_range_over_sigma",
+    "gain_at_target",
+    "neighbor_censor_fraction",
+    "radial_position_norm",
+    "prediction_negative_flag",
+    "prediction_over1_flag",
+    "role_R",
+    "role_G1",
+    "role_G2",
+    "role_B"
+  ],
+  "historical_role_semantics": {
+    "extractor_iteration_order": ["B", "G1", "G2", "R"],
+    "role_code": {"R": 0, "G1": 1, "G2": 2, "B": 3},
+    "feature_label_order": ["role_R", "role_G1", "role_G2", "role_B"],
+    "historical_onehot_quirk_must_not_be_cleaned_up": true
+  },
+  "replay_evidence": {
+    "workflow": ".github/workflows/v5g-exact-feature-replay-v0-3.yml",
+    "ci_run": 35108977242,
+    "result": "PASS_EXACT_HISTORICAL_FEATURE_SEMANTICS_REPLAY",
+    "hidden_target_independence_all_roles": true,
+    "source_white_exclusion": true,
+    "native_runtime_parity_bad_count": 0,
+    "native_runtime_parity_max_abs_difference": 9.14848e-09,
+    "prospective_holdout_reexecuted": false,
+    "prospective_holdout_integrity_bound_to_same_extractor_and_v47i_core": true
+  },
+  "correction_to_2026_09_15_handoff": {
+    "superseded_provisional_feature_list": [
+      "mean_sigma",
+      "mean_abs_demosaic_extra",
+      "std_abs_demosaic_extra",
+      "p90_abs_demosaic_extra",
+      "max_abs_demosaic_extra",
+      "mean_unseen_color_error",
+      "p90_unseen_color_error",
+      "max_unseen_color_error",
+      "mean_abs_r",
+      "mean_abs_g",
+      "mean_abs_b",
+      "std_r",
+      "std_g",
+      "std_b",
+      "support_std_over_sigma",
+      "spread_p90_over_sigma",
+      "spread_max_over_sigma",
+      "propagated_spread_over_sigma"
+    ],
+    "classification": "HISTORICAL_PROVISIONAL_SUMMARY_NOT_THE_FROZEN_V5G_MODEL_FEATURE_SCHEMA",
+    "may_be_used_as_v5g_runtime_input": false
+  },
+  "f64_binding_semantics": {
+    "derive_historical_v5g_features_from_f64_scientific_master_rgb": false,
+    "derive_historical_v5g_features_from_exact_historical_stage2_hidden_cfa_context": true,
+    "f64_reconstruction_changes_v5g_feature_definition": false,
+    "required_binding": "SAME_SOURCE_IDENTITY_SAME_CFA_COORDINATE_EXACT_HISTORICAL_V5G_UNCERTAINTY_TO_F64_SCIENTIFIC_MASTER_RECONSTRUCTED_QUANTITY",
+    "missing_or_mismatched_coordinate_binding": "UNRESOLVED",
+    "invent_missing_feature": false,
+    "quantile_to_sigma_conversion_without_model": false,
+    "missing_covariance_zero_fill": false
+  },
+  "scientific_effect": {
+    "creates_new_sensor_evidence": false,
+    "upgrades_scientific_authority": false,
+    "changes_frozen_dynamic_authority_v19_identity": false,
+    "closes_old_extractor_semantics_blocker": true,
+    "full_frame_v19_regeneration_complete": false
+  },
+  "next_gate": "STREAM_REGENERATE_DYNAMIC_AUTHORITY_V19_FROM_FROZEN_SOURCE_AND_EXACT_HISTORICAL_V5G_UNCERTAINTY__REQUIRE_FIELD_AND_CHANNEL_DIGEST_FALSIFICATION"
+}
