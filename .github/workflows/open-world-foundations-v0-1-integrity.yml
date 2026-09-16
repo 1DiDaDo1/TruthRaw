@@ -187,10 +187,6 @@ jobs:
           g++ -std=c++20 -O2 -Wall -Wextra \
             -Idocs/research/counterfactual-illumination-capture-manifold-v1/native \
             docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.cpp \
-            docs/research/open-world-native-integration-v0.3/tests/test_open_world_native_v03.cpp 2>/dev/null || true
-          g++ -std=c++20 -O2 -Wall -Wextra \
-            -Idocs/research/counterfactual-illumination-capture-manifold-v1/native \
-            docs/research/counterfactual-illumination-capture-manifold-v1/native/cicm_v1.cpp \
             docs/research/counterfactual-illumination-capture-manifold-v1/tests/test_cicm_v1.cpp \
             -o build/open-world-native-v03/test_cicm_v1
           build/open-world-native-v03/test_cicm_v1
