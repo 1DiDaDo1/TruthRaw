@@ -1,0 +1,89 @@
+{
+  "schema": "TruthRawHdrLegacyLinearBridgeState/1.7",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "EXACT_LEGACY_FULL_FRAME_RGB_BOUND_AS_COMPATIBILITY_INPUT_MODERN_SCIENCE_BINDING_STILL_OPEN",
+  "implementation_commits": {
+    "bridge": "93864facd3583cfc11988bdb52f55caa74b16722",
+    "tests": "20398b6686eade6f6603abada0998ce8de41824d",
+    "documentation": "f6ac0b9b16d903eabf2af1386df089967cd813a5",
+    "real_observation": "69229f903a525a9536e1c0f0561975eb609edd94"
+  },
+  "source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "source_white_censored_samples": 217
+  },
+  "legacy_linearraw": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+    "file_sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+    "pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+    "dequantized_float32_sha256": "0def5ca38d3339e48e81435df68007745b2cdfeacd8e36d72ead06dafb44acd0",
+    "geometry": [4080, 3072, 3],
+    "bits_per_sample": [16, 16, 16],
+    "compression": 1,
+    "photometric_interpretation": 34892,
+    "orientation": 3,
+    "black_level": [2048.0, 2048.0, 2048.0],
+    "white_level": [34816, 34816, 34816],
+    "rows_per_strip": 64,
+    "strip_count": 48,
+    "pixel_payload_bytes": 75202560,
+    "scene_formula": "scene_linear=(stored_code-2048)/32768",
+    "theoretical_quantization_half_step": 0.0000152587890625,
+    "recorded_max_quantization_abs_scene_error": 0.00001531839370727539,
+    "classification": "LEGACY_DERIVED_RECONSTRUCTED_LINEAR_RAW_COMPATIBILITY_PAYLOAD"
+  },
+  "real_inspection": {
+    "file_sha256_verified": true,
+    "pixel_payload_sha256_verified_from_raw_uncompressed_strips": true,
+    "xmp_source_sha256_verified": true,
+    "xmp_pixel_payload_sha256_verified": true,
+    "xmp_classification": "DERIVED_RECONSTRUCTED_RAW",
+    "xmp_measured_photon_claim": false,
+    "xmp_scientific_master_sha256_present": false,
+    "xmp_dynamic_authority_sha256_present": false,
+    "scene_min": -0.00634765625,
+    "scene_max": 1.297760009765625,
+    "negative_component_count": 41873,
+    "over_one_component_count": 125419,
+    "finite_component_count": 37601280
+  },
+  "source_bound_p3": {
+    "transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "authority": "SOURCE_METADATA_BOUND_L1_NOT_PHYSICAL_CALIBRATION",
+    "legacy_payload_p3_component_min": -0.018184110248606337,
+    "legacy_payload_p3_component_max": 2.618985313022203,
+    "legacy_payload_positive_luminance_max": 1.382045787901244,
+    "legacy_payload_positive_luminance_peak_ev_vs_unity": 0.46680541376074286
+  },
+  "authority": {
+    "legacy_payload_may_be_relabelled_scientific_master": false,
+    "legacy_payload_sha_may_substitute_scientific_master_sha": false,
+    "legacy_payload_creates_new_sensor_evidence": false,
+    "scientific_master_writeback_allowed": false,
+    "source_bound_l1_color_is_independent_physical_calibration": false,
+    "scientific_master_sha256": null,
+    "dynamic_authority_sha256": null,
+    "v16_science_binding_complete": false
+  },
+  "validation": {
+    "local_stdlib_parser_real_file": "PASS",
+    "local_unit_tests": "8/8 PASS",
+    "dedicated_ci_run_id": null,
+    "dedicated_ci_conclusion": null,
+    "open_world_ci_run_id": null,
+    "open_world_ci_conclusion": null
+  },
+  "next_gates": [
+    "persist or deterministically recompute the exact modern float Scientific Master for source 7930ba5d... and bind its SHA-256",
+    "persist and bind the matching per-channel Dynamic Authority Field SHA-256",
+    "bind the complete source/master/authority/source-bound-color lineage",
+    "stream the real 4080x3072 modern Scientific Master through v1.6",
+    "encode a TruthRaw-owned P3-D65/PQ HDR exchange file",
+    "round-trip that exact file through Lightroom without scientific-authority writeback"
+  ],
+  "promotion_rule": "Do not promote the historical v0.4 LinearRaw payload to Scientific Master authority. v1.7 may be promoted only as a compatibility/integration bridge after CI; completion of the HDR render still requires exact modern Scientific Master and Dynamic Authority identities."
+}
