@@ -35,19 +35,25 @@ Those later identities remain frozen references, not claims of a new mobile reco
 
 `Representation may exceed the source; knowledge claims may not exceed the evidence.`
 
-## Validated debug build
+## CI signing and build identity
 
-GitHub Actions run `35068164683` completed successfully for commit `1c0d2b8b61de4abf2c88c1007fcf4b31e7717744` and produced artifact `truthraw-debug-apk-v0.2`.
+Early v0.2 CI builds used the runner-generated Android debug keystore. The app source was unchanged but the signed APK SHA-256 changed between clean runners, so those APK hashes are build-instance identities rather than reproducible application identities.
 
-Extracted `app-debug.apk`:
+The research branch now installs a fixed, explicitly **non-secret CI debug signing key** from `android/ci-debug.keystore.b64` before Gradle runs. This key is for debug/test installation only and must never be used as release signing authority.
+
+The first build using that stable CI key is GitHub Actions run `35068900834`, commit `7ce9ad7df86647957a5bfbeda650831b8d9f6e0e`.
+
+Extracted `app-debug.apk` from that run:
 
 - size: `19675` bytes
-- SHA-256: `34922b434404bcada94f7c9e2e2cb139cc970870fb00b4ee9fe2c90a47d5518d`
+- SHA-256: `edda905acc40ab373eff77988148f342cf21b33b04c5e67acec10d93f7169bb9`
 - Android package: debug signed APK
 - application ID: `io.truthraw.debug`
 - minSdk: 26
 - targetSdk: 35
 - versionCode: 2
 - versionName: `0.2-debug`
+
+A subsequent clean CI build is used to test whether the full signed APK is now byte-identical across runners. Reproducibility is not claimed until that comparison passes.
 
 The workflow runs unit tests, assembles the debug APK, hashes it, and uploads both APK and hash as a workflow artifact. The app intentionally uses Android platform APIs only; there is no AndroidX or UI-framework dependency.
