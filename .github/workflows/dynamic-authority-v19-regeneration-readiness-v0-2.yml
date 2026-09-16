@@ -1,0 +1,51 @@
+name: dynamic-authority-v19-regeneration-readiness-v0-2
+
+on:
+  push:
+    paths:
+      - 'tools/dynamic_authority_v19_regeneration_readiness_v02.py'
+      - 'tests/test_dynamic_authority_v19_regeneration_readiness_v02.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - 'canonical/native/**'
+      - 'src/**'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/dynamic-authority-v19-regeneration-readiness-v0-2.yml'
+  pull_request:
+    paths:
+      - 'tools/dynamic_authority_v19_regeneration_readiness_v02.py'
+      - 'tests/test_dynamic_authority_v19_regeneration_readiness_v02.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - 'canonical/native/**'
+      - 'src/**'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/dynamic-authority-v19-regeneration-readiness-v0-2.yml'
+
+jobs:
+  classify-v19-regeneration-state:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run v1.9 regeneration-readiness v0.2 tests
+        run: python -m unittest -v tests.test_dynamic_authority_v19_regeneration_readiness_v02
+      - name: Emit current v1.9 regeneration-state report
+        run: |
+          mkdir -p build
+          python tools/dynamic_authority_v19_regeneration_readiness_v02.py \
+            --out build/dynamic-authority-v19-regeneration-readiness-v02.json
+      - name: Assert state is classified but not falsely marked regeneration-ready
+        run: |
+          python - <<'PY'
+          import json
+          p='build/dynamic-authority-v19-regeneration-readiness-v02.json'
+          r=json.load(open(p,encoding='utf-8'))
+          assert r['pass'] is True
+          assert r['regeneration_ready'] is False
+          assert r['classification']=='PASS_FROZEN_V19_IDENTITY_COHERENT_HISTORICAL_LOCAL_SOURCES_NOT_PERSISTED'
+          assert r['implementation_lineage']['persisted_repository_dependencies_exact'] is True
+          assert len(r['implementation_lineage']['historical_local_sources_missing'])==5
+          PY
