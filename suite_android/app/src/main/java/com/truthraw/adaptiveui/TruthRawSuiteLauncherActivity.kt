@@ -52,20 +52,20 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.6 · preview-first + explicit Camera-5 200MP test"
+            text = "v0.7 · staged Camera-5 200MP test"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Voor 200MP hoef je geen route meer te raden: gebruik de eerste knop. Die test uitsluitend logical 0 → physical 5 → MAX RAW 16320×12288. Preview blijft gewone tele-preview; MAX wordt alleen tijdens de ene RAW-capture geactiveerd."
+            text = "De 200MP-test doet bij openen niets met Camera2. Daarna test je afzonderlijk: (1) capability, (2) live logical-0 preview met 3.7× request en activePhysical-telemetrie, (3) aparte physical-5 RAW 16320×12288 capture."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(18))
         })
 
-        root.addView(actionButton("200MP TELE TEST · physical 5 · 16320×12288") {
-            startActivity(Intent(this, FotoGraaf200MpTestActivity::class.java))
+        root.addView(actionButton("200MP TELE TEST v0.7 · staged · physical 5") {
+            startActivity(Intent(this, FotoGraaf200MpStagedActivity::class.java))
         })
         root.addView(space())
         root.addView(actionButton("FotoGraaf camera & diagnostics") {
@@ -81,7 +81,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(TextView(this).apply {
-            text = "200MP PASS vereist een echte 16320×12288 RAW_SENSOR Image, exact timestamp-paar, physical Camera-5 TotalCaptureResult en SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION. Een preview of geadverteerde capability alleen is geen 200MP capturebewijs."
+            text = "Belangrijk: een zichtbaar live beeld bewijst alleen preview. De 200MP capture-gate vereist nog steeds een echte 16320×12288 RAW_SENSOR Image, physical Camera-5 TotalCaptureResult, exact timestamp-paar en MAXIMUM_RESOLUTION pixel mode."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
