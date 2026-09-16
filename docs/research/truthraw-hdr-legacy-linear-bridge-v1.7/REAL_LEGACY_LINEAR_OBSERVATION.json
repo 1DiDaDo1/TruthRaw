@@ -1,0 +1,67 @@
+{
+  "schema": "TruthRawHdrLegacyLinearObservation/1.7",
+  "source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+  "source_dng_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+  "legacy_linearraw_dng": "IMG_BNC_TRUTHRAW20260907_094449_565__TRUTHRAW_DERIVED_LINEAR_RAW_v0_4.dng",
+  "legacy_linearraw_sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+  "pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+  "dequantized_float32_sha256": "0def5ca38d3339e48e81435df68007745b2cdfeacd8e36d72ead06dafb44acd0",
+  "geometry": [4080, 3072, 3],
+  "storage": {
+    "bits_per_sample": [16, 16, 16],
+    "compression": 1,
+    "photometric_interpretation": 34892,
+    "orientation": 3,
+    "black_level": [2048.0, 2048.0, 2048.0],
+    "white_level": [34816, 34816, 34816],
+    "rows_per_strip": 64,
+    "strip_count": 48,
+    "pixel_payload_bytes": 75202560,
+    "formula": "scene_linear=(stored_code-2048)/32768",
+    "theoretical_quantization_half_step": 0.0000152587890625,
+    "recorded_max_quantization_abs_scene_error": 0.00001531839370727539
+  },
+  "xmp": {
+    "classification": "DERIVED_RECONSTRUCTED_RAW",
+    "source_sha256_matches": true,
+    "pixel_payload_sha256_matches": true,
+    "reconstruction": "research_edge_aware_support_limited_measured_preserving_v47i_logic",
+    "uncertainty_status": "BACKEND_BOUND_UNCERTAINTY_PROSPECTIVE_PASS",
+    "measured_photon_claim": false,
+    "tone_curve_applied": false,
+    "sharpening_applied": false,
+    "output_acutance_applied": false,
+    "scientific_master_sha256_present": false,
+    "dynamic_authority_sha256_present": false
+  },
+  "decoded_real_payload": {
+    "scene_min": -0.00634765625,
+    "scene_max": 1.297760009765625,
+    "negative_component_count": 41873,
+    "over_one_component_count": 125419,
+    "finite_component_count": 37601280
+  },
+  "source_bound_p3": {
+    "transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "authority": "SOURCE_METADATA_BOUND_L1_NOT_PHYSICAL_CALIBRATION",
+    "matrix_rgb_to_p3_d65": [
+      [1.9115759182105407, 0.0018793656065187432, -0.31304168608169364],
+      [-0.14532939129426314, 1.1695822925561443, -0.1484403396270572],
+      [-0.03882691749797302, -0.432943438113552, 2.6768616785331276]
+    ],
+    "legacy_payload_p3_component_min": -0.018184110248606337,
+    "legacy_payload_p3_component_max": 2.618985313022203,
+    "legacy_payload_positive_luminance_max": 1.382045787901244,
+    "legacy_payload_positive_luminance_peak_ev_vs_unity": 0.46680541376074286
+  },
+  "authority": {
+    "classification": "LEGACY_DERIVED_RECONSTRUCTED_LINEAR_RAW_COMPATIBILITY_PAYLOAD",
+    "new_sensor_evidence": false,
+    "may_be_relabelled_scientific_master": false,
+    "scientific_master_sha256": null,
+    "dynamic_authority_sha256": null,
+    "v16_science_binding_complete": false,
+    "scientific_master_writeback_allowed": false,
+    "reason": "The historical v0.4 DNG stores a quantized reconstructed RGB compatibility payload and XMP source/payload lineage but no modern Scientific Master or Dynamic Authority identity."
+  }
+}
