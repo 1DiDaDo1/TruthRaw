@@ -13,10 +13,9 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import io.truthraw.debug.MainActivity as DeviceVerificationActivity
+import java.io.File
 
-/** Stable front door for the Main + FotoGraaf lineage. */
 class TruthRawSuiteLauncherActivity : Activity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
@@ -29,10 +28,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             setBackgroundColor(Color.rgb(15, 17, 20))
             setPadding(dp(24), dp(20), dp(24), dp(24))
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-            )
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
                 view.setPadding(dp(24) + bars.left, dp(20) + bars.top, dp(24) + bars.right, dp(24) + bars.bottom)
@@ -52,22 +48,30 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.7 · staged Camera-5 200MP test"
+            text = "v0.8 · crash-diagnostic 200MP staging"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "De 200MP-test doet bij openen niets met Camera2. Daarna test je afzonderlijk: (1) capability, (2) live logical-0 preview met 3.7× request en activePhysical-telemetrie, (3) aparte physical-5 RAW 16320×12288 capture."
+            text = "De 200MP-ingang opent nu eerst een minimale Activity zonder Camera2, worker thread of TextureView. Als de volgende staged stap crasht, bewaart de app de echte stacktrace voor de volgende start."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(18))
         })
 
-        root.addView(actionButton("200MP TELE TEST v0.7 · staged · physical 5") {
-            startActivity(Intent(this, FotoGraaf200MpStagedActivity::class.java))
+        root.addView(actionButton("200MP TEST · crash-isolatie ingang") {
+            startActivity(Intent(this, FotoGraaf200MpEntryActivity::class.java))
         })
         root.addView(space())
+
+        if (File(filesDir, TruthRawSuiteApplication.CRASH_FILE).exists()) {
+            root.addView(actionButton("LAATSTE CRASH BEKIJKEN / OPSLAAN") {
+                startActivity(Intent(this, TruthRawCrashReportActivity::class.java))
+            })
+            root.addView(space())
+        }
+
         root.addView(actionButton("FotoGraaf camera & diagnostics") {
             startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
         })
@@ -81,7 +85,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(TextView(this).apply {
-            text = "Belangrijk: een zichtbaar live beeld bewijst alleen preview. De 200MP capture-gate vereist nog steeds een echte 16320×12288 RAW_SENSOR Image, physical Camera-5 TotalCaptureResult, exact timestamp-paar en MAXIMUM_RESOLUTION pixel mode."
+            text = "200MP blijft fail-closed: pas een echte 16320×12288 RAW_SENSOR Image + physical Camera-5 result + timestamp identity + MAXIMUM_RESOLUTION pixel mode kan de capture-gate passeren."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
@@ -96,9 +100,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
         setOnClickListener { action() }
     }
 
-    private fun space() = android.view.View(this).apply {
-        layoutParams = LinearLayout.LayoutParams(1, dp(10))
-    }
-
+    private fun space() = android.view.View(this).apply { layoutParams = LinearLayout.LayoutParams(1, dp(10)) }
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
