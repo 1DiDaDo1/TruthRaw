@@ -1,0 +1,66 @@
+name: v19-historical-lineage-recovery-v0-1
+
+on:
+  push:
+    paths:
+      - 'tools/recover_v19_historical_lineage_v01.py'
+      - 'tests/test_recover_v19_historical_lineage_v01.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/v19-historical-lineage-recovery-v0-1.yml'
+  pull_request:
+    paths:
+      - 'tools/recover_v19_historical_lineage_v01.py'
+      - 'tests/test_recover_v19_historical_lineage_v01.py'
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'docs/research/dynamic-authority-v19-regeneration-v0.1/**'
+      - '.github/workflows/v19-historical-lineage-recovery-v0-1.yml'
+
+jobs:
+  recover-historical-lineage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch all reachable branch and tag history
+        run: |
+          git fetch --force --tags --prune origin '+refs/heads/*:refs/remotes/origin/*'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit-test historical recovery method
+        run: python -m unittest -v tests.test_recover_v19_historical_lineage_v01
+      - name: Scan full TruthRaw Git history against frozen SHA-256 identities
+        run: |
+          mkdir -p build/recovered-v19
+          python tools/recover_v19_historical_lineage_v01.py \
+            --out build/v19-historical-lineage-recovery-v01.json \
+            --materialize-dir build/recovered-v19
+      - name: Print exact recovery summary
+        if: always()
+        run: |
+          if [ -f build/v19-historical-lineage-recovery-v01.json ]; then
+            python - <<'PY'
+          import json
+          p='build/v19-historical-lineage-recovery-v01.json'
+          r=json.load(open(p,encoding='utf-8'))
+          print('classification=', r['classification'])
+          print('pass=', r['pass'])
+          print('v19_local_probe_recovered_exact=', r['v19_local_probe_recovered_exact'])
+          print('v5g_exact_10023_byte_extractor_recovered=', r['v5g_exact_10023_byte_extractor_recovered'])
+          for name, rec in r['records'].items():
+              print(name, rec['status'])
+              for c in rec['all_candidates']:
+                  print('  ', c['path'], c['bytes'], c['sha256'], 'EXACT' if c['exact'] else 'mismatch')
+          PY
+          fi
+      - name: Upload recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v19-historical-lineage-recovery-v01
+          path: |
+            build/v19-historical-lineage-recovery-v01.json
+            build/recovered-v19/
+          if-no-files-found: warn
