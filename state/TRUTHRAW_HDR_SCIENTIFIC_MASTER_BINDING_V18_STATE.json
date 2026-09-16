@@ -3,6 +3,11 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "classification": "REAL_SCIENTIFIC_MASTER_IDENTITY_DETERMINISTICALLY_RECOMPUTED_DYNAMIC_AUTHORITY_STILL_OPEN",
+  "implementation_commits": {
+    "implementation_and_evidence": "b36db0ca23dcc9144aaab0d76d3618ef5afd768f",
+    "dedicated_ci_bootstrap_fix": "b54cf1b14aed9470f7087d662fd3c733cd769d48",
+    "open_world_ci_wiring": "5f15bed4a17e4b7c74fe2d7641cfadb737affd6b"
+  },
   "source": {
     "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
     "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
@@ -54,10 +59,50 @@
     "local_exact_source_sha256": "PASS",
     "local_two_run_native_recomputation": "PASS_IDENTICAL",
     "local_unit_tests": "7/7 PASS",
-    "dedicated_ci": null,
-    "open_world_regression": null
+    "dedicated_ci_initial_run": {
+      "run_id": 35043045136,
+      "head_sha": "b36db0ca23dcc9144aaab0d76d3618ef5afd768f",
+      "conclusion": "failure",
+      "classification": "NEGATIVE_EVIDENCE_WORKFLOW_IMPORT_BOOTSTRAP_ORDER_NOT_V18_SCIENCE_FAILURE",
+      "reason": "The initial dedicated workflow started the upstream HDR tests before the existing Dynamic Authority test bootstrap that exposes tools/ imports. The workflow ordering was corrected without changing v1.8 scientific data, hashes, authority rules or runtime code."
+    },
+    "dedicated_ci_validated_run": {
+      "run_id": 35043095942,
+      "head_sha": "b54cf1b14aed9470f7087d662fd3c733cd769d48",
+      "conclusion": "success"
+    },
+    "open_world_regression_run": {
+      "run_id": 35043214621,
+      "head_sha": "5f15bed4a17e4b7c74fe2d7641cfadb737affd6b",
+      "conclusion": "success",
+      "coverage": [
+        "OPEN_WORLD_PYTHON_CONTRACTS_V01_TO_V06",
+        "ADOBE_HDR_INTEROP_V07_TO_V14",
+        "TRUTHRAW_HDR_PROJECTION_V15",
+        "TRUTHRAW_HDR_PROJECTION_RUNTIME_V16",
+        "TRUTHRAW_HDR_LEGACY_LINEAR_BRIDGE_V17",
+        "TRUTHRAW_HDR_SCIENTIFIC_MASTER_BINDING_V18",
+        "CAMERA5_CFA_IDENTITY_V01",
+        "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+        "CICM_NATIVE_REGRESSION",
+        "ROOM_CAPSULE_NATIVE_REGRESSION",
+        "OPEN_WORLD_NATIVE_AUTHORITY_CORRIDOR_V03"
+      ]
+    },
+    "final_state_dedicated_ci": null,
+    "documentation_governance": null
   },
-  "implementation_commit": null,
+  "validated_properties": [
+    "EXACT_SOURCE_DNG_AND_DECODED_CFA_IDENTITIES_BOUND",
+    "EXACT_ARCHIVED_RECOMPUTATION_IMPLEMENTATION_HASH_SET_BOUND",
+    "TWO_INDEPENDENT_NATIVE_RECOMPUTATIONS_IDENTICAL",
+    "REAL_FLOAT_SCIENTIFIC_MASTER_SHA256_BOUND",
+    "REAL_SELF_GAUGE_REFERENCE_L0_BOUND",
+    "LEGACY_LINEARRAW_IDENTITIES_CANNOT_SUBSTITUTE_SCIENTIFIC_MASTER",
+    "SOURCE_BOUND_P3_COLOR_TRANSFORM_PRESERVED_AS_L1_NOT_PHYSICAL_CALIBRATION",
+    "DYNAMIC_AUTHORITY_IDENTITY_REMAINS_UNBOUND_AND_FAIL_CLOSED",
+    "NO_NEW_SENSOR_EVIDENCE_AND_NO_HDR_WRITEBACK_TO_SCIENCE"
+  ],
   "next_gates": [
     "persist and bind the matching per-channel Dynamic Authority Field SHA-256",
     "instantiate the complete v1.6 source/CFA/master/authority/P3 binding",
