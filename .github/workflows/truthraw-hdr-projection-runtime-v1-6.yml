@@ -1,0 +1,44 @@
+name: truthraw-hdr-projection-runtime-v1-6
+
+on:
+  push:
+    paths:
+      - 'tools/truthraw_hdr_projection_v15.py'
+      - 'tools/truthraw_hdr_projection_runtime_v16.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tests/test_truthraw_hdr_projection_v15.py'
+      - 'tests/test_truthraw_hdr_projection_runtime_v16.py'
+      - 'tests/test_open_world_dynamic_authority_v05.py'
+      - 'docs/research/truthraw-hdr-projection-v1.5/**'
+      - 'docs/research/truthraw-hdr-projection-runtime-v1.6/**'
+      - 'state/TRUTHRAW_HDR_PROJECTION_V15_STATE.json'
+      - 'state/TRUTHRAW_HDR_PROJECTION_RUNTIME_V16_STATE.json'
+      - '.github/workflows/truthraw-hdr-projection-runtime-v1-6.yml'
+  pull_request:
+    paths:
+      - 'tools/truthraw_hdr_projection_v15.py'
+      - 'tools/truthraw_hdr_projection_runtime_v16.py'
+      - 'tools/open_world_dynamic_authority_v05.py'
+      - 'tests/test_truthraw_hdr_projection_v15.py'
+      - 'tests/test_truthraw_hdr_projection_runtime_v16.py'
+      - 'tests/test_open_world_dynamic_authority_v05.py'
+      - 'docs/research/truthraw-hdr-projection-v1.5/**'
+      - 'docs/research/truthraw-hdr-projection-runtime-v1.6/**'
+      - 'state/TRUTHRAW_HDR_PROJECTION_V15_STATE.json'
+      - 'state/TRUTHRAW_HDR_PROJECTION_RUNTIME_V16_STATE.json'
+      - '.github/workflows/truthraw-hdr-projection-runtime-v1-6.yml'
+
+jobs:
+  projection-authority-and-streaming:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run HDR projection authority and streaming tests
+        run: |
+          python -m unittest -v \
+            tests.test_open_world_dynamic_authority_v05 \
+            tests.test_truthraw_hdr_projection_v15 \
+            tests.test_truthraw_hdr_projection_runtime_v16
