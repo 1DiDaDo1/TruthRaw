@@ -115,6 +115,7 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
                     "git_blob_sha1": oid,
                     "bytes": len(raw),
                     "sha256": actual,
+                    "expected_sha256": expected,
                     "exact": actual == expected,
                 }
             )
@@ -123,8 +124,6 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
         if len(exact) == 1:
             status = "RECOVERED_EXACT"
         elif len(exact) > 1:
-            # Multiple historical paths/blobs can legitimately contain the same
-            # exact bytes. This remains exact recovery, not ambiguity in content.
             status = "RECOVERED_EXACT_MULTIPLE_HISTORICAL_OCCURRENCES"
         elif candidates:
             status = "CANDIDATES_FOUND_NO_SHA256_MATCH"
@@ -142,8 +141,15 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
 
     required = [n for n, s in targets.items() if s["required"]]
     required_exact = all(records[n]["exact_recovered"] for n in required)
-    probe_exact = records["probe_dynamic_authority_v19.cpp"]["exact_recovered"]
-    extractor_exact = records["uncertainty_core_v5_0g.py"]["exact_recovered"]
+
+    probe_rec = records.get("probe_dynamic_authority_v19.cpp")
+    extractor_rec = records.get("uncertainty_core_v5_0g.py")
+    probe_exact = bool(probe_rec and probe_rec["exact_recovered"])
+    extractor_exact = bool(extractor_rec and extractor_rec["exact_recovered"])
+    extractor_10023 = bool(
+        extractor_rec
+        and any(c["bytes"] == 10023 for c in extractor_rec["exact_occurrences"])
+    )
 
     return {
         "schema": SCHEMA,
@@ -157,8 +163,7 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
         "optional_targets": [n for n, s in targets.items() if not s["required"]],
         "records": records,
         "v19_local_probe_recovered_exact": probe_exact,
-        "v5g_exact_10023_byte_extractor_recovered": extractor_exact
-        and any(c["bytes"] == 10023 for c in records["uncertainty_core_v5_0g.py"]["exact_occurrences"]),
+        "v5g_exact_10023_byte_extractor_recovered": extractor_exact and extractor_10023,
         "scientific_interpretation": {
             "matching_name_or_size_is_sufficient": False,
             "git_blob_sha1_is_substitute_for_frozen_sha256": False,
