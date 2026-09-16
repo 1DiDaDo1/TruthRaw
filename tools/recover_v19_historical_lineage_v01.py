@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Recover exact TruthRaw v1.9/v5.0g historical source bytes from Git history.
 
-This tool deliberately searches Git *objects/history*, not only the current worktree.
+This tool deliberately searches Git objects/history, not only the current worktree.
 It exists because several files used by the frozen Dynamic Authority v1.9 and
 historical v5.0g uncertainty work were later removed from the live tree.
 
@@ -73,13 +73,27 @@ def _git(repo: Path, *args: str, binary: bool = False):
 
 
 def enumerate_historical_objects(repo: Path) -> list[tuple[str, str]]:
-    text = _git(repo, "rev-list", "--objects", "--all")
+    # `git rev-list --all` does not guarantee inclusion of arbitrary custom refs
+    # such as refs/recovery/*. Enumerate every local ref explicitly so detached
+    # recovery refs fetched by CI become part of the search domain.
+    refs = [
+        r.strip()
+        for r in _git(repo, "for-each-ref", "--format=%(refname)").splitlines()
+        if r.strip()
+    ]
+    rev_args = ["rev-list", "--objects"] + (refs if refs else ["HEAD"])
+    text = _git(repo, *rev_args)
     out: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
     for line in text.splitlines():
         if not line.strip() or " " not in line:
             continue
         oid, path = line.split(" ", 1)
-        out.append((oid, path))
+        key = (oid, path)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(key)
     return out
 
 
@@ -128,7 +142,7 @@ def scan_history(repo: Path, targets: dict | None = None) -> dict:
         elif candidates:
             status = "CANDIDATES_FOUND_NO_SHA256_MATCH"
         else:
-            status = "NOT_FOUND_IN_REACHABLE_GIT_HISTORY"
+            status = "NOT_FOUND_IN_RECOVERED_GIT_OBJECTS"
 
         records[name] = {
             "expected_sha256": expected,
