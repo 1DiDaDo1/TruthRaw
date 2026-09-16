@@ -30,7 +30,26 @@
       "OPTIONAL_COUNTERFACTUAL_OR_RESTORATION_STATE",
       "APPEARANCE_HDR_TRANSPORT",
       "FINITE_PROJECTION_EXPORT"
-    ]
+    ],
+    "open_scene_region_runtime_v07": {
+      "runtime": "tools/open_scene_region_runtime_v07.py",
+      "tests": "tests/test_open_scene_region_runtime_v07.py",
+      "documentation": "docs/research/open-scene-region-runtime-v0.7/README.md",
+      "ci": ".github/workflows/open-scene-region-runtime-v0-7.yml",
+      "ci_status_at_integration": "PASS",
+      "binds": [
+        "DYNAMIC_AUTHORITY",
+        "ILLUMINATION_AUTHORITY",
+        "COLOUR_CALIBRATION_AUTHORITY",
+        "STRUCTURE_EVIDENCE",
+        "HDR_CHANNEL_STATUS",
+        "RESTORATION_AUTHORITY"
+      ],
+      "creates_new_evidence": false,
+      "detail_scientific_writeback_allowed": false,
+      "counterfactual_illumination_writeback_allowed": false,
+      "restoration_scientific_writeback_allowed": false
+    }
   },
   "scene_physics": {
     "current_supplement": "docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md",
@@ -53,6 +72,7 @@
     "research_foundation": "docs/research/conservation-restoration-authority-v0.1/README.md",
     "machine_guard": "tools/restoration_authority_v01.py",
     "tests": "tests/test_restoration_authority_v01.py",
+    "open_scene_integration": "tools/open_scene_region_runtime_v07.py",
     "preserve_valid_measured_support": true,
     "loss_compensation_authority": "RECONSTRUCTED",
     "aesthetic_reintegration_scientific_writeback_allowed": false,
@@ -128,14 +148,18 @@
   "dynamic_authority": {
     "classes": [
       "MEASURED",
+      "CALIBRATED_ESTIMATE",
       "RECONSTRUCTED",
       "CENSORED",
       "UNKNOWN",
-      "COUNTERFACTUAL"
+      "COUNTERFACTUAL",
+      "APPEARANCE_ONLY"
     ],
+    "scientific_master_field_excludes_counterfactual_and_appearance": true,
     "measured_requires_source_binding": true,
     "missing_or_mismatched_binding_fails_closed": true,
-    "restoration_roles_do_not_replace_core_authority_classes": true
+    "restoration_roles_do_not_replace_core_authority_classes": true,
+    "open_scene_region_v07_bound": true
   },
   "hdr": {
     "scientific_headroom_authority_aware": true,
@@ -143,7 +167,8 @@
     "unknown_creates_scientific_headroom": false,
     "adobe_gain_map_classification": "PRESENTATION_AND_DISPLAY_ADAPTATION_ONLY",
     "fake_multiframe_hdr_merge_allowed": false,
-    "pq_or_hlg_transport_equals_sensor_dynamic_range_measurement": false
+    "pq_or_hlg_transport_equals_sensor_dynamic_range_measurement": false,
+    "open_scene_region_v07_channel_status_bound": true
   },
   "camera5_maximum_resolution": {
     "target_dimensions": [16320, 12288],
@@ -159,8 +184,26 @@
     "binning_factor_interpretation": "VENDOR_METADATA_TENSION_NOT_APP_VISIBLE_SAME_COLOUR_CFA_PROOF",
     "app_visible_topology_interpretation": "APP_VISIBLE_RAW_SENSOR_REGULAR_BAYER_BY_ANDROID_CONTRACT",
     "android_contract_guard": "tools/camera5_200mp_android_contract_v04.py",
+    "runtime_gate": "tools/camera5_200mp_runtime_gate_v07.py",
+    "cfa_topology_bundle": "tools/camera5_200mp_evidence_bundle_v03.py",
+    "step3b_promotion_gate": "tools/camera5_200mp_step3b_promotion_v08.py",
+    "step3b_promotion_tests": "tests/test_camera5_200mp_step3b_promotion_v08.py",
+    "step3b_ci_status_at_integration": "PASS",
+    "step3b_requires": [
+      "REAL_DEVICE_RUNTIME_CAPTURE",
+      "PHYSICAL_CAMERA5_RESULT",
+      "MAXIMUM_RESOLUTION_REQUEST_AND_RESULT",
+      "RAW_SENSOR_16320x12288",
+      "IMAGE_SENSOR_TIMESTAMP_BINDING",
+      "PAYLOAD_SHA256_AND_STRIDE_FACTS",
+      "CFA_BLACK_WHITE_LEVELS",
+      "EXPOSURE_ISO_FOCUS_STABILIZATION",
+      "EXPLICIT_NOISE_PROFILE_AND_SHADING_AVAILABILITY",
+      "EXACT_200540160_CANONICAL_SAMPLES",
+      "CFA_TOPOLOGY_BUNDLE_V03"
+    ],
     "qualifying_raw_sensor_evidence_supplied": false,
-    "runtime_capture_gate": "OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING",
+    "runtime_capture_gate_status": "OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING",
     "promotion_status": "OPEN_PHYSICAL_EVIDENCE_REQUIRED",
     "allowed_future_claim_if_proven": "APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_PROVEN",
     "forbidden_unproven_claim": "UNTOUCHED_NATIVE_200MP_ADC",
@@ -183,10 +226,10 @@
     "apk_gcam_may_determine_scientific_authority": false
   },
   "next_safe_work": [
+    "AGGREGATE_OPEN_SCENE_REGION_V07_INTO_STREAMED_FULL_FRAME_OPEN_SCENE_STATE",
     "OBTAIN_REAL_CAMERA5_16320x12288_RAW_SENSOR_AND_BOUND_TOTALCAPTURERESULT",
     "KEEP_V5G_FEATURE_RECOVERY_FAIL_CLOSED",
     "BIND_FUTURE_200MP_READOUT_TO_ITS_OWN_PRECISION_UNCERTAINTY_NOISE_SHADING_COLOUR_AND_SFR_GATES",
-    "INTEGRATE_SCENE_PHYSICS_AND_RESTORATION_MASKS_WITH_DYNAMIC_AUTHORITY_WITHOUT_WIDENING_MEASURED_CLAIMS",
     "PRESERVE_FROZEN_SOURCE_AND_DOWNSTREAM_IDENTITIES"
   ]
 }
