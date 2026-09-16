@@ -46,6 +46,16 @@
     "legacyActivitiesPromotedAsFixed": false,
     "recommended200MpPath": "v0.9 staged activity only"
   },
+  "buildValidation": {
+    "workflowRunId": 35125224946,
+    "result": "SUCCESS",
+    "headSha": "49c00353461669bb99ec3b760cf81cf1614544fd",
+    "artifactName": "truthraw-suite-main-plus-fotograaf-v0-9-textureview-crash-fixed-200mp-debug-arm64",
+    "artifactZipSha256": "38d4070cbb14fe4903ad55e7886d8bab01b4ed321a20663b8dd9682622c604d5",
+    "apkBytes": 4745449,
+    "apkSha256": "7ed95543dddd4513ef7d5dab32eabc75ec863adb0a48883083e5b934e0da4229",
+    "deviceExecution": "OPEN_NEEDS_REAL_BKQ_N49_STAGE0_STAGE1_STAGE2_STAGE3"
+  },
   "scientificBoundary": {
     "createsSensorEvidence": false,
     "changesCamera5StaticCapability": false,
@@ -53,5 +63,5 @@
     "changesDynamicAuthority": false,
     "changes200MpCaptureGate": false
   },
-  "nextGate": "ANDROID_BUILD_PASS__THEN_REAL_DEVICE_STAGE0_STAGE1_STAGE2_STAGE3"
+  "nextGate": "REAL_DEVICE_OPEN_V09_STAGE0__THEN_STAGE1_CAPABILITY__STAGE2_LOGICAL_PREVIEW__STAGE3_PHYSICAL5_200MP_RAW"
 }
