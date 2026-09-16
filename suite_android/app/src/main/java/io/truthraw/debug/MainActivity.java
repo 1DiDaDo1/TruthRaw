@@ -10,6 +10,8 @@ import android.provider.OpenableColumns;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.truthraw.adaptiveui.R;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
