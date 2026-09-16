@@ -11,11 +11,18 @@ Field testing of the v0.5 integrated APK exposed two usability/runtime problems:
 
 The resulting black/no-preview state is not evidence that physical Camera 5 or the static 200MP route is absent. It is an application/session-topology problem until device evidence says otherwise.
 
+A second code audit found that v0.5 route discovery conflated two Android capability surfaces. On the frozen Camera-5 evidence they are different:
+
+- maximum-resolution stream map RAW_SENSOR: 8160x6144;
+- `getHighResolutionOutputSizes(RAW_SENSOR)`: 16320x12288.
+
+The latter is the exact 200.54016 MP target already used by the host-validation probe. v0.6 therefore discovers and labels both surfaces separately instead of assuming that the maximum-resolution map alone contains the full 200MP raster.
+
 ## v0.6 acquisition split
 
 The 200MP test is now one explicit path:
 
-`logical camera 0 -> physical camera 5 -> RAW_SENSOR 16320x12288 -> SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION`
+`logical camera 0 -> physical camera 5 -> high-resolution RAW_SENSOR 16320x12288 -> SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION`
 
 Preview and capture are intentionally separate:
 
@@ -23,7 +30,7 @@ Preview and capture are intentionally separate:
 
 followed, only after explicit shutter action, by:
 
-`RAW-only maximum-resolution session -> one RAW_SENSOR Image -> one TotalCaptureResult`
+`RAW-only high-resolution session -> one RAW_SENSOR Image -> one TotalCaptureResult`
 
 The preview request deliberately does **not** set `SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION`. It is framing/3A observation only and creates no additional sensor evidence.
 
@@ -33,6 +40,7 @@ A device capture is not admitted as a 200MP capture candidate unless all of the 
 
 - requested logical camera is 0;
 - requested physical output is camera 5;
+- 16320x12288 appears through `getHighResolutionOutputSizes(RAW_SENSOR)` at runtime;
 - RAW Image dimensions are exactly 16320x12288;
 - sample count is exactly 200,540,160;
 - the physical Camera-5 result is present;
@@ -68,4 +76,4 @@ The suite launcher exposes a dedicated first-class button:
 
 `200MP TELE TEST · physical 5 · 16320x12288`
 
-The user no longer needs to infer the correct route from a general spinner.
+The user no longer needs to infer the correct route from a general spinner. The ordinary Pro camera remains a separate research interface; this dedicated test is the preferred path for closing the physical 200MP gate.
