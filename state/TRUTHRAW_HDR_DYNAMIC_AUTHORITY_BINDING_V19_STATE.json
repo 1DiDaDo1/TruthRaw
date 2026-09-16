@@ -3,6 +3,11 @@
   "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
   "branch": "research/open-world-foundations-v01",
   "classification": "REAL_DYNAMIC_AUTHORITY_IDENTITY_BOUND_V16_SCIENCE_IDENTITY_COMPLETE_FULL_FRAME_RENDER_STREAM_NEXT",
+  "implementation_commits": {
+    "implementation_and_evidence": "c54afcca3c7771ee4b833f5d556389062cfb805b",
+    "open_world_ci_wiring": "9b0901e44755c004af5a039d8f5a940a88348abb",
+    "open_world_ci_cleanup": "6c9045028e42457c5a0d57c47f4942b003e01044"
+  },
   "source": {
     "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
     "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
@@ -58,11 +63,52 @@
     "local_execution_band_192": "PASS",
     "local_execution_band_257": "PASS",
     "partition_invariance": "PASS_IDENTICAL",
-    "local_unit_tests": null,
-    "dedicated_ci": null,
-    "open_world_regression": null,
-    "documentation_governance": null
+    "local_python_syntax_and_json_parse": "PASS",
+    "dedicated_ci": {
+      "run_id": 35044387298,
+      "head_sha": "c54afcca3c7771ee4b833f5d556389062cfb805b",
+      "conclusion": "success"
+    },
+    "open_world_regression": {
+      "run_id": 35044527885,
+      "head_sha": "6c9045028e42457c5a0d57c47f4942b003e01044",
+      "conclusion": "success",
+      "coverage": [
+        "OPEN_WORLD_PYTHON_CONTRACTS_V01_TO_V06",
+        "ADOBE_HDR_INTEROP_V07_TO_V14",
+        "TRUTHRAW_HDR_PROJECTION_V15",
+        "TRUTHRAW_HDR_PROJECTION_RUNTIME_V16",
+        "TRUTHRAW_HDR_LEGACY_LINEAR_BRIDGE_V17",
+        "TRUTHRAW_HDR_SCIENTIFIC_MASTER_BINDING_V18",
+        "TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19",
+        "CAMERA5_CFA_IDENTITY_V01",
+        "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+        "CICM_NATIVE_REGRESSION",
+        "ROOM_CAPSULE_NATIVE_REGRESSION",
+        "OPEN_WORLD_NATIVE_AUTHORITY_CORRIDOR_V03"
+      ]
+    },
+    "documentation_governance_initial": {
+      "run_id": 35044387212,
+      "head_sha": "c54afcca3c7771ee4b833f5d556389062cfb805b",
+      "conclusion": "success"
+    },
+    "final_state_dedicated_ci": null,
+    "final_state_documentation_governance": null
   },
+  "validated_properties": [
+    "EXACT_SOURCE_DNG_CFA_AND_SCIENTIFIC_MASTER_IDENTITIES_BOUND",
+    "FULL_FRAME_RGB_DYNAMIC_AUTHORITY_IDENTITY_BOUND",
+    "TWO_DISTINCT_EXECUTION_PARTITIONS_BYTE_IDENTICAL_AT_DIGEST_AND_OBSERVATION_LEVEL",
+    "ONE_DIRECT_CFA_AUTHORITY_RECORD_PER_PIXEL",
+    "UNCENSORED_MISSING_CHANNELS_RECONSTRUCTED_WITH_FINITE_P95",
+    "CENSORED_CFA_CHANNELS_RETAIN_GE_LOWER_BOUND",
+    "MISSING_CHANNELS_AT_CENSORED_SITES_REMAIN_UNKNOWN",
+    "RECONSTRUCTION_AUTHORITY_SEPARATE_FROM_DETAIL_ACUTANCE_MTF_AUTHORITY",
+    "V16_SCIENCE_IDENTITY_TUPLE_COMPLETE_WITHOUT_PLACEHOLDERS",
+    "SOURCE_BOUND_P3_COLOR_AUTHORITY_NOT_PROMOTED_TO_PHYSICAL_CALIBRATION",
+    "NO_NEW_SENSOR_EVIDENCE_NO_PRESENTATION_WRITEBACK_NO_FIXED_SCENE_EV_CEILING"
+  ],
   "next_gates": [
     "stream-regenerate the exact full-frame Scientific Master plus v1.9 Dynamic Authority records",
     "run all exact-projectable RGB pixels through the v1.6 P3-D65/PQ projector while withholding censored/unknown pixels",
