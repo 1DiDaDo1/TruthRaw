@@ -1,0 +1,33 @@
+name: truthraw-hdr-scientific-master-binding-v1-8
+
+on:
+  push:
+    paths:
+      - 'tools/truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tests/test_truthraw_hdr_scientific_master_binding_v18.py'
+      - 'docs/research/truthraw-hdr-scientific-master-binding-v1.8/**'
+      - 'state/TRUTHRAW_HDR_SCIENTIFIC_MASTER_BINDING_V18_STATE.json'
+      - '.github/workflows/truthraw-hdr-scientific-master-binding-v1-8.yml'
+  pull_request:
+    paths:
+      - 'tools/truthraw_hdr_scientific_master_binding_v18.py'
+      - 'tests/test_truthraw_hdr_scientific_master_binding_v18.py'
+      - 'docs/research/truthraw-hdr-scientific-master-binding-v1.8/**'
+      - 'state/TRUTHRAW_HDR_SCIENTIFIC_MASTER_BINDING_V18_STATE.json'
+      - '.github/workflows/truthraw-hdr-scientific-master-binding-v1-8.yml'
+
+jobs:
+  scientific-master-binding-v18:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run HDR authority chain v1.5-v1.8
+        run: |
+          python -m unittest -v \
+            tests.test_truthraw_hdr_projection_v15 \
+            tests.test_truthraw_hdr_projection_runtime_v16 \
+            tests.test_truthraw_hdr_legacy_linear_bridge_v17 \
+            tests.test_truthraw_hdr_scientific_master_binding_v18

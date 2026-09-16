@@ -1,0 +1,79 @@
+{
+  "schema": "TruthRawScientificMasterRecomputationObservation/1.8",
+  "classification": "REAL_EXACT_SOURCE_DETERMINISTIC_SCIENTIFIC_MASTER_IDENTITY_RECOMPUTED_DYNAMIC_AUTHORITY_NOT_YET_BOUND",
+  "source": {
+    "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "recomputation_implementation": {
+    "archive_commit_sha": "4f842d8fe86eca2b5808afb10fbb9f11a2631fed",
+    "file_sha256": {
+      "scientific_master_streaming_binding_v0_2.cpp": "14b3d7b1f3cacf032729c6af3f12f29679af5c3ce12db27790b18f43bb4ae5b9",
+      "scientific_master_streaming_binding_v0_2.h": "77e429fdadea7b2589a264462a7b450cd692da0bde45f8073773a2679a4e599a",
+      "scientific_master_streaming_binding_v0_1.cpp": "e4e22dd2a579868d432f0edd2d3c4b19d5f09f68d61ac89f70bba8f343853a44",
+      "scientific_master_digest_v0_1.cpp": "70dfd24b86f9472a98cded66ecc1130da6dd7a838322fadd55ff5152d22bbbdf",
+      "truthrange_latent_v0_2.cpp": "da6176962a0977b4e00e3cc21e6e96f0fda7f301b9d9b65ab5ec32a98635b939",
+      "tile_native_dng_source_v0_1.cpp": "09b8153ef60977b48fa67b4bc5d6e7a723a47401de2f8092b06a83656bed84d1",
+      "canonical_v4_7i_core.cpp": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+      "canonical_v4_7i_core.h": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167"
+    }
+  },
+  "run_1": {
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "reference_l0": 0.12564234435558319,
+    "gauge_id": "SELF_GAUGE_STAGE2_Q0.500000",
+    "reconstruction_backend": "research_edge_aware_support_limited_measured_preserving_v47i",
+    "scene_scale_id": "TRUTHRANGE_SELF_GAUGE_STAGE2_V0_2",
+    "self_gauge_eligible_samples": 8002727,
+    "master_tiles_processed": 3072,
+    "stage2_gauge_scan_passes": 2,
+    "logical_workspace_peak_bytes": 138932,
+    "logical_resident_upper_bound": 1295156,
+    "raw_payload_bytes_read": 59808528,
+    "tile_read_calls": 6144
+  },
+  "run_2": {
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "reference_l0": 0.12564234435558319,
+    "gauge_id": "SELF_GAUGE_STAGE2_Q0.500000",
+    "reconstruction_backend": "research_edge_aware_support_limited_measured_preserving_v47i",
+    "scene_scale_id": "TRUTHRANGE_SELF_GAUGE_STAGE2_V0_2",
+    "self_gauge_eligible_samples": 8002727,
+    "master_tiles_processed": 3072,
+    "stage2_gauge_scan_passes": 2,
+    "logical_workspace_peak_bytes": 138932,
+    "logical_resident_upper_bound": 1295156,
+    "raw_payload_bytes_read": 59808528,
+    "tile_read_calls": 6144
+  },
+  "repeat_result": {
+    "independent_repeat_count": 2,
+    "reported_records_identical": true,
+    "scientific_master_sha256_identical": true,
+    "reference_l0_identical": true
+  },
+  "binding": {
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "recomputation_observation_sha256": "2a3a2e2bf34ff910c453e00e11b0ccb0d351b126bf2903c0cb87103b3fe901ad",
+    "source_bound_p3_transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "dynamic_authority_sha256": null,
+    "v16_science_binding_complete": false
+  },
+  "legacy_exclusion": {
+    "legacy_linearraw_file_sha256": "347cd68ade21f99607028b23ed7cdc0c6b498885d236e9c6443624228747766f",
+    "legacy_pixel_payload_sha256": "71b42d01c2e0a54e0807ad671529d7dddebb3e0982c1d7246515b12b49db26eb",
+    "legacy_dequantized_f32_sha256": "0def5ca38d3339e48e81435df68007745b2cdfeacd8e36d72ead06dafb44acd0",
+    "may_substitute_scientific_master_identity": false
+  },
+  "authority": {
+    "creates_new_sensor_evidence": false,
+    "scientific_master_payload_persisted_by_v18": false,
+    "dynamic_authority_manufactured": false,
+    "hdr_presentation_metadata_has_scientific_authority": false,
+    "scientific_master_writeback_from_hdr_allowed": false,
+    "fixed_scene_dynamic_range_ceiling_ev": null
+  }
+}
