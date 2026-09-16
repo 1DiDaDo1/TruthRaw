@@ -1,0 +1,62 @@
+{
+  "schema": "TruthRawHdrProjectionState/1.5",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "TRUTHRAW_OWNED_HDR_PROJECTION_AUTHORITY_BOUNDARY_NO_REAL_RENDER_YET",
+  "source_authority": {
+    "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "immutable_source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "source_white_censored_samples": 217,
+    "scientific_master_sha256": null,
+    "dynamic_authority_sha256": null,
+    "real_projection_binding_complete": false
+  },
+  "empirical_basis": {
+    "adobe_counterbalanced_state": "state/ADOBE_LIGHTROOM_HDR_COUNTERBALANCED_TONE_V14_STATE.json",
+    "neutral_p3_pq_maxcll_nits": 1391,
+    "counterbalanced_p3_pq_maxcll_nits": 10000,
+    "counterbalanced_decoded_luma_ceiling_fraction": 0.000020532088675433894,
+    "counterbalanced_decoded_luma_ge_1000_fraction": 0.000025121614379354414,
+    "duplicate_counterbalanced_decoded_render_identical": true,
+    "same_source_cfa_multiple_presentations": true
+  },
+  "v15_contract": {
+    "runtime": "tools/truthraw_hdr_projection_v15.py",
+    "tests": "tests/test_truthraw_hdr_projection_v15.py",
+    "documentation": "docs/research/truthraw-hdr-projection-v1.5/README.md",
+    "separates_scientific_and_presentation_headroom": true,
+    "preserves_source_authority_class": true,
+    "preserves_uncertainty": true,
+    "censored_exact_projection_allowed": false,
+    "unknown_exact_projection_allowed": false,
+    "counterfactual_or_appearance_as_science_allowed": false,
+    "adobe_hdr_limit_defines_scientific_headroom": false,
+    "pq_maxcll_defines_sensor_dynamic_range": false,
+    "scientific_master_writeback_from_presentation": false,
+    "fixed_scene_dynamic_range_ceiling_ev": null
+  },
+  "presentation_transport": {
+    "supported_primaries": ["P3_D65", "REC709", "REC2020"],
+    "transfer": "SMPTE_ST_2084_PQ",
+    "minimum_bit_depth": 10,
+    "allowed_chroma": ["4:4:4", "RGB"],
+    "pq_ceiling_nits": 10000,
+    "tone_curve_hash_bound": true,
+    "adobe_interop_hdr_limit_metadata_optional": true
+  },
+  "scientific_headroom_semantics": {
+    "nominal_supported_peak": "max positive TruthRange among MEASURED/CALIBRATED_ESTIMATE/RECONSTRUCTED",
+    "conservative_p95_supported_peak": "max positive TruthRange of estimate minus p95 uncertainty",
+    "censored_peak": "lower-bound TruthRange only, never exact recovered radiance",
+    "presentation_peak_is_separate": true
+  },
+  "next_gates": [
+    "bind exact real Scientific Master SHA for the immutable source CFA",
+    "bind exact real Dynamic Authority Field SHA for the same Scientific Master",
+    "generate a TruthRaw-owned P3-D65/PQ image render and manifest without authority writeback",
+    "validate encoded pixel transport, color primaries, transfer, bit depth and clipping diagnostics",
+    "round-trip the TruthRaw-owned HDR render through Lightroom and verify only presentation state changes"
+  ],
+  "promotion_rule": "Do not promote v1.5 to main until an exact real Scientific Master and Dynamic Authority Field are hash-bound and at least one TruthRaw-owned HDR image render has passed a Lightroom round-trip without scientific-authority writeback."
+}
