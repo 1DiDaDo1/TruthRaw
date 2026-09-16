@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 35
-        versionCode = 15
-        versionName = "0.15-main-plus-fotograaf-v0.8-crash-diagnostic-200mp"
+        versionCode = 16
+        versionName = "0.16-main-plus-fotograaf-v0.9-textureview-crash-fixed-200mp"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
