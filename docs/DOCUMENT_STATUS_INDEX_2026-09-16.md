@@ -74,7 +74,9 @@ The following later research families materially contribute to the 2026-09-16 gl
 - scene physics / light / colour / structure / HDR foundation: `docs/research/scene-physics-calibration-structure-hdr-v0.1/README.md`;
 - conservation/restoration authority foundation: `docs/research/conservation-restoration-authority-v0.1/README.md`;
 - Camera-5 200 MP Android contract guard v0.4: `tools/camera5_200mp_android_contract_v04.py` + `tests/test_camera5_200mp_android_contract_v04.py`;
-- restoration authority guard v0.1: `tools/restoration_authority_v01.py` + `tests/test_restoration_authority_v01.py`.
+- restoration authority guard v0.1: `tools/restoration_authority_v01.py` + `tests/test_restoration_authority_v01.py`;
+- Open Scene Region runtime v0.7: `docs/research/open-scene-region-runtime-v0.7/README.md`, `tools/open_scene_region_runtime_v07.py`, `tests/test_open_scene_region_runtime_v07.py`;
+- Camera-5 final Step-3B promotion gate v0.8: `tools/camera5_200mp_step3b_promotion_v08.py` + `tests/test_camera5_200mp_step3b_promotion_v08.py`.
 
 Their module-local documents remain evidence for the exact versions they describe. Their cross-module interpretation is consolidated in the current architecture, current supplement, history and handoff documents.
 
@@ -88,9 +90,29 @@ The following are now explicit global research rules:
 - sample count is not optical resolution; 200,540,160 samples do not by themselves prove 200,540,160 independently resolved scene details;
 - HDR scene range, sensor/capture evidence range, Scientific-Master representation range and display/transport range remain separate;
 - conservation/restoration contributes a permanent provenance rule: preserve original support, document condition, keep compensation for loss identifiable/retreatable, and never overpaint valid measured support in the scientific master;
-- a visually seamless repair may remain scientifically `RECONSTRUCTED`, `CENSORED`, `UNKNOWN` or appearance-only according to its evidence.
+- a visually seamless repair may remain scientifically `RECONSTRUCTED`, `CENSORED`, `UNKNOWN` or appearance-only according to its evidence;
+- Open Scene Region v0.7 binds radiometric authority, colour-calibration authority, illumination authority, Structure Evidence, HDR status and restoration permission into one source/master/Dynamic-Authority lineage without merging their meanings.
 
-## G. Superseded results that must stay visible
+## G. Current 200 MP implementation boundary
+
+The 200 MP path now has four distinct software gates, none of which substitutes for a real device capture:
+
+1. static Camera-5 capability contract — advertised maximum-resolution route;
+2. runtime v0.7 — real payload/hash/timestamp/stride proof when supplied;
+3. evidence bundle v0.3 — RAW_SENSOR -> canonical CFA -> DNG CFA/topology identity;
+4. Step-3B promotion v0.8 — minimum capture metadata + all prior proof bindings before the bounded claim may be emitted.
+
+Step-3B v0.8 requires, among other things, Camera-5 result identity, applied maximum-resolution mode, timestamp binding, payload identity/stride facts, CFA/black/white levels, exposure, ISO, focus and stabilization state, explicit availability of NoiseProfile/shading metadata, exact 200,540,160 canonical samples and the v0.3 topology bundle.
+
+The final bounded future claim is still only:
+
+`APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_PROVEN`
+
+and never automatically:
+
+`UNTOUCHED_NATIVE_200MP_ADC`.
+
+## H. Superseded results that must stay visible
 
 The following are not current authority but must not be deleted:
 
@@ -102,7 +124,7 @@ The following are not current authority but must not be deleted:
 - any wording that treats Adobe Gain Map as an additional exposure/evidence source;
 - any restoration/repair wording that would relabel inferred replacement content as original measured support.
 
-## H. Open blockers that documentation must not hide
+## I. Open blockers that documentation must not hide
 
 1. Exact historical `uncertainty_core_v5_0g.py` source (10,023 bytes) remains missing; semantic guessing is forbidden.
 2. A qualifying physical Camera-5 16320x12288 RAW_SENSOR evidence set remains required for 200 MP promotion.
@@ -112,13 +134,13 @@ The following are not current authority but must not be deleted:
 6. The current Camera-5 `SENSOR_INFO_BINNING_FACTOR=2x2` metadata is recorded as vendor-metadata tension and does not prove a 2x2 same-colour app-visible CFA.
 7. A future 16320x12288 raster proof still requires separate optical/SFR, noise/PTC, shading, colour and readout-domain uncertainty gates.
 
-## I. Branch/governance note
+## J. Branch/governance note
 
 The 2026-09-16 integration work is intentionally staged on a dedicated integration branch based on the later open-world research state. Branch naming or a green research test does not itself constitute canonical promotion.
 
 The repository default branch may lag later research states. Always inspect actual branch/ref identity before making claims about what is “on main”.
 
-## J. Editing rule going forward
+## K. Editing rule going forward
 
 When new evidence changes global understanding:
 
