@@ -1,0 +1,1 @@
+v0.12 on-device observation: globalMAX=false, physicalMAX=true, physicalOverrideAdvertised=false. Do not treat globalMAX as mandatory for a stream bound to physical camera 5; AOSP checks sensor-pixel-mode consistency per resolved camera-id/high-resolution stream intersection before filtering unsupported physical keys.
