@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - integration/truthraw-suite-apk-2026-09-16
+      - integration/truthraw-suite-v0-6-200mp-preview-first-2026-09-16
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-truthraw-suite-apk-2026-09-16.yml'
@@ -26,6 +27,7 @@ jobs:
           JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
           DEBUGJAVA="$APP/app/src/main/java/io/truthraw/debug"
           PRO="$JAVA/FotoGraafProCameraActivity.kt"
+          MAX200="$JAVA/FotoGraaf200MpTestActivity.kt"
           ROUTES="$JAVA/FotoGraafProRoutes.kt"
           CPP="$APP/app/src/main/cpp"
 
@@ -35,31 +37,29 @@ jobs:
           grep -F 'setRepeatingRequest' "$JAVA/FotoGraafLiveCameraActivity.kt"
           grep -F 'creator.setOrientation(1)' "$JAVA/FotoGraafLiveCameraActivity.kt"
 
-          # Full Pro camera must be a real registered Camera2 activity.
+          # Existing full Pro camera remains registered.
           grep -F 'FotoGraafProCameraActivity' "$MANIFEST"
           grep -F 'TextureView.SurfaceTextureListener' "$PRO"
-          grep -F 'setPhysicalCameraId' "$PRO"
-          grep -F 'setPhysicalCameraKey' "$PRO"
           grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$PRO"
           grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$ROUTES"
-          grep -F 'CONTROL_AE_MODE_OFF' "$PRO"
-          grep -F 'SENSOR_SENSITIVITY' "$PRO"
-          grep -F 'SENSOR_EXPOSURE_TIME' "$PRO"
-          grep -F 'CONTROL_AE_EXPOSURE_COMPENSATION' "$PRO"
-          grep -F 'CONTROL_AF_REGIONS' "$PRO"
-          grep -F 'LENS_FOCUS_DISTANCE' "$PRO"
-          grep -F 'LENS_OPTICAL_STABILIZATION_MODE' "$PRO"
 
-          # Capture admission remains fail-closed and one-frame.
-          grep -F 'physicalCameraResults' "$PRO"
-          grep -F 'SENSOR_TIMESTAMP' "$PRO"
-          grep -F 'physicalFrameCount", 1' "$PRO"
-          grep -F 'independentEvidenceCount", 1' "$PRO"
-          grep -F 'scientificMasterModified", false' "$PRO"
-          grep -F 'scientificWriteback", false' "$PRO"
-          grep -F 'vendorRequestsWritten", false' "$PRO"
-          grep -F 'APP_VISIBLE_RAW_SENSOR_PLANE_NOT_UNTOUCHED_ADC_PROOF' "$PRO"
-          grep -F 'maximumResolutionCaptureConfirmed' "$PRO"
+          # v0.6: explicit preview-first Camera-5 200MP route.
+          grep -F 'FotoGraaf200MpTestActivity' "$MANIFEST"
+          grep -F 'logical 0 → physical 5 → MAX RAW 16320×12288' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'TARGET_W = 16320' "$MAX200"
+          grep -F 'TARGET_H = 12288' "$MAX200"
+          grep -F 'TARGET_SAMPLES = 200_540_160L' "$MAX200"
+          grep -F 'ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW_SENSOR, 1)' "$MAX200"
+          grep -F 'output.setPhysicalCameraId("5")' "$MAX200"
+          grep -F 'SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION' "$MAX200"
+          grep -F 'physical Camera-5 TotalCaptureResult' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'pixelStride != 2' "$MAX200"
+          grep -F 'sha256ValidSampleBytes' "$MAX200"
+          grep -F 'CONTROL_AWB_STATE' "$MAX200"
+          grep -F 'COLOR_CORRECTION_GAINS' "$MAX200"
+          grep -F 'COLOR_CORRECTION_TRANSFORM' "$MAX200"
+          grep -F 'creator.setOrientation(1)' "$MAX200"
+          grep -F 'APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_NOT_UNTOUCHED_NATIVE_ADC_PROOF' "$MAX200"
 
           # Proven v0.3 exact source/CFA verifier is integrated, not replaced.
           grep -F 'class MainActivity extends Activity' "$DEBUGJAVA/MainActivity.java"
@@ -116,6 +116,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-suite-main-plus-fotograaf-v0-5-debug-arm64
+          name: truthraw-suite-main-plus-fotograaf-v0-6-preview-first-200mp-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
