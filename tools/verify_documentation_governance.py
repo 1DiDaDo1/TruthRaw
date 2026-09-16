@@ -1,103 +1,162 @@
 #!/usr/bin/env python3
+"""TruthRaw documentation governance verifier.
+
+The verifier follows the living 2026-09-16 integration architecture while
+preserving older dated snapshots as historical provenance. It deliberately does
+not require an older file merely because its filename contains CURRENT.
+"""
 from pathlib import Path
-import json, re, sys
+import json
+import re
+import sys
 
 repo = Path(__file__).resolve().parents[1]
-errors = []
+errors: list[str] = []
 
-def need(path):
+
+def need(path: str) -> str:
     p = repo / path
     if not p.exists():
         errors.append(f"missing:{path}")
         return ""
     return p.read_text(encoding="utf-8")
 
+
 root_readme = need("README.md")
 bootstrap = need("START_HERE_NEW_CHAT.md")
-index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-10.md")
-house = need("docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md")
-state_text = need("state/CURRENT_CANONICAL_STATE_2026-09-10.json")
+architecture = need("docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md")
+index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-16.md")
+history = need("docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md")
+handoff = need("docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md")
+state_text = need("state/CURRENT_PROJECT_STATE_2026-09-16.json")
 need("state/README.md")
 
-for required in (
-    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
-    "state/CURRENT_CANONICAL_STATE_2026-09-10.json",
-    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
-):
-    if required not in root_readme:
-        errors.append(f"root_readme_missing_pointer:{required}")
-    if required not in bootstrap and required != "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md":
-        errors.append(f"bootstrap_missing_pointer:{required}")
+# New research foundations that the current integration line explicitly carries.
+need("docs/research/scene-physics-calibration-structure-hdr-v0.1/README.md")
+need("docs/research/conservation-restoration-authority-v0.1/README.md")
 
-for old in (
+current_pointers = (
+    "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md",
+    "state/CURRENT_PROJECT_STATE_2026-09-16.json",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-16.md",
+    "docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md",
+    "docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md",
+)
+for required in current_pointers:
+    if required not in root_readme:
+        errors.append(f"root_readme_missing_current_pointer:{required}")
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_pointer:{required}")
+
+# Historical snapshots remain present and classified, but are not global-current.
+historical = (
+    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
+    "state/CURRENT_CANONICAL_STATE_2026-09-10.json",
     "state/CURRENT_CANONICAL_STATE_2026-09-06.json",
     "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
     "state/CURRENT_CANONICAL_STATE_2026-09-09.json",
     "docs/PROJECT_STATE_AUDIT_2026-09-08.md",
-):
+)
+for old in historical:
     if not (repo / old).exists():
         errors.append(f"historical_snapshot_missing:{old}")
     if old not in index:
         errors.append(f"historical_snapshot_not_classified:{old}")
 
-m = re.search(r"## Mandatory reading order\n([\s\S]*?)(?=\n## )", bootstrap)
+# Current bootstrap must have a numbered reading-order section. Historical state
+# files may be mentioned as provenance but may not lead that order.
+m = re.search(r"## Mandatory current reading order\n([\s\S]*?)(?=\n## )", bootstrap)
 mandatory = m.group(1) if m else ""
 if not m:
-    errors.append("mandatory_reading_order_section_missing")
-if re.search(r"^\s*\d+\..*CURRENT_CANONICAL_STATE_2026-09-(06|08|09)", mandatory, re.MULTILINE):
-    errors.append("old_state_in_mandatory_reading_order")
+    errors.append("mandatory_current_reading_order_section_missing")
+if re.search(
+    r"^\s*\d+\..*CURRENT_(?:CANONICAL_STATE|HOUSE_ARCHITECTURE)_2026-09-(?:06|08|09|10)",
+    mandatory,
+    re.MULTILINE,
+):
+    errors.append("historical_state_in_current_mandatory_reading_order")
 
 try:
     state = json.loads(state_text)
 except Exception as exc:
-    errors.append(f"current_state_invalid_json:{exc}")
+    errors.append(f"current_project_state_invalid_json:{exc}")
     state = {}
 
-hist = set(state.get("historical_snapshots_not_bootstrap", []))
-for old in (
-    "state/CURRENT_CANONICAL_STATE_2026-09-06.json",
-    "state/CURRENT_CANONICAL_STATE_2026-09-08.json",
-    "state/CURRENT_CANONICAL_STATE_2026-09-09.json",
-):
-    if old not in hist:
-        errors.append(f"current_state_does_not_mark_historical:{old}")
+if state.get("schema") != "TruthRawCurrentProjectState/2026-09-16":
+    errors.append("current_project_state_schema_mismatch")
+if state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
+    errors.append("current_project_state_status_mismatch")
 
-entries = set(state.get("authoritative_entrypoints", []))
+laws = state.get("scientific_laws") or {}
+for key, expected in {
+    "source_evidence_immutable": True,
+    "representation_may_exceed_source": True,
+    "knowledge_claims_may_not_exceed_evidence": True,
+    "measured_may_not_be_relabelled_from_reconstruction": True,
+    "counterfactual_may_not_be_relabelled_as_capture_evidence": True,
+    "appearance_or_transport_may_upgrade_authority": False,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+}.items():
+    if laws.get(key) != expected:
+        errors.append(f"scientific_law_mismatch:{key}")
+
+if (state.get("governance") or {}).get("current_navigation") != "docs/DOCUMENT_STATUS_INDEX_2026-09-16.md":
+    errors.append("current_navigation_not_2026_09_16_index")
+
+# Guard the current 200 MP boundary.
+camera5 = state.get("camera5_maximum_resolution") or {}
+if camera5.get("qualifying_raw_sensor_evidence_supplied") is not False:
+    errors.append("camera5_200mp_runtime_evidence_must_remain_open_until_real_capture")
+if camera5.get("forbidden_unproven_claim") != "UNTOUCHED_NATIVE_200MP_ADC":
+    errors.append("camera5_200mp_forbidden_claim_guard_missing")
+
+# The new research foundations must be discoverable from current governance.
 for p in (
-    "README.md",
-    "START_HERE_NEW_CHAT.md",
-    "docs/CURRENT_HOUSE_ARCHITECTURE_2026-09-10.md",
-    "docs/DOCUMENT_STATUS_INDEX_2026-09-10.md",
-    "state/CURRENT_CANONICAL_STATE_2026-09-10.json",
+    "docs/research/scene-physics-calibration-structure-hdr-v0.1/README.md",
+    "docs/research/conservation-restoration-authority-v0.1/README.md",
 ):
-    if p not in entries:
-        errors.append(f"missing_authoritative_entrypoint:{p}")
+    if p not in index and p not in architecture and p not in history:
+        errors.append(f"current_research_foundation_not_indexed:{p}")
 
-for p in entries:
-    if p.startswith("docs/research/"):
-        errors.append(f"research_readme_must_not_be_global_entrypoint:{p}")
-
+# README-like files are version-local unless explicitly global-current.
 for p in repo.rglob("*"):
     if not p.is_file():
         continue
     rel = p.relative_to(repo).as_posix()
     name = p.name
-    if not (name.startswith("README") or name == "START_HERE_NEW_CHAT.md" or
-            re.match(r"CURRENT_CANONICAL_STATE_\d{4}-\d{2}-\d{2}\.json$", name) or
-            re.match(r"PROJECT_STATE_AUDIT_\d{4}-\d{2}-\d{2}\.md$", name)):
+    if not (
+        name.startswith("README")
+        or name == "START_HERE_NEW_CHAT.md"
+        or re.match(r"CURRENT_(?:CANONICAL|PROJECT)_STATE_\d{4}-\d{2}-\d{2}\.json$", name)
+        or re.match(r"PROJECT_STATE_AUDIT_\d{4}-\d{2}-\d{2}\.md$", name)
+    ):
         continue
     classified = (
-        rel in {"README.md","START_HERE_NEW_CHAT.md","state/README.md"} or
-        rel.startswith("canonical/") or rel.startswith("docs/research/") or
-        rel.startswith("capture/") or rel.startswith("docs/calibration/") or
-        rel.startswith("tests/") or rel.startswith("android/") or
-        rel.startswith("state/CURRENT_CANONICAL_STATE_") or
-        rel.startswith("docs/PROJECT_STATE_AUDIT_")
+        rel in {"README.md", "START_HERE_NEW_CHAT.md", "state/README.md"}
+        or rel.startswith("canonical/")
+        or rel.startswith("docs/research/")
+        or rel.startswith("capture/")
+        or rel.startswith("docs/calibration/")
+        or rel.startswith("tests/")
+        or rel.startswith("android/")
+        or rel.startswith("state/CURRENT_CANONICAL_STATE_")
+        or rel == "state/CURRENT_PROJECT_STATE_2026-09-16.json"
+        or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
     if not classified:
         errors.append(f"unclassified_readme_like_path:{rel}")
 
-for text, label in ((root_readme,"root"),(bootstrap,"bootstrap"),(house,"house"),(index,"index")):
+# PTC acronym guard remains permanent.
+for text, label in (
+    (root_readme, "root"),
+    (bootstrap, "bootstrap"),
+    (architecture, "architecture"),
+    (index, "index"),
+    (history, "history"),
+    (handoff, "handoff"),
+):
     if "canonical/ptc/v1.1" in text and "Pure Truth Certificate" not in text:
         errors.append(f"ptc_name_guard_missing:{label}")
 
@@ -108,6 +167,8 @@ if errors:
     sys.exit(1)
 
 print("DOCUMENTATION_GOVERNANCE_PASS")
-print("authoritative_entrypoints=5")
-print("historical_current_state_snapshots=3")
-print("zero_line_storage=IMMUTABLE_SHARED_SINGLE_BINDING")
+print("current_navigation=2026-09-16")
+print("historical_snapshots_preserved=7")
+print("source_evidence=IMMUTABLE")
+print("free_scientific_space=OPEN_WORLD_EVIDENCE_BOUNDED")
+print("camera5_200mp_runtime_gate=OPEN_REAL_CAPTURE_REQUIRED")
