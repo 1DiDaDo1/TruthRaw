@@ -23,15 +23,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Fetch all reachable branch and tag history
+      - name: Fetch all advertised branch and tag history
         run: |
           git fetch --force --tags --prune origin '+refs/heads/*:refs/remotes/origin/*'
+      - name: Recover known detached v4.7i byte-exact staging commit
+        run: |
+          # This commit remains directly addressable by GitHub but is no longer
+          # reachable from an advertised branch ref. It is recovery evidence
+          # only; this local ref does not promote staging code.
+          git fetch --force origin \
+            36cd2ca16946a412fa28f04b70ae2f423167fb43:refs/recovery/v47i-byte-exact
+          test "$(git rev-parse refs/recovery/v47i-byte-exact)" = \
+            "36cd2ca16946a412fa28f04b70ae2f423167fb43"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Unit-test historical recovery method
         run: python -m unittest -v tests.test_recover_v19_historical_lineage_v01
-      - name: Scan full TruthRaw Git history against frozen SHA-256 identities
+      - name: Scan recovered TruthRaw Git objects against frozen SHA-256 identities
         run: |
           mkdir -p build/recovered-v19
           python tools/recover_v19_historical_lineage_v01.py \
