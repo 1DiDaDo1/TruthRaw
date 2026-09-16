@@ -12,10 +12,11 @@ The living bootstrap for the consolidated 2026-09-16 research state is:
 
 1. `START_HERE_NEW_CHAT.md`
 2. `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-3. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
-4. `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
-5. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-6. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+3. `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md`
+4. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
+5. `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
+6. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+7. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
 
 Older dated state files, handoffs, audits and module READMEs are intentionally retained as provenance. They remain authoritative for the exact experiment/module/version they describe, but they are not automatically the current global project state.
 
@@ -34,6 +35,43 @@ Free Scientific Space is not permission to invent evidence. It means the represe
 Current high-level flow:
 
 `sealed source evidence -> measurement/de-ISP -> Scientific Master in Free Scientific Space -> Dynamic Authority -> Open Scene State -> optional counterfactual/appearance state -> finite projection/export`
+
+## Scene physics now explicitly bound
+
+The current integration line treats light, colour, detail and HDR as coupled properties of one authority-bound scene state rather than four independent enhancement effects.
+
+The forward chain is conceptually:
+
+`illumination -> geometry/visibility -> material response -> outgoing radiance -> optics -> sensor/CFA/noise -> RAW evidence`
+
+Important consequences:
+
+- inverse-square falloff is conditional on source geometry; it is not a generic “farther from camera = darker” rule;
+- shadows may alter direct, ambient and spectral illumination differently;
+- relighting needs geometry/material/visibility/illumination support or remains `COUNTERFACTUAL`;
+- source/DNG colour matrices can bind a reproducible transform but are not automatically independent physical calibration;
+- CIE standard illuminants such as D65 are references, not proof of the actual scene illuminant;
+- sample count is not optical resolution; SFR/MTF/detail authority needs its own evidence;
+- scene radiance range, sensor evidence range, Scientific-Master representation range and display/HDR transport range stay distinct.
+
+Detailed current rules are in `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md` and `docs/research/scene-physics-calibration-structure-hdr-v0.1/README.md`.
+
+## Conservation/restoration is now a formal provenance model
+
+TruthRaw's historical Restorer room is not a beauty filter. Professional conservation practice contributed a stronger operational rule:
+
+> **Preserve the original, document the condition, separate intervention from original material, and keep compensation for loss detectable and retreatable where practicable.**
+
+Digital mapping:
+
+- valid measured CFA support is analogous to surviving original material and may not be overpainted in the scientific master;
+- missing/damaged support may be reconstructed only under explicit support/provenance and remains `RECONSTRUCTED`;
+- censored support remains a bound;
+- unsupported loss remains `UNKNOWN`/unresolved;
+- aesthetic reintegration may be visually seamless but has no scientific writeback;
+- every repair remains traceable to source/master/authority/transformation identity.
+
+The machine guard is `tools/restoration_authority_v01.py`, with regression tests in `tests/test_restoration_authority_v01.py`.
 
 ## Dynamic Authority
 
@@ -100,6 +138,8 @@ For the current master:
 
 A saturated CFA sample is censored evidence: it can support a bound, not an invented exact latent radiance.
 
+A genuinely independent physical modality may add evidence only under a new explicit admission contract. Virtual exposure, relighting, tone, generative fill and restoration presentation do not.
+
 ## HDR and Adobe boundary
 
 TruthRaw scientific HDR is derived from the Scientific Master plus authority/support, not from a display Gain Map. `UNKNOWN` contributes no scientific HDR headroom; a censored highlight does not get an exact invented radiance.
@@ -123,11 +163,29 @@ The report explicitly does **not** claim on-device recomputation of the Scientif
 
 ## FotoGraaf / Camera 5 / 200 MP boundary
 
-The acquisition/metrology path is upstream of reconstruction. The verified 4080x3072 tele route and the proposed maximum-resolution route must not be conflated.
+FotoGraaf is acquisition/metrology upstream of reconstruction. The verified 4080x3072 tele route and the proposed maximum-resolution route remain separate claims.
 
-A future successful 16320x12288 Camera-5 RAW_SENSOR capture may prove an app-visible maximum-resolution CFA route, but must not be relabelled as untouched native photodiode/ADC output without separate evidence.
+Current static Camera-5 evidence advertises:
 
-4080x3072, 8160x6144 and 16320x12288 are separate sample/readout domains until measurements demonstrate model transferability. No uncertainty model is borrowed merely because the physical lens/camera is related.
+- physical camera `5`;
+- `ULTRA_HIGH_RESOLUTION_SENSOR=true`;
+- `REMOSAIC_REPROCESSING=false`;
+- maximum pixel array `16320x12288` (`200,540,160` samples);
+- high-resolution `RAW_SENSOR 16320x12288` and `RAW10 16320x12288` routes.
+
+Android's UHR contract implies regular Bayer RAW_SENSOR when remosaic reprocessing is not advertised. The simultaneously reported `SENSOR_INFO_BINNING_FACTOR=2x2` is retained as vendor-metadata tension, not proof of a 2x2 same-colour app-visible CFA.
+
+The new bounded contract guard is `tools/camera5_200mp_android_contract_v04.py`.
+
+The physical gate remains open:
+
+`OPEN_NEEDS_REAL_16320x12288_RAW_PAYLOAD_AND_TOTALCAPTURERESULT_BINDING`
+
+A future successful real capture may prove `APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_PROVEN`; it must not be relabelled `UNTOUCHED_NATIVE_200MP_ADC` without separate evidence.
+
+4080x3072, 8160x6144 and 16320x12288 are separate sample/readout domains until measurements demonstrate model transferability. No uncertainty/calibration is borrowed merely because the physical lens/camera is related.
+
+A 200 MP raster proof would still not prove 200 MP optical detail. SFR/MTF/PSF, noise/PTC, shading and colour/calibration remain separate gates.
 
 ## Current hard blockers
 
@@ -135,6 +193,7 @@ A future successful 16320x12288 Camera-5 RAW_SENSOR capture may prove an app-vis
 - a true qualifying 16320x12288 Camera-5 RAW_SENSOR + bound capture-result evidence set is still required for physical 200 MP promotion;
 - FULL_PHYSICAL color/illuminant/optics claims remain evidence-gated;
 - counterfactual light is hypothetical state, not captured evidence;
+- restoration/loss compensation may never overpaint valid measured support or become measured by appearance;
 - public API stability beyond the explicitly canonicalized interfaces is not implied by research success.
 
 ## Permanent boundaries
