@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 
 /** Stable front door for the Main + FotoGraaf lineage. */
@@ -21,7 +22,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         setContentView(buildUi())
     }
 
-    private fun buildUi(): LinearLayout {
+    private fun buildUi(): ScrollView {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
@@ -29,13 +30,18 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setPadding(dp(24), dp(20), dp(24), dp(24))
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             )
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
                 view.setPadding(dp(24) + bars.left, dp(20) + bars.top, dp(24) + bars.right, dp(24) + bars.bottom)
                 insets
             }
+        }
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+            setBackgroundColor(Color.rgb(15, 17, 20))
+            addView(root)
         }
 
         root.addView(TextView(this).apply {
@@ -45,38 +51,36 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "0.1-main-plus-FotoGraaf · camera v0.4.3 diagnostic bootstrap"
+            text = "0.1-main-plus-FotoGraaf · integrated build 2026-09-16"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Deze build opent FotoGraaf eerst zonder CameraManager of preview. Camera2, HONOR inventory en preview worden daarna afzonderlijk gestart zodat een crash exact aan één laag kan worden gekoppeld."
+            text = "Één app met de bestaande TruthRaw processor, FotoGraaf Camera2-acquisitie en de op de HONOR bewezen v0.3 source/CFA-verifier. Wetenschappelijke referenties blijven fail-closed: verifier, preview en export schrijven niets terug naar Scientific Master of Dynamic Authority."
             textSize = 14f
             setTextColor(Color.rgb(170, 177, 188))
             setPadding(0, 0, 0, dp(22))
         })
 
-        root.addView(actionButton("FotoGraaf diagnostic openen") {
+        root.addView(actionButton("FotoGraaf camera & diagnostics") {
             startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
         })
         root.addView(space())
-        root.addView(actionButton("TruthRaw processor openen") {
+        root.addView(actionButton("TruthRaw processor") {
             startActivity(Intent(this, MainActivity::class.java))
         })
         root.addView(space())
-        root.addView(TextView(this).apply {
-            text = "BUILD-ID zichtbaar: v0.4.3. Zie je hier nog ‘v0.4 live’, dan draait Android nog een oudere APK."
-            textSize = 12f
-            setTextColor(Color.rgb(220, 190, 120))
-            setPadding(0, 0, 0, dp(12))
+        root.addView(actionButton("Device verification v0.3 · source + CFA") {
+            startActivity(Intent(this, io.truthraw.debug.MainActivity::class.java))
         })
+        root.addView(space())
         root.addView(TextView(this).apply {
-            text = "Authority boundary: discovery, preview en HONOR metadata veranderen geen evidence. Alleen runtime Camera2-resultaat + sealed RAW kunnen capture-evidence leveren."
+            text = "Camera authority: runtime Camera2-resultaat + exact gekoppelde RAW kunnen nieuwe capture-evidence leveren. Discovery, live preview, HONOR metadata, DNG-presentatie en de verifier zelf verhogen geen bestaande wetenschappelijke authority."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
-        return root
+        return scroll
     }
 
     private fun actionButton(label: String, action: () -> Unit): Button = Button(this).apply {
