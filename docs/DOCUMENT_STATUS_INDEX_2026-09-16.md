@@ -76,6 +76,7 @@ The following later research families materially contribute to the 2026-09-16 gl
 - Camera-5 200 MP Android contract guard v0.4: `tools/camera5_200mp_android_contract_v04.py` + `tests/test_camera5_200mp_android_contract_v04.py`;
 - restoration authority guard v0.1: `tools/restoration_authority_v01.py` + `tests/test_restoration_authority_v01.py`;
 - Open Scene Region runtime v0.7: `docs/research/open-scene-region-runtime-v0.7/README.md`, `tools/open_scene_region_runtime_v07.py`, `tests/test_open_scene_region_runtime_v07.py`;
+- streamed full-frame Open Scene State v0.8: `docs/research/open-scene-state-stream-v0.8/README.md`, `tools/open_scene_state_stream_v08.py`, `tests/test_open_scene_state_stream_v08.py`;
 - Camera-5 final Step-3B promotion gate v0.8: `tools/camera5_200mp_step3b_promotion_v08.py` + `tests/test_camera5_200mp_step3b_promotion_v08.py`.
 
 Their module-local documents remain evidence for the exact versions they describe. Their cross-module interpretation is consolidated in the current architecture, current supplement, history and handoff documents.
@@ -91,7 +92,8 @@ The following are now explicit global research rules:
 - HDR scene range, sensor/capture evidence range, Scientific-Master representation range and display/transport range remain separate;
 - conservation/restoration contributes a permanent provenance rule: preserve original support, document condition, keep compensation for loss identifiable/retreatable, and never overpaint valid measured support in the scientific master;
 - a visually seamless repair may remain scientifically `RECONSTRUCTED`, `CENSORED`, `UNKNOWN` or appearance-only according to its evidence;
-- Open Scene Region v0.7 binds radiometric authority, colour-calibration authority, illumination authority, Structure Evidence, HDR status and restoration permission into one source/master/Dynamic-Authority lineage without merging their meanings.
+- Open Scene Region v0.7 binds radiometric authority, colour-calibration authority, illumination authority, Structure Evidence, HDR status and restoration permission into one source/master/Dynamic-Authority lineage without merging their meanings;
+- streamed Open Scene State v0.8 aggregates those validated region decisions into a hardware-chunk-independent full-frame authority identity; execution chunking must not change scientific identity.
 
 ## G. Current 200 MP implementation boundary
 
@@ -133,6 +135,7 @@ The following are not current authority but must not be deleted:
 5. Counterfactual/appearance/transport state remains non-evidence.
 6. The current Camera-5 `SENSOR_INFO_BINNING_FACTOR=2x2` metadata is recorded as vendor-metadata tension and does not prove a 2x2 same-colour app-visible CFA.
 7. A future 16320x12288 raster proof still requires separate optical/SFR, noise/PTC, shading, colour and readout-domain uncertainty gates.
+8. Open Scene v0.7/v0.8 are validated contracts/runtimes, but the frozen real 4080x3072 source has not yet been re-emitted through them as a new full-frame Open Scene State artifact.
 
 ## J. Branch/governance note
 
