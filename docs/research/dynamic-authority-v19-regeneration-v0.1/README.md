@@ -1,39 +1,27 @@
-# Dynamic Authority v1.9 regeneration — v0.1 readiness foundation
+# Dynamic Authority v1.9 regeneration — v0.1 recovery and falsification foundation
 
-Status: **RESEARCH FOUNDATION / REGENERATION READINESS ONLY / NOT A NEW AUTHORITY FIELD**
+Status: **RESEARCH FOUNDATION / REQUIRED HISTORICAL SOURCE RECOVERY PASS / FIELD REGENERATION STILL OPEN**
 
 Date: 2026-09-16
 
-This note records the exact boundary between the historical Dynamic Authority v1.9 recomputation evidence and the next independent streaming-regeneration attempt.
+This note records the boundary between the historical Dynamic Authority v1.9 observation and the new independent streaming-regeneration attempt.
 
 It exists to prevent two opposite errors:
 
-1. falsely claiming that v1.9 is lost merely because the 37,601,280-record payload was not stored as a repository artifact;
-2. falsely claiming that a new implementation is equivalent merely because it reproduces aggregate authority counts.
+1. claiming that v1.9 is lost because the 37,601,280-record payload was not stored as a repository artifact;
+2. claiming a new implementation is equivalent merely because it reproduces aggregate counts or plausible-looking authority state.
 
-## 1. Historical-chat recovered knowledge
+## 1. Frozen v1.9 identity remains the falsification target
 
-The previous TruthRaw development conversation had already distinguished the v1.9 **identity** from persistent storage of the full authority payload. It knew that the earlier implementation had computed/frozen the field identity and that a persistent/streaming artifact path was still a subsequent engineering gate.
-
-That historical knowledge is useful context, but the current regeneration decision is not based on memory alone. The repository state below independently records the same boundary.
-
-## 2. Repository-verified frozen v1.9 state
-
-`state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json` records:
+`state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json` records that:
 
 - `payload_persisted_by_v19 = false`;
 - `identity_deterministically_recomputable = true`;
-- exact source DNG and decoded-CFA identities;
-- exact Scientific Master identity;
-- exact overall and per-channel Dynamic Authority digests;
-- exact authority counts;
-- two successful recomputations with distinct execution-band sizes (`192` and `257`) and `PASS_IDENTICAL` partition invariance.
+- source DNG, decoded CFA and Scientific Master identities were frozen;
+- full-field and per-channel Dynamic Authority digests were frozen;
+- two recomputations with execution-band sizes `192` and `257` produced identical output.
 
-Therefore:
-
-> **Absence of the historical full payload is not evidence that the scientific identity was unreproducible.**
-
-The frozen field identity remains:
+Frozen field identity:
 
 `7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098`
 
@@ -43,122 +31,199 @@ Per-channel identities:
 - G: `38b742784513e7f70fc31a6f39c6227617fe8719705f544c48524ffbfacc8a1f`
 - B: `ab2ab62c7d6d2d29fc915374773ccdb805e1ee4870a38d7e523ae9074efe932f`
 
-Frozen authority counts:
+Frozen counts:
 
 - `CALIBRATED_ESTIMATE = 12,533,543`
 - `RECONSTRUCTED = 25,067,086`
 - `CENSORED = 217`
 - `UNKNOWN = 434`
 
-Total RGB authority records:
+Total records:
 
 `4080 * 3072 * 3 = 37,601,280`.
 
-## 3. Exact historical implementation lineage
+## 2. Historical source recovery is now SHA-256 proven
 
-`tools/truthraw_hdr_dynamic_authority_binding_v19.py` freezes 13 implementation SHA-256 entries used for the empirical v1.9 observation:
+Earlier on 15/16 September the exact v5.0g extractor and several v1.9 support sources were correctly treated as unavailable and the project failed closed.
 
-- one local audit/orchestration source: `probe_dynamic_authority_v19.cpp`;
-- twelve native scientific dependencies covering latent/TruthRange, Stage-2, canonical reconstruction, uncertainty runtime and Scientific-Master digest support.
+A new full-history recovery workflow now closes the **source-recovery** part of that blocker:
 
-The historical local probe has a frozen expected SHA-256:
+- tool: `tools/recover_v19_historical_lineage_v01.py`
+- tests: `tests/test_recover_v19_historical_lineage_v01.py`
+- CI: `.github/workflows/v19-historical-lineage-recovery-v0-1.yml`
+- successful run: `35107730144`
+- result: `PASS_REQUIRED_HISTORICAL_SOURCE_BYTES_RECOVERED_EXACT`
 
-`d82fc539643650fc68e4d307c3080cf0f4f1ada8dc7311ed7d8fb5005e7ce8c2`.
+The recovery method requires SHA-256 of the actual historical bytes. Matching names, file lengths or Git blob SHA-1 values are never accepted as a substitute.
 
-The readiness gate deliberately distinguishes three situations:
+### Exact v4.7i reconstruction source
 
-1. exact probe source present -> full frozen implementation lineage is available;
-2. exact twelve repository dependencies present but probe source absent -> documented local-probe provenance gap, while the historical v1.9 identity/evidence remains valid;
-3. missing/hash-drifted required repository dependency, ambiguous duplicate, or frozen-state drift -> readiness is blocked.
+Recovered directly from detached historical commit:
 
-The second case does **not** permit pretending that a new regenerator is already equivalent. It only permits implementing an independent regenerator and attempting exact falsification against the frozen v1.9 output.
+`36cd2ca16946a412fa28f04b70ae2f423167fb43`
 
-## 4. Why aggregate counts are insufficient
+`staging/v47i-byte-exact/core.cpp`
 
-The four counts do not encode where authority classes occur in the 4080x3072x3 field, nor do they encode per-record value, p95 uncertainty, censor bound, channel ordering or binary digest layout.
+- bytes: `26344`
+- Git blob SHA-1: `f79b951ba54cff08db400023e528e4eb91909ba6`
+- SHA-256: `68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c`
+- frozen v1.9 match: **EXACT**
 
-Many different fields can have identical class totals.
+`staging/v47i-byte-exact/core.h`
+
+- bytes: `8593`
+- Git blob SHA-1: `cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a`
+- SHA-256: `b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167`
+- frozen v1.9 match: **EXACT**
+
+The historical staging directory remains staging provenance; recovering its exact bytes does not promote it to present-day canonical code.
+
+### Exact Scientific-Master digest source
+
+`scientific_master_digest_v0_1.cpp`
+
+- bytes: `14796`
+- SHA-256: `70dfd24b86f9472a98cded66ecc1130da6dd7a838322fadd55ff5152d22bbbdf`
+- frozen v1.9 match: **EXACT**
+
+`scientific_master_digest_v0_1.h`
+
+- bytes: `2656`
+- SHA-256: `89aaac2329375f7ebae1b8682868480844c75f45541bc36d26fb5b9ed618a058`
+- frozen v1.9 match: **EXACT**
+
+### Exact v5.0g feature extractor
+
+`canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py`
+
+- bytes: `10023`
+- Git blob SHA-1: `3a833147f892a970c60175a7ebe4ab1e8cf0221c`
+- SHA-256: `b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d`
+- historical expected match: **EXACT**
+
+This closes the old blocker:
+
+`OPEN_NEEDS_EXACT_V5G_FEATURE_EXTRACTOR_RECOVERY_OR_HASH_VERIFIED_EQUIVALENT_FEATURE_DEFINITION`
+
+The replacement blocker is:
+
+`OPEN_NEEDS_EXACT_V5G_FEATURE_REPLAY_PARITY_AND_CURRENT_F64_TRACE_BINDING`
+
+## 3. Exact 18-feature semantics are no longer guessed from names
+
+The recovered source is now authoritative for the historical feature vector:
+
+1. `log1p_abs_prediction_stage2`
+2. `log1p_sigma_stage2_x1e4`
+3. `log1p_predicted_snr`
+4. `log1p_support_std_over_sigma`
+5. `log1p_support_range_over_sigma`
+6. `log1p_pair_min_disagreement_over_sigma`
+7. `log1p_pair_median_disagreement_over_sigma`
+8. `log1p_green_direction_disagreement_over_sigma`
+9. `log1p_local_mosaic_range_over_sigma`
+10. `gain_at_target`
+11. `neighbor_censor_fraction`
+12. `radial_position_norm`
+13. `prediction_negative_flag`
+14. `prediction_over1_flag`
+15. `role_R`
+16. `role_G1`
+17. `role_G2`
+18. `role_B`
+
+Historical compatibility quirk that must remain exact:
+
+- internal/training role order: `B, G1, G2, R`
+- emitted role feature labels: `role_R, role_G1, role_G2, role_B`
+
+A new implementation must not “correct” this ordering.
+
+## 4. Anti-leak semantics are now source-proven
+
+The recovered extractor confirms that the central hidden measured target sample is not used to construct the prediction/features. The target is read only after the feature vector/prediction state exists for scoring, and source-white hidden targets are excluded from exact-value scoring.
+
+Therefore a future 18-feature adapter is equivalent only if it preserves the same dependency/order semantics, not merely the feature names.
+
+## 5. Local v1.9 audit probe remains a provenance gap
+
+The historical local `probe_dynamic_authority_v19.cpp` has not yet been recovered.
+
+Frozen expected SHA-256:
+
+`d82fc539643650fc68e4d307c3080cf0f4f1ada8dc7311ed7d8fb5005e7ce8c2`
+
+This is now classified as:
+
+`PROVENANCE_GAP_NOT_FIELD_IDENTITY_FAILURE`
+
+because all required support source bytes have been recovered exactly and the historical v1.9 state independently froze deterministic recomputability and partition invariance.
+
+The missing probe still means we may not claim byte-for-byte recovery of the original orchestration implementation.
+
+## 6. Aggregate counts remain insufficient
+
+The four class totals do not encode where authority classes occur, nor per-record value, p95 uncertainty, censor bounds, channel ordering or the fixed binary digest layout.
 
 Therefore:
 
-> **Aggregate counts may be used as output checks, but they may never be used to reconstruct the missing field.**
+> **Aggregate counts may validate a regenerated field, but may never be used to reconstruct it.**
 
-The field and per-channel SHA-256 identities are mandatory falsification targets.
+The full-field and R/G/B SHA-256 identities remain mandatory falsification targets.
 
-## 5. Frozen per-site semantics that the independent regenerator must preserve
+## 7. Frozen per-site semantics to preserve
 
-The v1.9 binding defines, in global raster order:
+In global raster order:
 
-- uncensored physical CFA channel -> `CALIBRATED_ESTIMATE`, retaining the Stage-2 value and DNG NoiseProfile Gaussian-equivalent p95 uncertainty;
-- uncensored missing colour channels -> `RECONSTRUCTED`, using the Scientific-Master RGB value and finite v5.0g local-max-transport p95 uncertainty;
+- uncensored physical CFA channel -> `CALIBRATED_ESTIMATE`, Stage-2 value + DNG NoiseProfile Gaussian-equivalent p95 uncertainty;
+- uncensored missing channels -> `RECONSTRUCTED`, Scientific-Master RGB value + finite v5.0g local-max-transport p95 uncertainty;
 - source-white-censored physical CFA channel -> `CENSORED` with a `>=` lower bound;
-- the two missing channels at every censored CFA site -> `UNKNOWN`;
-- no counterfactual or appearance-only state enters the scientific field;
-- no fixed scene EV ceiling is imposed.
+- two missing channels at a censored CFA site -> `UNKNOWN`;
+- counterfactual/appearance-only state is excluded;
+- no fixed scene-EV ceiling is imposed.
 
 Reconstruction authority remains separate from optical/detail/acutance authority.
 
-## 6. New machine-readable readiness gate
+## 8. Historical negative readiness evidence is preserved
 
-Implementation:
+The earlier `dynamic_authority_v19_regeneration_readiness_v01/v02` checks were correct for the repository state they inspected: required historical source files were not then available in the live worktree.
 
-- `tools/dynamic_authority_v19_regeneration_readiness_v01.py`
-- `tests/test_dynamic_authority_v19_regeneration_readiness_v01.py`
-- `.github/workflows/dynamic-authority-v19-regeneration-readiness-v0-1.yml`
+They remain useful negative provenance and must not be rewritten into a retroactive PASS.
 
-The gate verifies:
+The new history-recovery gate adds new evidence: required source **bytes** are recoverable from Git history and match the previously frozen hashes exactly.
 
-- frozen source/CFA/master/field/channel identities;
-- frozen authority counts and geometry;
-- historical payload-not-persisted statement;
-- historical deterministic-recomputability statement;
-- historical 192/257 partition-invariance evidence;
-- exact SHA-256 of every repository-resident frozen implementation dependency;
-- the local-probe source as either exact-present or explicitly absent.
+## 9. Next exact replay/falsification sequence
 
-It fails closed on any required dependency hash drift or frozen-state identity drift.
+The correct next sequence is now:
 
-## 7. What a PASS means
+1. replay the recovered exact v5.0g extractor against frozen historical parity/prospective evidence;
+2. bind those exact feature semantics to the present F64 reconstruction trace without leakage;
+3. construct an independent streaming Dynamic Authority v1.9 regenerator from the recovered frozen scientific dependencies;
+4. regenerate the 4080x3072x3 field without using aggregate counts as construction input;
+5. require exact full-field + R/G/B SHA-256 matches;
+6. re-run under at least two execution partitions and require identical identity;
+7. only then admit the real frozen 4080x3072 field into Open Scene Region v0.7 / full-frame v0.8.
 
-A readiness PASS means only:
+A regeneration PASS must also reproduce the frozen class counts, channel counts, signed-nonpositive count, extrema, Scientific-Master identity, v5.0g anchor count and source-clip-skipped count.
 
-> **The frozen v1.9 scientific identity and exact repository-resident implementation lineage remain coherent enough to justify an independent regeneration attempt.**
+## 10. Scientific meaning of the recovery PASS
 
-It does not mean:
+The recovery PASS means:
 
-- a new full authority field has been regenerated;
-- the new implementation is scientifically equivalent;
-- the missing historical local probe has been recreated byte-for-byte;
-- a new source observation exists;
-- any scientific authority has been upgraded.
+> **The source-code lineage required to attempt exact historical replay has been recovered and cryptographically matched.**
 
-## 8. Next falsification gate
+It does **not** mean:
 
-The next implementation must stream-regenerate the field from the frozen source/scientific pipeline without deriving per-site state from the aggregate summary.
+- the v1.9 field has already been independently regenerated today;
+- the new implementation is equivalent before digest falsification;
+- the local historical audit probe has been recovered;
+- uncertainty has been rebound to every current F64 trace site;
+- any new sensor evidence exists;
+- scientific authority has been upgraded;
+- research state has been promoted to main/canonical.
 
-It must then reproduce all of the following exactly:
-
-1. overall field SHA-256;
-2. R/G/B channel SHA-256 values;
-3. all global authority counts;
-4. all channel authority counts;
-5. signed-nonpositive estimate count;
-6. value/p95/censor-bound extrema expected by the frozen run;
-7. Scientific Master verification identity;
-8. v5.0g anchor count and source-clip-skipped count;
-9. identical output under at least two distinct execution partitions.
-
-Until that exact falsification passes, the independent regenerator is **not equivalent to historical v1.9**.
-
-## 9. Scientific consequence for Open Scene v0.7/v0.8
-
-The new Open Scene Region/Full-Frame runtime must not fabricate a per-site v1.9 field from summary counts.
-
-The real frozen 4080x3072 source may enter that path only after either:
-
-- the exact historical field payload is recovered; or
-- an independent regenerator reproduces the frozen v1.9 identities exactly.
-
-This preserves the permanent TruthRaw rule:
+The permanent rule remains:
 
 > **Representation may exceed the source; knowledge claims may not exceed the evidence.**
+
+Detailed recovery chronology is preserved in `docs/history/TRUTHRAW_V19_V5G_HISTORICAL_RECOVERY_2026-09-16.md`.
