@@ -5,7 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../.." ABSOLUTE)
+# Recovered 2026-09-14 app now lives at <repo>/suite_android instead of
+# <repo>/app/android/truthraw-adaptive-ui-v01. Keep every scientific source
+# path repository-relative; only this integration path changes.
+get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../.." ABSOLUTE)
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
 set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.1/native")
 set(STREAMING "${RESEARCH_ROOT}/full-frame-streaming-v0.1/native")
