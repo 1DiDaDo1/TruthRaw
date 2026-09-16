@@ -117,16 +117,17 @@ class TruthRawHdrProjectionRuntimeV16Tests(unittest.TestCase):
         self.assertFalse(out.creates_new_sensor_evidence)
 
     def test_channel_peak_clip_is_presentation_only(self):
-        # Strong red transform creates an out-of-display channel while luminance stays finite.
+        # Strong red transform creates an out-of-display channel while the
+        # requested tone curve itself still remains inside the 2000-nit target.
         matrix = ((12.0, 0.0, 0.0), (0.0, 0.1, 0.0), (0.0, 0.0, 0.1))
         out = project_rgb_pixel_v16(
             measured((4.0, 1.0, 1.0)),
             runtime_binding(color_binding(matrix=matrix)),
-            request(peak=1000.0),
+            request(peak=2000.0),
         )
         self.assertTrue(out.channel_peak_clip)
         self.assertTrue(out.presentation_clipped_high)
-        self.assertLessEqual(max(out.display_rgb_nits), 1000.0)
+        self.assertLessEqual(max(out.display_rgb_nits), 2000.0)
         self.assertFalse(out.upgrades_scientific_authority)
 
     def test_target_primaries_must_match_color_binding(self):
