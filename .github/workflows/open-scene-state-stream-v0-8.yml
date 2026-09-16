@@ -1,0 +1,32 @@
+name: open-scene-state-stream-v0-8
+
+on:
+  push:
+    paths:
+      - 'tools/open_scene_state_stream_v08.py'
+      - 'tools/open_scene_region_runtime_v07.py'
+      - 'tests/test_open_scene_state_stream_v08.py'
+      - 'tests/test_open_scene_region_runtime_v07.py'
+      - 'docs/research/open-scene-state-stream-v0.8/**'
+      - '.github/workflows/open-scene-state-stream-v0-8.yml'
+  pull_request:
+    paths:
+      - 'tools/open_scene_state_stream_v08.py'
+      - 'tools/open_scene_region_runtime_v07.py'
+      - 'tests/test_open_scene_state_stream_v08.py'
+      - 'tests/test_open_scene_region_runtime_v07.py'
+      - 'docs/research/open-scene-state-stream-v0.8/**'
+      - '.github/workflows/open-scene-state-stream-v0-8.yml'
+
+jobs:
+  streamed-open-scene-state:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run full-frame Open Scene State v0.8 tests
+        run: python -m unittest -v tests.test_open_scene_state_stream_v08
+      - name: Re-run region authority integration
+        run: python -m unittest -v tests.test_open_scene_region_runtime_v07
