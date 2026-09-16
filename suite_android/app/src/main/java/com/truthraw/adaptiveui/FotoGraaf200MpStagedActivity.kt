@@ -40,16 +40,20 @@ import java.time.Instant
 import java.util.Locale
 
 /**
- * TruthRaw FotoGraaf staged Camera-5 200MP test v0.7.
+ * TruthRaw FotoGraaf staged Camera-5 200MP test v0.9 crash-fixed.
  *
  * Crucial runtime design:
- *  0. Activity startup touches no Camera2 object.
+ *  0. Activity UI startup performs no Camera2 access.
  *  1. Capability discovery is explicit and exception-contained.
  *  2. Preview uses logical camera 0 only (no physical output binding), asks for
  *     ~3.7x zoom when supported, and reports ACTIVE_PHYSICAL_ID instead of
  *     assuming physical camera 5.
  *  3. 200MP capture is a separate RAW-only session explicitly bound to physical
  *     camera 5 and requests MAXIMUM_RESOLUTION sensor pixel mode.
+ *
+ * Android TextureView does not support background drawables. Never call
+ * setBackground/setBackgroundColor on this TextureView; the parent layout owns
+ * the black background instead.
  *
  * Preview is framing/3A observation only and never upgrades sensor evidence.
  */
@@ -91,7 +95,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
-        status.text = "STAGE 0 PASS · scherm geopend zonder Camera2/HAL-aanroep.\nDruk nu eerst op Stap 1."
+        status.text = "STAGE 0 PASS · crash-fixed UI geopend zonder Camera2/HAL-aanroep.\nDruk nu eerst op Stap 1."
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA)
         }
@@ -131,9 +135,9 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             setBackgroundColor(Color.rgb(10, 12, 15))
         }
 
-        root.addView(label("TruthRaw · 200MP Tele Test v0.7", 24f, true))
+        root.addView(label("TruthRaw · 200MP Tele Test v0.9", 24f, true))
         root.addView(label(
-            "Staged: capability → logical live preview (3.7× request) → aparte physical-5 16320×12288 RAW-only capture.",
+            "Crash-fix + staged: capability → logical live preview (3.7× request) → aparte physical-5 16320×12288 RAW-only capture.",
             11f,
             false,
             Color.rgb(184, 191, 202),
@@ -142,7 +146,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
         preview = TextureView(this).apply {
             surfaceTextureListener = this@FotoGraaf200MpStagedActivity
-            setBackgroundColor(Color.BLACK)
+            // IMPORTANT: TextureView rejects background drawables/background colors.
         }
         root.addView(preview, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         root.addView(space(6))
@@ -518,7 +522,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             val rawSha = sha256ValidSampleBytes(image)
             val physical = physical5Characteristics ?: error("physical characteristics ontbreken")
             val stamp = System.currentTimeMillis()
-            val dng = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v07.dng")
+            val dng = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v09.dng")
             FileOutputStream(dng).use { out ->
                 DngCreator(physical, physicalResult).use { creator ->
                     creator.setOrientation(1)
@@ -527,7 +531,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             }
             image.close()
             val dngSha = sha256File(dng)
-            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v07.json")
+            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v09.json")
             report.writeText(buildEvidence(logicalResult, physicalResult, plane.rowStride, plane.pixelStride, rawSha, dng, dngSha).toString(2))
             capturedDng = dng
             capturedJson = report
@@ -585,7 +589,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     ): JSONObject {
         val activePreview = lastActivePhysicalId
         return JSONObject()
-            .put("schema", "truthraw.fotograaf-camera5-200mp-staged-evidence.v0.7")
+            .put("schema", "truthraw.fotograaf-camera5-200mp-staged-evidence.v0.9")
             .put("createdAtUtc", Instant.now().toString())
             .put("authority", "APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_CANDIDATE")
             .put("calibrationAuthorityGranted", false)
