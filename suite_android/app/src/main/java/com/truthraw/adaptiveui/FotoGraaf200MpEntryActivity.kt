@@ -31,8 +31,14 @@ class FotoGraaf200MpEntryActivity : Activity() {
             setTextColor(Color.rgb(190, 198, 210))
             setPadding(0, dp(8), 0, dp(14))
         })
+        root.addView(TextView(this).apply {
+            text = "v0.9 fix: de bewezen Android-crash door TextureView.setBackgroundColor() is uit de staged 200MP-UI verwijderd."
+            textSize = 12f
+            setTextColor(Color.rgb(190, 198, 210))
+            setPadding(0, 0, 0, dp(10))
+        })
         root.addView(Button(this).apply {
-            text = "Open staged 200MP test v0.7"
+            text = "Open staged 200MP test v0.9 · crash-fixed"
             isAllCaps = false
             setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, FotoGraaf200MpStagedActivity::class.java)) }
         })
@@ -42,7 +48,7 @@ class FotoGraaf200MpEntryActivity : Activity() {
             setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, TruthRawCrashReportActivity::class.java)) }
         })
         root.addView(TextView(this).apply {
-            text = "Als de volgende stap crasht: open TruthRaw opnieuw → Laatste crashrapport → sla het txt-bestand op en upload het hier."
+            text = "Als een volgende stap toch crasht: open TruthRaw opnieuw → Laatste crashrapport → sla het txt-bestand op en upload het hier."
             textSize = 12f
             setTextColor(Color.rgb(155, 164, 178))
             setPadding(0, dp(14), 0, 0)
