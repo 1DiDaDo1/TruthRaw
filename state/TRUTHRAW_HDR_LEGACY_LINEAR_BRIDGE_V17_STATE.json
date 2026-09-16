@@ -7,7 +7,11 @@
     "bridge": "93864facd3583cfc11988bdb52f55caa74b16722",
     "tests": "20398b6686eade6f6603abada0998ce8de41824d",
     "documentation": "f6ac0b9b16d903eabf2af1386df089967cd813a5",
-    "real_observation": "69229f903a525a9536e1c0f0561975eb609edd94"
+    "real_observation": "69229f903a525a9536e1c0f0561975eb609edd94",
+    "initial_state": "7fb9292bbf2e10f56b9dad4dc511fae597ff454d",
+    "dedicated_ci_workflow": "7cdbe680533aa3f981baa01f78b9e425a1504560",
+    "ci_bootstrap_fix": "8cc44c2b2a1a026855d71c0cef6d7f6acf69e9b0",
+    "open_world_ci_wiring": "8f121b57a1ed5cb68083bcb0b3e3d58a172d4d2b"
   },
   "source": {
     "file": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
@@ -72,11 +76,48 @@
   "validation": {
     "local_stdlib_parser_real_file": "PASS",
     "local_unit_tests": "8/8 PASS",
-    "dedicated_ci_run_id": null,
-    "dedicated_ci_conclusion": null,
-    "open_world_ci_run_id": null,
-    "open_world_ci_conclusion": null
+    "dedicated_ci_initial_run": {
+      "run_id": 35040482680,
+      "head_sha": "7cdbe680533aa3f981baa01f78b9e425a1504560",
+      "conclusion": "failure",
+      "classification": "NEGATIVE_EVIDENCE_WORKFLOW_IMPORT_BOOTSTRAP_NOT_V17_LOGIC_FAILURE",
+      "reason": "The first dedicated workflow invoked upstream v1.5/v1.6 tests before the existing dynamic-authority bootstrap test had inserted tools/ on sys.path. Both upstream modules failed to import open_world_foundations_v01; all eight v1.7 tests themselves passed. No scientific contract or runtime code was weakened to make the workflow green."
+    },
+    "dedicated_ci_validated_run": {
+      "run_id": 35040551566,
+      "head_sha": "8cc44c2b2a1a026855d71c0cef6d7f6acf69e9b0",
+      "conclusion": "success"
+    },
+    "open_world_regression_run": {
+      "run_id": 35040668594,
+      "head_sha": "8f121b57a1ed5cb68083bcb0b3e3d58a172d4d2b",
+      "conclusion": "success",
+      "coverage": [
+        "OPEN_WORLD_PYTHON_CONTRACTS_V01_TO_V06",
+        "ADOBE_HDR_INTEROP_V07_TO_V14",
+        "TRUTHRAW_HDR_PROJECTION_V15",
+        "TRUTHRAW_HDR_PROJECTION_RUNTIME_V16",
+        "TRUTHRAW_HDR_LEGACY_LINEAR_BRIDGE_V17",
+        "CAMERA5_CFA_IDENTITY_V01",
+        "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+        "CICM_NATIVE_REGRESSION",
+        "ROOM_CAPSULE_NATIVE_REGRESSION",
+        "OPEN_WORLD_NATIVE_AUTHORITY_CORRIDOR_V03"
+      ]
+    }
   },
+  "validated_properties": [
+    "EXACT_V04_FILE_SHA_BOUND",
+    "EXACT_UNCOMPRESSED_PIXEL_PAYLOAD_SHA_BOUND",
+    "XMP_SOURCE_AND_PAYLOAD_LINEAGE_BOUND",
+    "SIGNED_AND_OVER_UNITY_LEGACY_SCENE_COORDINATES_PRESERVED",
+    "SOURCE_METADATA_BOUND_L1_CAMERA_RGB_TO_P3_TRANSFORM_HASH_BOUND",
+    "LEGACY_COMPATIBILITY_PAYLOAD_CANNOT_BE_RELABELLED_SCIENTIFIC_MASTER",
+    "LEGACY_PIXEL_PAYLOAD_SHA_CANNOT_SUBSTITUTE_SCIENTIFIC_MASTER_SHA",
+    "LEGACY_FILE_CANNOT_MANUFACTURE_DYNAMIC_AUTHORITY_SHA",
+    "NO_NEW_SENSOR_EVIDENCE_AND_NO_SCIENTIFIC_MASTER_WRITEBACK",
+    "MODERN_V16_SCIENCE_BINDING_REMAINS_FAIL_CLOSED_UNTIL_REAL_MASTER_AND_AUTHORITY_IDENTITIES_EXIST"
+  ],
   "next_gates": [
     "persist or deterministically recompute the exact modern float Scientific Master for source 7930ba5d... and bind its SHA-256",
     "persist and bind the matching per-channel Dynamic Authority Field SHA-256",
@@ -85,5 +126,5 @@
     "encode a TruthRaw-owned P3-D65/PQ HDR exchange file",
     "round-trip that exact file through Lightroom without scientific-authority writeback"
   ],
-  "promotion_rule": "Do not promote the historical v0.4 LinearRaw payload to Scientific Master authority. v1.7 may be promoted only as a compatibility/integration bridge after CI; completion of the HDR render still requires exact modern Scientific Master and Dynamic Authority identities."
+  "promotion_rule": "Do not promote the historical v0.4 LinearRaw payload to Scientific Master authority. v1.7 may be promoted only as a compatibility/integration bridge; completion of the HDR render still requires exact modern Scientific Master and Dynamic Authority identities."
 }
