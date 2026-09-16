@@ -1,0 +1,38 @@
+{
+  "schema": "TruthRawFotoGraaf200MpRuntimeCrashDiagnostic/0.8",
+  "date": "2026-09-16",
+  "device": "HONOR BKQ-N49",
+  "observations": {
+    "v0_6_physical5_preview_useful_live_image": false,
+    "v0_7_staged_activity_reaches_stage0_ui": false,
+    "v0_7_user_observation": "immediate_app_crash_after_opening_200mp_entry",
+    "camera2_capability_test_reached": false,
+    "logical_preview_test_reached": false,
+    "physical5_200mp_capture_test_reached": false
+  },
+  "interpretation": {
+    "proves_200mp_route_absent": false,
+    "proves_physical5_broken": false,
+    "proves_preview_topology_failure": false,
+    "current_blocker": "ANDROID_ACTIVITY_OR_RUNTIME_CRASH_BEFORE_EXPLICIT_CAMERA2_STAGE",
+    "do_not_guess_camera_fix_before_stacktrace": true
+  },
+  "v0_8_diagnostic_architecture": {
+    "suite_default_200mp_entry": "FotoGraaf200MpEntryActivity",
+    "entry_uses_camera2": false,
+    "entry_starts_worker_thread": false,
+    "entry_creates_textureview": false,
+    "uncaught_exception_report_file": "truthraw_last_crash.txt",
+    "crash_report_persisted_before_delegating_to_platform_handler": true,
+    "launcher_exposes_saved_crash_report": true,
+    "staged_camera_activity_retained_behind_explicit_second_button": true
+  },
+  "scientific_boundary": {
+    "creates_sensor_evidence": false,
+    "changes_camera5_static_capability": false,
+    "changes_dynamic_authority": false,
+    "changes_scientific_master": false,
+    "changes_200mp_capture_gate": false
+  },
+  "next_gate": "DEVICE_OPEN_MINIMAL_ENTRY__THEN_TRIGGER_STAGED_ACTIVITY__RECOVER_EXACT_EXCEPTION_STACKTRACE_IF_CRASH_RECURS"
+}
