@@ -27,6 +27,7 @@ jobs:
       - name: Run legacy LinearRaw bridge and upstream HDR authority tests
         run: |
           python -m unittest -v \
+            tests.test_open_world_dynamic_authority_v05 \
             tests.test_truthraw_hdr_projection_v15 \
             tests.test_truthraw_hdr_projection_runtime_v16 \
             tests.test_truthraw_hdr_legacy_linear_bridge_v17
