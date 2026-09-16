@@ -41,6 +41,14 @@ jobs:
           grep -F 'truthraw_last_crash.txt' "$APPCLASS"
           grep -F 'Crashrapport opslaan' "$CRASH"
 
+          # v0.9 regression guard: TextureView must never receive a background drawable/color.
+          grep -F 'TruthRaw · 200MP Tele Test v0.9' "$STAGED"
+          if grep -F 'setBackgroundColor(Color.BLACK)' "$STAGED"; then
+            echo 'Forbidden TextureView background regression in staged 200MP activity' >&2
+            exit 1
+          fi
+          grep -F 'TextureView rejects background drawables/background colors' "$STAGED"
+
           # Staged science path remains intact behind the crash-isolation entry.
           grep -F 'STAGE 0 PASS' "$STAGED"
           grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$STAGED"
@@ -102,6 +110,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-suite-main-plus-fotograaf-v0-8-crash-diagnostic-200mp-debug-arm64
+          name: truthraw-suite-main-plus-fotograaf-v0-9-textureview-crash-fixed-200mp-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
