@@ -1,0 +1,60 @@
+name: v5g-exact-feature-replay-v0-2
+
+on:
+  push:
+    paths:
+      - 'canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py'
+      - 'canonical/uncertainty/v5.0g/runtime/**'
+      - 'canonical/uncertainty/v5.0g/evidence-parts/**'
+      - 'canonical/uncertainty/v5.0g/EVIDENCE_PROVENANCE_v5_0g.json'
+      - 'canonical/uncertainty/v5.0g-p1/PROSPECTIVE_TELE_HOLDOUT_RESULT_v5_0g_p1.json'
+      - 'tools/v5g_exact_feature_replay_v02.py'
+      - 'tests/test_v5g_exact_feature_replay_v02.py'
+      - '.github/workflows/v5g-exact-feature-replay-v0-2.yml'
+  pull_request:
+    paths:
+      - 'canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py'
+      - 'canonical/uncertainty/v5.0g/runtime/**'
+      - 'canonical/uncertainty/v5.0g/evidence-parts/**'
+      - 'canonical/uncertainty/v5.0g/EVIDENCE_PROVENANCE_v5_0g.json'
+      - 'canonical/uncertainty/v5.0g-p1/PROSPECTIVE_TELE_HOLDOUT_RESULT_v5_0g_p1.json'
+      - 'tools/v5g_exact_feature_replay_v02.py'
+      - 'tests/test_v5g_exact_feature_replay_v02.py'
+      - '.github/workflows/v5g-exact-feature-replay-v0-2.yml'
+
+jobs:
+  exact-feature-replay-v02:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install numerical dependency for exact historical extractor
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Verify Git-reconstructable frozen uncertainty evidence
+        run: python canonical/uncertainty/v5.0g/materialize_evidence_v5_0g.py
+      - name: Replay exact historical feature semantics with vectorized contract
+        run: |
+          mkdir -p build
+          python tools/v5g_exact_feature_replay_v02.py \
+            --out build/v5g-exact-feature-replay-v02.json
+      - name: Run corrected semantic regression tests
+        run: python -m unittest -v tests.test_v5g_exact_feature_replay_v02
+      - name: Compile frozen native uncertainty runtime parity test
+        run: |
+          mkdir -p build
+          g++ -std=c++17 -O2 \
+            canonical/uncertainty/v5.0g/runtime/uncertainty_runtime_v5_0g.cpp \
+            canonical/uncertainty/v5.0g/runtime/runtime_parity_test.cpp \
+            -I canonical/uncertainty/v5.0g/runtime \
+            -o build/v5g_runtime_parity
+      - name: Execute frozen native runtime parity
+        run: ./build/v5g_runtime_parity
+      - name: Upload replay report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v5g-exact-feature-replay-v02
+          path: build/v5g-exact-feature-replay-v02.json
+          if-no-files-found: warn
