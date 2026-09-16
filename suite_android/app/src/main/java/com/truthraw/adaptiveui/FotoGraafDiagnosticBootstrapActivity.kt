@@ -18,11 +18,11 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 /**
- * FotoGraaf v0.4.3 diagnostic bootstrap.
+ * FotoGraaf diagnostic bootstrap.
  *
  * Important safety property: onCreate() touches NO CameraManager and opens NO
  * camera. Camera2 is entered only after explicit user actions, one layer at a
- * time. This makes HONOR/HAL failures observable instead of collapsing startup.
+ * time. This keeps HONOR/HAL failures observable instead of collapsing startup.
  * No step in this Activity grants evidence or calibration authority.
  */
 class FotoGraafDiagnosticBootstrapActivity : Activity() {
@@ -31,7 +31,6 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
     private lateinit var standardButton: Button
     private lateinit var honorButton: Button
     private lateinit var previewButton: Button
-
     private var standardPassed = false
     private var honorPassed = false
 
@@ -39,8 +38,8 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
         setContentView(buildUi())
-        show("BOOT_OK · v0.4.3 · nog geen CameraManager aangeraakt.\n" +
-            "Als je dit scherm ziet, zijn launcher + permission gate + Activity-start stabiel.")
+        show("BOOT_OK · geïntegreerde suite · nog geen CameraManager aangeraakt.\n" +
+            "Launcher + permission gate + Activity-start zijn los van de camera-HAL gehouden.")
     }
 
     private fun buildUi(): View {
@@ -62,7 +61,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
 
         root.addView(label("FotoGraaf · Diagnostic Bootstrap", 26f, true))
         root.addView(label(
-            "v0.4.3 · nul-camera startup → standaard Camera2 → HONOR scan → preview",
+            "nul-camera startup → standaard Camera2 → HONOR scan → preview → Pro RAW",
             13f,
             false,
             Color.rgb(185, 191, 202),
@@ -86,7 +85,11 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         root.addView(previewButton)
         root.addView(space(14))
 
-        root.addView(button("Open bewezen single-RAW route-capture") {
+        root.addView(button("Open FotoGraaf Pro · live RAW + ISO/tijd/EV/AF/MF/OIS") {
+            startActivity(Intent(this, FotoGraafProCameraActivity::class.java))
+        })
+        root.addView(space(6))
+        root.addView(button("Open historische bewezen single-RAW route-capture") {
             startActivity(Intent(this, FotoGraafCameraActivity::class.java))
         })
         root.addView(space(6))
@@ -96,7 +99,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         root.addView(space(16))
 
         root.addView(label(
-            "Authority: DIAGNOSTIC_ONLY. Geen discovery-, preview- of vendor-resultaat verhoogt physicalFrameCount of independentEvidenceCount.",
+            "Authority: DIAGNOSTIC_ONLY. Discovery/preview/vendor metadata verhogen physicalFrameCount of independentEvidenceCount niet. Alleen een werkelijk gekoppelde RAW-capture kan nieuwe capture-evidence vormen.",
             11f,
             false,
             Color.rgb(145, 153, 165),
@@ -112,7 +115,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         standardButton.isEnabled = false
         honorButton.isEnabled = false
         previewButton.isEnabled = false
-        show("Stap 1 bezig · alleen Android standaard Camera2; geen com.hihonor.* keys…")
+        show("Stap 1 bezig · alleen Android standaard Camera2; geen com.hihonor.* request writes…")
 
         Thread({
             val report = runCatching {
@@ -174,7 +177,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
                         report.routes.take(12).forEachIndexed { index, route ->
                             append(index).append(": ").append(route.label).append('\n')
                         }
-                        append("\nStap 2 is stabiel. Preview-only kan nu apart worden getest.")
+                        append("\nStap 2 is stabiel. Preview-only en Pro-camera kunnen apart worden getest.")
                     })
                 }.onFailure { error ->
                     honorPassed = false
@@ -185,9 +188,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         }, "truthraw-honor-inventory-explicit").start()
     }
 
-    private fun show(message: String) {
-        statusView.text = message
-    }
+    private fun show(message: String) { statusView.text = message }
 
     private fun label(value: String, size: Float, bold: Boolean, color: Int = Color.WHITE): TextView =
         TextView(this).apply {
