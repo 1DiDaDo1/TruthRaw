@@ -1,0 +1,49 @@
+{
+  "schema": "TruthRawFotoGraaf200MpStagedPreviewState/0.7",
+  "date": "2026-09-16",
+  "status": "IMPLEMENTED_BUILD_VALIDATION_IN_PROGRESS",
+  "device_observations": {
+    "device": "HONOR BKQ-N49",
+    "v0_5_combined_preview_raw_useful_live_preview": false,
+    "v0_6_physical5_bound_preview_useful_live_image": false,
+    "interpretation": "APPLICATION_SESSION_OR_PREVIEW_TOPOLOGY_OBSERVATION_ONLY_NOT_PROOF_PHYSICAL_CAMERA5_CANNOT_PREVIEW"
+  },
+  "staged_architecture": {
+    "activity_startup_camera2_calls": false,
+    "stage1": "EXPLICIT_CAPABILITY_DISCOVERY_ONLY",
+    "stage2": {
+      "camera": "logical_0",
+      "outputs": ["single_SurfaceTexture_preview"],
+      "physical_output_binding": false,
+      "zoom_ratio_request": 3.7,
+      "active_physical_observation": "LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID",
+      "creates_sensor_evidence": false
+    },
+    "stage3": {
+      "logical_camera": "0",
+      "physical_output": "5",
+      "format": "RAW_SENSOR",
+      "dimensions": [16320, 12288],
+      "sample_count": 200540160,
+      "max_images": 1,
+      "sensor_pixel_mode_requested": "MAXIMUM_RESOLUTION",
+      "requires_physical_result": true,
+      "requires_timestamp_identity": true,
+      "requires_pixel_stride": 2,
+      "valid_sample_sha256_streamed": true
+    }
+  },
+  "scientific_boundary": {
+    "preview_authority": "OBSERVATION_ONLY",
+    "maximum_capture_candidate_claim": "APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_CANDIDATE",
+    "host_step3b_required": true,
+    "untouched_native_adc_claim": false,
+    "optical_200mp_detail_claim": false,
+    "calibration_authority_granted": false
+  },
+  "color_provenance_retained": [
+    "CONTROL_AWB_STATE",
+    "COLOR_CORRECTION_GAINS",
+    "COLOR_CORRECTION_TRANSFORM"
+  ]
+}
