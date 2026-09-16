@@ -27,6 +27,14 @@
     "launcher_exposes_saved_crash_report": true,
     "staged_camera_activity_retained_behind_explicit_second_button": true
   },
+  "build_validation": {
+    "workflow_run_id": 35122886031,
+    "result": "SUCCESS",
+    "artifact_name": "truthraw-suite-main-plus-fotograaf-v0-8-crash-diagnostic-200mp-debug-arm64",
+    "artifact_zip_sha256": "f0d16375830fcc931df1b7edb19ee07b4182a0de0d4938620b743100329083f2",
+    "apk_sha256": "2d4ffbbcb66213335e25cf0428b1bfe0fe67648b0af15c73dab2f31fec992031",
+    "device_execution": "OPEN_NEEDS_REAL_BKQ_N49_CRASH_ISOLATION_RUN"
+  },
   "scientific_boundary": {
     "creates_sensor_evidence": false,
     "changes_camera5_static_capability": false,
