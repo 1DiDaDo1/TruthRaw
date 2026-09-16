@@ -5,8 +5,41 @@
   "classification": "STREAMING_HDR_PROJECTOR_IMPLEMENTED_REAL_SCIENTIFIC_MASTER_BINDING_PENDING",
   "implementation_commits": {
     "runtime": "2ddaad6bdf52395284606098d4af6b5516c75882",
-    "tests": "ea39ededc72fb6763495a6cc4c230eecc43c87a1",
-    "documentation": "39b9289ed1f17abd76e35294bcfaf6f46bb94c0f"
+    "tests_initial": "ea39ededc72fb6763495a6cc4c230eecc43c87a1",
+    "documentation": "39b9289ed1f17abd76e35294bcfaf6f46bb94c0f",
+    "initial_state": "9476ea55c764f98fefa79d9913457f8565db9d7d",
+    "dedicated_ci_workflow": "a19267216befa091abca34eba0e3d0a1eca46a88",
+    "test_fixture_fix": "472709859ee512630c9e4b9ced338b3a5b112364",
+    "open_world_ci_wiring": "eb12a852270ab1d8c797ca2be249e667f48683de"
+  },
+  "validation": {
+    "dedicated_ci_initial_run": {
+      "run_id": 35039026580,
+      "conclusion": "failure",
+      "classification": "NEGATIVE_EVIDENCE_INVALID_TEST_FIXTURE_NOT_RUNTIME_FAILURE",
+      "reason": "The channel-peak test requested target_peak_nits=1000 while its own monotonic tone curve reached 1600 nits. The pre-existing v1.5 request validator correctly failed closed before the intended channel-clipping assertion."
+    },
+    "dedicated_ci_validated_run": {
+      "run_id": 35039083113,
+      "head_sha": "472709859ee512630c9e4b9ced338b3a5b112364",
+      "conclusion": "success"
+    },
+    "open_world_regression_run": {
+      "run_id": 35039197983,
+      "head_sha": "eb12a852270ab1d8c797ca2be249e667f48683de",
+      "conclusion": "success",
+      "coverage": [
+        "OPEN_WORLD_PYTHON_CONTRACTS_V01_TO_V06",
+        "ADOBE_HDR_INTEROP_V07_TO_V14",
+        "TRUTHRAW_HDR_PROJECTION_V15",
+        "TRUTHRAW_HDR_PROJECTION_RUNTIME_V16",
+        "CAMERA5_CFA_IDENTITY_V01",
+        "TECHNICAL_BACKPLANE_NATIVE_REGRESSION",
+        "CICM_NATIVE_REGRESSION",
+        "ROOM_CAPSULE_NATIVE_REGRESSION",
+        "OPEN_WORLD_NATIVE_AUTHORITY_CORRIDOR_V03"
+      ]
+    }
   },
   "source_authority": {
     "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
@@ -25,6 +58,7 @@
     "path": "tools/truthraw_hdr_projection_runtime_v16.py",
     "tests": "tests/test_truthraw_hdr_projection_runtime_v16.py",
     "documentation": "docs/research/truthraw-hdr-projection-runtime-v1.6/README.md",
+    "dedicated_ci": ".github/workflows/truthraw-hdr-projection-runtime-v1-6.yml",
     "output_stage": "PQ_RGB_CODE_RECORDS_NOT_CONTAINER_ENCODING",
     "streaming_chunk_boundaries_are_scientific_content": false,
     "global_raster_order_required": true,
@@ -48,6 +82,17 @@
     "color_authority_is_preserved_not_promoted": true,
     "supported_primaries": ["P3_D65", "REC709", "REC2020"]
   },
+  "validated_runtime_properties": [
+    "SUPPORTED_RGB_CHANNELS_PROJECT_WITH_AUTHORITY_AND_P95_UNCERTAINTY_UNCHANGED",
+    "CENSORED_OR_UNKNOWN_RGB_CHANNEL_WITHHOLDS_EXACT_PIXEL_PROJECTION",
+    "COUNTERFACTUAL_AND_APPEARANCE_INPUT_REJECTED_FROM_SCIENTIFIC_PROJECTION",
+    "NEGATIVE_GAMUT_CLIP_EXPLICIT_AND_PRESENTATION_ONLY",
+    "CHANNEL_PEAK_CLIP_EXPLICIT_AND_PRESENTATION_ONLY",
+    "TARGET_PRIMARIES_MUST_MATCH_BOUND_COLOR_TRANSFORM",
+    "ADOBE_HDR_LIMIT_METADATA_DOES_NOT_CHANGE_PROJECTED_PIXEL_VALUES",
+    "GLOBAL_RASTER_STREAM_HASH_INDEPENDENT_OF_CHUNK_BOUNDARIES",
+    "EMPTY_PROJECTION_STREAM_FAILS_CLOSED"
+  ],
   "next_gates": [
     "bind exact deterministic Scientific Master SHA for the immutable tele source",
     "persist and bind the matching real Dynamic Authority Field SHA",
