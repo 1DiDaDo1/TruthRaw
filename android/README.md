@@ -35,25 +35,32 @@ Those later identities remain frozen references, not claims of a new mobile reco
 
 `Representation may exceed the source; knowledge claims may not exceed the evidence.`
 
-## CI signing and build identity
+## Build provenance
 
-Early v0.2 CI builds used the runner-generated Android debug keystore. The app source was unchanged but the signed APK SHA-256 changed between clean runners, so those APK hashes are build-instance identities rather than reproducible application identities.
+The CI build uses the fixed, explicitly **non-secret debug/test signing key** stored as `android/ci-debug.keystore.b64`. It is only for debug installation and must never be used as release signing authority.
 
-The research branch now installs a fixed, explicitly **non-secret CI debug signing key** from `android/ci-debug.keystore.b64` before Gradle runs. This key is for debug/test installation only and must never be used as release signing authority.
+Two clean CI builds with the same app inputs and same debug key proved that all APK ZIP entries were byte-identical, while the final signed APK SHA-256 still differed because bytes in the APK Signing Block are not deterministic across these builds. Therefore TruthRaw records two separate build identities:
 
-The first build using that stable CI key is GitHub Actions run `35068900834`, commit `7ce9ad7df86647957a5bfbeda650831b8d9f6e0e`.
+1. **artifact SHA-256** — exact identity of one installable signed APK instance;
+2. **canonical APK payload SHA-256** — deterministic identity of the sorted ZIP entry names and uncompressed entry bytes, independent of the APK Signing Block.
 
-Extracted `app-debug.apk` from that run:
+The canonical payload digest algorithm is implemented in `android/tools/apk_payload_digest.py` and uses explicit name/data length framing before SHA-256.
+
+Validated v0.2 payload identity:
+
+- canonical APK payload SHA-256: `2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e`
+
+GitHub Actions run `35069372195` on commit `ae31675b3bb6c6b5c46fe26239ba7d8a06e9273a` completed the unit tests, build, exact APK hash, canonical payload hash, and artifact upload successfully.
+
+That run's installable `app-debug.apk`:
 
 - size: `19675` bytes
-- SHA-256: `edda905acc40ab373eff77988148f342cf21b33b04c5e67acec10d93f7169bb9`
-- Android package: debug signed APK
+- exact APK SHA-256: `cd155f1903f30e76af40710465963b5dec60f2810cce4086bb55718edd9d5085`
+- canonical payload SHA-256: `2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e`
 - application ID: `io.truthraw.debug`
 - minSdk: 26
 - targetSdk: 35
 - versionCode: 2
 - versionName: `0.2-debug`
 
-A subsequent clean CI build is used to test whether the full signed APK is now byte-identical across runners. Reproducibility is not claimed until that comparison passes.
-
-The workflow runs unit tests, assembles the debug APK, hashes it, and uploads both APK and hash as a workflow artifact. The app intentionally uses Android platform APIs only; there is no AndroidX or UI-framework dependency.
+The workflow uploads the APK plus both digest files as artifact `truthraw-debug-apk-v0.2`. The app intentionally uses Android platform APIs only; there is no AndroidX or UI-framework dependency.
