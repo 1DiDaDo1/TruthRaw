@@ -1,0 +1,42 @@
+{
+  "schema": "TruthRawFotoGraafTextureViewRuntimeCrashFix/0.9",
+  "date": "2026-09-16",
+  "device": "HONOR BKQ-N49",
+  "input_crash_report": {
+    "file": "TruthRaw_last_crash.txt",
+    "bytes": 2453,
+    "sha256": "33ee672716797df903917278ff11c3770c3867bfbba3e5d72796d83d7f615d45",
+    "createdAtUtc": "2026-09-16T16:47:20.285286Z",
+    "rootCause": "java.lang.UnsupportedOperationException: TextureView doesn't support displaying a background drawable",
+    "sourceLocation": "FotoGraaf200MpStagedActivity.kt:145",
+    "camera2Reached": false
+  },
+  "interpretation": "ANDROID_UI_RUNTIME_BUG_BEFORE_CAMERA2__NOT_NEGATIVE_200MP_SENSOR_EVIDENCE",
+  "fix": {
+    "removed": "TextureView.setBackgroundColor(Color.BLACK)",
+    "parentLayoutOwnsBackground": true,
+    "ciRegressionGuard": true,
+    "suiteBranchFixCommit": "4c84a3492abb87e75e92c7ce03de043093c7bfa9"
+  },
+  "buildValidation": {
+    "workflowRunId": 35125224946,
+    "result": "SUCCESS",
+    "headSha": "49c00353461669bb99ec3b760cf81cf1614544fd",
+    "artifactZipSha256": "38d4070cbb14fe4903ad55e7886d8bab01b4ed321a20663b8dd9682622c604d5",
+    "apkSha256": "7ed95543dddd4513ef7d5dab32eabc75ec863adb0a48883083e5b934e0da4229"
+  },
+  "legacyRiskPatternStillOpen": [
+    "FotoGraaf200MpTestActivity",
+    "FotoGraafProCameraActivity",
+    "FotoGraafSafePreviewActivity",
+    "FotoGraafLiveCameraActivity"
+  ],
+  "scientificBoundary": {
+    "createsSensorEvidence": false,
+    "changesCamera5StaticCapability": false,
+    "changesScientificMaster": false,
+    "changesDynamicAuthority": false,
+    "changes200MpCaptureGate": false
+  },
+  "nextGate": "REAL_BKQ_N49_V09_STAGE0_TO_STAGE3"
+}
