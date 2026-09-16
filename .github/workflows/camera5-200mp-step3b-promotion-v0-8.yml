@@ -1,0 +1,34 @@
+name: camera5-200mp-step3b-promotion-v0-8
+
+on:
+  push:
+    paths:
+      - 'tools/camera5_200mp_step3b_promotion_v08.py'
+      - 'tools/camera5_200mp_runtime_gate_v07.py'
+      - 'tools/camera5_200mp_evidence_bundle_v02.py'
+      - 'tools/camera5_200mp_evidence_bundle_v03.py'
+      - 'tests/test_camera5_200mp_step3b_promotion_v08.py'
+      - '.github/workflows/camera5-200mp-step3b-promotion-v0-8.yml'
+  pull_request:
+    paths:
+      - 'tools/camera5_200mp_step3b_promotion_v08.py'
+      - 'tools/camera5_200mp_runtime_gate_v07.py'
+      - 'tools/camera5_200mp_evidence_bundle_v02.py'
+      - 'tools/camera5_200mp_evidence_bundle_v03.py'
+      - 'tests/test_camera5_200mp_step3b_promotion_v08.py'
+      - '.github/workflows/camera5-200mp-step3b-promotion-v0-8.yml'
+
+jobs:
+  step3b-promotion-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Camera-5 Step-3B promotion tests
+        run: python -m unittest -v tests.test_camera5_200mp_step3b_promotion_v08
+      - name: Re-run static Android contract guard
+        run: python -m unittest -v tests.test_camera5_200mp_android_contract_v04
+      - name: Re-run CFA identity regression
+        run: python -m unittest -v tests.test_camera5_200mp_cfa_identity_v01
