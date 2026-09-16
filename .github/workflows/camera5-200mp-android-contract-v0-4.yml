@@ -1,0 +1,36 @@
+name: camera5-200mp-android-contract-v0-4
+
+on:
+  push:
+    paths:
+      - 'tools/camera5_200mp_android_contract_v04.py'
+      - 'tests/test_camera5_200mp_android_contract_v04.py'
+      - 'evidence/CAMERA5_FULL_SENSOR_CAPABILITY_GATE_v06.json'
+      - 'evidence/HOST_VALIDATION_CAMERA5_200MP_v07.json'
+      - 'docs/research/scene-physics-calibration-structure-hdr-v0.1/**'
+      - '.github/workflows/camera5-200mp-android-contract-v0-4.yml'
+  pull_request:
+    paths:
+      - 'tools/camera5_200mp_android_contract_v04.py'
+      - 'tests/test_camera5_200mp_android_contract_v04.py'
+      - 'evidence/CAMERA5_FULL_SENSOR_CAPABILITY_GATE_v06.json'
+      - 'evidence/HOST_VALIDATION_CAMERA5_200MP_v07.json'
+      - 'docs/research/scene-physics-calibration-structure-hdr-v0.1/**'
+      - '.github/workflows/camera5-200mp-android-contract-v0-4.yml'
+
+jobs:
+  camera5-200mp-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Camera-5 200MP Android contract tests
+        run: python -m unittest -v tests.test_camera5_200mp_android_contract_v04
+      - name: Emit current bounded contract report
+        run: |
+          python tools/camera5_200mp_android_contract_v04.py \
+            evidence/CAMERA5_FULL_SENSOR_CAPABILITY_GATE_v06.json \
+            --host-validation evidence/HOST_VALIDATION_CAMERA5_200MP_v07.json \
+            --out build-camera5-200mp-android-contract-v04.json
