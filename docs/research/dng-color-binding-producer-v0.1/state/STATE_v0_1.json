@@ -1,0 +1,55 @@
+{
+  "schema": "truthraw.dng_color_binding_producer.state.v0.1",
+  "date": "2026-09-11",
+  "status": "RESEARCH_CANDIDATE_CI_PASS",
+  "validated_implementation": {
+    "commit": "6c0211790a48956f706298b2308118eae2d3f948",
+    "workflow_run": 34608401519,
+    "contract": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "clang_asan_ubsan": "PASS"
+  },
+  "authority": "SOURCE_METADATA_BOUND",
+  "scope": {
+    "classic_tiff_dng": true,
+    "three_channel": true,
+    "single_calibration": true,
+    "forward_matrix_1": true,
+    "color_matrix_1_bradford_d50": true,
+    "analog_balance_optional_identity_default": true,
+    "camera_calibration_signature_governed": true,
+    "dual_or_triple_calibration": false,
+    "bigtiff": false,
+    "as_shot_white_xy": false,
+    "four_or_more_color_planes": false
+  },
+  "invariants": {
+    "source_sha256_reverified_before_parse": true,
+    "source_sha256_reverified_after_parse": true,
+    "full_raw_materialized": false,
+    "source_metadata_is_independent_calibration": false,
+    "lens_calibration_inferred": false,
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "proof_boundary": {
+    "real_motioncam_honor_dng_validated": false,
+    "physical_android_device_validated": false,
+    "android_main_house_integration_validated": false,
+    "independent_camera_lens_calibration": false,
+    "full_physical_color_claim": false
+  },
+  "failure_history": [
+    {
+      "workflow_run": 34607859757,
+      "classification": "TEST_HARNESS_STRICT_WARNING",
+      "result": "FAIL"
+    },
+    {
+      "workflow_run": 34608024699,
+      "classification": "CLANG_DEAD_CONSTANT_STRICT_WARNING",
+      "result": "FAIL"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Fresh validation trigger after earlier GitHub Actions attempts ended before runner allocation.
+
+Required before promotion:
+- GCC Release executes and passes
+- Clang Release executes and passes
+- Clang ASan/UBSan executes and passes
+- Android arm64 NDK/JNI/Kotlin/APK build executes and passes
+
+No scientific or export code is changed by this trigger file.
