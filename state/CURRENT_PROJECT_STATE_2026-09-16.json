@@ -49,6 +49,20 @@
       "detail_scientific_writeback_allowed": false,
       "counterfactual_illumination_writeback_allowed": false,
       "restoration_scientific_writeback_allowed": false
+    },
+    "open_scene_state_stream_v08": {
+      "runtime": "tools/open_scene_state_stream_v08.py",
+      "tests": "tests/test_open_scene_state_stream_v08.py",
+      "documentation": "docs/research/open-scene-state-stream-v0.8/README.md",
+      "ci": ".github/workflows/open-scene-state-stream-v0-8.yml",
+      "ci_status_at_integration": "PASS",
+      "bounded_memory": true,
+      "global_raster_contiguous": true,
+      "adjacent_equal_region_states_canonically_coalesced": true,
+      "execution_chunking_changes_scientific_identity": false,
+      "blocked_restoration_regions_admitted": false,
+      "creates_new_evidence": false,
+      "scientific_master_writeback_allowed": false
     }
   },
   "scene_physics": {
@@ -73,6 +87,7 @@
     "machine_guard": "tools/restoration_authority_v01.py",
     "tests": "tests/test_restoration_authority_v01.py",
     "open_scene_integration": "tools/open_scene_region_runtime_v07.py",
+    "full_frame_open_scene_guard": "tools/open_scene_state_stream_v08.py",
     "preserve_valid_measured_support": true,
     "loss_compensation_authority": "RECONSTRUCTED",
     "aesthetic_reintegration_scientific_writeback_allowed": false,
@@ -159,7 +174,8 @@
     "measured_requires_source_binding": true,
     "missing_or_mismatched_binding_fails_closed": true,
     "restoration_roles_do_not_replace_core_authority_classes": true,
-    "open_scene_region_v07_bound": true
+    "open_scene_region_v07_bound": true,
+    "full_frame_open_scene_state_v08_bound": true
   },
   "hdr": {
     "scientific_headroom_authority_aware": true,
@@ -168,7 +184,8 @@
     "adobe_gain_map_classification": "PRESENTATION_AND_DISPLAY_ADAPTATION_ONLY",
     "fake_multiframe_hdr_merge_allowed": false,
     "pq_or_hlg_transport_equals_sensor_dynamic_range_measurement": false,
-    "open_scene_region_v07_channel_status_bound": true
+    "open_scene_region_v07_channel_status_bound": true,
+    "full_frame_open_scene_v08_summary_bound": true
   },
   "camera5_maximum_resolution": {
     "target_dimensions": [16320, 12288],
@@ -226,7 +243,7 @@
     "apk_gcam_may_determine_scientific_authority": false
   },
   "next_safe_work": [
-    "AGGREGATE_OPEN_SCENE_REGION_V07_INTO_STREAMED_FULL_FRAME_OPEN_SCENE_STATE",
+    "BIND_FROZEN_4080x3072_SOURCE_TO_REAL_OPEN_SCENE_REGION_V07_AND_FULL_FRAME_V08_ARTIFACT",
     "OBTAIN_REAL_CAMERA5_16320x12288_RAW_SENSOR_AND_BOUND_TOTALCAPTURERESULT",
     "KEEP_V5G_FEATURE_RECOVERY_FAIL_CLOSED",
     "BIND_FUTURE_200MP_READOUT_TO_ITS_OWN_PRECISION_UNCERTAINTY_NOISE_SHADING_COLOUR_AND_SFR_GATES",
