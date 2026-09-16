@@ -90,7 +90,8 @@ for p in repo.rglob("*"):
         rel in {"README.md","START_HERE_NEW_CHAT.md","state/README.md"} or
         rel.startswith("canonical/") or rel.startswith("docs/research/") or
         rel.startswith("capture/") or rel.startswith("docs/calibration/") or
-        rel.startswith("tests/") or rel.startswith("state/CURRENT_CANONICAL_STATE_") or
+        rel.startswith("tests/") or rel.startswith("android/") or
+        rel.startswith("state/CURRENT_CANONICAL_STATE_") or
         rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
     if not classified:
