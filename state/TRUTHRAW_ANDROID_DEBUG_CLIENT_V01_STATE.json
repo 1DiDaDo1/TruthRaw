@@ -1,0 +1,69 @@
+{
+  "schema": "TruthRawAndroidDebugClientState/0.1",
+  "status": "RESEARCH_BRANCH_NON_CANONICAL_DEBUG_APK_BUILT",
+  "branch": "research/open-world-foundations-v01",
+  "apk_policy": "NO_APK_DERIVED_CANONICAL_CHANGES",
+  "build_head_sha": "34c4e44c4527be50c503362858e3c7867eeee6ba",
+  "package": "io.truthraw.debug",
+  "version_name": "0.1-debug",
+  "capabilities": {
+    "storage_access_framework_import": true,
+    "streaming_source_byte_count": true,
+    "streaming_source_sha256": true,
+    "exact_frozen_source_admission": true,
+    "decoded_cfa_recomputed_on_device": false,
+    "scientific_master_recomputed_on_device": false,
+    "dynamic_authority_recomputed_on_device": false,
+    "p3_pq_hdr_projection_run_on_device": false,
+    "scientific_writeback_allowed": false
+  },
+  "frozen_reference": {
+    "source_bytes": 25106120,
+    "source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "dynamic_authority_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+    "source_bound_p3_transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "reference_l0": 0.12564234435558319
+  },
+  "validation": {
+    "initial_ci": {
+      "run_id": 35067546406,
+      "head_sha": "1d461258b15a611089f9cc0c2a4b62fabada1dd3",
+      "conclusion": "failure",
+      "classification": "NEGATIVE_EVIDENCE_ANDROID_SDK_BOOTSTRAP_ONLY",
+      "reason": "android-actions/setup-android attempted to install the obsolete SDK package named tools on the 2026 runner image. No application source or scientific contract failed."
+    },
+    "validated_ci": {
+      "run_id": 35067639803,
+      "head_sha": "34c4e44c4527be50c503362858e3c7867eeee6ba",
+      "conclusion": "success",
+      "unit_tests": "PASS",
+      "assemble_debug": "PASS",
+      "artifact_upload": "PASS"
+    }
+  },
+  "artifact": {
+    "github_artifact_id": 10435191551,
+    "github_artifact_name": "truthraw-debug-apk-v0.1",
+    "artifact_zip_sha256": "35df2c314550812a582662026b1e68fc59927400d7e33890e039ad7357bfb92d",
+    "apk_name": "app-debug.apk",
+    "apk_bytes": 14395,
+    "apk_sha256": "1015b25aab43b1747d9ce289219c88d0a69b0c04847a16eef863af28868f943a",
+    "debug_signed": true
+  },
+  "scientific_boundary": [
+    "The APK verifies only source bytes and SHA-256 on-device in v0.1.",
+    "Frozen decoded-CFA, Scientific-Master, Dynamic-Authority and P3-transform hashes are references, not newly recomputed mobile evidence.",
+    "A nonmatching source inherits none of the frozen scientific identities.",
+    "APK behavior cannot modify source evidence, Scientific Master authority or canonical TruthRaw state.",
+    "Representation may exceed the source; knowledge claims may not exceed the evidence."
+  ],
+  "next_gates": [
+    "add a native read-only DNG/CFA decoder and prove decoded-CFA identity on-device",
+    "port the frozen Scientific Master streaming recomputation without changing its scientific hash semantics",
+    "port v1.9 Dynamic Authority generation and partition-invariant hashing",
+    "bind the v1.6 P3-D65/PQ projector downstream of verified mobile science",
+    "encode and round-trip a TruthRaw-owned HDR exchange output"
+  ]
+}
