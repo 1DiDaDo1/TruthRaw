@@ -106,6 +106,12 @@ class OpenSceneStateStreamV08Tests(unittest.TestCase):
         with self.assertRaises(ContractError):
             w.append_span(0, 4, region(pass_contract=False))
 
+    def test_forged_region_with_blocked_restoration_still_fails_closed(self):
+        w = StreamingOpenSceneStateV08(binding())
+        forged = region(pass_contract=True, restoration_allowed=(False, True, True))
+        with self.assertRaises(ContractError):
+            w.append_span(0, 4, forged)
+
     def test_incomplete_frame_fails(self):
         w = StreamingOpenSceneStateV08(binding())
         w.append_span(0, 3, region())
@@ -135,17 +141,6 @@ class OpenSceneStateStreamV08Tests(unittest.TestCase):
         self.assertFalse(s.scientific_master_writeback_allowed)
         self.assertEqual(s.physical_frame_count, 1)
         self.assertEqual(s.independent_evidence_count, 1)
-
-    def test_restoration_blocked_pixels_are_visible_in_summary(self):
-        r = region(restoration_allowed=(False, True, True))
-        # pass_contract=False is the normal v0.7 outcome for a blocked request;
-        # to test summary accounting specifically, construct a provenance state
-        # that is still accepted by the full-frame writer only when contract is true.
-        r = OpenSceneRegionResultV07(**{**r.__dict__, "pass_contract": True})
-        w = StreamingOpenSceneStateV08(binding())
-        w.append_span(0, 4, r)
-        s = w.finalize()
-        self.assertEqual(s.restoration_blocked_pixel_count, 4)
 
 
 if __name__ == "__main__":
