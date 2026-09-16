@@ -125,7 +125,7 @@ The bounded topology interpretation remains:
 
 `APP_VISIBLE_RAW_SENSOR_REGULAR_BAYER_BY_ANDROID_CONTRACT`
 
-The new machine-readable guard is:
+The machine-readable static contract guard is:
 
 `tools/camera5_200mp_android_contract_v04.py`
 
@@ -170,6 +170,14 @@ The real run must retain at least:
 
 After that, readout-domain-specific gates still remain for precision/uncertainty, noise/PTC, shading, colour/illuminant and optics/SFR.
 
+The final promotion contract is now implemented as:
+
+- `tools/camera5_200mp_step3b_promotion_v08.py`;
+- `tests/test_camera5_200mp_step3b_promotion_v08.py`;
+- `.github/workflows/camera5-200mp-step3b-promotion-v0-8.yml`.
+
+The v0.8 gate requires the real runtime v0.7 PASS plus the v0.3 RAW_SENSOR/canonical-CFA/DNG topology bundle and the minimum capture metadata above. Its synthetic/contract CI is green, but this does **not** close the physical gate because no real qualifying 16320x12288 capture has been supplied yet.
+
 ## 11. Primary references used for this supplement
 
 - Android Camera2 `CaptureRequest.SENSOR_PIXEL_MODE`: https://developer.android.com/reference/android/hardware/camera2/CaptureRequest
@@ -184,8 +192,59 @@ After that, readout-domain-specific gates still remain for precision/uncertainty
 - Canadian Conservation Institute paintings/condition reporting guidance: https://www.canada.ca/en/conservation-institute/services/preventive-conservation/guidelines-collections/paintings.html
 - Library of Congress photograph preservation/digitization guidance: https://www.loc.gov/preservation/about/faqs/photographs.html
 
-## 12. Next implementation direction
+## 12. Open Scene Region v0.7 — implemented
 
-The next open-world/Dynamic-Authority runtime should expose a shared scene-state contract in which light, colour, spatial/detail support, HDR/censoring and restoration masks constrain one another while remaining separately authoritative.
+The previously stated next direction is now implemented at region level in:
 
-The immediate acquisition priority remains the real Camera-5 Step 3B evidence set; no software-side interpretation should pre-close that physical gate.
+- `tools/open_scene_region_runtime_v07.py`;
+- `tests/test_open_scene_region_runtime_v07.py`;
+- `docs/research/open-scene-region-runtime-v0.7/README.md`.
+
+v0.7 binds one region simultaneously to:
+
+- Dynamic Authority;
+- illumination authority;
+- colour-calibration authority;
+- Structure Evidence;
+- per-channel scientific-HDR status;
+- conservation/restoration authority.
+
+It preserves independent authority axes rather than collapsing them into one quality score.
+
+Important enforced boundaries:
+
+- source-metadata-bound colour does not become independent physical calibration;
+- v0.4 detail/acutance permission remains appearance-only and cannot write into measured structure;
+- censored channels remain bound-only for HDR;
+- `UNKNOWN` channels create no scientific HDR headroom;
+- counterfactual illumination cannot write back into the captured world;
+- restoration cannot overpaint valid measured support;
+- supported loss compensation may become `RECONSTRUCTED` but never `MEASURED`;
+- no region creates new evidence.
+
+Its CI is green on the integration branch.
+
+## 13. Full-frame Open Scene State v0.8 — implemented
+
+Region-level authority is now also aggregatable into a streamed full-frame sidecar:
+
+- `tools/open_scene_state_stream_v08.py`;
+- `tests/test_open_scene_state_stream_v08.py`;
+- `docs/research/open-scene-state-stream-v0.8/README.md`;
+- `.github/workflows/open-scene-state-stream-v0-8.yml`.
+
+The writer is bounded-memory and canonically coalesces adjacent spans carrying the same scientific region identity before hashing. Therefore different execution chunk sizes do not change the full-frame Open Scene State identity when the underlying scientific state is the same.
+
+This directly implements the long-standing weak-phone/strong-phone rule: hardware may alter tile/chunk strategy, not scientific authority.
+
+The full-frame state binds source evidence, Scientific Master and Dynamic Authority identities, summarizes radiometric/HDR/colour/illumination/detail authority, preserves one-frame/one-evidence identity, and permits no Scientific-Master writeback.
+
+The full-frame layer also independently rejects a forged/inconsistent region that contains a blocked restoration decision even if its outer `pass_contract` flag were incorrectly set true.
+
+Its CI is green on the integration branch.
+
+## 14. Next implementation direction
+
+The next software step is to connect the existing frozen 4080x3072 Dynamic Authority/Scientific Master path to production of real v0.7 region records and then a real v0.8 full-frame Open Scene State artifact, without inventing missing illumination/colour/optics calibration.
+
+In parallel, the immediate physical acquisition priority remains the real Camera-5 Step 3B evidence set. No software-side interpretation or passing synthetic contract may pre-close that physical gate.
