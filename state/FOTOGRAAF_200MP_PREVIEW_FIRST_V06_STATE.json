@@ -1,0 +1,66 @@
+{
+  "schema": "TruthRawFotoGraaf200MpPreviewFirstState/0.6",
+  "date": "2026-09-16",
+  "status": "APK_BUILD_PASS__DEVICE_200MP_EXECUTION_PENDING",
+  "field_test_input": {
+    "device": "HONOR BKQ-N49",
+    "v0_5_issue_1": "200MP target route was not obvious to the user",
+    "v0_5_issue_2": "FotoGraaf Pro opened without a usable live preview in field testing"
+  },
+  "root_cause_findings": {
+    "route_discovery_bug": {
+      "status": "CONFIRMED_IN_CODE",
+      "v0_5_behavior": "only maximum-resolution stream-map RAW sizes were treated as MAX routes",
+      "camera5_frozen_evidence": {
+        "maximum_resolution_stream_map_raw": [8160, 6144],
+        "high_resolution_output_raw": [16320, 12288],
+        "target_samples": 200540160
+      },
+      "v0_6_fix": "also query SCALER_STREAM_CONFIGURATION_MAP.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR) and label it separately"
+    },
+    "black_preview": {
+      "status": "PLAUSIBLE_SESSION_TOPOLOGY_CAUSE__NOT_YET_DEVICE_FALSIFIED",
+      "v0_5_behavior": "Pro session combined TextureView preview output and selected RAW_SENSOR ImageReader in one Camera2 session",
+      "field_observation": "user reported no usable Pro-camera preview",
+      "scientific_boundary": "do not infer camera/sensor absence from this app-session failure",
+      "v0_6_mitigation": "dedicated 200MP path uses ordinary physical-5 preview-only session, then a separate RAW-only high-resolution session"
+    }
+  },
+  "user_route": {
+    "launcher_button": "200MP TELE TEST · physical 5 · 16320×12288",
+    "logical_camera_id": "0",
+    "physical_camera_id": "5",
+    "target_width": 16320,
+    "target_height": 12288,
+    "preview_pixel_mode": "ordinary preview; maximum-resolution mode deliberately not requested",
+    "capture_pixel_mode": "SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION"
+  },
+  "capture_admission": {
+    "require_exact_dimensions": true,
+    "require_sample_count": 200540160,
+    "require_physical_camera5_result": true,
+    "require_timestamp_binding": true,
+    "require_capture_result_maximum_pixel_mode": true,
+    "require_single_raw_plane": true,
+    "require_pixel_stride_bytes": 2,
+    "require_valid_row_stride_geometry": true,
+    "seal_valid_sample_bytes_sha256": true,
+    "dng_orientation_requested": 1,
+    "maximum_device_claim_before_host_promotion": "APP_VISIBLE_MAXIMUM_RESOLUTION_RAW_SENSOR_CFA_CANDIDATE",
+    "forbidden_claim": "UNTOUCHED_NATIVE_200MP_ADC"
+  },
+  "color_diagnostics_added": {
+    "control_awb_state": true,
+    "color_correction_gains": true,
+    "color_correction_transform": true,
+    "calibration_authority_granted": false,
+    "reason": "real 4080x3072 Camera-5 field capture exposed a source-bound DNG color/white-balance mismatch; capture-time color metadata is retained diagnostically without scientific authority upgrade"
+  },
+  "ci": {
+    "workflow_run": 35118969100,
+    "head_commit": "393842100b062b52eee1bc2c56e296d89e25de44",
+    "result": "SUCCESS",
+    "apk_artifact": "truthraw-suite-main-plus-fotograaf-v0-6-preview-first-200mp-debug-arm64"
+  },
+  "next_device_gate": "RUN_DEDICATED_200MP_TELE_TEST_ON_BKQ_N49_AND_RETURN_DNG_PLUS_EVIDENCE_JSON_FOR_STEP3B_HOST_PROMOTION"
+}
