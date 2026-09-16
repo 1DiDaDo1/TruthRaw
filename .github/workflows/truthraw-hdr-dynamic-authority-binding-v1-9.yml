@@ -1,0 +1,35 @@
+name: truthraw-hdr-dynamic-authority-binding-v1-9
+
+on:
+  push:
+    paths:
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'tests/test_truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'docs/research/truthraw-hdr-dynamic-authority-binding-v1.9/**'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - '.github/workflows/truthraw-hdr-dynamic-authority-binding-v1-9.yml'
+  pull_request:
+    paths:
+      - 'tools/truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'tests/test_truthraw_hdr_dynamic_authority_binding_v19.py'
+      - 'docs/research/truthraw-hdr-dynamic-authority-binding-v1.9/**'
+      - 'state/TRUTHRAW_HDR_DYNAMIC_AUTHORITY_BINDING_V19_STATE.json'
+      - '.github/workflows/truthraw-hdr-dynamic-authority-binding-v1-9.yml'
+
+jobs:
+  dynamic-authority-binding-v19:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run HDR science authority chain through v1.9
+        run: |
+          python -m unittest -v \
+            tests.test_open_world_dynamic_authority_v05 \
+            tests.test_truthraw_hdr_projection_v15 \
+            tests.test_truthraw_hdr_projection_runtime_v16 \
+            tests.test_truthraw_hdr_legacy_linear_bridge_v17 \
+            tests.test_truthraw_hdr_scientific_master_binding_v18 \
+            tests.test_truthraw_hdr_dynamic_authority_binding_v19

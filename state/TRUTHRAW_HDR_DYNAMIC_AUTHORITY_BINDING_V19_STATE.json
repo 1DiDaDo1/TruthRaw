@@ -1,0 +1,74 @@
+{
+  "schema": "TruthRawHdrDynamicAuthorityBindingState/1.9",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "REAL_DYNAMIC_AUTHORITY_IDENTITY_BOUND_V16_SCIENCE_IDENTITY_COMPLETE_FULL_FRAME_RENDER_STREAM_NEXT",
+  "source": {
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "source_white_censored_samples": 217
+  },
+  "scientific_master": {
+    "sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "reference_l0": 0.12564234435558319
+  },
+  "dynamic_authority": {
+    "field_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+    "channel_sha256": [
+      "d0b8febb3e62d18968e72036a76f577453554553e117692a1fdd9d2c9b23e86f",
+      "38b742784513e7f70fc31a6f39c6227617fe8719705f544c48524ffbfacc8a1f",
+      "ab2ab62c7d6d2d29fc915374773ccdb805e1ee4870a38d7e523ae9074efe932f"
+    ],
+    "counts": {
+      "CALIBRATED_ESTIMATE": 12533543,
+      "RECONSTRUCTED": 25067086,
+      "CENSORED": 217,
+      "UNKNOWN": 434
+    },
+    "payload_persisted_by_v19": false,
+    "identity_deterministically_recomputable": true
+  },
+  "uncertainty": {
+    "model_sha256": "8831bee921999e823466cfc462812e40620b2834080c0f7d64c6f11d7ead626f",
+    "binding_sha256": "61c99b0e29316730ca1323fd3e91fd069ebbc50cba73127cd81b9803b10178a0",
+    "v5g_anchor_count": 97025,
+    "p95_min": 0.00040458221337758005,
+    "p95_max": 0.084321193397045135
+  },
+  "projection_binding": {
+    "v16_science_identity_complete": true,
+    "source_bound_p3_transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "color_authority": "SOURCE_METADATA_BOUND_L1_NOT_PHYSICAL_CALIBRATION",
+    "encoded_hdr_output_exists": false
+  },
+  "authority_rules": {
+    "reconstruction_authority_is_distinct_from_appearance_detail_authority": true,
+    "optical_mtf_required_for_basic_reconstructed_colour_authority": false,
+    "optical_mtf_required_for_detail_acutance_claims": true,
+    "censored_measured_channel_exact_projection_allowed": false,
+    "missing_channels_at_censored_site_exact_projection_allowed": false,
+    "counterfactual_or_appearance_writeback": false,
+    "creates_new_sensor_evidence": false,
+    "fixed_scene_dynamic_range_ceiling_ev": null
+  },
+  "validation": {
+    "local_scientific_master_hash_reverified_before_authority_digest": "PASS",
+    "local_execution_band_192": "PASS",
+    "local_execution_band_257": "PASS",
+    "partition_invariance": "PASS_IDENTICAL",
+    "local_unit_tests": null,
+    "dedicated_ci": null,
+    "open_world_regression": null,
+    "documentation_governance": null
+  },
+  "next_gates": [
+    "stream-regenerate the exact full-frame Scientific Master plus v1.9 Dynamic Authority records",
+    "run all exact-projectable RGB pixels through the v1.6 P3-D65/PQ projector while withholding censored/unknown pixels",
+    "define a presentation-only policy for pixels withheld from exact scientific RGB projection without inventing radiance",
+    "encode a standards-explicit TruthRaw-owned P3-D65/PQ HDR exchange file",
+    "round-trip the exact file through Lightroom without scientific-authority writeback"
+  ],
+  "promotion_rule": "Do not call TruthRaw HDR transport complete until a full-frame encoded HDR output is produced and round-trip validated. The scientific identity chain itself is complete at v1.9."
+}
