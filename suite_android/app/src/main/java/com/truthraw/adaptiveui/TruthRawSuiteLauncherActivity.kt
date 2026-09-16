@@ -52,18 +52,22 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "0.1-main-plus-FotoGraaf · integrated build 2026-09-16"
+            text = "v0.6 · preview-first + explicit Camera-5 200MP test"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Één app met de bestaande TruthRaw processor, FotoGraaf Camera2-acquisitie en de op de HONOR bewezen v0.3 source/CFA-verifier. Wetenschappelijke referenties blijven fail-closed: verifier, preview en export schrijven niets terug naar Scientific Master of Dynamic Authority."
+            text = "Voor 200MP hoef je geen route meer te raden: gebruik de eerste knop. Die test uitsluitend logical 0 → physical 5 → MAX RAW 16320×12288. Preview blijft gewone tele-preview; MAX wordt alleen tijdens de ene RAW-capture geactiveerd."
             textSize = 14f
-            setTextColor(Color.rgb(170, 177, 188))
-            setPadding(0, 0, 0, dp(22))
+            setTextColor(Color.rgb(190, 198, 209))
+            setPadding(0, 0, 0, dp(18))
         })
 
+        root.addView(actionButton("200MP TELE TEST · physical 5 · 16320×12288") {
+            startActivity(Intent(this, FotoGraaf200MpTestActivity::class.java))
+        })
+        root.addView(space())
         root.addView(actionButton("FotoGraaf camera & diagnostics") {
             startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
         })
@@ -77,7 +81,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         })
         root.addView(space())
         root.addView(TextView(this).apply {
-            text = "Camera authority: runtime Camera2-resultaat + exact gekoppelde RAW kunnen nieuwe capture-evidence leveren. Discovery, live preview, HONOR metadata, DNG-presentatie en de verifier zelf verhogen geen bestaande wetenschappelijke authority."
+            text = "200MP PASS vereist een echte 16320×12288 RAW_SENSOR Image, exact timestamp-paar, physical Camera-5 TotalCaptureResult en SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION. Een preview of geadverteerde capability alleen is geen 200MP capturebewijs."
             textSize = 12f
             setTextColor(Color.rgb(145, 153, 165))
         })
