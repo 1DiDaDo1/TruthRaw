@@ -1,0 +1,88 @@
+{
+  "schema": "TruthRawAndroidDebugClientState/0.2",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "INSTALLABLE_DEBUG_APK_WITH_EXACT_SOURCE_AND_ON_DEVICE_CFA_IDENTITY_VERIFICATION",
+  "application": {
+    "application_id": "io.truthraw.debug",
+    "version_code": 2,
+    "version_name": "0.2-debug",
+    "min_sdk": 26,
+    "target_sdk": 35,
+    "release_signing_authority": false
+  },
+  "source_admission": {
+    "bytes": 25106120,
+    "sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "decoded_cfa_width": 4080,
+    "decoded_cfa_height": 3072,
+    "file_byte_sha_verification_on_device": true,
+    "decoded_cfa_verification_on_device": true,
+    "non_matching_input_inherits_downstream_identity": false
+  },
+  "frozen_downstream_references": {
+    "scientific_master_sha256": "a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "dynamic_authority_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+    "source_bound_p3_transform_sha256": "2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533",
+    "reference_l0": 0.12564234435558319,
+    "scientific_master_recomputed_on_device": false,
+    "dynamic_authority_recomputed_on_device": false,
+    "hdr_projection_run_on_device": false
+  },
+  "ci_debug_signing": {
+    "fixed_non_secret_test_key": true,
+    "keystore_sha256": "e1a5e428b56ff08f57e063ca455b4542ca678aa6bf15db6a6672189c70f7b2c8",
+    "release_use_forbidden": true
+  },
+  "build_identity": {
+    "canonical_payload_algorithm": "SHA256_SORTED_ZIP_ENTRY_NAME_AND_UNCOMPRESSED_BYTES_WITH_EXPLICIT_BIG_ENDIAN_LENGTH_FRAMING",
+    "canonical_payload_sha256": "2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e",
+    "signed_apk_instance_hash_reproducible": false,
+    "reason": "ALL_ZIP_ENTRIES_MATCH_ACROSS_CLEAN_BUILDS_BUT_APK_SIGNING_BLOCK_BYTES_DIFFER",
+    "validated_clean_runs": [
+      {
+        "run_id": 35068900834,
+        "head_sha": "7ce9ad7df86647957a5bfbeda650831b8d9f6e0e",
+        "apk_sha256": "edda905acc40ab373eff77988148f342cf21b33b04c5e67acec10d93f7169bb9",
+        "canonical_payload_sha256": "2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 35069102897,
+        "head_sha": "0ed6d760693a57a7ab3022429f056be657473d5d",
+        "apk_sha256": "014c8b6bf5a5e26e967f917e32ee98675278bd2dbcc826deca68c77eb1dda423",
+        "canonical_payload_sha256": "2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 35069372195,
+        "head_sha": "ae31675b3bb6c6b5c46fe26239ba7d8a06e9273a",
+        "apk_sha256": "cd155f1903f30e76af40710465963b5dec60f2810cce4086bb55718edd9d5085",
+        "canonical_payload_sha256": "2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 35069551231,
+        "head_sha": "c6e53b53870bb6af9837d7c14abe4588be500e68",
+        "artifact_id": 10435881511,
+        "apk_sha256": "373527bb27d8c2b18a5094edf3b73c14ef725f7e5672d3722795e1a148ede34a",
+        "canonical_payload_sha256": "2a2b5ec59d7bafe3c810b446a440feaaa00641c88addf68e1c5d3f179c68bf1e",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "scientific_rules": {
+    "apk_may_modify_canonical_truthraw_evidence": false,
+    "apk_reference_values_are_new_scientific_recomputation": false,
+    "appearance_or_transport_may_write_back_scientific_authority": false,
+    "representation_may_exceed_source_but_knowledge_claims_may_not": true
+  },
+  "next_gates": [
+    "install v0.2 on the target Honor device and verify the exact frozen source DNG passes source plus decoded-CFA identity",
+    "port the exact Scientific Master runtime to Android/native without changing the frozen scientific contract",
+    "bind on-device Scientific Master output to a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640",
+    "then port Dynamic Authority v1.9 and TruthRaw HDR projection downstream of the verified master"
+  ],
+  "promotion_rule": "Do not promote this debug client to main or call the mobile scientific pipeline complete until the Scientific Master and Dynamic Authority identities are independently recomputed and matched on-device."
+}
