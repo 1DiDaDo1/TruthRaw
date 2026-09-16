@@ -29,6 +29,11 @@
             android:exported="false" />
 
         <activity
+            android:name="io.truthraw.debug.MainActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
             android:name=".FotoGraafPermissionGateActivity"
             android:exported="false" />
 
