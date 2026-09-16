@@ -1,0 +1,1 @@
+Remove temporary staging marker files from earlier branch-preparation attempts. This file will be removed in the same cleanup sequence.
