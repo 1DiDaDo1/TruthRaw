@@ -1,0 +1,32 @@
+name: truthraw-hdr-legacy-linear-bridge-v1-7
+
+on:
+  push:
+    paths:
+      - 'tools/truthraw_hdr_legacy_linear_bridge_v17.py'
+      - 'tests/test_truthraw_hdr_legacy_linear_bridge_v17.py'
+      - 'docs/research/truthraw-hdr-legacy-linear-bridge-v1.7/**'
+      - 'state/TRUTHRAW_HDR_LEGACY_LINEAR_BRIDGE_V17_STATE.json'
+      - '.github/workflows/truthraw-hdr-legacy-linear-bridge-v1-7.yml'
+  pull_request:
+    paths:
+      - 'tools/truthraw_hdr_legacy_linear_bridge_v17.py'
+      - 'tests/test_truthraw_hdr_legacy_linear_bridge_v17.py'
+      - 'docs/research/truthraw-hdr-legacy-linear-bridge-v1.7/**'
+      - 'state/TRUTHRAW_HDR_LEGACY_LINEAR_BRIDGE_V17_STATE.json'
+      - '.github/workflows/truthraw-hdr-legacy-linear-bridge-v1-7.yml'
+
+jobs:
+  legacy-linearraw-authority-bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run legacy LinearRaw bridge and upstream HDR authority tests
+        run: |
+          python -m unittest -v \
+            tests.test_truthraw_hdr_projection_v15 \
+            tests.test_truthraw_hdr_projection_runtime_v16 \
+            tests.test_truthraw_hdr_legacy_linear_bridge_v17
