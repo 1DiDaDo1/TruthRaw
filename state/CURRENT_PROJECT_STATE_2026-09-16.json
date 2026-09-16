@@ -152,13 +152,105 @@
     },
     "superseded_provisional_locator_counts": [3549, 44, 2580]
   },
+  "historical_lineage_recovery": {
+    "tool": "tools/recover_v19_historical_lineage_v01.py",
+    "tests": "tests/test_recover_v19_historical_lineage_v01.py",
+    "ci": ".github/workflows/v19-historical-lineage-recovery-v0-1.yml",
+    "ci_run": 35107730144,
+    "ci_status": "PASS_REQUIRED_HISTORICAL_SOURCE_BYTES_RECOVERED_EXACT",
+    "recovered_required_sources": {
+      "canonical_v4_7i_core.cpp": {
+        "historical_commit": "36cd2ca16946a412fa28f04b70ae2f423167fb43",
+        "historical_path": "staging/v47i-byte-exact/core.cpp",
+        "bytes": 26344,
+        "git_blob_sha1": "f79b951ba54cff08db400023e528e4eb91909ba6",
+        "sha256": "68f52c4896d47c4605adc1cf670e55f95d42a687e18c06a167028a64ce37b94c",
+        "exact_sha256_match": true
+      },
+      "canonical_v4_7i_core.h": {
+        "historical_commit": "36cd2ca16946a412fa28f04b70ae2f423167fb43",
+        "historical_path": "staging/v47i-byte-exact/core.h",
+        "bytes": 8593,
+        "git_blob_sha1": "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a",
+        "sha256": "b7f6e2189d6ecccfc5fda80084041990bd12757145c5ff2c40f2ae0d0046b167",
+        "exact_sha256_match": true
+      },
+      "scientific_master_digest_v0_1.cpp": {
+        "path": "docs/research/scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.cpp",
+        "bytes": 14796,
+        "git_blob_sha1": "669122bcae82dd5475b2a1dfa413bc3e8dff6c22",
+        "sha256": "70dfd24b86f9472a98cded66ecc1130da6dd7a838322fadd55ff5152d22bbbdf",
+        "exact_sha256_match": true
+      },
+      "scientific_master_digest_v0_1.h": {
+        "path": "docs/research/scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.h",
+        "bytes": 2656,
+        "git_blob_sha1": "6bb779d43270e99bb876727ce1ab7cb7b04ba200",
+        "sha256": "89aaac2329375f7ebae1b8682868480844c75f45541bc36d26fb5b9ed618a058",
+        "exact_sha256_match": true
+      },
+      "uncertainty_core_v5_0g.py": {
+        "path": "canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py",
+        "bytes": 10023,
+        "git_blob_sha1": "3a833147f892a970c60175a7ebe4ab1e8cf0221c",
+        "sha256": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+        "exact_sha256_match": true
+      }
+    },
+    "optional_local_probe": {
+      "name": "probe_dynamic_authority_v19.cpp",
+      "expected_sha256": "d82fc539643650fc68e4d307c3080cf0f4f1ada8dc7311ed7d8fb5005e7ce8c2",
+      "recovered_exact": false,
+      "interpretation": "PROVENANCE_GAP_NOT_FIELD_IDENTITY_FAILURE"
+    },
+    "recovered_source_bytes_upgrade_scientific_authority": false,
+    "full_v19_field_equivalence_still_requires_digest_falsification": true
+  },
   "uncertainty": {
     "v5g_p1_model_spec_known": true,
     "expected_historical_feature_count": 18,
-    "exact_historical_extractor_source_recovered": false,
-    "expected_historical_extractor_size_bytes": 10023,
+    "exact_historical_extractor_source_recovered": true,
+    "historical_extractor_recovery": {
+      "path": "canonical/uncertainty/v5.0g/source/uncertainty_core_v5_0g.py",
+      "git_blob_sha1": "3a833147f892a970c60175a7ebe4ab1e8cf0221c",
+      "bytes": 10023,
+      "sha256": "b1cfbf061a32aa4abccb9d8bb86a9b5b9257f88498081eb9aa659f9402d0919d",
+      "exact_sha256_match": true,
+      "recovery_ci_run": 35107730144
+    },
+    "exact_historical_feature_names": [
+      "log1p_abs_prediction_stage2",
+      "log1p_sigma_stage2_x1e4",
+      "log1p_predicted_snr",
+      "log1p_support_std_over_sigma",
+      "log1p_support_range_over_sigma",
+      "log1p_pair_min_disagreement_over_sigma",
+      "log1p_pair_median_disagreement_over_sigma",
+      "log1p_green_direction_disagreement_over_sigma",
+      "log1p_local_mosaic_range_over_sigma",
+      "gain_at_target",
+      "neighbor_censor_fraction",
+      "radial_position_norm",
+      "prediction_negative_flag",
+      "prediction_over1_flag",
+      "role_R",
+      "role_G1",
+      "role_G2",
+      "role_B"
+    ],
+    "historical_role_order_quirk": {
+      "training_role_order": ["B", "G1", "G2", "R"],
+      "feature_label_order": ["role_R", "role_G1", "role_G2", "role_B"],
+      "must_preserve_exactly": true
+    },
+    "anti_leak_semantics_recovered": {
+      "central_hidden_measured_target_used_to_build_features": false,
+      "target_read_only_after_feature_vector_complete": true,
+      "source_white_hidden_target_in_exact_value_scoring": false
+    },
     "approximate_semantic_adapter_allowed": false,
-    "formal_blocker": "OPEN_NEEDS_EXACT_V5G_FEATURE_EXTRACTOR_RECOVERY_OR_HASH_VERIFIED_EQUIVALENT_FEATURE_DEFINITION"
+    "previous_extractor_recovery_blocker_closed": true,
+    "formal_blocker": "OPEN_NEEDS_EXACT_V5G_FEATURE_REPLAY_PARITY_AND_CURRENT_F64_TRACE_BINDING"
   },
   "dynamic_authority": {
     "classes": [
@@ -175,7 +267,24 @@
     "missing_or_mismatched_binding_fails_closed": true,
     "restoration_roles_do_not_replace_core_authority_classes": true,
     "open_scene_region_v07_bound": true,
-    "full_frame_open_scene_state_v08_bound": true
+    "full_frame_open_scene_state_v08_bound": true,
+    "v19_reference_field": {
+      "width": 4080,
+      "height": 3072,
+      "rgb_records": 37601280,
+      "field_sha256": "7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098",
+      "channel_sha256": {
+        "R": "d0b8febb3e62d18968e72036a76f577453554553e117692a1fdd9d2c9b23e86f",
+        "G": "38b742784513e7f70fc31a6f39c6227617fe8719705f544c48524ffbfacc8a1f",
+        "B": "ab2ab62c7d6d2d29fc915374773ccdb805e1ee4870a38d7e523ae9074efe932f"
+      },
+      "required_historical_support_sources_recovered_exact": true,
+      "local_probe_source_recovered_exact": false,
+      "bulk_payload_persisted_by_v19": false,
+      "historical_identity_declared_deterministically_recomputable": true,
+      "independent_current_regeneration_digest_falsification_pass": false,
+      "next_gate": "REGENERATE_FIELD_AND_MATCH_FULL_FIELD_PLUS_R_G_B_DIGESTS"
+    }
   },
   "hdr": {
     "scientific_headroom_authority_aware": true,
@@ -243,9 +352,11 @@
     "apk_gcam_may_determine_scientific_authority": false
   },
   "next_safe_work": [
+    "REPLAY_EXACT_RECOVERED_V5G_FEATURE_EXTRACTOR_AGAINST_FROZEN_PARITY_AND_HOLDOUT",
+    "BIND_EXACT_V5G_FEATURES_TO_CURRENT_F64_RECONSTRUCTION_TRACE_FAIL_CLOSED",
+    "REGENERATE_DYNAMIC_AUTHORITY_V19_AND_MATCH_FULL_FIELD_PLUS_CHANNEL_DIGESTS",
     "BIND_FROZEN_4080x3072_SOURCE_TO_REAL_OPEN_SCENE_REGION_V07_AND_FULL_FRAME_V08_ARTIFACT",
     "OBTAIN_REAL_CAMERA5_16320x12288_RAW_SENSOR_AND_BOUND_TOTALCAPTURERESULT",
-    "KEEP_V5G_FEATURE_RECOVERY_FAIL_CLOSED",
     "BIND_FUTURE_200MP_READOUT_TO_ITS_OWN_PRECISION_UNCERTAINTY_NOISE_SHADING_COLOUR_AND_SFR_GATES",
     "PRESERVE_FROZEN_SOURCE_AND_DOWNSTREAM_IDENTITIES"
   ]
