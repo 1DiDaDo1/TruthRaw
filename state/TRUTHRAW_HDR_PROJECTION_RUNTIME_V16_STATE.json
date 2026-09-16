@@ -1,0 +1,60 @@
+{
+  "schema": "TruthRawHdrProjectionRuntimeState/1.6",
+  "status": "RESEARCH_BRANCH_NOT_MAIN_PROMOTED",
+  "branch": "research/open-world-foundations-v01",
+  "classification": "STREAMING_HDR_PROJECTOR_IMPLEMENTED_REAL_SCIENTIFIC_MASTER_BINDING_PENDING",
+  "implementation_commits": {
+    "runtime": "2ddaad6bdf52395284606098d4af6b5516c75882",
+    "tests": "ea39ededc72fb6763495a6cc4c230eecc43c87a1",
+    "documentation": "39b9289ed1f17abd76e35294bcfaf6f46bb94c0f"
+  },
+  "source_authority": {
+    "immutable_source_dng": "IMG_BNC_TRUTHRAW20260907_094449_565.dng",
+    "immutable_source_sha256": "7930ba5db0fe1b7b9dcc09e9337efbca76b8877fb78a6dc4667761bf25159b67",
+    "decoded_cfa_sha256": "883cbe13fd2a5afe7e9f3f4147df3a8ed3be681340a3c0422933f42d0f4d719c",
+    "source_white_censored_samples": 217,
+    "scientific_master_sha256": null,
+    "dynamic_authority_sha256": null,
+    "real_projection_binding_complete": false
+  },
+  "upstream": {
+    "v15_state": "state/TRUTHRAW_HDR_PROJECTION_V15_STATE.json",
+    "v14_empirical_state": "state/ADOBE_LIGHTROOM_HDR_COUNTERBALANCED_TONE_V14_STATE.json"
+  },
+  "runtime": {
+    "path": "tools/truthraw_hdr_projection_runtime_v16.py",
+    "tests": "tests/test_truthraw_hdr_projection_runtime_v16.py",
+    "documentation": "docs/research/truthraw-hdr-projection-runtime-v1.6/README.md",
+    "output_stage": "PQ_RGB_CODE_RECORDS_NOT_CONTAINER_ENCODING",
+    "streaming_chunk_boundaries_are_scientific_content": false,
+    "global_raster_order_required": true,
+    "fixed_scene_dynamic_range_ceiling_ev": null
+  },
+  "authority_rules": {
+    "measured_calibrated_reconstructed_exact_projection_allowed": true,
+    "censored_exact_projection_allowed": false,
+    "unknown_exact_projection_allowed": false,
+    "counterfactual_or_appearance_in_scientific_projection_allowed": false,
+    "uncertainty_preserved": true,
+    "negative_gamut_clip_is_presentation_only": true,
+    "channel_peak_clip_is_presentation_only": true,
+    "adobe_hdr_limit_changes_scientific_projection": false,
+    "pq_codes_create_sensor_evidence": false,
+    "scientific_master_writeback_allowed": false
+  },
+  "color_binding": {
+    "requires_hash_bound_transform": true,
+    "target_primaries_must_match_request": true,
+    "color_authority_is_preserved_not_promoted": true,
+    "supported_primaries": ["P3_D65", "REC709", "REC2020"]
+  },
+  "next_gates": [
+    "bind exact deterministic Scientific Master SHA for the immutable tele source",
+    "persist and bind the matching real Dynamic Authority Field SHA",
+    "bind the exact source-specific Scientific-Master-RGB to P3-D65 transform and authority scope",
+    "stream the real 4080x3072 Scientific Master through v1.6",
+    "encode a true TruthRaw-owned P3-D65/PQ HDR exchange file",
+    "round-trip that file through Lightroom without scientific-authority writeback"
+  ],
+  "promotion_rule": "Do not promote v1.6 as a completed real HDR render until exact real Scientific Master and Dynamic Authority hashes are bound and a full-frame encoded HDR output has passed transport and Lightroom round-trip validation."
+}
