@@ -12,10 +12,10 @@ import java.util.Locale
  * Runtime-only route discovery for the integrated FotoGraaf Pro camera.
  *
  * Nothing here grants scientific authority. A route is shown only when Camera2
- * advertises the relevant topology and RAW_SENSOR size at runtime. MAX routes
- * additionally require the maximum-resolution stream map. A route becomes
- * capture evidence only after an actual RAW image is timestamp-bound to its
- * TotalCaptureResult (and physical result when requested).
+ * advertises the relevant topology and RAW_SENSOR size at runtime. Android
+ * exposes two distinct high-pixel-count paths on the tested HONOR Camera 5:
+ * the maximum-resolution stream map and getHighResolutionOutputSizes(). Both
+ * remain capability observations until an actual RAW is capture-result bound.
  */
 internal data class FotoGraafProRoute(
     val label: String,
@@ -40,12 +40,16 @@ internal object FotoGraafProRoutes {
             val logicalCaps = logical.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: intArrayOf()
             val logicalRaw = ordinaryRawSizes(logical)
             val logicalMax = maximumRawSizes(logical)
+            val logicalHigh = highResolutionRawSizes(logical)
 
             if (logicalCaps.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW) && logicalRaw.isNotEmpty()) {
-                routes += makeRoute(logicalId, null, logicalRaw.first(), false, logical)
+                routes += makeRoute(logicalId, null, logicalRaw.first(), false, logical, "ORDINARY")
             }
             if (Build.VERSION.SDK_INT >= 31 && logicalMax.isNotEmpty()) {
-                routes += makeRoute(logicalId, null, logicalMax.first(), true, logical)
+                routes += makeRoute(logicalId, null, logicalMax.first(), true, logical, "MAXIMUM_MAP")
+            }
+            logicalHigh.forEach { size ->
+                routes += makeRoute(logicalId, null, size, true, logical, "HIGH_RESOLUTION_OUTPUT")
             }
 
             if (Build.VERSION.SDK_INT >= 28) {
@@ -53,12 +57,15 @@ internal object FotoGraafProRoutes {
                     val physical = runCatching { manager.getCameraCharacteristics(physicalId) }.getOrNull()
                         ?: return@forEach
                     ordinaryRawSizes(physical).firstOrNull()?.let { size ->
-                        routes += makeRoute(logicalId, physicalId, size, false, physical)
+                        routes += makeRoute(logicalId, physicalId, size, false, physical, "ORDINARY")
                     }
                     if (Build.VERSION.SDK_INT >= 31) {
                         maximumRawSizes(physical).firstOrNull()?.let { size ->
-                            routes += makeRoute(logicalId, physicalId, size, true, physical)
+                            routes += makeRoute(logicalId, physicalId, size, true, physical, "MAXIMUM_MAP")
                         }
+                    }
+                    highResolutionRawSizes(physical).forEach { size ->
+                        routes += makeRoute(logicalId, physicalId, size, true, physical, "HIGH_RESOLUTION_OUTPUT")
                     }
                 }
             }
@@ -101,21 +108,31 @@ internal object FotoGraafProRoutes {
             .sortedByDescending { it.width.toLong() * it.height.toLong() }
     }
 
+    private fun highResolutionRawSizes(c: CameraCharacteristics): List<Size> =
+        c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            ?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)
+            ?.toList()
+            .orEmpty()
+            .sortedByDescending { it.width.toLong() * it.height.toLong() }
+
     private fun makeRoute(
         logicalId: String,
         physicalId: String?,
         size: Size,
         maximumResolution: Boolean,
         effective: CameraCharacteristics,
+        sourceClass: String,
     ): FotoGraafProRoute {
         val focal = effective.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)?.firstOrNull()
         val pixels = size.width.toLong() * size.height.toLong()
         val mp = pixels / 1_000_000.0
         val lens = friendlyLens(physicalId, focal)
-        val mode = if (maximumResolution) {
-            if (pixels >= 190_000_000L) "MAX · runtime ≈${String.format(Locale.ROOT, "%.1f", mp)} MP"
-            else "MAX · runtime ${String.format(Locale.ROOT, "%.1f", mp)} MP"
-        } else "RAW"
+        val mode = when {
+            sourceClass == "HIGH_RESOLUTION_OUTPUT" && pixels >= 190_000_000L ->
+                "200MP HIGH-RES · runtime ${String.format(Locale.ROOT, "%.1f", mp)} MP"
+            maximumResolution -> "MAX · runtime ${String.format(Locale.ROOT, "%.1f", mp)} MP"
+            else -> "RAW"
+        }
         val path = if (physicalId != null) "logical $logicalId → physical $physicalId" else "logical $logicalId"
         return FotoGraafProRoute(
             label = "$lens · $mode · $path · ${size.width}×${size.height}",
@@ -125,8 +142,10 @@ internal object FotoGraafProRoutes {
             maximumResolution = maximumResolution,
             focalLengthMm = focal,
             routeClass = when {
+                physicalId != null && sourceClass == "HIGH_RESOLUTION_OUTPUT" -> "RUNTIME_ADVERTISED_PHYSICAL_HIGH_RESOLUTION_RAW_SENSOR_MAX_PIXEL_MODE"
                 physicalId != null && maximumResolution -> "RUNTIME_ADVERTISED_PHYSICAL_MAXIMUM_RESOLUTION_RAW_SENSOR"
                 physicalId != null -> "RUNTIME_ADVERTISED_PHYSICAL_RAW_SENSOR"
+                sourceClass == "HIGH_RESOLUTION_OUTPUT" -> "RUNTIME_ADVERTISED_LOGICAL_HIGH_RESOLUTION_RAW_SENSOR_MAX_PIXEL_MODE"
                 maximumResolution -> "RUNTIME_ADVERTISED_LOGICAL_MAXIMUM_RESOLUTION_RAW_SENSOR"
                 else -> "RUNTIME_ADVERTISED_LOGICAL_RAW_SENSOR"
             },
