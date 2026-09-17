@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the completed HONOR Camera-5 v0.30 full-factorial route matrix and the **v0.31 INT32 value-domain sweep build** on 2026-09-17.
+This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the completed HONOR Camera-5 v0.30 full-factorial route matrix and the **completed v0.31 INT32 value-domain device sweep** on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
 
@@ -11,15 +11,16 @@ It is a navigation/current-state document. It does not rewrite frozen historical
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/CURRENT_CAMERA5_ROUTE_EXPERIMENT_2026-09-17.md`
-6. `docs/HONOR_CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_BUILD_2026-09-17.md`
+6. `docs/HONOR_CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_DEVICE_RESULT_2026-09-17.md`
 7. `state/CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_STATE_2026-09-17.json`
-8. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
-9. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
-10. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-11. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-12. only then exact canonical/research/module documents relevant to the task.
+8. `docs/HONOR_CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_BUILD_2026-09-17.md`
+9. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
+10. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
+11. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
+12. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+13. only then exact canonical/research/module documents relevant to the task.
 
-Historical partial-matrix state/result documents remain preserved as provenance and are no longer the current matrix completion authority.
+Historical partial-matrix state/result documents and failed builds remain preserved as provenance and are not current completion authority.
 
 ## One-sentence current definition
 
@@ -86,7 +87,7 @@ The exact prefix copy forms a coherent full-frame scene under the `4080x3072` in
 - v0.27 `EnableXCFAOptimization`: BYTE, tag `0x801F0036`;
 - v0.29 `HALOutputBufferCombined`: INT32, tag `0x801F0034`.
 
-Accepted single-variable interventions v0.24/v0.26/v0.28 produced no measured RAW envelope/populated-payload topology differential. Numeric `1` remains an experimental control value, not proven vendor semantics.
+Accepted single-variable numeric-one interventions v0.24/v0.26/v0.28 produced no measured RAW envelope/populated-payload topology differential. Vendor names and numeric values remain non-semantic unless separately proven.
 
 ## Completed v0.30 full-factorial matrix
 
@@ -115,21 +116,19 @@ All 16 unique profiles have individually readable evidence JSONs. Every profile 
 - unique advertised standard RAW byte match `4080x3072`;
 - no measured envelope/populated-prefix topology differential.
 
-Current bounded matrix conclusion:
+Bounded matrix conclusion:
 
 `WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
 The four-key 0/1 experimental space is complete and should not be repeated.
 
-## Current experiment — v0.31 INT32 value-domain sweep
-
-v0.31 changes the tested numeric domain instead of repeating binary combinations.
+## Completed v0.31 INT32 value-domain sweep
 
 Experiment:
 
 `CAMERA5_INT32_VALUE_DOMAIN_SWEEP_0_2_3`
 
-Only the two INT32 controls are exercised, one unknown vendor key per run:
+Only the two INT32 controls were exercised, one unknown vendor key per run:
 
 - S01 `RawCbSourceType=0`;
 - S02 `RawCbSourceType=2`;
@@ -138,36 +137,47 @@ Only the two INT32 controls are exercised, one unknown vendor key per run:
 - S05 `HALOutputBufferCombined=2`;
 - S06 `HALOutputBufferCombined=3`.
 
-A=`EnableIdealRAW` and C=`EnableXCFAOptimization` remain UNSET throughout. Numeric `1` and UNSET are not repeated because they were already screened by v0.30.
+`EnableIdealRAW` and `EnableXCFAOptimization` remained UNSET throughout. All six requested numeric values were accepted by the builder, matched builder and built-request readback, and attached as session parameters. Exactly one unknown vendor key was written per run.
 
-Values `0`, `2`, and `3` are experimental stimuli only. No vendor enum or semantic meaning is assumed.
+All six device captures again reproduce the v0.20 topology class:
 
-Build status: **SUCCESS — DEVICE RESULTS PENDING**.
+- app-visible RAW envelope `16320x12288` / `401,080,320` bytes;
+- first `768` declared rows populated;
+- remaining `11,520` rows zero;
+- payload `25,067,520` bytes / `12,533,760` U16 samples;
+- Stage 3.6 `ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE`;
+- Stage 3.7 `UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED`;
+- unique advertised standard RAW byte match `4080x3072`;
+- no measured envelope/populated-prefix topology differential.
 
-Branch:
+Returned coarse route observations also remain in the same class: HONOR `binningFactor=4`, AEC crop prefix `[11,8,4058,3055]`, full `allISPCropWindow`, `isInSensorZoom=0`, and Android `rawBinningFactorUsed=true`.
 
-`integration/truthraw-suite-v0-31-int32-value-domain-sweep`
+Combining v0.31 with the earlier UNSET and numeric-one references gives the bounded tested domain
 
-Successful build provenance:
+`{UNSET, 0, 1, 2, 3}`
 
-- run `35274828567`;
-- job `105382770948`;
-- head `899e38abf87b2e4712cd60142cf2aeac9acd9e8b`;
-- APK SHA-256 `3125ddab46232c46680cefc67ae2e729495be88ba17cb15d2681d2e5abaf3bd3`;
-- artifact ID `10520386544`;
-- artifact ZIP SHA-256 `1af039f1fb79640d65f4a696c8f8c52e8102945b8099b8b917d5c6c63f2b20c1`.
+for both `RawCbSourceType` and `HALOutputBufferCombined` on the tested route. Within that domain neither control changes the measured app-visible RAW envelope/populated-prefix topology.
 
-The first v0.31 build attempt is preserved as failed-build provenance; it failed before compilation on an uppercase bundle-version assertion and produced no device/scientific result.
+Bounded v0.31 conclusion:
 
-The v0.31 fixed-control UI retains first-missing recovery and the source-first v0.20 acquisition/audit ordering.
+`DEVICE_SWEEP_COMPLETE_6_OF_6__RAWCB_AND_HALOUTPUTBUFFERCOMBINED_INT32_VALUES_0_2_3_ACCEPTED_AND_ATTACHED__NO_MEASURABLE_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_DIFFERENTIAL`
 
-## Immediate device action
+This does not decode vendor enum meanings, does not prove explicit zero equals UNSET semantically, and does not rule out values outside the tested domain or another route context.
 
-Run S01 through S06 and save each evidence JSON individually. If a value produces a topology differential, stop broad sweeping and narrow that region. If a value is rejected/blocked, preserve the failure rather than inferring semantics.
+## Current next research direction
+
+Do not repeat the v0.30 binary matrix and do not blindly enumerate arbitrary larger INT32 values.
+
+Next useful route work should either:
+
+- screen a **new upstream vendor-route family** with native-type oracle(s) before any intervention; or
+- test a **separately justified prerequisite/context condition** if evidence suggests the accepted INT32 controls only act in another route state.
+
+A multi-key diagnostic oracle screen is preferred over one-by-one mutation when several candidates can be type-resolved without creating a session or submitting a capture.
 
 ## Current open problem
 
-`OPEN_NEEDS_ROUTE_DIFFERENTIAL_TO_ESTABLISH_WHETHER_A_DIFFERENT_HONOR_QTI_CONTROL_PATH_OR_VALUE_DOMAIN_CAN_POPULATE_A_LARGER_NATIVE_OR_APP_VISIBLE_RAW_DOMAIN`
+`OPEN_NEEDS_ROUTE_DIFFERENTIAL_TO_ESTABLISH_WHETHER_A_DIFFERENT_HONOR_QTI_CONTROL_PATH_OR_CONTEXT_CAN_POPULATE_A_LARGER_NATIVE_OR_APP_VISIBLE_RAW_DOMAIN`
 
 Independently:
 
