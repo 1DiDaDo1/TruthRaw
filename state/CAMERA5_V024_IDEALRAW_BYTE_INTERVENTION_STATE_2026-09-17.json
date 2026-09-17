@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-idealraw-byte-intervention-state.v0.24",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_COMPLETE_NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
   "branch": "integration/truthraw-suite-v0-24-idealraw-byte-intervention",
   "control": {
     "version": "v0.20",
@@ -55,7 +55,55 @@
     "artifactId": 10506437816,
     "artifactZipBytes": 1587319,
     "artifactZipSha256": "04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b",
-    "deviceResultAvailable": false
+    "deviceResultAvailable": true
+  },
+  "deviceResult": {
+    "evidenceFile": "TRUTHRAW_1789661201607_CAM5_200MP_EVIDENCE_v024.json",
+    "diagnosticPreviewFile": "TRUTHRAW_1789661201607_CAM5_PAYLOAD_GEOMETRY_DIAGNOSTIC_v024.png",
+    "candidatePayloadFile": "TRUTHRAW_1789661201607_CAM5_PAYLOAD_STANDARD_RAW_BYTE_MATCH_v024.rawpayload",
+    "interventionApplied": true,
+    "builderSetPass": true,
+    "builderReadback": 1,
+    "requestReadback": 1,
+    "sessionParametersAttached": true,
+    "openedCameraId": "0",
+    "physicalResultCameraId": "5",
+    "width": 16320,
+    "height": 12288,
+    "sourceBytes": 401080320,
+    "sourceSha256": "00cd60cd44817eb267645b029ed6b4b112601bcf637b4dbcc0a2fac6118cc8e0",
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "timestampIdentityPass": true,
+    "captureResultSensorPixelMode": 0,
+    "rawBinningFactorUsed": true,
+    "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "nonZeroBandIndices": [0],
+    "zeroBandIndices": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+    "populatedPrefixBytes": 25067520,
+    "payloadLastNonZeroByteOffset": 25067518,
+    "stage37Status": "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED",
+    "selectedCandidateGeometry": [4080,3072],
+    "candidatePayloadSha256": "66e2bd49a4414326dbed0f69cf3e2e474931d2893a5113b22c5b67826c661bc2",
+    "candidatePayloadExactPrefixCopy": true,
+    "minCode": 60,
+    "maxCode": 1023,
+    "honorBinningFactor": 4,
+    "honorIsInSensorZoom": 0,
+    "honorAECRealCropWindowPrefix": [11,8,4058,3055],
+    "honorAllISPCropWindow": [0,0,16320,12288,0,0,16320,12288]
+  },
+  "differentialAgainstV020": {
+    "populatedPrefixBytesChanged": false,
+    "selectedGeometryChanged": false,
+    "bandPopulationPatternChanged": false,
+    "declaredEnvelopeGeometryChanged": false,
+    "returnedSensorPixelModeChanged": false,
+    "rawBinningFlagChanged": false,
+    "honorBinningFactorChanged": false,
+    "honorIsInSensorZoomChanged": false,
+    "measurableRawTopologyDifferentialObserved": false,
+    "interpretation": "EnableIdealRAW=BYTE(1) was accepted and attached as the sole controlled vendor session variable, but this tested Camera-5 route showed no measurable change in RAW envelope or populated payload topology versus v0.20. This does not prove that the vendor control has no effect in every route or mode."
   },
   "integrationProvenance": {
     "initialBuildRunId": 35243464800,
@@ -65,19 +113,12 @@
     "fix": "Use Byte::class.javaObjectType, matching the v0.22 Java-side BYTE marshalling representation.",
     "scientificDesignChangedByFix": false
   },
-  "deviceDecision": {
-    "ifSessionOrCaptureRejected": "record rejection as route-control evidence; do not change v0.20 source authority",
-    "ifCaptureSucceeds": "save v0.24 evidence JSON and, when produced, exact .rawpayload and diagnostic PNG; compare all source-population and route fingerprints against v0.20",
-    "primaryDifferential": "populated source bytes versus v0.20 value 25067520",
-    "secondaryDifferentials": [
-      "full row/band population",
-      "delivered Image/HardwareBuffer geometry and stride",
-      "Stage3.7 geometry match",
-      "returned SENSOR_PIXEL_MODE",
-      "rawBinningFactorUsed",
-      "HONOR binning/crop metadata",
-      "pre/post-HAL vendor fingerprints"
-    ]
+  "nextControlledQuestion": {
+    "candidateKey": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
+    "firstStep": "native tag/type oracle only",
+    "submitSessionToHal": false,
+    "capture": false,
+    "reason": "Resolve representation before any intervention; do not combine unknown vendor controls."
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
