@@ -33,6 +33,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
+    hardware_buffer_envelope_probe.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
@@ -74,6 +75,9 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FINALIZED_RELEASE_V02}
     ${LINEAR_DNG_PROJECTION}
     ${V47I_NATIVE}/include)
+
+find_library(ANDROID_LIB android)
+target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB})
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
 
