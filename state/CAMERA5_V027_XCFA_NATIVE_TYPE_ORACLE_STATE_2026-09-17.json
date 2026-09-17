@@ -1,0 +1,63 @@
+{
+  "schema": "truthraw.camera5-xcfa-native-type-oracle-state.v0.27",
+  "date": "2026-09-17",
+  "status": "BUILD_IN_PROGRESS_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-27-xcfa-native-type-oracle",
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "unchanged": true
+  },
+  "predecessorDeviceResult": {
+    "version": "v0.26",
+    "experiment": "RawCbSourceType=INT32(1)",
+    "interventionAccepted": true,
+    "rawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+    "boundedConclusion": "RAWCB_SOURCE_TYPE_INT32_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE"
+  },
+  "candidateSelection": {
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
+    "reason": "v0.26 Gate-B request-state observation exposed a one-element byte-array current/default value [0], making this a more constrained next representation question than keys whose current/default value remained null",
+    "gateBObservedCurrentOrDefaultRepresentation": "byte[] length 1 preview [0]",
+    "observationIsNativeTypeProof": false,
+    "semanticMeaningFromKeyNameAssumed": false
+  },
+  "oracle": {
+    "purpose": "RESOLVE_NATIVE_CAMERA_METADATA_ELEMENT_TYPE_ONLY",
+    "tagLookup": "ACameraMetadata_getTagFromName",
+    "testedNativeTypes": ["BYTE", "INT32", "FLOAT", "INT64", "DOUBLE", "RATIONAL"],
+    "testValueNumeric": 1,
+    "testValuePurpose": "TYPE_VALIDATION_ONLY_NOT_VENDOR_VALUE_SEMANTICS",
+    "eachTypeUsesDisposableRequestTemplate": true,
+    "readbackTypeAndCountRequired": true,
+    "expectedDecisiveCondition": "acceptedTypeCount == 1",
+    "sessionCreated": false,
+    "sessionParametersAttached": false,
+    "captureSubmitted": false,
+    "repeatingRequestSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false,
+    "rawPixelAccess": false,
+    "sourceMutation": false,
+    "semanticPromotionAllowed": false,
+    "expectedEvidenceFile": "TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json"
+  },
+  "build": {
+    "githubActionsRunId": 35251736680,
+    "jobId": 105305482639,
+    "workflow": "TruthRaw FotoGraaf v0.27 XCFA Native Type Oracle",
+    "workflowHeadSha": "db850876ab4a31603e04dca39e8ece3ea087c3c3",
+    "conclusion": null,
+    "deviceResultAvailable": false
+  },
+  "deviceProtocol": {
+    "requiredSteps": ["Step 1 only"],
+    "expectedStop": "STAGE 1.5 DIAGNOSTIC STOP",
+    "previewExpectedEnabled": false,
+    "captureExpectedEnabled": false,
+    "saveOracleJson": true,
+    "doNotAttemptInterventionBeforeDeviceTypeResult": true
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
