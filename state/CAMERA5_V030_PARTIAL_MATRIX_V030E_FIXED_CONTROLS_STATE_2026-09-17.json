@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-v030-partial-matrix-v030e-fixed-controls-state.v1",
+  "schema": "truthraw.camera5-v030-partial-matrix-v030e-fixed-controls-state.v2",
   "date": "2026-09-17",
-  "status": "PARTIAL_MATRIX_DEVICE_RESULTS_RECORDED__R01_R02_R04_R16_AVAILABLE__V030E_FIXED_CONTROLS_BUILD_SUCCESS",
+  "status": "PARTIAL_MATRIX_DEVICE_RESULTS_RECORDED__8_OF_16_UNIQUE_PROFILES_HARD_JSON_EVIDENCE__V030E_FIXED_CONTROLS_BUILD_SUCCESS",
   "sourcePayloadAuthority": "v0.20",
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
   "matrixDesign": {
@@ -21,7 +21,22 @@
   "deviceResultsAvailable": {
     "matrixComplete": false,
     "outOfOrderRunsReceived": true,
-    "receivedRunNumbers": [1, 2, 4, 16],
+    "hardEvidenceBasis": "INDIVIDUALLY_READABLE_V030_EVIDENCE_JSON_FILES_ONLY",
+    "receivedUniqueProfileCount": 8,
+    "receivedRunNumbers": [1, 2, 4, 11, 13, 14, 15, 16],
+    "missingRunNumbers": [3, 5, 6, 7, 8, 9, 10, 12],
+    "commonMeasuredTopology": {
+      "sourceEnvelopeBytes": 401080320,
+      "declaredWidth": 16320,
+      "declaredHeight": 12288,
+      "rowStride": 32640,
+      "pixelStride": 2,
+      "nonZeroRows": 768,
+      "allZeroRows": 11520,
+      "payloadBytes": 25067520,
+      "uniqueAdvertisedStandardRawMatch": "4080x3072",
+      "topologyDifferentialVsV020": false
+    },
     "receivedRuns": [
       {
         "run": 1,
@@ -31,69 +46,103 @@
         "sessionParametersAttached": false,
         "classification": "FULL_FACTORIAL_CONTROL__ALL_FOUR_VENDOR_KEYS_UNSET",
         "sourceSha256": "1ef8bc365b791687f58c3cdf711f6f4919366c688f7fb4ce7f9586e7832736b7",
-        "sourceBytes": 401080320,
-        "nonZeroRows": 768,
-        "allZeroRows": 11520,
-        "wholeRasterNonZeroSampleCount": 12533759,
-        "payloadBytes": 25067520,
-        "payloadGeometry": "4080x3072",
-        "payloadSha256": "dc9fec4e1e9c2af3c6314c936968cd2c2fa78d640911a8948f340b7f0cd5fd03",
-        "topologyDifferentialVsV020": false,
-        "boundedInterpretation": "IN_MATRIX_ALL_UNSET_CONTROL_REPRODUCES_V020_APP_VISIBLE_ENVELOPE_AND_4080X3072_EXACT_PREFIX_TOPOLOGY_CLASS",
-        "note": "One zero-valued sample occurs inside the populated prefix; row/population geometry remains unchanged."
+        "payloadSha256": "dc9fec4e1e9c2af3c6314c936968cd2c2fa78d640911a8948f340b7f0cd5fd03"
       },
       {
         "run": 2,
         "profileId": "R02_ABCD_1111",
         "ABCD": "1111",
         "vendorKeysWritten": 4,
+        "sessionParametersAttached": true,
         "builderAndRequestReadbackPass": true,
         "sourceSha256": "c2627863173e3d232bf70a409ce8fd0c468529526d651a1068f8065c9e09612b",
-        "sourceBytes": 401080320,
-        "nonZeroRows": 768,
-        "allZeroRows": 11520,
-        "payloadBytes": 25067520,
-        "payloadGeometry": "4080x3072",
-        "payloadSha256": "c6d6778f457ee39d5a0d3c41a69115e40b2c30cc1056e6f5af33069e3151d080",
-        "topologyDifferentialVsV020": false,
-        "boundedInterpretation": "ALL_FOUR_TYPE_VALIDATED_NUMERIC_ONE_VENDOR_WRITES_ATTACHED_WITHOUT_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_CHANGE"
+        "payloadSha256": "c6d6778f457ee39d5a0d3c41a69115e40b2c30cc1056e6f5af33069e3151d080"
       },
       {
         "run": 4,
         "profileId": "R04_ABCD_1010",
         "ABCD": "1010",
         "vendorKeysWritten": 2,
+        "sessionParametersAttached": true,
         "builderAndRequestReadbackPass": true,
         "sourceSha256": "0a427c7b68db4b181e223079eae4c62e8a8a15cd7abafb12716577c291ec534f",
-        "sourceBytes": 401080320,
-        "nonZeroRows": 768,
-        "allZeroRows": 11520,
-        "payloadBytes": 25067520,
-        "payloadGeometry": "4080x3072",
-        "payloadSha256": "7d564bde34c1a57dc5d4dcd3795841bc09dc078b9a205356f5bace3182218545",
-        "topologyDifferentialVsV020": false
+        "payloadSha256": "7d564bde34c1a57dc5d4dcd3795841bc09dc078b9a205356f5bace3182218545"
+      },
+      {
+        "run": 11,
+        "profileId": "R11_ABCD_0010",
+        "ABCD": "0010",
+        "vendorKeysWritten": 1,
+        "sessionParametersAttached": true,
+        "sourceSha256": "2d288be2fb38667a034b69baa7bd28dcb111f44ddd9f66b40ebdf52c43663eaa",
+        "payloadSha256": "913c7f8a37dc69d516ac46294de714aa967a1568b8fd5ade40595df7ac1ed594"
+      },
+      {
+        "run": 13,
+        "profileId": "R13_ABCD_0100",
+        "ABCD": "0100",
+        "vendorKeysWritten": 1,
+        "sessionParametersAttached": true,
+        "sourceSha256": "34f9612cbb8fcf0b952d955ca878a958697e666fa4601b742ede95b65ea7e666",
+        "payloadSha256": "615aed736da8b844dd99c411d3419a448759a132c00ed938a7c10e93058a2bd9"
+      },
+      {
+        "run": 14,
+        "profileId": "R14_ABCD_1011",
+        "ABCD": "1011",
+        "vendorKeysWritten": 3,
+        "sessionParametersAttached": true,
+        "sourceSha256": "2635b2b2da48e336c63ca9383deccb67a5f62ecb111af418828030e73e2f863f",
+        "payloadSha256": "a9be07e6f0d8994cc921192eaf3bafa4986c34f77739a2bbaa8abf143ff9df22"
+      },
+      {
+        "run": 15,
+        "profileId": "R15_ABCD_1000",
+        "ABCD": "1000",
+        "vendorKeysWritten": 1,
+        "sessionParametersAttached": true,
+        "sourceSha256": "fe128ee22a71a904c41003ff2dffbae904141ec9485295ccbd8108d5a6b1712a",
+        "payloadSha256": "f76960addab8c620812a4cd8185de2cb58ea5e450079fa44b5e54f53e757a821"
       },
       {
         "run": 16,
         "profileId": "R16_ABCD_0111",
         "ABCD": "0111",
         "vendorKeysWritten": 3,
-        "builderAndRequestReadbackPass": true,
-        "sourceSha256": "de6f94b0da4a6798691c8b6dba138f67012aa61e2adb33411f8b2be7b7724cec",
-        "sourceBytes": 401080320,
-        "nonZeroRows": 768,
-        "allZeroRows": 11520,
-        "payloadBytes": 25067520,
-        "payloadGeometry": "4080x3072",
-        "payloadSha256": "3d17dff7d87de5cc49aa681b347583b4128e79423fe5743263d36e9fb88c95db",
-        "wholeRasterNonZeroSampleCount": 12533758,
-        "note": "Two zero-valued samples occur inside the populated prefix; row/population geometry remains unchanged.",
-        "topologyDifferentialVsV020": false
+        "sessionParametersAttached": true,
+        "sourceSha256": "6f4e1446f5ddd52ab79e03d163fde54c27c66b3ee49787febf4b6693b804fd99",
+        "payloadSha256": "a9b38dece95ba0ae97705549ba55b0bbef937d412f01f27bd6b9e13caacf5ee7",
+        "replicateAvailable": true
+      }
+    ],
+    "replicateCaptures": [
+      {
+        "profileId": "R16_ABCD_0111",
+        "captureA": {
+          "sourceSha256": "de6f94b0da4a6798691c8b6dba138f67012aa61e2adb33411f8b2be7b7724cec",
+          "payloadSha256": "3d17dff7d87de5cc49aa681b347583b4128e79423fe5743263d36e9fb88c95db"
+        },
+        "captureB": {
+          "sourceSha256": "6f4e1446f5ddd52ab79e03d163fde54c27c66b3ee49787febf4b6693b804fd99",
+          "payloadSha256": "a9b38dece95ba0ae97705549ba55b0bbef937d412f01f27bd6b9e13caacf5ee7"
+        },
+        "sameTopologyClass": true,
+        "note": "Different pixel hashes are expected because scene/exposure/focus differ; replicate authority is structural/topological, not byte identity."
       }
     ],
     "inMatrixControlResult": "R01_ABCD_0000 reproduces the same measured topology class as v0.20 with no matrix vendor writes, providing a contemporaneous internal control for the v0.30 screening experiment.",
-    "strongestCurrentNegativeResult": "R02_ABCD_1111 disproves the simple tested hypothesis that simultaneously writing numeric 1 to all four currently type-resolved factors is sufficient to change the app-visible RAW envelope/populated-prefix topology.",
-    "prohibitedOverclaim": "This does not prove the keys are ineffective and does not establish the vendor semantics of numeric value 1."
+    "strongestCurrentNegativeResults": [
+      "R02_ABCD_1111: simultaneously writing numeric 1 to all four currently type-resolved factors is not sufficient to change the app-visible RAW envelope/populated-prefix topology.",
+      "R11_ABCD_0010 and R13_ABCD_0100 and R15_ABCD_1000: the individually screened C, B and A high states respectively remain in the same measured topology class.",
+      "R14_ABCD_1011 and both R16_ABCD_0111 captures: tested three-factor combinations remain in the same measured topology class."
+    ],
+    "prohibitedOverclaim": "These results do not prove the keys are ineffective and do not establish vendor semantics of numeric value 1. Missing profiles remain untested in hard individually readable JSON evidence."
+  },
+  "bundleHandling": {
+    "uploadedBundleZipsPresent": true,
+    "bundleContentsIndependentlyParsed": false,
+    "reason": "Archive inspection timed out in the current analysis environment. No run is promoted from a ZIP filename or bundle size alone.",
+    "authorityRule": "Only individually readable evidence JSONs are counted toward receivedRunNumbers until bundle contents are independently parsed."
   },
   "deviceUiFailure": {
     "v030Original": "LONG_STAGE3_STATUS_PUSHED_ESSENTIAL_CONTROLS_OUT_OF_REACH",
@@ -116,12 +165,6 @@
     "sourceSealOrderingChanged": false,
     "stage36Changed": false,
     "stage37Changed": false,
-    "ui": {
-      "essentialControlsFixedAboveDetailPane": true,
-      "fixedRows": 3,
-      "alwaysReachable": ["STEP1_ROUTES", "STEP2_LIVE", "MATRIX_PROFILE", "STEP3_CAPTURE", "SAVE_CURRENT_JSON", "EXPORT_CACHED_JSON_BUNDLE"],
-      "detailPaneScrollIsNonEssential": true
-    },
     "recovery": {
       "selectsFirstMissingCachedRun": true,
       "advancesToFirstMissingAfterSuccessfulCapture": true,
@@ -129,6 +172,6 @@
       "cacheIsNotPermanentAuthority": true
     }
   },
-  "nextDeviceAction": "CONTINUE_V030E_WITH_THE_PROFILE_DISPLAYED_BY_FIRST_MISSING_RECOVERY__SAVE_EACH_JSON__PERIODICALLY_EXPORT_BUNDLE_ZIP",
+  "nextDeviceAction": "ONLY_MISSING_HARD_JSON_PROFILES_REMAIN: R03,R05,R06,R07,R08,R09,R10,R12. CONTINUE_V030E_FIRST-MISSING RECOVERY AND SAVE EACH EVIDENCE JSON INDIVIDUALLY; BUNDLE EXPORT IS AUXILIARY.",
   "scientificMasterModified": false
 }
