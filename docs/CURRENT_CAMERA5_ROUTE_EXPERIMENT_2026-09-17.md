@@ -1,8 +1,8 @@
 # CURRENT Camera-5 route-control experiment — 2026-09-17
 
-Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.30 FULL-FACTORIAL MATRIX HAS 8/16 UNIQUE PROFILES WITH INDIVIDUALLY READABLE DEVICE EVIDENCE**
+Status: **v0.30 FULL-FACTORIAL DEVICE MATRIX COMPLETE; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; NO MEASURABLE RAW-TOPOLOGY DIFFERENTIAL IN ANY OF 16 TESTED PROFILES**
 
-This document tracks upstream HONOR/QTI route-control experiments after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
+This document tracks upstream HONOR/QTI route-control research after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
 
 Permanent boundary:
 
@@ -10,36 +10,35 @@ Permanent boundary:
 
 ## Control authority
 
-TruthRaw v0.20 remains the source/payload control:
+TruthRaw v0.20 remains the source/payload authority:
 
 `APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN`
 
-Measured control topology:
+Measured v0.20 topology:
 
-- app-visible envelope: `16320x12288`, `401,080,320` bytes;
-- populated source prefix: `25,067,520` bytes;
-- first `768` declared rows populated, remaining `11,520` rows zero;
-- unique advertised standard RAW U16 byte match: `4080x3072`;
-- exact prefix copied without transform as payload candidate.
+- app-visible envelope `16320x12288`, `401,080,320` bytes;
+- row stride `32,640`, pixel stride `2`;
+- first `768` declared rows populated;
+- remaining `11,520` rows zero;
+- populated source prefix `25,067,520` bytes;
+- unique advertised standard RAW U16 byte match `4080x3072`.
 
-## Completed representation-oracle sequence
-
-Resolved native representations:
+## Representation authorities resolved before intervention
 
 - v0.23 `EnableIdealRAW`: tag `0x801F0027`, native `BYTE`;
 - v0.25 `RawCbSourceType`: tag `0x801F0009`, native `INT32`;
 - v0.27 `EnableXCFAOptimization`: tag `0x801F0036`, native `BYTE`;
 - v0.29 `HALOutputBufferCombined`: tag `0x801F0034`, native `INT32`.
 
-Each oracle used disposable request metadata only and did not promote vendor semantics.
+The oracle builds established representation only. Vendor-key names and numeric values were not promoted to semantics.
 
-## Completed single-factor interventions before the matrix
+## Pre-matrix single-factor interventions
 
-- v0.24 `EnableIdealRAW=BYTE(1)`;
-- v0.26 `RawCbSourceType=INT32(1)`;
-- v0.28 `EnableXCFAOptimization=BYTE(1)`.
+- v0.24 `EnableIdealRAW=BYTE(1)` — accepted/attached, no measured topology differential;
+- v0.26 `RawCbSourceType=INT32(1)` — accepted/attached, no measured topology differential;
+- v0.28 `EnableXCFAOptimization=BYTE(1)` — accepted/attached, no measured topology differential.
 
-All three were accepted and attached on the tested route, yet none produced a measurable differential in RAW envelope or populated-payload topology versus v0.20. Numeric value `1` remains an experimental representation-level value, not a proven semantic value.
+These results motivated an interaction-sensitive complete factorial screen rather than continuing one-factor-at-a-time testing.
 
 ## v0.30 design
 
@@ -47,134 +46,144 @@ Experiment:
 
 `CAMERA5_VENDOR_ROUTE_FULL_FACTORIAL_2_LEVEL_4_FACTOR`
 
+Design:
+
+`FULL_FACTORIAL_2_LEVEL_4_FACTOR_16_RUN_COMPLEMENT_PAIRED`
+
 Factors (`ABCD`):
 
-- A = `EnableIdealRAW`, native `BYTE`, tag `0x801F0027`;
-- B = `RawCbSourceType`, native `INT32`, tag `0x801F0009`;
-- C = `EnableXCFAOptimization`, native `BYTE`, tag `0x801F0036`;
-- D = `HALOutputBufferCombined`, native `INT32`, tag `0x801F0034`.
+- A = `EnableIdealRAW`, native BYTE, tag `0x801F0027`;
+- B = `RawCbSourceType`, native INT32, tag `0x801F0009`;
+- C = `EnableXCFAOptimization`, native BYTE, tag `0x801F0036`;
+- D = `HALOutputBufferCombined`, native INT32, tag `0x801F0034`.
 
 Levels:
 
 - `0` = `UNSET_NO_WRITE`;
-- `1` = numeric `1` written with the device-resolved native representation.
+- `1` = numeric `1` using the already resolved native representation.
 
-All `2^4 = 16` combinations occur once in the designed matrix. The run order is:
+Low is absence of a write, not explicit numeric zero. Numeric high has no promoted vendor semantic.
+
+Run order:
 
 `0000 -> 1111 -> 0101 -> 1010 -> 0011 -> 1100 -> 0110 -> 1001 -> 0001 -> 1110 -> 0010 -> 1101 -> 0100 -> 1011 -> 1000 -> 0111`.
 
-The matrix preserves the v0.20 source-first capture/audit order. A matrix hit would establish a combination-level route/topology differential first; it would not immediately establish vendor semantics for a key.
+## v0.30e recovery implementation
 
-## v0.30e recovery UI
+The original v0.30 UI and the scroll-based v0.30c/v0.30d variants were not reliably usable because long Stage-3 status output displaced essential controls. v0.30e fixed essential controls above the detail pane and added first-missing recovery.
 
-Because the original v0.30 UI and the v0.30c/v0.30d scroll approaches were not reliably usable on the device, v0.30e fixes the essential controls above the detail pane and adds first-missing recovery logic.
+v0.30e did **not** change the scientific matrix, acquisition ordering, source-seal ordering, Stage 3.6 or Stage 3.7.
+
+Branch:
+`integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery`
 
 Build:
 
-- branch `integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery`;
 - head `a99861d3d4468849aeedbd8070805ffbdbd3d294`;
 - run `35266284068`;
-- job `105354172823`;
 - APK SHA-256 `942b21518860af983be5383298b915d30f118684a83c19783b098decb313d112`;
 - artifact ZIP SHA-256 `b2d1f9b306a52699b5dbbbb8eaad26a46a6a85f14a7a20ea66f880401b8ad55e`.
 
-The scientific matrix, acquisition ordering, source-seal ordering, Stage 3.6 and Stage 3.7 were not changed by the UI recovery build.
+## Device matrix completion
 
-## Hard device evidence currently available
+All 16 unique profiles now have individually readable v0.30 evidence JSONs:
 
-Only individually readable v0.30 evidence JSON files count toward matrix completion here.
+`R01 0000`
+`R02 1111`
+`R03 0101`
+`R04 1010`
+`R05 0011`
+`R06 1100`
+`R07 0110`
+`R08 1001`
+`R09 0001`
+`R10 1110`
+`R11 0010`
+`R12 1101`
+`R13 0100`
+`R14 1011`
+`R15 1000`
+`R16 0111`.
 
-Hard-evidenced unique profiles:
+A separate earlier R16 capture is retained as a structural replicate.
 
-- R01 `0000` — 0 keys written — matrix all-UNSET control;
-- R02 `1111` — 4 keys written;
-- R04 `1010` — 2 keys written;
-- R11 `0010` — 1 key written;
-- R13 `0100` — 1 key written;
-- R14 `1011` — 3 keys written;
-- R15 `1000` — 1 key written;
-- R16 `0111` — 3 keys written.
+## Complete measured result
 
-A second independent R16 `0111` capture is also available as a structural replicate.
+Every one of the 16 design points remains in the same measured app-visible topology class as v0.20:
 
-Therefore the current hard completion state is:
+- physical result Camera `5`;
+- `16320x12288` app-visible RAW envelope;
+- `401,080,320` source bytes;
+- row stride `32,640`, pixel stride `2`;
+- returned `SENSOR_PIXEL_MODE=0` in the tested captures;
+- `rawBinningFactorUsed=true`;
+- Stage 3.6 classification `ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE`;
+- first `768` declared rows populated;
+- remaining `11,520` rows zero;
+- exact populated/payload size `25,067,520` bytes;
+- unique advertised standard RAW match `4080x3072`;
+- no measured RAW-envelope/populated-prefix topology differential versus v0.20.
 
-`8 / 16 UNIQUE PROFILES`
+The complete complement-pair set also remains invariant:
 
-Missing individually readable profiles:
+`0000/1111`, `0101/1010`, `0011/1100`, `0110/1001`, `0001/1110`, `0010/1101`, `0100/1011`, `1000/0111`.
 
-`R03, R05, R06, R07, R08, R09, R10, R12`
+## Complete factorial interpretation
 
-Equivalent ABCD values:
+For the measured categorical response **app-visible RAW envelope + populated-prefix topology**, all 16 design points have the same response.
 
-`0101, 0011, 1100, 0110, 1001, 0001, 1110, 1101`.
+Therefore, within the tested binary domain
 
-## Common result across all eight hard-evidenced profiles
+`A,B,C,D ∈ {UNSET, numeric 1 in the resolved native representation}`
 
-Every currently hard-evidenced profile remains in the same measured topology class as v0.20:
+there is no observed single-factor or interaction-level topology differential.
 
-- physical Camera `5`;
-- app-visible source envelope `16320x12288`;
-- source bytes `401,080,320`;
-- row stride `32,640`;
-- pixel stride `2`;
-- only the first `768` declared rows populated;
-- `11,520` rows all zero;
-- populated payload byte count `25,067,520`;
-- unique advertised standard RAW byte match `4080x3072`;
-- no measured envelope/populated-prefix topology differential versus v0.20.
+This includes all single-high states:
 
-Small numbers of zero-valued samples can occur inside the populated prefix and are not treated as route changes.
+- A-only R15 `1000`;
+- B-only R13 `0100`;
+- C-only R11 `0010`;
+- D-only R09 `0001`.
 
-## Current bounded negative results
+It also includes every two-factor state, every three-factor state, R01 all-UNSET and R02 all-four-high.
 
-R01 `0000` shows that the matrix framework itself reproduces the v0.20 topology when all four factors are UNSET.
+Bounded conclusion:
 
-R02 `1111` shows that simultaneously writing numeric `1` to all four currently type-resolved factors is **not sufficient** to change the measured app-visible RAW envelope/populated-prefix topology.
+`WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
-The current hard set additionally shows no topology differential for:
+This closes the simple binary-interaction hypothesis for these four controls at the tested levels.
 
-- R11 `0010` — C high only;
-- R13 `0100` — B high only;
-- R15 `1000` — A high only;
-- R04 `1010`;
-- R14 `1011`;
-- R16 `0111`, twice independently.
+## What this does not prove
 
-D-only `0001` remains missing as hard evidence.
+The completed matrix does not prove:
 
-These are bounded negative differentials. They do not prove the controls are globally ineffective, do not establish the semantics of numeric value `1`, and do not replace the need to test the remaining matrix profiles.
+- that the four keys are globally ineffective;
+- that other numeric values cannot change the route;
+- that vendor names describe their real semantics;
+- that numeric `1` means enabled/full/native/unbinned;
+- that other vendor keys or operating modes cannot expose a different route;
+- untouched/native photodiode ADC output;
+- native physical sensor geometry;
+- exact electrical binning/remosaic;
+- 200 MP optical resolution.
 
-## Bundle handling
+Pixel-value differences are not interpreted causally from this matrix because scene/exposure/focus varied between physical captures. The completed result is a route/topology result.
 
-Several `TRUTHRAW_CAM5_V030_MATRIX_EVIDENCE_BUNDLE_*.zip` files have been uploaded. They are retained as auxiliary provenance containers. Archive inspection repeatedly timed out in the current analysis environment, so no run is promoted from bundle filename, bundle size, UI progression or recollection alone.
+## Current next research direction
 
-The hard matrix completion set is defined by individually readable evidence JSONs until bundle contents can be independently parsed.
+Do not repeat this four-key 0/1 matrix. That experimental space is complete.
 
-## Detailed partial-result record
+Next scientifically useful paths are:
 
-See:
+1. discover the actual **value domain / enum semantics** of the INT32 controls, especially `RawCbSourceType` and `HALOutputBufferCombined`, before trying other numeric values; or
+2. identify new upstream session/request controls and resolve native representation before intervention.
 
-`docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_PARTIAL_DEVICE_RESULTS_2026-09-17.md`
+Detailed complete result:
 
-Machine-readable state:
+`docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
 
-`state/CAMERA5_V030_PARTIAL_MATRIX_V030E_FIXED_CONTROLS_STATE_2026-09-17.json`
+Machine-readable complete state:
 
-## Immediate continuation
+`state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
 
-Continue only the missing hard-evidence profiles under v0.30e first-missing recovery:
-
-`R03, R05, R06, R07, R08, R09, R10, R12`
-
-Save every evidence JSON individually. Bundle export remains useful as redundancy, but it is auxiliary rather than the sole authority.
-
-## Authority rules
-
-- v0.20 remains source/payload authority until newer device evidence genuinely changes the bounded source/topology claim.
-- representation oracles establish metadata type only.
-- vendor-key names and numeric value `1` are not semantic authority.
-- matrix low level means UNSET, not explicit zero.
-- source bytes remain sealed before result/vendor interpretation.
-- failed/rejected experiments remain provenance.
-- appearance and diagnostics never write back into scientific evidence.
+v0.20 remains source/payload authority until a future experiment produces a genuine bounded route differential.
