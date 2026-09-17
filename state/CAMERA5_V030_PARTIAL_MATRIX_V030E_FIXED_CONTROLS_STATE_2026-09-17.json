@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-v030-partial-matrix-v030e-fixed-controls-state.v1",
   "date": "2026-09-17",
-  "status": "PARTIAL_MATRIX_DEVICE_RESULTS_RECORDED__V030E_FIXED_CONTROLS_BUILD_SUCCESS",
+  "status": "PARTIAL_MATRIX_DEVICE_RESULTS_RECORDED__R01_R02_R04_R16_AVAILABLE__V030E_FIXED_CONTROLS_BUILD_SUCCESS",
   "sourcePayloadAuthority": "v0.20",
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
   "matrixDesign": {
@@ -21,7 +21,27 @@
   "deviceResultsAvailable": {
     "matrixComplete": false,
     "outOfOrderRunsReceived": true,
+    "receivedRunNumbers": [1, 2, 4, 16],
     "receivedRuns": [
+      {
+        "run": 1,
+        "profileId": "R01_ABCD_0000",
+        "ABCD": "0000",
+        "vendorKeysWritten": 0,
+        "sessionParametersAttached": false,
+        "classification": "FULL_FACTORIAL_CONTROL__ALL_FOUR_VENDOR_KEYS_UNSET",
+        "sourceSha256": "1ef8bc365b791687f58c3cdf711f6f4919366c688f7fb4ce7f9586e7832736b7",
+        "sourceBytes": 401080320,
+        "nonZeroRows": 768,
+        "allZeroRows": 11520,
+        "wholeRasterNonZeroSampleCount": 12533759,
+        "payloadBytes": 25067520,
+        "payloadGeometry": "4080x3072",
+        "payloadSha256": "dc9fec4e1e9c2af3c6314c936968cd2c2fa78d640911a8948f340b7f0cd5fd03",
+        "topologyDifferentialVsV020": false,
+        "boundedInterpretation": "IN_MATRIX_ALL_UNSET_CONTROL_REPRODUCES_V020_APP_VISIBLE_ENVELOPE_AND_4080X3072_EXACT_PREFIX_TOPOLOGY_CLASS",
+        "note": "One zero-valued sample occurs inside the populated prefix; row/population geometry remains unchanged."
+      },
       {
         "run": 2,
         "profileId": "R02_ABCD_1111",
@@ -71,6 +91,7 @@
         "topologyDifferentialVsV020": false
       }
     ],
+    "inMatrixControlResult": "R01_ABCD_0000 reproduces the same measured topology class as v0.20 with no matrix vendor writes, providing a contemporaneous internal control for the v0.30 screening experiment.",
     "strongestCurrentNegativeResult": "R02_ABCD_1111 disproves the simple tested hypothesis that simultaneously writing numeric 1 to all four currently type-resolved factors is sufficient to change the app-visible RAW envelope/populated-prefix topology.",
     "prohibitedOverclaim": "This does not prove the keys are ineffective and does not establish the vendor semantics of numeric value 1."
   },
@@ -108,6 +129,6 @@
       "cacheIsNotPermanentAuthority": true
     }
   },
-  "nextDeviceAction": "INSTALL_V030E_OVER_EXISTING_APP_WITHOUT_CLEARING_STORAGE_OR_CACHE__EXPORT_BUNDLE_ZIP_FIRST__THEN_FILL_FIRST_MISSING_MATRIX_RUNS",
+  "nextDeviceAction": "CONTINUE_V030E_WITH_THE_PROFILE_DISPLAYED_BY_FIRST_MISSING_RECOVERY__SAVE_EACH_JSON__PERIODICALLY_EXPORT_BUNDLE_ZIP",
   "scientificMasterModified": false
 }
