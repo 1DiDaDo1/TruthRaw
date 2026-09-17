@@ -1,0 +1,95 @@
+{
+  "schema": "truthraw.camera5-v030-vendor-route-full-factorial-matrix-complete-state.v1",
+  "date": "2026-09-17",
+  "status": "DEVICE_MATRIX_COMPLETE_16_OF_16_UNIQUE_PROFILES__NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
+  "sourcePayloadAuthority": "v0.20",
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
+  "experiment": {
+    "name": "CAMERA5_VENDOR_ROUTE_FULL_FACTORIAL_2_LEVEL_4_FACTOR",
+    "design": "FULL_FACTORIAL_2_LEVEL_4_FACTOR_16_RUN_COMPLEMENT_PAIRED",
+    "factorCount": 4,
+    "runCount": 16,
+    "lowLevel": "UNSET_NO_WRITE",
+    "highLevel": "NUMERIC_ONE_TYPE_VALIDATED__SEMANTICS_UNPROVEN",
+    "semanticPromotionAllowed": false,
+    "factors": {
+      "A": {"key": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW", "nativeType": "BYTE", "tagHex": "0x801F0027"},
+      "B": {"key": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType", "nativeType": "INT32", "tagHex": "0x801F0009"},
+      "C": {"key": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization", "nativeType": "BYTE", "tagHex": "0x801F0036"},
+      "D": {"key": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined", "nativeType": "INT32", "tagHex": "0x801F0034"}
+    }
+  },
+  "completion": {
+    "matrixComplete": true,
+    "uniqueProfilesWithIndividuallyReadableEvidenceJson": 16,
+    "missingProfiles": [],
+    "allComplementPairsObserved": true,
+    "complementPairs": [
+      ["R01_0000", "R02_1111"],
+      ["R03_0101", "R04_1010"],
+      ["R05_0011", "R06_1100"],
+      ["R07_0110", "R08_1001"],
+      ["R09_0001", "R10_1110"],
+      ["R11_0010", "R12_1101"],
+      ["R13_0100", "R14_1011"],
+      ["R15_1000", "R16_0111"]
+    ]
+  },
+  "commonMeasuredTopology": {
+    "physicalResultCameraId": "5",
+    "declaredWidth": 16320,
+    "declaredHeight": 12288,
+    "sourceEnvelopeBytes": 401080320,
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "captureResultSensorPixelMode": 0,
+    "rawBinningFactorUsed": true,
+    "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "nonZeroRows": 768,
+    "allZeroRows": 11520,
+    "payloadBytes": 25067520,
+    "selectedAdvertisedStandardRawGeometry": [4080, 3072],
+    "topologyDifferentialVsV020": false
+  },
+  "runs": [
+    {"run":1,"profileId":"R01_ABCD_0000","ABCD":"0000","vendorKeysWritten":0,"sessionParametersAttached":false,"sourceSha256":"1ef8bc365b791687f58c3cdf711f6f4919366c688f7fb4ce7f9586e7832736b7","payloadSha256":"dc9fec4e1e9c2af3c6314c936968cd2c2fa78d640911a8948f340b7f0cd5fd03","topologyDifferentialVsV020":false},
+    {"run":2,"profileId":"R02_ABCD_1111","ABCD":"1111","vendorKeysWritten":4,"sessionParametersAttached":true,"sourceSha256":"c2627863173e3d232bf70a409ce8fd0c468529526d651a1068f8065c9e09612b","payloadSha256":"c6d6778f457ee39d5a0d3c41a69115e40b2c30cc1056e6f5af33069e3151d080","topologyDifferentialVsV020":false},
+    {"run":3,"profileId":"R03_ABCD_0101","ABCD":"0101","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"e00f376b551ad861dd4baacad39bae1e510522140b74c36f2ff93ce7a6068203","payloadSha256":"8563b525ede5bd15ab1b340f9f56988441df533a9f7d3a2e3400fb1411b5b539","topologyDifferentialVsV020":false},
+    {"run":4,"profileId":"R04_ABCD_1010","ABCD":"1010","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"0a427c7b68db4b181e223079eae4c62e8a8a15cd7abafb12716577c291ec534f","payloadSha256":"7d564bde34c1a57dc5d4dcd3795841bc09dc078b9a205356f5bace3182218545","topologyDifferentialVsV020":false},
+    {"run":5,"profileId":"R05_ABCD_0011","ABCD":"0011","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"c757ed23328a760495b5d8c122b5bc14dfce343b7b91cb19d548e482f7027a04","payloadSha256":"9cdb3c287047f273de54d959fe762f7b623af45dbb65452a96c55986956fb99f","topologyDifferentialVsV020":false},
+    {"run":6,"profileId":"R06_ABCD_1100","ABCD":"1100","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"1aa50fefc88dd63651ebae077e1b1ff34d8c601b809ad645dab4fe52aa4f0610","payloadSha256":"1e9c4f5d63af6042bf03a6db9d8fb4c3eb558861185441de0e1f92163c00c935","topologyDifferentialVsV020":false},
+    {"run":7,"profileId":"R07_ABCD_0110","ABCD":"0110","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"278d041b5669006e95d64b47d9af10c02601916e05757749021521edf28e65dd","payloadSha256":"d6a68954675a48573595880bc7aadf443560f36eebddc3405f2bd7cd1f70b48c","topologyDifferentialVsV020":false},
+    {"run":8,"profileId":"R08_ABCD_1001","ABCD":"1001","vendorKeysWritten":2,"sessionParametersAttached":true,"sourceSha256":"f810df10485ae8533fbd75954163fe667d634215606eb87247bee0f45b978646","payloadSha256":"abd86e1e9553292c91f6dc46193378217a4db8894c476b4713154892827287d6","topologyDifferentialVsV020":false},
+    {"run":9,"profileId":"R09_ABCD_0001","ABCD":"0001","vendorKeysWritten":1,"sessionParametersAttached":true,"sourceSha256":"ea01cb9f040b05cf78921a51e89aca81772fae8b3f580a91f5f588289d818b9b","payloadSha256":"027f89bd608d281cf97262c17d3baaa98b4a181ecb2131690c79e4ec105baa8a","topologyDifferentialVsV020":false},
+    {"run":10,"profileId":"R10_ABCD_1110","ABCD":"1110","vendorKeysWritten":3,"sessionParametersAttached":true,"sourceSha256":"fdd604f4ea503a3220f5860c1a9ca76da784650018e62b0edc10d71c23373cc9","payloadSha256":"ddaaeba9e22ad8846bb0550234ac63ff1f8a45455af32d979727b11bc585524f","topologyDifferentialVsV020":false},
+    {"run":11,"profileId":"R11_ABCD_0010","ABCD":"0010","vendorKeysWritten":1,"sessionParametersAttached":true,"sourceSha256":"2d288be2fb38667a034b69baa7bd28dcb111f44ddd9f66b40ebdf52c43663eaa","payloadSha256":"913c7f8a37dc69d516ac46294de714aa967a1568b8fd5ade40595df7ac1ed594","topologyDifferentialVsV020":false},
+    {"run":12,"profileId":"R12_ABCD_1101","ABCD":"1101","vendorKeysWritten":3,"sessionParametersAttached":true,"sourceSha256":"56104557ff0f98b278a08e797cb3a61bac71b27d893acb944783cd54f5108239","payloadSha256":"fa1a67cda9a7ac992be72936b0486efd1e5c51728671dc874e77cb13368f86fe","topologyDifferentialVsV020":false},
+    {"run":13,"profileId":"R13_ABCD_0100","ABCD":"0100","vendorKeysWritten":1,"sessionParametersAttached":true,"sourceSha256":"34f9612cbb8fcf0b952d955ca878a958697e666fa4601b742ede95b65ea7e666","payloadSha256":"615aed736da8b844dd99c411d3419a448759a132c00ed938a7c10e93058a2bd9","topologyDifferentialVsV020":false},
+    {"run":14,"profileId":"R14_ABCD_1011","ABCD":"1011","vendorKeysWritten":3,"sessionParametersAttached":true,"sourceSha256":"2635b2b2da48e336c63ca9383deccb67a5f62ecb111af418828030e73e2f863f","payloadSha256":"a9be07e6f0d8994cc921192eaf3bafa4986c34f77739a2bbaa8abf143ff9df22","topologyDifferentialVsV020":false},
+    {"run":15,"profileId":"R15_ABCD_1000","ABCD":"1000","vendorKeysWritten":1,"sessionParametersAttached":true,"sourceSha256":"fe128ee22a71a904c41003ff2dffbae904141ec9485295ccbd8108d5a6b1712a","payloadSha256":"f76960addab8c620812a4cd8185de2cb58ea5e450079fa44b5e54f53e757a821","topologyDifferentialVsV020":false},
+    {"run":16,"profileId":"R16_ABCD_0111","ABCD":"0111","vendorKeysWritten":3,"sessionParametersAttached":true,"sourceSha256":"6f4e1446f5ddd52ab79e03d163fde54c27c66b3ee49787febf4b6693b804fd99","payloadSha256":"a9b38dece95ba0ae97705549ba55b0bbef937d412f01f27bd6b9e13caacf5ee7","topologyDifferentialVsV020":false,"structuralReplicateAvailable":true}
+  ],
+  "factorialInterpretation": {
+    "measuredResponse": "APP_VISIBLE_RAW_ENVELOPE_AND_POPULATED_PREFIX_TOPOLOGY_CLASS",
+    "responseInvariantAcrossAll16Profiles": true,
+    "observedMainOrInteractionTopologyEffect": false,
+    "boundedConclusion": "WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_THE_FOUR_TESTED_VENDOR_CONTROLS_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY",
+    "doesNotEstablishPixelValueEquality": true,
+    "doesNotEstablishVendorValueSemantics": true,
+    "doesNotEstablishGlobalKeyIneffectiveness": true,
+    "doesNotExcludeOtherNumericValuesOrOtherVendorKeys": true
+  },
+  "notProven": [
+    "UNTOUCHED_NATIVE_ADC",
+    "PHYSICAL_SENSOR_IS_4080x3072",
+    "EXACT_BINNING_OR_REMOSAIC_MECHANISM",
+    "200MP_OPTICAL_RESOLUTION",
+    "VENDOR_KEY_NAME_SEMANTICS",
+    "VENDOR_NUMERIC_VALUE_SEMANTICS",
+    "GLOBAL_INEFFECTIVENESS_OF_THE_FOUR_VENDOR_KEYS",
+    "INEFFECTIVENESS_OF_UNTESTED_NUMERIC_VALUES",
+    "INEFFECTIVENESS_OF_UNTESTED_VENDOR_KEYS"
+  ],
+  "nextResearchDirection": "STOP_REPEATING_BINARY_0_1_COMBINATIONS_FOR_THESE_FOUR_KEYS__MOVE_TO_VALUE_SEMANTICS_DOMAIN_DISCOVERY_OR_NEW_UPSTREAM_ROUTE_CANDIDATES_WITH_NATIVE_TYPE_ORACLE_FIRST",
+  "scientificMasterModified": false
+}
