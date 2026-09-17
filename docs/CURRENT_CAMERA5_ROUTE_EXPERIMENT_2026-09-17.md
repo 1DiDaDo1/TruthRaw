@@ -71,7 +71,7 @@ Design:
 - reconstruct exact v0.20 acquisition/audit chain;
 - preserve Gate A before intervention;
 - verify the key remains advertised as a logical session key;
-- construct the key explicitly as `CaptureRequest.Key<Byte>`;
+- construct the key explicitly as `CaptureRequest.Key<Byte>` using Kotlin `Byte::class.javaObjectType`;
 - set exactly one value: `EnableIdealRAW = BYTE(1)`;
 - require builder and built-request readback `1`;
 - attach that request as the SessionConfiguration session parameters;
@@ -79,6 +79,21 @@ Design:
 - preserve logical0 -> physical5 -> 16320x12288 MAX topology;
 - seal the original Plane[0] before interpreting result metadata;
 - repeat the same post-HAL envelope, Stage 3.6 full-raster audit and Stage 3.7 payload-geometry decoder.
+
+Build status:
+
+- GitHub Actions run: `35243866129`
+- workflow head: `429063ceb11087cb16132fa910c740a170b2f6d5`
+- result: **SUCCESS**
+- order/single-variable assertions: PASS
+- APK bytes: `4,880,841`
+- APK SHA-256: `e8f898b041a63b9f68a246878aadd3427e24d321731042a49a02e0318f5e5c15`
+- artifact ID: `10506437816`
+- artifact ZIP bytes: `1,587,319`
+- artifact ZIP SHA-256: `04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b`
+- device result: pending.
+
+Integration provenance: the first v0.24 build attempt failed only at Kotlin compile time because the custom BYTE key used an incompatible Java/Kotlin generic class expression. No APK/device intervention occurred. The implementation was corrected to `Byte::class.javaObjectType`; the scientific experiment design was unchanged and the subsequent build passed.
 
 A successful session/capture is only an intervention/acceptance fact. A route effect requires a measurable differential against v0.20.
 
