@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-hal-output-buffer-combined-native-type-oracle-state.v0.29",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_NATIVE_TYPE_RESOLVED_INT32_NO_HAL_SUBMISSION",
   "branch": "integration/truthraw-suite-v0-29-hal-output-buffer-combined-native-type-oracle",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -19,13 +19,24 @@
   },
   "oracle": {
     "keyName": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
-    "evidenceFileExpected": "TRUTHRAW_CAM5_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_v029.json",
+    "deviceEvidenceFile": "TRUTHRAW_CAM5_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_v029.json",
     "purpose": "NATIVE_CAMERA_METADATA_TYPE_RESOLUTION_ONLY",
-    "testTypes": ["BYTE", "INT32", "FLOAT", "INT64", "DOUBLE", "RATIONAL"],
+    "tagIdUnsigned": 2149515316,
+    "tagIdHex": "0x801F0034",
+    "acceptedTypeCount": 1,
+    "nativeMetadataTypeResolved": true,
+    "resolvedNativeType": "INT32",
+    "tests": {
+      "BYTE": {"accepted": false, "setStatus": -10001, "getStatus": -10000},
+      "INT32": {"accepted": true, "setStatus": 0, "getStatus": 0, "entryType": 1, "entryCount": 1},
+      "FLOAT": {"accepted": false, "setStatus": -10001, "getStatus": -10000},
+      "INT64": {"accepted": false, "setStatus": -10001, "getStatus": -10000},
+      "DOUBLE": {"accepted": false, "setStatus": -10001, "getStatus": -10000},
+      "RATIONAL": {"accepted": false, "setStatus": -10001, "getStatus": -10000}
+    },
     "testValueNumeric": 1,
     "testValuePurpose": "TYPE_VALIDATION_ONLY_NOT_VENDOR_VALUE_SEMANTICS",
     "gateBObservedDefaultOrCurrentValue": null,
-    "gateBObservationSource": "v0.28 evidence",
     "requestTemplatesCreatedOnly": true,
     "sessionCreated": false,
     "sessionParametersAttached": false,
@@ -35,7 +46,8 @@
     "sourceMutation": false,
     "semanticMeaningAssumed": false,
     "semanticPromotionAllowed": false,
-    "deviceResultAvailable": false
+    "deviceResultAvailable": true,
+    "classification": "NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION"
   },
   "build": {
     "githubActionsRunId": 35255819562,
@@ -50,13 +62,7 @@
     "artifactZipBytes": 1595399,
     "artifactZipSha256": "84675230ab4f40538d3fb71671ee71d4cde9b05cf430a542f01ef6030ab1d3b0"
   },
-  "deviceProtocol": {
-    "requiredSteps": ["Step 1 only"],
-    "expectedStop": "STAGE 1.5 DIAGNOSTIC STOP",
-    "saveOracleJson": true,
-    "previewMustRemainDisabled": true,
-    "captureMustRemainDisabled": true,
-    "doNotInterpretNumericValue1ByVendorNameAlone": true
-  },
+  "boundedConclusion": "HAL_OUTPUT_BUFFER_COMBINED_IS_NATIVE_INT32_ON_TESTED_LOGICAL_CAMERA0_METADATA_SURFACE__VALUE_SEMANTICS_UNPROVEN",
+  "nextExperimentDirection": "DESIGNED_MULTI_FACTOR_ROUTE_SCREENING_V030_AFTER_SEVERAL_ACCEPTED_SINGLE_FACTOR_INTERVENTIONS_SHOWED_NO_TOPOLOGY_DIFFERENTIAL",
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
