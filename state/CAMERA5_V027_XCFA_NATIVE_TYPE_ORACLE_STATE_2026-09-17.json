@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-xcfa-native-type-oracle-state.v0.27",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_COMPLETE_NATIVE_TYPE_BYTE",
   "branch": "integration/truthraw-suite-v0-27-xcfa-native-type-oracle",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -17,31 +17,42 @@
     "rawEnvelopeOrPayloadTopologyDifferentialObserved": false,
     "boundedConclusion": "RAWCB_SOURCE_TYPE_INT32_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE"
   },
-  "candidateSelection": {
-    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
-    "reason": "v0.26 Gate-B request-state observation exposed a one-element byte-array current/default value [0], making this a more constrained next representation question than keys whose current/default value remained null",
-    "gateBObservedCurrentOrDefaultRepresentation": "byte[] length 1 preview [0]",
-    "observationIsNativeTypeProof": false,
-    "semanticMeaningFromKeyNameAssumed": false
-  },
   "oracle": {
-    "purpose": "RESOLVE_NATIVE_CAMERA_METADATA_ELEMENT_TYPE_ONLY",
-    "tagLookup": "ACameraMetadata_getTagFromName",
-    "testedNativeTypes": ["BYTE", "INT32", "FLOAT", "INT64", "DOUBLE", "RATIONAL"],
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
+    "evidenceFile": "TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json",
+    "classification": "NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION",
+    "cameraId": "0",
+    "characteristicsStatus": 0,
+    "tagLookupSymbolAvailable": true,
+    "tagLookupStatus": 0,
+    "tagIdUnsigned": 2149515318,
+    "tagIdHex": "0x801F0036",
+    "cameraOpenStatus": 0,
+    "acceptedTypeCount": 1,
+    "resolvedNativeType": "BYTE",
+    "acceptedEntryType": 0,
+    "acceptedEntryCount": 1,
+    "byteSetStatus": 0,
+    "byteGetStatus": 0,
+    "int32Accepted": false,
+    "floatAccepted": false,
+    "int64Accepted": false,
+    "doubleAccepted": false,
+    "rationalAccepted": false,
     "testValueNumeric": 1,
     "testValuePurpose": "TYPE_VALIDATION_ONLY_NOT_VENDOR_VALUE_SEMANTICS",
-    "eachTypeUsesDisposableRequestTemplate": true,
-    "readbackTypeAndCountRequired": true,
-    "expectedDecisiveCondition": "acceptedTypeCount == 1",
+    "gateBObservedDefaultOrCurrentValueClass": "byte[] length 1 preview [0] in v0.26 evidence",
+    "gateBObservationIsNotNativeTypeProof": true,
+    "requestTemplatesCreatedOnly": true,
     "sessionCreated": false,
     "sessionParametersAttached": false,
     "captureSubmitted": false,
-    "repeatingRequestSubmitted": false,
     "vendorModifiedRequestSubmittedToHal": false,
     "rawPixelAccess": false,
     "sourceMutation": false,
+    "semanticMeaningAssumed": false,
     "semanticPromotionAllowed": false,
-    "expectedEvidenceFile": "TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json"
+    "deviceResultAvailable": true
   },
   "build": {
     "githubActionsRunId": 35251736680,
@@ -54,16 +65,15 @@
     "apkSha256": "75cdf0bf708e85167934f947268c0e6e925232048c45dd548390d9c507f2fbae",
     "artifactId": 10509896067,
     "artifactZipBytes": 1595318,
-    "artifactZipSha256": "8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0",
-    "deviceResultAvailable": false
+    "artifactZipSha256": "8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0"
   },
-  "deviceProtocol": {
-    "requiredSteps": ["Step 1 only"],
-    "expectedStop": "STAGE 1.5 DIAGNOSTIC STOP",
-    "previewExpectedEnabled": false,
-    "captureExpectedEnabled": false,
-    "saveOracleJson": true,
-    "doNotAttemptInterventionBeforeDeviceTypeResult": true
+  "nextControlledExperiment": {
+    "version": "v0.28",
+    "candidate": "EnableXCFAOptimization=BYTE(1)",
+    "singleUnknownVendorVariable": true,
+    "numericValueSemanticsAssumed": false,
+    "control": "v0.20",
+    "requiredPostCaptureAudit": ["source-first seal", "HAL envelope", "Stage 3.6 full-raster audit", "Stage 3.7 payload geometry"]
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
