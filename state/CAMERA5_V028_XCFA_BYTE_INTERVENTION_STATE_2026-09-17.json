@@ -1,0 +1,77 @@
+{
+  "schema": "truthraw.camera5-xcfa-byte-intervention-state.v0.28",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-28-xcfa-byte-intervention",
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "unchanged": true
+  },
+  "representationAuthority": {
+    "source": "TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json",
+    "classification": "NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION",
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
+    "tagIdHex": "0x801F0036",
+    "resolvedNativeType": "BYTE",
+    "acceptedTypeCount": 1,
+    "semanticMeaningOfNumericValue1Proven": false
+  },
+  "experiment": {
+    "singleUnknownVendorVariable": true,
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
+    "nativeRepresentation": "BYTE",
+    "requestedNumericValue": 1,
+    "requestedValueSemanticsAssumed": false,
+    "interventionAfterUntouchedGateA": true,
+    "requiresBuilderReadback": true,
+    "requiresBuiltRequestReadback": true,
+    "sessionParameterAttachment": true,
+    "secondUnknownVendorKeyTouched": false,
+    "preserveLogical0Physical5Topology": true,
+    "preserve16320x12288MaxRoute": true,
+    "preserveSourceFirstSeal": true,
+    "preservePostHalEnvelopeProbe": true,
+    "preserveStage36FullRasterAudit": true,
+    "preserveStage37PayloadGeometryDecoder": true,
+    "semanticPromotionAllowed": false
+  },
+  "build": {
+    "githubActionsRunId": 35252818559,
+    "jobId": 105309042996,
+    "workflow": "TruthRaw FotoGraaf v0.28 XCFA BYTE Intervention",
+    "workflowHeadSha": "86f709582442c0cdbaafad9880715c6887e1b1bf",
+    "conclusion": "success",
+    "orderingAndSingleVariableAssertionsPass": true,
+    "apkBytes": 4880841,
+    "apkSha256": "1035c5dbaffbdbbad1048e12653e6a32b6441a0f67ebb1d9449075b33666c0ac",
+    "artifactId": 10512015658,
+    "artifactZipBytes": 1589573,
+    "artifactZipSha256": "bbc1eea89014b806d2933e75382a5fe7d07133f29ea929a8e0edef5e09a4aa82",
+    "deviceResultAvailable": false
+  },
+  "differentialTargetsAgainstV020": [
+    "source envelope bytes",
+    "populated prefix bytes",
+    "first/last nonzero positions",
+    "16-band population signature",
+    "selected payload geometry",
+    "returned SENSOR_PIXEL_MODE",
+    "rawBinningFactorUsed",
+    "HONOR binningFactor",
+    "HONOR isInSensorZoom",
+    "AEC/ISP crop metadata",
+    "source/payload hashes"
+  ],
+  "deviceProtocol": {
+    "requiredSteps": ["Step 1", "Step 2", "Step 3"],
+    "expectedIfInterventionAccepted": "normal source-first capture then Stage 3.6 and Stage 3.7",
+    "saveEvidenceJson": true,
+    "saveRawPayloadIfOffered": true,
+    "saveDiagnosticPngIfOffered": true,
+    "doNotInterpretNumericValue1ByVendorNameAlone": true
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
