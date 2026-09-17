@@ -1,0 +1,89 @@
+name: TruthRaw FotoGraaf v0.15 Direct Camera5 Full Raster
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-15-direct-camera5-full-raster
+    paths:
+      - 'suite_android/**'
+      - '.github/workflows/android-truthraw-suite-v0-15-full-raster.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v015:
+    name: Build FotoGraaf v0.15 direct Camera5 arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.15 acquisition and evidence boundaries
+        run: |
+          APP='suite_android'
+          MANIFEST="$APP/app/src/main/AndroidManifest.xml"
+          JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
+          V015="$JAVA/FotoGraaf200MpFullRasterV015Activity.kt"
+          ENTRY="$JAVA/FotoGraaf200MpEntryActivity.kt"
+
+          grep -F 'FotoGraaf200MpFullRasterV015Activity' "$MANIFEST"
+          grep -F 'DIRECT Camera 5 · full-raster test' "$ENTRY"
+          grep -F 'TruthRaw · Tele 200MP Full Raster v0.15' "$V015"
+          grep -F 'm.cameraIdList.toList()' "$V015"
+          grep -F 'm.openCamera(CAMERA_ID' "$V015"
+          grep -F 'SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION' "$V015"
+          grep -F 'getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR)' "$V015"
+          grep -F 'output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' "$V015"
+          grep -F 'b.set(CaptureRequest.SENSOR_PIXEL_MODE, CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' "$V015"
+          grep -F 'TARGET_W = 16320' "$V015"
+          grep -F 'TARGET_H = 12288' "$V015"
+          grep -F 'TARGET_SAMPLES = 200_540_160L' "$V015"
+          grep -F 'BAND_COUNT = 16' "$V015"
+          grep -F '25067520' "$V015" || grep -F 'BAND_BYTES = EXPECTED_BYTES / BAND_COUNT' "$V015"
+          grep -F 'c2c6b5c221fefd4bad354ce0941fe48cf5e1e1734b2c3c16020c566569850b96' "$V015"
+          grep -F 'fullRasterBandCoveragePass' "$V015"
+          grep -F 'creator.writeByteBuffer' "$V015"
+          grep -F 'APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF' "$V015"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          test -n "$ANDROID_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-15-direct-camera5-full-raster-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
