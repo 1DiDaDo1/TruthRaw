@@ -1,6 +1,6 @@
 # CURRENT Camera-5 route-control experiment — 2026-09-17
 
-Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.24 DEVICE DIFFERENTIAL COMPLETE**
+Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.24 DEVICE DIFFERENTIAL COMPLETE; v0.25 BUILD SUCCESS / DEVICE RESULT PENDING**
 
 This document tracks upstream HONOR/QTI route-control experiments after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
 
@@ -163,26 +163,69 @@ Current bounded conclusion:
 
 This does not prove that the key has no effect in every route or mode. It may be ignored for this stream, already equivalent to the active internal state, relevant to another route, or require another condition. Those possibilities remain unproven and must not be selected by name alone.
 
-## Next controlled question
+### v0.25 — RawCbSourceType native type oracle
 
-The next candidate is:
+Branch:
+
+`integration/truthraw-suite-v0-25-rawcb-native-type-oracle`
+
+Question:
+
+Resolve the native camera-metadata representation of:
 
 `org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
 
-The next step is **not** a capture intervention. First resolve its actual native vendor tag/type with an oracle-only probe, with:
+before any semantic or capture intervention is attempted.
 
-- no session parameters attached;
-- no capture session created for the modified request;
-- no capture submitted;
-- no second vendor key changed.
+Design:
 
-Only after the representation is established should a separate single-variable intervention be considered.
+- reconstruct the exact v0.20 trusted baseline first;
+- stop after Stage 1 capability discovery;
+- open logical camera `0` only for disposable NDK request-template metadata validation;
+- resolve the real vendor tag ID using `ACameraMetadata_getTagFromName`;
+- test all six native Camera2 metadata element families independently with one disposable value: BYTE, INT32, FLOAT, INT64, DOUBLE and RATIONAL;
+- require a readback entry whose native metadata type and count agree with the setter;
+- create no capture session;
+- attach no session parameters;
+- submit no capture or repeating request;
+- send no vendor-modified request to the HAL;
+- access no RAW pixels;
+- assign no semantic meaning to test value `1`.
+
+Build result:
+
+- GitHub Actions run: `35246799407`
+- job: `105288947534`
+- workflow head: `f4a474da0b0635527a0c1ba8a9b15dfc64d3ce95`
+- result: **SUCCESS**
+- safety/reconstruction assertions: PASS
+- arm64 APK bytes: `4,882,977`
+- APK SHA-256: `25f31327aa6ab32a33e3e706370f30c506d2d4867ba769c7637a74f8fadabbd1`
+- artifact ID: `10508380597`
+- artifact ZIP bytes: `1,594,330`
+- artifact ZIP SHA-256: `376d151af2a521042f029b81f0c5c566c527ec10f165a164274242e5f733caf6`
+- device result: **PENDING**.
+
+Expected device behavior:
+
+- only Step 1 is needed;
+- the app must stop at `STAGE 1.5 DIAGNOSTIC STOP`;
+- preview and capture remain disabled;
+- evidence file: `TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json`;
+- preferred decisive result: exactly one native setter family accepted (`acceptedTypeCount=1`).
+
+A resolved type establishes representation only. It does not establish the valid value domain or the meaning of `RawCbSourceType`.
+
+## Next controlled question
+
+Run v0.25 on-device and record its oracle JSON. Do not build a RawCbSourceType intervention until the native type has been measured on this device. If exactly one type resolves, any later intervention must be a separate single-variable experiment with v0.20 left untouched as control.
 
 ## Authority rules
 
 - v0.20 remains the source/payload control authority.
 - v0.24 is valid negative differential evidence for the tested intervention, not a universal no-effect proof.
+- v0.25 is representation discovery only until a device result exists.
 - A vendor-key name is not semantic authority.
-- A successful setter/readback is not proof of sensor mode.
+- A successful metadata setter/readback is not proof of sensor mode or of a valid operational value.
 - A changed source topology, if later observed, would be route-differential evidence but still app-visible Camera2/HAL output, not untouched ADC proof.
 - Do not combine unknown vendor controls in one experiment.
