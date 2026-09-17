@@ -1,6 +1,6 @@
 # CURRENT Camera-5 route-control experiment — 2026-09-17
 
-Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.27 DEVICE TYPE RESULT COMPLETE; v0.28 BUILD IN PROGRESS / DEVICE RESULT PENDING**
+Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.27 DEVICE TYPE RESULT COMPLETE; v0.28 BUILD SUCCESS / DEVICE RESULT PENDING**
 
 This document tracks upstream HONOR/QTI route-control experiments after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
 
@@ -21,11 +21,7 @@ The app-visible result is not untouched photodiode/ADC proof.
 
 ## v0.21–v0.24 — EnableIdealRAW track
 
-v0.21 failed closed because runtime Java type was unavailable. v0.22 proved multiple app-side marshalling candidates without HAL submission. v0.23 then resolved the real native type:
-
-- key `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW`
-- tag `0x801F0027`
-- native type `BYTE`, count one.
+v0.21 failed closed because runtime Java type was unavailable. v0.22 proved multiple app-side marshalling candidates without HAL submission. v0.23 resolved the real native type as `BYTE`, tag `0x801F0027`, count one.
 
 v0.24 changed exactly one vendor session variable after untouched Gate A:
 
@@ -35,15 +31,7 @@ The intervention was accepted and attached, but Stage 3.6/3.7 remained topologic
 
 ## v0.25–v0.26 — RawCbSourceType track
 
-v0.25 device result:
-
-`NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION`
-
-Resolved:
-
-- key `org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
-- tag `0x801F0009`
-- native type `INT32`, count one.
+v0.25 resolved `org.codeaurora.qcamera3.sessionParameters.RawCbSourceType` as native `INT32`, tag `0x801F0009`, count one.
 
 v0.26 changed exactly one vendor session variable:
 
@@ -76,13 +64,11 @@ Classification:
 Resolved device facts:
 
 - key: `org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization`
-- tag lookup available and successful
 - tag: `0x801F0036`
 - unsigned tag ID: `2149515318`
 - accepted native type count: `1`
 - resolved type: `BYTE`
-- accepted entry type: `0`
-- accepted entry count: `1`
+- accepted entry type/count: `0 / 1`
 - BYTE set/get status: `0/0`
 - INT32/FLOAT/INT64/DOUBLE/RATIONAL rejected.
 
@@ -106,8 +92,19 @@ v0.27 build provenance:
 Branch:
 `integration/truthraw-suite-v0-28-xcfa-byte-intervention`
 
-Current build run:
-`35252818559`
+Build status: **SUCCESS; DEVICE RESULT PENDING**.
+
+Build provenance:
+
+- run `35252818559`
+- job `105309042996`
+- workflow head `86f709582442c0cdbaafad9880715c6887e1b1bf`
+- ordering and single-variable assertions: PASS
+- APK bytes `4,880,841`
+- APK SHA-256 `1035c5dbaffbdbbad1048e12653e6a32b6441a0f67ebb1d9449075b33666c0ac`
+- artifact ID `10512015658`
+- artifact ZIP bytes `1,589,573`
+- artifact ZIP SHA-256 `bbc1eea89014b806d2933e75382a5fe7d07133f29ea929a8e0edef5e09a4aa82`.
 
 Design:
 
