@@ -35,6 +35,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     linear_dng_export_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
+    rawcb_source_type_native_type_oracle.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
