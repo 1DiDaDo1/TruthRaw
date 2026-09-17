@@ -1,5 +1,6 @@
 name: TruthRaw FotoGraaf v0.17 Camera-5 Pre/Post HAL Airlock
 
+# Provenance: v0.14 acquisition route + v0.16 post-HAL envelope + v0.17 read-only pre-HAL route fingerprint.
 on:
   push:
     branches:
