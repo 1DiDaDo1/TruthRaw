@@ -1,0 +1,75 @@
+{
+  "schema": "truthraw.camera5-v030d-scroll-recovery-ui-state.v0.30d",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_UI_RECOVERY_VARIANT_READY",
+  "parentExperiment": {
+    "version": "v0.30",
+    "design": "FULL_FACTORIAL_2_LEVEL_4_FACTOR_16_RUN_COMPLEMENT_PAIRED",
+    "scientificExperimentUnchanged": true,
+    "sourcePayloadAuthority": "v0.20"
+  },
+  "observedUiProblem": {
+    "classification": "NON_SCROLLABLE_VERTICAL_UI_BLOCKED_ACCESS_TO_CONTROLS_AFTER_LONG_STAGE3_STATUS",
+    "scientificCaptureFailure": false,
+    "matrixLogicFailure": false
+  },
+  "fix": {
+    "scrollViewWrapsFullUi": true,
+    "previewHeightDp": 220,
+    "previewIsFramingOnly": true,
+    "captureLogicChanged": false,
+    "vendorMatrixChanged": false,
+    "sourceSealOrderingChanged": false,
+    "stage36Changed": false,
+    "stage37Changed": false,
+    "cacheRecoveryEnabled": true,
+    "cacheEvidenceRegex": ".*_R(\\d{2})_ABCD_([01]{4})_EVIDENCE_v030\\.json$",
+    "resumeUsesHighestCompletedRunPlusOne": true,
+    "cachedEvidenceBundleExport": true,
+    "bundleContainsRawSourceBytes": false,
+    "bundleContainsDerivedRawPayloadBytes": false,
+    "bundleContainsEvidenceJsonsAndManifestOnly": true
+  },
+  "buildProvenance": {
+    "v030cScrollOnly": {
+      "runId": 35263178225,
+      "jobId": 105343699774,
+      "headSha": "5da4facdac59b5bfab7c1884ed5a0407c6d31338",
+      "conclusion": "success",
+      "apkBytes": 4915745,
+      "apkSha256": "9c5693d59b0c70376300059c89ea9e9f5553b43194956f54e32cfaa080e3745a",
+      "artifactId": 10516175322,
+      "artifactZipBytes": 1604581,
+      "artifactZipSha256": "475afcdc068bb98d04cd0fdcbf6e77e359bb349148d795303845766d89eebe57"
+    },
+    "v030dFirstAttempt": {
+      "runId": 35263818916,
+      "conclusion": "failure",
+      "failureStage": "PATCH_RECONSTRUCTION_BEFORE_APK_BUILD",
+      "failureReason": "STALE_ONCREATE_TEXT_ANCHOR",
+      "preservedAsProvenance": true
+    },
+    "v030dCorrected": {
+      "runId": 35263937262,
+      "jobId": 105346257874,
+      "headSha": "23d47cc1becba99b81d7ff3ff5d314ab210110d0",
+      "conclusion": "success",
+      "scientificOrderingAssertionsPass": true,
+      "apkBytes": 4915745,
+      "apkSha256": "52c57c28e4d44d5ba74a0101a437b4acbe33adceee02a4d45f3309ee8d309080",
+      "artifactId": 10516351048,
+      "artifactZipBytes": 1607259,
+      "artifactZipSha256": "d1c5154b19bd763b115fc6ae35ed36b612b20201a3e72c8672afb98d5d7a1d94"
+    }
+  },
+  "deviceUpdateProtocol": {
+    "installOverExistingApp": true,
+    "doNotUninstallFirst": true,
+    "doNotClearAppStorage": true,
+    "doNotClearAppCacheBeforeRecovery": true,
+    "reason": "PRESERVE_ANY_ALREADY_WRITTEN_V030_MATRIX_EVIDENCE_JSONS_IN_APP_CACHE",
+    "androidCacheIsGuaranteedPermanent": false,
+    "firstActionAfterUpdate": "EXPORT_CACHED_V030_EVIDENCE_BUNDLE_BEFORE_MORE_CAPTURES"
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
