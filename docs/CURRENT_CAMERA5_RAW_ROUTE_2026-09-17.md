@@ -1,6 +1,6 @@
 # TruthRaw current Camera-5 RAW route — 2026-09-17
 
-Status: **CURRENT CAMERA-5 ACQUISITION / PAYLOAD AUTHORITY = v0.20; v0.30 FOUR-FACTOR FULL-FACTORIAL ROUTE MATRIX COMPLETE WITH NO MEASURABLE TOPOLOGY DIFFERENTIAL**  
+Status: **CURRENT CAMERA-5 ACQUISITION / PAYLOAD AUTHORITY = v0.20; v0.30 BINARY MATRIX AND v0.31 INT32 VALUE SWEEP COMPLETE WITH NO MEASURABLE TOPOLOGY DIFFERENTIAL**  
 Device: HONOR Magic 8 Pro / BKQ-N49  
 Logical camera: `0`  
 Physical tele camera: `5`
@@ -82,10 +82,10 @@ Repeated tested captures expose multiple coordinate/readout domains, including:
 
 - HONOR `binningFactor=4`;
 - HONOR `AECRealCropWindow` around `[11,8,4058,3055,...]`;
-- HONOR `allISPCropWindow` beginning `[0,0,16320,12288,...]`;
+- HONOR `allISPCropWindow=[0,0,16320,12288,0,0,16320,12288]` in the v0.31 captures;
 - Android returned `SENSOR_PIXEL_MODE=0`;
 - Android returned `rawBinningFactorUsed=true`;
-- HONOR `isInSensorZoom=0` in tested route-control captures.
+- HONOR `isInSensorZoom=0` in the tested route-control captures.
 
 These are route observations. They do not prove electrical binning, remosaic behavior or native ADC geometry.
 
@@ -98,11 +98,11 @@ Native metadata representations were resolved before intervention:
 - v0.27 `EnableXCFAOptimization`: BYTE, tag `0x801F0036`;
 - v0.29 `HALOutputBufferCombined`: INT32, tag `0x801F0034`.
 
-Vendor names and numeric value `1` are not semantic authority.
+Vendor names and numeric values are not semantic authority.
 
 ## 6. Single-factor route-control results
 
-The first three accepted single-variable interventions were:
+The first three accepted single-variable numeric-one interventions were:
 
 - v0.24 `EnableIdealRAW=BYTE(1)`;
 - v0.26 `RawCbSourceType=INT32(1)`;
@@ -123,11 +123,7 @@ v0.30 tested all `2^4 = 16` combinations of:
 
 Matrix `0` = UNSET / no write. Matrix `1` = numeric `1` in the resolved native representation.
 
-All 16 unique profiles now have individually readable device evidence JSONs:
-
-`0000, 1111, 0101, 1010, 0011, 1100, 0110, 1001, 0001, 1110, 0010, 1101, 0100, 1011, 1000, 0111`.
-
-All eight complement pairs were therefore observed.
+All 16 unique profiles have individually readable device evidence JSONs and all eight complement pairs were observed.
 
 ## 8. Complete v0.30 measured result
 
@@ -145,58 +141,116 @@ All 16 profiles remain in the same measured app-visible topology class as v0.20:
 - unique advertised standard RAW match `4080x3072`;
 - no measured RAW-envelope/populated-prefix topology differential.
 
-This includes all four single-high states, every two-factor state, every three-factor state, the all-UNSET control and all-four-high state.
-
 Bounded complete-matrix conclusion:
 
 `WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
-For the measured categorical topology response, the response is invariant at every design point. This does not claim pixel-value equality between captures.
+For the measured categorical topology response, the response is invariant at every v0.30 design point.
 
-## 9. What the complete matrix rules out
+## 9. v0.31 INT32 value-domain sweep
 
-The simple hypothesis that one of these four controls, or an interaction among them, at the tested binary levels is sufficient to expose a larger populated app-visible RAW domain is not supported.
+v0.31 changed the numeric domain for the two INT32 controls instead of repeating the completed binary matrix.
 
-In particular:
+Profiles:
 
-- A-only, B-only, C-only and D-only each remain in the same topology class;
-- all six two-factor combinations remain in the same topology class;
-- all four three-factor combinations remain in the same topology class;
-- all-four-high remains in the same topology class;
-- all-UNSET reproduces the v0.20 topology within the matrix framework.
+- S01 `RawCbSourceType=0`;
+- S02 `RawCbSourceType=2`;
+- S03 `RawCbSourceType=3`;
+- S04 `HALOutputBufferCombined=0`;
+- S05 `HALOutputBufferCombined=2`;
+- S06 `HALOutputBufferCombined=3`.
 
-## 10. What remains open
+`EnableIdealRAW` and `EnableXCFAOptimization` remained UNSET in every v0.31 run. Exactly one unknown vendor key was written per capture.
 
-The complete matrix does not prove:
+All six values were accepted by the builder, matched builder readback, matched built-request readback and attached as session parameters. No enum meaning is inferred from this acceptance.
+
+## 10. Complete v0.31 measured result
+
+All six v0.31 captures again remain in the same topology class as v0.20:
+
+- physical result Camera `5`;
+- declared `16320x12288` app-visible RAW envelope;
+- `401,080,320` source bytes;
+- row stride `32,640`, pixel stride `2`;
+- Stage 3.6 classification `ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE`;
+- first `768` declared rows populated;
+- remaining `11,520` rows zero;
+- payload bytes `25,067,520`;
+- Stage 3.7 status `UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED`;
+- unique advertised standard RAW match `4080x3072`;
+- exact-prefix derived payload with no source replacement;
+- no measured RAW-envelope/populated-prefix topology differential.
+
+The returned coarse route-side metadata also remained in the same class across all six captures:
+
+- HONOR `binningFactor=4`;
+- HONOR `AECRealCropWindow` prefix `[11,8,4058,3055]`;
+- HONOR `allISPCropWindow=[0,0,16320,12288,0,0,16320,12288]`;
+- HONOR `isInSensorZoom=0`;
+- Android `rawBinningFactorUsed=true`.
+
+Source and payload hashes differ across captures, and scene/exposure/focus varied, so pixel-value differences are not interpreted causally.
+
+Bounded v0.31 conclusion:
+
+`DEVICE_SWEEP_COMPLETE_6_OF_6__RAWCB_AND_HALOUTPUTBUFFERCOMBINED_INT32_VALUES_0_2_3_ACCEPTED_AND_ATTACHED__NO_MEASURABLE_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_DIFFERENTIAL`
+
+Combining v0.31 with prior evidence gives a tested bounded value set of
+
+`{UNSET, 0, 1, 2, 3}`
+
+for both `RawCbSourceType` and `HALOutputBufferCombined` on this route. Within that tested domain neither control changed the measured app-visible RAW topology.
+
+This does not prove explicit zero is semantically equivalent to UNSET or that values outside this domain cannot matter.
+
+## 11. What the route-control program has ruled out so far
+
+The available evidence does not support the simple hypothesis that the tested four-key binary combinations or the tested small INT32 values for B/D are sufficient to expose a larger populated app-visible Camera-5 RAW domain.
+
+Specifically:
+
+- all 16 v0.30 binary profiles are topology-invariant;
+- explicit `RawCbSourceType` values `0,1,2,3` are accepted/attached without topology change;
+- explicit `HALOutputBufferCombined` values `0,1,2,3` are accepted/attached without topology change;
+- the tested route continues to report HONOR binning/crop/in-sensor-zoom observations consistent with the existing 4080x3072 payload interpretation.
+
+## 12. What remains open
+
+The completed route-control work does not prove:
 
 - untouched/native photodiode ADC output;
 - physical sensor geometry is `4080x3072`;
 - exact electrical binning/remosaic mechanism;
 - 200 MP optical resolution;
 - vendor-key names describe true semantics;
-- numeric `1` means enabled/full/native/unbinned;
-- the four tested keys are globally ineffective;
-- other numeric values cannot change the route;
+- numeric values encode any specific enum meaning;
+- explicit zero equals UNSET semantically;
+- values outside the tested domain are ineffective;
+- the tested keys are globally ineffective in other route contexts;
 - other vendor controls or operating modes cannot expose another route.
 
-## 11. Current next research direction
+## 13. Current next research direction
 
-Do not repeat this four-key 0/1 matrix. That parameter space is complete.
+Do not repeat the v0.30 binary matrix and do not blindly enumerate larger arbitrary INT32 values.
 
-Next useful work should move to either:
+The next useful route work should move to either:
 
-- value-domain / enum-semantics discovery for the INT32 controls, especially `RawCbSourceType` and `HALOutputBufferCombined`, before testing other numeric values; or
-- new upstream vendor-route candidates, with native-type oracle first and intervention only after representation is resolved.
+- a new upstream vendor-route family, with native-type oracle first and intervention only after representation is resolved; or
+- a separately justified prerequisite/context experiment if evidence suggests the accepted INT32 controls only act under another route state.
 
-Detailed complete matrix report:
+Detailed v0.31 result:
+
+`docs/HONOR_CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_DEVICE_RESULT_2026-09-17.md`
+
+Machine-readable v0.31 state:
+
+`state/CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_STATE_2026-09-17.json`
+
+Detailed v0.30 result:
 
 `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
 
-Machine-readable complete matrix state:
-
-`state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
-
-## 12. Position in TruthRaw architecture
+## 14. Position in TruthRaw architecture
 
 This remains acquisition/provenance/sample-topology research:
 
