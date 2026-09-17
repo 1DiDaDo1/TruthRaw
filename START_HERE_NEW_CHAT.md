@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the completed HONOR Camera-5 v0.30 full-factorial route matrix on 2026-09-17.
+This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the completed HONOR Camera-5 v0.30 full-factorial route matrix and the **v0.31 INT32 value-domain sweep build** on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
 
@@ -11,11 +11,13 @@ It is a navigation/current-state document. It does not rewrite frozen historical
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/CURRENT_CAMERA5_ROUTE_EXPERIMENT_2026-09-17.md`
-6. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
-7. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
-8. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-9. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-10. only then exact canonical/research/module documents relevant to the task.
+6. `docs/HONOR_CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_BUILD_2026-09-17.md`
+7. `state/CAMERA5_V031_INT32_VALUE_DOMAIN_SWEEP_STATE_2026-09-17.json`
+8. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
+9. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
+10. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
+11. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+12. only then exact canonical/research/module documents relevant to the task.
 
 Historical partial-matrix state/result documents remain preserved as provenance and are no longer the current matrix completion authority.
 
@@ -104,9 +106,7 @@ Levels:
 - low = `UNSET_NO_WRITE`;
 - high = numeric `1` using the device-resolved native type.
 
-All 16 unique profiles now have individually readable evidence JSONs. All eight complement pairs are represented.
-
-Every profile remains in the same measured topology class as v0.20:
+All 16 unique profiles have individually readable evidence JSONs. Every profile remains in the same measured topology class as v0.20:
 
 - `16320x12288` / `401,080,320`-byte app-visible RAW envelope;
 - first `768` rows populated;
@@ -115,19 +115,55 @@ Every profile remains in the same measured topology class as v0.20:
 - unique advertised standard RAW byte match `4080x3072`;
 - no measured envelope/populated-prefix topology differential.
 
-This includes all four single-high states, every two-factor state, every three-factor state, all-UNSET and all-four-high.
-
 Current bounded matrix conclusion:
 
 `WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
-For this categorical topology response, the complete tested binary design is invariant. This is not a claim of pixel-value identity or global vendor-key ineffectiveness.
+The four-key 0/1 experimental space is complete and should not be repeated.
 
-## Current next research direction
+## Current experiment — v0.31 INT32 value-domain sweep
 
-Do not repeat the same four-key 0/1 matrix. That experimental space is complete.
+v0.31 changes the tested numeric domain instead of repeating binary combinations.
 
-Next useful work should either resolve value-domain/enum semantics for the INT32 controls (`RawCbSourceType`, `HALOutputBufferCombined`) before trying other numeric values, or identify new upstream vendor-route candidates and resolve native representation before intervention.
+Experiment:
+
+`CAMERA5_INT32_VALUE_DOMAIN_SWEEP_0_2_3`
+
+Only the two INT32 controls are exercised, one unknown vendor key per run:
+
+- S01 `RawCbSourceType=0`;
+- S02 `RawCbSourceType=2`;
+- S03 `RawCbSourceType=3`;
+- S04 `HALOutputBufferCombined=0`;
+- S05 `HALOutputBufferCombined=2`;
+- S06 `HALOutputBufferCombined=3`.
+
+A=`EnableIdealRAW` and C=`EnableXCFAOptimization` remain UNSET throughout. Numeric `1` and UNSET are not repeated because they were already screened by v0.30.
+
+Values `0`, `2`, and `3` are experimental stimuli only. No vendor enum or semantic meaning is assumed.
+
+Build status: **SUCCESS — DEVICE RESULTS PENDING**.
+
+Branch:
+
+`integration/truthraw-suite-v0-31-int32-value-domain-sweep`
+
+Successful build provenance:
+
+- run `35274828567`;
+- job `105382770948`;
+- head `899e38abf87b2e4712cd60142cf2aeac9acd9e8b`;
+- APK SHA-256 `3125ddab46232c46680cefc67ae2e729495be88ba17cb15d2681d2e5abaf3bd3`;
+- artifact ID `10520386544`;
+- artifact ZIP SHA-256 `1af039f1fb79640d65f4a696c8f8c52e8102945b8099b8b917d5c6c63f2b20c1`.
+
+The first v0.31 build attempt is preserved as failed-build provenance; it failed before compilation on an uppercase bundle-version assertion and produced no device/scientific result.
+
+The v0.31 fixed-control UI retains first-missing recovery and the source-first v0.20 acquisition/audit ordering.
+
+## Immediate device action
+
+Run S01 through S06 and save each evidence JSON individually. If a value produces a topology differential, stop broad sweeping and narrow that region. If a value is rejected/blocked, preserve the failure rather than inferring semantics.
 
 ## Current open problem
 
