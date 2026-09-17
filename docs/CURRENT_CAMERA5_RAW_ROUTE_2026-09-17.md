@@ -1,6 +1,6 @@
 # TruthRaw current Camera-5 RAW route — 2026-09-17
 
-Status: **CURRENT CAMERA-5 ACQUISITION / PAYLOAD AUTHORITY = v0.20; ROUTE-CONTROL RESEARCH TRACKED THROUGH PARTIAL v0.30 DEVICE MATRIX**  
+Status: **CURRENT CAMERA-5 ACQUISITION / PAYLOAD AUTHORITY = v0.20; v0.30 FOUR-FACTOR FULL-FACTORIAL ROUTE MATRIX COMPLETE WITH NO MEASURABLE TOPOLOGY DIFFERENTIAL**  
 Device: HONOR Magic 8 Pro / BKQ-N49  
 Logical camera: `0`  
 Physical tele camera: `5`
@@ -9,11 +9,9 @@ Permanent boundary:
 
 `APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF`
 
-This document is the current bounded Camera-5 interpretation. It preserves v0.14 source-first acquisition authority, v0.16/v0.17 airlock provenance, v0.19 raster-population evidence, v0.20 payload-geometry evidence, the later single-variable route-control experiments, and the v0.30 interaction screen.
-
 ## 1. Current source/payload authority
 
-The trusted route is:
+Trusted route:
 
 `logical camera 0`
 `-> physical output Camera 5`
@@ -43,7 +41,7 @@ Qualifying control evidence:
 
 Observed control facts include:
 
-- physical result camera `5`;
+- physical result Camera `5`;
 - delivered app-visible Image `16320x12288`;
 - source bytes `401,080,320`;
 - row stride `32,640`;
@@ -53,231 +51,154 @@ Observed control facts include:
 - `rawBinningFactorUsed=true`;
 - source-first seal before returned-pixel-mode interpretation.
 
-Stage 3.6 proved that only rows `0..767` are populated in the declared 16320-wide interpretation. Rows `768..12287` are all zero. Therefore the populated prefix is exactly:
-
-`16320 * 768 * 2 = 25,067,520 bytes`
+Stage 3.6 proved that only rows `0..767` are populated in the declared 16320-wide interpretation. Rows `768..12287` are all zero, producing an exact populated prefix of `25,067,520` bytes.
 
 Stage 3.7 found exactly one runtime-advertised standard RAW_SENSOR geometry with the same U16 byte count:
 
-`4080 * 3072 * 2 = 25,067,520 bytes`
+`4080 * 3072 * 2 = 25,067,520 bytes`.
 
-The exact source prefix was copied without transform to a `.rawpayload`; its SHA-256 matched Stage-3.6 band 0. Spatial diagnostics show a coherent full-frame scene and Bayer-like 2x2 structure when indexed as `4080x3072`.
+The exact source prefix is copied without transform to `.rawpayload` derived evidence. Spatial diagnostics show a coherent full-frame scene and Bayer-like 2x2 structure when indexed as `4080x3072`.
 
-v0.20 source/payload authority remains unchanged by all later route-control experiments so far.
+v0.20 remains source/payload authority.
 
 ## 3. HAL / HardwareBuffer envelope
 
 The app-visible delivery envelope remains:
 
-- Java Image: `16320x12288`, RAW_SENSOR format 32;
+- Java Image `16320x12288`, RAW_SENSOR format 32;
 - one plane;
 - pixel stride `2`;
 - row stride `32640`;
 - capacity `401080320` bytes;
 - HardwareBuffer `16320x12288`, one layer, format 32;
 - native stride `16320` pixels;
-- Java/native HardwareBuffer identity observed;
 - envelope probe does not lock, map or write the buffer.
 
-The 401-MB object is therefore retained as the primary sealed evidence object even though the tested captures populate only the first 25,067,520 bytes.
+The 401-MB object remains the primary sealed evidence object even though tested captures populate only the first 25,067,520 bytes.
 
 ## 4. HONOR/QTI metadata observations retained
 
-Repeated tested captures continue to expose multiple coordinate/readout domains:
+Repeated tested captures expose multiple coordinate/readout domains, including:
 
 - HONOR `binningFactor=4`;
-- HONOR `AECRealCropWindow` begins around `[11,8,4058,3055]`;
-- HONOR `allISPCropWindow` reports `[0,0,16320,12288,...]`;
+- HONOR `AECRealCropWindow` around `[11,8,4058,3055,...]`;
+- HONOR `allISPCropWindow` beginning `[0,0,16320,12288,...]`;
 - Android returned `SENSOR_PIXEL_MODE=0`;
 - Android returned `rawBinningFactorUsed=true`;
-- HONOR `isInSensorZoom=0` in tested route-control captures;
-- AF/QTI and multicamera sidecars remain observable.
+- HONOR `isInSensorZoom=0` in tested route-control captures.
 
-These are observations. They do not prove the sensor's electrical binning, remosaic behavior or native ADC geometry.
+These are route observations. They do not prove electrical binning, remosaic behavior or native ADC geometry.
 
-## 5. Route-control methodology
+## 5. Route-control representation results
 
-Unknown vendor keys are never assigned meaning from their names alone.
+Native metadata representations were resolved before intervention:
 
-The early route-control sequence deliberately split representation discovery and intervention:
+- v0.23 `EnableIdealRAW`: BYTE, tag `0x801F0027`;
+- v0.25 `RawCbSourceType`: INT32, tag `0x801F0009`;
+- v0.27 `EnableXCFAOptimization`: BYTE, tag `0x801F0036`;
+- v0.29 `HALOutputBufferCombined`: INT32, tag `0x801F0034`.
 
-1. **representation oracle:** resolve the real native `camera_metadata` element type with disposable request metadata only; no session, no capture and no modified HAL submit;
-2. **single-variable intervention:** only after type resolution, set exactly one vendor key/value, preserve the v0.20 acquisition/audit chain, and compare topology against v0.20.
+Vendor names and numeric value `1` are not semantic authority.
 
-After four representations had been resolved and the first three single-variable interventions yielded no topology differential, v0.30 moved to a designed full-factorial interaction screen.
+## 6. Single-factor route-control results
 
-Numeric value `1` remains an experimental control value, not a proven vendor semantic.
+The first three accepted single-variable interventions were:
 
-## 6. v0.21–v0.24 — EnableIdealRAW
+- v0.24 `EnableIdealRAW=BYTE(1)`;
+- v0.26 `RawCbSourceType=INT32(1)`;
+- v0.28 `EnableXCFAOptimization=BYTE(1)`.
 
-v0.21 stopped safely because the Java runtime type was unavailable; nothing was submitted.
+Each was accepted and attached, yet each remained in the v0.20 structural class: `401,080,320`-byte envelope, first 768 rows populated, `25,067,520`-byte prefix and unique `4080x3072` standard RAW byte match.
 
-v0.22 showed multiple app-side marshalling candidates and therefore remained ambiguous; nothing was submitted.
+These were bounded negative differentials only.
 
-v0.23 used the native metadata oracle and resolved:
+## 7. v0.30 complete four-factor matrix
 
-- key: `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW`
-- native tag: `0x801F0027`
-- native type: `BYTE`
-- accepted native type count: `1`
-- no session/capture/HAL submission.
+v0.30 tested all `2^4 = 16` combinations of:
 
-v0.24 then applied exactly:
+- A `EnableIdealRAW` / BYTE;
+- B `RawCbSourceType` / INT32;
+- C `EnableXCFAOptimization` / BYTE;
+- D `HALOutputBufferCombined` / INT32.
 
-`EnableIdealRAW = BYTE(1)`
+Matrix `0` = UNSET / no write. Matrix `1` = numeric `1` in the resolved native representation.
 
-The intervention was accepted, builder/request readback succeeded, and the request was attached as session parameters. The resulting RAW topology nevertheless remained in the v0.20 structural class: 401,080,320-byte envelope, 25,067,520 populated bytes, first 768 rows populated, unique `4080x3072` standard RAW byte match.
+All 16 unique profiles now have individually readable device evidence JSONs:
 
-Bounded result:
+`0000, 1111, 0101, 1010, 0011, 1100, 0110, 1001, 0001, 1110, 0010, 1101, 0100, 1011, 1000, 0111`.
 
-`IDEALRAW_BYTE_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE`
+All eight complement pairs were therefore observed.
 
-## 7. v0.25–v0.26 — RawCbSourceType
+## 8. Complete v0.30 measured result
 
-v0.25 resolved:
+All 16 profiles remain in the same measured app-visible topology class as v0.20:
 
-- key: `org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
-- native tag: `0x801F0009`
-- native type: `INT32`
-- accepted native type count: `1`
-- no session/capture/HAL submission.
-
-v0.26 applied exactly:
-
-`RawCbSourceType = INT32(1)`
-
-The intervention was accepted and attached, but the measured RAW topology again remained unchanged from the v0.20 structural class.
-
-Bounded result:
-
-`RAWCB_SOURCE_TYPE_INT32_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE`
-
-## 8. v0.27–v0.28 — EnableXCFAOptimization
-
-v0.27 resolved:
-
-- key: `org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization`
-- native tag: `0x801F0036`
-- native type: `BYTE`
-- accepted native type count: `1`
-- no session/capture/HAL submission.
-
-v0.28 applied exactly:
-
-`EnableXCFAOptimization = BYTE(1)`
-
-The intervention was accepted and attached and again remained in the same measured topology class: 401,080,320-byte envelope, 25,067,520-byte populated prefix, first 768 rows populated and a unique `4080x3072` standard RAW byte match.
-
-Bounded result:
-
-`XCFA_BYTE_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE`
-
-## 9. v0.29 — HALOutputBufferCombined representation result
-
-Device oracle resolved:
-
-- key: `org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined`;
-- native tag: `0x801F0034`;
-- native type: `INT32`;
-- accepted native type count: `1`;
-- no session, no capture, no modified HAL submit.
-
-Classification:
-
-`NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION`
-
-This resolved representation only. Numeric value semantics remain unproven.
-
-## 10. v0.30 — designed four-factor interaction screen
-
-The matrix factors are:
-
-- A `EnableIdealRAW` / BYTE / `0x801F0027`;
-- B `RawCbSourceType` / INT32 / `0x801F0009`;
-- C `EnableXCFAOptimization` / BYTE / `0x801F0036`;
-- D `HALOutputBufferCombined` / INT32 / `0x801F0034`.
-
-Matrix level `0` means `UNSET_NO_WRITE`. Matrix level `1` means numeric `1` using the already resolved native representation. The full design contains all `16` combinations.
-
-The v0.30e fixed-controls recovery build preserves the scientific matrix and v0.20 source-first ordering while keeping essential controls permanently reachable and selecting the first missing cached run.
-
-## 11. Current v0.30 device evidence
-
-Individually readable hard-evidence JSONs currently exist for eight unique profiles:
-
-- R01 `0000`;
-- R02 `1111`;
-- R04 `1010`;
-- R11 `0010`;
-- R13 `0100`;
-- R14 `1011`;
-- R15 `1000`;
-- R16 `0111`.
-
-A second independent R16 `0111` capture also exists as a structural replicate.
-
-Every one of these hard-evidenced profiles remains in the same measured app-visible topology class as v0.20:
-
+- physical Camera `5`;
 - `16320x12288` declared RAW envelope;
 - `401,080,320` source bytes;
-- `768` populated rows and `11,520` all-zero rows;
-- `25,067,520` populated/payload bytes;
+- row stride `32,640`, pixel stride `2`;
+- returned `SENSOR_PIXEL_MODE=0` in the tested captures;
+- `rawBinningFactorUsed=true`;
+- Stage 3.6: only first `768` declared rows populated;
+- remaining `11,520` rows zero;
+- Stage 3.7: exact `25,067,520`-byte source prefix;
 - unique advertised standard RAW match `4080x3072`;
-- no measured envelope/populated-prefix topology differential.
+- no measured RAW-envelope/populated-prefix topology differential.
 
-R01 `0000` is especially important because it is the contemporaneous all-UNSET control inside the matrix framework. It reproduces v0.20 topology without any matrix vendor writes.
+This includes all four single-high states, every two-factor state, every three-factor state, the all-UNSET control and all-four-high state.
 
-R02 `1111` is the strongest current combined negative result: writing numeric `1` to all four currently type-resolved factors simultaneously is not sufficient to change the measured app-visible RAW envelope/populated-prefix topology.
+Bounded complete-matrix conclusion:
 
-Single-high hard evidence currently includes:
+`WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
-- R11 `0010`: C only — no topology differential;
-- R13 `0100`: B only — no topology differential;
-- R15 `1000`: A only — no topology differential.
+For the measured categorical topology response, the response is invariant at every design point. This does not claim pixel-value equality between captures.
 
-D-only R09 `0001` is still missing as individually readable hard evidence.
+## 9. What the complete matrix rules out
 
-The remaining hard-evidence profiles are:
+The simple hypothesis that one of these four controls, or an interaction among them, at the tested binary levels is sufficient to expose a larger populated app-visible RAW domain is not supported.
 
-`R03, R05, R06, R07, R08, R09, R10, R12`
+In particular:
 
-with ABCD values:
+- A-only, B-only, C-only and D-only each remain in the same topology class;
+- all six two-factor combinations remain in the same topology class;
+- all four three-factor combinations remain in the same topology class;
+- all-four-high remains in the same topology class;
+- all-UNSET reproduces the v0.20 topology within the matrix framework.
 
-`0101, 0011, 1100, 0110, 1001, 0001, 1110, 1101`.
+## 10. What remains open
 
-Detailed report:
-
-`docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_PARTIAL_DEVICE_RESULTS_2026-09-17.md`
-
-Machine-readable state:
-
-`state/CAMERA5_V030_PARTIAL_MATRIX_V030E_FIXED_CONTROLS_STATE_2026-09-17.json`
-
-## 12. Bundle handling boundary
-
-Multiple v0.30 evidence bundle ZIPs were uploaded during recovery. They are preserved as auxiliary provenance. Archive inspection timed out in the current analysis environment, so no run is promoted from ZIP filename, bundle size, UI progression or recollection alone.
-
-Until bundle contents are independently parsed, matrix-completion authority comes from individually readable evidence JSONs.
-
-## 13. Claims that remain forbidden
-
-Do not promote the current result to:
+The complete matrix does not prove:
 
 - untouched/native photodiode ADC output;
-- proof that the physical sensor itself is `4080x3072`;
-- proof that all payload samples are independent photodiode ADC measurements;
-- proof of exact sensor binning/remosaic mechanism;
-- proof of 200 MP optical resolution;
-- proof of calibrated black level from a single capture minimum;
-- proof of 10-bit ADC from max code `1023` alone;
-- proof that a vendor key name describes its semantics;
-- proof that numeric value `1` means enabled/full/native/unbinned;
-- proof that the four tested vendor controls are globally ineffective;
-- proof that the eight still-missing matrix profiles cannot differ.
+- physical sensor geometry is `4080x3072`;
+- exact electrical binning/remosaic mechanism;
+- 200 MP optical resolution;
+- vendor-key names describe true semantics;
+- numeric `1` means enabled/full/native/unbinned;
+- the four tested keys are globally ineffective;
+- other numeric values cannot change the route;
+- other vendor controls or operating modes cannot expose another route.
 
-## 14. Position in TruthRaw architecture
+## 11. Current next research direction
 
-This work remains acquisition/provenance/sample-topology research:
+Do not repeat this four-key 0/1 matrix. That parameter space is complete.
+
+Next useful work should move to either:
+
+- value-domain / enum-semantics discovery for the INT32 controls, especially `RawCbSourceType` and `HALOutputBufferCombined`, before testing other numeric values; or
+- new upstream vendor-route candidates, with native-type oracle first and intervention only after representation is resolved.
+
+Detailed complete matrix report:
+
+`docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
+
+Machine-readable complete matrix state:
+
+`state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
+
+## 12. Position in TruthRaw architecture
+
+This remains acquisition/provenance/sample-topology research:
 
 `request/session intent`
 `-> HONOR/QTI vendor pipeline`
@@ -288,6 +209,6 @@ This work remains acquisition/provenance/sample-topology research:
 `-> Scientific Master`
 `-> Dynamic Authority / uncertainty`
 `-> TruthRange / zero-line`
-`-> appearance/export`
+`-> appearance/export`.
 
 F64/FP32 and downstream reconstruction cannot increase the authority of the original Camera2 evidence.
