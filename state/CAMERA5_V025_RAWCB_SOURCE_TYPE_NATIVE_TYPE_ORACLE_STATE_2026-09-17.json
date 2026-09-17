@@ -1,0 +1,70 @@
+{
+  "schema": "truthraw.camera5-rawcb-source-type-native-type-oracle-state.v0.25",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-25-rawcb-native-type-oracle",
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "unchanged": true
+  },
+  "predecessorDeviceResult": {
+    "version": "v0.24",
+    "experiment": "EnableIdealRAW=BYTE(1)",
+    "interventionAccepted": true,
+    "rawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+    "boundedConclusion": "NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE"
+  },
+  "oracle": {
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
+    "purpose": "RESOLVE_NATIVE_CAMERA_METADATA_ELEMENT_TYPE_ONLY",
+    "tagLookup": "ACameraMetadata_getTagFromName",
+    "testedNativeTypes": [
+      "BYTE",
+      "INT32",
+      "FLOAT",
+      "INT64",
+      "DOUBLE",
+      "RATIONAL"
+    ],
+    "testValueNumeric": 1,
+    "testValueSemanticsAssumed": false,
+    "eachTypeUsesDisposableRequestTemplate": true,
+    "readbackTypeAndCountRequired": true,
+    "expectedDecisiveCondition": "acceptedTypeCount == 1",
+    "sessionCreated": false,
+    "sessionParametersAttached": false,
+    "captureSubmitted": false,
+    "repeatingRequestSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false,
+    "rawPixelAccess": false,
+    "sourceMutation": false,
+    "semanticPromotionAllowed": false,
+    "deviceResultAvailable": false,
+    "expectedEvidenceFile": "TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json"
+  },
+  "build": {
+    "githubActionsRunId": 35246799407,
+    "jobId": 105288947534,
+    "workflow": "TruthRaw FotoGraaf v0.25 RawCbSourceType Native Type Oracle",
+    "workflowHeadSha": "f4a474da0b0635527a0c1ba8a9b15dfc64d3ce95",
+    "conclusion": "success",
+    "safetyAndReconstructionAssertionsPass": true,
+    "apkBytes": 4882977,
+    "apkSha256": "25f31327aa6ab32a33e3e706370f30c506d2d4867ba769c7637a74f8fadabbd1",
+    "artifactId": 10508380597,
+    "artifactZipBytes": 1594330,
+    "artifactZipSha256": "376d151af2a521042f029b81f0c5c566c527ec10f165a164274242e5f733caf6"
+  },
+  "deviceProtocol": {
+    "requiredSteps": ["Step 1 only"],
+    "expectedStop": "STAGE 1.5 DIAGNOSTIC STOP",
+    "previewExpectedEnabled": false,
+    "captureExpectedEnabled": false,
+    "saveOracleJson": true,
+    "doNotAttemptInterventionBeforeDeviceTypeResult": true
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
