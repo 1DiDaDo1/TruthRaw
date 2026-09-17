@@ -35,10 +35,12 @@ if field_needle not in s:
     raise SystemExit('request-state field insertion point not found')
 s = s.replace(field_needle, field_replacement, 1)
 
-session_needle = '''        val config = SessionConfiguration(\n'''
-session_replacement = '''        // Gate A: our request-side door before the vendor session is created. This cannot access\n        // pre-HAL sensor pixels; it freezes the app-visible control surface/intention before HONOR/QTI\n        // selects and executes the internal session pipeline. Unknown vendor keys are never written.\n        lastPreHalSessionGate = runCatching {\n            Camera2PreHalGate.observeSession(\n                logical = logical,\n                physical = physical,\n                physicalId = PHYSICAL_ID,\n                width = TARGET_W,\n                height = TARGET_H,\n                format = ImageFormat.RAW_SENSOR,\n                outputPhysicalBinding = true,\n                outputMaximumResolutionModeDeclared = true,\n            )\n        }.getOrNull()\n        lastPreHalRequestGate = null\n\n        val config = SessionConfiguration(\n'''
+# Gate A must belong to the 200MP RAW session, never the preview session. Anchor it on the
+# physical/MAX OutputConfiguration block so there is no ambiguity with createPreviewSession().
+session_needle = '''        if (outputSetup.isFailure) {\n            setStatus("STAGE 3 physical/MAX output bind FAIL · ${outputSetup.exceptionOrNull()?.message}")\n            closeCameraResources(keepOutputs = true)\n            previewButton.isEnabled = true\n            return\n        }\n\n        val config = SessionConfiguration(\n'''
+session_replacement = '''        if (outputSetup.isFailure) {\n            setStatus("STAGE 3 physical/MAX output bind FAIL · ${outputSetup.exceptionOrNull()?.message}")\n            closeCameraResources(keepOutputs = true)\n            previewButton.isEnabled = true\n            return\n        }\n\n        // Gate A: our request-side door immediately before the physical-5/MAX RAW session is\n        // created. It freezes the app-visible control surface/intention before HONOR/QTI selects\n        // and executes the internal sensor/ISP pipeline. Unknown vendor keys are never written.\n        lastPreHalSessionGate = runCatching {\n            Camera2PreHalGate.observeSession(\n                logical = logical,\n                physical = physical,\n                physicalId = PHYSICAL_ID,\n                width = TARGET_W,\n                height = TARGET_H,\n                format = ImageFormat.RAW_SENSOR,\n                outputPhysicalBinding = true,\n                outputMaximumResolutionModeDeclared = true,\n            )\n        }.getOrNull()\n        lastPreHalRequestGate = null\n\n        val config = SessionConfiguration(\n'''
 if session_needle not in s:
-    raise SystemExit('session gate insertion point not found')
+    raise SystemExit('200MP session gate insertion point not found')
 s = s.replace(session_needle, session_replacement, 1)
 
 request_needle = '''            val request = requestBuilder.build()\n'''
@@ -62,7 +64,8 @@ s = s.replace(status_needle, status_replacement, 1)
 assert 'TruthRaw · 200MP Tele Test v0.17 · Camera-5 airlock' in s
 assert 'Camera2PreHalGate.observeSession(' in s
 assert 'Camera2PreHalGate.observeRequest(' in s
-assert s.index('Camera2PreHalGate.observeSession(') < s.index('device.createCaptureSession(config)')
+assert s.index('output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)') < s.index('Camera2PreHalGate.observeSession(')
+assert s.index('Camera2PreHalGate.observeSession(') < s.index('val support = runCatching { device.isSessionConfigurationSupported(config) }')
 assert s.index('Camera2PreHalGate.observeRequest(') < s.index('val request = requestBuilder.build()')
 assert s.index('persistOriginalRawBuffer(image, stamp)') < s.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
 assert 'preHalGateChangedVendorKeys' in s
