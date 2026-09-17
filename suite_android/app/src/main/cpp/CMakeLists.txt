@@ -34,6 +34,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
     hardware_buffer_envelope_probe.cpp
+    idealraw_native_type_oracle.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
@@ -77,7 +78,9 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${V47I_NATIVE}/include)
 
 find_library(ANDROID_LIB android)
-target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB})
+find_library(CAMERA2NDK_LIB camera2ndk)
+find_library(DL_LIB dl)
+target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB})
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
 
