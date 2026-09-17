@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.20 payload-geometry result on 2026-09-17.
+This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.29 build on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
 
@@ -9,22 +9,15 @@ It is a navigation/current-state document. It does not rewrite frozen historical
 Read in this order:
 
 1. `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-2. `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md` — scientific background; its old open Camera-5 physical gate is superseded by the 2026-09-17 Camera-5 documents
+2. `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md` — scientific background; older Camera-5 physical-gate wording is superseded by the 2026-09-17 Camera-5 documents
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-6. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
-7. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-8. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
-9. `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md`
-10. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-11. only then the exact canonical/research/module documents relevant to the task.
-
-Camera-5 detailed reading order:
-
-- `docs/HONOR_MAGIC8_PRO_TELE_200MP_FULL_RAW_V014_2026-09-17.md`
-- `docs/HONOR_CAMERA5_TWO_DOOR_AIRLOCK_V017_2026-09-17.md`
-- `docs/HONOR_MAGIC8_PRO_TELE_PAYLOAD_GEOMETRY_V020_2026-09-17.md`.
+6. `state/CAMERA5_V029_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_STATE_2026-09-17.json`
+7. `docs/HONOR_CAMERA5_HAL_OUTPUT_BUFFER_COMBINED_V029_NATIVE_TYPE_ORACLE_BUILD_2026-09-17.md`
+8. `docs/HONOR_CAMERA5_XCFA_V028_DEVICE_RESULT_2026-09-17.md`
+9. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+10. only then the exact canonical/research/module documents relevant to the task.
 
 Historical architecture documents remain background authorities in their own domain:
 
@@ -39,68 +32,33 @@ Historical architecture documents remain background authorities in their own dom
 
 ## Permanent scientific laws
 
-1. **Source evidence is immutable.** Original admitted bytes, decoded CFA identity and capture provenance are history, not a workspace to rewrite.
-2. **Representation can exceed the source. Knowledge claims cannot exceed the evidence.** Free Scientific Space may exceed RAW code range, source CFA lattice, SDR or DNG, while authority remains bounded.
-3. **Measured is not reconstructed.** `MEASURED`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `COUNTERFACTUAL` and appearance/transport/restoration state remain distinguishable.
-4. **Evidence count is physical.** A single physical frame remains one frame/evidence source unless another real modality is explicitly admitted; virtual observations do not create measurements.
-5. **Censoring is a bound, not a guessed exact value.**
-6. **Uncertainty/support is local and fail-closed.** Wrong identity, coordinates, missing runtime fields or missing semantics cannot silently widen authority.
-7. **Precision is stage-specific.** Exact integer/packed evidence first; F64 where branch-sensitive science requires it; controlled F32 storage only after validation.
-8. **Counterfactual state never becomes capture evidence.**
-9. **Appearance/transport never writes back into science.**
-10. **Restoration never overpaints valid measured support in the Scientific Master.**
-11. **Compute resources never increase truth authority.**
-12. **Vendor metadata and vendor-key names are observations, not calibration/semantic authority by themselves.**
-13. **Rejected/failed experiments remain provenance.**
+1. Source evidence is immutable.
+2. Representation may exceed the source; claims may not exceed evidence.
+3. Measured/reconstructed/censored/unknown/counterfactual/appearance remain distinct.
+4. Evidence count remains physical and explicit.
+5. Censoring is a bound, not a guessed exact value.
+6. Uncertainty/support is local and fail-closed.
+7. Precision is stage-specific: exact integer/packed evidence first; F64 where branch-sensitive science requires it; F32 only when validated safe.
+8. Counterfactual state never becomes capture evidence.
+9. Appearance/transport never writes back into science.
+10. Restoration never overpaints valid measured support in the Scientific Master.
+11. Compute resources never increase truth authority.
+12. Vendor metadata and vendor-key names are observations, not semantic/calibration authority by themselves.
+13. Failed/rejected experiments remain provenance.
 
-## Current project flow
+## Current Camera-5 source/payload authority
 
-`Source Evidence`
-`-> acquisition/provenance + sample-topology proof`
-`-> measurement/de-ISP`
-`-> Scientific Master in Free Scientific Space`
-`-> Dynamic Authority / uncertainty / support`
-`-> Open Scene State`
-`-> optional counterfactual/restoration state`
-`-> appearance / HDR / transport`
-`-> finite export`.
+The trusted acquisition/content lineage remains:
 
-DNG, LinearRaw, reconstructed CFA, restored renders, diagnostic previews and display files are projections/compatibility products. They do not replace the Scientific Master or become original measurement evidence.
+`v0.14 source-first seal`
+`-> v0.16 post-HAL HardwareBuffer envelope`
+`-> v0.17 two-door request/delivery airlock`
+`-> v0.19 full-raster write audit`
+`-> v0.20 payload geometry decoder`.
 
-## Current Camera-5 result through v0.20
+The trusted route is:
 
-The old 2026-09-16 state said a real physical `16320x12288` Camera-5 RAW_SENSOR delivery still had to be obtained. That gate is now historical.
-
-v0.14 proved one physical-Camera-5 app-visible `16320x12288` RAW_SENSOR delivery through logical camera 0 with:
-
-- physical output binding to camera 5;
-- exact Image/physical-result timestamp equality;
-- original `Image.Plane[0]` persisted and SHA-256 sealed before interpreting contradictory pixel-mode metadata;
-- app-visible source envelope size `401,080,320` bytes, rowStride `32640`, pixelStride `2`.
-
-v0.16/v0.17 then added a two-door airlock:
-
-`request/session fingerprint before HONOR/QTI execution`
-`-> vendor pipeline`
-`-> delivered HardwareBuffer/Image/physical result envelope`.
-
-The post-HAL probe is descriptor/metadata-only and does not lock, map or write the HardwareBuffer.
-
-v0.19 established that the tested sealed source envelope is not fully populated:
-
-- only declared rows `0..767` contain non-zero source codes;
-- rows `768..12287` are all zero;
-- populated source prefix = exactly `25,067,520` bytes;
-- therefore `16320*768*2 == 4080*3072*2`.
-
-v0.20 then proved that `4080x3072` is the **only runtime-advertised standard Camera-5 RAW_SENSOR geometry** whose U16 byte count matches that populated prefix. The derived `.rawpayload` is an exact no-transform prefix copy and its SHA equals the Stage-3.6 first-band SHA.
-
-The same bytes, indexed as `4080x3072`, produce:
-
-- a coherent full-frame diagnostic image;
-- Bayer-like 2x2 phase statistics;
-- much stronger same-phase distance-2 correlations than immediate cross-colour distance-1 correlations;
-- observed code range `64..1023` in the v0.20 capture.
+`logical 0 -> physical Camera 5 -> MAXIMUM_RESOLUTION declaration -> physical-scoped request -> app-visible 16320x12288 RAW_SENSOR envelope -> original Plane[0] sealed first -> read-only envelope/audit -> payload geometry interpretation`.
 
 Current bounded classification:
 
@@ -110,91 +68,123 @@ Descriptive shorthand:
 
 `APP_VISIBLE_4080x3072_BAYER_LIKE_RAW_PAYLOAD_EMBEDDED_IN_16320x12288_HAL_ENVELOPE`.
 
-Neither string proves native physical sensor geometry, untouched ADC, exact binning/remosaic mechanism or 200 MP optical resolving power.
+This does not prove untouched ADC, native sensor geometry, exact electrical binning/remosaic or 200 MP optical resolution.
 
-## Current Camera-5 route clues
+## v0.20 control facts
 
-The untouched v0.20 request/session surface exposes candidate vendor controls including:
+The tested source envelope is `401,080,320` bytes with `rowStride=32640`, `pixelStride=2` and app-visible geometry `16320x12288`.
 
-- `EnableIdealRAW`
-- `RawCbSourceType`
-- `EnableXCFAOptimization`
-- `HALOutputBufferCombined`
-- `EnableInsensorZoom`
-- `EnableSnapshotOnlyInsensorZoom`
-- `EnableMCXMasterCb`.
+Stage 3.6 established that only rows `0..767` are populated; rows `768..12287` are zero. Therefore:
 
-v0.20 changed none of them. `EnableXCFAOptimization` was visible as zero; `EnableIdealRAW` and `RawCbSourceType` were present but had null builder current/default values in the captured fingerprint.
+`16320 * 768 * 2 = 25,067,520 bytes`.
 
-Post-HAL route clues include HONOR `binningFactor=4`, an AEC crop near the `4080x3072` domain, ISP crop metadata in the `16320x12288` domain, a 40-byte `sensorCustomMetaData` sidecar and QTI multicamera/AF metadata. These are hypotheses/route observations, not vendor-semantic proof.
+Stage 3.7 found exactly one runtime-advertised standard Camera-5 RAW_SENSOR geometry with the same U16 byte count:
 
-## Current next route experiment
+`4080 * 3072 * 2 = 25,067,520 bytes`.
 
-Use v0.20 unchanged as the control.
+The exact prefix copy forms a coherent full-frame scene under the `4080x3072` interpretation and shows Bayer-like 2x2 structure. The `.rawpayload` remains derived evidence; the sealed 401-MB source remains primary.
 
-First single-variable candidate:
+## Route-control research through v0.28
 
-`org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW`.
+Unknown vendor keys are investigated in two phases:
 
-Rules:
+1. resolve native `camera_metadata` representation using disposable request metadata only, with no session/capture/HAL submission;
+2. only after representation is known, test one vendor key/value at a time while preserving the v0.20 acquisition/audit chain.
 
-1. separate branch/build;
-2. runtime key lookup and type verification on this device;
-3. change exactly one unknown vendor variable;
-4. preserve logical0 -> physical5 -> exact 16320x12288 MAX topology;
-5. preserve source-first sealing and both airlock sides;
-6. repeat Stage 3.6 and Stage 3.7 unchanged;
-7. compare populated byte count, geometry, hashes, result pixel mode, binning/crop metadata and full route fingerprints against v0.20.
+Numeric value `1` is an experimental control value, not proven vendor semantics.
 
-Only after that should `RawCbSourceType`, XCFA-related controls, in-sensor zoom or other route keys be tested separately.
+Resolved native representations:
+
+- v0.23 `EnableIdealRAW`: tag `0x801F0027`, native `BYTE`
+- v0.25 `RawCbSourceType`: tag `0x801F0009`, native `INT32`
+- v0.27 `EnableXCFAOptimization`: tag `0x801F0036`, native `BYTE`.
+
+Accepted single-variable interventions with **no measured RAW-topology change**:
+
+- v0.24 `EnableIdealRAW=BYTE(1)`
+- v0.26 `RawCbSourceType=INT32(1)`
+- v0.28 `EnableXCFAOptimization=BYTE(1)`.
+
+For v0.28 specifically, Gate A saw XCFA value `0`; builder/readback after set was `1`; built request readback was `1`; session parameters were attached. The final capture still produced the same structural class: 401,080,320-byte envelope, first 25,067,520 bytes populated, only rows 0..767 non-zero, and unique `4080x3072` standard RAW byte match.
+
+Therefore v0.20 remains source/payload authority.
+
+## Current experiment — v0.29 HALOutputBufferCombined native type oracle
+
+Current candidate:
+
+`org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined`
+
+The key is exposed on logical and physical request/session surfaces. Its name is potentially relevant to the unusual large-envelope/small-populated-prefix observation, but the name alone grants no semantics.
+
+v0.29 is **type resolution only**. It tests native `BYTE`, `INT32`, `FLOAT`, `INT64`, `DOUBLE` and `RATIONAL` on separate disposable request metadata instances, then validates setter/readback/type/count.
+
+It deliberately creates no capture session, attaches no session parameters, submits no capture and sends no vendor-modified request to HAL.
+
+Branch:
+`integration/truthraw-suite-v0-29-hal-output-buffer-combined-native-type-oracle`
+
+Build status: **SUCCESS — DEVICE RESULT PENDING**
+
+GitHub Actions run: `35255819562`
+
+APK:
+- bytes `4,899,361`
+- SHA-256 `deb775a8b19fcd02616904ace931c56297d3badbd6d3b679e308137949ba5552`
+
+Artifact:
+- ID `10513220672`
+- ZIP bytes `1,595,399`
+- ZIP SHA-256 `84675230ab4f40538d3fb71671ee71d4cde9b05cf430a542f01ef6030ab1d3b0`.
+
+On-device protocol: **Step 1 only**. Expected stop:
+
+`STAGE 1.5 DIAGNOSTIC STOP`
+
+Expected export:
+
+`TRUTHRAW_CAM5_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_v029.json`
+
+No preview or RAW capture should be performed by this build.
+
+## Current open problem
+
+The old question “can Camera 5 deliver an app-visible physical 16320x12288 RAW_SENSOR object?” is closed by v0.14.
+
+The current open route question is:
+
+`OPEN_NEEDS_ROUTE_DIFFERENTIAL_TO_ESTABLISH_WHETHER_A_DIFFERENT_HONOR_QTI_CONTROL_PATH_CAN_POPULATE_A_LARGER_NATIVE_OR_APP_VISIBLE_RAW_DOMAIN`.
+
+Independently, calibration/optical proof is still required before any native-ADC or 200-MP optical promotion.
 
 ## Multi-camera / focus status
 
-Camera 5 exposes Android focus-distance results and QTI AF lens-position/phase-detect telemetry. QTI multicamera sidecars are present during the tele capture.
+Camera 5 exposes Android focus-distance results plus QTI AF lens-position/phase-detect telemetry and multicamera sidecars.
 
-An isolated v0.18 physical-focus branch exists, but it is deliberately not in the trusted v0.19/v0.20 parent chain because source-population/topology had higher priority.
+The v0.18 focus branch remains isolated until the RAW route is better understood. Future multi-camera/multi-focus work must seal each physical RAW separately and keep physical-frame/evidence counts explicit.
 
-Future multi-camera/multi-focus work must seal each physical RAW separately and keep physical-frame/evidence counts explicit. Simultaneous capture does not automatically mean independent evidence.
+## Precision and downstream continuity
 
-## Precision and zero-line continuity
+Current precision direction remains:
 
-The current precision direction remains:
+`exact RAW integer/packed evidence -> integer-exact topology/content audit -> F64 branch-sensitive science -> controlled F32 only where validated`.
 
-`exact RAW integer/packed evidence`
-`-> integer-exact topology/content audit`
-`-> F32 only where proven safe`
-`-> F64 branch-sensitive reconstruction/calibration/optimization/covariance`
-`-> optional controlled F32 storage after F64 validation`.
-
-The zero-line / TruthRange gauge remains downstream of acquisition and calibration. RAW code 0, BlackLevel, display black and the zero-line are not interchangeable concepts.
-
-## Frozen downstream references
-
-For the previously validated source-bound research state:
-
-- Scientific Master SHA-256: `a86034da7b6f9663640ee3b4478ccf4294d23b720f2b087d083dca38f5fb4640`
-- Dynamic Authority v1.9 SHA-256: `7678a0b145f8721347cdcc5177fedb720ba19b91bf34984a3f18bd8216408098`
-- source-bound P3 transform SHA-256: `2105712a1be9950089976ba358afd4b062347680d5e6d8c500462c2e8d541533`
-- reference `L0 = 0.12564234435558320`.
-
-These are frozen downstream references for their validated source and are not automatically transferred to the newly investigated Camera-5 payload domain.
+TruthRange/zero-line remains downstream of acquisition and calibration. RAW code zero, BlackLevel, display black and the TruthRange zero-line are different concepts.
 
 ## Repository/governance rules
 
 - Use `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md` for current-vs-historical interpretation.
-- Preserve the 2026-09-16 index/current supplement as historical snapshots where later Camera-5 evidence supersedes their open physical gate.
-- Do not rewrite v0.14 history to pretend it already knew the v0.19/v0.20 payload topology.
+- Preserve older Camera-5 documents as historical provenance; do not rewrite them to pretend later results were known earlier.
 - v0.15 direct-open Camera-5 remains rejected-route provenance.
 - v0.18 focus remains isolated parallel research.
-- APK/GCam/computational-RAW material does not determine source authority, calibration, noise, topology or colour truth.
+- APK/GCam/computational RAW does not determine TruthRaw evidence authority or calibration.
 - No silent license changes.
 - `canonical/ptc/v1.1` means **Pure Truth Certificate**.
 
 ## Immediate continuation
 
-1. keep v0.20 as immutable experimental control;
-2. run the first single-variable upstream vendor-route differential only after runtime type verification;
-3. continue direct `.rawpayload` bit/CFA/row/column/noise topology analysis without promoting it to native ADC geometry;
-4. obtain black/white/noise/shading/colour/optics calibration separately for any readout domain that may eventually be admitted;
-5. resume physical focus/multi-camera research only with per-observation sealing and explicit authority counts;
-6. keep Scientific Master, Dynamic Authority, TruthRange, HDR, restoration and appearance downstream from correctly established source topology.
+1. run v0.29 Step 1 only and export its oracle JSON;
+2. if exactly one native type is accepted, record that representation without assigning semantics;
+3. only then decide whether a separate single-variable HALOutputBufferCombined intervention is justified;
+4. preserve v0.20 as immutable source/payload control;
+5. continue independent calibration/optical work separately from route-control experiments.
