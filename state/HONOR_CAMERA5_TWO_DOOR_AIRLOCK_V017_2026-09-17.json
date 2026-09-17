@@ -1,0 +1,102 @@
+{
+  "schema": "truthraw.honor-camera5-two-door-airlock-state.v0.17",
+  "createdAtUtc": "2026-09-17T13:10:00Z",
+  "status": "BUILD_PASS_DEVICE_VALIDATION_PENDING",
+  "authority": "EXPERIMENTAL_ACQUISITION_PROVENANCE_ONLY",
+  "branch": "integration/truthraw-suite-v0-17-camera5-route-fingerprint",
+  "acquisitionBaseline": {
+    "name": "FotoGraaf Camera-5 v0.14 sealed RAW route",
+    "topology": "logical0 -> physical5 -> physical-bound MAXIMUM_RESOLUTION RAW_SENSOR -> 16320x12288 Image -> exact physical timestamp pairing -> seal original Plane[0] before metadata interpretation and DNG",
+    "mustRemainUnchanged": true,
+    "sourceBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+  },
+  "airlock": {
+    "gateA": {
+      "position": "immediately before physical-5/MAX RAW SessionConfiguration creation",
+      "purpose": "freeze app-visible request/session route surface before HONOR/QTI session execution",
+      "pixelAccess": false,
+      "vendorKeysWritten": false
+    },
+    "gateB": {
+      "position": "immediately before still CaptureRequest build/submit",
+      "purpose": "freeze builder default/current state for selected route-candidate keys and standard physical-MAX request state",
+      "pixelAccess": false,
+      "vendorKeysWritten": false
+    },
+    "gateC": {
+      "position": "after exact RAW Plane[0] persistence and SHA-256 seal, before DNG",
+      "purpose": "describe Image + HardwareBuffer + native AHardwareBuffer + physical CaptureResult/vendor metadata",
+      "hardwareBufferLocked": false,
+      "hardwareBufferMapped": false,
+      "hardwareBufferWritten": false
+    }
+  },
+  "evidenceLaw": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "preHalRequestFingerprintCreatesNewEvidence": false,
+    "postHalEnvelopeCreatesNewEvidence": false,
+    "unknownVendorSemanticPromotionAllowed": false,
+    "calibrationAuthorityGranted": false,
+    "scientificMasterModified": false,
+    "truthRangeOrZeroLineUsed": false
+  },
+  "deviceEvidenceInput": {
+    "v016EvidenceFile": "TRUTHRAW_1789647134115_CAM5_200MP_EVIDENCE_v016.json",
+    "v016ObservedRawBytes": 401080320,
+    "v016ObservedRaster": [16320, 12288],
+    "v016ObservedVendorClues": {
+      "com.hihonor.capture.metadata.binningFactor": 4,
+      "com.hihonor.capture.metadata.isInSensorZoom": 0,
+      "sensorCustomMetaDataLengthBytes": 40,
+      "aecCoordinateDomainObservation": "near 4080x3072",
+      "ispAndActiveArrayDomainObservation": "16320x12288"
+    },
+    "interpretation": "OBSERVED_VENDOR_METADATA_UNKNOWN_SEMANTICS"
+  },
+  "implementation": {
+    "preHalProbe": "suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PreHalGate.kt",
+    "postHalProbe": "suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2EnvelopeProbe.kt",
+    "nativeBufferProbe": "suite_android/app/src/main/cpp/hardware_buffer_envelope_probe.cpp",
+    "buildPatch": "tools/patch_fotograaf_v017_pre_hal_airlock.py",
+    "differentialComparator": "tools/compare_camera5_airlock_evidence.py",
+    "architectureDoc": "docs/HONOR_CAMERA5_TWO_DOOR_AIRLOCK_V017_2026-09-17.md"
+  },
+  "buildAuthority": {
+    "sourceCommit": "d53d5da3f144cca2b7b0e6d15d488ea804deb3b0",
+    "workflowRunId": 35224405071,
+    "workflowJobId": 105212188821,
+    "result": "SUCCESS",
+    "apkBytes": 4798921,
+    "apkSha256": "00dc58746bd7291c3345d500e84ff3ae3a555cc7564a7712703e8cec599e6157",
+    "artifactId": 10498927643,
+    "artifactZipBytes": 1553366,
+    "artifactZipSha256": "bf6cac5853d4f8d21a5fae827772fe03d646d2fbd1bb8b340b47e7ea252d8d26"
+  },
+  "rejectedOrFailedBuildProvenance": [
+    {
+      "workflowRunId": 35222459498,
+      "reason": "patch insertion point mismatch; no APK authority"
+    },
+    {
+      "workflowRunId": 35222637441,
+      "reason": "Gate A was accidentally inserted into preview session, causing unresolved physical reference; corrected by anchoring Gate A on physical/MAX RAW output block"
+    }
+  ],
+  "nextRequiredDeviceEvidence": {
+    "first": "one v0.17 16320x12288 Camera-5 evidence JSON proving Gate A + Gate B + Gate C coexist on the already-proven capture route",
+    "then": [
+      "controlled Camera-5 4080x3072 route evidence",
+      "controlled Camera-5 8160x6144 route evidence",
+      "controlled Camera-5 16320x12288 route evidence"
+    ],
+    "comparisonGoal": "identify route-correlated request/session/vendor fields without assigning causal or physical semantics prematurely"
+  },
+  "promotionBlockers": [
+    "no v0.17 on-device evidence yet",
+    "HONOR/QTI vendor-key semantics are not independently established",
+    "full 200MP raster population/independence is not proven by buffer dimensions or byte length alone",
+    "untouched ADC/native photodiode semantics are not proven",
+    "mode-specific calibration and optical resolving power remain open"
+  ]
+}
