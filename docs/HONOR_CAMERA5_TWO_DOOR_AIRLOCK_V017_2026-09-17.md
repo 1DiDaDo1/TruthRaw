@@ -13,7 +13,7 @@ The v0.17 design treats these as a two-door airlock.
 
 ## Door A/B — request side before vendor execution
 
-The application freezes the exact route intent before session creation and again immediately before capture request build/submit.
+The application freezes the exact route intent before the physical-5/MAX RAW session is created and again immediately before capture request build/submit.
 
 Recorded facts include:
 
@@ -73,21 +73,69 @@ This can distinguish three classes of discrepancy without changing the source:
 - vendor/HAL route transformation or metadata contradiction;
 - downstream container/presentation issues.
 
-## Next experiment
+## Differential route-fingerprint protocol
 
-Run the same airlock on the three distinct Camera-5 readout/sample domains when supported:
+The next authority-building step is not to guess a vendor value, but to vary one controlled acquisition domain at a time and compare the entire airlock.
 
-- 4080x3072;
-- 8160x6144;
-- 16320x12288.
+Preferred same-scene matrix when each route can be obtained without weakening its own correctness conditions:
 
-Compare only like-for-like fields. A vendor field may be assigned semantics only if repeated differential evidence supports that interpretation. In particular, test whether HONOR `binningFactor`, `sensorCustomMetaData`, crop windows and candidate QTI raw-route keys change systematically with the readout domain.
+- Camera-5 RAW_SENSOR 4080x3072;
+- Camera-5 RAW_SENSOR 8160x6144;
+- Camera-5 RAW_SENSOR 16320x12288.
+
+For every capture preserve exposure, framing, physical camera identity and other controls as closely as the route allows, but never forge unsupported request state merely to make two runs look alike.
+
+Compare:
+
+- Gate A session-key availability and physical-override availability;
+- Gate B builder default/current state for route-candidate keys;
+- global and physical SENSOR_PIXEL_MODE request state;
+- Image / HardwareBuffer width, height, format, stride and usage;
+- physical CaptureResult SENSOR_PIXEL_MODE and SENSOR_RAW_BINNING_FACTOR_USED;
+- HONOR `binningFactor`, `slaveBinningFactor`, `isInSensorZoom`, `sensorCustomMetaData`, `sensorStages`, crop windows and sensor identifiers;
+- QTI multicamera/stream-route metadata;
+- raw byte payload identity and later Stage-4 topology statistics.
+
+A field that changes with readout domain is correlation evidence, not yet causation. A field that remains constant is useful negative evidence, but does not prove irrelevance.
+
+The repository tool `tools/compare_camera5_airlock_evidence.py` performs this comparison without rewriting source evidence. It fingerprints the full visible vendor-result set, compares the selected route fields, and byte-diffs `sensorCustomMetaData`; aligned 32-bit little-endian words are exposed only as numeric structure and are deliberately not assigned names or meanings.
+
+## Current v0.16 clue set to test
+
+The first post-HAL capture produced several high-value observations that become hypotheses for the differential protocol rather than conclusions:
+
+- app-visible RAW_SENSOR / HardwareBuffer domain: 16320x12288;
+- HONOR `binningFactor = 4`;
+- AEC-oriented crop metadata close to the 4080x3072 domain;
+- ISP/active-array metadata in the 16320x12288 domain;
+- `isInSensorZoom = 0`;
+- a 40-byte `sensorCustomMetaData` payload;
+- request-surface names including `EnableIdealRAW`, `RawCbSourceType`, `EnableXCFAOptimization`, `HALOutputBufferCombined` and in-sensor-zoom controls.
+
+None of those names or numeric coincidences are promoted to physical meaning until differential evidence supports it.
+
+## Safe promotion ladder
+
+The route investigation now follows this order:
+
+`request/session fingerprint`
+`-> post-HAL buffer envelope`
+`-> exact integer RAW seal`
+`-> cross-domain differential metadata`
+`-> Stage-4 RAW topology/content analysis`
+`-> only then sensor/readout interpretation`
+`-> calibration/de-ISP`
+`-> Scientific Master`
+`-> TruthRange / zero-line`
+
+This prevents vendor metadata from silently becoming calibration authority.
 
 ## Precision and zero-line
 
 This layer is acquisition/provenance only.
 
 - RAW source bytes remain exact integer evidence.
-- F64 may later be used for differential/covariance/calibration analysis.
-- FP32 may only be used in demonstrated-safe downstream operations.
+- metadata byte/word differencing is integer-exact where possible;
+- F64 may later be used for differential/covariance/calibration analysis;
+- FP32 may only be used in demonstrated-safe downstream operations;
 - TruthRange `T = log2(L/L0)` and the zero-line are not used to interpret request/session/vendor routing metadata.
