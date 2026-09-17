@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-current-route-state.v0.28",
+  "schema": "truthraw.camera5-current-route-state.v0.29",
   "date": "2026-09-17",
-  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_ROUTE_CONTROL_EXPERIMENTS_THROUGH_V028",
+  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_ROUTE_CONTROL_EXPERIMENTS_THROUGH_V029_BUILD",
   "device": {
     "family": "HONOR Magic 8 Pro",
     "model": "BKQ-N49",
@@ -29,7 +29,8 @@
     "populatedU16Samples": 12533760,
     "nonZeroDeclaredRows": [0, 767],
     "selectedStandardRawCandidate": [4080, 3072],
-    "authorityUnchangedByRouteControlExperimentsThroughV028": true
+    "authorityUnchangedByRouteControlExperimentsThroughV028": true,
+    "v029DeviceResultPending": true
   },
   "v020Control": {
     "evidenceFile": "TRUTHRAW_1789654132526_CAM5_200MP_EVIDENCE_v020.json",
@@ -129,6 +130,20 @@
       "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false,
       "boundedConclusion": "XCFA_BYTE_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE",
       "authorityEffect": "NEGATIVE_ROUTE_DIFFERENTIAL_ONLY"
+    },
+    {
+      "version": "v0.29",
+      "candidate": "HALOutputBufferCombined",
+      "experiment": "NATIVE_CAMERA_METADATA_TYPE_ORACLE_ONLY",
+      "buildConclusion": "success",
+      "githubActionsRunId": 35255819562,
+      "apkSha256": "deb775a8b19fcd02616904ace931c56297d3badbd6d3b679e308137949ba5552",
+      "sessionCreated": false,
+      "sessionParametersAttached": false,
+      "captureSubmitted": false,
+      "vendorModifiedRequestSubmittedToHal": false,
+      "deviceResultAvailable": false,
+      "authorityEffect": "PENDING_REPRESENTATION_ONLY"
     }
   ],
   "currentInterpretation": {
@@ -143,11 +158,12 @@
     "payloadAuthorityRemainsV020": true
   },
   "nextSafeExperiment": {
+    "version": "v0.29",
     "candidate": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
-    "firstStep": "NATIVE_CAMERA_METADATA_TYPE_ORACLE_ONLY",
-    "halSubmissionInFirstStep": false,
-    "rawCaptureInFirstStep": false,
-    "reason": "key is exposed on logical and physical request/session surfaces and remains untested; representation must be resolved before any intervention",
+    "step": "RUN_NATIVE_CAMERA_METADATA_TYPE_ORACLE_ON_DEVICE",
+    "halSubmission": false,
+    "rawCapture": false,
+    "requiredUserAction": "Step 1 only; save TRUTHRAW_CAM5_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_v029.json",
     "semanticMeaningFromNameAssumed": false
   },
   "notProven": [
