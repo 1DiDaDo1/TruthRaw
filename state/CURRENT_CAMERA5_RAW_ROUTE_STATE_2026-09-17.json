@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-current-route-state.v0.30-matrix-complete",
+  "schema": "truthraw.camera5-current-route-state.v0.31-value-domain-complete",
   "date": "2026-09-17",
-  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_V030_FULL_FACTORIAL_DEVICE_MATRIX_COMPLETE_NO_TOPOLOGY_DIFFERENTIAL",
+  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_V030_BINARY_MATRIX_AND_V031_INT32_SWEEP_COMPLETE_NO_TOPOLOGY_DIFFERENTIAL",
   "device": {
     "family": "HONOR Magic 8 Pro",
     "model": "BKQ-N49",
@@ -29,7 +29,8 @@
     "populatedU16Samples": 12533760,
     "nonZeroDeclaredRows": [0, 767],
     "selectedStandardRawCandidate": [4080, 3072],
-    "authorityUnchangedByCompleteV030Matrix": true
+    "authorityUnchangedByCompleteV030Matrix": true,
+    "authorityUnchangedByCompleteV031Sweep": true
   },
   "v020Control": {
     "evidenceFile": "TRUTHRAW_1789654132526_CAM5_200MP_EVIDENCE_v020.json",
@@ -82,14 +83,48 @@
       "payloadBytes": 25067520,
       "selectedAdvertisedStandardRawGeometry": [4080,3072]
     },
-    "strongestBoundedConclusion": "WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_THE_FOUR_TESTED_VENDOR_CONTROLS_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY",
-    "dOnlyProfile": "R09_ABCD_0001",
-    "dOnlyProfileObserved": true,
-    "dOnlyProfileTopologyDifferential": false,
-    "allFourHighProfile": "R02_ABCD_1111",
-    "allFourHighTopologyDifferential": false,
-    "allUnsetControl": "R01_ABCD_0000",
-    "allUnsetControlReproducesV020Topology": true
+    "strongestBoundedConclusion": "WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_THE_FOUR_TESTED_VENDOR_CONTROLS_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY"
+  },
+  "v031Int32Sweep": {
+    "experiment": "CAMERA5_INT32_VALUE_DOMAIN_SWEEP_0_2_3",
+    "complete": true,
+    "profileCount": 6,
+    "profiles": ["S01_RAWCB_0","S02_RAWCB_2","S03_RAWCB_3","S04_HALCOMBINED_0","S05_HALCOMBINED_2","S06_HALCOMBINED_3"],
+    "targets": {
+      "RawCbSourceType": {
+        "nativeType": "INT32",
+        "testedDomain": ["UNSET",0,1,2,3],
+        "newV031ValuesAcceptedAndAttached": [0,2,3],
+        "topologyDifferentialObserved": false
+      },
+      "HALOutputBufferCombined": {
+        "nativeType": "INT32",
+        "testedDomain": ["UNSET",0,1,2,3],
+        "newV031ValuesAcceptedAndAttached": [0,2,3],
+        "topologyDifferentialObserved": false
+      }
+    },
+    "allBuilderReadbacksPass": true,
+    "allRequestReadbacksPass": true,
+    "allSessionParametersAttached": true,
+    "singleUnknownVendorKeyPerRun": true,
+    "allProfilesSameTopologyClassAsV020": true,
+    "commonMeasuredTopology": {
+      "sourceEnvelopeBytes": 401080320,
+      "declaredGeometry": [16320,12288],
+      "nonZeroRows": 768,
+      "allZeroRows": 11520,
+      "payloadBytes": 25067520,
+      "selectedAdvertisedStandardRawGeometry": [4080,3072]
+    },
+    "commonReturnedRouteMetadata": {
+      "rawBinningFactorUsed": true,
+      "honorBinningFactor": 4,
+      "honorAECRealCropWindowPrefix": [11,8,4058,3055],
+      "honorAllISPCropWindow": [0,0,16320,12288,0,0,16320,12288],
+      "honorIsInSensorZoom": 0
+    },
+    "boundedConclusion": "FOR_RAWCBSOURCETYPE_AND_HALOUTPUTBUFFERCOMBINED_ON_THE_TESTED_CAMERA5_ROUTE__TESTED_DOMAIN_UNSET_0_1_2_3_PRODUCED_NO_MEASURABLE_APP_VISIBLE_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_DIFFERENTIAL"
   },
   "v030eRecovery": {
     "branch": "integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery",
@@ -104,17 +139,20 @@
   "currentInterpretation": {
     "payloadAuthorityRemainsV020": true,
     "testedBinaryFourFactorSpaceComplete": true,
-    "observedMainOrInteractionTopologyEffect": false,
+    "testedSmallInt32DomainCompleteForBAndD": true,
+    "observedMainOrInteractionTopologyEffectInV030": false,
+    "observedTopologyEffectInV031": false,
     "doesNotProveKeysHaveNoEffect": true,
-    "doesNotProveNumericValue1Semantics": true,
-    "doesNotProveOtherNumericValuesHaveNoEffect": true,
+    "doesNotProveNumericValueSemantics": true,
+    "doesNotProveExplicitZeroEqualsUnsetSemantically": true,
+    "doesNotProveValuesOutsideTestedDomainHaveNoEffect": true,
     "doesNotProveOtherVendorKeysHaveNoEffect": true,
     "doesNotProveNativeSensorGeometry": true
   },
   "nextSafeExperiment": {
-    "step": "STOP_REPEATING_THIS_BINARY_MATRIX__DISCOVER_VALUE_DOMAIN_SEMANTICS_OR_NEW_UPSTREAM_ROUTE_CANDIDATES",
-    "priorityCandidates": ["RawCbSourceType value domain", "HALOutputBufferCombined value domain", "other upstream session/request keys after native-type oracle"],
-    "semanticMeaningFromNameAssumed": false
+    "step": "STOP_BLIND_INTEGER_ENUMERATION__MOVE_TO_NEW_UPSTREAM_ROUTE_FAMILY_OR_EVIDENCE_JUSTIFIED_CONTEXT_PREREQUISITE",
+    "semanticMeaningFromNameAssumed": false,
+    "nativeTypeOracleRequiredBeforeNewVendorKeyIntervention": true
   },
   "notProven": [
     "UNTOUCHED_NATIVE_ADC",
@@ -126,6 +164,7 @@
     "10BIT_ADC_PROOF_FROM_MAX_CODE_ALONE",
     "VENDOR_KEY_NAME_SEMANTICS",
     "VENDOR_NUMERIC_VALUE_SEMANTICS",
+    "EXPLICIT_ZERO_EQUALS_UNSET_SEMANTICALLY",
     "GLOBAL_INEFFECTIVENESS_OF_TESTED_VENDOR_KEYS"
   ],
   "trustedChain": [
