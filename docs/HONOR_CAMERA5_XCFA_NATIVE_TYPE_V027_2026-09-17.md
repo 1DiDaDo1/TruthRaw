@@ -2,7 +2,7 @@
 
 Date: 2026-09-17
 
-Status: BUILD IN PROGRESS / DEVICE RESULT PENDING
+Status: **BUILD SUCCESS / DEVICE RESULT PENDING**
 
 ## Why this candidate is next
 
@@ -53,6 +53,27 @@ Patch:
 `tools/patch_fotograaf_v027_xcfa_native_type_oracle.py`
 
 The native metadata validator is the same NDK setter/readback mechanism proven by v0.25, generalized so the queried vendor key name is supplied explicitly.
+
+## Build result
+
+GitHub Actions run: `35251736680`
+
+Job: `105305482639`
+
+Workflow head: `db850876ab4a31603e04dca39e8ece3ea087c3c3`
+
+Result: **SUCCESS**
+
+Stage-1 safety assertions: PASS.
+
+APK:
+- bytes: `4,899,361`
+- SHA-256: `75cdf0bf708e85167934f947268c0e6e925232048c45dd548390d9c507f2fbae`
+
+Artifact:
+- ID: `10509896067`
+- ZIP bytes: `1,595,318`
+- ZIP SHA-256: `8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0`
 
 ## Device protocol
 
