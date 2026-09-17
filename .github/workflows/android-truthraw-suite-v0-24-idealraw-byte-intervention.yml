@@ -54,7 +54,7 @@ jobs:
           grep -F 'org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW' "$IDEAL"
           grep -F '0x801F0027' "$IDEAL"
           grep -F 'RESOLVED_NATIVE_TYPE = "BYTE"' "$IDEAL"
-          grep -F 'CaptureRequest.Key(KEY_NAME, java.lang.Byte::class.java)' "$IDEAL"
+          grep -F 'CaptureRequest.Key(KEY_NAME, Byte::class.javaObjectType)' "$IDEAL"
           grep -F 'builder.set(key, 1.toByte())' "$IDEAL"
           grep -F 'config.setSessionParameters(request)' "$IDEAL"
           grep -F 'singleUnknownVendorVariable' "$IDEAL"
