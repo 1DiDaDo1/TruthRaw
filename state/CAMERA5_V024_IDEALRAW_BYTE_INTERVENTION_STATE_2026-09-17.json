@@ -1,0 +1,83 @@
+{
+  "schema": "truthraw.camera5-idealraw-byte-intervention-state.v0.24",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-24-idealraw-byte-intervention",
+  "control": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072]
+  },
+  "predecessorDeviceResult": {
+    "version": "v0.23",
+    "evidenceFile": "TRUTHRAW_CAM5_IDEALRAW_NATIVE_TYPE_ORACLE_v023.json",
+    "classification": "NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION",
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
+    "tagIdHex": "0x801F0027",
+    "nativeMetadataTypeResolved": true,
+    "resolvedNativeType": "BYTE",
+    "nativeEntryCountForTest": 1,
+    "u8Accepted": true,
+    "i32Accepted": false,
+    "sessionCreated": false,
+    "captureSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false
+  },
+  "experiment": {
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
+    "requestedNativeType": "BYTE",
+    "requestedNumericValue": 1,
+    "writeRepresentation": "CaptureRequest.Key<Byte> + Byte(1)",
+    "singleUnknownVendorVariable": true,
+    "gateABaselineCapturedBeforeIntervention": true,
+    "logicalSessionAdvertisementRequired": true,
+    "builderReadbackRequired": true,
+    "builtRequestReadbackRequired": true,
+    "sessionParametersAttachedBeforeSessionSubmission": true,
+    "preserveLogical0Physical5MaxTopology": true,
+    "preserveSourceFirstSeal": true,
+    "repeatPostHalEnvelope": true,
+    "repeatStage36FullRasterAudit": true,
+    "repeatStage37PayloadGeometryDecoder": true,
+    "vendorSemanticsAssumed": false,
+    "semanticPromotionAllowed": false
+  },
+  "build": {
+    "githubActionsRunId": 35243866129,
+    "jobId": 105278911926,
+    "workflow": "TruthRaw FotoGraaf v0.24 IdealRAW BYTE Intervention",
+    "workflowHeadSha": "429063ceb11087cb16132fa910c740a170b2f6d5",
+    "conclusion": "success",
+    "orderAndSingleVariableAssertionsPass": true,
+    "apkBytes": 4880841,
+    "apkSha256": "e8f898b041a63b9f68a246878aadd3427e24d321731042a49a02e0318f5e5c15",
+    "artifactId": 10506437816,
+    "artifactZipBytes": 1587319,
+    "artifactZipSha256": "04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b",
+    "deviceResultAvailable": false
+  },
+  "integrationProvenance": {
+    "initialBuildRunId": 35243464800,
+    "initialBuildConclusion": "failure",
+    "initialBuildFailureClass": "KOTLIN_GENERIC_BYTE_KEY_TYPE_MISMATCH",
+    "initialBuildDeviceEffect": false,
+    "fix": "Use Byte::class.javaObjectType, matching the v0.22 Java-side BYTE marshalling representation.",
+    "scientificDesignChangedByFix": false
+  },
+  "deviceDecision": {
+    "ifSessionOrCaptureRejected": "record rejection as route-control evidence; do not change v0.20 source authority",
+    "ifCaptureSucceeds": "save v0.24 evidence JSON and, when produced, exact .rawpayload and diagnostic PNG; compare all source-population and route fingerprints against v0.20",
+    "primaryDifferential": "populated source bytes versus v0.20 value 25067520",
+    "secondaryDifferentials": [
+      "full row/band population",
+      "delivered Image/HardwareBuffer geometry and stride",
+      "Stage3.7 geometry match",
+      "returned SENSOR_PIXEL_MODE",
+      "rawBinningFactorUsed",
+      "HONOR binning/crop metadata",
+      "pre/post-HAL vendor fingerprints"
+    ]
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
