@@ -2,46 +2,62 @@
 
 Date: 2026-09-17
 
-Status: **BUILD SUCCESS / DEVICE RESULT PENDING**
+Status: **DEVICE RESULT COMPLETE — NATIVE TYPE BYTE**
 
-## Why this candidate is next
+## Why this candidate was selected
 
 TruthRaw v0.24 (`EnableIdealRAW=BYTE(1)`) and v0.26 (`RawCbSourceType=INT32(1)`) were both accepted as single vendor session-variable interventions, but neither changed the measured Camera-5 RAW-envelope or populated-payload topology versus the v0.20 control.
 
-The v0.26 untouched Gate-B request-state observation exposes:
+The v0.26 untouched Gate-B request-state observation exposed:
 
 `org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization`
 
-as available on logical request, physical request, logical session and physical session surfaces. Its observed builder default/current representation is a one-element `byte[]` with preview `[0]`.
+on logical/physical request and session surfaces with an observed current/default Java representation of a one-element `byte[]` preview `[0]`. That observation narrowed the representation question but was not native metadata-type proof.
 
-That observation narrows the representation question, but it is **not native metadata-type proof** and the key name is **not semantic authority**.
+## Device evidence
 
-## v0.27 question
+Evidence file:
+`TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json`
 
-Resolve the actual native Camera2 metadata element type for `EnableXCFAOptimization` before any intervention.
+Device classification:
+`NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION`
 
-The oracle tests independently:
+Resolved facts:
 
-- BYTE
-- INT32
-- FLOAT
-- INT64
-- DOUBLE
-- RATIONAL
+- camera ID: `0`
+- vendor key: `org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization`
+- vendor tag lookup available: true
+- tag lookup status: `0`
+- vendor tag: `0x801F0036`
+- unsigned tag ID: `2149515318`
+- camera open status: `0`
+- accepted native type count: `1`
+- resolved native type: `BYTE`
+- BYTE setter status: `0`
+- BYTE readback status: `0`
+- accepted entry type: `0` (`BYTE`)
+- accepted entry count: `1`
+- INT32/FLOAT/INT64/DOUBLE/RATIONAL rejected.
 
-Each test uses a separate disposable NDK still-capture request metadata object with numeric value `1` strictly as a type-validation value. It requires set success plus readback type/count agreement.
+The test value `1` was used strictly for metadata-type validation. Its vendor semantics remain unproven.
 
-## Safety boundary
+## Safety result
 
-v0.27 creates no capture session, attaches no session parameters, submits no capture or repeating request, accesses no RAW pixels and modifies no source.
+The oracle created disposable request templates only. It created no capture session, attached no session parameters, submitted no capture or repeating request, accessed no RAW pixels and modified no source.
 
-The v0.20 source/payload authority remains unchanged:
+Therefore the v0.20 source/payload authority remains unchanged:
 
 `APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN`
 
 Current control payload topology remains `25,067,520` populated bytes with the unique advertised standard RAW byte match `4080x3072`.
 
-## Branch and workflow
+## Representation conclusion
+
+On this tested device/route, `EnableXCFAOptimization` is native Camera2 metadata `BYTE`, count one.
+
+This is representation authority only. It does not prove what `XCFA`, numeric value `0`, numeric value `1`, remosaic, binning, sensor readout or ISP behavior means.
+
+## Build provenance
 
 Branch:
 `integration/truthraw-suite-v0-27-xcfa-native-type-oracle`
@@ -52,41 +68,21 @@ Workflow:
 Patch:
 `tools/patch_fotograaf_v027_xcfa_native_type_oracle.py`
 
-The native metadata validator is the same NDK setter/readback mechanism proven by v0.25, generalized so the queried vendor key name is supplied explicitly.
+GitHub Actions:
+- run `35251736680`
+- job `105305482639`
+- workflow head `db850876ab4a31603e04dca39e8ece3ea087c3c3`
+- build conclusion `success`
+- APK bytes `4,899,361`
+- APK SHA-256 `75cdf0bf708e85167934f947268c0e6e925232048c45dd548390d9c507f2fbae`
+- artifact ID `10509896067`
+- artifact ZIP bytes `1,595,318`
+- artifact ZIP SHA-256 `8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0`.
 
-## Build result
+## Next controlled experiment
 
-GitHub Actions run: `35251736680`
+v0.28 may test exactly one vendor variable:
 
-Job: `105305482639`
+`EnableXCFAOptimization = BYTE(1)`
 
-Workflow head: `db850876ab4a31603e04dca39e8ece3ea087c3c3`
-
-Result: **SUCCESS**
-
-Stage-1 safety assertions: PASS.
-
-APK:
-- bytes: `4,899,361`
-- SHA-256: `75cdf0bf708e85167934f947268c0e6e925232048c45dd548390d9c507f2fbae`
-
-Artifact:
-- ID: `10509896067`
-- ZIP bytes: `1,595,318`
-- ZIP SHA-256: `8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0`
-
-## Device protocol
-
-Run **Step 1 only**.
-
-Expected stop:
-`STAGE 1.5 DIAGNOSTIC STOP`
-
-Save:
-`TRUTHRAW_CAM5_XCFA_NATIVE_TYPE_ORACLE_v027.json`
-
-Do not proceed to any XCFA intervention until the device result resolves the native representation unambiguously.
-
-## Authority boundary
-
-A resolved native type establishes representation only. It does not prove what `XCFA`, value `0`, value `1`, or any other numeric value means in HONOR/QTI sensor, remosaic, binning or ISP terms.
+The value remains an A/B intervention value only. v0.28 must preserve untouched Gate A, logical0 -> physical5 MAX topology, source-first sealing, post-HAL envelope observation, Stage 3.6 full-raster audit and Stage 3.7 payload-geometry decoder. No second unknown vendor key may be combined.
