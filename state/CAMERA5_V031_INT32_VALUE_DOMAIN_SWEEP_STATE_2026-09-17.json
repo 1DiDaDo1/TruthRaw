@@ -1,0 +1,99 @@
+{
+  "schema": "truthraw.camera5-v031-int32-value-domain-sweep-state.v1",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_DEVICE_RESULTS_PENDING",
+  "sourcePayloadAuthority": "v0.20",
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
+  "predecessor": {
+    "version": "v0.30",
+    "status": "DEVICE_MATRIX_COMPLETE_16_OF_16_UNIQUE_PROFILES__NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
+    "boundedClosedDomain": "FOUR_KEYS_UNSET_VS_NUMERIC_ONE_AT_RESOLVED_NATIVE_TYPES",
+    "doNotRepeatBinaryMatrix": true
+  },
+  "experiment": {
+    "name": "CAMERA5_INT32_VALUE_DOMAIN_SWEEP_0_2_3",
+    "goal": "TEST_SMALL_ALTERNATE_INT32_VALUES_WITHOUT_ASSIGNING_VENDOR_SEMANTICS",
+    "singleUnknownVendorVariablePerRun": true,
+    "semanticPromotionAllowed": false,
+    "targets": [
+      {
+        "symbol": "B",
+        "key": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
+        "nativeType": "INT32",
+        "tagHex": "0x801F0009",
+        "nativeTypeAuthority": "v0.25",
+        "valuesNewInV031": [0, 2, 3],
+        "value1Reference": "v0.26 and v0.30",
+        "unsetReference": "v0.30"
+      },
+      {
+        "symbol": "D",
+        "key": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
+        "nativeType": "INT32",
+        "tagHex": "0x801F0034",
+        "nativeTypeAuthority": "v0.29",
+        "valuesNewInV031": [0, 2, 3],
+        "value1Reference": "v0.30",
+        "unsetReference": "v0.30"
+      }
+    ],
+    "profiles": [
+      {"run": 1, "profileId": "S01_RAWCB_0", "target": "RAWCB", "value": 0},
+      {"run": 2, "profileId": "S02_RAWCB_2", "target": "RAWCB", "value": 2},
+      {"run": 3, "profileId": "S03_RAWCB_3", "target": "RAWCB", "value": 3},
+      {"run": 4, "profileId": "S04_HALCOMBINED_0", "target": "HALCOMBINED", "value": 0},
+      {"run": 5, "profileId": "S05_HALCOMBINED_2", "target": "HALCOMBINED", "value": 2},
+      {"run": 6, "profileId": "S06_HALCOMBINED_3", "target": "HALCOMBINED", "value": 3}
+    ],
+    "alwaysUnsetOtherUnknownFactors": ["EnableIdealRAW", "EnableXCFAOptimization"],
+    "responseOfInterest": "APP_VISIBLE_RAW_ENVELOPE_AND_POPULATED_PREFIX_TOPOLOGY_CLASS"
+  },
+  "implementation": {
+    "branch": "integration/truthraw-suite-v0-31-int32-value-domain-sweep",
+    "helper": "suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt",
+    "primaryPatch": "tools/patch_fotograaf_v031_int32_value_domain_sweep.py",
+    "correctedPatch": "tools/patch_fotograaf_v031b_int32_value_domain_sweep.py",
+    "scientificAcquisitionOrderingChanged": false,
+    "sourceSealOrderingChanged": false,
+    "stage36Changed": false,
+    "stage37Changed": false,
+    "fixedControlsUiRetained": true,
+    "firstMissingRecoveryRetained": true
+  },
+  "failedBuildProvenance": {
+    "runId": 35274679023,
+    "headSha": "84f4b320abbf57550dc5d4672d3c675bbcd93758",
+    "failureBeforeCompilation": true,
+    "cause": "FIRST_PATCH_MISSED_UPPERCASE_V030_IN_INHERITED_BUNDLE_FILENAME_FINAL_ASSERTION",
+    "scientificResultProduced": false,
+    "preserved": true
+  },
+  "successfulBuild": {
+    "runId": 35274828567,
+    "jobId": 105382770948,
+    "headSha": "899e38abf87b2e4712cd60142cf2aeac9acd9e8b",
+    "conclusion": "success",
+    "apkBytes": 4932129,
+    "apkSha256": "3125ddab46232c46680cefc67ae2e729495be88ba17cb15d2681d2e5abaf3bd3",
+    "artifactId": 10520386544,
+    "artifactName": "truthraw-suite-main-plus-fotograaf-v0-31-int32-value-domain-sweep-debug-arm64",
+    "artifactZipBytes": 1611249,
+    "artifactZipSha256": "1af039f1fb79640d65f4a696c8f8c52e8102945b8099b8b917d5c6c63f2b20c1",
+    "workflowSafetyAssertionsPass": true
+  },
+  "deviceResults": {
+    "available": false,
+    "completedProfiles": [],
+    "missingProfiles": ["S01_RAWCB_0", "S02_RAWCB_2", "S03_RAWCB_3", "S04_HALCOMBINED_0", "S05_HALCOMBINED_2", "S06_HALCOMBINED_3"]
+  },
+  "nextDeviceAction": "INSTALL_V031_AND_RUN_S01_THROUGH_S06__SAVE_EACH_EVIDENCE_JSON_INDIVIDUALLY",
+  "notProven": [
+    "VENDOR_ENUM_MEANING_OF_RAWCBSOURCETYPE_VALUES",
+    "VENDOR_ENUM_MEANING_OF_HALOUTPUTBUFFERCOMBINED_VALUES",
+    "GLOBAL_INEFFECTIVENESS_OF_OTHER_INT32_VALUES",
+    "UNTOUCHED_NATIVE_ADC",
+    "PHYSICAL_SENSOR_NATIVE_GEOMETRY",
+    "200MP_OPTICAL_RESOLUTION"
+  ],
+  "scientificMasterModified": false
+}
