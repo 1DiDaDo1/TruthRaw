@@ -32,13 +32,18 @@ class FotoGraaf200MpEntryActivity : Activity() {
             setPadding(0, dp(8), 0, dp(14))
         })
         root.addView(TextView(this).apply {
-            text = "v0.9 fix: de bewezen Android-crash door TextureView.setBackgroundColor() is uit de staged 200MP-UI verwijderd."
+            text = "v0.15 test de volgende falsifieerbare route: Camera ID 5 direct openen, global MAXIMUM_RESOLUTION zetten, de originele RAW-buffer verzegelen en alle 16 rasterbanden onafhankelijk hashen."
             textSize = 12f
             setTextColor(Color.rgb(190, 198, 210))
             setPadding(0, 0, 0, dp(10))
         })
         root.addView(Button(this).apply {
-            text = "Open staged 200MP test v0.9 · crash-fixed"
+            text = "Open v0.15 · DIRECT Camera 5 · full-raster test"
+            isAllCaps = false
+            setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, FotoGraaf200MpFullRasterV015Activity::class.java)) }
+        })
+        root.addView(Button(this).apply {
+            text = "Open historische staged 200MP route"
             isAllCaps = false
             setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, FotoGraaf200MpStagedActivity::class.java)) }
         })
@@ -48,7 +53,7 @@ class FotoGraaf200MpEntryActivity : Activity() {
             setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, TruthRawCrashReportActivity::class.java)) }
         })
         root.addView(TextView(this).apply {
-            text = "Als een volgende stap toch crasht: open TruthRaw opnieuw → Laatste crashrapport → sla het txt-bestand op en upload het hier."
+            text = "Als de directe route faalt: maak een screenshot van de volledige tekst. Als RAW SEALED/FULL-RASTER PASS verschijnt: sla eerst RAW en JSON op."
             textSize = 12f
             setTextColor(Color.rgb(155, 164, 178))
             setPadding(0, dp(14), 0, 0)
