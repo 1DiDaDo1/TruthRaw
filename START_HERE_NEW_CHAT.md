@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.30 full-factorial route-matrix **partial device result** on 2026-09-17.
+This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the completed HONOR Camera-5 v0.30 full-factorial route matrix on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
 
@@ -11,20 +11,13 @@ It is a navigation/current-state document. It does not rewrite frozen historical
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/CURRENT_CAMERA5_ROUTE_EXPERIMENT_2026-09-17.md`
-6. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_PARTIAL_DEVICE_RESULTS_2026-09-17.md`
-7. `state/CAMERA5_V030_PARTIAL_MATRIX_V030E_FIXED_CONTROLS_STATE_2026-09-17.json`
-8. `state/CAMERA5_V029_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_STATE_2026-09-17.json`
-9. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_STATE_2026-09-17.json`
-10. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-11. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-12. only then the exact canonical/research/module documents relevant to the task.
+6. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_COMPLETE_DEVICE_RESULT_2026-09-17.md`
+7. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_COMPLETE_STATE_2026-09-17.json`
+8. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
+9. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+10. only then exact canonical/research/module documents relevant to the task.
 
-Historical vision documents remain background authorities in their own domain:
-
-- `docs/CORE_VISION_SEALED_HOUSE_ARCHITECTURE.md`
-- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
-- `docs/CORE_VISION_UNCERTAINTY_AWARE_APPEARANCE.md`
-- `docs/CORE_VISION_VIRTUAL_OBSERVATION_MANIFOLD.md`.
+Historical partial-matrix state/result documents remain preserved as provenance and are no longer the current matrix completion authority.
 
 ## One-sentence current definition
 
@@ -84,24 +77,16 @@ Stage 3.7 found exactly one runtime-advertised standard Camera-5 RAW_SENSOR geom
 
 The exact prefix copy forms a coherent full-frame scene under the `4080x3072` interpretation and shows Bayer-like 2x2 structure. The `.rawpayload` remains derived evidence; the sealed 401-MB source remains primary.
 
-## Route-control research through v0.29
+## Route-control representation authorities
 
-Native representations resolved on-device:
+- v0.23 `EnableIdealRAW`: BYTE, tag `0x801F0027`;
+- v0.25 `RawCbSourceType`: INT32, tag `0x801F0009`;
+- v0.27 `EnableXCFAOptimization`: BYTE, tag `0x801F0036`;
+- v0.29 `HALOutputBufferCombined`: INT32, tag `0x801F0034`.
 
-- v0.23 `EnableIdealRAW`: `BYTE`, tag `0x801F0027`
-- v0.25 `RawCbSourceType`: `INT32`, tag `0x801F0009`
-- v0.27 `EnableXCFAOptimization`: `BYTE`, tag `0x801F0036`
-- v0.29 `HALOutputBufferCombined`: `INT32`, tag `0x801F0034`.
+Accepted single-variable interventions v0.24/v0.26/v0.28 produced no measured RAW envelope/populated-payload topology differential. Numeric `1` remains an experimental control value, not proven vendor semantics.
 
-Accepted single-variable interventions with no measured RAW envelope/populated-payload topology differential:
-
-- v0.24 `EnableIdealRAW=BYTE(1)`
-- v0.26 `RawCbSourceType=INT32(1)`
-- v0.28 `EnableXCFAOptimization=BYTE(1)`.
-
-Numeric `1` remains an experimental control value, not proven vendor semantics.
-
-## Current experiment — v0.30 full-factorial vendor route matrix
+## Completed v0.30 full-factorial matrix
 
 Design:
 
@@ -109,92 +94,48 @@ Design:
 
 Factors (`ABCD`):
 
-- A `EnableIdealRAW` — BYTE
-- B `RawCbSourceType` — INT32
-- C `EnableXCFAOptimization` — BYTE
+- A `EnableIdealRAW` — BYTE;
+- B `RawCbSourceType` — INT32;
+- C `EnableXCFAOptimization` — BYTE;
 - D `HALOutputBufferCombined` — INT32.
 
 Levels:
 
-- low = `UNSET_NO_WRITE`
+- low = `UNSET_NO_WRITE`;
 - high = numeric `1` using the device-resolved native type.
 
-Low is absence of a write, not explicit numeric zero. Numeric high has no promoted vendor meaning.
+All 16 unique profiles now have individually readable evidence JSONs. All eight complement pairs are represented.
 
-All 16 binary combinations are present exactly once in the designed matrix.
+Every profile remains in the same measured topology class as v0.20:
 
-## Current v0.30 device result
-
-The current hard-evidence set is defined only by individually readable evidence JSON files.
-
-Eight unique matrix profiles are currently proven available:
-
-`R01 0000`
-`R02 1111`
-`R04 1010`
-`R11 0010`
-`R13 0100`
-`R14 1011`
-`R15 1000`
-`R16 0111`.
-
-A second independent R16 `0111` capture is retained as a structural replicate.
-
-Every one of those profiles remains in the same measured topology class as v0.20:
-
-- source envelope `401,080,320` bytes / `16320x12288`;
+- `16320x12288` / `401,080,320`-byte app-visible RAW envelope;
 - first `768` rows populated;
 - remaining `11,520` rows zero;
-- populated/payload bytes `25,067,520`;
+- exact populated/payload size `25,067,520` bytes;
 - unique advertised standard RAW byte match `4080x3072`;
 - no measured envelope/populated-prefix topology differential.
 
-R01 `0000` is the contemporaneous all-UNSET control and reproduces v0.20 topology with no matrix vendor writes.
+This includes all four single-high states, every two-factor state, every three-factor state, all-UNSET and all-four-high.
 
-R02 `1111` proves the simple tested hypothesis “all four current numeric-one controls together are sufficient to change the app-visible RAW topology” is not supported.
+Current bounded matrix conclusion:
 
-Single-high hard results currently include A-only (`R15`), B-only (`R13`) and C-only (`R11`), all without topology differential. D-only (`R09`) is still missing.
+`WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_ENABLEIDEALRAW_RAWCBSOURCETYPE_ENABLEXCFAOPTIMIZATION_HALOUTPUTBUFFERCOMBINED_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY`
 
-Current missing individually readable matrix profiles:
+For this categorical topology response, the complete tested binary design is invariant. This is not a claim of pixel-value identity or global vendor-key ineffectiveness.
 
-`R03, R05, R06, R07, R08, R09, R10, R12`.
+## Current next research direction
 
-## Bundle boundary
+Do not repeat the same four-key 0/1 matrix. That experimental space is complete.
 
-Multiple `TRUTHRAW_CAM5_V030_MATRIX_EVIDENCE_BUNDLE_*.zip` files were uploaded during recovery. They remain auxiliary provenance containers. Archive inspection timed out in the current analysis environment, so no run is counted from ZIP filename, bundle size, UI progression or recollection alone.
-
-Until those archives are independently parsed, individually readable evidence JSONs define matrix-completion authority.
-
-## v0.30e recovery build
-
-Branch:
-
-`integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery`
-
-Build status: **SUCCESS**.
-
-- head `a99861d3d4468849aeedbd8070805ffbdbd3d294`
-- run `35266284068`
-- APK SHA-256 `942b21518860af983be5383298b915d30f118684a83c19783b098decb313d112`
-- artifact ZIP SHA-256 `b2d1f9b306a52699b5dbbbb8eaad26a46a6a85f14a7a20ea66f880401b8ad55e`.
-
-v0.30e changes UI/recovery only; it does not change the scientific matrix, acquisition ordering, source-seal ordering, Stage 3.6 or Stage 3.7.
-
-## Immediate device continuation
-
-Use v0.30e's first-missing recovery selector and save each new evidence JSON individually.
-
-Hard missing set:
-
-`R03, R05, R06, R07, R08, R09, R10, R12`.
-
-Bundle export remains useful redundancy but is not the sole evidence authority.
+Next useful work should either resolve value-domain/enum semantics for the INT32 controls (`RawCbSourceType`, `HALOutputBufferCombined`) before trying other numeric values, or identify new upstream vendor-route candidates and resolve native representation before intervention.
 
 ## Current open problem
 
-`OPEN_NEEDS_ROUTE_DIFFERENTIAL_TO_ESTABLISH_WHETHER_A_DIFFERENT_HONOR_QTI_CONTROL_PATH_CAN_POPULATE_A_LARGER_NATIVE_OR_APP_VISIBLE_RAW_DOMAIN`
+`OPEN_NEEDS_ROUTE_DIFFERENTIAL_TO_ESTABLISH_WHETHER_A_DIFFERENT_HONOR_QTI_CONTROL_PATH_OR_VALUE_DOMAIN_CAN_POPULATE_A_LARGER_NATIVE_OR_APP_VISIBLE_RAW_DOMAIN`
 
-Independently, calibration/optical proof is still required before any native-ADC or 200-MP optical promotion.
+Independently:
+
+`OPEN_NEEDS_CALIBRATION_AND_OPTICAL_EVIDENCE_BEFORE_ANY_NATIVE_ADC_OR_200MP_OPTICAL_PROMOTION`.
 
 ## Precision and governance continuity
 
