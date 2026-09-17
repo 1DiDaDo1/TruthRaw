@@ -1,0 +1,81 @@
+name: TruthRaw FotoGraaf v0.30d Scroll Recovery Bundle
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-30-vendor-route-full-factorial-matrix
+    paths:
+      - 'tools/patch_fotograaf_v030d_scroll_recovery_bundle.py'
+      - '.github/workflows/android-truthraw-suite-v0-30d-scroll-recovery-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v030d:
+    name: Build FotoGraaf v0.30d scroll recovery bundle arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.30 matrix and apply scroll recovery/export UI
+        run: |
+          python3 tools/patch_fotograaf_v030d_scroll_recovery_bundle.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          MATRIX='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2VendorRouteFullFactorialMatrix.kt'
+
+          grep -F 'return ScrollView(this).apply {' "$APP"
+          grep -F 'restoreMatrixProgressFromCache()' "$APP"
+          grep -F 'exportCachedMatrixEvidenceBundle()' "$APP"
+          grep -F 'truthraw.camera5-v030-matrix-evidence-bundle.v0.30d' "$APP"
+          grep -F 'Camera2VendorRouteFullFactorialMatrix.applyProfile(' "$APP"
+          grep -F 'persistOriginalRawBuffer(image, stamp)' "$APP"
+          grep -F 'const val TOTAL_RUNS = 16' "$MATRIX"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          assert s.count('Camera2VendorRouteFullFactorialMatrix.applyProfile(') == 1
+          assert s.index('Camera2PreHalGate.observeSession(') < s.index('Camera2VendorRouteFullFactorialMatrix.applyProfile(')
+          assert s.index('Camera2VendorRouteFullFactorialMatrix.applyProfile(') < s.index('device.isSessionConfigurationSupported(config)')
+          assert s.index('persistOriginalRawBuffer(image, stamp)') < s.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
+          assert s.index('RawSensorRasterAudit.audit(') < s.index('RawPayloadGeometryDecoder.decode(')
+          print('v0.30d recovery/export UI + v0.30 scientific ordering PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK and report digest
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-30d-scroll-recovery-bundle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
