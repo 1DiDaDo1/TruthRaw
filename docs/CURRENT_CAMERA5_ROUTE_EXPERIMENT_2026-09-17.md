@@ -1,6 +1,6 @@
 # CURRENT Camera-5 route-control experiment — 2026-09-17
 
-Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY**
+Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.24 DEVICE DIFFERENTIAL COMPLETE**
 
 This document tracks upstream HONOR/QTI route-control experiments after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
 
@@ -66,57 +66,123 @@ Branch:
 
 `integration/truthraw-suite-v0-24-idealraw-byte-intervention`
 
+Build:
+
+- GitHub Actions run: `35243866129`
+- workflow head: `429063ceb11087cb16132fa910c740a170b2f6d5`
+- result: **SUCCESS**
+- APK bytes: `4,880,841`
+- APK SHA-256: `e8f898b041a63b9f68a246878aadd3427e24d321731042a49a02e0318f5e5c15`
+- artifact ID: `10506437816`
+- artifact ZIP SHA-256: `04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b`.
+
 Design:
 
 - reconstruct exact v0.20 acquisition/audit chain;
 - preserve Gate A before intervention;
-- verify the key remains advertised as a logical session key;
-- construct the key explicitly as `CaptureRequest.Key<Byte>` using Kotlin `Byte::class.javaObjectType`;
-- set exactly one value: `EnableIdealRAW = BYTE(1)`;
+- construct `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW` as BYTE using the v0.23 native-type result;
+- set exactly one unknown vendor value: `EnableIdealRAW = BYTE(1)`;
 - require builder and built-request readback `1`;
-- attach that request as the SessionConfiguration session parameters;
+- attach that request as SessionConfiguration session parameters;
 - touch no second unknown vendor key;
 - preserve logical0 -> physical5 -> 16320x12288 MAX topology;
 - seal the original Plane[0] before interpreting result metadata;
 - repeat the same post-HAL envelope, Stage 3.6 full-raster audit and Stage 3.7 payload-geometry decoder.
 
-Build status:
+Device evidence:
 
-- GitHub Actions run: `35243866129`
-- workflow head: `429063ceb11087cb16132fa910c740a170b2f6d5`
-- result: **SUCCESS**
-- order/single-variable assertions: PASS
-- APK bytes: `4,880,841`
-- APK SHA-256: `e8f898b041a63b9f68a246878aadd3427e24d321731042a49a02e0318f5e5c15`
-- artifact ID: `10506437816`
-- artifact ZIP bytes: `1,587,319`
-- artifact ZIP SHA-256: `04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b`
-- device result: pending.
+`TRUTHRAW_1789661201607_CAM5_200MP_EVIDENCE_v024.json`
 
-Integration provenance: the first v0.24 build attempt failed only at Kotlin compile time because the custom BYTE key used an incompatible Java/Kotlin generic class expression. No APK/device intervention occurred. The implementation was corrected to `Byte::class.javaObjectType`; the scientific experiment design was unchanged and the subsequent build passed.
+Intervention acceptance:
 
-A successful session/capture is only an intervention/acceptance fact. A route effect requires a measurable differential against v0.20.
+- `controlledVendorInterventionKeyCount = 1`
+- `EnableIdealRAW` native type source = v0.23 BYTE oracle
+- requested numeric value = `1`
+- builder set = PASS
+- builder readback = `1`
+- built-request readback = `1`
+- session parameters attached = true
+- semantic promotion = false.
 
-## Primary v0.24 decision variables
+Capture still followed the trusted route:
 
-Compare v0.24 directly with v0.20 on:
+- opened logical camera `0`
+- physical result camera `5`
+- delivered `16320x12288`
+- exact Image/result timestamp equality
+- original source bytes `401,080,320`
+- pixel stride `2`
+- row stride `32,640`
+- returned `SENSOR_PIXEL_MODE = 0`
+- `rawBinningFactorUsed = true`.
 
-1. session support/configuration acceptance;
-2. still-capture acceptance;
-3. physical Camera-5 result/timestamp binding;
-4. delivered Image/HardwareBuffer geometry, format, stride and capacity;
-5. populated source byte count and first/last non-zero positions;
-6. 768-row band population and row repetition;
-7. Stage-3.7 advertised-size byte match;
-8. derived exact-prefix geometry and SHA identities;
-9. returned `SENSOR_PIXEL_MODE` and raw-binning result;
-10. HONOR/QTI binning/crop/vendor fingerprints before and after HAL delivery.
+Stage 3.6 result:
+
+`ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE`
+
+Observed:
+
+- only band `0` is non-zero;
+- bands `1..15` are all zero;
+- populated prefix = `25,067,520` bytes;
+- last non-zero byte offset = `25,067,518`.
+
+Stage 3.7 result:
+
+`UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED`
+
+- unique advertised standard RAW byte match = `4080x3072`
+- candidate payload = exact source prefix, no transform
+- candidate payload SHA-256 = `66e2bd49a4414326dbed0f69cf3e2e474931d2893a5113b22c5b67826c661bc2`
+- min/max codes for this scene = `60..1023`
+- same Bayer-like distance-2 correlation structure remains present.
+
+Relevant HONOR/QTI route observations stayed in the same structural class:
+
+- `com.hihonor.capture.metadata.binningFactor = 4`
+- `com.hihonor.capture.metadata.isInSensorZoom = 0`
+- AEC real crop begins `[11,8,4058,3055,...]`
+- ISP crop remains `16320x12288`.
+
+### v0.24 differential conclusion
+
+Against v0.20, the following primary topology quantities did **not** change:
+
+- populated prefix bytes: `25,067,520`
+- only-first-768-rows population signature
+- selected payload geometry: `4080x3072`
+- declared Image/HardwareBuffer envelope: `16320x12288`
+- returned `SENSOR_PIXEL_MODE = 0`
+- raw binning flag
+- HONOR `binningFactor = 4`
+- HONOR `isInSensorZoom = 0`.
+
+Current bounded conclusion:
+
+`EnableIdealRAW=BYTE(1)` was accepted and attached as the sole controlled vendor session variable, but **no measurable RAW-envelope or populated-payload-topology differential was observed on this tested Camera-5 route versus v0.20**.
+
+This does not prove that the key has no effect in every route or mode. It may be ignored for this stream, already equivalent to the active internal state, relevant to another route, or require another condition. Those possibilities remain unproven and must not be selected by name alone.
+
+## Next controlled question
+
+The next candidate is:
+
+`org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
+
+The next step is **not** a capture intervention. First resolve its actual native vendor tag/type with an oracle-only probe, with:
+
+- no session parameters attached;
+- no capture session created for the modified request;
+- no capture submitted;
+- no second vendor key changed.
+
+Only after the representation is established should a separate single-variable intervention be considered.
 
 ## Authority rules
 
-- `EnableIdealRAW` remains an unknown-semantics vendor control until an effect is measured.
+- v0.20 remains the source/payload control authority.
+- v0.24 is valid negative differential evidence for the tested intervention, not a universal no-effect proof.
 - A vendor-key name is not semantic authority.
-- A successful setter is not proof of sensor mode.
-- A changed source topology is evidence of a route differential but is still app-visible Camera2/HAL output, not untouched ADC proof.
-- v0.20 remains the control and must not be rewritten.
-- No other vendor control is to be toggled in v0.24.
+- A successful setter/readback is not proof of sensor mode.
+- A changed source topology, if later observed, would be route-differential evidence but still app-visible Camera2/HAL output, not untouched ADC proof.
+- Do not combine unknown vendor controls in one experiment.
