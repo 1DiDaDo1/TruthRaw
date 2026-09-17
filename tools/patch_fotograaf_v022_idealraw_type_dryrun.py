@@ -41,8 +41,10 @@ s = s.replace(needle, replacement, 1)
 
 assert 'TruthRaw · 200MP Tele Test v0.22 · IdealRAW type dry-run' in s
 assert 'Camera2IdealRawTypeDryRun.probe(' in s
-assert s.index('Camera2PreHalGate.observeSession(') < s.index('Camera2IdealRawTypeDryRun.probe(')
-assert s.index('Camera2IdealRawTypeDryRun.probe(') < s.index('val config = SessionConfiguration(')
+probe_i = s.index('Camera2IdealRawTypeDryRun.probe(')
+gate_i = s.index('Camera2PreHalGate.observeSession(')
+raw_config_i = s.index('val config = SessionConfiguration(', probe_i)
+assert gate_i < probe_i < raw_config_i
 assert 'HAL/session submission=false' in s
 assert 'MAXIMUM_RESOLUTION vereist' not in s
 
