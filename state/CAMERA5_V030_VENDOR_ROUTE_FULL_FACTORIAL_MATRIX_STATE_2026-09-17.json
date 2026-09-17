@@ -1,0 +1,101 @@
+{
+  "schema": "truthraw.camera5-vendor-route-full-factorial-matrix-state.v0.30",
+  "date": "2026-09-17",
+  "status": "BUILD_SUCCESS_DEVICE_MATRIX_PENDING",
+  "branch": "integration/truthraw-suite-v0-30-vendor-route-full-factorial-matrix",
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "envelopeBytes": 401080320,
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "unchanged": true
+  },
+  "rationale": {
+    "singleFactorInterventionsCompleted": [
+      "v0.24 EnableIdealRAW=BYTE(1)",
+      "v0.26 RawCbSourceType=INT32(1)",
+      "v0.28 EnableXCFAOptimization=BYTE(1)"
+    ],
+    "singleFactorTopologyDifferentialsObserved": 0,
+    "fourthFactorRepresentationResolvedByV029": true,
+    "reasonForDesignedMultiFactorScreen": "TEST_INTERACTIONS_AND_ROUTE_SELECTION_DEPENDENCIES_WITHOUT_ABANDONING_SEALED_PER_CAPTURE_PROVENANCE"
+  },
+  "design": {
+    "type": "FULL_FACTORIAL_2_LEVEL_4_FACTOR_16_RUN_COMPLEMENT_PAIRED",
+    "factorCount": 4,
+    "runCount": 16,
+    "lowLevel": "UNSET_NO_WRITE",
+    "highLevel": "NUMERIC_ONE_TYPE_VALIDATED__SEMANTICS_UNPROVEN",
+    "semanticMeaningAssumed": false,
+    "semanticPromotionAllowed": false,
+    "factors": [
+      {"letter": "A", "key": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW", "nativeType": "BYTE", "tagHex": "0x801F0027"},
+      {"letter": "B", "key": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType", "nativeType": "INT32", "tagHex": "0x801F0009"},
+      {"letter": "C", "key": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization", "nativeType": "BYTE", "tagHex": "0x801F0036"},
+      {"letter": "D", "key": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined", "nativeType": "INT32", "tagHex": "0x801F0034"}
+    ],
+    "runOrderABCD": ["0000", "1111", "0101", "1010", "0011", "1100", "0110", "1001", "0001", "1110", "0010", "1101", "0100", "1011", "1000", "0111"],
+    "adjacentComplementPairing": true,
+    "allCombinationsCoveredExactlyOnce": true,
+    "controlRun": "R01_ABCD_0000",
+    "controlMeaning": "ALL_FOUR_VENDOR_KEYS_UNSET_NOT_EXPLICIT_ZERO"
+  },
+  "captureAndAudit": {
+    "gateABeforeIntervention": true,
+    "matrixAppliedAfterGateA": true,
+    "logicalCamera": "0",
+    "physicalCamera": "5",
+    "declaredGeometry": [16320, 12288],
+    "maximumResolutionRoutePreserved": true,
+    "sealOriginalPlaneBeforeVendorResultInterpretation": true,
+    "postHalEnvelopeReadOnly": true,
+    "stage36FullRasterAuditPreserved": true,
+    "stage37PayloadGeometryDecoderPreserved": true,
+    "eachCaptureIndependentlySealed": true,
+    "failedProfileDoesNotAdvance": true,
+    "successfulProfileAdvancesToNextRun": true
+  },
+  "build": {
+    "githubActionsRunId": 35260779194,
+    "jobId": 105335638334,
+    "workflow": "TruthRaw FotoGraaf v0.30 Vendor Route Full-Factorial Matrix",
+    "workflowHeadSha": "f234055ca102177ced64105214c9c3357c312f83",
+    "conclusion": "success",
+    "matrixCompletenessAssertionsPass": true,
+    "orderingAssertionsPass": true,
+    "sourceFirstOrderingAssertionsPass": true,
+    "apkBytes": 4915745,
+    "apkSha256": "d697ea34f1b21f973f174b3dacba951510dc157eceb491f187bee33b59d27c46",
+    "artifactId": 10515027009,
+    "artifactZipBytes": 1604556,
+    "artifactZipSha256": "648e22e3df73f97b9c6f87223ecb8748c657be39157bfa64dd4b5f1b7da908af"
+  },
+  "buildProvenance": {
+    "firstAttemptPreserved": true,
+    "firstAttemptResult": "FAILED_BEFORE_BUILD_DUE_TO_OVER_SPECIFIC_UI_ANCHOR",
+    "correctedPatch": "tools/patch_fotograaf_v030b_vendor_route_full_factorial_matrix.py",
+    "correctedBuildResult": "SUCCESS"
+  },
+  "deviceProtocol": {
+    "startWithRun": "R01_ABCD_0000",
+    "useSameSceneAndStableFramingWherePractical": true,
+    "completeEachCaptureThroughStage37": true,
+    "saveEvidenceJsonForEveryRun": true,
+    "saveRawPayloadWhenAvailable": true,
+    "doNotAssignVendorSemanticsFromNumericOne": true,
+    "primaryScreeningTargets": [
+      "sourceEnvelopeBytes",
+      "populatedPrefixBytes",
+      "firstLastNonzeroOffsets",
+      "bandPopulationSignature",
+      "selectedPayloadGeometry",
+      "returnedSensorPixelMode",
+      "rawBinningFactorUsed",
+      "vendorBinningFactor",
+      "isInSensorZoom",
+      "AECAndISPCropMetadata"
+    ]
+  },
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
