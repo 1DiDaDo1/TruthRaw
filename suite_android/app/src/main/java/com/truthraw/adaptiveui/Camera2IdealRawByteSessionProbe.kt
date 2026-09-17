@@ -67,7 +67,7 @@ object Camera2IdealRawByteSessionProbe {
             return ApplyResult(false, out)
         }
 
-        val key = CaptureRequest.Key(KEY_NAME, java.lang.Byte::class.java)
+        val key = CaptureRequest.Key(KEY_NAME, Byte::class.javaObjectType)
         val builder = runCatching { device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE) }
             .getOrElse { e ->
                 out.put("classification", "BLOCKED_IDEALRAW_BYTE_BUILDER_CREATE_FAILED")
