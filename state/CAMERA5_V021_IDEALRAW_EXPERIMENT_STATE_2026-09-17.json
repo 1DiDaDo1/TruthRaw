@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-idealraw-experiment-state.v0.21",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_BLOCKED_FAIL_CLOSED_RUNTIME_TYPE_UNAVAILABLE",
   "branch": "integration/truthraw-suite-v0-21-idealraw-single-variable",
   "build": {
     "githubActionsRunId": 35237852510,
@@ -14,7 +14,23 @@
     "artifactId": 10504271250,
     "artifactZipBytes": 1580110,
     "artifactZipSha256": "cdf686af1968f9f8f68d41b88524d2af05027168437d298f250c94c6c5853350",
-    "deviceResultAvailable": false
+    "deviceResultAvailable": true
+  },
+  "deviceObservation": {
+    "source": "user device screenshot",
+    "liveFrame": 120,
+    "logicalCameraId": "0",
+    "zoomRatio": 3.7,
+    "activePhysicalCameraId": "5",
+    "tele5Confirmed": true,
+    "iso": 153,
+    "exposureMs": 10.0,
+    "afState": 2,
+    "aeState": 1,
+    "stage3Reached": true,
+    "stage3CaptureSubmitted": false,
+    "classification": "BLOCKED_IDEALRAW_RUNTIME_TYPE_UNAVAILABLE",
+    "displayedSafetyMessage": "Geen vendor-key gok; v0.20 control blijft onaangeroerd."
   },
   "control": {
     "version": "v0.20",
@@ -28,15 +44,32 @@
   "intervention": {
     "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
     "requestedValue": 1,
-    "scope": "logical SessionConfiguration sessionParameters",
+    "intendedScope": "logical SessionConfiguration sessionParameters",
     "singleUnknownVendorVariable": true,
-    "appliedAfterGateA": true,
-    "appliedBeforeSessionSupportQuery": true,
     "semanticMeaningAssumed": false,
     "runtimeTypeMustBeVerified": true,
     "safeAcceptedRuntimeTypes": ["java.lang.Byte", "byte[]"],
     "builderReadbackRequired": true,
-    "failClosedOnMismatch": true
+    "failClosedOnMismatch": true,
+    "runtimeTypeResolved": false,
+    "vendorValueWritten": false,
+    "sessionParametersAttached": false,
+    "halSubmissionWithVendorIntervention": false,
+    "captureSubmitted": false
+  },
+  "interpretation": {
+    "result": "v0.21 successfully validated its fail-closed safety gate but did not test the physical effect of EnableIdealRAW because the advertised vendor key runtime value type was not obtainable through the reflection path used by v0.21.",
+    "doesNotRefuteIdealRawHypothesis": true,
+    "doesNotProveIdealRawSemantics": true,
+    "v020ControlRemainsAuthoritative": true
+  },
+  "nextExperiment": {
+    "version": "v0.22",
+    "goal": "resolve app-side Camera2 value/marshalling candidates without attaching session parameters or submitting any vendor-modified request to HAL",
+    "method": "public CaptureRequest.Key(String, Class<T>) testing constructor plus disposable builder set/get/build/readback matrix",
+    "halSubmission": false,
+    "capture": false,
+    "semanticPromotionAllowed": false
   },
   "preservedTrustedChain": [
     "v0.14 source-first seal",
@@ -45,36 +78,11 @@
     "v0.19 sealed-file full-raster audit",
     "v0.20 exact-prefix payload geometry decoder"
   ],
-  "unchangedCaptureTopology": {
-    "openedLogicalCameraId": "0",
-    "physicalOutputCameraId": "5",
-    "target": "RAW_SENSOR 16320x12288",
-    "maximumResolutionOutputDeclared": true,
-    "physicalScopedStillRequest": true,
-    "sourceSealBeforeMetadataInterpretation": true,
-    "dngRole": "auxiliary"
-  },
-  "comparisonRequiredAgainstV020": [
-    "Image and HardwareBuffer geometry",
-    "source byte count",
-    "Stage3.6 populated-prefix byte count",
-    "non-zero row range",
-    "16-band hashes and zero-band pattern",
-    "Stage3.7 selected geometry",
-    "source and exact-prefix SHA-256",
-    "code range and 2x2 phase statistics",
-    "neighbor correlations",
-    "returned SENSOR_PIXEL_MODE",
-    "returned rawBinningFactorUsed",
-    "HONOR binningFactor",
-    "AECRealCropWindow and allISPCropWindow",
-    "sensorCustomMetaData",
-    "QTI route/multicamera metadata"
-  ],
   "forbiddenPromotions": [
     "UNTOUCHED_NATIVE_ADC",
     "VENDOR_KEY_NAME_PROVES_VENDOR_SEMANTICS",
-    "FULL_200MP_POPULATION_BEFORE_DEVICE_RESULT",
+    "IDEALRAW_PHYSICAL_EFFECT_FROM_BLOCKED_V021",
+    "FULL_200MP_POPULATION_FROM_BLOCKED_V021",
     "NATIVE_SENSOR_GEOMETRY_FROM_BUFFER_GEOMETRY",
     "OPTICAL_200MP_PROOF"
   ],
