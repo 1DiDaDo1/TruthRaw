@@ -28,8 +28,9 @@ s = s.replace('_EVIDENCE_v016.json', '_EVIDENCE_v017.json')
 s = s.replace('_v016.${if (contiguous)', '_v017.${if (contiguous)')
 s = s.replace('staged-evidence.v0.16', 'staged-evidence.v0.17')
 
-field_needle = '''    private var lastGlobalPixelModeWritten = false\n    private var lastPhysicalPixelModeWritten = false\n\n    private var capturedRaw: File? = null\n'''
-field_replacement = '''    private var lastGlobalPixelModeWritten = false\n    private var lastPhysicalPixelModeWritten = false\n    private var lastPreHalSessionGate: JSONObject? = null\n    private var lastPreHalRequestGate: JSONObject? = null\n\n    private var capturedRaw: File? = null\n'''
+# v0.12 added the advertised/error fields between lastPhysicalPixelModeWritten and capturedRaw.
+field_needle = '''    private var lastPhysicalPixelModeForceError: String? = null\n\n    private var capturedRaw: File? = null\n'''
+field_replacement = '''    private var lastPhysicalPixelModeForceError: String? = null\n    private var lastPreHalSessionGate: JSONObject? = null\n    private var lastPreHalRequestGate: JSONObject? = null\n\n    private var capturedRaw: File? = null\n'''
 if field_needle not in s:
     raise SystemExit('request-state field insertion point not found')
 s = s.replace(field_needle, field_replacement, 1)
@@ -41,7 +42,7 @@ if session_needle not in s:
 s = s.replace(session_needle, session_replacement, 1)
 
 request_needle = '''            val request = requestBuilder.build()\n'''
-request_replacement = '''            // Gate B: freeze the exact request-side route state immediately before build/submit.\n            // This is observation-only: no vendor request key is set from its name or guessed meaning.\n            lastPreHalRequestGate = runCatching {\n                Camera2PreHalGate.observeRequest(\n                    builder = requestBuilder,\n                    logical = logical,\n                    physical = physical,\n                    physicalId = PHYSICAL_ID,\n                    scopedPhysicalRequestUsed = lastScopedRequestUsed,\n                    globalPixelModeWritten = lastGlobalPixelModeWritten,\n                    physicalPixelModeWritten = lastPhysicalPixelModeWritten,\n                )\n            }.getOrNull()\n\n            val request = requestBuilder.build()\n'''
+request_replacement = '''            // Gate B: freeze the exact request-side route state immediately before build/submit.\n            // This is observation-only: no vendor request key is set from its name or guessed meaning.\n            val preHalPhysical = physical5Characteristics ?: error("physical characteristics ontbreken")\n            lastPreHalRequestGate = runCatching {\n                Camera2PreHalGate.observeRequest(\n                    builder = requestBuilder,\n                    logical = logical,\n                    physical = preHalPhysical,\n                    physicalId = PHYSICAL_ID,\n                    scopedPhysicalRequestUsed = lastScopedRequestUsed,\n                    globalPixelModeWritten = lastGlobalPixelModeWritten,\n                    physicalPixelModeWritten = lastPhysicalPixelModeWritten,\n                )\n            }.getOrNull()\n\n            val request = requestBuilder.build()\n'''
 if request_needle not in s:
     raise SystemExit('request gate insertion point not found')
 s = s.replace(request_needle, request_replacement, 1)
