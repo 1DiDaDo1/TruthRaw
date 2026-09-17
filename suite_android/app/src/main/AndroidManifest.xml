@@ -20,6 +20,7 @@
 
         <activity android:name=".TruthRawCrashReportActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraaf200MpEntryActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".FotoGraaf200MpFullRasterV015Activity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
         <activity android:name=".FotoGraaf200MpStagedActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
         <activity android:name=".FotoGraaf200MpTestActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
 
