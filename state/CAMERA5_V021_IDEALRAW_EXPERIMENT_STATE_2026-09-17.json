@@ -1,8 +1,21 @@
 {
   "schema": "truthraw.camera5-idealraw-experiment-state.v0.21",
   "date": "2026-09-17",
-  "status": "ACTIVE_BUILD_DEVICE_RESULT_PENDING",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
   "branch": "integration/truthraw-suite-v0-21-idealraw-single-variable",
+  "build": {
+    "githubActionsRunId": 35237852510,
+    "workflow": "TruthRaw FotoGraaf v0.21 IdealRAW Single Variable",
+    "workflowHeadSha": "10e809d8d60f7073efd6d468e877633e9bcce839",
+    "conclusion": "success",
+    "singleVariableOrderAssertionsPass": true,
+    "apkBytes": 4848073,
+    "apkSha256": "acc047f8fcd44591a9624cfa59ac8b65c5d09e23e3f67e8833fb6a57e6007fbc",
+    "artifactId": 10504271250,
+    "artifactZipBytes": 1580110,
+    "artifactZipSha256": "cdf686af1968f9f8f68d41b88524d2af05027168437d298f250c94c6c5853350",
+    "deviceResultAvailable": false
+  },
   "control": {
     "version": "v0.20",
     "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
