@@ -16,7 +16,13 @@ import java.security.MessageDigest
 object RawSensorRasterAudit {
     private const val BAND_COUNT = 16
 
-    fun audit(file: File, width: Int, height: Int, pixelBytes: Int = 2): JSONObject {
+    fun audit(
+        file: File,
+        width: Int,
+        height: Int,
+        pixelBytes: Int = 2,
+        expectedSealedSha256: String? = null,
+    ): JSONObject {
         val rowBytes = width.toLong() * pixelBytes.toLong()
         val expectedBytes = rowBytes * height.toLong()
         val rowsPerBand = if (height % BAND_COUNT == 0) height / BAND_COUNT else 0
@@ -38,6 +44,7 @@ object RawSensorRasterAudit {
             .put("zeroLineUsed", false)
             .put("truthRangeUsed", false)
             .put("sceneLightClaimMade", false)
+            .put("expectedSealedSha256", expectedSealedSha256 ?: JSONObject.NULL)
 
         if (pixelBytes != 2 || rowBytes > Int.MAX_VALUE || file.length() != expectedBytes || rowsPerBand <= 0) {
             return report
@@ -46,6 +53,7 @@ object RawSensorRasterAudit {
         }
 
         val row = ByteArray(rowBytes.toInt())
+        val sourceDigest = MessageDigest.getInstance("SHA-256")
         val bandStates = Array(BAND_COUNT) { BandAccumulator(it, rowsPerBand) }
         val whole = ExactAccumulator()
         var firstNonZeroRow: Int? = null
@@ -72,6 +80,7 @@ object RawSensorRasterAudit {
                     off += n
                 }
 
+                sourceDigest.update(row)
                 val rowHash = MessageDigest.getInstance("SHA-256").digest(row).toHex()
                 uniqueRowHashes += rowHash
                 if (previousRowHash == rowHash) repeatedAdjacentRows++
@@ -113,6 +122,7 @@ object RawSensorRasterAudit {
             if (input.read() != -1) error("Trailing bytes beyond canonical raster")
         }
 
+        val auditedSha256 = sourceDigest.digest().toHex()
         bandStates.forEach { it.finishHash() }
         val zeroBands = bandStates.filter { it.nonZeroCount == 0L }.map { it.index }
         val nonZeroBands = bandStates.filter { it.nonZeroCount > 0L }.map { it.index }
@@ -138,6 +148,8 @@ object RawSensorRasterAudit {
         return report
             .put("status", "PASS_READ_ONLY_AUDIT_COMPLETED")
             .put("canonicalSizePass", true)
+            .put("auditedSha256", auditedSha256)
+            .put("sealedSha256IdentityPass", expectedSealedSha256 == null || auditedSha256.equals(expectedSealedSha256, ignoreCase = true))
             .put("littleEndianU16InterpretationUsedForStatistics", true)
             .put("wholeRaster", whole.toJson())
             .put("rowPopulation", JSONObject()
