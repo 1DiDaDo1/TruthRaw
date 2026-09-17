@@ -1,0 +1,103 @@
+name: TruthRaw FotoGraaf v0.22 IdealRAW Type Dry-Run
+
+# v0.21 device result: advertised key was present but runtime type reflection was unavailable.
+# v0.22 therefore performs only app-side Camera2 Key(String, Class<T>) marshalling tests.
+# It deliberately stops before any vendor session parameter is attached or submitted to HAL.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-22-idealraw-type-dryrun
+    paths:
+      - 'suite_android/**'
+      - 'tools/patch_fotograaf_v012_forced_physical_max.py'
+      - 'tools/patch_fotograaf_v013_physical_only_max_submit.py'
+      - 'tools/patch_fotograaf_v014_seal_raw_before_result_mode_gate.py'
+      - 'tools/patch_fotograaf_v016_hal_buffer_envelope.py'
+      - 'tools/patch_fotograaf_v017_pre_hal_airlock.py'
+      - 'tools/patch_fotograaf_v019_full_raster_write_audit.py'
+      - 'tools/patch_fotograaf_v020_payload_geometry_decoder.py'
+      - 'tools/patch_fotograaf_v022_idealraw_type_dryrun.py'
+      - '.github/workflows/android-truthraw-suite-v0-22-idealraw-type-dryrun.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v022:
+    name: Build FotoGraaf v0.22 IdealRAW type dry-run arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 and add no-HAL type dry-run
+        run: |
+          python3 tools/patch_fotograaf_v022_idealraw_type_dryrun.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          DRY='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2IdealRawTypeDryRun.kt'
+          PRE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PreHalGate.kt'
+
+          grep -F 'TruthRaw · 200MP Tele Test v0.22 · IdealRAW type dry-run' "$APP"
+          grep -F 'Camera2PreHalGate.observeSession(' "$APP"
+          grep -F 'Camera2IdealRawTypeDryRun.probe(' "$APP"
+          grep -F 'HAL/session submission=false' "$APP"
+          grep -F 'CaptureRequest.Key(KEY_NAME, Byte::class.javaObjectType)' "$DRY"
+          grep -F 'CaptureRequest.Key(KEY_NAME, Int::class.javaObjectType)' "$DRY"
+          grep -F 'UNIQUE_APP_SIDE_MARSHALLING_CANDIDATE__NO_HAL_SUBMISSION' "$DRY"
+          grep -F 'sessionParametersAttached", false' "$DRY"
+          grep -F 'requestSubmitted", false' "$DRY"
+          grep -F 'captureSubmitted", false' "$DRY"
+          grep -F 'halSubmission", false' "$DRY"
+          ! grep -F 'setSessionParameters(' "$DRY"
+          ! grep -F '.capture(' "$DRY"
+          ! grep -F 'setRepeatingRequest(' "$DRY"
+          grep -F 'vendorKeysWritten", false' "$PRE"
+          ! grep -F 'MAXIMUM_RESOLUTION vereist' "$APP"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          assert s.index('Camera2PreHalGate.observeSession(') < s.index('Camera2IdealRawTypeDryRun.probe(')
+          assert s.index('Camera2IdealRawTypeDryRun.probe(') < s.index('val config = SessionConfiguration(')
+          print('v0.22 no-HAL ordering assertions PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-22-idealraw-type-dryrun-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
