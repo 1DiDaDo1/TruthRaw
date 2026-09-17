@@ -11,6 +11,7 @@ on:
     paths:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt'
       - 'tools/patch_fotograaf_v031_int32_value_domain_sweep.py'
+      - 'tools/patch_fotograaf_v031b_int32_value_domain_sweep.py'
       - '.github/workflows/android-truthraw-suite-v0-31-int32-value-domain-sweep.yml'
   workflow_dispatch:
 
@@ -24,9 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Reconstruct source-first chain and apply bounded v0.31 INT32 value sweep
+      - name: Reconstruct source-first chain and apply corrected bounded v0.31 INT32 value sweep
         run: |
-          python3 tools/patch_fotograaf_v031_int32_value_domain_sweep.py
+          python3 tools/patch_fotograaf_v031b_int32_value_domain_sweep.py
           APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
           SWEEP='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt'
 
@@ -72,9 +73,10 @@ jobs:
           assert 'S${p.runIndex + 1}/6' in app
           assert 'staged-evidence.v0.31' in app
           assert '_EVIDENCE_v031.json' in app
+          assert 'TRUTHRAW_CAM5_V031_INT32_SWEEP_EVIDENCE_BUNDLE_' in app
           assert 'const val TOTAL_RUNS = 6' in sweep
           assert sweep.count('Profile(') >= 7
-          print('v0.31 bounded INT32 sweep + source-first scientific ordering PASS')
+          print('v0.31b bounded INT32 sweep + source-first scientific ordering PASS')
           PY
 
       - uses: actions/setup-java@v5
