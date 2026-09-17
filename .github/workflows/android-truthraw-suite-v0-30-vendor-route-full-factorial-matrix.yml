@@ -17,6 +17,7 @@ on:
       - 'tools/patch_fotograaf_v019_full_raster_write_audit.py'
       - 'tools/patch_fotograaf_v020_payload_geometry_decoder.py'
       - 'tools/patch_fotograaf_v030_vendor_route_full_factorial_matrix.py'
+      - 'tools/patch_fotograaf_v030b_vendor_route_full_factorial_matrix.py'
       - '.github/workflows/android-truthraw-suite-v0-30-vendor-route-full-factorial-matrix.yml'
   workflow_dispatch:
 
@@ -30,9 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Reconstruct v0.20 and attach controlled 16-run full-factorial matrix
+      - name: Reconstruct v0.20 and attach corrected controlled 16-run full-factorial matrix
         run: |
-          python3 tools/patch_fotograaf_v030_vendor_route_full_factorial_matrix.py
+          python3 tools/patch_fotograaf_v030b_vendor_route_full_factorial_matrix.py
           APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
           MATRIX='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2VendorRouteFullFactorialMatrix.kt'
           PRE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PreHalGate.kt'
