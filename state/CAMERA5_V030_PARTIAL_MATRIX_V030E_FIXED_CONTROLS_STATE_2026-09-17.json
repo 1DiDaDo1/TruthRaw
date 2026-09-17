@@ -1,0 +1,113 @@
+{
+  "schema": "truthraw.camera5-v030-partial-matrix-v030e-fixed-controls-state.v1",
+  "date": "2026-09-17",
+  "status": "PARTIAL_MATRIX_DEVICE_RESULTS_RECORDED__V030E_FIXED_CONTROLS_BUILD_SUCCESS",
+  "sourcePayloadAuthority": "v0.20",
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
+  "matrixDesign": {
+    "experiment": "CAMERA5_VENDOR_ROUTE_FULL_FACTORIAL_2_LEVEL_4_FACTOR",
+    "factorCount": 4,
+    "fullFactorialRunCount": 16,
+    "lowLevel": "UNSET_NO_WRITE",
+    "highLevel": "NUMERIC_ONE_TYPE_VALIDATED__SEMANTICS_UNPROVEN",
+    "factors": {
+      "A": {"key": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW", "nativeType": "BYTE", "tagHex": "0x801F0027"},
+      "B": {"key": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType", "nativeType": "INT32", "tagHex": "0x801F0009"},
+      "C": {"key": "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization", "nativeType": "BYTE", "tagHex": "0x801F0036"},
+      "D": {"key": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined", "nativeType": "INT32", "tagHex": "0x801F0034"}
+    },
+    "semanticPromotionAllowed": false
+  },
+  "deviceResultsAvailable": {
+    "matrixComplete": false,
+    "outOfOrderRunsReceived": true,
+    "receivedRuns": [
+      {
+        "run": 2,
+        "profileId": "R02_ABCD_1111",
+        "ABCD": "1111",
+        "vendorKeysWritten": 4,
+        "builderAndRequestReadbackPass": true,
+        "sourceSha256": "c2627863173e3d232bf70a409ce8fd0c468529526d651a1068f8065c9e09612b",
+        "sourceBytes": 401080320,
+        "nonZeroRows": 768,
+        "allZeroRows": 11520,
+        "payloadBytes": 25067520,
+        "payloadGeometry": "4080x3072",
+        "payloadSha256": "c6d6778f457ee39d5a0d3c41a69115e40b2c30cc1056e6f5af33069e3151d080",
+        "topologyDifferentialVsV020": false,
+        "boundedInterpretation": "ALL_FOUR_TYPE_VALIDATED_NUMERIC_ONE_VENDOR_WRITES_ATTACHED_WITHOUT_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_CHANGE"
+      },
+      {
+        "run": 4,
+        "profileId": "R04_ABCD_1010",
+        "ABCD": "1010",
+        "vendorKeysWritten": 2,
+        "builderAndRequestReadbackPass": true,
+        "sourceSha256": "0a427c7b68db4b181e223079eae4c62e8a8a15cd7abafb12716577c291ec534f",
+        "sourceBytes": 401080320,
+        "nonZeroRows": 768,
+        "allZeroRows": 11520,
+        "payloadBytes": 25067520,
+        "payloadGeometry": "4080x3072",
+        "payloadSha256": "7d564bde34c1a57dc5d4dcd3795841bc09dc078b9a205356f5bace3182218545",
+        "topologyDifferentialVsV020": false
+      },
+      {
+        "run": 16,
+        "profileId": "R16_ABCD_0111",
+        "ABCD": "0111",
+        "vendorKeysWritten": 3,
+        "builderAndRequestReadbackPass": true,
+        "sourceSha256": "de6f94b0da4a6798691c8b6dba138f67012aa61e2adb33411f8b2be7b7724cec",
+        "sourceBytes": 401080320,
+        "nonZeroRows": 768,
+        "allZeroRows": 11520,
+        "payloadBytes": 25067520,
+        "payloadGeometry": "4080x3072",
+        "payloadSha256": "3d17dff7d87de5cc49aa681b347583b4128e79423fe5743263d36e9fb88c95db",
+        "wholeRasterNonZeroSampleCount": 12533758,
+        "note": "Two zero-valued samples occur inside the populated prefix; row/population geometry remains unchanged.",
+        "topologyDifferentialVsV020": false
+      }
+    ],
+    "strongestCurrentNegativeResult": "R02_ABCD_1111 disproves the simple tested hypothesis that simultaneously writing numeric 1 to all four currently type-resolved factors is sufficient to change the app-visible RAW envelope/populated-prefix topology.",
+    "prohibitedOverclaim": "This does not prove the keys are ineffective and does not establish the vendor semantics of numeric value 1."
+  },
+  "deviceUiFailure": {
+    "v030Original": "LONG_STAGE3_STATUS_PUSHED_ESSENTIAL_CONTROLS_OUT_OF_REACH",
+    "v030c_v030dScrollApproach": "NOT_RELIABLY_USABLE_ON_DEVICE",
+    "scientificCaptureFailure": false
+  },
+  "v030eRecoveryBuild": {
+    "branch": "integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery",
+    "headSha": "a99861d3d4468849aeedbd8070805ffbdbd3d294",
+    "runId": 35266284068,
+    "jobId": 105354172823,
+    "conclusion": "success",
+    "apkBytes": 4915745,
+    "apkSha256": "942b21518860af983be5383298b915d30f118684a83c19783b098decb313d112",
+    "artifactId": 10516682471,
+    "artifactZipBytes": 1608265,
+    "artifactZipSha256": "b2d1f9b306a52699b5dbbbb8eaad26a46a6a85f14a7a20ea66f880401b8ad55e",
+    "scientificMatrixChanged": false,
+    "acquisitionOrderingChanged": false,
+    "sourceSealOrderingChanged": false,
+    "stage36Changed": false,
+    "stage37Changed": false,
+    "ui": {
+      "essentialControlsFixedAboveDetailPane": true,
+      "fixedRows": 3,
+      "alwaysReachable": ["STEP1_ROUTES", "STEP2_LIVE", "MATRIX_PROFILE", "STEP3_CAPTURE", "SAVE_CURRENT_JSON", "EXPORT_CACHED_JSON_BUNDLE"],
+      "detailPaneScrollIsNonEssential": true
+    },
+    "recovery": {
+      "selectsFirstMissingCachedRun": true,
+      "advancesToFirstMissingAfterSuccessfulCapture": true,
+      "supportsOutOfOrderCompletion": true,
+      "cacheIsNotPermanentAuthority": true
+    }
+  },
+  "nextDeviceAction": "INSTALL_V030E_OVER_EXISTING_APP_WITHOUT_CLEARING_STORAGE_OR_CACHE__EXPORT_BUNDLE_ZIP_FIRST__THEN_FILL_FIRST_MISSING_MATRIX_RUNS",
+  "scientificMasterModified": false
+}
