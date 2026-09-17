@@ -38,8 +38,10 @@ if state_needle not in s:
     raise SystemExit('v0.30d bundle state anchor not found')
 s = s.replace(state_needle, state_replacement, 1)
 
-oncreate_needle = '''        setContentView(buildUi())\n        setStatus("STAGE 0 PASS · v0.11 UI geopend zonder Camera2/HAL-aanroep.\\nDruk eerst op Stap 1.")\n'''
-oncreate_replacement = '''        setContentView(buildUi())\n        setStatus("STAGE 0 PASS · v0.30d scroll/recovery UI geopend zonder Camera2/HAL-aanroep.\\nDruk eerst op Stap 1.")\n        restoreMatrixProgressFromCache()\n'''
+# Run recovery after the already-versioned Stage-0 status is initialized, immediately before
+# the permission branch. This survives UI-version text changes from the reconstruction chain.
+oncreate_needle = '''        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {\n'''
+oncreate_replacement = '''        restoreMatrixProgressFromCache()\n        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {\n'''
 if oncreate_needle not in s:
     raise SystemExit('v0.30d onCreate recovery anchor not found')
 s = s.replace(oncreate_needle, oncreate_replacement, 1)
