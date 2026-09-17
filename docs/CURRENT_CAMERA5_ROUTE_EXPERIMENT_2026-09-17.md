@@ -1,231 +1,179 @@
 # CURRENT Camera-5 route-control experiment — 2026-09-17
 
-Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.24 DEVICE DIFFERENTIAL COMPLETE; v0.25 BUILD SUCCESS / DEVICE RESULT PENDING**
+Status: **CURRENT EXPERIMENT TRACK; v0.20 REMAINS SOURCE/PAYLOAD AUTHORITY; v0.25 DEVICE TYPE RESULT COMPLETE; v0.26 BUILD SUCCESS / DEVICE RESULT PENDING**
 
 This document tracks upstream HONOR/QTI route-control experiments after the completed v0.20 payload-topology result. It does not replace `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md` for source authority.
 
-## Control
+## Control authority
 
-TruthRaw v0.20 remains the untouched control:
+TruthRaw v0.20 remains the untouched source/payload control:
 
 `APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN`
 
-The tested control has a `401,080,320`-byte app-visible envelope with a populated `25,067,520`-byte prefix that uniquely matches the advertised standard `4080x3072` RAW_SENSOR byte count and behaves as a Bayer-like full-frame raster under that interpretation.
+Control topology:
 
-## Route-control sequence
+- app-visible envelope: `16320x12288`, `401,080,320` bytes
+- populated source prefix: `25,067,520` bytes
+- unique advertised standard RAW byte match: `4080x3072`
+- source prefix behaves as a coherent Bayer-like full-frame raster under that interpretation.
 
-### v0.21 — fail-closed Java runtime-type attempt
+The app-visible result is not untouched photodiode/ADC proof.
 
-Result:
+## v0.21 — fail-closed IdealRAW Java type attempt
 
-`BLOCKED_IDEALRAW_RUNTIME_TYPE_UNAVAILABLE`
+Result: `BLOCKED_IDEALRAW_RUNTIME_TYPE_UNAVAILABLE`.
 
 No vendor value was written, no session parameter attached and no capture submitted.
 
-### v0.22 — app-side marshalling dry run
+## v0.22 — IdealRAW app-side marshalling dry run
 
-Result:
+Result: `MULTIPLE_APP_SIDE_MARSHALLING_CANDIDATES__AMBIGUOUS_NO_HAL_SUBMISSION`.
 
-`MULTIPLE_APP_SIDE_MARSHALLING_CANDIDATES__AMBIGUOUS_NO_HAL_SUBMISSION`
+Byte/byte[] and Int/int[] could be marshalled locally; no HAL/session submission occurred.
 
-Passing Java representations:
+## v0.23 — IdealRAW native type oracle
 
-- `Byte`
-- `byte[]`
-- `Int`
-- `int[]`.
+Device result: `NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION`.
 
-No HAL/session submission occurred. This narrowed the candidate family but did not resolve the native metadata type.
+Resolved:
 
-### v0.23 — native type oracle
+- key `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW`
+- tag `0x801F0027`
+- native type `BYTE`
+- count `1`
+- u8 accepted, i32 rejected.
 
-Device evidence:
+No capture session or vendor-modified HAL submission occurred.
 
-`TRUTHRAW_CAM5_IDEALRAW_NATIVE_TYPE_ORACLE_v023.json`
+## v0.24 — IdealRAW BYTE(1) controlled intervention
 
-Result:
+Branch: `integration/truthraw-suite-v0-24-idealraw-byte-intervention`.
 
-`NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION`
+Exactly one unknown vendor variable was changed after untouched Gate A:
 
-The device resolved:
+`EnableIdealRAW = BYTE(1)`
 
-- key: `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW`
-- tag: `0x801F0027`
-- native type: `BYTE`
-- native count for test value: `1`
-- `u8(1)` set/get: accepted
-- `i32(1)` set: rejected.
+The value was set/read back and attached as session parameters. The trusted logical0 -> physical5 -> 16320x12288 MAX acquisition completed with source-first sealing and unchanged Stage 3.6/3.7 analysis.
 
-v0.23 created request templates only. It created no capture session and submitted no vendor-modified request to HAL.
+Device differential versus v0.20:
 
-This is a representation/type fact, not proof that the vendor-key name or value `1` has a particular physical effect.
-
-### v0.24 — first controlled BYTE intervention
-
-Branch:
-
-`integration/truthraw-suite-v0-24-idealraw-byte-intervention`
-
-Build:
-
-- GitHub Actions run: `35243866129`
-- workflow head: `429063ceb11087cb16132fa910c740a170b2f6d5`
-- result: **SUCCESS**
-- APK bytes: `4,880,841`
-- APK SHA-256: `e8f898b041a63b9f68a246878aadd3427e24d321731042a49a02e0318f5e5c15`
-- artifact ID: `10506437816`
-- artifact ZIP SHA-256: `04b3a576d01ccbec8340cd1a5353c494cf77b245bc60163ca7fde28f9ef5053b`.
-
-Design:
-
-- reconstruct exact v0.20 acquisition/audit chain;
-- preserve Gate A before intervention;
-- construct `org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW` as BYTE using the v0.23 native-type result;
-- set exactly one unknown vendor value: `EnableIdealRAW = BYTE(1)`;
-- require builder and built-request readback `1`;
-- attach that request as SessionConfiguration session parameters;
-- touch no second unknown vendor key;
-- preserve logical0 -> physical5 -> 16320x12288 MAX topology;
-- seal the original Plane[0] before interpreting result metadata;
-- repeat the same post-HAL envelope, Stage 3.6 full-raster audit and Stage 3.7 payload-geometry decoder.
-
-Device evidence:
-
-`TRUTHRAW_1789661201607_CAM5_200MP_EVIDENCE_v024.json`
-
-Intervention acceptance:
-
-- `controlledVendorInterventionKeyCount = 1`
-- `EnableIdealRAW` native type source = v0.23 BYTE oracle
-- requested numeric value = `1`
-- builder set = PASS
-- builder readback = `1`
-- built-request readback = `1`
-- session parameters attached = true
-- semantic promotion = false.
-
-Capture still followed the trusted route:
-
-- opened logical camera `0`
-- physical result camera `5`
-- delivered `16320x12288`
-- exact Image/result timestamp equality
-- original source bytes `401,080,320`
-- pixel stride `2`
-- row stride `32,640`
+- populated prefix remained `25,067,520` bytes
+- only-first-768-rows signature remained
+- unique payload geometry remained `4080x3072`
+- app-visible envelope remained `16320x12288`
 - returned `SENSOR_PIXEL_MODE = 0`
-- `rawBinningFactorUsed = true`.
-
-Stage 3.6 result:
-
-`ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE`
-
-Observed:
-
-- only band `0` is non-zero;
-- bands `1..15` are all zero;
-- populated prefix = `25,067,520` bytes;
-- last non-zero byte offset = `25,067,518`.
-
-Stage 3.7 result:
-
-`UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED`
-
-- unique advertised standard RAW byte match = `4080x3072`
-- candidate payload = exact source prefix, no transform
-- candidate payload SHA-256 = `66e2bd49a4414326dbed0f69cf3e2e474931d2893a5113b22c5b67826c661bc2`
-- min/max codes for this scene = `60..1023`
-- same Bayer-like distance-2 correlation structure remains present.
-
-Relevant HONOR/QTI route observations stayed in the same structural class:
-
-- `com.hihonor.capture.metadata.binningFactor = 4`
-- `com.hihonor.capture.metadata.isInSensorZoom = 0`
-- AEC real crop begins `[11,8,4058,3055,...]`
-- ISP crop remains `16320x12288`.
-
-### v0.24 differential conclusion
-
-Against v0.20, the following primary topology quantities did **not** change:
-
-- populated prefix bytes: `25,067,520`
-- only-first-768-rows population signature
-- selected payload geometry: `4080x3072`
-- declared Image/HardwareBuffer envelope: `16320x12288`
-- returned `SENSOR_PIXEL_MODE = 0`
-- raw binning flag
+- raw binning flag remained active
 - HONOR `binningFactor = 4`
 - HONOR `isInSensorZoom = 0`.
 
-Current bounded conclusion:
+Bounded conclusion: the intervention was accepted, but no measurable RAW-envelope or populated-payload-topology differential was observed on this tested route. This is not a universal no-effect claim.
 
-`EnableIdealRAW=BYTE(1)` was accepted and attached as the sole controlled vendor session variable, but **no measurable RAW-envelope or populated-payload-topology differential was observed on this tested Camera-5 route versus v0.20**.
+## v0.25 — RawCbSourceType native type oracle
 
-This does not prove that the key has no effect in every route or mode. It may be ignored for this stream, already equivalent to the active internal state, relevant to another route, or require another condition. Those possibilities remain unproven and must not be selected by name alone.
+Device evidence: `TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json`.
 
-### v0.25 — RawCbSourceType native type oracle
+Classification:
 
-Branch:
+`NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION`
 
-`integration/truthraw-suite-v0-25-rawcb-native-type-oracle`
+Resolved device facts:
 
-Question:
+- key: `org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
+- tag lookup available and successful
+- tag: `0x801F0009`
+- unsigned tag ID: `2149515273`
+- accepted native type count: `1`
+- resolved type: `INT32`
+- accepted entry count: `1`
+- INT32 set/get status: `0/0`
+- BYTE/FLOAT/INT64/DOUBLE/RATIONAL rejected.
 
-Resolve the native camera-metadata representation of:
+Numeric test value `1` was used strictly for metadata-type validation. Its vendor semantics are not known.
 
-`org.codeaurora.qcamera3.sessionParameters.RawCbSourceType`
+Safety/provenance:
 
-before any semantic or capture intervention is attempted.
+- disposable request templates only
+- no session created
+- no session parameters attached
+- no capture submitted
+- no vendor-modified request submitted to HAL
+- no RAW pixel access
+- no source mutation
+- no semantic promotion.
+
+Representation conclusion: `RawCbSourceType` is native Camera2 metadata `INT32` on this tested device/route.
+
+v0.25 build provenance:
+
+- run `35246799407`
+- job `105288947534`
+- workflow head `f4a474da0b0635527a0c1ba8a9b15dfc64d3ce95`
+- APK bytes `4,882,977`
+- APK SHA-256 `25f31327aa6ab32a33e3e706370f30c506d2d4867ba769c7637a74f8fadabbd1`
+- artifact ID `10508380597`
+- artifact ZIP SHA-256 `376d151af2a521042f029b81f0c5c566c527ec10f165a164274242e5f733caf6`.
+
+## v0.26 — RawCbSourceType INT32(1) single-variable intervention
+
+Branch: `integration/truthraw-suite-v0-26-rawcb-int32-intervention`.
+
+Build status: **SUCCESS; DEVICE RESULT PENDING**.
+
+GitHub Actions provenance:
+
+- run `35249255766`
+- job `105297221061`
+- workflow head `521691e3eeb9500b514c500da5a1280ddd828527`
+- ordering and single-variable assertions: PASS
+- APK bytes `4,899,361`
+- APK SHA-256 `2f4df3f33a03279e467d2d630e87b85c75f82caac13fcd37cc32c982357a1bbd`
+- artifact ID `10509261489`
+- artifact ZIP bytes `1,596,602`
+- artifact ZIP SHA-256 `a4bce47f2c689982e1dcdf5f73a79ef161af96fbe6d2bdabdb7fd6fbfb960832`.
 
 Design:
 
-- reconstruct the exact v0.20 trusted baseline first;
-- stop after Stage 1 capability discovery;
-- open logical camera `0` only for disposable NDK request-template metadata validation;
-- resolve the real vendor tag ID using `ACameraMetadata_getTagFromName`;
-- test all six native Camera2 metadata element families independently with one disposable value: BYTE, INT32, FLOAT, INT64, DOUBLE and RATIONAL;
-- require a readback entry whose native metadata type and count agree with the setter;
-- create no capture session;
-- attach no session parameters;
-- submit no capture or repeating request;
-- send no vendor-modified request to the HAL;
-- access no RAW pixels;
-- assign no semantic meaning to test value `1`.
+1. reconstruct exact v0.20 acquisition/audit chain;
+2. preserve untouched Gate A fingerprint;
+3. set exactly one unknown vendor variable: `RawCbSourceType = INT32(1)`;
+4. record pre-set builder readback where available;
+5. require builder readback `1` after set;
+6. require built-request readback `1`;
+7. attach the request as session parameters;
+8. touch no second unknown vendor key;
+9. preserve logical0 -> physical5 topology;
+10. preserve 16320x12288 MAX output/request route;
+11. preserve original Plane[0] source-first seal;
+12. preserve post-HAL HardwareBuffer envelope observation;
+13. repeat Stage 3.6 full-raster audit unchanged;
+14. repeat Stage 3.7 payload-geometry decoder unchanged.
 
-Build result:
+The requested numeric value `1` is an A/B intervention value only. The project does not assign it a semantic label such as full-resolution, unbinned, native or sensor source.
 
-- GitHub Actions run: `35246799407`
-- job: `105288947534`
-- workflow head: `f4a474da0b0635527a0c1ba8a9b15dfc64d3ce95`
-- result: **SUCCESS**
-- safety/reconstruction assertions: PASS
-- arm64 APK bytes: `4,882,977`
-- APK SHA-256: `25f31327aa6ab32a33e3e706370f30c506d2d4867ba769c7637a74f8fadabbd1`
-- artifact ID: `10508380597`
-- artifact ZIP bytes: `1,594,330`
-- artifact ZIP SHA-256: `376d151af2a521042f029b81f0c5c566c527ec10f165a164274242e5f733caf6`
-- device result: **PENDING**.
+## v0.26 device differential targets
 
-Expected device behavior:
+Compare directly against v0.20:
 
-- only Step 1 is needed;
-- the app must stop at `STAGE 1.5 DIAGNOSTIC STOP`;
-- preview and capture remain disabled;
-- evidence file: `TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json`;
-- preferred decisive result: exactly one native setter family accepted (`acceptedTypeCount=1`).
+- source-envelope byte count
+- populated-prefix byte count
+- first/last non-zero positions
+- all 16 x 768-row band population states
+- source/payload hashes
+- selected advertised standard RAW geometry
+- returned `SENSOR_PIXEL_MODE`
+- `rawBinningFactorUsed`
+- HONOR `binningFactor`
+- HONOR `isInSensorZoom`
+- AEC/ISP crop metadata.
 
-A resolved type establishes representation only. It does not establish the valid value domain or the meaning of `RawCbSourceType`.
-
-## Next controlled question
-
-Run v0.25 on-device and record its oracle JSON. Do not build a RawCbSourceType intervention until the native type has been measured on this device. If exactly one type resolves, any later intervention must be a separate single-variable experiment with v0.20 left untouched as control.
+A changed topology is route-differential evidence only; it remains app-visible Camera2/HAL output, not automatically untouched ADC or 200 MP optical proof.
 
 ## Authority rules
 
-- v0.20 remains the source/payload control authority.
-- v0.24 is valid negative differential evidence for the tested intervention, not a universal no-effect proof.
-- v0.25 is representation discovery only until a device result exists.
-- A vendor-key name is not semantic authority.
-- A successful metadata setter/readback is not proof of sensor mode or of a valid operational value.
-- A changed source topology, if later observed, would be route-differential evidence but still app-visible Camera2/HAL output, not untouched ADC proof.
-- Do not combine unknown vendor controls in one experiment.
+- v0.20 remains source/payload authority until a newer validated device result changes it.
+- v0.24 is valid negative differential evidence for its tested intervention, not a universal no-effect proof.
+- v0.25 resolves representation/type only.
+- a vendor-key name is not semantic authority.
+- successful setter/readback/attachment is intervention provenance, not proof of sensor mode.
+- do not combine unknown vendor controls in one experiment.
+- source bytes remain sealed before result/vendor interpretation.
