@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-current-route-state.v0.30-partial-matrix",
+  "schema": "truthraw.camera5-current-route-state.v0.30-matrix-complete",
   "date": "2026-09-17",
-  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_PARTIAL_V030_DEVICE_MATRIX_8_OF_16_HARD_PROFILES",
+  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_V030_FULL_FACTORIAL_DEVICE_MATRIX_COMPLETE_NO_TOPOLOGY_DIFFERENTIAL",
   "device": {
     "family": "HONOR Magic 8 Pro",
     "model": "BKQ-N49",
@@ -29,7 +29,7 @@
     "populatedU16Samples": 12533760,
     "nonZeroDeclaredRows": [0, 767],
     "selectedStandardRawCandidate": [4080, 3072],
-    "authorityUnchangedByRouteControlExperimentsThroughPartialV030": true
+    "authorityUnchangedByCompleteV030Matrix": true
   },
   "v020Control": {
     "evidenceFile": "TRUTHRAW_1789654132526_CAM5_200MP_EVIDENCE_v020.json",
@@ -46,59 +46,15 @@
     "stage37PayloadSha256": "d41d48d644c4aa8804825a529a0ea651352979a7023e4948e39913b71ce16e3e"
   },
   "routeControlRepresentationAuthorities": [
-    {
-      "version": "v0.23",
-      "candidate": "EnableIdealRAW",
-      "nativeTagHex": "0x801F0027",
-      "resolvedNativeType": "BYTE",
-      "acceptedTypeCount": 1,
-      "halSubmission": false
-    },
-    {
-      "version": "v0.25",
-      "candidate": "RawCbSourceType",
-      "nativeTagHex": "0x801F0009",
-      "resolvedNativeType": "INT32",
-      "acceptedTypeCount": 1,
-      "halSubmission": false
-    },
-    {
-      "version": "v0.27",
-      "candidate": "EnableXCFAOptimization",
-      "nativeTagHex": "0x801F0036",
-      "resolvedNativeType": "BYTE",
-      "acceptedTypeCount": 1,
-      "halSubmission": false
-    },
-    {
-      "version": "v0.29",
-      "candidate": "HALOutputBufferCombined",
-      "nativeTagHex": "0x801F0034",
-      "resolvedNativeType": "INT32",
-      "acceptedTypeCount": 1,
-      "classification": "NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION",
-      "halSubmission": false
-    }
+    {"version":"v0.23","candidate":"EnableIdealRAW","nativeTagHex":"0x801F0027","resolvedNativeType":"BYTE","acceptedTypeCount":1,"halSubmission":false},
+    {"version":"v0.25","candidate":"RawCbSourceType","nativeTagHex":"0x801F0009","resolvedNativeType":"INT32","acceptedTypeCount":1,"halSubmission":false},
+    {"version":"v0.27","candidate":"EnableXCFAOptimization","nativeTagHex":"0x801F0036","resolvedNativeType":"BYTE","acceptedTypeCount":1,"halSubmission":false},
+    {"version":"v0.29","candidate":"HALOutputBufferCombined","nativeTagHex":"0x801F0034","resolvedNativeType":"INT32","acceptedTypeCount":1,"classification":"NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION","halSubmission":false}
   ],
   "completedSingleFactorInterventions": [
-    {
-      "version": "v0.24",
-      "candidate": "EnableIdealRAW=BYTE(1)",
-      "interventionAcceptedAndAttached": true,
-      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false
-    },
-    {
-      "version": "v0.26",
-      "candidate": "RawCbSourceType=INT32(1)",
-      "interventionAcceptedAndAttached": true,
-      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false
-    },
-    {
-      "version": "v0.28",
-      "candidate": "EnableXCFAOptimization=BYTE(1)",
-      "interventionAcceptedAndAttached": true,
-      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false
-    }
+    {"version":"v0.24","candidate":"EnableIdealRAW=BYTE(1)","interventionAcceptedAndAttached":true,"measurableRawEnvelopeOrPayloadTopologyDifferentialObserved":false},
+    {"version":"v0.26","candidate":"RawCbSourceType=INT32(1)","interventionAcceptedAndAttached":true,"measurableRawEnvelopeOrPayloadTopologyDifferentialObserved":false},
+    {"version":"v0.28","candidate":"EnableXCFAOptimization=BYTE(1)","interventionAcceptedAndAttached":true,"measurableRawEnvelopeOrPayloadTopologyDifferentialObserved":false}
   ],
   "v030Matrix": {
     "experiment": "CAMERA5_VENDOR_ROUTE_FULL_FACTORIAL_2_LEVEL_4_FACTOR",
@@ -112,32 +68,28 @@
       "C": "EnableXCFAOptimization/BYTE/0x801F0036",
       "D": "HALOutputBufferCombined/INT32/0x801F0034"
     },
-    "hardEvidenceUniqueProfileCount": 8,
-    "hardEvidenceRunNumbers": [1, 2, 4, 11, 13, 14, 15, 16],
-    "missingHardEvidenceRunNumbers": [3, 5, 6, 7, 8, 9, 10, 12],
-    "duplicateStructuralReplicateProfiles": [16],
+    "matrixComplete": true,
+    "hardEvidenceUniqueProfileCount": 16,
+    "hardEvidenceRunNumbers": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+    "missingHardEvidenceRunNumbers": [],
+    "allComplementPairsObserved": true,
     "allHardEvidenceProfilesSameTopologyClassAsV020": true,
     "commonMeasuredTopology": {
       "sourceEnvelopeBytes": 401080320,
-      "declaredGeometry": [16320, 12288],
+      "declaredGeometry": [16320,12288],
       "nonZeroRows": 768,
       "allZeroRows": 11520,
       "payloadBytes": 25067520,
-      "selectedAdvertisedStandardRawGeometry": [4080, 3072]
+      "selectedAdvertisedStandardRawGeometry": [4080,3072]
     },
-    "strongestCurrentNegativeResults": [
-      "R01 0000 reproduces v0.20 topology with all four matrix factors UNSET.",
-      "R02 1111 shows all four current numeric-one states together are not sufficient to change measured topology.",
-      "R15 1000, R13 0100 and R11 0010 show A-only, B-only and C-only high states respectively remain in the same topology class.",
-      "R04 1010, R14 1011 and R16 0111 remain in the same topology class; R16 is independently replicated."
-    ],
-    "dOnlyProfileHardEvidenceAvailable": false,
-    "dOnlyProfile": "R09_ABCD_0001"
-  },
-  "bundleHandling": {
-    "uploadedV030EvidenceBundlesPresent": true,
-    "bundleContentsIndependentlyParsed": false,
-    "authorityRule": "INDIVIDUALLY_READABLE_EVIDENCE_JSONS_DEFINE_MATRIX_COMPLETION_UNTIL_ARCHIVES_ARE_INDEPENDENTLY_PARSED"
+    "strongestBoundedConclusion": "WITHIN_THE_TESTED_BINARY_DESIGN__UNSET_VS_NUMERIC_ONE_AT_THE_RESOLVED_NATIVE_TYPES__NO_SINGLE_FACTOR_OR_COMBINATION_OF_THE_FOUR_TESTED_VENDOR_CONTROLS_CHANGED_THE_MEASURED_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY",
+    "dOnlyProfile": "R09_ABCD_0001",
+    "dOnlyProfileObserved": true,
+    "dOnlyProfileTopologyDifferential": false,
+    "allFourHighProfile": "R02_ABCD_1111",
+    "allFourHighTopologyDifferential": false,
+    "allUnsetControl": "R01_ABCD_0000",
+    "allUnsetControlReproducesV020Topology": true
   },
   "v030eRecovery": {
     "branch": "integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery",
@@ -146,21 +98,23 @@
     "apkSha256": "942b21518860af983be5383298b915d30f118684a83c19783b098decb313d112",
     "artifactZipSha256": "b2d1f9b306a52699b5dbbbb8eaad26a46a6a85f14a7a20ea66f880401b8ad55e",
     "scientificMatrixChanged": false,
-    "firstMissingRecoveryEnabled": true
+    "firstMissingRecoveryEnabled": true,
+    "recoveryGoalCompleted": true
   },
   "currentInterpretation": {
+    "payloadAuthorityRemainsV020": true,
+    "testedBinaryFourFactorSpaceComplete": true,
+    "observedMainOrInteractionTopologyEffect": false,
     "doesNotProveKeysHaveNoEffect": true,
     "doesNotProveNumericValue1Semantics": true,
-    "doesNotProveNativeSensorGeometry": true,
-    "doesNotProveRemainingMatrixProfilesWillMatch": true,
-    "payloadAuthorityRemainsV020": true
+    "doesNotProveOtherNumericValuesHaveNoEffect": true,
+    "doesNotProveOtherVendorKeysHaveNoEffect": true,
+    "doesNotProveNativeSensorGeometry": true
   },
   "nextSafeExperiment": {
-    "version": "v0.30e",
-    "step": "COMPLETE_ONLY_MISSING_HARD_JSON_MATRIX_PROFILES",
-    "missingProfiles": ["R03", "R05", "R06", "R07", "R08", "R09", "R10", "R12"],
-    "requiredEvidence": "SAVE_EACH_V030_EVIDENCE_JSON_INDIVIDUALLY",
-    "bundleRole": "AUXILIARY_REDUNDANCY_ONLY"
+    "step": "STOP_REPEATING_THIS_BINARY_MATRIX__DISCOVER_VALUE_DOMAIN_SEMANTICS_OR_NEW_UPSTREAM_ROUTE_CANDIDATES",
+    "priorityCandidates": ["RawCbSourceType value domain", "HALOutputBufferCombined value domain", "other upstream session/request keys after native-type oracle"],
+    "semanticMeaningFromNameAssumed": false
   },
   "notProven": [
     "UNTOUCHED_NATIVE_ADC",
