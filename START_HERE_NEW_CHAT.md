@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.30 full-factorial route-matrix build on 2026-09-17.
+This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.30 full-factorial route-matrix **partial device result** on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
 
@@ -11,11 +11,13 @@ It is a navigation/current-state document. It does not rewrite frozen historical
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/CURRENT_CAMERA5_ROUTE_EXPERIMENT_2026-09-17.md`
-6. `state/CAMERA5_V029_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_STATE_2026-09-17.json`
-7. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_STATE_2026-09-17.json`
-8. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-9. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-10. only then the exact canonical/research/module documents relevant to the task.
+6. `docs/HONOR_CAMERA5_V030_VENDOR_ROUTE_MATRIX_PARTIAL_DEVICE_RESULTS_2026-09-17.md`
+7. `state/CAMERA5_V030_PARTIAL_MATRIX_V030E_FIXED_CONTROLS_STATE_2026-09-17.json`
+8. `state/CAMERA5_V029_HAL_OUTPUT_BUFFER_COMBINED_NATIVE_TYPE_ORACLE_STATE_2026-09-17.json`
+9. `state/CAMERA5_V030_VENDOR_ROUTE_FULL_FACTORIAL_MATRIX_STATE_2026-09-17.json`
+10. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
+11. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+12. only then the exact canonical/research/module documents relevant to the task.
 
 Historical vision documents remain background authorities in their own domain:
 
@@ -99,15 +101,7 @@ Accepted single-variable interventions with no measured RAW envelope/populated-p
 
 Numeric `1` remains an experimental control value, not proven vendor semantics.
 
-v0.29 device result:
-
-`NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION`
-
-for `org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined`, tag `0x801F0034`, accepted type count `1`. No session/capture/HAL submission occurred in the oracle.
-
 ## Current experiment — v0.30 full-factorial vendor route matrix
-
-After representation discovery and three negative single-factor topology differentials, the experiment moves from one-factor-at-a-time screening to an interaction-sensitive designed matrix.
 
 Design:
 
@@ -125,42 +119,76 @@ Levels:
 - low = `UNSET_NO_WRITE`
 - high = numeric `1` using the device-resolved native type.
 
-This does **not** assign semantics to either level. Low is absence of a write, not explicit numeric zero.
+Low is absence of a write, not explicit numeric zero. Numeric high has no promoted vendor meaning.
 
-All 16 binary combinations are present exactly once, ordered in complement pairs:
+All 16 binary combinations are present exactly once in the designed matrix.
 
-`0000/1111, 0101/1010, 0011/1100, 0110/1001, 0001/1110, 0010/1101, 0100/1011, 1000/0111`.
+## Current v0.30 device result
 
-`R01_ABCD_0000` is the untouched matrix control.
+The current hard-evidence set is defined only by individually readable evidence JSON files.
 
-Every run preserves the v0.20 source-first chain and independently seals its own RAW before post-HAL interpretation. Stage 3.6 and Stage 3.7 remain unchanged.
+Eight unique matrix profiles are currently proven available:
+
+`R01 0000`
+`R02 1111`
+`R04 1010`
+`R11 0010`
+`R13 0100`
+`R14 1011`
+`R15 1000`
+`R16 0111`.
+
+A second independent R16 `0111` capture is retained as a structural replicate.
+
+Every one of those profiles remains in the same measured topology class as v0.20:
+
+- source envelope `401,080,320` bytes / `16320x12288`;
+- first `768` rows populated;
+- remaining `11,520` rows zero;
+- populated/payload bytes `25,067,520`;
+- unique advertised standard RAW byte match `4080x3072`;
+- no measured envelope/populated-prefix topology differential.
+
+R01 `0000` is the contemporaneous all-UNSET control and reproduces v0.20 topology with no matrix vendor writes.
+
+R02 `1111` proves the simple tested hypothesis “all four current numeric-one controls together are sufficient to change the app-visible RAW topology” is not supported.
+
+Single-high hard results currently include A-only (`R15`), B-only (`R13`) and C-only (`R11`), all without topology differential. D-only (`R09`) is still missing.
+
+Current missing individually readable matrix profiles:
+
+`R03, R05, R06, R07, R08, R09, R10, R12`.
+
+## Bundle boundary
+
+Multiple `TRUTHRAW_CAM5_V030_MATRIX_EVIDENCE_BUNDLE_*.zip` files were uploaded during recovery. They remain auxiliary provenance containers. Archive inspection timed out in the current analysis environment, so no run is counted from ZIP filename, bundle size, UI progression or recollection alone.
+
+Until those archives are independently parsed, individually readable evidence JSONs define matrix-completion authority.
+
+## v0.30e recovery build
 
 Branch:
 
-`integration/truthraw-suite-v0-30-vendor-route-full-factorial-matrix`
+`integration/truthraw-suite-v0-30e-fixed-controls-matrix-recovery`
 
-Corrected build status: **SUCCESS — DEVICE MATRIX PENDING**.
+Build status: **SUCCESS**.
 
-Build provenance:
+- head `a99861d3d4468849aeedbd8070805ffbdbd3d294`
+- run `35266284068`
+- APK SHA-256 `942b21518860af983be5383298b915d30f118684a83c19783b098decb313d112`
+- artifact ZIP SHA-256 `b2d1f9b306a52699b5dbbbb8eaad26a46a6a85f14a7a20ea66f880401b8ad55e`.
 
-- run `35260779194`
-- job `105335638334`
-- head `f234055ca102177ced64105214c9c3357c312f83`
-- APK bytes `4,915,745`
-- APK SHA-256 `d697ea34f1b21f973f174b3dacba951510dc157eceb491f187bee33b59d27c46`
-- artifact ID `10515027009`
-- artifact ZIP bytes `1,604,556`
-- artifact ZIP SHA-256 `648e22e3df73f97b9c6f87223ecb8748c657be39157bfa64dd4b5f1b7da908af`.
+v0.30e changes UI/recovery only; it does not change the scientific matrix, acquisition ordering, source-seal ordering, Stage 3.6 or Stage 3.7.
 
-The first v0.30 attempt is retained as failed-build provenance; it stopped before compilation on an overly specific UI patch anchor. The corrected `v030b` patch built successfully.
+## Immediate device continuation
 
-## Device protocol for v0.30
+Use v0.30e's first-missing recovery selector and save each new evidence JSON individually.
 
-Start with the displayed `R01_ABCD_0000` profile. Keep framing/scene as stable as practical. Complete a run through Stage 3.7 and save its evidence JSON before moving on. A successful run advances the selector to the next profile; a blocked/failed run remains selected so it can be diagnosed rather than silently skipped.
+Hard missing set:
 
-Primary screening targets are envelope bytes/geometry, populated-prefix bytes, non-zero extent, 16-band signature, selected payload geometry, returned pixel mode, raw-binning flag, HONOR binning factor, in-sensor-zoom state, AEC/ISP crops and HardwareBuffer envelope.
+`R03, R05, R06, R07, R08, R09, R10, R12`.
 
-A matrix hit establishes a **combination-level route differential first**. It does not immediately identify which key or semantic caused it; follow-up narrowing experiments are required.
+Bundle export remains useful redundancy but is not the sole evidence authority.
 
 ## Current open problem
 
