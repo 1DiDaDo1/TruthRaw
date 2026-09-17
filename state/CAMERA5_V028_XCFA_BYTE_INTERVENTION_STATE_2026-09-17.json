@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-xcfa-byte-intervention-state.v0.28",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_COMPLETE_NO_RAW_TOPOLOGY_DIFFERENTIAL",
   "branch": "integration/truthraw-suite-v0-28-xcfa-byte-intervention",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -26,17 +26,82 @@
     "requestedNumericValue": 1,
     "requestedValueSemanticsAssumed": false,
     "interventionAfterUntouchedGateA": true,
-    "requiresBuilderReadback": true,
-    "requiresBuiltRequestReadback": true,
-    "sessionParameterAttachment": true,
+    "builderReadbackBeforeSet": 0,
+    "builderSetPass": true,
+    "builderReadback": 1,
+    "builderReadbackPass": true,
+    "requestReadback": 1,
+    "requestReadbackPass": true,
+    "sessionParametersAttached": true,
+    "interventionApplied": true,
     "secondUnknownVendorKeyTouched": false,
-    "preserveLogical0Physical5Topology": true,
-    "preserve16320x12288MaxRoute": true,
-    "preserveSourceFirstSeal": true,
-    "preservePostHalEnvelopeProbe": true,
-    "preserveStage36FullRasterAudit": true,
-    "preserveStage37PayloadGeometryDecoder": true,
     "semanticPromotionAllowed": false
+  },
+  "deviceCapture": {
+    "evidenceFile": "TRUTHRAW_1789666565218_CAM5_200MP_EVIDENCE_v028.json",
+    "sourceFile": "TRUTHRAW_1789666565218_CAM5_200MP_16320x12288_v028.rawsensor",
+    "sourceSha256": "219b527630f27a4aa959f1523ca34d6cfd379e7b862998aa60ea0c1ea18dca4c",
+    "sourceBytes": 401080320,
+    "declaredGeometry": [16320, 12288],
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "physicalResultCameraId": "5",
+    "timestampIdentityPass": true,
+    "returnedSensorPixelMode": 0,
+    "rawBinningFactorUsed": true,
+    "iso": 4369,
+    "exposureTimeNs": 29999970,
+    "focusDistanceDiopters": 2.9325514
+  },
+  "stage36": {
+    "status": "PASS_READ_ONLY_AUDIT_COMPLETED",
+    "sealedSha256IdentityPass": true,
+    "classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "nonZeroRows": 768,
+    "allZeroRows": 11520,
+    "nonZeroBandIndices": [0],
+    "zeroBandIndices": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+    "firstNonZeroByteOffset": 0,
+    "lastNonZeroByteOffset": 25067518,
+    "populatedPrefixBytes": 25067520,
+    "populatedU16Samples": 12533760
+  },
+  "stage37": {
+    "status": "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED",
+    "selectedCandidate": [4080, 3072],
+    "payloadBytes": 25067520,
+    "payloadFile": "TRUTHRAW_1789666565218_CAM5_PAYLOAD_STANDARD_RAW_BYTE_MATCH_v028.rawpayload",
+    "payloadSha256": "323ac8fe2acac81af06e7fddc6464da63f73bdf004e72a91cf730d4d98193646",
+    "sha256MatchesStage36FirstBand": true,
+    "copyTransform": "NONE_EXACT_BYTE_PREFIX_COPY",
+    "minCode": 62,
+    "maxCode": 1023,
+    "horizontalDx2CorrelationF64": 0.9865536814664547,
+    "verticalDy2CorrelationF64": 0.9867309386181549,
+    "diagnosticPreview": "TRUTHRAW_1789666565218_CAM5_PAYLOAD_GEOMETRY_DIAGNOSTIC_v028.png",
+    "diagnosticPreviewAppearanceOnly": true
+  },
+  "vendorObservations": {
+    "honorBinningFactor": 4,
+    "honorIsInSensorZoom": 0,
+    "honorAECRealCropWindowPrefix": [11, 8, 4058, 3055],
+    "honorAllISPCropWindowPrefix": [0, 0, 16320, 12288]
+  },
+  "differentialAgainstV020": {
+    "rawEnvelopeBytesChanged": false,
+    "populatedPrefixBytesChanged": false,
+    "bandPopulationSignatureChanged": false,
+    "selectedPayloadGeometryChanged": false,
+    "returnedSensorPixelModeChangedFromKnownControl": false,
+    "honorBinningFactorChangedFromKnownControl": false,
+    "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+    "boundedConclusion": "XCFA_BYTE_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE"
+  },
+  "interpretationBoundary": {
+    "doesNotProveXCFAHasNoEffect": true,
+    "doesNotProveNumericValue1Meaning": true,
+    "doesNotProveNativeSensorGeometry": true,
+    "sceneDependentCodeStatisticsAreNotRouteDifferentialEvidence": true
   },
   "build": {
     "githubActionsRunId": 35252818559,
@@ -49,29 +114,12 @@
     "apkSha256": "1035c5dbaffbdbbad1048e12653e6a32b6441a0f67ebb1d9449075b33666c0ac",
     "artifactId": 10512015658,
     "artifactZipBytes": 1589573,
-    "artifactZipSha256": "bbc1eea89014b806d2933e75382a5fe7d07133f29ea929a8e0edef5e09a4aa82",
-    "deviceResultAvailable": false
+    "artifactZipSha256": "bbc1eea89014b806d2933e75382a5fe7d07133f29ea929a8e0edef5e09a4aa82"
   },
-  "differentialTargetsAgainstV020": [
-    "source envelope bytes",
-    "populated prefix bytes",
-    "first/last nonzero positions",
-    "16-band population signature",
-    "selected payload geometry",
-    "returned SENSOR_PIXEL_MODE",
-    "rawBinningFactorUsed",
-    "HONOR binningFactor",
-    "HONOR isInSensorZoom",
-    "AEC/ISP crop metadata",
-    "source/payload hashes"
-  ],
-  "deviceProtocol": {
-    "requiredSteps": ["Step 1", "Step 2", "Step 3"],
-    "expectedIfInterventionAccepted": "normal source-first capture then Stage 3.6 and Stage 3.7",
-    "saveEvidenceJson": true,
-    "saveRawPayloadIfOffered": true,
-    "saveDiagnosticPngIfOffered": true,
-    "doNotInterpretNumericValue1ByVendorNameAlone": true
+  "nextSafeRepresentationQuestion": {
+    "candidate": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
+    "plannedStep": "NATIVE_TYPE_ORACLE_ONLY_BEFORE_ANY_INTERVENTION",
+    "semanticMeaningFromNameAssumed": false
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
