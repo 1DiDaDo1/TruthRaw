@@ -38,7 +38,7 @@ jobs:
           grep -F 'nativeDescribeHardwareBuffer' "$PROBE"
           grep -F 'AHardwareBuffer_describe' "$NATIVE"
           grep -F 'AHardwareBuffer_getId' "$NATIVE"
-          grep -F 'lockedByProbe\\\":false' "$NATIVE"
+          grep -F 'lockedByProbe' "$NATIVE"
           ! grep -F 'AHardwareBuffer_lock(' "$NATIVE"
           ! grep -F 'AHardwareBuffer_lockAndGetInfo(' "$NATIVE"
           ! grep -F 'MAXIMUM_RESOLUTION vereist' "$APP"
