@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-idealraw-type-dryrun-state.v0.22",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_AMBIGUOUS_APP_SIDE_MARSHALLING_NO_HAL_SUBMISSION",
   "branch": "integration/truthraw-suite-v0-22-idealraw-type-dryrun",
   "control": {
     "version": "v0.20",
@@ -12,52 +12,64 @@
     "classification": "BLOCKED_IDEALRAW_RUNTIME_TYPE_UNAVAILABLE",
     "vendorValueWritten": false,
     "sessionParametersAttached": false,
+    "captureSubmitted": false
+  },
+  "deviceObservation": {
+    "source": "user device screenshot",
+    "liveFrame": 105,
+    "logicalCameraId": "0",
+    "zoomRatio": 3.7,
+    "activePhysicalCameraId": "5",
+    "tele5Confirmed": true,
+    "iso": 553,
+    "exposureMs": 10.0,
+    "afState": 2,
+    "aeState": 2,
+    "stage": "STAGE 3 DIAGNOSTIC STOP",
+    "classification": "MULTIPLE_APP_SIDE_MARSHALLING_CANDIDATES__AMBIGUOUS_NO_HAL_SUBMISSION",
+    "passingKinds": ["Byte", "byte[]", "Int", "int[]"],
+    "halSessionSubmission": false,
     "captureSubmitted": false,
-    "interpretation": "reflection-based runtime type discovery unavailable; fail-closed safety gate worked"
+    "v020ControlUnmodified": true
+  },
+  "interpretation": {
+    "result": "Java Camera2 custom-key construction and builder/request round-trip cannot uniquely resolve the native metadata type for EnableIdealRAW on this device.",
+    "importantNarrowing": "Only BYTE-family and INT32-family Java representations survived; Long/Float/Double families did not.",
+    "scalarArrayAmbiguity": "Java scalar versus one-element array is not sufficient evidence of the underlying native camera_metadata type.",
+    "vendorSemanticsProven": false,
+    "vendorValueSubmittedToHal": false,
+    "v020ControlRemainsAuthoritative": true
   },
   "experiment": {
     "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
     "mode": "APP_SIDE_CAMERA2_TYPE_MARSHALLING_DRY_RUN",
-    "publicApiBasis": "CaptureRequest.Key(String, Class<T>) testing/custom-field constructor",
-    "candidateKinds": ["Byte", "byte[]", "Int", "int[]", "Long", "long[]", "Float", "float[]", "Double", "double[]"],
-    "disposableCaptureRequestBuildersOnly": true,
     "sessionParametersAttached": false,
     "requestSubmitted": false,
     "captureSubmitted": false,
     "halSubmission": false,
     "rawPixelAccess": false,
     "sourceMutation": false,
-    "semanticMeaningAssumed": false,
     "semanticPromotionAllowed": false
   },
   "build": {
     "githubActionsRunId": 35239411603,
-    "jobId": 105263662004,
-    "workflow": "TruthRaw FotoGraaf v0.22 IdealRAW Type Dry-Run",
     "workflowHeadSha": "9cc673a98dd3282bb528ebac1913aae57b06e7e5",
     "conclusion": "success",
-    "noHalOrderingAssertionsPass": true,
     "apkBytes": 4864457,
     "apkSha256": "0d4439d00aed3fe12d05cb601b94f7ac1c04e93d4d85f4bcbd247d2ef95f8ef6",
     "artifactId": 10504369327,
     "artifactZipBytes": 1583884,
     "artifactZipSha256": "ea5236cc84f6d61b37855f06afa3b78296a0477079e5a2b0e52bc6f179e1ca06",
-    "deviceResultAvailable": false
+    "deviceResultAvailable": true
   },
-  "expectedDeviceOutput": {
-    "stage": "STAGE 3 DIAGNOSTIC STOP",
-    "fields": ["classification", "passingKinds"],
-    "allowedClassifications": [
-      "UNIQUE_APP_SIDE_MARSHALLING_CANDIDATE__NO_HAL_SUBMISSION",
-      "MULTIPLE_APP_SIDE_MARSHALLING_CANDIDATES__AMBIGUOUS_NO_HAL_SUBMISSION",
-      "NO_APP_SIDE_MARSHALLING_CANDIDATE_PASSED",
-      "BLOCKED_IDEALRAW_NOT_ADVERTISED_AS_LOGICAL_SESSION_KEY"
-    ]
-  },
-  "nextDecisionRule": {
-    "uniqueCandidate": "use a separate later build for the actual single-variable session intervention; do not promote semantics",
-    "multipleCandidates": "remain blocked and refine type evidence without HAL submission",
-    "zeroCandidates": "remain blocked and investigate metadata descriptor/type source separately"
+  "nextExperiment": {
+    "version": "v0.23",
+    "goal": "resolve the actual native camera_metadata type without submitting EnableIdealRAW to a capture session",
+    "method": "NDK vendor-tag lookup plus local ACaptureRequest_setEntry_u8 versus ACaptureRequest_setEntry_i32 type validation on disposable requests",
+    "sessionCreated": false,
+    "captureSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false,
+    "semanticPromotionAllowed": false
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
