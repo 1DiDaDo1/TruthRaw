@@ -12,6 +12,7 @@ EXPECTED_CONTIGUOUS = TARGET_SAMPLES * 2
 EXPECTED_ROW_BYTES = TARGET[0] * 2
 PROVEN_BOUNDARY = "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 PASS_CLASS = "APP_VISIBLE_PHYSICAL5_200MP_RAW_SENSOR_CAPTURE_PROVEN"
+BLOCKED_CLASS = "BLOCKED_INCOMPLETE_V014_PHYSICAL5_200MP_RUNTIME_PROOF"
 
 
 def sha256_file(path: Path, chunk: int = 8 << 20) -> str:
@@ -51,6 +52,7 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
     pixel_stride = _int(payload.get("pixelStride"))
     row_stride = _int(payload.get("rowStride"))
     payload_bytes = _int(payload.get("bytes"))
+    accessible_bytes = _int(payload.get("accessibleBufferBytes"))
     declared_hash = str(payload.get("sha256") or "").lower()
     canonical = payload.get("canonicalContiguousRawSensor") is True
 
@@ -58,7 +60,12 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
     actual_size = raw_path.stat().st_size if payload_exists else None
     actual_hash = sha256_file(raw_path).lower() if payload_exists else None
 
-    layout_consistent = pixel_stride == 2 and row_stride >= EXPECTED_ROW_BYTES
+    layout_consistent = (
+        pixel_stride == 2
+        and row_stride >= EXPECTED_ROW_BYTES
+        and payload_bytes > 0
+        and accessible_bytes == payload_bytes
+    )
     if canonical:
         layout_consistent = (
             layout_consistent
@@ -72,11 +79,12 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
     returned_mismatch_preserved = evidence.get("returnedSensorPixelModeMismatchPreserved") is True
 
     checks = {
-        "v014_or_compatible_evidence_schema": str(evidence.get("schema") or "").startswith(
-            "truthraw.fotograaf-camera5-200mp-staged-evidence.v0.14"
-        ),
+        "v014_evidence_schema": str(evidence.get("schema") or "")
+        == "truthraw.fotograaf-camera5-200mp-staged-evidence.v0.14",
         "acquisition_observation_authority_only": evidence.get("authority")
         == "CAMERA2_ACQUISITION_OBSERVATION_ONLY",
+        "calibration_authority_not_granted": evidence.get("calibrationAuthorityGranted") is False,
+        "scientific_master_unmodified": evidence.get("scientificMasterModified") is False,
         "single_physical_frame": _int(evidence.get("physicalFrameCount"), 0) == 1,
         "single_independent_evidence_item": _int(evidence.get("independentEvidenceCount"), 0) == 1,
         "maximum_highres_capability_route": capability.get("discoverySource")
@@ -123,15 +131,12 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
     pixel_mode_observation_preserved = (
         returned_mode is not None
         and route.get("resultPixelModeIsIndependentObservation") is True
-        and (
-            returned_mode_is_max
-            or returned_mismatch_preserved
-        )
+        and (returned_mode_is_max or returned_mismatch_preserved)
     )
     checks["returned_pixel_mode_observation_preserved"] = pixel_mode_observation_preserved
 
     passed = all(checks.values())
-    classification = PASS_CLASS if passed else "BLOCKED_INCOMPLETE_V014_PHYSICAL5_200MP_RUNTIME_PROOF"
+    classification = PASS_CLASS if passed else BLOCKED_CLASS
 
     return {
         "schema": "TruthRawCamera5_200MPRuntimeGate/0.9",
@@ -150,6 +155,7 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
             "row_stride": row_stride,
             "pixel_stride": pixel_stride,
             "payload_bytes": payload_bytes,
+            "accessible_buffer_bytes": accessible_bytes,
             "expected_contiguous_bytes": EXPECTED_CONTIGUOUS,
             "canonical_contiguous_rawsensor": canonical,
             "manifest_payload_sha256": declared_hash or None,
@@ -157,6 +163,9 @@ def evaluate(evidence: dict, raw_path: Path | None = None) -> dict:
             "capture_result_sensor_pixel_mode": returned_mode,
             "returned_sensor_pixel_mode_is_maximum_resolution": returned_mode_is_max,
             "returned_sensor_pixel_mode_mismatch_preserved": returned_mismatch_preserved,
+            "physical_sensor_pixel_mode_override_advertised": topology.get(
+                "physicalSensorPixelModeOverrideAdvertised"
+            ),
             "raw_binning_factor_used": result.get("rawBinningFactorUsed"),
             "noise_reduction_mode": result.get("noiseReductionMode"),
             "edge_mode": result.get("edgeMode"),
