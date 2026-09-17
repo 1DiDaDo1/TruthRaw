@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-rawcb-source-type-native-type-oracle-state.v0.25",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_COMPLETE_NATIVE_TYPE_INT32",
   "branch": "integration/truthraw-suite-v0-25-rawcb-native-type-oracle",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -19,31 +19,33 @@
   },
   "oracle": {
     "keyName": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
-    "purpose": "RESOLVE_NATIVE_CAMERA_METADATA_ELEMENT_TYPE_ONLY",
+    "evidenceFile": "TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json",
+    "classification": "NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION",
     "tagLookup": "ACameraMetadata_getTagFromName",
-    "testedNativeTypes": [
-      "BYTE",
-      "INT32",
-      "FLOAT",
-      "INT64",
-      "DOUBLE",
-      "RATIONAL"
-    ],
+    "tagLookupSymbolAvailable": true,
+    "tagLookupStatus": 0,
+    "tagIdUnsigned": 2149515273,
+    "tagIdHex": "0x801F0009",
+    "testedNativeTypes": ["BYTE", "INT32", "FLOAT", "INT64", "DOUBLE", "RATIONAL"],
+    "acceptedTypeCount": 1,
+    "resolvedNativeType": "INT32",
+    "acceptedEntryType": 1,
+    "acceptedEntryCount": 1,
+    "int32SetStatus": 0,
+    "int32GetStatus": 0,
     "testValueNumeric": 1,
+    "testValuePurpose": "TYPE_VALIDATION_ONLY_NOT_VENDOR_VALUE_SEMANTICS",
     "testValueSemanticsAssumed": false,
-    "eachTypeUsesDisposableRequestTemplate": true,
-    "readbackTypeAndCountRequired": true,
-    "expectedDecisiveCondition": "acceptedTypeCount == 1",
+    "requestTemplatesCreatedOnly": true,
     "sessionCreated": false,
     "sessionParametersAttached": false,
     "captureSubmitted": false,
-    "repeatingRequestSubmitted": false,
     "vendorModifiedRequestSubmittedToHal": false,
     "rawPixelAccess": false,
     "sourceMutation": false,
+    "semanticMeaningAssumed": false,
     "semanticPromotionAllowed": false,
-    "deviceResultAvailable": false,
-    "expectedEvidenceFile": "TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json"
+    "deviceResultAvailable": true
   },
   "build": {
     "githubActionsRunId": 35246799407,
@@ -58,13 +60,13 @@
     "artifactZipBytes": 1594330,
     "artifactZipSha256": "376d151af2a521042f029b81f0c5c566c527ec10f165a164274242e5f733caf6"
   },
-  "deviceProtocol": {
-    "requiredSteps": ["Step 1 only"],
-    "expectedStop": "STAGE 1.5 DIAGNOSTIC STOP",
-    "previewExpectedEnabled": false,
-    "captureExpectedEnabled": false,
-    "saveOracleJson": true,
-    "doNotAttemptInterventionBeforeDeviceTypeResult": true
+  "nextControlledExperiment": {
+    "version": "v0.26",
+    "candidate": "RawCbSourceType=INT32(1)",
+    "singleUnknownVendorVariable": true,
+    "numericValueSemanticsAssumed": false,
+    "control": "v0.20",
+    "requiredPostCaptureAudit": ["source-first seal", "HAL envelope", "Stage 3.6 full-raster audit", "Stage 3.7 payload geometry"]
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
