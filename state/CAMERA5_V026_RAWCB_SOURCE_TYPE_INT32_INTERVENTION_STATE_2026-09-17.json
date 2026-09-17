@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-rawcb-source-type-int32-intervention-state.v0.26",
   "date": "2026-09-17",
-  "status": "BUILD_IN_PROGRESS_DEVICE_RESULT_PENDING",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
   "branch": "integration/truthraw-suite-v0-26-rawcb-int32-intervention",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -40,9 +40,16 @@
   },
   "build": {
     "githubActionsRunId": 35249255766,
+    "jobId": 105297221061,
     "workflow": "TruthRaw FotoGraaf v0.26 RawCbSourceType INT32 Intervention",
     "workflowHeadSha": "521691e3eeb9500b514c500da5a1280ddd828527",
-    "conclusion": null,
+    "conclusion": "success",
+    "orderingAndSingleVariableAssertionsPass": true,
+    "apkBytes": 4899361,
+    "apkSha256": "2f4df3f33a03279e467d2d630e87b85c75f82caac13fcd37cc32c982357a1bbd",
+    "artifactId": 10509261489,
+    "artifactZipBytes": 1596602,
+    "artifactZipSha256": "a4bce47f2c689982e1dcdf5f73a79ef161af96fbe6d2bdabdb7fd6fbfb960832",
     "deviceResultAvailable": false
   },
   "differentialTargetsAgainstV020": [
@@ -58,5 +65,13 @@
     "AEC/ISP crop metadata",
     "source/payload hashes"
   ],
+  "deviceProtocol": {
+    "requiredSteps": ["Step 1", "Step 2", "Step 3"],
+    "expectedIfInterventionAccepted": "normal source-first capture then Stage 3.6 and Stage 3.7",
+    "saveEvidenceJson": true,
+    "saveRawPayloadIfOffered": true,
+    "saveDiagnosticPngIfOffered": true,
+    "doNotInterpretNumericValue1ByVendorNameAlone": true
+  },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
