@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-current-route-state.v0.20",
+  "schema": "truthraw.camera5-current-route-state.v0.28",
   "date": "2026-09-17",
-  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_INTERPRETATION_AUTHORITY",
+  "status": "CURRENT_CAMERA5_ACQUISITION_PAYLOAD_AUTHORITY_V020_WITH_ROUTE_CONTROL_EXPERIMENTS_THROUGH_V028",
   "device": {
     "family": "HONOR Magic 8 Pro",
     "model": "BKQ-N49",
@@ -20,160 +20,147 @@
     "sourceSealBeforeMetadataInterpretation": true,
     "auxiliaryDngSecondary": true
   },
-  "v020Capture": {
-    "evidenceFile": "TRUTHRAW_1789654132526_CAM5_200MP_EVIDENCE_v020.json",
-    "sourceFile": "TRUTHRAW_1789654132526_CAM5_200MP_16320x12288_v020.rawsensor",
-    "sourceSha256": "39da26192d1278af797b0c304d6ad29862735b886bdcf768b6239bc74f6a3636",
-    "sourceBytes": 401080320,
-    "declaredSamples": 200540160,
-    "rowStride": 32640,
-    "pixelStride": 2,
-    "physicalResultCameraId": "5",
-    "timestampIdentityPass": true,
-    "iso": 125,
-    "exposureTimeNs": 9999993,
-    "focalLengthMm": 22.48,
-    "focusDistanceDiopters": 0.07848677,
-    "returnedSensorPixelMode": 0,
-    "rawBinningFactorUsed": true
-  },
-  "stage36FullRasterAudit": {
-    "readsSealedFileOnly": true,
-    "sourceModified": false,
-    "classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
-    "firstNonZeroByteOffset": 0,
-    "lastNonZeroByteOffset": 25067518,
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "currentClassification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "descriptiveSummary": "APP_VISIBLE_4080x3072_BAYER_LIKE_RAW_PAYLOAD_EMBEDDED_IN_16320x12288_HAL_ENVELOPE",
+    "declaredEnvelopeBytes": 401080320,
     "populatedPrefixBytes": 25067520,
     "populatedU16Samples": 12533760,
-    "declaredRowsNonZeroStart": 0,
-    "declaredRowsNonZeroEndInclusive": 767,
-    "declaredRowsZeroStart": 768,
-    "declaredRowsZeroEndInclusive": 12287,
-    "geometryByteIdentity": {
-      "declaredPrefix": "16320*768*2",
-      "standardRawCandidate": "4080*3072*2",
-      "bytes": 25067520
-    }
+    "nonZeroDeclaredRows": [0, 767],
+    "selectedStandardRawCandidate": [4080, 3072],
+    "authorityUnchangedByRouteControlExperimentsThroughV028": true
   },
-  "stage37PayloadGeometry": {
-    "readsSealedFileOnly": true,
-    "sourceModified": false,
-    "geometrySemanticPromotionAllowed": false,
-    "status": "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED",
-    "classification": "EXACT_PREFIX_BYTES_MATCH_ONE_ADVERTISED_STANDARD_RAW_GEOMETRY__GEOMETRY_INTERPRETATION_CANDIDATE_NOT_SENSOR_PROOF",
-    "selectedCandidate": {
-      "width": 4080,
-      "height": 3072,
-      "bytesU16": 25067520,
-      "uniqueAdvertisedStandardRawByteMatch": true
-    },
-    "derivedExactPrefix": {
-      "file": "TRUTHRAW_1789654132526_CAM5_PAYLOAD_STANDARD_RAW_BYTE_MATCH_v020.rawpayload",
-      "bytes": 25067520,
-      "sha256": "d41d48d644c4aa8804825a529a0ea651352979a7023e4948e39913b71ce16e3e",
-      "sourceByteStart": 0,
-      "sourceByteEndExclusive": 25067520,
-      "copyTransform": "NONE_EXACT_BYTE_PREFIX_COPY",
-      "sha256MatchesStage36FirstBand": true,
-      "sourceReplacement": false
-    },
-    "codeMetrics": {
-      "minCode": 64,
-      "maxCode": 1023,
-      "sampleCount": 12533760
-    },
-    "phase2x2MeanF64": {
-      "y0x0": 131.97894103604983,
-      "y0x1": 174.72990642871733,
-      "y1x0": 174.94584673713234,
-      "y1x1": 127.20496610753676
-    },
-    "sampledPairStatistics": {
-      "horizontalDx1": {
-        "meanAbsDiffF64": 45.734436912785945,
-        "pearsonCorrelationF64": 0.8457710618047432
-      },
-      "horizontalDx2": {
-        "meanAbsDiffF64": 7.646056091707516,
-        "pearsonCorrelationF64": 0.984627447501225
-      },
-      "verticalDy1": {
-        "meanAbsDiffF64": 43.63122633618735,
-        "pearsonCorrelationF64": 0.8791862905576564
-      },
-      "verticalDy2": {
-        "meanAbsDiffF64": 7.366713929871623,
-        "pearsonCorrelationF64": 0.9818454556110756
-      }
-    },
-    "diagnosticPreview": {
-      "file": "TRUTHRAW_1789654132526_CAM5_PAYLOAD_GEOMETRY_DIAGNOSTIC_v020.png",
-      "sourceGeometry": "4080x3072",
-      "renderedGeometry": "1020x768",
-      "appearanceOnly": true,
-      "scientificEvidence": false,
-      "observedCoherentFullFrameScene": true
-    }
-  },
-  "halEnvelope": {
-    "javaImage": "16320x12288 RAW_SENSOR",
-    "planeCount": 1,
+  "v020Control": {
+    "evidenceFile": "TRUTHRAW_1789654132526_CAM5_200MP_EVIDENCE_v020.json",
+    "sourceSha256": "39da26192d1278af797b0c304d6ad29862735b886bdcf768b6239bc74f6a3636",
+    "sourceBytes": 401080320,
     "rowStride": 32640,
     "pixelStride": 2,
-    "bufferCapacity": 401080320,
-    "hardwareBuffer": "16320x12288 format32 layer1",
-    "nativeStridePixels": 16320,
-    "probeLocked": false,
-    "probeMapped": false,
-    "probeWritten": false
-  },
-  "vendorObservations": {
+    "returnedSensorPixelMode": 0,
+    "rawBinningFactorUsed": true,
     "honorBinningFactor": 4,
-    "honorAECRealCropWindowPrefix": [11, 8, 4058, 3055],
-    "honorAllISPCropWindowPrefix": [0, 0, 16320, 12288],
-    "sensorCustomMetaDataBytes": 40,
-    "qtiLensPosV020": 2856,
-    "routeKeyNames": [
-      "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
-      "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
-      "org.codeaurora.qcamera3.sessionParameters.EnableXCFAOptimization",
-      "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
-      "org.codeaurora.qcamera3.sessionParameters.EnableInsensorZoom",
-      "org.codeaurora.qcamera3.sessionParameters.EnableSnapshotOnlyInsensorZoom",
-      "org.codeaurora.qcamera3.sessionParameters.EnableMCXMasterCb"
-    ],
-    "v020VendorKeysWritten": false,
-    "enableXCFAOptimizationBuilderValue": 0,
-    "enableIdealRAWBuilderValue": null,
-    "rawCbSourceTypeBuilderValue": null,
-    "semanticsAuthority": "OBSERVED_VENDOR_METADATA_UNKNOWN_OR_PARTIALLY_BOUNDED_SEMANTICS"
+    "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "stage37PayloadBytes": 25067520,
+    "stage37SelectedGeometry": [4080, 3072],
+    "stage37PayloadSha256": "d41d48d644c4aa8804825a529a0ea651352979a7023e4948e39913b71ce16e3e"
   },
-  "currentClassification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
-  "descriptiveSummary": "APP_VISIBLE_4080x3072_BAYER_LIKE_RAW_PAYLOAD_EMBEDDED_IN_16320x12288_HAL_ENVELOPE",
+  "routeControlExperiments": [
+    {
+      "version": "v0.21",
+      "candidate": "EnableIdealRAW",
+      "result": "BLOCKED_IDEALRAW_RUNTIME_TYPE_UNAVAILABLE",
+      "halSubmission": false,
+      "rawCapture": false,
+      "authorityEffect": "NONE"
+    },
+    {
+      "version": "v0.22",
+      "candidate": "EnableIdealRAW",
+      "result": "MULTIPLE_APP_SIDE_MARSHALLING_CANDIDATES_AMBIGUOUS",
+      "passingKinds": ["Byte", "byte[]", "int", "int[]"],
+      "halSubmission": false,
+      "rawCapture": false,
+      "authorityEffect": "NONE"
+    },
+    {
+      "version": "v0.23",
+      "candidate": "EnableIdealRAW",
+      "nativeTagHex": "0x801F0027",
+      "resolvedNativeType": "BYTE",
+      "acceptedTypeCount": 1,
+      "halSubmission": false,
+      "rawCapture": false,
+      "authorityEffect": "REPRESENTATION_ONLY"
+    },
+    {
+      "version": "v0.24",
+      "candidate": "EnableIdealRAW=BYTE(1)",
+      "interventionAcceptedAndAttached": true,
+      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+      "authorityEffect": "NEGATIVE_ROUTE_DIFFERENTIAL_ONLY"
+    },
+    {
+      "version": "v0.25",
+      "candidate": "RawCbSourceType",
+      "nativeTagHex": "0x801F0009",
+      "resolvedNativeType": "INT32",
+      "acceptedTypeCount": 1,
+      "halSubmission": false,
+      "rawCapture": false,
+      "authorityEffect": "REPRESENTATION_ONLY"
+    },
+    {
+      "version": "v0.26",
+      "candidate": "RawCbSourceType=INT32(1)",
+      "interventionAcceptedAndAttached": true,
+      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+      "authorityEffect": "NEGATIVE_ROUTE_DIFFERENTIAL_ONLY"
+    },
+    {
+      "version": "v0.27",
+      "candidate": "EnableXCFAOptimization",
+      "nativeTagHex": "0x801F0036",
+      "resolvedNativeType": "BYTE",
+      "acceptedTypeCount": 1,
+      "halSubmission": false,
+      "rawCapture": false,
+      "authorityEffect": "REPRESENTATION_ONLY"
+    },
+    {
+      "version": "v0.28",
+      "candidate": "EnableXCFAOptimization=BYTE(1)",
+      "interventionAcceptedAndAttached": true,
+      "builderReadbackBeforeSet": 0,
+      "builderReadback": 1,
+      "requestReadback": 1,
+      "sourceSha256": "219b527630f27a4aa959f1523ca34d6cfd379e7b862998aa60ea0c1ea18dca4c",
+      "sourceBytes": 401080320,
+      "returnedSensorPixelMode": 0,
+      "rawBinningFactorUsed": true,
+      "honorBinningFactor": 4,
+      "honorIsInSensorZoom": 0,
+      "honorAECRealCropWindowPrefix": [11, 8, 4058, 3055],
+      "honorAllISPCropWindowPrefix": [0, 0, 16320, 12288],
+      "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+      "stage36PopulatedPrefixBytes": 25067520,
+      "stage37SelectedGeometry": [4080, 3072],
+      "stage37PayloadSha256": "323ac8fe2acac81af06e7fddc6464da63f73bdf004e72a91cf730d4d98193646",
+      "measurableRawEnvelopeOrPayloadTopologyDifferentialObserved": false,
+      "boundedConclusion": "XCFA_BYTE_ONE_ACCEPTED_AND_ATTACHED_BUT_NO_MEASURABLE_RAW_ENVELOPE_OR_POPULATED_PAYLOAD_TOPOLOGY_DIFFERENTIAL_ON_TESTED_CAMERA5_ROUTE",
+      "authorityEffect": "NEGATIVE_ROUTE_DIFFERENTIAL_ONLY"
+    }
+  ],
+  "currentInterpretation": {
+    "threeAcceptedSingleVariableInterventionsWithoutTopologyChange": [
+      "EnableIdealRAW=BYTE(1)",
+      "RawCbSourceType=INT32(1)",
+      "EnableXCFAOptimization=BYTE(1)"
+    ],
+    "doesNotProveKeysHaveNoEffect": true,
+    "doesNotProveNumericValue1Semantics": true,
+    "doesNotProveNativeSensorGeometry": true,
+    "payloadAuthorityRemainsV020": true
+  },
+  "nextSafeExperiment": {
+    "candidate": "org.codeaurora.qcamera3.sessionParameters.HALOutputBufferCombined",
+    "firstStep": "NATIVE_CAMERA_METADATA_TYPE_ORACLE_ONLY",
+    "halSubmissionInFirstStep": false,
+    "rawCaptureInFirstStep": false,
+    "reason": "key is exposed on logical and physical request/session surfaces and remains untested; representation must be resolved before any intervention",
+    "semanticMeaningFromNameAssumed": false
+  },
   "notProven": [
     "UNTOUCHED_NATIVE_ADC",
     "PHYSICAL_SENSOR_IS_4080x3072",
     "ONE_INDEPENDENT_PHOTODIODE_ADC_MEASUREMENT_PER_PAYLOAD_SAMPLE",
     "EXACT_BINNING_OR_REMOSAIC_MECHANISM",
     "200MP_OPTICAL_RESOLUTION",
-    "BLACK_LEVEL_64_CALIBRATION",
-    "10BIT_ADC_PROOF",
-    "VENDOR_KEY_NAME_SEMANTICS"
+    "BLACK_LEVEL_CALIBRATION_FROM_SINGLE_CAPTURE_MINIMUM",
+    "10BIT_ADC_PROOF_FROM_MAX_CODE_ALONE",
+    "VENDOR_KEY_NAME_SEMANTICS",
+    "VENDOR_NUMERIC_VALUE_SEMANTICS"
   ],
-  "nextExperiment": {
-    "controlBaseline": "v0.20 unchanged",
-    "firstSingleVariableCandidate": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
-    "requirements": [
-      "separate branch/build",
-      "runtime key lookup",
-      "runtime type verification",
-      "one unknown vendor variable only",
-      "preserve logical0-to-physical5 MAX topology",
-      "seal source before interpretation",
-      "repeat Stage3.6 and Stage3.7 unchanged",
-      "compare full airlock fingerprints against v0.20"
-    ]
-  },
   "trustedChain": [
     "v0.14 source-first seal",
     "v0.16 post-HAL envelope",
