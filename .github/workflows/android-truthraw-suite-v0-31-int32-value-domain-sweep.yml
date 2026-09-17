@@ -1,0 +1,118 @@
+name: TruthRaw FotoGraaf v0.31 INT32 Value Domain Sweep
+
+# v0.30 completed all 16 UNSET-vs-1 combinations for four type-resolved vendor controls
+# without a measured RAW envelope/populated-prefix topology differential.
+# v0.31 stops repeating that binary domain and tests the next smallest bounded INT32 values
+# (0,2,3) for RawCbSourceType and HALOutputBufferCombined, one unknown vendor key per capture.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-31-int32-value-domain-sweep
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt'
+      - 'tools/patch_fotograaf_v031_int32_value_domain_sweep.py'
+      - '.github/workflows/android-truthraw-suite-v0-31-int32-value-domain-sweep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v031:
+    name: Build FotoGraaf v0.31 INT32 value-domain sweep arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct source-first chain and apply bounded v0.31 INT32 value sweep
+        run: |
+          python3 tools/patch_fotograaf_v031_int32_value_domain_sweep.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          SWEEP='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt'
+
+          grep -F 'TruthRaw · 200MP Tele Test v0.31 · INT32 value-domain sweep' "$APP"
+          grep -F 'Camera2Int32ValueDomainSweep.applyProfile(' "$APP"
+          grep -F 'INT32_VALUE_DOMAIN_SWEEP_RAWCB_HALCOMBINED_VALUES_0_2_3' "$APP"
+          grep -F 'int32ValueDomainSweep' "$APP"
+          grep -F 'int32ValueDomainSemanticPromotionAllowed' "$APP"
+          grep -F 'firstMissingMatrixRunIndexFromCache()' "$APP"
+          grep -F 'val fixedControls = LinearLayout(this).apply {' "$APP"
+          grep -F 'saveJsonButton.text = "Bewaar JSON"' "$APP"
+          grep -F 'exportMatrixEvidenceBundleButton.text = "Bundle ZIP"' "$APP"
+          grep -F 'persistOriginalRawBuffer(image, stamp)' "$APP"
+          grep -F 'RawSensorRasterAudit.audit(' "$APP"
+          grep -F 'RawPayloadGeometryDecoder.decode(' "$APP"
+
+          grep -F 'const val TOTAL_RUNS = 6' "$SWEEP"
+          grep -F 'Profile(0, "RAWCB", 0)' "$SWEEP"
+          grep -F 'Profile(1, "RAWCB", 2)' "$SWEEP"
+          grep -F 'Profile(2, "RAWCB", 3)' "$SWEEP"
+          grep -F 'Profile(3, "HALCOMBINED", 0)' "$SWEEP"
+          grep -F 'Profile(4, "HALCOMBINED", 2)' "$SWEEP"
+          grep -F 'Profile(5, "HALCOMBINED", 3)' "$SWEEP"
+          grep -F 'singleUnknownVendorVariable", true' "$SWEEP"
+          grep -F 'vendorKeysWritten", 1' "$SWEEP"
+          grep -F 'CaptureRequest.Key(keyName, Int::class.javaObjectType)' "$SWEEP"
+          grep -F 'builder.set(key, profile.value)' "$SWEEP"
+          grep -F 'config.setSessionParameters(request)' "$SWEEP"
+          ! grep -F 'EnableIdealRAW' "$SWEEP"
+          ! grep -F 'EnableXCFAOptimization' "$SWEEP"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          sweep = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2Int32ValueDomainSweep.kt').read_text()
+          assert app.count('Camera2Int32ValueDomainSweep.applyProfile(') == 1
+          assert app.index('Camera2PreHalGate.observeSession(') < app.index('Camera2Int32ValueDomainSweep.applyProfile(')
+          assert app.index('Camera2Int32ValueDomainSweep.applyProfile(') < app.index('device.isSessionConfigurationSupported(config)')
+          assert app.index('persistOriginalRawBuffer(image, stamp)') < app.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
+          assert app.index('RawSensorRasterAudit.audit(') < app.index('RawPayloadGeometryDecoder.decode(')
+          assert 'FULL_FACTORIAL_2_LEVEL_4_FACTOR_16_RUN_COMPLEMENT_PAIRED' not in app
+          assert 'INT32_VALUE_DOMAIN_SWEEP_RAWCB_HALCOMBINED_VALUES_0_2_3' in app
+          assert 'S${p.runIndex + 1}/6' in app
+          assert 'staged-evidence.v0.31' in app
+          assert '_EVIDENCE_v031.json' in app
+          assert 'const val TOTAL_RUNS = 6' in sweep
+          assert sweep.count('Profile(') >= 7
+          print('v0.31 bounded INT32 sweep + source-first scientific ordering PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-31-int32-value-domain-sweep-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
