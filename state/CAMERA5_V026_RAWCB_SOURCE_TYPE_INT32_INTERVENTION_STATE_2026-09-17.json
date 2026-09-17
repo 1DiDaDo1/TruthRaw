@@ -1,0 +1,62 @@
+{
+  "schema": "truthraw.camera5-rawcb-source-type-int32-intervention-state.v0.26",
+  "date": "2026-09-17",
+  "status": "BUILD_IN_PROGRESS_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-26-rawcb-int32-intervention",
+  "sourcePayloadAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "unchanged": true
+  },
+  "representationAuthority": {
+    "source": "TRUTHRAW_CAM5_RAWCB_SOURCE_TYPE_NATIVE_TYPE_ORACLE_v025.json",
+    "classification": "NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION",
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
+    "tagIdHex": "0x801F0009",
+    "resolvedNativeType": "INT32",
+    "acceptedTypeCount": 1,
+    "semanticMeaningOfNumericValue1Proven": false
+  },
+  "experiment": {
+    "singleUnknownVendorVariable": true,
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.RawCbSourceType",
+    "nativeRepresentation": "INT32",
+    "requestedNumericValue": 1,
+    "requestedValueSemanticsAssumed": false,
+    "interventionAfterUntouchedGateA": true,
+    "requiresBuilderReadback": true,
+    "requiresBuiltRequestReadback": true,
+    "sessionParameterAttachment": true,
+    "secondUnknownVendorKeyTouched": false,
+    "preserveLogical0Physical5Topology": true,
+    "preserve16320x12288MaxRoute": true,
+    "preserveSourceFirstSeal": true,
+    "preservePostHalEnvelopeProbe": true,
+    "preserveStage36FullRasterAudit": true,
+    "preserveStage37PayloadGeometryDecoder": true,
+    "semanticPromotionAllowed": false
+  },
+  "build": {
+    "githubActionsRunId": 35249255766,
+    "workflow": "TruthRaw FotoGraaf v0.26 RawCbSourceType INT32 Intervention",
+    "workflowHeadSha": "521691e3eeb9500b514c500da5a1280ddd828527",
+    "conclusion": null,
+    "deviceResultAvailable": false
+  },
+  "differentialTargetsAgainstV020": [
+    "source envelope bytes",
+    "populated prefix bytes",
+    "first/last nonzero positions",
+    "16-band population signature",
+    "selected payload geometry",
+    "returned SENSOR_PIXEL_MODE",
+    "rawBinningFactorUsed",
+    "HONOR binningFactor",
+    "HONOR isInSensorZoom",
+    "AEC/ISP crop metadata",
+    "source/payload hashes"
+  ],
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
