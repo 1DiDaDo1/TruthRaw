@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-idealraw-native-type-oracle-state.v0.23",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
+  "status": "DEVICE_RESULT_NATIVE_BYTE_RESOLVED_NO_HAL_SUBMISSION",
   "branch": "integration/truthraw-suite-v0-23-idealraw-native-type-oracle",
   "control": {
     "version": "v0.20",
@@ -20,21 +20,63 @@
       "captureSubmitted": false
     }
   },
-  "experiment": {
+  "deviceObservation": {
+    "evidenceFile": "TRUTHRAW_CAM5_IDEALRAW_NATIVE_TYPE_ORACLE_v023.json",
+    "cameraId": "0",
     "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
-    "goal": "resolve native camera_metadata element type only",
-    "method": "NDK vendor-tag lookup plus disposable ACaptureRequest set/get validation",
-    "candidateNativeTypes": ["BYTE", "INT32"],
-    "u8Setter": "ACaptureRequest_setEntry_u8",
-    "i32Setter": "ACaptureRequest_setEntry_i32",
-    "entryReadback": "ACaptureRequest_getConstEntry",
+    "classification": "NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION",
+    "characteristicsStatus": 0,
+    "tagLookupSymbolAvailable": true,
+    "tagLookupStatus": 0,
+    "tagIdUnsigned": 2149515303,
+    "tagIdHex": "0x801F0027",
+    "cameraOpenStatus": 0,
+    "u8Test": {
+      "createStatus": 0,
+      "setStatus": 0,
+      "getStatus": 0,
+      "accepted": true,
+      "entryType": 0,
+      "entryCount": 1,
+      "firstValue": 1
+    },
+    "i32Test": {
+      "createStatus": 0,
+      "setStatus": -10001,
+      "getStatus": -10000,
+      "accepted": false,
+      "entryType": -1,
+      "entryCount": 0,
+      "firstValue": 0
+    },
+    "nativeMetadataTypeResolved": true,
+    "resolvedNativeType": "BYTE",
+    "requestTemplatesCreatedOnly": true,
     "sessionCreated": false,
     "sessionParametersAttached": false,
     "captureSubmitted": false,
     "vendorModifiedRequestSubmittedToHal": false,
     "rawPixelAccess": false,
     "sourceMutation": false,
-    "vendorSemanticsAssumed": false,
+    "semanticMeaningAssumed": false,
+    "semanticPromotionAllowed": false
+  },
+  "interpretation": {
+    "nativeTypeFact": "EnableIdealRAW resolves to camera_metadata BYTE for this logical-camera-0 vendor tag path on the tested device.",
+    "tagIdentityFact": "The device resolved the key name to vendor tag 0x801F0027.",
+    "int32Rejected": true,
+    "vendorSemanticsProven": false,
+    "enableValueSemanticsProven": false,
+    "halEffectProven": false,
+    "v020ControlRemainsAuthoritative": true
+  },
+  "experiment": {
+    "goal": "resolve native camera_metadata element type only",
+    "method": "NDK vendor-tag lookup plus disposable ACaptureRequest set/get validation",
+    "sessionCreated": false,
+    "sessionParametersAttached": false,
+    "captureSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false,
     "semanticPromotionAllowed": false
   },
   "build": {
@@ -48,23 +90,29 @@
     "artifactId": 10505942094,
     "artifactZipBytes": 1589787,
     "artifactZipSha256": "25cf953842d3f74e53103b934c00536a94c967bf20f8d657bfa57c0e385b9452",
-    "deviceResultAvailable": false
+    "deviceResultAvailable": true
   },
-  "expectedDeviceOutput": {
-    "stage": "STAGE 1.5 DIAGNOSTIC STOP",
-    "fields": ["classification", "resolvedNativeType", "tagIdHex", "u8Accepted", "i32Accepted"],
-    "allowedClassifications": [
-      "NATIVE_METADATA_TYPE_BYTE__NO_SESSION_OR_CAPTURE_SUBMISSION",
-      "NATIVE_METADATA_TYPE_INT32__NO_SESSION_OR_CAPTURE_SUBMISSION",
-      "NATIVE_TYPE_ORACLE_AMBIGUOUS_BOTH_ACCEPTED",
-      "NATIVE_TYPE_ORACLE_UNRESOLVED_NEITHER_ACCEPTED",
-      "NATIVE_TYPE_ORACLE_VENDOR_TAG_LOOKUP_FAILED",
-      "NATIVE_TYPE_ORACLE_TAG_LOOKUP_SYMBOL_UNAVAILABLE"
-    ]
-  },
-  "nextDecisionRule": {
-    "uniqueNativeType": "build a separate v0.24 single-variable HAL intervention using the resolved native type; preserve the v0.20 acquisition/audit chain unchanged",
-    "ambiguousOrUnresolved": "remain fail-closed and gather stronger vendor-tag descriptor/type evidence before any intervention"
+  "nextExperiment": {
+    "version": "v0.24",
+    "goal": "perform the first real single-variable EnableIdealRAW intervention using the now-resolved BYTE native type while preserving the v0.20 acquisition and audit chain",
+    "requiredValueRepresentation": "one BYTE with numeric value 1",
+    "singleUnknownVendorVariable": true,
+    "preserveGateABaselineBeforeIntervention": true,
+    "preserveSourceFirstSeal": true,
+    "repeatStage36AndStage37": true,
+    "compareAgainstV020": [
+      "session acceptance",
+      "capture acceptance",
+      "delivered geometry",
+      "populated prefix byte count",
+      "row/band population",
+      "payload geometry",
+      "source and prefix hashes",
+      "returned SENSOR_PIXEL_MODE",
+      "HONOR binning/crop metadata",
+      "full pre/post-HAL fingerprints"
+    ],
+    "semanticPromotionAllowed": false
   },
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
 }
