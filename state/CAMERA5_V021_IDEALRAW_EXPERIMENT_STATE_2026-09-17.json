@@ -1,0 +1,69 @@
+{
+  "schema": "truthraw.camera5-idealraw-experiment-state.v0.21",
+  "date": "2026-09-17",
+  "status": "ACTIVE_BUILD_DEVICE_RESULT_PENDING",
+  "branch": "integration/truthraw-suite-v0-21-idealraw-single-variable",
+  "control": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "sourceBytes": 401080320,
+    "populatedPrefixBytes": 25067520,
+    "selectedPrefixGeometry": [4080, 3072],
+    "sourceSha256": "39da26192d1278af797b0c304d6ad29862735b886bdcf768b6239bc74f6a3636",
+    "prefixSha256": "d41d48d644c4aa8804825a529a0ea651352979a7023e4948e39913b71ce16e3e"
+  },
+  "intervention": {
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableIdealRAW",
+    "requestedValue": 1,
+    "scope": "logical SessionConfiguration sessionParameters",
+    "singleUnknownVendorVariable": true,
+    "appliedAfterGateA": true,
+    "appliedBeforeSessionSupportQuery": true,
+    "semanticMeaningAssumed": false,
+    "runtimeTypeMustBeVerified": true,
+    "safeAcceptedRuntimeTypes": ["java.lang.Byte", "byte[]"],
+    "builderReadbackRequired": true,
+    "failClosedOnMismatch": true
+  },
+  "preservedTrustedChain": [
+    "v0.14 source-first seal",
+    "v0.16 post-HAL envelope",
+    "v0.17 Gate A/B two-door airlock",
+    "v0.19 sealed-file full-raster audit",
+    "v0.20 exact-prefix payload geometry decoder"
+  ],
+  "unchangedCaptureTopology": {
+    "openedLogicalCameraId": "0",
+    "physicalOutputCameraId": "5",
+    "target": "RAW_SENSOR 16320x12288",
+    "maximumResolutionOutputDeclared": true,
+    "physicalScopedStillRequest": true,
+    "sourceSealBeforeMetadataInterpretation": true,
+    "dngRole": "auxiliary"
+  },
+  "comparisonRequiredAgainstV020": [
+    "Image and HardwareBuffer geometry",
+    "source byte count",
+    "Stage3.6 populated-prefix byte count",
+    "non-zero row range",
+    "16-band hashes and zero-band pattern",
+    "Stage3.7 selected geometry",
+    "source and exact-prefix SHA-256",
+    "code range and 2x2 phase statistics",
+    "neighbor correlations",
+    "returned SENSOR_PIXEL_MODE",
+    "returned rawBinningFactorUsed",
+    "HONOR binningFactor",
+    "AECRealCropWindow and allISPCropWindow",
+    "sensorCustomMetaData",
+    "QTI route/multicamera metadata"
+  ],
+  "forbiddenPromotions": [
+    "UNTOUCHED_NATIVE_ADC",
+    "VENDOR_KEY_NAME_PROVES_VENDOR_SEMANTICS",
+    "FULL_200MP_POPULATION_BEFORE_DEVICE_RESULT",
+    "NATIVE_SENSOR_GEOMETRY_FROM_BUFFER_GEOMETRY",
+    "OPTICAL_200MP_PROOF"
+  ],
+  "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
