@@ -1,0 +1,97 @@
+name: TruthRaw FotoGraaf v0.23 IdealRAW Native Type Oracle
+
+# v0.22 device result remained ambiguous between BYTE-family and INT32-family Java marshalling.
+# v0.23 resolves the native camera_metadata element type with disposable NDK capture requests only.
+# No capture session is created and no vendor-modified request is submitted.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-23-idealraw-native-type-oracle
+    paths:
+      - 'suite_android/**'
+      - 'tools/patch_fotograaf_v012_forced_physical_max.py'
+      - 'tools/patch_fotograaf_v013_physical_only_max_submit.py'
+      - 'tools/patch_fotograaf_v014_seal_raw_before_result_mode_gate.py'
+      - 'tools/patch_fotograaf_v016_hal_buffer_envelope.py'
+      - 'tools/patch_fotograaf_v017_pre_hal_airlock.py'
+      - 'tools/patch_fotograaf_v019_full_raster_write_audit.py'
+      - 'tools/patch_fotograaf_v020_payload_geometry_decoder.py'
+      - 'tools/patch_fotograaf_v023_idealraw_native_type_oracle.py'
+      - '.github/workflows/android-truthraw-suite-v0-23-idealraw-native-type-oracle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v023:
+    name: Build FotoGraaf v0.23 IdealRAW native type oracle arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 and add Stage-1 native type oracle
+        run: |
+          python3 tools/patch_fotograaf_v023_idealraw_native_type_oracle.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          KT='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2IdealRawNativeTypeOracle.kt'
+          CPP='suite_android/app/src/main/cpp/idealraw_native_type_oracle.cpp'
+          CMAKE='suite_android/app/src/main/cpp/CMakeLists.txt'
+
+          grep -F 'TruthRaw · Camera-5 v0.23 · IdealRAW native type oracle' "$APP"
+          grep -F 'Camera2IdealRawNativeTypeOracle.probe(LOGICAL_ID)' "$APP"
+          grep -F 'STAGE 1.5 DIAGNOSTIC STOP' "$APP"
+          grep -F 'capabilityReady = false' "$APP"
+          grep -F 'vendor request submit=false' "$APP"
+          grep -F 'nativeProbe' "$KT"
+          grep -F 'ACaptureRequest_setEntry_u8' "$CPP"
+          grep -F 'ACaptureRequest_setEntry_i32' "$CPP"
+          grep -F 'ACaptureRequest_getConstEntry' "$CPP"
+          grep -F 'ACameraMetadata_getTagFromName' "$CPP"
+          grep -F 'vendorModifiedRequestSubmittedToHal' "$CPP"
+          ! grep -F 'ACameraDevice_createCaptureSession' "$CPP"
+          ! grep -F 'ACameraCaptureSession_capture' "$CPP"
+          ! grep -F 'ACameraCaptureSession_setRepeatingRequest' "$CPP"
+          grep -F 'find_library(CAMERA2NDK_LIB camera2ndk)' "$CMAKE"
+          grep -F 'idealraw_native_type_oracle.cpp' "$CMAKE"
+          ! grep -F 'MAXIMUM_RESOLUTION vereist' "$APP"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-23-idealraw-native-type-oracle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
