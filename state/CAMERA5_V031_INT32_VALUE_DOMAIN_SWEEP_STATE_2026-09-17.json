@@ -1,7 +1,7 @@
 {
-  "schema": "truthraw.camera5-v031-int32-value-domain-sweep-state.v1",
+  "schema": "truthraw.camera5-v031-int32-value-domain-sweep-state.v2",
   "date": "2026-09-17",
-  "status": "BUILD_SUCCESS_DEVICE_RESULTS_PENDING",
+  "status": "DEVICE_SWEEP_COMPLETE_6_OF_6__NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
   "sourcePayloadAuthority": "v0.20",
   "permanentBoundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
   "predecessor": {
@@ -24,7 +24,8 @@
         "nativeTypeAuthority": "v0.25",
         "valuesNewInV031": [0, 2, 3],
         "value1Reference": "v0.26 and v0.30",
-        "unsetReference": "v0.30"
+        "unsetReference": "v0.30",
+        "boundedTestedDomainAfterV031": ["UNSET", 0, 1, 2, 3]
       },
       {
         "symbol": "D",
@@ -34,7 +35,8 @@
         "nativeTypeAuthority": "v0.29",
         "valuesNewInV031": [0, 2, 3],
         "value1Reference": "v0.30",
-        "unsetReference": "v0.30"
+        "unsetReference": "v0.30",
+        "boundedTestedDomainAfterV031": ["UNSET", 0, 1, 2, 3]
       }
     ],
     "profiles": [
@@ -82,15 +84,102 @@
     "workflowSafetyAssertionsPass": true
   },
   "deviceResults": {
-    "available": false,
-    "completedProfiles": [],
-    "missingProfiles": ["S01_RAWCB_0", "S02_RAWCB_2", "S03_RAWCB_3", "S04_HALCOMBINED_0", "S05_HALCOMBINED_2", "S06_HALCOMBINED_3"]
+    "available": true,
+    "completedProfileCount": 6,
+    "completedProfiles": ["S01_RAWCB_0", "S02_RAWCB_2", "S03_RAWCB_3", "S04_HALCOMBINED_0", "S05_HALCOMBINED_2", "S06_HALCOMBINED_3"],
+    "missingProfiles": [],
+    "allSessionParametersAttached": true,
+    "allBuilderReadbacksPass": true,
+    "allRequestReadbacksPass": true,
+    "allVendorKeysWrittenExactlyOne": true,
+    "allOtherUnknownVendorFactorsWrittenZero": true,
+    "allTopologyClassSameAsV020": true,
+    "commonStage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "commonStage37Status": "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED",
+    "commonTopology": {
+      "declaredGeometry": [16320, 12288],
+      "sourceBytes": 401080320,
+      "rowStride": 32640,
+      "pixelStride": 2,
+      "populatedDeclaredRows": 768,
+      "zeroDeclaredRows": 11520,
+      "payloadBytes": 25067520,
+      "payloadSamplesU16": 12533760,
+      "selectedAdvertisedStandardRawGeometry": [4080, 3072]
+    },
+    "commonRouteSideMetadata": {
+      "rawBinningFactorUsed": true,
+      "honorBinningFactor": 4,
+      "honorAECRealCropWindowPrefix": [11, 8, 4058, 3055],
+      "honorAllISPCropWindow": [0, 0, 16320, 12288, 0, 0, 16320, 12288],
+      "honorIsInSensorZoom": 0
+    },
+    "runs": [
+      {
+        "profileId": "S01_RAWCB_0",
+        "target": "RAWCB",
+        "value": 0,
+        "sourceSha256": "85b8a79b4c03271a6b959e9677ac4be1aefb9166aedba73e3b96ca08aa98d666",
+        "payloadSha256": "fd8623c7cf528265bca0b13af7db8cf58e989fd42e79c86b797fcc2a7f2227ab",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      },
+      {
+        "profileId": "S02_RAWCB_2",
+        "target": "RAWCB",
+        "value": 2,
+        "sourceSha256": "6ad274a085b148492057abec3354e7a3f9b0e034d78ef9f2bf0e8ff598c62f20",
+        "payloadSha256": "b529433fecaa42fbfa8c46b28106daab9ceab088752866fc35a3cac0168aca5d",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      },
+      {
+        "profileId": "S03_RAWCB_3",
+        "target": "RAWCB",
+        "value": 3,
+        "sourceSha256": "21d36605c7135f0936e804613682d314b2b4d37c5c9b53c72cbdddb0bdef377a",
+        "payloadSha256": "8a6e550cb65bc3bd1347f7eeba9481e1dec7d5bfe868bdac5ee7ceb5764d1a3d",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      },
+      {
+        "profileId": "S04_HALCOMBINED_0",
+        "target": "HALCOMBINED",
+        "value": 0,
+        "sourceSha256": "e9e998742d2a3ab29a006be14b5c42c891a6cfb8f8182c34b780c1678a8afc39",
+        "payloadSha256": "313714ca30fe290095d78d3305f0bb67a414c7ff95b333cb160632b8381932ba",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      },
+      {
+        "profileId": "S05_HALCOMBINED_2",
+        "target": "HALCOMBINED",
+        "value": 2,
+        "sourceSha256": "eda715615376bb980731b6948aada3f64526e33a95812752ad32f4768313580b",
+        "payloadSha256": "32261edfa33c46d7a5c902a98dd48d946d21e0c916e06781ccdc6ffe1264ee82",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      },
+      {
+        "profileId": "S06_HALCOMBINED_3",
+        "target": "HALCOMBINED",
+        "value": 3,
+        "sourceSha256": "1ad03baa250bd6eae4a5515eb314194137859e0683fd10c9a757771638fdd275",
+        "payloadSha256": "837388a066fcf689e82f9bbff63a10604f16758068dfffd93523c31dccb496fc",
+        "sessionParametersAttached": true,
+        "topologyDifferentialObserved": false
+      }
+    ],
+    "classification": "DEVICE_SWEEP_COMPLETE_6_OF_6__RAWCB_AND_HALOUTPUTBUFFERCOMBINED_INT32_VALUES_0_2_3_ACCEPTED_AND_ATTACHED__NO_MEASURABLE_CAMERA5_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_DIFFERENTIAL"
   },
-  "nextDeviceAction": "INSTALL_V031_AND_RUN_S01_THROUGH_S06__SAVE_EACH_EVIDENCE_JSON_INDIVIDUALLY",
+  "boundedConclusion": "FOR_RAWCBSOURCETYPE_AND_HALOUTPUTBUFFERCOMBINED_ON_THE_TESTED_CAMERA5_ROUTE__TESTED_DOMAIN_UNSET_0_1_2_3_PRODUCED_NO_MEASURABLE_APP_VISIBLE_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY_DIFFERENTIAL",
+  "nextResearchDirection": "DO_NOT_BLINDLY_ENUMERATE_LARGER_INT32_VALUES_WITHOUT_DOMAIN_EVIDENCE__MOVE_TO_NEW_UPSTREAM_ROUTE_FAMILY_OR_JUSTIFIED_CONTEXT_PREREQUISITE_EXPERIMENT",
   "notProven": [
     "VENDOR_ENUM_MEANING_OF_RAWCBSOURCETYPE_VALUES",
     "VENDOR_ENUM_MEANING_OF_HALOUTPUTBUFFERCOMBINED_VALUES",
-    "GLOBAL_INEFFECTIVENESS_OF_OTHER_INT32_VALUES",
+    "EXPLICIT_ZERO_SEMANTIC_EQUIVALENCE_TO_UNSET",
+    "GLOBAL_INEFFECTIVENESS_OF_VALUES_OUTSIDE_TESTED_DOMAIN",
+    "GLOBAL_INEFFECTIVENESS_OF_KEYS_IN_OTHER_ROUTE_CONTEXTS",
     "UNTOUCHED_NATIVE_ADC",
     "PHYSICAL_SENSOR_NATIVE_GEOMETRY",
     "200MP_OPTICAL_RESOLUTION"
