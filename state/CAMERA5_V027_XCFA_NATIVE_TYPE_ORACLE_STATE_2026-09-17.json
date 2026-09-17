@@ -1,7 +1,7 @@
 {
   "schema": "truthraw.camera5-xcfa-native-type-oracle-state.v0.27",
   "date": "2026-09-17",
-  "status": "BUILD_IN_PROGRESS_DEVICE_RESULT_PENDING",
+  "status": "BUILD_SUCCESS_DEVICE_RESULT_PENDING",
   "branch": "integration/truthraw-suite-v0-27-xcfa-native-type-oracle",
   "sourcePayloadAuthority": {
     "version": "v0.20",
@@ -48,7 +48,13 @@
     "jobId": 105305482639,
     "workflow": "TruthRaw FotoGraaf v0.27 XCFA Native Type Oracle",
     "workflowHeadSha": "db850876ab4a31603e04dca39e8ece3ea087c3c3",
-    "conclusion": null,
+    "conclusion": "success",
+    "stage1SafetyAssertionsPass": true,
+    "apkBytes": 4899361,
+    "apkSha256": "75cdf0bf708e85167934f947268c0e6e925232048c45dd548390d9c507f2fbae",
+    "artifactId": 10509896067,
+    "artifactZipBytes": 1595318,
+    "artifactZipSha256": "8909bcbe085bc926e540e17b3d1d8d7ecc907c955221094edd001dd60d8da0b0",
     "deviceResultAvailable": false
   },
   "deviceProtocol": {
