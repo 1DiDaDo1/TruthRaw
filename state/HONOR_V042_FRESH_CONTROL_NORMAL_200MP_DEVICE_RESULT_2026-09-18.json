@@ -1,0 +1,80 @@
+{
+  "schema": "truthraw.passive-mediastore-camera-timeline-device-result.v0.42",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "sources": {
+    "A": {
+      "name": "v042_A_fresh_no_capture (1).json",
+      "bytes": 19275,
+      "sha256": "a6190137311a4e89c4b195c581d1f7eaaf236e73845f08a406d62621369fc0df"
+    },
+    "B": {
+      "name": "v042_B_fresh_normal_photo.json",
+      "bytes": 25938,
+      "sha256": "7ab39d8a0dfaf2cde71e463f24325dca08393e19ae48bd5b0de696ebdc16c180"
+    },
+    "C": {
+      "name": "v042_C_fresh_200mp_photo.json",
+      "bytes": 26939,
+      "sha256": "2d97afdbc645707179df95354a54652897cfb293d2d85e0557025ad02b9f2be0"
+    }
+  },
+  "invariants": {
+    "scientificMasterModified": false,
+    "captureEvidenceGranted": false,
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imagePixelBytesRead": false,
+    "exifDecoded": false,
+    "mediaInputStreamOpened": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "honorBinderMethodInvoked": false,
+    "honorCallbackRegistered": false
+  },
+  "runs": {
+    "A": {
+      "classification": "FRESH_HONOR_LAUNCH_WITHOUT_CAPTURE__NO_MEDIASTORE_IMAGE_INSERT_OBSERVED",
+      "newMediaStoreImageObserved": false
+    },
+    "B": {
+      "classification": "FRESH_NORMAL_CAPTURE__HONOR_JPEG_3072x4096__MEDIASTORE_OUTPUT_DIFFERENTIAL_FROM_NO_CAPTURE_CONTROL",
+      "rowId": 114331,
+      "name": "IMG_20260918_215448.jpg",
+      "mime": "image/jpeg",
+      "width": 3072,
+      "height": 4096,
+      "pixelCount": 12582912,
+      "sizeBytes": 3578531,
+      "relativePath": "DCIM/Camera/",
+      "ownerPackage": "com.hihonor.camera",
+      "isPending": 0,
+      "mediaStoreChangeCount": 3,
+      "camera0AvailabilityPulseObserved": false
+    },
+    "C": {
+      "classification": "FRESH_USER_SELECTED_200MP_CAPTURE__HONOR_JPEG_16320x12288__SHORT_CAMERA0_AVAILABILITY_PULSE_OBSERVED",
+      "rowId": 114333,
+      "name": "IMG_20260918_215836.jpg",
+      "mime": "image/jpeg",
+      "width": 16320,
+      "height": 12288,
+      "pixelCount": 200540160,
+      "sizeBytes": 26450019,
+      "relativePath": "DCIM/Camera/",
+      "ownerPackage": "com.hihonor.camera",
+      "isPending": 0,
+      "mediaStoreChangeCount": 3,
+      "camera0AvailabilityPulseObserved": true,
+      "camera0UnavailableUtc": "2026-09-18T19:58:51.643529Z",
+      "camera0AvailableUtc": "2026-09-18T19:58:51.651138Z",
+      "observedPulseMs": 7.609
+    }
+  },
+  "comparison": {
+    "pixelCountRatioCOverB": 15.9375,
+    "fileSizeRatioCOverB": 7.391306376834517,
+    "dimensionalEqualityWithAppVisibleHighResolutionRawEnvelope": true,
+    "rawOrSensorDomainEquivalenceClaimAllowed": false
+  },
+  "nextDecision": "V043_REPLICATE_NORMAL_VS_200MP_WITH_EXPLICIT_MODE_AND_SHUTTER_MARKERS_AND_DELAYED_METADATA_SNAPSHOTS"
+}
