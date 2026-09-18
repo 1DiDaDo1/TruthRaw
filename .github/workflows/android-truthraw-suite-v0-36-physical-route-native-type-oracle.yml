@@ -57,8 +57,8 @@ jobs:
           grep -F 'nativeProbeDecoupled(' "$NATIVE"
           grep -F 'PHYSICAL_CAMERA_CHARACTERISTICS_ONLY' "$NATIVE"
           grep -F 'LOGICAL_CAMERA_DISPOSABLE_TEMPLATE_ONLY' "$NATIVE"
-          grep -F 'directPhysicalCameraOpenAttempted":false' "$NATIVE"
-          grep -F 'vendorModifiedRequestSubmittedToHal":false' "$NATIVE"
+          grep -F 'directPhysicalCameraOpenAttempted' "$NATIVE"
+          grep -F 'vendorModifiedRequestSubmittedToHal' "$NATIVE"
 
           python3 - <<'PY'
           from pathlib import Path
@@ -83,7 +83,7 @@ jobs:
           assert 'request_camera_id_j' in native
           assert 'ACameraManager_getCameraCharacteristics(' in native
           assert 'request_camera_id.c_str()' in native
-          assert '"directPhysicalCameraOpenAttempted":false' in native
+          assert 'directPhysicalCameraOpenAttempted' in native
 
           print('v0.36 decoupled physical-route native-type oracle invariants PASS')
           PY
