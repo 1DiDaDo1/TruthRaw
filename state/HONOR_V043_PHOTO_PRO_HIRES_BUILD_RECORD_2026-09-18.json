@@ -1,0 +1,57 @@
+{
+  "schema": "truthraw.passive-mode-shutter-timeline-build-record.v0.43",
+  "date": "2026-09-18",
+  "authority": "BUILD_AND_EXPERIMENT_PROVENANCE",
+  "triggerObservation": {
+    "literal200MpUiModeVisible": false,
+    "relevantVisibleUiLabels": [
+      "PHOTO",
+      "PRO",
+      "HI-RES"
+    ],
+    "consequence": "REMOVE_PREASSIGNED_200MP_SEMANTICS__TEST_HIRES_AS_CANDIDATE_ONLY"
+  },
+  "profiles": [
+    "FRESH_PHOTO_CONTROL_REPLICATE",
+    "FRESH_PRO_CONTROL_REPLICATE",
+    "FRESH_HIRES_CANDIDATE_REPLICATE"
+  ],
+  "markers": {
+    "notificationActions": [
+      "MAIN_STABLE",
+      "MODE_SELECTED",
+      "SHUTTER_PRESSED"
+    ],
+    "resolvedModeLabels": [
+      "MODE_PHOTO_SELECTED",
+      "MODE_PRO_SELECTED",
+      "MODE_HIRES_SELECTED"
+    ],
+    "hardwareTimestampClaim": false
+  },
+  "delayedMediaStoreSnapshotMs": [
+    0,
+    25,
+    100,
+    250,
+    1000
+  ],
+  "repository": {
+    "branch": "integration/truthraw-suite-v0-43-passive-mode-shutter-timeline",
+    "buildCommit": "8bc6805387e22d3ffe5fe584945d25bf1d422106",
+    "workflowRunId": 35389948999,
+    "jobId": 105745719274,
+    "conclusion": "success"
+  },
+  "apk": {
+    "bytes": 5151689,
+    "sha256": "58e14d06b475205e1e67a76ad30c8f3065d6618a2531d6da77c4bb6ccc1a9987"
+  },
+  "artifact": {
+    "id": 10565886038,
+    "name": "truthraw-suite-v0-43-passive-mode-shutter-timeline-debug-arm64",
+    "zipBytes": 1682440,
+    "digest": "sha256:4b63acd667e2ee2b73eae62843d1c8d92a057cfc9cf88925672d084ccfca4001"
+  },
+  "semanticRule": "HI_RES_UI_LABEL_REMAINS_OBSERVATION__ASSOCIATE_WITH_PRIOR_16320x12288_CLASS_ONLY_AFTER_REPLICATION"
+}
