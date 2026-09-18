@@ -1,0 +1,113 @@
+name: TruthRaw FotoGraaf v0.32 Multi-Key Native Type Oracle
+
+# v0.31 closed the tested INT32 domain {UNSET,0,1,2,3} for RawCbSourceType and
+# HALOutputBufferCombined without a measured RAW envelope/populated-prefix topology differential.
+# v0.32 therefore changes the question: first resolve native metadata representation for three
+# additional upstream route-key names already observed in v0.20 evidence. No intervention occurs.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-32-multi-key-native-type-oracle
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2MultiKeyNativeTypeOracle.kt'
+      - 'tools/patch_fotograaf_v032_multi_key_native_type_oracle.py'
+      - '.github/workflows/android-truthraw-suite-v0-32-multi-key-native-type-oracle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v032:
+    name: Build FotoGraaf v0.32 multi-key native type oracle arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 authority and apply v0.32 diagnostics-only oracle
+        run: |
+          python3 tools/patch_fotograaf_v032_multi_key_native_type_oracle.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          ORACLE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2MultiKeyNativeTypeOracle.kt'
+
+          grep -F 'TruthRaw · Camera-5 v0.32 · multi-key native type oracle' "$APP"
+          grep -F 'Camera2MultiKeyNativeTypeOracle.probe(' "$APP"
+          grep -F 'TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json' "$APP"
+          grep -F 'STAGE 1.5 DIAGNOSTIC STOP · v0.32' "$APP"
+          grep -F 'capabilityReady = false' "$APP"
+          grep -F 'previewButton.isEnabled = false' "$APP"
+          grep -F 'captureButton.isEnabled = false' "$APP"
+          grep -F 'Geen interventie uitgevoerd' "$APP"
+
+          grep -F 'EnableInsensorZoom' "$ORACLE"
+          grep -F 'EnableSnapshotOnlyInsensorZoom' "$ORACLE"
+          grep -F 'EnableMCXMasterCb' "$ORACLE"
+          grep -F 'interventionAllowedInThisBuild", false' "$ORACLE"
+          grep -F 'sessionCreated", false' "$ORACLE"
+          grep -F 'captureSubmitted", false' "$ORACLE"
+          grep -F 'semanticPromotionAllowed", false' "$ORACLE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          oracle = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2MultiKeyNativeTypeOracle.kt').read_text()
+
+          assert app.count('Camera2MultiKeyNativeTypeOracle.probe(') == 1
+          assert 'TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json' in app
+          assert 'capabilityReady = false' in app
+          assert 'previewButton.isEnabled = false' in app
+          assert 'captureButton.isEnabled = false' in app
+          assert 'Geen interventie uitgevoerd' in app
+          assert 'Camera2Int32ValueDomainSweep.applyProfile(' not in app
+          assert 'Camera2VendorRouteFullFactorialMatrix.applyProfile(' not in app
+
+          assert oracle.count('Candidate(') >= 4
+          assert 'KEY_INSENSOR_ZOOM' in oracle
+          assert 'KEY_SNAPSHOT_ONLY_INSENSOR_ZOOM' in oracle
+          assert 'KEY_MCX_MASTER_CB' in oracle
+          assert 'interventionAllowedInThisBuild", false' in oracle
+          assert 'vendorModifiedRequestSubmittedToHal", false' in oracle
+          assert 'nextDecisionRule' in oracle
+
+          print('v0.32 diagnostics-only multi-key native-type oracle invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-32-multi-key-native-type-oracle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
