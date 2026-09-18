@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.40 passive Honor route observer + v0.39 geometry ladder"
+            text = "Camera-5 research · v0.41 Honor callback boundary + v0.40 passive observer + v0.39 geometry ladder"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -67,6 +67,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.40 · Passieve Honor route observer") {
             startActivity(Intent(this, HonorPassiveRouteObserverActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.41 · Honor output-config callback probe") {
+            startActivity(Intent(this, HonorOutputConfigCallbackProbeActivity::class.java))
         })
         root.addView(space())
 
