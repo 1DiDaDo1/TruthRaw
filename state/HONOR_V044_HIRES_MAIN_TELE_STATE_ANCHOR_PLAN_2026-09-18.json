@@ -1,0 +1,61 @@
+{
+  "schema": "truthraw.passive-hires-tele-state-plan.v0.44",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "profiles": [
+    "PHOTO_MAIN_BASELINE_SESSION",
+    "PRO_SWITCH_SESSION",
+    "HIRES_MAIN_TO_TELE_200MP_UI_SESSION"
+  ],
+  "notificationActions": {
+    "PHOTO": [
+      "MAIN/PHOTO",
+      "SHUTTER"
+    ],
+    "PRO": [
+      "MAIN STABLE",
+      "PRO SELECTED",
+      "SHUTTER"
+    ],
+    "HIRES": [
+      "HIRES MAIN",
+      "TELE / 200MP UI",
+      "SHUTTER"
+    ]
+  },
+  "screenshotMetadataClassification": true,
+  "screenshotPixelBytesRead": false,
+  "sameRowMetadataTransitionsTracked": true,
+  "lastHumanMarkerAttachedToMediaStoreChanges": true,
+  "geometryClasses": [
+    {
+      "pixelCount": 12582912,
+      "authority": "SYSTEM_VISIBLE_OUTPUT_GEOMETRY_ONLY"
+    },
+    {
+      "pixelCount": 50331648,
+      "authority": "SYSTEM_VISIBLE_OUTPUT_GEOMETRY_ONLY"
+    },
+    {
+      "pixelCount": 200540160,
+      "authority": "SYSTEM_VISIBLE_OUTPUT_GEOMETRY_ONLY"
+    }
+  ],
+  "tele200mpMarker": {
+    "userVisibleStateOnly": true,
+    "activePhysicalCameraId5Proven": false,
+    "native200MpSensorSamplingProven": false
+  },
+  "invariants": {
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageReaderCreated": false,
+    "imagePixelBytesRead": false,
+    "mediaInputStreamOpened": false,
+    "bitmapDecoded": false,
+    "exifDecoded": false,
+    "honorBinderMethodInvoked": false,
+    "honorCallbackRegistered": false,
+    "vendorRequestWrittenByTruthRaw": false
+  }
+}
