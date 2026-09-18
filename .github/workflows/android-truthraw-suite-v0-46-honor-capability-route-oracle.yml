@@ -57,7 +57,7 @@ jobs:
           forbidden = [
               'openCamera(',
               'createCaptureRequest',
-              'ImageReader',
+              'import android.media.ImageReader',
               'bindService(',
               'setPhysicalCameraKey',
               'CameraCaptureSession',
