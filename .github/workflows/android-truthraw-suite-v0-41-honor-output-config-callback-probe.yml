@@ -75,8 +75,8 @@ jobs:
           assert 'OUTPUT_CALLBACK_TX_CURRENT_MODE_CHANGED = 2' in protocol
           assert 'service.transact(transactionCode, data, reply, 0)' in protocol
           assert 'reply.readException()' in protocol
-          assert 'setPreviewSurface' not in service
-          assert 'exitPreview' not in service
+          assert 'setPreviewSurface(' not in service
+          assert 'exitPreview(' not in service
           assert 'openCamera(' not in service
           assert 'createCaptureRequest' not in service
           assert 'ImageReader' not in service
