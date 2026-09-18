@@ -1,0 +1,136 @@
+name: TruthRaw FotoGraaf v0.38 Physical-only INT32 Candidate Sweep
+
+# v0.36 resolved three remaining physical-only candidates as native INT32.
+# v0.37 established that a physical-only candidate can pass attachment and complete
+# the source-first capture chain without changing RAW topology.
+# v0.38 screens I/J/K one key per run at numeric stimulus 1, with no combinations.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-38-physical-only-int32-candidate-sweep
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalOnlyInt32CandidateSweep.kt'
+      - 'tools/patch_fotograaf_v038_physical_only_int32_candidate_sweep.py'
+      - '.github/workflows/android-truthraw-suite-v0-38-physical-only-int32-candidate-sweep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v038:
+    name: Build FotoGraaf v0.38 physical-only INT32 candidate sweep arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct source-first chain and apply v0.38 physical-only candidate scheduler
+        run: |
+          python3 tools/patch_fotograaf_v038_physical_only_int32_candidate_sweep.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          SWEEP='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalOnlyInt32CandidateSweep.kt'
+
+          grep -F 'TruthRaw · 200MP Tele Test v0.38 · physical-only INT32 candidate sweep' "$APP"
+          grep -F 'Camera2PhysicalOnlyInt32CandidateSweep.applyProfile(' "$APP"
+          grep -F 'PHYSICAL_ONLY_INT32_CANDIDATE_SWEEP_I_J_K_NUMERIC_ONE' "$APP"
+          grep -F 'physicalOnlyInt32CandidateSweep' "$APP"
+          grep -F 'physicalOnlyInt32CandidateSemanticPromotionAllowed' "$APP"
+          grep -F 'TRUTHRAW_V038_BLOCKED_' "$APP"
+          grep -F 'firstMissingMatrixRunIndexFromCache()' "$APP"
+          grep -F 'val fixedControls = LinearLayout(this).apply {' "$APP"
+          grep -F 'saveJsonButton.text = "Bewaar JSON"' "$APP"
+          grep -F 'exportMatrixEvidenceBundleButton.text = "Bundle ZIP"' "$APP"
+          grep -F 'persistOriginalRawBuffer(image, stamp)' "$APP"
+          grep -F 'RawSensorRasterAudit.audit(' "$APP"
+          grep -F 'RawPayloadGeometryDecoder.decode(' "$APP"
+
+          grep -F 'const val TOTAL_RUNS = 3' "$SWEEP"
+          grep -F '"I"' "$SWEEP"
+          grep -F 'EnableVSR' "$SWEEP"
+          grep -F '0x801F000B' "$SWEEP"
+          grep -F '"J"' "$SWEEP"
+          grep -F 'ExtendedMaxZoom' "$SWEEP"
+          grep -F '0x801F000A' "$SWEEP"
+          grep -F '"K"' "$SWEEP"
+          grep -F 'enableQLL' "$SWEEP"
+          grep -F '0x801F000D' "$SWEEP"
+          grep -F 'physicalOnlyAvailabilityTopologyPass' "$SWEEP"
+          grep -F 'singleUnknownVendorVariable", true' "$SWEEP"
+          grep -F 'otherUnknownVendorFactorsWritten", 0' "$SWEEP"
+          grep -F 'CaptureRequest.Key(profile.keyName, Int::class.javaObjectType)' "$SWEEP"
+          grep -F 'builder.set(key, 1)' "$SWEEP"
+          grep -F 'config.setSessionParameters(request)' "$SWEEP"
+          grep -F 'vendorKeysWritten", 1' "$SWEEP"
+          grep -F 'selectionUsesVendorNameSemantics", false' "$SWEEP"
+
+          ! grep -F 'inSensorZoomEnable' "$SWEEP"
+          ! grep -F 'EnableInsensorZoom' "$SWEEP"
+          ! grep -F 'EnableSnapshotOnlyInsensorZoom' "$SWEEP"
+          ! grep -F 'EnableMCXMasterCb' "$SWEEP"
+          ! grep -F 'RawCbSourceType' "$SWEEP"
+          ! grep -F 'HALOutputBufferCombined' "$SWEEP"
+          ! grep -F 'EnableXCFAOptimization' "$SWEEP"
+          ! grep -F 'EnableIdealRAW' "$SWEEP"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          sweep = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalOnlyInt32CandidateSweep.kt').read_text()
+
+          assert app.count('Camera2PhysicalOnlyInt32CandidateSweep.applyProfile(') == 1
+          assert app.index('Camera2PreHalGate.observeSession(') < app.index('Camera2PhysicalOnlyInt32CandidateSweep.applyProfile(')
+          assert app.index('Camera2PhysicalOnlyInt32CandidateSweep.applyProfile(') < app.index('device.isSessionConfigurationSupported(config)')
+          assert app.index('persistOriginalRawBuffer(image, stamp)') < app.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
+          assert app.index('RawSensorRasterAudit.audit(') < app.index('RawPayloadGeometryDecoder.decode(')
+          assert 'P${p.runIndex + 1}/3' in app
+          assert 'staged-evidence.v0.38' in app
+          assert '_EVIDENCE_v038.json' in app
+          assert 'TRUTHRAW_CAM5_V038_PHYSICAL_INT32_CANDIDATE_BUNDLE_' in app
+          assert 'TRUTHRAW_V038_BLOCKED_' in app
+          assert 'const val TOTAL_RUNS = 3' in sweep
+          assert sweep.count('Profile(') >= 4
+          assert sweep.count('builder.set(key, 1)') == 1
+          assert 'requestedValueSemanticsAssumed", false' in sweep
+          assert 'semanticPromotionAllowed", false' in sweep
+          print('v0.38 physical-only INT32 candidate sweep + source-first invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-38-physical-only-int32-candidate-sweep-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
