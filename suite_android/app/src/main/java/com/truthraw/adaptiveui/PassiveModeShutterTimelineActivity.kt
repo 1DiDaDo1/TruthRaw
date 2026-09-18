@@ -42,8 +42,8 @@ class PassiveModeShutterTimelineActivity : Activity() {
 
         body.addView(label("TruthRaw v0.43 · Passive mode/shutter timeline", 22f, true))
         body.addView(label(
-            "Replicatie van v0.42: normale foto versus 200 MP. Honor blijft camera-eigenaar. " +
-                "TruthRaw observeert alleen CameraManager, menselijke markers en MediaStore-metadata.",
+            "Replicatie van v0.42 met de werkelijk zichtbare Honor-modi: PHOTO, PRO en HI-RES. " +
+                "HI-RES is een kandidaatlabel, niet vooraf gelijkgesteld aan 200 MP. Honor blijft camera-eigenaar.",
             12f, false, Color.rgb(190, 198, 210),
         ))
         body.addView(space(10))
@@ -54,7 +54,7 @@ class PassiveModeShutterTimelineActivity : Activity() {
 
         body.addView(label(
             "De notificatie bevat drie markerknoppen zodat Honor Camera open kan blijven: MAIN STABLE, " +
-                "200MP SELECTED en SHUTTER PRESSED. Dit zijn menselijke tijdsmarkeringen, geen hardwaretimestamps.",
+                "MODE SELECTED en SHUTTER PRESSED. MODE SELECTED wordt gekoppeld aan het gekozen runprofiel.",
             10f, false, Color.rgb(155, 165, 180),
         ))
 
@@ -116,10 +116,13 @@ class PassiveModeShutterTimelineActivity : Activity() {
 
         body.addView(space(12))
         body.addView(label(
-            "NORMAAL: fresh Honor-data → start 1A → Honor openen → MAIN STABLE markeren → één gewone foto → " +
-                "SHUTTER PRESSED markeren → 3–5 s wachten → terug → snapshot → stop → JSON.\n\n" +
-                "200 MP: fresh Honor-data → start 1B → Honor openen → MAIN STABLE → handmatig 200 MP kiezen → " +
-                "200MP SELECTED → één foto → SHUTTER PRESSED → 3–5 s wachten → terug → snapshot → stop → JSON.",
+            "PHOTO: fresh Honor-data → start 1A → Honor openen → MAIN STABLE → PHOTO actief laten → MODE SELECTED → " +
+                "één foto → SHUTTER PRESSED → terug → snapshot → stop → JSON.\n\n" +
+                "PRO: opnieuw fresh Honor-data → start 1B → Honor openen → MAIN STABLE → PRO kiezen → MODE SELECTED → " +
+                "één foto → SHUTTER PRESSED → terug → snapshot → stop → JSON.\n\n" +
+                "HI-RES: opnieuw fresh Honor-data → start 1C → Honor openen → MAIN STABLE → HI-RES kiezen → MODE SELECTED → " +
+                "één foto → SHUTTER PRESSED → terug → snapshot → stop → JSON. Pas de gemeten outputgeometrie bepaalt of HI-RES " +
+                "overeenkomt met de eerdere 16320×12288-outputklasse.",
             11f, true, Color.rgb(220, 225, 234),
         ))
 
@@ -238,7 +241,7 @@ class PassiveModeShutterTimelineActivity : Activity() {
         val count = events?.length() ?: 0
 
         var mainMarkers = 0
-        var mode200Markers = 0
+        var modeSelectedMarkers = 0
         var shutterMarkers = 0
         var mediaChanges = 0
         var delayedSnapshots = 0
@@ -251,7 +254,10 @@ class PassiveModeShutterTimelineActivity : Activity() {
                 "USER_MARK" -> {
                     when (e.optJSONObject("payload")?.optString("label")) {
                         PassiveModeShutterTimelineService.MARK_MAIN_STABLE -> mainMarkers++
-                        PassiveModeShutterTimelineService.MARK_200MP_SELECTED -> mode200Markers++
+                        PassiveModeShutterTimelineService.MARK_PHOTO_SELECTED,
+                        PassiveModeShutterTimelineService.MARK_PRO_SELECTED,
+                        PassiveModeShutterTimelineService.MARK_HIRES_SELECTED,
+                        PassiveModeShutterTimelineService.MARK_MODE_SELECTED_UNSPECIFIED -> modeSelectedMarkers++
                         PassiveModeShutterTimelineService.MARK_SHUTTER_PRESSED -> shutterMarkers++
                     }
                 }
@@ -282,7 +288,7 @@ class PassiveModeShutterTimelineActivity : Activity() {
                 .append(" · delayedSnapshots=").append(delayedSnapshots)
                 .append('\n')
             append("MAIN=").append(mainMarkers)
-                .append(" · 200MP=").append(mode200Markers)
+                .append(" · MODE=").append(modeSelectedMarkers)
                 .append(" · SHUTTER=").append(shutterMarkers)
                 .append(" · cameraUnavailable=").append(cameraUnavailable)
                 .append('\n')
