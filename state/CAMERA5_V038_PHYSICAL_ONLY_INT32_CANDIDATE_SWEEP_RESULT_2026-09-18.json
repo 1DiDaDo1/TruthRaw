@@ -1,0 +1,85 @@
+{
+  "schema": "truthraw.camera5-v038-physical-only-int32-candidate-sweep-device-result.v0.38",
+  "date": "2026-09-18",
+  "authority": "DEVICE_ACQUISITION_OBSERVATION_ONLY",
+  "controlReference": "TruthRaw v0.20 acquisition/payload chain",
+  "uiVariant": "v0.38b touch-safe controls; scientific experiment identical to v0.38",
+  "classification": "DEVICE_SWEEP_COMPLETE_3_OF_3__ATTACHMENT_PASS__CAPTURE_PASS__NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
+  "runs": [
+    {
+      "profile": "P01_I",
+      "key": "org.codeaurora.qcamera3.sessionParameters.EnableVSR",
+      "tagHex": "0x801F000B",
+      "nativeType": "INT32",
+      "value": 1,
+      "attached": true,
+      "captured": true,
+      "sourceSha256": "69e752450bdc7976e0cef4a63ead2e49b8a9db2a813b32a0d3e0a5d3c19d0e82",
+      "payloadSha256": "e4ce55fae84729fc187a8f4cc41d5167ab06f974677bb1ecedf85691b08fd47a",
+      "payloadBytes": 25067520,
+      "selectedCandidate": [
+        4080,
+        3072
+      ],
+      "topologyDifferential": false
+    },
+    {
+      "profile": "P02_J",
+      "key": "org.codeaurora.qcamera3.sessionParameters.ExtendedMaxZoom",
+      "tagHex": "0x801F000A",
+      "nativeType": "INT32",
+      "value": 1,
+      "attached": true,
+      "captured": true,
+      "sourceSha256": "3d1f46ce36068f111294a30bc7919d34e83e7cee99a0e6c0e343d5e30f934f05",
+      "payloadSha256": "6af65519fce853eecad8e56cf5bc8aeb021f77b9cb7446b4eb11cfb3f15f607e",
+      "payloadBytes": 25067520,
+      "selectedCandidate": [
+        4080,
+        3072
+      ],
+      "topologyDifferential": false
+    },
+    {
+      "profile": "P03_K",
+      "key": "org.codeaurora.qcamera3.sessionParameters.enableQLL",
+      "tagHex": "0x801F000D",
+      "nativeType": "INT32",
+      "value": 1,
+      "attached": true,
+      "captured": true,
+      "sourceSha256": "094b7dbea8bca7eb1c94604fc72aa00926ba1d20cbe0c6d98005831b925bf694",
+      "payloadSha256": "c45ee089e4e90a978c38b5ff151c42e1c67f1ac291ef2356da2e93a16aa2ab5b",
+      "payloadBytes": 25067520,
+      "selectedCandidate": [
+        4080,
+        3072
+      ],
+      "topologyDifferential": false
+    }
+  ],
+  "sharedTopology": {
+    "envelope": [
+      16320,
+      12288
+    ],
+    "sourceBytes": 401080320,
+    "nonZeroRows": 768,
+    "zeroRows": 11520,
+    "payloadBytes": 25067520,
+    "selectedAdvertisedStandardRaw": [
+      4080,
+      3072
+    ]
+  },
+  "secondaryObservation": {
+    "profile": "P01_I",
+    "contiguousPrefixAllSamplesNonZero": false,
+    "band0ZeroSamples": 109304,
+    "minCode": 0,
+    "maxCode": 1023,
+    "causalAttributionAllowed": false,
+    "reason": "capture conditions materially differ; matched control absent"
+  },
+  "nextDecision": "CAPTURE_CONTEXT_GEOMETRY_LADDER_4080x3072_vs_8160x6144_vs_16320x12288_NO_UNKNOWN_VENDOR_INTERVENTION"
+}
