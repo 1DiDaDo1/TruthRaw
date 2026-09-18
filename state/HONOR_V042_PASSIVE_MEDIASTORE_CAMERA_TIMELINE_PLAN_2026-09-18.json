@@ -1,0 +1,50 @@
+{
+  "schema": "truthraw.passive-mediastore-camera-timeline-plan.v0.42",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "predecessor": {
+    "v040": "HONOR_ACCESSORISE_BINDER_CONNECTION_PASS__NO_METHOD_INVOCATION__NO_CAMERA_OWNERSHIP_CHANGE",
+    "v041": "OUTPUT_CONFIG_CALLBACK_REGISTRATION_REJECTED_BY_SECURITY_BOUNDARY",
+    "closure": "DO_NOT_PROBE_SIBLING_HONOR_CALLBACK_REGISTRATIONS_BEHIND_SAME_GATE"
+  },
+  "observedLayers": [
+    "CAMERA_MANAGER_AVAILABILITY_TIMELINE",
+    "MEDIASTORE_IMAGES_CHANGE_AND_METADATA_TIMELINE"
+  ],
+  "mediaProjection": [
+    "_id",
+    "display_name",
+    "mime_type",
+    "width",
+    "height",
+    "_size",
+    "datetaken",
+    "date_added",
+    "date_modified",
+    "relative_path",
+    "is_pending",
+    "owner_package_name",
+    "volume_name"
+  ],
+  "invariants": {
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageReaderCreated": false,
+    "mediaInputStreamOpened": false,
+    "imagePixelBytesRead": false,
+    "bitmapDecoded": false,
+    "exifDecoded": false,
+    "honorBinderMethodInvoked": false,
+    "honorCallbackRegistered": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "mediaItemMutated": false
+  },
+  "permissionPolicy": {
+    "readMediaImagesRequestedOnApi33Plus": true,
+    "readMediaVisualUserSelectedDeclared": true,
+    "failSoftOnQueryDenial": true,
+    "bypassAllowed": false
+  },
+  "firstRun": "ONE_MANUAL_HONOR_200MP_PHOTO_ONLY",
+  "resultBoundary": "SYSTEM_VISIBLE_OUTPUT_METADATA_ONLY__NOT_SENSOR_OR_CAPTURE_EVIDENCE"
+}
