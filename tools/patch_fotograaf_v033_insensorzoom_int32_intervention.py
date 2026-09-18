@@ -62,7 +62,7 @@ s = s.replace(reset_needle, reset_replacement, 1)
 
 support_needle = '''        val support = runCatching { device.isSessionConfigurationSupported(config) }.getOrNull()
 '''
-intervention = '''        // v0.33 controlled intervention: Gate A has already frozen the untouched request/session
+intervention = r'''        // v0.33 controlled intervention: Gate A has already frozen the untouched request/session
         // surface. v0.32 resolved EnableInsensorZoom as native camera_metadata INT32
         // (tag 0x801F0013), so this build changes exactly one advertised logical session key
         // to numeric INT32(1). The key name and value are stimuli only; no vendor semantics
