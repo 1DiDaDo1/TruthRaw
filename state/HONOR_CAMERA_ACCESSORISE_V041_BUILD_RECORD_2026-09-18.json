@@ -1,0 +1,35 @@
+{
+  "schema": "truthraw.honor-camera-accessorise-v041-build-record.v0.41",
+  "date": "2026-09-18",
+  "branch": "integration/truthraw-suite-v0-41-honor-output-config-callback-probe",
+  "runs": [
+    {
+      "runId": 35383673901,
+      "headSha": "cd1ba36065e2f1ccce57c763b0429cc22be71a1d",
+      "conclusion": "failure",
+      "stage": "invariant_validation_before_build",
+      "cause": "overbroad substring assertion matched evidence label setPreviewSurfaceInvoked",
+      "scientificRuntimeCodeWeakened": false
+    },
+    {
+      "runId": 35383725740,
+      "headSha": "6980e0bc36155264114b5a61f190dfabd054e46f",
+      "conclusion": "failure",
+      "stage": "invariant_validation_before_build",
+      "cause": "overbroad ImageReader substring assertion matched KDoc documentation",
+      "scientificRuntimeCodeWeakened": false
+    },
+    {
+      "runId": 35383782841,
+      "headSha": "5cede9289ec8434f1208740c7db1d13a5264e279",
+      "conclusion": "success",
+      "invariantPass": true,
+      "buildSuccessful": true,
+      "apkBytes": 5069413,
+      "apkSha256": "9a3acbfd72f3aa25570e800cc89db32d5c6f9cfbf7e90b5a85d3aa73728b410c",
+      "artifactId": 10563480355,
+      "artifactZipDigest": "sha256:e2afdb46af689b70c229a9a2abe77e9f0fda69e5f8716d5f89f51bd53d6e45fa"
+    }
+  ],
+  "failedRunsRetainedAsProvenance": true
+}
