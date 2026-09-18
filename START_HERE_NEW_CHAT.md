@@ -13,12 +13,13 @@ Read in this order:
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `state/CURRENT_CAMERA5_RAW_ROUTE_STATE_2026-09-17.json`
 5. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
-6. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
-7. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-8. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
-9. `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md`
-10. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
-11. only then the exact canonical/research/module documents relevant to the task.
+6. `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md` — preserved historical integration index; Camera-5 interpretation is superseded by the 2026-09-17 index
+7. `state/CURRENT_PROJECT_STATE_2026-09-16.json`
+8. `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+9. `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+10. `docs/handoff/TRUTHRAW_DETAILED_HANDOFF_2026-09-16.md`
+11. `docs/handoff/TRUTHRAW_CAMERA5_RAW_ROUTE_V014_TO_V020_2026-09-17.md`
+12. only then the exact canonical/research/module documents relevant to the task.
 
 Camera-5 detailed reading order:
 
