@@ -1,0 +1,63 @@
+{
+  "schema": "truthraw.honor-camera-accessorise-v040-device-and-static-result.v0.40",
+  "date": "2026-09-18",
+  "honorApk": {
+    "sha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+    "packageName": "com.hihonor.camera",
+    "installedVersion": "171.0.10.452",
+    "minSdk": 36,
+    "compileSdk": 36,
+    "targetSdk": 37
+  },
+  "deviceRuntime": {
+    "sdkInt": 36,
+    "release": "16"
+  },
+  "authority": "PASSIVE_ROUTE_OBSERVATION_ONLY",
+  "v040Handshake": {
+    "bindServiceReturned": true,
+    "serviceConnected": true,
+    "binderAlive": true,
+    "binderPing": true,
+    "interfaceDescriptor": "com.hihonor.camera.accessorise.aidl.ICameraAccessoriseService",
+    "aidlMethodInvoked": false,
+    "cameraOwnershipChangeObserved": false,
+    "classification": "HONOR_ACCESSORISE_BINDER_CONNECTION_PASS__NO_METHOD_INVOCATION__NO_CAMERA_OWNERSHIP_CHANGE"
+  },
+  "staticAidl": {
+    "serviceTransactions": {
+      "1": "setPreviewSurface(Surface)",
+      "2": "exitPreview()",
+      "3": "registerOutputConfigCallback(IOutputConfigCallback)",
+      "4": "unregisterOutputConfigCallback(IOutputConfigCallback)",
+      "5": "registerPreviewStateCallback(IPreviewStateCallback)",
+      "6": "unregisterPreviewStateCallback(IPreviewStateCallback)",
+      "7": "registerCaptureEventCallback(ICaptureEventCallback)",
+      "8": "unregisterCaptureEventCallback(ICaptureEventCallback)"
+    },
+    "outputConfigCallbackTransactions": {
+      "1": "onPreviewConfigChanged(int,int)",
+      "2": "onCurrentModeChanged(String)"
+    },
+    "previewStateCallbackTransactions": {
+      "1": "onPreviewStateChanged(int)"
+    },
+    "captureEventCallbackTransactions": {
+      "1": "onCaptureEvent(int)"
+    }
+  },
+  "authorizationBoundary": {
+    "appliesToAllThreeRegistrationMethods": true,
+    "staticAllowedPackages": [
+      "com.huamei.badge",
+      "com.hihonor.camera"
+    ],
+    "staticAllowedCertificateSha256": [
+      "0EA6FCE70AB2A77DB537318F45FC12DEFC0D95C4EC8946150FB2E40567CD5D3E"
+    ],
+    "rejectionMarker": "enforceCallingPackage / client_not_allowed",
+    "throwsSecurityExceptionOnReject": true,
+    "bypassAllowed": false
+  },
+  "nextDecision": "V041_SINGLE_OUTPUT_CONFIG_CALLBACK_REGISTRATION_PROBE_STOP_ON_REJECT_OR_SUCCESS"
+}
