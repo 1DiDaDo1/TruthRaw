@@ -1,0 +1,45 @@
+{
+  "schema": "truthraw.honor-camera-accessorise-v041-experiment-plan.v0.41",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SOFTWARE_ROUTE_OBSERVATION_ONLY",
+  "sourceApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+  "serviceDescriptor": "com.hihonor.camera.accessorise.aidl.ICameraAccessoriseService",
+  "allowedServiceTransactions": {
+    "registerOutputConfigCallback": 3,
+    "unregisterOutputConfigCallbackOnCleanupOnly": 4
+  },
+  "forbiddenServiceTransactions": [
+    1,
+    2,
+    5,
+    6,
+    7,
+    8
+  ],
+  "callbackDescriptor": "com.hihonor.camera.accessorise.aidl.IOutputConfigCallback",
+  "callbackTransactions": {
+    "1": "onPreviewConfigChanged(int width,int height)",
+    "2": "onCurrentModeChanged(String mode)"
+  },
+  "staticAuthorizationBoundary": {
+    "sharedAcrossAllThreeCallbackRegistrations": true,
+    "allowedPackages": [
+      "com.huamei.badge",
+      "com.hihonor.camera"
+    ],
+    "allowedCertificateSha256": [
+      "0EA6FCE70AB2A77DB537318F45FC12DEFC0D95C4EC8946150FB2E40567CD5D3E"
+    ],
+    "predictedOrdinaryTruthRawResult": "LIKELY_SECURITY_REJECTION__PREDICTION_ONLY"
+  },
+  "runtimeInvariants": {
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageBufferAccessedByTruthRaw": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "previewSurfaceProvidedByTruthRaw": false,
+    "allowlistBypassAttempted": false,
+    "packageOrSignatureSpoofingAttempted": false
+  },
+  "stopRule": "ONE_REGISTRATION_ATTEMPT_ONLY__STOP_ON_REJECT__KEEP_ONLY_OUTPUT_CONFIG_CALLBACK_ON_SUCCESS"
+}
