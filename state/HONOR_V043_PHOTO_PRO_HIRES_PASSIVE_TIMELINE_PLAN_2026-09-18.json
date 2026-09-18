@@ -1,0 +1,56 @@
+{
+  "schema": "truthraw.passive-mode-shutter-timeline-plan.v0.43",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "observedHonorUi": [
+    "PHOTO",
+    "PRO",
+    "HI-RES"
+  ],
+  "semanticRule": "HI_RES_UI_LABEL_IS_CANDIDATE_ONLY__NOT_PREASSIGNED_TO_200MP",
+  "profiles": [
+    "FRESH_PHOTO_CONTROL_REPLICATE",
+    "FRESH_PRO_CONTROL_REPLICATE",
+    "FRESH_HIRES_CANDIDATE_REPLICATE"
+  ],
+  "humanMarkers": [
+    "MAIN_STABLE",
+    "MODE_PHOTO_SELECTED",
+    "MODE_PRO_SELECTED",
+    "MODE_HIRES_SELECTED",
+    "SHUTTER_PRESSED",
+    "USER_RETURNED_FROM_HONOR_CAMERA"
+  ],
+  "markersAreHardwareTimestamps": false,
+  "delayedMediaStoreSnapshotMs": [
+    0,
+    25,
+    100,
+    250,
+    1000
+  ],
+  "invariants": {
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageReaderCreated": false,
+    "imagePixelBytesRead": false,
+    "mediaInputStreamOpened": false,
+    "bitmapDecoded": false,
+    "exifDecoded": false,
+    "honorBinderMethodInvoked": false,
+    "honorCallbackRegistered": false,
+    "vendorRequestWrittenByTruthRaw": false
+  },
+  "priorV042Reference": {
+    "normalOutput": [
+      3072,
+      4096
+    ],
+    "priorHighResolutionOutput": [
+      16320,
+      12288
+    ],
+    "shortCamera0PulseObservedInPriorHighResolutionRun": true
+  },
+  "decisionRule": "ASSOCIATE_HI_RES_WITH_16320x12288_OUTPUT_CLASS_ONLY_AFTER_REPLICATED_DEVICE_RESULTS"
+}
