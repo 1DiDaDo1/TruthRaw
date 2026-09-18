@@ -1,0 +1,65 @@
+{
+  "schema": "truthraw.honor-camera-accessorise-v041-device-result.v0.41",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SOFTWARE_ROUTE_OBSERVATION_ONLY",
+  "runtime": {
+    "sdkInt": 36,
+    "release": "16",
+    "truthRawTargetSdk": 35
+  },
+  "sourceApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+  "invariants": {
+    "scientificMasterModified": false,
+    "captureEvidenceGranted": false,
+    "honorCallbackSemanticAuthorityGranted": false,
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageBufferAccessedByTruthRaw": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "previewSurfaceProvidedByTruthRaw": false,
+    "exitPreviewInvokedByTruthRaw": false,
+    "captureEventCallbackRegistrationInvoked": false,
+    "previewStateCallbackRegistrationInvoked": false,
+    "allowlistBypassAttempted": false,
+    "packageOrSignatureSpoofingAttempted": false
+  },
+  "probe": {
+    "serviceDescriptor": "com.hihonor.camera.accessorise.aidl.ICameraAccessoriseService",
+    "method": "registerOutputConfigCallback(IOutputConfigCallback)",
+    "transactionCode": 3,
+    "bindServiceReturned": true,
+    "serviceConnected": true,
+    "binderAlive": true,
+    "binderPing": true,
+    "transactReturned": true,
+    "replyReadPass": false,
+    "exceptionClass": "java.lang.SecurityException",
+    "exceptionMessage": "Package not allowed: 10573",
+    "callbackRegistered": false,
+    "classification": "OUTPUT_CONFIG_CALLBACK_REGISTRATION_REJECTED_BY_SECURITY_BOUNDARY"
+  },
+  "timings": {
+    "serviceConnectedToResultMs": 2.706771,
+    "probeStartToResultMs": 14.792552
+  },
+  "staticAuthorizationBoundary": {
+    "registrationMethodsShareAuthorizationGate": true,
+    "allowedPackages": [
+      "com.huamei.badge",
+      "com.hihonor.camera"
+    ],
+    "allowedCertificateSha256": [
+      "0EA6FCE70AB2A77DB537318F45FC12DEFC0D95C4EC8946150FB2E40567CD5D3E"
+    ]
+  },
+  "routeClosure": {
+    "registerPreviewStateCallbackFurtherProbeAllowed": false,
+    "registerCaptureEventCallbackFurtherProbeAllowed": false,
+    "packageImpersonationAllowed": false,
+    "signatureSpoofingAllowed": false,
+    "setPreviewSurfaceAllowed": false,
+    "exitPreviewAllowed": false
+  },
+  "boundedClassification": "HONOR_ACCESSORISE_SERVICE_BINDABLE__CALLBACK_REGISTRATION_PACKAGE_SIGNATURE_GATED__ORDINARY_TRUTHRAW_REJECTED",
+  "nextDecision": "PASSIVE_MEDIASTORE_AND_CAMERA_AVAILABILITY_OUTPUT_TIMELINE_NO_PIXEL_READ_NO_HONOR_BINDER_CALLBACK"
+}
