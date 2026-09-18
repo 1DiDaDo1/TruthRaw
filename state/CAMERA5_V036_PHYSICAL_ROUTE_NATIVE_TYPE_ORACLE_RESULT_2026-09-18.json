@@ -1,0 +1,66 @@
+{
+  "schema": "truthraw.camera5-v036-physical-route-native-type-oracle-device-result.v0.36",
+  "date": "2026-09-18",
+  "authority": "REPRESENTATION_ONLY_DEVICE_OBSERVATION",
+  "controlReference": "TruthRaw v0.20 unchanged",
+  "classification": "PHYSICAL_ROUTE_NATIVE_TYPE_ORACLE_COMPLETE_4_OF_4__REPRESENTATION_ONLY",
+  "logicalCameraId": "0",
+  "physicalCameraId": "5",
+  "resolvedCount": 4,
+  "unresolvedCount": 0,
+  "ambiguousCount": 0,
+  "candidates": [
+    {
+      "symbol": "H",
+      "key": "org.codeaurora.qcamera3.sessionParameters.inSensorZoomEnable",
+      "tagHex": "0x801F0029",
+      "nativeType": "BYTE",
+      "physicalOnlyAvailability": true
+    },
+    {
+      "symbol": "I",
+      "key": "org.codeaurora.qcamera3.sessionParameters.EnableVSR",
+      "tagHex": "0x801F000B",
+      "nativeType": "INT32",
+      "physicalOnlyAvailability": true
+    },
+    {
+      "symbol": "J",
+      "key": "org.codeaurora.qcamera3.sessionParameters.ExtendedMaxZoom",
+      "tagHex": "0x801F000A",
+      "nativeType": "INT32",
+      "physicalOnlyAvailability": true
+    },
+    {
+      "symbol": "K",
+      "key": "org.codeaurora.qcamera3.sessionParameters.enableQLL",
+      "tagHex": "0x801F000D",
+      "nativeType": "INT32",
+      "physicalOnlyAvailability": true
+    }
+  ],
+  "oracleSideEffects": {
+    "directPhysicalCameraOpenAttempted": false,
+    "sessionCreated": false,
+    "sessionParametersAttached": false,
+    "captureSubmitted": false,
+    "vendorModifiedRequestSubmittedToHal": false,
+    "rawPixelAccess": false,
+    "sourceMutation": false,
+    "semanticMeaningAssumed": false,
+    "semanticPromotionAllowed": false
+  },
+  "rawCapabilityContext": {
+    "standardRawOutputs": [
+      "4080x3072"
+    ],
+    "maximumRawOutputs": [
+      "8160x6144"
+    ],
+    "maximumHighResolutionRawOutputs": [
+      "16320x12288"
+    ]
+  },
+  "nextDecision": "V037_ISOLATED_PHYSICAL_ONLY_BYTE_ATTACHMENT_FEASIBILITY_CONDITIONAL_CAPTURE",
+  "selectedCandidate": "H"
+}
