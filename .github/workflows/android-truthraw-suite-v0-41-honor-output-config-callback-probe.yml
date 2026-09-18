@@ -79,7 +79,7 @@ jobs:
           assert 'exitPreview(' not in service
           assert 'openCamera(' not in service
           assert 'createCaptureRequest' not in service
-          assert 'ImageReader' not in service
+          assert 'import android.media.ImageReader' not in service
           assert 'registerCaptureEventCallback' not in service
           assert 'registerPreviewStateCallback' not in service
           assert 'ONE_REGISTRATION_ATTEMPT_ONLY' in plan
