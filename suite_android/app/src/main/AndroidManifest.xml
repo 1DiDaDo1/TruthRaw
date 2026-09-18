@@ -95,6 +95,21 @@
                 android:value="Passive CameraManager plus explicit user markers and delayed MediaStore metadata snapshots; no camera open, no pixel read, no EXIF, no Honor Binder." />
         </service>
 
+        <activity
+            android:name=".PassiveHiresTeleStateTimelineActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <service
+            android:name=".PassiveHiresTeleStateTimelineService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Passive CameraManager plus explicit HI-RES main and tele UI-state anchors, screenshot metadata classification, and MediaStore row-state transitions; no camera open, no pixel read, no EXIF, no Honor Binder." />
+        </service>
+
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraafPermissionGateActivity" android:exported="false" />
