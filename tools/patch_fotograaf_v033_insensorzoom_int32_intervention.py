@@ -109,14 +109,9 @@ if report_needle not in s:
     raise SystemExit('v0.33 evidence insertion anchor not found')
 s = s.replace(report_needle, report_replacement, 1)
 
-status_needle = '''                    "Gate A/B pre-HAL route fingerprint=${if (lastPreHalSessionGate != null && lastPreHalRequestGate != null) "captured" else "partial"}\n" +
-'''
-status_replacement = '''                    "Gate A baseline=${if (lastPreHalSessionGate != null) "captured" else "missing"} · EnableInsensorZoom INT32(1)=${if (lastInsensorZoomInt32Intervention?.optBoolean("applied", false) == true) "attached" else "not attached"}\n" +
-                    "Gate B request fingerprint=${if (lastPreHalRequestGate != null) "captured" else "missing"}\n" +
-'''
-if status_needle not in s:
-    raise SystemExit('v0.33 status insertion anchor not found')
-s = s.replace(status_needle, status_replacement, 1)
+# Keep the existing v0.20 final status text intact. v0.33 intervention state is recorded in
+# the evidence JSON; UI wording is not part of the scientific contract.
+
 
 assert 'TruthRaw · 200MP Tele Test v0.33 · EnableInsensorZoom INT32 intervention' in s
 assert 'Camera2InsensorZoomInt32SessionProbe.applyExperiment(' in s
