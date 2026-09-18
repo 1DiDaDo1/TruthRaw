@@ -1,0 +1,81 @@
+{
+  "schema": "truthraw.honor-v043-device-result.photo-pro-hires.v1",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "sources": {
+    "pro": {
+      "name": "pro mode.json",
+      "bytes": 94480,
+      "sha256": "bd6f01e4da87f78f133c55faf627af1c7a84d1cabe43fd5de8c6e8e650a57d14"
+    },
+    "hires": {
+      "name": "hires.json",
+      "bytes": 97139,
+      "sha256": "797158683400007d729beebccacc115631e0a5c76d7c83fb27c01f09a7cab1be"
+    }
+  },
+  "userOperationalContext": {
+    "photoBaselineHadNoModeTransition": true,
+    "hiresSequence": [
+      "ENTER_HIRES",
+      "HIRES_LANDS_ON_MAIN_USER_REPORTED",
+      "FIRST_HIRES_CAPTURE",
+      "USER_SWITCHES_TO_TELE_UI_DESCRIBED_200MP",
+      "SECOND_HIRES_CAPTURE"
+    ],
+    "physicalCameraId5ProvenByThisRun": false
+  },
+  "pro": {
+    "modeTransitionUserMarked": true,
+    "outputs": [
+      {
+        "width": 3072,
+        "height": 4096,
+        "owner": "com.hihonor.camera"
+      },
+      {
+        "width": 3072,
+        "height": 4096,
+        "owner": "com.hihonor.camera"
+      }
+    ],
+    "cameraUnavailableObserved": false
+  },
+  "hiresMain": {
+    "mediaId": 114351,
+    "displayName": "IMG_20260918_225648.jpg",
+    "width": 8192,
+    "height": 6144,
+    "pixelCount": 50331648,
+    "sizeBytes": 7553801,
+    "owner": "com.hihonor.camera",
+    "camera0UnavailableObserved": true,
+    "authority": "SYSTEM_VISIBLE_OUTPUT_GEOMETRY_ONLY"
+  },
+  "hiresTeleUi200Mp": {
+    "userReportedTeleState": true,
+    "activePhysicalId5Proven": false,
+    "mediaId": 114352,
+    "displayName": "IMG_20260918_225721.jpg",
+    "earlyState": {
+      "width": 6144,
+      "height": 8192,
+      "pixelCount": 50331648,
+      "sizeBytes": null,
+      "isPending": 0
+    },
+    "finalState": {
+      "width": 16320,
+      "height": 12288,
+      "pixelCount": 200540160,
+      "sizeBytes": 27132295,
+      "isPending": 0
+    },
+    "sameMediaStoreRowTransition": true,
+    "owner": "com.hihonor.camera",
+    "camera0UnavailableObserved": true,
+    "authority": "SYSTEM_VISIBLE_OUTPUT_GEOMETRY_ONLY"
+  },
+  "rawBoundaryUnchanged": true,
+  "nextDecision": "V044_EXPLICIT_HIRES_MAIN_AND_TELE_200MP_UI_MARKERS_PLUS_SCREENSHOT_METADATA_CLASSIFICATION_AND_ROW_STATE_TRANSITIONS"
+}
