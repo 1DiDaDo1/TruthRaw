@@ -1,0 +1,125 @@
+{
+  "schema": "truthraw.camera5-v033-v034-single-variable-results.v0.1",
+  "date": "2026-09-18",
+  "status": "DEVICE_RESULTS_COMPLETE_FOR_TWO_V032_INSENSOR_ROUTE_CANDIDATES",
+  "device": {
+    "family": "HONOR Magic 8 Pro",
+    "model": "BKQ-N49",
+    "logicalCameraId": "0",
+    "physicalCameraId": "5"
+  },
+  "controlAuthority": {
+    "version": "v0.20",
+    "classification": "APP_VISIBLE_PHYSICAL5_16320x12288_RAW_SENSOR_ENVELOPE_WITH_EXACT_4080x3072_STANDARD_RAW_PREFIX_CANDIDATE_PROVEN",
+    "sourceFirstSealRequired": true,
+    "stage36And37Unchanged": true
+  },
+  "v033": {
+    "experiment": "EnableInsensorZoom INT32(1) isolated session intervention",
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableInsensorZoom",
+    "nativeTypeEvidence": {
+      "source": "TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json",
+      "tagHex": "0x801F0013",
+      "resolvedNativeType": "INT32"
+    },
+    "evidenceFile": "TRUTHRAW_1789729434673_CAM5_200MP_EVIDENCE_v033.json",
+    "sourceFile": "TRUTHRAW_1789729434673_CAM5_200MP_16320x12288_v033.rawsensor",
+    "sourceSha256": "a519d4eaa4ff30136bbeb26afeb0621006d4e5bb3bb053d32879e6a76b2f9815",
+    "sourceBytes": 401080320,
+    "intervention": {
+      "requestedNumericValue": 1,
+      "requestedValueSemanticsAssumed": false,
+      "builderReadback": 1,
+      "requestReadback": 1,
+      "sessionParametersAttached": true,
+      "vendorKeysWritten": 1,
+      "otherV032CandidatesWritten": false
+    },
+    "stage36": {
+      "classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+      "nonZeroRows": 768,
+      "firstNonZeroRow": 0,
+      "lastNonZeroRow": 767,
+      "payloadBytes": 25067520
+    },
+    "stage37": {
+      "classification": "EXACT_PREFIX_BYTES_MATCH_ONE_ADVERTISED_STANDARD_RAW_GEOMETRY__GEOMETRY_INTERPRETATION_CANDIDATE_NOT_SENSOR_PROOF",
+      "selectedCandidate": "4080x3072",
+      "payloadBytes": 25067520,
+      "payloadSha256": "0134d55d0a8f1e376fcac333b9de7f8196b9c1328094bd0a778a4fec2f8cc49a"
+    },
+    "topologyDifferentialMeasured": false,
+    "semanticPromotionAllowed": false
+  },
+  "v034": {
+    "experiment": "EnableSnapshotOnlyInsensorZoom INT32(1) isolated session intervention",
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableSnapshotOnlyInsensorZoom",
+    "nativeTypeEvidence": {
+      "source": "TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json",
+      "tagHex": "0x801F0014",
+      "resolvedNativeType": "INT32"
+    },
+    "evidenceFile": "TRUTHRAW_1789734225297_CAM5_200MP_EVIDENCE_v034(1).json",
+    "sourceFile": "TRUTHRAW_1789734225297_CAM5_200MP_16320x12288_v034.rawsensor",
+    "sourceSha256": "b8edc8e37998167489dac087f433ac0885c8640724fc004fd7c387e6134f99c5",
+    "sourceBytes": 401080320,
+    "intervention": {
+      "requestedNumericValue": 1,
+      "requestedValueSemanticsAssumed": false,
+      "builderReadback": 1,
+      "requestReadback": 1,
+      "sessionParametersAttached": true,
+      "vendorKeysWritten": 1,
+      "enableInsensorZoomWritten": false,
+      "enableMcxMasterCbWritten": false,
+      "otherV032CandidatesWritten": false
+    },
+    "stage36": {
+      "classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+      "nonZeroRows": 768,
+      "allZeroRows": 11520,
+      "firstNonZeroRow": 0,
+      "lastNonZeroRow": 767,
+      "firstNonZeroByteOffset": 0,
+      "lastNonZeroByteOffset": 25067518,
+      "payloadBytes": 25067520,
+      "sealedSourceShaIdentityPass": true
+    },
+    "stage37": {
+      "classification": "EXACT_PREFIX_BYTES_MATCH_ONE_ADVERTISED_STANDARD_RAW_GEOMETRY__GEOMETRY_INTERPRETATION_CANDIDATE_NOT_SENSOR_PROOF",
+      "selectedCandidate": "4080x3072",
+      "uniqueAdvertisedStandardRawExactMatch": true,
+      "payloadBytes": 25067520,
+      "payloadSha256": "32cb6970d603e1ee383731cc946376864e0ca4cab2a29821b93002b7a45cfd43",
+      "exactPrefixCopy": true
+    },
+    "observedRouteIndicators": {
+      "honorBinningFactor": 4,
+      "honorAECRealCropWindowPrefix": [11, 8, 4058, 3055],
+      "honorAllISPCropWindow": [0, 0, 16320, 12288, 0, 0, 16320, 12288],
+      "honorIsInSensorZoom": 0,
+      "rawBinningFactorUsed": true
+    },
+    "topologyDifferentialMeasured": false,
+    "semanticPromotionAllowed": false
+  },
+  "combinedConclusion": "WITHIN_THE_TESTED_CAMERA5_MAX_CONTEXT_NEITHER_ISOLATED_INT32_ONE_INSENSOR_ROUTE_CANDIDATE_CHANGED_THE_APP_VISIBLE_RAW_ENVELOPE_OR_POPULATED_PREFIX_TOPOLOGY",
+  "notProven": [
+    "NUMERIC_ONE_MEANS_ENABLED",
+    "VENDOR_KEY_NAME_SEMANTICS",
+    "KEYS_ARE_GLOBALLY_INEFFECTIVE",
+    "OTHER_NUMERIC_VALUES_ARE_INEFFECTIVE",
+    "OTHER_PREREQUISITE_CONTEXTS_ARE_INEFFECTIVE",
+    "NATIVE_ADC_GEOMETRY",
+    "200MP_OPTICAL_RESOLUTION"
+  ],
+  "nextCandidate": {
+    "keyName": "org.codeaurora.qcamera3.sessionParameters.EnableMCXMasterCb",
+    "tagHex": "0x801F0005",
+    "resolvedNativeType": "INT32",
+    "proposedStimulus": 1,
+    "oneUnknownVendorVariableOnly": true,
+    "otherV032CandidatesUnset": true,
+    "controlReference": "v0.20 unchanged"
+  }
+}
