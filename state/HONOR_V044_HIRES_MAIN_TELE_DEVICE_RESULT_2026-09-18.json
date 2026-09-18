@@ -1,0 +1,52 @@
+{
+  "schema": "truthraw.honor-v044-device-result.hires-main-tele-ui.v1",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "source": {
+    "name": "main 50mp tele 200mp.json",
+    "bytes": 112594,
+    "sha256": "5f067d339d9a781bde875c86542ab6e87e1d1ac694b81ecbf940ccff9b4e8097"
+  },
+  "runProfile": "HIRES_MAIN_TO_TELE_200MP_UI_SESSION",
+  "hiresMain": {
+    "marker": "HIRES_MAIN_CONFIRMED",
+    "mediaId": 114362,
+    "displayName": "IMG_20260918_232933.jpg",
+    "width": 8192,
+    "height": 6144,
+    "pixelCount": 50331648,
+    "sizeBytes": 8001762,
+    "owner": "com.hihonor.camera",
+    "geometryClass": "SYSTEM_VISIBLE_50_331_648PX_CLASS"
+  },
+  "tele200mpUi": {
+    "marker": "TELE_200MP_UI_SELECTED",
+    "activePhysicalCameraId5Proven": false,
+    "mediaId": 114363,
+    "displayName": "IMG_20260918_232949.jpg",
+    "earlyState": {
+      "width": 6144,
+      "height": 8192,
+      "pixelCount": 50331648,
+      "sizeBytes": null,
+      "isPending": 0
+    },
+    "finalState": {
+      "width": 16320,
+      "height": 12288,
+      "pixelCount": 200540160,
+      "sizeBytes": 27191131,
+      "isPending": 0
+    },
+    "sameMediaStoreUriTransition": true,
+    "transitionRecordedAutomatically": true,
+    "owner": "com.hihonor.camera"
+  },
+  "cameraManager": {
+    "camera0UnavailableSpansMainAndTeleStates": true,
+    "reliableMainToTeleSwitchDetector": false,
+    "activeLensTelemetryProven": false
+  },
+  "rawAuthorityUnchanged": true,
+  "nextDecision": "V045_EXPORTED_JPEG_METADATA_FINGERPRINT_AFTER_STABLE_MEDIASTORE_FINALIZATION"
+}
