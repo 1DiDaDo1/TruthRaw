@@ -61,12 +61,16 @@ class PassiveModeShutterTimelineActivity : Activity() {
         body.addView(space(8))
         body.addView(label("Kies precies één runprofiel per verse Honor-start:", 12f, true))
 
-        body.addView(button("1A · Start NORMALE foto-replicatie") {
+        body.addView(button("1A · Start PHOTO-controle") {
             startRun(PassiveModeShutterTimelineService.PROFILE_NORMAL)
         })
 
-        body.addView(button("1B · Start 200MP-replicatie") {
-            startRun(PassiveModeShutterTimelineService.PROFILE_200MP)
+        body.addView(button("1B · Start PRO-controle") {
+            startRun(PassiveModeShutterTimelineService.PROFILE_PRO)
+        })
+
+        body.addView(button("1C · Start HI-RES kandidaat") {
+            startRun(PassiveModeShutterTimelineService.PROFILE_HIRES)
         })
 
         body.addView(button("2 · Markeer en ga naar Honor Camera") {
@@ -86,8 +90,8 @@ class PassiveModeShutterTimelineActivity : Activity() {
             status.postDelayed({ refreshStatus() }, 250)
         })
 
-        body.addView(button("Fallback · 200MP SELECTED") {
-            serviceAction(PassiveModeShutterTimelineService.ACTION_MARK_200MP_SELECTED, "activity_fallback")
+        body.addView(button("Fallback · MODE SELECTED") {
+            serviceAction(PassiveModeShutterTimelineService.ACTION_MARK_MODE_SELECTED, "activity_fallback")
             status.postDelayed({ refreshStatus() }, 250)
         })
 
