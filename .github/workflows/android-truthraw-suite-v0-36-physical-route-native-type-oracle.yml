@@ -1,0 +1,129 @@
+name: TruthRaw FotoGraaf v0.36 Physical Route Native Type Oracle
+
+# v0.33-v0.35 closed three v0.32 candidates at isolated numeric INT32(1)
+# without a measured RAW envelope/populated-prefix topology differential.
+# v0.36 does not submit another intervention. It tests representation only for
+# four QTI keys that v0.35 evidence shows on physical Camera 5 session/request
+# surfaces but not logical Camera 0.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-36-physical-route-native-type-oracle
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2RawCbSourceTypeNativeTypeOracle.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalRouteNativeTypeOracle.kt'
+      - 'suite_android/app/src/main/cpp/rawcb_source_type_native_type_oracle.cpp'
+      - 'tools/patch_fotograaf_v036_physical_route_native_type_oracle.py'
+      - '.github/workflows/android-truthraw-suite-v0-36-physical-route-native-type-oracle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v036:
+    name: Build FotoGraaf v0.36 physical-route native type oracle arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 authority and apply v0.36 diagnostics-only oracle
+        run: |
+          python3 tools/patch_fotograaf_v036_physical_route_native_type_oracle.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          ORACLE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalRouteNativeTypeOracle.kt'
+          BRIDGE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2RawCbSourceTypeNativeTypeOracle.kt'
+          NATIVE='suite_android/app/src/main/cpp/rawcb_source_type_native_type_oracle.cpp'
+
+          grep -F 'TruthRaw · Camera-5 v0.36 · physical-route native type oracle' "$APP"
+          grep -F 'Camera2PhysicalRouteNativeTypeOracle.probe(' "$APP"
+          grep -F 'TRUTHRAW_CAM5_PHYSICAL_ROUTE_NATIVE_TYPE_ORACLE_v036.json' "$APP"
+          grep -F 'STAGE 1.5 DIAGNOSTIC STOP · v0.36' "$APP"
+          grep -F 'directPhysicalOpen=false' "$APP"
+          grep -F 'sessionCreated=false' "$APP"
+          grep -F 'captureSubmitted=false' "$APP"
+          ! grep -F 'Camera2McxMasterCbInt32SessionProbe.applyExperiment(' "$APP"
+
+          grep -F 'inSensorZoomEnable' "$ORACLE"
+          grep -F 'EnableVSR' "$ORACLE"
+          grep -F 'ExtendedMaxZoom' "$ORACLE"
+          grep -F 'enableQLL' "$ORACLE"
+          grep -F 'PHYSICAL5_ONLY_SESSION_AND_REQUEST_AVAILABILITY_IN_V035_EVIDENCE' "$ORACLE"
+          grep -F 'directPhysicalCameraOpenAttempted", false' "$ORACLE"
+          grep -F 'v0.15 rejected direct-open physical Camera 5 route' "$ORACLE"
+
+          grep -F 'probeKeyDecoupled(' "$BRIDGE"
+          grep -F 'nativeProbeDecoupled(' "$BRIDGE"
+          grep -F 'nativeProbeDecoupled(' "$NATIVE"
+          grep -F 'PHYSICAL_CAMERA_CHARACTERISTICS_ONLY' "$NATIVE"
+          grep -F 'LOGICAL_CAMERA_DISPOSABLE_TEMPLATE_ONLY' "$NATIVE"
+          grep -F 'directPhysicalCameraOpenAttempted":false' "$NATIVE"
+          grep -F 'vendorModifiedRequestSubmittedToHal":false' "$NATIVE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          oracle = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PhysicalRouteNativeTypeOracle.kt').read_text()
+          native = Path('suite_android/app/src/main/cpp/rawcb_source_type_native_type_oracle.cpp').read_text()
+
+          assert app.count('Camera2PhysicalRouteNativeTypeOracle.probe(') == 1
+          assert 'capabilityReady = false' in app
+          assert 'previewButton.isEnabled = false' in app
+          assert 'captureButton.isEnabled = false' in app
+          assert 'Camera2McxMasterCbInt32SessionProbe.applyExperiment(' not in app
+
+          for name in ('inSensorZoomEnable', 'EnableVSR', 'ExtendedMaxZoom', 'enableQLL'):
+              assert name in oracle
+          assert 'probeKeyDecoupled(' in oracle
+          assert 'sessionCreated", false' in oracle
+          assert 'captureSubmitted", false' in oracle
+          assert 'interventionAllowed", false' in oracle
+
+          assert 'metadata_camera_id_j' in native
+          assert 'request_camera_id_j' in native
+          assert 'ACameraManager_getCameraCharacteristics(' in native
+          assert 'request_camera_id.c_str()' in native
+          assert '"directPhysicalCameraOpenAttempted":false' in native
+
+          print('v0.36 decoupled physical-route native-type oracle invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-36-physical-route-native-type-oracle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
