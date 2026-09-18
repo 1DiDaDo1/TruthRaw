@@ -1,0 +1,25 @@
+{
+  "schema": "truthraw.passive-mediastore-camera-timeline-build-record.v0.42",
+  "date": "2026-09-18",
+  "branch": "integration/truthraw-suite-v0-42-passive-mediastore-camera-timeline",
+  "buildRunId": 35385935882,
+  "buildSourceCommit": "6bb7f63844bc61565fe94fe79a78240c6bc0abb2",
+  "buildConclusion": "success",
+  "gradle": "BUILD SUCCESSFUL in 1m 39s",
+  "invariantsResult": "v0.42 passive MediaStore + CameraManager invariants PASS",
+  "apk": {
+    "bytes": 5102397,
+    "sha256": "d56cd1876a146294e1b06bc81f4a9419ee85d1f65cc4375147b809d519df596e"
+  },
+  "artifact": {
+    "id": 10563743644,
+    "name": "truthraw-suite-v0-42-passive-mediastore-camera-timeline-debug-arm64",
+    "zipBytes": 1669171,
+    "digest": "sha256:3a8aeec224c6824db535cd4eaaf0e346ac9c07dbed3cf1bd1c38acdffef02cc3",
+    "expiresAt": "2026-12-17T19:26:23Z"
+  },
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY",
+  "postDownloadHashVerified": true,
+  "documentationCommitsAfterBuildAreNotInApk": true,
+  "firstRun": "ONE_MANUAL_HONOR_200MP_PHOTO_ONLY"
+}
