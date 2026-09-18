@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.9 · TextureView crash-fixed · staged 200MP"
+            text = "Camera-5 research · v0.40 passive Honor route observer + v0.39 geometry ladder"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -62,6 +62,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("200MP TEST · crash-isolatie ingang") {
             startActivity(Intent(this, FotoGraaf200MpEntryActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.40 · Passieve Honor route observer") {
+            startActivity(Intent(this, HonorPassiveRouteObserverActivity::class.java))
         })
         root.addView(space())
 
