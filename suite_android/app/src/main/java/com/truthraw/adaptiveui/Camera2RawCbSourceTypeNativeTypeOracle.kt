@@ -50,5 +50,46 @@ object Camera2RawCbSourceTypeNativeTypeOracle {
                     .put("semanticPromotionAllowed", false)
             }
 
+    /**
+     * v0.36 decoupled representation probe.
+     *
+     * Vendor-tag lookup is performed against one camera's characteristics while disposable
+     * request templates are created on a separately specified openable camera. This exists
+     * because physical Camera 5 is a child of logical 0 and the earlier direct-open route was
+     * rejected. It still creates no session and submits no request.
+     */
+    fun probeKeyDecoupled(
+        metadataCameraId: String,
+        requestCameraId: String,
+        keyName: String,
+        schema: String,
+        bridgeErrorClassification: String,
+    ): JSONObject =
+        runCatching { JSONObject(nativeProbeDecoupled(metadataCameraId, requestCameraId, keyName)) }
+            .map { raw ->
+                raw.put("schema", schema)
+                    .put("keyName", keyName)
+                    .put("oracleBridgeReusedFrom", "v0.25 native Camera2 metadata validator + v0.36 decoupled lookup/request route")
+            }
+            .getOrElse { e ->
+                JSONObject()
+                    .put("schema", schema)
+                    .put("metadataCameraId", metadataCameraId)
+                    .put("requestCameraId", requestCameraId)
+                    .put("keyName", keyName)
+                    .put("classification", bridgeErrorClassification)
+                    .put("error", "${e.javaClass.simpleName}: ${e.message}")
+                    .put("sessionCreated", false)
+                    .put("sessionParametersAttached", false)
+                    .put("captureSubmitted", false)
+                    .put("vendorModifiedRequestSubmittedToHal", false)
+                    .put("semanticPromotionAllowed", false)
+            }
+
     private external fun nativeProbe(cameraId: String, keyName: String): String
+    private external fun nativeProbeDecoupled(
+        metadataCameraId: String,
+        requestCameraId: String,
+        keyName: String,
+    ): String
 }
