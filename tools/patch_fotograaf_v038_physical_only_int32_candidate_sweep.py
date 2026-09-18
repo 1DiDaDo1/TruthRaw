@@ -32,11 +32,10 @@ s = s.replace(
     '3-run physical-only INT32 candidate sweep; v0.36 candidates I/J/K test numeric 1 one key at a time; every RAW is independently sealed before unchanged Stage 3.6/3.7 topology audit',
 )
 
-old_regex = 'Regex(".*_S(\\d{2})_(RAWCB|HALCOMBINED)_(-?\\d+)_EVIDENCE_v038\\.json$")'
-new_regex = 'Regex(".*_P(\\d{2})_([IJK])_EVIDENCE_v038\\.json$")'
-if old_regex not in s:
-    raise SystemExit('v0.38 cache regex anchor not found')
-s = s.replace(old_regex, new_regex, 1)
+regex_marker = '(RAWCB|HALCOMBINED)'
+if regex_marker not in s:
+    raise SystemExit('v0.38 cache regex cohort marker not found')
+s = s.replace('_S(\\\\d{2})_(RAWCB|HALCOMBINED)_(-?\\\\d+)_EVIDENCE_v038', '_P(\\\\d{2})_([IJK])_EVIDENCE_v038', 1)
 
 s = s.replace(
     'return "S${p.runIndex + 1}/6 · ${p.bits} · tik→volgende"',
