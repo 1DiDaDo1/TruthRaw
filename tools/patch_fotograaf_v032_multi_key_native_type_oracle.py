@@ -34,103 +34,148 @@ s = s.replace(
     'saveJsonButton = button("v0.32 multi-key type-oracle JSON opslaan")',
 )
 
-needle = '''                    capabilitySource = packed.second.selectedSource
-                    capabilityReady = true
-                    previewButton.isEnabled = preview.isAvailable
-                    val r = packed.second
-                    setStatus(
-                        "STAGE 1 PASS · exact 16320×12288 RAW_SENSOR via ${r.selectedSource}.\n" +
-                            "standard.out=[${routeText(r.standardOutput)}]\n" +
-                            "standard.high=[${routeText(r.standardHigh)}]\n" +
-                            "maximum.out=[${routeText(r.maximumOutput)}]\n" +
-                            "maximum.high=[${routeText(r.maximumHigh)}]\n" +
-                            "Druk nu Stap 2.",
+# Replace the complete Stage-1 capability function rather than depending on one historical
+# success-message text anchor. This keeps v0.20 reconstruction as the immutable parent while
+# making the v0.32 diagnostic insertion robust to prior source-first wording changes.
+start_marker = '    private fun readCapability() {\n'
+end_marker = '\n    private fun startLogicalPreview() {\n'
+start = s.find(start_marker)
+end = s.find(end_marker, start)
+if start < 0 or end < 0:
+    raise SystemExit('v0.32 readCapability function boundaries not found')
+
+replacement = r'''    private fun readCapability() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            setStatus("Stap 1 geblokkeerd: CAMERA permission ontbreekt.")
+            return
+        }
+        capabilityButton.isEnabled = false
+        capabilityReady = false
+        previewButton.isEnabled = false
+        captureButton.isEnabled = false
+        setStatus(
+            "v0.32 STAGE 1 · Camera-5 routes lezen en daarna drie upstream vendor-keynamen " +
+                "representation-only screenen; geen session/capture submit…",
+        )
+
+        Thread({
+            val result = runCatching {
+                val m = getSystemService(CameraManager::class.java)
+                val logical = m.getCameraCharacteristics(LOGICAL_ID)
+                require(logical.physicalCameraIds.contains(PHYSICAL_ID)) {
+                    "logical 0 meldt physical 5 niet; physicalIds=${logical.physicalCameraIds}"
+                }
+                val physical = m.getCameraCharacteristics(PHYSICAL_ID)
+                val standard = physical.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                val maximum = physical.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION,
+                )
+
+                val standardOutput = safeSizes { standard?.getOutputSizes(ImageFormat.RAW_SENSOR) }
+                val standardHigh = safeSizes { standard?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR) }
+                val maximumOutput = safeSizes { maximum?.getOutputSizes(ImageFormat.RAW_SENSOR) }
+                val maximumHigh = safeSizes { maximum?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR) }
+
+                val selected = when {
+                    containsTarget(maximumHigh) -> "MAXIMUM_MAP_HIGH_RESOLUTION"
+                    containsTarget(maximumOutput) -> "MAXIMUM_MAP_OUTPUT"
+                    containsTarget(standardHigh) -> "STANDARD_MAP_HIGH_RESOLUTION"
+                    containsTarget(standardOutput) -> "STANDARD_MAP_OUTPUT"
+                    else -> error(
+                        "16320×12288 RAW_SENSOR ontbreekt; standard.out=[$standardOutput] " +
+                            "standard.high=[$standardHigh] maximum.out=[$maximumOutput] " +
+                            "maximum.high=[$maximumHigh]",
                     )
-'''
-replacement = '''                    capabilitySource = packed.second.selectedSource
+                }
+
+                val oracle = Camera2MultiKeyNativeTypeOracle.probe(
+                    manager = m,
+                    logicalCameraId = LOGICAL_ID,
+                    physicalCameraId = PHYSICAL_ID,
+                )
+                oracle.put("experimentVersion", "v0.32")
+                    .put("controlReference", "TruthRaw v0.20 unchanged")
+                    .put("capabilityRouteSource", selected)
+                    .put("standardRawOutputs", JSONArray(standardOutput.map { "${it.width}x${it.height}" }))
+                    .put("maximumRawOutputs", JSONArray(maximumOutput.map { "${it.width}x${it.height}" }))
+                    .put("maximumHighResolutionRawOutputs", JSONArray(maximumHigh.map { "${it.width}x${it.height}" }))
+                    .put(
+                        "closedPredecessor",
+                        "v0.31 bounded INT32 domain {UNSET,0,1,2,3} closed with no measured RAW topology differential",
+                    )
+                    .put(
+                        "candidateSet",
+                        "EnableInsensorZoom; EnableSnapshotOnlyInsensorZoom; EnableMCXMasterCb",
+                    )
+                    .put("candidateNamesAreSemanticProof", false)
+                    .put("routeEffectAssumed", false)
+                    .put("interventionPerformed", false)
+
+                Triple(m, logical, physical) to oracle
+            }
+
+            runOnUiThread {
+                capabilityButton.isEnabled = true
+                result.onSuccess { packed ->
+                    manager = packed.first.first
+                    logicalCharacteristics = packed.first.second
+                    physical5Characteristics = packed.first.third
+                    capabilitySource = packed.second.optString("capabilityRouteSource", "UNKNOWN")
                     capabilityReady = false
                     previewButton.isEnabled = false
                     captureButton.isEnabled = false
-                    val r = packed.second
-                    setStatus(
-                        "STAGE 1 PASS · Camera-5 RAW routes gelezen via ${r.selectedSource}.\n" +
-                            "STAGE 1.5 · v0.32 multi-key native-type oracle bezig.\n" +
-                            "Geen session parameters · geen capture session · geen capture submit · geen RAW pixel access.",
+
+                    val oracle = packed.second
+                    val oracleFile = File(
+                        cacheDir,
+                        "TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json",
                     )
-                    Thread({
-                        val oracle = runCatching {
-                            Camera2MultiKeyNativeTypeOracle.probe(
-                                manager = packed.first.first,
-                                logicalCameraId = LOGICAL_ID,
-                                physicalCameraId = PHYSICAL_ID,
-                            )
-                        }.getOrElse { e ->
-                            JSONObject()
-                                .put("schema", "truthraw.camera2-v032-multi-key-native-type-oracle.v0.32")
-                                .put("classification", "V032_MULTI_KEY_NATIVE_TYPE_ORACLE_AGGREGATOR_ERROR")
-                                .put("error", "${e.javaClass.simpleName}: ${e.message}")
-                                .put("sessionCreated", false)
-                                .put("sessionParametersAttached", false)
-                                .put("captureSubmitted", false)
-                                .put("vendorModifiedRequestSubmittedToHal", false)
-                                .put("rawPixelAccess", false)
-                                .put("sourceMutation", false)
-                                .put("semanticPromotionAllowed", false)
-                                .put("interventionAllowed", false)
+                    val writeError = runCatching { oracleFile.writeText(oracle.toString(2)) }.exceptionOrNull()
+                    capturedJson = oracleFile.takeIf {
+                        writeError == null && it.exists() && it.length() > 0L
+                    }
+                    saveJsonButton.isEnabled = capturedJson != null
+
+                    val classification = oracle.optString("classification", "UNKNOWN")
+                    val resolvedCount = oracle.optInt("resolvedCount", 0)
+                    val unresolvedCount = oracle.optInt("unresolvedCount", 0)
+                    val ambiguousCount = oracle.optInt("ambiguousCount", 0)
+                    val lines = mutableListOf<String>()
+                    val results = oracle.optJSONArray("results")
+                    if (results != null) {
+                        for (i in 0 until results.length()) {
+                            val item = results.optJSONObject(i) ?: continue
+                            lines += "${item.optString("candidateSymbol", "?")} · " +
+                                "${item.optString("keyName", "?").substringAfterLast('.')} · " +
+                                "type=${item.optString("resolvedNativeType", "UNRESOLVED")} · " +
+                                "tag=${item.optString("tagIdHex", "unknown")}"
                         }
+                    }
 
-                        oracle.put("experimentVersion", "v0.32")
-                            .put("controlReference", "TruthRaw v0.20 unchanged")
-                            .put(
-                                "closedPredecessor",
-                                "v0.31 bounded INT32 domain {UNSET,0,1,2,3} closed with no measured RAW topology differential",
-                            )
-                            .put(
-                                "candidateSet",
-                                "EnableInsensorZoom; EnableSnapshotOnlyInsensorZoom; EnableMCXMasterCb",
-                            )
-                            .put("candidateNamesAreSemanticProof", false)
-                            .put("routeEffectAssumed", false)
-                            .put("interventionPerformed", false)
-
-                        val oracleFile = File(
-                            cacheDir,
-                            "TRUTHRAW_CAM5_MULTI_KEY_NATIVE_TYPE_ORACLE_v032.json",
-                        )
-                        runCatching { oracleFile.writeText(oracle.toString(2)) }
-                        capturedJson = oracleFile.takeIf { it.exists() && it.length() > 0L }
-
-                        runOnUiThread {
-                            saveJsonButton.isEnabled = capturedJson != null
-                            val classification = oracle.optString("classification", "UNKNOWN")
-                            val resolvedCount = oracle.optInt("resolvedCount", 0)
-                            val unresolvedCount = oracle.optInt("unresolvedCount", 0)
-                            val ambiguousCount = oracle.optInt("ambiguousCount", 0)
-                            val lines = mutableListOf<String>()
-                            val results = oracle.optJSONArray("results")
-                            if (results != null) {
-                                for (i in 0 until results.length()) {
-                                    val item = results.optJSONObject(i) ?: continue
-                                    lines += "${item.optString("candidateSymbol", "?")} · " +
-                                        "${item.optString("keyName", "?").substringAfterLast('.')} · " +
-                                        "type=${item.optString("resolvedNativeType", "UNRESOLVED")} · " +
-                                        "tag=${item.optString("tagIdHex", "unknown")}"
-                                }
-                            }
-                            setStatus(
-                                "STAGE 1.5 DIAGNOSTIC STOP · v0.32 multi-key native type oracle\n" +
-                                    "classification=$classification\n" +
-                                    "resolved=$resolvedCount · unresolved=$unresolvedCount · ambiguous=$ambiguousCount\n" +
-                                    lines.joinToString("\n") + "\n" +
-                                    "sessionCreated=false · sessionParametersAttached=false · captureSubmitted=false.\n" +
-                                    "Geen interventie uitgevoerd; v0.20 source/payload authority blijft onaangeroerd.",
-                            )
-                        }
-                    }, "truthraw-v032-multi-key-native-type-oracle").start()
+                    setStatus(
+                        "STAGE 1.5 DIAGNOSTIC STOP · v0.32 multi-key native type oracle\n" +
+                            "classification=$classification\n" +
+                            "resolved=$resolvedCount · unresolved=$unresolvedCount · ambiguous=$ambiguousCount\n" +
+                            lines.joinToString("\n") + "\n" +
+                            "sessionCreated=false · sessionParametersAttached=false · captureSubmitted=false.\n" +
+                            "Geen interventie uitgevoerd; v0.20 source/payload authority blijft onaangeroerd.",
+                    )
+                }.onFailure { e ->
+                    capabilityReady = false
+                    capabilitySource = null
+                    previewButton.isEnabled = false
+                    captureButton.isEnabled = false
+                    setStatus(
+                        "v0.32 DIAGNOSTIC BLOCKED · ${e.javaClass.simpleName}: ${e.message}\n" +
+                            "Geen capture session gemaakt en geen vendor-modified request naar HAL gestuurd.",
+                    )
+                }
+            }
+        }, "truthraw-v032-multi-key-native-type-oracle").start()
+    }
 '''
-if needle not in s:
-    raise SystemExit('v0.32 Stage-1 success anchor not found')
-s = s.replace(needle, replacement, 1)
+
+s = s[:start] + replacement + s[end:]
 
 assert 'TruthRaw · Camera-5 v0.32 · multi-key native type oracle' in s
 assert 'Camera2MultiKeyNativeTypeOracle.probe(' in s
@@ -144,5 +189,5 @@ assert 'captureSubmitted=false' in s
 assert 'Geen interventie uitgevoerd' in s
 
 p.write_text(s)
-print('patched', p)
+print('patched v0.32 robust Stage-1 diagnostic', p)
 print('bytes', p.stat().st_size)
