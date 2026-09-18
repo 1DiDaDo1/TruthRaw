@@ -1,0 +1,111 @@
+name: TruthRaw FotoGraaf v0.39 RAW Geometry Context Ladder
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-39-raw-geometry-context-ladder
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2RawGeometryContextLadder.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RawGeometryContextResolver.kt'
+      - 'tools/patch_fotograaf_v039_raw_geometry_context_ladder.py'
+      - '.github/workflows/android-truthraw-suite-v0-39-raw-geometry-context-ladder.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v039:
+    name: Build FotoGraaf v0.39 geometry context ladder arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 and apply v0.39 context-only experiment
+        run: |
+          python3 tools/patch_fotograaf_v039_raw_geometry_context_ladder.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          LADDER='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2RawGeometryContextLadder.kt'
+          RESOLVER='suite_android/app/src/main/java/com/truthraw/adaptiveui/RawGeometryContextResolver.kt'
+
+          grep -F 'TruthRaw · Camera-5 RAW geometry/context ladder v0.39' "$APP"
+          grep -F '4080×3072 STANDARD' "$APP"
+          grep -F '8160×6144 MAX' "$APP"
+          grep -F '16320×12288 MAX high-res' "$APP"
+          grep -F 'ImageReader.newInstance(profile.width, profile.height' "$APP"
+          grep -F 'submitStandardPhysicalStill' "$APP"
+          grep -F 'if (profile.useMaximumResolutionPixelMode) submitForcedPhysicalMaxStill' "$APP"
+          grep -F 'unknownVendorKeysWritten", 0' "$APP"
+          grep -F 'vendorInterventionUsed", false' "$APP"
+          grep -F 'RawSensorRasterAudit.audit(' "$APP"
+          grep -F 'RawPayloadGeometryDecoder.decode(' "$APP"
+          grep -F 'RawGeometryContextResolver.resolve(rasterAudit, profile)' "$APP"
+
+          grep -F 'STANDARD_12P5MP' "$LADDER"
+          grep -F 'MAXIMUM_50MP' "$LADDER"
+          grep -F 'MAXIMUM_HIGH_200MP' "$LADDER"
+          grep -F 'vendorKeysWritten", 0' "$LADDER"
+          grep -F 'allRequiredContextsAdvertised' "$LADDER"
+
+          grep -F 'rowAlignedPopulatedExtentBytes' "$RESOLVER"
+          grep -F 'REQUESTED_CONTEXT_ENVELOPE_CONTAINS_SMALLER_CONTEXT_SIZED_POPULATED_ROW_PREFIX' "$RESOLVER"
+          grep -F 'sensorNativeGeometryClaimMade", false' "$RESOLVER"
+          grep -F 'opticalResolutionClaimMade", false' "$RESOLVER"
+
+          ! grep -F 'Camera2PhysicalOnlyInt32CandidateSweep' "$APP"
+          ! grep -F 'Camera2PhysicalInSensorZoomByteSessionProbe' "$APP"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          assert app.index('persistOriginalRawBuffer(image, stamp)') < app.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
+          assert app.index('image.close()') < app.index('RawSensorRasterAudit.audit(')
+          assert app.index('RawSensorRasterAudit.audit(') < app.index('RawPayloadGeometryDecoder.decode(')
+          assert app.index('RawPayloadGeometryDecoder.decode(') < app.index('RawGeometryContextResolver.resolve(rasterAudit, profile)')
+          assert 'output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' in app
+          assert 'if (profile.useMaximumResolutionPixelMode)' in app
+          assert 'unknownVendorKeysWritten", 0' in app
+          assert 'vendorInterventionUsed", false' in app
+          assert 'MAXIMUM_RESOLUTION vereist' not in app
+          print('v0.39 context-only + source-first invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-39-raw-geometry-context-ladder-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
