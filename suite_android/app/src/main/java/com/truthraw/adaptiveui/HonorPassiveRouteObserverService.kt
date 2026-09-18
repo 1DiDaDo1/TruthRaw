@@ -15,7 +15,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.SystemClock
-import androidx.core.app.NotificationCompat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -67,12 +66,12 @@ class HonorPassiveRouteObserverService : Service() {
         ensureNotificationChannel()
         startForeground(
             NOTIFICATION_ID,
-            NotificationCompat.Builder(this, CHANNEL_ID)
+            android.app.Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setContentTitle("TruthRaw v0.40 passive observer")
                 .setContentText("Observeert Camera2 availability; opent of bestuurt geen camera.")
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(android.app.Notification.CATEGORY_SERVICE)
                 .build(),
         )
         worker.post { startObservation() }
