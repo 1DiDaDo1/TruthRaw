@@ -1,0 +1,63 @@
+{
+  "schema": "truthraw.camera5-v035-mcx-master-cb-device-result.v0.35",
+  "date": "2026-09-18",
+  "authority": "DEVICE_ACQUISITION_OBSERVATION_ONLY",
+  "sourcePayloadAuthority": "v0.20 unchanged",
+  "intervention": {
+    "key": "org.codeaurora.qcamera3.sessionParameters.EnableMCXMasterCb",
+    "nativeTagHex": "0x801F0005",
+    "nativeType": "INT32",
+    "requestedNumericValue": 1,
+    "semanticMeaningAssumed": false,
+    "builderReadback": 1,
+    "requestReadback": 1,
+    "sessionParametersAttached": true,
+    "vendorKeysWritten": 1
+  },
+  "result": {
+    "envelope": {
+      "width": 16320,
+      "height": 12288,
+      "bytes": 401080320,
+      "rowStride": 32640,
+      "pixelStride": 2
+    },
+    "sourceSha256": "91732c19a81bdea3393b8033b4148588ff00d64428aeae80ecf28ff63d04fa86",
+    "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "payloadBytes": 25067520,
+    "stage37SelectedCandidate": {
+      "width": 4080,
+      "height": 3072
+    },
+    "payloadSha256": "59f4161b34634a08cde08335d669934df1672d06fbc7f4ac644cdd0e3f07b004",
+    "diagnosticPngSha256": "32cbd3f99a266a31c04983a467b7c54e74eca7380defedd09330e3bc3d2b434e",
+    "topologyDifferential": false
+  },
+  "coarseObservations": {
+    "honorBinningFactor": 4,
+    "honorIsInSensorZoom": 0,
+    "rawBinningFactorUsed": true,
+    "allISPCropWindow": [
+      0,
+      0,
+      16320,
+      12288,
+      0,
+      0,
+      16320,
+      12288
+    ],
+    "aecRealCropPrefix": [
+      11,
+      8,
+      4058,
+      3055
+    ]
+  },
+  "combinedV032CandidatesAtNumericOne": {
+    "enableInsensorZoomTopologyDifferential": false,
+    "enableSnapshotOnlyInsensorZoomTopologyDifferential": false,
+    "enableMCXMasterCbTopologyDifferential": false
+  },
+  "nextDecision": "PHYSICAL_ROUTE_NATIVE_TYPE_ORACLE_NOT_BLIND_VALUE_ENUMERATION"
+}
