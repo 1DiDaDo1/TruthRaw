@@ -1,0 +1,123 @@
+name: TruthRaw v0.41 Honor Output Config Callback Probe
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-41-honor-output-config-callback-probe
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorAccessoriseOutputConfigBinderProtocol.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorOutputConfigCallbackProbeService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorOutputConfigCallbackProbeActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_CAMERA_ACCESSORISE_V041_OUTPUT_CONFIG_CALLBACK_PROBE_PLAN_2026-09-18.md'
+      - 'state/HONOR_CAMERA_ACCESSORISE_V041_EXPERIMENT_PLAN_2026-09-18.json'
+      - '.github/workflows/android-truthraw-suite-v0-41-honor-output-config-callback-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v041:
+    name: Build v0.41 single Honor callback boundary probe arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.41 single-boundary invariants
+        run: |
+          PROTOCOL='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorAccessoriseOutputConfigBinderProtocol.kt'
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorOutputConfigCallbackProbeService.kt'
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorOutputConfigCallbackProbeActivity.kt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+
+          grep -F 'SERVICE_TX_REGISTER_OUTPUT_CONFIG_CALLBACK = 3' "$PROTOCOL"
+          grep -F 'SERVICE_TX_UNREGISTER_OUTPUT_CONFIG_CALLBACK = 4' "$PROTOCOL"
+          grep -F 'OUTPUT_CALLBACK_TX_PREVIEW_CONFIG_CHANGED = 1' "$PROTOCOL"
+          grep -F 'OUTPUT_CALLBACK_TX_CURRENT_MODE_CHANGED = 2' "$PROTOCOL"
+          grep -F 'onPreviewConfigChanged' docs/HONOR_CAMERA_ACCESSORISE_V041_OUTPUT_CONFIG_CALLBACK_PROBE_PLAN_2026-09-18.md
+          grep -F 'onCurrentModeChanged' docs/HONOR_CAMERA_ACCESSORISE_V041_OUTPUT_CONFIG_CALLBACK_PROBE_PLAN_2026-09-18.md
+
+          grep -F 'registerOutputConfigCallback' "$SERVICE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SERVICE"
+          grep -F 'imageBufferAccessedByTruthRaw", false' "$SERVICE"
+          grep -F 'vendorRequestWrittenByTruthRaw", false' "$SERVICE"
+          grep -F 'previewSurfaceProvidedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureEventCallbackRegistrationInvoked", false' "$SERVICE"
+          grep -F 'previewStateCallbackRegistrationInvoked", false' "$SERVICE"
+          grep -F 'allowlistBypassAttempted", false' "$SERVICE"
+          grep -F 'otherHonorRegistrationMethodsInvoked", false' "$SERVICE"
+          grep -F 'OUTPUT_CONFIG_CALLBACK_REGISTRATION_REJECTED_BY_SECURITY_BOUNDARY' "$SERVICE"
+
+          grep -F 'Probe output-config callback' "$ACT"
+          grep -F 'HonorOutputConfigCallbackProbeService' "$MANIFEST"
+
+          ! grep -F 'setPreviewSurface(' "$SERVICE"
+          ! grep -F 'exitPreview(' "$SERVICE"
+          ! grep -F 'openCamera(' "$SERVICE"
+          ! grep -F 'createCaptureRequest' "$SERVICE"
+          ! grep -F 'ImageReader' "$SERVICE"
+          ! grep -F 'setPhysicalCameraKey' "$SERVICE"
+          ! grep -F 'registerCaptureEventCallback' "$SERVICE"
+          ! grep -F 'registerPreviewStateCallback' "$SERVICE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          protocol = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorAccessoriseOutputConfigBinderProtocol.kt').read_text()
+          service = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorOutputConfigCallbackProbeService.kt').read_text()
+          plan = Path('state/HONOR_CAMERA_ACCESSORISE_V041_EXPERIMENT_PLAN_2026-09-18.json').read_text()
+
+          assert 'SERVICE_TX_REGISTER_OUTPUT_CONFIG_CALLBACK = 3' in protocol
+          assert 'SERVICE_TX_UNREGISTER_OUTPUT_CONFIG_CALLBACK = 4' in protocol
+          assert 'OUTPUT_CALLBACK_TX_PREVIEW_CONFIG_CHANGED = 1' in protocol
+          assert 'OUTPUT_CALLBACK_TX_CURRENT_MODE_CHANGED = 2' in protocol
+          assert 'service.transact(transactionCode, data, reply, 0)' in protocol
+          assert 'reply.readException()' in protocol
+          assert 'setPreviewSurface' not in service
+          assert 'exitPreview' not in service
+          assert 'openCamera(' not in service
+          assert 'createCaptureRequest' not in service
+          assert 'ImageReader' not in service
+          assert 'registerCaptureEventCallback' not in service
+          assert 'registerPreviewStateCallback' not in service
+          assert 'ONE_REGISTRATION_ATTEMPT_ONLY' in plan
+          print('v0.41 single output-config Binder boundary invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-41-honor-output-config-callback-probe-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
