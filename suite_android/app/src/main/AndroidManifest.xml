@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
     <queries>
         <package android:name="com.hihonor.camera" />
@@ -61,6 +63,21 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Single Honor output-config Binder callback authorization probe; no camera open, no Surface, no capture." />
+        </service>
+
+        <activity
+            android:name=".PassiveMediaStoreCameraTimelineActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <service
+            android:name=".PassiveMediaStoreCameraTimelineService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Passive CameraManager availability and MediaStore metadata timeline; no camera open, no pixel read, no EXIF decode." />
         </service>
 
         <activity android:name=".MainActivity" android:exported="false" />
