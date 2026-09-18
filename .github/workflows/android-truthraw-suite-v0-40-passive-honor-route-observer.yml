@@ -1,0 +1,121 @@
+name: TruthRaw v0.40 Passive Honor Route Observer
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-40-passive-honor-route-observer
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - '.github/workflows/android-truthraw-suite-v0-40-passive-honor-route-observer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v040:
+    name: Build v0.40 Android-16 passive Honor observer arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify passive-observer invariants
+        run: |
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverService.kt'
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverActivity.kt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+
+          grep -F 'PASSIVE_ROUTE_OBSERVATION_ONLY' "$SERVICE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SERVICE"
+          grep -F 'imageBufferAccessedByTruthRaw", false' "$SERVICE"
+          grep -F 'vendorRequestWrittenByTruthRaw", false' "$SERVICE"
+          grep -F 'registerAvailabilityCallback' "$SERVICE"
+          grep -F 'onPhysicalCameraUnavailable' "$SERVICE"
+          grep -F 'onPhysicalCameraAvailable' "$SERVICE"
+          grep -F 'ACCESSORISE_BIND_PROBE_START' "$SERVICE"
+          grep -F 'aidlMethodInvoked", false' "$SERVICE"
+          grep -F 'allowlistBypassAttempted", false' "$SERVICE"
+
+          grep -F 'com.hihonor.camera.store.show.BACK_ULTRA_HIGH_PIXEL' "$ACT"
+          grep -F 'com.hihonor.camera.store.show.BACK_PRO_PHOTO' "$ACT"
+          grep -F 'com.hihonor.camera.store.show.SUPER_TELE_PHOTO' "$ACT"
+          grep -F 'USER_WILL_OPEN_HONOR_CAMERA_MANUALLY' "$ACT"
+
+          grep -F 'android.permission.FOREGROUND_SERVICE_SPECIAL_USE' "$MANIFEST"
+          grep -F 'android:foregroundServiceType="specialUse"' "$MANIFEST"
+          grep -F 'com.hihonor.camera' "$MANIFEST"
+
+          ! grep -F 'openSharedCamera' "$SERVICE"
+          ! grep -F 'isCameraDeviceSharingSupported' "$SERVICE"
+          ! grep -F 'openCamera(' "$SERVICE"
+          ! grep -F 'createCaptureRequest' "$SERVICE"
+          ! grep -F '.capture(' "$SERVICE"
+          ! grep -F 'ImageReader' "$SERVICE"
+          ! grep -F 'setPhysicalCameraKey' "$SERVICE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverService.kt').read_text()
+          a = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorPassiveRouteObserverActivity.kt').read_text()
+          m = Path('suite_android/app/src/main/AndroidManifest.xml').read_text()
+
+          assert 'Build.VERSION.SDK_INT' in s
+          assert 'applicationInfo.targetSdkVersion' in s
+          assert 'registerAvailabilityCallback' in s
+          assert 'getCameraCharacteristics' in s
+          assert 'filteredVendorCharacteristics' in s
+          assert 'CameraAccessoriseService' in s
+          assert 'aidlMethodInvoked", false' in s
+          assert 'allowlistBypassAttempted", false' in s
+          assert 'openSharedCamera' not in s
+          assert 'openCamera(' not in s
+          assert 'createCaptureRequest' not in s
+          assert 'ImageReader' not in s
+          assert 'setPhysicalCameraKey' not in s
+          assert 'moveTaskToBack(false)' in a
+          assert 'BACK_ULTRA_HIGH_PIXEL' in a
+          assert 'BACK_PRO_PHOTO' in a
+          assert 'SUPER_TELE_PHOTO' in a
+          assert 'HonorPassiveRouteObserverService' in m
+          print('v0.40 passive Android-16 observer invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-40-passive-honor-route-observer-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
