@@ -109,10 +109,16 @@ class PassiveModeShutterTimelineService : Service() {
                 )
             }
 
-            ACTION_MARK_200MP_SELECTED -> worker.post {
+            ACTION_MARK_MODE_SELECTED -> worker.post {
+                val modeLabel = when (runProfile) {
+                    PROFILE_PRO -> MARK_PRO_SELECTED
+                    PROFILE_HIRES -> MARK_HIRES_SELECTED
+                    PROFILE_NORMAL -> MARK_PHOTO_SELECTED
+                    else -> MARK_MODE_SELECTED_UNSPECIFIED
+                }
                 appendUserMarker(
-                    MARK_200MP_SELECTED,
-                    "User reports Honor 200 MP mode was manually selected and is visible/stable. Human timing marker only.",
+                    modeLabel,
+                    "User reports the selected Honor UI mode is visible/stable. The UI label is preserved as an observation only; no camera-pipeline semantics are assumed.",
                     intent.getStringExtra(EXTRA_MARK_SOURCE) ?: "notification_action",
                 )
             }
@@ -203,7 +209,8 @@ class PassiveModeShutterTimelineService : Service() {
 
         runProfile = when (requestedProfile) {
             PROFILE_NORMAL -> PROFILE_NORMAL
-            PROFILE_200MP -> PROFILE_200MP
+            PROFILE_PRO -> PROFILE_PRO
+            PROFILE_HIRES -> PROFILE_HIRES
             else -> PROFILE_UNSPECIFIED
         }
 
@@ -544,8 +551,8 @@ class PassiveModeShutterTimelineService : Service() {
             .addAction(
                 Notification.Action.Builder(
                     null,
-                    "200MP SELECTED",
-                    markerPendingIntent(ACTION_MARK_200MP_SELECTED, 4302),
+                    "MODE SELECTED",
+                    markerPendingIntent(ACTION_MARK_MODE_SELECTED, 4302),
                 ).build(),
             )
             .addAction(
@@ -604,7 +611,7 @@ class PassiveModeShutterTimelineService : Service() {
         const val ACTION_START = "com.truthraw.adaptiveui.v043.START"
         const val ACTION_MARK_LAUNCH = "com.truthraw.adaptiveui.v043.MARK_LAUNCH"
         const val ACTION_MARK_MAIN_STABLE = "com.truthraw.adaptiveui.v043.MARK_MAIN_STABLE"
-        const val ACTION_MARK_200MP_SELECTED = "com.truthraw.adaptiveui.v043.MARK_200MP_SELECTED"
+        const val ACTION_MARK_MODE_SELECTED = "com.truthraw.adaptiveui.v043.MARK_MODE_SELECTED"
         const val ACTION_MARK_SHUTTER_PRESSED = "com.truthraw.adaptiveui.v043.MARK_SHUTTER_PRESSED"
         const val ACTION_MARK_RETURNED = "com.truthraw.adaptiveui.v043.MARK_RETURNED"
         const val ACTION_SNAPSHOT_MEDIA = "com.truthraw.adaptiveui.v043.SNAPSHOT_MEDIA"
@@ -613,13 +620,17 @@ class PassiveModeShutterTimelineService : Service() {
         const val EXTRA_RUN_PROFILE = "run_profile"
         const val EXTRA_MARK_SOURCE = "mark_source"
 
-        const val PROFILE_NORMAL = "FRESH_NORMAL_PHOTO_REPLICATE"
-        const val PROFILE_200MP = "FRESH_200MP_PHOTO_REPLICATE"
+        const val PROFILE_NORMAL = "FRESH_PHOTO_CONTROL_REPLICATE"
+        const val PROFILE_PRO = "FRESH_PRO_CONTROL_REPLICATE"
+        const val PROFILE_HIRES = "FRESH_HIRES_CANDIDATE_REPLICATE"
         const val PROFILE_UNSPECIFIED = "UNSPECIFIED"
 
         const val MARK_WILL_OPEN_HONOR = "USER_WILL_OPEN_HONOR_CAMERA_MANUALLY"
         const val MARK_MAIN_STABLE = "MAIN_STABLE"
-        const val MARK_200MP_SELECTED = "MODE_200MP_SELECTED"
+        const val MARK_PHOTO_SELECTED = "MODE_PHOTO_SELECTED"
+        const val MARK_PRO_SELECTED = "MODE_PRO_SELECTED"
+        const val MARK_HIRES_SELECTED = "MODE_HIRES_SELECTED"
+        const val MARK_MODE_SELECTED_UNSPECIFIED = "MODE_SELECTED_UNSPECIFIED"
         const val MARK_SHUTTER_PRESSED = "SHUTTER_PRESSED"
         const val MARK_RETURNED = "USER_RETURNED_FROM_HONOR_CAMERA"
 
