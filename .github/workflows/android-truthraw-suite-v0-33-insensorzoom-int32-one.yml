@@ -1,0 +1,135 @@
+name: TruthRaw FotoGraaf v0.33 EnableInsensorZoom INT32 Intervention
+
+# v0.32 resolved EnableInsensorZoom as native INT32, tag 0x801F0013.
+# v0.33 performs exactly one intervention stimulus: INT32(1).
+# v0.20 remains source/payload authority and Stage 3.6/3.7 remain unchanged.
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-33-insensorzoom-int32-one
+    paths:
+      - 'suite_android/**'
+      - 'tools/patch_fotograaf_v012_forced_physical_max.py'
+      - 'tools/patch_fotograaf_v013_physical_only_max_submit.py'
+      - 'tools/patch_fotograaf_v014_seal_raw_before_result_mode_gate.py'
+      - 'tools/patch_fotograaf_v016_hal_buffer_envelope.py'
+      - 'tools/patch_fotograaf_v017_pre_hal_airlock.py'
+      - 'tools/patch_fotograaf_v019_full_raster_write_audit.py'
+      - 'tools/patch_fotograaf_v020_payload_geometry_decoder.py'
+      - 'tools/patch_fotograaf_v033_insensorzoom_int32_intervention.py'
+      - '.github/workflows/android-truthraw-suite-v0-33-insensorzoom-int32-one.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v033:
+    name: Build FotoGraaf v0.33 EnableInsensorZoom INT32(1) arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v0.20 and attach exactly one EnableInsensorZoom INT32 session intervention
+        run: |
+          python3 tools/patch_fotograaf_v033_insensorzoom_int32_intervention.py
+          APP='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          PROBE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2InsensorZoomInt32SessionProbe.kt'
+          PRE='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2PreHalGate.kt'
+          POST='suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2EnvelopeProbe.kt'
+          AUDIT='suite_android/app/src/main/java/com/truthraw/adaptiveui/RawSensorRasterAudit.kt'
+          GEOM='suite_android/app/src/main/java/com/truthraw/adaptiveui/RawPayloadGeometryDecoder.kt'
+          NATIVE='suite_android/app/src/main/cpp/hardware_buffer_envelope_probe.cpp'
+
+          grep -F 'TruthRaw · 200MP Tele Test v0.33 · EnableInsensorZoom INT32 intervention' "$APP"
+          grep -F 'Camera2PreHalGate.observeSession(' "$APP"
+          grep -F 'Camera2InsensorZoomInt32SessionProbe.applyExperiment(' "$APP"
+          grep -F 'insensorZoomNativeTypeOracleTagHex' "$APP"
+          grep -F 'insensorZoomNativeTypeOracleResolvedType' "$APP"
+          grep -F 'controlledVendorInterventionKeyCount' "$APP"
+          grep -F 'otherV032CandidatesWritten' "$APP"
+          grep -F 'persistOriginalRawBuffer(image, stamp)' "$APP"
+          grep -F 'Camera2EnvelopeProbe.observe(image, physical, physicalResult)' "$APP"
+          grep -F 'RawSensorRasterAudit.audit(' "$APP"
+          grep -F 'RawPayloadGeometryDecoder.decode(' "$APP"
+
+          grep -F 'org.codeaurora.qcamera3.sessionParameters.EnableInsensorZoom' "$PROBE"
+          grep -F '0x801F0013' "$PROBE"
+          grep -F 'RESOLVED_NATIVE_TYPE = "INT32"' "$PROBE"
+          grep -F 'CaptureRequest.Key(KEY_NAME, Int::class.javaObjectType)' "$PROBE"
+          grep -F 'builder.set(key, 1)' "$PROBE"
+          grep -F 'config.setSessionParameters(request)' "$PROBE"
+          grep -F 'singleUnknownVendorVariable' "$PROBE"
+          grep -F 'requestedValueSemanticsAssumed' "$PROBE"
+          grep -F 'semanticMeaningAssumed' "$PROBE"
+          grep -F 'otherV032CandidatesWritten", false' "$PROBE"
+          ! grep -F 'EnableSnapshotOnlyInsensorZoom' "$PROBE"
+          ! grep -F 'EnableMCXMasterCb' "$PROBE"
+          ! grep -F 'RawCbSourceType' "$PROBE"
+          ! grep -F 'EnableXCFAOptimization' "$PROBE"
+          ! grep -F 'EnableIdealRAW' "$PROBE"
+          ! grep -F 'HALOutputBufferCombined' "$PROBE"
+
+          grep -F 'vendorKeysWritten", false' "$PRE"
+          grep -F 'hardwareBufferLocked' "$POST"
+          grep -F 'ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE' "$AUDIT"
+          grep -F 'EXACT_PAYLOAD_BYTE_COUNT_MATCH_TO_SINGLE_ADVERTISED_STANDARD_RAW_SENSOR_SIZE' "$GEOM"
+          grep -F 'AHardwareBuffer_describe' "$NATIVE"
+          ! grep -F 'AHardwareBuffer_lock(' "$NATIVE"
+          ! grep -F 'AHardwareBuffer_lockAndGetInfo(' "$NATIVE"
+          ! grep -F 'MAXIMUM_RESOLUTION vereist' "$APP"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt').read_text()
+          p = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Camera2InsensorZoomInt32SessionProbe.kt').read_text()
+          assert s.index('Camera2PreHalGate.observeSession(') < s.index('Camera2InsensorZoomInt32SessionProbe.applyExperiment(')
+          assert s.index('Camera2InsensorZoomInt32SessionProbe.applyExperiment(') < s.index('device.isSessionConfigurationSupported(config)')
+          assert s.index('persistOriginalRawBuffer(image, stamp)') < s.index('Camera2EnvelopeProbe.observe(image, physical, physicalResult)')
+          assert s.index('RawSensorRasterAudit.audit(') < s.index('RawPayloadGeometryDecoder.decode(')
+          assert s.count('Camera2InsensorZoomInt32SessionProbe.applyExperiment(') == 1
+          assert p.count('builder.set(key, 1)') == 1
+          assert 'EnableSnapshotOnlyInsensorZoom' not in p
+          assert 'EnableMCXMasterCb' not in p
+          print('v0.33 source-first ordering + isolated single-variable intervention PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK package and native bridge
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|x86|x86_64)/libtruthraw_ui_preview_bridge.so'; then
+            echo 'Unexpected non-arm64 TruthRaw native ABI' >&2
+            exit 1
+          fi
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-main-plus-fotograaf-v0-33-insensorzoom-int32-one-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
