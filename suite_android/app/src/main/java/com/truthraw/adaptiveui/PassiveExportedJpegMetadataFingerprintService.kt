@@ -110,7 +110,7 @@ class PassiveExportedJpegMetadataFingerprintService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        workerThread = HandlerThread("truthraw-v045-mode-shutter-timeline").also { it.start() }
+        workerThread = HandlerThread("truthraw-v045-exported-jpeg-metadata").also { it.start() }
         worker = Handler(workerThread.looper)
         cameraManager = getSystemService(CameraManager::class.java)
         ensureNotificationChannel()
@@ -261,7 +261,7 @@ class PassiveExportedJpegMetadataFingerprintService : Service() {
         observerStartElapsedNs = SystemClock.elapsedRealtimeNanos()
 
         val report = JSONObject()
-            .put("schema", "truthraw.passive-hires-tele-state-timeline.v0.45")
+            .put("schema", "truthraw.passive-exported-jpeg-metadata-fingerprint.v0.45")
             .put("createdAtUtc", Instant.now().toString())
             .put("authority", "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_PLUS_EXPORTED_OUTPUT_METADATA")
             .put("exportedMetadataAuthority", "EXPORTED_OUTPUT_METADATA_ONLY")
@@ -820,7 +820,7 @@ class PassiveExportedJpegMetadataFingerprintService : Service() {
     private fun appendEvent(type: String, payload: JSONObject): Int {
         val report = runCatching { JSONObject(REPORT_FILE.readText()) }.getOrElse {
             JSONObject()
-                .put("schema", "truthraw.passive-hires-tele-state-timeline.v0.45")
+                .put("schema", "truthraw.passive-exported-jpeg-metadata-fingerprint.v0.45")
                 .put("events", JSONArray())
         }
 
@@ -888,9 +888,9 @@ class PassiveExportedJpegMetadataFingerprintService : Service() {
         const val MARK_SHUTTER_PRESSED = "SHUTTER_PRESSED"
         const val MARK_RETURNED = "USER_RETURNED_FROM_HONOR_CAMERA"
 
-        const val REPORT_FILENAME = "TRUTHRAW_PASSIVE_HIRES_TELE_STATE_TIMELINE_v045.json"
+        const val REPORT_FILENAME = "TRUTHRAW_PASSIVE_EXPORTED_JPEG_METADATA_FINGERPRINT_v045.json"
 
-        private const val CHANNEL_ID = "truthraw_v045_hires_tele_state"
+        private const val CHANNEL_ID = "truthraw_v045_exported_jpeg_metadata"
         private const val NOTIFICATION_ID = 45045
         private const val DATE_TOLERANCE_MS = 5000L
         private const val STOP_DRAIN_MS = 1250L
