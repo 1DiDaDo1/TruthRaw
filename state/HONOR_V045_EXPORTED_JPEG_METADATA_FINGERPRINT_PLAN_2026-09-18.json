@@ -1,0 +1,57 @@
+{
+  "schema": "truthraw.passive-exported-jpeg-metadata-fingerprint-plan.v0.45",
+  "date": "2026-09-18",
+  "authority": "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_PLUS_EXPORTED_OUTPUT_METADATA",
+  "exportedMetadataAuthority": "EXPORTED_OUTPUT_METADATA_ONLY",
+  "runProfile": "HIRES_MAIN_TO_TELE_200MP_UI_SESSION",
+  "retainedMarkers": [
+    "HIRES_MAIN_CONFIRMED",
+    "TELE_200MP_UI_SELECTED",
+    "SHUTTER_PRESSED"
+  ],
+  "exifFingerprintEvent": "EXPORTED_JPEG_METADATA_FINGERPRINT",
+  "exifRequestedTags": [
+    "Make",
+    "Model",
+    "Software",
+    "DateTimeOriginal",
+    "OffsetTimeOriginal",
+    "FNumber",
+    "ExposureTime",
+    "ISOSpeedRatings",
+    "PhotographicSensitivity",
+    "FocalLength",
+    "FocalLengthIn35mmFilm",
+    "DigitalZoomRatio",
+    "LensMake",
+    "LensModel",
+    "LensSpecification",
+    "WhiteBalance",
+    "ExposureProgram",
+    "MeteringMode",
+    "Flash",
+    "Orientation",
+    "ImageWidth",
+    "ImageLength",
+    "PixelXDimension",
+    "PixelYDimension"
+  ],
+  "gpsTagsRequested": false,
+  "imagePixelArrayDecoded": false,
+  "mediaFileDescriptorReadOnly": true,
+  "trigger": {
+    "ownerPackage": "com.hihonor.camera",
+    "mimeType": "image/jpeg",
+    "requiresNonNullPositiveSize": true
+  },
+  "boundaries": {
+    "captureEvidenceGranted": false,
+    "activePhysicalCameraId5Proven": false,
+    "native200MpSensorSamplingProven": false,
+    "scientificMasterModified": false
+  },
+  "targetComparison": [
+    "HIRES_MAIN_8192x6144_EXPORTED_METADATA",
+    "TELE_200MP_UI_FINAL_16320x12288_EXPORTED_METADATA"
+  ]
+}
