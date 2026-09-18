@@ -1,0 +1,63 @@
+{
+  "schema": "truthraw.camera5-v037-physical-insensorzoom-byte-one-device-result.v0.37",
+  "date": "2026-09-18",
+  "authority": "DEVICE_ACQUISITION_OBSERVATION_ONLY",
+  "controlReference": "TruthRaw v0.20 unchanged",
+  "intervention": {
+    "key": "org.codeaurora.qcamera3.sessionParameters.inSensorZoomEnable",
+    "nativeTagHex": "0x801F0029",
+    "nativeType": "BYTE",
+    "requestedNumericValue": 1,
+    "physicalOnlyAvailabilityTopologyPass": true,
+    "builderSetPass": true,
+    "builderReadback": 1,
+    "requestReadback": 1,
+    "sessionParametersAttached": true,
+    "capturePermitted": true,
+    "vendorKeysWritten": 1,
+    "semanticMeaningAssumed": false
+  },
+  "source": {
+    "width": 16320,
+    "height": 12288,
+    "bytes": 401080320,
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "sha256": "b1c808c36fcb125307e279720303b071d4360f64b8c80db3d4727d17d9b9d85b"
+  },
+  "topology": {
+    "nonZeroRows": 768,
+    "zeroRows": 11520,
+    "payloadBytes": 25067520,
+    "stage36Classification": "ONLY_FIRST_768_ROWS_NONZERO__EXACT_12P5MP_BYTE_PAYLOAD_SIGNATURE",
+    "selectedStandardRaw": {
+      "width": 4080,
+      "height": 3072
+    },
+    "payloadSha256": "df177751937e9dc2db7e8475024725e4d75276356e470c3b2cbb00a9bb1604a2",
+    "stage37Classification": "EXACT_PREFIX_BYTES_MATCH_ONE_ADVERTISED_STANDARD_RAW_GEOMETRY__GEOMETRY_INTERPRETATION_CANDIDATE_NOT_SENSOR_PROOF",
+    "topologyDifferential": false
+  },
+  "coarseObservations": {
+    "honorBinningFactor": 4,
+    "honorIsInSensorZoom": 0,
+    "aecRealCropPrefix": [
+      11,
+      8,
+      4058,
+      3055
+    ],
+    "allISPCropWindow": [
+      0,
+      0,
+      16320,
+      12288,
+      0,
+      0,
+      16320,
+      12288
+    ]
+  },
+  "conclusion": "ATTACHMENT_PASS__CAPTURE_PASS__NO_MEASURABLE_RAW_TOPOLOGY_DIFFERENTIAL",
+  "nextDecision": "SCREEN_REMAINING_V036_PHYSICAL_ONLY_INT32_COHORT_ONE_KEY_PER_RUN_STOP_ON_TOPOLOGY_HIT"
+}
