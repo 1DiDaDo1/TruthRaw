@@ -1,0 +1,45 @@
+{
+  "schema": "truthraw.honor-capability-route-oracle-plan.v0.46",
+  "createdAtUtc": "2026-09-19T00:00:00Z",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "runtimeTarget": {
+    "expectedSdkInt": 36,
+    "expectedRelease": "16",
+    "note": "Device runtime is Android 16; Honor Camera APK target SDK must not be treated as runtime Android version."
+  },
+  "staticApkTargetSelection": {
+    "authority": "STATIC_APK_TARGET_SELECTION_ONLY",
+    "sourceApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+    "targetKeys": [
+      "com.hihonor.device.capabilities.physicalCameraScene",
+      "com.hihonor.device.capabilities.sceneCameraIdCapability",
+      "com.hihonor.device.capabilities.cameraIdCustomInfo",
+      "com.hihonor.device.capabilities.needOpenPhysicalCamera",
+      "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize"
+    ],
+    "uiSceneUltraHighPixel": 53,
+    "uiSceneLivePhotoHighPixel": 87,
+    "uiSceneUltraResolution": 110,
+    "featureValue200MTargetMode": "UltraHighPixelMode",
+    "featureValue50MTargetMode": "UltraResolutionMode",
+    "processorInternalRawMfPipeline": "pipeline4rawmfultrahighpixelcap.json",
+    "processorInternalRawMfSceneModes": [
+      23,
+      24,
+      32,
+      33
+    ],
+    "uiSceneAndProcessorSceneNamespacesMustNotBeEquated": true
+  },
+  "runtimeObservation": {
+    "authority": "CAMERA2_CHARACTERISTICS_OBSERVATION_ONLY",
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageBufferAccessedByTruthRaw": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "honorBinderInvokedByTruthRaw": false,
+    "physicalFrameCount": 0,
+    "independentEvidenceCount": 0
+  },
+  "promotionBoundary": "Characteristic values can describe exposed capability/routing state but cannot prove OEM capture execution, physical-ID use for a shutter event, or 200MP Direct-CFA evidence."
+}
