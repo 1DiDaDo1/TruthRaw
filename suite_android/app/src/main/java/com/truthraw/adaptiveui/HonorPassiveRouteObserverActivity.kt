@@ -106,7 +106,7 @@ class HonorPassiveRouteObserverActivity : Activity() {
             isFillViewport = true
             addView(
                 body,
-                ScrollView.LayoutParams(
+                ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 ),
