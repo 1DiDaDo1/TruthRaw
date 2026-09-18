@@ -349,10 +349,7 @@ class HonorOutputConfigCallbackProbeService : Service() {
         if (registrationAttempted) return
         registrationAttempted = true
 
-        val callback = HonorAccessoriseOutputConfigBinderProtocol.OutputConfigCallbackBinder {
-                type,
-                payload,
-            ->
+        val callback = HonorAccessoriseOutputConfigBinderProtocol.OutputConfigCallbackBinder { type, payload ->
             worker.post {
                 appendEvent(type, payload)
             }
