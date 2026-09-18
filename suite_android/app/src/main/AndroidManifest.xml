@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <package android:name="com.hihonor.camera" />
+        <intent>
+            <action android:name="com.hihonor.camera.aidl.CameraAccessoriseService" />
+        </intent>
+    </queries>
 
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <uses-feature android:name="android.hardware.camera.raw" android:required="false" />
@@ -22,6 +32,21 @@
         <activity android:name=".FotoGraaf200MpEntryActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraaf200MpStagedActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
         <activity android:name=".FotoGraaf200MpTestActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
+
+        <activity
+            android:name=".HonorPassiveRouteObserverActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <service
+            android:name=".HonorPassiveRouteObserverService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Passive Camera2 availability and physical-camera route research; does not open a camera." />
+        </service>
 
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
