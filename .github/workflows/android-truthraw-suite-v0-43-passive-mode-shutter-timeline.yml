@@ -1,0 +1,154 @@
+name: TruthRaw v0.43 Passive Mode Shutter Timeline
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-43-passive-mode-shutter-timeline
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V043_PHOTO_PRO_HIRES_PASSIVE_TIMELINE_PLAN_2026-09-18.md'
+      - 'state/HONOR_V043_PHOTO_PRO_HIRES_PASSIVE_TIMELINE_PLAN_2026-09-18.json'
+      - '.github/workflows/android-truthraw-suite-v0-43-passive-mode-shutter-timeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v043:
+    name: Build v0.43 PHOTO PRO HI-RES passive timeline arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.43 passive timeline invariants
+        run: |
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineService.kt'
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineActivity.kt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+          PLAN='state/HONOR_V043_PHOTO_PRO_HIRES_PASSIVE_TIMELINE_PLAN_2026-09-18.json'
+
+          grep -F 'truthraw.passive-mode-shutter-mediastore-timeline.v0.43' "$SERVICE"
+          grep -F 'PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY' "$SERVICE"
+          grep -F 'FRESH_PHOTO_CONTROL_REPLICATE' "$SERVICE"
+          grep -F 'FRESH_PRO_CONTROL_REPLICATE' "$SERVICE"
+          grep -F 'FRESH_HIRES_CANDIDATE_REPLICATE' "$SERVICE"
+          grep -F 'MODE_PHOTO_SELECTED' "$SERVICE"
+          grep -F 'MODE_PRO_SELECTED' "$SERVICE"
+          grep -F 'MODE_HIRES_SELECTED' "$SERVICE"
+          grep -F 'SHUTTER_PRESSED' "$SERVICE"
+          grep -F 'longArrayOf(0L, 25L, 100L, 250L, 1000L)' "$SERVICE"
+          grep -F 'changeGroupId' "$SERVICE"
+          grep -F 'actualSnapshotStartDelayNs' "$SERVICE"
+          grep -F 'registerAvailabilityCallback' "$SERVICE"
+          grep -F 'registerContentObserver' "$SERVICE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SERVICE"
+          grep -F 'imagePixelBytesRead", false' "$SERVICE"
+          grep -F 'honorBinderMethodInvoked", false' "$SERVICE"
+
+          grep -F 'Start PHOTO-controle' "$ACT"
+          grep -F 'Start PRO-controle' "$ACT"
+          grep -F 'Start HI-RES kandidaat' "$ACT"
+          grep -F 'MODE SELECTED' "$ACT"
+          grep -F 'HI-RES is een kandidaatlabel' "$ACT"
+          grep -F 'PassiveModeShutterTimelineService' "$MANIFEST"
+          grep -F 'HI_RES_UI_LABEL_IS_CANDIDATE_ONLY__NOT_PREASSIGNED_TO_200MP' "$PLAN"
+
+          ! grep -F 'PROFILE_200MP' "$SERVICE" "$ACT"
+          ! grep -F 'ACTION_MARK_200MP_SELECTED' "$SERVICE" "$ACT"
+          ! grep -F 'MODE_200MP_SELECTED' "$SERVICE" "$ACT"
+          ! grep -F 'openCamera(' "$SERVICE"
+          ! grep -F 'createCaptureRequest' "$SERVICE"
+          ! grep -F 'ImageReader' "$SERVICE"
+          ! grep -F 'openInputStream(' "$SERVICE"
+          ! grep -F 'BitmapFactory' "$SERVICE"
+          ! grep -F 'ImageDecoder' "$SERVICE"
+          ! grep -F 'ExifInterface' "$SERVICE"
+          ! grep -F 'bindService(' "$SERVICE"
+          ! grep -F 'setPhysicalCameraKey' "$SERVICE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineService.kt').read_text()
+          a = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveModeShutterTimelineActivity.kt').read_text()
+          m = Path('suite_android/app/src/main/AndroidManifest.xml').read_text()
+
+          required = [
+              'FRESH_PHOTO_CONTROL_REPLICATE',
+              'FRESH_PRO_CONTROL_REPLICATE',
+              'FRESH_HIRES_CANDIDATE_REPLICATE',
+              'MODE_PHOTO_SELECTED',
+              'MODE_PRO_SELECTED',
+              'MODE_HIRES_SELECTED',
+              'SHUTTER_PRESSED',
+              'longArrayOf(0L, 25L, 100L, 250L, 1000L)',
+              'changeGroupId',
+              'actualSnapshotStartDelayNs',
+              'registerAvailabilityCallback',
+              'registerContentObserver',
+              'contentResolver.query(',
+          ]
+          for token in required:
+              assert token in s, token
+
+          forbidden = [
+              'openCamera(',
+              'createCaptureRequest',
+              'ImageReader',
+              'openInputStream(',
+              'BitmapFactory',
+              'ImageDecoder',
+              'ExifInterface',
+              'bindService(',
+              'setPhysicalCameraKey',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+
+          assert 'Start PHOTO-controle' in a
+          assert 'Start PRO-controle' in a
+          assert 'Start HI-RES kandidaat' in a
+          assert 'HI-RES is een kandidaatlabel' in a
+          assert 'PassiveModeShutterTimelineService' in m
+          print('v0.43 PHOTO/PRO/HI-RES passive timeline invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-43-passive-mode-shutter-timeline-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
