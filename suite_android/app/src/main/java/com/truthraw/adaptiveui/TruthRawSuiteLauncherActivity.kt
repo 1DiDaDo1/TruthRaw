@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.43 mode/shutter replicatie + v0.42 output-differentiaal + v0.41 Honor security boundary"
+            text = "Camera-5 research · v0.44 HI-RES main/tele state anchors + v0.43 mode/shutter replicatie + v0.42 output-differentiaal"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -82,6 +82,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.43 · Passieve mode/shutter timeline") {
             startActivity(Intent(this, PassiveModeShutterTimelineActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.44 · HI-RES main → tele state anchors") {
+            startActivity(Intent(this, PassiveHiresTeleStateTimelineActivity::class.java))
         })
         root.addView(space())
 
