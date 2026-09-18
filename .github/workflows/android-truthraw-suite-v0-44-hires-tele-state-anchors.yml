@@ -1,0 +1,138 @@
+name: TruthRaw v0.44 HI-RES Tele State Anchors
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-44-hires-tele-state-anchors
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V043_PHOTO_PRO_HIRES_DEVICE_RESULT_2026-09-18.md'
+      - 'state/HONOR_V043_PHOTO_PRO_HIRES_DEVICE_RESULT_2026-09-18.json'
+      - 'docs/HONOR_V044_HIRES_MAIN_TELE_STATE_ANCHOR_PLAN_2026-09-18.md'
+      - 'state/HONOR_V044_HIRES_MAIN_TELE_STATE_ANCHOR_PLAN_2026-09-18.json'
+      - '.github/workflows/android-truthraw-suite-v0-44-hires-tele-state-anchors.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v044:
+    name: Build v0.44 HI-RES tele state anchors arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.44 passive invariants
+        run: |
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineService.kt'
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineActivity.kt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+          PLAN='state/HONOR_V044_HIRES_MAIN_TELE_STATE_ANCHOR_PLAN_2026-09-18.json'
+
+          grep -F 'truthraw.passive-hires-tele-state-timeline.v0.44' "$SERVICE"
+          grep -F 'PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY' "$SERVICE"
+          grep -F 'PHOTO_MAIN_BASELINE_SESSION' "$SERVICE"
+          grep -F 'PRO_SWITCH_SESSION' "$SERVICE"
+          grep -F 'HIRES_MAIN_TO_TELE_200MP_UI_SESSION' "$SERVICE"
+          grep -F 'HIRES_MAIN_CONFIRMED' "$SERVICE"
+          grep -F 'TELE_200MP_UI_SELECTED' "$SERVICE"
+          grep -F 'SCREENSHOT_UI_ANCHOR_CANDIDATE' "$SERVICE"
+          grep -F 'HONOR_CAMERA_SYSTEM_VISIBLE_OUTPUT_CANDIDATE' "$SERVICE"
+          grep -F 'metadataStateTransition' "$SERVICE"
+          grep -F 'deltaFromLastHumanMarkerNs' "$SERVICE"
+          grep -F 'SYSTEM_VISIBLE_200_540_160PX_CLASS' "$SERVICE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SERVICE"
+          grep -F 'imagePixelBytesRead", false' "$SERVICE"
+          grep -F 'honorBinderMethodInvoked", false' "$SERVICE"
+
+          grep -F 'PHOTO main-baseline' "$ACT"
+          grep -F 'PRO switch-sessie' "$ACT"
+          grep -F 'HI-RES main → tele/200MP UI' "$ACT"
+          grep -F 'SCREENSHOT_UI_ANCHOR_CANDIDATE' "$ACT"
+          grep -F 'PassiveHiresTeleStateTimelineService' "$MANIFEST"
+          grep -F '"activePhysicalCameraId5Proven": false' "$PLAN"
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          service = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineService.kt').read_text()
+          activity = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHiresTeleStateTimelineActivity.kt').read_text()
+          manifest = Path('suite_android/app/src/main/AndroidManifest.xml').read_text()
+
+          required = [
+              'HIRES_MAIN_CONFIRMED',
+              'TELE_200MP_UI_SELECTED',
+              'SCREENSHOT_UI_ANCHOR_CANDIDATE',
+              'HONOR_CAMERA_SYSTEM_VISIBLE_OUTPUT_CANDIDATE',
+              'metadataStateTransition',
+              'sameMediaStoreUri',
+              'pixelBytesRead',
+              'deltaFromLastHumanMarkerNs',
+              'registerAvailabilityCallback',
+              'registerContentObserver',
+              'contentResolver.query(',
+              'longArrayOf(0L, 25L, 100L, 250L, 1000L)',
+          ]
+          for token in required:
+              assert token in service, token
+
+          forbidden = [
+              'openCamera(',
+              'createCaptureRequest',
+              'ImageReader',
+              'openInputStream(',
+              'BitmapFactory',
+              'ImageDecoder',
+              'ExifInterface',
+              'bindService(',
+              'setPhysicalCameraKey',
+          ]
+          for token in forbidden:
+              assert token not in service, token
+
+          assert 'PassiveHiresTeleStateTimelineActivity' in manifest
+          assert 'PassiveHiresTeleStateTimelineService' in manifest
+          assert 'HI-RES main → tele/200MP UI' in activity
+          print('v0.44 passive HI-RES/tele invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-44-hires-tele-state-anchors-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
