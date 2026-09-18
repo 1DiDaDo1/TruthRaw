@@ -1,0 +1,134 @@
+name: TruthRaw v0.42 Passive MediaStore Camera Timeline
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-42-passive-mediastore-camera-timeline
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V042_PASSIVE_MEDIASTORE_CAMERA_TIMELINE_PLAN_2026-09-18.md'
+      - 'state/HONOR_V042_PASSIVE_MEDIASTORE_CAMERA_TIMELINE_PLAN_2026-09-18.json'
+      - '.github/workflows/android-truthraw-suite-v0-42-passive-mediastore-camera-timeline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v042:
+    name: Build v0.42 passive MediaStore + Camera timeline arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.42 passive-observer invariants
+        run: |
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineService.kt'
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineActivity.kt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+          PLAN='state/HONOR_V042_PASSIVE_MEDIASTORE_CAMERA_TIMELINE_PLAN_2026-09-18.json'
+
+          grep -F 'PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY' "$SERVICE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SERVICE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SERVICE"
+          grep -F 'imagePixelBytesRead", false' "$SERVICE"
+          grep -F 'exifDecoded", false' "$SERVICE"
+          grep -F 'mediaInputStreamOpened", false' "$SERVICE"
+          grep -F 'honorBinderMethodInvoked", false' "$SERVICE"
+          grep -F 'honorCallbackRegistered", false' "$SERVICE"
+          grep -F 'registerAvailabilityCallback' "$SERVICE"
+          grep -F 'registerContentObserver' "$SERVICE"
+          grep -F 'MEDIASTORE_CHANGE_METADATA_SNAPSHOT' "$SERVICE"
+          grep -F 'OWNER_PACKAGE_NAME' "$SERVICE"
+          grep -F 'WIDTH' "$SERVICE"
+          grep -F 'HEIGHT' "$SERVICE"
+          grep -F 'SIZE' "$SERVICE"
+
+          grep -F 'READ_MEDIA_IMAGES' "$ACT"
+          grep -F 'READ_MEDIA_IMAGES' "$MANIFEST"
+          grep -F 'READ_MEDIA_VISUAL_USER_SELECTED' "$MANIFEST"
+          grep -F 'PassiveMediaStoreCameraTimelineService' "$MANIFEST"
+          grep -F 'ONE_MANUAL_HONOR_200MP_PHOTO_ONLY' "$PLAN"
+
+          ! grep -F 'openCamera(' "$SERVICE"
+          ! grep -F 'createCaptureRequest' "$SERVICE"
+          ! grep -F 'ImageReader' "$SERVICE"
+          ! grep -F 'openInputStream(' "$SERVICE"
+          ! grep -F 'BitmapFactory' "$SERVICE"
+          ! grep -F 'ImageDecoder' "$SERVICE"
+          ! grep -F 'ExifInterface' "$SERVICE"
+          ! grep -F 'bindService(' "$SERVICE"
+          ! grep -F 'setPhysicalCameraKey' "$SERVICE"
+          ! grep -F 'insert(' "$SERVICE"
+          ! grep -F 'update(' "$SERVICE"
+          ! grep -F 'delete(' "$SERVICE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineService.kt').read_text()
+          a = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveMediaStoreCameraTimelineActivity.kt').read_text()
+          m = Path('suite_android/app/src/main/AndroidManifest.xml').read_text()
+
+          assert 'registerAvailabilityCallback' in s
+          assert 'registerContentObserver' in s
+          assert 'contentResolver.query(' in s
+          assert 'MediaStore.MediaColumns.WIDTH' in s
+          assert 'MediaStore.MediaColumns.HEIGHT' in s
+          assert 'MediaStore.MediaColumns.SIZE' in s
+          assert 'MediaStore.MediaColumns.OWNER_PACKAGE_NAME' in s
+          assert 'openCamera(' not in s
+          assert 'createCaptureRequest' not in s
+          assert 'ImageReader' not in s
+          assert 'openInputStream(' not in s
+          assert 'BitmapFactory' not in s
+          assert 'ImageDecoder' not in s
+          assert 'ExifInterface' not in s
+          assert 'bindService(' not in s
+          assert 'setPhysicalCameraKey' not in s
+          assert 'contentResolver.insert(' not in s
+          assert 'contentResolver.update(' not in s
+          assert 'contentResolver.delete(' not in s
+          assert 'android.Manifest.permission.READ_MEDIA_IMAGES' in a
+          assert 'android.permission.READ_MEDIA_IMAGES' in m
+          assert 'android.permission.READ_MEDIA_VISUAL_USER_SELECTED' in m
+          print('v0.42 passive MediaStore + CameraManager invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-42-passive-mediastore-camera-timeline-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
