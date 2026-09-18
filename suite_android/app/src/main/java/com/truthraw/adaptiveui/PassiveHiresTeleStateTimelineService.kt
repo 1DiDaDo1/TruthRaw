@@ -254,7 +254,7 @@ class PassiveHiresTeleStateTimelineService : Service() {
         observerStartElapsedNs = SystemClock.elapsedRealtimeNanos()
 
         val report = JSONObject()
-            .put("schema", "truthraw.passive-mode-shutter-mediastore-timeline.v0.44")
+            .put("schema", "truthraw.passive-hires-tele-state-timeline.v0.44")
             .put("createdAtUtc", Instant.now().toString())
             .put("authority", "PASSIVE_SYSTEM_VISIBLE_OUTPUT_OBSERVATION_ONLY")
             .put("runProfile", runProfile)
@@ -712,7 +712,7 @@ class PassiveHiresTeleStateTimelineService : Service() {
     private fun appendEvent(type: String, payload: JSONObject): Int {
         val report = runCatching { JSONObject(REPORT_FILE.readText()) }.getOrElse {
             JSONObject()
-                .put("schema", "truthraw.passive-mode-shutter-mediastore-timeline.v0.44")
+                .put("schema", "truthraw.passive-hires-tele-state-timeline.v0.44")
                 .put("events", JSONArray())
         }
 
