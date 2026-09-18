@@ -105,7 +105,7 @@ class PassiveModeShutterTimelineService : Service() {
                 appendUserMarker(
                     MARK_MAIN_STABLE,
                     "User reports Honor default/main preview is stable. Human timing marker only.",
-                    "notification_action",
+                    intent.getStringExtra(EXTRA_MARK_SOURCE) ?: "notification_action",
                 )
             }
 
@@ -113,7 +113,7 @@ class PassiveModeShutterTimelineService : Service() {
                 appendUserMarker(
                     MARK_200MP_SELECTED,
                     "User reports Honor 200 MP mode was manually selected and is visible/stable. Human timing marker only.",
-                    "notification_action",
+                    intent.getStringExtra(EXTRA_MARK_SOURCE) ?: "notification_action",
                 )
             }
 
@@ -121,7 +121,7 @@ class PassiveModeShutterTimelineService : Service() {
                 appendUserMarker(
                     MARK_SHUTTER_PRESSED,
                     "User reports shutter was pressed. Human timing marker; not a hardware shutter timestamp.",
-                    "notification_action",
+                    intent.getStringExtra(EXTRA_MARK_SOURCE) ?: "notification_action",
                 )
             }
 
