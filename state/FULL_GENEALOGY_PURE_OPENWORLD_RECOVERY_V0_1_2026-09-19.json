@@ -1,0 +1,84 @@
+{
+  "schema": "TruthRawFullGenealogyRecoveryAudit/0.1",
+  "date": "2026-09-19",
+  "status": "DOCUMENTATION_ONLY_RECOVERY_AUDIT_NO_SCIENTIFIC_CHANGE",
+  "branch": "research/full-genealogy-pure-openworld-recovery-v0-1",
+  "base": "research/truthnegative-v0-2-existing-house-binding",
+  "historicalPureBranch": "research/ui-output-modes-certificate-v0.1-2026-09-14",
+  "observedMergeBase": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "permanentLaws": [
+    "MEASURED_WHERE_MEASURED_RECONSTRUCTED_WHERE_NECESSARY_NEVER_INVENTED",
+    "REPRESENTATION_CAN_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_CANNOT_EXCEED_EVIDENCE"
+  ],
+  "recoveredGenealogy": [
+    "RAW_AS_MEASUREMENT",
+    "MEASURED_RECONSTRUCTED_UNKNOWN",
+    "ONE_PHYSICAL_EXPOSURE",
+    "RECONSTRUCTED_FULL_COLOUR_SCENE_RGB_RAW_RETURNED",
+    "SEALED_SOURCE_VS_NEW_SCENE",
+    "UNBOUNDED_NEW_HOUSE_WORLD",
+    "ZERO_LINE_TRUTHRANGE",
+    "VIRTUAL_OBSERVATIONS_NO_EXTRA_EVIDENCE",
+    "ROOMS_RESOURCE_INVARIANT_DEVICES",
+    "TECHNICAL_BACKPLANE",
+    "GATEHOUSE",
+    "MATERIAL_WATER_DROPLET_DETAIL_STRESS_TEST",
+    "FOTOGRAAF_COUNTERFACTUAL_LIGHTING",
+    "FOTOGRAAF_PHOTOGRAPHY_PLUS_METROLOGY",
+    "PHYSICAL_CALIBRATION_C0_TO_C7",
+    "ANDROID_FOTOGRAAF_ACQUISITION_INSTRUMENT",
+    "PHYSICAL_CAMERA5_SAMPLE_DOMAIN_PROOF",
+    "CAMERA5_FORENSIC_LINE"
+  ],
+  "pure": {
+    "historicalImplementationExists": true,
+    "currentTruthNegativeBranchContainsHistoricalImplementation": false,
+    "role": "SCIENTIFIC_FILE_PROJECTION_OF_ADMITTED_SCIENTIFIC_MASTER",
+    "historicalPayload": "IEEE754_FLOAT32_XYZ_D50_LINEAR_RAW",
+    "appearanceNeutral": true,
+    "negativeAndOverOnePreserved": true,
+    "exactMasterDigestGate": true,
+    "canonicalTileEdge": 64,
+    "mustNotBeReconstructedFromOpenScene": true,
+    "mustNotRedefineScientificMaster": true
+  },
+  "modernSiblingBindings": [
+    "TRUTHRAW_PURE",
+    "TRUTHNEGATIVE_CORE",
+    "OPEN_SCENE_FREE_SCIENTIFIC_SPACE"
+  ],
+  "modernBindingRoot": [
+    "SEALED_SOURCE_IDENTITY",
+    "SCIENTIFIC_MASTER_IDENTITY",
+    "TRUTHRANGE_SCENE_SCALE",
+    "TECHNICAL_BACKPLANE",
+    "DYNAMIC_AUTHORITY"
+  ],
+  "certificate": {
+    "legacy": "TRCERT01_V0_1_PRESERVE_FOR_LEGACY_ARTIFACT_VERIFICATION",
+    "current": "CANONICAL_PTC_V1_1_GENERAL_FAIL_CLOSED_CERTIFICATION",
+    "rule": "NEW_PURE_AUTHORITY_BINDING_MUST_BE_VERSIONED_NO_SILENT_SCHEMA_MUTATION"
+  },
+  "fotograafCalibration": {
+    "historical": "C0_TO_C7_CALIBRATION_PACK_AND_PHYSICAL_PROMOTION_GATE",
+    "currentCampaign": "S0_TO_S9_TELE_FULL_PHYSICAL_CAMPAIGN",
+    "relation": "OVERLAPPING_PHYSICAL_PROOF_OBLIGATIONS_NOT_DECLARED_ONE_TO_ONE_REPLACEMENT"
+  },
+  "camera5": {
+    "envelope": [
+      16320,
+      12288
+    ],
+    "envelopeBytes": 401080320,
+    "meaningfulPrefixBytes": 25067520,
+    "meaningfulU16Equivalent": [
+      4080,
+      3072
+    ],
+    "forbiddenInference": "MISSING_15_OF_16_ARE_MEASURED_HIDDEN_SENSELS",
+    "denseTruthNegativeAuthority": "RECONSTRUCTED_UNLESS_NEW_ADMITTED_SOURCE_PROVES_STRONGER"
+  },
+  "next": "CLASSIFY_HISTORICAL_PURE_RGB_CERTIFICATE_OUTPUT_FILES_AS_PORT_REFERENCE_SUPERSEDED_OR_BLOCKED_THEN_BUILD_SMALLEST_HOST_REPLAY_REGRESSION",
+  "scientificPixelsChanged": false,
+  "scientificAuthorityChanged": false
+}
