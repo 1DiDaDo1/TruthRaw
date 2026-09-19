@@ -35,7 +35,23 @@
     "demosaicApplied": false,
     "colorCorrectionApplied": false,
     "scientificMasterCreated": false,
-    "scientificClaimAllowed": false
+    "scientificClaimAllowed": false,
+    "sourceIdentityExposedToUi": true,
+    "exportableEvidenceJson": true,
+    "evidenceJsonSchema": "TruthRawNefMeasurementEvidence/0.58",
+    "evidenceJsonContains": [
+      "SEALED_SOURCE_SHA256",
+      "SEALED_BYTE_LENGTH",
+      "FORMAT_AND_VENDOR",
+      "DECODER_ID",
+      "SOURCE_GEOMETRY",
+      "CFA_CODE",
+      "PREVIEW_SAMPLE_MIN_MAX",
+      "MEASUREMENT_ADMISSION_READY",
+      "SCIENTIFIC_ADMISSION_READY",
+      "DIRECT_ADC_CLAIM_ALLOWED",
+      "FULL_RAW_MATERIALIZED"
+    ]
   },
   "unsupportedFailClosed": [
     "COMPRESSED_NEF",
@@ -60,5 +76,15 @@
     "MEASUREMENT_ADMISSION_IS_NOT_SCIENTIFIC_MASTER_ADMISSION",
     "RENDERED_PREVIEW_IS_NOT_RAW_EVIDENCE",
     "SOURCE_BYTES_REMAIN_IMMUTABLE"
-  ]
+  ],
+  "historicalAlignment": {
+    "source": "TruthRaw Universal RAW Evidence Adapter v1",
+    "recoveredPrinciples": [
+      "STORAGE_REPRESENTATION_SEPARATE_FROM_CAPTURE_PROCESSING_LINEAGE",
+      "CONTAINER_EXTENSION_IS_NOT_SENSOR_PROVENANCE",
+      "PIXEL_DECODING_SEPARATE_FROM_CLASSIFICATION",
+      "METADATA_PROBE_SHOULD_NOT_ALLOCATE_FULL_SENSOR_IMAGE",
+      "OPAQUE_VENDOR_RAW_FAILS_CLOSED_BEFORE_RECONSTRUCTION"
+    ]
+  }
 }
