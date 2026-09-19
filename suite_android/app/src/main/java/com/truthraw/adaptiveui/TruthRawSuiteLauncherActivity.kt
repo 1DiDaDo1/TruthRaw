@@ -48,13 +48,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.60 · één RAW-huis · TRUTHRAW PURE 32-bit Float DNG hersteld"
+            text = "v0.62 · PURE 32-bit Float DNG · self-binding + post-write verificatie"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit. DNG loopt via de generieke RAW-source adapterlaag. De historische TRUTHRAW PURE-route is nu terug als 32-bit IEEE Float XYZ-D50 LinearRaw DNG met exact Scientific-Master digest gate en zonder clipping/appearance. De 16-bit Linear DNG blijft alleen compatibility. Nikon NEF blijft measurement/radiometric-gated totdat volledige scientific admission is bewezen."
+            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Beide routes komen bij dezelfde sealed-source RAW-ingang uit. TRUTHRAW PURE blijft 32-bit IEEE Float XYZ-D50 LinearRaw DNG met exact Scientific-Master digest gate. De v0.61 self-binding met Zero-Line/L0, scene-scale en Technical Backplane wordt nu na het schrijven uit het opgeslagen DNG-bestand teruggelezen; zonder die bevestiging meldt de app geen succes. De 16-bit Linear DNG blijft alleen compatibility. Nikon NEF blijft measurement/radiometric-gated totdat volledige scientific admission is bewezen."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(14))
