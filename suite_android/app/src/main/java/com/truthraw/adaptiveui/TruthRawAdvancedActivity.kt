@@ -38,16 +38,6 @@ class TruthRawAdvancedActivity : Activity() {
         val root = vertical().apply {
             setBackgroundColor(bg)
             setPadding(dp(18), dp(12), dp(18), dp(24))
-            setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                view.setPadding(
-                    dp(18) + bars.left,
-                    dp(12) + bars.top,
-                    dp(18) + bars.right,
-                    dp(24) + bars.bottom,
-                )
-                insets
-            }
         }
 
         root.addView(horizontal().apply {
@@ -140,7 +130,13 @@ class TruthRawAdvancedActivity : Activity() {
 
         return ScrollView(this).apply {
             isFillViewport = true
+            clipToPadding = true
             setBackgroundColor(bg)
+            setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(WindowInsets.Type.systemBars())
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                insets
+            }
             addView(root)
         }
     }
