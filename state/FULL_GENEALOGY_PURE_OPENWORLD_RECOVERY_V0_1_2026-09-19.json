@@ -1,0 +1,401 @@
+{
+  "schema": "TruthRawFullGenealogyRecoveryAudit/0.1",
+  "date": "2026-09-19",
+  "status": "DOCUMENTATION_ONLY_RECOVERY_AUDIT_NO_SCIENTIFIC_CHANGE",
+  "branch": "research/full-genealogy-pure-openworld-recovery-v0-1",
+  "base": "research/truthnegative-v0-2-existing-house-binding",
+  "historicalPureBranch": "research/ui-output-modes-certificate-v0.1-2026-09-14",
+  "observedMergeBase": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "permanentLaws": [
+    "MEASURED_WHERE_MEASURED_RECONSTRUCTED_WHERE_NECESSARY_NEVER_INVENTED",
+    "REPRESENTATION_CAN_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_CANNOT_EXCEED_EVIDENCE"
+  ],
+  "recoveredGenealogy": [
+    "RAW_AS_MEASUREMENT",
+    "MEASURED_RECONSTRUCTED_UNKNOWN",
+    "ONE_PHYSICAL_EXPOSURE",
+    "RECONSTRUCTED_FULL_COLOUR_SCENE_RGB_RAW_RETURNED",
+    "SEALED_SOURCE_VS_NEW_SCENE",
+    "UNBOUNDED_NEW_HOUSE_WORLD",
+    "ZERO_LINE_TRUTHRANGE",
+    "VIRTUAL_OBSERVATIONS_NO_EXTRA_EVIDENCE",
+    "ROOMS_RESOURCE_INVARIANT_DEVICES",
+    "TECHNICAL_BACKPLANE",
+    "GATEHOUSE",
+    "MATERIAL_WATER_DROPLET_DETAIL_STRESS_TEST",
+    "FOTOGRAAF_COUNTERFACTUAL_LIGHTING",
+    "FOTOGRAAF_PHOTOGRAPHY_PLUS_METROLOGY",
+    "PHYSICAL_CALIBRATION_C0_TO_C7",
+    "ANDROID_FOTOGRAAF_ACQUISITION_INSTRUMENT",
+    "PHYSICAL_CAMERA5_SAMPLE_DOMAIN_PROOF",
+    "CAMERA5_FORENSIC_LINE"
+  ],
+  "pure": {
+    "historicalImplementationExists": true,
+    "currentTruthNegativeBranchContainsHistoricalImplementation": false,
+    "role": "SCIENTIFIC_FILE_PROJECTION_OF_ADMITTED_SCIENTIFIC_MASTER",
+    "historicalPayload": "IEEE754_FLOAT32_XYZ_D50_LINEAR_RAW",
+    "appearanceNeutral": true,
+    "negativeAndOverOnePreserved": true,
+    "exactMasterDigestGate": true,
+    "canonicalTileEdge": 64,
+    "mustNotBeReconstructedFromOpenScene": true,
+    "mustNotRedefineScientificMaster": true
+  },
+  "modernSiblingBindings": [
+    "TRUTHRAW_PURE",
+    "TRUTHNEGATIVE_CORE",
+    "OPEN_SCENE_FREE_SCIENTIFIC_SPACE"
+  ],
+  "modernBindingRoot": [
+    "SEALED_SOURCE_IDENTITY",
+    "SCIENTIFIC_MASTER_IDENTITY",
+    "TRUTHRANGE_SCENE_SCALE",
+    "TECHNICAL_BACKPLANE",
+    "DYNAMIC_AUTHORITY"
+  ],
+  "certificate": {
+    "legacy": "TRCERT01_V0_1_PRESERVE_FOR_LEGACY_ARTIFACT_VERIFICATION",
+    "current": "CANONICAL_PTC_V1_1_GENERAL_FAIL_CLOSED_CERTIFICATION",
+    "rule": "NEW_PURE_AUTHORITY_BINDING_MUST_BE_VERSIONED_NO_SILENT_SCHEMA_MUTATION"
+  },
+  "fotograafCalibration": {
+    "historical": "C0_TO_C7_CALIBRATION_PACK_AND_PHYSICAL_PROMOTION_GATE",
+    "currentCampaign": "S0_TO_S9_TELE_FULL_PHYSICAL_CAMPAIGN",
+    "relation": "OVERLAPPING_PHYSICAL_PROOF_OBLIGATIONS_NOT_DECLARED_ONE_TO_ONE_REPLACEMENT"
+  },
+  "camera5": {
+    "envelope": [
+      16320,
+      12288
+    ],
+    "envelopeBytes": 401080320,
+    "meaningfulPrefixBytes": 25067520,
+    "meaningfulU16Equivalent": [
+      4080,
+      3072
+    ],
+    "forbiddenInference": "MISSING_15_OF_16_ARE_MEASURED_HIDDEN_SENSELS",
+    "denseTruthNegativeAuthority": "RECONSTRUCTED_UNLESS_NEW_ADMITTED_SOURCE_PROVES_STRONGER"
+  },
+  "next": "CLASSIFY_HISTORICAL_PURE_RGB_CERTIFICATE_OUTPUT_FILES_AS_PORT_REFERENCE_SUPERSEDED_OR_BLOCKED_THEN_BUILD_SMALLEST_HOST_REPLAY_REGRESSION",
+  "scientificPixelsChanged": false,
+  "scientificAuthorityChanged": false,
+  "openWorldHdr": {
+    "scientificHdrRoot": [
+      "SEALED_SOURCE",
+      "SCIENTIFIC_MASTER",
+      "DYNAMIC_AUTHORITY"
+    ],
+    "representationHasNoFixed01OrEvWall": true,
+    "infiniteMeasuredDynamicRangeClaim": false,
+    "hdrPerAuthority": {
+      "measured_or_calibrated": "EVIDENCE_SUPPORTED_FINITE",
+      "reconstructed": "RECONSTRUCTED_FINITE_NOT_MEASURED",
+      "censored": "BOUND_ONLY",
+      "unknown": "NO_SCIENTIFIC_HEADROOM",
+      "counterfactual_or_appearance": "NON_SCIENTIFIC_VIEW_ONLY"
+    },
+    "illuminationAuthorities": [
+      "UNKNOWN",
+      "SOURCE_BOUND_ESTIMATE",
+      "RECONSTRUCTED",
+      "INDEPENDENTLY_MEASURED",
+      "COUNTERFACTUAL"
+    ],
+    "counterfactualRelightingCreatesNewEvidence": false,
+    "physicalRelightingNeeds": [
+      "GEOMETRY_NORMALS",
+      "VISIBILITY_OCCLUSION",
+      "MATERIAL_BRDF",
+      "SPATIAL_ILLUMINATION",
+      "SPECTRUM"
+    ],
+    "presentationDoesNotWriteBack": [
+      "PQ",
+      "MAXCLL",
+      "ADOBE_HDR_LIMIT",
+      "GAIN_MAP",
+      "TONE_CURVE"
+    ]
+  },
+  "waterDropletSharpness": {
+    "preservedAsHistoricalStressTest": true,
+    "notASharpeningPreset": true,
+    "stresses": [
+      "OPTICS_SFR_MTF_PSF",
+      "TINY_HIGH_FREQUENCY_DETAIL",
+      "MEASURED_CFA_VS_RECONSTRUCTED_COLOUR",
+      "FOCUS_MOTION_NOISE_UNCERTAINTY",
+      "REFLECTION_TRANSMISSION_REFRACTION_TRANSPARENCY",
+      "SPECULAR_GLINTS",
+      "HIGHLIGHT_CENSORING",
+      "MATERIAL_BRDF_AMBIGUITY",
+      "COLOR_INVENTION_RISK",
+      "HDR_HIGHLIGHT_AUTHORITY"
+    ],
+    "sharpnessAxes": [
+      "OPTICAL_SAMPLE_DETAIL_AUTHORITY",
+      "RECONSTRUCTED_SPATIAL_DETAIL",
+      "OUTPUT_ACUTANCE_SHARPENING"
+    ],
+    "structureEvidenceRule": "SOURCE_CFA_SUPPORT_BEFORE_APPEARANCE",
+    "opticsGate": "NO_ADAPTIVE_DETAIL_ACUTANCE_WITHOUT_EXACT_DOMAIN_HOLDOUT_MTF_SUPPORT",
+    "censoredDropletHighlight": "LOWER_BOUND_ONLY",
+    "counterfactualNewGlint": "COUNTERFACTUAL",
+    "forbidden": [
+      "GENERIC_BLUE_CYAN_WATER_INVENTION",
+      "FABRICATED_HIGHLIGHT_PEAKS",
+      "SHARPENING_AS_MEASURED_DETAIL"
+    ]
+  },
+  "restorerLine": {
+    "explicitInRecoveryAudit": true,
+    "repositoryAnchor": "docs/research/conservation-restoration-authority-v0.1/README.md",
+    "sequence": [
+      "EXAMINATION",
+      "CONDITION_DOCUMENTATION",
+      "SCIENTIFIC_INVESTIGATION",
+      "STABILIZATION",
+      "TREATMENT_LOSS_COMPENSATION",
+      "INTERVENTION_DOCUMENTATION"
+    ],
+    "truthrawMapping": [
+      "SOURCE_EVIDENCE",
+      "CONDITION_EVIDENCE_ASSESSMENT",
+      "MEASUREMENT_SCIENTIFIC_ANALYSIS",
+      "STABLE_SCIENTIFIC_MASTER",
+      "BOUNDED_RECONSTRUCTION_LOSS_COMPENSATION",
+      "APPEARANCE_PRESENTATION",
+      "PERMANENT_PROVENANCE"
+    ],
+    "rules": [
+      "PRESERVE_SURVIVING_MEASURED_SUPPORT",
+      "RECONSTRUCTED_REMAINS_RECONSTRUCTED",
+      "CENSORED_REMAINS_BOUND_UNLESS_INDEPENDENT_EVIDENCE",
+      "UNKNOWN_REMAINS_UNKNOWN_WHEN_UNSUPPORTED",
+      "COUNTERFACTUAL_APPEARANCE_NEVER_BECOMES_MEASURED",
+      "INTERVENTION_MUST_REMAIN_PROVENANCE_DETECTABLE_AND_RETREATABLE"
+    ]
+  },
+  "camera5HistoricalSuccessfulRawSensorDng": {
+    "milestone": "V0_14_SOURCE_FIRST_SEALED_RAW_SENSOR_WITH_SUCCESSFUL_AUXILIARY_DNG",
+    "deliveredGeometry": [
+      16320,
+      12288
+    ],
+    "pixelStride": 2,
+    "rowStride": 32640,
+    "rawsensorBytes": 401080320,
+    "rawsensorSha256": "af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de",
+    "auxiliaryDngCreatedSuccessfully": true,
+    "auxiliaryDngBytes": 401184072,
+    "physicalCameraId": "5",
+    "exactImageSensorTimestampBinding": true,
+    "primaryEvidence": "ORIGINAL_IMAGE_PLANE0_SEALED_RAWSENSOR",
+    "auxiliaryContainer": "DNG",
+    "fullResolutionSceneRasterSuccessfullyPopulated": false,
+    "laterCorrection": {
+      "auditedVersions": [
+        "v0.19",
+        "v0.20"
+      ],
+      "nonzeroDeclaredRows": [
+        0,
+        767
+      ],
+      "zeroDeclaredRows": [
+        768,
+        12287
+      ],
+      "populatedBytes": 25067520,
+      "exactStandardRawEquivalent": [
+        4080,
+        3072
+      ],
+      "dngViewerBlackAreaCreatedDownstream": false,
+      "interpretation": "SUCCESSFUL_ACQUISITION_AND_DNG_CONTAINER_BUT_NOT_FULLY_POPULATED_200MP_SCENE_RASTER"
+    }
+  },
+  "camera5CurrentReference": {
+    "preferredReplayControl": "v0.53_ANDROID17_V0.14_ROUTE_REPLAY",
+    "historicalOrigin": "v0.14_SOURCE_FIRST_ACQUISITION",
+    "detailedAndroid16PayloadForensics": [
+      "v0.19_FULL_RASTER_WRITE_AUDIT",
+      "v0.20_PAYLOAD_GEOMETRY_DECODER"
+    ],
+    "independentOemContainerCorroboration": "v0.54_HONOR_PRO_TELE_DNG_FINGERPRINT",
+    "v053": {
+      "device": "HONOR_BKQ-N49_ANDROID17_SDK37",
+      "physicalCameraId": "5",
+      "focalLengthMm": 22.48,
+      "deliveredGeometry": [
+        16320,
+        12288
+      ],
+      "rawBytes": 401080320,
+      "rawSha256": "cb6828b65e9b9acafb54455b6e92b671439ae2c57548ede9e7aa8dd401db3cca",
+      "rowStride": 32640,
+      "pixelStride": 2,
+      "globalSensorPixelModeWritten": false,
+      "physicalSensorPixelModeWritten": true,
+      "physicalSensorPixelModeReadback": 1,
+      "returnedPhysicalSensorPixelMode": 0,
+      "returnedModeInterpretation": "ADVISORY_AFTER_SOURCE_FIRST_SEAL",
+      "exactImageSensorTimestampBinding": true,
+      "iso": 406,
+      "exposureTimeNs": 9999993,
+      "noiseReductionMode": 0,
+      "edgeMode": 0,
+      "rawBinningFactorUsed": true,
+      "auxiliaryDng": {
+        "createdSuccessfully": true,
+        "file": "TRUTHRAW_1789804086075_CAM5_200MP_16320x12288_v053.dng",
+        "bytes": 401184064,
+        "sha256": "64786e3ae45a08b54adaf30fb2201b3ce13ac4bd16b79ac077b301973a0728ee"
+      },
+      "rasterAudit": {
+        "nonZeroRows": 768,
+        "zeroRows": 11520,
+        "firstNonZeroRow": 0,
+        "lastNonZeroRow": 767,
+        "nonZeroSamples": 12533760,
+        "populatedPrefixBytes": 25067520,
+        "exactStandardRawCandidate": [
+          4080,
+          3072
+        ],
+        "candidatePrefixSha256": "f70f353dcd2d59aa79edf159669bffb1573704d68233e337439d8c42458789da",
+        "classification": "ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY"
+      },
+      "associatedArtifacts": [
+        "TRUTHRAW_1789804086075_CAM5_200MP_EVIDENCE_v053.json",
+        "TRUTHRAW_1789804175305_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json",
+        "TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_candidate.rawpayload",
+        "TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_preview.png",
+        "TRUTHRAW_1789804086075_CAM5_200MP_16320x12288_v053.dng"
+      ]
+    },
+    "android17TestLadder": [
+      "v0.47_API37_RAW14_EXTENSION_ORACLE",
+      "v0.48_TARGET37_RETARGET_CONTROL",
+      "v0.49_HONOR_CAMERA_PACKAGE_FINGERPRINT",
+      "v0.50_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE",
+      "v0.51_CAMERA_DEVICE_SETUP_RAW14_SESSION_ORACLE",
+      "v0.52_NEGATIVE_CONTROL_KNOWN_BAD_V011_GLOBAL_PIXEL_MODE_POLICY",
+      "v0.53_SUCCESSFUL_ANDROID17_V014_ROUTE_REPLAY",
+      "v0.54_PASSIVE_OEM_PRO_TELE_DNG_FINGERPRINT"
+    ],
+    "v054": {
+      "authority": "PASSIVE_EXPORTED_OEM_DNG_CONTAINER_METADATA_ONLY",
+      "geometry": [
+        4080,
+        3072
+      ],
+      "storageBitsPerSample": 16,
+      "whiteLevel": 1023,
+      "blackLevel": 64,
+      "compression": 1,
+      "cfaPattern": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "stripCount": 3072,
+      "stripBytesEach": 8160,
+      "payloadBytes": 25067520,
+      "focalLengthMm": 22.48,
+      "fNumber": 2.6,
+      "exportedRaw14Evidence": false
+    },
+    "precedence": [
+      "v0.53_CURRENT_ANDROID17_REPLAY_CONTROL",
+      "v0.19_v0.20_DETAILED_ANDROID16_PAYLOAD_FORENSICS",
+      "v0.14_HISTORICAL_FIRST_SOURCE_FIRST_ACQUISITION",
+      "v0.54_INDEPENDENT_OEM_CONTAINER_CORROBORATION"
+    ],
+    "rule": "V0.53_REPLACES_V0.14_ONLY_AS_CURRENT_REPLAY_CONTROL_NOT_AS_HISTORICAL_ORIGIN"
+  },
+  "cameraInvestigationLadder": {
+    "range": "v0.40_to_v0.54",
+    "stages": [
+      {
+        "version": "v0.40",
+        "role": "PASSIVE_HONOR_ROUTE_OBSERVER",
+        "finding": "CameraManager ownership/availability + CameraAccessoriseService bind; no camera control or RAW evidence"
+      },
+      {
+        "version": "v0.41",
+        "role": "HONOR_OUTPUT_CONFIG_CALLBACK_PROBE",
+        "finding": "registerOutputConfigCallback rejected by package/signature SecurityException; direct privileged callback side-door closed"
+      },
+      {
+        "version": "v0.42",
+        "role": "PASSIVE_MEDIASTORE_CAMERA_TIMELINE",
+        "finding": "normal JPEG 3072x4096 vs user-selected 200MP JPEG 16320x12288; short Camera0 pulse only route differential"
+      },
+      {
+        "version": "v0.43",
+        "role": "PASSIVE_MODE_SHUTTER_TIMELINE",
+        "finding": "HI-RES main 8192x6144 output and user-selected tele/UI-200MP state finalizing 16320x12288"
+      },
+      {
+        "version": "v0.44",
+        "role": "HIRES_MAIN_TELE_STATE_ANCHORS",
+        "finding": "explicit HIRES_MAIN_CONFIRMED and TELE_200MP_UI_SELECTED markers reproduce 50MP-like to 200MP output finalization; Camera0 availability not lens telemetry"
+      },
+      {
+        "version": "v0.45",
+        "role": "EXPORTED_JPEG_METADATA_FINGERPRINT",
+        "finding": "8192x6144 main JPEG exports 6.55mm f/1.6 metadata; 16320x12288 tele/UI-200MP JPEG exports 22.48mm f/2.6 / 85mm-equivalent metadata; output-layer authority only"
+      },
+      {
+        "version": "v0.46",
+        "role": "HONOR_CAPABILITY_ROUTE_ORACLE",
+        "finding": "Android17 public CameraCharacteristics still show physical5 22.48mm f/2.6 while targeted HONOR internal capability names remain absent"
+      },
+      {
+        "version": "v0.47",
+        "role": "API37_RAW14_EXTENSION_ORACLE",
+        "finding": "runtime RAW14 constant visible but no tested public RAW14/extension path admitted"
+      },
+      {
+        "version": "v0.48",
+        "role": "TARGET37_RETEST_CONTROL",
+        "finding": "targetSdk37 alone does not expose new RAW14/extension route"
+      },
+      {
+        "version": "v0.49",
+        "role": "HONOR_CAMERA_PACKAGE_FINGERPRINT",
+        "finding": "Android17 HONOR Camera package/software environment fingerprinted"
+      },
+      {
+        "version": "v0.50",
+        "role": "DIRECT_TYPED_VENDOR_CHARACTERISTICS_READ",
+        "finding": "typed vendor-characteristic surfaces inspected without semantic promotion"
+      },
+      {
+        "version": "v0.51",
+        "role": "CAMERA_DEVICE_SETUP_RAW14_SESSION_QUERY",
+        "finding": "setup/session RAW14-related surfaces queried before active replay"
+      },
+      {
+        "version": "v0.52",
+        "role": "NEGATIVE_CONTROL",
+        "finding": "known-bad historical global CONTROL_SENSOR_PIXEL_MODE policy reproduced request inconsistency; not evidence route disappeared"
+      },
+      {
+        "version": "v0.53",
+        "role": "CURRENT_ANDROID17_V014_ROUTE_REPLAY_CONTROL",
+        "finding": "successful source-first physical5 16320x12288 envelope capture + DNG + raster audit; same 4080x3072 populated-prefix topology as Android16"
+      },
+      {
+        "version": "v0.54",
+        "role": "PASSIVE_OEM_PRO_TELE_DNG_FINGERPRINT",
+        "finding": "HONOR Pro TELE DNG 4080x3072 uncompressed U16 CFA, Black64, White1023, 25,067,520-byte payload; no exported RAW14 evidence"
+      }
+    ],
+    "authorityRule": "PASSIVE_OUTPUT_AND_OEM_METADATA_OBSERVATIONS_MUST_NOT_BE_COLLAPSED_WITH_ACTIVE_CAMERA2_RAW_SENSOR_BYTE_EVIDENCE"
+  }
+}
