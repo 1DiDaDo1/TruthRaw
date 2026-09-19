@@ -1,0 +1,35 @@
+{
+  "schema": "truthraw.passive-oem-pro-raw-dng-container-fingerprint-plan.v0.54",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "trigger": {
+    "android17V053Classification": "ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY",
+    "publicRaw14RouteClosed": true
+  },
+  "previewObservation": {
+    "userReportsAndroid17PreviewClearer": true,
+    "camera2PreviewRequestSemanticsChangedFromAndroid16V014": false,
+    "surfaceTextureSelectionRuleChanged": false,
+    "textureViewLayoutParamsChanged": false,
+    "surroundingUiTextChanged": true,
+    "authority": "APPEARANCE_OBSERVATION_ONLY"
+  },
+  "profiles": [
+    "PRO_MAIN_RAW",
+    "PRO_TELE_RAW"
+  ],
+  "runtimeAuthority": "PASSIVE_EXPORTED_OEM_DNG_CONTAINER_METADATA_ONLY",
+  "parser": {
+    "classicTiffIfdOnly": true,
+    "exifIfdFollowed": true,
+    "gpsIfdFollowed": false,
+    "pixelPayloadBytesRead": false,
+    "imageSamplesDecoded": false
+  },
+  "raw14Interpretation": {
+    "bitsPerSample14": "EXPORTED_DNG_14BIT_STORAGE_CLAIM_ONLY",
+    "bitsPerSample16WhiteLevel16383": "EXPORTED_DNG_14_EFFECTIVE_CODE_DOMAIN_IN_16BIT_STORAGE_CANDIDATE",
+    "bitsPerSample16WhiteLevel1023": "EXPORTED_DNG_10BIT_CODE_CEILING_CANDIDATE"
+  },
+  "boundary": "OEM exported-container metadata only; no Direct-CFA, untouched ADC, native photodiode geometry, or calibration promotion."
+}
