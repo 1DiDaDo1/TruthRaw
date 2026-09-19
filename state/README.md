@@ -1,18 +1,37 @@
 # TruthRaw state directory
 
-`state/` contains both current and historical state snapshots.
+`state/` contains current and historical state snapshots. Dated snapshots are provenance and must not be rewritten to pretend they knew later results.
 
-## Current
+## Current on the TruthNegative branch
 
-Use `CURRENT_CANONICAL_STATE_2026-09-10.json`.
+When checked out on:
 
-## Historical — preserved, not current bootstrap
+`research/truthnegative-v0-1-scientific-negative-foundation`
+
+use:
+
+- `TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json` — current TruthNegative research overlay;
+- `CURRENT_PROJECT_STATE_2026-09-16.json` — retained global scientific architecture snapshot;
+- the latest exact HONOR v0.53/v0.54 state files for acquisition context only.
+
+TruthNegative is a reconstruction branch. Its state must not overwrite or authority-promote acquisition evidence.
+
+## Historical / canonical snapshots
+
+Retain:
 
 - `CURRENT_CANONICAL_STATE_2026-09-06.json`
 - `CURRENT_CANONICAL_STATE_2026-09-08.json`
 - `CURRENT_CANONICAL_STATE_2026-09-09.json`
-- `REPOSITORY_MIGRATION_STATUS.json` is a migration-era integrity/status record.
+- `CURRENT_CANONICAL_STATE_2026-09-10.json`
+- `REPOSITORY_MIGRATION_STATUS.json`
 
-Do not overwrite old snapshots to make them current. Their dated contents are provenance.
+These are dated provenance, not automatically the active TruthNegative bootstrap.
 
-For document classification and supersession rules, use `../docs/DOCUMENT_STATUS_INDEX_2026-09-10.md`.
+## Navigation
+
+For this branch use:
+
+`../docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
+
+For historical global interpretation also retain the earlier dated document-status indexes.
