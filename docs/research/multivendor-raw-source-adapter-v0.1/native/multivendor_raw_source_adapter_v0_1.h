@@ -69,6 +69,12 @@ enum class ProcessingLineageClass : std::uint8_t {
     SyntheticConformanceOnly,
 };
 
+enum class RadiometricBindingAuthority : std::uint8_t {
+    Unknown = 0,
+    ContainerExplicit,
+    CalibrationPackValidated,
+};
+
 enum class AdapterStatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
@@ -118,10 +124,29 @@ struct RawColorBinding final {
     std::array<float, 9> cameraToXyzD50 = {1,0,0, 0,1,0, 0,0,1};
 };
 
+struct RawRadiometricBinding final {
+    bool valid = false;
+    RadiometricBindingAuthority authority = RadiometricBindingAuthority::Unknown;
+    std::string bindingId;
+
+    // Exact scope identity. Empty make/model never matches a vendor-specific pack.
+    RawFormatFamily format = RawFormatFamily::GenericRaw;
+    std::string cameraMake;
+    std::string cameraModel;
+    int width = 0;
+    int height = 0;
+    int cfaCode = -1;
+    int storageBitsPerSample = 0;
+
+    std::array<float, 4> blackPhase = {0.f, 0.f, 0.f, 0.f};
+    float whiteLevel = 0.f;
+};
+
 struct RawSourceOpenRequest final {
     RawFormatFamily declaredFormat = RawFormatFamily::GenericRaw;
     RawSourceSeal sourceSeal;
     RawColorBinding color;
+    RawRadiometricBinding radiometric;
     std::size_t maxResidentBytes = 8u * 1024u * 1024u;
 };
 
@@ -136,6 +161,9 @@ struct RawSourceDescriptor final {
     bool sourceSealAcceptedAtBoundary = false;
     bool exactCfaSamplesAvailable = false;
     bool scientificColorBindingProvided = false;
+    bool radiometricBindingProvided = false;
+    bool blackLevelAuthoritative = false;
+    bool saturationLevelAuthoritative = false;
     bool measurementAdmissionReady = false;
     bool scientificAdmissionReady = false;
     bool syntheticConformanceOnly = false;
