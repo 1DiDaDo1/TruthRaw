@@ -38,6 +38,8 @@ class MainActivity : Activity() {
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
     private var empiricalStatus: String? = null
+    private var nefMeasurementResult: NefMeasurementResult? = null
+    private var nefMeasurementLoading: Boolean = false
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -105,6 +107,7 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
     }
 
@@ -307,7 +310,42 @@ class MainActivity : Activity() {
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
+        (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
+        nefMeasurementResult = null
+        nefMeasurementLoading = false
         render()
+    }
+
+    private fun requestNefMeasurement(job: RawJob) {
+        if (job.source.format.support != RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING ||
+            job.source.format.decoderBackend != RawDecoderBackend.NIKON_NEF_UNCOMPRESSED16_CFA_V0_1
+        ) {
+            nefMeasurementResult = NefMeasurementResult.Failed(
+                "Deze bron heeft geen toegelaten measurement-only NEF-adapter.",
+            )
+            render()
+            return
+        }
+
+        (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
+        nefMeasurementResult = null
+        nefMeasurementLoading = true
+        val generation = ++previewGeneration
+        activeJobId = job.id
+        render()
+
+        Thread({
+            val result = NefMeasurementLoader.load(contentResolver, job)
+            runOnUiThread {
+                if (generation != previewGeneration || activeJobId != job.id) {
+                    (result as? NefMeasurementResult.Ready)?.bitmap?.recycle()
+                    return@runOnUiThread
+                }
+                nefMeasurementLoading = false
+                nefMeasurementResult = result
+                render()
+            }
+        }, "truthraw-nef-measurement-${job.id.take(8)}").start()
     }
 
     private fun requestPreview(job: RawJob) {
@@ -315,7 +353,7 @@ class MainActivity : Activity() {
             previewState = TilePreviewUiState.Failed(
                 job.id,
                 "Bestand is veilig als bronhandle opgenomen (${job.source.format.displayLabel}), " +
-                    "maar de decoder-adapter is in v0.56 nog niet gekoppeld. " +
+                    "maar de volledige scientific-admission route is nog niet gekoppeld. " +
                     "De bronbytes blijven onaangeraakt; Scientific Master wordt niet aangemaakt.",
             )
             render()
@@ -461,17 +499,81 @@ class MainActivity : Activity() {
                     ))
                     addView(space(8))
                     addView(actionButton("Start TruthRaw") { requestPreview(active) })
+                } else if (
+                    active.source.format.support == RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING &&
+                    active.source.format.decoderBackend == RawDecoderBackend.NIKON_NEF_UNCOMPRESSED16_CFA_V0_1
+                ) {
+                    addView(label(
+                        "Nikon NEF heeft nu een strikte measurement-only sampledecoder. Exacte CFA-samplecodes mogen " +
+                            "worden geïnspecteerd, maar Scientific Master blijft geblokkeerd totdat black level, " +
+                            "saturation/noise en kleur-authority zijn toegelaten.",
+                        13f,
+                        muted = true,
+                    ))
+                    addView(space(8))
+                    if (nefMeasurementLoading) {
+                        addView(horizontal().apply {
+                            gravity = Gravity.CENTER_VERTICAL
+                            addView(ProgressBar(this@MainActivity).apply { isIndeterminate = true },
+                                LinearLayout.LayoutParams(dp(32), dp(32)).apply { marginEnd = dp(8) })
+                            addView(label("NEF CFA-samples worden read-only geïnspecteerd…", 13f, muted = true))
+                        })
+                    } else {
+                        addView(actionButton("Inspecteer NEF CFA-samples") { requestNefMeasurement(active) })
+                    }
+
+                    when (val measurement = nefMeasurementResult) {
+                        null -> Unit
+                        is NefMeasurementResult.Failed -> {
+                            addView(space(6))
+                            addView(label("NEF measurement fail-closed", 13f, bold = true))
+                            addView(label(measurement.reason, 11f, muted = true))
+                        }
+                        is NefMeasurementResult.Ready -> {
+                            addView(space(8))
+                            addView(ImageView(this@MainActivity).apply {
+                                setImageBitmap(measurement.bitmap)
+                                adjustViewBounds = true
+                                scaleType = ImageView.ScaleType.FIT_CENTER
+                                contentDescription = "Measurement-only CFA sample preview voor ${active.source.displayName}"
+                                if (currentLayoutTier() == LayoutTier.COMPACT) {
+                                    minimumHeight = dp(180)
+                                    maxHeight = dp(320)
+                                }
+                            })
+                            val m = measurement.metrics
+                            addView(label(
+                                "MEASUREMENT_ONLY · bron ${m.sourceWidth}×${m.sourceHeight} · CFA=${cfaLabel(m.cfaCode)} · " +
+                                    "samplecodes preview min/max=${m.minSampleCodeInPreview}/${m.maxSampleCodeInPreview}",
+                                10f,
+                                muted = true,
+                            ))
+                            addView(label(
+                                "exactCFA=${m.exactCfaSamplesAvailable} · measurementReady=${m.measurementAdmissionReady} · " +
+                                    "scientificReady=${m.scientificAdmissionReady} · directADCclaim=${m.directSensorAdcClaimAllowed} · " +
+                                    "fullRawMaterialized=${m.fullRawFrameMaterialized}",
+                                10f,
+                                muted = true,
+                            ))
+                            addView(label(
+                                "Dit beeld is alleen een zichtbaarheidproxy van broncodes; geen black subtraction, demosaic, " +
+                                    "kleurcorrectie, Scientific Master of fotografische preview.",
+                                10f,
+                                muted = true,
+                            ))
+                        }
+                    }
                 } else {
                     addView(label(
                         "Bron geaccepteerd als immutable documenthandle. Voor ${active.source.format.displayLabel} " +
-                            "is de decode-adapter nog niet gekoppeld; verwerken blijft fail-closed.",
+                            "is nog geen gevalideerde decoder-adapter gekoppeld; verwerken blijft fail-closed.",
                         13f,
                         muted = true,
                     ))
                     addView(space(6))
                     addView(label(
-                        "DNG is in v0.56 de eerste native multi-vendor route. Proprietary RAW volgt adapter-voor-adapter " +
-                            "zonder de bron/provenance-regels te versoepelen.",
+                        "DNG is de volledige native multi-vendor route. Nikon NEF heeft een eerste beperkte sampledecoder; " +
+                            "andere proprietary RAW volgt adapter-voor-adapter zonder bron/provenance-regels te versoepelen.",
                         11f,
                         muted = true,
                     ))
@@ -722,6 +824,14 @@ class MainActivity : Activity() {
             widthDp >= 600f -> LayoutTier.MEDIUM
             else -> LayoutTier.COMPACT
         }
+    }
+
+    private fun cfaLabel(code: Int): String = when (code) {
+        0 -> "BGGR"
+        1 -> "RGGB"
+        2 -> "GRBG"
+        3 -> "GBRG"
+        else -> "UNKNOWN($code)"
     }
 
     private fun thermalLabel(status: Int): String = when (status) {
