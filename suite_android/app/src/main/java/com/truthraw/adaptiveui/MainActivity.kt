@@ -164,7 +164,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/x-adobe-dng"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_1.dng")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_62.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
     }
@@ -280,10 +280,11 @@ class MainActivity : Activity() {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHRAW PURE Float32 opgeslagen · ${m.width}×${m.height} · " +
+                            "TRUTHRAW PURE v0.62 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "Master digest verified=${m.scientificMasterIdentityVerified} · " +
+                                "self-binding verified=${m.postWriteSelfBindingVerified} · " +
                                 "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
                                 "geen clipping, appearance of counterfactual."
                         }
