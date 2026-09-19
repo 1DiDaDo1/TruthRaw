@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-61-pure-self-binding-dng",
+  "activeBranch": "integration/truthraw-suite-v0-62-pure-postwrite-verify",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -252,6 +252,32 @@
         "extractedApkSha256": "38f118dbb068e846d0004da6d6c2091073a7fd73edaa31753e518a6723021137"
       },
       "realDeviceValidation": "PENDING_V061_SELF_BINDING_ARTIFACT_INSPECTION"
+    },
+    "v062": {
+      "branch": "integration/truthraw-suite-v0-62-pure-postwrite-verify",
+      "appVersion": "0.27-v0.62-pure-postwrite-verify",
+      "role": "PURE_ARTIFACT_POSTWRITE_SELF_BINDING_VERIFICATION",
+      "inheritsV061ScientificWriterContract": true,
+      "writerPrivateContract": "TRUTHRAW_PURE_SELF_BINDING_V0_61",
+      "pixelMathChanged": false,
+      "launcherVersionText": "v0.62",
+      "defaultPureFilenameSuffix": "_truthraw_pure_float32_v0_62.dng",
+      "postWriteGate": {
+        "reopensExactDestinationUri": true,
+        "requiresPureRole": true,
+        "requiresSelfBindingContract": true,
+        "requiresSourceMasterZeroLineSceneScaleSha256Shapes": true,
+        "requiresExactL0Binary64Hex": true,
+        "requiresTechnicalBackplaneBytes": 180,
+        "requiresBackplaneCrc32Shape": true,
+        "requiresPrecisionRuntimeProvenance": true,
+        "requiresFrameEvidenceOneOne": true,
+        "rejectsLegacyCompatibilityRoleMarker": true,
+        "successMessageRequiresSelfBindingVerifiedTrue": true,
+        "deleteDestinationOnVerificationFailure": true
+      },
+      "ci": "PENDING",
+      "realDeviceValidation": "PENDING_V062_ARTIFACT_POSTWRITE_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -272,15 +298,17 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_AND_RUN_V061_ON_REAL_DEVICE_WITH_KNOWN_DNG",
-    "VERIFY_SAVED_DNG_PRIVATE_DATA_CONTAINS_V061_ZERO_LINE_L0_SCENE_SCALE_AND_EXACT_180_BYTE_BACKPLANE",
-    "VERIFY_SAVED_DNG_STILL_PRESERVES_32_BIT_IEEE_FLOAT_NEGATIVE_AND_OVER_ONE_COMPONENTS",
-    "KEEP_LEGACY_TRCERT01_VERIFY_ONLY_AND_DESIGN_ANY_CURRENT_PTC_DYNAMIC_AUTHORITY_BINDING_AS_NEW_VERSION",
-    "CONTINUE_NIKON_NOISE_UNCERTAINTY_AND_COLOR_ADMISSION_WITHOUT_WEAKENING_PURE_ROUTE"
+    "RUN_V062_HOST_GCC_CLANG_AND_ANDROID_CI",
+    "INSTALL_V062_ON_REAL_DEVICE_AND_EXPORT_KNOWN_GOOD_DNG",
+    "CONFIRM_UI_REPORTS_SELF_BINDING_VERIFIED_TRUE",
+    "INSPECT_SAVED_V062_DNG_INDEPENDENTLY_FOR_CURRENT_PRIVATE_CONTRACT_AND_FLOAT32_STRUCTURE",
+    "KEEP_V061_SELF_BINDING_WRITER_CONTRACT_AND_FROZEN_BACKPLANE_PIXEL_MATH_UNCHANGED",
+    "CONTINUE_NIKON_ADMISSION_SEPARATELY"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md",
     "docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md",
     "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
     "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md",
