@@ -2,7 +2,7 @@
 
 Date: 2026-09-19
 
-Status: **IMPLEMENTED ON INTEGRATION BRANCH / CI + APK VALIDATION REQUIRED**
+Status: **IMPLEMENTED / HOST GCC + CLANG + ANDROID CI GREEN / APK VERIFIED**
 
 Active branch:
 
@@ -93,3 +93,20 @@ Host writer tests now additionally require:
 v0.61 does not make a projection measured CFA evidence, does not increase evidence count, does not make source metadata independent physical calibration and does not promote Nikon NEF into Scientific Master eligibility.
 
 Dynamic Authority / current Pure Truth Certificate integration remains a separate versioned certification task. It must bind lineage without changing Scientific-Master identity, zero-line identity, the frozen Backplane bytes or PURE pixel values.
+
+## CI and APK validation
+
+v0.61 workflow run `35464897909` passed:
+
+- host GCC: **SUCCESS**;
+- host Clang: **SUCCESS**;
+- Android arm64: **SUCCESS**;
+- artifact ID: `10590768017`;
+- artifact name: `truthraw-suite-v0-61-pure-self-binding-dng-debug-arm64`;
+- artifact ZIP SHA-256: `e829ef662440e10652880688f4d6f3e06a10c742af77dffc3c4b045975f48fa4`;
+- extracted APK bytes: `5850141`;
+- extracted APK SHA-256: `38f118dbb068e846d0004da6d6c2091073a7fd73edaa31753e518a6723021137`.
+
+The extracted native arm64 library was independently inspected and contains the v0.61 private-contract strings for the PURE role, exact L0 bits, serialized Technical Backplane and precision-policy identity.
+
+Real-device generation/inspection of a new v0.61 DNG remains the next physical artifact gate.
