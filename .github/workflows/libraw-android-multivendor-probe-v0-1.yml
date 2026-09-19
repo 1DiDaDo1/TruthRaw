@@ -1,0 +1,54 @@
+name: TruthRaw LibRaw Android Multi-Vendor Probe v0.1
+
+on:
+  push:
+    branches:
+      - research/libraw-android-multivendor-probe-v0-1
+    paths:
+      - 'tools/libraw_android_probe/**'
+      - 'docs/research/libraw-android-multivendor-probe-v0.1/**'
+      - '.github/workflows/libraw-android-multivendor-probe-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-arm64-libraw:
+    name: Cross-compile pinned LibRaw for Android arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK/NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - name: Configure Android arm64 LibRaw probe
+        run: |
+          cmake -S tools/libraw_android_probe                 -B build/libraw-android-arm64                 -DCMAKE_BUILD_TYPE=Release                 -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/27.2.12479018/build/cmake/android.toolchain.cmake"                 -DANDROID_ABI=arm64-v8a                 -DANDROID_PLATFORM=android-31                 -DANDROID_STL=c++_shared
+
+      - name: Build Android arm64 LibRaw probe
+        run: cmake --build build/libraw-android-arm64 --target truthraw_libraw_android_probe --parallel 2
+
+      - name: Verify output and pinned upstream identities
+        run: |
+          test -f build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
+          file build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
+          sha256sum build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
+          grep -F 'b93f6e45c194f5df9b02a43b1af9a54b4f41f33f' tools/libraw_android_probe/CMakeLists.txt
+          grep -F '116924e5bcb9483ef9c5fbe7f3cfc5a8a4b97064' tools/libraw_android_probe/CMakeLists.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-libraw-android-arm64-probe-v0-1
+          path: build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
+          if-no-files-found: error
