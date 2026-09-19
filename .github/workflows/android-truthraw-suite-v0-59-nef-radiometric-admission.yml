@@ -1,0 +1,58 @@
+name: TruthRaw v0.59 Android NEF Radiometric Admission
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-59-nef-radiometric-admission
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/**'
+      - 'docs/research/nikon-nef-radiometric-admission-v0.59/**'
+      - 'state/TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-59-nef-radiometric-admission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v059:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v0.59 claim boundary
+        run: |
+          C='docs/research/multivendor-raw-source-adapter-v0.1/native/nikon_nef_uncompressed_adapter_v0_1.cpp'
+          H='docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+          G='suite_android/app/build.gradle.kts'
+          grep -F 'RawRadiometricBinding' "$H"
+          grep -F 'scientificAdmissionReady = false' "$C"
+          grep -F '0.24-v0.59-nef-radiometric-admission' "$G"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
