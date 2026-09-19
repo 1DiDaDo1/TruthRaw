@@ -20,15 +20,22 @@
     <application
         android:name=".TruthRawSuiteApplication"
         android:allowBackup="false"
-        android:label="TruthRaw Suite"
+        android:icon="@drawable/truthraw_icon"
+        android:roundIcon="@drawable/truthraw_icon"
+        android:label="TruthRaw"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
-        <activity android:name=".TruthRawSuiteLauncherActivity" android:exported="true">
+        <activity android:name=".TruthRawSuiteLauncherActivity" android:screenOrientation="portrait" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".TruthRawSettingsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <activity
             android:name=".CurrentAndroid17HonorCameraBaselineActivity"
