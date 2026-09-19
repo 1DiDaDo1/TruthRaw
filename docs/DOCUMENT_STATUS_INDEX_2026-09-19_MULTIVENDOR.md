@@ -1,6 +1,6 @@
 # TruthRaw document status index — multi-vendor integration — 2026-09-19
 
-Status: **CURRENT FOR `integration/truthraw-suite-v0-59-nef-radiometric-admission`**
+Status: **CURRENT FOR `integration/truthraw-suite-v0-60-pure-float32-dng`**
 
 This index does not rewrite older dated TruthRaw documents. It classifies which files a new chat should treat as the current integration bootstrap and which remain branch-local or historical provenance.
 
@@ -21,11 +21,11 @@ Read first:
 
 Current branch:
 
-`integration/truthraw-suite-v0-59-nef-radiometric-admission`
+`integration/truthraw-suite-v0-60-pure-float32-dng`
 
 Current app:
 
-`0.24-v0.59-nef-radiometric-admission`
+`0.25-v0.60-pure-float32-dng`
 
 Current product rule:
 
@@ -38,6 +38,21 @@ Current proprietary RAW state:
 - Nikon black/saturation: exact-scope radiometric admission contract exists;
 - real Nikon calibration pack: not yet admitted;
 - NEF Scientific Master eligibility: still fail-closed pending noise/uncertainty, source-bound color and held-out validation.
+
+## v0.60 PURE current output correction
+
+The current app now restores the historical TRUTHRAW PURE float32 writer:
+
+- 32-bit IEEE Float;
+- XYZ-D50 LinearRaw;
+- DNG 1.4 / backward 1.4;
+- Software string `TruthRaw scientific-master-linear-dng-projection-v0.1`;
+- negative and >1 values retained;
+- exact Scientific-Master digest gate.
+
+The existing unsigned-16 Linear DNG remains compatibility-only and may not redefine PURE.
+
+CI run `35458367764` is green on host GCC, host Clang and Android. Artifact ID `10589820246`.
 
 ## Current scientific architecture retained from 2026-09-16
 
@@ -67,7 +82,7 @@ These restore/retain the PURE path, Open World, HDR, water/material/detail line,
 - `docs/research/multivendor-raw-source-adapter-v0.1/README.md`
 - `state/TRUTHRAW_V058_NIKON_NEF_SAMPLE_ADAPTER_2026-09-19.json`
 - `docs/research/nikon-nef-radiometric-admission-v0.59/README.md`
-- `state/TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json`
+- `state/TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json`\n- `docs/TRUTHRAW_V060_PURE_FLOAT32_DNG_2026-09-19.md`
 
 ## Camera-5 current interpretation
 
