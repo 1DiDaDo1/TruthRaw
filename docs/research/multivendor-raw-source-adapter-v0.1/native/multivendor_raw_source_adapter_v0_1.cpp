@@ -120,6 +120,8 @@ public:
         outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
+        outDescriptor.measurementAdmissionReady = true;
+        outDescriptor.scientificAdmissionReady = true;
         outDescriptor.syntheticConformanceOnly = false;
         outDescriptor.physicalExposureCountKnown = false;
         outDescriptor.physicalFrameCount = 0u;
@@ -312,6 +314,8 @@ public:
         outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
+        outDescriptor.measurementAdmissionReady = true;
+        outDescriptor.scientificAdmissionReady = true;
         outDescriptor.syntheticConformanceOnly = true;
         outDescriptor.physicalExposureCountKnown = false;
         outDescriptor.physicalFrameCount = 0u;
