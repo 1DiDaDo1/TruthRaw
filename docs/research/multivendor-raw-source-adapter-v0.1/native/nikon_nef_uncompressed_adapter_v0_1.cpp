@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cmath>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -30,6 +31,7 @@ constexpr std::uint16_t kTagBitsPerSample = 258;
 constexpr std::uint16_t kTagCompression = 259;
 constexpr std::uint16_t kTagPhotometric = 262;
 constexpr std::uint16_t kTagMake = 271;
+constexpr std::uint16_t kTagModel = 272;
 constexpr std::uint16_t kTagStripOffsets = 273;
 constexpr std::uint16_t kTagSamplesPerPixel = 277;
 constexpr std::uint16_t kTagRowsPerStrip = 278;
@@ -91,6 +93,7 @@ public:
 
     AdapterStatus parse(
         std::string& make,
+        std::string& model,
         DngMetadata& metadata,
         std::uint32_t& rowsPerStrip,
         std::vector<std::uint32_t>& stripOffsets,
@@ -135,8 +138,15 @@ public:
                 auto st = readAscii(*makeEntry, make);
                 if (!st) return st;
             }
+            if (const Entry* modelEntry = findEntry(ifds.front(), kTagModel)) {
+                auto st = readAscii(*modelEntry, model);
+                if (!st) return st;
+            }
             if (make.find("NIKON") == std::string::npos) {
                 return fail(AdapterStatusCode::InvalidContainer, "TIFF Make is not Nikon");
+            }
+            if (model.empty()) {
+                return fail(AdapterStatusCode::InvalidContainer, "TIFF Model is required for Nikon radiometric scope identity");
             }
 
             const ParsedIfd* raw = nullptr;
@@ -479,16 +489,52 @@ public:
 
         DngMetadata metadata;
         std::string make;
+        std::string model;
         std::uint32_t rowsPerStrip = 0u;
         std::vector<std::uint32_t> offsets;
         std::vector<std::uint32_t> counts;
         NefParser parser(bytes);
-        const auto parsed = parser.parse(make, metadata, rowsPerStrip, offsets, counts);
+        const auto parsed = parser.parse(make, model, metadata, rowsPerStrip, offsets, counts);
         if (!parsed) return parsed;
 
         metadata.sourceId = request.sourceSeal.sourceEvidenceId;
         if (request.color.valid) {
             metadata.cameraToXyzD50 = request.color.cameraToXyzD50;
+        }
+
+        bool radiometricAdmitted = false;
+        if (request.radiometric.valid) {
+            const auto& rb = request.radiometric;
+            const bool scopeMatches =
+                rb.authority != RadiometricBindingAuthority::Unknown &&
+                rb.format == RawFormatFamily::NikonNef &&
+                !rb.bindingId.empty() &&
+                rb.cameraMake == make &&
+                rb.cameraModel == model &&
+                rb.width == metadata.width &&
+                rb.height == metadata.height &&
+                rb.cfaCode == static_cast<int>(metadata.cfa) &&
+                rb.storageBitsPerSample == 16;
+
+            const float maxBlack = std::max(
+                std::max(rb.blackPhase[0], rb.blackPhase[1]),
+                std::max(rb.blackPhase[2], rb.blackPhase[3]));
+            const bool valuesValid =
+                std::all_of(rb.blackPhase.begin(), rb.blackPhase.end(),
+                    [](float v) { return std::isfinite(v) && v >= 0.0f; }) &&
+                std::isfinite(rb.whiteLevel) &&
+                rb.whiteLevel > maxBlack &&
+                rb.whiteLevel <= 65535.0f;
+
+            if (!scopeMatches || !valuesValid) {
+                return AdapterStatus::error(
+                    AdapterStatusCode::InvalidArgument,
+                    "Nikon NEF radiometric binding did not match exact camera/source scope or values");
+            }
+
+            metadata.blackPhase = rb.blackPhase;
+            metadata.whiteLevel = rb.whiteLevel;
+            radiometricAdmitted = true;
         }
 
         auto source = std::unique_ptr<NikonNefUncompressedSource>(
@@ -504,17 +550,27 @@ public:
         outDescriptor.format = RawFormatFamily::NikonNef;
         outDescriptor.decoderId = "truthraw.nikon-nef-uncompressed16-cfa.v0.1";
         outDescriptor.sourceEvidenceId = request.sourceSeal.sourceEvidenceId;
+        outDescriptor.cameraMake = make;
+        outDescriptor.cameraModel = model;
+        outDescriptor.rawWidth = metadata.width;
+        outDescriptor.rawHeight = metadata.height;
+        outDescriptor.cfaCode = static_cast<int>(metadata.cfa);
+        outDescriptor.storageBitsPerSample = 16;
         outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = request.color.valid;
+        outDescriptor.radiometricBindingProvided = radiometricAdmitted;
+        outDescriptor.blackLevelAuthoritative = radiometricAdmitted;
+        outDescriptor.saturationLevelAuthoritative = radiometricAdmitted;
         outDescriptor.measurementAdmissionReady = true;
         outDescriptor.scientificAdmissionReady = false;
         outDescriptor.syntheticConformanceOnly = false;
         outDescriptor.directSensorAdcClaimAllowed = false;
         outDescriptor.fullRawFrameMaterialized = false;
 
-        // Deliberately blocked: black level/saturation/noise/color authority are
-        // not established from this strict container subset alone.
+        // Still deliberately blocked from Scientific Master admission:
+        // radiometric binding can close black/saturation for an exact scope,
+        // but noise/uncertainty and source-bound color authority remain separate gates.
         outSource = std::move(source);
         return AdapterStatus::ok();
     }
