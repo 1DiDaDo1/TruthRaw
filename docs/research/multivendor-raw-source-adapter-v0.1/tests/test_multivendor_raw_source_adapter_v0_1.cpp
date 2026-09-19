@@ -149,11 +149,19 @@ void testSyntheticNonDngAdapterPopulatesCommonTileAbi() {
     assert(source);
 
     assert(descriptor.format == tr::RawFormatFamily::SyntheticConformanceFixture);
+    assert(descriptor.storageRepresentation == tr::StorageRepresentation::SyntheticCfa);
+    assert(descriptor.sampleTopology == tr::SampleTopologyFamily::Bayer2x2);
+    assert(descriptor.processingLineage == tr::ProcessingLineageClass::SyntheticConformanceOnly);
     assert(descriptor.decoderId == "truthraw.synthetic-proprietary-conformance.v0.1");
     assert(descriptor.sourceSealAcceptedAtBoundary);
     assert(descriptor.exactCfaSamplesAvailable);
     assert(descriptor.scientificColorBindingProvided);
     assert(descriptor.syntheticConformanceOnly);
+    assert(!descriptor.physicalExposureCountKnown);
+    assert(descriptor.physicalFrameCount == 0u);
+    assert(!descriptor.singleExposureCertified);
+    assert(!descriptor.storedSampleSenselSemanticsCertified);
+    assert(!descriptor.requiresTopologySpecificSolver);
     assert(!descriptor.directSensorAdcClaimAllowed);
     assert(!descriptor.fullRawFrameMaterialized);
 
