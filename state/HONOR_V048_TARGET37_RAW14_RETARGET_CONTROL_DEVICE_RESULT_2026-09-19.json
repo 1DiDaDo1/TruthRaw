@@ -1,0 +1,78 @@
+{
+  "schema": "truthraw.target37-raw14-retarget-control-device-result.v0.48",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_AND_EXTENSION_CHARACTERISTICS_OBSERVATION_ONLY",
+  "source": {
+    "name": "TRUTHRAW_API37_RAW14_EXTENSION_ORACLE_v047 (1).json",
+    "bytes": 19640,
+    "sha256": "7143c11c370adde2afa6484acfd0da931a0ede9406de2344675336c9309821e3"
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawCompileSdk": 35,
+    "truthRawTargetSdk": 37
+  },
+  "parentV047": {
+    "sourceSha256": "d7667c125e425d4f60c2025e2e0580034296d5649cec7ffee898fa12907f8131",
+    "truthRawCompileSdk": 35,
+    "truthRawTargetSdk": 35
+  },
+  "deepComparisonAgainstV047": {
+    "semanticFieldDifferences": [
+      {
+        "path": "createdAtUtc",
+        "expectedControlDifference": true
+      },
+      {
+        "path": "device.truthRawTargetSdk",
+        "before": 35,
+        "after": 37,
+        "expectedControlDifference": true
+      }
+    ],
+    "allOtherJsonValuesIdentical": true
+  },
+  "raw14Runtime": {
+    "available": true,
+    "formatValue": 44
+  },
+  "camera5": {
+    "focalLengthMm": 22.479999542236328,
+    "aperture": 2.5999999046325684,
+    "sensorPixelModeRequestKeyPresent": true,
+    "default": {
+      "RAW_SENSOR": [[4080,3072]],
+      "RAW10": [[4080,3072]],
+      "RAW12": [],
+      "RAW14": []
+    },
+    "maximumResolution": {
+      "RAW_SENSOR": [[8160,6144]],
+      "RAW_SENSOR_highResolution": [[16320,12288]],
+      "RAW10": [[8160,6144]],
+      "RAW10_highResolution": [[16320,12288]],
+      "RAW12": [],
+      "RAW14": []
+    }
+  },
+  "raw14AdvertisedByAnyCheckedCamera": false,
+  "extensions": {
+    "api37IsExtensionSupportedMethodPresent": true,
+    "getSupportedExtensionsEmptyOnAllCheckedCameraIds": true,
+    "knownPublicIds0to4SupportedOnAnyCheckedCamera": false,
+    "unknownVendorExtensionIdEnumerationAttempted": false
+  },
+  "classification": "TARGETSDK37_CONTROL_EXACTLY_REPLICATES_V047_CAMERA_CAPABILITIES__RAW14_PLATFORM_PRESENT_BUT_NOT_ADVERTISED_TO_THIRD_PARTY_CAMERA2",
+  "closedHypothesis": "Changing only TruthRaw targetSdk from 35 to 37 exposes RAW14 or public Camera Extension support on this Android-17 firmware.",
+  "notProven": [
+    "Honor OEM camera does not use RAW14 internally",
+    "No privileged/vendor path exposes RAW14",
+    "No unknown vendor-specific Camera Extension ID exists",
+    "RAW_SENSOR/RAW10 high-resolution route is native 200MP Direct-CFA"
+  ],
+  "nextDecision": "STOP_BLIND_RAW14_CAMERA2_CAPTURE_ATTEMPTS; ACQUIRE_AND_DIFF_THE_UPDATED_HONOR_CAMERA_171.0.10.706_PACKAGE_TO_LOCATE_ANDROID17_RAW14_OR_PRIVILEGED_ROUTE IMPLEMENTATION"
+}
