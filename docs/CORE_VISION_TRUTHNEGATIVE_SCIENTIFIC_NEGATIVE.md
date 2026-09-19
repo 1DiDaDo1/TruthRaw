@@ -6,6 +6,8 @@ Branch: `research/truthnegative-v0-1-scientific-negative-foundation`
 
 This document defines the TruthNegative research line. It extends the existing sealed-source / Scientific-Master architecture without changing the authority of the source evidence and without closing or replacing the parallel HONOR route investigation.
 
+> **v0.2 existing-house correction:** TruthNegative does not create a second reconstructed world between Measurement and the Scientific Master. The project already has the Latent Camera Scene, camera-native float Scientific Master and Open Scene / Free Scientific Space. TruthNegative is a scientific-negative representation family bound to that existing reconstructed house.
+
 ## 1. Why TruthNegative exists
 
 TruthRaw now has a concrete Camera-5 case where the app-visible transport can allocate a `16320x12288` U16 envelope while the meaningful populated prefix is exactly `25,067,520` bytes, matching one `4080x3072` U16 CFA raster.
@@ -138,26 +140,30 @@ The reconstructed field surrounding those anchors may be smoother, denser and fu
 
 A later renderer may sample the field at `16320x12288` or another resolution while retaining a parallel authority/support map.
 
-## 10. Relationship to the Scientific Master
+## 10. Relationship to the existing reconstructed house
 
-TruthNegative is proposed as a formal reconstruction intermediate between measurement/de-ISP and the Scientific Master:
+TruthRaw already reconstructs the new house:
 
 `SOURCE EVIDENCE`
 `-> MEASUREMENT / DE-ISP`
-`-> TRUTHNEGATIVE`
-`-> SCIENTIFIC MASTER`
-`-> DYNAMIC AUTHORITY / OPEN SCENE`
+`-> LATENT CAMERA SCENE / CAMERA-NATIVE FLOAT RECONSTRUCTION`
+`-> SCIENTIFIC MASTER IDENTITY`
+`-> DYNAMIC AUTHORITY / OPEN SCENE / FREE SCIENTIFIC SPACE`
 `-> APPEARANCE / EXPORT`
 
-This branch does **not** yet promote that insertion into canonical/main architecture.
+TruthNegative does not insert a second truth layer into that chain.
 
-Promotion requires regression tests proving that:
+Instead:
 
-- source identities remain frozen;
-- measured support is not overwritten;
-- reconstruction authority survives into the Scientific Master;
-- uncertainty/support is bound to the same coordinates and identity;
-- downstream frozen references are not silently reinterpreted.
+`SCIENTIFIC MASTER + SOURCE LINEAGE + AUTHORITY/SUPPORT -> TRUTHNEGATIVE CORE BINDING`
+
+and optionally:
+
+`TRUTHNEGATIVE CORE -> RECONSTRUCTED SENSOR-NEGATIVE / CFA-LIKE DENSE PROJECTION`
+
+The current Scientific Master remains the richer camera-native full-colour scene-linear state. A reconstructed CFA/rawsensor-like TruthNegative is a downstream scientific representation/projection and may not replace that master or impersonate the original sensor RAW.
+
+This preserves the earlier project conclusion that reconstructed RGB/full-colour camera-native state is the natural scientific master, while reconstructed CFA/remosaic is a derived representation.
 
 ## 11. Relationship to the HONOR route research
 
