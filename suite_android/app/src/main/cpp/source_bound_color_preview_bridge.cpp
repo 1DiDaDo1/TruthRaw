@@ -4,6 +4,7 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "finalized_scientific_preview_release_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
+#include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
 #include "scientific_preview_source_binding_v0_2.h"
@@ -32,7 +33,6 @@ using truthraw::streaming_v0_1::StreamingOptions;
 using truthraw::streaming_v0_1::StreamingResult;
 using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
-using truthraw::tile_dng_v0_1::TileNativeDngSource;
 
 constexpr jint kSourceBoundMagic = 0x54524331; // TRC1
 constexpr jint kFinalizedMagic = 0x54524631;   // TRF1
@@ -66,8 +66,8 @@ jint producer_status(const truthraw::dng_color_binding_producer_v0_2::ProducerSt
     return 2100 + static_cast<jint>(status.code);
 }
 
-jint dng_status(const truthraw::tile_dng_v0_1::DngSourceStatus& status) {
-    return 3000 + static_cast<jint>(status.code);
+jint adapter_status(const truthraw::multivendor_raw_source_adapter::v0_1::AdapterStatus& status) {
+    return 7000 + static_cast<jint>(status.code);
 }
 
 jint stream_status(const truthraw::streaming_v0_1::StreamStatus& status) {
@@ -140,9 +140,12 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildSourceBoundColorPrevie
     auto openOptions = prepared.tileNativeOptions;
     openOptions.maxResidentBytes = static_cast<std::size_t>(maxSourceResidentBytes);
 
-    std::unique_ptr<TileNativeDngSource> source;
-    const auto opened = TileNativeDngSource::open(bytes, openOptions, source);
-    if (!opened) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, dng_status(opened));
+    truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource openedSource;
+    const auto opened = truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(
+        bytes, sourceSeal, openOptions, openedSource);
+    if (!opened) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, adapter_status(opened));
+    auto& source = openedSource.source;
+    auto* dngSource = openedSource.dngAuditSource;
 
     auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
@@ -157,7 +160,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildSourceBoundColorPrevie
         streaming);
     if (!processed) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, stream_status(processed));
 
-    const auto& audit = source->audit();
+    const auto& audit = dngSource->audit();
     if (!sink.finished() || audit.fullRawMaterialized || audit.fullFileMaterialized ||
         streaming.memory.adapterOwnsFullRawFrame || streaming.memory.adapterOwnsFullSdrFrame ||
         streaming.memory.adapterOwnsFullHalfGainFrame || streaming.memory.adapterOwnsFullDiagnosticFrame) {
@@ -250,9 +253,12 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificCol
     auto openOptions = prepared.tileNativeOptions;
     openOptions.maxResidentBytes = static_cast<std::size_t>(maxSourceResidentBytes);
 
-    std::unique_ptr<TileNativeDngSource> source;
-    const auto opened = TileNativeDngSource::open(bytes, openOptions, source);
-    if (!opened) return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, dng_status(opened));
+    truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource openedSource;
+    const auto opened = truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(
+        bytes, sourceSeal, openOptions, openedSource);
+    if (!opened) return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, adapter_status(opened));
+    auto& source = openedSource.source;
+    auto* dngSource = openedSource.dngAuditSource;
 
     auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
