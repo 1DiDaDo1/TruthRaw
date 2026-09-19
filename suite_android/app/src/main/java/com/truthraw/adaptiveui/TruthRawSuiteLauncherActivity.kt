@@ -48,13 +48,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.59 · één RAW-huis · Nikon NEF sample decode + radiometric admission gate"
+            text = "v0.60 · één RAW-huis · TRUTHRAW PURE 32-bit Float DNG hersteld"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit. DNG loopt via de generieke RAW-source adapterlaag. Nikon NEF heeft een strikte uncompressed 16-bit CFA sample-decoder en nu ook een exact-scope black/saturation admission contract. Zonder gevalideerde camera/mode radiometric pack blijft de NEF measurement-only; noise/uncertainty en kleur blijven aparte gates."
+            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit. DNG loopt via de generieke RAW-source adapterlaag. De historische TRUTHRAW PURE-route is nu terug als 32-bit IEEE Float XYZ-D50 LinearRaw DNG met exact Scientific-Master digest gate en zonder clipping/appearance. De 16-bit Linear DNG blijft alleen compatibility. Nikon NEF blijft measurement/radiometric-gated totdat volledige scientific admission is bewezen."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(14))
