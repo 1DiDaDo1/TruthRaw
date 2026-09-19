@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-62-pure-postwrite-verify":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-63-crc-ui-branding":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -176,6 +176,32 @@ if v062_gate.get("requiresTechnicalBackplaneBytes") != 180:
     errors.append("v062_exact_backplane_postwrite_gate_required")
 if v062_gate.get("rejectsLegacyCompatibilityRoleMarker") is not True:
     errors.append("v062_must_reject_legacy_compatibility_role_marker")
+
+v063 = (((current_state.get("multiVendorRaw") or {}).get("v063")) or {})
+v063_crc = v063.get("technicalBackplaneCrc") or {}
+v063_ui = v063.get("ui") or {}
+if v063.get("privateContract") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v063_private_contract_mismatch")
+if v063.get("pixelMathChanged") is not False:
+    errors.append("v063_must_not_change_pure_pixel_math")
+if v063_crc.get("serializedBytes") != 180:
+    errors.append("v063_backplane_size_must_remain_180")
+if v063_crc.get("crcScope") != "PREFIX_176_BYTES":
+    errors.append("v063_crc_scope_must_be_prefix_176")
+if v063_crc.get("storedCrcOffset") != 176:
+    errors.append("v063_stored_crc_offset_mismatch")
+if v063_crc.get("postWriteRecomputesCrc") is not True:
+    errors.append("v063_postwrite_crc_recompute_required")
+if v063_crc.get("postWriteComparesInternalStoredCrc") is not True:
+    errors.append("v063_internal_crc_compare_required")
+if v063_crc.get("postWriteComparesDngDeclaredCrc") is not True:
+    errors.append("v063_declared_crc_compare_required")
+if v063_crc.get("oldFull180ResidueBehaviorRejected") is not True:
+    errors.append("v063_old_full180_crc_residue_must_be_rejected")
+if v063_ui.get("sameSealedSourceConvergence") is not True:
+    errors.append("v063_ui_routes_must_share_sealed_source_convergence")
+if v063_ui.get("diagnosticsMovedBehindSettings") is not True:
+    errors.append("v063_diagnostics_must_move_behind_settings")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
