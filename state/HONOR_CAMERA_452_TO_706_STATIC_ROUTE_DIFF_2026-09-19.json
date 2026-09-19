@@ -1,0 +1,64 @@
+{
+  "schema": "truthraw.honor-camera-452-to-706-static-route-diff.v1",
+  "date": "2026-09-19",
+  "authority": "STATIC_APK_SOFTWARE_ROUTE_EVIDENCE_ONLY",
+  "artifacts": {
+    "android16": {
+      "version": "171.0.10.452",
+      "bytes": 84167938,
+      "sha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+      "dexCount": 5
+    },
+    "android17": {
+      "version": "171.0.10.706",
+      "bytes": 86018325,
+      "sha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027",
+      "dexCount": 6
+    }
+  },
+  "findings": {
+    "literalRaw14StringsFound": false,
+    "literalRaw14SearchTerms": [
+      "RAW14",
+      "raw14",
+      "RAW_14",
+      "14-bit",
+      "14bit",
+      "bit14"
+    ],
+    "imageReaderNewInstanceCoupledToLiteralFormat44Found": false,
+    "highPixelRoute": {
+      "preliminaryCaptureChangeClaimCorrected": true,
+      "captureMaterialRaw14RouteChangeDemonstrated": false,
+      "rawMfPipeline": "pipeline4rawmfultrahighpixelcap.json",
+      "rawMfProcessorSceneModes": [
+        23,
+        24,
+        32,
+        33
+      ],
+      "targetModeMapping": {
+        "50M": "UltraResolutionMode",
+        "200M": "UltraHighPixelMode"
+      }
+    },
+    "typedCharacteristicKeys": {
+      "intArray": [
+        "com.hihonor.device.capabilities.physicalCameraScene",
+        "com.hihonor.device.capabilities.rawSensorResolution",
+        "com.hihonor.device.capabilities.sceneCameraIdCapability",
+        "com.hihonor.device.capabilities.cameraIdCustomInfo",
+        "com.hihonor.device.capabilities.needOpenPhysicalCamera",
+        "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize"
+      ],
+      "byteScalar": [
+        "com.hihonor.device.capabilities.teleSupport",
+        "com.hihonor.device.capabilities.ultraHighPixelMonoSupported",
+        "com.hihonor.device.capabilities.rawZoomSupported"
+      ]
+    }
+  },
+  "correction": "Earlier preliminary wording that UltraHighPixelModeProcessor.capture materially changed is superseded: method-level analysis did not demonstrate a new RAW14/high-pixel capture route; raw DEX differences include changed obfuscated references.",
+  "nextDecision": "BUILD_READ_ONLY_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE",
+  "boundary": "APK content never grants Direct-CFA, sensor, capture, or calibration authority."
+}
