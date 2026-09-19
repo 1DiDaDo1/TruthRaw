@@ -17,7 +17,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 class TruthRawSuiteLauncherActivity : Activity() {
-    private val background = Color.rgb(5, 12, 22)
+    private val backgroundColor = Color.rgb(5, 12, 22)
     private val surface = Color.rgb(10, 22, 37)
     private val surfaceSoft = Color.rgb(14, 29, 48)
     private val textPrimary = Color.rgb(244, 248, 255)
@@ -30,14 +30,14 @@ class TruthRawSuiteLauncherActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
-        window.statusBarColor = background
-        window.navigationBarColor = background
+        window.statusBarColor = backgroundColor
+        window.navigationBarColor = backgroundColor
         setContentView(buildUi())
     }
 
     private fun buildUi(): ScrollView {
         val root = vertical().apply {
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
             setPadding(dp(18), dp(12), dp(18), dp(24))
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
@@ -143,7 +143,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         return ScrollView(this).apply {
             isFillViewport = true
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
             addView(root)
         }
     }
