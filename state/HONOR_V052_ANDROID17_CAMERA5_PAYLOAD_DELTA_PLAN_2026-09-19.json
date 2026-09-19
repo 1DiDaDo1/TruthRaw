@@ -1,0 +1,25 @@
+{
+  "schema": "truthraw.android17-camera5-payload-delta-plan.v0.52",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "captureImplementation": "UNCHANGED_EXISTING_FotoGraaf200MpStagedActivity_v0.11",
+  "postCaptureAuthority": "CAMERA2_SEALED_RAW_PAYLOAD_DELTA_AUDIT",
+  "android16Reference": {
+    "declaredWidth": 16320,
+    "declaredHeight": 12288,
+    "envelopeBytes": 401080320,
+    "populatedPrefixBytes": 25067520,
+    "uniqueStandardRawCandidate": [
+      4080,
+      3072
+    ]
+  },
+  "invariants": {
+    "sourceRawOpenedForWriting": false,
+    "rawShaMustMatchSealedEvidence": true,
+    "rasterAuditReadOnly": true,
+    "geometryDecoderInterpretationOnly": true,
+    "scientificMasterModified": false
+  },
+  "boundary": "App-visible Camera2 RAW payload topology only; never native ADC/CFA or 200MP sensor proof."
+}
