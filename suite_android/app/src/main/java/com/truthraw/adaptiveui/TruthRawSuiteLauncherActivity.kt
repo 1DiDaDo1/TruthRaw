@@ -2,194 +2,299 @@ package com.truthraw.adaptiveui
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import io.truthraw.debug.MainActivity as DeviceVerificationActivity
-import java.io.File
 
 class TruthRawSuiteLauncherActivity : Activity() {
+    private val background = Color.rgb(5, 12, 22)
+    private val surface = Color.rgb(10, 22, 37)
+    private val surfaceSoft = Color.rgb(14, 29, 48)
+    private val textPrimary = Color.rgb(244, 248, 255)
+    private val textMuted = Color.rgb(158, 178, 205)
+    private val blue = Color.rgb(63, 142, 255)
+    private val cyan = Color.rgb(94, 217, 205)
+    private val amber = Color.rgb(236, 176, 82)
+    private val purple = Color.rgb(190, 92, 238)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
+        window.statusBarColor = background
+        window.navigationBarColor = background
         setContentView(buildUi())
     }
 
     private fun buildUi(): ScrollView {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_VERTICAL
-            setBackgroundColor(Color.rgb(15, 17, 20))
-            setPadding(dp(24), dp(20), dp(24), dp(24))
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val root = vertical().apply {
+            setBackgroundColor(background)
+            setPadding(dp(18), dp(12), dp(18), dp(24))
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                view.setPadding(dp(24) + bars.left, dp(20) + bars.top, dp(24) + bars.right, dp(24) + bars.bottom)
+                view.setPadding(dp(18) + bars.left, dp(12) + bars.top, dp(18) + bars.right, dp(24) + bars.bottom)
                 insets
             }
         }
-        val scroll = ScrollView(this).apply {
+
+        root.addView(header())
+        root.addView(space(22))
+        root.addView(title("Kies invoer", 27f))
+        root.addView(body("Waar komt je foto vandaan?", 15f))
+        root.addView(space(12))
+        root.addView(horizontal().apply {
+            addView(
+                inputCard(
+                    iconRes = R.drawable.ic_folder_truthraw,
+                    title = "Open RAW / DNG",
+                    subtitle = "Kies een bestaand RAW- of DNG-bestand.",
+                    accent = blue,
+                ) {
+                    startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
+                        putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
+                    })
+                },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
+            )
+            addView(
+                inputCard(
+                    iconRes = R.drawable.ic_camera_truthraw,
+                    title = "Gebruik camera",
+                    subtitle = "Maak direct een nieuwe opname via de RAW-ingang.",
+                    accent = blue,
+                ) {
+                    startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraafCameraActivity::class.java))
+                },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
+            )
+        })
+
+        root.addView(space(24))
+        root.addView(title("Kies uitvoer", 27f))
+        root.addView(body("Je voorkeur bepaalt welke echte exportactie na verwerking bovenaan staat.", 14f))
+        root.addView(space(12))
+
+        val selected = preferredOutput()
+        root.addView(horizontal().apply {
+            addView(
+                outputCard(
+                    title = "JPG",
+                    subtitle = "Universeel",
+                    detail = "Finalized sRGB preview",
+                    accent = blue,
+                    selected = selected == OUTPUT_JPG,
+                    enabled = true,
+                ) { setPreferredOutput(OUTPUT_JPG) },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
+            )
+            addView(
+                outputCard(
+                    title = "JPG XL",
+                    subtitle = "Hoge kwaliteit",
+                    detail = "Nog niet toegelaten",
+                    accent = purple,
+                    selected = false,
+                    enabled = false,
+                ) {},
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
+            )
+        })
+        root.addView(space(12))
+        root.addView(horizontal().apply {
+            addView(
+                outputCard(
+                    title = "TRUTHRAW PURE",
+                    subtitle = "Wetenschappelijk",
+                    detail = "32-bit Float DNG · self-binding",
+                    accent = cyan,
+                    selected = selected == OUTPUT_PURE,
+                    enabled = true,
+                ) { setPreferredOutput(OUTPUT_PURE) },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
+            )
+            addView(
+                outputCard(
+                    title = "TRUTHRAW ADVANCED",
+                    subtitle = "Volledige controle",
+                    detail = "Research · nog niet productief",
+                    accent = amber,
+                    selected = false,
+                    enabled = false,
+                ) {},
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
+            )
+        })
+
+        root.addView(space(22))
+        root.addView(infoStrip())
+        root.addView(space(8))
+        root.addView(body("v0.63 · corrected Backplane CRC + inhoudelijke post-write verify", 11f).apply {
+            gravity = Gravity.CENTER
+        })
+
+        return ScrollView(this).apply {
             isFillViewport = true
-            setBackgroundColor(Color.rgb(15, 17, 20))
+            setBackgroundColor(background)
             addView(root)
         }
-
-        root.addView(TextView(this).apply {
-            text = "TruthRaw Suite"
-            textSize = 31f
-            setTextColor(Color.WHITE)
-            setTypeface(typeface, Typeface.BOLD)
-        })
-        root.addView(TextView(this).apply {
-            text = "v0.62 · PURE 32-bit Float DNG · self-binding + post-write verificatie"
-            textSize = 16f
-            setTextColor(Color.rgb(190, 196, 205))
-            setPadding(0, dp(5), 0, dp(8))
-        })
-        root.addView(TextView(this).apply {
-            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Beide routes komen bij dezelfde sealed-source RAW-ingang uit. TRUTHRAW PURE blijft 32-bit IEEE Float XYZ-D50 LinearRaw DNG met exact Scientific-Master digest gate. De v0.61 self-binding met Zero-Line/L0, scene-scale en Technical Backplane wordt nu na het schrijven uit het opgeslagen DNG-bestand teruggelezen; zonder die bevestiging meldt de app geen succes. De 16-bit Linear DNG blijft alleen compatibility. Nikon NEF blijft measurement/radiometric-gated totdat volledige scientific admission is bewezen."
-            textSize = 14f
-            setTextColor(Color.rgb(190, 198, 209))
-            setPadding(0, 0, 0, dp(14))
-        })
-
-        root.addView(actionButton("1 · RAW-bestand openen · smartphone / professionele camera") {
-            startActivity(Intent(this, MainActivity::class.java).apply {
-                putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
-            })
-        })
-        root.addView(space())
-
-        root.addView(actionButton("2 · Camera gebruiken · capture → dezelfde RAW-ingang") {
-            startActivity(Intent(this, FotoGraafCameraActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(TextView(this).apply {
-            text = "Onderzoek & diagnostiek"
-            textSize = 18f
-            setTextColor(Color.WHITE)
-            setTypeface(typeface, Typeface.BOLD)
-            setPadding(0, dp(10), 0, dp(8))
-        })
-
-        root.addView(actionButton("200MP TEST · crash-isolatie ingang") {
-            startActivity(Intent(this, FotoGraaf200MpEntryActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.40 · Passieve Honor route observer") {
-            startActivity(Intent(this, HonorPassiveRouteObserverActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.41 · Honor output-config callback probe") {
-            startActivity(Intent(this, HonorOutputConfigCallbackProbeActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.42 · Passieve MediaStore + Camera timeline") {
-            startActivity(Intent(this, PassiveMediaStoreCameraTimelineActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.43 · Passieve mode/shutter timeline") {
-            startActivity(Intent(this, PassiveModeShutterTimelineActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.44 · HI-RES main → tele state anchors") {
-            startActivity(Intent(this, PassiveHiresTeleStateTimelineActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.45 · Exported JPEG metadata fingerprint") {
-            startActivity(Intent(this, PassiveExportedJpegMetadataFingerprintActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.46 · Honor capability route oracle") {
-            startActivity(Intent(this, HonorCapabilityRouteOracleActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.48 · Target 37 retest · zelfde v0.47 oracle") {
-            startActivity(Intent(this, Api37Raw14ExtensionOracleActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.49 · Honor Camera .706 package export") {
-            startActivity(Intent(this, HonorCameraPackageExportActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.50 · Direct typed Honor vendor-key read") {
-            startActivity(Intent(this, DirectTypedVendorCharacteristicsOracleActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.51 · CameraDeviceSetup RAW14 session query") {
-            startActivity(Intent(this, CameraDeviceSetupRaw14SessionOracleActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.53 · Android 17 replay van bewezen v0.14 route") {
-            startActivity(Intent(this, Android17Camera5PayloadDeltaActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.54 · Honor Pro RAW/DNG container fingerprint") {
-            startActivity(Intent(this, PassiveHonorProRawDngFingerprintActivity::class.java))
-        })
-        root.addView(space())
-
-        root.addView(actionButton("v0.55 · Huidige Android-17/HONOR nulmeting") {
-            startActivity(Intent(this, CurrentAndroid17HonorCameraBaselineActivity::class.java))
-        })
-        root.addView(space())
-
-        if (File(filesDir, TruthRawSuiteApplication.CRASH_FILE).exists()) {
-            root.addView(actionButton("LAATSTE CRASH BEKIJKEN / OPSLAAN") {
-                startActivity(Intent(this, TruthRawCrashReportActivity::class.java))
-            })
-            root.addView(space())
-        }
-
-        root.addView(actionButton("FotoGraaf camera & diagnostics · legacy") {
-            startActivity(Intent(this, FotoGraafPermissionGateActivity::class.java))
-        })
-        root.addView(space())
-        root.addView(actionButton("TruthRaw processor") {
-            startActivity(Intent(this, MainActivity::class.java))
-        })
-        root.addView(space())
-        root.addView(actionButton("Device verification v0.3 · source + CFA") {
-            startActivity(Intent(this, DeviceVerificationActivity::class.java))
-        })
-        root.addView(space())
-        root.addView(TextView(this).apply {
-            text = "200MP blijft fail-closed: pas een echte 16320×12288 RAW_SENSOR Image + physical Camera-5 result + timestamp identity + MAXIMUM_RESOLUTION pixel mode kan de capture-gate passeren. Legacy previewactivities zijn nog niet als TextureView-crash-fixed gepromoveerd."
-            textSize = 12f
-            setTextColor(Color.rgb(145, 153, 165))
-        })
-        return scroll
     }
 
-    private fun actionButton(label: String, action: () -> Unit): Button = Button(this).apply {
-        text = label
-        isAllCaps = false
-        textSize = 17f
-        minHeight = dp(54)
+    private fun header(): View = horizontal().apply {
+        gravity = Gravity.CENTER_VERTICAL
+        addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
+            setImageResource(R.drawable.truthraw_icon)
+            contentDescription = "TruthRaw"
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }, LinearLayout.LayoutParams(dp(68), dp(68)).apply { marginEnd = dp(14) })
+
+        addView(vertical().apply {
+            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+                text = "TruthRaw"
+                textSize = 31f
+                setTextColor(textPrimary)
+                setTypeface(typeface, Typeface.BOLD)
+            })
+            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+                text = "BEYOND THE OBVIOUS"
+                textSize = 10f
+                letterSpacing = 0.24f
+                setTextColor(textMuted)
+            })
+        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+
+        addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+            text = "⚙"
+            textSize = 28f
+            gravity = Gravity.CENTER
+            setTextColor(Color.rgb(202, 218, 239))
+            contentDescription = "Instellingen en onderzoek"
+            background = cardBackground(surfaceSoft, Color.rgb(44, 69, 99), false)
+            setOnClickListener {
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawSettingsActivity::class.java))
+            }
+        }, LinearLayout.LayoutParams(dp(54), dp(54)))
+    }
+
+    private fun inputCard(
+        iconRes: Int,
+        title: String,
+        subtitle: String,
+        accent: Int,
+        action: () -> Unit,
+    ): View = vertical().apply {
+        setPadding(dp(14), dp(14), dp(14), dp(14))
+        background = cardBackground(surfaceSoft, accent, true)
+        minimumHeight = dp(185)
+
+        addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
+            setImageResource(iconRes)
+            imageTintList = ColorStateList.valueOf(Color.rgb(190, 224, 255))
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            background = cardBackground(Color.rgb(8, 30, 56), accent, false)
+        }, LinearLayout.LayoutParams(dp(54), dp(54)))
+        addView(space(14))
+        addView(title(title, 18f))
+        addView(space(5))
+        addView(body(subtitle, 12.5f))
+        addView(space(10))
+        addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+            text = "›"
+            textSize = 31f
+            gravity = Gravity.END
+            setTextColor(accent)
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         setOnClickListener { action() }
     }
 
-    private fun space() = android.view.View(this).apply { layoutParams = LinearLayout.LayoutParams(1, dp(10)) }
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+    private fun outputCard(
+        title: String,
+        subtitle: String,
+        detail: String,
+        accent: Int,
+        selected: Boolean,
+        enabled: Boolean,
+        action: () -> Unit,
+    ): View = vertical().apply {
+        setPadding(dp(14), dp(14), dp(14), dp(14))
+        background = cardBackground(if (selected) Color.rgb(12, 31, 52) else surface, accent, selected)
+        alpha = if (enabled) 1f else 0.56f
+        minimumHeight = dp(146)
+
+        addView(horizontal().apply {
+            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+                text = if (selected) "✓" else "○"
+                textSize = 21f
+                gravity = Gravity.CENTER
+                setTextColor(if (selected) accent else textMuted)
+            }, LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(8) })
+            addView(title(title, 16f), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        })
+        addView(space(5))
+        addView(body(subtitle, 12.5f))
+        addView(space(10))
+        addView(body(detail, 11.5f))
+        if (enabled) setOnClickListener { action() }
+    }
+
+    private fun infoStrip(): View = vertical().apply {
+        setPadding(dp(14), dp(13), dp(14), dp(13))
+        background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
+        addView(title("PURE blijft meetbaar", 14f))
+        addView(space(4))
+        addView(body(
+            "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority. Onderzoeks- en testopties staan achter het tandwiel.",
+            11.5f,
+        ))
+    }
+
+    private fun setPreferredOutput(mode: String) {
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_OUTPUT, mode).apply()
+        setContentView(buildUi())
+    }
+
+    private fun preferredOutput(): String =
+        getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_OUTPUT, OUTPUT_PURE) ?: OUTPUT_PURE
+
+    private fun cardBackground(fill: Int, stroke: Int, selected: Boolean): GradientDrawable =
+        GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(20).toFloat()
+            setColor(fill)
+            setStroke(dp(if (selected) 2 else 1), stroke)
+        }
+
+    private fun vertical() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+    private fun horizontal() = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+    private fun space(height: Int) = View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(1, dp(height))
+    }
+    private fun title(value: String, size: Float) = TextView(this).apply {
+        text = value
+        textSize = size
+        setTextColor(textPrimary)
+        setTypeface(typeface, Typeface.BOLD)
+    }
+    private fun body(value: String, size: Float) = TextView(this).apply {
+        text = value
+        textSize = size
+        setTextColor(textMuted)
+        setLineSpacing(0f, 1.12f)
+    }
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
+
+    companion object {
+        const val PREFS = "truthraw_ui"
+        const val KEY_OUTPUT = "preferred_output"
+        const val OUTPUT_PURE = "PURE"
+        const val OUTPUT_JPG = "JPG"
+    }
 }
