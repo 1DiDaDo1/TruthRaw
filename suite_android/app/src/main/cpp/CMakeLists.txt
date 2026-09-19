@@ -34,6 +34,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
+    nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
     rawcb_source_type_native_type_oracle.cpp
