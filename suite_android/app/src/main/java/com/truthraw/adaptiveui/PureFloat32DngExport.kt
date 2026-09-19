@@ -2,13 +2,14 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.net.Uri
+import java.util.zip.CRC32
 
 private const val PURE_FLOAT_MAGIC = 0x54525046L
 private const val PURE_FLOAT_PACKET_LONGS = 18
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 private const val PURE_POSTWRITE_SCAN_BYTES = 64 * 1024
-private const val PURE_SELF_BINDING_CONTRACT = "TRUTHRAW_PURE_SELF_BINDING_V0_61"
+private const val PURE_SELF_BINDING_CONTRACT = "TRUTHRAW_PURE_SELF_BINDING_V0_63"
 
 object PureFloat32DngNativeBridge {
     init {
@@ -96,7 +97,7 @@ object PureFloat32DngExporter {
                 runCatching { resolver.delete(destination, null, null) }
                 return PureFloat32DngExportResult.Failed(
                     "Fail-closed: writer meldde succes, maar het opgeslagen DNG-bestand kon de " +
-                        "v0.61 self-binding niet terugbewijzen (${postWrite.reason}).",
+                        "v0.63 self-binding niet terugbewijzen (${postWrite.reason}).",
                 )
             }
 
@@ -133,6 +134,7 @@ object PureFloat32DngExporter {
             "scene_scale_sha256=",
             "scene_scale_id=",
             "technical_backplane_version=1",
+            "technical_backplane_crc_scope=PREFIX_176_BYTES",
             "technical_backplane_crc32=0x",
             "technical_backplane_serialized_hex=",
             "precision_policy_id=",
@@ -208,17 +210,95 @@ object PureFloat32DngExporter {
                 return PostWriteVerification(false, "ongeldige exacte L0 binary64 bits")
             }
 
-            val backplane = valueOf("technical_backplane_serialized_hex=").orEmpty()
-            if (!isHex(backplane, 180 * 2)) {
+            val backplaneHex = valueOf("technical_backplane_serialized_hex=").orEmpty()
+            if (!isHex(backplaneHex, 180 * 2)) {
                 return PostWriteVerification(
                     false,
                     "Technical Backplane is niet exact 180 bytes",
                 )
             }
 
-            val crc = valueOf("technical_backplane_crc32=").orEmpty()
-            if (!crc.startsWith("0x") || !isHex(crc.drop(2), 8)) {
+            fun decodeHex(value: String): ByteArray {
+                val out = ByteArray(value.length / 2)
+                var i = 0
+                while (i < value.length) {
+                    out[i / 2] = value.substring(i, i + 2).toInt(16).toByte()
+                    i += 2
+                }
+                return out
+            }
+            fun ByteArray.hexRange(from: Int, until: Int): String =
+                copyOfRange(from, until).joinToString(separator = "") { byte ->
+                    "%02x".format(byte.toInt() and 0xff)
+                }
+            fun u16Le(data: ByteArray, offset: Int): Int =
+                (data[offset].toInt() and 0xff) or
+                    ((data[offset + 1].toInt() and 0xff) shl 8)
+            fun u32Le(data: ByteArray, offset: Int): Long =
+                ((data[offset].toLong() and 0xffL) or
+                    ((data[offset + 1].toLong() and 0xffL) shl 8) or
+                    ((data[offset + 2].toLong() and 0xffL) shl 16) or
+                    ((data[offset + 3].toLong() and 0xffL) shl 24)) and 0xffffffffL
+
+            val backplane = decodeHex(backplaneHex)
+            if (!backplane.copyOfRange(0, 8).contentEquals("TRBACK01".toByteArray(Charsets.US_ASCII))) {
+                return PostWriteVerification(false, "Technical Backplane magic klopt niet")
+            }
+            if (u16Le(backplane, 8) != 1 || u16Le(backplane, 10) != 180) {
+                return PostWriteVerification(false, "Technical Backplane versie/lengte klopt niet")
+            }
+            if (u32Le(backplane, 12) != 0L) {
+                return PostWriteVerification(false, "Technical Backplane forbiddenFlags is niet nul")
+            }
+            if (u32Le(backplane, 144) != 1L || u32Le(backplane, 148) != 1L) {
+                return PostWriteVerification(false, "Technical Backplane frame/evidence is niet 1/1")
+            }
+            if ((165 until 176).any { backplane[it] != 0.toByte() }) {
+                return PostWriteVerification(false, "Technical Backplane reserved bytes zijn niet nul")
+            }
+
+            val bindingPairs = listOf(
+                "sealed_source_sha256=" to backplane.hexRange(16, 48),
+                "scientific_master_sha256=" to backplane.hexRange(48, 80),
+                "zero_line_sha256=" to backplane.hexRange(80, 112),
+                "scene_scale_sha256=" to backplane.hexRange(112, 144),
+            )
+            val mismatchedBinding = bindingPairs.firstOrNull { (key, embedded) ->
+                !valueOf(key).orEmpty().equals(embedded, ignoreCase = true)
+            }
+            if (mismatchedBinding != null) {
+                return PostWriteVerification(
+                    false,
+                    "Technical Backplane lineage mismatch: ${mismatchedBinding.first}",
+                )
+            }
+
+            val crcText = valueOf("technical_backplane_crc32=").orEmpty()
+            if (!crcText.startsWith("0x") || !isHex(crcText.drop(2), 8)) {
                 return PostWriteVerification(false, "ongeldige Technical Backplane CRC32")
+            }
+            if (valueOf("technical_backplane_crc_scope=") != "PREFIX_176_BYTES") {
+                return PostWriteVerification(false, "Technical Backplane CRC scope klopt niet")
+            }
+
+            val crcEngine = CRC32()
+            crcEngine.update(backplane, 0, 176)
+            val recomputedCrc = crcEngine.value and 0xffffffffL
+            val embeddedCrc = u32Le(backplane, 176)
+            val declaredCrc = crcText.drop(2).toLong(16) and 0xffffffffL
+            if (recomputedCrc != embeddedCrc) {
+                return PostWriteVerification(
+                    false,
+                    "Technical Backplane interne CRC32 faalt: recomputed=%08x embedded=%08x"
+                        .format(recomputedCrc, embeddedCrc),
+                )
+            }
+            if (declaredCrc != recomputedCrc) {
+                return PostWriteVerification(
+                    false,
+                    "DNG metadata CRC32 faalt: declared=%08x recomputed=%08x"
+                        .format(declaredCrc, recomputedCrc),
+                )
             }
 
             if (valueOf("precision_policy_id=").isNullOrBlank() ||
@@ -227,7 +307,7 @@ object PureFloat32DngExporter {
                 return PostWriteVerification(false, "precision/runtime provenance ontbreekt")
             }
 
-            PostWriteVerification(true, "contract en payloadlengtes teruggelezen")
+            PostWriteVerification(true, "v0.63 contract + Backplane CRC inhoudelijk geverifieerd")
         } catch (error: Throwable) {
             PostWriteVerification(
                 false,
