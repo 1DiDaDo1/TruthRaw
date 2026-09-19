@@ -1,0 +1,104 @@
+name: TruthRaw v0.54 OEM Pro RAW DNG Fingerprint
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint
+    paths:
+      - 'suite_android/app/build.gradle.kts'
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHonorProRawDngFingerprintService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHonorProRawDngFingerprintActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V054_OEM_PRO_RAW_DNG_FINGERPRINT_PLAN_2026-09-19.md'
+      - 'state/HONOR_V054_OEM_PRO_RAW_DNG_FINGERPRINT_PLAN_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v054:
+    name: Build v0.54 OEM Pro RAW DNG fingerprint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify passive exported-container boundary
+        run: |
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHonorProRawDngFingerprintService.kt'
+          PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+          PLAN='state/HONOR_V054_OEM_PRO_RAW_DNG_FINGERPRINT_PLAN_2026-09-19.json'
+
+          grep -F 'truthraw.passive-oem-pro-raw-dng-container-fingerprint.v0.54' "$SERVICE"
+          grep -F 'PASSIVE_EXPORTED_OEM_DNG_CONTAINER_METADATA_ONLY' "$SERVICE"
+          grep -F 'pixelPayloadBytesRead", false' "$SERVICE"
+          grep -F 'gpsIfdFollowed", false' "$SERVICE"
+          grep -F 'truthraw.classic-tiff-dng-container-metadata.v0.54' "$PARSER"
+          grep -F 'BitsPerSample' "$PARSER"
+          grep -F 'WhiteLevel' "$PARSER"
+          grep -F 'CFAPattern' "$PARSER"
+          grep -F 'stripTilePayloadOffsetsNeverFollowed' "$SERVICE"
+          grep -F '"camera2PreviewRequestSemanticsChangedFromAndroid16V014": false' "$PLAN"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          service=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PassiveHonorProRawDngFingerprintService.kt').read_text()
+          parser=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt').read_text()
+
+          for token in [
+              'openCamera(',
+              'createCaptureRequest',
+              'ImageReader',
+              'DngCreator',
+              'BitmapFactory',
+              'bindService(',
+          ]:
+              assert token not in service, token
+
+          assert 'pixelPayloadBytesRead", false' in service
+          assert 'imageSamplesDecoded", false' in service
+          assert 'pixelPayloadBytesRead", false' in parser
+          assert 'parseIfdRecursive' in parser
+          assert '34665 to "ExifIFD"' in parser
+          assert '34853 to "GPSIFD"' in parser
+          # GPS is named but deliberately not recursively followed.
+          assert '/GPSIFD' not in parser
+          print('v0.54 passive DNG metadata-only invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
