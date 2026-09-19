@@ -82,6 +82,8 @@ v0.62 keeps the v0.61 writer/private contract and pixel mathematics unchanged. A
 
 Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md`.
 
+v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
+
 ## 3. Recovery work completed before app unification
 
 The full genealogy recovery is preserved on:
