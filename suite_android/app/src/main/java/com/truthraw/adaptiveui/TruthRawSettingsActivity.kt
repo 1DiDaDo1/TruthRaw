@@ -35,11 +35,6 @@ class TruthRawSettingsActivity : Activity() {
         val root = vertical().apply {
             setBackgroundColor(backgroundColor)
             setPadding(dp(18), dp(12), dp(18), dp(24))
-            setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                view.setPadding(dp(18) + bars.left, dp(12) + bars.top, dp(18) + bars.right, dp(24) + bars.bottom)
-                insets
-            }
         }
 
         root.addView(horizontal().apply {
@@ -53,7 +48,7 @@ class TruthRawSettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("Instellingen", 26f))
-                addView(body("TruthRaw v0.63 · product + research", 11.5f))
+                addView(body("TruthRaw v0.65 · product + research", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
@@ -120,7 +115,13 @@ class TruthRawSettingsActivity : Activity() {
 
         return ScrollView(this).apply {
             isFillViewport = true
+            clipToPadding = true
             setBackgroundColor(backgroundColor)
+            setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(WindowInsets.Type.systemBars())
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                insets
+            }
             addView(root)
         }
     }
