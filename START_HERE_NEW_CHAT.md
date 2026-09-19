@@ -12,15 +12,15 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-63-crc-ui-branding`
+`integration/truthraw-suite-v0-64-advanced-derivative`
 
 Current app:
 
-`0.28-v0.63-crc-ui-branding`
+`0.29-v0.64-advanced-derivative`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.63 keeps the 32-bit IEEE Float pixel route intact, versions the self-binding contract to `TRUTHRAW_PURE_SELF_BINDING_V0_63`, corrects Backplane CRC scope to bytes 0..175 and verifies CRC+lineage after write. The branded launcher now makes RAW/DNG import and camera the two clear primary inputs; diagnostics moved behind settings.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.64 leaves the validated PURE writer at `TRUTHRAW_PURE_SELF_BINDING_V0_63` and adds TRUTHRAW ADVANCED downstream: Natural Light Balance, Natural HDR, Detail/Structure and narrow evidence-bound restoration operate only on the derivative appearance path. No Advanced operation writes back into Scientific Master, Zero-Line, scene-scale, Backplane or evidence authority.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
@@ -28,7 +28,7 @@ Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
 
 Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract is `TRUTHRAW_PURE_SELF_BINDING_V0_63`. New PURE outputs use `*_truthraw_pure_float32_v0_63.dng`. Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md` before changing CRC, self-binding or launcher semantics.
 
-v0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+v0.64 CI run `35471926706` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
 
 v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
