@@ -16,12 +16,14 @@ import java.util.Locale
  */
 enum class RawIngressSupport {
     NATIVE_TRUTHRAW_DNG,
+    NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING,
     ACCEPTED_HANDLE_DECODER_PENDING,
     NOT_RECOGNIZED_AS_RAW,
 }
 
 enum class RawDecoderBackend {
     MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG,
+    NIKON_NEF_UNCOMPRESSED16_CFA_V0_1,
     DECODER_PENDING,
     NONE,
 }
@@ -74,7 +76,15 @@ object RawFormatRegistry {
         ),
         pending("CANON_CR3", "Canon CR3", "Canon", "cr3"),
         pending("CANON_CR2", "Canon CR2", "Canon", "cr2"),
-        pending("NIKON_NEF", "Nikon NEF", "Nikon", "nef"),
+        RawFormatProfile(
+            id = "NIKON_NEF",
+            displayLabel = "Nikon NEF",
+            vendorLabel = "Nikon",
+            extensions = extSet("nef"),
+            mimeTypes = emptySet(),
+            support = RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING,
+            decoderBackend = RawDecoderBackend.NIKON_NEF_UNCOMPRESSED16_CFA_V0_1,
+        ),
         pending("NIKON_NRW", "Nikon NRW", "Nikon", "nrw"),
         pending("SONY_ARW", "Sony ARW", "Sony", "arw"),
         pending("FUJIFILM_RAF", "Fujifilm RAF", "Fujifilm", "raf"),
