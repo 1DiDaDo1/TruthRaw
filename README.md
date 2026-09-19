@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-60-pure-float32-dng`
+> Active branch: `integration/truthraw-suite-v0-61-pure-self-binding-dng`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.60 restores the historical TRUTHRAW PURE 32-bit IEEE Float XYZ-D50 LinearRaw DNG path with exact Scientific-Master digest gating.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.61 keeps the v0.60 32-bit IEEE Float XYZ-D50 LinearRaw pixel route unchanged and makes the saved PURE DNG self-binding to its Zero-Line/TruthRange, scene-scale and exact 180-byte Technical Backplane state.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.60 PURE CI run `35458367764`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10589820246`.
+> Historical v0.60 CI run `35458367764`: **SUCCESS** on GCC, Clang and Android. v0.61 CI/build status is tracked in `state/CURRENT_PROJECT_STATE_2026-09-19.json`.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
