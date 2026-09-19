@@ -4,6 +4,7 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "finalized_scientific_preview_release_v0_2.h"
 #include "linear_dng_projection_v0_1.h"
+#include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
 #include "scientific_preview_source_binding_v0_2.h"
@@ -31,7 +32,6 @@ using truthraw::preview_surface_v0_1::BoundedSrgbPreviewSink;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
 using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
-using truthraw::tile_dng_v0_1::TileNativeDngSource;
 
 constexpr jlong kMagic = 0x5452444c; // TRDL
 constexpr std::size_t kPacketLongs = 13u;
@@ -56,8 +56,8 @@ jlong producer_status(const truthraw::dng_color_binding_producer_v0_2::ProducerS
     return 2100 + static_cast<jlong>(status.code);
 }
 
-jlong dng_status(const truthraw::tile_dng_v0_1::DngSourceStatus& status) {
-    return 3000 + static_cast<jlong>(status.code);
+jlong adapter_status(const truthraw::multivendor_raw_source_adapter::v0_1::AdapterStatus& status) {
+    return 7000 + static_cast<jlong>(status.code);
 }
 
 jlong finalized_status(const truthraw::finalized_scientific_preview_release::v0_2::Status& status) {
@@ -131,9 +131,11 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
 
     auto openOptions = prepared.tileNativeOptions;
     openOptions.maxResidentBytes = static_cast<std::size_t>(maxSourceResidentBytes);
-    std::unique_ptr<TileNativeDngSource> source;
-    const auto opened = TileNativeDngSource::open(bytes, openOptions, source);
-    if (!opened) return packet(env, dng_status(opened));
+    truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource openedSource;
+    const auto opened = truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(
+        bytes, sourceSeal, openOptions, openedSource);
+    if (!opened) return packet(env, adapter_status(opened));
+    auto& source = openedSource.source;
 
     auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
