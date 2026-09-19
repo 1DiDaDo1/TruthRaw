@@ -136,6 +136,8 @@ struct RawSourceDescriptor final {
     bool sourceSealAcceptedAtBoundary = false;
     bool exactCfaSamplesAvailable = false;
     bool scientificColorBindingProvided = false;
+    bool measurementAdmissionReady = false;
+    bool scientificAdmissionReady = false;
     bool syntheticConformanceOnly = false;
     bool physicalExposureCountKnown = false;
     std::uint32_t physicalFrameCount = 0u;
@@ -177,6 +179,11 @@ private:
 };
 
 std::shared_ptr<IRawSourceAdapter> makeDngAdapter();
+
+// Strict first proprietary adapter: uncompressed Nikon NEF subset with a
+// directly described single-plane 2x2 CFA IFD. It decodes source sample codes
+// only. It does not invent black level, noise model, or camera color.
+std::shared_ptr<IRawSourceAdapter> makeNikonNefUncompressedAdapter();
 
 // Test-only ABI fixture. It proves that a non-DNG adapter can populate the same
 // IRawTileSource contract. It must never be promoted as real vendor support.
