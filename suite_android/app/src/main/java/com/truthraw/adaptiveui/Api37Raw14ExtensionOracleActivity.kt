@@ -310,7 +310,7 @@ class Api37Raw14ExtensionOracleActivity : Activity() {
             out.put("getSupportedExtensions", JSONArray(supportedList))
 
             val method = runCatching {
-                ext.javaClass.getMethod("isExtensionSupported", Int::class.javaPrimitiveType)
+                ext.javaClass.getMethod("isExtensionSupported", Integer.TYPE)
             }.getOrNull()
 
             out.put("api37IsExtensionSupportedMethodPresent", method != null)
