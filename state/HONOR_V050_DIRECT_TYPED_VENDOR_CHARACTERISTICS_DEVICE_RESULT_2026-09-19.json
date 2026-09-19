@@ -1,0 +1,58 @@
+{
+  "schema": "truthraw.direct-typed-vendor-characteristics-oracle-device-result.v0.50",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY",
+  "source": {
+    "name": "TRUTHRAW_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE_v050.json",
+    "bytes": 21421,
+    "sha256": "735e4280909867b3485f72db11cb58ee8256f2c1b38e689d07e2fdae2a248fea"
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 37
+  },
+  "cameraIdsChecked": ["0","1","2","4","5"],
+  "keyCountPerCamera": 9,
+  "totalDirectTypedLookups": 45,
+  "results": {
+    "nonNullValues": 0,
+    "completedWithNull": 40,
+    "illegalArgumentTagNotFound": 5,
+    "otherErrors": 0,
+    "listedInOrdinaryCharacteristicsKeys": 0
+  },
+  "perKeyClassification": {
+    "com.hihonor.device.capabilities.physicalCameraScene": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.rawSensorResolution": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.sceneCameraIdCapability": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.cameraIdCustomInfo": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.needOpenPhysicalCamera": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.teleSupport": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.rawZoomSupported": "DIRECT_GET_COMPLETED_NULL_ON_ALL_5_CAMERA_IDS",
+    "com.hihonor.device.capabilities.ultraHighPixelMonoSupported": "ILLEGAL_ARGUMENT_COULD_NOT_FIND_TAG_ON_ALL_5_CAMERA_IDS"
+  },
+  "classification": "EXACT_TYPED_VENDOR_KEYS_DO_NOT_YIELD_VALUES_TO_TRUTHRAW__EIGHT_LOOKUPS_RESOLVE_TO_NULL_WHILE_ULTRA_HIGH_PIXEL_MONO_TAG_IS_NOT_FOUND",
+  "interpretation": {
+    "proven": [
+      "All nine exact APK-derived keys are absent from ordinary CameraCharacteristics.keys for all checked camera IDs.",
+      "Eight exact typed direct reads complete without exception but return null for all checked camera IDs.",
+      "ultraHighPixelMonoSupported throws IllegalArgumentException 'Could not find tag for key' for all checked camera IDs.",
+      "No direct typed lookup returned a non-null vendor characteristic value."
+    ],
+    "strongInferenceOnly": [
+      "The different null-versus-tag-not-found behavior is consistent with eight names being known to the camera metadata/vendor-tag machinery while no value is present in the CameraCharacteristics object exposed to this TruthRaw client. This is not promoted as proof of client-identity filtering."
+    ],
+    "notProven": [
+      "Honor Camera receives the same null values.",
+      "The eight null-returning tags are populated for privileged/system clients.",
+      "The values do not exist elsewhere in Honor's CameraAbility/ServiceHost stack.",
+      "Any OEM shutter event uses physical camera 5 or native 200MP Direct-CFA."
+    ]
+  },
+  "nextDecision": "CLOSE_DIRECT_FIXED_CHARACTERISTICS_VENDOR_KEY_ROUTE; USE_CAMER_DEVICE_SETUP_FOR_READ_ONLY_EVIDENCE_BASED_SESSION_CONFIGURATION_QUERIES_BEFORE_ANY_NEW_CAPTURE"
+}
