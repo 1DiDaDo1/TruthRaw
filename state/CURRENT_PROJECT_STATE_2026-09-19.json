@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-62-pure-postwrite-verify",
+  "activeBranch": "integration/truthraw-suite-v0-63-crc-ui-branding",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -297,6 +297,44 @@
         }
       },
       "realDeviceValidation": "PENDING_V062_ARTIFACT_POSTWRITE_TEST"
+    },
+    "v063": {
+      "branch": "integration/truthraw-suite-v0-63-crc-ui-branding",
+      "appVersion": "0.28-v0.63-crc-ui-branding",
+      "role": "CORRECTED_BACKPLANE_CRC_AND_BRANDED_PRODUCT_UI",
+      "inheritsV062Float32PixelRoute": true,
+      "pixelMathChanged": false,
+      "privateContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "technicalBackplaneCrc": {
+        "serializedBytes": 180,
+        "crcScope": "PREFIX_176_BYTES",
+        "storedCrcOffset": 176,
+        "storedCrcBytes": 4,
+        "oldFull180ResidueBehaviorRejected": true,
+        "postWriteRecomputesCrc": true,
+        "postWriteComparesInternalStoredCrc": true,
+        "postWriteComparesDngDeclaredCrc": true,
+        "postWriteChecksLineageHashesAgainstBackplane": true
+      },
+      "ui": {
+        "primaryInputs": [
+          "OPEN_RAW_DNG",
+          "USE_CAMERA"
+        ],
+        "sameSealedSourceConvergence": true,
+        "preferredOutputs": [
+          "JPG",
+          "TRUTHRAW_PURE"
+        ],
+        "disabledUntilImplemented": [
+          "JPG_XL",
+          "TRUTHRAW_ADVANCED"
+        ],
+        "diagnosticsMovedBehindSettings": true,
+        "generatedLensReflectionIconApplied": true
+      },
+      "ci": "PENDING",
+      "realDeviceValidation": "PENDING_V063_DNG_CRC_AND_UI_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -317,15 +355,17 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_VERIFIED_V062_APK_ON_REAL_DEVICE",
-    "EXPORT_KNOWN_GOOD_DNG_USING_DEFAULT_V062_FILENAME",
-    "REQUIRE_UI_SELF_BINDING_VERIFIED_TRUE_BEFORE_TREATING_EXPORT_AS_SUCCESS",
-    "UPLOAD_THE_EXACT_NEW_V062_DNG_FOR_INDEPENDENT_STRUCTURE_AND_PRIVATE_DATA_INSPECTION",
-    "KEEP_V061_WRITER_PIXEL_MATH_ZERO_LINE_AND_FROZEN_BACKPLANE_UNCHANGED"
+    "RUN_V063_HOST_GCC_CLANG_AND_ANDROID_CI",
+    "INSTALL_V063_APK_AND_CONFIRM_NEW_ICON_AND_INPUT_CHOICES",
+    "EXPORT_A_NEW_V063_PURE_DNG",
+    "VERIFY_UI_REPORTS_SELF_BINDING_VERIFIED_TRUE",
+    "UPLOAD_NEW_V063_DNG_AND_RECOMPUTE_BACKPLANE_CRC_FROM_BYTES_0_175",
+    "CONFIRM_DNG_DECLARED_CRC_EQUALS_INTERNAL_BACKPLANE_CRC_AND_IS_NOT_CONSTANT_RESIDUE_2144DF1C"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
     "docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md",
     "docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md",
     "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
