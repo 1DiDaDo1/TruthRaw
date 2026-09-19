@@ -1,0 +1,107 @@
+{
+  "schema": "truthraw.passive-oem-pro-raw-dng-container-fingerprint-device-result.v0.54",
+  "date": "2026-09-19",
+  "authority": "PASSIVE_EXPORTED_OEM_DNG_CONTAINER_METADATA_ONLY",
+  "runProfile": "PRO_TELE_RAW",
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 37
+  },
+  "honorCamera": {
+    "versionName": "171.0.10.706",
+    "longVersionCode": 1710010706,
+    "targetSdkVersion": 37,
+    "compileSdkVersion": 36,
+    "systemApp": true
+  },
+  "exportedDng": {
+    "displayName": "IMG_20260919_110414.dng",
+    "mediaStoreWidth": 4080,
+    "mediaStoreHeight": 3072,
+    "fileSizeBytes": 25097536,
+    "relativePath": "DCIM/Camera/RAW/",
+    "tiffByteOrder": "II_LITTLE_ENDIAN",
+    "tiffMagic": 42,
+    "dngVersion": [
+      1,
+      4,
+      0,
+      0
+    ],
+    "dngBackwardVersion": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "uniqueCameraModel": "BKQ-N49-HONOR-HONOR",
+    "imageWidth": 4080,
+    "imageLength": 3072,
+    "bitsPerSample": 16,
+    "compression": 1,
+    "photometricInterpretation": 32803,
+    "samplesPerPixel": 1,
+    "rowsPerStrip": 1,
+    "stripCount": 3072,
+    "stripBytesEach": 8160,
+    "stripPayloadBytesTotal": 25067520,
+    "cfaRepeatPatternDim": [
+      2,
+      2
+    ],
+    "cfaPattern": [
+      2,
+      1,
+      1,
+      0
+    ],
+    "blackLevelRepeatDim": [
+      2,
+      2
+    ],
+    "blackLevel": [
+      64,
+      64,
+      64,
+      64
+    ],
+    "whiteLevel": 1023,
+    "defaultCropOrigin": [
+      8,
+      8
+    ],
+    "defaultCropSize": [
+      4064,
+      3056
+    ],
+    "activeArea": [
+      0,
+      0,
+      3072,
+      4080
+    ],
+    "focalLengthMm": 22.48,
+    "fNumber": 2.6,
+    "exposureTimeSeconds": 0.009999993,
+    "iso": 1181
+  },
+  "structuralObservations": {
+    "uncompressed16BitStorage": true,
+    "oneStripPerRow": true,
+    "bytesPerRow": 8160,
+    "bytesPerRowEquation": "4080 * 2 = 8160",
+    "totalPixelPayloadEquation": "4080 * 3072 * 2 = 25,067,520",
+    "exactStandardCamera5U16PayloadByteCountMatch": true,
+    "nominalWhiteLevelCodeCeiling1023": true,
+    "exported14BitStorageClaim": false,
+    "exported14BitCodeCeilingClaim": false
+  },
+  "classification": "ANDROID17_HONOR_PRO_TELE_DNG_EXPORT_IS_4080x3072_UNCOMPRESSED_U16_CFA_WITH_10BIT_NOMINAL_CODE_CEILING",
+  "raw14Conclusion": "NO_EXPORTED_RAW14_EVIDENCE_IN_THIS_PRO_TELE_DNG_ROUTE",
+  "boundary": "Exported OEM DNG container metadata only. No untouched ADC, Direct-CFA provenance, native photodiode geometry, or calibration authority is granted.",
+  "nextExperiment": "Run the same v0.54 observer as PRO_MAIN_RAW to determine whether RAW14 is mode/lens specific before designing any deeper payload test."
+}
