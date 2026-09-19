@@ -12,9 +12,9 @@ The branch is intentionally parallel. It must never use a reconstructed result t
 
 ## Current scientific premise
 
-TruthRaw already permits representation beyond source-container limits, but the project needs an explicit reconstruction object that carries this freedom without confusing it with Source Evidence.
+TruthRaw already has the reconstructed new house: Latent Camera Scene, camera-native float Scientific Master, Dynamic Authority and Open Scene / Free Scientific Space.
 
-TruthNegative fills that role.
+TruthNegative does **not** build a second house. It gives that existing scientific state an explicit photographic-negative binding and, when requested, a reconstructed sensor-like projection while preserving source/master/authority identity.
 
 ## Read first
 
@@ -23,9 +23,10 @@ TruthNegative fills that role.
 3. `docs/CURRENT_CAMERA5_RAW_ROUTE_2026-09-17.md`
 4. `docs/HONOR_V053_ANDROID17_V014_ROUTE_REPLAY_DEVICE_RESULT_2026-09-19.md`
 5. `docs/HONOR_V054_PRO_TELE_RAW_DNG_DEVICE_RESULT_2026-09-19.md`
-6. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
-7. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
-8. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
+6. `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
+7. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+8. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+9. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
 
 ## Current first target
 
@@ -46,3 +47,19 @@ Keep OEM/HAL/RAW14/privileged-route research on its own branches.
 If HONOR later exposes stronger RAW evidence, it may become a new admitted source for TruthNegative under a fresh source-binding contract.
 
 Do not retroactively upgrade old TruthNegative reconstructions.
+
+## v0.2 correction
+
+The original v0.1 placement `Measurement -> TruthNegative -> Scientific Master` is superseded on this branch.
+
+Current model:
+
+`Source Evidence -> Measurement -> Latent Camera Scene -> Scientific Master -> Dynamic Authority/Open Scene`
+
+TruthNegative is a binding/projection family of that existing state.
+
+For non-native RAW brands, preserve the historical Gatehouse concept:
+
+`external RAW -> Gatehouse decode -> sealed Decoded Measurement Handoff -> Main House`
+
+Do not claim the Gatehouse is already fully reimplemented merely because the architecture is recovered.
