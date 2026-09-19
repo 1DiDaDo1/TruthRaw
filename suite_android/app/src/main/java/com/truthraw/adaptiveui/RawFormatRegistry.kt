@@ -21,7 +21,7 @@ enum class RawIngressSupport {
 }
 
 enum class RawDecoderBackend {
-    TILE_NATIVE_DNG_V0_1,
+    MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG,
     DECODER_PENDING,
     NONE,
 }
@@ -37,7 +37,7 @@ data class RawFormatProfile(
 ) {
     val nativeProcessingReady: Boolean
         get() = support == RawIngressSupport.NATIVE_TRUTHRAW_DNG &&
-            decoderBackend == RawDecoderBackend.TILE_NATIVE_DNG_V0_1
+            decoderBackend == RawDecoderBackend.MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG
 }
 
 object RawFormatRegistry {
@@ -70,7 +70,7 @@ object RawFormatRegistry {
             extensions = extSet("dng"),
             mimeTypes = mimeSet("image/x-adobe-dng", "image/dng"),
             support = RawIngressSupport.NATIVE_TRUTHRAW_DNG,
-            decoderBackend = RawDecoderBackend.TILE_NATIVE_DNG_V0_1,
+            decoderBackend = RawDecoderBackend.MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG,
         ),
         pending("CANON_CR3", "Canon CR3", "Canon", "cr3"),
         pending("CANON_CR2", "Canon CR2", "Canon", "cr2"),
