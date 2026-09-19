@@ -1,0 +1,59 @@
+name: TruthRaw Multi-Vendor RAW Source Adapter v0.1
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-57-raw-source-adapter-abi
+    paths:
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/**'
+      - '.github/workflows/multivendor-raw-source-adapter-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-adapter-abi:
+    name: Host RAW adapter ABI
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+
+      - name: Configure
+        run: cmake -S docs/research/multivendor-raw-source-adapter-v0.1 -B build/raw-adapter -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build/raw-adapter --config Release --parallel 2
+
+      - name: Run conformance tests
+        run: ./build/raw-adapter/test_multivendor_raw_source_adapter_v0_1
+
+  authority-guard:
+    name: Adapter authority guard
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fail-closed contract
+        run: |
+          H='docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+          C='docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.cpp'
+          R='docs/research/multivendor-raw-source-adapter-v0.1/README.md'
+          grep -F 'directSensorAdcClaimAllowed = false' "$H"
+          grep -F 'AdapterUnavailable' "$H"
+          grep -F 'syntheticConformanceOnly = true' "$C"
+          grep -F 'directSensorAdcClaimAllowed = false' "$C"
+          grep -F 'ADAPTER_UNAVAILABLE / DECODER_PENDING' "$R"
+          grep -F 'must never be advertised as support for any real manufacturer format' "$R"
