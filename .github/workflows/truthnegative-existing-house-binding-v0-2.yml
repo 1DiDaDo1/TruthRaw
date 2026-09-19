@@ -1,0 +1,39 @@
+name: TruthNegative existing-house binding v0.2
+
+on:
+  push:
+    branches:
+      - research/truthnegative-v0-1-scientific-negative-foundation
+    paths:
+      - 'tools/truthnegative_existing_house_binding_v02.py'
+      - 'tests/test_truthnegative_existing_house_binding_v02.py'
+      - 'docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md'
+      - 'docs/research/truthnegative-v0.2/**'
+      - 'state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json'
+      - '.github/workflows/truthnegative-existing-house-binding-v0-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  binding-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Self-test
+        run: python tools/truthnegative_existing_house_binding_v02.py --self-test
+
+      - name: Unit tests
+        run: python -m unittest -v tests/test_truthnegative_existing_house_binding_v02.py
+
+      - name: Architecture guards
+        run: |
+          grep -F 'TruthNegative is **not a second new house**' docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md
+          grep -F 'GATEHOUSE_DECODED_MEASUREMENT_HANDOFF' state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json
+          grep -F '"scientificMasterCurrentCanonicalSampleEncoding": "IEEE754_BINARY32_CAMERA_NATIVE_RGB"' state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json
+          grep -F '"branchSensitiveReconstruction": "F64"' state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json
