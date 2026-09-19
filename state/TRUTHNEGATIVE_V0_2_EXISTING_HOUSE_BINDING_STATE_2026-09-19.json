@@ -1,0 +1,66 @@
+{
+  "schema": "TruthNegativeExistingHouseBindingState/0.2",
+  "date": "2026-09-19",
+  "status": "RESEARCH_BRANCH_ALIGNMENT_NOT_MAIN_PROMOTION",
+  "branch": "research/truthnegative-v0-1-scientific-negative-foundation",
+  "supersedesConceptualPlacementOf": "TruthNegativeResearchState/0.1",
+  "doesNotSupersede": {
+    "sourceEvidence": true,
+    "scientificMaster": true,
+    "dynamicAuthority": true,
+    "openWorld": true,
+    "honorRouteResearch": true
+  },
+  "recoveredExistingArchitecture": {
+    "sourceEvidenceImmutable": true,
+    "latentCameraSceneExists": true,
+    "scientificMasterExists": true,
+    "scientificMasterScientificRole": "V47I_RECONSTRUCTED_CAMERA_SCENE",
+    "scientificMasterCurrentCanonicalSampleEncoding": "IEEE754_BINARY32_CAMERA_NATIVE_RGB",
+    "freeScientificSpaceExists": true,
+    "openSceneStateExists": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1
+  },
+  "precisionPolicy": {
+    "source": "EXACT_INTEGER_OR_PACKED",
+    "safeStages": "F32_ONLY_WHERE_VALIDATED",
+    "branchSensitiveReconstruction": "F64",
+    "calibrationOptimizationCovariance": "F64",
+    "scientificMasterStorage": "F32_CONDITIONALLY_ALLOWED_AFTER_F64_COMPUTE",
+    "higherPrecision": "REFERENCE_VALIDATOR"
+  },
+  "ingress": {
+    "brandIndependentByArchitecture": true,
+    "classes": [
+      "NATIVE_CERTIFIED_SOURCE",
+      "GATEHOUSE_DECODED_MEASUREMENT_HANDOFF"
+    ],
+    "currentBranchImplementationNotes": {
+      "nativeDngTileSourcePresent": true,
+      "genericUriIngressPresent": true,
+      "externalRawGatehouseFullyReimplemented": false
+    }
+  },
+  "truthNegative": {
+    "isSecondNewHouse": false,
+    "coreRole": "SCIENTIFIC_NEGATIVE_BINDING_TO_EXISTING_SCIENTIFIC_MASTER",
+    "sensorProjectionRole": "OPTIONAL_RECONSTRUCTED_SENSOR_LIKE_PROJECTION",
+    "reconstructedCfaIsOriginalEvidence": false,
+    "denseProjectionCreatesEvidence": false,
+    "denseProjectionImpliesPhysicalSensorGeometry": false
+  },
+  "camera5Example": {
+    "sourceDomain": [
+      4080,
+      3072
+    ],
+    "denseProjectionCandidate": [
+      16320,
+      12288
+    ],
+    "interpretation": "RECONSTRUCTED_DENSE_NEGATIVE_ONLY",
+    "forbiddenInterpretation": "RECOVERED_15_OF_16_MISSING_PHYSICAL_SENSOR_SAMPLES"
+  },
+  "next": "TN2_BIND_REAL_SCIENTIFIC_MASTER_IDENTITY_AND_SOURCE_LINEAGE_THEN_IDENTITY_PROJECTION"
+}
