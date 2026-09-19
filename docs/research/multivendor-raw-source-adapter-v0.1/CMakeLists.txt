@@ -30,3 +30,23 @@ target_include_directories(test_multivendor_raw_source_adapter_v0_1 PRIVATE
 target_compile_options(test_multivendor_raw_source_adapter_v0_1 PRIVATE
     -Wall -Wextra -Werror
 )
+
+add_executable(test_nikon_nef_uncompressed_adapter_v0_1
+    native/multivendor_raw_source_adapter_v0_1.cpp
+    native/nikon_nef_uncompressed_adapter_v0_1.cpp
+    tests/test_nikon_nef_uncompressed_adapter_v0_1.cpp
+    ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
+    ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
+    ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
+)
+
+target_include_directories(test_nikon_nef_uncompressed_adapter_v0_1 PRIVATE
+    ${MODULE_ROOT}/native
+    ${STREAMING}
+    ${TILE_DNG}
+    ${V47I}/include
+)
+
+target_compile_options(test_nikon_nef_uncompressed_adapter_v0_1 PRIVATE
+    -Wall -Wextra -Werror
+)
