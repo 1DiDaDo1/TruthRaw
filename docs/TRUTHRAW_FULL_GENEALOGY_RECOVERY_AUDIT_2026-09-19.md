@@ -408,9 +408,104 @@ For water-specific HDR:
 
 This keeps the original water-droplet stress-test insight connected to current Structure Evidence, Dynamic Authority, Open-World illumination and scientific HDR rather than reducing it to a sharpening preset.
 
+### 15.4 Restorer / photo-and-painting conservation line
+
+The photo/painting-restorer line is part of the active recovery genealogy and must remain explicit rather than only implicit through the `Restorer` room.
+
+Repository anchor:
+
+`docs/research/conservation-restoration-authority-v0.1/README.md`
+
+Its working sequence is:
+
+`examination -> condition documentation -> scientific investigation -> stabilization -> treatment/loss compensation -> documentation of intervention`
+
+mapped into TruthRaw as:
+
+`Source Evidence -> condition/evidence assessment -> measurement/scientific analysis -> stable Scientific Master -> bounded reconstruction/loss compensation -> appearance/presentation -> permanent provenance`.
+
+The restoration rules are:
+
+- surviving measured CFA support is analogous to surviving original material and must not be overpainted merely because a model predicts a prettier value;
+- missing colour/content may be reconstructed, but remains `RECONSTRUCTED`;
+- a clipped value remains `CENSORED` unless independent evidence constrains it;
+- unsupported loss remains `UNKNOWN`;
+- counterfactual or appearance retouching never becomes measured evidence;
+- every intervention must remain provenance-detectable and, where practicable, computationally retreatable/replayable;
+- source/master/authority/transformation identities must remain recoverable through hashes/versioned provenance.
+
+This restoration line directly connects to water/material stress tests, Structure Evidence and HDR:
+
+- preserve real droplet/glint/high-frequency evidence where supported;
+- compensate only where source support is missing or degraded;
+- do not sharpen or relight over valid measured support and call the result recovered truth;
+- HDR tone/gain-map treatment belongs after the scientific condition/reconstruction state;
+- truly independent physical examinations (for example separate UV/IR/raking-light measurements) may add evidence only when actually acquired and admitted as independent observations.
+
 ## 16. Camera-5 forensic correction
 
 Current interpretation must preserve the later payload audit over earlier “200MP RAW proven” shorthand.
+
+### 16.1 Historical successful RAW_SENSOR + auxiliary DNG capture
+
+The v0.14 Camera-5 route is a **successful acquisition/output milestone** and must be preserved separately from the later content correction.
+
+The qualifying route was:
+
+`logical camera 0`
+→ physical output `5`
+→ `RAW_SENSOR ImageReader 16320x12288`
+→ maximum-resolution output configuration
+→ physical Camera-5 `TotalCaptureResult`
+→ exact Image timestamp = physical `SENSOR_TIMESTAMP`
+→ inspect plane/stride/bounds
+→ **persist and SHA-256 seal original Image.Plane[0] first**
+→ optional auxiliary DNG last.
+
+The observed v0.14 source/output facts include:
+
+- delivered Image geometry: `16320x12288`;
+- pixel stride: `2`;
+- row stride: `32640`;
+- primary `.rawsensor` payload bytes: `401,080,320`;
+- historical primary source SHA-256: `af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de`;
+- canonical-contiguous route condition: true;
+- auxiliary DNG creation: **successful**;
+- auxiliary DNG size: `401,184,072` bytes.
+
+The primary scientific evidence is the original sealed `Image.Plane[0]` / `.rawsensor`, not the DNG. The DNG is an auxiliary container created only after the source was safe.
+
+This means the project did successfully create and preserve:
+
+1. a real app-visible Camera2 `.rawsensor` source object for the declared 16320×12288 route;
+2. a corresponding auxiliary DNG container from that capture;
+3. exact physical-Camera-5 result/timestamp binding.
+
+What it did **not** establish is a successfully populated full-resolution 16320×12288 scene image.
+
+### 16.2 Why the successful capture is not a successful full-resolution image
+
+The later v0.19/v0.20 audit did not invalidate v0.14 acquisition success. It refined what the captured 401 MB envelope actually contained.
+
+The decisive later finding was:
+
+- only rows `0..767` in the 16320-wide interpretation contained non-zero source codes;
+- rows `768..12287` were zero;
+- populated bytes were exactly `25,067,520`;
+- that byte count is exactly `4080 × 3072 × 2`;
+- the gallery/DNG symptom was therefore a narrow populated strip followed by black;
+- the same missing 15/16 was already present in the original sealed Plane[0], so DngCreator/Google Photos did not create the failure;
+- when the exact populated prefix was re-indexed as 4080×3072, it produced a coherent full-frame diagnostic scene.
+
+Therefore preserve both truths simultaneously:
+
+> **v0.14 = successful physical Camera-5 RAW_SENSOR acquisition + sealed .rawsensor + successful auxiliary DNG creation.**
+
+> **v0.19/v0.20 = that tested 16320×12288 envelope was not a successfully populated 200MP full-resolution scene raster; its meaningful payload matched one 4080×3072 standard-RAW domain.**
+
+Do not collapse these into either “200MP capture failed completely” or “full 200MP sensor image proven”. Both would discard valid evidence.
+
+
 
 Observed third-party Camera-5 route:
 
