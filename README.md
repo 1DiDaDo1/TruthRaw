@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-63-crc-ui-branding`
+> Active branch: `integration/truthraw-suite-v0-64-advanced-derivative`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.63 keeps the PURE Float32 pixel route unchanged, corrects the Technical Backplane CRC to bytes 0..175, verifies that CRC and lineage from the saved DNG itself, and applies the intended TruthRaw product UI/icon with RAW and camera as clear primary inputs.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.64 keeps the validated v0.63 PURE Float32 route unchanged and activates TRUTHRAW ADVANCED as a downstream appearance/restoration derivative with Natural Light Balance, Natural HDR, Detail/Structure and evidence-bound censored-pixel compensation.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.63 CI run `35469414682`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+> v0.64 CI run `35471926706`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Advanced is currently a bounded derivative preview/JPEG path; full-resolution PURE Float32 DNG remains separate and unchanged.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
