@@ -276,7 +276,26 @@
         "successMessageRequiresSelfBindingVerifiedTrue": true,
         "deleteDestinationOnVerificationFailure": true
       },
-      "ci": "PENDING",
+      "ci": {
+        "run": 35466767939,
+        "headSha": "9f878623cc8b8238d6a1ecc8b771465e3dbca716",
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10591985003,
+        "artifactName": "truthraw-suite-v0-62-pure-postwrite-verify-debug-arm64",
+        "artifactArchiveSha256": "04a40760a8d234fceb1e59d55a70c2324ecddc32d387c778bd02dff02a7b280f",
+        "extractedApkBytes": 5850141,
+        "extractedApkSha256": "36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447",
+        "apkMarkerInspection": {
+          "kotlinV062Filename": true,
+          "kotlinPostWriteVerifiedMessage": true,
+          "kotlinV061SelfBindingContract": true,
+          "nativePureRole": true,
+          "nativeZeroLineL0": true,
+          "nativeSerializedBackplane": true
+        }
+      },
       "realDeviceValidation": "PENDING_V062_ARTIFACT_POSTWRITE_TEST"
     }
   },
@@ -298,12 +317,11 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "RUN_V062_HOST_GCC_CLANG_AND_ANDROID_CI",
-    "INSTALL_V062_ON_REAL_DEVICE_AND_EXPORT_KNOWN_GOOD_DNG",
-    "CONFIRM_UI_REPORTS_SELF_BINDING_VERIFIED_TRUE",
-    "INSPECT_SAVED_V062_DNG_INDEPENDENTLY_FOR_CURRENT_PRIVATE_CONTRACT_AND_FLOAT32_STRUCTURE",
-    "KEEP_V061_SELF_BINDING_WRITER_CONTRACT_AND_FROZEN_BACKPLANE_PIXEL_MATH_UNCHANGED",
-    "CONTINUE_NIKON_ADMISSION_SEPARATELY"
+    "INSTALL_VERIFIED_V062_APK_ON_REAL_DEVICE",
+    "EXPORT_KNOWN_GOOD_DNG_USING_DEFAULT_V062_FILENAME",
+    "REQUIRE_UI_SELF_BINDING_VERIFIED_TRUE_BEFORE_TREATING_EXPORT_AS_SUCCESS",
+    "UPLOAD_THE_EXACT_NEW_V062_DNG_FOR_INDEPENDENT_STRUCTURE_AND_PRIVATE_DATA_INSPECTION",
+    "KEEP_V061_WRITER_PIXEL_MATH_ZERO_LINE_AND_FROZEN_BACKPLANE_UNCHANGED"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
