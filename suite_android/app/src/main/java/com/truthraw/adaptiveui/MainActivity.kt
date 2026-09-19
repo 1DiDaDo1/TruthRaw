@@ -40,6 +40,9 @@ class MainActivity : Activity() {
     private var empiricalStatus: String? = null
     private var nefMeasurementResult: NefMeasurementResult? = null
     private var nefMeasurementLoading: Boolean = false
+    private var pendingNefMeasurementJobId: String? = null
+    private var pendingNefMeasurementJson: String? = null
+    private var nefMeasurementExportStatus: String? = null
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -174,6 +177,22 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
 
+    @Suppress("DEPRECATION")
+    private fun launchNefMeasurementExport(job: RawJob) {
+        val ready = nefMeasurementResult as? NefMeasurementResult.Ready ?: return
+        if (job.id != activeJobId) return
+        pendingNefMeasurementJobId = job.id
+        pendingNefMeasurementJson = NefMeasurementReportEncoder.toJson(job, ready)
+        nefMeasurementExportStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_nef_measurement_v0_58.json")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_NEF_MEASUREMENT_JSON)
+    }
+
     @Deprecated("Platform result bridge is intentionally dependency-light in this research prototype")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -269,6 +288,33 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_NEF_MEASUREMENT_JSON) {
+            val expectedJob = pendingNefMeasurementJobId
+            val report = pendingNefMeasurementJson
+            pendingNefMeasurementJobId = null
+            pendingNefMeasurementJson = null
+            if (resultCode != RESULT_OK || data?.data == null) {
+                nefMeasurementExportStatus = "NEF measurement JSON-export geannuleerd."
+                render()
+                return
+            }
+            if (expectedJob == null || expectedJob != activeJobId || report == null) {
+                nefMeasurementExportStatus = "NEF measurement JSON-export geblokkeerd: actieve bron veranderde."
+                render()
+                return
+            }
+            nefMeasurementExportStatus = try {
+                val stream = contentResolver.openOutputStream(data.data!!, "w")
+                    ?: throw IOException("Documentprovider gaf geen outputstream.")
+                stream.bufferedWriter(Charsets.UTF_8).use { it.write(report) }
+                "NEF measurement JSON opgeslagen · sealed source + sample-domain authority · geen Scientific Master."
+            } catch (error: Exception) {
+                "NEF measurement JSON-export faalde: ${error.message ?: error.javaClass.simpleName}"
+            }
+            render()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -313,6 +359,9 @@ class MainActivity : Activity() {
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         nefMeasurementResult = null
         nefMeasurementLoading = false
+        pendingNefMeasurementJobId = null
+        pendingNefMeasurementJson = null
+        nefMeasurementExportStatus = null
         render()
     }
 
@@ -561,6 +610,14 @@ class MainActivity : Activity() {
                                 10f,
                                 muted = true,
                             ))
+                            addView(label(
+                                "source SHA-256=${m.sourceSha256.take(16)}… · sealed bytes=${formatBytes(m.sourceBytes)}",
+                                10f,
+                                muted = true,
+                            ))
+                            addView(space(6))
+                            addView(actionButton("NEF measurement JSON opslaan") { launchNefMeasurementExport(active) })
+                            nefMeasurementExportStatus?.let { addView(label(it, 10f, muted = true)) }
                         }
                     }
                 } else {
@@ -863,5 +920,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
         private const val REQUEST_SAVE_LINEAR_DNG = 4104
+        private const val REQUEST_SAVE_NEF_MEASUREMENT_JSON = 4105
     }
 }
