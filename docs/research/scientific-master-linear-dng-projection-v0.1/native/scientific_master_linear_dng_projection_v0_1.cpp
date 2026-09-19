@@ -1,6 +1,7 @@
 #include "scientific_master_linear_dng_projection_v0_1.h"
 
 #include "scientific_master_digest_v0_1.h"
+#include "technical_backplane_phase2_v0_1.h"
 
 #include <algorithm>
 #include <cmath>
@@ -121,15 +122,49 @@ std::vector<std::uint8_t> ascii_payload(const std::string& text) {
     return out;
 }
 
-std::string hex_hash(const Hash256& hash) {
+std::string hex_bytes(const std::uint8_t* data, std::size_t size) {
     static constexpr char kHex[] = "0123456789abcdef";
     std::string out;
-    out.reserve(hash.size() * 2u);
-    for (const auto byte : hash) {
+    out.reserve(size * 2u);
+    for (std::size_t i = 0u; i < size; ++i) {
+        const auto byte = data[i];
         out.push_back(kHex[(byte >> 4u) & 0x0fu]);
         out.push_back(kHex[byte & 0x0fu]);
     }
     return out;
+}
+
+std::string hex_hash(const Hash256& hash) {
+    return hex_bytes(hash.data(), hash.size());
+}
+
+std::string hex_u64(std::uint64_t value) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out(16u, '0');
+    for (std::size_t i = 0u; i < 16u; ++i) {
+        const unsigned shift = static_cast<unsigned>((15u - i) * 4u);
+        out[i] = kHex[(value >> shift) & 0x0fu];
+    }
+    return out;
+}
+
+std::string hex_u32(std::uint32_t value) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out(8u, '0');
+    for (std::size_t i = 0u; i < 8u; ++i) {
+        const unsigned shift = static_cast<unsigned>((7u - i) * 4u);
+        out[i] = kHex[(value >> shift) & 0x0fu];
+    }
+    return out;
+}
+
+const char* gauge_mode_name(TruthRangeGaugeModeV02 mode) noexcept {
+    switch (mode) {
+        case TruthRangeGaugeModeV02::SelfGauge: return "SELF_GAUGE";
+        case TruthRangeGaugeModeV02::ExternalRelativeGauge: return "EXTERNAL_RELATIVE_GAUGE";
+        case TruthRangeGaugeModeV02::PhysicalAbsoluteGauge: return "PHYSICAL_ABSOLUTE_GAUGE";
+    }
+    return "UNKNOWN";
 }
 
 std::string printable_identity(std::string text) {
@@ -143,13 +178,51 @@ std::string printable_identity(std::string text) {
 
 std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
     const std::string id = "TruthRaw scientific-master-linear-dng-projection-v0.1";
+
+    std::uint64_t l0Bits = 0u;
+    static_assert(sizeof(l0Bits) == sizeof(descriptor.zeroLineGauge.L0),
+                  "PURE zero-line provenance requires IEEE-754 binary64 storage");
+    std::memcpy(&l0Bits, &descriptor.zeroLineGauge.L0, sizeof(l0Bits));
+
+    const auto backplaneCrc = technical_backplane::v0_1::crc32(
+        std::span<const std::uint8_t>(
+            descriptor.serializedBackplane.data(), descriptor.serializedBackplane.size()));
+
     const std::string body =
-        std::string("role=LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION\n") +
+        std::string("role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION\n") +
+        "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_61\n" +
+        "writer_identity=TruthRaw scientific-master-linear-dng-projection-v0.1\n" +
         "representation_only=1\n" +
+        "scientific_master_modified=0\n" +
+        "appearance_applied=0\n" +
+        "counterfactual_observation_created=0\n" +
         "physical_frame_count=1\n" +
         "independent_evidence_count=1\n" +
         "sealed_source_sha256=" + hex_hash(descriptor.sealedSourceSha256) + "\n" +
         "scientific_master_sha256=" + hex_hash(descriptor.scientificMasterSha256) + "\n" +
+        "zero_line_sha256=" + hex_hash(descriptor.zeroLineSha256) + "\n" +
+        "zero_line_mode=" + gauge_mode_name(descriptor.zeroLineGauge.mode) + "\n" +
+        "zero_line_l0_f64_bits=0x" + hex_u64(l0Bits) + "\n" +
+        "zero_line_gauge_id=" + printable_identity(descriptor.zeroLineGauge.gaugeId) + "\n" +
+        "zero_line_cross_scene_comparable=" +
+            std::string(descriptor.zeroLineGauge.crossSceneComparable ? "1\n" : "0\n") +
+        "zero_line_absolute_physical_units=" +
+            std::string(descriptor.zeroLineGauge.absolutePhysicalUnits ? "1\n" : "0\n") +
+        "scene_scale_sha256=" + hex_hash(descriptor.sceneScaleSha256) + "\n" +
+        "scene_scale_id=" + printable_identity(descriptor.sceneBinding.sceneScaleId) + "\n" +
+        "scene_gainmap_applied_exactly_once=" +
+            std::string(descriptor.sceneBinding.gainMapAppliedExactlyOnce ? "1\n" : "0\n") +
+        "scene_exposure_normalized=" +
+            std::string(descriptor.sceneBinding.exposureNormalizedToCommonScene ? "1\n" : "0\n") +
+        "scene_gain_normalized=" +
+            std::string(descriptor.sceneBinding.gainNormalizedToCommonScene ? "1\n" : "0\n") +
+        "technical_backplane_version=1\n" +
+        "technical_backplane_crc32=0x" + hex_u32(backplaneCrc) + "\n" +
+        "technical_backplane_serialized_hex=" +
+            hex_bytes(descriptor.serializedBackplane.data(), descriptor.serializedBackplane.size()) + "\n" +
+        "precision_policy_id=" + printable_identity(descriptor.precisionPolicyId) + "\n" +
+        "runtime_reconstruction_backend_id=" +
+            printable_identity(descriptor.runtimeReconstructionBackendId) + "\n" +
         "source_evidence_id=" + printable_identity(descriptor.sourceEvidenceId) + "\n" +
         "color_binding_id=" + printable_identity(descriptor.colorBindingId) + "\n";
 
@@ -188,6 +261,63 @@ bool nonzero_hash(const Hash256& hash) noexcept {
 bool valid_orientation(std::uint16_t orientation) noexcept {
     return orientation == 1u || orientation == 3u ||
            orientation == 6u || orientation == 8u;
+}
+
+Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexcept {
+    if (!nonzero_hash(descriptor.zeroLineSha256) ||
+        !nonzero_hash(descriptor.sceneScaleSha256) ||
+        descriptor.precisionPolicyId.empty() ||
+        descriptor.runtimeReconstructionBackendId.empty()) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "PURE self-binding requires zero-line, scene-scale and precision identities");
+    }
+
+    technical_backplane::v0_1::State backplane{};
+    const auto backplaneStatus = technical_backplane::v0_1::deserialize(
+        std::span<const std::uint8_t>(
+            descriptor.serializedBackplane.data(), descriptor.serializedBackplane.size()),
+        backplane);
+    if (backplaneStatus != technical_backplane::v0_1::Status::Ok) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            std::string("serialized Technical Backplane rejected: ") +
+                technical_backplane::v0_1::status_name(backplaneStatus));
+    }
+
+    if (backplane.sourceEvidenceHash != descriptor.sealedSourceSha256 ||
+        backplane.scientificMasterHash != descriptor.scientificMasterSha256 ||
+        backplane.zeroLineHash != descriptor.zeroLineSha256 ||
+        backplane.sceneScaleHash != descriptor.sceneScaleSha256 ||
+        backplane.physicalFrameCount != 1u ||
+        backplane.independentEvidenceCount != 1u ||
+        backplane.forbiddenFlags != 0u) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "Technical Backplane identity does not match PURE projection lineage");
+    }
+
+    Hash256 zeroLineHash{};
+    const auto zeroStatus =
+        technical_backplane_phase2::v0_1::hash_zero_line_identity(
+            descriptor.zeroLineGauge, zeroLineHash);
+    if (!zeroStatus || zeroLineHash != descriptor.zeroLineSha256) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "zero-line gauge does not reproduce the bound zero-line identity");
+    }
+
+    Hash256 sceneScaleHash{};
+    const auto sceneStatus =
+        technical_backplane_phase2::v0_1::hash_scene_scale_identity(
+            descriptor.sceneBinding, sceneScaleHash);
+    if (!sceneStatus || sceneScaleHash != descriptor.sceneScaleSha256) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "scene-scale state does not reproduce the bound scene-scale identity");
+    }
+
+    return Status::ok();
 }
 
 bool valid_matrix(const std::array<float, 9>& m) noexcept {
@@ -385,6 +515,9 @@ Status write_xyz_d50_linear_dng_projection(
             return Status::error(StatusCode::InvalidArgument,
                                  "invalid projection dimensions/orientation/identity");
         }
+        const auto bindingStatus = validate_scientific_binding(descriptor);
+        if (!bindingStatus) return bindingStatus;
+
         if (!valid_matrix(cameraToXyzD50)) {
             return Status::error(StatusCode::InvalidColorTransform,
                                  "cameraToXyzD50 is non-finite, singular, or out of bounds");
@@ -574,6 +707,7 @@ const char* status_name(StatusCode code) noexcept {
         case StatusCode::DigestFailed: return "DIGEST_FAILED";
         case StatusCode::ScientificMasterMismatch: return "SCIENTIFIC_MASTER_MISMATCH";
         case StatusCode::SinkFailed: return "SINK_FAILED";
+        case StatusCode::ScientificBindingMismatch: return "SCIENTIFIC_BINDING_MISMATCH";
     }
     return "UNKNOWN";
 }
