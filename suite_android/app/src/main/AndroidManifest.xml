@@ -152,6 +152,21 @@
             android:launchMode="singleTop"
             android:exported="false" />
 
+        <activity
+            android:name=".PassiveHonorProRawDngFingerprintActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <service
+            android:name=".PassiveHonorProRawDngFingerprintService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Passive exported Honor Pro RAW/DNG MediaStore and container-metadata observation; no camera open, no capture, no pixel decode." />
+        </service>
+
         <service
             android:name=".PassiveExportedJpegMetadataFingerprintService"
             android:exported="false"
