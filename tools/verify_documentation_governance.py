@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-59-nef-radiometric-admission":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-60-pure-float32-dng":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -132,6 +132,24 @@ if on_binding.get("scientificAdmissionReady") is not False:
     errors.append("nef_v059_scientific_admission_must_remain_blocked")
 if v059.get("realNikonCalibrationPackAdmitted") is not False:
     errors.append("nef_v059_real_calibration_pack_must_remain_unadmitted")
+
+v060 = (((current_state.get("multiVendorRaw") or {}).get("v060")) or {})
+v060_output = v060.get("output") or {}
+if v060.get("role") != "RESTORED_TRUTHRAW_PURE_FLOAT32_SCIENTIFIC_DNG_IN_CURRENT_MULTIVENDOR_APP":
+    errors.append("v060_pure_role_mismatch")
+if v060_output.get("bitsPerSample") != 32:
+    errors.append("v060_pure_bits_per_sample_must_be_32")
+if v060_output.get("sampleFormat") != "IEEE_FLOAT":
+    errors.append("v060_pure_sample_format_must_be_ieee_float")
+if v060_output.get("negativeValuesPreserved") is not True:
+    errors.append("v060_pure_negative_values_must_be_preserved")
+if v060_output.get("overOneValuesPreserved") is not True:
+    errors.append("v060_pure_over_one_values_must_be_preserved")
+if v060_output.get("bounded01Clipping") is not False:
+    errors.append("v060_pure_must_not_clip_to_unit_interval")
+compat = v060.get("compatibilitySeparation") or {}
+if compat.get("uint16LinearDngRole") != "COMPATIBILITY_ONLY":
+    errors.append("v060_uint16_linear_dng_must_remain_compatibility_only")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
