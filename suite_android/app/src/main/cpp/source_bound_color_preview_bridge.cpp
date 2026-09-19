@@ -289,7 +289,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificCol
     const auto postVerified = truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes, sourceSeal);
     if (!postVerified) return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, binding_status(postVerified));
 
-    const auto& audit = source->audit();
+    const auto& audit = dngSource->audit();
     if (audit.fullRawMaterialized || audit.fullFileMaterialized || !valid_preview_surface(sink)) {
         return status_packet(env, kFinalizedMagic, kFinalizedHeaderInts, -3);
     }
