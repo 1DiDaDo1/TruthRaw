@@ -1,0 +1,92 @@
+name: TruthRaw v0.52 Android17 Camera5 Payload Delta
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-52-android17-camera5-payload-delta
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Android17Camera5PayloadDeltaActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V052_ANDROID17_CAMERA5_PAYLOAD_DELTA_PLAN_2026-09-19.md'
+      - 'state/HONOR_V052_ANDROID17_CAMERA5_PAYLOAD_DELTA_PLAN_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-52-android17-camera5-payload-delta.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v052:
+    name: Build v0.52 Android17 Camera5 payload delta
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.52 sealed-source boundary
+        run: |
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/Android17Camera5PayloadDeltaActivity.kt'
+          grep -F 'truthraw.android17-camera5-payload-delta.v0.52' "$ACT"
+          grep -F 'FotoGraaf200MpStagedActivity::class.java' "$ACT"
+          grep -F 'RawSensorRasterAudit.audit' "$ACT"
+          grep -F 'RawPayloadGeometryDecoder.decode' "$ACT"
+          grep -F 'expectedSealedSha256 = expectedRawSha' "$ACT"
+          grep -F 'ANDROID16_POPULATED_PREFIX_BYTES = 25_067_520L' "$ACT"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Android17Camera5PayloadDeltaActivity.kt').read_text()
+          required=[
+              'sourceRawOpenedForWriting", false',
+              'sourceEvidenceImmutable", true',
+              'sha256IdentityPass", true',
+              'samePopulatedPrefixBytesAsAndroid16',
+              'sameSelected4080x3072CandidateAsAndroid16',
+          ]
+          for token in required:
+              assert token in s, token
+
+          forbidden=[
+              'openCamera(',
+              'createCaptureRequest',
+              'import android.media.ImageReader',
+              'FileOutputStream(rawFile',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+          print('v0.52 companion read-only invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-52-android17-camera5-payload-delta-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
