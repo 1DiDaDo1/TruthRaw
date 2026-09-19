@@ -418,6 +418,18 @@ void test_transactional_projection_and_identity_gate() {
 
     auto wrong = descriptor;
     wrong.scientificMasterSha256[0] ^= 0x01u;
+    truthraw::technical_backplane::v0_1::State wrongBackplane{};
+    REQUIRE(
+        truthraw::technical_backplane::v0_1::deserialize(
+            std::span<const std::uint8_t>(
+                wrong.serializedBackplane.data(), wrong.serializedBackplane.size()),
+            wrongBackplane) ==
+        truthraw::technical_backplane::v0_1::Status::Ok);
+    wrongBackplane.scientificMasterHash = wrong.scientificMasterSha256;
+    REQUIRE(
+        truthraw::technical_backplane::v0_1::serialize(
+            wrongBackplane, wrong.serializedBackplane) ==
+        truthraw::technical_backplane::v0_1::Status::Ok);
     SyntheticMasterSource sourceWrong(width, height);
     MemoryTransactionSink sinkWrong;
     projection::Result wrongResult{};
