@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-64-advanced-derivative":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-65-ui-icon-polish":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -233,6 +233,34 @@ if v064_output.get("fullResolutionAdvancedExportReady") is not False:
     errors.append("v064_full_resolution_advanced_export_must_remain_open")
 if v064_output.get("pureFloat32DngStillFullResolution") is not True:
     errors.append("v064_pure_full_resolution_must_remain_available")
+
+v065 = (((current_state.get("multiVendorRaw") or {}).get("v065")) or {})
+v065_ui = v065.get("uiFixes") or {}
+v065_icon = v065.get("icon") or {}
+if v065.get("inheritsV064AdvancedDerivative") is not True:
+    errors.append("v065_must_inherit_v064_advanced")
+if v065.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v065_must_keep_v063_pure_writer_contract")
+if v065.get("purePixelMathChanged") is not False:
+    errors.append("v065_must_not_change_pure_pixel_math")
+if v065.get("advancedMathChanged") is not False:
+    errors.append("v065_must_not_change_advanced_math")
+if v065_ui.get("scrollViewportOwnsSystemBarInsets") is not True:
+    errors.append("v065_scroll_viewport_must_own_system_bar_insets")
+if v065_ui.get("contentNoLongerScrollsUnderStatusBar") is not True:
+    errors.append("v065_status_bar_overlap_fix_missing")
+if v065_ui.get("bottomNavigationSafeArea") is not True:
+    errors.append("v065_bottom_navigation_safe_area_missing")
+if v065_ui.get("truthrawPureTitleForcedToTwoLines") is not True:
+    errors.append("v065_pure_title_wrap_contract_missing")
+if v065_ui.get("truthrawAdvancedTitleForcedToTwoLines") is not True:
+    errors.append("v065_advanced_title_wrap_contract_missing")
+if v065_icon.get("cleanTrMonogram") is not True:
+    errors.append("v065_clean_tr_icon_missing")
+if v065_icon.get("subtleLensReflectionInUpperR") is not True:
+    errors.append("v065_lens_reflection_icon_contract_missing")
+if v065_icon.get("assetSha256") != "398874fcf8052761fce9451e70088e20985210ef49b869e7c6f14cf7cb4fe607":
+    errors.append("v065_icon_asset_sha256_mismatch")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
