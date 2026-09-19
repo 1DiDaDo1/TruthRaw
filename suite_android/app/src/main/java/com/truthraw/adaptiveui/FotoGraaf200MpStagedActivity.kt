@@ -42,7 +42,7 @@ import java.time.Instant
 import java.util.Locale
 
 /**
- * TruthRaw FotoGraaf Camera-5 200MP test v0.11.
+ * TruthRaw FotoGraaf Camera-5 200MP Android-17 replay of proven v0.14 route.
  *
  * v0.10 proved on-device:
  *  - physical camera 5 advertises RAW_SENSOR 16320x12288 through
@@ -50,17 +50,23 @@ import java.util.Locale
  *  - logical camera 0 preview at 3.7x reports activePhysical=5
  *  - a global-only MAXIMUM_RESOLUTION still request can reach the capture callback but fail there.
  *
- * v0.11 therefore restores the stronger v0.8 request topology:
- *  - open logical camera 0
- *  - bind the RAW OutputConfiguration to physical camera 5
- *  - mark the output for SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION
- *  - create the still request scoped to physical camera 5 when Android accepts it
- *  - write SENSOR_PIXEL_MODE globally when exposed by the logical camera
- *  - additionally write SENSOR_PIXEL_MODE as a physical-camera override when supported
+ * Historical Android-16 v0.12-v0.14 evidence established an asymmetric HONOR route:
+ *  - logical/global SENSOR_PIXEL_MODE was not a valid requirement (globalMAX=false);
+ *  - physical Camera-5 scoped builder accepted MAXIMUM_RESOLUTION (physicalMAX=true)
+ *    even though the key was not advertised as a physical override;
+ *  - the qualifying v0.14 frame returned physical SENSOR_PIXEL_MODE=0;
+ *  - therefore primary RAW evidence must be sealed before interpreting that metadata.
  *
- * The preview remains framing/3A only. Only a returned RAW_SENSOR Image paired to the
- * physical Camera-5 TotalCaptureResult can pass Stage 3. App-visible RAW is not promoted
- * to untouched ADC truth.
+ * This Android-17 replay intentionally follows that proven ordering:
+ *  - never write logical/global SENSOR_PIXEL_MODE;
+ *  - bind the RAW output to physical 5 and declare MAXIMUM_RESOLUTION on the output;
+ *  - create a physical-5 scoped still request;
+ *  - attempt the exact physical SENSOR_PIXEL_MODE=MAXIMUM_RESOLUTION write regardless of
+ *    whether availablePhysicalCameraRequestKeys advertises it;
+ *  - seal the 16320x12288 Image.Plane[0] after physical-result/timestamp binding and
+ *    before treating the returned SENSOR_PIXEL_MODE as advisory metadata.
+ *
+ * App-visible RAW is not promoted to untouched ADC truth.
  */
 class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListener {
 
@@ -74,7 +80,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private lateinit var saveDngButton: Button
     private lateinit var saveJsonButton: Button
 
-    private val cameraThread = HandlerThread("truthraw-200mp-v011").apply { start() }
+    private val cameraThread = HandlerThread("truthraw-200mp-v053").apply { start() }
     private val cameraHandler = Handler(cameraThread.looper)
 
     private var manager: CameraManager? = null
@@ -100,7 +106,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private var lastScopedRequestUsed = false
     private var lastScopedRequestError: String? = null
     private var lastGlobalPixelModeWritten = false
+    private var lastPhysicalPixelModeAttempted = false
     private var lastPhysicalPixelModeWritten = false
+    private var lastPhysicalPixelModeReadback: Int? = null
+    private var lastPhysicalPixelModeError: String? = null
+    private var lastPhysicalOverrideAdvertised = false
 
     private var capturedRaw: File? = null
     private var capturedDng: File? = null
@@ -127,7 +137,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
-        setStatus("STAGE 0 PASS · v0.11 UI geopend zonder Camera2/HAL-aanroep.\nDruk eerst op Stap 1.")
+        setStatus("STAGE 0 PASS · v0.53 Android-17 replay van bewezen v0.14 route.\nDruk eerst op Stap 1.")
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA)
         }
@@ -166,9 +176,9 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             setPadding(dp(12), dp(12), dp(12), dp(16))
             setBackgroundColor(Color.rgb(10, 12, 15))
         }
-        root.addView(label("TruthRaw · 200MP Tele Test v0.11", 24f, true))
+        root.addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true))
         root.addView(label(
-            "MAXIMUM_RESOLUTION high-res discovery → logical 0 preview → physical-5-scoped MAX still request → originele RAW buffer bewaren.",
+            "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen.",
             11f, false, Color.rgb(184, 191, 202),
         ))
         root.addView(space(6))
@@ -201,7 +211,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         root.addView(saveDngButton)
         root.addView(saveJsonButton)
         root.addView(label(
-            "Donkere preview is geen blokkade. Stage 3 PASS vereist een echte 16320×12288 RAW_SENSOR Image + physical Camera-5 result + timestampidentiteit + MAX pixel mode.",
+            "Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd.",
             9f, false, Color.rgb(145, 153, 165),
         ))
         return root
@@ -511,24 +521,31 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             lastScopedRequestError = scopedError
             requestBuilder.addTarget(reader.surface)
 
+            // Android-16 v0.14 authority: DO NOT write logical/global SENSOR_PIXEL_MODE.
+            // That earlier global write/gate was the v0.11/v0.12 failure mode.
             lastGlobalPixelModeWritten = false
-            if (logical.availableCaptureRequestKeys?.contains(CaptureRequest.SENSOR_PIXEL_MODE) == true) {
-                runCatching {
-                    requestBuilder.set(CaptureRequest.SENSOR_PIXEL_MODE, CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)
-                    lastGlobalPixelModeWritten = true
-                }
-            }
 
+            // Reproduce the successful physical-only v0.12-v0.14 observation exactly:
+            // attempt the physical write even when the logical characteristics do not advertise
+            // SENSOR_PIXEL_MODE as an available physical override.
+            lastPhysicalOverrideAdvertised = physicalOverrideSupported(logical, CaptureRequest.SENSOR_PIXEL_MODE)
+            lastPhysicalPixelModeAttempted = true
             lastPhysicalPixelModeWritten = false
-            if (physicalOverrideSupported(logical, CaptureRequest.SENSOR_PIXEL_MODE)) {
-                runCatching {
-                    requestBuilder.setPhysicalCameraKey(
-                        CaptureRequest.SENSOR_PIXEL_MODE,
-                        CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION,
-                        PHYSICAL_ID,
-                    )
-                    lastPhysicalPixelModeWritten = true
-                }
+            lastPhysicalPixelModeReadback = null
+            lastPhysicalPixelModeError = null
+            runCatching {
+                requestBuilder.setPhysicalCameraKey(
+                    CaptureRequest.SENSOR_PIXEL_MODE,
+                    CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION,
+                    PHYSICAL_ID,
+                )
+                lastPhysicalPixelModeWritten = true
+                lastPhysicalPixelModeReadback = requestBuilder.getPhysicalCameraKey(
+                    CaptureRequest.SENSOR_PIXEL_MODE,
+                    PHYSICAL_ID,
+                )
+            }.onFailure { e ->
+                lastPhysicalPixelModeError = "${e.javaClass.simpleName}: ${e.message}"
             }
 
             setIfSupported(requestBuilder, CaptureRequest.CONTROL_ENABLE_ZSL, false, logical)
@@ -549,7 +566,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
             val request = requestBuilder.build()
             setStatusAny(
-                "STAGE 3 CAPTURE SENT · scopedRequest=$lastScopedRequestUsed · globalMAX=$lastGlobalPixelModeWritten · physicalMAX=$lastPhysicalPixelModeWritten" +
+                "STAGE 3 CAPTURE SENT · v0.14 replay · scopedRequest=$lastScopedRequestUsed · globalMAX=false · " +
+                    "physicalMAXAttempted=$lastPhysicalPixelModeAttempted · physicalMAX=$lastPhysicalPixelModeWritten · " +
+                    "physicalReadback=${lastPhysicalPixelModeReadback ?: "null"} · advertised=$lastPhysicalOverrideAdvertised" +
+                    (lastPhysicalPixelModeError?.let { "\nphysicalMAX write/readback error=$it" } ?: "") +
                     (lastScopedRequestError?.let { "\nscoped fallback reason=$it" } ?: "") +
                     "\nWachten op RAW Image + physical Camera-5 TotalCaptureResult…",
             )
@@ -564,7 +584,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                     setStatusAny(
                         "STAGE 3 CAPTURE FAIL · reason=${failure.reason} · wasImageCaptured=${failure.wasImageCaptured()} · " +
                             "sequenceId=${failure.sequenceId} · frameNumber=${failure.frameNumber}\n" +
-                            "scopedRequest=$lastScopedRequestUsed globalMAX=$lastGlobalPixelModeWritten physicalMAX=$lastPhysicalPixelModeWritten" +
+                            "scopedRequest=$lastScopedRequestUsed globalMAX=false physicalMAXAttempted=$lastPhysicalPixelModeAttempted physicalMAX=$lastPhysicalPixelModeWritten" +
                             (lastScopedRequestError?.let { "\nscopedFallback=$it" } ?: ""),
                     )
                     runOnUiThread {
@@ -605,24 +625,23 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             require(sensorTs == image.timestamp) {
                 "Image.timestamp=${image.timestamp} != physical5 SENSOR_TIMESTAMP=$sensorTs"
             }
-            val pixelMode = physicalResult.get(CaptureResult.SENSOR_PIXEL_MODE)
-            require(pixelMode == CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION) {
-                "physical5 SENSOR_PIXEL_MODE=$pixelMode, MAXIMUM_RESOLUTION vereist"
-            }
             val plane = image.planes.singleOrNull() ?: error("RAW_SENSOR planeCount=${image.planes.size}, exact 1 vereist")
             require(plane.pixelStride == 2) { "RAW pixelStride=${plane.pixelStride}, 2 vereist" }
             require(plane.rowStride >= TARGET_W * 2) { "RAW rowStride=${plane.rowStride} te klein" }
 
+            // v0.14 source-first rule: seal the primary buffer BEFORE interpreting advisory
+            // result metadata such as SENSOR_PIXEL_MODE. The Android-16 qualifying run returned 0.
             val stamp = System.currentTimeMillis()
             val rawEvidence = persistOriginalRawBuffer(image, stamp)
             capturedRaw = rawEvidence.file
 
+            val returnedPixelMode = physicalResult.get(CaptureResult.SENSOR_PIXEL_MODE)
             val physical = physical5Characteristics ?: error("physical characteristics ontbreken")
             var dng: File? = null
             var dngSha: String? = null
             var dngError: String? = null
             runCatching {
-                val candidate = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v011.dng")
+                val candidate = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v053.dng")
                 FileOutputStream(candidate).use { out ->
                     DngCreator(physical, physicalResult).use { creator ->
                         creator.setOrientation(1)
@@ -635,15 +654,16 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 dngError = "${e.javaClass.simpleName}: ${e.message}"
             }
 
-            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v011.json")
+            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v053.json")
             report.writeText(buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError).toString(2))
             capturedDng = dng
             capturedJson = report
             image.close()
 
             setStatusAny(
-                "STAGE 3 CAPTURE PASS · physical 5 · 16320×12288 · 200,540,160 samples · MAX pixel mode · timestamp exact.\n" +
-                    "Originele app-visible RAW buffer is bewaard vóór DNG-containerisatie.",
+                "STAGE 3 CAPTURE PASS · physical 5 · 16320×12288 · timestamp exact · RAW SOURCE-FIRST SEALED.\n" +
+                    "returned SENSOR_PIXEL_MODE=${returnedPixelMode ?: "null"} (advisory, Android-16 v0.14 returned 0).\n" +
+                    "Originele app-visible RAW buffer is bewaard vóór metadata-interpretatie en DNG.",
             )
             runOnUiThread {
                 saveRawButton.isEnabled = true
@@ -701,7 +721,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         dngError: String?,
     ): JSONObject {
         return JSONObject()
-            .put("schema", "truthraw.fotograaf-camera5-200mp-staged-evidence.v0.11")
+            .put("schema", "truthraw.fotograaf-camera5-200mp-v014-route-replay.v0.53")
             .put("createdAtUtc", Instant.now().toString())
             .put("authority", "CAMERA2_ACQUISITION_OBSERVATION_ONLY")
             .put("calibrationAuthorityGranted", false)
@@ -722,8 +742,13 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("requestedPhysicalCameraId", PHYSICAL_ID)
                 .put("physicalScopedRequestUsed", lastScopedRequestUsed)
                 .put("physicalScopedRequestError", lastScopedRequestError ?: JSONObject.NULL)
-                .put("globalSensorPixelModeWritten", lastGlobalPixelModeWritten)
+                .put("globalSensorPixelModeWritten", false)
+                .put("globalSensorPixelModeIntentionallySuppressedByV014Replay", true)
+                .put("physicalSensorPixelModeAttempted", lastPhysicalPixelModeAttempted)
                 .put("physicalSensorPixelModeWritten", lastPhysicalPixelModeWritten)
+                .put("physicalSensorPixelModeReadback", lastPhysicalPixelModeReadback ?: JSONObject.NULL)
+                .put("physicalSensorPixelModeWriteError", lastPhysicalPixelModeError ?: JSONObject.NULL)
+                .put("physicalOverrideAdvertised", lastPhysicalOverrideAdvertised)
                 .put("outputPhysicalBinding", true)
                 .put("outputMaximumResolutionModeDeclared", true))
             .put("captureRoute", JSONObject()
@@ -732,7 +757,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("width", image.width)
                 .put("height", image.height)
                 .put("sampleCount", image.width.toLong() * image.height.toLong())
-                .put("captureResultSensorPixelMode", physicalResult.get(CaptureResult.SENSOR_PIXEL_MODE) ?: JSONObject.NULL))
+                .put("captureResultSensorPixelMode", physicalResult.get(CaptureResult.SENSOR_PIXEL_MODE) ?: JSONObject.NULL)
+                .put("captureResultSensorPixelModeIsAdvisoryAfterSeal", true))
             .put("captureResult", JSONObject()
                 .put("sensorTimestampNs", physicalResult.get(CaptureResult.SENSOR_TIMESTAMP) ?: JSONObject.NULL)
                 .put("imageTimestampNs", image.timestamp)
@@ -761,6 +787,15 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("sha256", dngSha ?: JSONObject.NULL)
                 .put("error", dngError ?: JSONObject.NULL)
                 .put("semantics", "Auxiliary DngCreator container; original app-visible Image.Plane buffer is primary byte evidence."))
+            .put("sourceFirstOrdering", "IMAGE_DIMENSIONS -> PHYSICAL5_RESULT -> TIMESTAMP_IDENTITY -> PLANE_LAYOUT -> RAW_SEAL_SHA256 -> ADVISORY_METADATA -> OPTIONAL_DNG")
+            .put("android16V014Reference", JSONObject()
+                .put("globalSensorPixelModeWritten", false)
+                .put("physicalSensorPixelModeWritten", true)
+                .put("physicalSensorPixelModeReadback", CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)
+                .put("physicalOverrideAdvertised", false)
+                .put("returnedPhysicalSensorPixelMode", 0)
+                .put("qualifyingRawBytes", 401080320L)
+                .put("qualifyingRawSha256", "af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de"))
             .put("boundary", "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF")
     }
 
