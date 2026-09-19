@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-60-pure-float32-dng`
+`integration/truthraw-suite-v0-61-pure-self-binding-dng`
 
 Current app version:
 
-`0.25-v0.60-pure-float32-dng`
+`0.26-v0.61-pure-self-binding-dng`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -44,6 +44,35 @@ Current precision policy remains:
 - branch-sensitive reconstruction: F64 reference;
 - calibration/optimization/covariance: F64 reference;
 - Scientific-Master storage: F32 only after the established storage gate.
+
+## 2A. v0.61 — current active work: PURE file becomes self-binding
+
+v0.60 restored the correct 32-bit IEEE Float XYZ-D50 LinearRaw pixel route. v0.61 leaves that pixel transform unchanged and closes the next provenance gap identified at the previous-chat endpoint.
+
+The saved PURE DNG now carries a versioned private contract:
+
+`TRUTHRAW_PURE_SELF_BINDING_V0_61`
+
+It binds the file to:
+
+- sealed source SHA-256;
+- Scientific Master SHA-256;
+- Zero-Line SHA-256;
+- exact `L0` IEEE-754 binary64 bits plus gauge mode/id/flags;
+- scene-scale SHA-256 and scene-scale state;
+- exact canonical 180-byte Technical Backplane bytes plus CRC32;
+- precision-policy identity;
+- actual runtime reconstruction-backend identity;
+- explicit no-master-mutation / no-appearance / no-counterfactual flags;
+- one physical frame and one independent evidence item.
+
+The writer now deserializes the supplied Backplane and fails closed unless source/master/zero-line/scene-scale identity, evidence counts and forbidden-mutation flags all match.
+
+Important recovered history: the older 2026-09-14 PURE branch had a `TRCERT01` in-file certificate that already carried part of this backside provenance. Recovery governance classifies that schema as `LEGACY_VERIFY_ONLY`. v0.61 therefore does **not** reactivate it as the current certificate. Any current PTC/Dynamic-Authority certification must use a new versioned binding and may not change PURE pixels, the Scientific Master, Zero-Line or frozen Backplane layout.
+
+Read:
+
+`docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md`
 
 ## 3. Recovery work completed before app unification
 
@@ -407,12 +436,14 @@ A real Nikon promotion needs actual NEF files plus independently validated camer
 
 Continue in this order:
 
-1. physically validate the v0.60 Android-produced PURE DNG and confirm the saved artifact is 32-bit IEEE Float DNG 1.4 with the exact historical writer identity;\n2. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
-2. keep noise evidence separate from black/saturation evidence;
-3. define source-bound Nikon color admission without treating ordinary Make/Model/white balance metadata as physical calibration;
-4. require held-out validation before `scientificAdmissionReady=true`;
-5. only then let an admitted NEF enter the existing Measurement/de-ISP → Scientific Master path;
-6. after Nikon is end-to-end, add the next proprietary RAW adapter behind the same ABI rather than branching the scientific architecture.
+1. run v0.61 host GCC/Clang and Android CI and verify the produced APK;
+2. on a real device, export a known-good DNG and independently inspect the saved v0.61 DNGPrivateData for exact Zero-Line/L0, scene-scale and serialized Backplane binding;
+3. keep historical `TRCERT01` verification support separate from any new current PTC/Dynamic-Authority certificate schema;
+4. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
+5. keep noise evidence separate from black/saturation evidence;
+6. define source-bound Nikon color admission without treating ordinary Make/Model/white balance metadata as physical calibration;
+7. require held-out validation before `scientificAdmissionReady=true`;
+8. only then let an admitted NEF enter the existing Measurement/de-ISP → Scientific Master path.
 
 If a real Nikon NEF is uploaded, first determine whether it belongs to the strict v0.58 uncompressed 16-bit subset. Do not silently broaden the parser when it does not.
 
