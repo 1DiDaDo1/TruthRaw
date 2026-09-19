@@ -12,21 +12,21 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-59-nef-radiometric-admission`
+`integration/truthraw-suite-v0-60-pure-float32-dng`
 
 Current app:
 
-`0.24-v0.59-nef-radiometric-admission`
+`0.25-v0.60-pure-float32-dng`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder. v0.59 adds an exact-scope black/saturation admission gate, but **Scientific Master admission for NEF remains blocked** until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.60 restores TRUTHRAW PURE as 32-bit IEEE Float XYZ-D50 LinearRaw DNG**, while the old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
 Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
 
-Current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
+Current v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent v0.60 artifact: `truthraw-suite-v0-60-pure-float32-dng-debug-arm64`, artifact ID `10589820246`, archive SHA-256 `fbf4973bc49714dadf821e4421141bd11a8e60022cd495e5ec3821b39547e443`.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
 Do not use the older TruthNegative or 2026-09-16/17 bootstrap below as the first current-state interpretation. Those sections remain retained provenance/background.
 
