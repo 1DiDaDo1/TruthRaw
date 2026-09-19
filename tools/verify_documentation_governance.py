@@ -49,7 +49,7 @@ for required in current_pointers:
         errors.append(f"root_readme_missing_current_pointer:{required}")
     if required not in bootstrap and required != "docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md":
         errors.append(f"bootstrap_missing_current_pointer:{required}")
-    if required not in current_index:
+    if required != "docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md" and required not in current_index:
         errors.append(f"current_index_missing_current_pointer:{required}")
 
 # Retain older consolidated pointers as provenance/background discoverability.
