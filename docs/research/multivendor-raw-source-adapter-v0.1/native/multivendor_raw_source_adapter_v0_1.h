@@ -99,7 +99,7 @@ struct RawSourceDescriptor final {
     std::string decoderId;
     std::string sourceEvidenceId;
 
-    bool sourceSealVerifiedAtBoundary = false;
+    bool sourceSealAcceptedAtBoundary = false;
     bool exactCfaSamplesAvailable = false;
     bool scientificColorBindingProvided = false;
     bool syntheticConformanceOnly = false;
