@@ -2,7 +2,7 @@
 
 **Status: RESEARCH-BRANCH CORE VISION — NOT YET CANONICAL MAIN PROMOTION**
 
-Branch: `research/truthnegative-v0-1-scientific-negative-foundation`
+Branch: `research/truthnegative-v0-2-existing-house-binding`
 
 This document defines the TruthNegative research line. It extends the existing sealed-source / Scientific-Master architecture without changing the authority of the source evidence and without closing or replacing the parallel HONOR route investigation.
 
