@@ -1,0 +1,127 @@
+{
+  "schema": "truthraw.honor-camera-static-diff-452-to-706.v1",
+  "date": "2026-09-19",
+  "authority": "STATIC_APK_SOFTWARE_ROUTE_ANALYSIS_ONLY",
+  "oldArtifact": {
+    "versionName": "171.0.10.452",
+    "bytes": 84167938,
+    "sha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"
+  },
+  "newArtifact": {
+    "versionName": "171.0.10.706",
+    "bytes": 86018325,
+    "sha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027"
+  },
+  "signerContinuity": {
+    "sameCertificate": true,
+    "subject": "C=CN, O=Honor, OU=Hihonor, CN=apkkey_camera_v2",
+    "serial": "018809BF7E40",
+    "certificateSha256": "023310e4006ec1de44baf26e9a5ceb21eb4897f26a19c5490b7f22c431c2faa0"
+  },
+  "packageDelta": {
+    "oldZipEntries": 10425,
+    "newZipEntries": 10754,
+    "netEntryDelta": 329,
+    "addedEntries": 364,
+    "removedEntries": 35,
+    "oldDexCount": 5,
+    "newDexCount": 6,
+    "oldDexBytes": 25626236,
+    "newDexBytes": 27229152,
+    "newNativeLibraries": [
+      {
+        "path": "lib/arm64-v8a/libods.so",
+        "bytes": 189104,
+        "interpretation": "Honor secure/encryption ODS helper by static strings; no RAW14 literal found"
+      }
+    ]
+  },
+  "raw14Search": {
+    "literalRaw14FoundInOldDexStrings": false,
+    "literalRaw14FoundInNewDexStrings": false,
+    "raw14Or14BitImagingLiteralFoundInNewArm64Libraries": false,
+    "interpretation": "No visible Java/Kotlin/native string-level RAW14 implementation marker was added in .706. Numeric, reflective, framework, HAL or privileged implementations are not ruled out."
+  },
+  "highPixelRoute": {
+    "feature50MTargetModeOld": "UltraResolutionMode",
+    "feature50MTargetModeNew": "UltraResolutionMode",
+    "feature200MTargetModeOld": "UltraHighPixelMode",
+    "feature200MTargetModeNew": "UltraHighPixelMode",
+    "ultraHighPixelProcessorPipelineNamesUnchanged": true,
+    "pipelineNames": [
+      "pipeline4capdavinci.json",
+      "pipeline4rawmfultrahighpixelcap.json",
+      "pipeline4arcmfnrmscap.json",
+      "pipeline4hdrcap.json",
+      "pipeline4capbackremosaic.json",
+      "pipeline4mfdncap.json"
+    ],
+    "interpretation": "The app-level 200MP UltraHighPixel/ServiceHost selector predates Android 17 and is not a newly introduced .706 RAW14 route."
+  },
+  "rawAssets": {
+    "assets/raw_in.json": {
+      "unchanged": true,
+      "sha256": "a422db58fd08768e3480b7bf95b609a6411dd1e1cec193138540008948d74beb"
+    },
+    "assets/raw_out.json": {
+      "unchanged": true,
+      "sha256": "17e1caf3dc9badf68b255ec05a4620dee68d6f4f2de475b43f90b61fef9ffeb4"
+    },
+    "assets/pipelineFor3D.json": {
+      "unchanged": true,
+      "sha256": "0a401ae9ce187812796d5ad53c6e264b05e88814bb5519a2430456e30290a622"
+    },
+    "assets/rules_camera_v0.1.json": {
+      "unchanged": true,
+      "sha256": "507e49d1e66cd8b1a88d3ee62a36ce4845cb8059ed054f21bc984457d79163ad"
+    }
+  },
+  "vendorCapabilityNameDelta": {
+    "newExactCapabilityNameTokens": [
+      "com.hihonor.device.capabilities.NormalVideoSupportArriLut",
+      "com.hihonor.device.capabilities.WBCorrectionSupported",
+      "com.hihonor.device.capabilities.bitrateSupported",
+      "com.hihonor.device.capabilities.colorModeSupported",
+      "com.hihonor.device.capabilities.encoderSupported",
+      "com.hihonor.device.capabilities.hw-sensor-exposure-range-custom",
+      "com.hihonor.device.capabilities.longBatterySupported",
+      "com.hihonor.device.capabilities.sensorDuvRange",
+      "com.hihonor.device.capabilities.timelapseProMoveVersion",
+      "com.hihonor.device.capabilities.timelapseStaticVersion",
+      "com.hihonor.device.capabilities.videoResolution21to9Support"
+    ],
+    "removedExactCapabilityNameTokens": [],
+    "rawNamedCapabilitySetChanged": false
+  },
+  "rawCapabilityTargetsUnchanged": [
+    {"name":"com.hihonor.device.capabilities.rawImgSupported","inferredType":"BYTE"},
+    {"name":"com.hihonor.device.capabilities.hwCaptureRawStreamConfigurations","inferredType":"INT_ARRAY"},
+    {"name":"com.hihonor.device.capabilities.hwProfessionalRawCaptureMode","inferredType":"BYTE"},
+    {"name":"com.hihonor.device.capabilities.professionalTeleRawLogicalCameraID","inferredType":"INT32"},
+    {"name":"com.hihonor.device.capabilities.rawCaptureSize","inferredType":"INT_ARRAY"},
+    {"name":"com.hihonor.device.capabilities.rawForBokehSupported","inferredType":"BYTE"},
+    {"name":"com.hihonor.device.capabilities.rawSensorResolution","inferredType":"INT_ARRAY"},
+    {"name":"com.hihonor.device.capabilities.rawZoomSupported","inferredType":"BYTE"},
+    {"name":"com.hihonor.device.capabilities.supportOfflineRawSceneMode","inferredType":"INT_ARRAY"}
+  ],
+  "rawPolicyChange": {
+    "method": "CustomConfigurationUtil.isSupportedRawSaved",
+    "oldMagicLiteEarlyFalseGatePresent": true,
+    "newMagicLiteEarlyFalseGatePresent": false,
+    "systemProperty": "msc.camera.rawphoto.save",
+    "oldDefault": true,
+    "newDefault": false,
+    "interpretation": "OEM RAW-saving default became stricter/property-controlled in .706; this is not RAW14 evidence."
+  },
+  "proPhotoDelta": {
+    "newPostCamDataCallback": true,
+    "newCaptureProcessCallback": true,
+    "newPreCaptureHandler": true,
+    "observedPostCamDataTypeCaptureFrameDone": 96,
+    "interpretation": "Static control flow is consistent with Pro/gimbal/capture synchronization; no RAW14 literal or RAW14-specific format path was found."
+  },
+  "classification": "ANDROID17_HONOR_CAMERA_706_INHERITS_CORE_200MP_AND_RAW_ROUTE__NO_STATIC_RAW14_APP_LAYER_MARKER__RAW_SAVE_POLICY_CHANGED",
+  "inference": "If Android-17 RAW14 functionality is present on this device, current APK-diff evidence points more strongly toward framework/HAL/privileged-system exposure or a non-literal vendor route than toward a newly added visible Honor Camera Java/Kotlin RAW14 implementation.",
+  "boundary": "STATIC_APK_ANALYSIS_CANNOT_PROVE_ABSENCE_FROM_HAL_OR_SENSOR_AND_NEVER_GRANTS_DIRECT_CFA_CAPTURE_OR_CALIBRATION_AUTHORITY",
+  "nextDecision": "RUN_READ_ONLY_DIRECT_VENDOR_CHARACTERISTIC_GETS_FOR_UNCHANGED_RAW_CAPABILITY_KEYS_WITH_EXACT_INFERRED_TYPES_BEFORE_ANY_CAPTURE"
+}
