@@ -75,6 +75,14 @@ data class TilePreviewMetrics(
     val usedForwardMatrix: Boolean,
     val cameraCalibrationApplied: Boolean,
     val previewAuthority: PreviewAuthority,
+    val advancedDerivative: Boolean = false,
+    val advancedFlags: Int = 0,
+    val advancedRestoredPixels: Int = 0,
+    val advancedCensoredPreviewPixels: Int = 0,
+    val advancedHdrGainPixels: Int = 0,
+    val advancedLightAdjustedPixels: Int = 0,
+    val advancedDetailEnabled: Boolean = false,
+    val advancedRestorationEnabled: Boolean = false,
 )
 
 sealed interface TilePreviewUiState {
