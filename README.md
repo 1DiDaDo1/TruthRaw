@@ -1,5 +1,18 @@
 # TruthRaw
 
+> **TruthNegative branch overlay — 2026-09-19**
+>
+> This branch develops the new **TruthNegative / Scientific Negative** reconstruction layer independently from the parallel HONOR acquisition-route research.
+>
+> Read first on this branch:
+>
+> 1. `docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
+> 2. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+> 3. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+> 4. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
+>
+> TruthNegative is a reconstructed scientific intermediate. It creates no new evidence and does not replace the HONOR route investigation.
+
 TruthRaw is a single-frame RAW reconstruction research project and software-ISP built around one permanent rule:
 
 > **Measured where measured. Reconstructed where necessary. Never invented.**
