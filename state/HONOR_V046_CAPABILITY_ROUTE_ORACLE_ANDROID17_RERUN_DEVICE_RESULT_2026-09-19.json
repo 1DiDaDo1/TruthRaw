@@ -1,0 +1,66 @@
+{
+  "schema": "truthraw.honor-v046-device-result.capability-route-oracle.android17-rerun.v1",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_CHARACTERISTICS_OBSERVATION_ONLY",
+  "source": {
+    "name": "android 17.json",
+    "bytes": 7784,
+    "sha256": "8b03c6e2dc51666951524cddd80fa540a27e526e4e972753979f4495495531c1"
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 35
+  },
+  "android16Baseline": {
+    "sourceSha256": "6c4bf18ca80477ae95e17d4d14f959f21f8cc9aca77f51df44d7a5d178775430",
+    "sdkInt": 36,
+    "release": "16",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:16/HONORBKQ-N49/10.0.0.199C636E4R106P1:user/release-keys"
+  },
+  "controlledDelta": {
+    "schemaUnchanged": true,
+    "truthRawTargetSdkUnchanged": true,
+    "publicCameraIdsUnchanged": true,
+    "disclosedPhysicalIdsUnchanged": true,
+    "camera5FocalLengthUnchanged": true,
+    "camera5ApertureUnchanged": true,
+    "allFiveTargetKeysAbsentOnAndroid16": true,
+    "allFiveTargetKeysAbsentOnAndroid17": true,
+    "targetKeyExposureChangedAcrossOsUpdate": false,
+    "note": "The JSON schema and targetSdk are unchanged. The JSON does not independently hash the installed v0.46 APK binary, so byte-identical APK execution is not promoted as a device-proven fact."
+  },
+  "standardCamera2Identity": {
+    "publicCameraIds": ["0", "1"],
+    "disclosedPhysicalIds": ["2", "4", "5"],
+    "teleCandidate": {
+      "cameraId": "5",
+      "focalLengthMm": 22.479999542236328,
+      "aperture": 2.5999999046325684
+    }
+  },
+  "runtimeCharacteristicResults": {
+    "cameraIdsChecked": ["0", "1", "2", "4", "5"],
+    "targetKeys": [
+      "com.hihonor.device.capabilities.physicalCameraScene",
+      "com.hihonor.device.capabilities.sceneCameraIdCapability",
+      "com.hihonor.device.capabilities.cameraIdCustomInfo",
+      "com.hihonor.device.capabilities.needOpenPhysicalCamera",
+      "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize"
+    ],
+    "allFiveTargetKeysAbsentFromAllCheckedCameraCharacteristics": true
+  },
+  "classification": "ANDROID17_SDK37_RERUN_REPLICATES_ANDROID16_TARGET_KEY_NONEXPOSURE__STANDARD_CAMERA2_PHYSICAL5_IDENTITY_STABLE",
+  "notProven": [
+    "Honor internal capabilities are absent",
+    "OEM high-pixel routing is unchanged internally",
+    "RAW14 support state",
+    "device-specific Camera Extension support state",
+    "OEM shutter active physical ID",
+    "200MP Direct-CFA capture"
+  ],
+  "nextDecision": "BUILD_V047_API37_RAW14_AND_CAMERA_EXTENSION_CAPABILITY_ORACLE"
+}
