@@ -1,0 +1,84 @@
+{
+  "schema": "truthraw.honor-raw-direct-characteristic-oracle-plan.v0.50",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "staticDiffBasis": {
+    "oldHonorCamera": {
+      "version": "171.0.10.452",
+      "sha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"
+    },
+    "newHonorCamera": {
+      "version": "171.0.10.706",
+      "sha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027"
+    },
+    "rawNamedCapabilitySetChanged": false,
+    "raw14LiteralFoundInNewApk": false
+  },
+  "hypothesis": "Exact vendor name/type may be directly readable even when omitted from CameraCharacteristics.keys.",
+  "authorityBoundary": "CAMERA2_VENDOR_CHARACTERISTIC_OBSERVATION_ONLY",
+  "cameraOpenedByTruthRaw": false,
+  "captureSubmittedByTruthRaw": false,
+  "imageReaderCreatedByTruthRaw": false,
+  "imageBufferAccessedByTruthRaw": false,
+  "vendorRequestWrittenByTruthRaw": false,
+  "honorBinderInvokedByTruthRaw": false,
+  "targets": [
+    [
+      "rawImgSupported",
+      "BYTE"
+    ],
+    [
+      "hwCaptureRawStreamConfigurations",
+      "INT_ARRAY"
+    ],
+    [
+      "hwProfessionalRawCaptureMode",
+      "BYTE"
+    ],
+    [
+      "professionalTeleRawLogicalCameraID",
+      "INT32"
+    ],
+    [
+      "rawCaptureSize",
+      "INT_ARRAY"
+    ],
+    [
+      "rawForBokehSupported",
+      "BYTE"
+    ],
+    [
+      "rawSensorResolution",
+      "INT_ARRAY"
+    ],
+    [
+      "rawZoomSupported",
+      "BYTE"
+    ],
+    [
+      "supportOfflineRawSceneMode",
+      "INT_ARRAY"
+    ],
+    [
+      "physicalCameraScene",
+      "INT_ARRAY"
+    ],
+    [
+      "sceneCameraIdCapability",
+      "INT_ARRAY"
+    ],
+    [
+      "cameraIdCustomInfo",
+      "INT_ARRAY"
+    ],
+    [
+      "needOpenPhysicalCamera",
+      "INT_ARRAY"
+    ],
+    [
+      "ultraResolutionSwitchSupportedSize",
+      "INT_ARRAY"
+    ]
+  ],
+  "readOnlySystemPropertyProbe": "msc.camera.rawphoto.save"
+}
