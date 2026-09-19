@@ -1,0 +1,50 @@
+{
+  "schema": "TruthRawHonorCurrentAndroid17CameraBaselinePlan/0.55",
+  "date": "2026-09-19",
+  "status": "READ_ONLY_BASELINE_PLAN_NO_CAPTURE",
+  "branch": "integration/truthraw-suite-v0-55-current-android17-honor-camera-baseline",
+  "parentBranch": "integration/truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint",
+  "authority": "ANDROID17_HONOR_CAMERA_PACKAGE_AND_CAMERA2_CHARACTERISTICS_BASELINE_ONLY",
+  "preservesHistoricalAnchors": {
+    "v053": "ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY",
+    "v054": "ANDROID17_HONOR_PRO_TELE_DNG_EXPORT_IS_4080x3072_UNCOMPRESSED_U16_CFA_WITH_10BIT_NOMINAL_CODE_CEILING",
+    "populatedPrefixBytes": 25067520,
+    "envelopeBytes": 401080320,
+    "envelopeGeometry": [
+      16320,
+      12288
+    ],
+    "meaningfulU16EquivalentGeometry": [
+      4080,
+      3072
+    ]
+  },
+  "report": "TRUTHRAW_ANDROID17_HONOR_CAMERA_BASELINE_v055.json",
+  "readOnly": true,
+  "cameraOpenedByTruthRaw": false,
+  "captureSubmittedByTruthRaw": false,
+  "imageBufferAccessedByTruthRaw": false,
+  "vendorRequestWrittenByTruthRaw": false,
+  "honorBinderInvokedByTruthRaw": false,
+  "extensionSessionCreatedByTruthRaw": false,
+  "createsSensorEvidence": false,
+  "scientificWritebackAllowed": false,
+  "baselineFields": [
+    "android_build_identity",
+    "truthraw_probe_identity",
+    "installed_honor_camera_package_identity_and_archive_hashes",
+    "camera2_public_and_disclosed_physical_ids",
+    "raw_sensor_raw10_raw12_runtime_raw14_maps",
+    "maximum_resolution_geometry",
+    "binning_cfa_black_white_metadata",
+    "public_characteristic_request_result_key_names",
+    "public_camera_extensions"
+  ],
+  "comparisonAnchors": [
+    "v0.47",
+    "v0.48",
+    "v0.53",
+    "v0.54"
+  ],
+  "next": "EXPORT_V055_JSON_THEN_FIELD_BY_FIELD_DELTA_BEFORE_ACTIVE_CAMERA5_REPLAY"
+}
