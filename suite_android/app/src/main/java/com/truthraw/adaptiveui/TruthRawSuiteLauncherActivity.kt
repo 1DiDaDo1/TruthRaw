@@ -39,11 +39,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
         val root = vertical().apply {
             setBackgroundColor(backgroundColor)
             setPadding(dp(18), dp(12), dp(18), dp(24))
-            setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                view.setPadding(dp(18) + bars.left, dp(12) + bars.top, dp(18) + bars.right, dp(24) + bars.bottom)
-                insets
-            }
         }
 
         root.addView(header())
@@ -144,13 +139,19 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.64 · Advanced derivative · PURE blijft onveranderd", 11f).apply {
+        root.addView(body("v0.65 · responsive UI + clean lens icon · PURE blijft onveranderd", 11f).apply {
             gravity = Gravity.CENTER
         })
 
         return ScrollView(this).apply {
             isFillViewport = true
+            clipToPadding = true
             setBackgroundColor(backgroundColor)
+            setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(WindowInsets.Type.systemBars())
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                insets
+            }
             addView(root)
         }
     }
@@ -231,27 +232,43 @@ class TruthRawSuiteLauncherActivity : Activity() {
         enabled: Boolean,
         action: () -> Unit,
     ): View = vertical().apply {
-        setPadding(dp(14), dp(14), dp(14), dp(14))
+        setPadding(dp(13), dp(13), dp(13), dp(13))
         background = cardBackground(if (selected) Color.rgb(12, 31, 52) else surface, accent, selected)
         alpha = if (enabled) 1f else 0.56f
-        minimumHeight = dp(146)
+
+        val isTruthRaw = titleText.startsWith("TRUTHRAW ")
+        minimumHeight = dp(if (isTruthRaw) 158 else 142)
 
         addView(horizontal().apply {
+            gravity = Gravity.TOP
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
                 text = if (selected) "✓" else "○"
-                textSize = 21f
+                textSize = 20f
                 gravity = Gravity.CENTER
                 setTextColor(if (selected) accent else textMuted)
-            }, LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(8) })
-            addView(
-                title(titleText, if (titleText.length > 15) 13.5f else 16f),
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
-            )
+            }, LinearLayout.LayoutParams(dp(28), dp(30)).apply { marginEnd = dp(7) })
+
+            val displayTitle = when (titleText) {
+                "TRUTHRAW PURE" -> "TRUTHRAW\nPURE"
+                "TRUTHRAW ADVANCED" -> "TRUTHRAW\nADVANCED"
+                else -> titleText
+            }
+            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+                text = displayTitle
+                textSize = if (isTruthRaw) 13f else 16f
+                maxLines = if (isTruthRaw) 2 else 1
+                setTextColor(textPrimary)
+                setTypeface(typeface, Typeface.BOLD)
+                includeFontPadding = false
+                setLineSpacing(0f, 0.95f)
+            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
-        addView(space(5))
-        addView(body(subtitleText, 12.5f))
-        addView(space(10))
-        addView(body(detail, 11.5f))
+        addView(space(7))
+        addView(body(subtitleText, 12f))
+        addView(space(7))
+        addView(body(detail, 10.8f).apply {
+            maxLines = if (isTruthRaw) 3 else 2
+        })
         if (enabled) setOnClickListener { action() }
     }
 
