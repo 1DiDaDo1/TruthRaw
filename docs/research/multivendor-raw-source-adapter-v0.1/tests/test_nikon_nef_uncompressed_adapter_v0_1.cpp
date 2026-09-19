@@ -64,8 +64,9 @@ std::vector<std::uint8_t> makeNefLikeFixture() {
     constexpr std::uint32_t width = 8;
     constexpr std::uint32_t height = 6;
     constexpr std::uint32_t ifd0 = 8;
-    constexpr std::uint16_t entryCount = 12;
+    constexpr std::uint16_t entryCount = 13;
     constexpr std::uint32_t makeOffset = 200;
+    constexpr std::uint32_t modelOffset = 224;
     constexpr std::uint32_t stripOffset = 256;
     constexpr std::uint32_t rawBytes = width * height * 2;
 
@@ -82,6 +83,7 @@ std::vector<std::uint8_t> makeNefLikeFixture() {
     putEntry(b, e, 259, 3, 1, 1); e += 12;
     putEntry(b, e, 262, 3, 1, 32803); e += 12;
     putEntry(b, e, 271, 2, 18, makeOffset); e += 12;
+    putEntry(b, e, 272, 2, 9, modelOffset); e += 12;
     putEntry(b, e, 273, 4, 1, stripOffset); e += 12;
     putEntry(b, e, 277, 3, 1, 1); e += 12;
     putEntry(b, e, 278, 4, 1, height); e += 12;
@@ -95,6 +97,9 @@ std::vector<std::uint8_t> makeNefLikeFixture() {
     const std::string make = "NIKON CORPORATION";
     std::copy(make.begin(), make.end(), b.begin() + makeOffset);
     b[makeOffset + make.size()] = 0;
+    const std::string model = "NIKON Z8";
+    std::copy(model.begin(), model.end(), b.begin() + modelOffset);
+    b[modelOffset + model.size()] = 0;
 
     std::size_t p = stripOffset;
     for (std::uint16_t i = 0; i < width * height; ++i) {
@@ -134,9 +139,18 @@ void testStrictNefSampleDecodeAndScientificBlock() {
     assert(descriptor.format == tr::RawFormatFamily::NikonNef);
     assert(descriptor.decoderId == "truthraw.nikon-nef-uncompressed16-cfa.v0.1");
     assert(descriptor.sourceSealAcceptedAtBoundary);
+    assert(descriptor.cameraMake == "NIKON CORPORATION");
+    assert(descriptor.cameraModel == "NIKON Z8");
+    assert(descriptor.rawWidth == 8);
+    assert(descriptor.rawHeight == 6);
+    assert(descriptor.cfaCode == static_cast<int>(truthraw::CfaPattern::RGGB));
+    assert(descriptor.storageBitsPerSample == 16);
     assert(descriptor.exactCfaSamplesAvailable);
     assert(descriptor.measurementAdmissionReady);
     assert(!descriptor.scientificColorBindingProvided);
+    assert(!descriptor.radiometricBindingProvided);
+    assert(!descriptor.blackLevelAuthoritative);
+    assert(!descriptor.saturationLevelAuthoritative);
     assert(!descriptor.scientificAdmissionReady);
     assert(!descriptor.directSensorAdcClaimAllowed);
     assert(!descriptor.fullRawFrameMaterialized);
@@ -163,6 +177,72 @@ void testStrictNefSampleDecodeAndScientificBlock() {
     }
 }
 
+void testExactScopeRadiometricBindingClosesBlackAndSaturationOnly() {
+    auto bytes = std::make_shared<VectorByteSource>(makeNefLikeFixture());
+    auto request = makeRequest(bytes->sizeBytes());
+    request.radiometric.valid = true;
+    request.radiometric.authority = tr::RadiometricBindingAuthority::CalibrationPackValidated;
+    request.radiometric.bindingId = "nikon-z8-test-radiometric-pack";
+    request.radiometric.format = tr::RawFormatFamily::NikonNef;
+    request.radiometric.cameraMake = "NIKON CORPORATION";
+    request.radiometric.cameraModel = "NIKON Z8";
+    request.radiometric.width = 8;
+    request.radiometric.height = 6;
+    request.radiometric.cfaCode = static_cast<int>(truthraw::CfaPattern::RGGB);
+    request.radiometric.storageBitsPerSample = 16;
+    request.radiometric.blackPhase = {64.0f, 65.0f, 66.0f, 67.0f};
+    request.radiometric.whiteLevel = 16383.0f;
+
+    tr::RawSourceAdapterRegistry registry;
+    assert(registry.registerAdapter(tr::makeNikonNefUncompressedAdapter()));
+
+    std::unique_ptr<streaming::IRawTileSource> source;
+    tr::RawSourceDescriptor descriptor;
+    const auto opened = registry.open(bytes, request, source, descriptor);
+    assert(opened);
+    assert(source);
+    assert(descriptor.radiometricBindingProvided);
+    assert(descriptor.blackLevelAuthoritative);
+    assert(descriptor.saturationLevelAuthoritative);
+    assert(descriptor.measurementAdmissionReady);
+    assert(!descriptor.scientificAdmissionReady);
+    assert(!descriptor.scientificColorBindingProvided);
+
+    const auto& m = source->metadata();
+    assert(m.blackPhase[0] == 64.0f);
+    assert(m.blackPhase[1] == 65.0f);
+    assert(m.blackPhase[2] == 66.0f);
+    assert(m.blackPhase[3] == 67.0f);
+    assert(m.whiteLevel == 16383.0f);
+}
+
+void testRadiometricScopeMismatchFailsClosed() {
+    auto bytes = std::make_shared<VectorByteSource>(makeNefLikeFixture());
+    auto request = makeRequest(bytes->sizeBytes());
+    request.radiometric.valid = true;
+    request.radiometric.authority = tr::RadiometricBindingAuthority::CalibrationPackValidated;
+    request.radiometric.bindingId = "wrong-camera-pack";
+    request.radiometric.format = tr::RawFormatFamily::NikonNef;
+    request.radiometric.cameraMake = "NIKON CORPORATION";
+    request.radiometric.cameraModel = "NIKON Z9";
+    request.radiometric.width = 8;
+    request.radiometric.height = 6;
+    request.radiometric.cfaCode = static_cast<int>(truthraw::CfaPattern::RGGB);
+    request.radiometric.storageBitsPerSample = 16;
+    request.radiometric.blackPhase = {64.0f, 64.0f, 64.0f, 64.0f};
+    request.radiometric.whiteLevel = 16383.0f;
+
+    tr::RawSourceAdapterRegistry registry;
+    assert(registry.registerAdapter(tr::makeNikonNefUncompressedAdapter()));
+
+    std::unique_ptr<streaming::IRawTileSource> source;
+    tr::RawSourceDescriptor descriptor;
+    const auto opened = registry.open(bytes, request, source, descriptor);
+    assert(!opened);
+    assert(opened.code == tr::AdapterStatusCode::InvalidArgument);
+    assert(!source);
+}
+
 void testCompressedNefFailsClosed() {
     auto fixture = makeNefLikeFixture();
     // Compression tag is entry 4 (0-based index 3), value at IFD0+2+3*12+8.
@@ -184,6 +264,8 @@ void testCompressedNefFailsClosed() {
 
 int main() {
     testStrictNefSampleDecodeAndScientificBlock();
+    testExactScopeRadiometricBindingClosesBlackAndSaturationOnly();
+    testRadiometricScopeMismatchFailsClosed();
     testCompressedNefFailsClosed();
     std::cout << "nikon nef uncompressed sample adapter v0.1: PASS\n";
     return 0;
