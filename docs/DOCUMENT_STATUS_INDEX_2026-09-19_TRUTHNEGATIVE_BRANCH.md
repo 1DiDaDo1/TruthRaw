@@ -10,15 +10,20 @@ This file does not supersede global historical indexes outside this branch.
 2. `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
 3. `docs/DOCUMENT_STATUS_INDEX_2026-09-17.md`
 4. latest HONOR v0.53/v0.54 result documents for acquisition context
-5. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
-6. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
-7. `docs/research/truthnegative-v0.1/README.md`
-8. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
-9. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
+5. `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
+6. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+7. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+8. `docs/research/truthnegative-v0.2/README.md`
+9. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
+10. `docs/research/truthnegative-v0.1/README.md` — retained first-draft provenance
+11. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json` — retained first-draft provenance
+12. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
 
 ## Authority status
 
 TruthNegative is research only.
+
+The v0.2 correction is current on this branch: TruthNegative binds to the existing Scientific Master/open-world house; it is not a second reconstructed world.
 
 It does not replace:
 
