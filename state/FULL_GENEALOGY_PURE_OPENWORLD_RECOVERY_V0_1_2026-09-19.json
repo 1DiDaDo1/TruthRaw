@@ -148,5 +148,73 @@
       "FABRICATED_HIGHLIGHT_PEAKS",
       "SHARPENING_AS_MEASURED_DETAIL"
     ]
+  },
+  "restorerLine": {
+    "explicitInRecoveryAudit": true,
+    "repositoryAnchor": "docs/research/conservation-restoration-authority-v0.1/README.md",
+    "sequence": [
+      "EXAMINATION",
+      "CONDITION_DOCUMENTATION",
+      "SCIENTIFIC_INVESTIGATION",
+      "STABILIZATION",
+      "TREATMENT_LOSS_COMPENSATION",
+      "INTERVENTION_DOCUMENTATION"
+    ],
+    "truthrawMapping": [
+      "SOURCE_EVIDENCE",
+      "CONDITION_EVIDENCE_ASSESSMENT",
+      "MEASUREMENT_SCIENTIFIC_ANALYSIS",
+      "STABLE_SCIENTIFIC_MASTER",
+      "BOUNDED_RECONSTRUCTION_LOSS_COMPENSATION",
+      "APPEARANCE_PRESENTATION",
+      "PERMANENT_PROVENANCE"
+    ],
+    "rules": [
+      "PRESERVE_SURVIVING_MEASURED_SUPPORT",
+      "RECONSTRUCTED_REMAINS_RECONSTRUCTED",
+      "CENSORED_REMAINS_BOUND_UNLESS_INDEPENDENT_EVIDENCE",
+      "UNKNOWN_REMAINS_UNKNOWN_WHEN_UNSUPPORTED",
+      "COUNTERFACTUAL_APPEARANCE_NEVER_BECOMES_MEASURED",
+      "INTERVENTION_MUST_REMAIN_PROVENANCE_DETECTABLE_AND_RETREATABLE"
+    ]
+  },
+  "camera5HistoricalSuccessfulRawSensorDng": {
+    "milestone": "V0_14_SOURCE_FIRST_SEALED_RAW_SENSOR_WITH_SUCCESSFUL_AUXILIARY_DNG",
+    "deliveredGeometry": [
+      16320,
+      12288
+    ],
+    "pixelStride": 2,
+    "rowStride": 32640,
+    "rawsensorBytes": 401080320,
+    "rawsensorSha256": "af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de",
+    "auxiliaryDngCreatedSuccessfully": true,
+    "auxiliaryDngBytes": 401184072,
+    "physicalCameraId": "5",
+    "exactImageSensorTimestampBinding": true,
+    "primaryEvidence": "ORIGINAL_IMAGE_PLANE0_SEALED_RAWSENSOR",
+    "auxiliaryContainer": "DNG",
+    "fullResolutionSceneRasterSuccessfullyPopulated": false,
+    "laterCorrection": {
+      "auditedVersions": [
+        "v0.19",
+        "v0.20"
+      ],
+      "nonzeroDeclaredRows": [
+        0,
+        767
+      ],
+      "zeroDeclaredRows": [
+        768,
+        12287
+      ],
+      "populatedBytes": 25067520,
+      "exactStandardRawEquivalent": [
+        4080,
+        3072
+      ],
+      "dngViewerBlackAreaCreatedDownstream": false,
+      "interpretation": "SUCCESSFUL_ACQUISITION_AND_DNG_CONTAINER_BUT_NOT_FULLY_POPULATED_200MP_SCENE_RASTER"
+    }
   }
 }
