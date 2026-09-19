@@ -4,7 +4,7 @@ Status: **CURRENT TRUTHNEGATIVE RESEARCH-BRANCH ARCHITECTURE / v0.2 ALIGNMENT / 
 
 Branch:
 
-`research/truthnegative-v0-1-scientific-negative-foundation`
+`research/truthnegative-v0-2-existing-house-binding`
 
 ## 1. Correction from the first v0.1 draft
 
