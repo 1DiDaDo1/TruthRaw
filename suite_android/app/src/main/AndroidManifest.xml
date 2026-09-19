@@ -134,6 +134,12 @@
             android:launchMode="singleTop"
             android:exported="false" />
 
+        <activity
+            android:name=".HonorRawDirectCharacteristicOracleActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
         <service
             android:name=".PassiveExportedJpegMetadataFingerprintService"
             android:exported="false"
