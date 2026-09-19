@@ -1,5 +1,20 @@
 # TruthRaw state directory
 
+## Current active integration — 2026-09-19
+
+For the current multi-vendor app line, read first:
+
+- `CURRENT_PROJECT_STATE_2026-09-19.json`
+- `../docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `TRUTHRAW_V058_NIKON_NEF_SAMPLE_ADAPTER_2026-09-19.json`
+- `TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json`
+
+Active branch:
+
+`integration/truthraw-suite-v0-59-nef-radiometric-admission`
+
+The older TruthNegative and 2026-09-16 state snapshots below remain historical/current-for-their-branch provenance; they are not the first bootstrap for this integration branch.
+
 `state/` contains current and historical state snapshots. Dated snapshots are provenance and must not be rewritten to pretend they knew later results.
 
 ## Current on the TruthNegative branch
