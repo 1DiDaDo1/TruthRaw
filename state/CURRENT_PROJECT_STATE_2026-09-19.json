@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-59-nef-radiometric-admission",
+  "activeBranch": "integration/truthraw-suite-v0-60-pure-float32-dng",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -145,6 +145,57 @@
         "artifactName": "truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64",
         "artifactArchiveSha256": "4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8"
       }
+    },
+    "v060": {
+      "branch": "integration/truthraw-suite-v0-60-pure-float32-dng",
+      "appVersion": "0.25-v0.60-pure-float32-dng",
+      "role": "RESTORED_TRUTHRAW_PURE_FLOAT32_SCIENTIFIC_DNG_IN_CURRENT_MULTIVENDOR_APP",
+      "sourceEligibility": "CURRENTLY_FULL_DNG_ROUTE_ONLY",
+      "output": {
+        "photometric": "LINEAR_RAW_34892",
+        "channels": 3,
+        "colorSpace": "XYZ_D50",
+        "bitsPerSample": 32,
+        "sampleFormat": "IEEE_FLOAT",
+        "dngVersion": "1.4.0.0",
+        "dngBackwardVersion": "1.4.0.0",
+        "compressionTag": 1,
+        "compressionMeaning": "UNCOMPRESSED_LOSSLESS_REPRESENTATION",
+        "canonicalTile": [
+          64,
+          64
+        ],
+        "negativeValuesPreserved": true,
+        "overOneValuesPreserved": true,
+        "bounded01Clipping": false,
+        "appearanceApplied": false,
+        "counterfactualObservationCreated": false
+      },
+      "scientificGate": {
+        "exactScientificMasterDigestReplayRequired": true,
+        "sourceSealVerifiedBeforeAndAfterProjection": true,
+        "technicalBackplanePhase2Bound": true,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1,
+        "projectionIsScientificMaster": false,
+        "projectionCreatesNewEvidence": false
+      },
+      "compatibilitySeparation": {
+        "pureFloat32IsPrimaryScientificDng": true,
+        "uint16LinearDngRetained": true,
+        "uint16LinearDngRole": "COMPATIBILITY_ONLY",
+        "uint16MayRedefinePure": false
+      },
+      "ci": {
+        "run": 35458367764,
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10589820246,
+        "artifactName": "truthraw-suite-v0-60-pure-float32-dng-debug-arm64",
+        "artifactArchiveSha256": "fbf4973bc49714dadf821e4421141bd11a8e60022cd495e5ec3821b39547e443"
+      },
+      "realDeviceValidation": "PENDING_V060_ARTIFACT_INSPECTION"
     }
   },
   "camera5ReferencePrecedence": [
@@ -165,12 +216,12 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "DEFINE_EXACT_SCOPE_NIKON_NOISE_UNCERTAINTY_BINDING",
-    "KEEP_NOISE_EVIDENCE_SEPARATE_FROM_BLACK_SATURATION_EVIDENCE",
-    "DEFINE_SOURCE_BOUND_NIKON_COLOR_ADMISSION",
-    "REQUIRE_HELD_OUT_VALIDATION",
-    "ONLY_THEN_ALLOW_SCIENTIFIC_ADMISSION_READY_TRUE",
-    "AFTER_NIKON_END_TO_END_ADD_NEXT_VENDOR_ADAPTER_BEHIND_SAME_ABI"
+    "INSTALL_AND_RUN_V060_ON_REAL_DEVICE_WITH_KNOWN_DNG",
+    "VERIFY_SAVED_PURE_ARTIFACT_BITS_PER_SAMPLE_32_AND_SAMPLEFORMAT_IEEE_FLOAT",
+    "VERIFY_MEDIAINFO_OR_EXIFTOOL_REPORTS_DNG_1_4_LINEAR_RAW_AND_32_BIT",
+    "VERIFY_NEGATIVE_AND_OVER_ONE_COMPONENT_COUNTS_ARE_RETAINED",
+    "VERIFY_EXACT_SOURCE_MASTER_BACKPLANE_BINDING_ON_V060_OUTPUT",
+    "CONTINUE_NIKON_NOISE_UNCERTAINTY_AND_COLOR_ADMISSION_WITHOUT_WEAKENING_PURE_ROUTE"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
