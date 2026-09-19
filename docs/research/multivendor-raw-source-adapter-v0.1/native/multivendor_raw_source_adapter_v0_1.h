@@ -157,6 +157,12 @@ struct RawSourceDescriptor final {
     ProcessingLineageClass processingLineage = ProcessingLineageClass::Unknown;
     std::string decoderId;
     std::string sourceEvidenceId;
+    std::string cameraMake;
+    std::string cameraModel;
+    int rawWidth = 0;
+    int rawHeight = 0;
+    int cfaCode = -1;
+    int storageBitsPerSample = 0;
 
     bool sourceSealAcceptedAtBoundary = false;
     bool exactCfaSamplesAvailable = false;
