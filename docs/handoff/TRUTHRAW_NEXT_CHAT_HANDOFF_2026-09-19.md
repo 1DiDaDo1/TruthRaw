@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-59-nef-radiometric-admission`
+`integration/truthraw-suite-v0-60-pure-float32-dng`
 
 Current app version:
 
-`0.24-v0.59-nef-radiometric-admission`
+`0.25-v0.60-pure-float32-dng`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -232,11 +232,11 @@ This is a debug/research APK, not a final release-signed product.
 
 Active branch:
 
-`integration/truthraw-suite-v0-59-nef-radiometric-admission`
+`integration/truthraw-suite-v0-60-pure-float32-dng`
 
 App version:
 
-`0.24-v0.59-nef-radiometric-admission`
+`0.25-v0.60-pure-float32-dng`
 
 v0.59 adds the next authority gate after exact NEF sample decode:
 
@@ -327,6 +327,72 @@ Artifact archive digest:
 
 `sha256:4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`
 
+## 10. v0.60 — current active work: TRUTHRAW PURE Float32 restored
+
+Active branch:
+
+`integration/truthraw-suite-v0-60-pure-float32-dng`
+
+App version:
+
+`0.25-v0.60-pure-float32-dng`
+
+The current multi-vendor app had a 16-bit `linear-dng-projection-v0.1` compatibility export. That route clips values below 0 and above 1 at the export boundary and is **not** TRUTHRAW PURE.
+
+The recovered historical PURE writer has now been reconnected to the current Android app.
+
+Current PURE route:
+
+`sealed source DNG`
+→ source-bound color
+→ generic DNG adapter
+→ Scientific Master streaming
+→ Technical Backplane Phase 2
+→ canonical Scientific Master replay
+→ exact master-digest gate
+→ cameraToXyzD50
+→ **32-bit IEEE Float XYZ-D50 LinearRaw DNG**.
+
+Serialized contract:
+
+- 3 samples/pixel;
+- `BitsPerSample = 32,32,32`;
+- IEEE float SampleFormat;
+- `PhotometricInterpretation = LinearRaw`;
+- `DNGVersion = 1.4.0.0`;
+- `DNGBackwardVersion = 1.4.0.0`;
+- `Compression = 1` (uncompressed, non-lossy storage);
+- `Software = TruthRaw scientific-master-linear-dng-projection-v0.1`;
+- 64×64 canonical tiling;
+- negative and >1 components preserved;
+- no appearance;
+- no counterfactual;
+- frame/evidence remains 1/1.
+
+The app now labels the two exports separately:
+
+- **TRUTHRAW PURE · 32-bit Float DNG** — primary scientific DNG;
+- **16-bit Linear DNG (compatibility)** — bounded compatibility projection only.
+
+The uint16 writer may not redefine PURE.
+
+v0.60 is currently enabled only for the fully admitted DNG route. Nikon NEF remains measurement/radiometric-gated and must not enter PURE until its remaining scientific admission gates are closed.
+
+CI run `35458367764`:
+
+- host GCC: SUCCESS;
+- host Clang: SUCCESS;
+- Android arm64: SUCCESS;
+- APK artifact ID `10589820246`;
+- artifact `truthraw-suite-v0-60-pure-float32-dng-debug-arm64`;
+- artifact archive SHA-256 `fbf4973bc49714dadf821e4421141bd11a8e60022cd495e5ec3821b39547e443`.
+
+Current real-device gate: install the v0.60 APK, export a known-good DNG through TRUTHRAW PURE, then inspect the saved artifact and confirm 32-bit IEEE Float / DNG 1.4 / LinearRaw / historical Software string / preserved signed-overrange components.
+
+See:
+
+`docs/TRUTHRAW_V060_PURE_FLOAT32_DNG_2026-09-19.md`
+
 ## 10. Important current limitation
 
 There is **not yet a real Nikon camera calibration pack** admitted.
@@ -341,7 +407,7 @@ A real Nikon promotion needs actual NEF files plus independently validated camer
 
 Continue in this order:
 
-1. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
+1. physically validate the v0.60 Android-produced PURE DNG and confirm the saved artifact is 32-bit IEEE Float DNG 1.4 with the exact historical writer identity;\n2. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
 2. keep noise evidence separate from black/saturation evidence;
 3. define source-bound Nikon color admission without treating ordinary Make/Model/white balance metadata as physical calibration;
 4. require held-out validation before `scientificAdmissionReady=true`;
