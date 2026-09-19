@@ -11,7 +11,7 @@
   "controlledChange": {
     "measurementImplementation": "Api37Raw14ExtensionOracleActivity unchanged from v0.47",
     "compileSdkFrom": 35,
-    "compileSdkTo": 37,
+    "compileSdkTo": 35,
     "targetSdkFrom": 35,
     "targetSdkTo": 37,
     "launcherLabelOnlyUiChange": true
