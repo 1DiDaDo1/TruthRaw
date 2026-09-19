@@ -26,6 +26,7 @@ enum class StatusCode : std::uint8_t {
     DigestFailed,
     ScientificMasterMismatch,
     SinkFailed,
+    ScientificBindingMismatch,
 };
 
 struct Status final {
