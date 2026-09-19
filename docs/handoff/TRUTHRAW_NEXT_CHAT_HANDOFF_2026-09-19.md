@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-62-pure-postwrite-verify`
+`integration/truthraw-suite-v0-63-crc-ui-branding`
 
 Current app version:
 
-`0.27-v0.62-pure-postwrite-verify`
+`0.28-v0.63-crc-ui-branding`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -81,6 +81,14 @@ v0.61 CI run `35464897909` is green on host GCC, host Clang and Android. Artifac
 v0.62 keeps the v0.61 writer/private contract and pixel mathematics unchanged. Android now re-opens the exact destination URI after commit and refuses to report success unless the saved DNG itself proves the current PURE role, v0.61 self-binding, exact L0 binary64 payload, scene-scale, 180-byte Technical Backplane, CRC32, precision/runtime provenance and 1/1 evidence state. The old compatibility-role marker causes fail-closed rejection. New test outputs use `*_truthraw_pure_float32_v0_62.dng`.
 
 Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md`.
+
+## 2C. v0.63 — CRC correction + product UI
+
+The Backplane CRC metadata bug found from the real v0.62 artifact is corrected first: `technical_backplane_crc32` is now CRC32 over bytes 0..175, matching the canonical internal CRC stored at bytes 176..179. The saved DNG is reopened and the verifier decodes the 180-byte Backplane, checks source/master/Zero-Line/scene-scale lineage and compares recomputed, embedded and declared CRC values. The private contract is versioned to `TRUTHRAW_PURE_SELF_BINDING_V0_63`.
+
+After that correction, the launcher is rebuilt around two primary inputs — Open RAW / DNG and Use camera — while all historical probes move behind the settings gear. The generated TR lens/open-world icon is applied to the app and header. JPG and PURE are real selectable output preferences; JPG XL and Advanced remain visibly disabled until implemented.
+
+Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md`.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
@@ -446,9 +454,10 @@ A real Nikon promotion needs actual NEF files plus independently validated camer
 
 Continue in this order:
 
-1. run v0.62 host GCC/Clang and Android CI and verify the produced APK;
-2. on a real device, export a known-good DNG and require the UI to show `self-binding verified=true`;
-3. independently inspect that exact v0.62 saved DNG for current PURE role, Zero-Line/L0, scene-scale and serialized Backplane binding;
+1. run v0.63 host GCC/Clang and Android CI and verify the produced APK;
+2. install v0.63 and confirm the new icon, RAW/camera launcher and research settings screen;
+3. export a new v0.63 PURE DNG and require `self-binding verified=true`;
+4. independently recompute CRC32 over Backplane bytes 0..175 and confirm it matches both the internal bytes 176..179 and the DNG metadata field;
 3. keep historical `TRCERT01` verification support separate from any new current PTC/Dynamic-Authority certificate schema;
 4. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
 5. keep noise evidence separate from black/saturation evidence;
