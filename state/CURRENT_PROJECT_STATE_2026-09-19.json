@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-64-advanced-derivative",
+  "activeBranch": "integration/truthraw-suite-v0-65-ui-icon-polish",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -447,6 +447,45 @@
         "extractedApkSha256": "8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441"
       },
       "realDeviceValidation": "PENDING_ADVANCED_VISUAL_AND_METRIC_TEST"
+    },
+    "v065": {
+      "branch": "integration/truthraw-suite-v0-65-ui-icon-polish",
+      "appVersion": "0.30-v0.65-ui-icon-polish",
+      "role": "RESPONSIVE_COMPACT_PHONE_UI_AND_CLEAN_TR_LENS_ICON",
+      "inheritsV064AdvancedDerivative": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "purePixelMathChanged": false,
+      "advancedMathChanged": false,
+      "uiFixes": {
+        "scrollViewportOwnsSystemBarInsets": true,
+        "contentNoLongerScrollsUnderStatusBar": true,
+        "bottomNavigationSafeArea": true,
+        "truthrawPureTitleForcedToTwoLines": true,
+        "truthrawAdvancedTitleForcedToTwoLines": true,
+        "truthrawCardsUseResponsiveMinimumHeight": true,
+        "settingsAndAdvancedScreensUseSameSystemBarSafePattern": true
+      },
+      "icon": {
+        "replacedGlitchStyleIcon": true,
+        "cleanTrMonogram": true,
+        "subtleLensReflectionInUpperR": true,
+        "assetPath": "suite_android/app/src/main/res/drawable-nodpi/truthraw_icon.webp",
+        "assetBytes": 6124,
+        "assetSha256": "398874fcf8052761fce9451e70088e20985210ef49b869e7c6f14cf7cb4fe607"
+      },
+      "ci": {
+        "run": 35473170260,
+        "headSha": "fd0ff226de3bc98dd2539a1d1819f35a6829b554",
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10593941511,
+        "artifactName": "truthraw-suite-v0-65-ui-icon-polish-debug-arm64",
+        "artifactArchiveSha256": "10004e3b4ac318c8a021a876e81963c56f752e462364ed0e447679844950d7ed",
+        "extractedApkBytes": 5962141,
+        "extractedApkSha256": "9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d"
+      },
+      "realDeviceValidation": "PENDING_COMPACT_PHONE_UI_AND_ICON_VISUAL_CHECK"
     }
   },
   "camera5ReferencePrecedence": [
@@ -467,16 +506,17 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_V064_AND_SELECT_TRUTHRAW_ADVANCED",
-    "TEST_NATURAL_LIGHT_HDR_DETAIL_AND_RESTORATION_TOGGLES_ON_REAL_DNG",
-    "VERIFY_ADVANCED_METRICS_KEEP_FRAME_EVIDENCE_1_1_AND_PURE_UNCHANGED",
-    "COMPARE_ADVANCED_BOUNDED_DERIVATIVE_AGAINST_PURE_FINALIZED_PREVIEW_FOR_VISUAL_SANITY",
-    "DESIGN_FULL_RESOLUTION_ADVANCED_STREAMING_EXPORT_WITHOUT_FULL_FRAME_SCIENTIFIC_MATERIALIZATION",
-    "KEEP_PHYSICAL_RELIGHT_AND_STRONG_RESTORATION_CLAIMS_GATED_UNTIL_REQUIRED_SCENE_OR_DEFECT_EVIDENCE_EXISTS"
+    "INSTALL_V065_AND_CONFIRM_CONTENT_NEVER_SCROLLS_UNDER_STATUS_BAR",
+    "CONFIRM_TRUTHRAW_PURE_AND_ADVANCED_TITLES_RENDER_AS_CLEAN_TWO_LINE_LABELS",
+    "CONFIRM_BOTTOM_OUTPUT_CARDS_REMAIN_CLEAR_OF_ANDROID_NAVIGATION_BAR",
+    "CONFIRM_NEW_CLEAN_TR_LENS_ICON_IN_APP_HEADER_AND_ANDROID_LAUNCHER",
+    "KEEP_V064_ADVANCED_DERIVATIVE_AND_V063_PURE_CRC_ROUTE_UNCHANGED",
+    "CONTINUE_FULL_RESOLUTION_ADVANCED_EXPORT_ONLY_AFTER_UI_DEVICE_CHECK_PASSES"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md",
     "docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md",
     "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
     "docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md",
