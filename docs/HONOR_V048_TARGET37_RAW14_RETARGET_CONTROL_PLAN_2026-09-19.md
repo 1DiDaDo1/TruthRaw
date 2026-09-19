@@ -25,7 +25,7 @@ The **measurement implementation remains the v0.47 `Api37Raw14ExtensionOracleAct
 
 Only the app build/runtime contract is deliberately changed:
 
-- compileSdk: 35 -> **37**
+- compileSdk: **35 remains unchanged**
 - targetSdk: 35 -> **37**
 - versionCode: 17
 - versionName: `0.17-v0.48-target37-raw14-retarget-control`
