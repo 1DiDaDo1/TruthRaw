@@ -2,7 +2,7 @@
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
-If the checked-out branch is `research/truthnegative-v0-1-scientific-negative-foundation`, read this overlay before the older bootstrap below:
+If the checked-out branch is `research/truthnegative-v0-2-existing-house-binding`, read this overlay before the older bootstrap below:
 
 1. `docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
 2. `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
