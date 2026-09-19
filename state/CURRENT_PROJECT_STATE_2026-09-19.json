@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-63-crc-ui-branding",
+  "activeBranch": "integration/truthraw-suite-v0-64-advanced-derivative",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -382,6 +382,71 @@
           "sourceStableAcrossWrapper": true
         }
       }
+    },
+    "v064": {
+      "branch": "integration/truthraw-suite-v0-64-advanced-derivative",
+      "appVersion": "0.29-v0.64-advanced-derivative",
+      "role": "TRUTHRAW_ADVANCED_APPEARANCE_RESTORATION_DERIVATIVE",
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "purePixelMathChanged": false,
+      "scientificMasterWriteback": false,
+      "modules": {
+        "naturalLightBalance": {
+          "active": true,
+          "classification": "APPEARANCE_ONLY",
+          "physicalRelightClaim": false,
+          "evidenceConfidenceBounded": true
+        },
+        "naturalHdr": {
+          "active": true,
+          "classification": "PRESENTATION_APPEARANCE",
+          "usesExistingHalfResolutionSceneGainState": true,
+          "censoredNeighbourhoodGainSuppressed": true,
+          "createsMeasuredDynamicRange": false
+        },
+        "detailStructure": {
+          "active": true,
+          "backend": "SkinSafeDetailedCrispAppearance",
+          "scientificMasterWriteback": false
+        },
+        "restoration": {
+          "active": true,
+          "scope": "BOUNDED_PREVIEW_CENSORED_SAMPLE_COMPENSATION",
+          "eligibility": "UNDERLYING_MEASURED_CFA_SAMPLE_AT_OR_ABOVE_WHITELEVEL",
+          "minimumNonCensoredNeighbourSupport": 3,
+          "radiusMax": 2,
+          "insufficientSupportLeavesPixelUnchanged": true,
+          "underlyingAuthorityRemains": "CENSORED",
+          "measuredPixelsRelabelled": false
+        }
+      },
+      "invariants": {
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1,
+        "sourceReverifiedPrePost": true,
+        "scientificMasterModifiedByAppearance": false,
+        "counterfactualObservationCreated": false,
+        "noAdapterOwnedFullScientificFrames": true
+      },
+      "outputScope": {
+        "advancedPreviewMaxEdge": 384,
+        "advancedJpegFromBoundedPreview": true,
+        "fullResolutionAdvancedExportReady": false,
+        "pureFloat32DngStillFullResolution": true
+      },
+      "ci": {
+        "run": 35471926706,
+        "headSha": "b6fed6ce3ff57931dab1cdfff3c9d754a05a3f0b",
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10593425008,
+        "artifactName": "truthraw-suite-v0-64-advanced-derivative-debug-arm64",
+        "artifactArchiveSha256": "fa2343ed75784752056ded903657818076d0a70f19a551f381cb37954f78fa1d",
+        "extractedApkBytes": 5961945,
+        "extractedApkSha256": "8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441"
+      },
+      "realDeviceValidation": "PENDING_ADVANCED_VISUAL_AND_METRIC_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -402,15 +467,17 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "TREAT_V063_BACKPLANE_CRC_DEFECT_AS_CLOSED_ON_REAL_DEVICE",
-    "KEEP_TRUTHRAW_PURE_SELF_BINDING_V0_63_AND_180_BYTE_BACKPLANE_FROZEN_UNLESS_A_NEW_VERSION_IS_EXPLICITLY_REQUIRED",
-    "CONTINUE_PRODUCT_UI_REFINEMENT_WITHOUT_CHANGING_SCIENTIFIC_PIXEL_ROUTE_OR_AUTHORITY",
-    "RUN_UI_ICON_RAW_VS_CAMERA_AND_SETTINGS_RESEARCH_NAVIGATION_DEVICE_REVIEW",
-    "CONTINUE_NIKON_ADMISSION_SEPARATELY_WITH_FAIL_CLOSED_NOISE_UNCERTAINTY_COLOR_AND_HELD_OUT_GATES"
+    "INSTALL_V064_AND_SELECT_TRUTHRAW_ADVANCED",
+    "TEST_NATURAL_LIGHT_HDR_DETAIL_AND_RESTORATION_TOGGLES_ON_REAL_DNG",
+    "VERIFY_ADVANCED_METRICS_KEEP_FRAME_EVIDENCE_1_1_AND_PURE_UNCHANGED",
+    "COMPARE_ADVANCED_BOUNDED_DERIVATIVE_AGAINST_PURE_FINALIZED_PREVIEW_FOR_VISUAL_SANITY",
+    "DESIGN_FULL_RESOLUTION_ADVANCED_STREAMING_EXPORT_WITHOUT_FULL_FRAME_SCIENTIFIC_MATERIALIZATION",
+    "KEEP_PHYSICAL_RELIGHT_AND_STRONG_RESTORATION_CLAIMS_GATED_UNTIL_REQUIRED_SCENE_OR_DEFECT_EVIDENCE_EXISTS"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md",
     "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
     "docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md",
     "docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md",
