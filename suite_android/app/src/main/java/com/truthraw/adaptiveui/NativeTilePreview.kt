@@ -37,6 +37,16 @@ object NativeTilePreviewBridge {
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): IntArray
+
+    // Advanced derivative route: same sealed source + Scientific Master lineage,
+    // but downstream appearance controls are allowed. Never writes back into PURE.
+    external fun buildAdvancedDerivativePreview(
+        fd: Int,
+        maxEdge: Int,
+        maxSourceResidentBytes: Int,
+        maxLogicalResidentBytes: Int,
+        flags: Int,
+    ): IntArray
 }
 
 enum class PreviewAuthority {
