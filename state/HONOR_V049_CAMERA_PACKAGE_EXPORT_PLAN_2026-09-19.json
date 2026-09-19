@@ -1,0 +1,22 @@
+{
+  "schema": "truthraw.honor-camera-package-export-plan.v0.49",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "trigger": {
+    "v048SourceSha256": "7143c11c370adde2afa6484acfd0da931a0ede9406de2344675336c9309821e3",
+    "targetSdk37ChangedCameraCapabilityResult": false,
+    "installedHonorCameraVersion": "171.0.10.706"
+  },
+  "targetPackage": "com.hihonor.camera",
+  "referenceAndroid16": {
+    "versionName": "171.0.10.452",
+    "sourceApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"
+  },
+  "observation": {
+    "packageMetadata": true,
+    "sourceDirAndSplitSourceDirs": true,
+    "sha256EachPackageFile": true,
+    "optionalUserExportZip": true
+  },
+  "authorityBoundary": "SOFTWARE_PACKAGE_ARTIFACT_ONLY; never Direct-CFA, capture or calibration evidence."
+}
