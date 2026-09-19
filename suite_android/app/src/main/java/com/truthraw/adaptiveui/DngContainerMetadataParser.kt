@@ -24,7 +24,8 @@ object DngContainerMetadataParser {
         273 to "StripOffsets", 274 to "Orientation", 277 to "SamplesPerPixel",
         278 to "RowsPerStrip", 279 to "StripByteCounts", 284 to "PlanarConfiguration",
         305 to "Software", 306 to "DateTime", 324 to "TileOffsets", 325 to "TileByteCounts",
-        330 to "SubIFDs", 33421 to "CFARepeatPatternDim", 33422 to "CFAPattern",\n        34665 to "ExifIFD", 34853 to "GPSIFD",
+        330 to "SubIFDs", 33421 to "CFARepeatPatternDim", 33422 to "CFAPattern",
+        34665 to "ExifIFD", 34853 to "GPSIFD",
         33434 to "ExposureTime", 33437 to "FNumber", 34855 to "ISOSpeedRatings",
         37386 to "FocalLength", 50706 to "DNGVersion", 50707 to "DNGBackwardVersion",
         50708 to "UniqueCameraModel", 50710 to "CFAPlaneColor", 50711 to "CFALayout",
@@ -151,7 +152,8 @@ object DngContainerMetadataParser {
             .put("nextIfdOffset", nextIfdOffset)
             .put("entries", entryJson)
 
-        var subIfdOffsets: List<Long> = emptyList()\n        var exifIfdOffset: Long? = null
+        var subIfdOffsets: List<Long> = emptyList()
+        var exifIfdOffset: Long? = null
 
         for (entry in entries) {
             val decoded = decodeEntry(channel, fileSize, order, entry)
@@ -187,7 +189,8 @@ object DngContainerMetadataParser {
                 50719 -> ifdJson.put("defaultCropOrigin", decoded)
                 50720 -> ifdJson.put("defaultCropSize", decoded)
                 50829 -> ifdJson.put("activeArea", decoded)
-                330 -> subIfdOffsets = decodeUnsignedLongValues(channel, fileSize, order, entry)\n                34665 -> exifIfdOffset = decodeUnsignedLongValues(channel, fileSize, order, entry).firstOrNull()
+                330 -> subIfdOffsets = decodeUnsignedLongValues(channel, fileSize, order, entry)
+                34665 -> exifIfdOffset = decodeUnsignedLongValues(channel, fileSize, order, entry).firstOrNull()
             }
         }
 
@@ -195,6 +198,9 @@ object DngContainerMetadataParser {
 
         subIfdOffsets.forEachIndexed { index, child ->
             parseIfdRecursive(channel, fileSize, order, child, "$path/SubIFD[$index]", depth + 1, visited, out)
+        }
+        exifIfdOffset?.let { child ->
+            parseIfdRecursive(channel, fileSize, order, child, "$path/ExifIFD", depth + 1, visited, out)
         }
         if (nextIfdOffset > 0L) {
             parseIfdRecursive(channel, fileSize, order, nextIfdOffset, "$path/NextIFD", depth + 1, visited, out)
