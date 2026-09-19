@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-64-advanced-derivative`
+> Active branch: `integration/truthraw-suite-v0-65-ui-icon-polish`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.64 keeps the validated v0.63 PURE Float32 route unchanged and activates TRUTHRAW ADVANCED as a downstream appearance/restoration derivative with Natural Light Balance, Natural HDR, Detail/Structure and evidence-bound censored-pixel compensation.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.65 keeps the validated v0.63 PURE Float32 route and v0.64 Advanced derivative unchanged while fixing compact-phone system-bar overlap, PURE/ADVANCED title wrapping and replacing the noisy icon with a clean TR lens-reflection mark.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.64 CI run `35471926706`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Advanced is currently a bounded derivative preview/JPEG path; full-resolution PURE Float32 DNG remains separate and unchanged.
+> v0.65 CI run `35473170260`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 is UI/icon-only; Advanced remains a bounded derivative preview/JPEG path and full-resolution PURE Float32 DNG remains separate and unchanged.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
