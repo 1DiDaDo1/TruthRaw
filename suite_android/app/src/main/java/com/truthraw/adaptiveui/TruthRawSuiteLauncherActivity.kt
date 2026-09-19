@@ -55,8 +55,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
             addView(
                 inputCard(
                     iconRes = R.drawable.ic_folder_truthraw,
-                    title = "Open RAW / DNG",
-                    subtitle = "Kies een bestaand RAW- of DNG-bestand.",
+                    titleText = "Open RAW / DNG",
+                    subtitleText = "Kies een bestaand RAW- of DNG-bestand.",
                     accent = blue,
                 ) {
                     startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
@@ -68,8 +68,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
             addView(
                 inputCard(
                     iconRes = R.drawable.ic_camera_truthraw,
-                    title = "Gebruik camera",
-                    subtitle = "Maak direct een nieuwe opname via de RAW-ingang.",
+                    titleText = "Gebruik camera",
+                    subtitleText = "Maak direct een nieuwe opname via de RAW-ingang.",
                     accent = blue,
                 ) {
                     startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraafCameraActivity::class.java))
@@ -87,8 +87,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(horizontal().apply {
             addView(
                 outputCard(
-                    title = "JPG",
-                    subtitle = "Universeel",
+                    titleText = "JPG",
+                    subtitleText = "Universeel",
                     detail = "Finalized sRGB preview",
                     accent = blue,
                     selected = selected == OUTPUT_JPG,
@@ -98,8 +98,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
             addView(
                 outputCard(
-                    title = "JPG XL",
-                    subtitle = "Hoge kwaliteit",
+                    titleText = "JPG XL",
+                    subtitleText = "Hoge kwaliteit",
                     detail = "Nog niet toegelaten",
                     accent = purple,
                     selected = false,
@@ -112,8 +112,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(horizontal().apply {
             addView(
                 outputCard(
-                    title = "TRUTHRAW PURE",
-                    subtitle = "Wetenschappelijk",
+                    titleText = "TRUTHRAW PURE",
+                    subtitleText = "Wetenschappelijk",
                     detail = "32-bit Float DNG · self-binding",
                     accent = cyan,
                     selected = selected == OUTPUT_PURE,
@@ -123,8 +123,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
             addView(
                 outputCard(
-                    title = "TRUTHRAW ADVANCED",
-                    subtitle = "Volledige controle",
+                    titleText = "TRUTHRAW ADVANCED",
+                    subtitleText = "Volledige controle",
                     detail = "Research · nog niet productief",
                     accent = amber,
                     selected = false,
