@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-63-crc-ui-branding`
+`integration/truthraw-suite-v0-64-advanced-derivative`
 
 Current app version:
 
-`0.28-v0.63-crc-ui-branding`
+`0.29-v0.64-advanced-derivative`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -91,6 +91,18 @@ After that correction, the launcher is rebuilt around two primary inputs — Ope
 Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md`.
 
 v0.63 CI run `35469414682` is green on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+
+## 2D. v0.64 — TRUTHRAW ADVANCED derivative
+
+v0.64 leaves the validated v0.63 PURE writer and pixel mathematics untouched. TRUTHRAW ADVANCED is now a real selectable downstream route with four bounded controls: Natural Light Balance, Natural HDR, Detail/Structure and Evidence-bound Restoration.
+
+Light Balance is appearance-only and does not claim physical relighting. Natural HDR consumes the existing single-frame scene-aware gain state and cannot create measured dynamic range. Detail uses the existing support-limited appearance backend. Restoration targets only bounded preview locations whose underlying measured CFA sample is actually at/above source WhiteLevel; it requires at least three non-censored neighbours and leaves the underlying scientific authority CENSORED.
+
+The current Advanced export is deliberately bounded to the existing preview/JPEG surface (384 px maximum edge). Full-resolution Advanced transport/export remains open. Full-resolution PURE Float32 DNG stays unchanged.
+
+Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.
+
+v0.64 CI run `35471926706` is green on GCC, Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
