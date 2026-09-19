@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-60-pure-float32-dng",
+  "activeBranch": "integration/truthraw-suite-v0-61-pure-self-binding-dng",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -196,6 +196,50 @@
         "artifactArchiveSha256": "fbf4973bc49714dadf821e4421141bd11a8e60022cd495e5ec3821b39547e443"
       },
       "realDeviceValidation": "PENDING_V060_ARTIFACT_INSPECTION"
+    },
+    "v061": {
+      "branch": "integration/truthraw-suite-v0-61-pure-self-binding-dng",
+      "appVersion": "0.26-v0.61-pure-self-binding-dng",
+      "role": "SELF_BINDING_TRUTHRAW_PURE_FLOAT32_DNG",
+      "inheritsV060PixelRouteWithoutPixelMathChange": true,
+      "privateContract": "TRUTHRAW_PURE_SELF_BINDING_V0_61",
+      "selfBinding": {
+        "sealedSourceSha256": true,
+        "scientificMasterSha256": true,
+        "zeroLineSha256": true,
+        "zeroLineL0ExactBinary64Bits": true,
+        "zeroLineGaugeModeAndId": true,
+        "sceneScaleSha256": true,
+        "sceneScaleIdAndNormalizationFlags": true,
+        "exactSerializedTechnicalBackplaneBytes": 180,
+        "technicalBackplaneCrc32": true,
+        "precisionPolicyId": true,
+        "runtimeReconstructionBackendId": true,
+        "explicitNoMasterMutation": true,
+        "explicitNoAppearance": true,
+        "explicitNoCounterfactual": true,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1
+      },
+      "writerValidation": {
+        "deserializesBackplaneBeforeOutput": true,
+        "requiresSourceMasterZeroLineSceneScaleIdentityMatch": true,
+        "requiresBackplaneForbiddenFlagsZero": true,
+        "requiresPositiveFiniteL0": true,
+        "requiresGainMapExactlyOnce": true
+      },
+      "historicalCertificateFinding": {
+        "trcert01RecoveredFrom20260914Branch": true,
+        "classification": "LEGACY_VERIFY_ONLY",
+        "reactivatedAsCurrentCertificate": false,
+        "reason": "CURRENT_PTC_DYNAMIC_AUTHORITY_BINDING_REQUIRES_NEW_VERSIONED_SCHEMA"
+      },
+      "precisionProvenance": {
+        "projectPolicy": "EXACT_SOURCE__F64_BRANCH_SENSITIVE_REFERENCE_POLICY__F64_CAL_OPT_COV_REFERENCE_POLICY__CONTROLLED_F32_MASTER_STORAGE__F32_PURE_PROJECTION",
+        "runtimeBackendSerializedSeparately": true,
+        "exportLayerDoesNotFalselyAssertF64Execution": true
+      },
+      "ci": "PENDING"
     }
   },
   "camera5ReferencePrecedence": [
@@ -216,16 +260,17 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_AND_RUN_V060_ON_REAL_DEVICE_WITH_KNOWN_DNG",
-    "VERIFY_SAVED_PURE_ARTIFACT_BITS_PER_SAMPLE_32_AND_SAMPLEFORMAT_IEEE_FLOAT",
-    "VERIFY_MEDIAINFO_OR_EXIFTOOL_REPORTS_DNG_1_4_LINEAR_RAW_AND_32_BIT",
-    "VERIFY_NEGATIVE_AND_OVER_ONE_COMPONENT_COUNTS_ARE_RETAINED",
-    "VERIFY_EXACT_SOURCE_MASTER_BACKPLANE_BINDING_ON_V060_OUTPUT",
+    "RUN_V061_HOST_GCC_CLANG_AND_ANDROID_CI",
+    "BUILD_AND_VERIFY_V061_APK",
+    "RUN_REAL_DEVICE_V061_PURE_EXPORT_AND_INSPECT_SELF_BINDING_DNG_PRIVATE_DATA",
+    "VERIFY_ZERO_LINE_L0_SCENE_SCALE_AND_EXACT_BACKPLANE_BYTES_FROM_SAVED_ARTIFACT",
+    "KEEP_LEGACY_TRCERT01_VERIFY_ONLY_AND_DESIGN_ANY_CURRENT_PTC_DYNAMIC_AUTHORITY_BINDING_AS_NEW_VERSION",
     "CONTINUE_NIKON_NOISE_UNCERTAINTY_AND_COLOR_ADMISSION_WITHOUT_WEAKENING_PURE_ROUTE"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md",
     "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
     "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md",
     "docs/UNIFIED_FILE_CAMERA_INGRESS_CONVERGENCE_V056_2026-09-19.md",
