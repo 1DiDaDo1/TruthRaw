@@ -25,7 +25,7 @@ LibRaw:
 LibRaw CMake support scripts:
 
 - repository: `LibRaw/LibRaw-cmake`;
-- pinned commit: `116924e5bcb9483ef9c5fbe7f3cfc5a8a4b97064`.
+- pinned commit: `eb98e4325aef2ce85d2eb031c2ff18640ca616d3`.
 
 The CMake support repository is community-maintained/unmaintained by the LibRaw authors. It is used only as a build probe here.
 
