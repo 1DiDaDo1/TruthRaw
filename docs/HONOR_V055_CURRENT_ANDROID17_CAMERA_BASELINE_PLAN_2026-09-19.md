@@ -127,7 +127,7 @@ A changed HONOR Camera version or Android fingerprint is not itself evidence tha
 
 An active replay is justified only after the passive delta is known.
 
-## Next gate
+## Implementation status\n\nThe v0.55 baseline Activity, manifest entry, launcher entry, version bump and CI guard are implemented on this branch. CI must pass before the APK is treated as the runnable baseline.\n\n## Next gate
 
 After the user exports `TRUTHRAW_ANDROID17_HONOR_CAMERA_BASELINE_v055.json`:
 
