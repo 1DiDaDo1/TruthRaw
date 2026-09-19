@@ -45,7 +45,7 @@ jobs:
           file build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
           sha256sum build/libraw-android-arm64/libtruthraw_libraw_android_probe.so
           grep -F 'b93f6e45c194f5df9b02a43b1af9a54b4f41f33f' tools/libraw_android_probe/CMakeLists.txt
-          grep -F '116924e5bcb9483ef9c5fbe7f3cfc5a8a4b97064' tools/libraw_android_probe/CMakeLists.txt
+          grep -F 'eb98e4325aef2ce85d2eb031c2ff18640ca616d3' tools/libraw_android_probe/CMakeLists.txt
 
       - uses: actions/upload-artifact@v4
         with:
