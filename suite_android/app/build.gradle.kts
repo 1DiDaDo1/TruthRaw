@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 19
-        versionName = "0.19-v0.54-oem-pro-raw-dng-fingerprint"
+        versionCode = 21
+        versionName = "0.21-v0.56-multivendor-raw-ingress"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }

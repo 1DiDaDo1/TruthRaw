@@ -19,7 +19,7 @@ private const val EMPIRICAL_MAGIC = 0x54524531
 private const val EMPIRICAL_PACKET_INTS = 32
 private const val RUNTIME_SAMPLE_INTERVAL_MS = 50L
 private const val VALIDATED_SCIENTIFIC_ROUTE_SHA = "a84186969b9c767c6e291d9697490e63867b7b82"
-private const val EMPIRICAL_SCHEMA = "TRUTHRAW_ANDROID_HONOR_EMPIRICAL_V0_1"
+private const val EMPIRICAL_SCHEMA = "TRUTHRAW_RAW_INGRESS_EMPIRICAL_V0_2"
 
 object NativeEmpiricalBridge {
     init {
@@ -415,6 +415,13 @@ object EmpiricalReportEncoder {
             .put("source", JSONObject()
                 .put("display_name", job.source.displayName)
                 .put("declared_size_bytes", job.source.declaredSizeBytes ?: JSONObject.NULL)
+                .put("mime_type", job.source.mimeType ?: JSONObject.NULL)
+                .put("ingress_route", job.source.sourceRoute.name)
+                .put("format_id", job.source.format.id)
+                .put("format_label", job.source.format.displayLabel)
+                .put("vendor_label", job.source.format.vendorLabel)
+                .put("decoder_backend", job.source.format.decoderBackend.name)
+                .put("native_processing_ready", job.source.format.nativeProcessingReady)
                 .put("stable_across_empirical_wrapper", audit.sourceStableAcrossHarness ?: JSONObject.NULL)
                 .put("color_probe_stable_across_empirical_wrapper", audit.colorProbeStableAcrossHarness ?: JSONObject.NULL)
                 .put("pre_probe", probeJson(audit.preProbe))

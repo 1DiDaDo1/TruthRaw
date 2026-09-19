@@ -1,0 +1,80 @@
+{
+  "schema": "TruthRawMultiVendorRawIngress/0.56",
+  "date": "2026-09-19",
+  "status": "INTEGRATION_DNG_NATIVE_PROPRIETARY_ADAPTERS_PENDING",
+  "branch": "integration/truthraw-suite-v0-56-multivendor-raw-ingress",
+  "appVersionName": "0.21-v0.56-multivendor-raw-ingress",
+  "frontDoors": [
+    {
+      "order": 1,
+      "id": "RAW_FILE",
+      "role": "PRIMARY",
+      "description": "User-selected smartphone/professional-camera RAW file"
+    },
+    {
+      "order": 2,
+      "id": "CAMERA_CAPTURE",
+      "role": "SECONDARY",
+      "description": "Camera acquisition producing a RAW/DNG source artifact"
+    }
+  ],
+  "convergencePoint": "SEALED_SOURCE_ADMISSION",
+  "currentNativeFormats": [
+    {
+      "id": "DNG",
+      "backend": "TILE_NATIVE_DNG_V0_1",
+      "strictFailClosed": true,
+      "universalCompatibilityClaim": false
+    }
+  ],
+  "recognizedDecoderPending": [
+    "CR3",
+    "CR2",
+    "NEF",
+    "NRW",
+    "ARW",
+    "RAF",
+    "RW2",
+    "ORF",
+    "PEF",
+    "RWL",
+    "3FR",
+    "FFF",
+    "IIQ",
+    "X3F",
+    "SRW",
+    "ERF",
+    "DCR",
+    "KDC",
+    "MRW",
+    "MEF",
+    "RAW"
+  ],
+  "cameraHandoff": {
+    "acquisitionActivity": "FotoGraafCameraActivity",
+    "outputArtifact": "DNG",
+    "sourceHashRecorded": true,
+    "timestampIdentityRequired": true,
+    "commonIngressExtra": "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH",
+    "sourceRoute": "CAMERA_CAPTURE",
+    "automaticHandoffAfterSuccessfulDng": true
+  },
+  "developedImageBoundary": {
+    "jpegHeifMayBeOriginalRaw": false,
+    "derivedNegativeClass": "DEVELOPED_IMAGE_DERIVED_RECONSTRUCTION",
+    "directCfaPromotionAllowed": false
+  },
+  "preservedScientificLaws": [
+    "SOURCE_IMMUTABLE",
+    "MEASURED_RECONSTRUCTED_UNKNOWN_SEPARATED",
+    "ONE_PHYSICAL_EXPOSURE_DOES_NOT_BECOME_MULTIFRAME",
+    "SCIENTIFIC_MASTER_SEMANTICS_VENDOR_INVARIANT",
+    "DYNAMIC_AUTHORITY_VENDOR_INVARIANT",
+    "TRUTHNEGATIVE_PURE_OPENWORLD_DO_NOT_FEED_BACK_AS_EVIDENCE"
+  ],
+  "next": [
+    "BUILD_AND_CI_V056",
+    "DEFINE_VERSIONED_RAW_SOURCE_ADAPTER_ABI",
+    "VALIDATE_ONE_PROPRIETARY_VENDOR_DECODER_AT_A_TIME"
+  ]
+}

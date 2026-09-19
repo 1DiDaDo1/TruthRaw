@@ -21,6 +21,7 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.Space
 import android.widget.TextView
+import java.io.File
 import java.io.IOException
 
 class MainActivity : Activity() {
@@ -77,7 +78,29 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
+
+        if (savedInstanceState == null) {
+            val internalCameraPath = intent.getStringExtra(EXTRA_INTERNAL_CAMERA_SOURCE_PATH)
+            if (!internalCameraPath.isNullOrBlank()) {
+                val cameraJob = runCatching {
+                    RawIngress.readInternalCameraFile(File(internalCameraPath))
+                }.getOrNull()
+                if (cameraJob != null) {
+                    session = session.withJobs(listOf(cameraJob))
+                    activeJobId = cameraJob.id
+                    previewState = TilePreviewUiState.Idle
+                }
+            }
+        }
+
         render()
+
+        if (savedInstanceState == null &&
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
+            session.jobs.isEmpty()
+        ) {
+            window.decorView.post { launchRawPicker() }
+        }
     }
 
     override fun onDestroy() {
@@ -143,7 +166,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_honor_empirical_v0_1.json")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_raw_ingress_empirical_v0_2.json")
         }
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
@@ -288,6 +311,16 @@ class MainActivity : Activity() {
     }
 
     private fun requestPreview(job: RawJob) {
+        if (!job.source.format.nativeProcessingReady) {
+            previewState = TilePreviewUiState.Failed(
+                job.id,
+                "Bestand is veilig als bronhandle opgenomen (${job.source.format.displayLabel}), " +
+                    "maar de decoder-adapter is in v0.56 nog niet gekoppeld. " +
+                    "De bronbytes blijven onaangeraakt; Scientific Master wordt niet aangemaakt.",
+            )
+            render()
+            return
+        }
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
         jpegStatus = null
@@ -392,10 +425,12 @@ class MainActivity : Activity() {
         val active = session.jobs.firstOrNull { it.id == activeJobId } ?: session.jobs.firstOrNull()
         if (active == null) {
             gravity = Gravity.CENTER
-            addView(label("Selecteer één of meerdere RAW-bestanden", 20f, bold = true).apply { gravity = Gravity.CENTER })
+            addView(label("Selecteer RAW-bestanden van smartphone of camera", 20f, bold = true).apply { gravity = Gravity.CENTER })
             addView(space(10))
             addView(label(
-                "De ingang bewaart alleen documenthandles en metadata. RAW-sensorwaarden worden pas tile-voor-tile opgevraagd.",
+                "DNG wordt nu native verwerkt. Canon/Nikon/Sony/Fujifilm/Panasonic/OM/Pentax/Leica/Hasselblad/Phase One e.a. " +
+                    "mogen al als bronhandle binnenkomen en blijven fail-closed totdat hun decoder-adapter is gekoppeld. " +
+                    "RAW-sensorwaarden worden nooit vooraf als volledige buffer gekopieerd.",
                 13f,
                 muted = true,
             ).apply { gravity = Gravity.CENTER })
@@ -403,6 +438,12 @@ class MainActivity : Activity() {
         }
 
         addView(label(active.source.displayName, 16f, bold = true))
+        addView(label(
+            "${active.source.format.vendorLabel} · ${active.source.format.displayLabel} · " +
+                "ingang=${active.source.sourceRoute.name.lowercase()} · decoder=${active.source.format.decoderBackend.name.lowercase()}",
+            11f,
+            muted = true,
+        ))
         addView(label(
             "Finalized Scientific Preview · Scientific Master/TruthRange/Backplane-lineage vereist vóór vrijgave",
             11f,
@@ -412,13 +453,29 @@ class MainActivity : Activity() {
 
         when (val state = previewState) {
             TilePreviewUiState.Idle -> {
-                addView(label(
-                    "RAW is geselecteerd en nog niet verwerkt. Start hieronder bewust de empirical + finalized TruthRaw-route.",
-                    13f,
-                    muted = true,
-                ))
-                addView(space(8))
-                addView(actionButton("Start TruthRaw") { requestPreview(active) })
+                if (active.source.format.nativeProcessingReady) {
+                    addView(label(
+                        "RAW is geselecteerd en nog niet verwerkt. Start hieronder bewust de empirical + finalized TruthRaw-route.",
+                        13f,
+                        muted = true,
+                    ))
+                    addView(space(8))
+                    addView(actionButton("Start TruthRaw") { requestPreview(active) })
+                } else {
+                    addView(label(
+                        "Bron geaccepteerd als immutable documenthandle. Voor ${active.source.format.displayLabel} " +
+                            "is de decode-adapter nog niet gekoppeld; verwerken blijft fail-closed.",
+                        13f,
+                        muted = true,
+                    ))
+                    addView(space(6))
+                    addView(label(
+                        "DNG is in v0.56 de eerste native multi-vendor route. Proprietary RAW volgt adapter-voor-adapter " +
+                            "zonder de bron/provenance-regels te versoepelen.",
+                        11f,
+                        muted = true,
+                    ))
+                }
             }
             is TilePreviewUiState.Loading -> {
                 addView(horizontal().apply {
@@ -507,7 +564,7 @@ class MainActivity : Activity() {
 
         empiricalAudit?.let { audit ->
             addView(space(8))
-            addView(label("Honor/MotionCam empirical v0.1", 13f, bold = true))
+            addView(label("RAW ingress empirical v0.1", 13f, bold = true))
             val probe = audit.preProbe
             val shaShort = probe.sourceSha256?.let { if (it.length > 16) "${it.take(16)}…" else it } ?: "onbekend"
             addView(label(
@@ -600,8 +657,12 @@ class MainActivity : Activity() {
         background = rounded(palette.surfaceAlt, 12f)
         addView(label("${if (job.id == activeJobId) "▶ " else ""}${index + 1}. ${job.source.displayName}", 13f, bold = true))
         val size = job.source.declaredSizeBytes?.let { " · ${formatBytes(it)}" } ?: ""
-        addView(label("${job.state.name.lowercase()}$size", 11f, muted = true))
-        addView(label("lineage: afzonderlijk totdat expliciete fusion-validatie bestaat", 10f, muted = true))
+        addView(label("${job.state.name.lowercase()}$size · ${job.source.format.vendorLabel} · ${job.source.format.displayLabel}", 11f, muted = true))
+        addView(label(
+            "decoder=${job.source.format.decoderBackend.name.lowercase()} · lineage: afzonderlijk totdat expliciete fusion-validatie bestaat",
+            10f,
+            muted = true,
+        ))
         setOnClickListener { selectJob(job) }
     }.also {
         it.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
@@ -685,6 +746,9 @@ class MainActivity : Activity() {
     private fun dp(value: Float): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
     companion object {
+        const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
+        const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
+
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103

@@ -4,16 +4,25 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import java.io.File
 import java.util.UUID
 
 /**
  * Ingress holds only document handles and lightweight metadata.
  * It deliberately never reads RAW payload bytes into an in-memory payload buffer.
  */
+enum class SourceIngressRoute {
+    IMPORTED_FILE,
+    CAMERA_CAPTURE,
+}
+
 data class RawHandle(
     val uri: Uri,
     val displayName: String,
     val declaredSizeBytes: Long?,
+    val mimeType: String? = null,
+    val format: RawFormatProfile = RawFormatRegistry.classify(displayName, mimeType),
+    val sourceRoute: SourceIngressRoute = SourceIngressRoute.IMPORTED_FILE,
 )
 
 enum class JobState {
@@ -55,6 +64,25 @@ data class BatchSession(
 }
 
 object RawIngress {
+    fun readInternalCameraFile(file: File): RawJob {
+        require(file.isFile && file.canRead()) { "Camera source file is not readable." }
+        val mimeType = when (file.extension.lowercase()) {
+            "dng" -> "image/x-adobe-dng"
+            else -> "application/octet-stream"
+        }
+        val format = RawFormatRegistry.classify(file.name, mimeType)
+        return RawJob(
+            source = RawHandle(
+                uri = Uri.fromFile(file),
+                displayName = file.name,
+                declaredSizeBytes = file.length(),
+                mimeType = mimeType,
+                format = format,
+                sourceRoute = SourceIngressRoute.CAMERA_CAPTURE,
+            ),
+        )
+    }
+
     fun readHandlesOnly(
         resolver: ContentResolver,
         uris: List<Uri>,
@@ -67,6 +95,7 @@ object RawIngress {
     private fun queryMetadata(resolver: ContentResolver, uri: Uri): RawHandle {
         var name = uri.lastPathSegment ?: "RAW"
         var size: Long? = null
+        val mimeType = resolver.getType(uri)
         resolver.query(
             uri,
             arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
@@ -81,7 +110,14 @@ object RawIngress {
                 if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) size = cursor.getLong(sizeIndex)
             }
         }
-        return RawHandle(uri = uri, displayName = name, declaredSizeBytes = size)
+        return RawHandle(
+            uri = uri,
+            displayName = name,
+            declaredSizeBytes = size,
+            mimeType = mimeType,
+            format = RawFormatRegistry.classify(name, mimeType),
+            sourceRoute = SourceIngressRoute.IMPORTED_FILE,
+        )
     }
 
     private fun persistReadPermissionIfAvailable(

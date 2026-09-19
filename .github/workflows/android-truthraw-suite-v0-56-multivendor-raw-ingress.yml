@@ -1,0 +1,95 @@
+name: TruthRaw v0.56 Multi-Vendor RAW Ingress
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-56-multivendor-raw-ingress
+    paths:
+      - 'suite_android/**'
+      - 'docs/TRUTHRAW_V056_MULTIVENDOR_RAW_INGRESS_PLAN_2026-09-19.md'
+      - 'docs/UNIFIED_FILE_CAMERA_INGRESS_CONVERGENCE_V056_2026-09-19.md'
+      - 'state/TRUTHRAW_V056_MULTIVENDOR_RAW_INGRESS_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-56-multivendor-raw-ingress.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v056:
+    name: Build unified multi-vendor RAW ingress
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify ingress authority invariants
+        run: |
+          REG='suite_android/app/src/main/java/com/truthraw/adaptiveui/RawFormatRegistry.kt'
+          INGRESS='suite_android/app/src/main/java/com/truthraw/adaptiveui/IngressModels.kt'
+          UI='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          CAMERA='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt'
+          LAUNCHER='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+          STATE='state/TRUTHRAW_V056_MULTIVENDOR_RAW_INGRESS_2026-09-19.json'
+
+          grep -F 'NATIVE_TRUTHRAW_DNG' "$REG"
+          grep -F 'ACCEPTED_HANDLE_DECODER_PENDING' "$REG"
+          grep -F 'TILE_NATIVE_DNG_V0_1' "$REG"
+          grep -F 'SourceIngressRoute' "$INGRESS"
+          grep -F 'CAMERA_CAPTURE' "$INGRESS"
+          grep -F 'EXTRA_INTERNAL_CAMERA_SOURCE_PATH' "$UI"
+          grep -F 'nativeProcessingReady' "$UI"
+          grep -F 'SEALED_CAMERA_DNG_TO_COMMON_RAW_INGRESS' "$CAMERA"
+          grep -F '1 · RAW-bestand openen' "$LAUNCHER"
+          grep -F '2 · Camera gebruiken' "$LAUNCHER"
+          grep -F '"convergencePoint": "SEALED_SOURCE_ADMISSION"' "$STATE"
+          grep -F '"jpegHeifMayBeOriginalRaw": false' "$STATE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          reg=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/RawFormatRegistry.kt').read_text()
+          ui=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt').read_text()
+          cam=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraafCameraActivity.kt').read_text()
+
+          # Only DNG is marked native-ready in v0.56. Proprietary formats remain pending.
+          assert reg.count('support = RawIngressSupport.NATIVE_TRUTHRAW_DNG') == 1
+          for ext in ['cr3','nef','arw','raf','rw2','orf','pef','iiq']:
+              assert f'"{ext}"' in reg
+          assert 'DECODER_PENDING' in reg
+          assert 'Scientific Master wordt niet aangemaakt' in ui
+          assert 'putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_SOURCE_PATH, dngFile.absolutePath)' in cam
+          print('v0.56 ingress authority invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-56-multivendor-raw-ingress-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
