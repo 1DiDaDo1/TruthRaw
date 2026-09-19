@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.truthraw.adaptiveui"
-    compileSdk = 37
+    compileSdk = 35
     ndkVersion = "27.2.12479018"
 
     compileOptions {
