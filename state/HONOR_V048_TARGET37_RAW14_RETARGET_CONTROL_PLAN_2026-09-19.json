@@ -1,0 +1,29 @@
+{
+  "schema": "truthraw.target37-raw14-retarget-control-plan.v0.48",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "parentResult": {
+    "v047SourceSha256": "d7667c125e425d4f60c2025e2e0580034296d5649cec7ffee898fa12907f8131",
+    "runtimeSdkInt": 37,
+    "raw14RuntimeConstantAvailable": true,
+    "raw14AdvertisedByAnyCheckedCamera": false
+  },
+  "controlledChange": {
+    "measurementImplementation": "Api37Raw14ExtensionOracleActivity unchanged from v0.47",
+    "compileSdkFrom": 35,
+    "compileSdkTo": 37,
+    "targetSdkFrom": 35,
+    "targetSdkTo": 37,
+    "launcherLabelOnlyUiChange": true
+  },
+  "forbidden": [
+    "camera open",
+    "CaptureRequest",
+    "ImageReader",
+    "image buffer access",
+    "Honor Binder invocation",
+    "vendor request write",
+    "CameraExtensionSession creation"
+  ],
+  "decision": "Retarget first; only capture RAW14 if API37-targeted characteristics advertise a concrete RAW14 route."
+}
