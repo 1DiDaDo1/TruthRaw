@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-62-pure-postwrite-verify`
+> Active branch: `integration/truthraw-suite-v0-63-crc-ui-branding`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.62 keeps the v0.61 self-binding Float32 writer unchanged and adds a fail-closed read-after-write gate: the exact saved DNG must prove its PURE role, Zero-Line/L0, scene-scale and exact 180-byte Technical Backplane binding before the app reports success.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.63 keeps the PURE Float32 pixel route unchanged, corrects the Technical Backplane CRC to bytes 0..175, verifies that CRC and lineage from the saved DNG itself, and applies the intended TruthRaw product UI/icon with RAW and camera as clear primary inputs.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.62 CI run `35466767939`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
+> v0.63 is the current integration line. CI/APK identity is recorded in `state/CURRENT_PROJECT_STATE_2026-09-19.json`.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
