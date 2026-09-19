@@ -19,7 +19,7 @@ using truthraw::scientific_preview_binding_v0_1::SourceSeal;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 constexpr jint kMagic = 0x54524e4d; // TRNM = TruthRaw NEF Measurement
-constexpr std::size_t kHeaderInts = 16u;
+constexpr std::size_t kHeaderInts = 26u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 
 jintArray statusPacket(JNIEnv* env, jint status) {
@@ -194,6 +194,17 @@ Java_com_truthraw_adaptiveui_NefMeasurementNativeBridge_buildMeasurementCfaPrevi
     packet[13] = descriptor.exactCfaSamplesAvailable ? 1 : 0;
     packet[14] = descriptor.directSensorAdcClaimAllowed ? 1 : 0;
     packet[15] = descriptor.fullRawFrameMaterialized ? 1 : 0;
+    packet[16] = static_cast<jint>(seal.byteLength & 0xffffffffull);
+    packet[17] = static_cast<jint>((seal.byteLength >> 32u) & 0xffffffffull);
+    for (std::size_t word = 0; word < 8u; ++word) {
+        const std::size_t base = word * 4u;
+        const std::uint32_t packed =
+            static_cast<std::uint32_t>(seal.sha256[base]) |
+            (static_cast<std::uint32_t>(seal.sha256[base + 1u]) << 8u) |
+            (static_cast<std::uint32_t>(seal.sha256[base + 2u]) << 16u) |
+            (static_cast<std::uint32_t>(seal.sha256[base + 3u]) << 24u);
+        packet[18u + word] = static_cast<jint>(packed);
+    }
 
     auto out = env->NewIntArray(static_cast<jsize>(packet.size()));
     if (out == nullptr) return nullptr;
