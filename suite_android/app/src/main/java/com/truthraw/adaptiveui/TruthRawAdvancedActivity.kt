@@ -19,7 +19,7 @@ import android.widget.TextView
 class TruthRawAdvancedActivity : Activity() {
     private val bg = Color.rgb(5, 12, 22)
     private val surface = Color.rgb(10, 22, 37)
-    private val text = Color.rgb(244, 248, 255)
+    private val textColor = Color.rgb(244, 248, 255)
     private val muted = Color.rgb(158, 178, 205)
     private val amber = Color.rgb(236, 176, 82)
 
@@ -55,7 +55,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(TextView(this@TruthRawAdvancedActivity).apply {
                 text = "‹"
                 textSize = 36f
-                setTextColor(text)
+                setTextColor(textColor)
                 gravity = Gravity.CENTER
                 setOnClickListener { finish() }
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
@@ -121,7 +121,7 @@ class TruthRawAdvancedActivity : Activity() {
             text = "Gebruik TRUTHRAW ADVANCED"
             isAllCaps = false
             textSize = 16f
-            setTextColor(text)
+            setTextColor(textColor)
             background = rounded(Color.rgb(49, 39, 22), amber, 18f)
             setOnClickListener {
                 save()
@@ -158,7 +158,7 @@ class TruthRawAdvancedActivity : Activity() {
         addView(CheckBox(this@TruthRawAdvancedActivity).apply {
             text = label
             textSize = 15f
-            setTextColor(text)
+            setTextColor(textColor)
             isChecked = checked
             setOnCheckedChangeListener { _, value -> onChange(value) }
         })
@@ -186,7 +186,7 @@ class TruthRawAdvancedActivity : Activity() {
     private fun title(value: String, size: Float) = TextView(this).apply {
         text = value
         textSize = size
-        setTextColor(text)
+        setTextColor(textColor)
         setTypeface(typeface, Typeface.BOLD)
     }
     private fun body(value: String, size: Float) = TextView(this).apply {
