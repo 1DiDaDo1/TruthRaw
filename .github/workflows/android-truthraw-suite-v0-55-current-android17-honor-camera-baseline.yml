@@ -1,0 +1,95 @@
+name: TruthRaw v0.55 Current Android17 HONOR Camera Baseline
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-55-current-android17-honor-camera-baseline
+    paths:
+      - 'suite_android/app/build.gradle.kts'
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/CurrentAndroid17HonorCameraBaselineActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V055_CURRENT_ANDROID17_CAMERA_BASELINE_PLAN_2026-09-19.md'
+      - 'state/HONOR_V055_CURRENT_ANDROID17_CAMERA_BASELINE_PLAN_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-55-current-android17-honor-camera-baseline.yml'
+  pull_request:
+    branches:
+      - integration/truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v055:
+    name: Build v0.55 current Android17 HONOR baseline
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify read-only baseline boundary
+        run: |
+          FILE='suite_android/app/src/main/java/com/truthraw/adaptiveui/CurrentAndroid17HonorCameraBaselineActivity.kt'
+          PLAN='state/HONOR_V055_CURRENT_ANDROID17_CAMERA_BASELINE_PLAN_2026-09-19.json'
+
+          grep -F 'truthraw.android17-honor-camera-baseline.v0.55' "$FILE"
+          grep -F 'ANDROID17_HONOR_CAMERA_PACKAGE_AND_CAMERA2_CHARACTERISTICS_BASELINE_ONLY' "$FILE"
+          grep -F 'cameraOpenedByTruthRaw", false' "$FILE"
+          grep -F 'captureSubmittedByTruthRaw", false' "$FILE"
+          grep -F 'vendorRequestWrittenByTruthRaw", false' "$FILE"
+          grep -F 'honorBinderInvokedByTruthRaw", false' "$FILE"
+          grep -F 'TRUTHRAW_ANDROID17_HONOR_CAMERA_BASELINE_v055.json' "$FILE"
+          grep -F '"readOnly": true' "$PLAN"
+          grep -F '"createsSensorEvidence": false' "$PLAN"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/CurrentAndroid17HonorCameraBaselineActivity.kt').read_text()
+          for forbidden in [
+              'openCamera(',
+              'createCaptureRequest',
+              'ImageReader.newInstance',
+              'DngCreator(',
+              'bindService(',
+              'setPhysicalCameraKey',
+          ]:
+              assert forbidden not in p, forbidden
+          assert 'getCameraCharacteristics' in p
+          assert 'com.hihonor.camera' in p
+          assert 'MessageDigest.getInstance("SHA-256")' in p
+          print('v0.55 read-only baseline invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-55-current-android17-honor-camera-baseline-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
