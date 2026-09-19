@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.50 direct typed Honor vendor-characteristics oracle"
+            text = "Camera-5 research · v0.51 CameraDeviceSetup RAW14 session oracle"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -112,6 +112,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.50 · Direct typed Honor vendor-key read") {
             startActivity(Intent(this, DirectTypedVendorCharacteristicsOracleActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.51 · CameraDeviceSetup RAW14 session query") {
+            startActivity(Intent(this, CameraDeviceSetupRaw14SessionOracleActivity::class.java))
         })
         root.addView(space())
 
