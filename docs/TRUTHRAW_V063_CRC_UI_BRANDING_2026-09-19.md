@@ -2,7 +2,7 @@
 
 Date: 2026-09-19
 
-Status: **IMPLEMENTED ON INTEGRATION BRANCH / CI + APK VALIDATION PENDING**
+Status: **IMPLEMENTED / HOST GCC + CLANG + ANDROID CI GREEN / APK VERIFIED**
 
 Active branch:
 
@@ -84,3 +84,20 @@ v0.63 does not change:
 - physicalFrameCount=1;
 - independentEvidenceCount=1;
 - the distinction between measured, reconstructed and appearance data.
+
+## CI and APK validation
+
+v0.63 workflow run `35469414682` passed after the UI receiver-shadowing compile fix:
+
+- host GCC: **SUCCESS**;
+- host Clang: **SUCCESS**;
+- Android arm64: **SUCCESS**;
+- artifact ID: `10592980623`;
+- artifact name: `truthraw-suite-v0-63-crc-ui-branding-debug-arm64`;
+- artifact ZIP SHA-256: `f8d24306b33d2141b4eb3982949637d1aa4ab84585d253a4efed70708d149f2d`;
+- extracted APK bytes: `5874361`;
+- extracted APK SHA-256: `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+
+APK inspection confirms the packaged TruthRaw icon and the native markers `TRUTHRAW_PURE_SELF_BINDING_V0_63`, `technical_backplane_crc_scope=PREFIX_176_BYTES`, `technical_backplane_crc32=` and the exact serialized Backplane field.
+
+The remaining evidence gate is real-device output: export a new v0.63 PURE DNG and independently verify that its declared CRC equals the internal Backplane CRC recomputed over bytes 0..175.
