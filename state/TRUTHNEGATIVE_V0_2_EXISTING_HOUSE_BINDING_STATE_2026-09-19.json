@@ -2,7 +2,7 @@
   "schema": "TruthNegativeExistingHouseBindingState/0.2",
   "date": "2026-09-19",
   "status": "RESEARCH_BRANCH_ALIGNMENT_NOT_MAIN_PROMOTION",
-  "branch": "research/truthnegative-v0-1-scientific-negative-foundation",
+  "branch": "research/truthnegative-v0-2-existing-house-binding",
   "supersedesConceptualPlacementOf": "TruthNegativeResearchState/0.1",
   "doesNotSupersede": {
     "sourceEvidence": true,
@@ -62,5 +62,6 @@
     "interpretation": "RECONSTRUCTED_DENSE_NEGATIVE_ONLY",
     "forbiddenInterpretation": "RECOVERED_15_OF_16_MISSING_PHYSICAL_SENSOR_SAMPLES"
   },
-  "next": "TN2_BIND_REAL_SCIENTIFIC_MASTER_IDENTITY_AND_SOURCE_LINEAGE_THEN_IDENTITY_PROJECTION"
+  "next": "TN2_BIND_REAL_SCIENTIFIC_MASTER_IDENTITY_AND_SOURCE_LINEAGE_THEN_IDENTITY_PROJECTION",
+  "parentTruthNegativeBranch": "research/truthnegative-v0-1-scientific-negative-foundation"
 }
