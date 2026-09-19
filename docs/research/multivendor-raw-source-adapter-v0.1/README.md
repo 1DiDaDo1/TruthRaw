@@ -117,3 +117,80 @@ Host tests must prove:
 6. no full RAW frame is materialized by the adapter.
 
 After this gate is green, the next step is to compile the adapter ABI into the Android app and route DNG through the registry before adding the first real proprietary RAW decoder.
+
+
+## v0.58 first real proprietary sample adapter
+
+Nikon NEF is the first real manufacturer-family adapter wired behind the generic ABI.
+
+Current decoder ID:
+
+`truthraw.nikon-nef-uncompressed16-cfa.v0.1`
+
+The accepted subset is intentionally narrow:
+
+- Nikon-authored TIFF Make containing `NIKON`;
+- little-endian classic TIFF container;
+- one unambiguous candidate CFA IFD;
+- `PhotometricInterpretation = 32803` (CFA);
+- `SamplesPerPixel = 1`;
+- `Compression = 1` only;
+- `BitsPerSample = 16` only;
+- strip storage with bounds validated before sample reads;
+- explicit `CFARepeatPatternDim = 2x2`;
+- supported 2x2 Bayer CFA pattern;
+- exact source sample codes exposed through the common `IRawTileSource`.
+
+Compressed Nikon NEF, packed 12/14-bit variants, unsupported CFA/storage forms and ambiguous RAW IFDs fail closed.
+
+### Admission split
+
+A successful v0.58 NEF decode reports:
+
+- `exactCfaSamplesAvailable = true`;
+- `measurementAdmissionReady = true`;
+- `scientificAdmissionReady = false`;
+- `directSensorAdcClaimAllowed = false`;
+- `fullRawFrameMaterialized = false`.
+
+This split is deliberate.
+
+The strict parser can establish exact sample codes in the accepted container subset, but the subset alone does **not** establish an admitted per-camera:
+
+- black-level model;
+- saturation/white model beyond storage representation;
+- noise model;
+- source-bound camera-to-XYZ color transform;
+- independent physical calibration;
+- untouched ADC provenance.
+
+Therefore v0.58 does not allow the NEF source to enter Scientific Master creation.
+
+### Android measurement-only path
+
+The app exposes a dedicated `Inspecteer NEF CFA-samples` route.
+
+That route:
+
+1. seals the exact source bytes with SHA-256;
+2. opens the Nikon adapter through the generic registry;
+3. requests source samples tile/row-wise;
+4. re-verifies the source seal after reading;
+5. produces a grayscale **visibility proxy** using the 16-bit storage ceiling;
+6. explicitly reports `MEASUREMENT_ONLY`;
+7. keeps Scientific Master, color processing, black subtraction and demosaic disabled.
+
+The visibility proxy is not a photograph and is not evidence beyond the exact decoded sample codes. It exists to make the first proprietary RAW ingress observable while preserving the authority boundary.
+
+## Next Nikon work
+
+Promotion from measurement-only to scientific admission requires separate validated modules for:
+
+`NEF sample decode`
+→ `black/saturation admission`
+→ `noise/uncertainty admission`
+→ `camera/lens/color binding`
+→ `held-out validation`
+→ `Scientific Master eligibility`.
+
+No one of those stages may be inferred merely from a successful container decode.
