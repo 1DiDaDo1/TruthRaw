@@ -334,6 +334,7 @@ class MainActivity : Activity() {
         val first = session.jobs.firstOrNull()
         jpegStatus = null
         linearDngStatus = null
+        pureDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         if (first == null) {
@@ -358,6 +359,7 @@ class MainActivity : Activity() {
         empiricalAudit = null
         pendingJpegJobId = null
         pendingLinearDngJobId = null
+        pendingPureDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         render()
