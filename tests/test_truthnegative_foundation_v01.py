@@ -2,11 +2,13 @@ import copy
 import importlib.util
 from pathlib import Path
 import unittest
+import sys
 
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "tools" / "truthnegative_foundation_v01.py"
 SPEC = importlib.util.spec_from_file_location("truthnegative_foundation_v01", MODULE_PATH)
 tn = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = tn
 assert SPEC.loader is not None
 SPEC.loader.exec_module(tn)
 
