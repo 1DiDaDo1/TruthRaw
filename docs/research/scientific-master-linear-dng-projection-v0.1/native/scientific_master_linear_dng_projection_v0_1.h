@@ -6,6 +6,9 @@
 #include <string>
 #include <utility>
 
+#include "technical_backplane_v0_1.h"
+#include "truthrange_latent_v0_2.h"
+
 namespace truthraw::scientific_master_linear_dng_projection::v0_1 {
 
 using Hash256 = std::array<std::uint8_t, 32>;
@@ -44,8 +47,15 @@ struct ProjectionDescriptor final {
     std::uint16_t orientation = 1u;
     Hash256 sealedSourceSha256{};
     Hash256 scientificMasterSha256{};
+    Hash256 zeroLineSha256{};
+    Hash256 sceneScaleSha256{};
+    TruthRangeGaugeV02 zeroLineGauge{};
+    LatentSceneBindingV02 sceneBinding{};
+    technical_backplane::v0_1::SerializedBackplane serializedBackplane{};
     std::string sourceEvidenceId;
     std::string colorBindingId;
+    std::string precisionPolicyId;
+    std::string runtimeReconstructionBackendId;
 };
 
 // Supplies camera-native, scene-linear reconstructed RGB from the Scientific
