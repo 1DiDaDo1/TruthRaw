@@ -163,11 +163,22 @@ Purpose: bind TruthNegative to the existing Scientific Master rather than duplic
 
 ## 8. Revised implementation ladder
 
-### TN-1 — real source + master binding
+### TN-1 — real source + master binding — IMPLEMENTED / CI PASS
 
-Bind a real sealed RAW/CFA identity to its exact existing Scientific Master identity and Dynamic Authority identity.
+The already frozen 4080x3072 lineage is now bound without changing pixels or authority:
 
-First reference candidate is the already frozen 4080x3072 source/master lineage because its source and Scientific Master hashes already exist.
+- source SHA-256: `7930ba5d...159b67`;
+- decoded CFA SHA-256: `883cbe13...d719c`;
+- Scientific Master SHA-256: `a86034da...4640`;
+- Dynamic Authority SHA-256: `7678a0b1...8098`.
+
+Files:
+
+- `state/TRUTHNEGATIVE_TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.json`;
+- `docs/research/truthnegative-v0.2/TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.md`;
+- `tools/validate_truthnegative_tn1_binding.py`.
+
+Dedicated CI passes. TN-1 creates no new pixel reconstruction; it proves TruthNegative can attach to the existing float reconstructed house without redefining it.
 
 ### TN-2 — source-resolution scientific-negative identity
 
@@ -232,6 +243,17 @@ TruthNegative may not be used to prove that HONOR had hidden samples upstream.
 
 ## 11. Current next implementation
 
-Proceed with **TN-1 real source + Scientific Master binding**, not with a new upscaler.
+Proceed with **TN-2 source-resolution scientific-negative identity**.
 
-Use the already frozen source/master pair to prove that the existing new house can be wrapped as a scientific negative without changing one scientific bit or one authority claim.
+TN-1 is now closed as an identity/lineage binding.
+
+TN-2 must serialize or expose the existing source-resolution camera-native Scientific Master as a TruthNegative view with:
+
+- zero pixel changes;
+- exact Scientific Master hash binding;
+- exact Dynamic Authority binding;
+- no remosaic requirement;
+- no spatial enlargement;
+- deterministic identity independent of runtime tile size.
+
+Only after TN-2 is exact should dense spatial reconstruction begin.
