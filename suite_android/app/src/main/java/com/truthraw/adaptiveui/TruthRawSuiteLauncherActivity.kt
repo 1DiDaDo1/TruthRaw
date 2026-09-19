@@ -48,13 +48,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.56 · één RAW-huis · multi-vendor file ingress + camera als tweede ingang"
+            text = "v0.57 · één RAW-huis · multi-vendor adapter ABI + camera als tweede ingang"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit."
+            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit. DNG loopt nu via de nieuwe generieke RAW-source adapterlaag; proprietary RAW blijft fail-closed totdat een echte decoderadapter is gevalideerd."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(14))
