@@ -90,6 +90,8 @@ After that correction, the launcher is rebuilt around two primary inputs — Ope
 
 Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md`.
 
+v0.63 CI run `35469414682` is green on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
 ## 3. Recovery work completed before app unification
