@@ -216,5 +216,105 @@
       "dngViewerBlackAreaCreatedDownstream": false,
       "interpretation": "SUCCESSFUL_ACQUISITION_AND_DNG_CONTAINER_BUT_NOT_FULLY_POPULATED_200MP_SCENE_RASTER"
     }
+  },
+  "camera5CurrentReference": {
+    "preferredReplayControl": "v0.53_ANDROID17_V0.14_ROUTE_REPLAY",
+    "historicalOrigin": "v0.14_SOURCE_FIRST_ACQUISITION",
+    "detailedAndroid16PayloadForensics": [
+      "v0.19_FULL_RASTER_WRITE_AUDIT",
+      "v0.20_PAYLOAD_GEOMETRY_DECODER"
+    ],
+    "independentOemContainerCorroboration": "v0.54_HONOR_PRO_TELE_DNG_FINGERPRINT",
+    "v053": {
+      "device": "HONOR_BKQ-N49_ANDROID17_SDK37",
+      "physicalCameraId": "5",
+      "focalLengthMm": 22.48,
+      "deliveredGeometry": [
+        16320,
+        12288
+      ],
+      "rawBytes": 401080320,
+      "rawSha256": "cb6828b65e9b9acafb54455b6e92b671439ae2c57548ede9e7aa8dd401db3cca",
+      "rowStride": 32640,
+      "pixelStride": 2,
+      "globalSensorPixelModeWritten": false,
+      "physicalSensorPixelModeWritten": true,
+      "physicalSensorPixelModeReadback": 1,
+      "returnedPhysicalSensorPixelMode": 0,
+      "returnedModeInterpretation": "ADVISORY_AFTER_SOURCE_FIRST_SEAL",
+      "exactImageSensorTimestampBinding": true,
+      "iso": 406,
+      "exposureTimeNs": 9999993,
+      "noiseReductionMode": 0,
+      "edgeMode": 0,
+      "rawBinningFactorUsed": true,
+      "auxiliaryDng": {
+        "createdSuccessfully": true,
+        "file": "TRUTHRAW_1789804086075_CAM5_200MP_16320x12288_v053.dng",
+        "bytes": 401184064,
+        "sha256": "64786e3ae45a08b54adaf30fb2201b3ce13ac4bd16b79ac077b301973a0728ee"
+      },
+      "rasterAudit": {
+        "nonZeroRows": 768,
+        "zeroRows": 11520,
+        "firstNonZeroRow": 0,
+        "lastNonZeroRow": 767,
+        "nonZeroSamples": 12533760,
+        "populatedPrefixBytes": 25067520,
+        "exactStandardRawCandidate": [
+          4080,
+          3072
+        ],
+        "candidatePrefixSha256": "f70f353dcd2d59aa79edf159669bffb1573704d68233e337439d8c42458789da",
+        "classification": "ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY"
+      },
+      "associatedArtifacts": [
+        "TRUTHRAW_1789804086075_CAM5_200MP_EVIDENCE_v053.json",
+        "TRUTHRAW_1789804175305_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json",
+        "TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_candidate.rawpayload",
+        "TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_preview.png",
+        "TRUTHRAW_1789804086075_CAM5_200MP_16320x12288_v053.dng"
+      ]
+    },
+    "android17TestLadder": [
+      "v0.47_API37_RAW14_EXTENSION_ORACLE",
+      "v0.48_TARGET37_RETARGET_CONTROL",
+      "v0.49_HONOR_CAMERA_PACKAGE_FINGERPRINT",
+      "v0.50_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE",
+      "v0.51_CAMERA_DEVICE_SETUP_RAW14_SESSION_ORACLE",
+      "v0.52_NEGATIVE_CONTROL_KNOWN_BAD_V011_GLOBAL_PIXEL_MODE_POLICY",
+      "v0.53_SUCCESSFUL_ANDROID17_V014_ROUTE_REPLAY",
+      "v0.54_PASSIVE_OEM_PRO_TELE_DNG_FINGERPRINT"
+    ],
+    "v054": {
+      "authority": "PASSIVE_EXPORTED_OEM_DNG_CONTAINER_METADATA_ONLY",
+      "geometry": [
+        4080,
+        3072
+      ],
+      "storageBitsPerSample": 16,
+      "whiteLevel": 1023,
+      "blackLevel": 64,
+      "compression": 1,
+      "cfaPattern": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "stripCount": 3072,
+      "stripBytesEach": 8160,
+      "payloadBytes": 25067520,
+      "focalLengthMm": 22.48,
+      "fNumber": 2.6,
+      "exportedRaw14Evidence": false
+    },
+    "precedence": [
+      "v0.53_CURRENT_ANDROID17_REPLAY_CONTROL",
+      "v0.19_v0.20_DETAILED_ANDROID16_PAYLOAD_FORENSICS",
+      "v0.14_HISTORICAL_FIRST_SOURCE_FIRST_ACQUISITION",
+      "v0.54_INDEPENDENT_OEM_CONTAINER_CORROBORATION"
+    ],
+    "rule": "V0.53_REPLACES_V0.14_ONLY_AS_CURRENT_REPLAY_CONTROL_NOT_AS_HISTORICAL_ORIGIN"
   }
 }
