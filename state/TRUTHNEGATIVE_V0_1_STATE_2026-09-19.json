@@ -1,0 +1,59 @@
+{
+  "schema": "TruthNegativeResearchState/0.1",
+  "date": "2026-09-19",
+  "status": "RESEARCH_BRANCH_FOUNDATION_NOT_MAIN_PROMOTION",
+  "branch": "research/truthnegative-v0-1-scientific-negative-foundation",
+  "parentBranch": "integration/truthraw-suite-v0-54-oem-pro-raw-dng-fingerprint",
+  "purpose": "Develop an authority-aware scientific negative as a reconstruction intermediate while leaving the HONOR acquisition route independent.",
+  "laws": {
+    "sourceEvidenceImmutable": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "truthNegativeCreatesNewEvidence": false,
+    "truthNegativeIsOriginalSensorNegative": false,
+    "projectionGridEqualsPhysicalSensorGeometry": false,
+    "measuredMayBeRelabelledFromReconstruction": false,
+    "appearanceMayWriteBack": false,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1
+  },
+  "architecture": {
+    "flow": [
+      "SOURCE_EVIDENCE",
+      "MEASUREMENT_DE_ISP",
+      "TRUTHNEGATIVE",
+      "SCIENTIFIC_MASTER",
+      "DYNAMIC_AUTHORITY_UNCERTAINTY_SUPPORT",
+      "OPEN_SCENE_STATE",
+      "APPEARANCE_HDR_TRANSPORT"
+    ],
+    "domains": [
+      "SOURCE_EVIDENCE_GRID",
+      "CONTINUOUS_OR_LATENT_RECONSTRUCTION_DOMAIN",
+      "FINITE_PROJECTION_GRID"
+    ],
+    "truthNegativeClass": "RECONSTRUCTED_SCIENTIFIC_INTERMEDIATE",
+    "canonicalPromotion": false
+  },
+  "camera5ResearchTarget": {
+    "sourceWidth": 4080,
+    "sourceHeight": 3072,
+    "sourceSampleCount": 12533760,
+    "projectionWidth": 16320,
+    "projectionHeight": 12288,
+    "projectionSampleCount": 200540160,
+    "linearScaleX": 4,
+    "linearScaleY": 4,
+    "sampleCountRatio": 16,
+    "physicalMappingStatus": "UNRESOLVED",
+    "measuredTargetClaimCount": 0,
+    "interpretation": "Dense target projection is reconstruction capacity only; it is not 200MP physical measurement evidence."
+  },
+  "implementation": {
+    "tool": "tools/truthnegative_foundation_v01.py",
+    "tests": "tests/test_truthnegative_foundation_v01.py",
+    "docs": "docs/research/truthnegative-v0.1/README.md",
+    "workflow": ".github/workflows/truthnegative-foundation-v0-1.yml"
+  },
+  "next": "TN1_EXACT_SOURCE_BINDING_AND_IDENTITY_RECONSTRUCTION"
+}
