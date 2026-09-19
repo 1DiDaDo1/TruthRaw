@@ -1,0 +1,64 @@
+{
+  "schema": "TruthRawProprietaryRawAdapterState/0.58",
+  "date": "2026-09-19",
+  "branch": "integration/truthraw-suite-v0-58-nef-uncompressed-sample-adapter",
+  "appVersionName": "0.23-v0.58-nef-uncompressed-sample-adapter",
+  "format": "NIKON_NEF",
+  "decoderId": "truthraw.nikon-nef-uncompressed16-cfa.v0.1",
+  "acceptedSubset": {
+    "makerMustContain": "NIKON",
+    "tiffEndian": "LITTLE_ENDIAN",
+    "classicTiffOnly": true,
+    "photometricInterpretation": 32803,
+    "samplesPerPixel": 1,
+    "compression": 1,
+    "bitsPerSample": 16,
+    "cfaRepeat": [
+      2,
+      2
+    ],
+    "storage": "STRIPS",
+    "ambiguousRawIfdAllowed": false
+  },
+  "successfulDecodeAuthority": {
+    "exactCfaSamplesAvailable": true,
+    "measurementAdmissionReady": true,
+    "scientificAdmissionReady": false,
+    "directSensorAdcClaimAllowed": false,
+    "fullRawFrameMaterialized": false
+  },
+  "androidMeasurementRoute": {
+    "sourceSha256SealedBeforeDecode": true,
+    "sourceSealReverifiedAfterRead": true,
+    "previewKind": "MEASUREMENT_ONLY_GRAYSCALE_VISIBILITY_PROXY",
+    "blackSubtractionApplied": false,
+    "demosaicApplied": false,
+    "colorCorrectionApplied": false,
+    "scientificMasterCreated": false,
+    "scientificClaimAllowed": false
+  },
+  "unsupportedFailClosed": [
+    "COMPRESSED_NEF",
+    "PACKED_12_BIT",
+    "PACKED_14_BIT",
+    "BIG_ENDIAN_TIFF",
+    "BIGTIFF",
+    "AMBIGUOUS_RAW_IFD",
+    "UNSUPPORTED_CFA",
+    "UNSUPPORTED_STORAGE"
+  ],
+  "scientificAdmissionBlockers": [
+    "VALIDATED_BLACK_LEVEL_MODEL",
+    "VALIDATED_SATURATION_WHITE_MODEL",
+    "NOISE_UNCERTAINTY_MODEL",
+    "SOURCE_BOUND_CAMERA_TO_XYZ_COLOR_BINDING",
+    "CAMERA_LENS_SCOPE_IDENTITY",
+    "HELD_OUT_VALIDATION"
+  ],
+  "permanentRules": [
+    "CONTAINER_DECODE_DOES_NOT_PROVE_UNTOUCHED_ADC",
+    "MEASUREMENT_ADMISSION_IS_NOT_SCIENTIFIC_MASTER_ADMISSION",
+    "RENDERED_PREVIEW_IS_NOT_RAW_EVIDENCE",
+    "SOURCE_BYTES_REMAIN_IMMUTABLE"
+  ]
+}
