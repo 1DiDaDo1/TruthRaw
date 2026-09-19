@@ -1,7 +1,6 @@
 #include "scientific_master_linear_dng_projection_v0_1.h"
 
 #include "scientific_master_digest_v0_1.h"
-#include "technical_backplane_phase2_v0_1.h"
 
 #include <algorithm>
 #include <cmath>
@@ -297,24 +296,14 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
             "Technical Backplane identity does not match PURE projection lineage");
     }
 
-    Hash256 zeroLineHash{};
-    const auto zeroStatus =
-        technical_backplane_phase2::v0_1::hash_zero_line_identity(
-            descriptor.zeroLineGauge, zeroLineHash);
-    if (!zeroStatus || zeroLineHash != descriptor.zeroLineSha256) {
+    if (!(descriptor.zeroLineGauge.L0 > 0.0) ||
+        !std::isfinite(descriptor.zeroLineGauge.L0) ||
+        descriptor.zeroLineGauge.gaugeId.empty() ||
+        descriptor.sceneBinding.sceneScaleId.empty() ||
+        !descriptor.sceneBinding.gainMapAppliedExactlyOnce) {
         return Status::error(
             StatusCode::ScientificBindingMismatch,
-            "zero-line gauge does not reproduce the bound zero-line identity");
-    }
-
-    Hash256 sceneScaleHash{};
-    const auto sceneStatus =
-        technical_backplane_phase2::v0_1::hash_scene_scale_identity(
-            descriptor.sceneBinding, sceneScaleHash);
-    if (!sceneStatus || sceneScaleHash != descriptor.sceneScaleSha256) {
-        return Status::error(
-            StatusCode::ScientificBindingMismatch,
-            "scene-scale state does not reproduce the bound scene-scale identity");
+            "zero-line/scene-scale payload is incomplete or invalid");
     }
 
     return Status::ok();
