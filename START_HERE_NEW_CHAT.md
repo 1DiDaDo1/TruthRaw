@@ -26,7 +26,9 @@ Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
 Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
 
-Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract remains `TRUTHRAW_PURE_SELF_BINDING_V0_61`. v0.62 adds post-write verification and names new outputs `*_truthraw_pure_float32_v0_62.dng`. Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md` before changing this gate. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
+Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract remains `TRUTHRAW_PURE_SELF_BINDING_V0_61`. v0.62 adds post-write verification and names new outputs `*_truthraw_pure_float32_v0_62.dng`. Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md` before changing this gate.
+
+v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
 Do not use the older TruthNegative or 2026-09-16/17 bootstrap below as the first current-state interpretation. Those sections remain retained provenance/background.
 
