@@ -254,6 +254,16 @@ object TilePreviewLoader {
         5007 -> "Finalized release: bounded streaming faalde."
         5008 -> "Finalized release: provenance/resource-invariant werd geweigerd."
         5009 -> "Finalized release: preview-oppervlak bleef onvolledig."
+
+        7001 -> "RAW-adapter: ongeldig argument."
+        7002 -> "RAW-adapter: sealed bronlengte kwam niet overeen."
+        7003 -> "RAW-adapter: decoder-adapter ontbreekt."
+        7004 -> "RAW-adapter: dubbele adapterregistratie."
+        7005 -> "RAW-adapter: ongeldige container."
+        7006 -> "RAW-adapter: containerfeature nog niet ondersteund."
+        7007 -> "RAW-adapter: decode faalde."
+        7008 -> "RAW-adapter: memorybudget overschreden."
+
         else -> "Onbekende native finalized Scientific Preview-status $status."
     }
 }
