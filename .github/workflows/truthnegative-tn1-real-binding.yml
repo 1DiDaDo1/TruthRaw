@@ -1,0 +1,25 @@
+name: TruthNegative TN1 real source master binding
+
+on:
+  push:
+    branches:
+      - research/truthnegative-v0-1-scientific-negative-foundation
+    paths:
+      - 'state/TRUTHNEGATIVE_TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.json'
+      - 'docs/research/truthnegative-v0.2/TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.md'
+      - 'tools/validate_truthnegative_tn1_binding.py'
+      - '.github/workflows/truthnegative-tn1-real-binding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/validate_truthnegative_tn1_binding.py
