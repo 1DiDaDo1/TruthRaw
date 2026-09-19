@@ -1,0 +1,43 @@
+{
+  "schema": "truthraw.android17-v014-route-replay-plan.v0.53",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "correction": {
+    "v052Failure": "Reused v0.11 request policy that could write logical/global SENSOR_PIXEL_MODE",
+    "observedAndroid17Error": "Request settings CONTROL_SENSOR_PIXEL_MODE are not consistent with streams configured",
+    "historicalAndroid16V011Lesson": "Same class of request/stream consistency failure was already observed before the successful v0.14 route",
+    "supersedingRoute": "Android16 v0.14 source-first physical Camera-5 route"
+  },
+  "android16V014Reference": {
+    "openedLogicalCameraId": "0",
+    "physicalCameraId": "5",
+    "width": 16320,
+    "height": 12288,
+    "globalSensorPixelModeWritten": false,
+    "physicalSensorPixelModeWritten": true,
+    "physicalSensorPixelModeReadback": 1,
+    "physicalOverrideAdvertised": false,
+    "returnedPhysicalSensorPixelMode": 0,
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "rawBytes": 401080320,
+    "rawSha256": "af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de"
+  },
+  "v053Policy": {
+    "globalSensorPixelModeWriteForbidden": true,
+    "physicalSensorPixelModeWriteAttemptedRegardlessOfAdvertisement": true,
+    "outputMaximumResolutionModeDeclared": true,
+    "physicalScopedStillRequest": true,
+    "rawSealBeforeReturnedPixelModeInterpretation": true,
+    "returnedPixelModeAdvisoryAfterSeal": true
+  },
+  "postCaptureAndroid16Reference": {
+    "envelopeBytes": 401080320,
+    "populatedPrefixBytes": 25067520,
+    "candidate": [
+      4080,
+      3072
+    ]
+  },
+  "boundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF"
+}
