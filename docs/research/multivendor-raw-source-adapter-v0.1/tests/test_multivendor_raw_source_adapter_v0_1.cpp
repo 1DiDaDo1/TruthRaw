@@ -150,7 +150,7 @@ void testSyntheticNonDngAdapterPopulatesCommonTileAbi() {
 
     assert(descriptor.format == tr::RawFormatFamily::SyntheticConformanceFixture);
     assert(descriptor.decoderId == "truthraw.synthetic-proprietary-conformance.v0.1");
-    assert(descriptor.sourceSealVerifiedAtBoundary);
+    assert(descriptor.sourceSealAcceptedAtBoundary);
     assert(descriptor.exactCfaSamplesAvailable);
     assert(descriptor.scientificColorBindingProvided);
     assert(descriptor.syntheticConformanceOnly);
