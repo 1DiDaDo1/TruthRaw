@@ -85,7 +85,55 @@
   "next": [
     "ANDROID_CI_GREEN",
     "FREEZE_V0_1_ADAPTER_BOUNDARY",
-    "SELECT_FIRST_REAL_PROPRIETARY_FORMAT_FROM_AVAILABLE_FIXTURE",
+    "DESIGN_GENERIC_SAMPLE_TOPOLOGY_EXTENSION_BEYOND_2X2_BAYER",
+    "SELECT_FIRST_REAL_PROPRIETARY_BAYER_FORMAT_FROM_AVAILABLE_FIXTURE",
     "IMPLEMENT_AND_VALIDATE_ONE_REAL_VENDOR_ADAPTER"
-  ]
+  ],
+  "recoveredHistoricalUniversalAdapter": {
+    "preservedFiles": [
+      "docs/history/recovered/TRUTHRAW_UNIVERSAL_RAW_EVIDENCE_ADAPTER_V1_2026-09-04.py",
+      "docs/history/recovered/TRUTHRAW_UNIVERSAL_COMPATIBILITY_MATRIX_V1_2026-09-04.json"
+    ],
+    "recoveredRule": "STORAGE_REPRESENTATION_SAMPLE_TOPOLOGY_PROCESSING_LINEAGE_PHYSICAL_EXPOSURE_RADIOMETRIC_CALIBRATION_COLOR_CALIBRATION_ARE_SEPARATE_AXES",
+    "dngIsDirectSensorByExtension": false,
+    "vendorRawExtensionGrantsPixelSemantics": false,
+    "metadataClassificationSeparatedFromPixelDecode": true
+  },
+  "adapterDescriptorAxes": {
+    "storageRepresentation": [
+      "UNKNOWN",
+      "CFA_MOSAIC",
+      "PACKED_CFA",
+      "LINEAR_RAW",
+      "MULTICHANNEL_LINEAR",
+      "OPAQUE_VENDOR_RAW",
+      "SYNTHETIC_CFA"
+    ],
+    "sampleTopology": [
+      "UNKNOWN",
+      "BAYER_2X2",
+      "PERIODIC_CFA",
+      "LINEAR_RGB",
+      "MONO"
+    ],
+    "processingLineage": [
+      "UNKNOWN",
+      "DIRECT_CFA_STORAGE_UNCERTIFIED",
+      "DIRECT_SENSOR_SINGLE_EXPOSURE_CERTIFIED",
+      "DIRECT_SENSOR_MULTI_FRAME_CERTIFIED",
+      "REMOSAICED_SENSOR_CFA",
+      "COMPUTATIONAL_CFA_OR_MERGED_RAW",
+      "LINEAR_SCENE_RAW_UNCERTIFIED",
+      "COMPUTATIONAL_LINEAR_RAW",
+      "VIRTUAL_RECONSTRUCTED_RAW",
+      "SYNTHETIC_CONFORMANCE_ONLY"
+    ]
+  },
+  "currentTopologyBoundary": {
+    "existingDownstreamMetadata": "DngMetadata::CfaPattern_2x2_Bayer",
+    "nativeScienceReadyTopology": "BAYER_2X2",
+    "periodicCfaNativeProcessingReady": false,
+    "linearRawNoDemosaicRouteReady": false,
+    "rule": "CONTAINER_DECODE_ALONE_CANNOT_BYPASS_TOPOLOGY_COMPATIBILITY_GATE"
+  }
 }
