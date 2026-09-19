@@ -74,6 +74,8 @@ Read:
 
 `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md`
 
+v0.61 CI run `35464897909` is green on host GCC, host Clang and Android. Artifact ID `10590768017`; extracted APK SHA-256 `38f118dbb068e846d0004da6d6c2091073a7fd73edaa31753e518a6723021137`.
+
 ## 3. Recovery work completed before app unification
 
 The full genealogy recovery is preserved on:
