@@ -5,17 +5,22 @@
 If the checked-out branch is `research/truthnegative-v0-1-scientific-negative-foundation`, read this overlay before the older bootstrap below:
 
 1. `docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
-2. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
-3. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
-4. `docs/research/truthnegative-v0.1/README.md`
-5. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
-6. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
+2. `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
+3. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+4. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+5. `docs/research/truthnegative-v0.2/README.md`
+6. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
+7. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
 
-Branch-specific proposed flow:
+Corrected branch model:
 
-`Source Evidence -> Measurement/de-ISP -> TruthNegative -> Scientific Master -> Dynamic Authority/Open Scene -> Appearance/Export`
+`any admitted RAW -> native ingress OR Gatehouse handoff -> Source Evidence -> Measurement/de-ISP -> Latent Camera Scene -> Scientific Master -> Dynamic Authority/Open Scene`
 
-This is a research insertion only, not canonical/main promotion. The HONOR OEM/HAL/RAW14 route remains an independent parallel research line.
+TruthNegative binds to that existing reconstructed state:
+
+`Scientific Master + lineage + authority -> TruthNegative Core -> optional reconstructed sensor-negative projection`
+
+This is research only, not canonical/main promotion. The HONOR OEM/HAL/RAW14 route remains an independent parallel research line.
 
 This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.20 payload-geometry result on 2026-09-17.
 
