@@ -125,11 +125,18 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Research · nog niet productief",
+                    detail = "Natural HDR · Light · Detail · Restoration",
                     accent = amber,
-                    selected = false,
-                    enabled = false,
-                ) {},
+                    selected = selected == OUTPUT_ADVANCED,
+                    enabled = true,
+                ) {
+                    startActivity(
+                        Intent(
+                            this@TruthRawSuiteLauncherActivity,
+                            TruthRawAdvancedActivity::class.java,
+                        ),
+                    )
+                },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
             )
         })
@@ -137,7 +144,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.63 · corrected Backplane CRC + inhoudelijke post-write verify", 11f).apply {
+        root.addView(body("v0.64 · Advanced derivative · PURE blijft onveranderd", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -236,7 +243,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 gravity = Gravity.CENTER
                 setTextColor(if (selected) accent else textMuted)
             }, LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(8) })
-            addView(title(titleText, 16f), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(
+                title(titleText, if (titleText.length > 15) 13.5f else 16f),
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+            )
         })
         addView(space(5))
         addView(body(subtitleText, 12.5f))
@@ -296,5 +306,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
         const val KEY_OUTPUT = "preferred_output"
         const val OUTPUT_PURE = "PURE"
         const val OUTPUT_JPG = "JPG"
+        const val OUTPUT_ADVANCED = "ADVANCED"
     }
 }
