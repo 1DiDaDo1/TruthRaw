@@ -239,7 +239,19 @@
         "runtimeBackendSerializedSeparately": true,
         "exportLayerDoesNotFalselyAssertF64Execution": true
       },
-      "ci": "PENDING"
+      "ci": {
+        "run": 35464897909,
+        "headSha": "7dd8f1d75ee3b4bb95732c4af802313a1afb4448",
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10590768017,
+        "artifactName": "truthraw-suite-v0-61-pure-self-binding-dng-debug-arm64",
+        "artifactArchiveSha256": "e829ef662440e10652880688f4d6f3e06a10c742af77dffc3c4b045975f48fa4",
+        "extractedApkBytes": 5850141,
+        "extractedApkSha256": "38f118dbb068e846d0004da6d6c2091073a7fd73edaa31753e518a6723021137"
+      },
+      "realDeviceValidation": "PENDING_V061_SELF_BINDING_ARTIFACT_INSPECTION"
     }
   },
   "camera5ReferencePrecedence": [
@@ -260,10 +272,9 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "RUN_V061_HOST_GCC_CLANG_AND_ANDROID_CI",
-    "BUILD_AND_VERIFY_V061_APK",
-    "RUN_REAL_DEVICE_V061_PURE_EXPORT_AND_INSPECT_SELF_BINDING_DNG_PRIVATE_DATA",
-    "VERIFY_ZERO_LINE_L0_SCENE_SCALE_AND_EXACT_BACKPLANE_BYTES_FROM_SAVED_ARTIFACT",
+    "INSTALL_AND_RUN_V061_ON_REAL_DEVICE_WITH_KNOWN_DNG",
+    "VERIFY_SAVED_DNG_PRIVATE_DATA_CONTAINS_V061_ZERO_LINE_L0_SCENE_SCALE_AND_EXACT_180_BYTE_BACKPLANE",
+    "VERIFY_SAVED_DNG_STILL_PRESERVES_32_BIT_IEEE_FLOAT_NEGATIVE_AND_OVER_ONE_COMPONENTS",
     "KEEP_LEGACY_TRCERT01_VERIFY_ONLY_AND_DESIGN_ANY_CURRENT_PTC_DYNAMIC_AUTHORITY_BINDING_AS_NEW_VERSION",
     "CONTINUE_NIKON_NOISE_UNCERTAINTY_AND_COLOR_ADMISSION_WITHOUT_WEAKENING_PURE_ROUTE"
   ],
