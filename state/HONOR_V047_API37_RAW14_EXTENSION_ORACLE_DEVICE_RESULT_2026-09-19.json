@@ -1,0 +1,76 @@
+{
+  "schema": "truthraw.api37-raw14-extension-oracle-device-result.v1",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_AND_EXTENSION_CHARACTERISTICS_OBSERVATION_ONLY",
+  "source": {
+    "name": "TRUTHRAW_API37_RAW14_EXTENSION_ORACLE_v047.json",
+    "bytes": 19640,
+    "sha256": "d7667c125e425d4f60c2025e2e0580034296d5649cec7ffee898fa12907f8131"
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawCompileSdk": 35,
+    "truthRawTargetSdk": 35
+  },
+  "honorCameraPackage": {
+    "installed": true,
+    "versionName": "171.0.10.706",
+    "longVersionCode": 1710010706,
+    "targetSdkVersion": 37,
+    "minSdkVersion": 36,
+    "compileSdkVersion": 36,
+    "systemApp": true,
+    "updatedSystemApp": false
+  },
+  "raw14Runtime": {
+    "constantAvailable": true,
+    "formatValue": 44
+  },
+  "camera5": {
+    "focalLengthMm": 22.479999542236328,
+    "aperture": 2.5999999046325684,
+    "sensorPixelModeRequestKeyPresent": true,
+    "default": {
+      "RAW_SENSOR": [[4080,3072]],
+      "RAW10": [[4080,3072]],
+      "RAW12": [],
+      "RAW14": []
+    },
+    "maximumResolution": {
+      "RAW_SENSOR": [[8160,6144]],
+      "RAW_SENSOR_highResolution": [[16320,12288]],
+      "RAW10": [[8160,6144]],
+      "RAW10_highResolution": [[16320,12288]],
+      "RAW12": [],
+      "RAW14": []
+    }
+  },
+  "raw14AdvertisedByAnyCheckedCamera": false,
+  "extensions": {
+    "api37IsExtensionSupportedMethodPresent": true,
+    "getSupportedExtensionsEmptyOnAllCheckedCameraIds": true,
+    "knownPublicIds0to4SupportedOnAnyCheckedCamera": false,
+    "unknownVendorExtensionIdEnumerationAttempted": false
+  },
+  "classification": "ANDROID17_RAW14_PLATFORM_API_PRESENT__NO_RAW14_CAMERA_OUTPUT_ADVERTISED__CAM5_LEGACY_RAW_SENSOR_RAW10_GEOMETRY_STABLE__NO_PUBLIC_EXTENSION_SUPPORT",
+  "interpretation": {
+    "proven": [
+      "ImageFormat.RAW14 exists on the Android 17 runtime with value 44.",
+      "No checked camera advertises RAW14 output sizes in the queried default or maximum-resolution stream maps to this compileSdk35/targetSdk35 TruthRaw build.",
+      "Camera 5 still advertises RAW_SENSOR and RAW10 at 4080x3072 default, 8160x6144 maximum-resolution, and 16320x12288 high-resolution under the maximum-resolution map.",
+      "The API 37 isExtensionSupported(int) method is present, while public extension IDs 0..4 all returned false for all checked cameras."
+    ],
+    "notProven": [
+      "The device lacks RAW14 internally.",
+      "RAW14 would remain unavailable to an app targeting API 37.",
+      "Honor's OEM camera does not use RAW14 internally.",
+      "No vendor-specific camera extension exists under an untested vendor extension ID.",
+      "Any RAW route is native ADC or 200MP Direct-CFA evidence."
+    ]
+  },
+  "nextDecision": "RETARGET_THE_SAME_V047_ORACLE_TO_COMPILESDK37_TARGETSDK37_WITH_MEASUREMENT_LOGIC_UNCHANGED_BEFORE_ANY_RAW14_CAPTURE_ATTEMPT"
+}
