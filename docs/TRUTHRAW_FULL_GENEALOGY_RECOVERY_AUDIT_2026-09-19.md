@@ -524,6 +524,137 @@ Therefore:
 
 HONOR Pro TELE DNG evidence independently recurs in the 4080×3072 CFA domain.
 
+### 16.3 Current Android-17 Camera-5 reference: v0.53 supersedes v0.14 as the replay/control, not as historical origin
+
+The 2026-09-19 Android-17 replay is now the preferred **current reproducibility/control reference** for this Camera-5 acquisition family.
+
+Do **not** delete v0.14 from history:
+
+- v0.14 remains the first qualifying source-first acquisition milestone and preserves the origin of the evidence-ordering law;
+- v0.53 is the stronger current cross-version replication on Android 17 and should be used as the modern replay/control when discussing whether the route still exists.
+
+The v0.53 route intentionally restores the exact successful v0.14 semantics after v0.52 accidentally reused the known-bad v0.11 global sensor-pixel-mode policy.
+
+Current v0.53 request/evidence contract:
+
+`logical camera 0`
+→ physical output `5`
+→ `RAW_SENSOR 16320x12288`
+→ maximum-resolution `OutputConfiguration`
+→ no logical/global `SENSOR_PIXEL_MODE` write
+→ physical-5-scoped `SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION` write/readback
+→ physical Camera-5 result
+→ exact Image/result timestamp identity
+→ plane-layout validation
+→ **seal original Image.Plane[0] before advisory result interpretation**
+→ optional DNG
+→ read-only whole-raster audit
+→ exact populated-prefix geometry decoder.
+
+Observed v0.53 device result:
+
+- device: HONOR BKQ-N49, Android 17 / SDK 37;
+- physical result camera: `5`;
+- focal length: `22.48 mm`;
+- delivered Image: `16320x12288`;
+- primary buffer bytes: `401,080,320`;
+- rowStride: `32640`;
+- pixelStride: `2`;
+- primary RAW SHA-256: `cb6828b65e9b9acafb54455b6e92b671439ae2c57548ede9e7aa8dd401db3cca`;
+- physical MAX write succeeded and read back as `1`;
+- returned physical capture-result pixel mode again reported `0` and was retained as advisory metadata only after source-first sealing;
+- Image timestamp matched physical Camera-5 `SENSOR_TIMESTAMP` exactly;
+- ISO `406`;
+- exposure `9,999,993 ns`;
+- edge mode `0`;
+- noise-reduction mode `0`;
+- raw-binning-factor-used observation: true.
+
+The v0.53 capture also successfully created an auxiliary DNG:
+
+- file: `TRUTHRAW_1789804086075_CAM5_200MP_16320x12288_v053.dng`;
+- bytes: `401,184,064`;
+- SHA-256 recorded by the capture evidence:
+  `64786e3ae45a08b54adaf30fb2201b3ce13ac4bd16b79ac077b301973a0728ee`.
+
+The primary authority remains the sealed app-visible `Image.Plane[0]`; the DNG is an auxiliary container.
+
+### 16.4 v0.53 associated raster/payload tests
+
+The associated v0.53 delta audit is not only a stream-capability check. It reopens the sealed source read-only, verifies the source SHA, audits all 12,288 declared rows and decodes the populated prefix without modifying the source.
+
+Observed Android-17 raster result:
+
+- non-zero rows: exactly `0..767` = 768 rows;
+- zero rows: exactly `768..12287` = 11,520 rows;
+- total declared samples: `200,540,160`;
+- non-zero samples: `12,533,760`;
+- last non-zero byte offset: `25,067,518`;
+- contiguous populated prefix: `25,067,520` bytes;
+- all fifteen later 768-row bands are zero;
+- populated-prefix byte count exactly equals `4080 × 3072 × 2`;
+- exactly one advertised standard Camera-5 RAW_SENSOR geometry matches that byte count: `4080x3072`.
+
+The exact-prefix candidate is preserved as a derived read-only view:
+
+- file: `TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_candidate.rawpayload`;
+- bytes: `25,067,520`;
+- SHA-256: `f70f353dcd2d59aa79edf159669bffb1573704d68233e337439d8c42458789da`;
+- transform: none, exact prefix copy.
+
+The filename retains the inherited `v052_candidate` label from the reused audit component. Do not rewrite that filename retrospectively; its provenance is bound by the v0.53 delta record.
+
+The associated diagnostic preview is appearance-only and not source evidence:
+
+- file: `TRUTHRAW_1789804175305_CAM5_ANDROID17_v052_preview.png`;
+- diagnostic source geometry: `4080x3072`;
+- output preview geometry: `1020x768`;
+- the delta record binds its diagnostic SHA.
+
+The v0.53 classification is:
+
+`ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY`.
+
+This is now the modern cross-version evidence that the same public third-party Camera2 route on Android 17 reproduces the Android-16 topology.
+
+### 16.5 Associated Android-17 test ladder v0.47 -> v0.54
+
+The v0.53 result belongs to a larger controlled Android-17 test chain and should not be isolated from it:
+
+- **v0.47** — API37 RAW14 / public extension oracle: runtime RAW14 constant exists, but the tested public Camera2 surfaces did not expose RAW14 or supported public extensions for Camera 5;
+- **v0.48** — targetSdk 37 retarget control: retargeting alone did not expose RAW14 or public extensions;
+- **v0.49** — current HONOR Camera package fingerprint/export: established the Android-17 OEM camera package identity/version used in the environment;
+- **v0.50** — direct typed vendor-characteristics oracle: inspected typed vendor-characteristic surfaces without claiming semantics not proven on-device;
+- **v0.51** — CameraDeviceSetup / RAW14 session oracle: inspected the setup/session surface before changing the capture route;
+- **v0.52** — first Android-17 payload-delta attempt: failed because it accidentally reused the historically known-bad v0.11 global `CONTROL_SENSOR_PIXEL_MODE` policy, so it is a negative-control/regression lesson rather than evidence that v0.14 disappeared;
+- **v0.53** — exact v0.14 route replay on Android 17: successful capture, source-first seal, DNG output, full raster audit and payload-geometry delta;
+- **v0.54** — passive HONOR Pro TELE RAW/DNG fingerprint: OEM-authored Pro TELE DNG is `4080x3072`, uncompressed U16 CFA, BlackLevel `64`, WhiteLevel `1023`, 3072 strips × 8160 bytes = `25,067,520` payload bytes, with `22.48 mm / f2.6` tele metadata and no exported RAW14 evidence.
+
+The v0.54 result is not another third-party Camera2 RAW capture. It is an independent cross-layer OEM-container observation that strongly corroborates the same ordinary tele RAW payload domain:
+
+`4080 × 3072 × 2 = 25,067,520 bytes`.
+
+This ties together:
+
+1. public physical-Camera-5 standard RAW geometry;
+2. the populated prefix inside the `16320x12288` app-visible envelope;
+3. HONOR's own Android-17 Pro TELE DNG payload size and geometry.
+
+It still does not prove untouched ADC provenance or explain how the OEM 200MP JPEG path is generated.
+
+### 16.6 Camera-5 reference precedence after recovery
+
+Use the following precedence in future project work:
+
+1. **v0.53** — current Android-17 replay/control for whether the public Camera-5 route still exists and what topology it returns;
+2. **v0.19/v0.20** — detailed Android-16 payload-geometry interpretation and forensic origin of the 4080x3072-prefix correction;
+3. **v0.14** — historical first source-first successful acquisition milestone and origin of the evidence-ordering contract;
+4. **v0.54 OEM Pro TELE DNG** — independent exported-container corroboration of the 4080x3072 ordinary tele RAW domain.
+
+Thus v0.53 does **not erase** v0.14. It replaces v0.14 only as the preferred present-day replay/control reference.
+
+
+
 ## 17. Current Android-17 acquisition baseline
 
 A separate branch now exists:
