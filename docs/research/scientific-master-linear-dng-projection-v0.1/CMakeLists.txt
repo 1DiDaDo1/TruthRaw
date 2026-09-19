@@ -62,6 +62,7 @@ target_include_directories(test_streaming_scientific_master_tile_source_v0_1 PRI
     "${SMSB1}/native"
     "${DIGEST}"
     "${TRUTHRANGE}/native"
+    "${BACKPLANE}"
     "${TILE_DNG}"
     "${STREAMING}/native"
     "${STREAMING}/tests"
