@@ -78,6 +78,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
     ${LINEAR_DNG_PROJECTION}
+    ${MULTIVENDOR_RAW_ADAPTER}
     ${V47I_NATIVE}/include)
 
 find_library(ANDROID_LIB android)
