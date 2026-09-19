@@ -183,13 +183,17 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
                   "PURE zero-line provenance requires IEEE-754 binary64 storage");
     std::memcpy(&l0Bits, &descriptor.zeroLineGauge.L0, sizeof(l0Bits));
 
+    constexpr std::size_t kBackplaneStoredCrcBytes = sizeof(std::uint32_t);
+    static_assert(technical_backplane::v0_1::kSerializedBytes > kBackplaneStoredCrcBytes,
+                  "Technical Backplane must contain payload bytes before its stored CRC32");
     const auto backplaneCrc = technical_backplane::v0_1::crc32(
         std::span<const std::uint8_t>(
-            descriptor.serializedBackplane.data(), descriptor.serializedBackplane.size()));
+            descriptor.serializedBackplane.data(),
+            descriptor.serializedBackplane.size() - kBackplaneStoredCrcBytes));
 
     const std::string body =
         std::string("role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION\n") +
-        "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_61\n" +
+        "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
         "writer_identity=TruthRaw scientific-master-linear-dng-projection-v0.1\n" +
         "representation_only=1\n" +
         "scientific_master_modified=0\n" +
@@ -216,6 +220,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "scene_gain_normalized=" +
             std::string(descriptor.sceneBinding.gainNormalizedToCommonScene ? "1\n" : "0\n") +
         "technical_backplane_version=1\n" +
+        "technical_backplane_crc_scope=PREFIX_176_BYTES\n" +
         "technical_backplane_crc32=0x" + hex_u32(backplaneCrc) + "\n" +
         "technical_backplane_serialized_hex=" +
             hex_bytes(descriptor.serializedBackplane.data(), descriptor.serializedBackplane.size()) + "\n" +
