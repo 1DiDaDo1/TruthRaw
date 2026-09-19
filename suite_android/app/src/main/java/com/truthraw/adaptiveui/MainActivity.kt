@@ -21,6 +21,7 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.Space
 import android.widget.TextView
+import java.io.File
 import java.io.IOException
 
 class MainActivity : Activity() {
@@ -77,7 +78,29 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
+
+        if (savedInstanceState == null) {
+            val internalCameraPath = intent.getStringExtra(EXTRA_INTERNAL_CAMERA_SOURCE_PATH)
+            if (!internalCameraPath.isNullOrBlank()) {
+                val cameraJob = runCatching {
+                    RawIngress.readInternalCameraFile(File(internalCameraPath))
+                }.getOrNull()
+                if (cameraJob != null) {
+                    session = session.withJobs(listOf(cameraJob))
+                    activeJobId = cameraJob.id
+                    previewState = TilePreviewUiState.Idle
+                }
+            }
+        }
+
         render()
+
+        if (savedInstanceState == null &&
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
+            session.jobs.isEmpty()
+        ) {
+            window.decorView.post { launchRawPicker() }
+        }
     }
 
     override fun onDestroy() {
@@ -723,6 +746,9 @@ class MainActivity : Activity() {
     private fun dp(value: Float): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
     companion object {
+        const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
+        const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
+
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
