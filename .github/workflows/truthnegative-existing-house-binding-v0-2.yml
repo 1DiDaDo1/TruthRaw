@@ -3,7 +3,7 @@ name: TruthNegative existing-house binding v0.2
 on:
   push:
     branches:
-      - research/truthnegative-v0-1-scientific-negative-foundation
+      - research/truthnegative-v0-2-existing-house-binding
     paths:
       - 'tools/truthnegative_existing_house_binding_v02.py'
       - 'tests/test_truthnegative_existing_house_binding_v02.py'
