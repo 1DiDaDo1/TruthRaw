@@ -348,7 +348,40 @@
         "nativePrivateContractMarker": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
         "nativeCrcScopeMarker": "PREFIX_176_BYTES"
       },
-      "realDeviceValidation": "PENDING_V063_DNG_CRC_AND_UI_TEST"
+      "realDeviceValidation": {
+        "status": "PASS",
+        "artifact": "IMG_BNC_TRUTHRAW20260907_094414_423_truthraw_pure_float32_v0_63.dng",
+        "artifactBytes": 151022004,
+        "artifactSha256": "ebcf0751b6489e2acc82cafbb927e76e842064e0470717af657a208e1e653235",
+        "sourceSha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+        "scientificMasterSha256": "faca6604479380c2de83917e977a4cfbcd17ea2a3acf6f842b753315f9987423",
+        "backplane": {
+          "bytes": 180,
+          "crcScope": "PREFIX_176_BYTES",
+          "recomputedCrc32": "8cde5b54",
+          "internalStoredCrc32": "8cde5b54",
+          "dngDeclaredCrc32": "8cde5b54",
+          "lineageHashesMatchPrivateBinding": true,
+          "forbiddenFlags": 0,
+          "physicalFrameCount": 1,
+          "independentEvidenceCount": 1
+        },
+        "float32Payload": {
+          "finiteComponents": 37601280,
+          "negativeComponents": 496902,
+          "overOneComponents": 0,
+          "min": -0.012010658159852028,
+          "max": 0.9967811703681946,
+          "canonicalRasterSha256": "9ea98575cfb5c19842cf3b2eb4a4637338880908f7a20b86908a57afc4c14b59",
+          "bitIdenticalToPreviouslyValidatedSameSourcePureRaster": true
+        },
+        "empiricalApp": {
+          "versionName": "0.28-v0.63-crc-ui-branding",
+          "versionCode": 28,
+          "installedApkSha256": "82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173",
+          "sourceStableAcrossWrapper": true
+        }
+      }
     }
   },
   "camera5ReferencePrecedence": [
@@ -369,13 +402,11 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_VERIFIED_V063_APK_ON_REAL_DEVICE",
-    "CONFIRM_TRUTHRAW_LENS_REFLECTION_ICON_AND_RAW_VS_CAMERA_HOME_UI",
-    "OPEN_SETTINGS_GEAR_AND_CONFIRM_ALL_RESEARCH_DIAGNOSTIC_ROUTES_ARE_REACHABLE",
-    "EXPORT_NEW_V063_PURE_DNG",
-    "REQUIRE_SELF_BINDING_VERIFIED_TRUE",
-    "UPLOAD_NEW_V063_DNG_AND_RECOMPUTE_BACKPLANE_CRC_OVER_BYTES_0_175",
-    "CONFIRM_DECLARED_CRC_EQUALS_INTERNAL_STORED_CRC_AND_DIFFERS_FROM_OLD_FULL180_RESIDUE_WHEN_EXPECTED"
+    "TREAT_V063_BACKPLANE_CRC_DEFECT_AS_CLOSED_ON_REAL_DEVICE",
+    "KEEP_TRUTHRAW_PURE_SELF_BINDING_V0_63_AND_180_BYTE_BACKPLANE_FROZEN_UNLESS_A_NEW_VERSION_IS_EXPLICITLY_REQUIRED",
+    "CONTINUE_PRODUCT_UI_REFINEMENT_WITHOUT_CHANGING_SCIENTIFIC_PIXEL_ROUTE_OR_AUTHORITY",
+    "RUN_UI_ICON_RAW_VS_CAMERA_AND_SETTINGS_RESEARCH_NAVIGATION_DEVICE_REVIEW",
+    "CONTINUE_NIKON_ADMISSION_SEPARATELY_WITH_FAIL_CLOSED_NOISE_UNCERTAINTY_COLOR_AND_HELD_OUT_GATES"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
