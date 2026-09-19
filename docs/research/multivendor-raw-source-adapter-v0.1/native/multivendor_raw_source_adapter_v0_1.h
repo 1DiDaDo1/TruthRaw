@@ -38,6 +38,37 @@ enum class RawFormatFamily : std::uint8_t {
     SyntheticConformanceFixture,
 };
 
+enum class StorageRepresentation : std::uint8_t {
+    Unknown = 0,
+    CfaMosaic,
+    PackedCfa,
+    LinearRaw,
+    MultichannelLinear,
+    OpaqueVendorRaw,
+    SyntheticCfa,
+};
+
+enum class SampleTopologyFamily : std::uint8_t {
+    Unknown = 0,
+    Bayer2x2,
+    PeriodicCfa,
+    LinearRgb,
+    Mono,
+};
+
+enum class ProcessingLineageClass : std::uint8_t {
+    Unknown = 0,
+    DirectCfaStorageUncertified,
+    DirectSensorSingleExposureCertified,
+    DirectSensorMultiFrameCertified,
+    RemosaicedSensorCfa,
+    ComputationalCfaOrMergedRaw,
+    LinearSceneRawUncertified,
+    ComputationalLinearRaw,
+    VirtualReconstructedRaw,
+    SyntheticConformanceOnly,
+};
+
 enum class AdapterStatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
@@ -96,6 +127,9 @@ struct RawSourceOpenRequest final {
 
 struct RawSourceDescriptor final {
     RawFormatFamily format = RawFormatFamily::GenericRaw;
+    StorageRepresentation storageRepresentation = StorageRepresentation::Unknown;
+    SampleTopologyFamily sampleTopology = SampleTopologyFamily::Unknown;
+    ProcessingLineageClass processingLineage = ProcessingLineageClass::Unknown;
     std::string decoderId;
     std::string sourceEvidenceId;
 
@@ -103,6 +137,11 @@ struct RawSourceDescriptor final {
     bool exactCfaSamplesAvailable = false;
     bool scientificColorBindingProvided = false;
     bool syntheticConformanceOnly = false;
+    bool physicalExposureCountKnown = false;
+    std::uint32_t physicalFrameCount = 0u;
+    bool singleExposureCertified = false;
+    bool storedSampleSenselSemanticsCertified = false;
+    bool requiresTopologySpecificSolver = false;
 
     // Container/sample decoding alone never proves untouched ADC provenance.
     bool directSensorAdcClaimAllowed = false;
