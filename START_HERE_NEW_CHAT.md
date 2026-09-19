@@ -1,5 +1,22 @@
 # START HERE — TruthRaw current bootstrap
 
+## TruthNegative research-branch overlay — 2026-09-19
+
+If the checked-out branch is `research/truthnegative-v0-1-scientific-negative-foundation`, read this overlay before the older bootstrap below:
+
+1. `docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
+2. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+3. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+4. `docs/research/truthnegative-v0.1/README.md`
+5. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
+6. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
+
+Branch-specific proposed flow:
+
+`Source Evidence -> Measurement/de-ISP -> TruthNegative -> Scientific Master -> Dynamic Authority/Open Scene -> Appearance/Export`
+
+This is a research insertion only, not canonical/main promotion. The HONOR OEM/HAL/RAW14 route remains an independent parallel research line.
+
 This is the living bootstrap entry point for the consolidated TruthRaw research state, updated through the HONOR Camera-5 v0.20 payload-geometry result on 2026-09-17.
 
 It is a navigation/current-state document. It does not rewrite frozen historical evidence, dated handoffs, rejected experiments or canonical bytes.
