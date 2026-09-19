@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-61-pure-self-binding-dng":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-62-pure-postwrite-verify":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -163,6 +163,19 @@ if v061_binding.get("exactSerializedTechnicalBackplaneBytes") != 180:
     errors.append("v061_exact_backplane_bytes_required")
 if (v061.get("historicalCertificateFinding") or {}).get("reactivatedAsCurrentCertificate") is not False:
     errors.append("legacy_trcert01_must_not_be_reactivated")
+
+v062 = (((current_state.get("multiVendorRaw") or {}).get("v062")) or {})
+v062_gate = v062.get("postWriteGate") or {}
+if v062.get("writerPrivateContract") != "TRUTHRAW_PURE_SELF_BINDING_V0_61":
+    errors.append("v062_must_inherit_v061_writer_contract")
+if v062.get("pixelMathChanged") is not False:
+    errors.append("v062_must_not_change_pure_pixel_math")
+if v062_gate.get("reopensExactDestinationUri") is not True:
+    errors.append("v062_postwrite_destination_reopen_required")
+if v062_gate.get("requiresTechnicalBackplaneBytes") != 180:
+    errors.append("v062_exact_backplane_postwrite_gate_required")
+if v062_gate.get("rejectsLegacyCompatibilityRoleMarker") is not True:
+    errors.append("v062_must_reject_legacy_compatibility_role_marker")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
