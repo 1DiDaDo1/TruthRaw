@@ -1,0 +1,101 @@
+name: TruthRaw v0.50 Honor RAW Direct Characteristic Oracle
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-50-honor-raw-direct-characteristic-oracle
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorRawDirectCharacteristicOracleActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+      - 'docs/HONOR_V050_RAW_DIRECT_CHARACTERISTIC_ORACLE_PLAN_2026-09-19.md'
+      - 'state/HONOR_V050_RAW_DIRECT_CHARACTERISTIC_ORACLE_PLAN_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-50-honor-raw-direct-characteristic-oracle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v050:
+    name: Build v0.50 Honor RAW direct characteristic oracle
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.50 read-only invariants
+        run: |
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorRawDirectCharacteristicOracleActivity.kt'
+          PLAN='state/HONOR_V050_RAW_DIRECT_CHARACTERISTIC_ORACLE_PLAN_2026-09-19.json'
+
+          grep -F 'truthraw.honor-raw-direct-characteristic-oracle.v0.50' "$ACT"
+          grep -F 'CAMERA2_VENDOR_CHARACTERISTIC_OBSERVATION_ONLY' "$ACT"
+          grep -F 'rawImgSupported' "$ACT"
+          grep -F 'hwCaptureRawStreamConfigurations' "$ACT"
+          grep -F 'professionalTeleRawLogicalCameraID' "$ACT"
+          grep -F 'rawSensorResolution' "$ACT"
+          grep -F 'msc.camera.rawphoto.save' "$ACT"
+          grep -F 'CameraCharacteristics.Key' "$ACT"
+          grep -F 'c.get(key)' "$ACT"
+          grep -F '"cameraOpenedByTruthRaw": false' "$PLAN"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/HonorRawDirectCharacteristicOracleActivity.kt').read_text()
+          required=[
+              'getCameraCharacteristics(',
+              'CameraCharacteristics.Key',
+              'c.get(key)',
+              'enumeratedInCharacteristicsKeys',
+              'hiddenApiBypassAttempted", false',
+              'vendorRequestWrittenByTruthRaw", false',
+          ]
+          for token in required:
+              assert token in s, token
+          forbidden=[
+              'openCamera(',
+              'createCaptureRequest',
+              'import android.media.ImageReader',
+              'CameraCaptureSession',
+              'setPhysicalCameraKey',
+              'bindService(',
+              'createExtensionSession',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+          print('v0.50 direct-characteristic read-only invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-50-honor-raw-direct-characteristic-oracle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
