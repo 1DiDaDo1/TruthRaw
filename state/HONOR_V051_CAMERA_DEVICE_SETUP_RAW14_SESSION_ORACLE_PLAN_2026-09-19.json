@@ -1,0 +1,63 @@
+{
+  "schema": "truthraw.camera-device-setup-raw14-session-oracle-plan.v0.51",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "runtimeAuthority": "CAMERA2_CAMERA_DEVICE_SETUP_SESSION_QUERY_ONLY",
+  "trigger": {
+    "v050SourceSha256": "735e4280909867b3485f72db11cb58ee8256f2c1b38e689d07e2fdae2a248fea",
+    "v050NonNullVendorValues": 0,
+    "raw14RuntimeValue": 44,
+    "raw14AdvertisedStreamSizes": false
+  },
+  "candidates": {
+    "physical5": [
+      [
+        4080,
+        3072
+      ],
+      [
+        8160,
+        6144
+      ],
+      [
+        16320,
+        12288
+      ]
+    ],
+    "formats": [
+      "RAW_SENSOR",
+      "RAW10",
+      "RAW14"
+    ],
+    "physicalMaxPixelModeVariantForMaxAndHighRes": true,
+    "crossCameraRaw14Controls": {
+      "physical2": [
+        [
+          4096,
+          3072
+        ],
+        [
+          8192,
+          6144
+        ]
+      ],
+      "physical4": [
+        [
+          4032,
+          3024
+        ]
+      ]
+    }
+  },
+  "forbidden": [
+    "CameraDevice open",
+    "real CameraCaptureSession creation",
+    "ImageReader creation",
+    "image access",
+    "CaptureRequest submission",
+    "Honor Binder",
+    "vendor-key writes",
+    "arbitrary size/format enumeration"
+  ],
+  "boundary": "Support-query results are configuration capability evidence only."
+}
