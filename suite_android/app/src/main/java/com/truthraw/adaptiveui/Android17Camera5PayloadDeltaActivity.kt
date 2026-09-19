@@ -23,7 +23,7 @@ import java.security.MessageDigest
 import java.time.Instant
 
 /**
- * v0.52 Android-17 Camera-5 payload delta companion.
+ * v0.53 Android-17 replay companion for the proven Android-16 v0.14 route.
  *
  * Capture is delegated unchanged to the already established FotoGraaf200MpStagedActivity
  * (v0.11 capture gate). This activity itself never opens a camera. After the capture activity
@@ -59,10 +59,10 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
             setBackgroundColor(Color.rgb(12, 14, 18))
         }
 
-        body.addView(label("TruthRaw v0.52 · Android 17 Camera-5 payload delta", 21f, true))
+        body.addView(label("TruthRaw v0.53 · Android 17 replay van v0.14 route", 21f, true))
         body.addView(label(
-            "Herhaal eerst exact de bewezen 16320×12288 RAW_SENSOR capture-route. " +
-                "Daarna analyseert v0.52 het verzegelde RAW-bestand read-only en vergelijkt de payloadtopologie " +
+            "Herhaal exact de Android-16 v0.14 route: geen global SENSOR_PIXEL_MODE, physical-only MAX attempt, " +
+                "source-first sealing. Daarna analyseert v0.53 het verzegelde RAW-bestand read-only en vergelijkt de payloadtopologie " +
                 "met de Android-16 v0.19/v0.20 referentie.",
             12f, false, Color.rgb(190, 198, 210),
         ))
@@ -71,9 +71,9 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
         body.addView(button("1 · Open bewezen Camera-5 16320×12288 capture") {
             startActivity(Intent(this, FotoGraaf200MpStagedActivity::class.java))
         })
-        body.addView(button("2 · Analyseer nieuwste verzegelde capture") { analyzeLatest() })
+        body.addView(button("2 · Analyseer nieuwste v0.53 verzegelde capture") { analyzeLatest() })
 
-        saveJsonButton = button("3 · Delta JSON opslaan") {
+        saveJsonButton = button("3 · v0.53 Delta JSON opslaan") {
             saveFile(reportFileRef, "application/json", REQUEST_SAVE_JSON)
         }.apply { isEnabled = false }
         body.addView(saveJsonButton)
@@ -97,7 +97,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
         ))
 
         body.addView(space(10))
-        status = label("Nog geen v0.52 delta-report.", 10f, false)
+        status = label("Nog geen v0.53 delta-report.", 10f, false)
         body.addView(status)
 
         return ScrollView(this).apply {
@@ -130,7 +130,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
                     saveCandidateButton.isEnabled = candidateFileRef?.exists() == true
                     savePreviewButton.isEnabled = previewFileRef?.exists() == true
                 }.onFailure { e ->
-                    status.text = "v0.52 analyse geblokkeerd: ${e.javaClass.simpleName}: ${e.message}"
+                    status.text = "v0.53 analyse geblokkeerd: ${e.javaClass.simpleName}: ${e.message}"
                 }
             }
         }.start()
@@ -138,9 +138,9 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
 
     private fun buildDeltaReport(): JSONObject {
         val evidenceFile = cacheDir.listFiles()
-            ?.filter { it.isFile && it.name.contains("_CAM5_200MP_EVIDENCE_v011.json") }
+            ?.filter { it.isFile && it.name.contains("_CAM5_200MP_EVIDENCE_v053.json") }
             ?.maxByOrNull { it.lastModified() }
-            ?: error("Geen v0.11 Camera-5 evidence JSON in app-cache. Voer eerst stap 1 en de capture uit.")
+            ?: error("Geen v0.53 Camera-5 evidence JSON in app-cache. Voer eerst stap 1 en de capture uit.")
 
         val evidence = JSONObject(evidenceFile.readText())
         val rawObj = evidence.getJSONObject("rawPayload")
@@ -258,7 +258,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
             .put("boundary",
                 "APP_VISIBLE_CAMERA2_RAW_SENSOR_PAYLOAD_TOPOLOGY_ONLY__NO_UNTOUCHED_ADC_NATIVE_SENSOR_GEOMETRY_OR_DIRECT_CFA_200MP_PROMOTION")
 
-        val reportFile = File(cacheDir, "TRUTHRAW_${stamp}_ANDROID17_CAM5_PAYLOAD_DELTA_v052.json")
+        val reportFile = File(cacheDir, "TRUTHRAW_${stamp}_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json")
         reportFile.writeText(report.toString(2))
 
         reportFileRef = reportFile
@@ -280,7 +280,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
     private fun summarize(report: JSONObject): String {
         val delta = report.getJSONObject("delta")
         return buildString {
-            append("v0.52 analyse PASS\n")
+            append("v0.53 analyse PASS\n")
             append("classification=").append(report.getString("classification")).append('\n')
             append("sourceSHA identity=true\n")
             append("payloadBytes=").append(delta.optLong("currentPayloadBytes", -1)).append('\n')
@@ -296,11 +296,11 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
 
     private fun refreshStatus() {
         val latest = cacheDir.listFiles()
-            ?.filter { it.isFile && it.name.contains("_ANDROID17_CAM5_PAYLOAD_DELTA_v052.json") }
+            ?.filter { it.isFile && it.name.contains("_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json") }
             ?.maxByOrNull { it.lastModified() }
 
         if (latest == null) {
-            status.text = "Nog geen v0.52 delta-report. Voer eerst de capture uit."
+            status.text = "Nog geen v0.53 delta-report. Voer eerst de capture uit."
             saveJsonButton.isEnabled = false
             saveCandidateButton.isEnabled = false
             savePreviewButton.isEnabled = false
@@ -393,7 +393,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val SCHEMA = "truthraw.android17-camera5-payload-delta.v0.52"
+        private const val SCHEMA = "truthraw.android17-camera5-v014-route-replay-delta.v0.53"
         private const val PHYSICAL_ID = "5"
         private const val TARGET_W = 16320
         private const val TARGET_H = 12288
