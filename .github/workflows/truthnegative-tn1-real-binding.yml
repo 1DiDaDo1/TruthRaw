@@ -3,7 +3,7 @@ name: TruthNegative TN1 real source master binding
 on:
   push:
     branches:
-      - research/truthnegative-v0-1-scientific-negative-foundation
+      - research/truthnegative-v0-2-existing-house-binding
     paths:
       - 'state/TRUTHNEGATIVE_TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.json'
       - 'docs/research/truthnegative-v0.2/TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.md'
