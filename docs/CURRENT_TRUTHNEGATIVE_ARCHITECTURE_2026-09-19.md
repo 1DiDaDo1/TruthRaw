@@ -1,160 +1,237 @@
 # TruthNegative current research architecture — 2026-09-19
 
-Status: **CURRENT TRUTHNEGATIVE RESEARCH-BRANCH ARCHITECTURE / NOT MAIN PROMOTION**
+Status: **CURRENT TRUTHNEGATIVE RESEARCH-BRANCH ARCHITECTURE / v0.2 ALIGNMENT / NOT MAIN PROMOTION**
 
-## 1. Branch isolation
-
-TruthNegative development lives on:
+Branch:
 
 `research/truthnegative-v0-1-scientific-negative-foundation`
 
-It branches from the Android-17/HONOR research state after v0.54 was established.
+## 1. Correction from the first v0.1 draft
 
-The parallel HONOR route remains on its own integration/research branches. TruthNegative work must not replace, rewrite or close that route.
+The first v0.1 draft described TruthNegative as if it were a new reconstruction stage inserted between Measurement and the Scientific Master.
 
-## 2. Scientific insertion point
+Project review and recovery of the previous two chats show that this would duplicate architecture TruthRaw already had.
 
-Proposed flow:
+The project already contains the complete conceptual route:
 
-`Source Evidence`
-`-> Measurement / de-ISP`
-`-> TruthNegative`
-`-> Scientific Master`
-`-> Dynamic Authority + uncertainty/support`
-`-> Open Scene State`
-`-> Appearance / HDR / transport`
+`sealed source RAW/CFA`
+`-> measurement/de-ISP`
+`-> Latent Camera Scene / measured-preserving reconstruction`
+`-> camera-native scene-linear Scientific Master`
+`-> Dynamic Authority / uncertainty / support`
+`-> Open Scene / Free Scientific Space`
+`-> appearance / export`
 
-TruthNegative is a **scientific reconstruction intermediate**, not Source Evidence.
+TruthNegative v0.2 therefore binds to the **existing reconstructed house** rather than building another one.
 
-## 3. Three distinct coordinate domains
+## 2. Any-brand source architecture
 
-TruthNegative v0.1 formally separates:
+TruthNegative is not HONOR-specific.
 
-### Source Evidence Grid
+An admitted RAW may enter through one of two scientific ingress classes:
 
-The admitted CFA/sample lattice and exact source identity.
+### Native/certified source
 
-Example Camera-5 source domain:
+A directly supported source reaches the Main House through a source adapter such as the strict Tile-Native DNG Source / `IRawTileSource` route.
 
-`4080 x 3072`
+### External/vendor RAW
 
-### Reconstruction Domain
+A non-native RAW format uses the recovered Gatehouse architecture:
 
-A continuous or latent camera/scene field in which the best-supported signal estimate is represented.
+`external/vendor RAW -> isolated decoder/Gatehouse -> sealed Decoded Measurement Handoff -> IRawTileSource / Main House`
 
-This domain may exceed the source lattice.
+The Gatehouse is an intermediate admission/translation route only. It is never a second truth endpoint.
 
-### Projection Grid
+The current branch contains native DNG tile-source and generic URI-ingress code. The full external-RAW Gatehouse is an architectural requirement recovered from prior project work and is not falsely claimed as fully reimplemented here.
 
-A finite requested sampling of the reconstructed field.
+## 3. Existing new house
 
-Example research projection:
+The existing new house is already float/scientific.
 
-`16320 x 12288`
+Current project facts:
 
-The projection grid does not imply native sensor geometry.
+- v4.7i reconstructs camera-native full-colour scene-linear RGB before camera-to-XYZ and before appearance;
+- the Scientific Master digest contract identifies exact IEEE-754 binary32 camera-native RGB sample bits;
+- branch-sensitive reconstruction, calibration, optimization and covariance use F64 where required;
+- controlled F32 storage is allowed only after the F64-compute/storage validation gate;
+- higher precision is a validator, not new evidence;
+- Free Scientific Space can exceed RAW10, WhiteLevel, ISO scale, [0,1], the source Bayer lattice, SDR and DNG limits.
 
-## 4. v0.1 fail-closed rule
+Therefore the user’s “sealed whole RAW house -> new TruthRaw Float32/Float64 rawsensor-filled open world” is fundamentally already present in the project, with one terminology correction:
 
-Until a source-to-reconstruction sampling model is explicitly admitted:
+**the richest scientific house is not required to remain a rawsensor/Bayer mosaic. Its current authoritative master is camera-native reconstructed RGB.**
 
-- source anchors remain measured in source coordinates;
-- target-lattice measured sample count must remain zero;
-- denser target samples are reconstruction capacity only;
-- `createsNewEvidence=false`;
-- `physicalFrameCount=1`;
-- `independentEvidenceCount=1`.
+## 4. TruthNegative v0.2 role
 
-This deliberately prevents a 4x-per-axis projection from being misread as “every fourth target pixel was physically measured.”
+TruthNegative has two coupled but distinct objects.
 
-## 5. Initial software foundation
+### 4.1 TruthNegative Core
 
-v0.1 adds:
+A scientific-negative binding of the already reconstructed house.
+
+It binds:
+
+- source evidence identity;
+- ingress/admission class;
+- measurement/reconstruction lineage;
+- Scientific Master identity;
+- precision policy;
+- Dynamic Authority / uncertainty / support identity;
+- one-frame/one-evidence invariants.
+
+It creates no new scientific world.
+
+### 4.2 TruthNegative Sensor Projection
+
+An optional reconstructed sensor-like negative derived from the bound reconstructed state.
+
+It may be:
+
+- source-sized;
+- 2x linear;
+- 4x linear;
+- `16320x12288`;
+- another finite projection grid.
+
+It can carry a CFA-like arrangement if a specific projection contract requires that representation.
+
+But every newly created target site remains `RECONSTRUCTED`.
+
+The projection:
+
+- is not the original RAW;
+- is not the Scientific Master;
+- does not prove hidden photodiodes;
+- does not increase physical frame count;
+- does not increase independent evidence count.
+
+## 5. Coordinate domains
+
+TruthNegative keeps three coordinate concepts separate:
+
+1. **Source Evidence Grid** — original admitted sample lattice.
+2. **Reconstructed Camera/Scene Domain** — the existing latent/full-colour scientific state.
+3. **Sensor-Negative Projection Grid** — an optional finite resampling/remosaic of that state.
+
+For Camera 5:
+
+source candidate domain:
+`4080x3072`
+
+dense research projection:
+`16320x12288`
+
+The 4x linear relation is not physical pixel-location proof.
+
+## 6. Precision inheritance
+
+TruthNegative does not invent a new precision policy.
+
+Inherited policy:
+
+`exact packed/integer source evidence`
+`-> F32 only where proven safe`
+`-> F64 branch-sensitive reconstruction`
+`-> F64 calibration / optimization / covariance`
+`-> validated F32 Scientific-Master storage`
+`-> higher/arbitrary precision reference validation`
+
+A future F64 storage profile may be researched, but more storage bits may not be described as more evidence.
+
+## 7. Implementation status
+
+### TN-0 — authority foundation
+
+Implemented:
 
 - `tools/truthnegative_foundation_v01.py`
 - `tests/test_truthnegative_foundation_v01.py`
-- a machine-readable state manifest;
-- CI that fails on evidence/authority inflation.
 
-The v0.1 tool does **not** reconstruct image pixels yet.
+Purpose: evidence-count and dense-projection fail-closed rules.
 
-It establishes the scientific contract that later reconstruction code must satisfy.
+### TN-0.2 — existing-house binding
 
-## 6. Planned implementation ladder
+Implemented:
 
-### TN-0 — Foundation
+- `tools/truthnegative_existing_house_binding_v02.py`
+- `tests/test_truthnegative_existing_house_binding_v02.py`
+- `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
+- `docs/research/truthnegative-v0.2/README.md`
+- `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
 
-Authority, identity, evidence count, domain separation, target projection semantics.
+Purpose: bind TruthNegative to the existing Scientific Master rather than duplicate it.
 
-### TN-1 — Source binding
+## 8. Revised implementation ladder
 
-Bind exact source bytes/CFA digest, dimensions, CFA topology, black/white/censor state and capture provenance.
+### TN-1 — real source + master binding
 
-### TN-2 — Baseline reconstruction
+Bind a real sealed RAW/CFA identity to its exact existing Scientific Master identity and Dynamic Authority identity.
 
-Implement a deterministic non-generative baseline reconstruction with exact measured-anchor preservation and explicit reconstructed authority.
+First reference candidate is the already frozen 4080x3072 source/master lineage because its source and Scientific Master hashes already exist.
 
-### TN-3 — Continuous field
+### TN-2 — source-resolution scientific-negative identity
 
-Move from “upsampled raster” thinking to a continuous/latent camera-scene field sampled at arbitrary finite output grids.
+Create a no-resampling TruthNegative representation at source spatial extent from the existing master and prove exact deterministic identity/provenance.
 
-### TN-4 — Uncertainty/support
+This is **not** a Bayer remosaic requirement; the core representation should remain camera-native full-colour unless a sensor-projection output is explicitly requested.
 
-Bind per-location support, uncertainty/covariance and censor/unknown status.
+### TN-3 — continuous/dense reconstruction projection
 
-### TN-5 — Optics-aware model
+Define a deterministic resampling/reconstruction operator from the existing scientific state to a denser finite grid.
 
-Admit PSF/MTF/CA/shading only after independent evidence. Use deconvolution/restoration without upgrading reconstructed detail to measured.
+### TN-4 — uncertainty/support projection
 
-### TN-6 — Dense 200MP projection experiment
+Project/propagate Dynamic Authority, uncertainty/covariance, censor and unknown status onto the dense negative.
 
-Sample the TruthNegative onto `16320x12288` and compare against source-consistency constraints, down-projection consistency, edge/texture conservation and uncertainty.
+### TN-5 — optics-aware constraint
 
-### TN-7 — Scientific Master integration
+Bind PSF/MTF/CA/shading only when independently calibrated.
 
-Only after falsification tests prove no authority leakage.
+### TN-6 — 16320x12288 sensor-negative experiment
 
-### TN-8 — Appearance/export
+Produce a reconstructed `16320x12288` sensor-like negative while preserving:
 
-DNG/EXR/TIFF/HDR/preview remain downstream projections.
+- source lineage;
+- master identity;
+- authority map;
+- uncertainty/support;
+- no physical-pixel claim.
 
-## 7. Required validation gates
+### TN-7 — regression against Scientific Master
 
-Before any dense TruthNegative projection can be called scientifically useful:
+Prove the negative can never mutate/redefine the master or source evidence.
 
-- exact source re-projection/downsample consistency;
-- no measured-anchor alteration;
-- deterministic reconstruction under fixed inputs;
-- authority map identity;
-- uncertainty map identity;
-- no hidden dependence on appearance/rendering;
-- no generative semantic fill;
-- numerical precision regression;
+### TN-8 — compatibility/export
+
+Optional DNG/EXR/TIFF/rawsensor-like export remains downstream.
+
+## 9. Validation gates
+
+Before a dense TruthNegative is scientifically useful:
+
+- exact source/master identity binding;
+- deterministic output under fixed source/master/config;
+- no source mutation;
+- no master mutation;
+- no measured-authority inflation;
+- correct uncertainty/support propagation;
+- no appearance dependence;
+- no generative semantic fill in scientific mode;
+- precision regression;
+- source-resolution/reprojection consistency;
 - held-out synthetic forward-model tests;
-- real-source edge/noise/CFA residual tests.
+- real-source CFA/RGB/noise/edge residual tests.
 
-## 8. 200MP language
+## 10. Parallel HONOR route
 
-Allowed:
+The independent HONOR route continues to investigate the real acquisition pipeline.
 
-- `16320x12288 TruthNegative projection`
-- `200,540,160-sample reconstructed projection`
-- `dense reconstructed negative`
+TruthNegative may consume stronger evidence later if HONOR exposes it.
 
-Not allowed without new physical evidence:
+TruthNegative may not be used to prove that HONOR had hidden samples upstream.
 
-- `measured 200MP RAW`
-- `native 200MP CFA`
-- `recovered 200MP sensor pixels`
-- `untouched 200MP ADC`
+## 11. Current next implementation
 
-## 9. Immediate next implementation
+Proceed with **TN-1 real source + Scientific Master binding**, not with a new upscaler.
 
-The next code after the foundation contract is TN-1:
-
-1. exact source-binding manifest;
-2. CFA topology binding;
-3. source measurement coordinate object;
-4. no-op identity reconstruction at source resolution;
-5. exact source round-trip test;
-6. only then a deterministic dense reconstruction baseline.
+Use the already frozen source/master pair to prove that the existing new house can be wrapped as a scientific negative without changing one scientific bit or one authority claim.
