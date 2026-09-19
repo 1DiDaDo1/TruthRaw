@@ -5,7 +5,8 @@
   "source": {
     "deltaJson": {
       "name": "TRUTHRAW_1789804175305_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json",
-      "sha256": "41e1f4507e652344dbf15a624226c8a5e6aff0311fd01ebf722ceceaa7f4576c"
+      "sha256": null,
+      "sha256Status": "NOT_RECOMPUTED_IN_CHAT_RUNTIME; do not substitute nested captureEvidence hash"
     },
     "captureEvidence": {
       "name": "TRUTHRAW_1789804086075_CAM5_200MP_EVIDENCE_v053.json",
