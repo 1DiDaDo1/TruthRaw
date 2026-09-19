@@ -1,0 +1,75 @@
+{
+  "schema": "truthraw.camera-device-setup-raw14-session-oracle-device-result.v0.51",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_CAMERA_DEVICE_SETUP_SESSION_QUERY_ONLY",
+  "source": {
+    "name": "TRUTHRAW_CAMERA_DEVICE_SETUP_RAW14_SESSION_ORACLE_v051.json",
+    "bytes": 14530,
+    "sha256": "e1d1378adce5e8e98e41eba01b0f8c39e6f907c2616c4d7e8a03fff2291276ef"
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 37
+  },
+  "cameraDeviceSetup": {
+    "logical0Supported": true,
+    "front1Supported": true
+  },
+  "querySummary": {
+    "totalQueries": 18,
+    "supported": 10,
+    "unsupported": 8,
+    "rawSensorCamera5Supported": 5,
+    "raw10Camera5Supported": 5,
+    "raw14Supported": 0,
+    "raw14Unsupported": 8,
+    "sessionParameterAttachmentErrors": 7
+  },
+  "camera5": {
+    "rawSensor": {
+      "4080x3072": true,
+      "8160x6144": true,
+      "16320x12288": true
+    },
+    "raw10": {
+      "4080x3072": true,
+      "8160x6144": true,
+      "16320x12288": true
+    },
+    "raw14": {
+      "4080x3072": false,
+      "8160x6144": false,
+      "16320x12288": false
+    }
+  },
+  "crossCameraRaw14": {
+    "physical2_4096x3072": false,
+    "physical2_8192x6144": false,
+    "physical4_4032x3024": false
+  },
+  "importantCorrection": {
+    "physicalPixelModeVariantsActuallyTested": false,
+    "reason": "CameraDeviceSetup createCaptureRequest builder rejected setPhysicalCameraKey with IllegalArgumentException 'Physical camera id: X is not valid!'. The subsequent session support query still ran, but without the requested physical SENSOR_PIXEL_MODE session parameter.",
+    "consequence": "Entries labeled PHYSICAL_SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION are duplicate unparameterized support tests after attachment failure and must not be interpreted as successful maximum-pixel-mode session queries."
+  },
+  "classification": "PUBLIC_CAMERA_DEVICE_SETUP_ACCEPTS_CAM5_RAW_SENSOR_RAW10_AT_ALL_PREDECLARED_GEOMETRIES__REJECTS_RAW14_AT_ALL_TESTED_GEOMETRIES__PHYSICAL_PIXEL_MODE_SETUP_ATTACHMENT_NOT_TESTED_DUE_API_REJECTION",
+  "interpretation": {
+    "proven": [
+      "CameraDeviceSetup is supported for logical camera 0 and camera 1.",
+      "Physical-5-bound deferred RAW_SENSOR and RAW10 configurations at 4080x3072, 8160x6144 and 16320x12288 are reported supported without a session pixel-mode parameter.",
+      "All predeclared RAW14 configurations tested on physical 5, 2 and 4 are reported unsupported.",
+      "The setup builder rejects setPhysicalCameraKey for the disclosed physical IDs in this query context."
+    ],
+    "notProven": [
+      "An actual 16320x12288 capture has meaningful 200MP payload population on Android 17.",
+      "A physical SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION session parameter can be queried through CameraDeviceSetup.",
+      "Honor OEM camera has no privileged RAW14 path.",
+      "RAW_SENSOR/RAW10 support implies native 200MP Direct-CFA."
+    ]
+  },
+  "nextDecision": "RE-RUN_THE_ALREADY_PROVEN_CAMERA5_16320x12288_RAW_SENSOR_CAPTURE_ROUTE_ON_ANDROID17_AND_AUDIT_THE_SEALED_PAYLOAD_TOPOLOGY_FOR_PRE_POST_OS_DELTA"
+}
