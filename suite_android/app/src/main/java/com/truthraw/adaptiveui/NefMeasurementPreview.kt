@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 
 private const val NEF_MEASUREMENT_MAGIC = 0x54524e4d
-private const val NEF_MEASUREMENT_HEADER_INTS = 16
+private const val NEF_MEASUREMENT_HEADER_INTS = 26
 private const val NEF_MAX_PREVIEW_EDGE = 384
 private const val NEF_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 
@@ -33,6 +33,8 @@ data class NefMeasurementMetrics(
     val exactCfaSamplesAvailable: Boolean,
     val directSensorAdcClaimAllowed: Boolean,
     val fullRawFrameMaterialized: Boolean,
+    val sourceBytes: Long,
+    val sourceSha256: String,
 )
 
 sealed interface NefMeasurementResult {
@@ -105,6 +107,10 @@ object NefMeasurementLoader {
             exactCfaSamplesAvailable = packet[13] != 0,
             directSensorAdcClaimAllowed = packet[14] != 0,
             fullRawFrameMaterialized = packet[15] != 0,
+            sourceBytes =
+                (packet[16].toLong() and 0xffffffffL) or
+                    ((packet[17].toLong() and 0xffffffffL) shl 32),
+            sourceSha256 = sha256Hex(packet),
         )
 
         if (!metrics.measurementAdmissionReady ||
@@ -132,6 +138,18 @@ object NefMeasurementLoader {
         }
 
         return NefMeasurementResult.Ready(bitmap, metrics)
+    }
+
+    private fun sha256Hex(packet: IntArray): String {
+        val out = StringBuilder(64)
+        for (index in 18 until 26) {
+            val word = packet[index]
+            for (shift in intArrayOf(0, 8, 16, 24)) {
+                val value = (word ushr shift) and 0xff
+                out.append(value.toString(16).padStart(2, '0'))
+            }
+        }
+        return out.toString()
     }
 
     private fun statusDescription(status: Int): String = when (status) {
