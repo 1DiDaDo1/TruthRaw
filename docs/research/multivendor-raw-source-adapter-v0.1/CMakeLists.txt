@@ -13,6 +13,7 @@ set(V47I "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_executable(test_multivendor_raw_source_adapter_v0_1
     native/multivendor_raw_source_adapter_v0_1.cpp
+    native/nikon_nef_uncompressed_adapter_v0_1.cpp
     tests/test_multivendor_raw_source_adapter_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
