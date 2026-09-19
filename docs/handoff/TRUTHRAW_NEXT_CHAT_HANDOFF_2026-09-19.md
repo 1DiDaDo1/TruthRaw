@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-61-pure-self-binding-dng`
+`integration/truthraw-suite-v0-62-pure-postwrite-verify`
 
 Current app version:
 
-`0.26-v0.61-pure-self-binding-dng`
+`0.27-v0.62-pure-postwrite-verify`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -75,6 +75,12 @@ Read:
 `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md`
 
 v0.61 CI run `35464897909` is green on host GCC, host Clang and Android. Artifact ID `10590768017`; extracted APK SHA-256 `38f118dbb068e846d0004da6d6c2091073a7fd73edaa31753e518a6723021137`.
+
+## 2B. v0.62 — artifact-level post-write verification
+
+v0.62 keeps the v0.61 writer/private contract and pixel mathematics unchanged. Android now re-opens the exact destination URI after commit and refuses to report success unless the saved DNG itself proves the current PURE role, v0.61 self-binding, exact L0 binary64 payload, scene-scale, 180-byte Technical Backplane, CRC32, precision/runtime provenance and 1/1 evidence state. The old compatibility-role marker causes fail-closed rejection. New test outputs use `*_truthraw_pure_float32_v0_62.dng`.
+
+Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md`.
 
 ## 3. Recovery work completed before app unification
 
@@ -438,8 +444,9 @@ A real Nikon promotion needs actual NEF files plus independently validated camer
 
 Continue in this order:
 
-1. run v0.61 host GCC/Clang and Android CI and verify the produced APK;
-2. on a real device, export a known-good DNG and independently inspect the saved v0.61 DNGPrivateData for exact Zero-Line/L0, scene-scale and serialized Backplane binding;
+1. run v0.62 host GCC/Clang and Android CI and verify the produced APK;
+2. on a real device, export a known-good DNG and require the UI to show `self-binding verified=true`;
+3. independently inspect that exact v0.62 saved DNG for current PURE role, Zero-Line/L0, scene-scale and serialized Backplane binding;
 3. keep historical `TRCERT01` verification support separate from any new current PTC/Dynamic-Authority certificate schema;
 4. define a versioned Nikon `NoiseUncertaintyBinding` or equivalent, scoped to exact camera/mode/readout identity;
 5. keep noise evidence separate from black/saturation evidence;
