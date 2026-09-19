@@ -186,8 +186,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
     private fun inputCard(
         iconRes: Int,
-        title: String,
-        subtitle: String,
+        titleText: String,
+        subtitleText: String,
         accent: Int,
         action: () -> Unit,
     ): View = vertical().apply {
@@ -202,9 +202,9 @@ class TruthRawSuiteLauncherActivity : Activity() {
             background = cardBackground(Color.rgb(8, 30, 56), accent, false)
         }, LinearLayout.LayoutParams(dp(54), dp(54)))
         addView(space(14))
-        addView(title(title, 18f))
+        addView(title(titleText, 18f))
         addView(space(5))
-        addView(body(subtitle, 12.5f))
+        addView(body(subtitleText, 12.5f))
         addView(space(10))
         addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
             text = "›"
@@ -216,8 +216,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
     }
 
     private fun outputCard(
-        title: String,
-        subtitle: String,
+        titleText: String,
+        subtitleText: String,
         detail: String,
         accent: Int,
         selected: Boolean,
@@ -236,10 +236,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 gravity = Gravity.CENTER
                 setTextColor(if (selected) accent else textMuted)
             }, LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(8) })
-            addView(title(title, 16f), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(title(titleText, 16f), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
         addView(space(5))
-        addView(body(subtitle, 12.5f))
+        addView(body(subtitleText, 12.5f))
         addView(space(10))
         addView(body(detail, 11.5f))
         if (enabled) setOnClickListener { action() }
