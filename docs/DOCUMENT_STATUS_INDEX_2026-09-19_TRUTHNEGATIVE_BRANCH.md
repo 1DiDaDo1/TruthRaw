@@ -14,7 +14,7 @@ This file does not supersede global historical indexes outside this branch.
 6. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
 7. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
 8. `docs/research/truthnegative-v0.2/README.md`
-9. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
+9. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`\n10. `docs/research/truthnegative-v0.2/TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.md`\n11. `state/TRUTHNEGATIVE_TN1_REAL_SOURCE_MASTER_BINDING_2026-09-19.json`
 10. `docs/research/truthnegative-v0.1/README.md` — retained first-draft provenance
 11. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json` — retained first-draft provenance
 12. `docs/handoff/TRUTHNEGATIVE_BRANCH_HANDOFF_2026-09-19.md`
