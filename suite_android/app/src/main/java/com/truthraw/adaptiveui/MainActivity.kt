@@ -164,7 +164,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/x-adobe-dng"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_62.dng")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_63.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
     }
@@ -280,7 +280,7 @@ class MainActivity : Activity() {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHRAW PURE v0.62 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                            "TRUTHRAW PURE v0.63 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "Master digest verified=${m.scientificMasterIdentityVerified} · " +
@@ -791,19 +791,44 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
                 addView(space(6))
-                addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
-                jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                val preferredOutput = getSharedPreferences(
+                    TruthRawSuiteLauncherActivity.PREFS,
+                    MODE_PRIVATE,
+                ).getString(
+                    TruthRawSuiteLauncherActivity.KEY_OUTPUT,
+                    TruthRawSuiteLauncherActivity.OUTPUT_PURE,
+                ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+                addView(label(
+                    "Voorkeursuitvoer: " +
+                        if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) "JPG" else "TRUTHRAW PURE",
+                    10f,
+                    muted = true,
+                ))
                 addView(space(5))
+
+                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
+                    addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
+                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                    addView(space(5))
+                }
+
                 addView(actionButton("TRUTHRAW PURE · 32-bit Float DNG opslaan") {
                     launchPureFloatDngExport(active)
                 })
                 pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
                 addView(label(
                     "PURE = XYZ-D50 LinearRaw · IEEE Float32 · negatieve en >1 waarden behouden · " +
-                        "exact Scientific-Master digest gate · geen appearance/tone.",
+                        "exact Scientific-Master digest gate · v0.63 self-binding + inhoudelijke Backplane CRC verify · geen appearance/tone.",
                     10f,
                     muted = true,
                 ))
+
+                if (preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
+                    addView(space(5))
+                    addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
+                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                }
+
                 addView(space(5))
                 addView(actionButton("16-bit Linear DNG opslaan (compatibility)") {
                     launchLinearDngExport(active)
