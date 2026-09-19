@@ -3,7 +3,7 @@ name: TruthNegative foundation v0.1
 on:
   push:
     branches:
-      - research/truthnegative-v0-1-scientific-negative-foundation
+      - research/truthnegative-v0-2-existing-house-binding
     paths:
       - 'tools/truthnegative_foundation_v01.py'
       - 'tests/test_truthnegative_foundation_v01.py'
