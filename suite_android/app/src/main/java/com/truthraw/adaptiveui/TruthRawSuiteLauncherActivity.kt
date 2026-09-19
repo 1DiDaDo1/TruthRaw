@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.48 targetSdk 37 RAW14 retarget control"
+            text = "Camera-5 research · v0.49 Honor Camera Android-17 package acquisition"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -102,6 +102,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.48 · Target 37 retest · zelfde v0.47 oracle") {
             startActivity(Intent(this, Api37Raw14ExtensionOracleActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.49 · Honor Camera .706 package export") {
+            startActivity(Intent(this, HonorCameraPackageExportActivity::class.java))
         })
         root.addView(space())
 
