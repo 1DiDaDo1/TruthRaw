@@ -1,0 +1,59 @@
+name: TruthRaw v0.59 Nikon NEF Radiometric Admission
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-59-nef-radiometric-admission
+    paths:
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/**'
+      - 'docs/research/nikon-nef-radiometric-admission-v0.59/**'
+      - 'state/TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json'
+      - '.github/workflows/multivendor-raw-source-adapter-v0-59-nef-radiometric.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-v059:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure
+        run: cmake -S docs/research/multivendor-raw-source-adapter-v0.1 -B build/raw-adapter -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/raw-adapter --config Release --parallel 2
+      - name: Generic adapter conformance
+        run: ./build/raw-adapter/test_multivendor_raw_source_adapter_v0_1
+      - name: Nikon NEF + radiometric admission conformance
+        run: ./build/raw-adapter/test_nikon_nef_uncompressed_adapter_v0_1
+
+  authority-guard:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify radiometric claim boundary
+        run: |
+          H='docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+          C='docs/research/multivendor-raw-source-adapter-v0.1/native/nikon_nef_uncompressed_adapter_v0_1.cpp'
+          S='state/TRUTHRAW_V059_NIKON_NEF_RADIOMETRIC_ADMISSION_2026-09-19.json'
+          grep -F 'RawRadiometricBinding' "$H"
+          grep -F 'cameraMake == make' "$C"
+          grep -F 'cameraModel == model' "$C"
+          grep -F 'blackLevelAuthoritative = radiometricAdmitted' "$C"
+          grep -F 'saturationLevelAuthoritative = radiometricAdmitted' "$C"
+          grep -F 'scientificAdmissionReady = false' "$C"
+          grep -F 'directSensorAdcClaimAllowed = false' "$C"
+          grep -F 'STORAGE_CODE_CEILING_IS_NOT_SENSOR_SATURATION' "$S"
