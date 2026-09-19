@@ -192,8 +192,42 @@ projection::ProjectionDescriptor descriptor_for(
         d.sealedSourceSha256[i] = static_cast<std::uint8_t>(0x80u + i);
     }
     d.scientificMasterSha256 = master;
+    for (std::size_t i = 0u; i < d.zeroLineSha256.size(); ++i) {
+        d.zeroLineSha256[i] = static_cast<std::uint8_t>(0x20u + i);
+        d.sceneScaleSha256[i] = static_cast<std::uint8_t>(0x40u + i);
+    }
+    d.zeroLineGauge.mode = truthraw::TruthRangeGaugeModeV02::SelfGauge;
+    d.zeroLineGauge.L0 = 0.125;
+    d.zeroLineGauge.gaugeId = "test-self-gauge";
+    d.zeroLineGauge.crossSceneComparable = false;
+    d.zeroLineGauge.absolutePhysicalUnits = false;
+    d.sceneBinding.sceneScaleId = "test-scene-scale";
+    d.sceneBinding.gainMapAppliedExactlyOnce = true;
+    d.sceneBinding.exposureNormalizedToCommonScene = false;
+    d.sceneBinding.gainNormalizedToCommonScene = false;
     d.sourceEvidenceId = "sha256:test-source";
     d.colorBindingId = "independent-test-color-binding";
+    d.precisionPolicyId =
+        "EXACT_SOURCE__F64_BRANCH_REFERENCE__F64_CAL_OPT_COV__F32_MASTER__F32_PURE";
+    d.runtimeReconstructionBackendId =
+        "research_edge_aware_support_limited_measured_preserving_v47i";
+
+    truthraw::technical_backplane::v0_1::State backplane{};
+    backplane.sourceEvidenceHash = d.sealedSourceSha256;
+    backplane.scientificMasterHash = d.scientificMasterSha256;
+    backplane.zeroLineHash = d.zeroLineSha256;
+    backplane.sceneScaleHash = d.sceneScaleSha256;
+    backplane.physicalFrameCount = 1u;
+    backplane.independentEvidenceCount = 1u;
+    backplane.roomStatus.fill(
+        truthraw::technical_backplane::v0_1::RoomStatus::ResearchOnly);
+    backplane.claimStatus =
+        truthraw::technical_backplane::v0_1::ClaimStatus::Candidate;
+    backplane.forbiddenFlags = 0u;
+    REQUIRE(
+        truthraw::technical_backplane::v0_1::serialize(
+            backplane, d.serializedBackplane) ==
+        truthraw::technical_backplane::v0_1::Status::Ok);
     return d;
 }
 
@@ -324,9 +358,19 @@ void verify_dng_structure(
     const auto privateOff = payload_offset(entries.at(50740u));
     const auto privateText = bytes_as_string(
         bytes, privateOff, entries.at(50740u).count);
-    REQUIRE(privateText.find("LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION") != std::string::npos);
+    REQUIRE(privateText.find("TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION") != std::string::npos);
+    REQUIRE(privateText.find("private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_61") != std::string::npos);
     REQUIRE(privateText.find("representation_only=1") != std::string::npos);
+    REQUIRE(privateText.find("scientific_master_modified=0") != std::string::npos);
+    REQUIRE(privateText.find("appearance_applied=0") != std::string::npos);
+    REQUIRE(privateText.find("counterfactual_observation_created=0") != std::string::npos);
     REQUIRE(privateText.find("scientific_master_sha256=") != std::string::npos);
+    REQUIRE(privateText.find("zero_line_sha256=") != std::string::npos);
+    REQUIRE(privateText.find("zero_line_l0_f64_bits=0x3fc0000000000000") != std::string::npos);
+    REQUIRE(privateText.find("scene_scale_sha256=") != std::string::npos);
+    REQUIRE(privateText.find("technical_backplane_serialized_hex=") != std::string::npos);
+    REQUIRE(privateText.find("precision_policy_id=") != std::string::npos);
+    REQUIRE(privateText.find(descriptor.runtimeReconstructionBackendId) != std::string::npos);
     REQUIRE(privateText.find(descriptor.colorBindingId) != std::string::npos);
 }
 
@@ -385,6 +429,29 @@ void test_transactional_projection_and_identity_gate() {
     REQUIRE(sinkWrong.committed.empty());
     REQUIRE(!wrongResult.artifactCommitted);
 
+    auto wrongBinding = descriptor;
+    wrongBinding.serializedBackplane[80] ^= 0x01u;
+    SyntheticMasterSource sourceWrongBinding(width, height);
+    MemoryTransactionSink sinkWrongBinding;
+    projection::Result wrongBindingResult{};
+    const auto wrongBindingStatus = projection::write_xyz_d50_linear_dng_projection(
+        sourceWrongBinding, wrongBinding, matrix, sinkWrongBinding, wrongBindingResult);
+    REQUIRE(!wrongBindingStatus);
+    REQUIRE(wrongBindingStatus.code == projection::StatusCode::ScientificBindingMismatch);
+    REQUIRE(sinkWrongBinding.committed.empty());
+    REQUIRE(!wrongBindingResult.artifactCommitted);
+
+    auto invalidGauge = descriptor;
+    invalidGauge.zeroLineGauge.L0 = 0.0;
+    SyntheticMasterSource sourceInvalidGauge(width, height);
+    MemoryTransactionSink sinkInvalidGauge;
+    projection::Result invalidGaugeResult{};
+    const auto invalidGaugeStatus = projection::write_xyz_d50_linear_dng_projection(
+        sourceInvalidGauge, invalidGauge, matrix, sinkInvalidGauge, invalidGaugeResult);
+    REQUIRE(!invalidGaugeStatus);
+    REQUIRE(invalidGaugeStatus.code == projection::StatusCode::ScientificBindingMismatch);
+    REQUIRE(sinkInvalidGauge.committed.empty());
+
     const std::array<float, 9> singular = {
         1.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f,
@@ -408,6 +475,8 @@ int main() {
     std::cout << "photometric_linear_raw=34892\n";
     std::cout << "sample_format_ieee_float32=1\n";
     std::cout << "scientific_master_digest_gate=1\n";
+    std::cout << "pure_self_binding_contract_v061=1\n";
+    std::cout << "zero_line_scene_scale_backplane_bound=1\n";
     std::cout << "transactional_abort_on_master_mismatch=1\n";
     std::cout << "representation_only=1\n";
     std::cout << "physical_frame_count=1\n";
