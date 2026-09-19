@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import java.io.File
 import java.util.UUID
 
 /**
@@ -63,6 +64,25 @@ data class BatchSession(
 }
 
 object RawIngress {
+    fun readInternalCameraFile(file: File): RawJob {
+        require(file.isFile && file.canRead()) { "Camera source file is not readable." }
+        val mimeType = when (file.extension.lowercase()) {
+            "dng" -> "image/x-adobe-dng"
+            else -> "application/octet-stream"
+        }
+        val format = RawFormatRegistry.classify(file.name, mimeType)
+        return RawJob(
+            source = RawHandle(
+                uri = Uri.fromFile(file),
+                displayName = file.name,
+                declaredSizeBytes = file.length(),
+                mimeType = mimeType,
+                format = format,
+                sourceRoute = SourceIngressRoute.CAMERA_CAPTURE,
+            ),
+        )
+    }
+
     fun readHandlesOnly(
         resolver: ContentResolver,
         uris: List<Uri>,
