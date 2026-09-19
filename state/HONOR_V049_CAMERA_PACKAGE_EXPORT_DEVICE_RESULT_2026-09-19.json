@@ -1,0 +1,53 @@
+{
+  "schema": "truthraw.honor-camera-package-export-device-result.v0.49",
+  "date": "2026-09-19",
+  "authority": "SOFTWARE_PACKAGE_ARTIFACT_ONLY",
+  "source": {
+    "fingerprintJson": {
+      "name": "TRUTHRAW_HONOR_CAMERA_PACKAGE_FINGERPRINT_v049.json",
+      "bytes": 1903,
+      "sha256": "f2b8092b2bb959de48d748bfa6d259f7a14b6d2f29e01afc94edd96a4acee981"
+    },
+    "exportBundle": {
+      "name": "TRUTHRAW_HONOR_CAMERA_PACKAGE_171.0.10.706_v049.zip",
+      "bytes": 59236173,
+      "sha256": "556a10407eb3f0b4d20b9fd72be2dac2c6417ecacfc2e69fccc5a33509305c97"
+    }
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 37
+  },
+  "package": {
+    "packageName": "com.hihonor.camera",
+    "versionName": "171.0.10.706",
+    "longVersionCode": 1710010706,
+    "targetSdkVersion": 37,
+    "minSdkVersion": 36,
+    "compileSdkVersion": 36,
+    "systemApp": true,
+    "updatedSystemApp": false,
+    "splitCount": 0,
+    "sourcePath": "/product_h/region_comm/oversea/app/HnCamera2/HnCamera2.apk",
+    "baseApkBytes": 86018325,
+    "baseApkSha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027"
+  },
+  "android16Reference": {
+    "versionName": "171.0.10.452",
+    "baseApkBytes": 84167938,
+    "baseApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"
+  },
+  "integrity": {
+    "exportedBaseApkHashMatchesDeviceFingerprintJson": true,
+    "allPackageFilesReadable": true,
+    "allPackageFilesHashed": true,
+    "bundleExportEligible": true
+  },
+  "classification": "ANDROID17_HONOR_CAMERA_171_0_10_706_EXACT_BASE_APK_ACQUIRED_AND_HASH_VERIFIED",
+  "boundary": "SOFTWARE_PACKAGE_ARTIFACT_ONLY__APK_CONTENT_NEVER_DIRECT_CFA_CAPTURE_OR_CALIBRATION_EVIDENCE",
+  "nextDecision": "STATIC_DIFF_ANDROID16_171_0_10_452_AGAINST_ANDROID17_171_0_10_706"
+}
