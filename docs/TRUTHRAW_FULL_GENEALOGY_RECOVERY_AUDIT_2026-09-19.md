@@ -321,7 +321,94 @@ Current scene-physics/restoration work preserves the scientific lesson:
 - appearance may not overpaint valid measured support in the Scientific Master;
 - counterfactual relighting remains counterfactual unless independently constrained.
 
-## 15. Camera-5 forensic correction
+## 15. Open-World illumination, scientific HDR and water-droplet detail
+
+The Open-World lighting/HDR line is part of the recovered genealogy and must stay connected to the same Scientific Master / Dynamic Authority root.
+
+### 15.1 Captured-world scientific HDR
+
+The current scientific HDR route is:
+
+`sealed single RAW/CFA`
+→ `Scientific Master`
+→ `per-channel Dynamic Authority`
+→ `scientific HDR headroom`
+→ source-bound target-colour transform
+→ authority-aware scene-EV to display-EV projection
+→ finite HDR transport such as P3-D65 / ST-2084 PQ.
+
+The scene representation has no architectural `[0,1]` or fixed-EV wall, but this is **representation freedom**, not infinite measured sensor dynamic range.
+
+Per-channel HDR meaning remains:
+
+- finite measured/calibrated value → evidence-supported finite HDR;
+- finite reconstructed value with admitted support/uncertainty → reconstructed scientific HDR, never measured;
+- `CENSORED` → bound only, never invented exact radiance;
+- `UNKNOWN` → no scientific HDR headroom;
+- `COUNTERFACTUAL` / appearance → presentation or hypothetical world only.
+
+Adobe HDR Limit, PQ code, MaxCLL, gain maps or tone curves never create new sensor evidence or write back into the Scientific Master.
+
+### 15.2 Open-World illumination
+
+Open-World illumination remains a separate authority axis.
+
+Illumination may be:
+
+- unknown;
+- source-bound estimate;
+- reconstructed/inferred;
+- independently measured;
+- counterfactual.
+
+A different virtual sun/lamp/night state can create a useful Open-World HDR view, but it remains `COUNTERFACTUAL` unless independently constrained by physical measurements. A simulated relight is not another exposure and cannot increase `physicalFrameCount` or `independentEvidenceCount`.
+
+Physically strong relighting requires support for geometry/normals, visibility/occlusion, material/BRDF, spatial illumination and spectrum. A scalar brightness operation is not a physical relighting model.
+
+### 15.3 Water droplets as a sharpness/material/HDR stress test
+
+The historical `waterdruppels` line is explicitly preserved.
+
+Water/droplets stress multiple coupled scientific axes:
+
+- optics and local SFR/MTF/PSF support;
+- tiny high-frequency detail;
+- measured CFA structure versus reconstructed missing colour;
+- focus/motion/noise uncertainty;
+- reflection, transmission, refraction and transparency;
+- specular glints and highlight censoring;
+- material/BRDF ambiguity;
+- colour-invention risk;
+- HDR highlight authority.
+
+The modern meaning of “water-droplet sharpness” is **not** an instruction to sharpen droplets harder.
+
+TruthRaw must keep three distinct quantities:
+
+1. optical/sample detail authority;
+2. reconstructed spatial detail;
+3. output acutance/sharpening.
+
+A droplet edge/glint may be very visually sharp while still having weak optical/evidence authority. Conversely, evidence-supported microstructure should not be blurred merely to look natural.
+
+Current Structure Evidence rules therefore apply directly to water droplets:
+
+- measured structure comes from source CFA support before appearance;
+- censored pairs do not create exact highlight structure;
+- reconstructed missing-channel detail remains reconstructed and uncertainty-bound;
+- without exact-domain hold-out optical MTF support, adaptive detail/acutance remains Neutral;
+- even with admitted optics support, appearance-domain detail cannot write transformed pixels into the Scientific Master or become newly measured detail.
+
+For water-specific HDR:
+
+- an uncensored evidence-supported specular glint may contribute real scientific HDR headroom;
+- a clipped droplet highlight remains `CENSORED` and provides only a lower bound;
+- Open-World relighting may generate a new hypothetical glint/refraction pattern, but that new pattern is `COUNTERFACTUAL`;
+- generic blue/cyan water colour or fabricated highlight peaks are forbidden when unsupported by the captured evidence.
+
+This keeps the original water-droplet stress-test insight connected to current Structure Evidence, Dynamic Authority, Open-World illumination and scientific HDR rather than reducing it to a sharpening preset.
+
+## 16. Camera-5 forensic correction
 
 Current interpretation must preserve the later payload audit over earlier “200MP RAW proven” shorthand.
 
@@ -342,7 +429,7 @@ Therefore:
 
 HONOR Pro TELE DNG evidence independently recurs in the 4080×3072 CFA domain.
 
-## 16. Current Android-17 acquisition baseline
+## 17. Current Android-17 acquisition baseline
 
 A separate branch now exists:
 
@@ -352,7 +439,7 @@ Its purpose is read-only measurement of the user's current Android-17 / installe
 
 This baseline creates no camera frame and therefore does not yet enter the Scientific Master / PURE / Open Scene / TruthNegative chain.
 
-## 17. Recovery rule
+## 18. Recovery rule
 
 Do not blindly merge the 2026-09-14 branch.
 
@@ -369,7 +456,7 @@ Recover by contract:
 9. preserve current F64-compute/F32-storage precision law;
 10. require regression equality of Scientific Master identity before and after any recovered PURE export.
 
-## 18. Immediate next audit
+## 19. Immediate next audit
 
 Before any code transplant:
 
