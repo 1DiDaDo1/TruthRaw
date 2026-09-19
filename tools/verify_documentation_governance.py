@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-60-pure-float32-dng":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-61-pure-self-binding-dng":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -150,6 +150,19 @@ if v060_output.get("bounded01Clipping") is not False:
 compat = v060.get("compatibilitySeparation") or {}
 if compat.get("uint16LinearDngRole") != "COMPATIBILITY_ONLY":
     errors.append("v060_uint16_linear_dng_must_remain_compatibility_only")
+
+v061 = (((current_state.get("multiVendorRaw") or {}).get("v061")) or {})
+v061_binding = v061.get("selfBinding") or {}
+if v061.get("privateContract") != "TRUTHRAW_PURE_SELF_BINDING_V0_61":
+    errors.append("v061_private_contract_mismatch")
+if v061.get("inheritsV060PixelRouteWithoutPixelMathChange") is not True:
+    errors.append("v061_must_not_change_v060_pixel_math")
+if v061_binding.get("zeroLineL0ExactBinary64Bits") is not True:
+    errors.append("v061_zero_line_l0_exact_bits_required")
+if v061_binding.get("exactSerializedTechnicalBackplaneBytes") != 180:
+    errors.append("v061_exact_backplane_bytes_required")
+if (v061.get("historicalCertificateFinding") or {}).get("reactivatedAsCurrentCertificate") is not False:
+    errors.append("legacy_trcert01_must_not_be_reactivated")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
