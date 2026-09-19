@@ -9,7 +9,7 @@ include(FetchContent)
 
 # Pinned LibRaw 0.22.2 commit behind the signed release tag object.
 set(TRUTHRAW_LIBRAW_COMMIT "b93f6e45c194f5df9b02a43b1af9a54b4f41f33f")
-set(TRUTHRAW_LIBRAW_CMAKE_COMMIT "116924e5bcb9483ef9c5fbe7f3cfc5a8a4b97064")
+set(TRUTHRAW_LIBRAW_CMAKE_COMMIT "eb98e4325aef2ce85d2eb031c2ff18640ca616d3")
 
 FetchContent_Declare(
   truthraw_libraw_source
