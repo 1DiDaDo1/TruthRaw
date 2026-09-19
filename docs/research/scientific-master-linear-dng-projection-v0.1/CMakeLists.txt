@@ -16,6 +16,7 @@ set(STREAMING "${TRUTHRAW_REPO_ROOT}/docs/research/full-frame-streaming-v0.1")
 set(SMSB1 "${TRUTHRAW_REPO_ROOT}/docs/research/scientific-master-streaming-binding-v0.1")
 set(SMSB2 "${TRUTHRAW_REPO_ROOT}/docs/research/scientific-master-streaming-binding-v0.2")
 set(TRUTHRANGE "${TRUTHRAW_REPO_ROOT}/docs/research/truthrange-latent-binding-v0.2")
+set(BACKPLANE "${TRUTHRAW_REPO_ROOT}/docs/research/technical-backplane-v0.1/native")
 set(TILE_DNG "${TRUTHRAW_REPO_ROOT}/docs/research/tile-native-dng-source-v0.1/native")
 set(V47I "${TRUTHRAW_REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
@@ -34,11 +35,15 @@ add_executable(test_scientific_master_linear_dng_projection_v0_1
     tests/test_scientific_master_linear_dng_projection_v0_1.cpp
     native/scientific_master_linear_dng_projection_v0_1.cpp
     "${DIGEST}/scientific_master_digest_v0_1.cpp"
+    "${BACKPLANE}/technical_backplane_v0_1.cpp"
 )
 
 target_include_directories(test_scientific_master_linear_dng_projection_v0_1 PRIVATE
     native
     "${DIGEST}"
+    "${BACKPLANE}"
+    "${TRUTHRANGE}/native"
+    "${V47I}/include"
 )
 
 add_executable(test_streaming_scientific_master_tile_source_v0_1
