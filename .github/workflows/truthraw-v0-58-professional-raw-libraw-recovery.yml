@@ -1,0 +1,97 @@
+name: TruthRaw v0.58 Professional RAW + LibRaw Recovery
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-58-professional-raw-libraw-recovery
+    paths:
+      - 'docs/research/professional-raw-ingress-v0.1/**'
+      - 'docs/research/professional-raw-decoder-adapter-v0.1/**'
+      - 'docs/research/libraw-compat-probe-v0.1/**'
+      - 'docs/research/libraw-fd-datastream-v0.1/**'
+      - 'docs/TRUTHRAW_V058_PROFESSIONAL_RAW_LIBRAW_RECOVERY_2026-09-19.md'
+      - 'state/TRUTHRAW_V058_PROFESSIONAL_RAW_LIBRAW_RECOVERY_2026-09-19.json'
+      - '.github/workflows/truthraw-v0-58-professional-raw-libraw-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LIBRAW_VERSION: '0.22.2'
+  LIBRAW_SHA256: 'de86b035655accff8d4010f1a221fdf50d353cb7b1422ba26f14a0db92612cfa'
+
+jobs:
+  host-recovery:
+    name: Host professional RAW / LibRaw 0.22.2
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake pkg-config curl libjpeg-dev zlib1g-dev
+
+      - name: Fetch and verify LibRaw 0.22.2
+        run: |
+          curl --fail --location --retry 3 \
+            "https://www.libraw.org/data/LibRaw-${LIBRAW_VERSION}.tar.gz" \
+            --output "$RUNNER_TEMP/LibRaw-${LIBRAW_VERSION}.tar.gz"
+          echo "${LIBRAW_SHA256}  $RUNNER_TEMP/LibRaw-${LIBRAW_VERSION}.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/LibRaw-${LIBRAW_VERSION}.tar.gz" -C "$RUNNER_TEMP"
+
+      - name: Build pinned LibRaw without OpenMP
+        run: |
+          cd "$RUNNER_TEMP/LibRaw-${LIBRAW_VERSION}"
+          ./configure \
+            --prefix="$RUNNER_TEMP/libraw-install" \
+            --disable-openmp \
+            --disable-lcms \
+            --disable-examples
+          make -j2
+          make install
+          echo "PKG_CONFIG_PATH=$RUNNER_TEMP/libraw-install/lib/pkgconfig:$RUNNER_TEMP/libraw-install/lib64/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$RUNNER_TEMP/libraw-install/lib:$RUNNER_TEMP/libraw-install/lib64" >> "$GITHUB_ENV"
+
+      - name: Build and test historical Professional RAW ingress
+        run: |
+          cmake -S docs/research/professional-raw-ingress-v0.1 -B build/pro-ingress -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/pro-ingress --parallel 2
+          ./build/pro-ingress/test_professional_raw_ingress_v0_1
+
+      - name: Build and test historical Professional RAW decoder adapter
+        run: |
+          cmake -S docs/research/professional-raw-decoder-adapter-v0.1 -B build/pro-decoder -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/pro-decoder --parallel 2
+          ./build/pro-decoder/test_professional_raw_decoder_adapter_v0_1
+
+      - name: Build and test historical LibRaw compatibility probe on 0.22.2
+        run: |
+          pkg-config --modversion libraw
+          cmake -S docs/research/libraw-compat-probe-v0.1 -B build/libraw-probe -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/libraw-probe --parallel 2
+          ./build/libraw-probe/test_libraw_compat_probe_v0_1 | tee "$RUNNER_TEMP/libraw-probe.txt"
+          grep -F "LIBRAW_COMPAT_PROBE_V0_1_TEST_PASS" "$RUNNER_TEMP/libraw-probe.txt"
+          grep -F "libraw_version=0.22.2" "$RUNNER_TEMP/libraw-probe.txt"
+          grep -F "probe_unpack_calls=0" "$RUNNER_TEMP/libraw-probe.txt"
+
+      - name: Compile borrowed-fd LibRaw datastream
+        run: |
+          c++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -c \
+            docs/research/libraw-fd-datastream-v0.1/native/libraw_fd_datastream_v0_1.cpp \
+            -Idocs/research/libraw-fd-datastream-v0.1/native \
+            -Idocs/research/libraw-compat-probe-v0.1/native \
+            -Idocs/research/professional-raw-ingress-v0.1/native \
+            $(pkg-config --cflags libraw) \
+            -o "$RUNNER_TEMP/libraw_fd_datastream_v0_1.o"
+          test -s "$RUNNER_TEMP/libraw_fd_datastream_v0_1.o"
+
+      - name: Verify scientific claim boundaries
+        run: |
+          PROBE='docs/research/libraw-compat-probe-v0.1/native/libraw_compat_probe_v0_1.cpp'
+          ADAPTER='docs/research/professional-raw-decoder-adapter-v0.1/native/professional_raw_decoder_adapter_v0_1.cpp'
+          grep -F 'out.pixelsUnpacked = false' "$PROBE"
+          grep -F 'LosslessDecodedEquivalentSamples' "$ADAPTER"
+          grep -F 'sampleEquivalenceVerified' "$ADAPTER"
+          grep -F 'mayEnterSingleFrameScientificMaster = false' "$ADAPTER"
