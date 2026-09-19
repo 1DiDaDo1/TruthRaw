@@ -12,21 +12,21 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-62-pure-postwrite-verify`
+`integration/truthraw-suite-v0-63-crc-ui-branding`
 
 Current app:
 
-`0.27-v0.62-pure-postwrite-verify`
+`0.28-v0.63-crc-ui-branding`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.62 keeps the v0.61 32-bit IEEE Float self-binding writer intact and adds a read-after-write artifact gate: the exact saved destination DNG must contain and structurally validate the self-binding contract before success is shown.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.63 keeps the 32-bit IEEE Float pixel route intact, versions the self-binding contract to `TRUTHRAW_PURE_SELF_BINDING_V0_63`, corrects Backplane CRC scope to bytes 0..175 and verifies CRC+lineage after write. The branded launcher now makes RAW/DNG import and camera the two clear primary inputs; diagnostics moved behind settings.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
 Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
 
-Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract remains `TRUTHRAW_PURE_SELF_BINDING_V0_61`. v0.62 adds post-write verification and names new outputs `*_truthraw_pure_float32_v0_62.dng`. Read `docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md` before changing this gate.
+Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract is `TRUTHRAW_PURE_SELF_BINDING_V0_63`. New PURE outputs use `*_truthraw_pure_float32_v0_63.dng`. Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md` before changing CRC, self-binding or launcher semantics.
 
 v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
