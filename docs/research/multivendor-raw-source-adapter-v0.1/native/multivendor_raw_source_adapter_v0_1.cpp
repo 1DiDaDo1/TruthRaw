@@ -114,7 +114,7 @@ public:
         outDescriptor.format = RawFormatFamily::Dng;
         outDescriptor.decoderId = "truthraw.tile-native-dng-source.v0.1";
         outDescriptor.sourceEvidenceId = request.sourceSeal.sourceEvidenceId;
-        outDescriptor.sourceSealVerifiedAtBoundary = true;
+        outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
         outDescriptor.syntheticConformanceOnly = false;
@@ -298,7 +298,7 @@ public:
         outDescriptor.format = RawFormatFamily::SyntheticConformanceFixture;
         outDescriptor.decoderId = "truthraw.synthetic-proprietary-conformance.v0.1";
         outDescriptor.sourceEvidenceId = request.sourceSeal.sourceEvidenceId;
-        outDescriptor.sourceSealVerifiedAtBoundary = true;
+        outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
         outDescriptor.syntheticConformanceOnly = true;
