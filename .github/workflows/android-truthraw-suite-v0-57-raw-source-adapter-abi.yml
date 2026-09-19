@@ -1,0 +1,87 @@
+name: TruthRaw v0.57 RAW Source Adapter ABI
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-57-raw-source-adapter-abi
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/**'
+      - 'docs/TRUTHRAW_V057_RAW_SOURCE_ADAPTER_ABI_2026-09-19.md'
+      - 'state/TRUTHRAW_V057_RAW_SOURCE_ADAPTER_ABI_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-57-raw-source-adapter-abi.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v057:
+    name: Build v0.57 generic RAW adapter app
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify generic adapter wiring
+        run: |
+          CMAKE='suite_android/app/src/main/cpp/CMakeLists.txt'
+          PREVIEW='suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp'
+          EXPORT='suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp'
+          BRIDGE='suite_android/app/src/main/cpp/raw_source_adapter_bridge_common.h'
+          REG='suite_android/app/src/main/java/com/truthraw/adaptiveui/RawFormatRegistry.kt'
+          STATE='state/TRUTHRAW_V057_RAW_SOURCE_ADAPTER_ABI_2026-09-19.json'
+
+          grep -F 'multivendor-raw-source-adapter-v0.1/native' "$CMAKE"
+          grep -F 'multivendor_raw_source_adapter_v0_1.cpp' "$CMAKE"
+          grep -F 'openDngViaAdapter' "$PREVIEW"
+          grep -F 'openDngViaAdapter' "$EXPORT"
+          grep -F 'RawSourceAdapterRegistry' "$BRIDGE"
+          grep -F 'sourceSealAcceptedAtBoundary' 'docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+          grep -F 'MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG' "$REG"
+          grep -F '"routedThroughRegistry": true' "$STATE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          preview=Path('suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp').read_text()
+          export=Path('suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp').read_text()
+          adapter=Path('docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.cpp').read_text()
+          assert preview.count("openDngViaAdapter") == 2
+          assert export.count("openDngViaAdapter") == 1
+          assert "directSensorAdcClaimAllowed = false" in adapter
+          assert "SyntheticConformanceFixture" in adapter
+          print("v0.57 generic adapter wiring PASS")
+          PY
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-57-raw-source-adapter-abi-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

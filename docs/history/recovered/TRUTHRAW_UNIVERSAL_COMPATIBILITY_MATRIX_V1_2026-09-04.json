@@ -1,0 +1,16 @@
+{
+  "version": "truthraw.universal_compatibility_matrix.v1",
+  "axes": ["container_decoder", "storage_representation", "sample_topology", "processing_lineage", "physical_exposure_count", "radiometric_calibration", "color_calibration"],
+  "source_families": [
+    {"name":"Android packed direct RAW","examples":["RAW10","RAW12","RAW14"],"decoder":"native packed decoder","route":"direct physical CFA after CaptureResult contract","notes":"RAW14 API 37; RAW12 API 23; RAW10 API 21"},
+    {"name":"Android RAW_SENSOR","examples":["RAW_SENSOR"],"decoder":"uint16 raw view","route":"direct physical CFA; topology may follow sensor binning factor in maximum-resolution modes"},
+    {"name":"DNG direct/uncertified CFA","examples":["MotionCam/Honor DNG"],"decoder":"DNG + LibRaw/native conformance decoder","route":"direct CFA with provenance guard"},
+    {"name":"Computational CFA DNG","examples":["Pixel HDR+ ~50MP CFA DNG"],"decoder":"DNG + conformance-validated compressed RAW decoder","route":"computational CFA guarded solver","rules":["no single-exposure certification from CFA storage","no physical NoiseProfile/SNR double counting","signal-changing inverse off by default"]},
+    {"name":"Remosaic / non-Bayer physical topology","examples":["Quad/Nona Bayer maximum-resolution RAW"],"decoder":"Camera2/DNG/vendor decoder","route":"topology-aware physical forward model; remosaic only when lineage explicitly proves it"},
+    {"name":"LinearRaw DNG","examples":["TruthRaw Virtual Ideal Camera Linear"],"decoder":"DNG","route":"linear scene ingest; never demosaic"},
+    {"name":"Computational linear RAW","examples":["Apple ProRAW","Samsung Expert RAW-like products when identified"],"decoder":"DNG/vendor metadata","route":"computational linear scene branch"},
+    {"name":"Vendor camera RAW","examples":["CR3","NEF","ARW","RAF","RW2","ORF","PEF","IIQ","3FR"],"decoder":"LibRaw/vendor SDK adapter","route":"unknown until decoder emits topology + lineage contract"},
+    {"name":"Non-Bayer periodic CFA","examples":["X-Trans-like 6x6","RGBW/other periodic CFA"],"decoder":"DNG/vendor adapter","route":"generic sample-topology solver; no hard-coded 2x2 Bayer assumption"},
+    {"name":"Opaque implementation-dependent RAW","examples":["Android RAW_PRIVATE"],"decoder":"device-specific only","route":"fail closed"}
+  ]
+}

@@ -26,6 +26,7 @@ set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
 set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
+set(MULTIVENDOR_RAW_ADAPTER "${RESEARCH_ROOT}/multivendor-raw-source-adapter-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
@@ -57,6 +58,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
     ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
+    ${MULTIVENDOR_RAW_ADAPTER}/multivendor_raw_source_adapter_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -76,6 +78,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
     ${LINEAR_DNG_PROJECTION}
+    ${MULTIVENDOR_RAW_ADAPTER}
     ${V47I_NATIVE}/include)
 
 find_library(ANDROID_LIB android)

@@ -1,0 +1,139 @@
+{
+  "schema": "TruthRawRawSourceAdapterABI/0.57",
+  "date": "2026-09-19",
+  "status": "INTEGRATION_DNG_ROUTED_THROUGH_GENERIC_ADAPTER_PROPRIETARY_DECODERS_PENDING",
+  "branch": "integration/truthraw-suite-v0-57-raw-source-adapter-abi",
+  "appVersionName": "0.22-v0.57-raw-source-adapter-abi",
+  "productFrontDoors": [
+    {
+      "order": 1,
+      "id": "RAW_FILE",
+      "role": "PRIMARY"
+    },
+    {
+      "order": 2,
+      "id": "CAMERA_CAPTURE",
+      "role": "SECONDARY"
+    }
+  ],
+  "convergencePoint": "SEALED_SOURCE_ADMISSION",
+  "adapterModule": "docs/research/multivendor-raw-source-adapter-v0.1",
+  "commonOutputInterface": "streaming_v0_1::IRawTileSource",
+  "sourceSealSemantics": {
+    "shaOwnedBy": "EXISTING_SOURCE_SEAL_AND_REVERIFICATION_PATH",
+    "adapterRehashesSource": false,
+    "adapterChecksByteLengthMatch": true,
+    "descriptorField": "sourceSealAcceptedAtBoundary"
+  },
+  "dng": {
+    "routedThroughRegistry": true,
+    "adapter": "truthraw.tile-native-dng-source.v0.1",
+    "parserRewritten": false,
+    "actualPreviewSourceCreationUsesGenericAdapter": true,
+    "linearDngExportSourceCreationUsesGenericAdapter": true,
+    "directSensorAdcClaimAllowed": false
+  },
+  "syntheticConformanceFixture": {
+    "magic": "TRAWV001",
+    "realVendorFormat": false,
+    "purpose": "PROVE_NON_DNG_ADAPTER_CAN_SATISFY_COMMON_TILE_ABI",
+    "arbitraryTileReads": true,
+    "fullRawMaterialized": false,
+    "directSensorAdcClaimAllowed": false
+  },
+  "decoderPending": [
+    "CR3",
+    "CR2",
+    "NEF",
+    "NRW",
+    "ARW",
+    "RAF",
+    "RW2",
+    "ORF",
+    "PEF",
+    "RWL",
+    "3FR",
+    "FFF",
+    "IIQ",
+    "X3F",
+    "SRW",
+    "ERF",
+    "DCR",
+    "KDC",
+    "MRW",
+    "MEF",
+    "RAW"
+  ],
+  "androidNativeStatusRange": {
+    "start": 7001,
+    "end": 7008,
+    "meaning": "GENERIC_RAW_ADAPTER_ERRORS"
+  },
+  "camera": {
+    "role": "SECONDARY_ACQUISITION_FRONT_DOOR",
+    "outputHandoff": "DNG_TO_COMMON_RAW_INGRESS",
+    "separateScientificPipeline": false
+  },
+  "preservedLaws": [
+    "SOURCE_IMMUTABLE",
+    "MEASURED_RECONSTRUCTED_UNKNOWN_SEPARATED",
+    "SCIENTIFIC_MASTER_VENDOR_INVARIANT",
+    "NO_DIRECT_ADC_CLAIM_FROM_CONTAINER_DECODE",
+    "NO_SCIENTIFIC_MASTER_FOR_DECODER_PENDING_FORMATS",
+    "CAMERA_AND_FILE_CONVERGE_AT_SEALED_SOURCE"
+  ],
+  "next": [
+    "ANDROID_CI_GREEN",
+    "FREEZE_V0_1_ADAPTER_BOUNDARY",
+    "DESIGN_GENERIC_SAMPLE_TOPOLOGY_EXTENSION_BEYOND_2X2_BAYER",
+    "SELECT_FIRST_REAL_PROPRIETARY_BAYER_FORMAT_FROM_AVAILABLE_FIXTURE",
+    "IMPLEMENT_AND_VALIDATE_ONE_REAL_VENDOR_ADAPTER"
+  ],
+  "recoveredHistoricalUniversalAdapter": {
+    "preservedFiles": [
+      "docs/history/recovered/TRUTHRAW_UNIVERSAL_RAW_EVIDENCE_ADAPTER_V1_2026-09-04.py",
+      "docs/history/recovered/TRUTHRAW_UNIVERSAL_COMPATIBILITY_MATRIX_V1_2026-09-04.json"
+    ],
+    "recoveredRule": "STORAGE_REPRESENTATION_SAMPLE_TOPOLOGY_PROCESSING_LINEAGE_PHYSICAL_EXPOSURE_RADIOMETRIC_CALIBRATION_COLOR_CALIBRATION_ARE_SEPARATE_AXES",
+    "dngIsDirectSensorByExtension": false,
+    "vendorRawExtensionGrantsPixelSemantics": false,
+    "metadataClassificationSeparatedFromPixelDecode": true
+  },
+  "adapterDescriptorAxes": {
+    "storageRepresentation": [
+      "UNKNOWN",
+      "CFA_MOSAIC",
+      "PACKED_CFA",
+      "LINEAR_RAW",
+      "MULTICHANNEL_LINEAR",
+      "OPAQUE_VENDOR_RAW",
+      "SYNTHETIC_CFA"
+    ],
+    "sampleTopology": [
+      "UNKNOWN",
+      "BAYER_2X2",
+      "PERIODIC_CFA",
+      "LINEAR_RGB",
+      "MONO"
+    ],
+    "processingLineage": [
+      "UNKNOWN",
+      "DIRECT_CFA_STORAGE_UNCERTIFIED",
+      "DIRECT_SENSOR_SINGLE_EXPOSURE_CERTIFIED",
+      "DIRECT_SENSOR_MULTI_FRAME_CERTIFIED",
+      "REMOSAICED_SENSOR_CFA",
+      "COMPUTATIONAL_CFA_OR_MERGED_RAW",
+      "LINEAR_SCENE_RAW_UNCERTIFIED",
+      "COMPUTATIONAL_LINEAR_RAW",
+      "VIRTUAL_RECONSTRUCTED_RAW",
+      "SYNTHETIC_CONFORMANCE_ONLY"
+    ]
+  },
+  "currentTopologyBoundary": {
+    "existingDownstreamMetadata": "DngMetadata::CfaPattern_2x2_Bayer",
+    "nativeScienceReadyTopology": "BAYER_2X2",
+    "periodicCfaNativeProcessingReady": false,
+    "linearRawNoDemosaicRouteReady": false,
+    "rule": "CONTAINER_DECODE_ALONE_CANNOT_BYPASS_TOPOLOGY_COMPATIBILITY_GATE"
+  }
+}
