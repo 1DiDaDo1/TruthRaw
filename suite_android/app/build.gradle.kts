@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 23
-        versionName = "0.23-v0.58-nef-uncompressed-sample-adapter"
+        versionCode = 24
+        versionName = "0.24-v0.59-nef-radiometric-admission"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
