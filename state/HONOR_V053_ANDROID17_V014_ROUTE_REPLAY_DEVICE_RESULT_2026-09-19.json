@@ -1,0 +1,94 @@
+{
+  "schema": "truthraw.android17-v014-route-replay-device-result.v0.53",
+  "date": "2026-09-19",
+  "authority": "CAMERA2_SEALED_RAW_PAYLOAD_DELTA_AUDIT",
+  "source": {
+    "deltaJson": {
+      "name": "TRUTHRAW_1789804175305_ANDROID17_CAM5_V014_REPLAY_DELTA_v053.json",
+      "sha256": "41e1f4507e652344dbf15a624226c8a5e6aff0311fd01ebf722ceceaa7f4576c"
+    },
+    "captureEvidence": {
+      "name": "TRUTHRAW_1789804086075_CAM5_200MP_EVIDENCE_v053.json",
+      "sha256": "41e1f4507e652344dbf15a624226c8a5e6aff0311fd01ebf722ceceaa7f4576c"
+    }
+  },
+  "device": {
+    "manufacturer": "HONOR",
+    "model": "BKQ-N49",
+    "sdkInt": 37,
+    "release": "17",
+    "fingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "truthRawTargetSdk": 37
+  },
+  "route": {
+    "openedCameraId": "0",
+    "requestedPhysicalCameraId": "5",
+    "physicalScopedRequestUsed": true,
+    "globalSensorPixelModeWritten": false,
+    "physicalSensorPixelModeAttempted": true,
+    "physicalSensorPixelModeWritten": true,
+    "physicalSensorPixelModeReadback": 1,
+    "physicalOverrideAdvertised": false,
+    "outputPhysicalBinding": true,
+    "outputMaximumResolutionModeDeclared": true,
+    "returnedPhysicalSensorPixelMode": 0,
+    "returnedPixelModeAdvisoryAfterSeal": true
+  },
+  "capture": {
+    "physicalResultCameraId": "5",
+    "width": 16320,
+    "height": 12288,
+    "sampleCount": 200540160,
+    "imageTimestampNs": 28050978966888,
+    "sensorTimestampNs": 28050978966888,
+    "timestampIdentityPass": true,
+    "iso": 406,
+    "exposureTimeNs": 9999993,
+    "focalLengthMm": 22.48,
+    "rawBinningFactorUsed": true
+  },
+  "sealedRaw": {
+    "sha256": "cb6828b65e9b9acafb54455b6e92b671439ae2c57548ede9e7aa8dd401db3cca",
+    "bytes": 401080320,
+    "rowStride": 32640,
+    "pixelStride": 2,
+    "canonicalContiguousRawSensor": true
+  },
+  "rasterAudit": {
+    "sampleCount": 200540160,
+    "zeroCount": 188006400,
+    "nonZeroCount": 12533760,
+    "min": 0,
+    "max": 552,
+    "nonZeroRows": 768,
+    "allZeroRows": 11520,
+    "firstNonZeroRow": 0,
+    "lastNonZeroRow": 767,
+    "lastNonZeroByteOffset": 25067518,
+    "populatedPrefixBytes": 25067520
+  },
+  "payloadCandidate": {
+    "selectedWidth": 4080,
+    "selectedHeight": 3072,
+    "bytes": 25067520,
+    "sha256": "f70f353dcd2d59aa79edf159669bffb1573704d68233e337439d8c42458789da",
+    "minCode": 96,
+    "maxCode": 552,
+    "contiguousPrefixAllSamplesNonZero": true,
+    "phaseMeans": [
+      182.74594407424428,
+      261.9377725439134,
+      262.18906984017565,
+      174.23886878319036
+    ]
+  },
+  "android16Delta": {
+    "sameDeclaredEnvelopeBytes": true,
+    "samePopulatedPrefixBytes": true,
+    "sameSelected4080x3072Candidate": true
+  },
+  "classification": "ANDROID17_REPLICATES_ANDROID16_CAM5_ENVELOPE_AND_4080x3072_POPULATED_PREFIX_TOPOLOGY",
+  "keyConclusion": "Android 17 changes neither the proven v0.14 acquisition semantics nor the app-visible Camera-5 16320x12288 envelope / exact 4080x3072 populated-prefix topology.",
+  "boundary": "APP_VISIBLE_CAMERA2_RAW_SENSOR_PAYLOAD_TOPOLOGY_ONLY__NO_UNTOUCHED_ADC_NATIVE_SENSOR_GEOMETRY_OR_DIRECT_CFA_200MP_PROMOTION",
+  "nextDecision": "STOP_TREATING_PUBLIC_CAM5_16320x12288_RAW_SENSOR_AS_200MP_SAMPLE_EVIDENCE; MOVE_ANDROID17_RESEARCH_UPSTREAM_TO_OEM_OUTPUT/PRIVILEGED_ROUTE_OBSERVATION_AND_PRO_RAW14_OUTPUT_FINGERPRINTING"
+}
