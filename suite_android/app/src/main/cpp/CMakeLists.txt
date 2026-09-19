@@ -26,6 +26,7 @@ set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
 set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
+set(PURE_FLOAT32_DNG_PROJECTION "${RESEARCH_ROOT}/scientific-master-linear-dng-projection-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
@@ -33,6 +34,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     source_bound_color_preview_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
+    pure_float32_dng_export_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
     rawcb_source_type_native_type_oracle.cpp
@@ -57,6 +59,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
     ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
+    ${PURE_FLOAT32_DNG_PROJECTION}/scientific_master_linear_dng_projection_v0_1.cpp
+    ${PURE_FLOAT32_DNG_PROJECTION}/streaming_scientific_master_tile_source_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -76,6 +80,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
     ${LINEAR_DNG_PROJECTION}
+    ${PURE_FLOAT32_DNG_PROJECTION}
     ${V47I_NATIVE}/include)
 
 find_library(ANDROID_LIB android)
