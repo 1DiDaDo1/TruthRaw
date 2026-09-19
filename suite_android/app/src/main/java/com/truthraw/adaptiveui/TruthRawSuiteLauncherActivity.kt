@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.53 Android 17 replay of proven v0.14 route"
+            text = "Camera-5 research · v0.54 Honor Android-17 Pro RAW/DNG fingerprint"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -122,6 +122,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.53 · Android 17 replay van bewezen v0.14 route") {
             startActivity(Intent(this, Android17Camera5PayloadDeltaActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.54 · Honor Pro RAW/DNG container fingerprint") {
+            startActivity(Intent(this, PassiveHonorProRawDngFingerprintActivity::class.java))
         })
         root.addView(space())
 
