@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.51 CameraDeviceSetup RAW14 session oracle"
+            text = "Camera-5 research · v0.52 Android 17 Camera-5 payload delta"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
@@ -117,6 +117,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.51 · CameraDeviceSetup RAW14 session query") {
             startActivity(Intent(this, CameraDeviceSetupRaw14SessionOracleActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.52 · Android 17 Camera-5 sealed payload delta") {
+            startActivity(Intent(this, Android17Camera5PayloadDeltaActivity::class.java))
         })
         root.addView(space())
 
