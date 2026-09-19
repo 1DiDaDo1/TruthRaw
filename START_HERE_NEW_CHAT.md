@@ -12,11 +12,11 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-64-advanced-derivative`
+`integration/truthraw-suite-v0-65-ui-icon-polish`
 
 Current app:
 
-`0.29-v0.64-advanced-derivative`
+`0.30-v0.65-ui-icon-polish`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
@@ -28,7 +28,9 @@ Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
 
 Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract is `TRUTHRAW_PURE_SELF_BINDING_V0_63`. New PURE outputs use `*_truthraw_pure_float32_v0_63.dng`. Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md` before changing CRC, self-binding or launcher semantics.
 
-v0.64 CI run `35471926706` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+v0.64 CI run `35471926706` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.
+
+v0.65 CI run `35473170260` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 changes only compact-phone UI/insets/icon presentation; read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
 
 v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
