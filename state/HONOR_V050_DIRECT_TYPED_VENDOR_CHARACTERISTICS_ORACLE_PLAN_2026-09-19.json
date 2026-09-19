@@ -1,0 +1,36 @@
+{
+  "schema": "truthraw.direct-typed-vendor-characteristics-oracle-plan.v0.50",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "runtimeAuthority": "CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY",
+  "staticTypeOracle": {
+    "authority": "STATIC_APK_SOFTWARE_ROUTE_EVIDENCE_ONLY",
+    "android16ApkSha256": "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52",
+    "android17ApkSha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027",
+    "typingObservedInBothComparedApks": true,
+    "intArrayKeys": [
+      "com.hihonor.device.capabilities.physicalCameraScene",
+      "com.hihonor.device.capabilities.rawSensorResolution",
+      "com.hihonor.device.capabilities.sceneCameraIdCapability",
+      "com.hihonor.device.capabilities.cameraIdCustomInfo",
+      "com.hihonor.device.capabilities.needOpenPhysicalCamera",
+      "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize"
+    ],
+    "byteScalarKeys": [
+      "com.hihonor.device.capabilities.teleSupport",
+      "com.hihonor.device.capabilities.ultraHighPixelMonoSupported",
+      "com.hihonor.device.capabilities.rawZoomSupported"
+    ]
+  },
+  "forbidden": [
+    "CameraDevice open",
+    "CaptureRequest",
+    "ImageReader",
+    "image pixel access",
+    "Honor Binder invocation",
+    "vendor key write",
+    "package/signature spoofing",
+    "CameraExtensionSession"
+  ],
+  "boundary": "Returned values are characteristics metadata only and cannot promote Direct-CFA, OEM capture identity, or calibration authority."
+}
