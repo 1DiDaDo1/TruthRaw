@@ -34,6 +34,10 @@ namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
 constexpr std::size_t kPacketLongs = 18u;
+constexpr const char* kPurePrecisionPolicyId =
+    "EXACT_SOURCE__F64_BRANCH_SENSITIVE_REFERENCE_POLICY__"
+    "F64_CAL_OPT_COV_REFERENCE_POLICY__CONTROLLED_F32_MASTER_STORAGE__"
+    "F32_PURE_PROJECTION";
 
 class FdTransactionalByteSink final : public float_dng::ITransactionalByteSink {
 public:
@@ -240,8 +244,15 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         static_cast<std::uint16_t>(source->metadata().orientation);
     descriptor.sealedSourceSha256 = sourceSeal.sha256;
     descriptor.scientificMasterSha256 = scientific.scientificMasterHash;
+    descriptor.zeroLineSha256 = phase2.zeroLineHash;
+    descriptor.sceneScaleSha256 = phase2.sceneScaleHash;
+    descriptor.zeroLineGauge = scientific.zeroLineGauge;
+    descriptor.sceneBinding = scientific.sceneBinding;
+    descriptor.serializedBackplane = phase2.serializedBackplane;
     descriptor.sourceEvidenceId = sourceSeal.sourceEvidenceId;
     descriptor.colorBindingId = produced.color.bindingId;
+    descriptor.precisionPolicyId = kPurePrecisionPolicyId;
+    descriptor.runtimeReconstructionBackendId = reconstruction->name();
 
     FdTransactionalByteSink sink(static_cast<int>(outputFd));
     float_dng::Result exported{};
