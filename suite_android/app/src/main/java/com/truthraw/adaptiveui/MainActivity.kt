@@ -166,7 +166,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_honor_empirical_v0_1.json")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_raw_ingress_empirical_v0_2.json")
         }
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
