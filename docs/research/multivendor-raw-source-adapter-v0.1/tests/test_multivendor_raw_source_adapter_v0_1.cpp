@@ -2,6 +2,9 @@
 
 #include <algorithm>
 #include <array>
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <cassert>
 #include <cstdint>
 #include <cstring>
