@@ -452,12 +452,19 @@ class FotoGraafCameraActivity : Activity() {
 
             statusFromAnyThread(
                 "ROUTE PROOF PASS · ${route.routeClass} · timestamp identity exact · " +
-                    "DNG=${dngFile.length()} bytes · SHA-256=${sha.take(16)}… · CAMERA2_ACQUISITION_OBSERVATION_ONLY",
+                    "DNG=${dngFile.length()} bytes · SHA-256=${sha.take(16)}… · " +
+                    "bron wordt nu aan dezelfde TruthRaw RAW-ingang overgedragen.",
             )
             runOnUiThread {
                 captureButton.isEnabled = true
                 saveDngButton.isEnabled = true
                 saveJsonButton.isEnabled = true
+                startActivity(
+                    Intent(this, MainActivity::class.java).apply {
+                        putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_SOURCE_PATH, dngFile.absolutePath)
+                        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    },
+                )
             }
         } catch (error: Exception) {
             runCatching { image.close() }
@@ -537,7 +544,10 @@ class FotoGraafCameraActivity : Activity() {
                 .put("oisMode", effectiveResult.get(CaptureResult.LENS_OPTICAL_STABILIZATION_MODE))
                 .put("noiseReductionMode", effectiveResult.get(CaptureResult.NOISE_REDUCTION_MODE)))
             .put("honorVendorResults", vendorResults)
-            .put("sourceDng", JSONObject().put("sha256", dngSha256).put("bytes", dngFile.length()))
+            .put("sourceDng", JSONObject()
+                .put("sha256", dngSha256)
+                .put("bytes", dngFile.length())
+                .put("unifiedIngressHandoff", "SEALED_CAMERA_DNG_TO_COMMON_RAW_INGRESS"))
             .put("openCalibrationBlockers", JSONArray()
                 .put("cameraSystemIdMappingIndependentValidation")
                 .put("captureSampleDomainId")
