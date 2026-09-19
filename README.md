@@ -1,5 +1,19 @@
 # TruthRaw
 
+> **CURRENT ACTIVE INTEGRATION — 2026-09-19**
+>
+> New chats should start with:
+>
+> 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+> 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+> 3. `START_HERE_NEW_CHAT.md`
+>
+> Active branch: `integration/truthraw-suite-v0-59-nef-radiometric-admission`
+>
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. Nikon NEF is the first real proprietary decoder; v0.59 adds exact-scope black/saturation admission while Scientific Master admission remains fail-closed pending noise/uncertainty, source-bound color and held-out validation.
+>
+> v0.59 host CI run `35456672651`: **SUCCESS**. Android run `35456737363`: **SUCCESS**.
+
 > **TruthNegative branch overlay — 2026-09-19**
 >
 > This branch develops the new **TruthNegative / Scientific Negative** reconstruction layer independently from the parallel HONOR acquisition-route research.
