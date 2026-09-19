@@ -1,0 +1,113 @@
+name: TruthRaw v0.63 CRC + UI Branding
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-63-crc-ui-branding
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/research/technical-backplane-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - '.github/workflows/android-truthraw-suite-v0-63-crc-ui-branding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-pure-float32:
+    name: Host PURE Float32 writer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure historical PURE writer
+        run: cmake -S docs/research/scientific-master-linear-dng-projection-v0.1 -B build/pure-f32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build historical PURE writer
+        run: cmake --build build/pure-f32 --parallel 2
+      - name: Run PURE writer tests
+        run: ctest --test-dir build/pure-f32 --output-on-failure
+
+  android-v063:
+    name: Android v0.63 CRC + branded UI app
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify corrected CRC, PURE contract and branded UI
+        run: |
+          C='suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
+          UI='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          G='suite_android/app/build.gradle.kts'
+          grep -F 'write_xyz_d50_linear_dng_projection' "$C"
+          grep -F 'scientificMasterIdentityVerified' "$C"
+          grep -F 'appearanceApplied' "$C"
+          grep -F 'counterfactualObservationCreated' "$C"
+          grep -F 'descriptor.zeroLineSha256 = phase2.zeroLineHash' "$C"
+          grep -F 'descriptor.sceneScaleSha256 = phase2.sceneScaleHash' "$C"
+          grep -F 'descriptor.serializedBackplane = phase2.serializedBackplane' "$C"
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'technical_backplane_crc_scope=PREFIX_176_BYTES' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'descriptor.serializedBackplane.size() - kBackplaneStoredCrcBytes' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'technical_backplane_serialized_hex=' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'zero_line_l0_f64_bits=' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'bitsPerSample != 32L' "$K"
+          grep -F 'verifySavedPureDng' "$K"
+          grep -F 'PURE_SELF_BINDING_CONTRACT = "TRUTHRAW_PURE_SELF_BINDING_V0_63"' "$K"
+          grep -F 'crcEngine.update(backplane, 0, 176)' "$K"
+          grep -F 'recomputedCrc != embeddedCrc' "$K"
+          grep -F 'declaredCrc != recomputedCrc' "$K"
+          grep -F 'Technical Backplane lineage mismatch' "$K"
+          grep -F 'role=LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION' "$K"
+          grep -F 'self-binding verified=' "$UI"
+          grep -F '_truthraw_pure_float32_v0_63.dng' "$UI"
+          grep -F 'TRUTHRAW PURE · 32-bit Float DNG opslaan' "$UI"
+          grep -F '16-bit Linear DNG opslaan (compatibility)' "$UI"
+          grep -F '0.28-v0.63-crc-ui-branding' "$G"
+          grep -F 'Kies invoer' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt
+          grep -F 'Open RAW / DNG' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt
+          grep -F 'Gebruik camera' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt
+          grep -F 'TruthRawSettingsActivity' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt
+          grep -F 'Onderzoek & diagnostiek' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSettingsActivity.kt
+          grep -F 'android:icon="@drawable/truthraw_icon"' suite_android/app/src/main/AndroidManifest.xml
+          test -s suite_android/app/src/main/res/drawable-nodpi/truthraw_icon.webp
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-63-crc-ui-branding-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
