@@ -143,7 +143,14 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/jpeg"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_finalized_scientific_preview.jpg")
+            putExtra(
+                Intent.EXTRA_TITLE,
+                if (ready.metrics.advancedDerivative) {
+                    "${stem}_truthraw_advanced_v0_64.jpg"
+                } else {
+                    "${stem}_truthraw_finalized_scientific_preview.jpg"
+                },
+            )
         }
         startActivityForResult(intent, REQUEST_SAVE_JPEG)
     }
@@ -239,7 +246,12 @@ class MainActivity : Activity() {
                 val stream = contentResolver.openOutputStream(data.data!!, "w")
                     ?: throw IOException("Documentprovider gaf geen outputstream.")
                 stream.use { PortablePreviewEncoder.encodeJpeg(ready.bitmap, it) }
-                "JPEG opgeslagen · sRGB-projectie van finalized Scientific Preview · geen Scientific Master/evidence."
+                if (ready.metrics.advancedDerivative) {
+                    "TRUTHRAW ADVANCED JPEG opgeslagen · appearance/restoration derivative · " +
+                        "PURE Scientific Master/evidence niet gewijzigd."
+                } else {
+                    "JPEG opgeslagen · sRGB-projectie van finalized Scientific Preview · geen Scientific Master/evidence."
+                }
             } catch (error: Exception) {
                 "JPEG-export faalde: ${error.message ?: error.javaClass.simpleName}"
             }
@@ -501,18 +513,45 @@ class MainActivity : Activity() {
         previewState = TilePreviewUiState.Loading(job.id)
         val frameSampler = UiFramePacingSampler().also { it.start() }
         render()
+        val preferredOutput = getSharedPreferences(
+            TruthRawSuiteLauncherActivity.PREFS,
+            MODE_PRIVATE,
+        ).getString(
+            TruthRawSuiteLauncherActivity.KEY_OUTPUT,
+            TruthRawSuiteLauncherActivity.OUTPUT_PURE,
+        ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+
         Thread({
-            val result = EmpiricalPreviewRunner.run(this@MainActivity, contentResolver, job)
-            runOnUiThread {
-                val pacing = frameSampler.stop()
-                if (generation != previewGeneration || activeJobId != job.id) {
-                    (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
-                    return@runOnUiThread
+            if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED) {
+                val state = AdvancedTilePreviewLoader.load(
+                    this@MainActivity,
+                    contentResolver,
+                    job,
+                )
+                runOnUiThread {
+                    frameSampler.stop()
+                    if (generation != previewGeneration || activeJobId != job.id) {
+                        (state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+                        return@runOnUiThread
+                    }
+                    loadingStartedAtElapsedMs = null
+                    previewState = state
+                    empiricalAudit = null
+                    render()
                 }
-                loadingStartedAtElapsedMs = null
-                previewState = result.state
-                empiricalAudit = result.audit.copy(framePacing = pacing)
-                render()
+            } else {
+                val result = EmpiricalPreviewRunner.run(this@MainActivity, contentResolver, job)
+                runOnUiThread {
+                    val pacing = frameSampler.stop()
+                    if (generation != previewGeneration || activeJobId != job.id) {
+                        (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+                        return@runOnUiThread
+                    }
+                    loadingStartedAtElapsedMs = null
+                    previewState = result.state
+                    empiricalAudit = result.audit.copy(framePacing = pacing)
+                    render()
+                }
             }
         }, "truthraw-preview-${job.id.take(8)}").start()
     }
@@ -799,12 +838,47 @@ class MainActivity : Activity() {
                     TruthRawSuiteLauncherActivity.OUTPUT_PURE,
                 ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
                 addView(label(
-                    "Voorkeursuitvoer: " +
-                        if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) "JPG" else "TRUTHRAW PURE",
+                    "Voorkeursuitvoer: " + when (preferredOutput) {
+                        TruthRawSuiteLauncherActivity.OUTPUT_JPG -> "JPG"
+                        TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED"
+                        else -> "TRUTHRAW PURE"
+                    },
                     10f,
                     muted = true,
                 ))
-                addView(space(5))
+                if (m.advancedDerivative) {
+                    addView(label(
+                        "ADVANCED derivative · Light adjusted=${m.advancedLightAdjustedPixels} · " +
+                            "HDR gain pixels=${m.advancedHdrGainPixels} · " +
+                            "censored/restored=${m.advancedCensoredPreviewPixels}/${m.advancedRestoredPixels} · " +
+                            "detail=${m.advancedDetailEnabled}",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Restoration verandert alleen de presentation derivative. Clipping blijft CENSORED " +
+                            "en PURE pixels/authority blijven onaangeraakt.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(space(5))
+                    addView(actionButton("Advanced instellingen") {
+                        startActivity(
+                            Intent(this@MainActivity, TruthRawAdvancedActivity::class.java),
+                        )
+                    })
+                    addView(space(5))
+                }
+
+                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED &&
+                    m.advancedDerivative
+                ) {
+                    addView(actionButton("TRUTHRAW ADVANCED · JPEG derivative opslaan") {
+                        launchJpegExport(active)
+                    })
+                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                    addView(space(5))
+                }
 
                 if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
                     addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
@@ -823,7 +897,9 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
-                if (preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
+                if (preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_JPG &&
+                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED
+                ) {
                     addView(space(5))
                     addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
                     jpegStatus?.let { addView(label(it, 10f, muted = true)) }
