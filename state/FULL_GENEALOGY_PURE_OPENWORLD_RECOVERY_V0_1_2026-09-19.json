@@ -80,5 +80,73 @@
   },
   "next": "CLASSIFY_HISTORICAL_PURE_RGB_CERTIFICATE_OUTPUT_FILES_AS_PORT_REFERENCE_SUPERSEDED_OR_BLOCKED_THEN_BUILD_SMALLEST_HOST_REPLAY_REGRESSION",
   "scientificPixelsChanged": false,
-  "scientificAuthorityChanged": false
+  "scientificAuthorityChanged": false,
+  "openWorldHdr": {
+    "scientificHdrRoot": [
+      "SEALED_SOURCE",
+      "SCIENTIFIC_MASTER",
+      "DYNAMIC_AUTHORITY"
+    ],
+    "representationHasNoFixed01OrEvWall": true,
+    "infiniteMeasuredDynamicRangeClaim": false,
+    "hdrPerAuthority": {
+      "measured_or_calibrated": "EVIDENCE_SUPPORTED_FINITE",
+      "reconstructed": "RECONSTRUCTED_FINITE_NOT_MEASURED",
+      "censored": "BOUND_ONLY",
+      "unknown": "NO_SCIENTIFIC_HEADROOM",
+      "counterfactual_or_appearance": "NON_SCIENTIFIC_VIEW_ONLY"
+    },
+    "illuminationAuthorities": [
+      "UNKNOWN",
+      "SOURCE_BOUND_ESTIMATE",
+      "RECONSTRUCTED",
+      "INDEPENDENTLY_MEASURED",
+      "COUNTERFACTUAL"
+    ],
+    "counterfactualRelightingCreatesNewEvidence": false,
+    "physicalRelightingNeeds": [
+      "GEOMETRY_NORMALS",
+      "VISIBILITY_OCCLUSION",
+      "MATERIAL_BRDF",
+      "SPATIAL_ILLUMINATION",
+      "SPECTRUM"
+    ],
+    "presentationDoesNotWriteBack": [
+      "PQ",
+      "MAXCLL",
+      "ADOBE_HDR_LIMIT",
+      "GAIN_MAP",
+      "TONE_CURVE"
+    ]
+  },
+  "waterDropletSharpness": {
+    "preservedAsHistoricalStressTest": true,
+    "notASharpeningPreset": true,
+    "stresses": [
+      "OPTICS_SFR_MTF_PSF",
+      "TINY_HIGH_FREQUENCY_DETAIL",
+      "MEASURED_CFA_VS_RECONSTRUCTED_COLOUR",
+      "FOCUS_MOTION_NOISE_UNCERTAINTY",
+      "REFLECTION_TRANSMISSION_REFRACTION_TRANSPARENCY",
+      "SPECULAR_GLINTS",
+      "HIGHLIGHT_CENSORING",
+      "MATERIAL_BRDF_AMBIGUITY",
+      "COLOR_INVENTION_RISK",
+      "HDR_HIGHLIGHT_AUTHORITY"
+    ],
+    "sharpnessAxes": [
+      "OPTICAL_SAMPLE_DETAIL_AUTHORITY",
+      "RECONSTRUCTED_SPATIAL_DETAIL",
+      "OUTPUT_ACUTANCE_SHARPENING"
+    ],
+    "structureEvidenceRule": "SOURCE_CFA_SUPPORT_BEFORE_APPEARANCE",
+    "opticsGate": "NO_ADAPTIVE_DETAIL_ACUTANCE_WITHOUT_EXACT_DOMAIN_HOLDOUT_MTF_SUPPORT",
+    "censoredDropletHighlight": "LOWER_BOUND_ONLY",
+    "counterfactualNewGlint": "COUNTERFACTUAL",
+    "forbidden": [
+      "GENERIC_BLUE_CYAN_WATER_INVENTION",
+      "FABRICATED_HIGHLIGHT_PEAKS",
+      "SHARPENING_AS_MEASURED_DETAIL"
+    ]
+  }
 }
