@@ -176,7 +176,58 @@ object PureFloat32DngExporter {
                 )
             }
 
-            PostWriteVerification(true, "contract teruggelezen")
+            fun valueOf(key: String): String? {
+                val start = headerText.indexOf(key)
+                if (start < 0) return null
+                val valueStart = start + key.length
+                val end = headerText.indexOf('\n', valueStart).let {
+                    if (it < 0) headerText.length else it
+                }
+                return headerText.substring(valueStart, end).trim()
+            }
+            fun isHex(value: String, chars: Int): Boolean =
+                value.length == chars && value.all {
+                    it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F'
+                }
+
+            val hashKeys = listOf(
+                "sealed_source_sha256=",
+                "scientific_master_sha256=",
+                "zero_line_sha256=",
+                "scene_scale_sha256=",
+            )
+            val badHash = hashKeys.firstOrNull { key ->
+                !isHex(valueOf(key).orEmpty(), 64)
+            }
+            if (badHash != null) {
+                return PostWriteVerification(false, "ongeldige SHA-256 waarde: $badHash")
+            }
+
+            val l0Bits = valueOf("zero_line_l0_f64_bits=").orEmpty()
+            if (!l0Bits.startsWith("0x") || !isHex(l0Bits.drop(2), 16)) {
+                return PostWriteVerification(false, "ongeldige exacte L0 binary64 bits")
+            }
+
+            val backplane = valueOf("technical_backplane_serialized_hex=").orEmpty()
+            if (!isHex(backplane, 180 * 2)) {
+                return PostWriteVerification(
+                    false,
+                    "Technical Backplane is niet exact 180 bytes",
+                )
+            }
+
+            val crc = valueOf("technical_backplane_crc32=").orEmpty()
+            if (!crc.startsWith("0x") || !isHex(crc.drop(2), 8)) {
+                return PostWriteVerification(false, "ongeldige Technical Backplane CRC32")
+            }
+
+            if (valueOf("precision_policy_id=").isNullOrBlank() ||
+                valueOf("runtime_reconstruction_backend_id=").isNullOrBlank()
+            ) {
+                return PostWriteVerification(false, "precision/runtime provenance ontbreekt")
+            }
+
+            PostWriteVerification(true, "contract en payloadlengtes teruggelezen")
         } catch (error: Throwable) {
             PostWriteVerification(
                 false,
