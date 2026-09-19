@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-64-advanced-derivative`
+`integration/truthraw-suite-v0-65-ui-icon-polish`
 
 Current app version:
 
-`0.29-v0.64-advanced-derivative`
+`0.30-v0.65-ui-icon-polish`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -103,6 +103,14 @@ The current Advanced export is deliberately bounded to the existing preview/JPEG
 Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.
 
 v0.64 CI run `35471926706` is green on GCC, Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`.
+
+## 2E. v0.65 — compact-phone UI + clean TR lens icon
+
+v0.65 is presentation-only on top of v0.64. System-bar insets now belong to the scrolling viewport so content cannot scroll behind Android status/navigation bars. PURE and ADVANCED titles are intentionally constrained to clean two-line labels. The noisy/glitch-like v0.63 icon is replaced by a clean TR mark with a subtle camera-lens/open-world reflection in the upper R. No PURE or Advanced math/authority changes.
+
+Read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.
+
+v0.65 CI run `35473170260` is green on GCC, Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
