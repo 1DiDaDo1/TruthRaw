@@ -112,12 +112,20 @@ public:
         }
 
         outDescriptor.format = RawFormatFamily::Dng;
+        outDescriptor.storageRepresentation = StorageRepresentation::CfaMosaic;
+        outDescriptor.sampleTopology = SampleTopologyFamily::Bayer2x2;
+        outDescriptor.processingLineage = ProcessingLineageClass::DirectCfaStorageUncertified;
         outDescriptor.decoderId = "truthraw.tile-native-dng-source.v0.1";
         outDescriptor.sourceEvidenceId = request.sourceSeal.sourceEvidenceId;
         outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
         outDescriptor.syntheticConformanceOnly = false;
+        outDescriptor.physicalExposureCountKnown = false;
+        outDescriptor.physicalFrameCount = 0u;
+        outDescriptor.singleExposureCertified = false;
+        outDescriptor.storedSampleSenselSemanticsCertified = false;
+        outDescriptor.requiresTopologySpecificSolver = false;
         outDescriptor.directSensorAdcClaimAllowed = false;
         outDescriptor.fullRawFrameMaterialized = dng->audit().fullRawMaterialized;
 
@@ -296,12 +304,20 @@ public:
         }
 
         outDescriptor.format = RawFormatFamily::SyntheticConformanceFixture;
+        outDescriptor.storageRepresentation = StorageRepresentation::SyntheticCfa;
+        outDescriptor.sampleTopology = SampleTopologyFamily::Bayer2x2;
+        outDescriptor.processingLineage = ProcessingLineageClass::SyntheticConformanceOnly;
         outDescriptor.decoderId = "truthraw.synthetic-proprietary-conformance.v0.1";
         outDescriptor.sourceEvidenceId = request.sourceSeal.sourceEvidenceId;
         outDescriptor.sourceSealAcceptedAtBoundary = true;
         outDescriptor.exactCfaSamplesAvailable = true;
         outDescriptor.scientificColorBindingProvided = true;
         outDescriptor.syntheticConformanceOnly = true;
+        outDescriptor.physicalExposureCountKnown = false;
+        outDescriptor.physicalFrameCount = 0u;
+        outDescriptor.singleExposureCertified = false;
+        outDescriptor.storedSampleSenselSemanticsCertified = false;
+        outDescriptor.requiresTopologySpecificSolver = false;
         outDescriptor.directSensorAdcClaimAllowed = false;
         outDescriptor.fullRawFrameMaterialized = false;
 
