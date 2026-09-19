@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-63-crc-ui-branding":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-64-advanced-derivative":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -202,6 +202,37 @@ if v063_ui.get("sameSealedSourceConvergence") is not True:
     errors.append("v063_ui_routes_must_share_sealed_source_convergence")
 if v063_ui.get("diagnosticsMovedBehindSettings") is not True:
     errors.append("v063_diagnostics_must_move_behind_settings")
+
+v064 = (((current_state.get("multiVendorRaw") or {}).get("v064")) or {})
+v064_modules = v064.get("modules") or {}
+v064_invariants = v064.get("invariants") or {}
+v064_output = v064.get("outputScope") or {}
+if v064.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v064_must_keep_v063_pure_writer_contract")
+if v064.get("purePixelMathChanged") is not False:
+    errors.append("v064_must_not_change_pure_pixel_math")
+if v064.get("scientificMasterWriteback") is not False:
+    errors.append("v064_advanced_must_not_write_back_scientific_master")
+if (v064_modules.get("naturalLightBalance") or {}).get("physicalRelightClaim") is not False:
+    errors.append("v064_light_balance_must_not_claim_physical_relight")
+if (v064_modules.get("naturalHdr") or {}).get("createsMeasuredDynamicRange") is not False:
+    errors.append("v064_hdr_must_not_create_measured_dynamic_range")
+if (v064_modules.get("restoration") or {}).get("underlyingAuthorityRemains") != "CENSORED":
+    errors.append("v064_restoration_must_preserve_censored_authority")
+if (v064_modules.get("restoration") or {}).get("measuredPixelsRelabelled") is not False:
+    errors.append("v064_restoration_must_not_relabel_measured_pixels")
+if v064_invariants.get("physicalFrameCount") != 1 or v064_invariants.get("independentEvidenceCount") != 1:
+    errors.append("v064_frame_evidence_must_remain_one_one")
+if v064_invariants.get("scientificMasterModifiedByAppearance") is not False:
+    errors.append("v064_appearance_must_not_modify_scientific_master")
+if v064_invariants.get("counterfactualObservationCreated") is not False:
+    errors.append("v064_advanced_v01_must_not_create_counterfactual_observation")
+if v064_output.get("advancedPreviewMaxEdge") != 384:
+    errors.append("v064_advanced_preview_scope_mismatch")
+if v064_output.get("fullResolutionAdvancedExportReady") is not False:
+    errors.append("v064_full_resolution_advanced_export_must_remain_open")
+if v064_output.get("pureFloat32DngStillFullResolution") is not True:
+    errors.append("v064_pure_full_resolution_must_remain_available")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
