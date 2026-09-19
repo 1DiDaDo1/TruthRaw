@@ -2,7 +2,7 @@
 
 Date: 2026-09-19
 
-Status: **IMPLEMENTED ON INTEGRATION BRANCH / CI + APK VALIDATION PENDING**
+Status: **IMPLEMENTED / HOST GCC + CLANG + ANDROID CI GREEN / APK VERIFIED**
 
 Active branch:
 
@@ -57,3 +57,20 @@ This separates a newly verified v0.62 artifact from older v0.60/v0.61 test files
 ## Scientific scope
 
 v0.62 does not change PURE pixel mathematics, Scientific Master reconstruction, Zero-Line semantics, scene-scale semantics or the frozen 180-byte Technical Backplane. It adds an independent read-after-write verification boundary around the already existing v0.61 self-binding writer.
+
+## CI and APK validation
+
+v0.62 workflow run `35466767939` passed:
+
+- host GCC: **SUCCESS**;
+- host Clang: **SUCCESS**;
+- Android arm64: **SUCCESS**;
+- artifact ID: `10591985003`;
+- artifact name: `truthraw-suite-v0-62-pure-postwrite-verify-debug-arm64`;
+- artifact ZIP SHA-256: `04a40760a8d234fceb1e59d55a70c2324ecddc32d387c778bd02dff02a7b280f`;
+- extracted APK bytes: `5850141`;
+- extracted APK SHA-256: `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
+
+Independent APK inspection confirmed the Kotlin-side v0.62 filename/post-write-success markers and the native v0.61 self-binding writer markers for PURE role, exact L0 and serialized Technical Backplane.
+
+The remaining gate is now physical: generate a new v0.62 DNG on-device, require `self-binding verified=true`, then independently inspect that exact saved file.
