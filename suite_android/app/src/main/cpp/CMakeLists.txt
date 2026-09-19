@@ -59,6 +59,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
     ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
     ${MULTIVENDOR_RAW_ADAPTER}/multivendor_raw_source_adapter_v0_1.cpp
+    ${MULTIVENDOR_RAW_ADAPTER}/nikon_nef_uncompressed_adapter_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
