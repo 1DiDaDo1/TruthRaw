@@ -1,0 +1,49 @@
+{
+  "schema": "TruthRawProfessionalRawLibRawRecovery/0.58",
+  "date": "2026-09-19",
+  "branch": "integration/truthraw-suite-v0-58-professional-raw-libraw-recovery",
+  "status": "HISTORICAL_MODULE_RECOVERY_AND_CURRENT_LIBRAW_COMPATIBILITY_VALIDATION",
+  "recoveredModules": [
+    "professional-raw-ingress-v0.1",
+    "professional-raw-decoder-adapter-v0.1",
+    "libraw-compat-probe-v0.1",
+    "libraw-fd-datastream-v0.1"
+  ],
+  "currentRawAdapterAbi": "multivendor-raw-source-adapter-v0.1",
+  "libraw": {
+    "version": "0.22.2",
+    "sourceUrl": "https://www.libraw.org/data/LibRaw-0.22.2.tar.gz",
+    "sourceSha256": "de86b035655accff8d4010f1a221fdf50d353cb7b1422ba26f14a0db92612cfa",
+    "openmpEnabled": false,
+    "currentUse": "METADATA_TOPOLOGY_COMPATIBILITY_PROBE_ONLY",
+    "pixelUnpackAdmitted": false
+  },
+  "professionalRawLaw": [
+    "CONTAINER_RECOGNIZED_NE_DECODER_EXISTS",
+    "DECODER_EXISTS_NE_SAMPLE_EQUIVALENCE_PROVEN",
+    "SAMPLE_EQUIVALENCE_PROVEN_NE_TOPOLOGY_CERTIFIED",
+    "TOPOLOGY_CERTIFIED_NE_SCIENTIFIC_ADMISSION"
+  ],
+  "decoderPromotion": {
+    "externalLosslessClass": "LOSSLESS_DECODED_CERTIFIED",
+    "directNativeClass": "DIRECT_NATIVE_CERTIFIED",
+    "externalMayBeRelabeledDirectNative": false,
+    "sampleEquivalenceRequired": true
+  },
+  "androidFdBridge": {
+    "recovered": true,
+    "role": "BORROWED_FD_TO_LIBRAW_ABSTRACT_DATASTREAM",
+    "ownsFd": false,
+    "fullSourceCopy": false
+  },
+  "currentScientificPixelRoutes": {
+    "DNG": "NATIVE_V057_ADAPTER_READY",
+    "proprietaryRaw": "DECODER_PENDING_RESEARCH_ONLY"
+  },
+  "next": [
+    "CURRENT_LIBRAW_0_22_2_HOST_GATE",
+    "ANDROID_LIBRAW_FD_PROBE",
+    "FIRST_REAL_PROPRIETARY_PIXEL_ADAPTER",
+    "HELD_OUT_SAMPLE_EQUIVALENCE_VALIDATION"
+  ]
+}
