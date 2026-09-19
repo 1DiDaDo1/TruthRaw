@@ -1,0 +1,38 @@
+{
+  "schema": "truthraw.api37-raw14-extension-oracle-plan.v0.47",
+  "date": "2026-09-19",
+  "authority": "EXPERIMENT_PLAN_ONLY",
+  "trigger": {
+    "android16V046SourceSha256": "6c4bf18ca80477ae95e17d4d14f959f21f8cc9aca77f51df44d7a5d178775430",
+    "android17V046SourceSha256": "8b03c6e2dc51666951524cddd80fa540a27e526e4e972753979f4495495531c1",
+    "android17RuntimeSdkInt": 37,
+    "targetHonorKeysExposureChanged": false
+  },
+  "observation": {
+    "authority": "CAMERA2_AND_EXTENSION_CHARACTERISTICS_OBSERVATION_ONLY",
+    "formats": [
+      "RAW_SENSOR",
+      "RAW10",
+      "RAW12",
+      "RAW14_RUNTIME_REFLECTION"
+    ],
+    "streamMaps": [
+      "DEFAULT",
+      "DEFAULT_HIGH_RESOLUTION",
+      "MAXIMUM_RESOLUTION",
+      "MAXIMUM_RESOLUTION_HIGH_RESOLUTION"
+    ],
+    "extensionApis": [
+      "getSupportedExtensions",
+      "API37_isExtensionSupported_known_public_ids_0_to_4"
+    ],
+    "cameraOpenedByTruthRaw": false,
+    "captureSubmittedByTruthRaw": false,
+    "imageReaderCreatedByTruthRaw": false,
+    "imageBufferAccessedByTruthRaw": false,
+    "extensionSessionCreatedByTruthRaw": false,
+    "vendorRequestWrittenByTruthRaw": false,
+    "honorBinderInvokedByTruthRaw": false
+  },
+  "promotionBoundary": "Advertised RAW14 or extension support is capability evidence only. Capture, payload topology, OEM route identity and Direct-CFA claims remain separate."
+}
