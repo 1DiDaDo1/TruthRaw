@@ -333,7 +333,21 @@
         "diagnosticsMovedBehindSettings": true,
         "generatedLensReflectionIconApplied": true
       },
-      "ci": "PENDING",
+      "ci": {
+        "run": 35469414682,
+        "headSha": "3d1c59741ff74786adaf0273c0c0258768e10d85",
+        "hostGcc": "SUCCESS",
+        "hostClang": "SUCCESS",
+        "android": "SUCCESS",
+        "artifactId": 10592980623,
+        "artifactName": "truthraw-suite-v0-63-crc-ui-branding-debug-arm64",
+        "artifactArchiveSha256": "f8d24306b33d2141b4eb3982949637d1aa4ab84585d253a4efed70708d149f2d",
+        "extractedApkBytes": 5874361,
+        "extractedApkSha256": "82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173",
+        "packagedIconPresent": true,
+        "nativePrivateContractMarker": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+        "nativeCrcScopeMarker": "PREFIX_176_BYTES"
+      },
       "realDeviceValidation": "PENDING_V063_DNG_CRC_AND_UI_TEST"
     }
   },
@@ -355,12 +369,13 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "RUN_V063_HOST_GCC_CLANG_AND_ANDROID_CI",
-    "INSTALL_V063_APK_AND_CONFIRM_NEW_ICON_AND_INPUT_CHOICES",
-    "EXPORT_A_NEW_V063_PURE_DNG",
-    "VERIFY_UI_REPORTS_SELF_BINDING_VERIFIED_TRUE",
-    "UPLOAD_NEW_V063_DNG_AND_RECOMPUTE_BACKPLANE_CRC_FROM_BYTES_0_175",
-    "CONFIRM_DNG_DECLARED_CRC_EQUALS_INTERNAL_BACKPLANE_CRC_AND_IS_NOT_CONSTANT_RESIDUE_2144DF1C"
+    "INSTALL_VERIFIED_V063_APK_ON_REAL_DEVICE",
+    "CONFIRM_TRUTHRAW_LENS_REFLECTION_ICON_AND_RAW_VS_CAMERA_HOME_UI",
+    "OPEN_SETTINGS_GEAR_AND_CONFIRM_ALL_RESEARCH_DIAGNOSTIC_ROUTES_ARE_REACHABLE",
+    "EXPORT_NEW_V063_PURE_DNG",
+    "REQUIRE_SELF_BINDING_VERIFIED_TRUE",
+    "UPLOAD_NEW_V063_DNG_AND_RECOMPUTE_BACKPLANE_CRC_OVER_BYTES_0_175",
+    "CONFIRM_DECLARED_CRC_EQUALS_INTERNAL_STORED_CRC_AND_DIFFERS_FROM_OLD_FULL180_RESIDUE_WHEN_EXPECTED"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
