@@ -29,7 +29,7 @@ jobs:
           ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/Api37Raw14ExtensionOracleActivity.kt'
           PLAN='state/HONOR_V048_TARGET37_RAW14_RETARGET_CONTROL_PLAN_2026-09-19.json'
 
-          grep -F 'compileSdk = 37' "$GRADLE"
+          grep -F 'compileSdk = 35' "$GRADLE"
           grep -F 'targetSdk = 37' "$GRADLE"
           grep -F 'versionName = "0.17-v0.48-target37-raw14-retarget-control"' "$GRADLE"
           grep -F 'truthraw.api37-raw14-extension-oracle.v0.47' "$ACT"
@@ -71,12 +71,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android 17 SDK
+      - name: Install pinned Android SDK and NDK components
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" --channel=3 'platforms;android-37' 'build-tools;37.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -84,8 +84,6 @@ jobs:
 
       - name: Assemble arm64 debug APK
         working-directory: suite_android
-        env:
-          ANDROID_SUPPRESS_UNSUPPORTED_COMPILE_SDK: "37"
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Verify APK
