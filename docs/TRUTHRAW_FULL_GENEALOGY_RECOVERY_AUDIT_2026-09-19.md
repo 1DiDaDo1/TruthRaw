@@ -655,6 +655,38 @@ Thus v0.53 does **not erase** v0.14. It replaces v0.14 only as the preferred pre
 
 
 
+### 16.7 Earlier HONOR Camera route-observation ladder v0.40 -> v0.46
+
+The suite launcher screenshot and corresponding repository/device records show that the Android/HONOR investigation did not start at v0.47. The earlier passive/route-observation chain is part of the Camera-5 genealogy and must remain attached to the later v0.47→v0.54 work.
+
+- **v0.40 — Passive HONOR route observer.** TruthRaw did not open/capture. It observed CameraManager ownership/availability around HONOR Camera use and successfully bound to `CameraAccessoriseService`, but invoked no camera-control method. This established the service surface and the package/signature authorization boundary without creating RAW evidence.
+- **v0.41 — HONOR output-config callback probe.** One isolated `registerOutputConfigCallback` attempt was made. The device returned `SecurityException: Package not allowed`; no spoofing/bypass and no other callback method was attempted. This closed the direct privileged callback side-door for an ordinary TruthRaw process.
+- **v0.42 — Passive MediaStore + Camera timeline.** Fresh controls separated no-capture, ordinary-photo and manually selected 200MP behavior. Ordinary JPEG output was `3072x4096`; the user-selected 200MP output was `16320x12288`. A short Camera-0 availability pulse appeared in the 200MP run but was retained only as a route differential, not physical-lens proof.
+- **v0.43 — Passive PHOTO / PRO / HI-RES mode-shutter timeline.** The project observed a distinct HI-RES main output at `8192x6144` (~50MP) and a user-selected tele/UI-200MP state whose output row later finalized as `16320x12288`. Physical camera ID was not inferred from this passive layer.
+- **v0.44 — HI-RES main -> tele state anchors.** Explicit user markers `HIRES_MAIN_CONFIRMED` and `TELE_200MP_UI_SELECTED` removed the earlier state ambiguity. The same-row transition from 50MP-like metadata to final `16320x12288` was replicated. Camera-0 unavailability was shown not to be a reliable main→tele switch detector.
+- **v0.45 — Exported JPEG metadata fingerprint.** Read-only exported-file metadata added an independent output-layer association. In the uploaded device record, the `8192x6144` HI-RES-main JPEG reports `FocalLength=6.55 mm`, `f/1.6`, while the final `16320x12288` user-selected tele/200MP JPEG reports `FocalLength=22.48 mm`, `f/2.6` / 85mm-equivalent metadata. These are HONOR-authored exported metadata and strengthen the main-versus-tele association, but do not become Camera2 physical-ID or native-RAW evidence.
+- **v0.46 — HONOR capability-route oracle.** The Android-17 rerun preserved rear physical IDs `2,4,5` and physical-5 `22.48 mm / f2.6`; the five targeted HONOR capability names remained absent from ordinary CameraCharacteristics. This established that the Android-17 update did not simply surface the internal HONOR route through those public characteristics keys.
+
+The launcher-visible sequence therefore forms one continuous controlled ladder:
+
+`v0.40 passive ownership/service observation`
+→ `v0.41 privileged callback boundary`
+→ `v0.42 system-visible output differential`
+→ `v0.43 PHOTO/PRO/HI-RES timeline`
+→ `v0.44 explicit main/tele state anchors`
+→ `v0.45 exported JPEG focal/lens metadata fingerprint`
+→ `v0.46 public capability-route oracle`
+→ `v0.47 RAW14/extension oracle`
+→ `v0.48 target-37 retest`
+→ `v0.49 HONOR Camera package fingerprint`
+→ `v0.50 typed vendor-characteristic read`
+→ `v0.51 CameraDeviceSetup RAW14 session query`
+→ `v0.52 negative-control request-policy failure`
+→ `v0.53 successful Android-17 replay of the v0.14 acquisition route`
+→ `v0.54 passive OEM Pro TELE RAW/DNG fingerprint`.
+
+The passive v0.40-v0.46 observations and the active v0.53 Camera2 capture have different authority classes and must not be collapsed. Their value is cumulative: output/UI/OEM metadata narrows the route hypothesis, while only the source-first Camera2 capture provides app-visible RAW_SENSOR byte evidence.
+
 ## 17. Current Android-17 acquisition baseline
 
 A separate branch now exists:
