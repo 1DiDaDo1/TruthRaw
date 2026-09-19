@@ -1,0 +1,53 @@
+{
+  "schema": "TruthRawNefRadiometricAdmission/0.59",
+  "date": "2026-09-19",
+  "branch": "integration/truthraw-suite-v0-59-nef-radiometric-admission",
+  "status": "RESEARCH_EXACT_SCOPE_BLACK_SATURATION_GATE",
+  "input": {
+    "format": "NIKON_NEF",
+    "decoderId": "truthraw.nikon-nef-uncompressed16-cfa.v0.1",
+    "sampleDecodeAuthority": "MEASUREMENT_ADMISSION"
+  },
+  "exactScopeFields": [
+    "format",
+    "cameraMake",
+    "cameraModel",
+    "width",
+    "height",
+    "cfaCode",
+    "storageBitsPerSample"
+  ],
+  "radiometricBinding": {
+    "authorityClasses": [
+      "CONTAINER_EXPLICIT",
+      "CALIBRATION_PACK_VALIDATED"
+    ],
+    "unknownAuthorityAdmitted": false,
+    "bindingIdRequired": true,
+    "blackPhaseCount": 4,
+    "whiteLevelRequired": true,
+    "finiteNonNegativeBlackRequired": true,
+    "whiteMustExceedAllBlack": true,
+    "whiteMayNotExceedStorageCeiling": true
+  },
+  "onMatch": {
+    "radiometricBindingProvided": true,
+    "blackLevelAuthoritative": true,
+    "saturationLevelAuthoritative": true,
+    "measurementAdmissionReady": true,
+    "scientificAdmissionReady": false,
+    "directSensorAdcClaimAllowed": false
+  },
+  "blockersRemaining": [
+    "NOISE_UNCERTAINTY_ADMISSION",
+    "SOURCE_BOUND_COLOR_ADMISSION",
+    "HELD_OUT_VALIDATION"
+  ],
+  "hardRules": [
+    "STORAGE_CODE_CEILING_IS_NOT_SENSOR_SATURATION",
+    "SAMPLE_DECODE_IS_NOT_RADIOMETRIC_CALIBRATION",
+    "RADIOMETRIC_PACK_SCOPE_MUST_MATCH_EXACTLY",
+    "RADIOMETRIC_ADMISSION_ALONE_DOES_NOT_CREATE_SCIENTIFIC_MASTER",
+    "MISMATCH_FAILS_CLOSED"
+  ]
+}
