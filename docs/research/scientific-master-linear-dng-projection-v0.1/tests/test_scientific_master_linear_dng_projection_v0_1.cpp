@@ -39,6 +39,16 @@ std::uint32_t u32(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
            (static_cast<std::uint32_t>(bytes[offset + 3u]) << 24u);
 }
 
+std::string hex_u32(std::uint32_t value) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out(8u, '0');
+    for (std::size_t i = 0u; i < 8u; ++i) {
+        const unsigned shift = static_cast<unsigned>((7u - i) * 4u);
+        out[i] = kHex[(value >> shift) & 0x0fu];
+    }
+    return out;
+}
+
 float f32(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
     const std::uint32_t bits = u32(bytes, offset);
     float value = 0.0f;
@@ -359,7 +369,7 @@ void verify_dng_structure(
     const auto privateText = bytes_as_string(
         bytes, privateOff, entries.at(50740u).count);
     REQUIRE(privateText.find("TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION") != std::string::npos);
-    REQUIRE(privateText.find("private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_61") != std::string::npos);
+    REQUIRE(privateText.find("private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63") != std::string::npos);
     REQUIRE(privateText.find("representation_only=1") != std::string::npos);
     REQUIRE(privateText.find("scientific_master_modified=0") != std::string::npos);
     REQUIRE(privateText.find("appearance_applied=0") != std::string::npos);
@@ -368,7 +378,15 @@ void verify_dng_structure(
     REQUIRE(privateText.find("zero_line_sha256=") != std::string::npos);
     REQUIRE(privateText.find("zero_line_l0_f64_bits=0x3fc0000000000000") != std::string::npos);
     REQUIRE(privateText.find("scene_scale_sha256=") != std::string::npos);
+    REQUIRE(privateText.find("technical_backplane_crc_scope=PREFIX_176_BYTES") != std::string::npos);
+    const auto expectedBackplaneCrc = truthraw::technical_backplane::v0_1::crc32(
+        std::span<const std::uint8_t>(
+            descriptor.serializedBackplane.data(),
+            descriptor.serializedBackplane.size() - sizeof(std::uint32_t)));
+    REQUIRE(privateText.find(
+        "technical_backplane_crc32=0x" + hex_u32(expectedBackplaneCrc)) != std::string::npos);
     REQUIRE(privateText.find("technical_backplane_serialized_hex=") != std::string::npos);
+    REQUIRE(privateText.find("technical_backplane_crc32=0x2144df1c") == std::string::npos);
     REQUIRE(privateText.find("precision_policy_id=") != std::string::npos);
     REQUIRE(privateText.find(descriptor.runtimeReconstructionBackendId) != std::string::npos);
     REQUIRE(privateText.find(descriptor.colorBindingId) != std::string::npos);
@@ -487,8 +505,9 @@ int main() {
     std::cout << "photometric_linear_raw=34892\n";
     std::cout << "sample_format_ieee_float32=1\n";
     std::cout << "scientific_master_digest_gate=1\n";
-    std::cout << "pure_self_binding_contract_v061=1\n";
+    std::cout << "pure_self_binding_contract_v063=1\n";
     std::cout << "zero_line_scene_scale_backplane_bound=1\n";
+    std::cout << "backplane_crc_prefix_176_verified=1\n";
     std::cout << "transactional_abort_on_master_mismatch=1\n";
     std::cout << "representation_only=1\n";
     std::cout << "physical_frame_count=1\n";
