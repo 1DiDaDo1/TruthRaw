@@ -40,7 +40,7 @@ jobs:
       - name: Run PURE writer tests
         run: ctest --test-dir build/pure-f32 --output-on-failure
 
-  android-v060:
+  android-v062:
     name: Android PURE post-write verified app
     runs-on: ubuntu-24.04
     steps:
@@ -70,6 +70,7 @@ jobs:
           grep -F 'TRUTHRAW PURE · 32-bit Float DNG opslaan' "$UI"
           grep -F '16-bit Linear DNG opslaan (compatibility)' "$UI"
           grep -F '0.27-v0.62-pure-postwrite-verify' "$G"
+          grep -F 'v0.62 · PURE 32-bit Float DNG · self-binding + post-write verificatie' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
