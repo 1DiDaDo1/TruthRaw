@@ -1,0 +1,87 @@
+name: TruthRaw v0.59 LibRaw Reference Backend
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-59-libraw-reference-backend
+    paths:
+      - 'tools/libraw-reference-backend-v0.1/**'
+      - 'docs/research/libraw-reference-backend-v0.1/**'
+      - '.github/workflows/libraw-reference-backend-v0-59.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LIBRAW_COMMIT: b93f6e45c194f5df9b02a43b1af9a54b4f41f33f
+
+jobs:
+  host-reference-backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LibRaw build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake libtool pkg-config libjpeg-dev zlib1g-dev
+
+      - name: Fetch exact LibRaw 0.22.2 commit
+        run: |
+          mkdir -p _deps/LibRaw
+          git -C _deps/LibRaw init
+          git -C _deps/LibRaw remote add origin https://github.com/LibRaw/LibRaw.git
+          git -C _deps/LibRaw fetch --depth=1 origin "$LIBRAW_COMMIT"
+          git -C _deps/LibRaw checkout --detach FETCH_HEAD
+          test "$(git -C _deps/LibRaw rev-parse HEAD)" = "$LIBRAW_COMMIT"
+
+      - name: Build pinned LibRaw without rendering extras
+        working-directory: _deps/LibRaw
+        run: |
+          autoreconf --install
+          ./configure --disable-openmp --disable-lcms --disable-examples --prefix=/usr/local
+          make -j2
+          make DESTDIR="$GITHUB_WORKSPACE/_libraw_install" install
+
+      - name: Compile TruthRaw reference probe
+        run: |
+          export PKG_CONFIG_PATH="$GITHUB_WORKSPACE/_libraw_install/usr/local/lib/pkgconfig"
+          test "$(pkg-config --modversion libraw)" = "0.22.2"
+          g++ -std=c++20 -O2 -Wall -Wextra -Werror \
+            tools/libraw-reference-backend-v0.1/truthraw_libraw_reference_probe.cpp \
+            $(pkg-config --cflags libraw) \
+            $(pkg-config --libs libraw) \
+            -Wl,-rpath,"$GITHUB_WORKSPACE/_libraw_install/usr/local/lib" \
+            -o truthraw_libraw_reference_probe
+
+      - name: Verify reference-only contract
+        run: |
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/_libraw_install/usr/local/lib:${LD_LIBRARY_PATH:-}"
+          ./truthraw_libraw_reference_probe --version-json | tee libraw_reference_version.json
+          grep -F '"librawVersion": "0.22.2"' libraw_reference_version.json
+          grep -F '"role": "REFERENCE_DECODER_ONLY"' libraw_reference_version.json
+          grep -F '"dcrawProcessCalled": false' libraw_reference_version.json
+          grep -F '"scientificMasterAdmissionAllowed": false' libraw_reference_version.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v0-59-libraw-reference-version
+          path: libraw_reference_version.json
+          if-no-files-found: error
+
+  authority-guard:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify no runtime promotion
+        run: |
+          DOC='docs/research/libraw-reference-backend-v0.1/README.md'
+          SRC='tools/libraw-reference-backend-v0.1/truthraw_libraw_reference_probe.cpp'
+          grep -F 'REFERENCE_DECODER_FULL_RAW_MATERIALIZATION_ALLOWED_ONLY_OUTSIDE_CANONICAL_STREAMING_PATH' "$DOC"
+          grep -F 'dcrawProcessCalled' "$SRC"
+          grep -F 'scientificMasterAdmissionAllowed' "$SRC"
+          if grep -F 'dcraw_process()' "$SRC"; then
+            echo 'Forbidden post-processing call found in reference probe' >&2
+            exit 1
+          fi
