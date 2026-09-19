@@ -316,5 +316,86 @@
       "v0.54_INDEPENDENT_OEM_CONTAINER_CORROBORATION"
     ],
     "rule": "V0.53_REPLACES_V0.14_ONLY_AS_CURRENT_REPLAY_CONTROL_NOT_AS_HISTORICAL_ORIGIN"
+  },
+  "cameraInvestigationLadder": {
+    "range": "v0.40_to_v0.54",
+    "stages": [
+      {
+        "version": "v0.40",
+        "role": "PASSIVE_HONOR_ROUTE_OBSERVER",
+        "finding": "CameraManager ownership/availability + CameraAccessoriseService bind; no camera control or RAW evidence"
+      },
+      {
+        "version": "v0.41",
+        "role": "HONOR_OUTPUT_CONFIG_CALLBACK_PROBE",
+        "finding": "registerOutputConfigCallback rejected by package/signature SecurityException; direct privileged callback side-door closed"
+      },
+      {
+        "version": "v0.42",
+        "role": "PASSIVE_MEDIASTORE_CAMERA_TIMELINE",
+        "finding": "normal JPEG 3072x4096 vs user-selected 200MP JPEG 16320x12288; short Camera0 pulse only route differential"
+      },
+      {
+        "version": "v0.43",
+        "role": "PASSIVE_MODE_SHUTTER_TIMELINE",
+        "finding": "HI-RES main 8192x6144 output and user-selected tele/UI-200MP state finalizing 16320x12288"
+      },
+      {
+        "version": "v0.44",
+        "role": "HIRES_MAIN_TELE_STATE_ANCHORS",
+        "finding": "explicit HIRES_MAIN_CONFIRMED and TELE_200MP_UI_SELECTED markers reproduce 50MP-like to 200MP output finalization; Camera0 availability not lens telemetry"
+      },
+      {
+        "version": "v0.45",
+        "role": "EXPORTED_JPEG_METADATA_FINGERPRINT",
+        "finding": "8192x6144 main JPEG exports 6.55mm f/1.6 metadata; 16320x12288 tele/UI-200MP JPEG exports 22.48mm f/2.6 / 85mm-equivalent metadata; output-layer authority only"
+      },
+      {
+        "version": "v0.46",
+        "role": "HONOR_CAPABILITY_ROUTE_ORACLE",
+        "finding": "Android17 public CameraCharacteristics still show physical5 22.48mm f/2.6 while targeted HONOR internal capability names remain absent"
+      },
+      {
+        "version": "v0.47",
+        "role": "API37_RAW14_EXTENSION_ORACLE",
+        "finding": "runtime RAW14 constant visible but no tested public RAW14/extension path admitted"
+      },
+      {
+        "version": "v0.48",
+        "role": "TARGET37_RETEST_CONTROL",
+        "finding": "targetSdk37 alone does not expose new RAW14/extension route"
+      },
+      {
+        "version": "v0.49",
+        "role": "HONOR_CAMERA_PACKAGE_FINGERPRINT",
+        "finding": "Android17 HONOR Camera package/software environment fingerprinted"
+      },
+      {
+        "version": "v0.50",
+        "role": "DIRECT_TYPED_VENDOR_CHARACTERISTICS_READ",
+        "finding": "typed vendor-characteristic surfaces inspected without semantic promotion"
+      },
+      {
+        "version": "v0.51",
+        "role": "CAMERA_DEVICE_SETUP_RAW14_SESSION_QUERY",
+        "finding": "setup/session RAW14-related surfaces queried before active replay"
+      },
+      {
+        "version": "v0.52",
+        "role": "NEGATIVE_CONTROL",
+        "finding": "known-bad historical global CONTROL_SENSOR_PIXEL_MODE policy reproduced request inconsistency; not evidence route disappeared"
+      },
+      {
+        "version": "v0.53",
+        "role": "CURRENT_ANDROID17_V014_ROUTE_REPLAY_CONTROL",
+        "finding": "successful source-first physical5 16320x12288 envelope capture + DNG + raster audit; same 4080x3072 populated-prefix topology as Android16"
+      },
+      {
+        "version": "v0.54",
+        "role": "PASSIVE_OEM_PRO_TELE_DNG_FINGERPRINT",
+        "finding": "HONOR Pro TELE DNG 4080x3072 uncompressed U16 CFA, Black64, White1023, 25,067,520-byte payload; no exported RAW14 evidence"
+      }
+    ],
+    "authorityRule": "PASSIVE_OUTPUT_AND_OEM_METADATA_OBSERVATIONS_MUST_NOT_BE_COLLAPSED_WITH_ACTIVE_CAMERA2_RAW_SENSOR_BYTE_EVIDENCE"
   }
 }
