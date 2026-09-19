@@ -32,6 +32,8 @@ class MainActivity : Activity() {
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
+    private var pendingPureFloatDngJobId: String? = null
+    private var pureFloatDngStatus: String? = null
     private var pendingLinearDngJobId: String? = null
     private var linearDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
@@ -147,10 +149,32 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchPureFloatDngExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            pureFloatDngStatus =
+                "TRUTHRAW PURE Float32 is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+            render()
+            return
+        }
+        pendingPureFloatDngJobId = job.id
+        pureFloatDngStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_1.dng")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchLinearDngExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
         pendingLinearDngJobId = job.id
+        pureFloatDngStatus = null
         linearDngStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -223,9 +247,57 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_PURE_FLOAT_DNG) {
+            val expectedJob = pendingPureFloatDngJobId
+            pendingPureFloatDngJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                pureFloatDngStatus = "TRUTHRAW PURE Float32-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                pureFloatDngStatus =
+                    "TRUTHRAW PURE Float32-export geblokkeerd: actieve finalized preview veranderde."
+                render()
+                return
+            }
+
+            pureFloatDngStatus =
+                "TRUTHRAW PURE · 32-bit Float DNG wordt opgebouwd… exact Master replay + digest gate."
+            render()
+
+            Thread({
+                val exportResult =
+                    PureFloat32DngExporter.export(contentResolver, job, destination)
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    pureFloatDngStatus = when (exportResult) {
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                        is PureFloat32DngExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "TRUTHRAW PURE Float32 opgeslagen · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · " +
+                                "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
+                                "Master digest verified=${m.scientificMasterIdentityVerified} · " +
+                                "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
+                                "geen clipping, appearance of counterfactual."
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-pure-f32-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
             val expectedJob = pendingLinearDngJobId
-            pendingLinearDngJobId = null
+            pendingPureFloatDngJobId = null
+        pendingLinearDngJobId = null
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 linearDngStatus = "Linear DNG-export geannuleerd."
@@ -329,6 +401,7 @@ class MainActivity : Activity() {
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
         jpegStatus = null
+        pureFloatDngStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
@@ -349,10 +422,12 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         previewState = TilePreviewUiState.Idle
         jpegStatus = null
+        pureFloatDngStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingPureFloatDngJobId = null
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
@@ -411,10 +486,12 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         activeJobId = job.id
         jpegStatus = null
+        pureFloatDngStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingPureFloatDngJobId = null
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
@@ -716,7 +793,20 @@ class MainActivity : Activity() {
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
                 addView(space(5))
-                addView(actionButton("Linear DNG opslaan") { launchLinearDngExport(active) })
+                addView(actionButton("TRUTHRAW PURE · 32-bit Float DNG opslaan") {
+                    launchPureFloatDngExport(active)
+                })
+                pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(label(
+                    "PURE = XYZ-D50 LinearRaw · IEEE Float32 · negatieve en >1 waarden behouden · " +
+                        "exact Scientific-Master digest gate · geen appearance/tone.",
+                    10f,
+                    muted = true,
+                ))
+                addView(space(5))
+                addView(actionButton("16-bit Linear DNG opslaan (compatibility)") {
+                    launchLinearDngExport(active)
+                })
                 linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
@@ -921,5 +1011,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
         private const val REQUEST_SAVE_LINEAR_DNG = 4104
         private const val REQUEST_SAVE_NEF_MEASUREMENT_JSON = 4105
+        private const val REQUEST_SAVE_PURE_FLOAT_DNG = 4106
     }
 }
