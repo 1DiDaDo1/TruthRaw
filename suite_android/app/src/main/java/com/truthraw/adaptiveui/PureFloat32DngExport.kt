@@ -170,6 +170,7 @@ object PureFloat32DngExporter {
             10005L -> "Float32 Scientific DNG writer: master-digest kon niet worden opgebouwd."
             10006L -> "Float32 Scientific DNG writer: replayed Master hash mismatch."
             10007L -> "Float32 Scientific DNG writer: transactionele output-sink faalde."
+            10008L -> "Float32 Scientific DNG writer: Zero-Line/scene-scale/Technical-Backplane binding mismatch."
             else -> "Float32 Scientific DNG writer faalde (status $status)."
         }
         else -> "Onbekende TRUTHRAW PURE Float32-status $status."
