@@ -27,7 +27,38 @@ set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
 set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
 set(MULTIVENDOR_RAW_ADAPTER "${RESEARCH_ROOT}/multivendor-raw-source-adapter-v0.1/native")
+set(PROFESSIONAL_RAW_INGRESS "${RESEARCH_ROOT}/professional-raw-ingress-v0.1/native")
+set(LIBRAW_COMPAT_PROBE "${RESEARCH_ROOT}/libraw-compat-probe-v0.1/native")
+set(LIBRAW_FD_DATASTREAM "${RESEARCH_ROOT}/libraw-fd-datastream-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
+# Pinned LibRaw compatibility/professional-RAW probe backend.
+# This is not yet a Scientific Master pixel decoder. It is used for metadata/topology
+# probing through the recovered borrowed-fd datastream and is built without optional
+# OpenMP/LCMS/RawSpeed/demosaic-pack feature macros.
+include(FetchContent)
+FetchContent_Declare(truthraw_libraw_source
+    URL https://www.libraw.org/data/LibRaw-0.22.2.tar.gz
+    URL_HASH SHA256=de86b035655accff8d4010f1a221fdf50d353cb7b1422ba26f14a0db92612cfa)
+FetchContent_GetProperties(truthraw_libraw_source)
+if(NOT truthraw_libraw_source_POPULATED)
+    FetchContent_Populate(truthraw_libraw_source)
+endif()
+file(GLOB_RECURSE TRUTHRAW_LIBRAW_SOURCES CONFIGURE_DEPENDS
+    "${truthraw_libraw_source_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE TRUTHRAW_LIBRAW_PLACEHOLDERS CONFIGURE_DEPENDS
+    "${truthraw_libraw_source_SOURCE_DIR}/src/*_ph.cpp")
+list(REMOVE_ITEM TRUTHRAW_LIBRAW_SOURCES ${TRUTHRAW_LIBRAW_PLACEHOLDERS})
+add_library(truthraw_libraw STATIC ${TRUTHRAW_LIBRAW_SOURCES})
+target_include_directories(truthraw_libraw PUBLIC
+    ${truthraw_libraw_source_SOURCE_DIR})
+target_compile_definitions(truthraw_libraw PUBLIC LIBRAW_NODLL PRIVATE LIBRAW_NOTHREADS)
+target_compile_options(truthraw_libraw PRIVATE -w)
+set_target_properties(truthraw_libraw PROPERTIES POSITION_INDEPENDENT_CODE ON)
+find_library(M_LIB m)
+if(M_LIB)
+    target_link_libraries(truthraw_libraw PUBLIC ${M_LIB})
+endif()
+
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
@@ -37,6 +68,10 @@ add_library(truthraw_ui_preview_bridge SHARED
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
     rawcb_source_type_native_type_oracle.cpp
+    libraw_probe_bridge.cpp
+    ${PROFESSIONAL_RAW_INGRESS}/professional_raw_ingress_v0_1.cpp
+    ${LIBRAW_COMPAT_PROBE}/libraw_compat_probe_v0_1.cpp
+    ${LIBRAW_FD_DATASTREAM}/libraw_fd_datastream_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_bind.cpp
     ${TILE_DNG}/tile_native_dng_source_v0_1_read.cpp
@@ -84,7 +119,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
 find_library(ANDROID_LIB android)
 find_library(CAMERA2NDK_LIB camera2ndk)
 find_library(DL_LIB dl)
-target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB})
+target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB} truthraw_libraw)
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
 
