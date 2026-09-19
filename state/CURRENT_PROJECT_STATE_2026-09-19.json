@@ -1,0 +1,184 @@
+{
+  "schema": "TruthRawCurrentProjectState/2026-09-19",
+  "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
+  "activeBranch": "integration/truthraw-suite-v0-59-nef-radiometric-admission",
+  "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
+  "permanentLaws": {
+    "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "sourceEvidenceImmutable": true,
+    "measuredMayNotBeRelabelledFromReconstruction": true,
+    "counterfactualMayNotBeRelabelledAsCaptureEvidence": true,
+    "appearanceOrTransportMayUpgradeAuthority": false,
+    "restorationMayUpgradeAuthority": false
+  },
+  "scientificFlow": [
+    "SOURCE_EVIDENCE",
+    "MEASUREMENT_DE_ISP",
+    "SCIENTIFIC_MASTER",
+    "DYNAMIC_AUTHORITY_UNCERTAINTY_SUPPORT",
+    "OPEN_SCENE_STATE",
+    "OPTIONAL_COUNTERFACTUAL_OR_RESTORATION_STATE",
+    "APPEARANCE_HDR_TRANSPORT",
+    "FINITE_PROJECTION_EXPORT"
+  ],
+  "precision": {
+    "sourceEvidence": "EXACT_INTEGER_OR_PACKED",
+    "demonstratedSafeSimpleStages": "F32_ALLOWED_BY_GATE",
+    "branchSensitiveReconstruction": "F64_REFERENCE",
+    "calibrationOptimizationCovariance": "F64_REFERENCE",
+    "scientificMasterStorageAfterF64Compute": "F32_CONDITIONALLY_ALLOWED_BY_STORAGE_GATE"
+  },
+  "genealogyRecovery": {
+    "branch": "research/full-genealogy-pure-openworld-recovery-v0-1",
+    "audit": "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
+    "state": "state/FULL_GENEALOGY_PURE_OPENWORLD_RECOVERY_V0_1_2026-09-19.json",
+    "pureRecoveryMatrix": "docs/PURE_RECOVERY_TRANSPLANT_MATRIX_2026-09-19.md",
+    "explicitlyRecovered": [
+      "TRUTHRAW_PURE",
+      "OPEN_WORLD_ILLUMINATION",
+      "SCIENTIFIC_HDR",
+      "WATER_DROPLET_DETAIL",
+      "CONSERVATION_RESTORER",
+      "CAMERA5_V014_SOURCE_FIRST_RAWSENSOR_DNG",
+      "CAMERA5_V019_V020_PAYLOAD_CORRECTION",
+      "HONOR_V040_TO_V054_INVESTIGATION_LADDER",
+      "CAMERA5_V053_ANDROID17_REPLAY_CONTROL",
+      "HONOR_V054_OEM_PRO_TELE_DNG"
+    ]
+  },
+  "productArchitecture": {
+    "primaryFrontDoor": "RAW_FILE_IMPORT",
+    "secondaryFrontDoor": "CAMERA_CAPTURE",
+    "convergencePoint": "SEALED_SOURCE_ADMISSION",
+    "cameraCreatesSeparateScientificHouse": false,
+    "developedJpegHeifMayBecomeOriginalMeasuredRaw": false,
+    "convergenceDoc": "docs/UNIFIED_FILE_CAMERA_INGRESS_CONVERGENCE_V056_2026-09-19.md"
+  },
+  "multiVendorRaw": {
+    "v056": {
+      "branch": "integration/truthraw-suite-v0-56-multivendor-raw-ingress",
+      "role": "FILE_FIRST_VENDOR_NEUTRAL_INGRESS",
+      "dngNative": true,
+      "proprietaryHandlesRecognizedFailClosed": true
+    },
+    "v057": {
+      "branch": "integration/truthraw-suite-v0-57-raw-source-adapter-abi",
+      "role": "GENERIC_VERSIONED_RAW_SOURCE_ADAPTER_ABI",
+      "commonOutputContract": "IRawTileSource",
+      "dngRoutedThroughGenericAdapter": true,
+      "containerDecodeProvesUntouchedAdc": false
+    },
+    "v058": {
+      "branch": "integration/truthraw-suite-v0-58-nef-uncompressed-sample-adapter",
+      "appVersion": "0.23-v0.58-nef-uncompressed-sample-adapter",
+      "role": "FIRST_REAL_PROPRIETARY_RAW_DECODER",
+      "format": "NIKON_NEF",
+      "acceptedSubset": {
+        "endian": "LITTLE_ENDIAN_CLASSIC_TIFF",
+        "compression": 1,
+        "bitsPerSample": 16,
+        "samplesPerPixel": 1,
+        "photometric": 32803,
+        "cfaRepeat": [
+          2,
+          2
+        ],
+        "ambiguousRawIfdAllowed": false
+      },
+      "successfulDecodeAuthority": {
+        "exactCfaSamplesAvailable": true,
+        "measurementAdmissionReady": true,
+        "scientificAdmissionReady": false,
+        "directSensorAdcClaimAllowed": false,
+        "fullRawFrameMaterialized": false
+      },
+      "androidMeasurementPreview": "MEASUREMENT_ONLY_GRAYSCALE_VISIBILITY_PROXY",
+      "sourceSha256SealedBeforeDecode": true,
+      "sourceSealReverifiedAfterRead": true,
+      "measurementEvidenceSchema": "TruthRawNefMeasurementEvidence/0.58",
+      "androidRun": 35456055064,
+      "artifact": {
+        "id": 10587943240,
+        "name": "truthraw-suite-v0-58-nef-uncompressed-sample-adapter-debug-arm64",
+        "archiveSha256": "779bb184bcf6cb71c759c0999e3f34bac2ea862c5cef56b8f65c6550d934d1e3"
+      }
+    },
+    "v059": {
+      "branch": "integration/truthraw-suite-v0-59-nef-radiometric-admission",
+      "appVersion": "0.24-v0.59-nef-radiometric-admission",
+      "role": "EXACT_SCOPE_NIKON_BLACK_SATURATION_ADMISSION_GATE",
+      "radiometricBinding": "RawRadiometricBinding",
+      "exactScopeFields": [
+        "FORMAT",
+        "CAMERA_MAKE",
+        "CAMERA_MODEL",
+        "RAW_WIDTH",
+        "RAW_HEIGHT",
+        "CFA_CODE",
+        "STORAGE_BITS_PER_SAMPLE",
+        "BINDING_ID"
+      ],
+      "admittedFields": [
+        "FOUR_PHASE_BLACK_LEVEL",
+        "WHITE_SATURATION_CODE"
+      ],
+      "storageCeilingIsSensorSaturation": false,
+      "onValidExactScopeBinding": {
+        "radiometricBindingProvided": true,
+        "blackLevelAuthoritative": true,
+        "saturationLevelAuthoritative": true,
+        "measurementAdmissionReady": true,
+        "scientificAdmissionReady": false,
+        "directSensorAdcClaimAllowed": false
+      },
+      "realNikonCalibrationPackAdmitted": false,
+      "hostCi": {
+        "run": 35456672651,
+        "result": "SUCCESS_GCC_AND_CLANG"
+      },
+      "androidCi": {
+        "run": 35456737363,
+        "result": "SUCCESS",
+        "artifactId": 10588558376,
+        "artifactName": "truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64",
+        "artifactArchiveSha256": "4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8"
+      }
+    }
+  },
+  "camera5ReferencePrecedence": [
+    "V053_CURRENT_ANDROID17_REPLAY_CONTROL",
+    "V019_V020_DETAILED_ANDROID16_PAYLOAD_FORENSICS",
+    "V014_HISTORICAL_FIRST_SOURCE_FIRST_ACQUISITION",
+    "V054_INDEPENDENT_OEM_CONTAINER_CORROBORATION"
+  ],
+  "camera5BoundedClaim": {
+    "successfulPhysical5RawSensorAcquisition": true,
+    "auxiliaryDngCreationSuccessful": true,
+    "fullyPopulated16320x12288SceneRasterProven": false,
+    "meaningfulPayloadBytes": 25067520,
+    "payloadEquivalentGeometry": [
+      4080,
+      3072
+    ],
+    "nativeFull200mpAdcProven": false
+  },
+  "immediateNextSafeWork": [
+    "DEFINE_EXACT_SCOPE_NIKON_NOISE_UNCERTAINTY_BINDING",
+    "KEEP_NOISE_EVIDENCE_SEPARATE_FROM_BLACK_SATURATION_EVIDENCE",
+    "DEFINE_SOURCE_BOUND_NIKON_COLOR_ADMISSION",
+    "REQUIRE_HELD_OUT_VALIDATION",
+    "ONLY_THEN_ALLOW_SCIENTIFIC_ADMISSION_READY_TRUE",
+    "AFTER_NIKON_END_TO_END_ADD_NEXT_VENDOR_ADAPTER_BEHIND_SAME_ABI"
+  ],
+  "nextChatReadOrder": [
+    "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
+    "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
+    "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md",
+    "docs/UNIFIED_FILE_CAMERA_INGRESS_CONVERGENCE_V056_2026-09-19.md",
+    "docs/research/multivendor-raw-source-adapter-v0.1/README.md",
+    "docs/research/nikon-nef-radiometric-admission-v0.59/README.md"
+  ]
+}
