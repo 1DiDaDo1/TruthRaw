@@ -202,6 +202,7 @@ class Api37Raw14ExtensionOracleActivity : Activity() {
                 .put("fingerprint", Build.FINGERPRINT)
                 .put("truthRawCompileSdk", 35)
                 .put("truthRawTargetSdk", applicationInfo.targetSdkVersion))
+            .put("honorCameraPackage", honorCameraPackageSnapshot())
             .put("raw14Runtime", raw14Runtime.toJson())
             .put("formatInventory", JSONArray(formats.map {
                 JSONObject().put("name", it.name).put("value", it.value)
@@ -212,6 +213,28 @@ class Api37Raw14ExtensionOracleActivity : Activity() {
             .put("classification", "API37_RAW14_AND_EXTENSION_CAPABILITY_ORACLE__NO_CAMERA_OPEN_NO_CAPTURE")
             .put("boundary",
                 "ADVERTISED_FORMAT_OR_EXTENSION_SUPPORT_IS_CAPABILITY_EVIDENCE_ONLY; IT DOES_NOT PROVE A SUCCESSFUL CAPTURE, OEM ROUTE IDENTITY, NATIVE ADC TOPOLOGY, OR DIRECT_CFA_200MP")
+    }
+
+    @Suppress("DEPRECATION")
+    private fun honorCameraPackageSnapshot(): JSONObject {
+        return runCatching {
+            val info = packageManager.getPackageInfo("com.hihonor.camera", 0)
+            val app = info.applicationInfo
+            JSONObject()
+                .put("installed", true)
+                .put("packageName", info.packageName)
+                .put("versionName", info.versionName ?: JSONObject.NULL)
+                .put("longVersionCode", info.longVersionCode)
+                .put("targetSdkVersion", app?.targetSdkVersion ?: JSONObject.NULL)
+                .put("minSdkVersion", app?.minSdkVersion ?: JSONObject.NULL)
+                .put("compileSdkVersion", app?.compileSdkVersion ?: JSONObject.NULL)
+                .put("systemApp", app?.let { (it.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0 } ?: false)
+                .put("updatedSystemApp", app?.let { (it.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 } ?: false)
+        }.getOrElse { e ->
+            JSONObject()
+                .put("installed", false)
+                .put("error", "${e.javaClass.name}: ${e.message}")
+        }
     }
 
     private data class FormatSpec(val name: String, val value: Int)
