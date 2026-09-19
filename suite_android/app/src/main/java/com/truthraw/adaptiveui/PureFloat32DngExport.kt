@@ -7,6 +7,8 @@ private const val PURE_FLOAT_MAGIC = 0x54525046L
 private const val PURE_FLOAT_PACKET_LONGS = 18
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
+private const val PURE_POSTWRITE_SCAN_BYTES = 64 * 1024
+private const val PURE_SELF_BINDING_CONTRACT = "TRUTHRAW_PURE_SELF_BINDING_V0_61"
 
 object PureFloat32DngNativeBridge {
     init {
@@ -38,6 +40,7 @@ data class PureFloat32DngMetrics(
     val physicalFrameCount: Long,
     val independentEvidenceCount: Long,
     val colorClaimScopeCode: Long,
+    val postWriteSelfBindingVerified: Boolean = false,
 )
 
 sealed interface PureFloat32DngExportResult {
@@ -84,13 +87,100 @@ object PureFloat32DngExporter {
             val decoded = decode(packet)
             if (decoded is PureFloat32DngExportResult.Failed) {
                 runCatching { resolver.delete(destination, null, null) }
+                return decoded
             }
-            decoded
+
+            val success = decoded as PureFloat32DngExportResult.Success
+            val postWrite = verifySavedPureDng(resolver, destination)
+            if (!postWrite.ok) {
+                runCatching { resolver.delete(destination, null, null) }
+                return PureFloat32DngExportResult.Failed(
+                    "Fail-closed: writer meldde succes, maar het opgeslagen DNG-bestand kon de " +
+                        "v0.61 self-binding niet terugbewijzen (${postWrite.reason}).",
+                )
+            }
+
+            PureFloat32DngExportResult.Success(
+                success.metrics.copy(postWriteSelfBindingVerified = true),
+            )
         } catch (error: Throwable) {
             runCatching { resolver.delete(destination, null, null) }
             PureFloat32DngExportResult.Failed(
                 "TRUTHRAW PURE Float32-export faalde: " +
                     (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
+    private data class PostWriteVerification(
+        val ok: Boolean,
+        val reason: String,
+    )
+
+    private fun verifySavedPureDng(
+        resolver: ContentResolver,
+        destination: Uri,
+    ): PostWriteVerification {
+        val requiredMarkers = listOf(
+            "TruthRaw scientific-master-linear-dng-projection-v0.1",
+            "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION",
+            "private_contract=$PURE_SELF_BINDING_CONTRACT",
+            "sealed_source_sha256=",
+            "scientific_master_sha256=",
+            "zero_line_sha256=",
+            "zero_line_l0_f64_bits=0x",
+            "zero_line_gauge_id=",
+            "scene_scale_sha256=",
+            "scene_scale_id=",
+            "technical_backplane_version=1",
+            "technical_backplane_crc32=0x",
+            "technical_backplane_serialized_hex=",
+            "precision_policy_id=",
+            "runtime_reconstruction_backend_id=",
+            "physical_frame_count=1",
+            "independent_evidence_count=1",
+        )
+        val forbiddenMarkers = listOf(
+            "role=LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION",
+        )
+
+        return try {
+            val input = resolver.openInputStream(destination)
+                ?: return PostWriteVerification(false, "bestemming is niet terugleesbaar")
+            val bytes = ByteArray(PURE_POSTWRITE_SCAN_BYTES)
+            var used = 0
+            input.use { stream ->
+                while (used < bytes.size) {
+                    val read = stream.read(bytes, used, bytes.size - used)
+                    if (read <= 0) break
+                    used += read
+                }
+            }
+            if (used <= 0) {
+                return PostWriteVerification(false, "leeg bestand na commit")
+            }
+
+            val headerText = String(bytes, 0, used, Charsets.ISO_8859_1)
+            val missing = requiredMarkers.filterNot(headerText::contains)
+            if (missing.isNotEmpty()) {
+                return PostWriteVerification(
+                    false,
+                    "ontbrekende marker(s): ${missing.joinToString()}",
+                )
+            }
+            val forbidden = forbiddenMarkers.firstOrNull(headerText::contains)
+            if (forbidden != null) {
+                return PostWriteVerification(
+                    false,
+                    "oude route-marker aanwezig: $forbidden",
+                )
+            }
+
+            PostWriteVerification(true, "contract teruggelezen")
+        } catch (error: Throwable) {
+            PostWriteVerification(
+                false,
+                error.message ?: error.javaClass.simpleName,
             )
         }
     }
