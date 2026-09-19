@@ -48,16 +48,36 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.54 Honor Android-17 Pro RAW/DNG fingerprint"
+            text = "v0.56 · één RAW-huis · multi-vendor file ingress + camera als tweede ingang"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "De vorige staged test crashte vóór Camera2 door een verboden TextureView-background. Dat is nu exact verwijderd. De 200MP-ingang blijft eerst een minimale crash-isolatie Activity; daarna open je bewust de v0.9 staged test."
+            text = "Kies eerst een bestaand RAW-bestand van smartphone of professionele camera. Camera-toegang is de tweede ingang. Zodra een geldige RAW/DNG-bron bestaat, komen beide routes bij dezelfde sealed-source RAW-ingang uit."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
-            setPadding(0, 0, 0, dp(18))
+            setPadding(0, 0, 0, dp(14))
+        })
+
+        root.addView(actionButton("1 · RAW-bestand openen · smartphone / professionele camera") {
+            startActivity(Intent(this, MainActivity::class.java).apply {
+                putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
+            })
+        })
+        root.addView(space())
+
+        root.addView(actionButton("2 · Camera gebruiken · capture → dezelfde RAW-ingang") {
+            startActivity(Intent(this, FotoGraafCameraActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(TextView(this).apply {
+            text = "Onderzoek & diagnostiek"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            setTypeface(typeface, Typeface.BOLD)
+            setPadding(0, dp(10), 0, dp(8))
         })
 
         root.addView(actionButton("200MP TEST · crash-isolatie ingang") {
@@ -127,6 +147,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         root.addView(actionButton("v0.54 · Honor Pro RAW/DNG container fingerprint") {
             startActivity(Intent(this, PassiveHonorProRawDngFingerprintActivity::class.java))
+        })
+        root.addView(space())
+
+        root.addView(actionButton("v0.55 · Huidige Android-17/HONOR nulmeting") {
+            startActivity(Intent(this, CurrentAndroid17HonorCameraBaselineActivity::class.java))
         })
         root.addView(space())
 
