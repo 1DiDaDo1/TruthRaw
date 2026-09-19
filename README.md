@@ -7,11 +7,12 @@
 > Read first on this branch:
 >
 > 1. `docs/DOCUMENT_STATUS_INDEX_2026-09-19_TRUTHNEGATIVE_BRANCH.md`
-> 2. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
-> 3. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
-> 4. `state/TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json`
+> 2. `docs/TRUTHNEGATIVE_EXISTING_HOUSE_ALIGNMENT_AUDIT_2026-09-19.md`
+> 3. `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
+> 4. `docs/CURRENT_TRUTHNEGATIVE_ARCHITECTURE_2026-09-19.md`
+> 5. `state/TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json`
 >
-> TruthNegative is a reconstructed scientific intermediate. It creates no new evidence and does not replace the HONOR route investigation.
+> TruthNegative v0.2 is a scientific-negative binding/projection family for the **existing** float Scientific Master/open-world house. It creates no second truth world, creates no new evidence, and does not replace the HONOR route investigation.
 
 TruthRaw is a single-frame RAW reconstruction research project and software-ISP built around one permanent rule:
 
