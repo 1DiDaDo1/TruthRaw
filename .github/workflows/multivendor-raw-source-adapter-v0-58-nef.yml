@@ -1,0 +1,52 @@
+name: TruthRaw v0.58 Nikon NEF Sample Adapter
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-58-nef-uncompressed-sample-adapter
+    paths:
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/**'
+      - '.github/workflows/multivendor-raw-source-adapter-v0-58-nef.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-nef-adapter:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure
+        run: cmake -S docs/research/multivendor-raw-source-adapter-v0.1 -B build/raw-adapter -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/raw-adapter --config Release --parallel 2
+      - name: Run generic adapter ABI tests
+        run: ./build/raw-adapter/test_multivendor_raw_source_adapter_v0_1
+      - name: Run Nikon NEF subset tests
+        run: ./build/raw-adapter/test_nikon_nef_uncompressed_adapter_v0_1
+
+  nef-authority-guard:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Nikon NEF claim boundary
+        run: |
+          C='docs/research/multivendor-raw-source-adapter-v0.1/native/nikon_nef_uncompressed_adapter_v0_1.cpp'
+          H='docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+          grep -F 'scientificAdmissionReady = false' "$C"
+          grep -F 'directSensorAdcClaimAllowed = false' "$C"
+          grep -F 'measurementAdmissionReady = true' "$C"
+          grep -F 'makeNikonNefUncompressedAdapter' "$H"
