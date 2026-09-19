@@ -10,7 +10,7 @@ When checked out on:
 
 use:
 
-- `TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json` — current TruthNegative research overlay;
+- `TRUTHNEGATIVE_V0_2_EXISTING_HOUSE_BINDING_STATE_2026-09-19.json` — current TruthNegative research overlay;\n- `TRUTHNEGATIVE_V0_1_STATE_2026-09-19.json` — retained first-draft provenance; its old insertion-point wording is superseded by v0.2;
 - `CURRENT_PROJECT_STATE_2026-09-16.json` — retained global scientific architecture snapshot;
 - the latest exact HONOR v0.53/v0.54 state files for acquisition context only.
 
