@@ -1,0 +1,52 @@
+{
+  "schema": "TruthRawPureFloat32UnifiedApp/0.57",
+  "date": "2026-09-19",
+  "status": "INTEGRATION_CANDIDATE_PURE_PIXEL_ROUTE_RECOVERED_CERTIFICATE_AND_DYNAMIC_AUTHORITY_BINDING_PENDING",
+  "branch": "integration/truthraw-suite-v0-57-pure-float32-output",
+  "parent": "integration/truthraw-suite-v0-56-multivendor-raw-ingress",
+  "appVersionName": "0.22-v0.57-pure-float32-output",
+  "route": [
+    "SEALED_DNG_SOURCE",
+    "SOURCE_BOUND_COLOR",
+    "CURRENT_SCIENTIFIC_MASTER_TRUTHRANGE_BACKPLANE_GATE",
+    "CANONICAL_64X64_MASTER_REPLAY",
+    "EXACT_SCIENTIFIC_MASTER_DIGEST_MATCH",
+    "CAMERA_TO_XYZ_D50",
+    "IEEE754_FLOAT32_XYZ_D50_LINEAR_RAW_DNG"
+  ],
+  "invariants": {
+    "scientificMasterIdentityVerified": true,
+    "artifactCommitted": true,
+    "representationOnly": true,
+    "scientificMasterModified": false,
+    "appearanceApplied": false,
+    "counterfactualObservationCreated": false,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "preserveFiniteNegativeComponents": true,
+    "preserveFiniteOverOneComponents": true
+  },
+  "releaseModel": {
+    "nativeWritesToPrivateTempFirst": true,
+    "userVisibleDestinationWrittenOnlyAfterNativeCommit": true,
+    "deleteDestinationOnFailure": true
+  },
+  "compatibilitySeparation": {
+    "pure": "FLOAT32_XYZ_D50_LINEAR_RAW",
+    "boundedLinearDng": "UNSIGNED16_COMPATIBILITY_PROJECTION",
+    "boundedLinearDngMayRedefinePure": false
+  },
+  "pendingModernBindings": [
+    "DYNAMIC_AUTHORITY_IDENTITY_BINDING",
+    "VERSIONED_CURRENT_PTC_DNG_BINDING"
+  ],
+  "legacyCertificate": {
+    "name": "TRCERT01_V0_1",
+    "role": "HISTORICAL_ARTIFACT_VERIFICATION_ONLY"
+  },
+  "nativeInputReady": [
+    "DNG_STRICT_PROFILE"
+  ],
+  "proprietaryRawStillDecoderPending": true,
+  "scientificPixelsChangedByIntegration": false
+}

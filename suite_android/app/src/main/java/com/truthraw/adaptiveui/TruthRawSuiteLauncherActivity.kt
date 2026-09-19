@@ -48,7 +48,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "v0.56 · één RAW-huis · multi-vendor file ingress + camera als tweede ingang"
+            text = "v0.57 · één RAW-huis · multi-vendor ingress + TRUTHRAW PURE Float32 output"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))

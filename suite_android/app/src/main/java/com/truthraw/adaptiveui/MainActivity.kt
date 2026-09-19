@@ -34,6 +34,8 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingLinearDngJobId: String? = null
     private var linearDngStatus: String? = null
+    private var pendingPureDngJobId: String? = null
+    private var pureDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
     private var pendingEmpiricalJobId: String? = null
     private var pendingEmpiricalJson: String? = null
@@ -156,6 +158,20 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchPureDngExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        pendingPureDngJobId = job.id
+        pureDngStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_1.dng")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_PURE_DNG)
+    }
+    @Suppress("DEPRECATION")
     private fun launchEmpiricalExport(job: RawJob) {
         val audit = empiricalAudit ?: return
         if (job.id != activeJobId) return
@@ -201,6 +217,43 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_PURE_DNG) {
+            val expectedJob = pendingPureDngJobId
+            pendingPureDngJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                pureDngStatus = "TRUTHRAW PURE-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null || ready.jobId != expectedJob || activeJobId != expectedJob) {
+                pureDngStatus = "TRUTHRAW PURE geblokkeerd: actieve finalized preview veranderde tijdens de bestandsdialoog."
+                render()
+                return
+            }
+            pureDngStatus = "TRUTHRAW PURE wordt opgebouwd… exact Scientific-Master digest-gate → Float32 XYZ-D50 LinearRaw."
+            render()
+            Thread({
+                val exportResult = PureDngExporter.export(contentResolver, job, destination, cacheDir)
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    pureDngStatus = when (exportResult) {
+                        is PureDngExportResult.Failed -> exportResult.reason
+                        is PureDngExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "TRUTHRAW PURE opgeslagen · ${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
+                                "Float32 XYZ-D50 · negative=${m.negativeComponentCount} · >1=${m.overOneComponentCount} · " +
+                                "masterVerified=${m.scientificMasterIdentityVerified} · frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
+                                "geen appearance/counterfactual/writeback."
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-pure-dng-${job.id.take(8)}").start()
+            return
+        }
         if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
             val expectedJob = pendingLinearDngJobId
             pendingLinearDngJobId = null
@@ -281,6 +334,7 @@ class MainActivity : Activity() {
         val first = session.jobs.firstOrNull()
         jpegStatus = null
         linearDngStatus = null
+        pureDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         if (first == null) {
@@ -305,6 +359,7 @@ class MainActivity : Activity() {
         empiricalAudit = null
         pendingJpegJobId = null
         pendingLinearDngJobId = null
+        pendingPureDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
         render()
@@ -554,11 +609,19 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
                 addView(space(6))
+                addView(actionButton("TRUTHRAW PURE · Float32 DNG opslaan") { launchPureDngExport(active) })
+                pureDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(label(
+                    "Wetenschappelijke projectie van exact dezelfde camera-native Scientific Master · Float32 XYZ-D50 · geen [0,1]-clipping.",
+                    10f,
+                    muted = true,
+                ))
+                addView(space(5))
+                addView(actionButton("Linear DNG · 16-bit compatibility opslaan") { launchLinearDngExport(active) })
+                linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                addView(space(5))
                 addView(actionButton("JPEG preview opslaan") { launchJpegExport(active) })
                 jpegStatus?.let { addView(label(it, 10f, muted = true)) }
-                addView(space(5))
-                addView(actionButton("Linear DNG opslaan") { launchLinearDngExport(active) })
-                linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
@@ -753,5 +816,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_JPEG = 4102
         private const val REQUEST_SAVE_EMPIRICAL_JSON = 4103
         private const val REQUEST_SAVE_LINEAR_DNG = 4104
+        private const val REQUEST_SAVE_PURE_DNG = 4105
     }
 }

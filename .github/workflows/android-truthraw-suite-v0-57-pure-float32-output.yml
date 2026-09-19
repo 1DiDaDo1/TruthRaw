@@ -1,0 +1,97 @@
+name: TruthRaw v0.57 PURE Float32 Output
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-57-pure-float32-output
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/TRUTHRAW_V057_PURE_FLOAT32_OUTPUT_PLAN_2026-09-19.md'
+      - 'state/TRUTHRAW_V057_PURE_FLOAT32_OUTPUT_2026-09-19.json'
+      - '.github/workflows/android-truthraw-suite-v0-57-pure-float32-output.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-v057:
+    name: Build PURE Float32 unified app
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify PURE authority invariants
+        run: |
+          BRIDGE='suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+          KOTLIN='suite_android/app/src/main/java/com/truthraw/adaptiveui/PureDngExport.kt'
+          UI='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          WRITER='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          STATE='state/TRUTHRAW_V057_PURE_FLOAT32_OUTPUT_2026-09-19.json'
+
+          grep -F 'StreamingScientificMasterTileSource' "$BRIDGE"
+          grep -F 'scientificMasterSha256 = release.scientificIdentity.scientificMasterHash' "$BRIDGE"
+          grep -F 'write_xyz_d50_linear_dng_projection' "$BRIDGE"
+          grep -F 'scientificMasterIdentityVerified' "$KOTLIN"
+          grep -F 'appearanceApplied' "$KOTLIN"
+          grep -F 'counterfactualObservationCreated' "$KOTLIN"
+          grep -F 'TRUTHRAW PURE · Float32 DNG' "$UI"
+          grep -F 'if (value < 0.0f) ++out.negativeComponentCount;' "$WRITER"
+          grep -F 'if (value > 1.0f) ++out.overOneComponentCount;' "$WRITER"
+          grep -F '"scientificPixelsChangedByIntegration": false' "$STATE"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          bridge=Path('suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp').read_text()
+          kotlin=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/PureDngExport.kt').read_text()
+          assert 'PosixPrivateTransactionalSink' in bridge
+          assert 'sink.abort();' in bridge
+          assert 'privateCacheDir' in kotlin
+          assert 'File.createTempFile' in kotlin
+          assert 'tempBytes != metrics.outputBytes' in kotlin
+          assert '!metrics.scientificMasterIdentityVerified' in kotlin
+          assert 'metrics.appearanceApplied' in kotlin
+          assert 'metrics.counterfactualObservationCreated' in kotlin
+          print('v0.57 PURE integration invariants PASS')
+          PY
+
+      - name: Host-regress historical PURE writer
+        run: |
+          cmake -S docs/research/scientific-master-linear-dng-projection-v0.1                 -B build/pure-host                 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/pure-host --parallel 2
+          ctest --test-dir build/pure-host --output-on-failure
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-57-pure-float32-output-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
