@@ -48,13 +48,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "Camera-5 research · v0.54 Honor Android-17 Pro RAW/DNG fingerprint"
+            text = "Camera-5 research · v0.55 huidige Android-17 + HONOR Camera baseline"
             textSize = 16f
             setTextColor(Color.rgb(190, 196, 205))
             setPadding(0, dp(5), 0, dp(8))
         })
         root.addView(TextView(this).apply {
-            text = "De vorige staged test crashte vóór Camera2 door een verboden TextureView-background. Dat is nu exact verwijderd. De 200MP-ingang blijft eerst een minimale crash-isolatie Activity; daarna open je bewust de v0.9 staged test."
+            text = "We starten deze nieuwe Android-17/HONOR-versie eerst met een read-only nulmeting. Geen vendor-key write, geen CameraDevice-open en geen capture voordat de huidige package-, build- en Camera2-capability-identiteit exact is vastgelegd."
             textSize = 14f
             setTextColor(Color.rgb(190, 198, 209))
             setPadding(0, 0, 0, dp(18))

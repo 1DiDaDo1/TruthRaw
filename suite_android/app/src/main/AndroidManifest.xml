@@ -30,6 +30,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".CurrentAndroid17HonorCameraBaselineActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
         <activity android:name=".TruthRawCrashReportActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraaf200MpEntryActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraaf200MpStagedActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
