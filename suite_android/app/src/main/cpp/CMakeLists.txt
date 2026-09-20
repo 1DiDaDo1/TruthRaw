@@ -28,6 +28,9 @@ set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
 set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
 set(MULTIVENDOR_RAW_ADAPTER "${RESEARCH_ROOT}/multivendor-raw-source-adapter-v0.1/native")
+set(OPEN_WORLD_NATIVE_V03 "${RESEARCH_ROOT}/open-world-native-integration-v0.3/native")
+set(CICM_V1 "${RESEARCH_ROOT}/counterfactual-illumination-capture-manifold-v1/native")
+set(ROOM_CAPSULE_V01 "${RESEARCH_ROOT}/local-illumination-room-capsule-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
@@ -37,6 +40,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
     pure_float32_dng_export_bridge.cpp
+    truthnegative_export_bridge.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
@@ -66,6 +70,9 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
     ${MULTIVENDOR_RAW_ADAPTER}/multivendor_raw_source_adapter_v0_1.cpp
     ${MULTIVENDOR_RAW_ADAPTER}/nikon_nef_uncompressed_adapter_v0_1.cpp
+    ${OPEN_WORLD_NATIVE_V03}/open_world_native_v03.cpp
+    ${CICM_V1}/cicm_v1.cpp
+    ${ROOM_CAPSULE_V01}/room_capsule_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -87,6 +94,9 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FINALIZED_RELEASE_V02}
     ${LINEAR_DNG_PROJECTION}
     ${MULTIVENDOR_RAW_ADAPTER}
+    ${OPEN_WORLD_NATIVE_V03}
+    ${CICM_V1}
+    ${ROOM_CAPSULE_V01}
     ${V47I_NATIVE}/include)
 
 find_library(ANDROID_LIB android)
