@@ -51,17 +51,17 @@ class TruthRawAdvancedActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("TRUTHRAW ADVANCED", 24f))
-                addView(body("Derivative · Scientific Master blijft onaangeraakt", 11.5f))
+                addView(body("Open-World · Scene Physics · Dynamic Authority", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
         root.addView(space(18))
         root.addView(card().apply {
-            addView(title("Natuurlijke beeldvorming", 18f))
+            addView(title("Authority-bound scene processing", 18f))
             addView(space(8))
             addView(toggle(
-                "Natural Light Balance",
-                "Voorzichtige, evidence-confidence begrensde schaduw/lichtbalans. Dit is appearance, geen fysieke relight-meting.",
+                "Open-World / Scene Physics",
+                "Bindt de single-frame scene aan de Open-World illumination-authority corridor. Zonder onafhankelijke geometry/material/illumination blijft een lichtaanpassing APPEARANCE_ONLY; er wordt geen inverse-square of fysieke relight verzonnen.",
                 options.naturalLight,
             ) { checked ->
                 options = options.copy(naturalLight = checked)
@@ -69,8 +69,8 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Natural HDR",
-                "Gebruikt de bestaande scene-aware HDR gain-state downstream van PURE. Censored highlights krijgen geen verzonnen gain.",
+                "Scientific HDR / Dynamic Authority",
+                "Gebruikt scene-aware HDR alleen waar de Dynamic Authority dit toelaat. CENSORED of UNKNOWN support krijgt geen verzonnen recoverable gain en schrijft nooit terug naar PURE.",
                 options.naturalHdr,
             ) { checked ->
                 options = options.copy(naturalHdr = checked)
@@ -78,8 +78,8 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Detail / Structure",
-                "Activeert de bestaande support-limited detail appearance. Gemeten CFA-samples in PURE worden niet overschreven.",
+                "Structure / Detail",
+                "Activeert support-limited detail appearance downstream van de authority-bound scene. Sample count of contrast wordt niet als extra optische detail-evidence behandeld.",
                 options.detail,
             ) { checked ->
                 options = options.copy(detail = checked)
@@ -87,8 +87,8 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Evidence-bound Restoration",
-                "Alleen presentation-compensatie op previewpixels waarvan de onderliggende CFA-sample werkelijk clipped/censored is. Onvoldoende buursteun = geen herstel.",
+                "Restoration / Dynamic Authority",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved en elke reparatie blijft retreatable.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
@@ -98,17 +98,19 @@ class TruthRawAdvancedActivity : Activity() {
 
         root.addView(space(14))
         root.addView(card().apply {
-            addView(title("Authority", 16f))
+            addView(title("Scientific separation", 16f))
             addView(space(6))
             addView(body(
-                "Advanced is een afgeleide weergave. MEASURED blijft MEASURED, reconstructie blijft RECONSTRUCTED en clipping blijft CENSORED in de wetenschappelijke laag. De PURE Scientific Master, Zero-Line, scene-scale en Backplane worden niet teruggeschreven.",
+                "Advanced consumeert dezelfde Scientific Master en Dynamic Authority als TruthNegative. " +
+                    "CALIBRATED_ESTIMATE, RECONSTRUCTED, CENSORED en UNKNOWN blijven onderscheiden. " +
+                    "Open-World, HDR en Restoration zijn downstream; Scientific Master, Zero-Line, scene-scale en Backplane worden niet teruggeschreven.",
                 12f,
             ))
         })
 
         root.addView(space(18))
         root.addView(Button(this).apply {
-            text = "Gebruik TRUTHRAW ADVANCED"
+            text = "Gebruik OPEN-WORLD ADVANCED"
             isAllCaps = false
             textSize = 16f
             setTextColor(textColor)
