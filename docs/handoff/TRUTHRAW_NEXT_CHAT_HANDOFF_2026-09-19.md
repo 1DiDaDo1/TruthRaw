@@ -321,14 +321,14 @@ Read:
 
 - `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`.
 
-CI run `35509438260` is green on GCC, Clang, scientific contracts and Android.
+CI run `35509701132` is green on GCC, Clang, scientific contracts and Android.
 
-Artifact ID `10603869532`.
+Artifact ID `10604514809`.
 
 APK:
 
 - bytes `6,314,357`;
-- SHA-256 `977879e6f297f01b25bd58c86f7827e3ef4d62c8d5e1c99e1686e55fa8997ee7`.
+- SHA-256 `cc3d84ec84177692873b9447e67d7d92b150ddb74921aac5206a94c0cb09b1ae`.
 
 Still open:
 
