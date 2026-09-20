@@ -7,7 +7,7 @@ import java.io.File
 import java.util.zip.CRC32
 
 private const val PURE_FLOAT_MAGIC = 0x54525046L
-private const val PURE_FLOAT_PACKET_LONGS = 34
+private const val PURE_FLOAT_PACKET_LONGS = 36
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 private const val PURE_POSTWRITE_SCAN_BYTES = 64 * 1024
@@ -28,6 +28,7 @@ object PureFloat32DngNativeBridge {
         previewFd: Int,
         previewWidth: Int,
         previewHeight: Int,
+        derivativeScratchFd: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -58,6 +59,8 @@ data class PureFloat32DngMetrics(
     val outputAuthorityUnknownChannels: Long,
     val outputAuthorityCensoredSupportPixels: Long,
     val outputAuthorityArtifactSha256: String,
+    val projectedRasterIdentityVerified: Boolean,
+    val derivativeProjection: Boolean,
     val postWriteSelfBindingVerified: Boolean = false,
 )
 
@@ -69,6 +72,7 @@ sealed interface PureFloat32DngExportResult {
 enum class Float32DngExportFlavor(val nativeCode: Int) {
     PURE(0),
     JPGL_RAW_EDIT(1),
+    ADVANCED_RENDER_EDIT(2),
 }
 
 object PureFloat32DngExporter {
@@ -82,6 +86,7 @@ object PureFloat32DngExporter {
         previewFile: File? = null,
         previewWidth: Int = 0,
         previewHeight: Int = 0,
+        derivativeScratchFile: File? = null,
     ): PureFloat32DngExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return PureFloat32DngExportResult.Failed(
@@ -120,6 +125,37 @@ object PureFloat32DngExporter {
                 null
             }
 
+            val scratch = if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+                val file = derivativeScratchFile
+                    ?: run {
+                        source.close()
+                        output.close()
+                        preview?.close()
+                        return PureFloat32DngExportResult.Failed(
+                            "Advanced Render/Edit vereist private derivative staging.",
+                        )
+                    }
+                runCatching {
+                    file.parentFile?.mkdirs()
+                    ParcelFileDescriptor.open(
+                        file,
+                        ParcelFileDescriptor.MODE_CREATE or
+                            ParcelFileDescriptor.MODE_READ_WRITE or
+                            ParcelFileDescriptor.MODE_TRUNCATE,
+                    )
+                }.getOrNull()
+                    ?: run {
+                        source.close()
+                        output.close()
+                        preview?.close()
+                        return PureFloat32DngExportResult.Failed(
+                            "Advanced Render/Edit derivative staging kon niet worden geopend.",
+                        )
+                    }
+            } else {
+                null
+            }
+
             val packet = source.use { src ->
                 output.use { dst ->
                     if (preview != null) {
@@ -137,6 +173,7 @@ object PureFloat32DngExporter {
                                 p.fd,
                                 previewWidth,
                                 previewHeight,
+                                scratch?.fd ?: -1,
                                 PURE_MAX_SOURCE_RESIDENT_BYTES,
                                 PURE_MAX_LOGICAL_RESIDENT_BYTES,
                             )
@@ -155,6 +192,7 @@ object PureFloat32DngExporter {
                             -1,
                             0,
                             0,
+                            scratch?.fd ?: -1,
                             PURE_MAX_SOURCE_RESIDENT_BYTES,
                             PURE_MAX_LOGICAL_RESIDENT_BYTES,
                         )
@@ -162,7 +200,12 @@ object PureFloat32DngExporter {
                 }
             }
 
-            val decoded = decode(packet)
+            scratch?.close()
+            if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+                derivativeScratchFile?.delete()
+            }
+
+            val decoded = decode(packet, flavor, advancedFlags)
             if (decoded is PureFloat32DngExportResult.Failed) {
                 runCatching { resolver.delete(destination, null, null) }
                 return decoded
@@ -213,6 +256,8 @@ object PureFloat32DngExporter {
                 "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
             Float32DngExportFlavor.JPGL_RAW_EDIT ->
                 "role=TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG"
+            Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                "role=TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG"
         }
         val requiredMarkers = mutableListOf(
             "TruthRaw scientific-master-linear-dng-projection-v0.1",
@@ -251,6 +296,35 @@ object PureFloat32DngExporter {
             )
         } else {
             requiredMarkers += "embedded_jpeg_preview=0"
+        }
+        if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+            requiredMarkers += listOf(
+                "projected_raster_sha256=",
+                "derivative_projection=1",
+                "projected_appearance_applied=",
+                "projected_counterfactual_observation_created=0",
+                "restoration_derivative=0",
+                "open_scene_state_sha256=",
+                "downstream_edit_manifest_begin",
+                "schema=TruthRawAdvancedRenderEdit/0.1",
+                "primary_image_role=EXTENDED_LINEAR_SRGB_FLOAT32_DERIVATIVE",
+                "stored_projection=XYZ_D50_FLOAT32_LINEAR_DNG",
+                "source_scientific_master_unchanged=1",
+                "pre_tone_extended_linear=1",
+                "negative_values_preserved=1",
+                "over_one_values_preserved=1",
+                "display_oetf_applied=0",
+                "sdr_max_rgb_normalization_applied=0",
+                "detail_baked_into_primary=" +
+                    if ((advancedFlags and 0x04) != 0) "1" else "0",
+                "light_baked_into_primary=0",
+                "natural_hdr_baked_into_primary=0",
+                "restoration_baked_into_primary=0",
+                "lightroom_editable_primary=1",
+                "scientific_writeback_allowed=0",
+                "creates_new_evidence=0",
+                "downstream_edit_manifest_end",
+            )
         }
         if (flavor == Float32DngExportFlavor.JPGL_RAW_EDIT) {
             requiredMarkers += listOf(
@@ -433,10 +507,13 @@ object PureFloat32DngExporter {
 
             PostWriteVerification(
                 true,
-                if (flavor == Float32DngExportFlavor.PURE) {
-                    "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
-                } else {
-                    "JPG-L RAW/Edit Float32 primary + v0.63 lineage + recipe manifest geverifieerd"
+                when (flavor) {
+                    Float32DngExportFlavor.PURE ->
+                        "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
+                    Float32DngExportFlavor.JPGL_RAW_EDIT ->
+                        "JPG-L RAW/Edit Float32 primary + lineage + recipe manifest geverifieerd"
+                    Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                        "Advanced Render/Edit derivative hash + lineage + extended-linear manifest geverifieerd"
                 },
             )
         } catch (error: Throwable) {
@@ -447,7 +524,11 @@ object PureFloat32DngExporter {
         }
     }
 
-    private fun decode(packet: LongArray): PureFloat32DngExportResult {
+    private fun decode(
+        packet: LongArray,
+        flavor: Float32DngExportFlavor,
+        advancedFlags: Int,
+    ): PureFloat32DngExportResult {
         if (packet.size != PURE_FLOAT_PACKET_LONGS || packet[0] != PURE_FLOAT_MAGIC) {
             return PureFloat32DngExportResult.Failed(
                 "Ongeldig native TRUTHRAW PURE Float32-resultaat.",
@@ -492,6 +573,8 @@ object PureFloat32DngExporter {
             outputAuthorityUnknownChannels = packet[23],
             outputAuthorityCensoredSupportPixels = packet[24],
             outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
+            projectedRasterIdentityVerified = packet[34] != 0L,
+            derivativeProjection = packet[35] != 0L,
         )
 
         val violation =
@@ -504,8 +587,16 @@ object PureFloat32DngExporter {
                 metrics.tilesWritten <= 0L ||
                 metrics.logicalResidentUpperBoundBytes <= 0L ||
                 metrics.logicalResidentUpperBoundBytes > PURE_MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
-                !metrics.scientificMasterIdentityVerified ||
-                metrics.appearanceApplied ||
+                !metrics.projectedRasterIdentityVerified ||
+                (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT &&
+                    metrics.scientificMasterIdentityVerified) ||
+                (flavor != Float32DngExportFlavor.ADVANCED_RENDER_EDIT &&
+                    !metrics.scientificMasterIdentityVerified) ||
+                metrics.appearanceApplied !=
+                    (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT &&
+                        (advancedFlags and 0x04) != 0) ||
+                metrics.derivativeProjection !=
+                    (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) ||
                 metrics.counterfactualObservationCreated ||
                 metrics.physicalFrameCount != 1L ||
                 metrics.independentEvidenceCount != 1L ||
@@ -540,6 +631,7 @@ object PureFloat32DngExporter {
         -7L -> "Float32 DNG: v0.79 uncertainty-admission promoveerde onverwacht authority."
         -8L -> "Float32 DNG: v0.78 source-channel authority kon niet fail-closed worden opgebouwd."
         -9L -> "Float32 DNG: v0.84 output-channel authority kon niet fail-closed worden opgebouwd."
+        -10L -> "Advanced Render/Edit: extended-lineaire derivative staging/hash kon niet worden opgebouwd."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
