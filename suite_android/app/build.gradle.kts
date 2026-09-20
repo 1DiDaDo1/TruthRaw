@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 50
-        versionName = "0.50-v0.83.2-orientation-fullres-advanced"
+        versionCode = 51
+        versionName = "0.51-v0.84.2-adaptive-compute-router"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
