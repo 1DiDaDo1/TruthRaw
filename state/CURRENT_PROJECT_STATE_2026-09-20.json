@@ -1,11 +1,11 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-82-illumination-state",
-  "appVersion": "0.48-v0.82-illumination-state",
-  "previousStableIntegration": "integration/truthraw-suite-v0-81-output-acutance-v47k",
+  "activeBranch": "integration/truthraw-suite-v0-83-authority-aware-hdr",
+  "appVersion": "0.49-v0.83-authority-aware-hdr",
+  "previousStableIntegration": "integration/truthraw-suite-v0-82-illumination-state",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V083_HDR_AUTHORITY_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
@@ -26,7 +26,8 @@
     "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA",
     "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding",
     "v081": "canonical v4.7k post-final-resize Output Acutance with HDR rebase and no-new-HDR-gain law",
-    "v082": "observed illumination state with source-metadata-bound white-point/CCT/Duv coordinates and fail-closed spectrum/spatial/temporal authority"
+    "v082": "observed illumination state with source-metadata-bound white-point/CCT/Duv coordinates and fail-closed spectrum/spatial/temporal authority",
+    "v083": "scientific-vs-presentation HDR authority contract; current runtime remains presentation-only and scientific HDR blocked pending per-output-channel authority"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -91,14 +92,15 @@
     ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-82-illumination-state.yml",
-    "run": 35522724167,
+    "workflow": "android-truthraw-suite-v0-83-authority-aware-hdr.yml",
+    "run": 35523343893,
     "status": "SUCCESS",
-    "headSha": "86f92217a700a52bb26583d1f967a072e3e4c660",
+    "headSha": "6c86a321eea44028f5d6cebbe99c0ff7df99159e",
     "jobs": {
-      "gccIlluminationState": "SUCCESS",
-      "clangIlluminationState": "SUCCESS",
+      "gccHdrAuthority": "SUCCESS",
+      "clangHdrAuthority": "SUCCESS",
       "clangAsanUbsan": "SUCCESS",
+      "v082IlluminationState": "SUCCESS",
       "v081OutputAcutance": "SUCCESS",
       "v080AdaptiveDetailParity": "SUCCESS",
       "v078V079AuthorityUncertainty": "SUCCESS",
@@ -107,10 +109,10 @@
       "apkVerification": "SUCCESS",
       "artifactUpload": "SUCCESS"
     },
-    "artifactId": 10609012748,
-    "artifactZipSha256": "5875b9f72670fd87c153e0193b6f598d8c4601906b34c2e80e432c1dd71a2b6b",
-    "apkBytes": 6491089,
-    "apkSha256": "9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb"
+    "artifactId": 10609178219,
+    "artifactZipSha256": "5a4112454d163a233072a7525f29a75de62fe43f69a7f50d2e35a619cad1822f",
+    "apkBytes": 6498017,
+    "apkSha256": "88d8ac29b64ddef67668c026c05711974c645e3fc1ef6da4b8fb942bda4066a7"
   },
   "openValidation": {
     "realDeviceV079SmokeTest": "OPEN",
@@ -124,20 +126,25 @@
     "realDeviceV081OutputAcutanceSmokeTest": "OPEN",
     "realDeviceV081HdrRebaseSmokeTest": "OPEN",
     "realDeviceV082IlluminationStateSmokeTest": "OPEN",
-    "realDeviceV082DualIlluminantWhitePointSmokeTest": "OPEN"
+    "realDeviceV082DualIlluminantWhitePointSmokeTest": "OPEN",
+    "realDeviceV083HdrAuthoritySmokeTest": "OPEN",
+    "realDeviceV083PresentationScientificSeparationSmokeTest": "OPEN"
   },
   "immediateNext": {
-    "branch": "integration/truthraw-suite-v0-83-authority-aware-hdr",
-    "objective": "build a local single-frame HDR authority contract from Scientific Master + v0.78 authority + censor bounds + admitted uncertainty, with v0.82 illumination state as context only",
+    "branch": "integration/truthraw-suite-v0-84-output-channel-authority-map",
+    "objective": "construct a canonical per-output-channel authority/support map through reconstruction and resize, without changing HDR gain",
     "hardRules": [
-      "CENSORED remains a bound, never an exact latent value",
-      "UNKNOWN does not acquire HDR headroom",
-      "v0.82 CCT/Duv does not create HDR authority",
-      "no admitted uncertainty means no reconstructed-channel HDR promotion",
-      "single physical frame / one independent evidence item remains 1/1"
+      "CENSORED stays a bound",
+      "UNKNOWN stays unknown",
+      "RECONSTRUCTED requires v0.79 admitted uncertainty",
+      "resampling may combine support but may not upgrade authority",
+      "compute tiling is never an authority boundary",
+      "v0.82 illumination context cannot create channel authority",
+      "v0.80/v0.81 appearance/output stages cannot write authority backward"
     ],
     "after": [
-      "Restoration v2 with local per-channel authority/support/uncertainty",
+      "activate locally admitted scientific HDR gain only where v0.84 permits",
+      "Restoration v2 with per-channel authority/support/uncertainty",
       "projection conformance/source replay",
       "current Camera-5 noise/PTC/uncertainty calibration",
       "historical v5.0g F64 trace certification",
@@ -217,6 +224,29 @@
     "scientificMasterModified": false,
     "channelAuthorityModified": false,
     "counterfactual": false,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "hostValidation": [
+      "GCC",
+      "Clang",
+      "Clang ASan/UBSan"
+    ]
+  },
+  "v083": {
+    "schema": "TruthRawHdrAuthorityContract/0.83",
+    "currentScientificHdrAuthority": "BLOCKED",
+    "currentBlockedReason": "NO_PER_OUTPUT_CHANNEL_AUTHORITY",
+    "presentationHdrOn": "APPEARANCE_ONLY",
+    "presentationHdrOff": "DISABLED",
+    "scientificGainAllowed": false,
+    "censoredExactRecoveryAllowed": false,
+    "unknownHeadroomAllowed": false,
+    "illuminationCreatesHeadroom": false,
+    "requiresPerOutputChannelAuthority": true,
+    "requiresAdmittedUncertaintyForReconstructed": true,
+    "currentPerOutputChannelAuthorityAvailable": false,
+    "currentReconstructedAuthorityCount": 0,
+    "pixelMathChanged": false,
     "physicalFrameCount": 1,
     "independentEvidenceCount": 1,
     "hostValidation": [
