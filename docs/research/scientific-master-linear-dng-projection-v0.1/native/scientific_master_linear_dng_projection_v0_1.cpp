@@ -240,6 +240,13 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
                "preview_width=" + std::to_string(descriptor.jpegPreviewWidth) + "\n" +
                "preview_height=" + std::to_string(descriptor.jpegPreviewHeight) + "\n" +
                "preview_scientific_writeback_allowed=0\n");
+    const std::string authorityExtra =
+        descriptor.outputAuthorityManifest.empty()
+            ? std::string("output_channel_authority_bound=0\n")
+            : (std::string("output_channel_authority_bound=1\n") +
+               "output_channel_authority_manifest_begin\n" +
+               printable_identity(descriptor.outputAuthorityManifest) +
+               "\noutput_channel_authority_manifest_end\n");
     const std::string body =
         std::string("role=") + role + "\n" +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
@@ -280,6 +287,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "source_evidence_id=" + printable_identity(descriptor.sourceEvidenceId) + "\n" +
         "color_binding_id=" + printable_identity(descriptor.colorBindingId) + "\n" +
         previewExtra +
+        authorityExtra +
         editManifestExtra;
 
     std::vector<std::uint8_t> out(id.begin(), id.end());
