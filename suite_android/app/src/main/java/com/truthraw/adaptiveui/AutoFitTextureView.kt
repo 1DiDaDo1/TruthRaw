@@ -3,6 +3,7 @@ package com.truthraw.adaptiveui
 import android.content.Context
 import android.util.AttributeSet
 import android.view.TextureView
+import android.view.View
 import kotlin.math.roundToInt
 
 /**
@@ -31,8 +32,8 @@ class AutoFitTextureView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (ratioWidth == 0 || ratioHeight == 0) return
 
-        val availableWidth = MeasureSpec.getSize(widthMeasureSpec)
-        val availableHeight = MeasureSpec.getSize(heightMeasureSpec)
+        val availableWidth = View.MeasureSpec.getSize(widthMeasureSpec)
+        val availableHeight = View.MeasureSpec.getSize(heightMeasureSpec)
         if (availableWidth <= 0 || availableHeight <= 0) return
 
         val widthFromHeight =
