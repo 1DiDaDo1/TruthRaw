@@ -100,6 +100,17 @@ data class TilePreviewMetrics(
     val advancedDetailBackendId: String? = null,
     val advancedDetailNoiseSigmaAt2Pct: Float? = null,
     val advancedDetailBindingSha256: String? = null,
+    val outputAcutanceApplied: Boolean = false,
+    val outputAcutanceProfile: Int = -1,
+    val outputAcutanceNoiseSigmaAt2Pct: Float? = null,
+    val outputAcutanceResizeRatio: Float? = null,
+    val outputAcutanceStrength: Float? = null,
+    val outputAcutanceDeltaCap: Float? = null,
+    val outputAcutanceHdrRebased: Boolean = false,
+    val outputAcutanceChangedPixels: Int = 0,
+    val outputAcutanceHdrRebasedPixels: Int = 0,
+    val outputAcutanceMaxHdrTargetAbsError: Float? = null,
+    val outputAcutanceBindingSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
