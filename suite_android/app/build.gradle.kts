@@ -20,7 +20,7 @@ android {
         minSdk = 31
         targetSdk = 37
         versionCode = 43
-        versionName = "0.42-v0.75.1-camera-orientation-ui"
+        versionName = "0.43-v0.77-canonical-ancestry-spine"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
