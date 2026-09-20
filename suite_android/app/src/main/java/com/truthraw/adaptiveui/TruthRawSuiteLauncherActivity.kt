@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Open-World · Scene Physics · Authority · Restoration",
+                    detail = "Open-World · Full-res Restoration · Authority",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.66 · TruthNegative + Open-World + Dynamic Authority", 11f).apply {
+        root.addView(body("v0.67 · Full-res Restoration + TruthNegative + Open-World", 11f).apply {
             gravity = Gravity.CENTER
         })
 
