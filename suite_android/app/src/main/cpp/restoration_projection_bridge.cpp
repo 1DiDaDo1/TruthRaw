@@ -178,6 +178,8 @@ struct TrrMeta final {
     std::uint32_t width=0, height=0, orientation=1, tileCount=0;
     std::uint64_t totalBytes=0;
     digest::Sha256 sourceHash{}, masterHash{}, derivativeHash{}, zeroHash{}, sceneHash{};
+    sha::Digest openSceneArtifactHash{};
+    sha::Digest declaredRoleMaskHash{};
     truthraw::technical_backplane::v0_1::SerializedBackplane backplane{};
 };
 
@@ -208,10 +210,12 @@ public:
         };
         if(get("magic")!="TRUTHRAW_FULLRES_RESTORATION_V0_67" ||
            get("role")!="FULL_RESOLUTION_RETREATABLE_RESTORATION_DERIVATIVE" ||
+           get("binding_extension")!="TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71" ||
+           get("open_scene_canonical_schema")!="TruthRawOpenSceneCanonicalState/0.70" ||
            get("full_resolution")!="1" || get("retreatable")!="1" ||
            get("scientific_master_modified")!="0" || get("scientific_writeback_allowed")!="0" ||
            get("creates_new_evidence")!="0" || get("creates_second_scientific_world")!="0"){
-            error="TRR scientific contract rejected"; return false;
+            error="TRR scientific/canonical binding contract rejected"; return false;
         }
         std::uint64_t tmp=0;
         if(!parse_u64(get("width"),tmp)||tmp==0||tmp>std::numeric_limits<std::uint32_t>::max()){error="bad TRR width";return false;} meta_.width=static_cast<std::uint32_t>(tmp);
@@ -223,8 +227,10 @@ public:
            !parse_hex32(get("scientific_master_sha256"),meta_.masterHash) ||
            !parse_hex32(get("restoration_derivative_rgb_sha256"),meta_.derivativeHash) ||
            !parse_hex32(get("zero_line_sha256"),meta_.zeroHash) ||
-           !parse_hex32(get("scene_scale_sha256"),meta_.sceneHash)){
-            error="TRR lineage hash parse failed";return false;
+           !parse_hex32(get("scene_scale_sha256"),meta_.sceneHash) ||
+           !parse_hex32(get("open_scene_artifact_sha256"),meta_.openSceneArtifactHash) ||
+           !parse_hex32(get("restoration_role_mask_sha256"),meta_.declaredRoleMaskHash)){
+            error="TRR lineage/canonical hash parse failed";return false;
         }
         std::vector<std::uint8_t> bp;
         if(!parse_hex_bytes(get("technical_backplane_serialized_hex"),bp) ||
@@ -259,6 +265,7 @@ public:
 
     const TrrMeta& meta() const noexcept { return meta_; }
     const sha::Digest& roleHash() const noexcept { return roleHash_; }
+    const std::vector<std::uint8_t>& roleMaskBytes() const noexcept { return roleMaskBytes_; }
     std::uint64_t role0() const noexcept { return role0_; }
     std::uint64_t role1() const noexcept { return role1_; }
     std::uint64_t role2() const noexcept { return role2_; }
@@ -310,6 +317,9 @@ private:
         sha::Hasher roleHasher;
         std::vector<float> rgb;
         std::vector<std::uint8_t> roles;
+        roleMaskBytes_.clear();
+        roleMaskBytes_.reserve(
+            static_cast<std::size_t>(meta_.width) * static_cast<std::size_t>(meta_.height));
         role0_=role1_=role2_=negative_=overOne_=0u;
         for(std::size_t i=0;i<tiles_.size();++i){
             if(!readTileByOrdinal(i,rgb,roles)){error="TRR payload read failed";return false;}
@@ -323,6 +333,7 @@ private:
                 else {error="TRR invalid restoration role";return false;}
             }
             roleHasher.update(roles.data(),roles.size());
+            roleMaskBytes_.insert(roleMaskBytes_.end(), roles.begin(), roles.end());
             digest::TileView tv{};
             tv.x=t.x;tv.y=t.y;tv.width=t.w;tv.height=t.h;tv.rgb=rgb.data();tv.rowStrideSamples=static_cast<std::size_t>(t.w)*3u;
             if(!d.add_tile(tv)){error="TRR derivative digest rejected tile";return false;}
@@ -331,7 +342,11 @@ private:
         if(!d.finalize(actual)||actual!=meta_.derivativeHash){error="TRR derivative digest mismatch";return false;}
         roleHash_=roleHasher.finalize();
         const std::uint64_t pixels=static_cast<std::uint64_t>(meta_.width)*meta_.height;
-        if(role0_+role1_+role2_!=pixels){error="TRR role coverage mismatch";return false;}
+        if(role0_+role1_+role2_!=pixels ||
+           roleMaskBytes_.size()!=pixels ||
+           roleHash_!=meta_.declaredRoleMaskHash){
+            error="TRR role coverage/hash mismatch";return false;
+        }
         return true;
     }
 
@@ -340,6 +355,7 @@ private:
     TrrMeta meta_{};
     std::vector<TileIndex> tiles_;
     sha::Digest roleHash_{};
+    std::vector<std::uint8_t> roleMaskBytes_;
     std::uint64_t role0_=0,role1_=0,role2_=0,negative_=0,overOne_=0;
 };
 
@@ -448,6 +464,8 @@ std::string provenance_text(
         "scientific_master_sha256="+digest::to_hex(trr.meta().masterHash)+"\n"+
         "restoration_derivative_rgb_sha256="+digest::to_hex(trr.meta().derivativeHash)+"\n"+
         "restoration_role_mask_sha256="+sha::hex(trr.roleHash())+"\n"+
+        "restoration_role_mask_encoding=CANONICAL_64X64_CELL_SEQUENCE_UINT8\n"+
+        "restoration_role_mask_bytes="+std::to_string(trr.roleMaskBytes().size())+"\n"+
         "dynamic_authority_artifact_sha256="+sha::hex(openScene.dynamicAuthoritySha256)+"\n"+
         "open_scene_content_sha256="+sha::hex(openScene.contentSha256)+"\n"+
         "open_scene_policy_sha256="+sha::hex(openScene.policySha256)+"\n"+
@@ -493,7 +511,7 @@ bool write_tiff(
     int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     const canonical_scene::Summary& openScene,
     std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over) {
-    constexpr std::uint16_t ASCII=2,SHORT=3,LONG=4;
+    constexpr std::uint16_t BYTE=1,ASCII=2,SHORT=3,LONG=4;
     constexpr std::uint32_t tileBytes=kTileEdge*kTileEdge*3u*4u;
     std::vector<IfdEntry> e;
     auto add=[&](std::uint16_t tag,std::uint16_t type,std::uint32_t count,std::vector<std::uint8_t> p){e.push_back({tag,type,count,std::move(p),0});};
@@ -506,7 +524,14 @@ bool write_tiff(
     std::vector<std::uint8_t> offs(trr.tileCount()*4u,0);add(324,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(offs));
     std::vector<std::uint8_t> counts;counts.reserve(trr.tileCount()*4u);for(std::size_t i=0;i<trr.tileCount();++i)put_u32_le(counts,tileBytes);add(325,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(counts));
     std::vector<std::uint8_t> sf;for(int i=0;i<3;++i)put_u16_le(sf,3);add(339,SHORT,3,std::move(sf));
-    auto desc=asciip(provenance_text(trr,openScene)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n");add(270,ASCII,static_cast<std::uint32_t>(desc.size()),std::move(desc));
+    auto desc=asciip(
+        provenance_text(trr,openScene)+
+        "pixel_space=LINEAR_SRGB_D65_FLOAT32\n"+
+        "restoration_role_mask_storage=TIFF_PRIVATE_TAG_65000\n");
+    add(270,ASCII,static_cast<std::uint32_t>(desc.size()),std::move(desc));
+    std::vector<std::uint8_t> maskPayload(
+        trr.roleMaskBytes().begin(), trr.roleMaskBytes().end());
+    add(65000,BYTE,static_cast<std::uint32_t>(maskPayload.size()),std::move(maskPayload));
     std::sort(e.begin(),e.end(),[](auto&a,auto&b){return a.tag<b.tag;});
     std::uint32_t cursor=8u+2u+static_cast<std::uint32_t>(e.size())*12u+4u;
     for(auto& x:e){if(x.payload.size()>4u){cursor=align4(cursor);x.off=cursor;cursor+=static_cast<std::uint32_t>(x.payload.size());}}
@@ -547,7 +572,18 @@ bool write_exr(
     std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over){
     std::vector<std::uint8_t> h;put_u32_le(h,20000630u);put_u32_le(h,2u);
     std::vector<std::uint8_t> ch;
-    for(const char* name:{"B","G","R"}){ch.insert(ch.end(),name,name+1);ch.push_back(0);put_u32_le(ch,2u);ch.push_back(0);ch.push_back(0);ch.push_back(0);ch.push_back(0);put_u32_le(ch,1u);put_u32_le(ch,1u);}ch.push_back(0);
+    for(const char* name:{"B","G","R"}){
+        ch.insert(ch.end(),name,name+1);ch.push_back(0);
+        put_u32_le(ch,2u);
+        ch.push_back(0);ch.push_back(0);ch.push_back(0);ch.push_back(0);
+        put_u32_le(ch,1u);put_u32_le(ch,1u);
+    }
+    constexpr char kRoleChannel[]="TR_ROLE";
+    ch.insert(ch.end(),kRoleChannel,kRoleChannel+sizeof(kRoleChannel)-1u);ch.push_back(0);
+    put_u32_le(ch,0u);
+    ch.push_back(0);ch.push_back(0);ch.push_back(0);ch.push_back(0);
+    put_u32_le(ch,1u);put_u32_le(ch,1u);
+    ch.push_back(0);
     exr_attr(h,"channels","chlist",ch);exr_attr(h,"compression","compression",std::vector<std::uint8_t>{0});
     exr_attr(h,"dataWindow","box2i",exr_i32x4(0,0,static_cast<std::int32_t>(trr.meta().width-1u),static_cast<std::int32_t>(trr.meta().height-1u)));
     exr_attr(h,"displayWindow","box2i",exr_i32x4(0,0,static_cast<std::int32_t>(trr.meta().width-1u),static_cast<std::int32_t>(trr.meta().height-1u)));
@@ -558,29 +594,44 @@ bool write_exr(
     const auto pv=provenance_text(trr,openScene)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n";
     exr_attr(h,"truthrawProvenance","string",std::vector<std::uint8_t>(pv.begin(),pv.end()));h.push_back(0);
     const std::uint64_t tableStart=h.size(), tableBytes=static_cast<std::uint64_t>(trr.meta().height)*8u;
-    const std::uint64_t rowData=static_cast<std::uint64_t>(trr.meta().width)*3u*4u;
+    const std::uint64_t rowData=static_cast<std::uint64_t>(trr.meta().width)*4u*4u;
     const std::uint64_t blockBytes=8u+rowData, firstBlock=tableStart+tableBytes;
     const std::uint64_t expected=firstBlock+static_cast<std::uint64_t>(trr.meta().height)*blockBytes;
     if(::ftruncate(fd,0)!=0||::lseek(fd,0,SEEK_SET)<0||!write_all(fd,h.data(),h.size()))return false;
     std::vector<std::uint8_t> table;table.reserve(static_cast<std::size_t>(tableBytes));for(std::uint32_t y=0;y<trr.meta().height;++y)put_u64_le(table,firstBlock+static_cast<std::uint64_t>(y)*blockBytes);
     if(!write_all(fd,table.data(),table.size()))return false;
     const std::uint32_t cols=(trr.meta().width+kTileEdge-1u)/kTileEdge;
-    std::vector<float> band;std::vector<float> rgb;std::vector<std::uint8_t> roles;std::vector<std::uint8_t> row(static_cast<std::size_t>(rowData));
+    std::vector<float> band;
+    std::vector<std::uint8_t> roleBand;
+    std::vector<float> rgb;
+    std::vector<std::uint8_t> roles;
+    std::vector<std::uint8_t> row(static_cast<std::size_t>(rowData));
     neg=over=0;
     for(std::uint32_t y0=0;y0<trr.meta().height;y0+=kTileEdge){
         const std::uint32_t bh=std::min(kTileEdge,trr.meta().height-y0);
         band.assign(static_cast<std::size_t>(bh)*trr.meta().width*3u,0.f);
+        roleBand.assign(static_cast<std::size_t>(bh)*trr.meta().width,0u);
         const std::size_t tileRow=y0/kTileEdge;
         for(std::uint32_t tx=0;tx<cols;++tx){
             const std::size_t idx=tileRow*cols+tx;if(!trr.readTileByOrdinal(idx,rgb,roles))return false;const auto& t=trr.tile(idx);
             for(std::uint32_t yy=0;yy<t.h;++yy)for(std::uint32_t xx=0;xx<t.w;++xx){
                 const auto si=(static_cast<std::size_t>(yy)*t.w+xx)*3u;const auto di=(static_cast<std::size_t>(yy)*trr.meta().width+t.x+xx)*3u;float o[3];transform_rgb(c2srgb,rgb.data()+si,o);
                 for(int k=0;k<3;++k){if(!std::isfinite(o[k]))return false;if(o[k]<0)++neg;if(o[k]>1)++over;band[di+k]=o[k];}
+                roleBand[static_cast<std::size_t>(yy)*trr.meta().width+t.x+xx]=
+                    roles[static_cast<std::size_t>(yy)*t.w+xx];
             }
         }
         for(std::uint32_t yy=0;yy<bh;++yy){
             std::fill(row.begin(),row.end(),0);const float* src=band.data()+static_cast<std::size_t>(yy)*trr.meta().width*3u;
-            for(int channel=2;channel>=0;--channel){const std::size_t plane=static_cast<std::size_t>(2-channel)*trr.meta().width*4u;for(std::uint32_t x=0;x<trr.meta().width;++x)put_f32_le(row.data()+plane+static_cast<std::size_t>(x)*4u,src[3u*x+channel]);}
+            for(int channel=2;channel>=0;--channel){
+                const std::size_t plane=static_cast<std::size_t>(2-channel)*trr.meta().width*4u;
+                for(std::uint32_t x=0;x<trr.meta().width;++x)
+                    put_f32_le(row.data()+plane+static_cast<std::size_t>(x)*4u,src[3u*x+channel]);
+            }
+            const std::size_t rolePlane=static_cast<std::size_t>(trr.meta().width)*3u*4u;
+            const auto* roleSrc=roleBand.data()+static_cast<std::size_t>(yy)*trr.meta().width;
+            for(std::uint32_t x=0;x<trr.meta().width;++x)
+                store_u32_le(row,rolePlane+static_cast<std::size_t>(x)*4u,roleSrc[x]);
             std::vector<std::uint8_t> prefix;put_u32_le(prefix,y0+yy);put_u32_le(prefix,static_cast<std::uint32_t>(rowData));
             if(!write_all(fd,prefix.data(),prefix.size())||!write_all(fd,row.data(),row.size()))return false;
         }
@@ -612,6 +663,7 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
 
     canonical_scene::Summary openScene{};
     if(!build_canonical_open_scene(line,openScene) ||
+       openScene.artifactSha256!=trr.meta().openSceneArtifactHash ||
        openScene.counterfactualPixelCount!=0u ||
        openScene.scientificWritebackPixelCount!=0u ||
        openScene.createsNewEvidence ||
@@ -629,6 +681,8 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
         d.projectedRasterSha256=trr.meta().derivativeHash;
         d.openSceneStateSha256=openScene.artifactSha256;
         d.restorationRoleMaskSha256=trr.roleHash();
+        d.restorationRoleMaskBytes=std::span<const std::uint8_t>(
+            trr.roleMaskBytes().data(), trr.roleMaskBytes().size());
         d.zeroLineGauge=line.scientific.zeroLineGauge;d.sceneBinding=line.scientific.sceneBinding;
         d.serializedBackplane=line.phase2.serializedBackplane;d.sourceEvidenceId=line.seal.sourceEvidenceId;d.colorBindingId=line.color.color.bindingId;
         d.precisionPolicyId=kPrecisionPolicy;d.runtimeReconstructionBackendId=line.reconstruction->name();
