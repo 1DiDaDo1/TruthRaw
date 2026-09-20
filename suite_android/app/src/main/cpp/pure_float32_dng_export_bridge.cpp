@@ -1,6 +1,9 @@
 #include <jni.h>
 
 #include "dng_color_binding_producer_v0_2.h"
+#include "adaptive_detail_v47j_adapter.h"
+#include "full_frame_streaming_v0_1_internal.h"
+#include "scientific_master_digest_v0_1.h"
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
 #include "bound_uncertainty_admission_v0_79.h"
@@ -17,6 +20,8 @@
 #include "truthraw/core.h"
 
 #include <algorithm>
+#include <bit>
+#include <cmath>
 #include <array>
 #include <cstdint>
 #include <limits>
@@ -41,6 +46,9 @@ namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
+namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace stream_detail = truthraw::streaming_v0_1::detail;
+namespace master_digest = truthraw::scientific_master_digest::v0_1;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
 constexpr std::size_t kPacketLongs = 34u;
@@ -181,6 +189,231 @@ std::string hexDigest(const std::array<std::uint8_t,32>& digest) {
     }
     return out;
 }
+
+bool preadAll(int fd, std::uint64_t offset, void* data, std::size_t size) noexcept {
+    auto* dst = static_cast<std::uint8_t*>(data);
+    std::size_t done = 0u;
+    while (done < size) {
+        const ssize_t n = ::pread(
+            fd,
+            dst + done,
+            size - done,
+            static_cast<off_t>(offset + done));
+        if (n <= 0) return false;
+        done += static_cast<std::size_t>(n);
+    }
+    return true;
+}
+
+bool pwriteAll(int fd, std::uint64_t offset, const void* data, std::size_t size) noexcept {
+    const auto* src = static_cast<const std::uint8_t*>(data);
+    std::size_t done = 0u;
+    while (done < size) {
+        const ssize_t n = ::pwrite(
+            fd,
+            src + done,
+            size - done,
+            static_cast<off_t>(offset + done));
+        if (n <= 0) return false;
+        done += static_cast<std::size_t>(n);
+    }
+    return true;
+}
+
+class FdExtendedLinearTileSource final : public float_dng::IScientificMasterTileSource {
+public:
+    FdExtendedLinearTileSource(
+        int fd,
+        std::uint32_t width,
+        std::uint32_t height) noexcept
+        : fd_(fd), width_(width), height_(height) {}
+
+    std::size_t residentBytesUpperBound() const noexcept override { return 0u; }
+
+    float_dng::Status readCameraNativeTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        float* rgb,
+        std::size_t floatCount) noexcept override {
+        if (fd_ < 0 || rgb == nullptr || width == 0u || height == 0u ||
+            x + width > width_ || y + height > height_ ||
+            floatCount != static_cast<std::size_t>(width) * height * 3u) {
+            return float_dng::Status::error(
+                float_dng::StatusCode::InvalidArgument,
+                "invalid extended-linear scratch tile request");
+        }
+        for (std::uint32_t row = 0u; row < height; ++row) {
+            const std::uint64_t pixel =
+                (static_cast<std::uint64_t>(y + row) * width_) + x;
+            const std::uint64_t offset = pixel * 3u * sizeof(float);
+            auto* rowDst =
+                rgb + static_cast<std::size_t>(row) * width * 3u;
+            const std::size_t bytes =
+                static_cast<std::size_t>(width) * 3u * sizeof(float);
+            if (!preadAll(fd_, offset, rowDst, bytes)) {
+                return float_dng::Status::error(
+                    float_dng::StatusCode::SourceFailed,
+                    "extended-linear scratch read failed");
+            }
+        }
+        return float_dng::Status::ok();
+    }
+
+private:
+    int fd_ = -1;
+    std::uint32_t width_ = 0u;
+    std::uint32_t height_ = 0u;
+};
+
+struct RenderEditBuild final {
+    master_digest::Sha256 projectedRasterSha256{};
+    std::size_t logicalWorkspacePeakBytes = 0u;
+    std::uint64_t negativeComponents = 0u;
+    std::uint64_t overOneComponents = 0u;
+};
+
+bool buildRenderEditScratch(
+    truthraw::streaming_v0_1::IRawTileSource& source,
+    truthraw::IReconstructionBackend& reconstruction,
+    const truthraw::IAppearanceBackend& appearance,
+    int scratchFd,
+    RenderEditBuild& out) noexcept {
+    out = {};
+    if (scratchFd < 0 || std::endian::native != std::endian::little) return false;
+
+    try {
+        const auto& meta = source.metadata();
+        if (meta.width <= 0 || meta.height <= 0) return false;
+        const std::uint64_t pixels =
+            static_cast<std::uint64_t>(meta.width) *
+            static_cast<std::uint64_t>(meta.height);
+        const std::uint64_t bytes = pixels * 3u * sizeof(float);
+        if (bytes == 0u ||
+            bytes > static_cast<std::uint64_t>(std::numeric_limits<off_t>::max()) ||
+            ::ftruncate(scratchFd, static_cast<off_t>(bytes)) != 0) {
+            return false;
+        }
+
+        const int halo = reconstruction.requiredHalo() + appearance.requiredHalo();
+        const auto tiles = truthraw::make_tiles(
+            meta.width,
+            meta.height,
+            truthraw::TilePolicy{64, halo});
+        if (tiles.empty()) return false;
+
+        master_digest::ScientificMasterDigestAccumulator digest(
+            static_cast<std::uint32_t>(meta.width),
+            static_cast<std::uint32_t>(meta.height));
+        if (!digest.valid()) return false;
+
+        stream_detail::Workspace w;
+        for (const auto& t : tiles) {
+            auto st = stream_detail::fill_stage2(source, t, w);
+            if (!st) return false;
+
+            const int tw = t.hx1 - t.hx0;
+            const int th = t.hy1 - t.hy0;
+            const int cw = t.x1 - t.x0;
+            const int ch = t.y1 - t.y0;
+            const int ah = appearance.requiredHalo();
+            const int ax0 = std::max(0, t.x0 - ah);
+            const int ay0 = std::max(0, t.y0 - ah);
+            const int ax1 = std::min(meta.width, t.x1 + ah);
+            const int ay1 = std::min(meta.height, t.y1 + ah);
+            const int aw = ax1 - ax0;
+            const int ahh = ay1 - ay0;
+            const std::size_t appPixels =
+                static_cast<std::size_t>(aw) * static_cast<std::size_t>(ahh);
+            const std::size_t corePixels =
+                static_cast<std::size_t>(cw) * static_cast<std::size_t>(ch);
+
+            w.cam.resize(3u * appPixels);
+            w.look.resize(3u * corePixels);
+
+            auto cs = reconstruction.reconstructTile(
+                w.stage2.data(),
+                tw,
+                th,
+                t.hx0,
+                t.hy0,
+                ax0,
+                ay0,
+                aw,
+                ahh,
+                meta.cfa,
+                w.cam.data());
+            if (!cs) return false;
+
+            stream_detail::camera_to_xyz(
+                w.cam.data(),
+                w.cam.data(),
+                static_cast<int>(appPixels),
+                meta.cameraToXyzD50);
+            stream_detail::xyz_d50_to_linear_srgb(
+                w.cam.data(),
+                w.cam.data(),
+                static_cast<int>(appPixels));
+            cs = appearance.applyTile(
+                w.cam.data(),
+                aw,
+                ahh,
+                t.x0 - ax0,
+                t.y0 - ay0,
+                cw,
+                ch,
+                w.look.data());
+            if (!cs) return false;
+
+            for (const float v : w.look) {
+                if (!std::isfinite(v)) return false;
+                if (v < 0.0f) ++out.negativeComponents;
+                if (v > 1.0f) ++out.overOneComponents;
+            }
+
+            for (int row = 0; row < ch; ++row) {
+                const std::uint64_t pixel =
+                    static_cast<std::uint64_t>(t.y0 + row) *
+                        static_cast<std::uint64_t>(meta.width) +
+                    static_cast<std::uint64_t>(t.x0);
+                const std::uint64_t offset = pixel * 3u * sizeof(float);
+                const auto* rowSrc =
+                    w.look.data() +
+                    static_cast<std::size_t>(row) *
+                        static_cast<std::size_t>(cw) * 3u;
+                const std::size_t rowBytes =
+                    static_cast<std::size_t>(cw) * 3u * sizeof(float);
+                if (!pwriteAll(scratchFd, offset, rowSrc, rowBytes)) return false;
+            }
+
+            master_digest::TileView view{};
+            view.x = static_cast<std::uint32_t>(t.x0);
+            view.y = static_cast<std::uint32_t>(t.y0);
+            view.width = static_cast<std::uint32_t>(cw);
+            view.height = static_cast<std::uint32_t>(ch);
+            view.rgb = w.look.data();
+            view.rowStrideSamples = static_cast<std::size_t>(cw) * 3u;
+            if (!digest.add_tile(view)) return false;
+
+            out.logicalWorkspacePeakBytes = std::max(
+                out.logicalWorkspacePeakBytes,
+                stream_detail::vector_bytes(w) +
+                    digest.metrics().residentBytesUpperBound);
+        }
+
+        if (!digest.finalize(out.projectedRasterSha256)) return false;
+        return ::fsync(scratchFd) == 0;
+    } catch (...) {
+        return false;
+    }
+}
+
+constexpr std::array<float, 9> kLinearSrgbToXyzD50{
+    0.43607472f, 0.38506492f, 0.14308038f,
+    0.22250448f, 0.71687860f, 0.06061692f,
+    0.01393217f, 0.09710452f, 0.71417328f,
+};
 
 bool readPreviewJpeg(int fd, std::vector<std::uint8_t>& out) noexcept {
     out.clear();
