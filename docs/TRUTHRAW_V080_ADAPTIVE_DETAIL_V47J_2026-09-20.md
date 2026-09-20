@@ -2,6 +2,8 @@
 
 ## Status
 
+**CLOSED INTEGRATION — CI + Android APK PASS**
+
 Integration branch:
 
 `integration/truthraw-suite-v0-80-adaptive-detail-v47j`
@@ -146,3 +148,24 @@ v4.7k Output Acutance stays separate and post-resize:
 `final SDR resize -> output acutance -> recompute/derive HDR gain against final SDR base -> OETF/encode`.
 
 It is not part of Scientific Master or optical-detail authority.
+
+
+## Validation closure
+
+Full integration CI run: `35520838931`
+
+All green:
+- GCC canonical v4.7j adapter
+- Clang canonical v4.7j adapter
+- Clang ASan/UBSan Adaptive Detail
+- v0.78-v0.79 authority and uncertainty gates
+- existing scientific lineage contracts
+- Android v0.80 Adaptive Detail
+
+Artifact:
+- GitHub artifact id: `10608565903`
+- artifact ZIP SHA-256: `169d618560a3f0ba900d0669f496b1898df524d6390348d4d6ad5dcceacccfcd`
+- APK bytes: `6,449,825`
+- APK SHA-256: `3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb`
+
+v0.80 is therefore the current closed integration baseline for Advanced Detail.
