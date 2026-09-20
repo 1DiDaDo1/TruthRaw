@@ -88,7 +88,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.67 kan deze restoration nu ook op volledige bronresolutie als retreatable derivative met role-mask exporteren.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.68 voert die volledige-resolutie Restoration nu als foreground transactie uit: private staging, volledige verify, body-commit en geldige header pas als laatste.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
