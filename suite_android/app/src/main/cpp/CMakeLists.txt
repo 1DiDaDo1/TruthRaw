@@ -34,6 +34,7 @@ set(OPEN_WORLD_NATIVE_V03 "${RESEARCH_ROOT}/open-world-native-integration-v0.3/n
 set(CICM_V1 "${RESEARCH_ROOT}/counterfactual-illumination-capture-manifold-v1/native")
 set(ROOM_CAPSULE_V01 "${RESEARCH_ROOT}/local-illumination-room-capsule-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
+set(V47K_NATIVE "${REPO_ROOT}/canonical/output-acutance/v4.7k/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
@@ -51,6 +52,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     open_scene_channel_authority_v0_78.cpp
     bound_uncertainty_admission_v0_79.cpp
     adaptive_detail_v47j_adapter.cpp
+    output_acutance_v0_81.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
@@ -85,7 +87,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${OPEN_WORLD_NATIVE_V03}/open_world_native_v03.cpp
     ${CICM_V1}/cicm_v1.cpp
     ${ROOM_CAPSULE_V01}/room_capsule_v0_1.cpp
-    ${V47I_NATIVE}/src/core.cpp)
+    ${V47I_NATIVE}/src/core.cpp
+    ${V47K_NATIVE}/output_acutance.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TILE_DNG}
@@ -111,7 +114,8 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${OPEN_WORLD_NATIVE_V03}
     ${CICM_V1}
     ${ROOM_CAPSULE_V01}
-    ${V47I_NATIVE}/include)
+    ${V47I_NATIVE}/include
+    ${V47K_NATIVE})
 
 find_library(ANDROID_LIB android)
 find_library(CAMERA2NDK_LIB camera2ndk)
