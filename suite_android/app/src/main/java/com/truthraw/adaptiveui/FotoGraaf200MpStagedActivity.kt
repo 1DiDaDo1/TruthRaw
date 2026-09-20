@@ -459,11 +459,23 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             .maxByOrNull { it.width.toLong() * it.height.toLong() }
             ?: sizes.firstOrNull()
             ?: Size(1280, 720)
+        previewBufferSize = chosen
+        val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (landscape) {
+            preview.setAspectRatio(chosen.width, chosen.height)
+        } else {
+            preview.setAspectRatio(chosen.height, chosen.width)
+        }
         val texture = preview.surfaceTexture ?: return
         texture.setDefaultBufferSize(chosen.width, chosen.height)
+        preview.post { configurePreviewTransform(preview.width, preview.height) }
         previewSurface = Surface(texture)
 
-        setStatus("Stap 2 · logical camera 0 openen; preview-only, physical output niet geforceerd…")
+        setStatus(
+            "Preview ${chosen.width}×${chosen.height} · " +
+                (if (landscape) "landscape" else "portrait") +
+                " · aspectratio behouden; Camera-5 route wordt geopend…",
+        )
         try {
             @Suppress("MissingPermission")
             m.openCamera(LOGICAL_ID, object : CameraDevice.StateCallback() {
@@ -1182,6 +1194,97 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             if (bold) setTypeface(typeface, android.graphics.Typeface.BOLD)
         }
 
+    private fun applySafeSystemInsets(root: View) {
+        val horizontal = dp(12)
+        val top = dp(8)
+        val bottom = dp(10)
+        root.setOnApplyWindowInsetsListener { view, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars())
+            view.setPadding(
+                horizontal + bars.left,
+                top + bars.top,
+                horizontal + bars.right,
+                bottom + bars.bottom,
+            )
+            insets
+        }
+        root.requestApplyInsets()
+    }
+
+    private fun shutterButton(action: () -> Unit): Button = Button(this).apply {
+        text = "●"
+        textSize = 31f
+        setTextColor(Color.rgb(20, 25, 31))
+        isAllCaps = false
+        contentDescription = "Maak RAW-opname"
+        minWidth = 0
+        minHeight = 0
+        minimumWidth = 0
+        minimumHeight = 0
+        setPadding(0, 0, 0, dp(2))
+        background = StateListDrawable().apply {
+            addState(
+                intArrayOf(android.R.attr.state_enabled),
+                GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.WHITE)
+                    setStroke(dp(4), Color.rgb(88, 217, 210))
+                },
+            )
+            addState(
+                intArrayOf(),
+                GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.rgb(95, 98, 103))
+                    setStroke(dp(3), Color.rgb(145, 150, 158))
+                },
+            )
+        }
+        setOnClickListener { action() }
+    }
+
+    private fun shutterPanel(): View = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER
+        addView(
+            captureButton,
+            LinearLayout.LayoutParams(dp(82), dp(82)),
+        )
+        addView(space(3))
+        addView(label("RAW", 11f, true, Color.rgb(220, 225, 234)).apply {
+            gravity = Gravity.CENTER
+        })
+    }
+
+    private fun configurePreviewTransform(viewWidth: Int, viewHeight: Int) {
+        val size = previewBufferSize ?: return
+        if (viewWidth <= 0 || viewHeight <= 0) return
+
+        val rotation = preview.display?.rotation ?: Surface.ROTATION_0
+        val matrix = Matrix()
+        val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val bufferRect = RectF(0f, 0f, size.height.toFloat(), size.width.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+
+        if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+            bufferRect.offset(
+                centerX - bufferRect.centerX(),
+                centerY - bufferRect.centerY(),
+            )
+            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
+            val scale = maxOf(
+                viewHeight.toFloat() / size.height.toFloat(),
+                viewWidth.toFloat() / size.width.toFloat(),
+            )
+            matrix.postScale(scale, scale, centerX, centerY)
+            matrix.postRotate((90 * (rotation - 2)).toFloat(), centerX, centerY)
+        } else if (rotation == Surface.ROTATION_180) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+        preview.setTransform(matrix)
+    }
+
     private fun button(value: String, action: () -> Unit): Button = Button(this).apply {
         text = value
         isAllCaps = false
@@ -1197,12 +1300,16 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         if (::previewButton.isInitialized) previewButton.isEnabled = capabilityReady
+        if (previewBufferSize != null) configurePreviewTransform(width, height)
         if (capabilityReady && autoStartPreviewWhenReady) {
             autoStartPreviewWhenReady = false
             startLogicalPreview()
         }
     }
-    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) = Unit
+
+    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+        configurePreviewTransform(width, height)
+    }
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
         closeCameraResources(keepOutputs = true)
         return true
