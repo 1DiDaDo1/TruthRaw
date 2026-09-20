@@ -25,7 +25,7 @@
     "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty",
     "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA",
     "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding",
-    "v081": "canonical v4.7k post-final-resize Output Acutance with no-new-HDR-gain rebase against final SDR base"
+    "v081": "canonical v4.7k post-final-resize Output Acutance with HDR rebase and no-new-HDR-gain law"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -93,14 +93,17 @@
     "workflow": "android-truthraw-suite-v0-81-output-acutance-v47k.yml",
     "run": 35521878189,
     "status": "SUCCESS",
+    "headSha": "daf7949561a077988e44a71acd9f64bfb323a618",
     "jobs": {
       "gccV47kOutputAcutance": "SUCCESS",
       "clangV47kOutputAcutance": "SUCCESS",
       "clangAsanUbsan": "SUCCESS",
-      "v080AdaptiveDetail": "SUCCESS",
+      "v080AdaptiveDetailParity": "SUCCESS",
       "v078V079AuthorityUncertainty": "SUCCESS",
       "existingScientificLineage": "SUCCESS",
-      "androidBuild": "SUCCESS"
+      "androidBuild": "SUCCESS",
+      "apkVerification": "SUCCESS",
+      "artifactUpload": "SUCCESS"
     },
     "artifactId": 10609071299,
     "artifactZipSha256": "1c094d99f5f0d634354d71259bfa262511e53e6fa7f5bd91aa3b590aacecb936",
@@ -116,14 +119,15 @@
     "exactV5gF64ReconstructionTraceBinding": "OPEN",
     "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED",
     "realDeviceV080AdaptiveDetailSmokeTest": "OPEN",
-    "realDeviceV081OutputAcutanceSmokeTest": "OPEN"
+    "realDeviceV081OutputAcutanceSmokeTest": "OPEN",
+    "realDeviceV081HdrRebaseSmokeTest": "OPEN"
   },
   "immediateNext": {
     "branch": "integration/truthraw-suite-v0-82-illumination-state",
-    "objective": "replace the coarse single global inferred-Light appearance input with a richer explicitly authority-bounded illumination/light-dark/artificial-light scene state, without turning inferred illumination into measured exposure or modifying Scientific Master",
+    "objective": "add a richer illumination/light/dark/artificial-light state with separate illumination authority; do not infer SPD or lighting geometry beyond evidence",
     "after": [
-      "authority-aware single-frame HDR using richer scene illumination state",
-      "Restoration v2",
+      "authority-aware single-frame HDR using local v0.78 authority, censor bounds and admitted uncertainty",
+      "Restoration v2 with local per-channel authority/support/uncertainty",
       "projection conformance/source replay",
       "current Camera-5 noise/PTC/uncertainty calibration",
       "historical v5.0g F64 trace certification",
@@ -154,26 +158,29 @@
   "v081": {
     "schema": "TruthRawOutputAcutanceBinding/0.81",
     "canonicalAlgorithm": "canonical/output-acutance/v4.7k",
-    "exactOrder": "FINAL_RESIZE_THEN_ACUTANCE_THEN_HDR_REBASE_THEN_OETF",
-    "profiles": {
+    "role": "POST_FINAL_RESIZE_OUTPUT_ACUTANCE_ONLY",
+    "order": [
+      "final resized linear SDR base",
+      "canonical v4.7k Output Acutance",
+      "HDR gain rebase against adjusted SDR base",
+      "highlight shoulder",
+      "sRGB OETF / ARGB presentation"
+    ],
+    "profilePolicy": {
       "detailOff": "Neutral",
       "detailOn": "AdaptiveDetail"
     },
+    "noNewHdrGainLaw": true,
+    "upstreamZeroHdrGainStaysUnity": true,
+    "censoredHdrGainStaysUnity": true,
     "scientificMasterModified": false,
     "authorityModified": false,
+    "uncertaintyAdmissionModified": false,
     "createsOpticalOrSensorEvidence": false,
-    "zeroUpstreamHdrGainStaysUnity": true,
-    "censoredHdrGainStaysUnity": true,
-    "hdrRebaseOnlyForPreExistingPositiveGain": true,
-    "actualResizeRatioBound": true,
-    "deterministicPreviewMemoryUpperBound": true,
-    "provenanceBinds": [
-      "canonical Open Scene v0.70 SHA",
-      "v0.78 channel-authority SHA",
-      "v0.79 uncertainty-admission SHA",
-      "optional v0.80 Adaptive Detail SHA",
-      "canonical v4.7k plan fields",
-      "changed/rebased counts"
+    "hostValidation": [
+      "GCC",
+      "Clang",
+      "Clang ASan/UBSan"
     ]
   }
 }
