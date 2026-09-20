@@ -93,13 +93,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
             addView(
                 outputCard(
-                    titleText = "JPG XL",
-                    subtitleText = "Hoge kwaliteit",
-                    detail = "Nog niet toegelaten",
+                    titleText = "TRUTHNEGATIVE",
+                    subtitleText = "Scientific Negative",
+                    detail = "Master + Dynamic Authority",
                     accent = purple,
-                    selected = false,
-                    enabled = false,
-                ) {},
+                    selected = selected == OUTPUT_NEGATIVE,
+                    enabled = true,
+                ) { setPreferredOutput(OUTPUT_NEGATIVE) },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
             )
         })
@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Natural HDR · Light · Detail · Restoration",
+                    detail = "Open-World · Scene Physics · Authority · Restoration",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.65 · responsive UI + clean lens icon · PURE blijft onveranderd", 11f).apply {
+        root.addView(body("v0.66 · TruthNegative + Open-World + Dynamic Authority", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -275,10 +275,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
     private fun infoStrip(): View = vertical().apply {
         setPadding(dp(14), dp(13), dp(14), dp(13))
         background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
-        addView(title("PURE blijft meetbaar", 14f))
+        addView(title("Eén Scientific Master, meerdere veilige afleidingen", 14f))
         addView(space(4))
         addView(body(
-            "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority. Onderzoeks- en testopties staan achter het tandwiel.",
+            "PURE blijft de meetbare projectie. TruthNegative bindt de camera-native Master aan Dynamic Authority. " +
+                "Advanced gebruikt Open-World/Scene Physics en Restoration alleen downstream, zonder evidence-upgrade.",
             11.5f,
         ))
     }
@@ -324,5 +325,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
         const val OUTPUT_PURE = "PURE"
         const val OUTPUT_JPG = "JPG"
         const val OUTPUT_ADVANCED = "ADVANCED"
+        const val OUTPUT_NEGATIVE = "NEGATIVE"
     }
 }
