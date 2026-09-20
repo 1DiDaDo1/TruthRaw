@@ -850,8 +850,15 @@
       },
       "documentation": "docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md",
       "ci": {
-        "run": 35506566503,
-        "status": "ANDROID_IN_PROGRESS_HOST_GCC_CLANG_AND_SCIENTIFIC_CONTRACTS_SUCCESS"
+        "run": 35506676249,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "documentationGovernanceRun": 35506676288,
+        "documentationGovernance": "SUCCESS",
+        "artifactId": 10604525855,
+        "artifactName": "truthraw-suite-v0-71-open-scene-trr-rolemask-embed-debug-arm64",
+        "artifactArchiveSha256": "d58966ae55cdde57345534255620c55fddf60fea7423efbe81eced833255a3ee",
+        "extractedApkBytes": 6314361,
+        "extractedApkSha256": "5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46"
       },
       "realDeviceValidation": "PENDING_V071_TRR_AND_DNG_TIFF_EXR_TEST"
     }
