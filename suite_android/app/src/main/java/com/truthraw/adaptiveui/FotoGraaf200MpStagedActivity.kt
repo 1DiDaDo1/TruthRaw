@@ -197,9 +197,17 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             setPadding(dp(12), dp(12), dp(12), dp(16))
             setBackgroundColor(Color.rgb(10, 12, 15))
         }
-        root.addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true))
         root.addView(label(
-            "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen.",
+            if (productionCameraEntry) "TruthRaw Camera" else "TruthRaw · Android 17 · v0.14 route replay v0.53",
+            22f,
+            true,
+        ))
+        root.addView(label(
+            if (productionCameraEntry) {
+                "Live Camera-5 route · één fysiek frame → RAW source-first seal → topology admission → dezelfde TruthRaw RAW-ingang."
+            } else {
+                "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen."
+            },
             11f, false, Color.rgb(184, 191, 202),
         ))
         root.addView(space(6))
@@ -220,23 +228,33 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
         capabilityButton = button("Stap 1 · lees alle Camera-5 RAW capability-routes") { readCapability() }
         previewButton = button("Stap 2 · start live beeld via logical 0 · 3.7×") { startLogicalPreview() }.apply { isEnabled = false }
-        captureButton = button("Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288") { capture200Mp() }.apply { isEnabled = false }
+        captureButton = button(
+            if (productionCameraEntry) "Maak RAW-opname" else "Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288",
+        ) { capture200Mp() }.apply { isEnabled = false }
         saveRawButton = button("Originele 200MP RAW buffer opslaan") { saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW) }.apply { isEnabled = false }
         saveDngButton = button(
             if (productionCameraEntry) "Admitted RAW/DNG verwerkingsbron opslaan" else "Auxiliary 200MP DNG opslaan",
         ) { saveFile(if (productionCameraEntry) admittedProcessingDng ?: capturedDng else capturedDng, "image/x-adobe-dng", REQUEST_SAVE_DNG) }.apply { isEnabled = false }
         saveJsonButton = button("200MP evidence JSON opslaan") { saveFile(capturedJson, "application/json", REQUEST_SAVE_JSON) }.apply { isEnabled = false }
 
-        root.addView(capabilityButton)
-        root.addView(previewButton)
-        root.addView(captureButton)
-        root.addView(saveRawButton)
-        root.addView(saveDngButton)
-        root.addView(saveJsonButton)
-        root.addView(label(
-            "Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd.",
-            9f, false, Color.rgb(145, 153, 165),
-        ))
+        if (productionCameraEntry) {
+            root.addView(captureButton)
+            root.addView(label(
+                "De 16320×12288 Camera2-buffer is alleen de capture-envelope. TruthRaw bepaalt na sealing read-only welke sample-domain werkelijk gevuld en toegelaten is; alleen die gaat verder.",
+                9.5f, false, Color.rgb(145, 153, 165),
+            ))
+        } else {
+            root.addView(capabilityButton)
+            root.addView(previewButton)
+            root.addView(captureButton)
+            root.addView(saveRawButton)
+            root.addView(saveDngButton)
+            root.addView(saveJsonButton)
+            root.addView(label(
+                "Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd.",
+                9f, false, Color.rgb(145, 153, 165),
+            ))
+        }
         return root
     }
 
