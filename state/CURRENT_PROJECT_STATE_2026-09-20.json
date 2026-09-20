@@ -1,11 +1,11 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
-  "appVersion": "0.46-v0.80-adaptive-detail-v47j",
-  "previousStableIntegration": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
+  "activeBranch": "integration/truthraw-suite-v0-81-output-acutance-v47k",
+  "appVersion": "0.47-v0.81-output-acutance-v47k",
+  "previousStableIntegration": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
@@ -24,7 +24,8 @@
     "v077": "format-neutral canonical ancestry for Restoration DNG/TIFF/EXR",
     "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty",
     "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA",
-    "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding"
+    "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding",
+    "v081": "canonical v4.7k post-final-resize Output Acutance with no-new-HDR-gain rebase against final SDR base"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -89,21 +90,22 @@
     ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-80-adaptive-detail-v47j.yml",
-    "run": 35520838931,
+    "workflow": "android-truthraw-suite-v0-81-output-acutance-v47k.yml",
+    "run": 35521878189,
     "status": "SUCCESS",
     "jobs": {
-      "gccV47jAdapter": "SUCCESS",
-      "clangV47jAdapter": "SUCCESS",
+      "gccV47kOutputAcutance": "SUCCESS",
+      "clangV47kOutputAcutance": "SUCCESS",
       "clangAsanUbsan": "SUCCESS",
+      "v080AdaptiveDetail": "SUCCESS",
       "v078V079AuthorityUncertainty": "SUCCESS",
       "existingScientificLineage": "SUCCESS",
       "androidBuild": "SUCCESS"
     },
-    "artifactId": 10608565903,
-    "artifactZipSha256": "169d618560a3f0ba900d0669f496b1898df524d6390348d4d6ad5dcceacccfcd",
-    "apkBytes": 6449825,
-    "apkSha256": "3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb"
+    "artifactId": 10609071299,
+    "artifactZipSha256": "1c094d99f5f0d634354d71259bfa262511e53e6fa7f5bd91aa3b590aacecb936",
+    "apkBytes": 6463957,
+    "apkSha256": "fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250"
   },
   "openValidation": {
     "realDeviceV079SmokeTest": "OPEN",
@@ -113,14 +115,14 @@
     "currentCameraDomainNoisePtcUncertainty": "OPEN",
     "exactV5gF64ReconstructionTraceBinding": "OPEN",
     "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED",
-    "realDeviceV080AdaptiveDetailSmokeTest": "OPEN"
+    "realDeviceV080AdaptiveDetailSmokeTest": "OPEN",
+    "realDeviceV081OutputAcutanceSmokeTest": "OPEN"
   },
   "immediateNext": {
-    "branch": "integration/truthraw-suite-v0-81-output-acutance-v47k",
-    "objective": "integrate canonical v4.7k only after final preview resize, then recompute/derive HDR gain against the final acutance-adjusted SDR base; keep Scientific Master and authority unchanged",
+    "branch": "integration/truthraw-suite-v0-82-illumination-state",
+    "objective": "replace the coarse single global inferred-Light appearance input with a richer explicitly authority-bounded illumination/light-dark/artificial-light scene state, without turning inferred illumination into measured exposure or modifying Scientific Master",
     "after": [
-      "richer illumination/light/dark/artificial-light state",
-      "authority-aware single-frame HDR",
+      "authority-aware single-frame HDR using richer scene illumination state",
       "Restoration v2",
       "projection conformance/source replay",
       "current Camera-5 noise/PTC/uncertainty calibration",
@@ -147,6 +149,31 @@
       "channel authority v0.78 SHA",
       "uncertainty admission v0.79 SHA",
       "exact NoiseProfile sigma-at-2pct Float32 bits"
+    ]
+  },
+  "v081": {
+    "schema": "TruthRawOutputAcutanceBinding/0.81",
+    "canonicalAlgorithm": "canonical/output-acutance/v4.7k",
+    "exactOrder": "FINAL_RESIZE_THEN_ACUTANCE_THEN_HDR_REBASE_THEN_OETF",
+    "profiles": {
+      "detailOff": "Neutral",
+      "detailOn": "AdaptiveDetail"
+    },
+    "scientificMasterModified": false,
+    "authorityModified": false,
+    "createsOpticalOrSensorEvidence": false,
+    "zeroUpstreamHdrGainStaysUnity": true,
+    "censoredHdrGainStaysUnity": true,
+    "hdrRebaseOnlyForPreExistingPositiveGain": true,
+    "actualResizeRatioBound": true,
+    "deterministicPreviewMemoryUpperBound": true,
+    "provenanceBinds": [
+      "canonical Open Scene v0.70 SHA",
+      "v0.78 channel-authority SHA",
+      "v0.79 uncertainty-admission SHA",
+      "optional v0.80 Adaptive Detail SHA",
+      "canonical v4.7k plan fields",
+      "changed/rebased counts"
     ]
   }
 }
