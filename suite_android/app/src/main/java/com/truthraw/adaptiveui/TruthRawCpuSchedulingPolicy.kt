@@ -21,6 +21,8 @@ data class TruthRawCpuWorkerPlan(
     val maxWorkersByMemory: Int,
     val thermalStatus: Int,
     val thermalHeadroom: Float?,
+    val cpuResourceHeadroom: Float?,
+    val gpuResourceHeadroom: Float?,
     val powerSaveMode: Boolean,
     val adpfAvailable: Boolean,
     val workload: TruthRawCpuWorkload,
@@ -60,6 +62,10 @@ object TruthRawCpuSchedulingPolicyV01 {
         val headroom = runCatching {
             power?.getThermalHeadroom(10)?.takeIf { !it.isNaN() }
         }.getOrNull()
+        val resourceHeadroom =
+            TruthRawSystemHeadroomProbe.sample().getOrNull()
+        val cpuResourceHeadroom = resourceHeadroom?.cpuHeadroom
+        val gpuResourceHeadroom = resourceHeadroom?.gpuHeadroom
 
         // Keep one logical CPU free on multicore phones for Android/UI/I/O.
         var cpuTarget = if (online >= 4) online - 1 else online
@@ -87,12 +93,28 @@ object TruthRawCpuSchedulingPolicyV01 {
             else -> cpuTarget
         }
 
-        // Headroom is advisory and may be temporarily unavailable (NaN).
-        // Values approaching 1 indicate less room before severe throttling.
+        // Thermal headroom is normalized toward the severe-throttling point:
+        // values approaching 1 mean less remaining thermal room.
         if (headroom != null) {
             cpuTarget = when {
                 headroom >= 0.90f -> max(1, ceil(cpuTarget * 0.50).toInt())
                 headroom >= 0.75f -> max(1, ceil(cpuTarget * 0.72).toInt())
+                else -> cpuTarget
+            }
+        }
+
+        // Android 16+ resource headroom is the opposite direction and ranges
+        // from 0..100: low values mean little CPU capacity can still be granted.
+        // Thresholds are a TruthRaw scheduling heuristic only; they never alter
+        // pixels, evidence or scientific authority.
+        if (cpuResourceHeadroom != null) {
+            cpuTarget = when {
+                cpuResourceHeadroom < 15f ->
+                    max(1, ceil(cpuTarget * 0.40).toInt())
+                cpuResourceHeadroom < 30f ->
+                    max(1, ceil(cpuTarget * 0.65).toInt())
+                cpuResourceHeadroom < 45f ->
+                    max(1, ceil(cpuTarget * 0.82).toInt())
                 else -> cpuTarget
             }
         }
@@ -106,6 +128,8 @@ object TruthRawCpuSchedulingPolicyV01 {
             maxWorkersByMemory = memoryWorkers,
             thermalStatus = thermalStatus,
             thermalHeadroom = headroom,
+            cpuResourceHeadroom = cpuResourceHeadroom,
+            gpuResourceHeadroom = gpuResourceHeadroom,
             powerSaveMode = powerSave,
             adpfAvailable = adpf,
             workload = workload,
@@ -120,7 +144,11 @@ object TruthRawCpuSchedulingPolicyV01 {
                 append(thermalStatus)
                 append(" · headroom=")
                 append(headroom ?: "unknown")
-                append(" · powerSave=")
+                append(" · CPU resource=")
+                append(cpuResourceHeadroom ?: "unknown")
+                append("% · GPU resource=")
+                append(gpuResourceHeadroom ?: "unknown")
+                append("% · powerSave=")
                 append(powerSave)
                 append(" · ADPF=")
                 append(adpf)
