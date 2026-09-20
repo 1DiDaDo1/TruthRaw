@@ -77,6 +77,16 @@ public:
         const ExposurePlan& exposure,
         bool hdrEnabled,
         bool diagnosticsEnabled) = 0;
+    // Optional scene-linear edit tap. Called after color conversion and the
+    // selected appearance backend, but before exposure LUT, negative clamp,
+    // max-RGB normalization and display transfer. Existing sinks may ignore it.
+    virtual StreamStatus writeExtendedLinearTile(
+        const TileRect&,
+        const float*,
+        std::size_t) {
+        return StreamStatus::ok();
+    }
+
     virtual StreamStatus writeSdrTile(
         const TileRect& coreRect,
         const float* rgb,
