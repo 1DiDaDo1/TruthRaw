@@ -34,6 +34,8 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingPureFloatDngJobId: String? = null
     private var pureFloatDngStatus: String? = null
+    private var pendingTruthNegativeJobId: String? = null
+    private var truthNegativeStatus: String? = null
     private var pendingLinearDngJobId: String? = null
     private var linearDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
@@ -177,11 +179,33 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchTruthNegativeExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            truthNegativeStatus =
+                "TRUTHNEGATIVE is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+            render()
+            return
+        }
+        pendingTruthNegativeJobId = job.id
+        truthNegativeStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthnegative_tn2_v0_66.trn")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_TRUTHNEGATIVE)
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchLinearDngExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
         pendingLinearDngJobId = job.id
         pureFloatDngStatus = null
+        truthNegativeStatus = null
         linearDngStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -307,9 +331,58 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_TRUTHNEGATIVE) {
+            val expectedJob = pendingTruthNegativeJobId
+            pendingTruthNegativeJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                truthNegativeStatus = "TRUTHNEGATIVE-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                truthNegativeStatus =
+                    "TRUTHNEGATIVE-export geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            truthNegativeStatus =
+                "TRUTHNEGATIVE TN-2 wordt opgebouwd… exact camera-native Master replay + Dynamic Authority."
+            render()
+
+            Thread({
+                val exportResult =
+                    TruthNegativeExporter.export(contentResolver, job, destination)
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    truthNegativeStatus = when (exportResult) {
+                        is TruthNegativeExportResult.Failed -> exportResult.reason
+                        is TruthNegativeExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "TRUTHNEGATIVE TN-2 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · camera-native Float32 · " +
+                                "authority CAL/REC/CENS/UNK=${m.calibratedEstimateSamples}/" +
+                                "${m.reconstructedSamples}/${m.censoredSamples}/${m.unknownSamples} · " +
+                                "Master replay=${m.scientificMasterReplayVerified} · " +
+                                "post-write=${m.postWriteVerified} · " +
+                                "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount}."
+                        }
+                    }
+                    render()
+                }
+            }, "truthnegative-tn2-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
             val expectedJob = pendingLinearDngJobId
             pendingPureFloatDngJobId = null
+        pendingTruthNegativeJobId = null
         pendingLinearDngJobId = null
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
@@ -841,6 +914,7 @@ class MainActivity : Activity() {
                     "Voorkeursuitvoer: " + when (preferredOutput) {
                         TruthRawSuiteLauncherActivity.OUTPUT_JPG -> "JPG"
                         TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED"
+                        TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE -> "TRUTHNEGATIVE"
                         else -> "TRUTHRAW PURE"
                     },
                     10f,
@@ -848,16 +922,23 @@ class MainActivity : Activity() {
                 ))
                 if (m.advancedDerivative) {
                     addView(label(
-                        "ADVANCED derivative · Light adjusted=${m.advancedLightAdjustedPixels} · " +
-                            "HDR gain pixels=${m.advancedHdrGainPixels} · " +
-                            "censored/restored=${m.advancedCensoredPreviewPixels}/${m.advancedRestoredPixels} · " +
-                            "detail=${m.advancedDetailEnabled}",
+                        "OPEN-WORLD ADVANCED · sceneBound=${m.openWorldSceneBound} · " +
+                            "illuminationAuthority=${m.openWorldIlluminationAuthority} · " +
+                            "outputAuthority=${m.openWorldOutputAuthority}",
                         10f,
                         muted = true,
                     ))
                     addView(label(
-                        "Restoration verandert alleen de presentation derivative. Clipping blijft CENSORED " +
-                            "en PURE pixels/authority blijven onaangeraakt.",
+                        "Dynamic Authority preview CAL/REC/CENS/UNK=${m.dynamicAuthorityCalibratedPreviewPixels}/" +
+                            "${m.dynamicAuthorityReconstructedPreviewPixels}/" +
+                            "${m.dynamicAuthorityCensoredPreviewPixels}/" +
+                            "${m.dynamicAuthorityUnknownRgbSamples} · restored=${m.advancedRestoredPixels}",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Scene Physics begrenst HDR/light/restoration. CENSORED/UNKNOWN wordt niet als gemeten herstel " +
+                            "gepromoveerd; restoration blijft een retreatable presentation derivative.",
                         10f,
                         muted = true,
                     ))
@@ -880,6 +961,20 @@ class MainActivity : Activity() {
                     addView(space(5))
                 }
 
+                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE) {
+                    addView(actionButton("TRUTHNEGATIVE · Scientific Negative TN-2 opslaan") {
+                        launchTruthNegativeExport(active)
+                    })
+                    truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
+                    addView(label(
+                        "TN-2 = bronresolutie camera-native Float32 Scientific Master + Dynamic Authority map · " +
+                            "geen resampling, geen appearance, geen nieuw bewijs.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(space(5))
+                }
+
                 if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
                     addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
                     jpegStatus?.let { addView(label(it, 10f, muted = true)) }
@@ -898,7 +993,8 @@ class MainActivity : Activity() {
                 ))
 
                 if (preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_JPG &&
-                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED
+                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED &&
+                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE
                 ) {
                     addView(space(5))
                     addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
@@ -1114,5 +1210,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_LINEAR_DNG = 4104
         private const val REQUEST_SAVE_NEF_MEASUREMENT_JSON = 4105
         private const val REQUEST_SAVE_PURE_FLOAT_DNG = 4106
+        private const val REQUEST_SAVE_TRUTHNEGATIVE = 4107
     }
 }
