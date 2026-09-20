@@ -36,6 +36,10 @@ Frozen v0.72 baseline references retained for governance/provenance:
 Current output boundary:
 canonical v4.7k runs only after final resize. Existing positive HDR transport is rebased against the acutance-adjusted SDR base; zero upstream HDR and censored support remain gain 1. Scientific Master, v0.78 authority and v0.79 uncertainty admission remain unchanged.
 
+Frozen v0.72 baseline references retained for governance/provenance:
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+
 Immediate next branch:
 
 `integration/truthraw-suite-v0-82-illumination-state`
