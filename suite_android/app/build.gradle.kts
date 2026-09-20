@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 43
-        versionName = "0.43-v0.77-canonical-ancestry-spine"
+        versionCode = 44
+        versionName = "0.44-v0.78-open-scene-channel-authority"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
