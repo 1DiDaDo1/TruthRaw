@@ -545,7 +545,8 @@ class MainActivity : Activity() {
                             "JPG full-resolution gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
                                 "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
-                                "rotatie=${quarterTurns * 90}° · HDR blijft dynamisch en is niet destructief in de SDR-JPEG gebakken."
+                                "rotatie=${quarterTurns * 90}° · HDR-front=${m.hdrBakedIntoFront} (APPEARANCE_ONLY) · " +
+                                "Restoration-front=${m.restorationBakedIntoFront} (AESTHETIC_REINTEGRATION_ONLY)."
                         }
                     }
                 }
@@ -1431,8 +1432,9 @@ class MainActivity : Activity() {
                         })
                         jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
                         addView(label(
-                            "JPG-L bevat een full-resolution SDR-JPEG voorkant én de TN-3 camera-native Float32 Scientific Master/Open Scene achterkant. " +
-                                "HDR blijft in v0.83 dynamische informatie; Restoration wordt niet als gemeten waarheid in de JPEG-voorkant gebakken.",
+                            "JPG-L bevat een full-resolution ontwikkelde JPEG-voorkant én de TN-3 camera-native Float32 Scientific Master/Open Scene achterkant. " +
+                                "Natural HDR in de voorkant blijft APPEARANCE_ONLY; Restoration blijft AESTHETIC_REINTEGRATION_ONLY. " +
+                                "Geen van beide schrijft terug naar de Scientific Master.",
                             10f,
                             muted = true,
                         ))
