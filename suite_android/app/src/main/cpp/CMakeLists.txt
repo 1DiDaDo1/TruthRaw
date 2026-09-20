@@ -21,11 +21,13 @@ set(BACKPLANE "${RESEARCH_ROOT}/technical-backplane-v0.1/native")
 set(BACKPLANE_PHASE2 "${RESEARCH_ROOT}/technical-backplane-phase2-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V01 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V02 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.2/native")
+set(SCIENTIFIC_MASTER_BINDING_V03 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.3/native")
 set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/native")
 set(SCIENTIFIC_MASTER_FLOAT_DNG "${RESEARCH_ROOT}/scientific-master-linear-dng-projection-v0.1/native")
 set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
+set(FINALIZED_RELEASE_V03 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.3/native")
 set(LINEAR_DNG_PROJECTION "${RESEARCH_ROOT}/linear-dng-projection-v0.1/native")
 set(MULTIVENDOR_RAW_ADAPTER "${RESEARCH_ROOT}/multivendor-raw-source-adapter-v0.1/native")
 set(OPEN_WORLD_NATIVE_V03 "${RESEARCH_ROOT}/open-world-native-integration-v0.3/native")
@@ -64,13 +66,17 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${BACKPLANE}/technical_backplane_v0_1.cpp
     ${BACKPLANE_PHASE2}/technical_backplane_phase2_v0_1.cpp
     ${SCIENTIFIC_MASTER_BINDING_V01}/scientific_master_streaming_binding_v0_1.cpp
-    ${SCIENTIFIC_MASTER_BINDING_V02}/scientific_master_streaming_binding_v0_2.cpp
+    ${SCIENTIFIC_MASTER_BINDING_V02}
+    ${SCIENTIFIC_MASTER_BINDING_V03}/scientific_master_streaming_binding_v0_2.cpp
+    ${SCIENTIFIC_MASTER_BINDING_V03}/scientific_master_streaming_binding_v0_3.cpp
     ${SCIENTIFIC_MASTER_DIGEST}/scientific_master_digest_v0_1.cpp
     ${SCIENTIFIC_MASTER_FLOAT_DNG}/scientific_master_linear_dng_projection_v0_1.cpp
     ${SCIENTIFIC_MASTER_FLOAT_DNG}/streaming_scientific_master_tile_source_v0_1.cpp
     ${TRUTHRANGE_LATENT}/truthrange_latent_v0_2.cpp
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
-    ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
+    ${FINALIZED_RELEASE_V02}
+    ${FINALIZED_RELEASE_V03}/finalized_scientific_preview_release_v0_2.cpp
+    ${FINALIZED_RELEASE_V03}/finalized_scientific_preview_release_v0_3.cpp
     ${LINEAR_DNG_PROJECTION}/linear_dng_projection_v0_1.cpp
     ${MULTIVENDOR_RAW_ADAPTER}/multivendor_raw_source_adapter_v0_1.cpp
     ${MULTIVENDOR_RAW_ADAPTER}/nikon_nef_uncompressed_adapter_v0_1.cpp
