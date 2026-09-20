@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 128
+    private const val HEADER_INTS = 160
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -351,6 +351,51 @@ object AdvancedTilePreviewLoader {
             }
         }
 
+        val hdrScientificAuthority = packet[128]
+        val hdrPresentationAuthority = packet[129]
+        val hdrBlockedReason = packet[130]
+        val hdrScientificGainAllowed = packet[131] != 0
+        val hdrPresentationGainAllowed = packet[132] != 0
+        val hdrAuthorityStateSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[148 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        val expectedHdrPresentationAuthority = if (options.naturalHdr) 1 else 0
+
+        if (hdrScientificAuthority != 0 ||
+            hdrPresentationAuthority != expectedHdrPresentationAuthority ||
+            hdrBlockedReason != 1 ||
+            hdrScientificGainAllowed ||
+            hdrPresentationGainAllowed != options.naturalHdr ||
+            packet[133] != 0 ||
+            packet[134] != 0 ||
+            packet[135] != 0 ||
+            packet[136] != 1 ||
+            packet[137] != 1 ||
+            packet[138] != packet[27] ||
+            packet[139] != width * height ||
+            packet[140] != 1 ||
+            packet[141] != 1 ||
+            packet[142] != 0 ||
+            packet[143] != (if (reconstructedAllowedByAdmission) 1 else 0) ||
+            packet[144] != 1 ||
+            packet[145] != (if (illuminationWhitePointKnown) 1 else 0) ||
+            packet[146] != 0 ||
+            packet[147] != 0 ||
+            packet[156] != 0 || packet[157] != 0 ||
+            packet[158] != 0 || packet[159] != 0 ||
+            hdrAuthorityStateSha256.all { it == '0' }
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: v0.83 HDR authority contract week af.",
+            )
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -440,6 +485,14 @@ object AdvancedTilePreviewLoader {
             illuminationCalibrationIlluminant1 = illuminationCalibrationIlluminant1,
             illuminationCalibrationIlluminant2 = illuminationCalibrationIlluminant2,
             illuminationStateSha256 = illuminationStateSha256,
+            hdrScientificAuthority = hdrScientificAuthority,
+            hdrPresentationAuthority = hdrPresentationAuthority,
+            hdrBlockedReason = hdrBlockedReason,
+            hdrScientificGainAllowed = hdrScientificGainAllowed,
+            hdrPresentationGainAllowed = hdrPresentationGainAllowed,
+            hdrRequiresPerOutputChannelAuthority = packet[136] != 0,
+            hdrRequiresAdmittedUncertaintyForReconstructed = packet[137] != 0,
+            hdrAuthorityStateSha256 = hdrAuthorityStateSha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
