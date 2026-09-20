@@ -75,11 +75,6 @@ bool write_all(int fd, const std::uint8_t* data, std::size_t size) noexcept {
     return true;
 }
 
-std::uint16_t get_u16_le(const std::uint8_t* p) noexcept {
-    return static_cast<std::uint16_t>(p[0]) |
-           (static_cast<std::uint16_t>(p[1]) << 8u);
-}
-
 std::uint32_t get_u32_le(const std::uint8_t* p) noexcept {
     return static_cast<std::uint32_t>(p[0]) |
            (static_cast<std::uint32_t>(p[1]) << 8u) |
