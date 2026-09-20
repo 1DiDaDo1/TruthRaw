@@ -40,12 +40,18 @@ class MainActivity : Activity() {
     private var truthNegativeStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
+    private var pendingProjectionFormat: RestorationProjectionFormat? = null
+    private var projectionStatus: String? = null
     private val restorationStatusHandler = Handler(Looper.getMainLooper())
     private val restorationStatusPoll = object : Runnable {
         override fun run() {
             syncFullResRestorationStatus()
-            val snapshot = FullResRestorationJobStore.read(this@MainActivity)
-            if (snapshot != null && !snapshot.phase.terminal) {
+            syncRestorationProjectionStatus()
+            val restoration = FullResRestorationJobStore.read(this@MainActivity)
+            val projection = RestorationProjectionJobStore.read(this@MainActivity)
+            if ((restoration != null && !restoration.phase.terminal) ||
+                (projection != null && !projection.phase.terminal)
+            ) {
                 restorationStatusHandler.postDelayed(this, 1000L)
             }
         }
@@ -129,10 +135,15 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
+        RestorationProjectionJobStore.recoverInterruptedIfNeeded(this)
         syncFullResRestorationStatus()
+        syncRestorationProjectionStatus()
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
-        val snapshot = FullResRestorationJobStore.read(this)
-        if (snapshot != null && !snapshot.phase.terminal) {
+        val restoration = FullResRestorationJobStore.read(this)
+        val projection = RestorationProjectionJobStore.read(this)
+        if ((restoration != null && !restoration.phase.terminal) ||
+            (projection != null && !projection.phase.terminal)
+        ) {
             restorationStatusHandler.post(restorationStatusPoll)
         }
     }
@@ -153,6 +164,14 @@ class MainActivity : Activity() {
         val snapshot = FullResRestorationJobStore.read(this) ?: return
         if (snapshot.message != fullResRestorationStatus) {
             fullResRestorationStatus = snapshot.message
+            render()
+        }
+    }
+
+    private fun syncRestorationProjectionStatus() {
+        val snapshot = RestorationProjectionJobStore.read(this) ?: return
+        if (snapshot.message != projectionStatus) {
+            projectionStatus = snapshot.message
             render()
         }
     }
@@ -233,7 +252,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/octet-stream"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthnegative_tn2_v0_66.trn")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthnegative_tn3_v0_69.trn")
         }
         startActivityForResult(intent, REQUEST_SAVE_TRUTHNEGATIVE)
     }
@@ -260,6 +279,35 @@ class MainActivity : Activity() {
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_SAVE_FULLRES_RESTORATION)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchRestorationProjection(
+        job: RawJob,
+        format: RestorationProjectionFormat,
+    ) {
+        val restoration = FullResRestorationJobStore.read(this)
+        if (restoration == null ||
+            restoration.jobId != job.id ||
+            restoration.phase != FullResRestorationJobPhase.SUCCESS
+        ) {
+            projectionStatus =
+                "Projectie geblokkeerd: eerst een volledig geverifieerde full-resolution .trr voor deze bron maken."
+            render()
+            return
+        }
+        pendingProjectionFormat = format
+        projectionStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = format.mimeType
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_restoration_v0_69.${format.extension}")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(intent, REQUEST_SAVE_RESTORATION_PROJECTION)
     }
 
     @Suppress("DEPRECATION")
@@ -416,7 +464,7 @@ class MainActivity : Activity() {
             }
 
             truthNegativeStatus =
-                "TRUTHNEGATIVE TN-2 wordt opgebouwd… exact camera-native Master replay + Dynamic Authority."
+                "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact camera-native Master replay + Dynamic Authority + full-frame Open Scene State."
             render()
 
             Thread({
@@ -428,18 +476,19 @@ class MainActivity : Activity() {
                         is TruthNegativeExportResult.Failed -> exportResult.reason
                         is TruthNegativeExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHNEGATIVE TN-2 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                            "TRUTHNEGATIVE TN-3 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · camera-native Float32 · " +
                                 "authority CAL/REC/CENS/UNK=${m.calibratedEstimateSamples}/" +
                                 "${m.reconstructedSamples}/${m.censoredSamples}/${m.unknownSamples} · " +
                                 "Master replay=${m.scientificMasterReplayVerified} · " +
-                                "post-write=${m.postWriteVerified} · " +
+                                "OpenScene finite/censored=${m.openSceneFinitePixels}/${m.openSceneCensoredPixels} · " +
+                                "fullOpenScene=${m.fullOpenSceneStateBound} · post-write=${m.postWriteVerified} · " +
                                 "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount}."
                         }
                     }
                     render()
                 }
-            }, "truthnegative-tn2-${job.id.take(8)}").start()
+            }, "truthnegative-tn3-${job.id.take(8)}").start()
             return
         }
 
@@ -475,6 +524,41 @@ class MainActivity : Activity() {
             } else {
                 FullResRestorationJobStore.read(this)?.message
                     ?: "Full-resolution Restoration foreground job kon niet worden gestart."
+            }
+            restorationStatusHandler.removeCallbacks(restorationStatusPoll)
+            restorationStatusHandler.post(restorationStatusPoll)
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_RESTORATION_PROJECTION) {
+            val format = pendingProjectionFormat
+            pendingProjectionFormat = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null || format == null) {
+                projectionStatus = "Restoration-projectie geannuleerd."
+                render()
+                return
+            }
+            val restoration = FullResRestorationJobStore.read(this)
+            if (restoration == null || restoration.phase != FullResRestorationJobPhase.SUCCESS) {
+                projectionStatus = "Restoration-projectie geblokkeerd: complete .trr ontbreekt."
+                render()
+                return
+            }
+            val started = RestorationProjectionForegroundService.start(
+                this,
+                android.net.Uri.parse(restoration.sourceUri),
+                android.net.Uri.parse(restoration.destinationUri),
+                destination,
+                format,
+                data?.flags ?: 0,
+            )
+            projectionStatus = if (started) {
+                "${format.label} v0.69 foreground projectie gestart · .trr digest/lineage → private staging → post-write SHA verify."
+            } else {
+                RestorationProjectionJobStore.read(this)?.message
+                    ?: "${format.label}-projectie kon niet worden gestart."
             }
             restorationStatusHandler.removeCallbacks(restorationStatusPoll)
             restorationStatusHandler.post(restorationStatusPoll)
@@ -1073,17 +1157,39 @@ class MainActivity : Activity() {
                         10f,
                         muted = true,
                     ))
+                    val restoration = FullResRestorationJobStore.read(this@MainActivity)
+                    if (restoration != null &&
+                        restoration.jobId == active.id &&
+                        restoration.phase == FullResRestorationJobPhase.SUCCESS
+                    ) {
+                        addView(space(5))
+                        addView(label(
+                            "Volledige Restoration geverifieerd · normale full-resolution projecties:",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(actionButton("Restoration → Float32 DNG") {
+                            launchRestorationProjection(active, RestorationProjectionFormat.DNG)
+                        })
+                        addView(actionButton("Restoration → Float32 TIFF") {
+                            launchRestorationProjection(active, RestorationProjectionFormat.TIFF)
+                        })
+                        addView(actionButton("Restoration → OpenEXR") {
+                            launchRestorationProjection(active, RestorationProjectionFormat.EXR)
+                        })
+                        projectionStatus?.let { addView(label(it, 10f, muted = true)) }
+                    }
                     addView(space(5))
                 }
 
                 if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE) {
-                    addView(actionButton("TRUTHNEGATIVE · Scientific Negative TN-2 opslaan") {
+                    addView(actionButton("TRUTHNEGATIVE · Scientific Negative TN-3 opslaan") {
                         launchTruthNegativeExport(active)
                     })
                     truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
                     addView(label(
-                        "TN-2 = bronresolutie camera-native Float32 Scientific Master + Dynamic Authority map · " +
-                            "geen resampling, geen appearance, geen nieuw bewijs.",
+                        "TN-3 = bronresolutie camera-native Float32 Scientific Master + per-channel Dynamic Authority + " +
+                            "volledige full-frame Open Scene State · geen resampling, geen appearance, geen nieuw bewijs.",
                         10f,
                         muted = true,
                     ))
@@ -1327,5 +1433,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_PURE_FLOAT_DNG = 4106
         private const val REQUEST_SAVE_TRUTHNEGATIVE = 4107
         private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
+        private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
     }
 }
