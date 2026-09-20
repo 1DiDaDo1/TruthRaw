@@ -33,13 +33,18 @@ object TruthRawComputeRouterV01 {
     fun plan(
         computeClass: TruthRawComputeClass,
         capabilities: TruthRawComputeCapabilities,
+        systemHeadroom: TruthRawSystemHeadroom? = null,
     ): TruthRawComputePlan {
+        val gpuResourceHeadroom = systemHeadroom?.gpuHeadroom
+        val gpuResourceAvailableNow =
+            gpuResourceHeadroom == null || gpuResourceHeadroom >= 20f
         val candidates = buildList {
             add(TruthRawComputeBackend.CPU_REFERENCE)
             if (capabilities.arm64 && capabilities.neon) {
                 add(TruthRawComputeBackend.CPU_ARM64_OPTIMIZED)
             }
             if (capabilities.genericVulkanCandidate &&
+                gpuResourceAvailableNow &&
                 computeClass in setOf(
                     TruthRawComputeClass.APPEARANCE,
                     TruthRawComputeClass.PRESENTATION,
@@ -52,9 +57,20 @@ object TruthRawComputeRouterV01 {
             computeClass = computeClass,
             selected = TruthRawComputeBackend.CPU_REFERENCE,
             candidates = candidates,
-            reason =
-                "v0.1 discovery-only: accelerated candidates are not selectable " +
-                    "until kernel-specific correctness + benchmark validation passes.",
+            reason = buildString {
+                append(
+                    "v0.1 discovery-only: accelerated candidates are not selectable " +
+                        "until kernel-specific correctness + benchmark validation passes.",
+                )
+                if (gpuResourceHeadroom != null) {
+                    append(" GPU resource headroom=")
+                    append(gpuResourceHeadroom)
+                    append("%.")
+                    if (!gpuResourceAvailableNow) {
+                        append(" Vulkan candidate temporarily suppressed below 20%.")
+                    }
+                }
+            },
             authorityChanged = false,
         )
     }
