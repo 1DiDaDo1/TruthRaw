@@ -2,7 +2,9 @@
 
 ## Status
 
-Integration candidate on:
+**CLOSED INTEGRATION — CI + Android APK PASS**
+
+Integration branch:
 
 `integration/truthraw-suite-v0-79-bound-uncertainty-admission`
 
@@ -129,11 +131,30 @@ Clang: PASS.
 - no appearance writeback
 - no counterfactual evidence
 
+## Validation closure
+
+Full integration CI run: `35520033588`
+
+Green jobs:
+- Bound uncertainty admission
+- Open Scene channel authority
+- Existing scientific lineage contracts
+- Android v0.79 uncertainty admission
+
+Artifact:
+- GitHub artifact id: `10607269631`
+- artifact ZIP SHA-256: `c0e3730f0b88f6c718ff0af9ecbf9abc01954696832f913c9fe1ee8adc388403`
+- APK bytes: `6,420,905`
+- APK SHA-256: `55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5`
+
+Documentation governance after moving-state fix: PASS.
+
 ## Next gates
 
-1. Finish Android integration CI.
-2. Real-device v0.79 smoke test and verify Camera-5 reports the expected blocked source-domain decision.
-3. Build exact F64 reconstructed-quantity trace certification for the historical v5.0g domain.
-4. Independently calibrate/validate uncertainty for the current Camera-5 derived DNG domain.
-5. Only then permit a source/backend-bound p95 runtime field to feed v0.78 RECONSTRUCTED authority.
-6. Continue with v4.7j support-aware detail once local authority/support/uncertainty are truly available.
+1. Real-device v0.79 smoke test and verify Camera-5 reports the expected blocked source-domain decision.
+2. Build exact F64 reconstructed-quantity trace certification for the historical v5.0g domain.
+3. Independently calibrate/validate uncertainty for the current Camera-5 derived DNG domain.
+4. Only then permit a source/backend-bound p95 runtime field to feed v0.78 RECONSTRUCTED authority.
+5. Integrate canonical v4.7j as an **appearance/detail-compensation** replacement for legacy Detailed/Crisp, keeping Scientific Master and authority unchanged.
+6. Keep any future scientific-detail authority separate and require local structure/support plus optical/MTF evidence where claims exceed reconstructed colour support.
+7. Integrate v4.7k only after final resize as output acutance; never as sensor/optical truth.
