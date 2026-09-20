@@ -315,7 +315,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = format.mimeType
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_restoration_v0_69.${format.extension}")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_restoration_v0_72.${format.extension}")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
