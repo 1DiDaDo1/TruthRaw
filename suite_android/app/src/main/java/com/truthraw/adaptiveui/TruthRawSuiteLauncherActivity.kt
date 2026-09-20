@@ -28,7 +28,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
     private val purple = Color.rgb(190, 92, 238)
 
     private val compactHeight: Boolean
-        get() = resources.configuration.screenHeightDp < 720
+        get() = resources.configuration.screenHeightDp < 900
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
