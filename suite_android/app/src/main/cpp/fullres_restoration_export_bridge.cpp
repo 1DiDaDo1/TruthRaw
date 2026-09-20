@@ -5,6 +5,7 @@
 #include "raw_source_adapter_bridge_common.h"
 #include "open_scene_canonical_v0_70.h"
 #include "truthraw_sha256_v0_69.h"
+#include "truthraw_ordered_parallel_executor_v0_1.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -41,9 +42,10 @@ namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace streaming = truthraw::streaming_v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace sha = truthraw::sha256_v0_69;
+namespace ordered = truthraw::ordered_parallel_executor::v0_1;
 
 constexpr jlong kMagic = 0x54525253; // TRRS
-constexpr std::size_t kPacketLongs = 24u;
+constexpr std::size_t kPacketLongs = 25u;
 constexpr std::size_t kHeaderBytes = 8192u;
 constexpr std::uint32_t kCore = 64u;
 constexpr int kRestorationRadius = 2;
@@ -216,9 +218,11 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     jint sourceFd,
     jint outputFd,
     jint maxSourceResidentBytes,
-    jint maxLogicalResidentBytes) {
+    jint maxLogicalResidentBytes,
+    jint requestedWorkers) {
     if (sourceFd < 0 || outputFd < 0 ||
-        maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
+        maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0 ||
+        requestedWorkers <= 0 || requestedWorkers > 8) {
         return packet(env, -1);
     }
     if (::ftruncate(outputFd, 0) != 0 || ::lseek(outputFd, 0, SEEK_SET) < 0) {
@@ -330,12 +334,6 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
         return packet(env, -7);
     }
 
-    streaming::detail::Workspace workspace{};
-    std::vector<std::uint16_t> raw;
-    std::vector<float> gain;
-    std::vector<float> restoredCore;
-    std::vector<std::uint8_t> roles;
-    std::vector<std::uint8_t> record;
     sha::Hasher roleMaskHasher;
 
     std::uint64_t tileCount = 0u;
@@ -354,19 +352,113 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
         return packet(env, -8);
     }
 
-    for (int y = 0; y < height; y += static_cast<int>(kCore)) {
-        const int coreH = std::min(static_cast<int>(kCore), height - y);
-        for (int x = 0; x < width; x += static_cast<int>(kCore)) {
-            const int coreW = std::min(static_cast<int>(kCore), width - x);
+    struct RestorationWorkerContext final {
+        truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource opened;
+        std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstruction> reconstruction;
+        streaming::detail::Workspace workspace;
+        std::vector<std::uint16_t> raw;
+        std::vector<float> gain;
+    };
 
-            const int ex0 = std::max(0, x - kRestorationRadius);
-            const int ey0 = std::max(0, y - kRestorationRadius);
-            const int ex1 = std::min(width, x + coreW + kRestorationRadius);
-            const int ey1 = std::min(height, y + coreH + kRestorationRadius);
+    struct RestorationTileResult final {
+        int x = 0;
+        int y = 0;
+        int coreW = 0;
+        int coreH = 0;
+        std::vector<float> baseCore;
+        std::vector<float> restoredCore;
+        std::vector<std::uint8_t> roles;
+        std::vector<std::uint8_t> record;
+        std::uint64_t preservedPixels = 0u;
+        std::uint64_t censoredPixels = 0u;
+        std::uint64_t restoredPixels = 0u;
+        std::uint64_t unresolvedPixels = 0u;
+        std::uint64_t changedComponents = 0u;
+    };
+
+    const auto coreTiles = truthraw::make_tiles(
+        width,
+        height,
+        truthraw::TilePolicy{static_cast<int>(kCore), 0});
+    if (coreTiles.empty()) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -25);
+    }
+
+    constexpr std::size_t kPerWorkerEnvelopeBytes = 2u * 1024u * 1024u;
+    const int memoryWorkerCap = std::max(
+        1,
+        std::min(
+            8,
+            static_cast<int>(
+                static_cast<std::size_t>(maxLogicalResidentBytes) /
+                kPerWorkerEnvelopeBytes)));
+    const int workerCount = std::max(
+        1,
+        std::min(
+            {static_cast<int>(requestedWorkers),
+             memoryWorkerCap,
+             static_cast<int>(coreTiles.size())}));
+
+    std::vector<RestorationWorkerContext> workerContexts(
+        static_cast<std::size_t>(workerCount));
+    for (int worker = 0; worker < workerCount; ++worker) {
+        auto& ctx = workerContexts[static_cast<std::size_t>(worker)];
+        const auto workerOpened =
+            truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(
+                bytes,
+                sourceSeal,
+                openOptions,
+                ctx.opened);
+        if (!workerOpened || !ctx.opened.source) {
+            (void)::ftruncate(outputFd, 0);
+            return packet(env, adapter_status(workerOpened));
+        }
+        const auto& wm = ctx.opened.source->metadata();
+        const auto& rm = source->metadata();
+        if (wm.width != rm.width ||
+            wm.height != rm.height ||
+            wm.cfa != rm.cfa ||
+            wm.orientation != rm.orientation ||
+            wm.whiteLevel != rm.whiteLevel ||
+            wm.hasGainField != rm.hasGainField ||
+            wm.hasResidualBlack != rm.hasResidualBlack) {
+            (void)::ftruncate(outputFd, 0);
+            return packet(env, -26);
+        }
+        ctx.reconstruction =
+            std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    }
+
+    const auto parallelStatus = ordered::run<RestorationTileResult>(
+        coreTiles.size(),
+        workerCount,
+        static_cast<std::size_t>(workerCount) * 2u,
+        [&](std::size_t tileIndex,
+            std::size_t workerIndex,
+            RestorationTileResult& result) -> ordered::Status {
+            auto& ctx = workerContexts[workerIndex];
+            auto& workerSource = ctx.opened.source;
+            const auto& core = coreTiles[tileIndex];
+
+            result.x = core.x0;
+            result.y = core.y0;
+            result.coreW = core.x1 - core.x0;
+            result.coreH = core.y1 - core.y0;
+
+            const int ex0 = std::max(0, result.x - kRestorationRadius);
+            const int ey0 = std::max(0, result.y - kRestorationRadius);
+            const int ex1 = std::min(
+                width,
+                result.x + result.coreW + kRestorationRadius);
+            const int ey1 = std::min(
+                height,
+                result.y + result.coreH + kRestorationRadius);
             const int expW = ex1 - ex0;
             const int expH = ey1 - ey0;
             const std::size_t expPixels =
-                static_cast<std::size_t>(expW) * static_cast<std::size_t>(expH);
+                static_cast<std::size_t>(expW) *
+                static_cast<std::size_t>(expH);
 
             TileRect reconTile{};
             reconTile.x0 = ex0;
@@ -378,14 +470,20 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
             reconTile.hx1 = std::min(width, ex1 + reconstructionHalo);
             reconTile.hy1 = std::min(height, ey1 + reconstructionHalo);
 
-            const auto fill = streaming::detail::fill_stage2(*source, reconTile, workspace);
+            const auto fill =
+                streaming::detail::fill_stage2(
+                    *workerSource,
+                    reconTile,
+                    ctx.workspace);
             if (!fill) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, stream_status(fill));
+                return ordered::Status::error(
+                    std::string("Restoration fill_stage2 failed: ") +
+                    fill.message);
             }
-            workspace.cam.resize(expPixels * 3u);
-            const auto reconStatus = reconstruction->reconstructTile(
-                workspace.stage2.data(),
+
+            ctx.workspace.cam.resize(expPixels * 3u);
+            const auto reconStatus = ctx.reconstruction->reconstructTile(
+                ctx.workspace.stage2.data(),
                 reconTile.hx1 - reconTile.hx0,
                 reconTile.hy1 - reconTile.hy0,
                 reconTile.hx0,
@@ -394,90 +492,121 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                 reconTile.y0,
                 expW,
                 expH,
-                source->metadata().cfa,
-                workspace.cam.data());
+                workerSource->metadata().cfa,
+                ctx.workspace.cam.data());
             if (!reconStatus) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, 11000 + static_cast<jlong>(reconStatus.code));
+                return ordered::Status::error(
+                    std::string("Restoration reconstruction failed: ") +
+                    reconStatus.message);
             }
 
-            raw.resize(expPixels);
-            if (source->metadata().hasGainField) gain.resize(expPixels); else gain.clear();
+            ctx.raw.resize(expPixels);
+            if (workerSource->metadata().hasGainField) {
+                ctx.gain.resize(expPixels);
+            } else {
+                ctx.gain.clear();
+            }
             TileRect rawRect{ex0, ey0, ex1, ey1, ex0, ey0, ex1, ey1};
-            const auto rawStatus = source->readRawTile(
+            const auto rawStatus = workerSource->readRawTile(
                 rawRect,
-                raw.data(),
-                raw.size(),
-                source->metadata().hasGainField ? gain.data() : nullptr,
-                source->metadata().hasGainField ? gain.size() : 0u);
+                ctx.raw.data(),
+                ctx.raw.size(),
+                workerSource->metadata().hasGainField
+                    ? ctx.gain.data()
+                    : nullptr,
+                workerSource->metadata().hasGainField
+                    ? ctx.gain.size()
+                    : 0u);
             if (!rawStatus) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, stream_status(rawStatus));
+                return ordered::Status::error(
+                    std::string("Restoration raw tile read failed: ") +
+                    rawStatus.message);
             }
 
             const std::size_t corePixels =
-                static_cast<std::size_t>(coreW) * static_cast<std::size_t>(coreH);
-            restoredCore.resize(corePixels * 3u);
-            roles.assign(corePixels,
-                         static_cast<std::uint8_t>(RestorationRole::PreserveScientificMaster));
-            std::vector<float> baseCore(corePixels * 3u);
+                static_cast<std::size_t>(result.coreW) *
+                static_cast<std::size_t>(result.coreH);
+            result.baseCore.resize(corePixels * 3u);
+            result.restoredCore.resize(corePixels * 3u);
+            result.roles.assign(
+                corePixels,
+                static_cast<std::uint8_t>(
+                    RestorationRole::PreserveScientificMaster));
 
-            for (int cy = 0; cy < coreH; ++cy) {
-                for (int cx = 0; cx < coreW; ++cx) {
-                    const int gx = x + cx;
-                    const int gy = y + cy;
+            for (int cy = 0; cy < result.coreH; ++cy) {
+                for (int cx = 0; cx < result.coreW; ++cx) {
+                    const int gx = result.x + cx;
+                    const int gy = result.y + cy;
                     const int lx = gx - ex0;
                     const int ly = gy - ey0;
                     const std::size_t epi =
-                        static_cast<std::size_t>(ly) * static_cast<std::size_t>(expW) +
+                        static_cast<std::size_t>(ly) *
+                            static_cast<std::size_t>(expW) +
                         static_cast<std::size_t>(lx);
                     const std::size_t cpi =
-                        static_cast<std::size_t>(cy) * static_cast<std::size_t>(coreW) +
+                        static_cast<std::size_t>(cy) *
+                            static_cast<std::size_t>(result.coreW) +
                         static_cast<std::size_t>(cx);
-                    const float* base = workspace.cam.data() + 3u * epi;
+                    const float* base =
+                        ctx.workspace.cam.data() + 3u * epi;
                     if (!finite_rgb(base)) {
-                        (void)::ftruncate(outputFd, 0);
-                        return packet(env, -9);
+                        return ordered::Status::error(
+                            "Restoration reconstructed non-finite RGB");
                     }
-                    for (std::size_t c = 0; c < 3u; ++c) {
-                        baseCore[3u * cpi + c] = base[c];
-                        restoredCore[3u * cpi + c] = base[c];
+                    for (std::size_t channel = 0u; channel < 3u; ++channel) {
+                        result.baseCore[3u * cpi + channel] = base[channel];
+                        result.restoredCore[3u * cpi + channel] = base[channel];
                     }
 
                     const bool censored =
-                        static_cast<float>(raw[epi]) >= source->metadata().whiteLevel;
+                        static_cast<float>(ctx.raw[epi]) >=
+                        workerSource->metadata().whiteLevel;
                     if (!censored) {
-                        ++preservedPixels;
+                        ++result.preservedPixels;
                         continue;
                     }
 
-                    ++censoredPixels;
+                    ++result.censoredPixels;
                     double sumR = 0.0;
                     double sumG = 0.0;
                     double sumB = 0.0;
                     double sumW = 0.0;
                     int support = 0;
-                    for (int radius = 1; radius <= kRestorationRadius && support < kMinSupport; ++radius) {
+                    for (int radius = 1;
+                         radius <= kRestorationRadius && support < kMinSupport;
+                         ++radius) {
                         for (int dy = -radius; dy <= radius; ++dy) {
                             for (int dx = -radius; dx <= radius; ++dx) {
                                 if (dx == 0 && dy == 0) continue;
-                                if (std::max(std::abs(dx), std::abs(dy)) != radius) continue;
-                                const int nx = lx + dx;
-                                const int ny = ly + dy;
-                                if (nx < 0 || ny < 0 || nx >= expW || ny >= expH) continue;
-                                const std::size_t npi =
-                                    static_cast<std::size_t>(ny) * static_cast<std::size_t>(expW) +
-                                    static_cast<std::size_t>(nx);
-                                if (static_cast<float>(raw[npi]) >= source->metadata().whiteLevel) {
+                                if (std::max(std::abs(dx), std::abs(dy)) != radius) {
                                     continue;
                                 }
-                                const float* neighbour = workspace.cam.data() + 3u * npi;
+                                const int nx = lx + dx;
+                                const int ny = ly + dy;
+                                if (nx < 0 || ny < 0 || nx >= expW || ny >= expH) {
+                                    continue;
+                                }
+                                const std::size_t npi =
+                                    static_cast<std::size_t>(ny) *
+                                        static_cast<std::size_t>(expW) +
+                                    static_cast<std::size_t>(nx);
+                                if (static_cast<float>(ctx.raw[npi]) >=
+                                    workerSource->metadata().whiteLevel) {
+                                    continue;
+                                }
+                                const float* neighbour =
+                                    ctx.workspace.cam.data() + 3u * npi;
                                 if (!finite_rgb(neighbour)) continue;
                                 const double weight =
-                                    1.0 / std::sqrt(static_cast<double>(dx * dx + dy * dy));
-                                sumR += weight * static_cast<double>(neighbour[0]);
-                                sumG += weight * static_cast<double>(neighbour[1]);
-                                sumB += weight * static_cast<double>(neighbour[2]);
+                                    1.0 /
+                                    std::sqrt(
+                                        static_cast<double>(dx * dx + dy * dy));
+                                sumR +=
+                                    weight * static_cast<double>(neighbour[0]);
+                                sumG +=
+                                    weight * static_cast<double>(neighbour[1]);
+                                sumB +=
+                                    weight * static_cast<double>(neighbour[2]);
                                 sumW += weight;
                                 ++support;
                             }
@@ -485,70 +614,128 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                     }
 
                     if (support >= kMinSupport && sumW > 0.0) {
-                        restoredCore[3u * cpi] = static_cast<float>(sumR / sumW);
-                        restoredCore[3u * cpi + 1u] = static_cast<float>(sumG / sumW);
-                        restoredCore[3u * cpi + 2u] = static_cast<float>(sumB / sumW);
-                        roles[cpi] =
-                            static_cast<std::uint8_t>(RestorationRole::AestheticReintegrationOnly);
-                        ++restoredPixels;
-                        for (std::size_t c = 0; c < 3u; ++c) {
-                            if (std::bit_cast<std::uint32_t>(restoredCore[3u * cpi + c]) !=
-                                std::bit_cast<std::uint32_t>(baseCore[3u * cpi + c])) {
-                                ++changedComponents;
+                        result.restoredCore[3u * cpi] =
+                            static_cast<float>(sumR / sumW);
+                        result.restoredCore[3u * cpi + 1u] =
+                            static_cast<float>(sumG / sumW);
+                        result.restoredCore[3u * cpi + 2u] =
+                            static_cast<float>(sumB / sumW);
+                        result.roles[cpi] =
+                            static_cast<std::uint8_t>(
+                                RestorationRole::AestheticReintegrationOnly);
+                        ++result.restoredPixels;
+                        for (std::size_t channel = 0u;
+                             channel < 3u;
+                             ++channel) {
+                            if (std::bit_cast<std::uint32_t>(
+                                    result.restoredCore[3u * cpi + channel]) !=
+                                std::bit_cast<std::uint32_t>(
+                                    result.baseCore[3u * cpi + channel])) {
+                                ++result.changedComponents;
                             }
                         }
                     } else {
-                        roles[cpi] =
-                            static_cast<std::uint8_t>(RestorationRole::UnresolvedLoss);
-                        ++unresolvedPixels;
+                        result.roles[cpi] =
+                            static_cast<std::uint8_t>(
+                                RestorationRole::UnresolvedLoss);
+                        ++result.unresolvedPixels;
                     }
                 }
             }
 
+            result.record.clear();
+            result.record.reserve(
+                16u +
+                result.restoredCore.size() * 4u +
+                result.roles.size());
+            append_u32_le(
+                result.record,
+                static_cast<std::uint32_t>(result.x));
+            append_u32_le(
+                result.record,
+                static_cast<std::uint32_t>(result.y));
+            append_u32_le(
+                result.record,
+                static_cast<std::uint32_t>(result.coreW));
+            append_u32_le(
+                result.record,
+                static_cast<std::uint32_t>(result.coreH));
+            for (float value : result.restoredCore) {
+                if (!std::isfinite(value)) {
+                    return ordered::Status::error(
+                        "Restoration derivative contains non-finite RGB");
+                }
+                append_u32_le(
+                    result.record,
+                    std::bit_cast<std::uint32_t>(value));
+            }
+            result.record.insert(
+                result.record.end(),
+                result.roles.begin(),
+                result.roles.end());
+            return ordered::Status::success();
+        },
+        [&](std::size_t tileIndex,
+            const RestorationTileResult& result) -> ordered::Status {
+            const auto& expected = coreTiles[tileIndex];
+            if (result.x != expected.x0 ||
+                result.y != expected.y0 ||
+                result.coreW != expected.x1 - expected.x0 ||
+                result.coreH != expected.y1 - expected.y0) {
+                return ordered::Status::error(
+                    "Restoration canonical tile ordering mismatch");
+            }
+
             digest::TileView baseView{};
-            baseView.x = static_cast<std::uint32_t>(x);
-            baseView.y = static_cast<std::uint32_t>(y);
-            baseView.width = static_cast<std::uint32_t>(coreW);
-            baseView.height = static_cast<std::uint32_t>(coreH);
-            baseView.rgb = baseCore.data();
-            baseView.rowStrideSamples = static_cast<std::size_t>(coreW) * 3u;
+            baseView.x = static_cast<std::uint32_t>(result.x);
+            baseView.y = static_cast<std::uint32_t>(result.y);
+            baseView.width = static_cast<std::uint32_t>(result.coreW);
+            baseView.height = static_cast<std::uint32_t>(result.coreH);
+            baseView.rgb = result.baseCore.data();
+            baseView.rowStrideSamples =
+                static_cast<std::size_t>(result.coreW) * 3u;
             if (!baseDigest.add_tile(baseView)) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, -10);
+                return ordered::Status::error(
+                    "Restoration Scientific Master digest commit failed");
             }
 
             digest::TileView derivativeView = baseView;
-            derivativeView.rgb = restoredCore.data();
+            derivativeView.rgb = result.restoredCore.data();
             if (!derivativeDigest.add_tile(derivativeView)) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, -11);
+                return ordered::Status::error(
+                    "Restoration derivative digest commit failed");
             }
 
-            record.clear();
-            record.reserve(16u + restoredCore.size() * 4u + roles.size());
-            append_u32_le(record, static_cast<std::uint32_t>(x));
-            append_u32_le(record, static_cast<std::uint32_t>(y));
-            append_u32_le(record, static_cast<std::uint32_t>(coreW));
-            append_u32_le(record, static_cast<std::uint32_t>(coreH));
-            for (float value : restoredCore) {
-                if (!std::isfinite(value)) {
-                    (void)::ftruncate(outputFd, 0);
-                    return packet(env, -12);
-                }
-                append_u32_le(record, std::bit_cast<std::uint32_t>(value));
-            }
-            roleMaskHasher.update(roles.data(), roles.size());
-            record.insert(record.end(), roles.begin(), roles.end());
-            if (!write_all(outputFd, record.data(), record.size())) {
-                (void)::ftruncate(outputFd, 0);
-                return packet(env, -13);
+            roleMaskHasher.update(
+                result.roles.data(),
+                result.roles.size());
+            if (!write_all(
+                    outputFd,
+                    result.record.data(),
+                    result.record.size())) {
+                return ordered::Status::error(
+                    "Restoration canonical record write failed");
             }
 
-            payloadBytes += static_cast<std::uint64_t>(restoredCore.size()) * 4u;
-            roleBytes += static_cast<std::uint64_t>(roles.size());
-            bytesWritten += static_cast<std::uint64_t>(record.size());
+            preservedPixels += result.preservedPixels;
+            censoredPixels += result.censoredPixels;
+            restoredPixels += result.restoredPixels;
+            unresolvedPixels += result.unresolvedPixels;
+            changedComponents += result.changedComponents;
+            payloadBytes +=
+                static_cast<std::uint64_t>(
+                    result.restoredCore.size()) * 4u;
+            roleBytes +=
+                static_cast<std::uint64_t>(result.roles.size());
+            bytesWritten +=
+                static_cast<std::uint64_t>(result.record.size());
             ++tileCount;
-        }
+            return ordered::Status::success();
+        });
+
+    if (!parallelStatus) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -27);
     }
 
     digest::Sha256 baseHash{};
@@ -634,6 +821,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     values[21] = 1; // physical frame count
     values[22] = 1; // independent evidence count
     values[23] = 1; // FULLRES_RESTORATION_V0_67
+    values[24] = workerCount; // runtime only; not embedded in artifact identity
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
