@@ -31,9 +31,11 @@ history = need("docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md")
 handoff = need("docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md")
 next_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md")
 v073_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md")
+v084_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md")
 state_text = need("state/CURRENT_PROJECT_STATE_2026-09-16.json")
 current_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-19.json")
 v073_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-20.json")
+v084_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-21.json")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -105,6 +107,65 @@ if open_validation.get("native16320x12288ScientificAdmission") not in (
     "UNPROVEN_AND_NOT_ALLOWED", "OPEN", None
 ):
     errors.append("current_overlay_16320x12288_may_not_be_promoted_by_documentation")
+
+# Current 2026-09-21 adaptive-compute/output-authority overlay validation.
+for required in (
+    "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md",
+    "state/CURRENT_PROJECT_STATE_2026-09-21.json",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_09_21_pointer:{required}")
+
+try:
+    current_2026_09_21 = json.loads(v084_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_09_21_project_state_invalid_json:{exc}")
+    current_2026_09_21 = {}
+
+if current_2026_09_21.get("schema") != "TruthRawCurrentProjectState/2026-09-21":
+    errors.append("current_2026_09_21_project_state_schema_mismatch")
+if current_2026_09_21.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
+    errors.append("current_2026_09_21_project_state_status_mismatch")
+if current_2026_09_21.get("activeBranch") != "integration/truthraw-suite-v0-84-2-adaptive-compute-router":
+    errors.append("current_2026_09_21_active_branch_mismatch")
+if current_2026_09_21.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md":
+    errors.append("current_2026_09_21_next_chat_handoff_mismatch")
+
+laws_21 = current_2026_09_21.get("permanentLaws") or {}
+for key, expected in {
+    "sourceEvidenceImmutable": True,
+    "knowledgeClaimsMayNotExceedEvidence": True,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "appearanceNeverWritesBack": True,
+    "counterfactualNeverEvidence": True,
+    "computeResourcesNeverIncreaseAuthority": True,
+    "sealedFullFrameStreamingV01ByteFrozen": True,
+}.items():
+    if laws_21.get(key) != expected:
+        errors.append(f"current_2026_09_21_law_mismatch:{key}")
+
+authority_21 = current_2026_09_21.get("v084OutputAuthority") or {}
+if authority_21.get("perOutputChannelAuthorityAvailable") is not True:
+    errors.append("current_2026_09_21_output_authority_must_be_available")
+if authority_21.get("scientificHdrAuthority") != "BLOCKED":
+    errors.append("current_2026_09_21_scientific_hdr_must_remain_blocked")
+if authority_21.get("scientificHdrBlockedReason") != "UNKNOWN_CHANNEL_AUTHORITY_PRESENT":
+    errors.append("current_2026_09_21_hdr_block_reason_mismatch")
+if authority_21.get("scientificGainAllowed") is not False:
+    errors.append("current_2026_09_21_scientific_gain_must_remain_forbidden")
+if authority_21.get("reconstructedUncertaintyCurrentlyAdmitted") is not False:
+    errors.append("current_2026_09_21_reconstructed_uncertainty_must_remain_unadmitted")
+
+ci_21 = current_2026_09_21.get("ci") or {}
+if ci_21.get("status") != "SUCCESS":
+    errors.append("current_2026_09_21_ci_must_be_green")
+if ci_21.get("run") != 35545744042:
+    errors.append("current_2026_09_21_ci_run_mismatch")
+if ci_21.get("headSha") != "86307391ca726c2389fc3468fd79dee8b7dc864b":
+    errors.append("current_2026_09_21_code_head_mismatch")
+if ci_21.get("apkSha256") != "d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a":
+    errors.append("current_2026_09_21_apk_sha_mismatch")
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
@@ -591,6 +652,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-16.json",
             "state/CURRENT_PROJECT_STATE_2026-09-19.json",
             "state/CURRENT_PROJECT_STATE_2026-09-20.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-21.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
