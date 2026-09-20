@@ -20,12 +20,14 @@ class TruthRawMediaProcessingForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        isRunning = true
         ensureChannel()
     }
 
     override fun onDestroy() {
         releaseWakeLock()
         if (instance === this) instance = null
+        isRunning = false
         super.onDestroy()
     }
 
@@ -168,6 +170,10 @@ class TruthRawMediaProcessingForegroundService : Service() {
 
         @Volatile
         private var instance: TruthRawMediaProcessingForegroundService? = null
+
+        @Volatile
+        var isRunning: Boolean = false
+            private set
 
         fun start(context: Context, key: String, label: String): Boolean {
             val app = context.applicationContext
