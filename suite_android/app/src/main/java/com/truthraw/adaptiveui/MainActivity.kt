@@ -1979,10 +1979,21 @@ class MainActivity : Activity() {
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
+                        addView(space(5))
+                        addView(actionButton("Render/Edit · Extended Float32 DNG · Lightroom") {
+                            launchAdvancedRenderEditExport(active)
+                        })
+                        renderEditStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("advanced-render-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(label(
-                            "JPG-L RAW/Edit gebruikt Float32 Linear DNG als primaire bewerkbare afbeelding. " +
-                                "Negatieve en >1 waarden blijven behouden; Advanced-instellingen worden als non-destructief recipe gebonden. " +
-                                "De gewone JPG blijft uitsluitend preview/delivery.",
+                            "RAW/Edit houdt de Scientific Linear Float32-raster primair en bindt Advanced als recipe. " +
+                                "Render/Edit maakt daarnaast een eigen extended-lineaire derivative-raster voor Lightroom: " +
+                                "kleur + Detail kunnen gebakken zijn, maar tone/OETF/max-RGB clamp ontbreken bewust. " +
+                                "Light/HDR/Restoration blijven in v0.1 recipe-only totdat hun extended-lineaire wiskunde afzonderlijk is gevalideerd.",
                             10f,
                             muted = true,
                         ))
@@ -2031,6 +2042,16 @@ class MainActivity : Activity() {
                         jpgLStatus?.let { status ->
                             backgroundOperationStatusView(
                                 backgroundOperationKey("jpgl-raw-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(space(5))
+                        addView(actionButton("Render/Edit · Extended Float32 DNG · Lightroom") {
+                            launchAdvancedRenderEditExport(active)
+                        })
+                        renderEditStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("advanced-render-edit", active.id),
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
