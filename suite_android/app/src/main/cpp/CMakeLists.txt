@@ -46,6 +46,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     fullres_restoration_export_bridge.cpp
     restoration_projection_bridge.cpp
     truthraw_sha256_v0_69.cpp
+    canonical_ancestry_v0_77.cpp
     open_scene_canonical_v0_70.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
