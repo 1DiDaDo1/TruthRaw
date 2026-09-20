@@ -39,7 +39,7 @@ Closure requirement:
 - no counterfactual or appearance state may upgrade measured/reconstructed authority;
 - fail closed on missing uncertainty/support needed for any stronger claim.
 
-Status: **OPEN / next integration target**.
+Status: **PARTIAL v0.70 — TN-3 and normal DNG/TIFF/EXR projection now share one native canonical Open Scene algorithm + artifact identity. Advanced runtime and the v0.67 .trr container still need the exact same artifact hash propagated.**
 
 ## Direct cable B — Restoration role-mask export binding
 
@@ -59,7 +59,7 @@ Closure requirement:
 - flattening role-1 pixels into an ordinary image must never erase their derivative-only status;
 - role-2 unresolved pixels must never be presented as successfully restored scientific truth.
 
-Status: **OPEN / next integration target**.
+Status: **PARTIAL v0.70 — DNG, TIFF and EXR now bind the exact full role-mask SHA-256. The complete mask bytes still live in .trr; self-contained embedding or a bound companion sidecar remains open.**
 
 ## Direct cable C — DNG / TIFF / EXR conformance
 
