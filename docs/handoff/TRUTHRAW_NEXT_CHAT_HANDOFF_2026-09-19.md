@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-68-restoration-transactional-fgs`
+`integration/truthraw-suite-v0-69-tn3-open-scene-projection`
 
 Current app version:
 
-`0.33-v0.68-restoration-transactional-fgs`
+`0.34-v0.69-tn3-open-scene-projection`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -162,6 +162,30 @@ Persistent transaction phases are:
 If the process is later restarted with a non-terminal job but no live foreground service, v0.68 deletes private staging and deletes or truncates the incomplete destination. It deliberately fails closed rather than resuming an unknown native reconstruction state.
 
 Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md`.
+
+## 2I. v0.69 — TN-3 + Full Open Scene + Restoration projections
+
+v0.69 connects the next three lines into the current Android integration:
+
+- TruthNegative becomes TN-3 with a dense full-frame Open Scene State digest bound beside per-channel Dynamic Authority;
+- full-resolution Restoration `.trr` becomes the admitted source for normal Float32 DNG, Float32 TIFF and OpenEXR projections;
+- projection requires source / Scientific Master / Zero-Line / scene-scale / Technical Backplane lineage equality before output.
+
+The complete per-pixel Restoration role mask remains authoritative in `.trr`. v0.69 normal projections bind derivative identity and role counts; embedding or companion-sidecar binding of the complete role mask is intentionally still an open cable.
+
+The explicit remaining-cable roadmap is:
+
+`docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md`
+
+Direct open cables after v0.69:
+1. canonicalize TN-3 Open Scene with the recovered v0.7/v0.8 Open Scene runtime;
+2. bind the complete Restoration role-mask identity into every normal projection;
+3. independently validate DNG/TIFF/EXR conformance and exact Float32 behavior;
+4. validate effectful full-resolution Restoration on a source with real censored CFA support.
+
+Larger later lines remain current PTC/certificate, multi-vendor scientific admission and evidence-bounded physical Scene Physics.
+
+At the time of this handoff update, host GCC, host Clang and scientific contracts are green on the v0.69 line. Android CI is being iterated under strict `-Werror`; do not claim an APK is ready until the current v0.69 Android run is green.
 
 v0.68 CI run `35501501178` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contract tests and Android. Artifact ID `10602377966`; extracted APK SHA-256 `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`.
 
