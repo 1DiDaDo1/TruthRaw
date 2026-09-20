@@ -28,7 +28,7 @@ data class FullResRestorationJobSnapshot(
 )
 
 object FullResRestorationJobStore {
-    private const val PREFS = "truthraw_fullres_restoration_transaction_v068"
+    private const val PREFS = "truthraw_fullres_restoration_transaction_v071"
     private const val KEY_JOB_ID = "job_id"
     private const val KEY_SOURCE_URI = "source_uri"
     private const val KEY_DESTINATION_URI = "destination_uri"
