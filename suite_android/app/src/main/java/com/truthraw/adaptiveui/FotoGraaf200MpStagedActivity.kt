@@ -171,10 +171,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         super.onConfigurationChanged(newConfig)
         if (!productionCameraEntry) return
 
-        // Rebuild only the presentation hierarchy. The camera/session objects are
-        // retained because orientation is declared as a handled config change.
-        // The existing TextureView surface is replaced, so reopen the preview route
-        // through the same admitted Camera-5 path once the new surface is ready.
+        // Rebuild the presentation hierarchy for the new geometry. The Activity
+        // instance and already-admitted Camera-5 capability state survive this
+        // handled config change; the TextureView/camera session is reopened through
+        // the same route because its surface geometry changed.
         closeCameraResources(keepOutputs = true)
         autoStartPreviewWhenReady = capabilityReady
         setContentView(buildUi())
