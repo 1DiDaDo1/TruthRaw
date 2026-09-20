@@ -137,7 +137,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip(selected))
         root.addView(space(8))
-        root.addView(body("v0.83.1 · drie routes · sealed source → Scientific Master → vrije ontwikkeling", 11f).apply {
+        root.addView(body("v0.84.2 · drie routes · sealed source → Scientific Master → adaptive compute → vrije ontwikkeling", 11f).apply {
             gravity = Gravity.CENTER
         })
 
