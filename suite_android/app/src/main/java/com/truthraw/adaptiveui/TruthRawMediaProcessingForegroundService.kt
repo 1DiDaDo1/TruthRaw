@@ -39,8 +39,12 @@ class TruthRawMediaProcessingForegroundService : Service() {
             return START_NOT_STICKY
         }
 
-        labels[key] = label
         val snapshot = TruthRawOperationStore.read(this, key)
+        if (snapshot?.terminal == true) {
+            if (labels.isEmpty()) stopSelf(startId)
+            return START_NOT_STICKY
+        }
+        labels[key] = label
         val started = snapshot?.startedAtWallMs ?: System.currentTimeMillis()
         oldestStartedAtWallMs =
             if (oldestStartedAtWallMs == 0L) started else minOf(oldestStartedAtWallMs, started)
