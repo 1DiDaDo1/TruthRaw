@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-68-restoration-transactional-fgs",
+  "activeBranch": "integration/truthraw-suite-v0-69-tn3-open-scene-projection",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -664,6 +664,65 @@
         "byteForBytePayloadPrefixMatch": true,
         "conclusion": "CONSISTENT_WITH_EARLY_UPLOAD_OF_IN_PROGRESS_V067_FILE_NOT_PROOF_OF_DEVICE_EXPORT_TERMINATION"
       }
+    },
+    "v069": {
+      "branch": "integration/truthraw-suite-v0-69-tn3-open-scene-projection",
+      "appVersion": "0.34-v0.69-tn3-open-scene-projection",
+      "role": "TN3_FULL_OPEN_SCENE_AND_FULLRES_RESTORATION_PROJECTIONS",
+      "inheritsV068TransactionalRestoration": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "truthNegative": {
+        "version": 3,
+        "magic": "TRUTHNEGATIVE_V0_3_TN3",
+        "sourceResolution": true,
+        "cameraNativeScientificMasterFloat32": true,
+        "perChannelDynamicAuthority": true,
+        "fullFrameOpenSceneState": true,
+        "openSceneSchema": "TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69",
+        "openSceneDigestSha256": true,
+        "counterfactualPixelsAllowed": 0,
+        "scientificMasterWritebackAllowed": false,
+        "createsNewEvidence": false,
+        "createsSecondScientificWorld": false
+      },
+      "restorationProjection": {
+        "sourceContainer": "TRUTHRAW_FULLRES_RESTORATION_V0_67",
+        "formats": [
+          "FLOAT32_DNG_XYZ_D50",
+          "FLOAT32_TIFF_LINEAR_SRGB_D65",
+          "OPENEXR_FLOAT32_LINEAR_SRGB_D65"
+        ],
+        "fullResolution": true,
+        "requiresTrrDerivativeDigestMatch": true,
+        "requiresSourceMasterZeroSceneBackplaneLineageMatch": true,
+        "roleCountsBound": true,
+        "completeRoleMaskStillPrimaryInTrr": true,
+        "stagingWholeFileSha256": true,
+        "destinationWholeFileSha256Match": true,
+        "foregroundService": true
+      },
+      "directLooseCables": {
+        "roadmap": "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
+        "canonicalOpenSceneBinding": "OPEN",
+        "restorationRoleMaskExportBinding": "OPEN",
+        "externalDngTiffExrConformance": "OPEN",
+        "effectfulCensoredRestorationDeviceValidation": "OPEN"
+      },
+      "largerOpenLines": {
+        "currentPtcCertificate": "OPEN",
+        "multiVendorScientificAdmission": "OPEN",
+        "fullPhysicalScenePhysics": "OPEN_EVIDENCE_BOUNDED"
+      },
+      "ci": {
+        "latestRun": 35505442234,
+        "latestStatus": "QUEUED_AFTER_CXX_WARNING_FIX",
+        "previousRun": 35504576390,
+        "previousFailure": "ANDROID_NATIVE_UNUSED_get_u16_le_UNDER_WERROR",
+        "hostGcc": "SUCCESS_ON_PREVIOUS_RUN",
+        "hostClang": "SUCCESS_ON_PREVIOUS_RUN",
+        "scientificContracts": "SUCCESS_ON_PREVIOUS_RUN"
+      },
+      "realDeviceValidation": "PENDING_V069_APK_AND_DNG_TIFF_EXR_ARTIFACT_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -684,21 +743,20 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "FIND_OR_CAPTURE_DNG_WITH_ADMITTED_CFA_SAMPLES_AT_OR_ABOVE_WHITELEVEL",
-    "RUN_V068_FULL_RES_RESTORATION_ON_SOURCE_WITH_CENSORED_SUPPORT",
-    "VERIFY_ONLY_ROLE1_PIXELS_DIFFER_FROM_BASE_SCIENTIFIC_MASTER",
-    "VERIFY_ROLE2_UNRESOLVED_PIXELS_REMAIN_BASE_MASTER_WHEN_SUPPORT_IS_INSUFFICIENT",
-    "KEEP_V067_RESTORATION_SCIENCE_AND_V063_PURE_ROUTE_UNCHANGED",
-    "AFTER_EFFECTFUL_RESTORATION_DEVICE_PASS_CONTINUE_TN3_AND_FULL_OPEN_SCENE_RUNTIME"
+    "FINISH_V069_ANDROID_BUILD_AND_VERIFY_APK",
+    "CANONICALIZE_TN3_OPEN_SCENE_WITH_RECOVERED_V07_V08_RUNTIME",
+    "BIND_FULL_RESTORATION_ROLE_MASK_DIGEST_INTO_EACH_NORMAL_PROJECTION",
+    "RUN_INDEPENDENT_DNG_TIFF_EXR_CONFORMANCE_VALIDATION",
+    "RUN_EFFECTFUL_FULLRES_RESTORATION_TEST_ON_DNG_WITH_CENSORED_CFA_SUPPORT",
+    "THEN_VERSION_CURRENT_PTC_OVER_CONNECTED_LINEAGE",
+    "KEEP_V063_PURE_AND_V067_RESTORATION_SCIENCE_UNCHANGED"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
     "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md",
     "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md",
-    "docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md",
-    "docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md",
-    "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
     "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md"
   ]
 }
