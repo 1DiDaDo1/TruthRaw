@@ -892,16 +892,22 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         streaming);
     if (!processed) return status_packet(env, stream_status(processed));
 
+    const bool adaptiveDetailEnabled = (flags & kFlagDetail) != 0;
+    const char* expectedAppearanceBackend = adaptiveDetailEnabled
+        ? "adaptive_detailed_crisp_multiband_hard_edge_guard_v47j"
+        : "neutral_reference_cpu";
+
     if (!sink.finished() ||
         streaming.provenance.scientificMasterModifiedByAppearance ||
         streaming.provenance.counterfactualObservationCreated ||
         streaming.provenance.physicalFrameCount != 1u ||
         streaming.provenance.independentEvidenceCount != 1u ||
+        streaming.provenance.appearanceBackend != expectedAppearanceBackend ||
         streaming.memory.adapterOwnsFullRawFrame ||
         streaming.memory.adapterOwnsFullSdrFrame ||
         streaming.memory.adapterOwnsFullHalfGainFrame ||
         streaming.memory.adapterOwnsFullDiagnosticFrame) {
-        return status_packet(env, -5);
+        return status_packet(env, -13);
     }
 
     // Dynamic Authority is always evaluated for Advanced. Restoration is only
@@ -980,7 +986,6 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[57] = uncertaintyDecision.reconstructedAuthorityAllowed ? 1 : 0;
 
     canonical_scene::Digest adaptiveDetailBindingSha256{};
-    const bool adaptiveDetailEnabled = (flags & kFlagDetail) != 0;
     if (adaptiveDetailEnabled) {
         adaptiveDetailBindingSha256 = build_adaptive_detail_binding(
             openSceneSummary.artifactSha256,
