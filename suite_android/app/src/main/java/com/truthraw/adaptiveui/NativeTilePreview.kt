@@ -97,6 +97,9 @@ data class TilePreviewMetrics(
     val uncertaintyAdmissionCode: Int = -1,
     val uncertaintyAdmissionSha256: String? = null,
     val reconstructedAuthorityAllowedByAdmission: Boolean = false,
+    val advancedDetailBackendId: String? = null,
+    val advancedDetailNoiseSigmaAt2Pct: Float? = null,
+    val advancedDetailBindingSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
