@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed",
+  "activeBranch": "integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -861,6 +861,78 @@
         "extractedApkSha256": "5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46"
       },
       "realDeviceValidation": "PENDING_V071_TRR_AND_DNG_TIFF_EXR_TEST"
+    },
+    "v072": {
+      "branch": "integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix",
+      "appVersion": "0.37-v0.72-projection-lifecycle-progress-fix",
+      "role": "PROJECTION_LIFECYCLE_RACE_FIX_VISIBLE_PROGRESS_PICKER_RECOVERY",
+      "inheritsV071OpenSceneRoleMaskEmbedding": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "restorationAlgorithmUnchangedFromV067": true,
+      "scientificPixelMathChanged": false,
+      "lifecycleFixes": {
+        "startPhase": "STARTING",
+        "startupGraceMs": 30000,
+        "foregroundRunningFlagSetBeforeStartForegroundService": true,
+        "freshProjectionCannotBeMisclassifiedAsInterruptedDuringStartup": true,
+        "oneProjectionAtATime": true,
+        "projectionButtonsDisabledWhileBusy": true,
+        "persistentPendingProjectionFormat": true,
+        "sourceSessionRestoredAfterPickerActivityRecreation": true,
+        "visibleIndeterminateProgress": true,
+        "visibleElapsedChronometer": true,
+        "terminalStatusPersisted": true,
+        "terminalNotification": true
+      },
+      "uploadedRealDeviceArtifacts": {
+        "restorationTrr": {
+          "bytes": 162996224,
+          "sha256": "8f1cca5ba3792142ea0abfaab40c8a3f8d02e74769381c933f667a725a50f7bf",
+          "width": 4080,
+          "height": 3072,
+          "tileCount": 3072,
+          "preservedPixels": 12517905,
+          "censoredSourcePixels": 15855,
+          "restoredRole1Pixels": 15855,
+          "unresolvedRole2Pixels": 0,
+          "changedComponents": 47561,
+          "roleMaskBytes": 12533760,
+          "roleMaskSha256": "8cf0f1bff562c20190f53e7cc6969d7d6d7cf7d855df999c3b479cb09f2211ae",
+          "openSceneArtifactSha256": "2b0f4f8c4587dac4dddf1dc2df636003b3432d48f3b12d12db4d5f9afd001bc9",
+          "roleMaskRecomputedFromAllRecords": true,
+          "roleCountsRecomputedFromAllRecords": true
+        },
+        "restorationDng": {
+          "bytes": 163556236,
+          "sha256": "6e58e785872963da8025bac248039d9c0d581ecfda2d2a92eb531bc46075be2d",
+          "width": 4080,
+          "height": 3072,
+          "tileCount": 3072,
+          "tileByteCount": 49152,
+          "finalTileEndsExactlyAtFileSize": true,
+          "fullRoleMaskEmbedded": true,
+          "embeddedRoleMaskBytes": 12533760,
+          "embeddedRoleMaskSha256": "8cf0f1bff562c20190f53e7cc6969d7d6d7cf7d855df999c3b479cb09f2211ae",
+          "embeddedRoleCountsMatchTrr": true,
+          "uploadDemonstratesCompletedDngProjection": true
+        },
+        "effectfulRestorationStatus": "ARTIFACT_VALIDATED_CENSORED_GT_0__ORIGINAL_SOURCE_REPLAY_STILL_DESIRED"
+      },
+      "ci": {
+        "run": 35509438260,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "artifactId": 10603869532,
+        "artifactName": "truthraw-suite-v0-72-projection-lifecycle-progress-fix-debug-arm64",
+        "artifactArchiveSha256": "d640819dc18f5eb09b7d2d906056b3b0e72aebb6bd3ef1f8bec4256f950243dd",
+        "extractedApkBytes": 6314357,
+        "extractedApkSha256": "977879e6f297f01b25bd58c86f7827e3ef4d62c8d5e1c99e1686e55fa8997ee7"
+      },
+      "documentation": "docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md",
+      "remainingDirectValidation": {
+        "independentDngTiffExrConformance": "OPEN",
+        "realDeviceV072TiffExrCompletionUi": "OPEN",
+        "originalSourceReplayForEffectfulRestoration": "OPEN"
+      }
     }
   },
   "camera5ReferencePrecedence": [
@@ -881,19 +953,18 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "FINISH_V071_ANDROID_BUILD_AND_VERIFY_APK",
-    "RUN_INDEPENDENT_DNG_TIFF_EXR_CONFORMANCE_VALIDATION",
-    "RUN_REAL_DEVICE_V071_TRR_DNG_TIFF_EXR_EXPORT_TEST",
-    "RUN_EFFECTFUL_FULLRES_RESTORATION_TEST_ON_DNG_WITH_CENSORED_CFA_SUPPORT",
+    "INSTALL_V072_AND_RETEST_TIFF_AND_EXR_SEQUENTIALLY",
+    "CONFIRM_VISIBLE_ELAPSED_PROGRESS_AND_TERMINAL_SUCCESS_MESSAGE",
+    "UPLOAD_COMPLETED_TIFF_AND_EXR_FOR_INDEPENDENT_CONFORMANCE_PARSE",
+    "IF_AVAILABLE_UPLOAD_ORIGINAL_SEALED_SOURCE_DNG_TO_CLOSE_EFFECTFUL_SOURCE_REPLAY",
     "THEN_VERSION_CURRENT_PTC_OVER_CONNECTED_LINEAGE",
     "KEEP_V063_PURE_AND_V067_RESTORATION_ALGORITHM_UNCHANGED"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md",
     "docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md",
-    "docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md",
-    "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
-    "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md"
+    "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md"
   ]
 }
