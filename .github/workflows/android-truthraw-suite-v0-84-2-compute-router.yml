@@ -53,6 +53,17 @@ jobs:
             -o /tmp/truthraw_ordered_executor_test
           /tmp/truthraw_ordered_executor_test
 
+      - name: Verify sealed tile-native streaming reference
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/tile-native-dng-source-v0.1 \
+            -B /tmp/truthraw-tile-reference \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/truthraw-tile-reference --parallel 2
+          /tmp/truthraw-tile-reference/test_tile_native_dng_source_v0_1
+          /tmp/truthraw-tile-reference/test_tile_native_dng_streaming_integration_v0_1
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
