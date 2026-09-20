@@ -64,6 +64,7 @@ data class FullResRestorationMetrics(
     val postWriteVerified: Boolean,
     val containerSha256: String?,
     val workerCount: Int,
+    val performanceHintWorkerCount: Int,
 )
 
 sealed interface FullResRestorationExportResult {
@@ -87,7 +88,7 @@ sealed interface FullResRestorationExportResult {
  */
 object FullResRestorationExporter {
     private const val MAGIC = 0x54525253L
-    private const val PACKET_LONGS = 25
+    private const val PACKET_LONGS = 26
     const val HEADER_BYTES = 8192
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -359,6 +360,7 @@ object FullResRestorationExporter {
             postWriteVerified = false,
             containerSha256 = null,
             workerCount = packet[24].toInt(),
+            performanceHintWorkerCount = packet[25].toInt(),
         )
 
         val totalPixels = metrics.width.toLong() * metrics.height.toLong()
@@ -380,7 +382,8 @@ object FullResRestorationExporter {
                 metrics.restoredPixels + metrics.unresolvedPixels != metrics.censoredPixels ||
                 metrics.roleBytes != totalPixels ||
                 packet[23] != 1L ||
-                metrics.workerCount !in 1..8
+                metrics.workerCount !in 1..8 ||
+                metrics.performanceHintWorkerCount !in 0..metrics.workerCount
 
         if (invariantFailure) {
             return FullResRestorationExportResult.Failed(
