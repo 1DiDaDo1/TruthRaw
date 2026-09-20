@@ -4,21 +4,21 @@
 
 Active branch:
 
-`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
+`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
 
 Current app:
 
-`0.45-v0.79-bound-uncertainty-admission`
+`0.46-v0.80-adaptive-detail-v47j`
 
 Latest fully green CI:
 
-`35520033588`
+`35520838931`
 
 Latest APK:
-- bytes: `6,420,905`
-- SHA-256: `55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5`
-- artifact id: `10607269631`
-- artifact ZIP SHA-256: `c0e3730f0b88f6c718ff0af9ecbf9abc01954696832f913c9fe1ee8adc388403`
+- bytes: `6,449,825`
+- SHA-256: `3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb`
+- artifact id: `10608565903`
+- artifact ZIP SHA-256: `169d618560a3f0ba900d0669f496b1898df524d6390348d4d6ad5dcceacccfcd`
 
 This is the current integration/research line, not a main/canonical promotion.
 
@@ -158,22 +158,31 @@ Any future scientific-detail authority needs separate structure/support and opti
 
 v4.7k remains later and strictly post-resize output acutance.
 
+## v0.80 closure
+
+Canonical v4.7j Adaptive Detail is now the closed Advanced detail baseline.
+
+Important:
+- exact adapter output parity with canonical v4.7j on GCC + Clang;
+- ASan/UBSan PASS;
+- frozen v4.7i scientific reconstruction core retained;
+- v0.78 authority unchanged;
+- v0.79 uncertainty admission unchanged;
+- detail child binding is appearance-only and carries exact NoiseProfile sigma bits;
+- no recovered optical/sensor information claim.
+
 ## Immediate next branch
 
-`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
+`integration/truthraw-suite-v0-81-output-acutance-v47k`
 
 Objective:
-replace legacy `SkinSafeDetailedCrispAppearance` in Advanced with canonical v4.7j Adaptive Detail, keeping it appearance-only and authority-neutral.
+integrate canonical v4.7k strictly after final preview resize and before final display encoding, with HDR gain recomputed/derived against the acutance-adjusted SDR base.
 
-Then:
-1. v4.7k post-resize acutance;
-2. richer illumination/light/dark/artificial-light state;
-3. authority-aware single-frame HDR;
-4. Restoration v2;
-5. independent DNG/TIFF/EXR conformance + original-source replay;
-6. current Camera-5 noise/PTC/uncertainty calibration;
-7. exact historical v5.0g F64 trace certification;
-8. multi-vendor proprietary RAW promotion gates.
+Critical ordering:
+
+`resized linear SDR base -> v4.7k output acutance -> final HDR gain relation -> OETF/ARGB presentation`
+
+Do not apply v4.7k to Scientific Master, RAW/CFA, reconstruction, Open Scene authority or restoration state.
 
 ## Read next
 
