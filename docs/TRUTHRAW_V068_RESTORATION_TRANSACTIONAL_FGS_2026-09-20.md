@@ -169,16 +169,16 @@ Artifact:
 
 Artifact ID:
 
-`10602552000`
+`10602377966`
 
 Artifact archive digest:
 
-`sha256:26484c3daa50665003baa74db52d2fadcf222c89dfd75f49512f4794f9841da4`
+`sha256:a9968ddfd513c342a7f593aad7fec2bece503d43e406896d1118f08aca8b2391`
 
 Extracted APK:
 
 - bytes: `6,121,453`;
-- SHA-256: `7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824`.
+- SHA-256: `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`.
 
 ## Next real-device gate
 
