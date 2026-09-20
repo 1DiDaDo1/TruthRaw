@@ -209,10 +209,18 @@ object TruthNegativeExporter {
             "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE",
             "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_69",
             "open_scene_state_schema=TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69",
-            "open_scene_state_1=SOURCE_BOUND_FINITE",
-            "open_scene_state_2=CENSORED_BOUND",
+            "open_scene_canonical_schema=TruthRawOpenSceneCanonicalState/0.70",
+            "open_scene_semantic_parent_region=TruthRawOpenSceneRegion/0.7",
+            "open_scene_semantic_parent_stream=TruthRawOpenSceneStateSummary/0.8",
+            "open_scene_state_1=R_CALIBRATED_ESTIMATE__G_UNKNOWN__B_UNKNOWN",
+            "open_scene_state_6=R_UNKNOWN__G_UNKNOWN__B_CENSORED",
+            "open_scene_colour_authority=SOURCE_METADATA_BOUND",
+            "open_scene_illumination_authority=SOURCE_BOUND_ESTIMATE",
+            "open_scene_detail_status=NEUTRAL_OR_BLOCKED",
+            "open_scene_chunking_changes_scientific_identity=0",
             "open_scene_counterfactual_pixels=0",
             "open_scene_scientific_master_writeback_allowed=0",
+            "open_scene_creates_new_evidence=0",
             "generic_missing_channel_policy=UNKNOWN_UNTIL_SOURCE_BOUND_UNCERTAINTY_IS_ADMITTED",
             "creates_new_evidence=0",
             "creates_second_scientific_world=0",
@@ -260,14 +268,21 @@ object TruthNegativeExporter {
             return false to "bestandsgrootte $size != verwacht $expectedBytes"
         }
 
-        val openSceneHash = header.lineSequence()
-            .firstOrNull { it.startsWith("open_scene_state_sha256=") }
-            ?.substringAfter('=')
-            .orEmpty()
-        if (openSceneHash.length != 64 || openSceneHash.any { it !in "0123456789abcdef" }) {
-            return false to "ongeldige Open Scene State SHA-256"
+        for (field in listOf(
+            "dynamic_authority_artifact_sha256",
+            "open_scene_state_sha256",
+            "open_scene_policy_sha256",
+            "open_scene_artifact_sha256",
+        )) {
+            val value = header.lineSequence()
+                .firstOrNull { it.startsWith("$field=") }
+                ?.substringAfter('=')
+                .orEmpty()
+            if (value.length != 64 || value.any { it !in "0123456789abcdef" }) {
+                return false to "ongeldige $field"
+            }
         }
 
-        return true to "TN-3 header, Open Scene lineage en bestandsgrootte geverifieerd"
+        return true to "TN-3 header + canonical Open Scene v0.70 lineage geverifieerd"
     }
 }
