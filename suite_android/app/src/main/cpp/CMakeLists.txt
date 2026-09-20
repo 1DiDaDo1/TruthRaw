@@ -54,6 +54,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     adaptive_detail_v47j_adapter.cpp
     output_acutance_v0_81.cpp
     illumination_state_v0_82.cpp
+    hdr_authority_v0_83.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
