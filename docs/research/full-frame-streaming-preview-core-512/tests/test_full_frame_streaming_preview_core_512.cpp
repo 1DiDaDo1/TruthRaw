@@ -110,6 +110,13 @@ void compare_collect_sink_case(int width, int height, bool diagnostics) {
     REQUIRE(sink128.finished());
     REQUIRE(sink512.finished());
 
+    // Also exercise the existing v0.1 tolerance helpers so this standalone
+    // falsification target remains warning-clean under -Werror. Exact bit
+    // equality below remains the actual promotion gate.
+    compare_exposure(result128.exposure, result512.exposure);
+    REQUIRE(max_abs_diff(sink128.sdr(), sink512.sdr()) == 0.0f);
+    REQUIRE(max_abs_diff(sink128.gain(), sink512.gain()) == 0.0f);
+
     require_exposure_bit_exact(result128.exposure, result512.exposure);
     require_float_vectors_bit_exact(sink128.sdr(), sink512.sdr());
     require_float_vectors_bit_exact(sink128.gain(), sink512.gain());
