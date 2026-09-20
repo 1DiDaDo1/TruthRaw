@@ -1,0 +1,116 @@
+name: TruthRaw v0.73 Camera Source Admission + TN-3
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-73-camera-source-admission-tn3
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-73-camera-source-admission-tn3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scientific-contracts:
+    name: Scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scientific contract tests
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v073:
+    name: Android v0.73 camera ingress + v0.72 projection baseline
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.73 camera-source and UI guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          LAUNCH='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+          CAM='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          INGRESS='suite_android/app/src/main/java/com/truthraw/adaptiveui/IngressModels.kt'
+          MAIN='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+          DNGC='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+
+          grep -F '0.38-v0.73-camera-source-admission-tn3' "$G"
+
+          # Restored v0.65-style launcher/icon contract.
+          grep -F 'setImageResource(R.drawable.truthraw_icon)' "$LAUNCH"
+          grep -F 'titleText = "JPG XL"' "$LAUNCH"
+          grep -F 'Natural HDR · Light · Detail · Restoration' "$LAUNCH"
+          grep -F 'private val compactHeight' "$LAUNCH"
+          grep -F 'FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY' "$LAUNCH"
+
+          # Production camera entry really opens Camera2, seals first, and does not
+          # promote the 16320x12288 HAL envelope directly to a Scientific Master.
+          grep -F 'TruthRaw Camera' "$CAM"
+          grep -F 'persistOriginalRawBuffer' "$CAM"
+          grep -F 'buildTopologyAdmissionAndProcessingDng' "$CAM"
+          grep -F 'RawSensorRasterAudit.audit' "$CAM"
+          grep -F 'RawPayloadGeometryDecoder.decode' "$CAM"
+          grep -F 'ADMITTED_EXACT_STANDARD_RAW_PREFIX_TO_DERIVED_DNG' "$CAM"
+          grep -F 'sourceEnvelopePromotedTo200MpScientificMaster", false' "$CAM"
+          grep -F 'creator.writeInputStream(out, Size(width, height), input, 0L)' "$CAM"
+          grep -F 'truthNegativeAllowedOnlyAfterMainHouseAdmission", true' "$CAM"
+
+          # Camera DNG re-enters the same Main-House ingress with explicit upstream ancestry.
+          grep -F 'upstreamSealedSourceSha256' "$INGRESS"
+          grep -F 'EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256' "$MAIN"
+          grep -F 'EXTRA_AUTO_START_TRUTHRAW' "$MAIN"
+          grep -F 'authority wordt niet geërfd' "$MAIN"
+
+          # v0.63 PURE and v0.71 projection science remain frozen.
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$DNGC"
+          grep -F 'TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71' "$PJ"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-73-camera-source-admission-tn3-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
