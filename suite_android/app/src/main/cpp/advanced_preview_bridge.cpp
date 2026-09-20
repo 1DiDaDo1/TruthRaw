@@ -9,6 +9,7 @@
 #include "adaptive_detail_v47j_adapter.h"
 #include "output_acutance_v0_81.h"
 #include "illumination_state_v0_82.h"
+#include "hdr_authority_v0_83.h"
 #include "truthraw_sha256_v0_69.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -53,10 +54,11 @@ namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
 namespace output_acutance = truthraw::output_acutance_v0_81;
 namespace illumination_state = truthraw::illumination_state::v0_82;
+namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 128u;
+constexpr std::size_t kHeaderInts = 160u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -1173,6 +1175,72 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -8);
     }
 
+    hdr_authority::Input hdrAuthorityInput{};
+    hdrAuthorityInput.sourceEvidenceSha256 = sourceSeal.sha256;
+    hdrAuthorityInput.scientificMasterSha256 = scientific.scientificMasterHash;
+    hdrAuthorityInput.canonicalOpenSceneSha256 =
+        openSceneSummary.artifactSha256;
+    hdrAuthorityInput.channelAuthoritySha256 =
+        channelSummary.artifactSha256;
+    hdrAuthorityInput.uncertaintyAdmissionSha256 =
+        uncertaintyDecision.decisionSha256;
+    hdrAuthorityInput.illuminationStateSha256 =
+        illuminationState.stateSha256;
+    hdrAuthorityInput.calibratedEstimateChannelRecords =
+        channelSummary.authorityCounts[0];
+    hdrAuthorityInput.reconstructedChannelRecords =
+        channelSummary.authorityCounts[1];
+    hdrAuthorityInput.censoredChannelRecords =
+        channelSummary.authorityCounts[2];
+    hdrAuthorityInput.unknownChannelRecords =
+        channelSummary.authorityCounts[3];
+    hdrAuthorityInput.outputPixelCount =
+        static_cast<std::uint64_t>(expectedPixels);
+    hdrAuthorityInput.presentationHdrGainPixels =
+        sink.hdrGainPixels();
+    hdrAuthorityInput.presentationHdrEnabled =
+        (flags & kFlagHdr) != 0;
+    hdrAuthorityInput.perOutputChannelAuthorityAvailable = false;
+    hdrAuthorityInput.reconstructedUncertaintyAdmitted =
+        uncertaintyDecision.reconstructedAuthorityAllowed;
+    hdrAuthorityInput.censoredGainSuppressed = true;
+    hdrAuthorityInput.illuminationWhitePointKnown =
+        illuminationState.whitePointKnown;
+    hdrAuthorityInput.illuminationSpectrumKnown =
+        illuminationState.spectrumAuthority !=
+        illumination_state::SpectrumAuthority::Unknown;
+    hdrAuthorityInput.physicalFrameCount =
+        scientific.physicalFrameCount;
+    hdrAuthorityInput.independentEvidenceCount =
+        scientific.independentEvidenceCount;
+
+    hdr_authority::State hdrAuthorityState{};
+    if (!hdr_authority::build(hdrAuthorityInput, hdrAuthorityState) ||
+        hdrAuthorityState.scientificAuthority !=
+            hdr_authority::ScientificHdrAuthority::Blocked ||
+        hdrAuthorityState.blockedReason !=
+            hdr_authority::BlockedReason::NoPerOutputChannelAuthority ||
+        hdrAuthorityState.scientificGainAllowed ||
+        hdrAuthorityState.presentationAuthority !=
+            (((flags & kFlagHdr) != 0)
+                ? hdr_authority::PresentationHdrAuthority::AppearanceOnly
+                : hdr_authority::PresentationHdrAuthority::Disabled) ||
+        hdrAuthorityState.presentationGainAllowed !=
+            ((flags & kFlagHdr) != 0) ||
+        hdrAuthorityState.censoredExactRecoveryAllowed ||
+        hdrAuthorityState.unknownHeadroomAllowed ||
+        hdrAuthorityState.illuminationCreatesHeadroom ||
+        !hdrAuthorityState.requiresPerOutputChannelAuthority ||
+        !hdrAuthorityState.requiresAdmittedUncertaintyForReconstructed ||
+        hdrAuthorityState.presentationHdrGainPixels !=
+            sink.hdrGainPixels() ||
+        hdrAuthorityState.outputPixelCount !=
+            static_cast<std::uint64_t>(expectedPixels) ||
+        hdrAuthorityState.physicalFrameCount != 1u ||
+        hdrAuthorityState.independentEvidenceCount != 1u) {
+        return status_packet(env, -15);
+    }
+
     const std::uint64_t logicalResidentUpperBound = std::max<std::uint64_t>(
         static_cast<std::uint64_t>(streaming.memory.logicalResidentUpperBound),
         static_cast<std::uint64_t>(scientific.logicalResidentUpperBound));
@@ -1309,6 +1377,34 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[126] = 0;
     out[127] = 0;
 
+    out[128] = static_cast<jint>(hdrAuthorityState.scientificAuthority);
+    out[129] = static_cast<jint>(hdrAuthorityState.presentationAuthority);
+    out[130] = static_cast<jint>(hdrAuthorityState.blockedReason);
+    out[131] = hdrAuthorityState.scientificGainAllowed ? 1 : 0;
+    out[132] = hdrAuthorityState.presentationGainAllowed ? 1 : 0;
+    out[133] = hdrAuthorityState.censoredExactRecoveryAllowed ? 1 : 0;
+    out[134] = hdrAuthorityState.unknownHeadroomAllowed ? 1 : 0;
+    out[135] = hdrAuthorityState.illuminationCreatesHeadroom ? 1 : 0;
+    out[136] =
+        hdrAuthorityState.requiresPerOutputChannelAuthority ? 1 : 0;
+    out[137] =
+        hdrAuthorityState.requiresAdmittedUncertaintyForReconstructed ? 1 : 0;
+    out[138] = clamp_metric(hdrAuthorityState.presentationHdrGainPixels);
+    out[139] = clamp_metric(hdrAuthorityState.outputPixelCount);
+    out[140] = static_cast<jint>(hdrAuthorityState.physicalFrameCount);
+    out[141] =
+        static_cast<jint>(hdrAuthorityState.independentEvidenceCount);
+    out[142] = hdrAuthorityInput.perOutputChannelAuthorityAvailable ? 1 : 0;
+    out[143] = hdrAuthorityInput.reconstructedUncertaintyAdmitted ? 1 : 0;
+    out[144] = hdrAuthorityInput.censoredGainSuppressed ? 1 : 0;
+    out[145] = hdrAuthorityInput.illuminationWhitePointKnown ? 1 : 0;
+    out[146] = hdrAuthorityInput.illuminationSpectrumKnown ? 1 : 0;
+    out[147] = 0;
+    out[156] = 0;
+    out[157] = 0;
+    out[158] = 0;
+    out[159] = 0;
+
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
         out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
@@ -1320,6 +1416,8 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
             digest_word_le(outputAcutanceBindingSha256, word);
         out[118u + word] =
             digest_word_le(illuminationState.stateSha256, word);
+        out[148u + word] =
+            digest_word_le(hdrAuthorityState.stateSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
