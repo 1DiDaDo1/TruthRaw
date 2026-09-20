@@ -1,0 +1,34 @@
+name: Open Scene Channel Authority v0.78
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-78-open-scene-channel-authority
+    paths:
+      - 'suite_android/app/src/main/cpp/open_scene_channel_authority_v0_78.*'
+      - 'docs/research/open-scene-channel-authority-v0.78/**'
+      - '.github/workflows/open-scene-channel-authority-v0-78.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  channel-authority:
+    name: ${{ matrix.compiler }} authority exactness
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: cmake -S docs/research/open-scene-channel-authority-v0.78 -B build/v078 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/v078 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/v078 --output-on-failure
