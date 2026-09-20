@@ -115,6 +115,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private var capturedRaw: File? = null
     private var capturedDng: File? = null
     private var capturedJson: File? = null
+    private var admittedProcessingDng: File? = null
 
     private val productionCameraEntry: Boolean
         get() = intent.getBooleanExtra(EXTRA_PRODUCTION_CAMERA_ENTRY, false)
@@ -221,7 +222,9 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         previewButton = button("Stap 2 · start live beeld via logical 0 · 3.7×") { startLogicalPreview() }.apply { isEnabled = false }
         captureButton = button("Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288") { capture200Mp() }.apply { isEnabled = false }
         saveRawButton = button("Originele 200MP RAW buffer opslaan") { saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW) }.apply { isEnabled = false }
-        saveDngButton = button("Auxiliary 200MP DNG opslaan") { saveFile(capturedDng, "image/x-adobe-dng", REQUEST_SAVE_DNG) }.apply { isEnabled = false }
+        saveDngButton = button(
+            if (productionCameraEntry) "Admitted RAW/DNG verwerkingsbron opslaan" else "Auxiliary 200MP DNG opslaan",
+        ) { saveFile(if (productionCameraEntry) admittedProcessingDng ?: capturedDng else capturedDng, "image/x-adobe-dng", REQUEST_SAVE_DNG) }.apply { isEnabled = false }
         saveJsonButton = button("200MP evidence JSON opslaan") { saveFile(capturedJson, "application/json", REQUEST_SAVE_JSON) }.apply { isEnabled = false }
 
         root.addView(capabilityButton)
@@ -678,31 +681,59 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 dngError = "${e.javaClass.simpleName}: ${e.message}"
             }
 
-            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v053.json")
-            report.writeText(buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError).toString(2))
-            capturedDng = dng
-            capturedJson = report
+            val evidence = buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError)
             image.close()
 
+            val topologyAdmission = runCatching {
+                buildTopologyAdmissionAndProcessingDng(
+                    rawEvidence = rawEvidence,
+                    physical = physical,
+                    physicalResult = physicalResult,
+                    stamp = stamp,
+                )
+            }.getOrElse { e ->
+                JSONObject()
+                    .put("status", "BLOCKED_TOPOLOGY_OR_DNG_ADMISSION")
+                    .put("errorClass", e.javaClass.name)
+                    .put("errorMessage", e.message ?: JSONObject.NULL)
+                    .put("scientificMasterCreationAllowed", false)
+            }
+            evidence.put("topologyAdmission", topologyAdmission)
+
+            val processingName = topologyAdmission.optString("processingDngFile", "")
+            admittedProcessingDng = processingName
+                .takeIf { it.isNotBlank() }
+                ?.let { File(cacheDir, it) }
+                ?.takeIf { it.isFile }
+
+            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v053.json")
+            report.writeText(evidence.toString(2))
+            capturedDng = dng
+            capturedJson = report
+
+            val admitted = admittedProcessingDng
             setStatusAny(
-                "STAGE 3 CAPTURE PASS · physical 5 · 16320×12288 · timestamp exact · RAW SOURCE-FIRST SEALED.\n" +
-                    "returned SENSOR_PIXEL_MODE=${returnedPixelMode ?: "null"} (advisory, Android-16 v0.14 returned 0).\n" +
-                    "Originele app-visible RAW buffer is bewaard vóór metadata-interpretatie en DNG.",
+                if (admitted != null) {
+                    "CAMERA CAPTURE PASS · physical 5 envelope 16320×12288 eerst verzegeld.\n" +
+                        "Topology-admission heeft een exacte advertised RAW sample-domain toegelaten; " +
+                        "${topologyAdmission.optInt("admittedWidth")}×${topologyAdmission.optInt("admittedHeight")} " +
+                        "wordt als derived processing-DNG opnieuw door Main House admitted.\n" +
+                        "De envelope zelf wordt NIET als 200MP Scientific Master gepromoveerd."
+                } else {
+                    "CAMERA CAPTURE SEALED · physical 5 envelope 16320×12288 bewaard, maar topology-admission is fail-closed.\n" +
+                        "Geen Scientific Master/TN-3 wordt uit de envelope gemaakt totdat een exacte sample-domain is toegelaten."
+                },
             )
             runOnUiThread {
                 saveRawButton.isEnabled = true
-                saveDngButton.isEnabled = capturedDng != null
+                saveDngButton.isEnabled = if (productionCameraEntry) admitted != null else capturedDng != null
                 saveJsonButton.isEnabled = true
                 previewButton.isEnabled = true
 
-                // Production camera path: the auxiliary DNG is not promoted by capture.
-                // It re-enters the exact same Main-House DNG admission used by imported RAW.
-                // The original app-visible RAW_SENSOR buffer remains the upstream sealed
-                // acquisition evidence and is linked explicitly as ancestry.
-                if (productionCameraEntry && dng != null) {
+                if (productionCameraEntry && admitted != null) {
                     startActivity(
                         Intent(this, MainActivity::class.java).apply {
-                            putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_SOURCE_PATH, dng!!.absolutePath)
+                            putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_SOURCE_PATH, admitted.absolutePath)
                             putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH, report.absolutePath)
                             putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256, rawEvidence.sha256)
                             putExtra(MainActivity.EXTRA_AUTO_START_TRUTHRAW, true)
@@ -839,6 +870,102 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             .put("boundary", "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF")
     }
 
+    private fun buildTopologyAdmissionAndProcessingDng(
+        rawEvidence: RawEvidence,
+        physical: CameraCharacteristics,
+        physicalResult: CaptureResult,
+        stamp: Long,
+    ): JSONObject {
+        val standardMap = physical.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val standardRawSizes = safeSizes { standardMap?.getOutputSizes(ImageFormat.RAW_SENSOR) }
+        require(standardRawSizes.isNotEmpty()) {
+            "physical Camera-5 exposes no STANDARD RAW_SENSOR sizes for topology admission"
+        }
+
+        val audit = RawSensorRasterAudit.audit(
+            file = rawEvidence.file,
+            width = TARGET_W,
+            height = TARGET_H,
+            pixelBytes = 2,
+            expectedSealedSha256 = rawEvidence.sha256,
+        )
+        require(audit.optBoolean("sealedSha256IdentityPass", false)) {
+            "sealed RAW_SENSOR SHA-256 changed during read-only topology audit"
+        }
+
+        val candidate = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_ADMITTED_candidate.rawpayload")
+        val preview = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_ADMITTED_diagnostic.png")
+        val decoded = RawPayloadGeometryDecoder.decode(
+            source = rawEvidence.file,
+            rasterAudit = audit,
+            declaredWidth = TARGET_W,
+            declaredHeight = TARGET_H,
+            advertisedStandardRawSizes = standardRawSizes,
+            candidatePayloadFile = candidate,
+            diagnosticPreviewFile = preview,
+        )
+        require(decoded.optString("status") == "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH_DECODED") {
+            "payload topology is not a unique advertised STANDARD RAW_SENSOR byte match: ${decoded.optString("status")}"
+        }
+
+        val selected = decoded.getJSONObject("selectedCandidate")
+        val width = selected.getInt("width")
+        val height = selected.getInt("height")
+        val bytes = selected.getLong("bytesU16")
+        require(bytes == candidate.length()) { "candidate payload length mismatch" }
+        require(standardRawSizes.any { it.width == width && it.height == height }) {
+            "selected sample-domain is not an advertised STANDARD RAW_SENSOR size"
+        }
+
+        val processingDng = File(
+            cacheDir,
+            "TRUTHRAW_${stamp}_CAM5_ADMITTED_${width}x${height}_source.dng",
+        )
+        FileOutputStream(processingDng, false).use { out ->
+            DngCreator(physical, physicalResult).use { creator ->
+                creator.setOrientation(1)
+                creator.setDescription(
+                    "TruthRaw v0.73 camera ingress; exact prefix bytes from sealed app-visible RAW_SENSOR; " +
+                        "upstream_sha256=${rawEvidence.sha256}; geometry=${width}x${height}; " +
+                        "no claim of native ADC geometry or 200MP optical independence.",
+                )
+                FileInputStream(candidate).use { input ->
+                    creator.writeInputStream(out, Size(width, height), input, 0L)
+                }
+            }
+            out.fd.sync()
+        }
+        require(processingDng.isFile && processingDng.length() > 0L) {
+            "admitted processing DNG was not written"
+        }
+
+        val dngSha = sha256File(processingDng)
+        val payload = decoded.getJSONObject("candidatePayload")
+        return JSONObject()
+            .put("status", "ADMITTED_EXACT_STANDARD_RAW_PREFIX_TO_DERIVED_DNG")
+            .put("sourceEnvelopeWidth", TARGET_W)
+            .put("sourceEnvelopeHeight", TARGET_H)
+            .put("sourceEnvelopeSha256", rawEvidence.sha256)
+            .put("sourceEnvelopePromotedTo200MpScientificMaster", false)
+            .put("admittedWidth", width)
+            .put("admittedHeight", height)
+            .put("admittedPayloadBytes", bytes)
+            .put("admittedPayloadSha256", payload.getString("sha256"))
+            .put("copyTransform", payload.optString("copyTransform"))
+            .put("geometryAuthority", "EXACT_BYTE_COUNT_MATCH_TO_SINGLE_ADVERTISED_STANDARD_RAW_SENSOR_SIZE")
+            .put("nativeAdcGeometryProven", false)
+            .put("optical200MpIndependenceProven", false)
+            .put("processingDngFile", processingDng.name)
+            .put("processingDngBytes", processingDng.length())
+            .put("processingDngSha256", dngSha)
+            .put("processingDngRole", "DERIVED_CONTAINER_FOR_SAME_MAIN_HOUSE_DNG_ADMISSION")
+            .put("mainHouseMustResealDng", true)
+            .put("scientificMasterCreationAllowed", true)
+            .put("truthNegativeAllowedOnlyAfterMainHouseAdmission", true)
+            .put("rasterAudit", audit)
+            .put("payloadGeometryDecoder", decoded)
+    }
+
     private fun safeSizes(block: () -> Array<Size>?): List<Size> =
         try { block()?.toList().orEmpty() } catch (_: Throwable) { emptyList() }
 
@@ -873,6 +1000,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         capturedRaw = null
         capturedDng = null
         capturedJson = null
+        admittedProcessingDng = null
         if (::saveRawButton.isInitialized) saveRawButton.isEnabled = false
         if (::saveDngButton.isInitialized) saveDngButton.isEnabled = false
         if (::saveJsonButton.isInitialized) saveJsonButton.isEnabled = false
@@ -894,7 +1022,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         val uri = data?.data ?: return
         val source = when (requestCode) {
             REQUEST_SAVE_RAW -> capturedRaw
-            REQUEST_SAVE_DNG -> capturedDng
+            REQUEST_SAVE_DNG -> if (productionCameraEntry) admittedProcessingDng ?: capturedDng else capturedDng
             REQUEST_SAVE_JSON -> capturedJson
             else -> null
         } ?: return
