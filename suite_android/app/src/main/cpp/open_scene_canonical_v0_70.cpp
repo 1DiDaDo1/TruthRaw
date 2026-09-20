@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <string>
+#include <vector>
 
 namespace truthraw::open_scene_canonical::v0_70 {
 namespace {
@@ -61,7 +62,102 @@ Digest artifact_hash(
     return h.finalize();
 }
 
+int measured_channel(truthraw::CfaPattern cfa, int x, int y) noexcept {
+    const bool xe = (x & 1) == 0;
+    const bool ye = (y & 1) == 0;
+    switch (cfa) {
+        case truthraw::CfaPattern::BGGR:
+            if (ye && xe) return 2;
+            if (!ye && !xe) return 0;
+            return 1;
+        case truthraw::CfaPattern::RGGB:
+            if (ye && xe) return 0;
+            if (!ye && !xe) return 2;
+            return 1;
+        case truthraw::CfaPattern::GRBG:
+            if (ye && !xe) return 0;
+            if (!ye && xe) return 2;
+            return 1;
+        case truthraw::CfaPattern::GBRG:
+            if (!ye && xe) return 0;
+            if (ye && !xe) return 2;
+            return 1;
+    }
+    return -1;
+}
+
 }  // namespace
+
+bool build_from_source(
+    truthraw::streaming_v0_1::IRawTileSource& source,
+    const Binding& binding,
+    Summary& out) noexcept {
+    try {
+        const auto& md = source.metadata();
+        if (md.width <= 0 || md.height <= 0 ||
+            binding.width != static_cast<std::uint32_t>(md.width) ||
+            binding.height != static_cast<std::uint32_t>(md.height)) {
+            return false;
+        }
+
+        Builder builder(binding);
+        if (!builder.valid()) return false;
+
+        constexpr int kCanonicalEdge = 64;
+        std::vector<std::uint16_t> raw;
+        std::vector<float> gain;
+        std::vector<std::uint8_t> authority;
+        std::vector<std::uint8_t> states;
+
+        for (int y = 0; y < md.height; y += kCanonicalEdge) {
+            const int h = std::min(kCanonicalEdge, md.height - y);
+            for (int x = 0; x < md.width; x += kCanonicalEdge) {
+                const int w = std::min(kCanonicalEdge, md.width - x);
+                const std::size_t pixels =
+                    static_cast<std::size_t>(w) * static_cast<std::size_t>(h);
+                raw.resize(pixels);
+                if (md.hasGainField) gain.resize(pixels); else gain.clear();
+
+                truthraw::TileRect rect{x, y, x + w, y + h, x, y, x + w, y + h};
+                const auto status = source.readRawTile(
+                    rect,
+                    raw.data(),
+                    raw.size(),
+                    md.hasGainField ? gain.data() : nullptr,
+                    md.hasGainField ? gain.size() : 0u);
+                if (!status) return false;
+
+                authority.assign(pixels * 3u, 4u);
+                states.assign(pixels, 0u);
+                for (int yy = 0; yy < h; ++yy) {
+                    for (int xx = 0; xx < w; ++xx) {
+                        const std::size_t i =
+                            static_cast<std::size_t>(yy) * static_cast<std::size_t>(w) +
+                            static_cast<std::size_t>(xx);
+                        const int ch = measured_channel(md.cfa, x + xx, y + yy);
+                        if (ch < 0 || ch > 2) return false;
+                        const bool clipped =
+                            static_cast<float>(raw[i]) >= md.whiteLevel;
+                        authority[3u * i + static_cast<std::size_t>(ch)] =
+                            clipped ? 3u : 1u;
+                        states[i] = static_cast<std::uint8_t>(
+                            clipped
+                                ? (ch == 0 ? PixelState::RCensored :
+                                   ch == 1 ? PixelState::GCensored :
+                                             PixelState::BCensored)
+                                : (ch == 0 ? PixelState::RCalibratedEstimate :
+                                   ch == 1 ? PixelState::GCalibratedEstimate :
+                                             PixelState::BCalibratedEstimate));
+                    }
+                }
+                if (!builder.append(authority, states)) return false;
+            }
+        }
+        return builder.finalize(out);
+    } catch (...) {
+        return false;
+    }
+}
 
 Builder::Builder(Binding binding) : binding_(std::move(binding)) {
     const std::uint64_t pixels =
