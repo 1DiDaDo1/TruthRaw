@@ -193,7 +193,7 @@ bool write_header(
     text += "source_sha256=" + sourceHex + "\n";
     text += "scientific_master_sha256=" + masterHex + "\n";
     text += "zero_line_sha256=" + zeroHex + "\n";
-    text += "zero_line_l0_f64_bits=0x" + hex_u64(f64_bits(scientific.zeroLineGauge.referenceL0)) + "\n";
+    text += "zero_line_l0_f64_bits=0x" + hex_u64(f64_bits(scientific.zeroLineGauge.L0)) + "\n";
     text += "scene_scale_sha256=" + sceneHex + "\n";
     text += "technical_backplane_serialized_hex=" + backplaneHex + "\n";
     text += "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_66\n";
