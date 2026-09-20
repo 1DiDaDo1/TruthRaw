@@ -626,11 +626,11 @@
       "ci": {
         "run": 35501207534,
         "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
-        "artifactId": 10602552000,
+        "artifactId": 10602377966,
         "artifactName": "truthraw-suite-v0-68-restoration-transactional-fgs-debug-arm64",
-        "artifactArchiveSha256": "26484c3daa50665003baa74db52d2fadcf222c89dfd75f49512f4794f9841da4",
+        "artifactArchiveSha256": "a9968ddfd513c342a7f593aad7fec2bece503d43e406896d1118f08aca8b2391",
         "extractedApkBytes": 6121453,
-        "extractedApkSha256": "7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824"
+        "extractedApkSha256": "82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59"
       },
       "realDeviceValidation": "PENDING_REPEAT_FULLRES_RESTORATION_WITH_BACKGROUND_SWITCH"
     }
