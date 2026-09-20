@@ -1047,7 +1047,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         appearance = std::make_shared<NeutralReferenceAppearance>();
     }
 
-    AdvancedPreviewSink sink(maxEdge, flags);
+    AdvancedPreviewSink sink(maxEdge, flags, adaptiveDetailNoiseSigmaAt2Pct);
     StreamingTruthRawProcessor processor(reconstruction, appearance);
     StreamingResult streaming;
     const auto processed = processor.process(
@@ -1081,6 +1081,28 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     const auto maskStatus = build_censor_mask(*source, sink, censorMask);
     if (!maskStatus) return status_packet(env, stream_status(maskStatus));
     if (!sink.applyCensorMask(censorMask)) return status_packet(env, -6);
+
+    const auto& outputAcutanceResult = sink.outputAcutanceResult();
+    const auto expectedOutputProfile = adaptiveDetailEnabled
+        ? truthraw_v47k::OutputProfile::AdaptiveDetail
+        : truthraw_v47k::OutputProfile::Neutral;
+    const bool expectedHdrRebase = (flags & kFlagHdr) != 0;
+    if (!outputAcutanceResult.applied ||
+        outputAcutanceResult.profile != expectedOutputProfile ||
+        outputAcutanceResult.hdrRebased != expectedHdrRebase ||
+        !std::isfinite(outputAcutanceResult.plan.noiseSigmaAt2Pct) ||
+        outputAcutanceResult.plan.noiseSigmaAt2Pct < 0.0f ||
+        !std::isfinite(outputAcutanceResult.plan.resizeRatio) ||
+        outputAcutanceResult.plan.resizeRatio < 1.0f ||
+        !std::isfinite(outputAcutanceResult.plan.strength) ||
+        outputAcutanceResult.plan.strength < 0.012f ||
+        outputAcutanceResult.plan.strength > 0.130001f ||
+        !std::isfinite(outputAcutanceResult.plan.deltaCap) ||
+        outputAcutanceResult.plan.deltaCap < 0.0045f ||
+        outputAcutanceResult.plan.deltaCap > 0.007001f ||
+        !std::isfinite(outputAcutanceResult.maxEffectiveHdrTargetAbsError)) {
+        return status_packet(env, -14);
+    }
 
     const auto postVerified =
         truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(
@@ -1164,6 +1186,35 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
             std::bit_cast<std::uint32_t>(adaptiveDetailNoiseSigmaAt2Pct))
         : 0;
 
+    const canonical_scene::Digest outputAcutanceBindingSha256 =
+        build_output_acutance_binding(
+            openSceneSummary.artifactSha256,
+            channelSummary.artifactSha256,
+            uncertaintyDecision.decisionSha256,
+            adaptiveDetailBindingSha256,
+            outputAcutanceResult,
+            sink.width(),
+            sink.height());
+
+    out[76] = outputAcutanceResult.applied ? 1 : 0;
+    out[77] = static_cast<jint>(outputAcutanceResult.profile);
+    out[78] = static_cast<jint>(
+        std::bit_cast<std::uint32_t>(outputAcutanceResult.plan.noiseSigmaAt2Pct));
+    out[79] = static_cast<jint>(
+        std::bit_cast<std::uint32_t>(outputAcutanceResult.plan.resizeRatio));
+    out[80] = static_cast<jint>(
+        std::bit_cast<std::uint32_t>(outputAcutanceResult.plan.strength));
+    out[81] = static_cast<jint>(
+        std::bit_cast<std::uint32_t>(outputAcutanceResult.plan.deltaCap));
+    out[82] = outputAcutanceResult.hdrRebased ? 1 : 0;
+    out[83] = clamp_metric(outputAcutanceResult.changedPixels);
+    out[84] = clamp_metric(outputAcutanceResult.hdrRebasedPixels);
+    out[85] = static_cast<jint>(
+        std::bit_cast<std::uint32_t>(
+            outputAcutanceResult.maxEffectiveHdrTargetAbsError));
+    out[86] = 1; // FINAL_RESIZE -> ACUTANCE -> HDR_REBASE -> OETF
+    out[87] = 0; // output acutance never changes scientific authority
+
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
         out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
@@ -1171,6 +1222,8 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         out[68u + word] = adaptiveDetailEnabled
             ? digest_word_le(adaptiveDetailBindingSha256, word)
             : 0;
+        out[88u + word] =
+            digest_word_le(outputAcutanceBindingSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
