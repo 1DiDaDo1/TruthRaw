@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-struct APerformanceHintSession;
-
 namespace truthraw::performance_hint::v0_1 {
 
 class CpuWorkerSession final {
@@ -24,7 +22,7 @@ public:
     bool everStarted() const noexcept { return everStarted_; }
 
 private:
-    APerformanceHintSession* session_ = nullptr;
+    void* session_ = nullptr;
     bool attempted_ = false;
     bool everStarted_ = false;
 };
