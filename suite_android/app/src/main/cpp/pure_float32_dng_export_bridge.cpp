@@ -135,6 +135,33 @@ jlong clampToJlong(std::uint64_t value) noexcept {
     return static_cast<jlong>(std::min(value, cap));
 }
 
+int orientationQuarterTurns(truthraw::Orientation orientation) noexcept {
+    switch (orientation) {
+        case truthraw::Orientation::Normal: return 0;
+        case truthraw::Orientation::Rotate90CW: return 1;
+        case truthraw::Orientation::Rotate180: return 2;
+        case truthraw::Orientation::Rotate90CCW: return 3;
+    }
+    return -1;
+}
+
+truthraw::Orientation orientationFromQuarterTurns(int turns) noexcept {
+    switch (((turns % 4) + 4) % 4) {
+        case 0: return truthraw::Orientation::Normal;
+        case 1: return truthraw::Orientation::Rotate90CW;
+        case 2: return truthraw::Orientation::Rotate180;
+        default: return truthraw::Orientation::Rotate90CCW;
+    }
+}
+
+truthraw::Orientation composeOrientation(
+    truthraw::Orientation sourceOrientation,
+    int userQuarterTurns) noexcept {
+    const int sourceTurns = orientationQuarterTurns(sourceOrientation);
+    if (sourceTurns < 0) return sourceOrientation;
+    return orientationFromQuarterTurns(sourceTurns + userQuarterTurns);
+}
+
 } // namespace
 
 extern "C" JNIEXPORT jlongArray JNICALL
@@ -143,9 +170,11 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jobject,
     jint sourceFd,
     jint outputFd,
+    jint userQuarterTurns,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     if (sourceFd < 0 || outputFd < 0 ||
+        userQuarterTurns < 0 || userQuarterTurns > 3 ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -240,8 +269,8 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     float_dng::ProjectionDescriptor descriptor{};
     descriptor.width = static_cast<std::uint32_t>(source->metadata().width);
     descriptor.height = static_cast<std::uint32_t>(source->metadata().height);
-    descriptor.orientation =
-        static_cast<std::uint16_t>(source->metadata().orientation);
+    descriptor.orientation = static_cast<std::uint16_t>(
+        composeOrientation(source->metadata().orientation, userQuarterTurns));
     descriptor.sealedSourceSha256 = sourceSeal.sha256;
     descriptor.scientificMasterSha256 = scientific.scientificMasterHash;
     descriptor.zeroLineSha256 = phase2.zeroLineHash;
