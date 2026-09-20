@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 37
-        versionName = "0.37-v0.72-projection-lifecycle-progress-fix"
+        versionCode = 38
+        versionName = "0.38-v0.73-camera-source-admission-tn3"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
