@@ -1,11 +1,11 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
-  "appVersion": "0.45-v0.79-bound-uncertainty-admission",
-  "previousStableIntegration": "integration/truthraw-suite-v0-78-open-scene-channel-authority",
+  "activeBranch": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
+  "appVersion": "0.46-v0.80-adaptive-detail-v47j",
+  "previousStableIntegration": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
@@ -23,7 +23,8 @@
     "v076": "responsive portrait/landscape camera UI",
     "v077": "format-neutral canonical ancestry for Restoration DNG/TIFF/EXR",
     "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty",
-    "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA"
+    "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA",
+    "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -88,19 +89,21 @@
     ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-79-bound-uncertainty-admission.yml",
-    "run": 35520033588,
+    "workflow": "android-truthraw-suite-v0-80-adaptive-detail-v47j.yml",
+    "run": 35520838931,
     "status": "SUCCESS",
     "jobs": {
-      "boundUncertaintyAdmission": "SUCCESS",
-      "openSceneChannelAuthority": "SUCCESS",
+      "gccV47jAdapter": "SUCCESS",
+      "clangV47jAdapter": "SUCCESS",
+      "clangAsanUbsan": "SUCCESS",
+      "v078V079AuthorityUncertainty": "SUCCESS",
       "existingScientificLineage": "SUCCESS",
       "androidBuild": "SUCCESS"
     },
-    "artifactId": 10607269631,
-    "artifactZipSha256": "c0e3730f0b88f6c718ff0af9ecbf9abc01954696832f913c9fe1ee8adc388403",
-    "apkBytes": 6420905,
-    "apkSha256": "55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5"
+    "artifactId": 10608565903,
+    "artifactZipSha256": "169d618560a3f0ba900d0669f496b1898df524d6390348d4d6ad5dcceacccfcd",
+    "apkBytes": 6449825,
+    "apkSha256": "3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb"
   },
   "openValidation": {
     "realDeviceV079SmokeTest": "OPEN",
@@ -109,18 +112,41 @@
     "originalSourceReplayForEffectfulRestoration": "OPEN",
     "currentCameraDomainNoisePtcUncertainty": "OPEN",
     "exactV5gF64ReconstructionTraceBinding": "OPEN",
-    "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED"
+    "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED",
+    "realDeviceV080AdaptiveDetailSmokeTest": "OPEN"
   },
   "immediateNext": {
-    "branch": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
-    "objective": "replace legacy Detailed/Crisp appearance with canonical v4.7j Adaptive Detail while preserving Scientific Master and all authority; bind v0.78/v0.79 state as a non-promotion guard",
+    "branch": "integration/truthraw-suite-v0-81-output-acutance-v47k",
+    "objective": "integrate canonical v4.7k only after final preview resize, then recompute/derive HDR gain against the final acutance-adjusted SDR base; keep Scientific Master and authority unchanged",
     "after": [
-      "v4.7k post-resize output acutance",
       "richer illumination/light/dark/artificial-light state",
       "authority-aware single-frame HDR",
       "Restoration v2",
       "projection conformance/source replay",
+      "current Camera-5 noise/PTC/uncertainty calibration",
+      "historical v5.0g F64 trace certification",
       "multi-vendor proprietary RAW promotion gates"
+    ]
+  },
+  "v080": {
+    "schema": "TruthRawAdaptiveDetailBinding/0.80",
+    "canonicalAlgorithm": "canonical/detail/v4.7j",
+    "scientificReconstructionCore": "canonical/reconstruction/v4.7i remains frozen",
+    "backend": "adaptive_detailed_crisp_multiband_hard_edge_guard_v47j",
+    "role": "APPEARANCE_DETAIL_COMPENSATION_ONLY",
+    "scientificMasterModified": false,
+    "authorityModified": false,
+    "createsOpticalOrSensorEvidence": false,
+    "exactParity": [
+      "GCC",
+      "Clang",
+      "Clang ASan/UBSan"
+    ],
+    "provenanceBinds": [
+      "canonical Open Scene v0.70 SHA",
+      "channel authority v0.78 SHA",
+      "uncertainty admission v0.79 SHA",
+      "exact NoiseProfile sigma-at-2pct Float32 bits"
     ]
   }
 }
