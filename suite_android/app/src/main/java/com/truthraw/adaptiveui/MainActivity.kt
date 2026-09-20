@@ -464,7 +464,7 @@ class MainActivity : Activity() {
             }
 
             truthNegativeStatus =
-                "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact camera-native Master replay + Dynamic Authority + full-frame Open Scene State."
+                "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
             render()
 
             Thread({
@@ -1188,8 +1188,8 @@ class MainActivity : Activity() {
                     })
                     truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
                     addView(label(
-                        "TN-3 = bronresolutie camera-native Float32 Scientific Master + per-channel Dynamic Authority + " +
-                            "volledige full-frame Open Scene State · geen resampling, geen appearance, geen nieuw bewijs.",
+                        "TN-3 = bronresolutie Scientific Master + per-channel Dynamic Authority + canonical Open Scene v0.70 " +
+                            "(semantic parents v0.7/v0.8) · geen resampling, geen appearance, geen nieuw bewijs.",
                         10f,
                         muted = true,
                     ))
