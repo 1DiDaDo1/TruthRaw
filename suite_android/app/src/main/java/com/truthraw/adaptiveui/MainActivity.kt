@@ -199,6 +199,7 @@ class MainActivity : Activity() {
         super.onResume()
         FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
         RestorationProjectionJobStore.recoverInterruptedIfNeeded(this)
+        recoverBackgroundOperationStatuses()
         syncFullResRestorationStatus()
         syncRestorationProjectionStatus()
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
@@ -222,6 +223,40 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
+    }
+
+    private fun recoverBackgroundOperationStatuses() {
+        val jobId = activeJobId ?: return
+        val running = TruthRawMediaProcessingForegroundService.isRunning
+
+        fun recover(kind: String): TruthRawPersistedOperation? =
+            TruthRawOperationStore.recoverInterruptedIfNeeded(
+                this,
+                backgroundOperationKey(kind, jobId),
+                running,
+            )
+
+        recover("jpeg")?.let { jpegStatus = it.message }
+        recover("jpgl-raw-edit")?.let { jpgLStatus = it.message }
+        recover("pure-float32")?.let { pureFloatDngStatus = it.message }
+        recover("truthnegative")?.let { truthNegativeStatus = it.message }
+        recover("linear-dng")?.let { linearDngStatus = it.message }
+
+        recover("nef-measurement")?.let { op ->
+            if (op.phase == TruthRawOperationPhase.ERROR && nefMeasurementLoading) {
+                nefMeasurementLoading = false
+                nefMeasurementResult = NefMeasurementResult.Failed(op.message)
+            }
+        }
+
+        recover("preview")?.let { op ->
+            if (op.phase == TruthRawOperationPhase.ERROR &&
+                previewState is TilePreviewUiState.Loading
+            ) {
+                loadingStartedAtElapsedMs = null
+                previewState = TilePreviewUiState.Failed(jobId, op.message)
+            }
+        }
     }
 
     private fun syncFullResRestorationStatus() {
