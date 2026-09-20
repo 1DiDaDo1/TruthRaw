@@ -213,7 +213,15 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
            "restoration_role_mask_encoding=CANONICAL_64X64_CELL_SEQUENCE_UINT8\n" +
            "restoration_role_mask_bytes=" +
            std::to_string(descriptor.restorationRoleMaskBytes.size()) + "\n" +
-           "restoration_role_mask_embedded=1\n")
+           "restoration_role_mask_embedded=1\n" +
+           "canonical_ancestry_schema=TruthRawCanonicalAncestry/0.77\n" +
+           "canonical_ancestry_sha256=" +
+           (nonzero_hash(descriptor.canonicalAncestrySha256)
+                ? hex_hash(descriptor.canonicalAncestrySha256)
+                : std::string(64u, '0')) + "\n" +
+           "canonical_ancestry_manifest_begin\n" +
+           descriptor.canonicalAncestryManifest +
+           "canonical_ancestry_manifest_end\n")
         : std::string{};
     const std::string body =
         std::string("role=") + role + "\n" +
@@ -351,10 +359,13 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
          descriptor.restorationRoleMaskBytes.size() != expectedRoleBytes ||
          descriptor.restorationRoleMaskBytes.size() >
             static_cast<std::size_t>(std::numeric_limits<std::uint32_t>::max()) ||
+         !nonzero_hash(descriptor.canonicalAncestrySha256) ||
+         descriptor.canonicalAncestryManifest.empty() ||
+         descriptor.canonicalAncestryManifest.size() > (64u * 1024u) ||
          descriptor.projectionRole.empty())) {
         return Status::error(
             StatusCode::ScientificBindingMismatch,
-            "restoration derivative projection requires explicit raster hash, exact full role-mask bytes/hash and role");
+            "restoration derivative projection requires raster/role identities, canonical ancestry manifest and role");
     }
 
     if (!(descriptor.zeroLineGauge.L0 > 0.0) ||
