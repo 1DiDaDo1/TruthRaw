@@ -3,6 +3,8 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1_internal.h"
 #include "raw_source_adapter_bridge_common.h"
+#include "open_scene_canonical_v0_70.h"
+#include "truthraw_sha256_v0_69.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -37,6 +39,8 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace streaming = truthraw::streaming_v0_1;
+namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace sha = truthraw::sha256_v0_69;
 
 constexpr jlong kMagic = 0x54525253; // TRRS
 constexpr std::size_t kPacketLongs = 24u;
@@ -134,7 +138,9 @@ bool write_header(
     std::uint64_t changedComponents,
     std::uint64_t payloadBytes,
     std::uint64_t roleBytes,
-    std::uint64_t totalBytes) noexcept {
+    std::uint64_t totalBytes,
+    const canonical_scene::Summary& openScene,
+    const sha::Digest& roleMaskHash) noexcept {
     std::string text;
     text.reserve(3000u);
     text += "magic=TRUTHRAW_FULLRES_RESTORATION_V0_67\n";
@@ -154,6 +160,18 @@ bool write_header(
     text += "zero_line_sha256=" + hex_bytes(phase2.zeroLineHash) + "\n";
     text += "scene_scale_sha256=" + hex_bytes(phase2.sceneScaleHash) + "\n";
     text += "technical_backplane_serialized_hex=" + hex_bytes(phase2.serializedBackplane) + "\n";
+    text += "binding_extension=TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71\n";
+    text += "open_scene_canonical_schema=" + std::string(canonical_scene::schema_name()) + "\n";
+    text += "open_scene_semantic_parent_region=" + std::string(canonical_scene::semantic_parent_region()) + "\n";
+    text += "open_scene_semantic_parent_stream=" + std::string(canonical_scene::semantic_parent_stream()) + "\n";
+    text += "dynamic_authority_artifact_sha256=" + sha::hex(openScene.dynamicAuthoritySha256) + "\n";
+    text += "open_scene_state_sha256=" + sha::hex(openScene.contentSha256) + "\n";
+    text += "open_scene_policy_sha256=" + sha::hex(openScene.policySha256) + "\n";
+    text += "open_scene_artifact_sha256=" + sha::hex(openScene.artifactSha256) + "\n";
+    text += "restoration_role_mask_sha256=" + sha::hex(roleMaskHash) + "\n";
+    text += "open_scene_counterfactual_pixels=" + std::to_string(openScene.counterfactualPixelCount) + "\n";
+    text += "open_scene_scientific_writeback_pixels=" + std::to_string(openScene.scientificWritebackPixelCount) + "\n";
+    text += "open_scene_creates_new_evidence=0\n";
     text += "restoration_algorithm=WEIGHTED_NEIGHBOUR_REINTEGRATION_RADIUS_2_MIN_SUPPORT_3\n";
     text += "restoration_radius=2\n";
     text += "restoration_min_support=3\n";
@@ -278,6 +296,23 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     const int height = source->metadata().height;
     if (width <= 0 || height <= 0) return packet(env, -5);
 
+    canonical_scene::Binding openSceneBinding{};
+    openSceneBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    openSceneBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    openSceneBinding.width = static_cast<std::uint32_t>(width);
+    openSceneBinding.height = static_cast<std::uint32_t>(height);
+    openSceneBinding.physicalFrameCount = scientific.physicalFrameCount;
+    openSceneBinding.independentEvidenceCount = scientific.independentEvidenceCount;
+    openSceneBinding.colourBindingId = produced.color.bindingId;
+    canonical_scene::Summary openSceneSummary{};
+    if (!canonical_scene::build_from_source(*source, openSceneBinding, openSceneSummary) ||
+        openSceneSummary.counterfactualPixelCount != 0u ||
+        openSceneSummary.scientificWritebackPixelCount != 0u ||
+        openSceneSummary.createsNewEvidence ||
+        openSceneSummary.chunkingChangesScientificIdentity) {
+        return packet(env, -18);
+    }
+
     std::array<std::uint8_t, kHeaderBytes> blank{};
     if (!write_all(outputFd, blank.data(), blank.size())) {
         (void)::ftruncate(outputFd, 0);
@@ -301,6 +336,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     std::vector<float> restoredCore;
     std::vector<std::uint8_t> roles;
     std::vector<std::uint8_t> record;
+    sha::Hasher roleMaskHasher;
 
     std::uint64_t tileCount = 0u;
     std::uint64_t preservedPixels = 0u;
@@ -501,6 +537,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                 }
                 append_u32_le(record, std::bit_cast<std::uint32_t>(value));
             }
+            roleMaskHasher.update(roles.data(), roles.size());
             record.insert(record.end(), roles.begin(), roles.end());
             if (!write_all(outputFd, record.data(), record.size())) {
                 (void)::ftruncate(outputFd, 0);
@@ -532,6 +569,8 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
         return packet(env, -15);
     }
 
+    const auto roleMaskHash = roleMaskHasher.finalize();
+
     if (!write_header(
             outputFd,
             sourceSeal,
@@ -549,7 +588,9 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
             changedComponents,
             payloadBytes,
             roleBytes,
-            bytesWritten)) {
+            bytesWritten,
+            openSceneSummary,
+            roleMaskHash)) {
         (void)::ftruncate(outputFd, 0);
         return packet(env, -16);
     }
