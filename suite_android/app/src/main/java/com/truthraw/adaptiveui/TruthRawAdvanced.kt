@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 66
+    private const val HEADER_INTS = 76
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -198,6 +198,39 @@ object AdvancedTilePreviewLoader {
             )
         }
 
+        val detailBackendCode = packet[66]
+        val detailNoiseSigmaAt2Pct = Float.fromBits(packet[67])
+        val detailBindingSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[68 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        if (options.detail) {
+            if (detailBackendCode != 1 ||
+                !detailNoiseSigmaAt2Pct.isFinite() ||
+                detailNoiseSigmaAt2Pct < 0f ||
+                detailBindingSha256.all { it == '0' }
+            ) {
+                return TilePreviewUiState.Failed(
+                    job.id,
+                    "Fail-closed: v0.80 Adaptive Detail mist canonieke backend/sigma/binding.",
+                )
+            }
+        } else {
+            if (detailBackendCode != 0 ||
+                packet[67] != 0 ||
+                detailBindingSha256.any { it != '0' }
+            ) {
+                return TilePreviewUiState.Failed(
+                    job.id,
+                    "Fail-closed: v0.80 Detail-afleiding bestaat terwijl Detail uit staat.",
+                )
+            }
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -252,6 +285,15 @@ object AdvancedTilePreviewLoader {
             uncertaintyAdmissionCode = uncertaintyAdmissionCode,
             uncertaintyAdmissionSha256 = uncertaintyAdmissionSha256,
             reconstructedAuthorityAllowedByAdmission = reconstructedAllowedByAdmission,
+            advancedDetailBackendId = if (options.detail) {
+                "adaptive_detailed_crisp_multiband_hard_edge_guard_v47j"
+            } else null,
+            advancedDetailNoiseSigmaAt2Pct = if (options.detail) {
+                detailNoiseSigmaAt2Pct
+            } else null,
+            advancedDetailBindingSha256 = if (options.detail) {
+                detailBindingSha256
+            } else null,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -283,6 +325,7 @@ object AdvancedTilePreviewLoader {
         -10 -> "Advanced: canonical Open Scene v0.70 kon niet exact uit de bron worden opgebouwd."
         -11 -> "Advanced: Open Scene v0.78 channel-authority sidecar faalde fail-closed."
         -12 -> "Advanced: v0.79 gaf onverwacht RECONSTRUCTED authority vrij zonder toegelaten trace/runtime p95-pad."
+        -13 -> "Advanced: v0.80 Adaptive Detail provenance/authority-grens werd geschonden."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
