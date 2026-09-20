@@ -50,6 +50,10 @@ struct ProjectionDescriptor final {
     Hash256 scientificMasterSha256{};
     Hash256 zeroLineSha256{};
     Hash256 sceneScaleSha256{};
+    // Optional downstream derivative identity. Zero keeps the historical PURE
+    // contract: stored raster must hash exactly as Scientific Master.
+    Hash256 projectedRasterSha256{};
+    Hash256 openSceneStateSha256{};
     TruthRangeGaugeV02 zeroLineGauge{};
     LatentSceneBindingV02 sceneBinding{};
     technical_backplane::v0_1::SerializedBackplane serializedBackplane{};
@@ -57,6 +61,8 @@ struct ProjectionDescriptor final {
     std::string colorBindingId;
     std::string precisionPolicyId;
     std::string runtimeReconstructionBackendId;
+    std::string projectionRole;
+    bool restorationDerivative = false;
 };
 
 // Supplies camera-native, scene-linear reconstructed RGB from the Scientific
@@ -99,6 +105,7 @@ struct Result final {
     std::size_t logicalResidentUpperBound = 0u;
 
     bool scientificMasterIdentityVerified = false;
+    bool projectedRasterIdentityVerified = false;
     bool artifactCommitted = false;
     bool representationOnly = true;
     bool scientificMasterModified = false;
