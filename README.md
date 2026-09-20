@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-67-fullres-restoration`
+> Active branch: `integration/truthraw-suite-v0-68-restoration-transactional-fgs`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.66 reconnects TruthNegative, Open-World/Scene Physics and Dynamic Authority; v0.67 adds a real full-source-resolution retreatable Restoration derivative with an inseparable role mask. The real-device validated v0.63 PURE Float32 route remains unchanged.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.66 reconnects TruthNegative, Open-World/Scene Physics and Dynamic Authority; v0.67 adds the full-source-resolution retreatable Restoration derivative; v0.68 fixes the real-device lifecycle defect by staging privately in a foreground service and committing the valid header only after the full body is complete. The real-device validated v0.63 PURE Float32 route remains unchanged.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.67 CI run `35498407249`: **SUCCESS** on GCC, Clang, scientific contract tests and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Full-resolution Restoration is now implemented as `.trr` with source-resolution Float32 pixels plus a retreatable per-pixel role mask. Device artifact validation is still pending.
+> v0.68 CI run `35501207534`: **SUCCESS** on GCC, Clang, scientific contract tests and Android. Artifact ID `10602552000`; extracted APK SHA-256 `7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824`. The v0.67 scientific `.trr` format is unchanged; v0.68 makes the Android export transaction robust with app-private staging, foreground execution, header-last commit and staging↔destination whole-file SHA-256 equality. Real-device v0.68 background-switch validation is pending.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
