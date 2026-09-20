@@ -51,7 +51,7 @@ class TruthRawAdvancedActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("TRUTHRAW ADVANCED", 24f))
-                addView(body("Full Open Scene · Scene Physics · Dynamic Authority", 11.5f))
+                addView(body("Canonical Open Scene v0.70 · Scene Physics · Dynamic Authority", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
@@ -88,7 +88,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.69 behoudt de transactionele full-resolution Restoration en kan een geverifieerde .trr daarna als Float32 DNG, Float32 TIFF of OpenEXR projecteren.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.70 bindt TN-3 en de normale DNG/TIFF/EXR-projecties aan dezelfde canonieke Open Scene-identiteit en aan de exacte Restoration role-mask SHA-256.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
