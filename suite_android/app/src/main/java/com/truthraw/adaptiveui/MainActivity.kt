@@ -38,7 +38,9 @@ class MainActivity : Activity() {
     private var jpgLStatus: String? = null
     private var pendingPhotoRoute: String? = null
     private var pendingPhotoFlags: Int = 0
+    private var pendingPhotoQuarterTurns: Int = 0
     private var pendingPureFloatDngJobId: String? = null
+    private var pendingPureQuarterTurns: Int = 0
     private var pureFloatDngStatus: String? = null
     private var pendingTruthNegativeJobId: String? = null
     private var truthNegativeStatus: String? = null
@@ -263,6 +265,7 @@ class MainActivity : Activity() {
         val route = preferredRoute()
         pendingPhotoRoute = route
         pendingPhotoFlags = photoFlagsForRoute(route)
+        pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -281,6 +284,7 @@ class MainActivity : Activity() {
         val route = preferredRoute()
         pendingPhotoRoute = route
         pendingPhotoFlags = photoFlagsForRoute(route)
+        pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -301,6 +305,7 @@ class MainActivity : Activity() {
             return
         }
         pendingPureFloatDngJobId = job.id
+        pendingPureQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
         pureFloatDngStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -495,8 +500,10 @@ class MainActivity : Activity() {
             pendingJpegJobId = null
             val route = pendingPhotoRoute ?: preferredRoute()
             val flags = pendingPhotoFlags
+            val quarterTurns = pendingPhotoQuarterTurns
             pendingPhotoRoute = null
             pendingPhotoFlags = 0
+            pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 jpegStatus = "JPG-export geannuleerd."
@@ -518,7 +525,7 @@ class MainActivity : Activity() {
             Thread({
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
                 val rendered = FullResJpegExporter.renderToPrivateJpeg(
-                    contentResolver, job, flags, dir,
+                    contentResolver, job, flags, quarterTurns, dir,
                 )
                 var status = when (rendered) {
                     is FullResJpegResult.Failed -> rendered.reason
@@ -538,7 +545,7 @@ class MainActivity : Activity() {
                             "JPG full-resolution gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
                                 "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
-                                "HDR blijft dynamisch en is niet destructief in de SDR-JPEG gebakken."
+                                "rotatie=${quarterTurns * 90}° · HDR blijft dynamisch en is niet destructief in de SDR-JPEG gebakken."
                         }
                     }
                 }
@@ -557,8 +564,10 @@ class MainActivity : Activity() {
             pendingJpgLJobId = null
             val route = pendingPhotoRoute ?: preferredRoute()
             val flags = pendingPhotoFlags
+            val quarterTurns = pendingPhotoQuarterTurns
             pendingPhotoRoute = null
             pendingPhotoFlags = 0
+            pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 jpgLStatus = "JPG-L-export geannuleerd."
@@ -580,7 +589,7 @@ class MainActivity : Activity() {
             Thread({
                 val dir = File(filesDir, "jpgl_export/$expectedJob").apply { mkdirs() }
                 val exported = JpgLExporter.export(
-                    contentResolver, job, destination, route, flags, dir,
+                    contentResolver, job, destination, route, flags, quarterTurns, dir,
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
@@ -603,6 +612,8 @@ class MainActivity : Activity() {
         if (requestCode == REQUEST_SAVE_PURE_FLOAT_DNG) {
             val expectedJob = pendingPureFloatDngJobId
             pendingPureFloatDngJobId = null
+            val quarterTurns = pendingPureQuarterTurns
+            pendingPureQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 pureFloatDngStatus = "TRUTHRAW PURE Float32-export geannuleerd."
@@ -626,7 +637,7 @@ class MainActivity : Activity() {
 
             Thread({
                 val exportResult =
-                    PureFloat32DngExporter.export(contentResolver, job, destination)
+                    PureFloat32DngExporter.export(contentResolver, job, destination, quarterTurns)
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     pureFloatDngStatus = when (exportResult) {
@@ -639,7 +650,7 @@ class MainActivity : Activity() {
                                 "Master digest verified=${m.scientificMasterIdentityVerified} · " +
                                 "self-binding verified=${m.postWriteSelfBindingVerified} · " +
                                 "frame/evidence=${m.physicalFrameCount}/${m.independentEvidenceCount} · " +
-                                "geen clipping, appearance of counterfactual."
+                                "oriëntatie-tag +${quarterTurns * 90}° · geen clipping, appearance of counterfactual."
                         }
                     }
                     render()
@@ -915,7 +926,9 @@ class MainActivity : Activity() {
         pendingJpgLJobId = null
         pendingPhotoRoute = null
         pendingPhotoFlags = 0
+        pendingPhotoQuarterTurns = 0
         pendingPureFloatDngJobId = null
+        pendingPureQuarterTurns = 0
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
         pendingEmpiricalJson = null
@@ -1288,11 +1301,24 @@ class MainActivity : Activity() {
                 addView(actionButton("Opnieuw proberen") { requestPreview(active) })
             }
             is TilePreviewUiState.Ready -> {
+                val userQuarterTurns =
+                    TruthRawOrientationOverride.quarterTurns(this@MainActivity, active.source)
                 val image = ImageView(this@MainActivity).apply {
                     setImageBitmap(state.bitmap)
                     adjustViewBounds = true
                     scaleType = ImageView.ScaleType.FIT_CENTER
-                    contentDescription = "Finalized TruthRaw Scientific Preview voor ${active.source.displayName}"
+                    rotation = userQuarterTurns * 90f
+                    if (userQuarterTurns % 2 != 0 && state.bitmap.width > 0 && state.bitmap.height > 0) {
+                        val ratio = minOf(
+                            state.bitmap.width.toFloat() / state.bitmap.height.toFloat(),
+                            state.bitmap.height.toFloat() / state.bitmap.width.toFloat(),
+                        )
+                        scaleX = ratio
+                        scaleY = ratio
+                    }
+                    contentDescription =
+                        "Finalized TruthRaw Scientific Preview voor ${active.source.displayName}, " +
+                            "user rotation +${userQuarterTurns * 90} graden"
                     if (currentLayoutTier() == LayoutTier.COMPACT) {
                         minimumHeight = dp(180)
                         maxHeight = dp(320)
@@ -1304,6 +1330,32 @@ class MainActivity : Activity() {
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
                 }
                 addView(image, imageLayout)
+                addView(space(6))
+                addView(horizontal().apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(actionButton("↻ 90°") {
+                        TruthRawOrientationOverride.rotateClockwise(this@MainActivity, active.source)
+                        render()
+                    }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                        marginEnd = dp(5)
+                    })
+                    addView(actionButton("Herstel origineel", enabled = userQuarterTurns != 0) {
+                        TruthRawOrientationOverride.reset(this@MainActivity, active.source)
+                        render()
+                    }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                        marginStart = dp(5)
+                    })
+                })
+                addView(label(
+                    if (userQuarterTurns == 0) {
+                        "Oriëntatie: bronmetadata · geen override"
+                    } else {
+                        "Oriëntatie-override: +${userQuarterTurns * 90}° met de klok mee · " +
+                            "alleen presentatie/projectie; sealed RAW en Scientific Master blijven ongewijzigd."
+                    },
+                    10f,
+                    muted = true,
+                ))
                 addView(space(6))
                 val m = state.metrics
                 addView(label(
