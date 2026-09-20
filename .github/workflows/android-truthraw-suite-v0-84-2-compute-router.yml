@@ -1,0 +1,82 @@
+name: TruthRaw v0.84.2 Adaptive Compute Router
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-2-adaptive-compute-router
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/android-acceleration-v0.1/**'
+      - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify acceleration discovery contracts
+        run: |
+          set -euo pipefail
+          JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
+          CPP='suite_android/app/src/main/cpp'
+
+          grep -F 'TruthRawComputeCapabilities/0.1' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'dlopen("libvulkan.so"' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'VK_QUEUE_COMPUTE_BIT' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'VK_PHYSICAL_DEVICE_TYPE_CPU' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'kArm64HwcapSha2' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'accelerator_selected\":false' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'selected = TruthRawComputeBackend.CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'authorityChanged = false' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'Hardware acceleration · research' "$JAVA/TruthRawProActivity.kt"
+
+          # Acceleration research must not edit the byte-frozen streaming module.
+          git diff --exit-code             integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
+
+          # Camera acquisition remains untouched by compute discovery.
+          git diff --exit-code             integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify compute probe symbol and APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw.so
+          readelf -Ws /tmp/libtruthraw.so |             grep -F 'Java_com_truthraw_adaptiveui_TruthRawComputeProbeNativeBridge_probeJson'
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v0-84-2-compute-router-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
