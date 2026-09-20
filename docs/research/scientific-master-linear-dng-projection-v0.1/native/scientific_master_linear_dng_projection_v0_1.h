@@ -56,6 +56,10 @@ struct ProjectionDescriptor final {
     Hash256 projectedRasterSha256{};
     Hash256 openSceneStateSha256{};
     Hash256 restorationRoleMaskSha256{};
+    // Optional v0.77 format-neutral ancestry identity for derivatives.
+    // Empty/zero on PURE so the frozen v0.63 byte contract remains unchanged.
+    Hash256 canonicalAncestrySha256{};
+    std::string canonicalAncestryManifest;
     // Derivative-only full role mask in canonical 64x64 cell-sequence order.
     // Empty on the historical PURE path so v0.63 bytes remain unchanged.
     std::span<const std::uint8_t> restorationRoleMaskBytes{};
