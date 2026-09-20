@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 36
-        versionName = "0.36-v0.71-open-scene-trr-rolemask-embed"
+        versionCode = 37
+        versionName = "0.37-v0.72-projection-lifecycle-progress-fix"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
