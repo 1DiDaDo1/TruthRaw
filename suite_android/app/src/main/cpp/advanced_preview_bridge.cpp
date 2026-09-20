@@ -293,15 +293,33 @@ std::uint8_t linear_to_srgb_u8(float linear) {
 
 class AdvancedPreviewSink final : public IStreamingSink {
 public:
-    AdvancedPreviewSink(int maxEdge, jint flags)
-        : maxEdge_(maxEdge), flags_(flags) {}
+    AdvancedPreviewSink(int maxEdge, jint flags, float noiseSigmaAt2Pct)
+        : maxEdge_(maxEdge),
+          flags_(flags),
+          outputNoiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          outputProfile_(
+              (flags & kFlagDetail) != 0
+                  ? truthraw_v47k::OutputProfile::AdaptiveDetail
+                  : truthraw_v47k::OutputProfile::Neutral) {}
 
     std::size_t residentBytesUpperBound() const override {
-        return linear_.capacity() * sizeof(float) +
-               halfLogGain_.capacity() * sizeof(float) +
-               owners_.capacity() * sizeof(std::uint8_t) +
-               gainOwners_.capacity() * sizeof(std::uint8_t) +
-               argb_.capacity() * sizeof(std::uint32_t);
+        if (maxEdge_ <= 0) return 0u;
+        const std::size_t pixels =
+            static_cast<std::size_t>(maxEdge_) *
+            static_cast<std::size_t>(maxEdge_);
+        // Deterministic upper bound known before beginFrame. v0.81 accounts for
+        // the final-resize SDR base, canonical acutance output, HDR-rebased gain,
+        // masks/ownership and ARGB presentation surface.
+        return
+            (3u * pixels) * sizeof(float) +  // linear_
+            pixels * sizeof(float) +         // halfLogGain_
+            (3u * pixels) * sizeof(float) +  // preAcutanceBase_
+            (3u * pixels) * sizeof(float) +  // acutanceBase_
+            pixels * sizeof(float) +         // rebasedDisplayGain_
+            pixels * sizeof(std::uint8_t) +  // owners_
+            pixels * sizeof(std::uint8_t) +  // gainOwners_
+            pixels * sizeof(std::uint8_t) +  // censorMask_
+            pixels * sizeof(std::uint32_t);  // argb_
     }
 
     StreamStatus beginFrame(
@@ -312,7 +330,9 @@ public:
         bool hdrEnabled,
         bool diagnosticsEnabled) override {
         if (begun_ || width <= 0 || height <= 0 || maxEdge_ < 32 ||
-            maxEdge_ > kAbsoluteMaxPreviewEdge || !valid_orientation(orientation)) {
+            maxEdge_ > kAbsoluteMaxPreviewEdge || !valid_orientation(orientation) ||
+            !std::isfinite(outputNoiseSigmaAt2Pct_) ||
+            outputNoiseSigmaAt2Pct_ < 0.0f) {
             return StreamStatus::error(StreamStatusCode::InvalidArgument,
                                        "invalid Advanced preview begin-frame contract");
         }
@@ -341,12 +361,22 @@ public:
             return StreamStatus::error(StreamStatusCode::BudgetExceeded,
                                        "Advanced preview surface exceeds cap");
         }
+        outputResizeRatio_ = std::max(
+            1.0f,
+            std::max(
+                static_cast<float>(displayWidth_) / static_cast<float>(previewWidth_),
+                static_cast<float>(displayHeight_) / static_cast<float>(previewHeight_)));
+
         linear_.assign(3u * pixels, 0.0f);
         halfLogGain_.assign(pixels, 0.0f);
+        preAcutanceBase_.assign(3u * pixels, 0.0f);
+        acutanceBase_.assign(3u * pixels, 0.0f);
+        rebasedDisplayGain_.assign(pixels, 1.0f);
         owners_.assign(pixels, 0u);
         gainOwners_.assign(pixels, 0u);
         argb_.assign(pixels, 0xff000000u);
         censorMask_.assign(pixels, 0u);
+        outputAcutanceResult_ = output_acutance::Result{};
         begun_ = true;
         return StreamStatus::ok();
     }
@@ -488,7 +518,11 @@ public:
                 }
             }
         }
-        render();
+        if (!render()) {
+            return StreamStatus::error(
+                StreamStatusCode::SinkFailed,
+                "Advanced v0.81 output acutance/HDR rebase failed");
+        }
         finished_ = true;
         return StreamStatus::ok();
     }
@@ -510,8 +544,7 @@ public:
         restoredPixels_ = 0u;
         for (const auto value : mask) if (value != 0u) ++censoredPreviewPixels_;
         if ((flags_ & kFlagRestoration) == 0 || censoredPreviewPixels_ == 0u) {
-            render();
-            return true;
+            return render();
         }
 
         const auto original = linear_;
@@ -559,8 +592,7 @@ public:
                 }
             }
         }
-        render();
-        return true;
+        return render();
     }
 
     int width() const { return previewWidth_; }
@@ -571,13 +603,30 @@ public:
     std::uint64_t censoredPreviewPixels() const { return censoredPreviewPixels_; }
     std::uint64_t hdrGainPixels() const { return hdrGainPixels_; }
     std::uint64_t lightAdjustedPixels() const { return lightAdjustedPixels_; }
+    const output_acutance::Result& outputAcutanceResult() const {
+        return outputAcutanceResult_;
+    }
+    float outputResizeRatio() const { return outputResizeRatio_; }
     const std::vector<std::uint32_t>& argb8888() const { return argb_; }
 
 private:
-    void render() {
+    bool render() {
+        if (!begun_ ||
+            owners_.empty() ||
+            linear_.size() != 3u * owners_.size() ||
+            halfLogGain_.size() != owners_.size() ||
+            censorMask_.size() != owners_.size()) {
+            return false;
+        }
+
         hdrGainPixels_ = 0u;
         lightAdjustedPixels_ = 0u;
-        for (std::size_t i = 0; i < owners_.size(); ++i) {
+
+        // Build the actual final-resize SDR base first. Existing Light is an
+        // APPEARANCE_ONLY adjustment and therefore belongs to the presentation
+        // base before output acutance; it remains suppressed on censored support.
+        preAcutanceBase_.resize(linear_.size());
+        for (std::size_t i = 0u; i < owners_.size(); ++i) {
             float r = std::max(linear_[3u * i], 0.0f);
             float g = std::max(linear_[3u * i + 1u], 0.0f);
             float b = std::max(linear_[3u * i + 2u], 0.0f);
@@ -585,12 +634,7 @@ private:
                 r = g = b = 0.0f;
             }
 
-            const bool censored = !censorMask_.empty() && censorMask_[i] != 0u;
-
-            // Open-World/Scene-Physics rule: no generic inverse-square or physical
-            // relight claim is made from a single RGB observation. This bounded
-            // adjustment is explicitly APPEARANCE_ONLY and is suppressed on
-            // censored support.
+            const bool censored = censorMask_[i] != 0u;
             if ((flags_ & kFlagLight) != 0 && !censored) {
                 const float y = std::max(truthraw::luminance709(r, g, b), 0.0f);
                 const float darkGate = 1.0f - smoothstep((y - 0.02f) / 0.30f);
@@ -600,21 +644,65 @@ private:
                     darkGate * blackProtect;
                 if (strength > 1e-4f) {
                     const float scale = 1.0f + strength;
-                    r *= scale; g *= scale; b *= scale;
+                    r *= scale;
+                    g *= scale;
+                    b *= scale;
                     ++lightAdjustedPixels_;
                 }
             }
 
-            // Scientific HDR transport may use only non-censored support here.
-            // CENSORED/UNKNOWN support is not assigned invented recoverable gain.
-            if ((flags_ & kFlagHdr) != 0 && hdrPipelineEnabled_ && !censored) {
-                const float lg = std::clamp(halfLogGain_[i], 0.0f, 2.0f);
-                if (lg > 1e-5f) {
-                    const float rawGain = std::exp2(lg);
-                    const float gain = 1.0f + 0.68f * (rawGain - 1.0f);
-                    r *= gain; g *= gain; b *= gain;
-                    ++hdrGainPixels_;
+            preAcutanceBase_[3u * i] = r;
+            preAcutanceBase_[3u * i + 1u] = g;
+            preAcutanceBase_[3u * i + 2u] = b;
+        }
+
+        const bool hdrEnabled =
+            (flags_ & kFlagHdr) != 0 && hdrPipelineEnabled_;
+        if (!output_acutance::apply_final_resize_acutance_and_rebase_hdr(
+                preAcutanceBase_,
+                previewWidth_,
+                previewHeight_,
+                outputNoiseSigmaAt2Pct_,
+                outputResizeRatio_,
+                outputProfile_,
+                hdrEnabled,
+                halfLogGain_,
+                censorMask_,
+                acutanceBase_,
+                rebasedDisplayGain_,
+                outputAcutanceResult_)) {
+            return false;
+        }
+
+        if (!outputAcutanceResult_.applied ||
+            outputAcutanceResult_.profile != outputProfile_ ||
+            outputAcutanceResult_.hdrRebased != hdrEnabled ||
+            !std::isfinite(outputAcutanceResult_.plan.strength) ||
+            !std::isfinite(outputAcutanceResult_.plan.deltaCap)) {
+            return false;
+        }
+
+        hdrGainPixels_ = outputAcutanceResult_.hdrRebasedPixels;
+
+        for (std::size_t i = 0u; i < owners_.size(); ++i) {
+            float r = acutanceBase_[3u * i];
+            float g = acutanceBase_[3u * i + 1u];
+            float b = acutanceBase_[3u * i + 2u];
+            const bool censored = censorMask_[i] != 0u;
+
+            // HDR is now expressed against the final acutance-adjusted SDR base.
+            // The rebase module guarantees: no new gain where upstream gain was
+            // unity, and no positive gain on censored support.
+            if (hdrEnabled && !censored) {
+                const float gain = rebasedDisplayGain_[i];
+                if (!std::isfinite(gain) || gain < 1.0f) return false;
+                if (gain > 1.0f + 1e-5f) {
+                    r *= gain;
+                    g *= gain;
+                    b *= gain;
                 }
+            } else if (rebasedDisplayGain_[i] != 1.0f) {
+                return false;
             }
 
             const float mx = std::max(r, std::max(g, b));
@@ -622,7 +710,9 @@ private:
                 const float shoulder =
                     0.92f + 0.08f * (1.0f - std::exp(-3.0f * (mx - 0.92f)));
                 const float scale = shoulder / std::max(mx, 1e-8f);
-                r *= scale; g *= scale; b *= scale;
+                r *= scale;
+                g *= scale;
+                b *= scale;
             }
 
             const std::uint32_t rr = linear_to_srgb_u8(r);
@@ -630,6 +720,7 @@ private:
             const std::uint32_t bb = linear_to_srgb_u8(b);
             argb_[i] = 0xff000000u | (rr << 16u) | (gg << 8u) | bb;
         }
+        return true;
     }
 
     int maxEdge_ = 0;
@@ -642,6 +733,11 @@ private:
     int previewHeight_ = 0;
     truthraw::Orientation orientation_ = truthraw::Orientation::Normal;
     truthraw::ExposurePlan exposure_{};
+    float outputNoiseSigmaAt2Pct_ = 0.0f;
+    float outputResizeRatio_ = 1.0f;
+    truthraw_v47k::OutputProfile outputProfile_ =
+        truthraw_v47k::OutputProfile::Neutral;
+    output_acutance::Result outputAcutanceResult_{};
     bool hdrPipelineEnabled_ = false;
     bool diagnosticsEnabled_ = false;
     bool begun_ = false;
@@ -653,6 +749,9 @@ private:
     std::uint64_t lightAdjustedPixels_ = 0u;
     std::vector<float> linear_;
     std::vector<float> halfLogGain_;
+    std::vector<float> preAcutanceBase_;
+    std::vector<float> acutanceBase_;
+    std::vector<float> rebasedDisplayGain_;
     std::vector<std::uint8_t> owners_;
     std::vector<std::uint8_t> gainOwners_;
     std::vector<std::uint8_t> censorMask_;
