@@ -119,6 +119,7 @@ jobs:
           CM='suite_android/app/src/main/cpp/CMakeLists.txt'
           K='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawAdvanced.kt'
           A='suite_android/app/src/main/cpp/adaptive_detail_v47j_adapter.cpp'
+          AH='suite_android/app/src/main/cpp/adaptive_detail_v47j_adapter.h'
           PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
 
           grep -F '0.46-v0.80-adaptive-detail-v47j' "$G"
@@ -132,7 +133,7 @@ jobs:
           grep -F 'adaptive_detail_v47j_adapter.cpp' "$CM"
           grep -F '${V47I_NATIVE}/src/core.cpp' "$CM"
           ! grep -F 'canonical/detail/v4.7j/native/src/core.cpp' "$CM"
-          grep -F 'luminance_only_rgb_direction_preserved_no_semantic_segmentation' "$A"
+          grep -F 'luminance_only_rgb_direction_preserved_no_semantic_segmentation' "$AH"
           grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
 
       - uses: actions/setup-java@v5
