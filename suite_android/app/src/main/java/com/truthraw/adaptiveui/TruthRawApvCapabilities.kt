@@ -37,6 +37,23 @@ data class TruthRawApvCapabilities(
     val professionalVideoCandidate: Boolean
         get() = hardwareEncoder && hardwareDecoder
 
+    val android17OrNewer: Boolean
+        get() = androidSdk >= 37
+
+    val platformInterpretation: String
+        get() = when {
+            android17OrNewer && !anyEncoder && !anyDecoder ->
+                "Android 17/API 37 verwacht APV platformondersteuning, maar de codec-lijst meldt geen video/apv; fail-closed diagnostic."
+            android17OrNewer && professionalVideoCandidate ->
+                "Android 17/API 37 + hardware APV encoder/decoder gedetecteerd."
+            android17OrNewer ->
+                "Android 17/API 37: APV platformcodec aanwezig, maar hardwareversnelling is niet volledig bewezen."
+            platformExpected ->
+                "Android 16+: APV platformcodec verwacht; hardwareversnelling apart beoordelen."
+            else ->
+                "APV is op deze Android-versie niet door het platform gegarandeerd."
+        }
+
     val summary: String
         get() = buildString {
             append("APV MIME=video/apv · SDK=")
@@ -63,6 +80,8 @@ data class TruthRawApvCapabilities(
                     "UNAVAILABLE_OR_SOFTWARE_ONLY"
                 },
             )
+            append("\n")
+            append(platformInterpretation)
             append("\nScientific Master replacement=false")
         }
 }
