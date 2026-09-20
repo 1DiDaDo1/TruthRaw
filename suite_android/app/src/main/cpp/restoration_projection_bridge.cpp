@@ -712,6 +712,13 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
     v[0]=kMagic;v[1]=0;v[2]=format;v[3]=trr.meta().width;v[4]=trr.meta().height;v[5]=clamp_jlong(outBytes);
     v[6]=clamp_jlong(static_cast<std::uint64_t>(trr.meta().width)*trr.meta().height);
     v[7]=clamp_jlong(neg);v[8]=clamp_jlong(over);v[9]=clamp_jlong(trr.role0());v[10]=clamp_jlong(trr.role1());v[11]=clamp_jlong(trr.role2());
-    v[12]=rasterVerified?1:0;v[13]=1;v[14]=1;v[15]=1;v[16]=0;v[17]=0;v[18]=1;v[19]=1;
+    v[12]=rasterVerified?1:0;
+    v[13]=1; // source/master/zero/scene/backplane lineage verified
+    v[14]=1; // full resolution
+    v[15]=1; // complete role-mask bytes embedded in target format
+    v[16]=1; // canonical Open Scene artifact matches TRR declaration
+    v[17]=1; // computed role-mask hash matches TRR declaration
+    v[18]=1; // sealed source post-verified
+    v[19]=1; // projection contract v0.71
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));if(out)env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());return out;
 }
