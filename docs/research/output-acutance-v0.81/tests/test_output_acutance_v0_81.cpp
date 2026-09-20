@@ -112,6 +112,10 @@ void hdr_rebase_preserves_effective_target() {
     float maxUnclampedError = 0.0f;
     for (std::size_t i=0; i<pixels; ++i) {
         if (censor[i] != 0u) continue;
+        if (half[i] <= 1e-5f) {
+            REQUIRE(same_bits(gain[i],1.0f));
+            continue;
+        }
         const float beforeY = truthraw_v47k::luminance709(
             input[3u*i],input[3u*i+1u],input[3u*i+2u]);
         const float afterY = truthraw_v47k::luminance709(
