@@ -1291,7 +1291,7 @@ class MainActivity : Activity() {
                 preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_PRO
             ) {
                 val state = AdvancedTilePreviewLoader.load(
-                    this@MainActivity,
+                    applicationContext,
                     contentResolver,
                     job,
                 )
@@ -1317,7 +1317,7 @@ class MainActivity : Activity() {
                     render()
                 }
             } else {
-                val result = EmpiricalPreviewRunner.run(this@MainActivity, contentResolver, job)
+                val result = EmpiricalPreviewRunner.run(applicationContext, contentResolver, job)
                 finishBackgroundOperation(
                     operationKey,
                     result.state is TilePreviewUiState.Ready,
