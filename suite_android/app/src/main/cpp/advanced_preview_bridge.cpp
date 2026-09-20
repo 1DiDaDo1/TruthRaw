@@ -8,6 +8,7 @@
 #include "bound_uncertainty_admission_v0_79.h"
 #include "adaptive_detail_v47j_adapter.h"
 #include "output_acutance_v0_81.h"
+#include "illumination_state_v0_82.h"
 #include "truthraw_sha256_v0_69.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -51,10 +52,11 @@ namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
 namespace output_acutance = truthraw::output_acutance_v0_81;
+namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 96u;
+constexpr std::size_t kHeaderInts = 128u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -1017,6 +1019,56 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -11);
     }
 
+    illumination_state::Input illuminationInput{};
+    illuminationInput.sourceEvidenceSha256 = sourceSeal.sha256;
+    illuminationInput.scientificMasterSha256 = scientific.scientificMasterHash;
+    illuminationInput.canonicalOpenSceneSha256 = openSceneSummary.artifactSha256;
+    illuminationInput.sourceEvidenceId = sourceSeal.sourceEvidenceId;
+    illuminationInput.colourBindingId = produced.color.bindingId;
+    illuminationInput.dualCalibrationUsed = produced.audit.dualIlluminantUsed;
+    illuminationInput.profileCalibrationIlluminant1 =
+        produced.audit.calibrationIlluminant1;
+    illuminationInput.profileCalibrationIlluminant2 =
+        produced.audit.calibrationIlluminant2;
+    illuminationInput.resolvedWhiteAvailable =
+        produced.audit.dualIlluminantUsed &&
+        std::isfinite(produced.audit.resolvedWhiteX) &&
+        std::isfinite(produced.audit.resolvedWhiteY) &&
+        std::isfinite(produced.audit.resolvedWhiteTemperatureK) &&
+        produced.audit.resolvedWhiteX > 0.0 &&
+        produced.audit.resolvedWhiteY > 0.0 &&
+        produced.audit.resolvedWhiteTemperatureK > 0.0;
+    illuminationInput.resolvedWhiteX = produced.audit.resolvedWhiteX;
+    illuminationInput.resolvedWhiteY = produced.audit.resolvedWhiteY;
+    illuminationInput.resolvedWhiteCctK =
+        produced.audit.resolvedWhiteTemperatureK;
+    illuminationInput.physicalFrameCount = scientific.physicalFrameCount;
+    illuminationInput.independentEvidenceCount =
+        scientific.independentEvidenceCount;
+
+    illumination_state::State illuminationState{};
+    if (!illumination_state::build(illuminationInput, illuminationState) ||
+        illuminationState.sceneLightKind !=
+            illumination_state::SceneLightKind::Unknown ||
+        illuminationState.spectrumAuthority !=
+            illumination_state::SpectrumAuthority::Unknown ||
+        illuminationState.directionAuthority !=
+            illumination_state::SpatialAuthority::Unknown ||
+        illuminationState.spatialExtentAuthority !=
+            illumination_state::SpatialAuthority::Unknown ||
+        illuminationState.temporalModulationAuthority !=
+            illumination_state::TemporalAuthority::Unknown ||
+        illuminationState.cctIsSpdProof ||
+        illuminationState.calibrationIlluminantsAreSceneLightProof ||
+        illuminationState.createsNewEvidence ||
+        illuminationState.scientificMasterModified ||
+        illuminationState.channelAuthorityModified ||
+        illuminationState.counterfactual ||
+        illuminationState.physicalFrameCount != 1u ||
+        illuminationState.independentEvidenceCount != 1u) {
+        return status_packet(env, -14);
+    }
+
     // Restore the Open-World authority corridor as a runtime gate. With only one
     // admitted frame, illumination inferred from that frame may constrain an
     // appearance derivative but may not become another measured exposure or
@@ -1215,6 +1267,48 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[86] = 1; // FINAL_RESIZE -> ACUTANCE -> HDR_REBASE -> OETF
     out[87] = 0; // output acutance never changes scientific authority
 
+    out[96] = static_cast<jint>(illuminationState.whitePointAuthority);
+    out[97] = illuminationState.whitePointKnown ? 1 : 0;
+    out[98] = illuminationState.whitePointKnown
+        ? static_cast<jint>(std::bit_cast<std::uint32_t>(
+            static_cast<float>(illuminationState.correlatedColorTemperatureK)))
+        : 0;
+    out[99] = illuminationState.whitePointKnown
+        ? static_cast<jint>(std::bit_cast<std::uint32_t>(
+            static_cast<float>(illuminationState.duv1960PolylineEstimate)))
+        : 0;
+    out[100] = illuminationState.whitePointKnown
+        ? static_cast<jint>(std::bit_cast<std::uint32_t>(
+            static_cast<float>(illuminationState.whiteX)))
+        : 0;
+    out[101] = illuminationState.whitePointKnown
+        ? static_cast<jint>(std::bit_cast<std::uint32_t>(
+            static_cast<float>(illuminationState.whiteY)))
+        : 0;
+    out[102] = static_cast<jint>(illuminationState.sceneLightKind);
+    out[103] = static_cast<jint>(illuminationState.spectrumAuthority);
+    out[104] = static_cast<jint>(illuminationState.directionAuthority);
+    out[105] = static_cast<jint>(illuminationState.spatialExtentAuthority);
+    out[106] =
+        static_cast<jint>(illuminationState.temporalModulationAuthority);
+    out[107] = illuminationState.dualCalibrationUsed ? 1 : 0;
+    out[108] =
+        static_cast<jint>(illuminationState.profileCalibrationIlluminant1);
+    out[109] =
+        static_cast<jint>(illuminationState.profileCalibrationIlluminant2);
+    out[110] = illuminationState.cctIsSpdProof ? 1 : 0;
+    out[111] =
+        illuminationState.calibrationIlluminantsAreSceneLightProof ? 1 : 0;
+    out[112] = illuminationState.createsNewEvidence ? 1 : 0;
+    out[113] = illuminationState.scientificMasterModified ? 1 : 0;
+    out[114] = illuminationState.channelAuthorityModified ? 1 : 0;
+    out[115] = illuminationState.counterfactual ? 1 : 0;
+    out[116] = static_cast<jint>(illuminationState.physicalFrameCount);
+    out[117] =
+        static_cast<jint>(illuminationState.independentEvidenceCount);
+    out[126] = 0;
+    out[127] = 0;
+
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
         out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
@@ -1224,6 +1318,8 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
             : 0;
         out[88u + word] =
             digest_word_le(outputAcutanceBindingSha256, word);
+        out[118u + word] =
+            digest_word_le(illuminationState.stateSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
