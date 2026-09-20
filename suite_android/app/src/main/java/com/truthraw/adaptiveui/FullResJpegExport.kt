@@ -240,13 +240,18 @@ object FullResJpegExporter {
         return sha256(resolver, destination) == expectedSha256
     }
 
-    private fun openRead(resolver: ContentResolver, uri: Uri): ParcelFileDescriptor? = try {
-        if (uri.scheme == ContentResolver.SCHEME_FILE) {
-            ParcelFileDescriptor.open(File(uri.path ?: return null), ParcelFileDescriptor.MODE_READ_ONLY)
-        } else {
-            resolver.openFileDescriptor(uri, "r")
+    private fun openRead(resolver: ContentResolver, uri: Uri): ParcelFileDescriptor? {
+        return try {
+            if (uri.scheme == ContentResolver.SCHEME_FILE) {
+                val path = uri.path ?: return null
+                ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY)
+            } else {
+                resolver.openFileDescriptor(uri, "r")
+            }
+        } catch (_: Throwable) {
+            null
         }
-    } catch (_: Throwable) { null }
+    }
 
     fun sha256(file: File): String? = try {
         val md = MessageDigest.getInstance("SHA-256")
@@ -261,16 +266,21 @@ object FullResJpegExporter {
         md.digest().joinToString("") { "%02x".format(it) }
     } catch (_: Throwable) { null }
 
-    private fun sha256(resolver: ContentResolver, uri: Uri): String? = try {
-        val md = MessageDigest.getInstance("SHA-256")
-        resolver.openInputStream(uri)?.use { input ->
-            val buffer = ByteArray(COPY_BUFFER)
-            while (true) {
-                val n = input.read(buffer)
-                if (n <= 0) break
-                md.update(buffer, 0, n)
+    private fun sha256(resolver: ContentResolver, uri: Uri): String? {
+        return try {
+            val md = MessageDigest.getInstance("SHA-256")
+            val stream = resolver.openInputStream(uri) ?: return null
+            stream.use { input ->
+                val buffer = ByteArray(COPY_BUFFER)
+                while (true) {
+                    val n = input.read(buffer)
+                    if (n <= 0) break
+                    md.update(buffer, 0, n)
+                }
             }
-        } ?: return null
-        md.digest().joinToString("") { "%02x".format(it) }
-    } catch (_: Throwable) { null }
+            md.digest().joinToString("") { "%02x".format(it) }
+        } catch (_: Throwable) {
+            null
+        }
+    }
 }
