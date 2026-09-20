@@ -714,15 +714,15 @@
         "fullPhysicalScenePhysics": "OPEN_EVIDENCE_BOUNDED"
       },
       "ci": {
-        "latestRun": 35505442234,
-        "latestStatus": "QUEUED_AFTER_CXX_WARNING_FIX",
-        "previousRun": 35504576390,
-        "previousFailure": "ANDROID_NATIVE_UNUSED_get_u16_le_UNDER_WERROR",
-        "hostGcc": "SUCCESS_ON_PREVIOUS_RUN",
-        "hostClang": "SUCCESS_ON_PREVIOUS_RUN",
-        "scientificContracts": "SUCCESS_ON_PREVIOUS_RUN"
+        "run": 35505513779,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "artifactId": 10603009789,
+        "artifactName": "truthraw-suite-v0-69-tn3-open-scene-projection-debug-arm64",
+        "artifactArchiveSha256": "915f5cfc5dad6e36e032881533b1e911e7db017dca0e0d88d0ba02a2ce4f3b5c",
+        "extractedApkBytes": 6290657,
+        "extractedApkSha256": "9f14ca159b1c4b3615e0b897355e648b0f37d4cd91477ca1dc692d0407b7126e"
       },
-      "realDeviceValidation": "PENDING_V069_APK_AND_DNG_TIFF_EXR_ARTIFACT_TEST"
+      "realDeviceValidation": "PENDING_V069_TN3_AND_DNG_TIFF_EXR_ARTIFACT_TEST"
     }
   },
   "camera5ReferencePrecedence": [
