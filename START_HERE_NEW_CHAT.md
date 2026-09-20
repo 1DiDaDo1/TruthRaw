@@ -1,6 +1,60 @@
 # START HERE — TruthRaw current bootstrap
 
-## CURRENT ACTIVE INTEGRATION — 2026-09-20
+## CURRENT ACTIVE INTEGRATION — 2026-09-21
+
+**Read first:**
+
+1. `state/CURRENT_PROJECT_STATE_2026-09-21.json`
+2. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+3. `docs/research/android-acceleration-v0.1/README.md`
+4. `docs/research/android-acceleration-v0.1/APV_PROFESSIONAL_VIDEO_ROUTE.md`
+5. `docs/research/android-acceleration-v0.1/PARALLEL_SCIENTIFIC_MASTER_PLAN.md`
+
+Active branch:
+
+`integration/truthraw-suite-v0-84-2-adaptive-compute-router`
+
+Current Android integration:
+
+`0.51-v0.84.2-adaptive-compute-router`
+
+Latest fully green code-bearing CI:
+
+`35545744042` at `86307391ca726c2389fc3468fd79dee8b7dc864b`
+
+Current APK:
+- bytes: `5,960,669`
+- SHA-256: `d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a`
+- artifact id: `10615818161`
+
+Current scientific boundary:
+
+- v0.84 per-output RGB-channel authority map exists;
+- Scientific HDR remains `BLOCKED`;
+- blocked reason is now `UNKNOWN_CHANNEL_AUTHORITY_PRESENT`;
+- Natural HDR remains `APPEARANCE_ONLY`;
+- compute acceleration never increases scientific authority.
+
+Current implementation additions since the old 2026-09-20 bootstrap:
+
+- non-destructive orientation override;
+- true Float32 Lightroom JPG-L RAW/Edit DNG + embedded JPEG preview;
+- PURE Float32 DNG preview/self-binding improvements;
+- Android background `mediaProcessing` execution + wake-lock + truthful timers/status dots;
+- strict-FP native `-O2` with exact v4.7i O0/O2 signature gate;
+- bounded ordered multicore executor;
+- dynamic multicore Full-res Restoration;
+- Android thermal + CPU/GPU resource headroom scheduling;
+- runtime ADPF worker hints on API33+;
+- Vulkan hardware capability discovery;
+- APV hardware encoder/decoder discovery in PRO.
+
+Immediate continuation is documented in the 2026-09-21 handoff. Do not revert to the
+old v0.83 assumption that output-channel authority is absent.
+
+## HISTORICAL ACTIVE INTEGRATION SNAPSHOT — 2026-09-20
+
+
 
 **Read first:**
 
