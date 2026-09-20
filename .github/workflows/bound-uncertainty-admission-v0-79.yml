@@ -1,0 +1,34 @@
+name: Bound Uncertainty Admission v0.79
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-79-bound-uncertainty-admission
+    paths:
+      - 'suite_android/app/src/main/cpp/bound_uncertainty_admission_v0_79.*'
+      - 'docs/research/bound-uncertainty-admission-v0.79/**'
+      - '.github/workflows/bound-uncertainty-admission-v0-79.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  admission:
+    name: ${{ matrix.compiler }} uncertainty admission
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: cmake -S docs/research/bound-uncertainty-admission-v0.79 -B build/v079 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/v079 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/v079 --output-on-failure
