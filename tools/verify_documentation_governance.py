@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-70-canonical-open-scene-role-binding":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -401,6 +401,44 @@ if v070_cables.get("externalDngTiffExrConformance") != "OPEN":
     errors.append("v070_external_conformance_must_remain_open")
 if v070_cables.get("effectfulCensoredRestorationDeviceValidation") != "OPEN":
     errors.append("v070_effectful_restoration_validation_must_remain_open")
+
+v071 = (((current_state.get("multiVendorRaw") or {}).get("v071")) or {})
+v071_scene = v071.get("canonicalOpenScene") or {}
+v071_role = v071.get("restorationRoleMask") or {}
+v071_cables = v071.get("directLooseCables") or {}
+if v071.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v071_must_keep_v063_pure_writer_contract")
+if v071.get("restorationAlgorithmUnchangedFromV067") is not True:
+    errors.append("v071_must_not_change_v067_restoration_algorithm")
+if v071_scene.get("schema") != "TruthRawOpenSceneCanonicalState/0.70":
+    errors.append("v071_open_scene_schema_mismatch")
+if v071_scene.get("oneSharedSourceBuilder") is not True:
+    errors.append("v071_shared_open_scene_builder_required")
+for consumer in ("TN3", "ADVANCED", "TRR", "DNG_PROJECTION", "TIFF_PROJECTION", "EXR_PROJECTION"):
+    if consumer not in (v071_scene.get("exactArtifactConsumers") or []):
+        errors.append("v071_missing_open_scene_consumer:" + consumer)
+if v071_scene.get("projectionRequiresTrrArtifactMatch") is not True:
+    errors.append("v071_projection_must_match_trr_open_scene_artifact")
+if v071_scene.get("scientificMasterWritebackAllowed") is not False:
+    errors.append("v071_open_scene_writeback_forbidden")
+if v071_scene.get("createsNewEvidence") is not False:
+    errors.append("v071_open_scene_may_not_create_evidence")
+if v071_role.get("canonicalEncoding") != "CANONICAL_64X64_CELL_SEQUENCE_UINT8":
+    errors.append("v071_role_mask_encoding_mismatch")
+if ((v071_role.get("dng") or {}).get("fullMaskEmbedded")) is not True:
+    errors.append("v071_dng_full_role_mask_required")
+if ((v071_role.get("tiff") or {}).get("fullMaskEmbedded")) is not True:
+    errors.append("v071_tiff_full_role_mask_required")
+if ((v071_role.get("exr") or {}).get("fullMaskEmbedded")) is not True:
+    errors.append("v071_exr_full_role_mask_required")
+if v071_cables.get("canonicalOpenSceneBinding") != "CLOSED_IMPLEMENTATION_V071":
+    errors.append("v071_open_scene_cable_must_be_closed")
+if v071_cables.get("restorationRoleMaskExportBinding") != "CLOSED_IMPLEMENTATION_V071_FULL_PAYLOAD_SELF_CONTAINED":
+    errors.append("v071_role_mask_cable_must_be_closed")
+if v071_cables.get("externalDngTiffExrConformance") != "OPEN":
+    errors.append("v071_external_conformance_must_remain_open_until_tested")
+if v071_cables.get("effectfulCensoredRestorationDeviceValidation") != "OPEN":
+    errors.append("v071_effectful_restoration_gate_must_remain_open")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
