@@ -22,6 +22,11 @@ Current app:
 
 `0.38-v0.73-camera-source-admission-tn3`
 
+Frozen v0.72 baseline references retained for governance/provenance:
+
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+
 Current product direction: **one app with file import and real camera capture converging at the same fail-closed Main-House RAW admission.**
 
 v0.73 keeps the v0.72 projection lifecycle and v0.63 PURE science frozen, restores the polished v0.65 launcher/icon presentation, and makes `Gebruik camera` open the latest active Camera-5 v0.53 source-first capture path. The 16320x12288 Camera2 envelope is never directly promoted to 200 MP science: after sealing, read-only raster/topology admission must resolve a unique advertised standard RAW sample-domain before a derived processing DNG is allowed to re-enter the normal DNG admission. TruthNegative TN-3 remains downstream of that admission and may carry the full-resolution Scientific Negative/Open Scene only at the admitted domain. Nikon NEF remains separately blocked from Scientific Master promotion until its open calibration/uncertainty/color gates close.
