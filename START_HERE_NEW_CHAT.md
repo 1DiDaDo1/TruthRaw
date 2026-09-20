@@ -6,50 +6,42 @@
 
 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-3. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
-4. `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`
-5. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
-6. `docs/research/multivendor-raw-source-adapter-v0.1/README.md`
-7. `docs/research/nikon-nef-radiometric-admission-v0.59/README.md`
-8. `docs/HONOR_MAGIC8_PRO_TELE_PAYLOAD_GEOMETRY_V020_2026-09-17.md`
-9. `docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md`
+3. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
+4. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+5. `docs/research/bound-uncertainty-admission-v0.79/README.md`
+6. `docs/research/open-scene-channel-authority-v0.78/README.md`
+7. `docs/research/canonical-ancestry-spine-v0.77/README.md`
+8. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
+9. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-73-camera-source-admission-tn3`
+`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
 
 Current app:
 
-`0.38-v0.73-camera-source-admission-tn3`
+`0.45-v0.79-bound-uncertainty-admission`
+
+Current green CI:
+
+`35520033588`
+
+Current APK SHA-256:
+
+`55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5`
 
 Frozen v0.72 baseline references retained for governance/provenance:
 
 - `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
 - `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 
-Current product direction: **one app with file import and real camera capture converging at the same fail-closed Main-House RAW admission.**
+Current product direction: **one app with file import and real camera capture converging at the same fail-closed Main-House RAW admission, followed by ancestry-, authority- and uncertainty-aware Free Scientific Space.**
 
-v0.73 keeps the v0.72 projection lifecycle and v0.63 PURE science frozen, restores the polished v0.65 launcher/icon presentation, and makes `Gebruik camera` open the latest active Camera-5 v0.53 source-first capture path. The 16320x12288 Camera2 envelope is never directly promoted to 200 MP science: after sealing, read-only raster/topology admission must resolve a unique advertised standard RAW sample-domain before a derived processing DNG is allowed to re-enter the normal DNG admission. TruthNegative TN-3 remains downstream of that admission and may carry the full-resolution Scientific Negative/Open Scene only at the admitted domain. Nikon NEF remains separately blocked from Scientific Master promotion until its open calibration/uncertainty/color gates close.
+Current scientific boundary: **v0.79 does not admit reconstructed-channel authority yet.** Current Camera-5 processing DNG is outside historical v5.0g vendor-DNG scope; generic imports lack source-class attestation; historical v5.0g still needs the exact F64 reconstructed-quantity trace certificate.
 
-Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
+Current writer contract remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.
 
-Current v0.59 Android CI: run `35456737363` = **SUCCESS**.
-
-Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clang and Android.\n\nCurrent writer contract is `TRUTHRAW_PURE_SELF_BINDING_V0_63`. New PURE outputs use `*_truthraw_pure_float32_v0_63.dng`. Read `docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md` before changing CRC, self-binding or launcher semantics.
-
-v0.64 CI run `35471926706` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.
-
-v0.65 CI run `35473170260` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 changes only compact-phone UI/insets/icon presentation; read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.
-
-v0.66 CI run `35497663010` = **SUCCESS** on GCC, Clang, scientific contracts and Android. TruthNegative/Open-World/Dynamic Authority are active in the current app.
-
-v0.67 CI run `35498407249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md` before changing full-resolution restoration semantics.
-
-v0.68 CI run `35501501178` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10602377966`; extracted APK SHA-256 `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`. Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md` before changing Android full-resolution export lifecycle/commit semantics.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
-
-v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
-
-Do not use the older TruthNegative or 2026-09-16/17 bootstrap below as the first current-state interpretation. Those sections remain retained provenance/background.
+Do not use older v0.73/v0.72 bootstrap text below as the first current-state interpretation. Those sections remain retained provenance/background.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
