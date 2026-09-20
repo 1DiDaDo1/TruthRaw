@@ -1,11 +1,11 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-81-output-acutance-v47k",
-  "appVersion": "0.47-v0.81-output-acutance-v47k",
-  "previousStableIntegration": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
+  "activeBranch": "integration/truthraw-suite-v0-82-illumination-state",
+  "appVersion": "0.48-v0.82-illumination-state",
+  "previousStableIntegration": "integration/truthraw-suite-v0-81-output-acutance-v47k",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
@@ -25,7 +25,8 @@
     "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty",
     "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA",
     "v080": "canonical v4.7j Adaptive Detail appearance adapter with exact parity and authority-neutral child binding",
-    "v081": "canonical v4.7k post-final-resize Output Acutance with HDR rebase and no-new-HDR-gain law"
+    "v081": "canonical v4.7k post-final-resize Output Acutance with HDR rebase and no-new-HDR-gain law",
+    "v082": "observed illumination state with source-metadata-bound white-point/CCT/Duv coordinates and fail-closed spectrum/spatial/temporal authority"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -90,14 +91,15 @@
     ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-81-output-acutance-v47k.yml",
-    "run": 35521878189,
+    "workflow": "android-truthraw-suite-v0-82-illumination-state.yml",
+    "run": 35522724167,
     "status": "SUCCESS",
-    "headSha": "daf7949561a077988e44a71acd9f64bfb323a618",
+    "headSha": "86f92217a700a52bb26583d1f967a072e3e4c660",
     "jobs": {
-      "gccV47kOutputAcutance": "SUCCESS",
-      "clangV47kOutputAcutance": "SUCCESS",
+      "gccIlluminationState": "SUCCESS",
+      "clangIlluminationState": "SUCCESS",
       "clangAsanUbsan": "SUCCESS",
+      "v081OutputAcutance": "SUCCESS",
       "v080AdaptiveDetailParity": "SUCCESS",
       "v078V079AuthorityUncertainty": "SUCCESS",
       "existingScientificLineage": "SUCCESS",
@@ -105,10 +107,10 @@
       "apkVerification": "SUCCESS",
       "artifactUpload": "SUCCESS"
     },
-    "artifactId": 10609071299,
-    "artifactZipSha256": "1c094d99f5f0d634354d71259bfa262511e53e6fa7f5bd91aa3b590aacecb936",
-    "apkBytes": 6463957,
-    "apkSha256": "fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250"
+    "artifactId": 10609012748,
+    "artifactZipSha256": "5875b9f72670fd87c153e0193b6f598d8c4601906b34c2e80e432c1dd71a2b6b",
+    "apkBytes": 6491089,
+    "apkSha256": "9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb"
   },
   "openValidation": {
     "realDeviceV079SmokeTest": "OPEN",
@@ -120,13 +122,21 @@
     "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED",
     "realDeviceV080AdaptiveDetailSmokeTest": "OPEN",
     "realDeviceV081OutputAcutanceSmokeTest": "OPEN",
-    "realDeviceV081HdrRebaseSmokeTest": "OPEN"
+    "realDeviceV081HdrRebaseSmokeTest": "OPEN",
+    "realDeviceV082IlluminationStateSmokeTest": "OPEN",
+    "realDeviceV082DualIlluminantWhitePointSmokeTest": "OPEN"
   },
   "immediateNext": {
-    "branch": "integration/truthraw-suite-v0-82-illumination-state",
-    "objective": "add a richer illumination/light/dark/artificial-light state with separate illumination authority; do not infer SPD or lighting geometry beyond evidence",
+    "branch": "integration/truthraw-suite-v0-83-authority-aware-hdr",
+    "objective": "build a local single-frame HDR authority contract from Scientific Master + v0.78 authority + censor bounds + admitted uncertainty, with v0.82 illumination state as context only",
+    "hardRules": [
+      "CENSORED remains a bound, never an exact latent value",
+      "UNKNOWN does not acquire HDR headroom",
+      "v0.82 CCT/Duv does not create HDR authority",
+      "no admitted uncertainty means no reconstructed-channel HDR promotion",
+      "single physical frame / one independent evidence item remains 1/1"
+    ],
     "after": [
-      "authority-aware single-frame HDR using local v0.78 authority, censor bounds and admitted uncertainty",
       "Restoration v2 with local per-channel authority/support/uncertainty",
       "projection conformance/source replay",
       "current Camera-5 noise/PTC/uncertainty calibration",
@@ -177,6 +187,38 @@
     "authorityModified": false,
     "uncertaintyAdmissionModified": false,
     "createsOpticalOrSensorEvidence": false,
+    "hostValidation": [
+      "GCC",
+      "Clang",
+      "Clang ASan/UBSan"
+    ]
+  },
+  "v082": {
+    "schema": "TruthRawObservedIlluminationState/0.82",
+    "role": "OBSERVED_SOURCE_METADATA_BOUND_ILLUMINATION_STATE",
+    "whitePointAuthority": {
+      "dualIlluminantDng": "SOURCE_METADATA_BOUND_ESTIMATE when producer exposes resolved x/y/CCT",
+      "delegatedSingleIlluminantDng": "UNKNOWN until public bound white audit exists"
+    },
+    "coordinates": [
+      "white x",
+      "white y",
+      "correlated color temperature K",
+      "duv1960PolylineEstimate"
+    ],
+    "sceneLightKind": "UNKNOWN",
+    "spectrumAuthority": "UNKNOWN",
+    "directionAuthority": "UNKNOWN",
+    "spatialExtentAuthority": "UNKNOWN",
+    "temporalModulationAuthority": "UNKNOWN",
+    "cctIsSpdProof": false,
+    "calibrationIlluminantsAreSceneLightProof": false,
+    "createsNewEvidence": false,
+    "scientificMasterModified": false,
+    "channelAuthorityModified": false,
+    "counterfactual": false,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
     "hostValidation": [
       "GCC",
       "Clang",
