@@ -95,7 +95,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHNEGATIVE",
                     subtitleText = "Scientific Negative",
-                    detail = "TN-3 · Dynamic Authority · Open Scene",
+                    detail = "TN-3 · Canonical Open Scene v0.70",
                     accent = purple,
                     selected = selected == OUTPUT_NEGATIVE,
                     enabled = true,
@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Open Scene · Full-res Restoration · DNG/TIFF/EXR",
+                    detail = "Canonical Open Scene · Role-mask bound · DNG/TIFF/EXR",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.69 · TN-3 + Full Open Scene + DNG/TIFF/EXR Restoration projection", 11f).apply {
+        root.addView(body("v0.70 · Canonical Open Scene + role-mask-bound projections", 11f).apply {
             gravity = Gravity.CENTER
         })
 
