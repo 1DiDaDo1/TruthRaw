@@ -249,22 +249,24 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private fun buildProductionCameraUi(): View {
         val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val root = LinearLayout(this).apply {
-            orientation = if (landscape) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(10, 12, 15))
         }
         applySafeSystemInsets(root)
 
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(label("TruthRaw Camera", if (landscape) 19f else 22f, true))
+            addView(label("TruthRaw Camera", if (landscape) 17f else 20f, true))
             addView(label(
-                "Camera-5 · één fysiek frame · RAW source-first · topology admission",
-                if (landscape) 9.5f else 10.5f,
+                "Camera-5 · één fysiek frame · RAW source-first",
+                if (landscape) 8.5f else 9.5f,
                 false,
                 Color.rgb(184, 191, 202),
             ))
         }
 
+        // Keep the TextureView inside a bounded pane. AutoFitTextureView then receives
+        // the current orientation's aspect ratio and cannot grow beyond the viewport.
         val previewPane = FrameLayout(this).apply {
             setBackgroundColor(Color.BLACK)
             clipChildren = true
@@ -272,58 +274,71 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             addView(
                 preview,
                 FrameLayout.LayoutParams(
-                    if (landscape) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT,
-                    if (landscape) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER,
                 ),
             )
         }
 
-        val shutter = shutterPanel()
+        val shutter = shutterPanel(landscape)
         val sourceNote = label(
-            "RAW-envelope wordt eerst verzegeld; alleen de read-only toegelaten sample-domain gaat verder.",
-            9f,
+            "RAW wordt eerst verzegeld; alleen de toegelaten read-only sample-domain gaat verder.",
+            if (landscape) 8f else 8.5f,
             false,
             Color.rgb(145, 153, 165),
         )
 
         if (landscape) {
-            root.addView(
-                previewPane,
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
-                    marginEnd = dp(10)
-                },
-            )
-            root.addView(
-                LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(dp(8), dp(4), dp(4), dp(4))
-                    addView(header)
-                    addView(space(8))
-                    addView(telemetry)
-                    addView(space(4))
-                    addView(status)
-                    addView(View(this@FotoGraaf200MpStagedActivity), LinearLayout.LayoutParams(1, 0, 1f))
-                    addView(shutter)
-                    addView(space(8))
-                    addView(sourceNote)
-                },
-                LinearLayout.LayoutParams(dp(310), ViewGroup.LayoutParams.MATCH_PARENT),
-            )
+            // Camera-like landscape composition: live image owns the left side while
+            // all controls remain visible in a fixed-width right rail.
+            val cameraRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(
+                    previewPane,
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
+                        marginEnd = dp(10)
+                    },
+                )
+                addView(
+                    LinearLayout(this@FotoGraaf200MpStagedActivity).apply {
+                        orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER_HORIZONTAL
+                        setPadding(dp(8), dp(4), dp(4), dp(4))
+                        addView(header)
+                        addView(space(6))
+                        addView(telemetry)
+                        addView(space(3))
+                        addView(status)
+                        addView(View(this@FotoGraaf200MpStagedActivity), LinearLayout.LayoutParams(1, 0, 1f))
+                        addView(shutter)
+                        addView(space(5))
+                        addView(sourceNote)
+                    },
+                    LinearLayout.LayoutParams(dp(300), ViewGroup.LayoutParams.MATCH_PARENT),
+                )
+            }
+            root.addView(cameraRow, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            ))
         } else {
+            // Portrait keeps a 4:3 camera viewport (the physical preview buffer is
+            // rotated into portrait by configurePreviewTransform) and reserves a
+            // compact control deck underneath. No preview stretching.
             root.addView(header)
-            root.addView(space(8))
+            root.addView(space(6))
             root.addView(
                 previewPane,
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f),
             )
-            root.addView(space(8))
-            root.addView(telemetry)
-            root.addView(space(3))
-            root.addView(status)
-            root.addView(space(8))
-            root.addView(shutter)
             root.addView(space(6))
+            root.addView(telemetry)
+            root.addView(space(2))
+            root.addView(status)
+            root.addView(space(5))
+            root.addView(shutter)
+            root.addView(space(4))
             root.addView(sourceNote)
         }
         return root
@@ -1213,45 +1228,50 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
     private fun shutterButton(action: () -> Unit): Button = Button(this).apply {
         text = "●"
-        textSize = 31f
-        setTextColor(Color.rgb(20, 25, 31))
+        textSize = 38f
+        setTextColor(Color.rgb(18, 22, 27))
         isAllCaps = false
         contentDescription = "Maak RAW-opname"
         minWidth = 0
         minHeight = 0
         minimumWidth = 0
         minimumHeight = 0
-        setPadding(0, 0, 0, dp(2))
+        setPadding(0, 0, 0, dp(3))
         background = StateListDrawable().apply {
             addState(
                 intArrayOf(android.R.attr.state_enabled),
                 GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
                     setColor(Color.WHITE)
-                    setStroke(dp(4), Color.rgb(88, 217, 210))
+                    setStroke(dp(5), Color.rgb(88, 217, 210))
                 },
             )
             addState(
                 intArrayOf(),
                 GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
-                    setColor(Color.rgb(95, 98, 103))
-                    setStroke(dp(3), Color.rgb(145, 150, 158))
+                    setColor(Color.rgb(92, 96, 102))
+                    setStroke(dp(4), Color.rgb(139, 145, 153))
                 },
             )
         }
+        elevation = dp(5).toFloat()
         setOnClickListener { action() }
     }
 
-    private fun shutterPanel(): View = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
+    private fun shutterPanel(landscape: Boolean): View = LinearLayout(this).apply {
+        orientation = if (landscape) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER
         addView(
             captureButton,
-            LinearLayout.LayoutParams(dp(82), dp(82)),
+            LinearLayout.LayoutParams(dp(if (landscape) 78 else 86), dp(if (landscape) 78 else 86)),
         )
-        addView(space(3))
-        addView(label("RAW", 11f, true, Color.rgb(220, 225, 234)).apply {
+        if (landscape) {
+            addView(space(3))
+        } else {
+            addView(View(this@FotoGraaf200MpStagedActivity), LinearLayout.LayoutParams(dp(12), 1))
+        }
+        addView(label("MAAK RAW", if (landscape) 10.5f else 12f, true, Color.rgb(235, 240, 247)).apply {
             gravity = Gravity.CENTER
         })
     }
