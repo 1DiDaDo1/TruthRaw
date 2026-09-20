@@ -175,7 +175,8 @@ class FullResRestorationForegroundService : Service() {
                 "preserved/censored/restored/unresolved=" +
                 "${metrics.preservedPixels}/${metrics.censoredPixels}/" +
                 "${metrics.restoredPixels}/${metrics.unresolvedPixels} · " +
-                "workers=${metrics.workerCount} · Master replay=${metrics.masterReplayVerified} · " +
+                "workers=${metrics.workerCount} · ADPF=${metrics.performanceHintWorkerCount}/${metrics.workerCount} · " +
+                "Master replay=${metrics.masterReplayVerified} · " +
                 "staging SHA=doel SHA · post-write=${metrics.postWriteVerified}."
 
         FullResRestorationJobStore.update(
