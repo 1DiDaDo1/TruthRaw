@@ -86,11 +86,13 @@ jobs:
           PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
           PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
 
-          grep -F '0.41-v0.75-bitexact-preview-core-512' "$G"
+          grep -F '0.42-v0.75.1-camera-orientation-ui' "$G"
           grep -F 'constexpr int kSourceBoundTileCore = 128;' "$B"
           grep -F 'constexpr int kFinalizedTileCore = 512;' "$B"
           grep -F 'preview_options(kSourceBoundTileCore' "$B"
           grep -F 'preview_options(kFinalizedTileCore' "$B"
+          grep -F 'private lateinit var preview: AutoFitTextureView' 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          grep -F 'android:screenOrientation="fullSensor"' 'suite_android/app/src/main/AndroidManifest.xml'
           grep -F 'finalized_scientific_preview_release_v0_3.h' "$B"
           grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
           grep -F 'TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71' "$PJ"
