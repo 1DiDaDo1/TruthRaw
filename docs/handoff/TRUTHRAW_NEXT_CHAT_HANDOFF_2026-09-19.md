@@ -229,6 +229,10 @@ Direct remaining cables after this step:
 
 PURE v0.63 and the v0.67 Restoration algorithm remain unchanged.
 
+v0.70 CI run `35505972249` is fully green on GCC, Clang, recovered Open Scene v0.7/v0.8 scientific contracts and Android. Artifact ID `10603629201`; extracted APK bytes `6,305,789`; APK SHA-256 `43be7ac637f1e24d346c82ea8b3c717f4f2fd394fb3f977b490127db8eecca7d`.
+
+Real-device v0.70 validation is still pending. The next direct cable is exact canonical Open Scene artifact propagation into Advanced and the Restoration container itself, followed by full role-mask embedding/companion-sidecar policy.
+
 ## 3. Recovery work completed before app unification
 
 The full genealogy recovery is preserved on:
