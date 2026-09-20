@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <span>
 #include <utility>
 
 #include "technical_backplane_v0_1.h"
@@ -55,6 +56,9 @@ struct ProjectionDescriptor final {
     Hash256 projectedRasterSha256{};
     Hash256 openSceneStateSha256{};
     Hash256 restorationRoleMaskSha256{};
+    // Derivative-only full role mask in canonical 64x64 cell-sequence order.
+    // Empty on the historical PURE path so v0.63 bytes remain unchanged.
+    std::span<const std::uint8_t> restorationRoleMaskBytes{};
     TruthRangeGaugeV02 zeroLineGauge{};
     LatentSceneBindingV02 sceneBinding{};
     technical_backplane::v0_1::SerializedBackplane serializedBackplane{};
