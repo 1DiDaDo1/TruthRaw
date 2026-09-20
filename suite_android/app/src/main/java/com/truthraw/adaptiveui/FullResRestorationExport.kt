@@ -388,15 +388,17 @@ object FullResRestorationExporter {
     private fun openSourcePfd(
         resolver: ContentResolver,
         uri: Uri,
-    ): ParcelFileDescriptor? = try {
-        if (uri.scheme == ContentResolver.SCHEME_FILE) {
-            val path = uri.path ?: return null
-            ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY)
-        } else {
-            resolver.openFileDescriptor(uri, "r")
+    ): ParcelFileDescriptor? {
+        return try {
+            if (uri.scheme == ContentResolver.SCHEME_FILE) {
+                val path = uri.path ?: return null
+                ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY)
+            } else {
+                resolver.openFileDescriptor(uri, "r")
+            }
+        } catch (_: Exception) {
+            null
         }
-    } catch (_: Exception) {
-        null
     }
 
     private fun verifyFile(file: File, expectedBytes: Long): Pair<Boolean, String> {
