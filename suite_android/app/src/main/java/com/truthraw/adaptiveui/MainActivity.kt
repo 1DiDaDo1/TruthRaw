@@ -36,6 +36,8 @@ class MainActivity : Activity() {
     private var pureFloatDngStatus: String? = null
     private var pendingTruthNegativeJobId: String? = null
     private var truthNegativeStatus: String? = null
+    private var pendingFullResRestorationJobId: String? = null
+    private var fullResRestorationStatus: String? = null
     private var pendingLinearDngJobId: String? = null
     private var linearDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
@@ -200,12 +202,34 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchFullResRestorationExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            fullResRestorationStatus =
+                "Full-resolution Restoration is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+            render()
+            return
+        }
+        pendingFullResRestorationJobId = job.id
+        fullResRestorationStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_fullres_restoration_v0_67.trr")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_FULLRES_RESTORATION)
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchLinearDngExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
         pendingLinearDngJobId = job.id
         pureFloatDngStatus = null
         truthNegativeStatus = null
+        fullResRestorationStatus = null
         linearDngStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -379,10 +403,59 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_FULLRES_RESTORATION) {
+            val expectedJob = pendingFullResRestorationJobId
+            pendingFullResRestorationJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                fullResRestorationStatus = "Full-resolution Restoration-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                fullResRestorationStatus =
+                    "Full-resolution Restoration geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            fullResRestorationStatus =
+                "Full-resolution Restoration wordt opgebouwd… 1:1 pixels + retreatable role-mask + Master replay."
+            render()
+
+            Thread({
+                val exportResult =
+                    FullResRestorationExporter.export(contentResolver, job, destination)
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    fullResRestorationStatus = when (exportResult) {
+                        is FullResRestorationExportResult.Failed -> exportResult.reason
+                        is FullResRestorationExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "Full-resolution Restoration v0.67 opgeslagen + teruggelezen · " +
+                                "${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
+                                "preserved/censored/restored/unresolved=" +
+                                "${m.preservedPixels}/${m.censoredPixels}/${m.restoredPixels}/${m.unresolvedPixels} · " +
+                                "changedComponents=${m.changedComponents} · " +
+                                "Master replay=${m.masterReplayVerified} · retreatable=${m.retreatable} · " +
+                                "post-write=${m.postWriteVerified}."
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-fullres-restoration-${job.id.take(8)}").start()
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_LINEAR_DNG) {
             val expectedJob = pendingLinearDngJobId
             pendingPureFloatDngJobId = null
         pendingTruthNegativeJobId = null
+        pendingFullResRestorationJobId = null
         pendingLinearDngJobId = null
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
@@ -959,6 +1032,17 @@ class MainActivity : Activity() {
                     })
                     jpegStatus?.let { addView(label(it, 10f, muted = true)) }
                     addView(space(5))
+                    addView(actionButton("FULL-RES Restoration · 1:1 derivative + role-mask opslaan") {
+                        launchFullResRestorationExport(active)
+                    })
+                    fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
+                    addView(label(
+                        "Full-res Restoration bewaart elke bronpixelpositie. Alleen source-censored sites mogen een " +
+                            "retreatable presentation-reintegration krijgen; geldige support wordt niet overschreven.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(space(5))
                 }
 
                 if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE) {
@@ -1211,5 +1295,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_NEF_MEASUREMENT_JSON = 4105
         private const val REQUEST_SAVE_PURE_FLOAT_DNG = 4106
         private const val REQUEST_SAVE_TRUTHNEGATIVE = 4107
+        private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
     }
 }
