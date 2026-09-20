@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-65-ui-icon-polish",
+  "activeBranch": "integration/truthraw-suite-v0-67-fullres-restoration",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -486,6 +486,88 @@
         "extractedApkSha256": "9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d"
       },
       "realDeviceValidation": "PENDING_COMPACT_PHONE_UI_AND_ICON_VISUAL_CHECK"
+    },
+    "v066": {
+      "branch": "integration/truthraw-suite-v0-66-negative-openworld-authority",
+      "appVersion": "0.31-v0.66-negative-openworld-authority",
+      "role": "TRUTHNEGATIVE_OPEN_WORLD_DYNAMIC_AUTHORITY_REINTEGRATION",
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "truthNegative": {
+        "active": true,
+        "container": "TN2_SOURCE_RESOLUTION_SCIENTIFIC_NEGATIVE",
+        "sourceResolution": true,
+        "cameraNativeFloat32Master": true,
+        "dynamicAuthorityMap": true,
+        "exactMasterReplayRequired": true,
+        "createsNewEvidence": false,
+        "createsSecondScientificWorld": false
+      },
+      "openWorld": {
+        "active": true,
+        "singleFrameIlluminationAuthority": "INFERRED",
+        "genericPhysicalRelightClaim": false,
+        "outputAuthority": "APPEARANCE_ONLY"
+      },
+      "dynamicAuthority": {
+        "active": true,
+        "genericMissingChannels": "UNKNOWN_UNTIL_SOURCE_BOUND_UNCERTAINTY_IS_ADMITTED",
+        "censoredSupportNotPromoted": true,
+        "restorationScientificWriteback": false
+      },
+      "ci": {
+        "run": 35497663010,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "artifactId": 10600757246,
+        "artifactName": "truthraw-suite-v0-66-negative-openworld-authority-debug-arm64",
+        "extractedApkBytes": 6055225,
+        "extractedApkSha256": "746e43c5e675f556cb1d9eb40aef37773c79092b746987bd92c506dd467a60f5"
+      },
+      "realDeviceValidation": "PENDING"
+    },
+    "v067": {
+      "branch": "integration/truthraw-suite-v0-67-fullres-restoration",
+      "appVersion": "0.32-v0.67-fullres-restoration",
+      "role": "FULL_RESOLUTION_RETREATABLE_RESTORATION_DERIVATIVE",
+      "inheritsV066TruthNegativeOpenWorldAuthority": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "fullResolutionRestoration": {
+        "active": true,
+        "sourceResolutionOneToOne": true,
+        "pixelDomain": "CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32",
+        "roleMaskBytesPerPixel": 1,
+        "conditionTrigger": "SOURCE_CFA_SAMPLE_AT_OR_ABOVE_WHITELEVEL",
+        "maxRadiusPixels": 2,
+        "minimumNonCensoredSupport": 3,
+        "role0": "PRESERVE_SCIENTIFIC_MASTER",
+        "role1": "AESTHETIC_REINTEGRATION_ONLY",
+        "role2": "UNRESOLVED_LOSS",
+        "exactMasterReplayRequired": true,
+        "derivativeRasterDigest": true,
+        "retreatable": true,
+        "provenanceBound": true,
+        "scientificMasterModified": false,
+        "scientificWritebackAllowed": false,
+        "createsNewEvidence": false,
+        "createsSecondScientificWorld": false,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1
+      },
+      "output": {
+        "extension": ".trr",
+        "defaultSuffix": "_truthraw_fullres_restoration_v0_67.trr",
+        "conventionalDngExrTiffProjectionReady": false,
+        "reason": "role-mask provenance stays inseparable in first full-resolution scientific derivative"
+      },
+      "ci": {
+        "run": 35498407249,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "artifactId": 10601092611,
+        "artifactName": "truthraw-suite-v0-67-fullres-restoration-debug-arm64",
+        "artifactArchiveSha256": "d8bf2195967502b2efbb9f7f9598c9edb50333c1f5485ca1ca1ba3893385d4fb",
+        "extractedApkBytes": 6088581,
+        "extractedApkSha256": "1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94"
+      },
+      "realDeviceValidation": "PENDING_FULLRES_RESTORATION_ARTIFACT_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -506,25 +588,23 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_V065_AND_CONFIRM_CONTENT_NEVER_SCROLLS_UNDER_STATUS_BAR",
-    "CONFIRM_TRUTHRAW_PURE_AND_ADVANCED_TITLES_RENDER_AS_CLEAN_TWO_LINE_LABELS",
-    "CONFIRM_BOTTOM_OUTPUT_CARDS_REMAIN_CLEAR_OF_ANDROID_NAVIGATION_BAR",
-    "CONFIRM_NEW_CLEAN_TR_LENS_ICON_IN_APP_HEADER_AND_ANDROID_LAUNCHER",
-    "KEEP_V064_ADVANCED_DERIVATIVE_AND_V063_PURE_CRC_ROUTE_UNCHANGED",
-    "CONTINUE_FULL_RESOLUTION_ADVANCED_EXPORT_ONLY_AFTER_UI_DEVICE_CHECK_PASSES"
+    "INSTALL_V067_AND_EXPORT_ONE_KNOWN_DNG_THROUGH_FULL_RESOLUTION_RESTORATION",
+    "VERIFY_SOURCE_SHA256_STABLE_BEFORE_AFTER_V067_EXPORT",
+    "VERIFY_FULL_RES_OUTPUT_DIMENSIONS_EQUAL_SOURCE_DIMENSIONS",
+    "VERIFY_PRESERVED_PLUS_CENSORED_EQUALS_ALL_PIXELS",
+    "VERIFY_RESTORED_PLUS_UNRESOLVED_EQUALS_CENSORED_PIXELS",
+    "VERIFY_ONLY_AESTHETIC_REINTEGRATION_ROLE_PIXELS_DIFFER_FROM_BASE_MASTER",
+    "KEEP_V063_PURE_CRC_PIXEL_ROUTE_FROZEN",
+    "CONTINUE_TN3_AND_FULL_OPEN_SCENE_DYNAMIC_AUTHORITY_ONLY_AFTER_V067_DEVICE_ARTIFACT_CHECK"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md",
     "docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md",
     "docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md",
     "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
-    "docs/TRUTHRAW_V062_PURE_POSTWRITE_VERIFY_2026-09-19.md",
-    "docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md",
     "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
-    "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md",
-    "docs/UNIFIED_FILE_CAMERA_INGRESS_CONVERGENCE_V056_2026-09-19.md",
-    "docs/research/multivendor-raw-source-adapter-v0.1/README.md",
-    "docs/research/nikon-nef-radiometric-admission-v0.59/README.md"
+    "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md"
   ]
 }
