@@ -1,0 +1,145 @@
+name: TruthRaw v0.70 Canonical Open Scene Role Binding
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-70-canonical-open-scene-role-binding
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-70-canonical-open-scene-role-binding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-pure-float32:
+    name: Host PURE Float32 writer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure PURE writer
+        run: cmake -S docs/research/scientific-master-linear-dng-projection-v0.1 -B build/pure-f32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build PURE writer
+        run: cmake --build build/pure-f32 --parallel 2
+      - name: Run PURE writer tests
+        run: ctest --test-dir build/pure-f32 --output-on-failure
+
+  scientific-contracts:
+    name: Open Scene v07 v08 Dynamic Authority Restoration contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scientific contract tests
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v070:
+    name: Android v0.70 canonical Open Scene role binding
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v0.70 integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          TN='suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+          TNK='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
+          OSC='suite_android/app/src/main/cpp/open_scene_canonical_v0_70.cpp'
+          OSH='suite_android/app/src/main/cpp/open_scene_canonical_v0_70.h'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+          PJK='suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionExport.kt'
+          DNGH='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.h'
+          DNGC='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          CMAKE='suite_android/app/src/main/cpp/CMakeLists.txt'
+
+          grep -F '0.35-v0.70-canonical-open-scene-role-binding' "$G"
+
+          # PURE remains frozen and derivative-only metadata remains conditional.
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$DNGC"
+          grep -F 'const std::string derivativeExtra = derivative' "$DNGC"
+
+          # Canonical Open Scene explicitly inherits v0.7/v0.8 semantics.
+          grep -F 'TruthRawOpenSceneCanonicalState/0.70' "$OSC"
+          grep -F 'TruthRawOpenSceneRegion/0.7' "$OSC"
+          grep -F 'TruthRawOpenSceneStateSummary/0.8' "$OSC"
+          grep -F 'chunking_changes_scientific_identity=0' "$OSC"
+          grep -F 'scientific_master_writeback_allowed=0' "$OSC"
+          grep -F 'creates_new_evidence=0' "$OSC"
+          grep -F 'dynamicAuthoritySha256' "$OSH"
+          grep -F 'artifactSha256' "$OSH"
+
+          # TN-3 emits the canonical hashes and exact categorical state map.
+          grep -F 'open_scene_canonical_schema=' "$TN"
+          grep -F 'dynamic_authority_artifact_sha256=' "$TN"
+          grep -F 'open_scene_policy_sha256=' "$TN"
+          grep -F 'open_scene_artifact_sha256=' "$TN"
+          grep -F 'R_CALIBRATED_ESTIMATE__G_UNKNOWN__B_UNKNOWN' "$TN"
+          grep -F 'R_UNKNOWN__G_UNKNOWN__B_CENSORED' "$TN"
+          grep -F 'canonical Open Scene v0.70 lineage' "$TNK"
+
+          # Normal projection recomputes the same canonical Open Scene from source.
+          grep -F 'build_canonical_open_scene' "$PJ"
+          grep -F 'd.openSceneStateSha256=openScene.artifactSha256' "$PJ"
+
+          # Every restoration projection cryptographically binds the exact role mask.
+          grep -F 'Hash256 restorationRoleMaskSha256' "$DNGH"
+          grep -F 'restoration_role_mask_sha256=' "$DNGC"
+          grep -F 'd.restorationRoleMaskSha256=trr.roleHash()' "$PJ"
+          grep -F 'restoration_role_mask_sha256=' "$PJ"
+          grep -F 'role-mask' "$PJK"
+          grep -F 'open_scene_artifact_sha256=' "$PJ"
+
+          grep -F 'open_scene_canonical_v0_70.cpp' "$CMAKE"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          unzip -l "$APK" | grep -F "lib/arm64-v8a/libtruthraw_ui_preview_bridge.so"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-70-canonical-open-scene-role-binding-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
