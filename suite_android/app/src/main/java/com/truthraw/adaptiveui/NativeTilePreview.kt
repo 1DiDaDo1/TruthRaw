@@ -111,6 +111,21 @@ data class TilePreviewMetrics(
     val outputAcutanceHdrRebasedPixels: Int = 0,
     val outputAcutanceMaxHdrTargetAbsError: Float? = null,
     val outputAcutanceBindingSha256: String? = null,
+    val illuminationWhitePointAuthority: Int = 0,
+    val illuminationWhitePointKnown: Boolean = false,
+    val illuminationCctK: Float? = null,
+    val illuminationDuv1960: Float? = null,
+    val illuminationWhiteX: Float? = null,
+    val illuminationWhiteY: Float? = null,
+    val illuminationSceneLightKind: Int = 0,
+    val illuminationSpectrumAuthority: Int = 0,
+    val illuminationDirectionAuthority: Int = 0,
+    val illuminationSpatialExtentAuthority: Int = 0,
+    val illuminationTemporalAuthority: Int = 0,
+    val illuminationDualCalibrationUsed: Boolean = false,
+    val illuminationCalibrationIlluminant1: Int = 0,
+    val illuminationCalibrationIlluminant2: Int = 0,
+    val illuminationStateSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
