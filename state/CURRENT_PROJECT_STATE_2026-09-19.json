@@ -919,13 +919,15 @@
         "effectfulRestorationStatus": "ARTIFACT_VALIDATED_CENSORED_GT_0__ORIGINAL_SOURCE_REPLAY_STILL_DESIRED"
       },
       "ci": {
-        "run": 35509438260,
+        "run": 35509701132,
         "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
-        "artifactId": 10603869532,
+        "documentationGovernanceRun": 35509701102,
+        "documentationGovernance": "SUCCESS",
+        "artifactId": 10604514809,
         "artifactName": "truthraw-suite-v0-72-projection-lifecycle-progress-fix-debug-arm64",
-        "artifactArchiveSha256": "d640819dc18f5eb09b7d2d906056b3b0e72aebb6bd3ef1f8bec4256f950243dd",
+        "artifactArchiveSha256": "a0fb5b5fc8dd3d6148cc3c0f5b877645fbd6fb512f2af0df1e3dc2d1c4c29c2f",
         "extractedApkBytes": 6314357,
-        "extractedApkSha256": "977879e6f297f01b25bd58c86f7827e3ef4d62c8d5e1c99e1686e55fa8997ee7"
+        "extractedApkSha256": "cc3d84ec84177692873b9447e67d7d92b150ddb74921aac5206a94c0cb09b1ae"
       },
       "documentation": "docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md",
       "remainingDirectValidation": {
