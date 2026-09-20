@@ -669,6 +669,35 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
 
     float_dng::StreamingScientificMasterTileSource masterSource(
         *source, *reconstruction);
+    FdExtendedLinearTileSource renderEditSource(
+        derivativeScratchFd,
+        static_cast<std::uint32_t>(source->metadata().width),
+        static_cast<std::uint32_t>(source->metadata().height));
+    float_dng::IScientificMasterTileSource* projectionSource = &masterSource;
+    RenderEditBuild renderEditBuild{};
+
+    if (exportMode == kAdvancedRenderEditMode) {
+        const float noiseSigma =
+            adaptive_detail::noise_sigma_2pct_from_metadata(source->metadata());
+        std::shared_ptr<truthraw::IAppearanceBackend> renderAppearance;
+        if ((advancedFlags & kFlagDetail) != 0) {
+            renderAppearance =
+                std::make_shared<adaptive_detail::AdaptiveDetailedCrispAppearanceV47j>(
+                    noiseSigma);
+        } else {
+            renderAppearance = std::make_shared<truthraw::NeutralReferenceAppearance>();
+        }
+        if (!buildRenderEditScratch(
+                *source,
+                *reconstruction,
+                *renderAppearance,
+                derivativeScratchFd,
+                renderEditBuild)) {
+            (void)::ftruncate(derivativeScratchFd, 0);
+            return packet(env, -10);
+        }
+        projectionSource = &renderEditSource;
+    }
 
     std::vector<std::uint8_t> previewJpeg;
     if (!readPreviewJpeg(previewFd, previewJpeg)) {
@@ -689,7 +718,10 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     descriptor.serializedBackplane = phase2.serializedBackplane;
     descriptor.sourceEvidenceId = sourceSeal.sourceEvidenceId;
     descriptor.colorBindingId = produced.color.bindingId;
-    descriptor.precisionPolicyId = kPurePrecisionPolicyId;
+    descriptor.precisionPolicyId =
+        exportMode == kAdvancedRenderEditMode
+            ? "TRUTHRAW_ADVANCED_RENDER_EDIT_EXTENDED_LINEAR_F32"
+            : kPurePrecisionPolicyId;
     descriptor.runtimeReconstructionBackendId = reconstruction->name();
     descriptor.jpegPreviewBytes = previewJpeg;
     descriptor.jpegPreviewWidth = static_cast<std::uint32_t>(previewWidth);
@@ -733,27 +765,70 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             "lightroom_editable_primary=1\n" +
             "scientific_writeback_allowed=0\n" +
             "creates_new_evidence=0";
+    } else if (exportMode == kAdvancedRenderEditMode) {
+        descriptor.projectionRole =
+            "TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG";
+        descriptor.projectedRasterSha256 = renderEditBuild.projectedRasterSha256;
+        descriptor.openSceneStateSha256 = openSceneSummary.artifactSha256;
+        descriptor.projectedAppearanceApplied =
+            (advancedFlags & kFlagDetail) != 0;
+        descriptor.projectedCounterfactualObservationCreated = false;
+        descriptor.downstreamEditManifest =
+            std::string("schema=TruthRawAdvancedRenderEdit/0.1\n") +
+            "primary_image_role=EXTENDED_LINEAR_SRGB_FLOAT32_DERIVATIVE\n" +
+            "stored_projection=XYZ_D50_FLOAT32_LINEAR_DNG\n" +
+            "source_scientific_master_unchanged=1\n" +
+            "projected_raster_sha256=" +
+                hexDigest(renderEditBuild.projectedRasterSha256) + "\n" +
+            "pre_tone_extended_linear=1\n" +
+            "negative_values_preserved=1\n" +
+            "over_one_values_preserved=1\n" +
+            "display_oetf_applied=0\n" +
+            "sdr_max_rgb_normalization_applied=0\n" +
+            "detail_baked_into_primary=" +
+                std::to_string((advancedFlags & kFlagDetail) ? 1 : 0) + "\n" +
+            "light_baked_into_primary=0\n" +
+            "natural_hdr_baked_into_primary=0\n" +
+            "restoration_baked_into_primary=0\n" +
+            "light_recipe_enabled=" +
+                std::to_string((advancedFlags & kFlagLight) ? 1 : 0) + "\n" +
+            "natural_hdr_recipe_enabled=" +
+                std::to_string((advancedFlags & kFlagHdr) ? 1 : 0) + "\n" +
+            "restoration_recipe_enabled=" +
+                std::to_string((advancedFlags & kFlagRestoration) ? 1 : 0) + "\n" +
+            "hdr_recipe_authority=APPEARANCE_ONLY_OUTPUT_CHANNEL_MAP_HAS_UNKNOWN\n" +
+            "restoration_recipe_role=AESTHETIC_REINTEGRATION_ONLY\n" +
+            "lightroom_editable_primary=1\n" +
+            "scientific_writeback_allowed=0\n" +
+            "creates_new_evidence=0";
     }
 
     FdTransactionalByteSink sink(static_cast<int>(outputFd));
     float_dng::Result exported{};
     const auto exportedStatus =
         float_dng::write_xyz_d50_linear_dng_projection(
-            masterSource,
+            *projectionSource,
             descriptor,
-            produced.color.cameraToXyzD50,
+            exportMode == kAdvancedRenderEditMode
+                ? kLinearSrgbToXyzD50
+                : produced.color.cameraToXyzD50,
             sink,
             exported);
     if (!exportedStatus) return packet(env, floatStatus(exportedStatus));
 
+    const bool renderEdit = exportMode == kAdvancedRenderEditMode;
+    const bool expectedAppearance =
+        renderEdit && (advancedFlags & kFlagDetail) != 0;
     if (!exported.representationOnly ||
         exported.scientificMasterModified ||
-        exported.appearanceApplied ||
         exported.counterfactualObservationCreated ||
-        !exported.scientificMasterIdentityVerified ||
+        !exported.projectedRasterIdentityVerified ||
         !exported.artifactCommitted ||
         exported.physicalFrameCount != 1u ||
-        exported.independentEvidenceCount != 1u) {
+        exported.independentEvidenceCount != 1u ||
+        exported.appearanceApplied != expectedAppearance ||
+        (renderEdit && exported.scientificMasterIdentityVerified) ||
+        (!renderEdit && !exported.scientificMasterIdentityVerified)) {
         sink.abort();
         return packet(env, -4);
     }
@@ -778,7 +853,9 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     values[8] = clampToJlong(exported.negativeComponentCount);
     values[9] = clampToJlong(exported.overOneComponentCount);
     values[10] = exported.tilesWritten;
-    values[11] = static_cast<jlong>(exported.logicalResidentUpperBound);
+    values[11] = static_cast<jlong>(std::max(
+        exported.logicalResidentUpperBound,
+        renderEditBuild.logicalWorkspacePeakBytes));
     values[12] = exported.scientificMasterIdentityVerified ? 1 : 0;
     values[13] = exported.appearanceApplied ? 1 : 0;
     values[14] = exported.counterfactualObservationCreated ? 1 : 0;
@@ -803,6 +880,8 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             (static_cast<std::uint32_t>(d[i+3u])<<24u);
         values[26u+word]=static_cast<jlong>(value);
     }
+    values[34] = exported.projectedRasterIdentityVerified ? 1 : 0;
+    values[35] = renderEdit ? 1 : 0;
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
