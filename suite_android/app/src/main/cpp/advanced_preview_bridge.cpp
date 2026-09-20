@@ -5,6 +5,7 @@
 #include "open_world_native_v03.h"
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
+#include "bound_uncertainty_admission_v0_79.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -44,9 +45,10 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
+namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 56u;
+constexpr std::size_t kHeaderInts = 66u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -633,10 +635,12 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     jint requestedMaxEdge,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes,
-    jint flags) {
+    jint flags,
+    jint sourceRouteCode) {
     if (fd < 0 || requestedMaxEdge < 32 ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0 ||
-        (flags & ~kAllowedFlags) != 0) {
+        (flags & ~kAllowedFlags) != 0 ||
+        (sourceRouteCode != 0 && sourceRouteCode != 1)) {
         return status_packet(env, -1);
     }
 
@@ -741,10 +745,47 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -10);
     }
 
+    // v0.79 decides whether an uncertainty model is actually admissible for
+    // this source domain. IMPORTED_FILE has no source-class attestation in the
+    // current product path, while CAMERA_CAPTURE is explicitly a Camera-5-derived
+    // processing DNG and therefore outside the historical vendor-DNG v5.0g scope.
+    uncertainty_admission::Candidate uncertaintyCandidate{};
+    if (sourceRouteCode == 1) {
+        uncertaintyCandidate =
+            uncertainty_admission::make_current_camera5_derived_blocked_candidate(
+                sourceSeal.sha256,
+                static_cast<std::uint32_t>(source->metadata().width),
+                static_cast<std::uint32_t>(source->metadata().height),
+                static_cast<std::uint32_t>(source->metadata().cfa),
+                source->metadata().whiteLevel,
+                reconstruction->name());
+    } else {
+        uncertaintyCandidate.sourceDomain =
+            uncertainty_admission::SourceDomain::Unattested;
+        uncertaintyCandidate.sourceEvidenceSha256 = sourceSeal.sha256;
+        uncertaintyCandidate.width =
+            static_cast<std::uint32_t>(source->metadata().width);
+        uncertaintyCandidate.height =
+            static_cast<std::uint32_t>(source->metadata().height);
+        uncertaintyCandidate.cfaCode =
+            static_cast<std::uint32_t>(source->metadata().cfa);
+        uncertaintyCandidate.whiteLevel = source->metadata().whiteLevel;
+        uncertaintyCandidate.reconstructionBackendId = reconstruction->name();
+    }
+
+    const auto uncertaintyDecision =
+        uncertainty_admission::evaluate(uncertaintyCandidate);
+    if (uncertaintyDecision.reconstructedAuthorityAllowed ||
+        uncertaintyDecision.code == uncertainty_admission::DecisionCode::Admitted) {
+        // v0.79 has no accepted F64 trace certificate and no runtime p95 field
+        // generator wired to Advanced yet. Any admitted result here would be an
+        // unexpected authority promotion and must fail closed.
+        return status_packet(env, -12);
+    }
+
     // v0.78 is an immutable child of the exact v0.70 Open Scene artifact.
-    // Generic admitted DNGs intentionally get no RECONSTRUCTED authority here:
-    // missing channels remain UNKNOWN until a source/backend-bound uncertainty
-    // model is separately admitted.
+    // The v0.79 decision above remains blocked, therefore missing channels stay
+    // UNKNOWN and RECONSTRUCTED authority remains exactly zero.
     channel_authority::Binding channelBinding{};
     channelBinding.sourceEvidenceSha256 = sourceSeal.sha256;
     channelBinding.scientificMasterSha256 = scientific.scientificMasterHash;
@@ -892,9 +933,12 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[37] = clamp_metric(sink.censoredPreviewPixels());
     out[38] = clamp_metric(2u * static_cast<std::uint64_t>(expectedPixels));
     out[39] = 1; // restoration/relight remain derivative; no scientific writeback
+    out[56] = static_cast<jint>(uncertaintyDecision.code);
+    out[57] = uncertaintyDecision.reconstructedAuthorityAllowed ? 1 : 0;
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
         out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
+        out[58u + word] = digest_word_le(uncertaintyDecision.decisionSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
