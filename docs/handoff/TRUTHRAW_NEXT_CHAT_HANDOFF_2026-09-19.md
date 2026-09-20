@@ -165,7 +165,13 @@ Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md`.
 
 v0.68 CI run `35501501178` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contract tests and Android. Artifact ID `10602377966`; extracted APK SHA-256 `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`.
 
-Real-device gate: repeat the full-resolution export and deliberately switch to another app while staging is running. Require a complete valid header, all tiles and staging↔destination SHA-256 equality.
+Real-device v0.68 container test is now **PASS** for complete source-resolution generation/finalization on the known 4080×3072 DNG. Uploaded artifact bytes: `162,996,224`; SHA-256 `8277c50681e445f179ad5e36dcd0cad259e7f3d09f5e9c1a21c6de74529927c4`; canonical tiles: `3072/3072`; final header present; Backplane CRC remains `0x8cde5b54`.
+
+This particular source has `censored_source_pixels=0`, so Restoration correctly changed no pixels: role0=`12,533,760`, role1=0, role2=0, `changed_components=0`, and the restoration derivative digest equals the Scientific Master digest. The next effectful Restoration test therefore needs an admitted source with CFA samples at/above WhiteLevel.
+
+The earlier 25,854,576-byte v0.67 upload is now reinterpreted. Its body after the zero header is byte-for-byte identical to the same-length prefix of the complete artifact (SHA-256 `d3458ee8c95939b028166b00d4e80c677e6e7449b1e59a0e64b924eef9ba8345`). This is fully consistent with the user having uploaded the file while v0.67 was still in progress; it was not proof that the device-side export had actually terminated at tile 487. v0.68 remains a useful robustness improvement because it separates staging from final validity.
+
+Read `docs/validation/TRUTHRAW_V068_REAL_DEVICE_FULLRES_RESTORATION_VALIDATION_2026-09-20.md`.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
