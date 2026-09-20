@@ -122,6 +122,10 @@ class MainActivity : Activity() {
             }
         }
 
+        if (session.jobs.isEmpty() && hasPendingProjectionPicker()) {
+            restoreProjectionSourceSession()
+        }
+
         render()
 
         if (savedInstanceState == null &&
@@ -317,6 +321,28 @@ class MainActivity : Activity() {
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_SAVE_RESTORATION_PROJECTION)
+    }
+
+    private fun hasPendingProjectionPicker(): Boolean =
+        getSharedPreferences(PROJECTION_PICKER_PREFS, MODE_PRIVATE)
+            .contains(KEY_PENDING_PROJECTION_FORMAT)
+
+    private fun restoreProjectionSourceSession() {
+        val restoration = FullResRestorationJobStore.read(this) ?: return
+        if (restoration.phase != FullResRestorationJobPhase.SUCCESS) return
+        val sourceUri = runCatching { android.net.Uri.parse(restoration.sourceUri) }.getOrNull() ?: return
+        val restored = runCatching {
+            RawIngress.readHandlesOnly(
+                contentResolver,
+                listOf(sourceUri),
+                Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            ).firstOrNull()
+        }.getOrNull() ?: return
+        val job = restored.copy(id = restoration.jobId)
+        session = session.withJobs(listOf(job))
+        activeJobId = job.id
+        previewState = TilePreviewUiState.Idle
+        requestPreview(job)
     }
 
     private fun setPendingProjectionFormat(format: RestorationProjectionFormat) {
