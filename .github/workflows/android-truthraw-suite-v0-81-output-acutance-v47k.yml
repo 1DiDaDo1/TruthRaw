@@ -1,0 +1,179 @@
+name: TruthRaw v0.81 Canonical Output Acutance v4.7k
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-81-output-acutance-v47k
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/output-acutance-v0.81/**'
+      - 'docs/research/adaptive-detail-v47j-adapter-v0.80/**'
+      - 'docs/research/bound-uncertainty-admission-v0.79/**'
+      - 'docs/research/open-scene-channel-authority-v0.78/**'
+      - 'canonical/output-acutance/v4.7k/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - 'canonical/detail/v4.7j/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-81-output-acutance-v47k.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  output-acutance:
+    name: ${{ matrix.compiler }} canonical v4.7k output acutance
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: cmake -S docs/research/output-acutance-v0.81 -B build/v081 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/v081 --parallel 2
+      - name: Exact output/HDR rebase tests
+        run: ctest --test-dir build/v081 --output-on-failure
+
+  output-acutance-sanitizer:
+    name: Clang ASan UBSan v0.81
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+          LDFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+        run: cmake -S docs/research/output-acutance-v0.81 -B build/v081-san -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build/v081-san --parallel 2
+      - name: Sanitizer tests
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/v081-san --output-on-failure
+
+  adaptive-detail:
+    name: v0.80 canonical Adaptive Detail parity
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frozen scientific reconstruction prefix
+        run: python3 docs/research/adaptive-detail-v47j-adapter-v0.80/tests/verify_v47j_scientific_prefix.py
+      - name: Configure and test
+        run: |
+          cmake -S docs/research/adaptive-detail-v47j-adapter-v0.80 -B build/v080 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v080 --parallel 2
+          ctest --test-dir build/v080 --output-on-failure
+
+  authority:
+    name: v0.78-v0.79 authority and uncertainty
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: v0.78
+        run: |
+          cmake -S docs/research/open-scene-channel-authority-v0.78 -B build/v078 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v078 --parallel 2
+          ctest --test-dir build/v078 --output-on-failure
+      - name: v0.79
+        run: |
+          cmake -S docs/research/bound-uncertainty-admission-v0.79 -B build/v079 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v079 --parallel 2
+          ctest --test-dir build/v079 --output-on-failure
+
+  lineage:
+    name: Existing scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact replay dependency
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Run lineage contracts
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+          PYTHONPATH=. python3 tests/test_v5g_exact_feature_replay_v02.py
+
+  android:
+    name: Android v0.81 Output Acutance
+    runs-on: ubuntu-24.04
+    needs: [output-acutance, output-acutance-sanitizer, adaptive-detail, authority, lineage]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.81 integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          C='suite_android/app/src/main/cpp/advanced_preview_bridge.cpp'
+          CM='suite_android/app/src/main/cpp/CMakeLists.txt'
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawAdvanced.kt'
+          O='suite_android/app/src/main/cpp/output_acutance_v0_81.cpp'
+          PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+
+          grep -F '0.47-v0.81-output-acutance-v47k' "$G"
+          grep -F '#include "output_acutance_v0_81.h"' "$C"
+          grep -F 'TruthRawOutputAcutanceBinding/0.81' "$C"
+          grep -F 'FINAL_RESIZE_THEN_ACUTANCE_THEN_HDR_REBASE_THEN_OETF' "$C"
+          grep -F 'zero_upstream_hdr_gain_stays_unity=1' "$C"
+          grep -F 'constexpr std::size_t kHeaderInts = 96u;' "$C"
+          grep -F 'private const val HEADER_INTS = 96' "$K"
+          grep -F 'outputAcutanceHdrRebasedPixels != packet[27]' "$K"
+          grep -F 'legacyHalfLog <= 1e-5f' "$O"
+          grep -F 'output_acutance_v0_81.cpp' "$CM"
+          grep -F '${V47K_NATIVE}/output_acutance.cpp' "$CM"
+          grep -F '${V47I_NATIVE}/src/core.cpp' "$CM"
+          ! grep -F 'canonical/detail/v4.7j/native/src/core.cpp' "$CM"
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-81-output-acutance-v47k-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
