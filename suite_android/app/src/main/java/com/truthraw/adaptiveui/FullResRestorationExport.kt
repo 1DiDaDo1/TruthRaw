@@ -20,6 +20,7 @@ object FullResRestorationNativeBridge {
         outputFd: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
+        workerCount: Int,
     ): LongArray
 }
 
@@ -62,6 +63,7 @@ data class FullResRestorationMetrics(
     val stagingVerified: Boolean,
     val postWriteVerified: Boolean,
     val containerSha256: String?,
+    val workerCount: Int,
 )
 
 sealed interface FullResRestorationExportResult {
@@ -85,7 +87,7 @@ sealed interface FullResRestorationExportResult {
  */
 object FullResRestorationExporter {
     private const val MAGIC = 0x54525253L
-    private const val PACKET_LONGS = 24
+    private const val PACKET_LONGS = 25
     const val HEADER_BYTES = 8192
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -95,6 +97,7 @@ object FullResRestorationExporter {
         resolver: ContentResolver,
         source: FullResRestorationSource,
         stagingFile: File,
+        workerCount: Int,
     ): FullResRestorationExportResult {
         if (!source.nativeProcessingReady || source.formatId != "DNG") {
             return FullResRestorationExportResult.Failed(
@@ -138,6 +141,7 @@ object FullResRestorationExporter {
                         dst.fd,
                         MAX_SOURCE_RESIDENT_BYTES,
                         MAX_LOGICAL_RESIDENT_BYTES,
+                        workerCount.coerceIn(1, 8),
                     )
                 }
             }
@@ -354,6 +358,7 @@ object FullResRestorationExporter {
             stagingVerified = false,
             postWriteVerified = false,
             containerSha256 = null,
+            workerCount = packet[24].toInt(),
         )
 
         val totalPixels = metrics.width.toLong() * metrics.height.toLong()
@@ -374,7 +379,8 @@ object FullResRestorationExporter {
                 metrics.preservedPixels + metrics.censoredPixels != totalPixels ||
                 metrics.restoredPixels + metrics.unresolvedPixels != metrics.censoredPixels ||
                 metrics.roleBytes != totalPixels ||
-                packet[23] != 1L
+                packet[23] != 1L ||
+                metrics.workerCount !in 1..8
 
         if (invariantFailure) {
             return FullResRestorationExportResult.Failed(
