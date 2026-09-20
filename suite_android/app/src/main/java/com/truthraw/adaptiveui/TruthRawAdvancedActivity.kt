@@ -110,7 +110,7 @@ class TruthRawAdvancedActivity : Activity() {
 
         root.addView(space(18))
         root.addView(Button(this).apply {
-            text = "Gebruik OPEN-WORLD ADVANCED"
+            text = "Gebruik TRUTHRAW ADVANCED"
             isAllCaps = false
             textSize = 16f
             setTextColor(textColor)
@@ -124,9 +124,7 @@ class TruthRawAdvancedActivity : Activity() {
                         TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED,
                     )
                     .apply()
-                startActivity(Intent(this@TruthRawAdvancedActivity, MainActivity::class.java).apply {
-                    putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
-                })
+                finish()
             }
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(58)))
 
