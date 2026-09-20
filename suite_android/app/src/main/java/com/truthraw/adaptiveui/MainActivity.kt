@@ -209,6 +209,7 @@ class MainActivity : Activity() {
         ) {
             restorationStatusHandler.post(restorationStatusPoll)
         }
+        render()
     }
 
     override fun onPause() {
@@ -1488,7 +1489,10 @@ class MainActivity : Activity() {
                             gravity = Gravity.CENTER_VERTICAL
                             addView(ProgressBar(this@MainActivity).apply { isIndeterminate = true },
                                 LinearLayout.LayoutParams(dp(32), dp(32)).apply { marginEnd = dp(8) })
-                            addView(label("NEF CFA-samples worden read-only geïnspecteerd…", 13f, muted = true))
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("nef-measurement", active.id),
+                                "NEF CFA-samples worden read-only geïnspecteerd…",
+                            )?.let(::addView)
                         })
                     } else {
                         addView(actionButton("Inspecteer NEF CFA-samples") { requestNefMeasurement(active) })
@@ -1565,18 +1569,10 @@ class MainActivity : Activity() {
                     addView(ProgressBar(this@MainActivity).apply { isIndeterminate = true }, LinearLayout.LayoutParams(dp(36), dp(36)).apply {
                         marginEnd = dp(10)
                     })
-                    addView(vertical().apply {
-                        addView(label("Bezig met verwerken…", 15f, bold = true))
-                        loadingStartedAtElapsedMs?.let { started ->
-                            addView(Chronometer(this@MainActivity).apply {
-                                base = started
-                                textSize = 12f
-                                setTextColor(palette.textMuted)
-                                format = "Looptijd %s"
-                                start()
-                            })
-                        }
-                    })
+                    backgroundOperationStatusView(
+                        backgroundOperationKey("preview", active.id),
+                        "TruthRaw foto wordt verwerkt…",
+                    )?.let(::addView)
                 })
                 addView(space(8))
                 addView(label(
@@ -1592,11 +1588,19 @@ class MainActivity : Activity() {
             }
             is TilePreviewUiState.Failed -> {
                 addView(label("Preview fail-closed geblokkeerd", 14f, bold = true))
-                addView(label(state.reason, 12f, muted = true))
+                backgroundOperationStatusView(
+                    backgroundOperationKey("preview", active.id),
+                    state.reason,
+                )?.let(::addView) ?: addView(label(state.reason, 12f, muted = true))
                 addView(space(6))
                 addView(actionButton("Opnieuw proberen") { requestPreview(active) })
             }
             is TilePreviewUiState.Ready -> {
+                backgroundOperationStatusView(
+                    backgroundOperationKey("preview", active.id),
+                    "TruthRaw render gereed.",
+                )?.let(::addView)
+                addView(space(5))
                 val userQuarterTurns =
                     TruthRawOrientationOverride.quarterTurns(this@MainActivity, active.source)
                 val image = ImageView(this@MainActivity).apply {
@@ -1704,7 +1708,12 @@ class MainActivity : Activity() {
                         addView(actionButton("Bewaar PURE · 32-bit Float DNG") {
                             launchPureFloatDngExport(active)
                         })
-                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        pureFloatDngStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("pure-float32", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(label(
                             "Directe wetenschappelijke projectie: Float32, negatieve en >1 waarden behouden, " +
                                 "Scientific Master digest + self-binding, geen appearance.",
@@ -1715,17 +1724,32 @@ class MainActivity : Activity() {
                         addView(actionButton("JPG · full resolution compatibility") {
                             launchJpegExport(active)
                         })
-                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> {
                         addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
-                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
                             launchJpgLExport(active)
                         })
-                        jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpgLStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpgl-raw-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(label(
                             "JPG-L RAW/Edit gebruikt Float32 Linear DNG als primaire bewerkbare afbeelding. " +
                                 "Negatieve en >1 waarden blijven behouden; Advanced-instellingen worden als non-destructief recipe gebonden. " +
@@ -1741,39 +1765,78 @@ class MainActivity : Activity() {
                         addView(actionButton("Full-res Restoration · retreatable .trr") {
                             launchFullResRestorationExport(active)
                         })
-                        fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
+                        fullResRestorationStatus?.let { status ->
+                            val snapshot = FullResRestorationJobStore.read(this@MainActivity)
+                            if (snapshot != null && snapshot.jobId == active.id) {
+                                addView(restorationStatusView(snapshot))
+                            } else {
+                                addView(label(status, 10f, muted = true))
+                            }
+                        }
                         addView(space(5))
                         addView(actionButton("Wetenschappelijke PURE-projectie") {
                             launchPureFloatDngExport(active)
                         })
-                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        pureFloatDngStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("pure-float32", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_PRO -> {
                         addView(actionButton("JPG · full resolution professional") {
                             launchJpegExport(active)
                         })
-                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
                             launchJpgLExport(active)
                         })
-                        jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpgLStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpgl-raw-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("PURE · 32-bit Float DNG") {
                             launchPureFloatDngExport(active)
                         })
-                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        pureFloatDngStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("pure-float32", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("Scientific Negative · TN-3") {
                             launchTruthNegativeExport(active)
                         })
-                        truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
+                        truthNegativeStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("truthnegative", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("Full-res Restoration · .trr") {
                             launchFullResRestorationExport(active)
                         })
-                        fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
+                        fullResRestorationStatus?.let { status ->
+                            val snapshot = FullResRestorationJobStore.read(this@MainActivity)
+                            if (snapshot != null && snapshot.jobId == active.id) {
+                                addView(restorationStatusView(snapshot))
+                            } else {
+                                addView(label(status, 10f, muted = true))
+                            }
+                        }
 
                         val restoration = FullResRestorationJobStore.read(this@MainActivity)
                         if (restoration != null &&
@@ -1817,7 +1880,12 @@ class MainActivity : Activity() {
                         addView(actionButton("16-bit Linear DNG · compatibility") {
                             launchLinearDngExport(active)
                         })
-                        linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        linearDngStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("linear-dng", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
                         addView(space(5))
                         addView(actionButton("Pro-instellingen") {
                             startActivity(Intent(this@MainActivity, TruthRawProActivity::class.java))
