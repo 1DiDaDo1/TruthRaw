@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 56
+    private const val HEADER_INTS = 66
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -84,6 +84,10 @@ object AdvancedTilePreviewLoader {
                     MAX_SOURCE_RESIDENT_BYTES,
                     MAX_LOGICAL_RESIDENT_BYTES,
                     options.flags(),
+                    when (job.source.sourceRoute) {
+                        SourceIngressRoute.IMPORTED_FILE -> 0
+                        SourceIngressRoute.CAMERA_CAPTURE -> 1
+                    },
                 )
             }
         } catch (error: Throwable) {
@@ -164,6 +168,36 @@ object AdvancedTilePreviewLoader {
             )
         }
 
+        val uncertaintyAdmissionCode = packet[56]
+        val reconstructedAllowedByAdmission = packet[57] != 0
+        val uncertaintyAdmissionSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[58 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        if (uncertaintyAdmissionSha256.all { it == '0' }) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Advanced v0.79 uncertainty-admission identity ontbreekt.",
+            )
+        }
+        val expectedBlockedCode = when (job.source.sourceRoute) {
+            SourceIngressRoute.IMPORTED_FILE -> 0 // BLOCKED_NO_SOURCE_ATTESTATION
+            SourceIngressRoute.CAMERA_CAPTURE -> 1 // BLOCKED_SOURCE_DOMAIN_MISMATCH
+        }
+        if (uncertaintyAdmissionCode != expectedBlockedCode ||
+            reconstructedAllowedByAdmission ||
+            packet[36] != 0
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: v0.79 uncertainty-admission of RECONSTRUCTED authority week af van de bronroute.",
+            )
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -215,6 +249,9 @@ object AdvancedTilePreviewLoader {
             restorationPresentationOnly = packet[39] != 0,
             canonicalOpenSceneArtifactSha256 = canonicalOpenSceneSha256,
             canonicalOpenSceneChannelAuthoritySha256 = channelAuthoritySha256,
+            uncertaintyAdmissionCode = uncertaintyAdmissionCode,
+            uncertaintyAdmissionSha256 = uncertaintyAdmissionSha256,
+            reconstructedAuthorityAllowedByAdmission = reconstructedAllowedByAdmission,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -245,6 +282,7 @@ object AdvancedTilePreviewLoader {
         -9 -> "Advanced: Open-World illumination-authority binding werd geweigerd."
         -10 -> "Advanced: canonical Open Scene v0.70 kon niet exact uit de bron worden opgebouwd."
         -11 -> "Advanced: Open Scene v0.78 channel-authority sidecar faalde fail-closed."
+        -12 -> "Advanced: v0.79 gaf onverwacht RECONSTRUCTED authority vrij zonder toegelaten trace/runtime p95-pad."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
