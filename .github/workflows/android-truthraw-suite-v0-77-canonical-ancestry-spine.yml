@@ -1,0 +1,94 @@
+name: TruthRaw v0.77 Canonical Ancestry Spine
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-77-canonical-ancestry-spine
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/canonical-ancestry-spine-v0.77/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - '.github/workflows/android-truthraw-suite-v0-77-canonical-ancestry-spine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ancestry:
+    name: Canonical ancestry exactness
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ancestry tests
+        run: |
+          cmake -S docs/research/canonical-ancestry-spine-v0.77 -B build/ancestry -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/ancestry --parallel 2
+          ctest --test-dir build/ancestry --output-on-failure
+
+  lineage:
+    name: Existing scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android:
+    name: Android v0.77 ancestry integration
+    runs-on: ubuntu-24.04
+    needs: [ancestry, lineage]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify ancestry-only guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          A='suite_android/app/src/main/cpp/canonical_ancestry_v0_77.cpp'
+          P='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+          D='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          PURE='suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+          grep -F '0.43-v0.77-canonical-ancestry-spine' "$G"
+          grep -F 'TruthRawCanonicalAncestry/0.77' "$A"
+          grep -F 'canonical_ancestry_manifest_begin' "$P"
+          grep -F 'canonical_ancestry_sha256' "$P"
+          grep -F 'canonical_ancestry_manifest_begin' "$D"
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' "$D"
+          ! grep -F 'canonicalAncestryManifest=' "$PURE"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-77-canonical-ancestry-spine-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
