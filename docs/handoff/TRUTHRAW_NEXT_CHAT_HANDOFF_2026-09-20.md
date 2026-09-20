@@ -4,21 +4,21 @@
 
 Active branch:
 
-`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
+`integration/truthraw-suite-v0-81-output-acutance-v47k`
 
 Current app:
 
-`0.46-v0.80-adaptive-detail-v47j`
+`0.47-v0.81-output-acutance-v47k`
 
 Latest fully green CI:
 
-`35520838931`
+`35521878189`
 
 Latest APK:
-- bytes: `6,449,825`
-- SHA-256: `3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb`
-- artifact id: `10608565903`
-- artifact ZIP SHA-256: `169d618560a3f0ba900d0669f496b1898df524d6390348d4d6ad5dcceacccfcd`
+- bytes: `6,463,957`
+- SHA-256: `fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
+- artifact id: `10609071299`
+- artifact ZIP SHA-256: `1c094d99f5f0d634354d71259bfa262511e53e6fa7f5bd91aa3b590aacecb936`
 
 This is the current integration/research line, not a main/canonical promotion.
 
@@ -160,33 +160,43 @@ v4.7k remains later and strictly post-resize output acutance.
 
 ## v0.80 closure
 
-Canonical v4.7j Adaptive Detail is now the closed Advanced detail baseline.
+Canonical v4.7j Adaptive Detail remains the closed Advanced detail baseline:
+- exact canonical parity;
+- frozen v4.7i scientific reconstruction;
+- appearance-only child binding;
+- no authority promotion.
 
-Important:
-- exact adapter output parity with canonical v4.7j on GCC + Clang;
-- ASan/UBSan PASS;
-- frozen v4.7i scientific reconstruction core retained;
-- v0.78 authority unchanged;
-- v0.79 uncertainty admission unchanged;
-- detail child binding is appearance-only and carries exact NoiseProfile sigma bits;
-- no recovered optical/sensor information claim.
+## v0.81 closure
+
+Canonical v4.7k Output Acutance is now integrated strictly at the finite output boundary.
+
+Exact order:
+
+`final resized linear SDR base -> v4.7k acutance -> HDR rebase -> shoulder -> OETF/presentation`
+
+Critical v0.81 laws:
+- no Scientific Master writeback;
+- no v0.78/v0.79 authority change;
+- no optical/sensor detail claim;
+- upstream zero-HDR stays gain 1;
+- censored support stays gain 1;
+- only existing positive HDR transport may be rebased;
+- actual resize ratio and canonical plan are provenance-bound;
+- deterministic preview memory upper bound includes the new buffers.
 
 ## Immediate next branch
 
-`integration/truthraw-suite-v0-81-output-acutance-v47k`
+`integration/truthraw-suite-v0-82-illumination-state`
 
 Objective:
-integrate canonical v4.7k strictly after final preview resize and before final display encoding, with HDR gain recomputed/derived against the acutance-adjusted SDR base.
+replace the coarse global inferred-Light appearance input with a richer explicitly authority-bounded scene illumination state covering light/dark/artificial-light structure without converting inference into measured exposure.
 
-Critical ordering:
-
-`resized linear SDR base -> v4.7k output acutance -> final HDR gain relation -> OETF/ARGB presentation`
-
-Do not apply v4.7k to Scientific Master, RAW/CFA, reconstruction, Open Scene authority or restoration state.
+The next layer must remain single-frame and must not use illumination inference to upgrade Scientific Master, v0.78 authority or v0.79 uncertainty.
 
 ## Read next
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+2. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
 2. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
 3. `docs/research/bound-uncertainty-admission-v0.79/README.md`
 4. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
