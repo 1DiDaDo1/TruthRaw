@@ -226,3 +226,68 @@ Source:
 - Appearance acceleration cannot write back into Scientific Master.
 - A vendor backend that fails validation is disabled, not repaired by silently
   weakening the scientific contract.
+
+
+## Implementation state — 2026-09-21
+
+Implemented on `integration/truthraw-suite-v0-84-2-adaptive-compute-router`:
+
+- strict-FP `-O2` for the Android debug native library;
+  - `-fno-fast-math`;
+  - `-ffp-contract=off`;
+  - canonical v4.7i O0/O2 fixture signature is required to match before APK build;
+  - current proven signature: `5dba058e5742346a`.
+- bounded ordered multicore executor:
+  - tile compute may run concurrently;
+  - commit/write/hash stays canonical and ordered;
+  - host test proves concurrency, ordering and fail-fast behavior.
+- Full-resolution Restoration:
+  - dynamic CPU worker count from memory/power/thermal/resource-headroom policy;
+  - one read-only DNG source + reconstruction workspace per worker;
+  - canonical commit keeps scientific/master/provenance ordering stable;
+  - worker count is runtime telemetry only and is not embedded into the `.trr` identity.
+- ADPF CPU worker hints:
+  - optional one-thread hint session per Restoration worker;
+  - actual tile duration is reported after successful tile compute;
+  - unsupported/error state fails open to normal Android scheduling;
+  - ADPF never changes image authority.
+- Android 16+/17 resource headroom:
+  - runtime-dynamic `ASystemHealth_getCpuHeadroom` and
+    `ASystemHealth_getGpuHeadroom` lookup through `libandroid.so`;
+  - no compileSdk-36 dependency is introduced;
+  - values are cached according to the device's reported minimum poll interval;
+  - CPU headroom can reduce worker count;
+  - low GPU headroom can temporarily suppress future Vulkan candidacy.
+- Vulkan:
+  - hardware loader/device/compute-queue/AHardwareBuffer extension probe exists;
+  - software/CPU Vulkan devices are rejected as performance candidates;
+  - no Vulkan pixel kernel is promoted yet.
+- Qualcomm APV / Android APV:
+  - read-only `video/apv` MediaCodec encoder/decoder probe;
+  - hardware/vendor/software flags, profile-levels, color formats,
+    max resolution/bitrate and performance points are reported in PRO;
+  - APV is a professional-video/intermediate candidate only;
+  - Scientific Master replacement is explicitly false.
+- PRO diagnostics:
+  - CPU/NEON/SHA2 capability;
+  - Vulkan hardware identity/capabilities;
+  - CPU thermal headroom;
+  - Android CPU/GPU resource headroom;
+  - current dynamic worker plan;
+  - APV codec diagnostics.
+
+Still research/not selected:
+
+- Vulkan pixel kernels;
+- ARMv8 SHA2 implementation in TruthRaw's SHA-256 transform;
+- Qualcomm FastCV kernels;
+- Qualcomm QNN/Hexagon tensor routes;
+- MediaTek NeuroPilot/Neuron routes;
+- parallel Scientific Master v0.3 replacement;
+- APV encode/decode production route;
+- OpenAPV bundling;
+- general multicore replacement of byte-frozen `full-frame-streaming-v0.1`.
+
+The byte-frozen `full-frame-streaming-v0.1` module remains unchanged. A parallel
+Scientific Master plan exists in `PARALLEL_SCIENTIFIC_MASTER_PLAN.md`; it is
+not production-selected until bit-exact reference gates are passed.
