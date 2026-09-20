@@ -1,5 +1,6 @@
 package com.truthraw.adaptiveui
 
+import android.content.Context
 import android.os.SystemClock
 
 enum class TruthRawOperationPhase {
@@ -108,5 +109,76 @@ class TruthRawOperationTracker {
         )
         states[key] = state
         return state
+    }
+}
+
+
+data class TruthRawPersistedOperation(
+    val key: String,
+    val label: String,
+    val message: String,
+    val phase: TruthRawOperationPhase,
+    val startedAtWallMs: Long,
+    val updatedAtWallMs: Long,
+    val finishedAtWallMs: Long?,
+) {
+    val terminal: Boolean
+        get() = phase != TruthRawOperationPhase.RUNNING
+}
+
+object TruthRawOperationStore {
+    private const val PREFS = "truthraw_background_operations_v0_1"
+
+    fun begin(context: Context, key: String, label: String, message: String = label) {
+        val now = System.currentTimeMillis()
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString("label:$key", label)
+            .putString("message:$key", message)
+            .putString("phase:$key", TruthRawOperationPhase.RUNNING.name)
+            .putLong("started:$key", now)
+            .putLong("updated:$key", now)
+            .remove("finished:$key")
+            .apply()
+    }
+
+    fun update(
+        context: Context,
+        key: String,
+        phase: TruthRawOperationPhase,
+        message: String,
+    ) {
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        val editor = prefs.edit()
+            .putString("message:$key", message)
+            .putString("phase:$key", phase.name)
+            .putLong("updated:$key", now)
+        if (phase == TruthRawOperationPhase.RUNNING) {
+            if (!prefs.contains("started:$key")) editor.putLong("started:$key", now)
+            editor.remove("finished:$key")
+        } else {
+            editor.putLong("finished:$key", now)
+        }
+        editor.apply()
+    }
+
+    fun read(context: Context, key: String): TruthRawPersistedOperation? {
+        val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val phase = runCatching {
+            TruthRawOperationPhase.valueOf(p.getString("phase:$key", "") ?: "")
+        }.getOrNull() ?: return null
+        val started = p.getLong("started:$key", 0L)
+        if (started <= 0L) return null
+        return TruthRawPersistedOperation(
+            key = key,
+            label = p.getString("label:$key", key) ?: key,
+            message = p.getString("message:$key", "") ?: "",
+            phase = phase,
+            startedAtWallMs = started,
+            updatedAtWallMs = p.getLong("updated:$key", started),
+            finishedAtWallMs =
+                if (p.contains("finished:$key")) p.getLong("finished:$key", 0L) else null,
+        )
     }
 }
