@@ -149,7 +149,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.78 · per-channel authority · uncertainty blijft fail-closed", 11f).apply {
+        root.addView(body("v0.79 · uncertainty-admission · bron/backend/trace fail-closed", 11f).apply {
             gravity = Gravity.CENTER
         })
 
