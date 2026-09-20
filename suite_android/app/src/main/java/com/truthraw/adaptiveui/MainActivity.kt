@@ -36,6 +36,8 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingJpgLJobId: String? = null
     private var jpgLStatus: String? = null
+    private var pendingRenderEditJobId: String? = null
+    private var renderEditStatus: String? = null
     private var pendingPhotoRoute: String? = null
     private var pendingPhotoFlags: Int = 0
     private var pendingPhotoQuarterTurns: Int = 0
@@ -189,6 +191,7 @@ class MainActivity : Activity() {
         empiricalAudit = null
         jpegStatus = null
         jpgLStatus = null
+        renderEditStatus = null
         pureFloatDngStatus = null
         truthNegativeStatus = null
         fullResRestorationStatus = null
@@ -238,6 +241,7 @@ class MainActivity : Activity() {
 
         recover("jpeg")?.let { jpegStatus = it.message }
         recover("jpgl-raw-edit")?.let { jpgLStatus = it.message }
+        recover("advanced-render-edit")?.let { renderEditStatus = it.message }
         recover("pure-float32")?.let { pureFloatDngStatus = it.message }
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
         recover("linear-dng")?.let { linearDngStatus = it.message }
@@ -330,6 +334,32 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_jpgl_raw_edit_v0_3.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPG_L)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchAdvancedRenderEditExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            renderEditStatus =
+                "Advanced Render/Edit is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+            render()
+            return
+        }
+        pendingRenderEditJobId = job.id
+        renderEditStatus = null
+        pendingPhotoFlags = photoFlagsForRoute(preferredRoute())
+        pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "${stem}_truthraw_advanced_render_edit_float32_v0_1.dng",
+            )
+        }
+        startActivityForResult(intent, REQUEST_SAVE_RENDER_EDIT_FLOAT_DNG)
     }
 
     @Suppress("DEPRECATION")
@@ -1107,6 +1137,7 @@ class MainActivity : Activity() {
         empiricalAudit = null
         pendingJpegJobId = null
         pendingJpgLJobId = null
+        pendingRenderEditJobId = null
         pendingPhotoRoute = null
         pendingPhotoFlags = 0
         pendingPhotoQuarterTurns = 0
@@ -2216,5 +2247,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
         private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
         private const val REQUEST_SAVE_JPG_L = 4110
+        private const val REQUEST_SAVE_RENDER_EDIT_FLOAT_DNG = 4111
     }
 }
