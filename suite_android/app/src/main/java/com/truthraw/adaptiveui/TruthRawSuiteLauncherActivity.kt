@@ -67,7 +67,14 @@ class TruthRawSuiteLauncherActivity : Activity() {
                     subtitleText = "Maak direct een nieuwe opname via de RAW-ingang.",
                     accent = blue,
                 ) {
-                    startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraafCameraActivity::class.java))
+                    startActivity(
+                        Intent(
+                            this@TruthRawSuiteLauncherActivity,
+                            FotoGraaf200MpStagedActivity::class.java,
+                        ).apply {
+                            putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
+                        },
+                    )
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
             )
@@ -139,7 +146,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.72 · projection lifecycle + zichtbare voortgang hersteld", 11f).apply {
+        root.addView(body("v0.73 · Camera-5 capture → sealed RAW-ingang → Scientific Master / TN-3", 11f).apply {
             gravity = Gravity.CENTER
         })
 
