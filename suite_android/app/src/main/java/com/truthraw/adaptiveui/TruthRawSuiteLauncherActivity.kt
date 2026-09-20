@@ -95,7 +95,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHNEGATIVE",
                     subtitleText = "Scientific Negative",
-                    detail = "TN-3 · Canonical Open Scene v0.70",
+                    detail = "TN-3 · Canonical Open Scene · shared identity",
                     accent = purple,
                     selected = selected == OUTPUT_NEGATIVE,
                     enabled = true,
@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Canonical Open Scene · Role-mask bound · DNG/TIFF/EXR",
+                    detail = "Open Scene in TRR/Advanced · full role-mask embedded",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.70 · Canonical Open Scene + role-mask-bound projections", 11f).apply {
+        root.addView(body("v0.71 · Open Scene in Advanced/TRR + full role-mask embedded", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -278,8 +278,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
         addView(title("Eén Scientific Master, meerdere veilige afleidingen", 14f))
         addView(space(4))
         addView(body(
-            "PURE blijft de gevalideerde meetbare projectie. TN-3 bindt camera-native Master + per-channel Dynamic Authority + full-frame Open Scene State. " +
-                "Advanced/Restoration blijft downstream en kan nu full-resolution DNG/TIFF/EXR projecteren zonder evidence-upgrade.",
+            "PURE blijft de gevalideerde meetbare projectie. TN-3, Advanced, TRR en Restoration-projecties delen nu dezelfde canonical Open Scene-identiteit. " +
+                "DNG/TIFF/EXR bevatten daarnaast de volledige role-mask payload; geen van deze afleidingen verhoogt evidence-authority.",
             11.5f,
         ))
     }
