@@ -1,0 +1,100 @@
+name: TruthRaw Suite v0.83.1 UI JPG-L
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-83-1-three-route-ui-tiff-fix
+    paths:
+      - 'suite_android/**'
+      - '.github/workflows/android-truthraw-suite-v0-83-1-ui-jpgl.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-suite:
+    name: Build v0.83.1 three-route UI + JPG-L arm64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.83.1 integration contracts
+        run: |
+          set -euo pipefail
+          APP='suite_android'
+          JAVA="$APP/app/src/main/java/com/truthraw/adaptiveui"
+          CPP="$APP/app/src/main/cpp"
+          MANIFEST="$APP/app/src/main/AndroidManifest.xml"
+
+          grep -F 'TRUTHRAW PURE' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'TRUTHRAW ADVANCED' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'TRUTHRAW PRO' "$JAVA/TruthRawSuiteLauncherActivity.kt"
+          grep -F 'TruthRawProActivity' "$MANIFEST"
+
+          grep -F 'JPG-L · layered' "$JAVA/MainActivity.kt"
+          grep -F 'class TruthRawProActivity' "$JAVA/TruthRawProActivity.kt"
+          grep -F 'object FullResJpegExporter' "$JAVA/FullResJpegExport.kt"
+          grep -F 'object JpgLExporter' "$JAVA/JpgLExport.kt"
+          grep -F 'TRJPGL01' "$JAVA/JpgLExport.kt"
+          grep -F 'renderFullResNv21' "$CPP/photo_export_bridge.cpp"
+          grep -F 'photo_export_bridge.cpp' "$CPP/CMakeLists.txt"
+
+          # Regression: v0.72 TIFF writer must not contain the old empty spin loop.
+          if grep -F 'while((header.size()%12u)!=2u && header.size()<8u+2u+e.size()*12u){}' "$CPP/restoration_projection_bridge.cpp"; then
+            echo 'Forbidden TIFF infinite header loop regression' >&2
+            exit 1
+          fi
+
+          # Navigation contract: all custom pages after launcher expose a visible back affordance.
+          grep -F 'contentDescription = "Terug"' "$JAVA/MainActivity.kt"
+          grep -F 'contentDescription = "Terug"' "$JAVA/TruthRawProActivity.kt"
+          grep -F 'contentDescription = "Terug"' "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          grep -F 'text = "‹"' "$JAVA/TruthRawAdvancedActivity.kt"
+          grep -F 'text = "‹"' "$JAVA/TruthRawSettingsActivity.kt"
+
+          # Scientific boundary: JPG-L science layer is existing TN-3, not new evidence.
+          grep -F 'pixel_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB' "$JAVA/JpgLExport.kt"
+          grep -F 'creates_new_evidence=0' "$JAVA/JpgLExport.kt"
+          grep -F 'scientific_writeback_allowed=0' "$JAVA/JpgLExport.kt"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify new native export bridge and APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21'
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative'
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v0-83-1-three-route-jpgl-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
