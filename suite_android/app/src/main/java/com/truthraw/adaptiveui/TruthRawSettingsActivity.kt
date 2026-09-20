@@ -48,24 +48,17 @@ class TruthRawSettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("Instellingen", 26f))
-                addView(body("TruthRaw v0.72 · projection lifecycle + progress fix", 11.5f))
+                addView(body("TruthRaw v0.83.1 · PURE / ADVANCED / PRO", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
         root.addView(space(18))
-        root.addView(sectionCard("Productieroute").apply {
+        root.addView(sectionCard("Interface").apply {
             addView(body(
-                "RAW/DNG-import en camera blijven twee ingangen naar dezelfde sealed-source admission. De gekozen uitvoervoorkeur verandert geen scientific authority.",
+                "De normale productieroute staat op het hoofdscherm: kies PURE, ADVANCED of PRO en daarna RAW/DNG of Camera. " +
+                    "Instellingen bevat daarom geen dubbele productieknoppen meer.",
                 12.5f,
             ))
-            addView(space(10))
-            addView(action("Open TruthRaw processor") {
-                startActivity(Intent(this@TruthRawSettingsActivity, MainActivity::class.java))
-            })
-            addView(space(8))
-            addView(action("FotoGraaf camera") {
-                startActivity(Intent(this@TruthRawSettingsActivity, FotoGraafCameraActivity::class.java))
-            })
         })
 
         root.addView(space(14))
