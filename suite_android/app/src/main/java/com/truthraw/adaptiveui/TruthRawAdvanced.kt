@@ -262,7 +262,7 @@ object AdvancedTilePreviewLoader {
             !outputAcutanceDeltaCap.isFinite() ||
             outputAcutanceDeltaCap < 0.0045f ||
             outputAcutanceDeltaCap > 0.007001f ||
-            outputAcutanceHdrRebased != options.hdr ||
+            outputAcutanceHdrRebased != options.naturalHdr ||
             outputAcutanceChangedPixels < 0 ||
             outputAcutanceHdrRebasedPixels < 0 ||
             !outputAcutanceMaxHdrTargetAbsError.isFinite() ||
@@ -271,7 +271,7 @@ object AdvancedTilePreviewLoader {
             packet[87] != 0 ||
             outputAcutanceBindingSha256.all { it == '0' } ||
             outputAcutanceHdrRebasedPixels != packet[27] ||
-            (!options.hdr && outputAcutanceHdrRebasedPixels != 0)
+            (!options.naturalHdr && outputAcutanceHdrRebasedPixels != 0)
         ) {
             return TilePreviewUiState.Failed(
                 job.id,
