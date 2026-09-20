@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 160
+    private const val HEADER_INTS = 176
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -366,9 +366,44 @@ object AdvancedTilePreviewLoader {
         }
         val expectedHdrPresentationAuthority = if (options.naturalHdr) 1 else 0
 
+        val outputChannelAuthorityAvailable = packet[160] != 0
+        val outputChannelAuthorityMappingMode = packet[161]
+        val outputAuthorityCalibratedChannels = packet[162]
+        val outputAuthorityReconstructedChannels = packet[163]
+        val outputAuthorityCensoredChannels = packet[164]
+        val outputAuthorityUnknownChannels = packet[165]
+        val outputAuthorityCensoredSupportPixels = packet[166]
+        val outputAuthorityPixelCount = packet[167]
+        val outputAuthorityArtifactSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[168 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        val outputAuthorityRecordCount =
+            outputAuthorityCalibratedChannels +
+                outputAuthorityReconstructedChannels +
+                outputAuthorityCensoredChannels +
+                outputAuthorityUnknownChannels
+        if (!outputChannelAuthorityAvailable ||
+            outputChannelAuthorityMappingMode !in 1..2 ||
+            outputAuthorityPixelCount != width * height ||
+            outputAuthorityRecordCount != outputAuthorityPixelCount * 3 ||
+            outputAuthorityArtifactSha256.all { it == '0' } ||
+            outputAuthorityReconstructedChannels != 0 ||
+            outputAuthorityUnknownChannels <= 0
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: v0.84 per-output-channel authority map ontbreekt of promoveert authority.",
+            )
+        }
+
         if (hdrScientificAuthority != 0 ||
             hdrPresentationAuthority != expectedHdrPresentationAuthority ||
-            hdrBlockedReason != 1 ||
+            hdrBlockedReason != 2 ||
             hdrScientificGainAllowed ||
             hdrPresentationGainAllowed != options.naturalHdr ||
             packet[133] != 0 ||
@@ -380,7 +415,7 @@ object AdvancedTilePreviewLoader {
             packet[139] != width * height ||
             packet[140] != 1 ||
             packet[141] != 1 ||
-            packet[142] != 0 ||
+            packet[142] != 1 ||
             packet[143] != (if (reconstructedAllowedByAdmission) 1 else 0) ||
             packet[144] != 1 ||
             packet[145] != (if (illuminationWhitePointKnown) 1 else 0) ||
@@ -493,6 +528,14 @@ object AdvancedTilePreviewLoader {
             hdrRequiresPerOutputChannelAuthority = packet[136] != 0,
             hdrRequiresAdmittedUncertaintyForReconstructed = packet[137] != 0,
             hdrAuthorityStateSha256 = hdrAuthorityStateSha256,
+            outputChannelAuthorityAvailable = outputChannelAuthorityAvailable,
+            outputChannelAuthorityMappingMode = outputChannelAuthorityMappingMode,
+            outputAuthorityCalibratedChannels = outputAuthorityCalibratedChannels,
+            outputAuthorityReconstructedChannels = outputAuthorityReconstructedChannels,
+            outputAuthorityCensoredChannels = outputAuthorityCensoredChannels,
+            outputAuthorityUnknownChannels = outputAuthorityUnknownChannels,
+            outputAuthorityCensoredSupportPixels = outputAuthorityCensoredSupportPixels,
+            outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -526,6 +569,7 @@ object AdvancedTilePreviewLoader {
         -12 -> "Advanced: v0.79 gaf onverwacht RECONSTRUCTED authority vrij zonder toegelaten trace/runtime p95-pad."
         -13 -> "Advanced: v0.80 Adaptive Detail provenance/authority-grens werd geschonden."
         -14 -> "Advanced: v0.81 Output Acutance/HDR-rebase faalde fail-closed."
+        -16 -> "Advanced: v0.84 per-output-channel authority-map faalde fail-closed."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
