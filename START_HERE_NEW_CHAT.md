@@ -4,27 +4,27 @@
 
 **For a new chat, read this section first, then open:**
 
-1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-3. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
-4. `docs/research/multivendor-raw-source-adapter-v0.1/README.md`
-5. `docs/research/nikon-nef-radiometric-admission-v0.59/README.md`
-6. `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`
-7. `docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md`
-8. `docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md`
-9. `docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md`
+1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+3. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
+4. `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`
+5. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
+6. `docs/research/multivendor-raw-source-adapter-v0.1/README.md`
+7. `docs/research/nikon-nef-radiometric-admission-v0.59/README.md`
+8. `docs/HONOR_MAGIC8_PRO_TELE_PAYLOAD_GEOMETRY_V020_2026-09-17.md`
+9. `docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix`
+`integration/truthraw-suite-v0-73-camera-source-admission-tn3`
 
 Current app:
 
-`0.37-v0.72-projection-lifecycle-progress-fix`
+`0.38-v0.73-camera-source-admission-tn3`
 
-Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
+Current product direction: **one app with file import and real camera capture converging at the same fail-closed Main-House RAW admission.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.72 keeps the v0.71 Open Scene/role-mask science unchanged and fixes Android projection lifecycle/state: STARTING grace, one active projection, persistent picker format, source-session restore, visible elapsed progress and reliable terminal completion. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+v0.73 keeps the v0.72 projection lifecycle and v0.63 PURE science frozen, restores the polished v0.65 launcher/icon presentation, and makes `Gebruik camera` open the latest active Camera-5 v0.53 source-first capture path. The 16320x12288 Camera2 envelope is never directly promoted to 200 MP science: after sealing, read-only raster/topology admission must resolve a unique advertised standard RAW sample-domain before a derived processing DNG is allowed to re-enter the normal DNG admission. TruthNegative TN-3 remains downstream of that admission and may carry the full-resolution Scientific Negative/Open Scene only at the admitted domain. Nikon NEF remains separately blocked from Scientific Master promotion until its open calibration/uncertainty/color gates close.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
