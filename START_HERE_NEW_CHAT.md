@@ -2,46 +2,40 @@
 
 ## CURRENT ACTIVE INTEGRATION — 2026-09-20
 
-**For a new chat, read this section first, then open:**
+**Read first:**
 
 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-3. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
-4. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
-5. `docs/research/bound-uncertainty-admission-v0.79/README.md`
-6. `docs/research/open-scene-channel-authority-v0.78/README.md`
-7. `docs/research/canonical-ancestry-spine-v0.77/README.md`
-8. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
-9. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
+3. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
+4. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
+5. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+6. `docs/research/adaptive-detail-v47j-adapter-v0.80/README.md`
+7. `canonical/output-acutance/v4.7k/README_v4_7k.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
+`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
 
 Current app:
 
-`0.45-v0.79-bound-uncertainty-admission`
+`0.46-v0.80-adaptive-detail-v47j`
 
 Current green CI:
 
-`35520033588`
+`35520838931`
 
 Current APK SHA-256:
 
-`55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5`
+`3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb`
 
-Frozen v0.72 baseline references retained for governance/provenance:
+Current detail boundary:
+canonical v4.7j is integrated as **appearance/detail compensation only**. The scientific v4.7i reconstruction translation unit stays frozen; v0.78 authority and v0.79 uncertainty admission are unchanged.
 
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+Immediate next branch:
 
-Current product direction: **one app with file import and real camera capture converging at the same fail-closed Main-House RAW admission, followed by ancestry-, authority- and uncertainty-aware Free Scientific Space.**
+`integration/truthraw-suite-v0-81-output-acutance-v47k`
 
-Current scientific boundary: **v0.79 does not admit reconstructed-channel authority yet.** Current Camera-5 processing DNG is outside historical v5.0g vendor-DNG scope; generic imports lack source-class attestation; historical v5.0g still needs the exact F64 reconstructed-quantity trace certificate.
-
-Current writer contract remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.
-
-Do not use older v0.73/v0.72 bootstrap text below as the first current-state interpretation. Those sections remain retained provenance/background.
+v4.7k must run only after final resize and before final HDR-gain/OETF presentation. The HDR relation must be recomputed against the acutance-adjusted SDR base.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
