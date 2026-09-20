@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-70-canonical-open-scene-role-binding`
+`integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed`
 
 Current app version:
 
-`0.35-v0.70-canonical-open-scene-role-binding`
+`0.36-v0.71-open-scene-trr-rolemask-embed`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -232,6 +232,40 @@ PURE v0.63 and the v0.67 Restoration algorithm remain unchanged.
 v0.70 CI run `35505972249` is fully green on GCC, Clang, recovered Open Scene v0.7/v0.8 scientific contracts and Android. Artifact ID `10603629201`; extracted APK bytes `6,305,789`; APK SHA-256 `43be7ac637f1e24d346c82ea8b3c717f4f2fd394fb3f977b490127db8eecca7d`.
 
 Real-device v0.70 validation is still pending. The next direct cable is exact canonical Open Scene artifact propagation into Advanced and the Restoration container itself, followed by full role-mask embedding/companion-sidecar policy.
+
+## 2K. v0.71 — Open Scene in Advanced/TRR + full role-mask embedding
+
+v0.71 closes the first two direct post-v0.69 loose cables at implementation level.
+
+Canonical Open Scene now has one shared source builder. Advanced computes the full-frame canonical artifact identity before release and exposes the exact 32-byte artifact SHA-256 in its native packet. The full-resolution Restoration container keeps its v0.67 scientific pixel algorithm but adds:
+
+`binding_extension=TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71`.
+
+The TRR header stores Dynamic-Authority, Open-Scene content, policy and final artifact SHA-256 identities plus the exact role-mask SHA-256. Android requires this extension during staging and post-write verification.
+
+Normal Restoration projections now require the TRR-declared Open Scene artifact to equal a freshly recomputed source-bound canonical Open Scene artifact. They also require the TRR role-mask hash to match the exact stored role bytes.
+
+The full role mask is no longer only hash-bound:
+
+- DNG embeds all role bytes inside DNGPrivateData after `TRUTHRAW_ROLE_MASK_BINARY_V1`;
+- TIFF embeds all role bytes in private BYTE tag `65000`;
+- OpenEXR carries a full-resolution UINT channel `TR_ROLE`.
+
+Read:
+
+- `docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md`;
+- `docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md`.
+
+Cable A (canonical Open Scene propagation) and cable B (full role-mask projection binding/payload) are now **CLOSED AT IMPLEMENTATION LEVEL**.
+
+Still open:
+
+1. independent DNG/TIFF/OpenEXR conformance;
+2. real-device v0.71 TRR + DNG/TIFF/EXR artifact validation;
+3. effectful Restoration validation on a source with actual censored CFA support;
+4. later current PTC/certificate, multi-vendor admission and evidence-bounded deeper Scene Physics.
+
+PURE remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`; v0.67 Restoration eligibility/support math remains unchanged.
 
 ## 3. Recovery work completed before app unification
 
