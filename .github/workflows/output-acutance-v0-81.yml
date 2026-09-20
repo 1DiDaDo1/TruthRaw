@@ -1,0 +1,55 @@
+name: Output Acutance v0.81
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-81-output-acutance-v47k
+    paths:
+      - 'suite_android/app/src/main/cpp/output_acutance_v0_81.*'
+      - 'docs/research/output-acutance-v0.81/**'
+      - 'canonical/output-acutance/v4.7k/**'
+      - '.github/workflows/output-acutance-v0-81.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: ${{ matrix.compiler }} v4.7k output/HDR rebase
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: cmake -S docs/research/output-acutance-v0.81 -B build/v081 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/v081 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/v081 --output-on-failure
+
+  sanitizer:
+    name: Clang ASan UBSan v0.81
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+          LDFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+        run: cmake -S docs/research/output-acutance-v0.81 -B build/v081-san -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build/v081-san --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/v081-san --output-on-failure
