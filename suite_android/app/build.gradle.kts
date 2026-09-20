@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 41
-        versionName = "0.41-v0.75-bitexact-preview-core-512"
+        versionCode = 42
+        versionName = "0.42-v0.75.1-camera-orientation-ui"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
