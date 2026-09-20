@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.IBinder
 import android.os.PowerManager
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 
 class FullResRestorationForegroundService : Service() {
