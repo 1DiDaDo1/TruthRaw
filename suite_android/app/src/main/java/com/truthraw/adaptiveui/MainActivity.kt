@@ -1000,6 +1000,91 @@ class MainActivity : Activity() {
         render()
     }
 
+    private fun backgroundOperationKey(kind: String, jobId: String): String =
+        "main:$kind:$jobId"
+
+    private fun startBackgroundOperation(
+        key: String,
+        label: String,
+    ): Boolean =
+        TruthRawMediaProcessingForegroundService.start(
+            applicationContext,
+            key,
+            label,
+        )
+
+    private fun finishBackgroundOperation(
+        key: String,
+        success: Boolean,
+        message: String,
+    ) {
+        if (success) {
+            TruthRawMediaProcessingForegroundService.success(applicationContext, key, message)
+        } else {
+            TruthRawMediaProcessingForegroundService.error(applicationContext, key, message)
+        }
+    }
+
+    private fun backgroundOperationStatusView(
+        key: String,
+        fallbackMessage: String,
+    ): View? {
+        val state = TruthRawOperationStore.read(this, key) ?: return null
+        val dotColor = when (state.phase) {
+            TruthRawOperationPhase.RUNNING,
+            TruthRawOperationPhase.SUCCESS -> Color.rgb(65, 196, 106)
+            TruthRawOperationPhase.ERROR -> Color.rgb(232, 73, 73)
+            TruthRawOperationPhase.CANCELLED -> palette.textMuted
+        }
+        return horizontal().apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(View(this@MainActivity).apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(dotColor)
+                }
+                contentDescription = when (state.phase) {
+                    TruthRawOperationPhase.RUNNING -> "Proces loopt normaal"
+                    TruthRawOperationPhase.SUCCESS -> "Proces gereed"
+                    TruthRawOperationPhase.ERROR -> "Proces onverwacht gestopt"
+                    TruthRawOperationPhase.CANCELLED -> "Proces geannuleerd"
+                }
+            }, LinearLayout.LayoutParams(dp(10), dp(10)).apply { marginEnd = dp(8) })
+            addView(vertical().apply {
+                addView(label(
+                    state.message.ifBlank { fallbackMessage },
+                    10.5f,
+                    muted = true,
+                ))
+                if (state.phase == TruthRawOperationPhase.RUNNING) {
+                    addView(Chronometer(this@MainActivity).apply {
+                        val elapsedWall =
+                            (System.currentTimeMillis() - state.startedAtWallMs).coerceAtLeast(0L)
+                        base = SystemClock.elapsedRealtime() - elapsedWall
+                        textSize = 10f
+                        setTextColor(palette.textMuted)
+                        format = "Looptijd %s"
+                        start()
+                    })
+                } else {
+                    val end = state.finishedAtWallMs ?: state.updatedAtWallMs
+                    val seconds = ((end - state.startedAtWallMs).coerceAtLeast(0L)) / 1000L
+                    val prefix = when (state.phase) {
+                        TruthRawOperationPhase.SUCCESS -> "Gereed in"
+                        TruthRawOperationPhase.ERROR -> "Gestopt na"
+                        TruthRawOperationPhase.CANCELLED -> "Geannuleerd na"
+                        TruthRawOperationPhase.RUNNING -> "Looptijd"
+                    }
+                    addView(label(
+                        "%s %02d:%02d".format(prefix, seconds / 60L, seconds % 60L),
+                        9.5f,
+                        muted = true,
+                    ))
+                }
+            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        }
+    }
+
     private fun requestNefMeasurement(job: RawJob) {
         if (job.source.format.support != RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING ||
             job.source.format.decoderBackend != RawDecoderBackend.NIKON_NEF_UNCOMPRESSED16_CFA_V0_1
@@ -1016,10 +1101,27 @@ class MainActivity : Activity() {
         nefMeasurementLoading = true
         val generation = ++previewGeneration
         activeJobId = job.id
+        val operationKey = backgroundOperationKey("nef-measurement", job.id)
+        if (!startBackgroundOperation(operationKey, "NEF CFA-samples inspecteren")) {
+            nefMeasurementLoading = false
+            nefMeasurementResult = NefMeasurementResult.Failed(
+                "Android achtergrondverwerking kon niet veilig worden gestart.",
+            )
+            render()
+            return
+        }
         render()
 
         Thread({
             val result = NefMeasurementLoader.load(contentResolver, job)
+            finishBackgroundOperation(
+                operationKey,
+                result is NefMeasurementResult.Ready,
+                when (result) {
+                    is NefMeasurementResult.Ready -> "NEF CFA-sample-inspectie gereed."
+                    is NefMeasurementResult.Failed -> result.reason
+                },
+            )
             runOnUiThread {
                 if (generation != previewGeneration || activeJobId != job.id) {
                     (result as? NefMeasurementResult.Ready)?.bitmap?.recycle()
@@ -1058,6 +1160,16 @@ class MainActivity : Activity() {
         val generation = ++previewGeneration
         loadingStartedAtElapsedMs = SystemClock.elapsedRealtime()
         previewState = TilePreviewUiState.Loading(job.id)
+        val operationKey = backgroundOperationKey("preview", job.id)
+        if (!startBackgroundOperation(operationKey, "TruthRaw foto verwerken")) {
+            loadingStartedAtElapsedMs = null
+            previewState = TilePreviewUiState.Failed(
+                job.id,
+                "Android mediaProcessing-service kon niet veilig worden gestart.",
+            )
+            render()
+            return
+        }
         val frameSampler = UiFramePacingSampler().also { it.start() }
         render()
         val preferredOutput = getSharedPreferences(
@@ -1077,6 +1189,16 @@ class MainActivity : Activity() {
                     contentResolver,
                     job,
                 )
+                finishBackgroundOperation(
+                    operationKey,
+                    state is TilePreviewUiState.Ready,
+                    when (state) {
+                        is TilePreviewUiState.Ready -> "TruthRaw Advanced/PRO render gereed."
+                        is TilePreviewUiState.Failed -> state.reason
+                        is TilePreviewUiState.Loading -> "TruthRaw render bleef onverwacht in loading."
+                        TilePreviewUiState.Idle -> "TruthRaw render gaf onverwacht Idle terug."
+                    },
+                )
                 runOnUiThread {
                     frameSampler.stop()
                     if (generation != previewGeneration || activeJobId != job.id) {
@@ -1090,6 +1212,16 @@ class MainActivity : Activity() {
                 }
             } else {
                 val result = EmpiricalPreviewRunner.run(this@MainActivity, contentResolver, job)
+                finishBackgroundOperation(
+                    operationKey,
+                    result.state is TilePreviewUiState.Ready,
+                    when (val state = result.state) {
+                        is TilePreviewUiState.Ready -> "TruthRaw PURE render gereed."
+                        is TilePreviewUiState.Failed -> state.reason
+                        is TilePreviewUiState.Loading -> "TruthRaw PURE render bleef onverwacht in loading."
+                        TilePreviewUiState.Idle -> "TruthRaw PURE render gaf onverwacht Idle terug."
+                    },
+                )
                 runOnUiThread {
                     val pacing = frameSampler.stop()
                     if (generation != previewGeneration || activeJobId != job.id) {
