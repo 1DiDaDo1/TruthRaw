@@ -12,15 +12,15 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-67-fullres-restoration`
+`integration/truthraw-suite-v0-68-restoration-transactional-fgs`
 
 Current app:
 
-`0.32-v0.67-fullres-restoration`
+`0.33-v0.68-restoration-transactional-fgs`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.66 restores TruthNegative TN-2, Open-World/Scene Physics and Dynamic Authority into the current app. v0.67 adds full-resolution retreatable Restoration: a source-resolution camera-native Float32 derivative plus a per-pixel role mask, with exact Scientific-Master replay and no scientific writeback. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.66 restores TruthNegative TN-2, Open-World/Scene Physics and Dynamic Authority. v0.67 adds full-resolution retreatable Restoration. v0.68 leaves that science unchanged but makes the long export transactional: foreground dataSync service, private staging, whole-file staging hash, body-first/header-last SAF commit, exact-destination SHA equality and stale-interruption cleanup. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
@@ -34,7 +34,9 @@ v0.65 CI run `35473170260` = **SUCCESS** on host GCC, host Clang and Android. Ar
 
 v0.66 CI run `35497663010` = **SUCCESS** on GCC, Clang, scientific contracts and Android. TruthNegative/Open-World/Dynamic Authority are active in the current app.
 
-v0.67 CI run `35498407249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md` before changing full-resolution restoration semantics.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+v0.67 CI run `35498407249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md` before changing full-resolution restoration semantics.
+
+v0.68 CI run `35501207534` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10602552000`; extracted APK SHA-256 `7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824`. Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md` before changing Android full-resolution export lifecycle/commit semantics.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
 
 v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
