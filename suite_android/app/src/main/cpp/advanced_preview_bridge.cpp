@@ -5,6 +5,7 @@
 #include "open_world_native_v03.h"
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
+#include "output_channel_authority_v0_84.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "adaptive_detail_v47j_adapter.h"
 #include "output_acutance_v0_81.h"
@@ -50,6 +51,7 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
+namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
 namespace output_acutance = truthraw::output_acutance_v0_81;
@@ -58,7 +60,7 @@ namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 160u;
+constexpr std::size_t kHeaderInts = 176u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -1175,32 +1177,70 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -8);
     }
 
+    output_channel_authority::Binding outputAuthorityBinding{};
+    outputAuthorityBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    outputAuthorityBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    outputAuthorityBinding.canonicalOpenSceneSha256 = openSceneSummary.artifactSha256;
+    outputAuthorityBinding.sourceChannelAuthoritySha256 = channelSummary.artifactSha256;
+    outputAuthorityBinding.uncertaintyDecisionSha256 = uncertaintyDecision.decisionSha256;
+    outputAuthorityBinding.sourceWidth =
+        static_cast<std::uint32_t>(source->metadata().width);
+    outputAuthorityBinding.sourceHeight =
+        static_cast<std::uint32_t>(source->metadata().height);
+    outputAuthorityBinding.outputWidth =
+        static_cast<std::uint32_t>(sink.width());
+    outputAuthorityBinding.outputHeight =
+        static_cast<std::uint32_t>(sink.height());
+    outputAuthorityBinding.reconstructionSupportRadius =
+        static_cast<std::uint32_t>(std::max(0, reconstruction->requiredHalo()));
+    outputAuthorityBinding.reconstructedUncertaintyAdmitted =
+        uncertaintyDecision.reconstructedAuthorityAllowed;
+    outputAuthorityBinding.physicalFrameCount = scientific.physicalFrameCount;
+    outputAuthorityBinding.independentEvidenceCount =
+        scientific.independentEvidenceCount;
+    outputAuthorityBinding.reconstructionBackendId = reconstruction->name();
+
+    output_channel_authority::Summary outputAuthoritySummary{};
+    if (!output_channel_authority::build_conservative(
+            *source, outputAuthorityBinding, outputAuthoritySummary) ||
+        !outputAuthoritySummary.perOutputChannelAuthorityAvailable ||
+        outputAuthoritySummary.recordCount !=
+            outputAuthoritySummary.outputPixelCount * 3u ||
+        outputAuthoritySummary.outputPixelCount !=
+            static_cast<std::uint64_t>(expectedPixels) ||
+        outputAuthoritySummary.createsNewEvidence ||
+        outputAuthoritySummary.scientificWritebackAllowed ||
+        outputAuthoritySummary.orientationTransformChangesAuthority) {
+        return status_packet(env, -16);
+    }
+
     hdr_authority::Input hdrAuthorityInput{};
     hdrAuthorityInput.sourceEvidenceSha256 = sourceSeal.sha256;
     hdrAuthorityInput.scientificMasterSha256 = scientific.scientificMasterHash;
     hdrAuthorityInput.canonicalOpenSceneSha256 =
         openSceneSummary.artifactSha256;
     hdrAuthorityInput.channelAuthoritySha256 =
-        channelSummary.artifactSha256;
+        outputAuthoritySummary.artifactSha256;
     hdrAuthorityInput.uncertaintyAdmissionSha256 =
         uncertaintyDecision.decisionSha256;
     hdrAuthorityInput.illuminationStateSha256 =
         illuminationState.stateSha256;
     hdrAuthorityInput.calibratedEstimateChannelRecords =
-        channelSummary.authorityCounts[0];
+        outputAuthoritySummary.authorityCounts[0];
     hdrAuthorityInput.reconstructedChannelRecords =
-        channelSummary.authorityCounts[1];
+        outputAuthoritySummary.authorityCounts[1];
     hdrAuthorityInput.censoredChannelRecords =
-        channelSummary.authorityCounts[2];
+        outputAuthoritySummary.authorityCounts[2];
     hdrAuthorityInput.unknownChannelRecords =
-        channelSummary.authorityCounts[3];
+        outputAuthoritySummary.authorityCounts[3];
     hdrAuthorityInput.outputPixelCount =
         static_cast<std::uint64_t>(expectedPixels);
     hdrAuthorityInput.presentationHdrGainPixels =
         sink.hdrGainPixels();
     hdrAuthorityInput.presentationHdrEnabled =
         (flags & kFlagHdr) != 0;
-    hdrAuthorityInput.perOutputChannelAuthorityAvailable = false;
+    hdrAuthorityInput.perOutputChannelAuthorityAvailable =
+        outputAuthoritySummary.perOutputChannelAuthorityAvailable;
     hdrAuthorityInput.reconstructedUncertaintyAdmitted =
         uncertaintyDecision.reconstructedAuthorityAllowed;
     hdrAuthorityInput.censoredGainSuppressed = true;
@@ -1219,7 +1259,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         hdrAuthorityState.scientificAuthority !=
             hdr_authority::ScientificHdrAuthority::Blocked ||
         hdrAuthorityState.blockedReason !=
-            hdr_authority::BlockedReason::NoPerOutputChannelAuthority ||
+            hdr_authority::BlockedReason::UnknownChannelAuthorityPresent ||
         hdrAuthorityState.scientificGainAllowed ||
         hdrAuthorityState.presentationAuthority !=
             (((flags & kFlagHdr) != 0)
@@ -1418,6 +1458,19 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
             digest_word_le(illuminationState.stateSha256, word);
         out[148u + word] =
             digest_word_le(hdrAuthorityState.stateSha256, word);
+    }
+
+    out[160] = outputAuthoritySummary.perOutputChannelAuthorityAvailable ? 1 : 0;
+    out[161] = static_cast<jint>(outputAuthoritySummary.mappingMode);
+    out[162] = clamp_metric(outputAuthoritySummary.authorityCounts[0]);
+    out[163] = clamp_metric(outputAuthoritySummary.authorityCounts[1]);
+    out[164] = clamp_metric(outputAuthoritySummary.authorityCounts[2]);
+    out[165] = clamp_metric(outputAuthoritySummary.authorityCounts[3]);
+    out[166] = clamp_metric(outputAuthoritySummary.censoredSupportPixels);
+    out[167] = clamp_metric(outputAuthoritySummary.outputPixelCount);
+    for (std::size_t word = 0u; word < 8u; ++word) {
+        out[168u + word] =
+            digest_word_le(outputAuthoritySummary.artifactSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
