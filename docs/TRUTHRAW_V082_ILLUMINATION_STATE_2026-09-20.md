@@ -2,7 +2,9 @@
 
 ## Status
 
-Integration candidate on:
+**CLOSED INTEGRATION — CI + Android APK PASS**
+
+Integration branch:
 
 `integration/truthraw-suite-v0-82-illumination-state`
 
@@ -128,3 +130,50 @@ Only after illumination-state closure should Scientific HDR be redesigned to con
 - v0.82 illumination state.
 
 That HDR stage must still keep CENSORED as bounds and UNKNOWN as unknown.
+
+
+## Validation closure
+
+Full integration CI run:
+
+`35522724167`
+
+All green:
+- GCC illumination state
+- Clang illumination state
+- Clang ASan/UBSan illumination state
+- v0.81 canonical Output Acutance
+- v0.80 canonical Adaptive Detail parity
+- v0.78-v0.79 authority and uncertainty gates
+- existing scientific lineage contracts
+- Android v0.82 Illumination State
+- APK verification
+- artifact upload
+
+Artifact:
+- GitHub artifact id: `10609012748`
+- artifact ZIP SHA-256: `5875b9f72670fd87c153e0193b6f598d8c4601906b34c2e80e432c1dd71a2b6b`
+- APK bytes: `6,491,089`
+- APK SHA-256: `9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb`
+- CI head: `86f92217a700a52bb26583d1f967a072e3e4c660`
+
+v0.82 is therefore the current closed integration baseline.
+
+## Immediate next integration
+
+Recommended next branch:
+
+`integration/truthraw-suite-v0-83-authority-aware-hdr`
+
+Goal:
+replace appearance-only HDR gating with an explicit local HDR-authority contract that consumes:
+- Scientific Master;
+- v0.78 per-channel authority;
+- CENSORED lower bounds;
+- v0.79 admitted uncertainty when it eventually exists;
+- v0.82 illumination state as context only.
+
+Hard rule:
+v0.82 white-point/CCT/Duv context may not create extra HDR authority by itself.
+
+Current Camera-5 and generic imported DNG routes still have RECONSTRUCTED=0 and no admitted uncertainty, so v0.83 must remain conservative/fail-closed in those regions rather than inventing headroom.
