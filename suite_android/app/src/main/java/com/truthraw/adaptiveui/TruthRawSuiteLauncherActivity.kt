@@ -27,6 +27,9 @@ class TruthRawSuiteLauncherActivity : Activity() {
     private val amber = Color.rgb(236, 176, 82)
     private val purple = Color.rgb(190, 92, 238)
 
+    private val compactHeight: Boolean
+        get() = resources.configuration.screenHeightDp < 720
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
@@ -42,10 +45,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }
 
         root.addView(header())
-        root.addView(space(22))
-        root.addView(title("Kies invoer", 27f))
-        root.addView(body("Waar komt je foto vandaan?", 15f))
-        root.addView(space(12))
+        root.addView(space(if (compactHeight) 12 else 22))
+        root.addView(title("Kies invoer", if (compactHeight) 24f else 27f))
+        root.addView(body("Waar komt je foto vandaan?", if (compactHeight) 13.5f else 15f))
+        root.addView(space(if (compactHeight) 8 else 12))
         root.addView(horizontal().apply {
             addView(
                 inputCard(
@@ -80,10 +83,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
         })
 
-        root.addView(space(24))
-        root.addView(title("Kies uitvoer", 27f))
-        root.addView(body("Je voorkeur bepaalt welke echte exportactie na verwerking bovenaan staat.", 14f))
-        root.addView(space(12))
+        root.addView(space(if (compactHeight) 14 else 24))
+        root.addView(title("Kies uitvoer", if (compactHeight) 24f else 27f))
+        root.addView(body("Je voorkeur bepaalt welke echte exportactie na verwerking bovenaan staat.", if (compactHeight) 12.5f else 14f))
+        root.addView(space(if (compactHeight) 8 else 12))
 
         val selected = preferredOutput()
         root.addView(horizontal().apply {
@@ -100,17 +103,17 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
             addView(
                 outputCard(
-                    titleText = "TRUTHNEGATIVE",
-                    subtitleText = "Scientific Negative",
-                    detail = "TN-3 · Canonical Open Scene · shared identity",
+                    titleText = "JPG XL",
+                    subtitleText = "Hoge kwaliteit",
+                    detail = "Nog niet toegelaten",
                     accent = purple,
-                    selected = selected == OUTPUT_NEGATIVE,
-                    enabled = true,
-                ) { setPreferredOutput(OUTPUT_NEGATIVE) },
+                    selected = false,
+                    enabled = false,
+                ) {},
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
             )
         })
-        root.addView(space(12))
+        root.addView(space(if (compactHeight) 8 else 12))
         root.addView(horizontal().apply {
             addView(
                 outputCard(
@@ -143,7 +146,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
         })
 
-        root.addView(space(22))
+        root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip())
         root.addView(space(8))
         root.addView(body("v0.73 · Camera-5 capture → sealed RAW-ingang → Scientific Master / TN-3", 11f).apply {
@@ -169,12 +172,14 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setImageResource(R.drawable.truthraw_icon)
             contentDescription = "TruthRaw"
             scaleType = ImageView.ScaleType.CENTER_CROP
-        }, LinearLayout.LayoutParams(dp(68), dp(68)).apply { marginEnd = dp(14) })
+        }, LinearLayout.LayoutParams(dp(if (compactHeight) 58 else 68), dp(if (compactHeight) 58 else 68)).apply {
+            marginEnd = dp(if (compactHeight) 10 else 14)
+        })
 
         addView(vertical().apply {
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
                 text = "TruthRaw"
-                textSize = 31f
+                textSize = if (compactHeight) 28f else 31f
                 setTextColor(textPrimary)
                 setTypeface(typeface, Typeface.BOLD)
             })
@@ -196,7 +201,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setOnClickListener {
                 startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawSettingsActivity::class.java))
             }
-        }, LinearLayout.LayoutParams(dp(54), dp(54)))
+        }, LinearLayout.LayoutParams(dp(if (compactHeight) 48 else 54), dp(if (compactHeight) 48 else 54)))
     }
 
     private fun inputCard(
@@ -206,21 +211,22 @@ class TruthRawSuiteLauncherActivity : Activity() {
         accent: Int,
         action: () -> Unit,
     ): View = vertical().apply {
-        setPadding(dp(14), dp(14), dp(14), dp(14))
+        val pad = if (compactHeight) 11 else 14
+        setPadding(dp(pad), dp(pad), dp(pad), dp(pad))
         background = cardBackground(surfaceSoft, accent, true)
-        minimumHeight = dp(185)
+        minimumHeight = dp(if (compactHeight) 158 else 185)
 
         addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
             setImageResource(iconRes)
             imageTintList = ColorStateList.valueOf(Color.rgb(190, 224, 255))
             setPadding(dp(8), dp(8), dp(8), dp(8))
             background = cardBackground(Color.rgb(8, 30, 56), accent, false)
-        }, LinearLayout.LayoutParams(dp(54), dp(54)))
-        addView(space(14))
-        addView(title(titleText, 18f))
-        addView(space(5))
-        addView(body(subtitleText, 12.5f))
-        addView(space(10))
+        }, LinearLayout.LayoutParams(dp(if (compactHeight) 46 else 54), dp(if (compactHeight) 46 else 54)))
+        addView(space(if (compactHeight) 9 else 14))
+        addView(title(titleText, if (compactHeight) 16.5f else 18f))
+        addView(space(4))
+        addView(body(subtitleText, if (compactHeight) 11.5f else 12.5f))
+        addView(space(if (compactHeight) 6 else 10))
         addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
             text = "›"
             textSize = 31f
@@ -239,12 +245,19 @@ class TruthRawSuiteLauncherActivity : Activity() {
         enabled: Boolean,
         action: () -> Unit,
     ): View = vertical().apply {
-        setPadding(dp(13), dp(13), dp(13), dp(13))
+        val pad = if (compactHeight) 10 else 13
+        setPadding(dp(pad), dp(pad), dp(pad), dp(pad))
         background = cardBackground(if (selected) Color.rgb(12, 31, 52) else surface, accent, selected)
         alpha = if (enabled) 1f else 0.56f
 
         val isTruthRaw = titleText.startsWith("TRUTHRAW ")
-        minimumHeight = dp(if (isTruthRaw) 158 else 142)
+        minimumHeight = dp(
+            if (compactHeight) {
+                if (isTruthRaw) 132 else 124
+            } else {
+                if (isTruthRaw) 158 else 142
+            },
+        )
 
         addView(horizontal().apply {
             gravity = Gravity.TOP
@@ -262,7 +275,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
             }
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
                 text = displayTitle
-                textSize = if (isTruthRaw) 13f else 16f
+                textSize = if (compactHeight) {
+                    if (isTruthRaw) 12.2f else 15f
+                } else {
+                    if (isTruthRaw) 13f else 16f
+                }
                 maxLines = if (isTruthRaw) 2 else 1
                 setTextColor(textPrimary)
                 setTypeface(typeface, Typeface.BOLD)
@@ -270,24 +287,28 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 setLineSpacing(0f, 0.95f)
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
-        addView(space(7))
-        addView(body(subtitleText, 12f))
-        addView(space(7))
-        addView(body(detail, 10.8f).apply {
+        addView(space(if (compactHeight) 4 else 7))
+        addView(body(subtitleText, if (compactHeight) 11f else 12f))
+        addView(space(if (compactHeight) 4 else 7))
+        addView(body(detail, if (compactHeight) 10f else 10.8f).apply {
             maxLines = if (isTruthRaw) 3 else 2
         })
         if (enabled) setOnClickListener { action() }
     }
 
     private fun infoStrip(): View = vertical().apply {
-        setPadding(dp(14), dp(13), dp(14), dp(13))
+        setPadding(dp(14), dp(if (compactHeight) 10 else 13), dp(14), dp(if (compactHeight) 10 else 13))
         background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
-        addView(title("Eén Scientific Master, meerdere veilige afleidingen", 14f))
+        addView(title("PURE blijft meetbaar", 14f))
         addView(space(4))
         addView(body(
-            "PURE blijft de gevalideerde meetbare projectie. TN-3, Advanced, TRR en Restoration-projecties delen nu dezelfde canonical Open Scene-identiteit. " +
-                "DNG/TIFF/EXR bevatten daarnaast de volledige role-mask payload; geen van deze afleidingen verhoogt evidence-authority.",
-            11.5f,
+            if (compactHeight) {
+                "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority."
+            } else {
+                "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority. " +
+                    "TN-3/Open Scene blijft beschikbaar in de wetenschappelijke verwerkingsroute."
+            },
+            if (compactHeight) 10.8f else 11.5f,
         ))
     }
 
@@ -296,8 +317,12 @@ class TruthRawSuiteLauncherActivity : Activity() {
         setContentView(buildUi())
     }
 
-    private fun preferredOutput(): String =
-        getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_OUTPUT, OUTPUT_PURE) ?: OUTPUT_PURE
+    private fun preferredOutput(): String {
+        val value = getSharedPreferences(PREFS, MODE_PRIVATE)
+            .getString(KEY_OUTPUT, OUTPUT_PURE)
+            ?: OUTPUT_PURE
+        return if (value == OUTPUT_NEGATIVE) OUTPUT_PURE else value
+    }
 
     private fun cardBackground(fill: Int, stroke: Int, selected: Boolean): GradientDrawable =
         GradientDrawable().apply {
