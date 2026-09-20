@@ -144,7 +144,12 @@ object RestorationProjectionExporter {
             metrics.pixels != total ||
             metrics.role0Pixels + metrics.role1Pixels + metrics.role2Pixels != total ||
             !metrics.derivativeIdentityVerified || !metrics.lineageVerified ||
-            !metrics.fullResolution || packet[18] != 1L || packet[19] != 1L
+            !metrics.fullResolution ||
+            packet[15] != 1L ||
+            packet[16] != 1L ||
+            packet[17] != 1L ||
+            packet[18] != 1L ||
+            packet[19] != 1L
         ) {
             staging.delete()
             return RestorationProjectionResult.Failed(
@@ -247,6 +252,8 @@ object RestorationProjectionExporter {
                 if (!tiff ||
                     !text.contains("TRUTHRAW_RESTORATION_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION_V0_69") ||
                     !text.contains("restoration_role_mask_sha256=") ||
+                    !text.contains("restoration_role_mask_embedded=1") ||
+                    !text.contains("TRUTHRAW_ROLE_MASK_BINARY_V1") ||
                     !text.contains("open_scene_state_sha256=")
                 ) {
                     false to "DNG/TIFF header, role-mask of canonical Open Scene binding ontbreekt"
@@ -257,13 +264,15 @@ object RestorationProjectionExporter {
                     prefix[0] == 'I'.code.toByte() && prefix[1] == 'I'.code.toByte() &&
                     prefix[2] == 42.toByte() && prefix[3] == 0.toByte()
                 val text = prefix.toString(Charsets.ISO_8859_1)
+                val roleTag = hasClassicTiffTag(prefix, 65000)
                 if (!tiff ||
                     !text.contains("TruthRaw Restoration Projection v0.69") ||
                     !text.contains("restoration_role_mask_sha256=") ||
-                    !text.contains("open_scene_artifact_sha256=")
+                    !text.contains("open_scene_artifact_sha256=") ||
+                    !roleTag
                 ) {
-                    false to "TIFF header/provenance/role-mask/Open-Scene binding ontbreekt"
-                } else true to "TIFF header + provenance + role/Open-Scene binding geldig"
+                    false to "TIFF header/provenance/embedded role-mask/Open-Scene binding ontbreekt"
+                } else true to "TIFF header + embedded role-mask + Open-Scene binding geldig"
             }
             RestorationProjectionFormat.EXR -> {
                 val exr = prefix.size >= 4 &&
@@ -275,12 +284,39 @@ object RestorationProjectionExporter {
                 if (!exr || !text.contains("truthrawProvenance") ||
                     !text.contains("TruthRaw Restoration Projection v0.69") ||
                     !text.contains("restoration_role_mask_sha256=") ||
-                    !text.contains("open_scene_artifact_sha256=")
+                    !text.contains("open_scene_artifact_sha256=") ||
+                    !text.contains("TR_ROLE")
                 ) {
-                    false to "OpenEXR magic/provenance/role-mask/Open-Scene binding ontbreekt"
-                } else true to "OpenEXR header + provenance + role/Open-Scene binding geldig"
+                    false to "OpenEXR magic/provenance/TR_ROLE/Open-Scene binding ontbreekt"
+                } else true to "OpenEXR header + TR_ROLE role-mask + Open-Scene binding geldig"
             }
         }
+    }
+
+    private fun hasClassicTiffTag(prefix: ByteArray, wantedTag: Int): Boolean {
+        if (prefix.size < 8 ||
+            prefix[0] != 'I'.code.toByte() ||
+            prefix[1] != 'I'.code.toByte()
+        ) return false
+        fun u16(offset: Int): Int =
+            (prefix[offset].toInt() and 0xff) or
+                ((prefix[offset + 1].toInt() and 0xff) shl 8)
+        fun u32(offset: Int): Int =
+            (prefix[offset].toInt() and 0xff) or
+                ((prefix[offset + 1].toInt() and 0xff) shl 8) or
+                ((prefix[offset + 2].toInt() and 0xff) shl 16) or
+                ((prefix[offset + 3].toInt() and 0xff) shl 24)
+
+        val ifdOffset = u32(4)
+        if (ifdOffset < 0 || ifdOffset + 2 > prefix.size) return false
+        val count = u16(ifdOffset)
+        var pos = ifdOffset + 2
+        repeat(count) {
+            if (pos + 12 > prefix.size) return false
+            if (u16(pos) == wantedTag) return true
+            pos += 12
+        }
+        return false
     }
 
     private fun sha256(file: File): String? = try {
