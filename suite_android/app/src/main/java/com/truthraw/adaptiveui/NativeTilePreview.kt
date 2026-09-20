@@ -126,6 +126,14 @@ data class TilePreviewMetrics(
     val illuminationCalibrationIlluminant1: Int = 0,
     val illuminationCalibrationIlluminant2: Int = 0,
     val illuminationStateSha256: String? = null,
+    val hdrScientificAuthority: Int = 0,
+    val hdrPresentationAuthority: Int = 0,
+    val hdrBlockedReason: Int = 0,
+    val hdrScientificGainAllowed: Boolean = false,
+    val hdrPresentationGainAllowed: Boolean = false,
+    val hdrRequiresPerOutputChannelAuthority: Boolean = true,
+    val hdrRequiresAdmittedUncertaintyForReconstructed: Boolean = true,
+    val hdrAuthorityStateSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
