@@ -5,6 +5,7 @@
 #include "full_frame_streaming_v0_1.h"
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
+#include "output_channel_authority_v0_84.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
 #include "illumination_state_v0_82.h"
@@ -47,12 +48,13 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
+namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
-constexpr std::size_t kPacketLongs = 32u;
+constexpr std::size_t kPacketLongs = 48u;
 constexpr jint kFlagLight = 1 << 0;
 constexpr jint kFlagHdr = 1 << 1;
 constexpr jint kFlagDetail = 1 << 2;
@@ -1000,21 +1002,55 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     const std::uint64_t outputPixels=
         static_cast<std::uint64_t>(sink.width())*
         static_cast<std::uint64_t>(sink.height());
+    output_channel_authority::Binding outputAuthorityBinding{};
+    outputAuthorityBinding.sourceEvidenceSha256=seal.sha256;
+    outputAuthorityBinding.scientificMasterSha256=sci.scientificMasterHash;
+    outputAuthorityBinding.canonicalOpenSceneSha256=openSceneSummary.artifactSha256;
+    outputAuthorityBinding.sourceChannelAuthoritySha256=channelSummary.artifactSha256;
+    outputAuthorityBinding.uncertaintyDecisionSha256=uncertaintyDecision.decisionSha256;
+    outputAuthorityBinding.sourceWidth=
+        static_cast<std::uint32_t>(source->metadata().width);
+    outputAuthorityBinding.sourceHeight=
+        static_cast<std::uint32_t>(source->metadata().height);
+    // Rotation is a coordinate transform only. Full-resolution authority stays
+    // on the canonical source raster even when display axes are swapped.
+    outputAuthorityBinding.outputWidth=outputAuthorityBinding.sourceWidth;
+    outputAuthorityBinding.outputHeight=outputAuthorityBinding.sourceHeight;
+    outputAuthorityBinding.reconstructionSupportRadius=
+        static_cast<std::uint32_t>(std::max(0,reconstruction->requiredHalo()));
+    outputAuthorityBinding.reconstructedUncertaintyAdmitted=
+        uncertaintyDecision.reconstructedAuthorityAllowed;
+    outputAuthorityBinding.physicalFrameCount=sci.physicalFrameCount;
+    outputAuthorityBinding.independentEvidenceCount=sci.independentEvidenceCount;
+    outputAuthorityBinding.reconstructionBackendId=reconstruction->name();
+
+    output_channel_authority::Summary outputAuthoritySummary{};
+    if(!output_channel_authority::build_conservative(
+            *source,outputAuthorityBinding,outputAuthoritySummary) ||
+       !outputAuthoritySummary.perOutputChannelAuthorityAvailable ||
+       outputAuthoritySummary.outputPixelCount!=outputPixels ||
+       outputAuthoritySummary.recordCount!=outputPixels*3u ||
+       outputAuthoritySummary.createsNewEvidence ||
+       outputAuthoritySummary.scientificWritebackAllowed ||
+       outputAuthoritySummary.orientationTransformChangesAuthority) {
+        (void)::ftruncate(outputFd,0); return packet(env,-25);
+    }
+
     hdr_authority::Input hdrInput{};
     hdrInput.sourceEvidenceSha256=seal.sha256;
     hdrInput.scientificMasterSha256=sci.scientificMasterHash;
     hdrInput.canonicalOpenSceneSha256=openSceneSummary.artifactSha256;
-    hdrInput.channelAuthoritySha256=channelSummary.artifactSha256;
+    hdrInput.channelAuthoritySha256=outputAuthoritySummary.artifactSha256;
     hdrInput.uncertaintyAdmissionSha256=uncertaintyDecision.decisionSha256;
     hdrInput.illuminationStateSha256=illuminationState.stateSha256;
-    hdrInput.calibratedEstimateChannelRecords=channelSummary.authorityCounts[0];
-    hdrInput.reconstructedChannelRecords=channelSummary.authorityCounts[1];
-    hdrInput.censoredChannelRecords=channelSummary.authorityCounts[2];
-    hdrInput.unknownChannelRecords=channelSummary.authorityCounts[3];
+    hdrInput.calibratedEstimateChannelRecords=outputAuthoritySummary.authorityCounts[0];
+    hdrInput.reconstructedChannelRecords=outputAuthoritySummary.authorityCounts[1];
+    hdrInput.censoredChannelRecords=outputAuthoritySummary.authorityCounts[2];
+    hdrInput.unknownChannelRecords=outputAuthoritySummary.authorityCounts[3];
     hdrInput.outputPixelCount=outputPixels;
     hdrInput.presentationHdrGainPixels=sink.hdrPositiveGainSamples();
     hdrInput.presentationHdrEnabled=(flags&kFlagHdr)!=0;
-    hdrInput.perOutputChannelAuthorityAvailable=false;
+    hdrInput.perOutputChannelAuthorityAvailable=outputAuthoritySummary.perOutputChannelAuthorityAvailable;
     hdrInput.reconstructedUncertaintyAdmitted=
         uncertaintyDecision.reconstructedAuthorityAllowed;
     hdrInput.censoredGainSuppressed=true;
@@ -1027,7 +1063,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     hdr_authority::State hdrState{};
     if(!hdr_authority::build(hdrInput,hdrState) ||
        hdrState.scientificAuthority!=hdr_authority::ScientificHdrAuthority::Blocked ||
-       hdrState.blockedReason!=hdr_authority::BlockedReason::NoPerOutputChannelAuthority ||
+       hdrState.blockedReason!=hdr_authority::BlockedReason::UnknownChannelAuthorityPresent ||
        hdrState.scientificGainAllowed ||
        hdrState.presentationAuthority!=
            (((flags&kFlagHdr)!=0)
@@ -1074,7 +1110,25 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     v[28]=static_cast<jlong>(hdrState.scientificAuthority);
     v[29]=static_cast<jlong>(hdrState.presentationAuthority);
     v[30]=static_cast<jlong>(hdrState.blockedReason);
-    v[31]=0; // per-output-channel authority unavailable until canonical v0.84.
+    v[31]=outputAuthoritySummary.perOutputChannelAuthorityAvailable?1:0;
+    v[32]=static_cast<jlong>(outputAuthoritySummary.mappingMode);
+    v[33]=static_cast<jlong>(outputAuthoritySummary.authorityCounts[0]);
+    v[34]=static_cast<jlong>(outputAuthoritySummary.authorityCounts[1]);
+    v[35]=static_cast<jlong>(outputAuthoritySummary.authorityCounts[2]);
+    v[36]=static_cast<jlong>(outputAuthoritySummary.authorityCounts[3]);
+    v[37]=static_cast<jlong>(outputAuthoritySummary.censoredSupportPixels);
+    v[38]=static_cast<jlong>(outputAuthoritySummary.outputPixelCount);
+    for(std::size_t word=0;word<8u;++word){
+        const std::size_t i=word*4u;
+        const auto& d=outputAuthoritySummary.artifactSha256;
+        const std::uint32_t value=
+            static_cast<std::uint32_t>(d[i]) |
+            (static_cast<std::uint32_t>(d[i+1u])<<8u) |
+            (static_cast<std::uint32_t>(d[i+2u])<<16u) |
+            (static_cast<std::uint32_t>(d[i+3u])<<24u);
+        v[39u+word]=static_cast<jlong>(value);
+    }
+    v[47]=0;
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));
     if(out) env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());
     return out;
