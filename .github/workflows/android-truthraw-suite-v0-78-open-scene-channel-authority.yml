@@ -40,7 +40,7 @@ jobs:
           python3 tests/test_open_scene_region_runtime_v07.py
           python3 tests/test_open_scene_state_stream_v08.py
           python3 tests/test_restoration_authority_v01.py
-          python3 tests/test_v5g_exact_feature_replay_v02.py
+          PYTHONPATH=. python3 tests/test_v5g_exact_feature_replay_v02.py
 
   android:
     name: Android v0.78 channel authority
