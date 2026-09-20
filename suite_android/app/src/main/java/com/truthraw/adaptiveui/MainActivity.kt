@@ -1093,65 +1093,102 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun backgroundOperationStatusView(
-        key: String,
-        fallbackMessage: String,
-    ): View? {
-        val state = TruthRawOperationStore.read(this, key) ?: return null
-        val dotColor = when (state.phase) {
+    private fun operationStatusVisual(
+        message: String,
+        phase: TruthRawOperationPhase,
+        startedAtWallMs: Long,
+        finishedAtWallMs: Long?,
+    ): View = horizontal().apply {
+        gravity = Gravity.CENTER_VERTICAL
+        val dotColor = when (phase) {
             TruthRawOperationPhase.RUNNING,
             TruthRawOperationPhase.SUCCESS -> Color.rgb(65, 196, 106)
             TruthRawOperationPhase.ERROR -> Color.rgb(232, 73, 73)
             TruthRawOperationPhase.CANCELLED -> palette.textMuted
         }
-        return horizontal().apply {
-            gravity = Gravity.CENTER_VERTICAL
-            addView(View(this@MainActivity).apply {
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(dotColor)
+        addView(View(this@MainActivity).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(dotColor)
+            }
+            contentDescription = when (phase) {
+                TruthRawOperationPhase.RUNNING -> "Proces loopt normaal"
+                TruthRawOperationPhase.SUCCESS -> "Proces gereed"
+                TruthRawOperationPhase.ERROR -> "Proces onverwacht gestopt"
+                TruthRawOperationPhase.CANCELLED -> "Proces geannuleerd"
+            }
+        }, LinearLayout.LayoutParams(dp(10), dp(10)).apply { marginEnd = dp(8) })
+
+        addView(vertical().apply {
+            addView(label(message, 10.5f, muted = true))
+            if (phase == TruthRawOperationPhase.RUNNING) {
+                addView(Chronometer(this@MainActivity).apply {
+                    val elapsedWall =
+                        (System.currentTimeMillis() - startedAtWallMs).coerceAtLeast(0L)
+                    base = SystemClock.elapsedRealtime() - elapsedWall
+                    textSize = 10f
+                    setTextColor(palette.textMuted)
+                    format = "Looptijd %s"
+                    start()
+                })
+            } else {
+                val endWall = finishedAtWallMs ?: System.currentTimeMillis()
+                val seconds = ((endWall - startedAtWallMs).coerceAtLeast(0L)) / 1000L
+                val prefix = when (phase) {
+                    TruthRawOperationPhase.SUCCESS -> "Gereed in"
+                    TruthRawOperationPhase.ERROR -> "Gestopt na"
+                    TruthRawOperationPhase.CANCELLED -> "Geannuleerd na"
+                    TruthRawOperationPhase.RUNNING -> "Looptijd"
                 }
-                contentDescription = when (state.phase) {
-                    TruthRawOperationPhase.RUNNING -> "Proces loopt normaal"
-                    TruthRawOperationPhase.SUCCESS -> "Proces gereed"
-                    TruthRawOperationPhase.ERROR -> "Proces onverwacht gestopt"
-                    TruthRawOperationPhase.CANCELLED -> "Proces geannuleerd"
-                }
-            }, LinearLayout.LayoutParams(dp(10), dp(10)).apply { marginEnd = dp(8) })
-            addView(vertical().apply {
                 addView(label(
-                    state.message.ifBlank { fallbackMessage },
-                    10.5f,
+                    "%s %02d:%02d".format(prefix, seconds / 60L, seconds % 60L),
+                    9.5f,
                     muted = true,
                 ))
-                if (state.phase == TruthRawOperationPhase.RUNNING) {
-                    addView(Chronometer(this@MainActivity).apply {
-                        val elapsedWall =
-                            (System.currentTimeMillis() - state.startedAtWallMs).coerceAtLeast(0L)
-                        base = SystemClock.elapsedRealtime() - elapsedWall
-                        textSize = 10f
-                        setTextColor(palette.textMuted)
-                        format = "Looptijd %s"
-                        start()
-                    })
-                } else {
-                    val end = state.finishedAtWallMs ?: state.updatedAtWallMs
-                    val seconds = ((end - state.startedAtWallMs).coerceAtLeast(0L)) / 1000L
-                    val prefix = when (state.phase) {
-                        TruthRawOperationPhase.SUCCESS -> "Gereed in"
-                        TruthRawOperationPhase.ERROR -> "Gestopt na"
-                        TruthRawOperationPhase.CANCELLED -> "Geannuleerd na"
-                        TruthRawOperationPhase.RUNNING -> "Looptijd"
-                    }
-                    addView(label(
-                        "%s %02d:%02d".format(prefix, seconds / 60L, seconds % 60L),
-                        9.5f,
-                        muted = true,
-                    ))
-                }
-            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        }
+            }
+        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
     }
+
+    private fun backgroundOperationStatusView(
+        key: String,
+        fallbackMessage: String,
+    ): View? {
+        val state = TruthRawOperationStore.read(this, key) ?: return null
+        return operationStatusVisual(
+            message = state.message.ifBlank { fallbackMessage },
+            phase = state.phase,
+            startedAtWallMs = state.startedAtWallMs,
+            finishedAtWallMs = state.finishedAtWallMs,
+        )
+    }
+
+    private fun restorationStatusView(
+        snapshot: FullResRestorationJobSnapshot,
+    ): View = operationStatusVisual(
+        message = snapshot.message,
+        phase = when (snapshot.phase) {
+            FullResRestorationJobPhase.SUCCESS -> TruthRawOperationPhase.SUCCESS
+            FullResRestorationJobPhase.FAILED,
+            FullResRestorationJobPhase.STALE_CLEANED -> TruthRawOperationPhase.ERROR
+            else -> TruthRawOperationPhase.RUNNING
+        },
+        startedAtWallMs = snapshot.startedAtMs,
+        finishedAtWallMs = if (snapshot.phase.terminal) snapshot.updatedAtMs else null,
+    )
+
+    private fun restorationProjectionStatusView(
+        snapshot: RestorationProjectionJobSnapshot,
+    ): View = operationStatusVisual(
+        message = snapshot.message,
+        phase = when (snapshot.phase) {
+            RestorationProjectionJobPhase.SUCCESS -> TruthRawOperationPhase.SUCCESS
+            RestorationProjectionJobPhase.FAILED,
+            RestorationProjectionJobPhase.STALE_CLEANED -> TruthRawOperationPhase.ERROR
+            else -> TruthRawOperationPhase.RUNNING
+        },
+        startedAtWallMs = snapshot.startedAtMs,
+        finishedAtWallMs = if (snapshot.phase.terminal) snapshot.updatedAtMs else null,
+    )
 
     private fun requestNefMeasurement(job: RawJob) {
         if (job.source.format.support != RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING ||
