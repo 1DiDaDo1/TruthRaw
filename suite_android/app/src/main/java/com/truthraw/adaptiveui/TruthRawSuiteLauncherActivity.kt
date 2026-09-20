@@ -149,7 +149,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.76 · responsive camera UI · bit-exact preview/core science unchanged", 11f).apply {
+        root.addView(body("v0.77 · canonical ancestry spine · DNG/TIFF/EXR delen dezelfde afkomst", 11f).apply {
             gravity = Gravity.CENTER
         })
 
