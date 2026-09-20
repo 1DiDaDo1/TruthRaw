@@ -267,6 +267,10 @@ Still open:
 
 PURE remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`; v0.67 Restoration eligibility/support math remains unchanged.
 
+v0.71 CI run `35506676249` is fully green on GCC, Clang, scientific contracts and Android. Documentation governance run `35506676288` is also green. Artifact ID `10604525855`; extracted APK bytes `6,314,361`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
+
+Real-device v0.71 validation is still pending. Generate a fresh binding-extended TRR with v0.71 before testing DNG/TIFF/EXR projections; old persisted v0.70 TRR job state is intentionally not reused.
+
 ## 3. Recovery work completed before app unification
 
 The full genealogy recovery is preserved on:
