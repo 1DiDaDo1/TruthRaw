@@ -777,9 +777,15 @@
       },
       "documentation": "docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md",
       "ci": {
-        "status": "PENDING_FIRST_V070_RUN"
+        "run": 35505972249,
+        "result": "SUCCESS_GCC_CLANG_OPEN_SCENE_V07_V08_CONTRACTS_ANDROID",
+        "artifactId": 10603629201,
+        "artifactName": "truthraw-suite-v0-70-canonical-open-scene-role-binding-debug-arm64",
+        "artifactArchiveSha256": "4ac0f816d244524aff3d376ae357080cefdcc6706bb5c9760421c9b4ed6011ce",
+        "extractedApkBytes": 6305789,
+        "extractedApkSha256": "43be7ac637f1e24d346c82ea8b3c717f4f2fd394fb3f977b490127db8eecca7d"
       },
-      "realDeviceValidation": "PENDING_V070_APK_TN3_AND_PROJECTION_TEST"
+      "realDeviceValidation": "PENDING_V070_TN3_CANONICAL_OPEN_SCENE_AND_DNG_TIFF_EXR_TEST"
     }
   },
   "camera5ReferencePrecedence": [
