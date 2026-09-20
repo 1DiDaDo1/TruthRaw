@@ -64,6 +64,24 @@ class TruthRawOperationTracker {
     fun cancel(key: String, message: String): TruthRawOperationState =
         finish(key, message, TruthRawOperationPhase.CANCELLED)
 
+    fun restore(
+        key: String,
+        message: String,
+        phase: TruthRawOperationPhase,
+        startedAtElapsedMs: Long,
+        finishedAtElapsedMs: Long? = null,
+    ): TruthRawOperationState {
+        val state = TruthRawOperationState(
+            key = key,
+            message = message,
+            phase = phase,
+            startedAtElapsedMs = startedAtElapsedMs.coerceAtLeast(0L),
+            finishedAtElapsedMs = finishedAtElapsedMs,
+        )
+        states[key] = state
+        return state
+    }
+
     fun get(key: String): TruthRawOperationState? = states[key]
 
     fun clear(key: String) {
