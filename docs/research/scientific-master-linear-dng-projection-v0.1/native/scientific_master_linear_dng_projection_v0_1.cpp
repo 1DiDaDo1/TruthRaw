@@ -197,6 +197,16 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
     const std::string role = descriptor.projectionRole.empty()
         ? "TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
         : printable_identity(descriptor.projectionRole);
+    const std::string derivativeExtra = derivative
+        ? (std::string("projected_raster_sha256=") +
+           hex_hash(descriptor.projectedRasterSha256) + "\n" +
+           "restoration_derivative=" +
+           std::string(descriptor.restorationDerivative ? "1\n" : "0\n") +
+           "open_scene_state_sha256=" +
+           (nonzero_hash(descriptor.openSceneStateSha256)
+               ? hex_hash(descriptor.openSceneStateSha256)
+               : std::string(64u, '0')) + "\n")
+        : std::string{};
     const std::string body =
         std::string("role=") + role + "\n" +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
@@ -209,14 +219,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "independent_evidence_count=1\n" +
         "sealed_source_sha256=" + hex_hash(descriptor.sealedSourceSha256) + "\n" +
         "scientific_master_sha256=" + hex_hash(descriptor.scientificMasterSha256) + "\n" +
-        "projected_raster_sha256=" +
-            (derivative ? hex_hash(descriptor.projectedRasterSha256)
-                        : hex_hash(descriptor.scientificMasterSha256)) + "\n" +
-        "restoration_derivative=" + std::string(descriptor.restorationDerivative ? "1\n" : "0\n") +
-        "open_scene_state_sha256=" +
-            (nonzero_hash(descriptor.openSceneStateSha256)
-                ? hex_hash(descriptor.openSceneStateSha256)
-                : std::string(64u, '0')) + "\n" +
+        derivativeExtra +
         "zero_line_sha256=" + hex_hash(descriptor.zeroLineSha256) + "\n" +
         "zero_line_mode=" + gauge_mode_name(descriptor.zeroLineGauge.mode) + "\n" +
         "zero_line_l0_f64_bits=0x" + hex_u64(l0Bits) + "\n" +
