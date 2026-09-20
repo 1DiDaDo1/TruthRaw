@@ -120,7 +120,7 @@ object TruthRawCpuSchedulingPolicyV01 {
         }
 
         val workers = min(cpuTarget.coerceAtLeast(1), memoryWorkers)
-        val adpf = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val adpf = Build.VERSION.SDK_INT >= 33
 
         return TruthRawCpuWorkerPlan(
             onlineCores = online,
