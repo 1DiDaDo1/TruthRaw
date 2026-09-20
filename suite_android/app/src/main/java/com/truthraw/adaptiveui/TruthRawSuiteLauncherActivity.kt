@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Open Scene in TRR/Advanced · full role-mask embedded",
+                    detail = "Full role-mask · veilige foreground DNG/TIFF/EXR",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.71 · Open Scene in Advanced/TRR + full role-mask embedded", 11f).apply {
+        root.addView(body("v0.72 · projection lifecycle + zichtbare voortgang hersteld", 11f).apply {
             gravity = Gravity.CENTER
         })
 
