@@ -1,6 +1,6 @@
 # START HERE — TruthRaw current bootstrap
 
-## CURRENT ACTIVE INTEGRATION — 2026-09-19
+## CURRENT ACTIVE INTEGRATION — 2026-09-20
 
 **For a new chat, read this section first, then open:**
 
@@ -12,15 +12,15 @@
 
 Current active branch:
 
-`integration/truthraw-suite-v0-65-ui-icon-polish`
+`integration/truthraw-suite-v0-67-fullres-restoration`
 
 Current app:
 
-`0.30-v0.65-ui-icon-polish`
+`0.32-v0.67-fullres-restoration`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.64 leaves the validated PURE writer at `TRUTHRAW_PURE_SELF_BINDING_V0_63` and adds TRUTHRAW ADVANCED downstream: Natural Light Balance, Natural HDR, Detail/Structure and narrow evidence-bound restoration operate only on the derivative appearance path. No Advanced operation writes back into Scientific Master, Zero-Line, scene-scale, Backplane or evidence authority.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.66 restores TruthNegative TN-2, Open-World/Scene Physics and Dynamic Authority into the current app. v0.67 adds full-resolution retreatable Restoration: a source-resolution camera-native Float32 derivative plus a per-pixel role mask, with exact Scientific-Master replay and no scientific writeback. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
@@ -30,7 +30,11 @@ Historical v0.60 PURE CI: run `35458367764` = **SUCCESS** on host GCC, host Clan
 
 v0.64 CI run `35471926706` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593425008`; extracted APK SHA-256 `8d5b0e54517fe29c7e26eade989652aba5292fd498308d41d11dd6691d662441`. Read `docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md`.
 
-v0.65 CI run `35473170260` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 changes only compact-phone UI/insets/icon presentation; read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
+v0.65 CI run `35473170260` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 changes only compact-phone UI/insets/icon presentation; read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.
+
+v0.66 CI run `35497663010` = **SUCCESS** on GCC, Clang, scientific contracts and Android. TruthNegative/Open-World/Dynamic Authority are active in the current app.
+
+v0.67 CI run `35498407249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md` before changing full-resolution restoration semantics.\n\nv0.63 CI run `35469414682` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10592980623`; extracted APK SHA-256 `82dc3103b4e945e129fa5ea38fe717a342d459d1f6b71e4895bab9e00282d173`.
 
 v0.62 CI run `35466767939` = **SUCCESS** on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`. Read `docs/TRUTHRAW_V061_PURE_SELF_BINDING_DNG_2026-09-19.md` before changing the PURE export metadata contract.\n\nHistorical/current v0.59 Android artifact: `truthraw-suite-v0-59-nef-radiometric-admission-debug-arm64`, artifact ID `10588558376`, archive SHA-256 `4de4346d18fc9c3477ed5740d08f400c3e96500b89d9626a9a553e1cad0793b8`.
 
