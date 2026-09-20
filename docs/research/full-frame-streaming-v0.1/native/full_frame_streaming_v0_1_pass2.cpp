@@ -52,9 +52,6 @@ StreamStatus run_pass2(
         cs = appearance.applyTile(w.cam.data(), aw, ahh, t.x0-ax0, t.y0-ay0, cw, ch, w.look.data());
         if (!cs) return StreamStatus::error(StreamStatusCode::BackendFailed, cs.message);
 
-        st = sink.writeExtendedLinearTile(t, w.look.data(), w.look.size());
-        if (!st) return StreamStatus::error(StreamStatusCode::SinkFailed, st.message);
-
         for (std::size_t i = 0; i < coreN; ++i) {
             float rr = w.look[3*i], gg = w.look[3*i+1], bb = w.look[3*i+2];
             const float Y = std::max(luminance709(rr,gg,bb), 0.0f);
