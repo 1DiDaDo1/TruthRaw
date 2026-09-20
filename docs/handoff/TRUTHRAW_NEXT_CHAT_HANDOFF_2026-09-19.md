@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-69-tn3-open-scene-projection`
+`integration/truthraw-suite-v0-70-canonical-open-scene-role-binding`
 
 Current app version:
 
-`0.34-v0.69-tn3-open-scene-projection`
+`0.35-v0.70-canonical-open-scene-role-binding`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -198,6 +198,36 @@ The earlier 25,854,576-byte v0.67 upload is now reinterpreted. Its body after th
 Read `docs/validation/TRUTHRAW_V068_REAL_DEVICE_FULLRES_RESTORATION_VALIDATION_2026-09-20.md`.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
+
+## 2J. v0.70 — Canonical Open Scene + role-mask binding
+
+v0.70 starts closing the first two direct post-v0.69 loose cables.
+
+A new native `TruthRawOpenSceneCanonicalState/0.70` contract explicitly inherits the scientific semantics of `TruthRawOpenSceneRegion/0.7` and `TruthRawOpenSceneStateSummary/0.8`. It keeps the sampled CFA channel explicit at every pixel, preserves missing channels as UNKNOWN unless separately admitted, and produces separate Dynamic-Authority, Open-Scene content, policy and artifact SHA-256 identities.
+
+TN-3 now writes these canonical identities into its header. DNG/TIFF/OpenEXR Restoration projection independently recomputes the same canonical Open Scene from the sealed source route before projection; it does not trust a detached scene label.
+
+The exact full-resolution Restoration role-mask SHA-256 is now also bound into every normal projection:
+
+- DNG private TruthRaw metadata;
+- TIFF provenance;
+- OpenEXR `truthrawProvenance`.
+
+The complete role-mask bytes still live in `.trr`. Self-contained embedding or a versioned companion sidecar remains open.
+
+Read:
+
+- `docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md`;
+- `docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md`.
+
+Direct remaining cables after this step:
+
+1. propagate the exact canonical Open Scene artifact identity into Advanced and the Restoration container itself;
+2. embed the complete role mask or emit a versioned hash-bound companion sidecar;
+3. independent DNG/TIFF/OpenEXR conformance validation;
+4. effectful real-device Restoration validation with genuinely censored CFA support.
+
+PURE v0.63 and the v0.67 Restoration algorithm remain unchanged.
 
 ## 3. Recovery work completed before app unification
 
