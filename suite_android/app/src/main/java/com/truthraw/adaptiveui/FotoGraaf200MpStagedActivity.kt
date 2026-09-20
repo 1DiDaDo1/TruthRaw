@@ -116,6 +116,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private var capturedDng: File? = null
     private var capturedJson: File? = null
 
+    private val productionCameraEntry: Boolean
+        get() = intent.getBooleanExtra(EXTRA_PRODUCTION_CAMERA_ENTRY, false)
+    private var autoStartPreviewWhenReady = false
+
     data class RawRoutes(
         val standardOutput: List<Size>,
         val standardHigh: List<Size>,
@@ -137,9 +141,19 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
-        setStatus("STAGE 0 PASS · v0.53 Android-17 replay van bewezen v0.14 route.\nDruk eerst op Stap 1.")
+        autoStartPreviewWhenReady = productionCameraEntry
+        setStatus(
+            if (productionCameraEntry) {
+                "CAMERA-INGANG · v0.53 physical-5 source-first route wordt voorbereid. " +
+                    "Capability-admission en live preview starten automatisch; capture blijft één fysiek frame."
+            } else {
+                "STAGE 0 PASS · v0.53 Android-17 replay van bewezen v0.14 route.\nDruk eerst op Stap 1."
+            },
+        )
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA)
+        } else if (productionCameraEntry) {
+            window.decorView.post { readCapability() }
         }
     }
 
@@ -162,12 +176,18 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_CAMERA) return
-        setStatus(
-            if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
-                "CAMERA permission verleend. Druk op Stap 1."
-            else
-                "CAMERA permission ontbreekt. De test blijft fail-closed.",
-        )
+        val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            setStatus("CAMERA permission ontbreekt. De route blijft fail-closed.")
+            return
+        }
+        if (productionCameraEntry) {
+            autoStartPreviewWhenReady = true
+            setStatus("CAMERA permission verleend · capability-admission en live RAW-preview starten.")
+            window.decorView.post { readCapability() }
+        } else {
+            setStatus("CAMERA permission verleend. Druk op Stap 1.")
+        }
     }
 
     private fun buildUi(): View {
@@ -267,13 +287,17 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                     previewButton.isEnabled = preview.isAvailable
                     val r = packed.second
                     setStatus(
-                        "STAGE 1 PASS · exact 16320×12288 RAW_SENSOR via ${r.selectedSource}.\n" +
+                        "STAGE 1 PASS · exact 16320×12288 RAW_SENSOR route aangeboden via ${r.selectedSource}.\n" +
                             "standard.out=[${routeText(r.standardOutput)}]\n" +
                             "standard.high=[${routeText(r.standardHigh)}]\n" +
                             "maximum.out=[${routeText(r.maximumOutput)}]\n" +
                             "maximum.high=[${routeText(r.maximumHigh)}]\n" +
-                            "Druk nu Stap 2.",
+                            "Dit is route-capability, niet automatisch 200MP Direct-CFA authority.",
                     )
+                    if (autoStartPreviewWhenReady && preview.isAvailable) {
+                        autoStartPreviewWhenReady = false
+                        startLogicalPreview()
+                    }
                 }.onFailure { e ->
                     capabilityReady = false
                     capabilitySource = null
@@ -670,6 +694,22 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 saveDngButton.isEnabled = capturedDng != null
                 saveJsonButton.isEnabled = true
                 previewButton.isEnabled = true
+
+                // Production camera path: the auxiliary DNG is not promoted by capture.
+                // It re-enters the exact same Main-House DNG admission used by imported RAW.
+                // The original app-visible RAW_SENSOR buffer remains the upstream sealed
+                // acquisition evidence and is linked explicitly as ancestry.
+                if (productionCameraEntry && dng != null) {
+                    startActivity(
+                        Intent(this, MainActivity::class.java).apply {
+                            putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_SOURCE_PATH, dng!!.absolutePath)
+                            putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH, report.absolutePath)
+                            putExtra(MainActivity.EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256, rawEvidence.sha256)
+                            putExtra(MainActivity.EXTRA_AUTO_START_TRUTHRAW, true)
+                            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        },
+                    )
+                }
             }
         } catch (e: Throwable) {
             runCatching { image.close() }
@@ -905,6 +945,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         if (::previewButton.isInitialized) previewButton.isEnabled = capabilityReady
+        if (capabilityReady && autoStartPreviewWhenReady) {
+            autoStartPreviewWhenReady = false
+            startLogicalPreview()
+        }
     }
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) = Unit
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
@@ -924,5 +968,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         private const val REQUEST_SAVE_RAW = 5801
         private const val REQUEST_SAVE_DNG = 5802
         private const val REQUEST_SAVE_JSON = 5803
+
+        const val EXTRA_PRODUCTION_CAMERA_ENTRY =
+            "truthraw.extra.PRODUCTION_CAMERA_ENTRY"
     }
 }
