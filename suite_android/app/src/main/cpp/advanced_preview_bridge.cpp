@@ -3,6 +3,7 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
 #include "open_world_native_v03.h"
+#include "open_scene_canonical_v0_70.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -40,8 +41,10 @@ using truthraw::streaming_v0_1::StreamingResult;
 using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
+namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 40u;
+constexpr std::size_t kHeaderInts = 48u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -61,6 +64,16 @@ struct IntRect {
 jint clamp_metric(std::uint64_t value) {
     const auto cap = static_cast<std::uint64_t>(std::numeric_limits<jint>::max());
     return static_cast<jint>(std::min(value, cap));
+}
+
+jint digest_word_le(const canonical_scene::Digest& digest, std::size_t word) noexcept {
+    const std::size_t i = word * 4u;
+    const std::uint32_t value =
+        static_cast<std::uint32_t>(digest[i]) |
+        (static_cast<std::uint32_t>(digest[i + 1u]) << 8u) |
+        (static_cast<std::uint32_t>(digest[i + 2u]) << 16u) |
+        (static_cast<std::uint32_t>(digest[i + 3u]) << 24u);
+    return static_cast<jint>(value);
 }
 
 std::string hex_sha256(const std::array<std::uint8_t, 32>& bytes) {
@@ -706,6 +719,26 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -4);
     }
 
+    canonical_scene::Binding openSceneBinding{};
+    openSceneBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    openSceneBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    openSceneBinding.width = static_cast<std::uint32_t>(source->metadata().width);
+    openSceneBinding.height = static_cast<std::uint32_t>(source->metadata().height);
+    openSceneBinding.physicalFrameCount = scientific.physicalFrameCount;
+    openSceneBinding.independentEvidenceCount = scientific.independentEvidenceCount;
+    openSceneBinding.colourBindingId = produced.color.bindingId;
+    canonical_scene::Summary openSceneSummary{};
+    if (!canonical_scene::build_from_source(*source, openSceneBinding, openSceneSummary) ||
+        openSceneSummary.counterfactualPixelCount != 0u ||
+        openSceneSummary.scientificWritebackPixelCount != 0u ||
+        openSceneSummary.createsNewEvidence ||
+        openSceneSummary.chunkingChangesScientificIdentity ||
+        openSceneSummary.pixelCount !=
+            static_cast<std::uint64_t>(source->metadata().width) *
+            static_cast<std::uint64_t>(source->metadata().height)) {
+        return status_packet(env, -10);
+    }
+
     // Restore the Open-World authority corridor as a runtime gate. With only one
     // admitted frame, illumination inferred from that frame may constrain an
     // appearance derivative but may not become another measured exposure or
@@ -813,8 +846,8 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[28] = clamp_metric(sink.lightAdjustedPixels());
     out[29] = (flags & kFlagDetail) != 0 ? 1 : 0;
     out[30] = (flags & kFlagRestoration) != 0 ? 1 : 0;
-    out[31] = 2; // ADVANCED_OPEN_WORLD_AUTHORITY_V0_66
-    out[32] = 1; // open-world scene authority binding validated
+    out[31] = 3; // ADVANCED_CANONICAL_OPEN_SCENE_V0_71
+    out[32] = 1; // canonical Open Scene v0.70 artifact binding validated
     out[33] = static_cast<jint>(
         truthraw::open_world::v0_3::IlluminationAuthority::Inferred);
     out[34] = static_cast<jint>(
@@ -825,6 +858,9 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[37] = clamp_metric(sink.censoredPreviewPixels());
     out[38] = clamp_metric(2u * static_cast<std::uint64_t>(expectedPixels));
     out[39] = 1; // restoration/relight remain derivative; no scientific writeback
+    for (std::size_t word = 0u; word < 8u; ++word) {
+        out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
+    }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
         out[kHeaderInts + i] = static_cast<jint>(pixels[i]);
