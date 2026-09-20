@@ -566,7 +566,11 @@ class MainActivity : Activity() {
             }
             jpegStatus = "JPG · full-resolution $route wordt opgebouwd… 384px-preview wordt niet gebruikt."
             render()
-            Thread({
+            startGuardedBackgroundThread(
+                name = "truthraw-fullres-jpg-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { jpegStatus = it },
+            ) {
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
                 val rendered = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver, job, flags, quarterTurns, dir,
@@ -606,7 +610,7 @@ class MainActivity : Activity() {
                         render()
                     }
                 }
-            }, "truthraw-fullres-jpg-${job.id.take(8)}").start()
+            }
             return
         }
 
@@ -645,7 +649,11 @@ class MainActivity : Activity() {
                 "JPG-L RAW/Edit · 32-bit Float DNG wordt opgebouwd… " +
                     "Float32 is primaire editlaag; Advanced blijft non-destructief recipe."
             render()
-            Thread({
+            startGuardedBackgroundThread(
+                name = "truthraw-jpgl-raw-edit-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { jpgLStatus = it },
+            ) {
                 val dir = File(filesDir, "jpgl_raw_edit/$expectedJob").apply { mkdirs() }
                 val previewResult = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver,
@@ -702,7 +710,7 @@ class MainActivity : Activity() {
                     }
                     render()
                 }
-            }, "truthraw-jpgl-raw-edit-${job.id.take(8)}").start()
+            }
             return
         }
 
@@ -738,7 +746,11 @@ class MainActivity : Activity() {
                 "TRUTHRAW PURE · 32-bit Float DNG wordt opgebouwd… exact Master replay + digest gate."
             render()
 
-            Thread({
+            startGuardedBackgroundThread(
+                name = "truthraw-pure-f32-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { pureFloatDngStatus = it },
+            ) {
                 val dir = File(filesDir, "pure_float32/$expectedJob").apply { mkdirs() }
                 val previewResult = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver,
@@ -790,7 +802,7 @@ class MainActivity : Activity() {
                     }
                     render()
                 }
-            }, "truthraw-pure-f32-${job.id.take(8)}").start()
+            }
             return
         }
 
@@ -824,7 +836,11 @@ class MainActivity : Activity() {
                 "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
             render()
 
-            Thread({
+            startGuardedBackgroundThread(
+                name = "truthnegative-tn3-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { truthNegativeStatus = it },
+            ) {
                 val exportResult =
                     TruthNegativeExporter.export(contentResolver, job, destination)
                 finishBackgroundOperation(
@@ -853,7 +869,7 @@ class MainActivity : Activity() {
                     }
                     render()
                 }
-            }, "truthnegative-tn3-${job.id.take(8)}").start()
+            }
             return
         }
 
@@ -957,7 +973,11 @@ class MainActivity : Activity() {
             }
             linearDngStatus = "Linear DNG wordt opgebouwd… finalized gate + camera-native RGB-projectie."
             render()
-            Thread({
+            startGuardedBackgroundThread(
+                name = "truthraw-linear-dng-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { linearDngStatus = it },
+            ) {
                 val exportResult = LinearDngExporter.export(contentResolver, job, destination)
                 finishBackgroundOperation(
                     operationKey,
@@ -981,7 +1001,7 @@ class MainActivity : Activity() {
                     }
                     render()
                 }
-            }, "truthraw-linear-dng-${job.id.take(8)}").start()
+            }
             return
         }
 
@@ -1274,7 +1294,14 @@ class MainActivity : Activity() {
         }
         render()
 
-        Thread({
+        startGuardedBackgroundThread(
+            name = "truthraw-nef-measurement-${job.id.take(8)}",
+            operationKey = operationKey,
+            onUnexpected = { message ->
+                nefMeasurementLoading = false
+                nefMeasurementResult = NefMeasurementResult.Failed(message)
+            },
+        ) {
             val result = NefMeasurementLoader.load(contentResolver, job)
             finishBackgroundOperation(
                 operationKey,
@@ -1293,7 +1320,7 @@ class MainActivity : Activity() {
                 nefMeasurementResult = result
                 render()
             }
-        }, "truthraw-nef-measurement-${job.id.take(8)}").start()
+        }
     }
 
     private fun requestPreview(job: RawJob) {
@@ -1342,7 +1369,14 @@ class MainActivity : Activity() {
             TruthRawSuiteLauncherActivity.OUTPUT_PURE,
         ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
 
-        Thread({
+        startGuardedBackgroundThread(
+            name = "truthraw-preview-${job.id.take(8)}",
+            operationKey = operationKey,
+            onUnexpected = { message ->
+                loadingStartedAtElapsedMs = null
+                previewState = TilePreviewUiState.Failed(job.id, message)
+            },
+        ) {
             if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ||
                 preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_PRO
             ) {
@@ -1396,7 +1430,7 @@ class MainActivity : Activity() {
                     render()
                 }
             }
-        }, "truthraw-preview-${job.id.take(8)}").start()
+        }
     }
 
     private fun render() {
