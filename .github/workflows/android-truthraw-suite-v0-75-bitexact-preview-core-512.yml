@@ -1,0 +1,131 @@
+name: TruthRaw v0.75 Bit-Exact Preview Core 512
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-75-bitexact-preview-core-512
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/full-frame-streaming-preview-core-512/**'
+      - '.github/workflows/android-truthraw-suite-v0-75-bitexact-preview-core-512.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-exact:
+    name: ${{ matrix.compiler }} preview 128-512 exactness
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/full-frame-streaming-preview-core-512 \
+                -B build/preview512 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/preview512 --parallel 2
+      - name: Exact equivalence
+        run: ctest --test-dir build/preview512 --output-on-failure
+
+  preview-sanitizer:
+    name: Clang ASan UBSan preview exactness
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S docs/research/full-frame-streaming-preview-core-512 \
+                -B build/preview512-san -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DTRUTHRAW_PREVIEW512_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build/preview512-san --parallel 2
+      - name: Sanitizer equivalence
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/preview512-san --output-on-failure
+
+  lineage:
+    name: Existing TruthRaw lineage guards
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android:
+    name: Android v0.75 preview core 512
+    runs-on: ubuntu-24.04
+    needs: [preview-exact, preview-sanitizer, lineage]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify narrow performance-only promotion
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          B='suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp'
+          PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+
+          grep -F '0.41-v0.75-bitexact-preview-core-512' "$G"
+          grep -F 'constexpr int kSourceBoundTileCore = 128;' "$B"
+          grep -F 'constexpr int kFinalizedTileCore = 512;' "$B"
+          grep -F 'preview_options(kSourceBoundTileCore' "$B"
+          grep -F 'preview_options(kFinalizedTileCore' "$B"
+          grep -F 'finalized_scientific_preview_release_v0_3.h' "$B"
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
+          grep -F 'TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71' "$PJ"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-75-bitexact-preview-core-512-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
