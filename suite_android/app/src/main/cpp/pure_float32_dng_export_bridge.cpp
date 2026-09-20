@@ -51,7 +51,11 @@ namespace stream_detail = truthraw::streaming_v0_1::detail;
 namespace master_digest = truthraw::scientific_master_digest::v0_1;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
-constexpr std::size_t kPacketLongs = 34u;
+constexpr std::size_t kPacketLongs = 36u;
+constexpr jint kFlagLight = 1 << 0;
+constexpr jint kFlagHdr = 1 << 1;
+constexpr jint kFlagDetail = 1 << 2;
+constexpr jint kFlagRestoration = 1 << 3;
 constexpr const char* kPurePrecisionPolicyId =
     "EXACT_SOURCE__F64_BRANCH_SENSITIVE_REFERENCE_POLICY__"
     "F64_CAL_OPT_COV_REFERENCE_POLICY__CONTROLLED_F32_MASTER_STORAGE__"
@@ -454,19 +458,25 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint previewFd,
     jint previewWidth,
     jint previewHeight,
+    jint derivativeScratchFd,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     constexpr jint kPureMode = 0;
     constexpr jint kJpgLRawEditMode = 1;
-    constexpr jint kAllowedAdvancedFlags = 0x0f;
+    constexpr jint kAdvancedRenderEditMode = 2;
+    constexpr jint kAllowedAdvancedFlags =
+        kFlagLight | kFlagHdr | kFlagDetail | kFlagRestoration;
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
-        (exportMode != kPureMode && exportMode != kJpgLRawEditMode) ||
+        (exportMode != kPureMode &&
+         exportMode != kJpgLRawEditMode &&
+         exportMode != kAdvancedRenderEditMode) ||
         (sourceRouteCode != 0 && sourceRouteCode != 1) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
         (exportMode == kPureMode && advancedFlags != 0) ||
         ((previewFd < 0) != (previewWidth == 0 && previewHeight == 0)) ||
         previewWidth < 0 || previewHeight < 0 ||
+        ((exportMode == kAdvancedRenderEditMode) != (derivativeScratchFd >= 0)) ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -626,8 +636,13 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     outputAuthorityBinding.sourceHeight=static_cast<std::uint32_t>(source->metadata().height);
     outputAuthorityBinding.outputWidth=outputAuthorityBinding.sourceWidth;
     outputAuthorityBinding.outputHeight=outputAuthorityBinding.sourceHeight;
+    const int renderEditAppearanceHalo =
+        exportMode == kAdvancedRenderEditMode && (advancedFlags & kFlagDetail) != 0
+            ? 5
+            : 0;
     outputAuthorityBinding.reconstructionSupportRadius=
-        static_cast<std::uint32_t>(std::max(0,reconstruction->requiredHalo()));
+        static_cast<std::uint32_t>(
+            std::max(0, reconstruction->requiredHalo() + renderEditAppearanceHalo));
     outputAuthorityBinding.reconstructedUncertaintyAdmitted=false;
     outputAuthorityBinding.physicalFrameCount=scientific.physicalFrameCount;
     outputAuthorityBinding.independentEvidenceCount=scientific.independentEvidenceCount;
