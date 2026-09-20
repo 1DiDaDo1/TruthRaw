@@ -632,7 +632,38 @@
         "extractedApkBytes": 6121453,
         "extractedApkSha256": "82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59"
       },
-      "realDeviceValidation": "PENDING_REPEAT_FULLRES_RESTORATION_WITH_BACKGROUND_SWITCH"
+      "realDeviceValidation": "PASS_COMPLETE_CONTAINER_TRANSACTION_PATH_SOURCE_HAS_NO_CENSORED_PIXELS",
+      "realDeviceArtifact": {
+        "file": "IMG_BNC_TRUTHRAW20260907_094414_423_truthraw_fullres_restoration_v0_67 (1).trr",
+        "bytes": 162996224,
+        "sha256": "8277c50681e445f179ad5e36dcd0cad259e7f3d09f5e9c1a21c6de74529927c4",
+        "width": 4080,
+        "height": 3072,
+        "tileCount": 3072,
+        "allFloatComponentsFinite": true,
+        "negativeComponents": 300802,
+        "overOneComponents": 2,
+        "min": -0.005658743903040886,
+        "max": 1.0130051374435425,
+        "preservedPixels": 12533760,
+        "censoredSourcePixels": 0,
+        "restoredPixels": 0,
+        "unresolvedPixels": 0,
+        "changedComponents": 0,
+        "scientificMasterSha256": "faca6604479380c2de83917e977a4cfbcd17ea2a3acf6f842b753315f9987423",
+        "restorationDerivativeSha256": "faca6604479380c2de83917e977a4cfbcd17ea2a3acf6f842b753315f9987423",
+        "technicalBackplaneCrc32": "0x8cde5b54"
+      },
+      "previousV067UploadReinterpretation": {
+        "priorSnapshotBytes": 25854576,
+        "priorCompleteTiles": 487,
+        "priorCompletePixels": 1987584,
+        "priorHeaderAllZero": true,
+        "priorBodyPrefixSha256": "d3458ee8c95939b028166b00d4e80c677e6e7449b1e59a0e64b924eef9ba8345",
+        "completeArtifactSameLengthBodyPrefixSha256": "d3458ee8c95939b028166b00d4e80c677e6e7449b1e59a0e64b924eef9ba8345",
+        "byteForBytePayloadPrefixMatch": true,
+        "conclusion": "CONSISTENT_WITH_EARLY_UPLOAD_OF_IN_PROGRESS_V067_FILE_NOT_PROOF_OF_DEVICE_EXPORT_TERMINATION"
+      }
     }
   },
   "camera5ReferencePrecedence": [
@@ -653,13 +684,12 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_V068_AND_REPEAT_SAME_FULL_RESOLUTION_RESTORATION_EXPORT",
-    "SWITCH_TO_ANOTHER_APP_DURING_STAGING_AND_CONFIRM_FOREGROUND_JOB_CONTINUES",
-    "VERIFY_FINAL_TRR_HAS_NONZERO_VALID_HEADER_AND_ALL_EXPECTED_TILES",
-    "VERIFY_WHOLE_FILE_DESTINATION_SHA_EQUALS_VERIFIED_STAGING_SHA",
-    "VERIFY_NO_PARTIAL_ARTIFACT_SURVIVES_FORCED_INTERRUPTION",
+    "FIND_OR_CAPTURE_DNG_WITH_ADMITTED_CFA_SAMPLES_AT_OR_ABOVE_WHITELEVEL",
+    "RUN_V068_FULL_RES_RESTORATION_ON_SOURCE_WITH_CENSORED_SUPPORT",
+    "VERIFY_ONLY_ROLE1_PIXELS_DIFFER_FROM_BASE_SCIENTIFIC_MASTER",
+    "VERIFY_ROLE2_UNRESOLVED_PIXELS_REMAIN_BASE_MASTER_WHEN_SUPPORT_IS_INSUFFICIENT",
     "KEEP_V067_RESTORATION_SCIENCE_AND_V063_PURE_ROUTE_UNCHANGED",
-    "ONLY_AFTER_V068_DEVICE_PASS_CONTINUE_TN3_AND_FULL_OPEN_SCENE_RUNTIME"
+    "AFTER_EFFECTFUL_RESTORATION_DEVICE_PASS_CONTINUE_TN3_AND_FULL_OPEN_SCENE_RUNTIME"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
