@@ -1,74 +1,125 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-73-camera-source-admission-tn3",
-  "appVersion": "0.38-v0.73-camera-source-admission-tn3",
-  "previousStableIntegration": "integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix",
+  "activeBranch": "integration/truthraw-suite-v0-78-open-scene-channel-authority",
+  "appVersion": "0.44-v0.78-open-scene-channel-authority",
+  "previousStableIntegration": "integration/truthraw-suite-v0-76-responsive-camera-ui",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
     "knowledgeClaimsMayNotExceedEvidence": true,
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
     "physicalFrameCount": 1,
-    "independentEvidenceCount": 1
+    "independentEvidenceCount": 1,
+    "appearanceNeverWritesBack": true,
+    "counterfactualNeverEvidence": true
   },
-  "v073": {
-    "productCameraEntry": "FotoGraaf200MpStagedActivity production mode",
-    "latestActiveCamera5CaptureBasis": "v0.53 Android-17 replay of proven v0.14 route",
-    "v055Role": "READ_ONLY_BASELINE_NOT_CAPTURE_ROUTE",
-    "sourceFirstSeal": true,
-    "envelope": {
-      "width": 16320,
-      "height": 12288,
-      "mayNotBePromotedDirectlyTo200MpScientificMaster": true
-    },
-    "topologyAdmission": [
-      "RawSensorRasterAudit",
-      "RawPayloadGeometryDecoder",
-      "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH"
-    ],
-    "knownHistoricalCandidate": {
-      "width": 4080,
-      "height": 3072,
-      "bytes": 25067520,
-      "authority": "APP_VISIBLE_STANDARD_RAW_PREFIX_CANDIDATE_NOT_NATIVE_ADC_GEOMETRY_PROOF"
-    },
-    "processingDngRole": "DERIVED_CONTAINER_FOR_SAME_MAIN_HOUSE_DNG_ADMISSION",
-    "mainHouseResealsDng": true,
-    "upstreamAncestryBound": true,
-    "truthNegativeRole": "DOWNSTREAM_OF_MAIN_HOUSE_ADMISSION_ONLY",
-    "truthNegativeVersion": "TN-3",
-    "direct200MpTruthClaimAllowed": false,
-    "ui": {
-      "restoredFrom": "v0.65 product presentation",
-      "cleanTruthRawIconRetained": true,
-      "jpgXlCardRestoredDisabled": true,
-      "pureAdvancedCardsVisible": true,
-      "compactHeightLayout": true
-    }
+  "validatedLine": {
+    "v073": "real Camera-5 capture -> admitted 4080x3072 DNG -> Main House -> finalized preview -> PURE",
+    "v074": "bit-exact Scientific Master stripe execution",
+    "v075": "bit-exact 512 preview runtime core",
+    "v076": "responsive portrait/landscape camera UI",
+    "v077": "format-neutral canonical ancestry for Restoration DNG/TIFF/EXR",
+    "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
     "restorationAlgorithm": "v0.67 unchanged",
-    "canonicalOpenScene": "v0.70 semantics",
+    "canonicalOpenSceneParent": "v0.70",
     "roleMaskProjection": "v0.71",
-    "projectionLifecycle": "v0.72"
+    "projectionLifecycle": "v0.72",
+    "zeroLine": "unchanged",
+    "technicalBackplane": "unchanged"
+  },
+  "v077": {
+    "schema": "TruthRawCanonicalAncestry/0.77",
+    "chain": [
+      "sealed source evidence",
+      "Scientific Master",
+      "Zero-Line",
+      "scene-scale",
+      "180-byte Technical Backplane",
+      "canonical Open Scene",
+      "derivative raster",
+      "restoration role-mask"
+    ],
+    "sameManifestAcross": [
+      "Restoration DNG",
+      "Restoration TIFF",
+      "Restoration EXR"
+    ],
+    "modifiesPixels": false,
+    "pureV063Modified": false
+  },
+  "v078": {
+    "schema": "TruthRawOpenSceneChannelAuthority/0.78",
+    "parent": "canonical Open Scene v0.70 artifact",
+    "authorities": [
+      "CALIBRATED_ESTIMATE",
+      "RECONSTRUCTED",
+      "CENSORED",
+      "UNKNOWN"
+    ],
+    "uncertaintyStates": [
+      "UNRESOLVED",
+      "SOURCE_NOISE_PROFILE_P95",
+      "BACKEND_BOUND_P95",
+      "CERTIFIED_VARIANCE"
+    ],
+    "genericAdmittedDng": {
+      "directUncensored": "CALIBRATED_ESTIMATE + support=1 + uncertainty UNRESOLVED",
+      "directClipped": "CENSORED + explicit SOURCE_RAW_CODE lower bound",
+      "missingChannels": "UNKNOWN",
+      "reconstructedAuthorityCount": 0
+    },
+    "reconstructedRequires": [
+      "nonzero admitted uncertainty binding SHA-256",
+      "bound reconstruction backend identity",
+      "finite nonnegative p95",
+      "positive finite support",
+      "source/backend/sample-domain compatibility"
+    ],
+    "advancedReturns": [
+      "canonical Open Scene v0.70 artifact SHA-256",
+      "channel-authority v0.78 artifact SHA-256"
+    ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-73-camera-source-admission-tn3.yml",
-    "run": 35513839890,
-    "status": "QUEUED_AT_STATE_CREATION"
+    "workflow": "android-truthraw-suite-v0-78-open-scene-channel-authority.yml",
+    "run": 35519235748,
+    "status": "SUCCESS",
+    "jobs": {
+      "channelAuthorityExactness": "SUCCESS",
+      "existingScientificLineage": "SUCCESS",
+      "androidBuild": "SUCCESS"
+    },
+    "artifactId": 10608121004,
+    "artifactZipSha256": "f7125be3edbbaf4017fc1fee6aa57e7d384c16e1d9ab4a288ab1400eebc17ae1",
+    "apkBytes": 6407245,
+    "apkSha256": "7a02fc07472158003423a1232a2c320956c3f80b7ff02d94c303fa46a1e181ff"
   },
-  "immediateValidation": [
-    "wait for v0.73 CI",
-    "install green APK",
-    "tap Use camera and verify live preview opens",
-    "capture one physical frame",
-    "verify source-first seal",
-    "verify topology admission or fail-closed behavior",
-    "verify automatic Main-House entry only for admitted processing DNG",
-    "verify TN-3/PURE only after Main-House admission"
-  ]
+  "openValidation": {
+    "realDeviceV078SmokeTest": "OPEN",
+    "sameDeviceV074V075PerformanceBenchmark": "OPEN",
+    "independentDngTiffExrConformance": "OPEN",
+    "originalSourceReplayForEffectfulRestoration": "OPEN",
+    "currentCameraDomainNoisePtcUncertainty": "OPEN",
+    "exactV5gF64ReconstructionTraceBinding": "OPEN",
+    "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED"
+  },
+  "immediateNext": {
+    "branch": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
+    "objective": "admit only source/backend-bound uncertainty into v0.78; keep current camera-derived DNG fail-closed until its own calibration exists",
+    "after": [
+      "v4.7j support-aware scientific detail",
+      "v4.7k downstream acutance",
+      "richer illumination/light/dark/artificial-light state",
+      "authority-aware single-frame HDR",
+      "Restoration v2",
+      "projection conformance/source replay",
+      "multi-vendor proprietary RAW promotion gates"
+    ]
+  }
 }
