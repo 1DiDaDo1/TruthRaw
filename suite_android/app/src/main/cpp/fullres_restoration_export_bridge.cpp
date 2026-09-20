@@ -6,6 +6,7 @@
 #include "open_scene_canonical_v0_70.h"
 #include "truthraw_sha256_v0_69.h"
 #include "truthraw_ordered_parallel_executor_v0_1.h"
+#include "truthraw_performance_hint_v0_1.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -19,6 +20,7 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <chrono>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -43,9 +45,10 @@ namespace streaming = truthraw::streaming_v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace sha = truthraw::sha256_v0_69;
 namespace ordered = truthraw::ordered_parallel_executor::v0_1;
+namespace perf_hint = truthraw::performance_hint::v0_1;
 
 constexpr jlong kMagic = 0x54525253; // TRRS
-constexpr std::size_t kPacketLongs = 25u;
+constexpr std::size_t kPacketLongs = 26u;
 constexpr std::size_t kHeaderBytes = 8192u;
 constexpr std::uint32_t kCore = 64u;
 constexpr int kRestorationRadius = 2;
@@ -354,6 +357,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
         streaming::detail::Workspace workspace;
         std::vector<std::uint16_t> raw;
         std::vector<float> gain;
+        perf_hint::CpuWorkerSession performanceHint;
     };
 
     struct RestorationTileResult final {
@@ -436,6 +440,9 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
             auto& ctx = workerContexts[workerIndex];
             auto& workerSource = ctx.opened.source;
             const auto& core = coreTiles[tileIndex];
+            constexpr std::int64_t kTileTargetNanos = 25'000'000LL;
+            (void)ctx.performanceHint.ensure_started(kTileTargetNanos);
+            const auto tileStarted = std::chrono::steady_clock::now();
 
             result.x = core.x0;
             result.y = core.y0;
@@ -669,6 +676,11 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                 result.record.end(),
                 result.roles.begin(),
                 result.roles.end());
+            const auto tileFinished = std::chrono::steady_clock::now();
+            const auto tileNanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                tileFinished - tileStarted).count();
+            ctx.performanceHint.report_actual(
+                std::max<std::int64_t>(1LL, tileNanos));
             return ordered::Status::success();
         },
         [&](std::size_t tileIndex,
@@ -818,6 +830,11 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     values[22] = 1; // independent evidence count
     values[23] = 1; // FULLRES_RESTORATION_V0_67
     values[24] = workerCount; // runtime only; not embedded in artifact identity
+    std::uint64_t hintWorkerCount = 0u;
+    for (const auto& ctx : workerContexts) {
+        if (ctx.performanceHint.everStarted()) ++hintWorkerCount;
+    }
+    values[25] = clamp_jlong(hintWorkerCount); // runtime only; ADPF availability
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
