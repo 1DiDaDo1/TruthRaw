@@ -342,7 +342,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
             reconTile.hx1 = std::min(width, ex1 + reconstructionHalo);
             reconTile.hy1 = std::min(height, ey1 + reconstructionHalo);
 
-            const auto fill = streaming::detail::fill_stage2(source, reconTile, workspace);
+            const auto fill = streaming::detail::fill_stage2(*source, reconTile, workspace);
             if (!fill) {
                 (void)::ftruncate(outputFd, 0);
                 return packet(env, stream_status(fill));
