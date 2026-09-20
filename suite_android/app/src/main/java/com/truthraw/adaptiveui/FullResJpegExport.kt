@@ -20,6 +20,7 @@ object PhotoExportNativeBridge {
         outputFd: Int,
         flags: Int,
         sourceRouteCode: Int,
+        userQuarterTurns: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -30,7 +31,9 @@ data class FullResJpegMetrics(
     val height: Int,
     val sourceWidth: Int,
     val sourceHeight: Int,
-    val orientation: Int,
+    val sourceOrientation: Int,
+    val userQuarterTurns: Int,
+    val effectiveOrientation: Int,
     val nv21Bytes: Long,
     val jpegBytes: Long,
     val advancedFlags: Int,
@@ -53,7 +56,7 @@ sealed interface FullResJpegResult {
 
 object FullResJpegExporter {
     private const val MAGIC = 0x54524a50L
-    private const val PACKET_LONGS = 20
+    private const val PACKET_LONGS = 22
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
     private const val JPEG_QUALITY = 96
@@ -63,6 +66,7 @@ object FullResJpegExporter {
         resolver: ContentResolver,
         job: RawJob,
         flags: Int,
+        userQuarterTurns: Int,
         workingDir: File,
     ): FullResJpegResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
@@ -101,6 +105,7 @@ object FullResJpegExporter {
                             SourceIngressRoute.IMPORTED_FILE -> 0
                             SourceIngressRoute.CAMERA_CAPTURE -> 1
                         },
+                        userQuarterTurns,
                         MAX_SOURCE_RESIDENT_BYTES,
                         MAX_LOGICAL_RESIDENT_BYTES,
                     )
@@ -124,13 +129,18 @@ object FullResJpegExporter {
         val height = packet[3].toInt()
         val sourceWidth = packet[4].toInt()
         val sourceHeight = packet[5].toInt()
-        val orientation = packet[6].toInt()
+        val sourceOrientation = packet[6].toInt()
         val nv21Bytes = packet[7]
+        val packetUserQuarterTurns = packet[20].toInt()
+        val effectiveOrientation = packet[21].toInt()
         if (width <= 0 || height <= 0 || sourceWidth <= 0 || sourceHeight <= 0 ||
             nv21Bytes != width.toLong() * height.toLong() * 3L / 2L ||
             nv21File.length() != nv21Bytes ||
             packet[12] != 1L || packet[13] != 1L || packet[14] != 1L ||
-            packet[15] != 1L || packet[18] != 1L || packet[19] != 1L
+            packet[15] != 1L || packet[18] != 1L || packet[19] != 1L ||
+            packetUserQuarterTurns != userQuarterTurns ||
+            userQuarterTurns !in 0..3 ||
+            effectiveOrientation !in setOf(1, 3, 6, 8)
         ) {
             nv21File.delete()
             return FullResJpegResult.Failed("JPG full-resolution lineage/raster invariant faalde.")
@@ -189,7 +199,9 @@ object FullResJpegExporter {
                 height = height,
                 sourceWidth = sourceWidth,
                 sourceHeight = sourceHeight,
-                orientation = orientation,
+                sourceOrientation = sourceOrientation,
+                userQuarterTurns = userQuarterTurns,
+                effectiveOrientation = effectiveOrientation,
                 nv21Bytes = nv21Bytes,
                 jpegBytes = jpegFile.length(),
                 advancedFlags = packet[8].toInt(),
