@@ -9,18 +9,19 @@
 3. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
 4. `docs/research/multivendor-raw-source-adapter-v0.1/README.md`
 5. `docs/research/nikon-nef-radiometric-admission-v0.59/README.md`
+6. `docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-68-restoration-transactional-fgs`
+`integration/truthraw-suite-v0-69-tn3-open-scene-projection`
 
 Current app:
 
-`0.33-v0.68-restoration-transactional-fgs`
+`0.34-v0.69-tn3-open-scene-projection`
 
 Current product direction: **one app, RAW-file import first, camera capture second; both converge at `SEALED_SOURCE_ADMISSION`.**
 
-Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.66 restores TruthNegative TN-2, Open-World/Scene Physics and Dynamic Authority. v0.67 adds full-resolution retreatable Restoration. v0.68 leaves that science unchanged but makes the long export transactional: foreground dataSync service, private staging, whole-file staging hash, body-first/header-last SAF commit, exact-destination SHA equality and stale-interruption cleanup. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
+Current proprietary-RAW progress: DNG uses the generic RAW adapter ABI; Nikon NEF has the first strict real proprietary sample decoder and v0.59 exact-scope black/saturation gate. **v0.69 promotes TruthNegative to TN-3 with dense full-frame Open Scene State, and projects a verified full-resolution Restoration derivative to Float32 DNG, Float32 TIFF and OpenEXR after fail-closed lineage checks. v0.68 transactional foreground staging remains the long-export safety model. The validated PURE writer remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`.** The old 16-bit Linear DNG remains compatibility-only. Scientific Master admission for NEF remains blocked until noise/uncertainty, source-bound color and held-out validation are separately closed.
 
 Current v0.59 host CI: run `35456672651` = **SUCCESS** on GCC + Clang.
 
