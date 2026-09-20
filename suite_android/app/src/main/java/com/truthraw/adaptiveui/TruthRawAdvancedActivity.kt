@@ -88,7 +88,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.71 laat Advanced dezelfde volledige canonical Open Scene artifact-ID berekenen als TN-3/TRR/projecties. DNG/TIFF/EXR dragen nu ook de volledige role-mask payload, niet alleen de hash.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.72 behoudt dezelfde canonical Open Scene/role-mask inhoud, maar maakt lange DNG/TIFF/EXR-projecties lifecycle-safe: geen startup-cleanup race, één projectie tegelijk en zichtbare foreground voortgang.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
