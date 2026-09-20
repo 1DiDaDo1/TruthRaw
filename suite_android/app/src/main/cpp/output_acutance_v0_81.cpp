@@ -109,11 +109,23 @@ bool apply_final_resize_acutance_and_rebase_hdr(
             continue;
         }
 
+        // Output acutance may only re-express HDR transport that already
+        // existed. It must never manufacture positive HDR gain where the
+        // upstream bounded HDR relation was unity.
+        const float legacyHalfLog =
+            std::isfinite(halfLogGain[i])
+                ? std::clamp(halfLogGain[i], 0.0f, kLegacyMaxHalfLogGain)
+                : 0.0f;
+        if (legacyHalfLog <= 1e-5f) {
+            rebasedDisplayGain[i] = 1.0f;
+            continue;
+        }
+
         const float beforeY = luminance_nonnegative(resizedLinearSdrBase, i);
         const float afterY = luminance_nonnegative(acutanceAdjustedSdrBase, i);
         if (!finite_nonnegative(beforeY) || !finite_nonnegative(afterY)) return false;
 
-        const float legacyGain = legacy_display_gain_from_half_log(halfLogGain[i]);
+        const float legacyGain = legacy_display_gain_from_half_log(legacyHalfLog);
         const float effectiveTarget = beforeY * legacyGain;
 
         float rebasedGain = 1.0f;
