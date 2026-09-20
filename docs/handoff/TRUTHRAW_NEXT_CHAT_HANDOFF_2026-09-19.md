@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-67-fullres-restoration`
+`integration/truthraw-suite-v0-68-restoration-transactional-fgs`
 
 Current app version:
 
-`0.32-v0.67-fullres-restoration`
+`0.33-v0.68-restoration-transactional-fgs`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -141,7 +141,31 @@ Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md`.
 
 v0.67 CI run `35498407249` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`.
 
-Real-device export validation of the new `.trr` path is still pending.
+Real-device export validation of the new `.trr` path exposed an Android lifecycle/atomicity defect: one device artifact stopped after 487 complete tiles with an all-zero 8192-byte header and never reached finalization. That finding is preserved; it was not a scientific-restoration failure.
+
+## 2H. v0.68 — transactional foreground Restoration
+
+v0.68 keeps the v0.67 native restoration science unchanged and replaces the Android write lifecycle.
+
+Long-running reconstruction now writes only to an app-private staging file owned by a `dataSync` foreground service with a bounded partial wake lock. After native completion, staging is contract-verified and whole-file SHA-256 hashed.
+
+Only then is the user-selected SAF destination committed:
+
+`zero 8192-byte header -> full body -> fsync -> VALID header written LAST -> fsync -> exact destination reopen -> whole-file SHA equality`.
+
+A destination is therefore not a valid TruthRaw Restoration artifact until the complete body already exists.
+
+Persistent transaction phases are:
+
+`STAGING -> STAGING_VERIFIED -> COMMITTING -> VERIFYING -> SUCCESS/FAILED`.
+
+If the process is later restarted with a non-terminal job but no live foreground service, v0.68 deletes private staging and deletes or truncates the incomplete destination. It deliberately fails closed rather than resuming an unknown native reconstruction state.
+
+Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md`.
+
+v0.68 CI run `35501207534` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contract tests and Android. Artifact ID `10602552000`; extracted APK SHA-256 `7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824`.
+
+Real-device gate: repeat the full-resolution export and deliberately switch to another app while staging is running. Require a complete valid header, all tiles and staging↔destination SHA-256 equality.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
