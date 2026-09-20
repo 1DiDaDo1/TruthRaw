@@ -1,6 +1,6 @@
 # TruthRaw
 
-> **CURRENT ACTIVE INTEGRATION — 2026-09-19**
+> **CURRENT ACTIVE INTEGRATION — 2026-09-20**
 >
 > New chats should start with:
 >
@@ -8,11 +8,11 @@
 > 2. `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 > 3. `START_HERE_NEW_CHAT.md`
 >
-> Active branch: `integration/truthraw-suite-v0-65-ui-icon-polish`
+> Active branch: `integration/truthraw-suite-v0-67-fullres-restoration`
 >
-> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.65 keeps the validated v0.63 PURE Float32 route and v0.64 Advanced derivative unchanged while fixing compact-phone system-bar overlap, PURE/ADVANCED title wrapping and replacing the noisy icon with a clean TR lens-reflection mark.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
+> Current direction: one multi-vendor TruthRaw app with RAW-file import as the primary entrance and camera capture as the secondary entrance, converging at sealed source admission. DNG is native through the generic adapter ABI. **v0.66 reconnects TruthNegative, Open-World/Scene Physics and Dynamic Authority; v0.67 adds a real full-source-resolution retreatable Restoration derivative with an inseparable role mask. The real-device validated v0.63 PURE Float32 route remains unchanged.** The 16-bit Linear DNG is compatibility-only. Nikon NEF remains fail-closed from Scientific Master pending noise/uncertainty, source-bound color and held-out validation.
 >
-> v0.65 CI run `35473170260`: **SUCCESS** on GCC, Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`. v0.65 is UI/icon-only; Advanced remains a bounded derivative preview/JPEG path and full-resolution PURE Float32 DNG remains separate and unchanged.
+> v0.67 CI run `35498407249`: **SUCCESS** on GCC, Clang, scientific contract tests and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`. Full-resolution Restoration is now implemented as `.trr` with source-resolution Float32 pixels plus a retreatable per-pixel role mask. Device artifact validation is still pending.
 
 > **TruthNegative branch overlay — 2026-09-19**
 >
