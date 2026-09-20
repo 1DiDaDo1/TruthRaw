@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 34
-        versionName = "0.34-v0.69-tn3-open-scene-projection"
+        versionCode = 35
+        versionName = "0.35-v0.70-canonical-open-scene-role-binding"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
