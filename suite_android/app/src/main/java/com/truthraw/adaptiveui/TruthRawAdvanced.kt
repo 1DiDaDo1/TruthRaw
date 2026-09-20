@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 76
+    private const val HEADER_INTS = 96
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -231,6 +231,54 @@ object AdvancedTilePreviewLoader {
             }
         }
 
+        val outputAcutanceApplied = packet[76] != 0
+        val outputAcutanceProfile = packet[77]
+        val outputAcutanceNoiseSigmaAt2Pct = Float.fromBits(packet[78])
+        val outputAcutanceResizeRatio = Float.fromBits(packet[79])
+        val outputAcutanceStrength = Float.fromBits(packet[80])
+        val outputAcutanceDeltaCap = Float.fromBits(packet[81])
+        val outputAcutanceHdrRebased = packet[82] != 0
+        val outputAcutanceChangedPixels = packet[83]
+        val outputAcutanceHdrRebasedPixels = packet[84]
+        val outputAcutanceMaxHdrTargetAbsError = Float.fromBits(packet[85])
+        val outputAcutanceBindingSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[88 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        val expectedOutputProfile = if (options.detail) 2 else 0
+        if (!outputAcutanceApplied ||
+            outputAcutanceProfile != expectedOutputProfile ||
+            !outputAcutanceNoiseSigmaAt2Pct.isFinite() ||
+            outputAcutanceNoiseSigmaAt2Pct < 0f ||
+            !outputAcutanceResizeRatio.isFinite() ||
+            outputAcutanceResizeRatio < 1f ||
+            !outputAcutanceStrength.isFinite() ||
+            outputAcutanceStrength < 0.012f ||
+            outputAcutanceStrength > 0.130001f ||
+            !outputAcutanceDeltaCap.isFinite() ||
+            outputAcutanceDeltaCap < 0.0045f ||
+            outputAcutanceDeltaCap > 0.007001f ||
+            outputAcutanceHdrRebased != options.hdr ||
+            outputAcutanceChangedPixels < 0 ||
+            outputAcutanceHdrRebasedPixels < 0 ||
+            !outputAcutanceMaxHdrTargetAbsError.isFinite() ||
+            outputAcutanceMaxHdrTargetAbsError < 0f ||
+            packet[86] != 1 ||
+            packet[87] != 0 ||
+            outputAcutanceBindingSha256.all { it == '0' } ||
+            outputAcutanceHdrRebasedPixels != packet[27] ||
+            (!options.hdr && outputAcutanceHdrRebasedPixels != 0)
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: v0.81 Output Acutance/HDR-rebase contract week af.",
+            )
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -294,6 +342,17 @@ object AdvancedTilePreviewLoader {
             advancedDetailBindingSha256 = if (options.detail) {
                 detailBindingSha256
             } else null,
+            outputAcutanceApplied = outputAcutanceApplied,
+            outputAcutanceProfile = outputAcutanceProfile,
+            outputAcutanceNoiseSigmaAt2Pct = outputAcutanceNoiseSigmaAt2Pct,
+            outputAcutanceResizeRatio = outputAcutanceResizeRatio,
+            outputAcutanceStrength = outputAcutanceStrength,
+            outputAcutanceDeltaCap = outputAcutanceDeltaCap,
+            outputAcutanceHdrRebased = outputAcutanceHdrRebased,
+            outputAcutanceChangedPixels = outputAcutanceChangedPixels,
+            outputAcutanceHdrRebasedPixels = outputAcutanceHdrRebasedPixels,
+            outputAcutanceMaxHdrTargetAbsError = outputAcutanceMaxHdrTargetAbsError,
+            outputAcutanceBindingSha256 = outputAcutanceBindingSha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -326,6 +385,7 @@ object AdvancedTilePreviewLoader {
         -11 -> "Advanced: Open Scene v0.78 channel-authority sidecar faalde fail-closed."
         -12 -> "Advanced: v0.79 gaf onverwacht RECONSTRUCTED authority vrij zonder toegelaten trace/runtime p95-pad."
         -13 -> "Advanced: v0.80 Adaptive Detail provenance/authority-grens werd geschonden."
+        -14 -> "Advanced: v0.81 Output Acutance/HDR-rebase faalde fail-closed."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
