@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-70-canonical-open-scene-role-binding",
+  "activeBranch": "integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -786,6 +786,74 @@
         "extractedApkSha256": "43be7ac637f1e24d346c82ea8b3c717f4f2fd394fb3f977b490127db8eecca7d"
       },
       "realDeviceValidation": "PENDING_V070_TN3_CANONICAL_OPEN_SCENE_AND_DNG_TIFF_EXR_TEST"
+    },
+    "v071": {
+      "branch": "integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed",
+      "appVersion": "0.36-v0.71-open-scene-trr-rolemask-embed",
+      "role": "CANONICAL_OPEN_SCENE_PROPAGATION_AND_FULL_ROLE_MASK_EMBEDDING",
+      "inheritsV070CanonicalOpenScene": true,
+      "inheritsV068TransactionalForegroundPattern": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "restorationAlgorithmUnchangedFromV067": true,
+      "canonicalOpenScene": {
+        "schema": "TruthRawOpenSceneCanonicalState/0.70",
+        "oneSharedSourceBuilder": true,
+        "exactArtifactConsumers": [
+          "TN3",
+          "ADVANCED",
+          "TRR",
+          "DNG_PROJECTION",
+          "TIFF_PROJECTION",
+          "EXR_PROJECTION"
+        ],
+        "advancedCarriesArtifactSha256": true,
+        "trrCarriesArtifactSha256": true,
+        "projectionRequiresTrrArtifactMatch": true,
+        "semanticParentRegion": "TruthRawOpenSceneRegion/0.7",
+        "semanticParentStream": "TruthRawOpenSceneStateSummary/0.8",
+        "scientificMasterWritebackAllowed": false,
+        "createsNewEvidence": false,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1
+      },
+      "restorationRoleMask": {
+        "canonicalEncoding": "CANONICAL_64X64_CELL_SEQUENCE_UINT8",
+        "exactSha256InTrr": true,
+        "tiffDngExrProjectionRequiresDeclaredHashMatch": true,
+        "dng": {
+          "fullMaskEmbedded": true,
+          "storage": "DNGPrivateData/TRUTHRAW_ROLE_MASK_BINARY_V1"
+        },
+        "tiff": {
+          "fullMaskEmbedded": true,
+          "storage": "TIFF_PRIVATE_TAG_65000_BYTE"
+        },
+        "exr": {
+          "fullMaskEmbedded": true,
+          "storage": "UINT_CHANNEL_TR_ROLE"
+        },
+        "role0": "PRESERVE_SCIENTIFIC_MASTER",
+        "role1": "AESTHETIC_REINTEGRATION_ONLY",
+        "role2": "UNRESOLVED_LOSS"
+      },
+      "directLooseCables": {
+        "roadmap": "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
+        "canonicalOpenSceneBinding": "CLOSED_IMPLEMENTATION_V071",
+        "restorationRoleMaskExportBinding": "CLOSED_IMPLEMENTATION_V071_FULL_PAYLOAD_SELF_CONTAINED",
+        "externalDngTiffExrConformance": "OPEN",
+        "effectfulCensoredRestorationDeviceValidation": "OPEN"
+      },
+      "largerOpenLines": {
+        "currentPtcCertificate": "OPEN",
+        "multiVendorScientificAdmission": "OPEN",
+        "fullPhysicalScenePhysics": "OPEN_EVIDENCE_BOUNDED"
+      },
+      "documentation": "docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md",
+      "ci": {
+        "run": 35506566503,
+        "status": "ANDROID_IN_PROGRESS_HOST_GCC_CLANG_AND_SCIENTIFIC_CONTRACTS_SUCCESS"
+      },
+      "realDeviceValidation": "PENDING_V071_TRR_AND_DNG_TIFF_EXR_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -806,10 +874,9 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "BUILD_AND_VERIFY_V070_ANDROID_APK",
-    "PROPAGATE_CANONICAL_OPEN_SCENE_ARTIFACT_IDENTITY_INTO_ADVANCED_AND_TRR_CONTAINER",
-    "IMPLEMENT_FULL_ROLE_MASK_EMBEDDING_OR_VERSIONED_COMPANION_SIDECAR",
+    "FINISH_V071_ANDROID_BUILD_AND_VERIFY_APK",
     "RUN_INDEPENDENT_DNG_TIFF_EXR_CONFORMANCE_VALIDATION",
+    "RUN_REAL_DEVICE_V071_TRR_DNG_TIFF_EXR_EXPORT_TEST",
     "RUN_EFFECTFUL_FULLRES_RESTORATION_TEST_ON_DNG_WITH_CENSORED_CFA_SUPPORT",
     "THEN_VERSION_CURRENT_PTC_OVER_CONNECTED_LINEAGE",
     "KEEP_V063_PURE_AND_V067_RESTORATION_ALGORITHM_UNCHANGED"
@@ -817,9 +884,9 @@
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md",
     "docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md",
     "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
-    "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md",
-    "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md"
+    "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md"
   ]
 }
