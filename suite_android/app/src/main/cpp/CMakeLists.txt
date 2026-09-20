@@ -127,7 +127,18 @@ find_library(CAMERA2NDK_LIB camera2ndk)
 find_library(DL_LIB dl)
 target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB})
 
-target_compile_options(truthraw_ui_preview_bridge PRIVATE -Wall -Wextra -Werror)
+target_compile_options(truthraw_ui_preview_bridge PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+    # The Android app is distributed/tested as a debug APK. Without an
+    # explicit optimization level, its native imaging core otherwise runs
+    # essentially unoptimized. O2 is admitted only with strict FP semantics:
+    # no fast-math and no implicit fused contraction. CI compares the exact
+    # v4.7i Float32 output signature at O0 vs O2 before this APK is built.
+    $<$<CONFIG:Debug>:-O2>
+    $<$<CONFIG:Debug>:-fno-fast-math>
+    $<$<CONFIG:Debug>:-ffp-contract=off>)
 
 # canonical v4.7i is byte-frozen. Android NDK Clang 18 diagnoses one compact
 # canonical loop/return line as -Wmisleading-indentation. Keep the diagnostic
