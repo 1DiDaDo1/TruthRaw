@@ -470,7 +470,7 @@ std::vector<std::uint8_t> asciip(const std::string& s){std::vector<std::uint8_t>
 
 bool write_tiff(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
                 std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over) {
-    constexpr std::uint16_t BYTE=1,ASCII=2,SHORT=3,LONG=4;
+    constexpr std::uint16_t ASCII=2,SHORT=3,LONG=4;
     constexpr std::uint32_t tileBytes=kTileEdge*kTileEdge*3u*4u;
     std::vector<IfdEntry> e;
     auto add=[&](std::uint16_t tag,std::uint16_t type,std::uint32_t count,std::vector<std::uint8_t> p){e.push_back({tag,type,count,std::move(p),0});};
