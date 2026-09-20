@@ -134,6 +134,14 @@ data class TilePreviewMetrics(
     val hdrRequiresPerOutputChannelAuthority: Boolean = true,
     val hdrRequiresAdmittedUncertaintyForReconstructed: Boolean = true,
     val hdrAuthorityStateSha256: String? = null,
+    val outputChannelAuthorityAvailable: Boolean = false,
+    val outputChannelAuthorityMappingMode: Int = 0,
+    val outputAuthorityCalibratedChannels: Int = 0,
+    val outputAuthorityReconstructedChannels: Int = 0,
+    val outputAuthorityCensoredChannels: Int = 0,
+    val outputAuthorityUnknownChannels: Int = 0,
+    val outputAuthorityCensoredSupportPixels: Int = 0,
+    val outputAuthorityArtifactSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
