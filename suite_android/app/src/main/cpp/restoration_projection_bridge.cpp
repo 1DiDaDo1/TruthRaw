@@ -373,7 +373,7 @@ struct Lineage final {
     PreparedScientificPreviewSource prepared{};
     truthraw::scientific_master_streaming_binding::v0_2::Result scientific{};
     truthraw::technical_backplane_phase2::v0_1::Phase2Result phase2{};
-    std::shared_ptr<truthraw::tile_dng_v0_1::ITileRawSource> source;
+    std::unique_ptr<truthraw::streaming_v0_1::IRawTileSource> source;
     std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstruction> reconstruction;
 };
 
@@ -399,7 +399,7 @@ bool establish_lineage(
     truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource opened;
     auto os=truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(bytes,out.seal,opts,opened);
     if(!os){status=adapter_status(os);return false;}
-    out.source=opened.source;
+    out.source=std::move(opened.source);
     out.reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
     truthraw::scientific_master_streaming_binding::v0_2::Options so;so.memoryBudgetBytes=static_cast<std::size_t>(maxLogicalResidentBytes);
     auto ss=truthraw::scientific_master_streaming_binding::v0_2::bind_scientific_master_streaming(*out.source,*out.reconstruction,so,out.scientific);
@@ -476,7 +476,8 @@ bool write_tiff(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     add(256,LONG,1,longp(trr.meta().width));add(257,LONG,1,longp(trr.meta().height));
     std::vector<std::uint8_t> bits;for(int i=0;i<3;++i)put_u16_le(bits,32);add(258,SHORT,3,std::move(bits));
     add(259,SHORT,1,shortp(1));add(262,SHORT,1,shortp(2));add(274,SHORT,1,shortp(static_cast<std::uint16_t>(trr.meta().orientation)));
-    add(277,SHORT,1,shortp(3));add(284,SHORT,1,shortp(1));add(305,ASCII,31,asciip("TruthRaw v0.69 Restoration TIFF"));
+    add(277,SHORT,1,shortp(3));add(284,SHORT,1,shortp(1));
+    auto software=asciip("TruthRaw v0.69 Restoration TIFF");add(305,ASCII,static_cast<std::uint32_t>(software.size()),std::move(software));
     add(322,LONG,1,longp(kTileEdge));add(323,LONG,1,longp(kTileEdge));
     std::vector<std::uint8_t> offs(trr.tileCount()*4u,0);add(324,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(offs));
     std::vector<std::uint8_t> counts;counts.reserve(trr.tileCount()*4u);for(std::size_t i=0;i<trr.tileCount();++i)put_u32_le(counts,tileBytes);add(325,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(counts));
