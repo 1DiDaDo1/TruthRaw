@@ -200,6 +200,11 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <service
+            android:name=".RestorationProjectionForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraafPermissionGateActivity" android:exported="false" />
