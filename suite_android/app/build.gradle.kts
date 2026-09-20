@@ -19,7 +19,7 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 42
+        versionCode = 43
         versionName = "0.42-v0.75.1-camera-orientation-ui"
 
         ndk { abiFilters += listOf("arm64-v8a") }
