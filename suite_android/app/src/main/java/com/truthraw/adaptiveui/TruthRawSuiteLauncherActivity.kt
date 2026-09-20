@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.67 · Full-res Restoration + TruthNegative + Open-World", 11f).apply {
+        root.addView(body("v0.68 · transactionele foreground Restoration · v0.67 science ongewijzigd", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -279,7 +279,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         addView(space(4))
         addView(body(
             "PURE blijft de meetbare projectie. TruthNegative bindt de camera-native Master aan Dynamic Authority. " +
-                "Advanced gebruikt Open-World/Scene Physics en Restoration alleen downstream, zonder evidence-upgrade.",
+                "Advanced gebruikt Open-World/Scene Physics downstream. Full-res Restoration draait transactioneel via private staging + header-last commit, zonder evidence-upgrade.",
             11.5f,
         ))
     }
