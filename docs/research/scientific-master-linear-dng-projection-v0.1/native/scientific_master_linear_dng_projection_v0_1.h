@@ -74,6 +74,10 @@ struct ProjectionDescriptor final {
     // Optional downstream edit recipe. This never changes the stored PURE raster
     // or Scientific Master identity; it is provenance for RAW/Edit workflows.
     std::string downstreamEditManifest;
+    // Output-channel authority state is independent of appearance/edit recipe.
+    // It describes the dense output representation and never upgrades the
+    // Scientific Master or source evidence.
+    std::string outputAuthorityManifest;
     // Optional ordinary JPEG preview stored as a reduced-resolution secondary
     // TIFF IFD. It is presentation only; the Float32 LinearRaw IFD stays primary.
     std::span<const std::uint8_t> jpegPreviewBytes{};
