@@ -223,6 +223,12 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
            descriptor.canonicalAncestryManifest +
            "canonical_ancestry_manifest_end\n")
         : std::string{};
+    const std::string editManifestExtra =
+        descriptor.downstreamEditManifest.empty()
+            ? std::string{}
+            : (std::string("downstream_edit_manifest_begin\n") +
+               printable_identity(descriptor.downstreamEditManifest) +
+               "\ndownstream_edit_manifest_end\n");
     const std::string body =
         std::string("role=") + role + "\n" +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
@@ -261,7 +267,8 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "runtime_reconstruction_backend_id=" +
             printable_identity(descriptor.runtimeReconstructionBackendId) + "\n" +
         "source_evidence_id=" + printable_identity(descriptor.sourceEvidenceId) + "\n" +
-        "color_binding_id=" + printable_identity(descriptor.colorBindingId) + "\n";
+        "color_binding_id=" + printable_identity(descriptor.colorBindingId) + "\n" +
+        editManifestExtra;
 
     std::vector<std::uint8_t> out(id.begin(), id.end());
     out.push_back(0u);
