@@ -88,6 +88,7 @@ bool valid_input(const Input& input) noexcept {
        !nonzero(input.illuminationStateSha256) ||
        input.outputPixelCount==0u ||
        input.presentationHdrGainPixels>input.outputPixelCount ||
+       (!input.presentationHdrEnabled && input.presentationHdrGainPixels!=0u) ||
        input.physicalFrameCount!=1u ||
        input.independentEvidenceCount!=1u){
         return false;
