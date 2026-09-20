@@ -80,8 +80,8 @@ class TruthRawProActivity : Activity() {
         root.addView(space(12))
         root.addView(card("Hardware acceleration · research").apply {
             addView(body(
-                "Deze probe verandert geen pixels en kiest nog geen accelerator. Hij inventariseert alleen CPU/Vulkan-capabilities; " +
-                    "CPU_REFERENCE blijft de actieve authority.",
+                "Deze probe verandert geen pixels en kiest nog geen accelerator. Hij inventariseert CPU/Vulkan en op Android 17 ook APV-codecs. " +
+                    "CPU_REFERENCE blijft de actieve authority; APV is alleen professionele video/intermediate.",
                 11.5f,
             ))
             addView(space(8))
@@ -139,6 +139,7 @@ class TruthRawProActivity : Activity() {
                         // must provide their own measured estimate.
                         bytesPerWorkerEstimate = 16L * 1024L * 1024L,
                     )
+                    val apv = TruthRawApvCapabilitiesProbe.probe().getOrNull()
                     buildString {
                         append(capabilities.summary)
                         append("\nCPU worker plan: ")
@@ -149,6 +150,13 @@ class TruthRawProActivity : Activity() {
                         append(appearancePlan.selected)
                         append("\n")
                         append(appearancePlan.reason)
+                        append("\n\nAPV professional video:")
+                        append("\n")
+                        if (apv != null) {
+                            append(TruthRawApvCapabilitiesProbe.compactDetails(apv))
+                        } else {
+                            append("APV runtime-probe faalde fail-closed.")
+                        }
                     }
                 },
                 onFailure = { error ->
