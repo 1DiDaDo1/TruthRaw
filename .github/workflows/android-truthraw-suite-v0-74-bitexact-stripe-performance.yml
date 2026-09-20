@@ -1,0 +1,148 @@
+name: TruthRaw v0.74 Bit-Exact Stripe Performance
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-74-bitexact-stripe-performance
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.3/**'
+      - 'docs/research/finalized-scientific-preview-release-v0.3/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-74-bitexact-stripe-performance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bitexact-release:
+    name: ${{ matrix.compiler }} v0.2-v0.3 bit-exact release
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scientific binding v0.3
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.3 -B build/smsb3 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/smsb3 --parallel 2
+          ctest --test-dir build/smsb3 --output-on-failure
+      - name: Finalized release v0.3
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/finalized-scientific-preview-release-v0.3 -B build/fspr3 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/fspr3 --parallel 2
+          ctest --test-dir build/fspr3 --output-on-failure
+
+  bitexact-sanitizers:
+    name: Clang ASan UBSan v0.3 release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scientific binding sanitizer
+        env:
+          CC: clang
+          CXX: clang++
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.3 -B build/smsb3-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTRUTHRAW_SMSB3_ENABLE_SANITIZERS=ON
+          cmake --build build/smsb3-san --parallel 2
+          ctest --test-dir build/smsb3-san --output-on-failure
+      - name: Finalized release sanitizer
+        env:
+          CC: clang
+          CXX: clang++
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          cmake -S docs/research/finalized-scientific-preview-release-v0.3 -B build/fspr3-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTRUTHRAW_FSPR_V03_ENABLE_SANITIZERS=ON
+          cmake --build build/fspr3-san --parallel 2
+          ctest --test-dir build/fspr3-san --output-on-failure
+
+  scientific-contracts:
+    name: Existing scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v074:
+    name: Android v0.74 stripe performance
+    runs-on: ubuntu-24.04
+    needs: [bitexact-release, bitexact-sanitizers, scientific-contracts]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify performance-only integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          C='suite_android/app/src/main/cpp/CMakeLists.txt'
+          B='suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp'
+          PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+
+          grep -F '0.40-v0.74-bitexact-stripe-performance' "$G"
+          grep -F 'scientific-master-streaming-binding-v0.3/native' "$C"
+          grep -F 'finalized-scientific-preview-release-v0.3/native' "$C"
+          grep -F '#include "finalized_scientific_preview_release_v0_3.h"' "$B"
+          grep -F '#include "scientific_master_streaming_binding_v0_3.h"' "$B"
+          grep -F 'scientific_master_streaming_binding::v0_3::Options scientificOptions' "$B"
+
+          # Frozen downstream science still present.
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
+          grep -F 'TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71' "$PJ"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-74-bitexact-stripe-performance-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
