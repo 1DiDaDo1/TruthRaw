@@ -1,0 +1,56 @@
+name: Full-Frame Streaming Preview Core 512 Equivalence
+
+on:
+  push:
+    branches:
+      - research/full-frame-streaming-preview-core-512-2026-09-20
+    paths:
+      - 'docs/research/full-frame-streaming-preview-core-512/**'
+      - '.github/workflows/full-frame-streaming-preview-core-512.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: ${{ matrix.compiler }} Release exactness
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/full-frame-streaming-preview-core-512 \
+                -B build/preview512 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/preview512 --parallel 2
+      - name: Test exact 128-vs-512 equivalence
+        run: ctest --test-dir build/preview512 --output-on-failure
+
+  sanitizers:
+    name: Clang ASan UBSan exactness
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S docs/research/full-frame-streaming-preview-core-512 \
+                -B build/preview512-san -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DTRUTHRAW_PREVIEW512_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build/preview512-san --parallel 2
+      - name: Test under sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/preview512-san --output-on-failure
