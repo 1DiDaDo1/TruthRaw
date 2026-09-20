@@ -48,7 +48,7 @@ class TruthRawSettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("Instellingen", 26f))
-                addView(body("TruthRaw v0.68 · transactionele foreground full-res restoration", 11.5f))
+                addView(body("TruthRaw v0.69 · TN-3 + Full Open Scene + Restoration projections", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
