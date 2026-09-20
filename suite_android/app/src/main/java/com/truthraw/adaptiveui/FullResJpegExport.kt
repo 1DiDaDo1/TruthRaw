@@ -46,6 +46,16 @@ data class FullResJpegMetrics(
     val fullResolution: Boolean,
     val hdrBakedIntoFront: Boolean,
     val restorationBakedIntoFront: Boolean,
+    val canonicalOpenSceneBound: Boolean,
+    val channelAuthorityBound: Boolean,
+    val uncertaintyDecisionCode: Int,
+    val reconstructedAuthorityAllowed: Boolean,
+    val illuminationStateBound: Boolean,
+    val illuminationWhitePointKnown: Boolean,
+    val scientificHdrAuthorityCode: Int,
+    val presentationHdrAuthorityCode: Int,
+    val hdrBlockedReasonCode: Int,
+    val perOutputChannelAuthorityAvailable: Boolean,
     val jpegSha256: String,
 )
 
@@ -56,7 +66,7 @@ sealed interface FullResJpegResult {
 
 object FullResJpegExporter {
     private const val MAGIC = 0x54524a50L
-    private const val PACKET_LONGS = 22
+    private const val PACKET_LONGS = 32
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
     private const val JPEG_QUALITY = 96
@@ -140,7 +150,10 @@ object FullResJpegExporter {
             packet[15] != 1L || packet[18] != 1L || packet[19] != 1L ||
             packetUserQuarterTurns != userQuarterTurns ||
             userQuarterTurns !in 0..3 ||
-            effectiveOrientation !in setOf(1, 3, 6, 8)
+            effectiveOrientation !in setOf(1, 3, 6, 8) ||
+            packet[22] != 1L || packet[23] != 1L ||
+            packet[25] != 0L || packet[26] != 1L ||
+            packet[28] != 0L || packet[30] != 1L || packet[31] != 0L
         ) {
             nv21File.delete()
             return FullResJpegResult.Failed("JPG full-resolution lineage/raster invariant faalde.")
@@ -214,6 +227,16 @@ object FullResJpegExporter {
                 fullResolution = packet[15] != 0L,
                 hdrBakedIntoFront = packet[16] != 0L,
                 restorationBakedIntoFront = packet[17] != 0L,
+                canonicalOpenSceneBound = packet[22] != 0L,
+                channelAuthorityBound = packet[23] != 0L,
+                uncertaintyDecisionCode = packet[24].toInt(),
+                reconstructedAuthorityAllowed = packet[25] != 0L,
+                illuminationStateBound = packet[26] != 0L,
+                illuminationWhitePointKnown = packet[27] != 0L,
+                scientificHdrAuthorityCode = packet[28].toInt(),
+                presentationHdrAuthorityCode = packet[29].toInt(),
+                hdrBlockedReasonCode = packet[30].toInt(),
+                perOutputChannelAuthorityAvailable = packet[31] != 0L,
                 jpegSha256 = jpegSha,
             ),
             jpegFile,
