@@ -1,6 +1,7 @@
 #pragma once
 
 #include "truthraw_sha256_v0_69.h"
+#include "full_frame_streaming_v0_1.h"
 
 #include <array>
 #include <cstddef>
@@ -67,6 +68,11 @@ private:
     bool valid_ = false;
     bool finalized_ = false;
 };
+
+bool build_from_source(
+    truthraw::streaming_v0_1::IRawTileSource& source,
+    const Binding& binding,
+    Summary& out) noexcept;
 
 const char* state_name(PixelState state) noexcept;
 const char* schema_name() noexcept;
