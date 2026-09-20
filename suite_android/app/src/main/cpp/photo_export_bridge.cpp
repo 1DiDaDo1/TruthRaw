@@ -3,7 +3,12 @@
 #include "adaptive_detail_v47j_adapter.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
+#include "open_scene_canonical_v0_70.h"
+#include "open_scene_channel_authority_v0_78.h"
+#include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
+#include "illumination_state_v0_82.h"
+#include "hdr_authority_v0_83.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_3.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -40,9 +45,14 @@ using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
+namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
+namespace illumination_state = truthraw::illumination_state::v0_82;
+namespace hdr_authority = truthraw::hdr_authority::v0_83;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
-constexpr std::size_t kPacketLongs = 22u;
+constexpr std::size_t kPacketLongs = 32u;
 constexpr jint kFlagLight = 1 << 0;
 constexpr jint kFlagHdr = 1 << 1;
 constexpr jint kFlagDetail = 1 << 2;
@@ -840,6 +850,124 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
        phase2.backplane.physicalFrameCount!=1u ||
        phase2.backplane.independentEvidenceCount!=1u) return packet(env,-4);
 
+    // Full-resolution ADVANCED/PRO must carry the same fail-closed
+    // Open Scene/authority corridor as the Advanced preview. This binds
+    // provenance and scientific limits; it does not change the output pixels.
+    canonical_scene::Binding openSceneBinding{};
+    openSceneBinding.sourceEvidenceSha256=seal.sha256;
+    openSceneBinding.scientificMasterSha256=sci.scientificMasterHash;
+    openSceneBinding.width=static_cast<std::uint32_t>(source->metadata().width);
+    openSceneBinding.height=static_cast<std::uint32_t>(source->metadata().height);
+    openSceneBinding.physicalFrameCount=sci.physicalFrameCount;
+    openSceneBinding.independentEvidenceCount=sci.independentEvidenceCount;
+    openSceneBinding.colourBindingId=produced.color.bindingId;
+
+    canonical_scene::Summary openSceneSummary{};
+    if(!canonical_scene::build_from_source(*source,openSceneBinding,openSceneSummary) ||
+       openSceneSummary.counterfactualPixelCount!=0u ||
+       openSceneSummary.scientificWritebackPixelCount!=0u ||
+       openSceneSummary.createsNewEvidence ||
+       openSceneSummary.chunkingChangesScientificIdentity ||
+       openSceneSummary.pixelCount!=
+           static_cast<std::uint64_t>(source->metadata().width)*
+           static_cast<std::uint64_t>(source->metadata().height)) {
+        return packet(env,-20);
+    }
+
+    uncertainty_admission::Candidate uncertaintyCandidate{};
+    if(sourceRouteCode==1) {
+        uncertaintyCandidate=
+            uncertainty_admission::make_current_camera5_derived_blocked_candidate(
+                seal.sha256,
+                static_cast<std::uint32_t>(source->metadata().width),
+                static_cast<std::uint32_t>(source->metadata().height),
+                static_cast<std::uint32_t>(source->metadata().cfa),
+                source->metadata().whiteLevel,
+                reconstruction->name());
+    } else {
+        uncertaintyCandidate.sourceDomain=uncertainty_admission::SourceDomain::Unattested;
+        uncertaintyCandidate.sourceEvidenceSha256=seal.sha256;
+        uncertaintyCandidate.width=static_cast<std::uint32_t>(source->metadata().width);
+        uncertaintyCandidate.height=static_cast<std::uint32_t>(source->metadata().height);
+        uncertaintyCandidate.cfaCode=static_cast<std::uint32_t>(source->metadata().cfa);
+        uncertaintyCandidate.whiteLevel=source->metadata().whiteLevel;
+        uncertaintyCandidate.reconstructionBackendId=reconstruction->name();
+    }
+    const auto uncertaintyDecision=uncertainty_admission::evaluate(uncertaintyCandidate);
+    if(uncertaintyDecision.reconstructedAuthorityAllowed ||
+       uncertaintyDecision.code==uncertainty_admission::DecisionCode::Admitted) {
+        return packet(env,-21);
+    }
+
+    channel_authority::Binding channelBinding{};
+    channelBinding.sourceEvidenceSha256=seal.sha256;
+    channelBinding.scientificMasterSha256=sci.scientificMasterHash;
+    channelBinding.zeroLineSha256=phase2.zeroLineHash;
+    channelBinding.sceneScaleSha256=phase2.sceneScaleHash;
+    channelBinding.parentOpenSceneV070Sha256=openSceneSummary.artifactSha256;
+    channelBinding.width=static_cast<std::uint32_t>(source->metadata().width);
+    channelBinding.height=static_cast<std::uint32_t>(source->metadata().height);
+    channelBinding.physicalFrameCount=sci.physicalFrameCount;
+    channelBinding.independentEvidenceCount=sci.independentEvidenceCount;
+    channelBinding.reconstructionBackendId=reconstruction->name();
+    channelBinding.reconstructedAuthorityAllowed=false;
+
+    channel_authority::Summary channelSummary{};
+    if(!channel_authority::build_generic_fail_closed_from_source(
+            *source,channelBinding,channelSummary) ||
+       channelSummary.recordCount!=
+           static_cast<std::uint64_t>(source->metadata().width)*
+           static_cast<std::uint64_t>(source->metadata().height)*3u ||
+       channelSummary.authorityCounts[1]!=0u ||
+       channelSummary.p95KnownCount!=0u ||
+       channelSummary.createsNewEvidence ||
+       channelSummary.scientificWritebackAllowed ||
+       channelSummary.counterfactualAuthorityPresent ||
+       channelSummary.chunkingChangesScientificIdentity) {
+        return packet(env,-22);
+    }
+
+    illumination_state::Input illuminationInput{};
+    illuminationInput.sourceEvidenceSha256=seal.sha256;
+    illuminationInput.scientificMasterSha256=sci.scientificMasterHash;
+    illuminationInput.canonicalOpenSceneSha256=openSceneSummary.artifactSha256;
+    illuminationInput.sourceEvidenceId=seal.sourceEvidenceId;
+    illuminationInput.colourBindingId=produced.color.bindingId;
+    illuminationInput.dualCalibrationUsed=produced.audit.dualIlluminantUsed;
+    illuminationInput.profileCalibrationIlluminant1=produced.audit.calibrationIlluminant1;
+    illuminationInput.profileCalibrationIlluminant2=produced.audit.calibrationIlluminant2;
+    illuminationInput.resolvedWhiteAvailable=
+        produced.audit.dualIlluminantUsed &&
+        std::isfinite(produced.audit.resolvedWhiteX) &&
+        std::isfinite(produced.audit.resolvedWhiteY) &&
+        std::isfinite(produced.audit.resolvedWhiteTemperatureK) &&
+        produced.audit.resolvedWhiteX>0.0 &&
+        produced.audit.resolvedWhiteY>0.0 &&
+        produced.audit.resolvedWhiteTemperatureK>0.0;
+    illuminationInput.resolvedWhiteX=produced.audit.resolvedWhiteX;
+    illuminationInput.resolvedWhiteY=produced.audit.resolvedWhiteY;
+    illuminationInput.resolvedWhiteCctK=produced.audit.resolvedWhiteTemperatureK;
+    illuminationInput.physicalFrameCount=sci.physicalFrameCount;
+    illuminationInput.independentEvidenceCount=sci.independentEvidenceCount;
+
+    illumination_state::State illuminationState{};
+    if(!illumination_state::build(illuminationInput,illuminationState) ||
+       illuminationState.sceneLightKind!=illumination_state::SceneLightKind::Unknown ||
+       illuminationState.spectrumAuthority!=illumination_state::SpectrumAuthority::Unknown ||
+       illuminationState.directionAuthority!=illumination_state::SpatialAuthority::Unknown ||
+       illuminationState.spatialExtentAuthority!=illumination_state::SpatialAuthority::Unknown ||
+       illuminationState.temporalModulationAuthority!=illumination_state::TemporalAuthority::Unknown ||
+       illuminationState.cctIsSpdProof ||
+       illuminationState.calibrationIlluminantsAreSceneLightProof ||
+       illuminationState.createsNewEvidence ||
+       illuminationState.scientificMasterModified ||
+       illuminationState.channelAuthorityModified ||
+       illuminationState.counterfactual ||
+       illuminationState.physicalFrameCount!=1u ||
+       illuminationState.independentEvidenceCount!=1u) {
+        return packet(env,-23);
+    }
+
     std::shared_ptr<truthraw::IAppearanceBackend> appearance;
     const float noiseSigma=adaptive_detail::noise_sigma_2pct_from_metadata(source->metadata());
     if((flags&kFlagDetail)!=0) {
@@ -869,6 +997,55 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         (void)::ftruncate(outputFd,0); return packet(env,-5);
     }
 
+    const std::uint64_t outputPixels=
+        static_cast<std::uint64_t>(sink.width())*
+        static_cast<std::uint64_t>(sink.height());
+    hdr_authority::Input hdrInput{};
+    hdrInput.sourceEvidenceSha256=seal.sha256;
+    hdrInput.scientificMasterSha256=sci.scientificMasterHash;
+    hdrInput.canonicalOpenSceneSha256=openSceneSummary.artifactSha256;
+    hdrInput.channelAuthoritySha256=channelSummary.artifactSha256;
+    hdrInput.uncertaintyAdmissionSha256=uncertaintyDecision.decisionSha256;
+    hdrInput.illuminationStateSha256=illuminationState.stateSha256;
+    hdrInput.calibratedEstimateChannelRecords=channelSummary.authorityCounts[0];
+    hdrInput.reconstructedChannelRecords=channelSummary.authorityCounts[1];
+    hdrInput.censoredChannelRecords=channelSummary.authorityCounts[2];
+    hdrInput.unknownChannelRecords=channelSummary.authorityCounts[3];
+    hdrInput.outputPixelCount=outputPixels;
+    hdrInput.presentationHdrGainPixels=sink.hdrPositiveGainSamples();
+    hdrInput.presentationHdrEnabled=(flags&kFlagHdr)!=0;
+    hdrInput.perOutputChannelAuthorityAvailable=false;
+    hdrInput.reconstructedUncertaintyAdmitted=
+        uncertaintyDecision.reconstructedAuthorityAllowed;
+    hdrInput.censoredGainSuppressed=true;
+    hdrInput.illuminationWhitePointKnown=illuminationState.whitePointKnown;
+    hdrInput.illuminationSpectrumKnown=
+        illuminationState.spectrumAuthority!=illumination_state::SpectrumAuthority::Unknown;
+    hdrInput.physicalFrameCount=sci.physicalFrameCount;
+    hdrInput.independentEvidenceCount=sci.independentEvidenceCount;
+
+    hdr_authority::State hdrState{};
+    if(!hdr_authority::build(hdrInput,hdrState) ||
+       hdrState.scientificAuthority!=hdr_authority::ScientificHdrAuthority::Blocked ||
+       hdrState.blockedReason!=hdr_authority::BlockedReason::NoPerOutputChannelAuthority ||
+       hdrState.scientificGainAllowed ||
+       hdrState.presentationAuthority!=
+           (((flags&kFlagHdr)!=0)
+               ? hdr_authority::PresentationHdrAuthority::AppearanceOnly
+               : hdr_authority::PresentationHdrAuthority::Disabled) ||
+       hdrState.presentationGainAllowed!=((flags&kFlagHdr)!=0) ||
+       hdrState.censoredExactRecoveryAllowed ||
+       hdrState.unknownHeadroomAllowed ||
+       hdrState.illuminationCreatesHeadroom ||
+       !hdrState.requiresPerOutputChannelAuthority ||
+       !hdrState.requiresAdmittedUncertaintyForReconstructed ||
+       hdrState.presentationHdrGainPixels!=sink.hdrPositiveGainSamples() ||
+       hdrState.outputPixelCount!=outputPixels ||
+       hdrState.physicalFrameCount!=1u ||
+       hdrState.independentEvidenceCount!=1u) {
+        (void)::ftruncate(outputFd,0); return packet(env,-24);
+    }
+
     std::array<jlong,kPacketLongs> v{};
     v[0]=kMagic; v[1]=0; v[2]=sink.width(); v[3]=sink.height();
     v[4]=source->metadata().width; v[5]=source->metadata().height;
@@ -888,6 +1065,16 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     v[19]=stream.provenance.independentEvidenceCount;
     v[20]=userQuarterTurns;
     v[21]=static_cast<jlong>(compose_orientation(source->metadata().orientation, userQuarterTurns));
+    v[22]=1; // canonical Open Scene v0.70 bound.
+    v[23]=1; // channel authority v0.78 bound.
+    v[24]=static_cast<jlong>(uncertaintyDecision.code);
+    v[25]=uncertaintyDecision.reconstructedAuthorityAllowed?1:0;
+    v[26]=1; // illumination state v0.82 bound.
+    v[27]=illuminationState.whitePointKnown?1:0;
+    v[28]=static_cast<jlong>(hdrState.scientificAuthority);
+    v[29]=static_cast<jlong>(hdrState.presentationAuthority);
+    v[30]=static_cast<jlong>(hdrState.blockedReason);
+    v[31]=0; // per-output-channel authority unavailable until canonical v0.84.
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));
     if(out) env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());
     return out;
