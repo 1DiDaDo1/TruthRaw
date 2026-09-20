@@ -44,7 +44,6 @@ namespace digest = truthraw::scientific_master_digest::v0_1;
 constexpr jlong kMagic = 0x54524e47; // TRNG
 constexpr std::size_t kPacketLongs = 22u;
 constexpr std::size_t kHeaderBytes = 4096u;
-constexpr std::uint32_t kContainerVersion = 2u;
 constexpr std::uint32_t kCellEdge = 64u;
 
 enum class AuthorityByte : std::uint8_t {
