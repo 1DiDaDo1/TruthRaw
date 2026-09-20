@@ -84,11 +84,15 @@ struct ProjectionDescriptor final {
     std::uint32_t jpegPreviewWidth = 0u;
     std::uint32_t jpegPreviewHeight = 0u;
     bool restorationDerivative = false;
+    bool projectedAppearanceApplied = false;
+    bool projectedCounterfactualObservationCreated = false;
 };
 
-// Supplies camera-native, scene-linear reconstructed RGB from the Scientific
-// Master domain. No appearance, display transfer function, gamut mapping or
-// tone mapping is permitted in this source contract.
+// Supplies the scene-linear RGB raster that will be projected. On PURE this is
+// camera-native Scientific Master RGB. A derivative may supply a different
+// declared scene-linear raster only when projectedRasterSha256 is non-zero and
+// its role/provenance explicitly records that difference. Display transfer
+// functions and integer/SDR clipping are never permitted in this source contract.
 class IScientificMasterTileSource {
 public:
     virtual ~IScientificMasterTileSource() = default;
