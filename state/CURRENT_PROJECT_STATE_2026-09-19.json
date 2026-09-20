@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-67-fullres-restoration",
+  "activeBranch": "integration/truthraw-suite-v0-68-restoration-transactional-fgs",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -568,6 +568,71 @@
         "extractedApkSha256": "1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94"
       },
       "realDeviceValidation": "PENDING_FULLRES_RESTORATION_ARTIFACT_TEST"
+    },
+    "v068": {
+      "branch": "integration/truthraw-suite-v0-68-restoration-transactional-fgs",
+      "appVersion": "0.33-v0.68-restoration-transactional-fgs",
+      "role": "TRANSACTIONAL_FOREGROUND_WRAPPER_FOR_V067_FULL_RES_RESTORATION",
+      "inheritsV067ScientificRestorationUnchanged": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "realDeviceV067LifecycleFinding": {
+        "incompleteArtifactObserved": true,
+        "artifactBytes": 25854576,
+        "expectedCompleteBytes4080x3072": 162996224,
+        "finalHeaderPresent": false,
+        "zeroHeaderBytes": 8192,
+        "completeTileRecords": 487,
+        "completePixels": 1987584,
+        "role0PreservePixels": 1987584,
+        "role1AestheticPixels": 0,
+        "role2UnresolvedPixels": 0,
+        "classification": "LIFECYCLE_ATOMICITY_DEFECT_NOT_SCIENTIFIC_RESTORATION_FAILURE"
+      },
+      "transaction": {
+        "foregroundService": "FullResRestorationForegroundService",
+        "foregroundServiceType": "dataSync",
+        "partialWakeLock": true,
+        "startMode": "START_NOT_STICKY",
+        "stagingLocation": "APP_PRIVATE_FILES",
+        "finalSafDestinationReceivesNativeLongRunDirectly": false,
+        "stagingVerifiedBeforeCommit": true,
+        "stagingWholeFileSha256": true,
+        "destinationHeaderPolicy": "ZERO_HEADER_UNTIL_BODY_COMPLETE_THEN_VALID_HEADER_LAST",
+        "fsyncBeforeHeaderCommit": true,
+        "fsyncAfterHeaderCommit": true,
+        "exactDestinationReopened": true,
+        "wholeFileSha256ComparedToStaging": true,
+        "staleProcessDeathCleanup": true,
+        "staleCleanupDeletesOrTruncatesDestination": true
+      },
+      "persistedPhases": [
+        "STAGING",
+        "STAGING_VERIFIED",
+        "COMMITTING",
+        "VERIFYING",
+        "SUCCESS",
+        "FAILED",
+        "STALE_CLEANED"
+      ],
+      "scientificInvariants": {
+        "v067NativeAlgorithmChanged": false,
+        "scientificMasterModified": false,
+        "scientificWritebackAllowed": false,
+        "createsNewEvidence": false,
+        "createsSecondScientificWorld": false,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1
+      },
+      "ci": {
+        "run": 35501207534,
+        "result": "SUCCESS_GCC_CLANG_SCIENTIFIC_CONTRACTS_ANDROID",
+        "artifactId": 10602552000,
+        "artifactName": "truthraw-suite-v0-68-restoration-transactional-fgs-debug-arm64",
+        "artifactArchiveSha256": "26484c3daa50665003baa74db52d2fadcf222c89dfd75f49512f4794f9841da4",
+        "extractedApkBytes": 6121453,
+        "extractedApkSha256": "7d1812500a090f7ef1b8f6a13ba6f6ee1a9e0f31ff983cd45563494970ee7824"
+      },
+      "realDeviceValidation": "PENDING_REPEAT_FULLRES_RESTORATION_WITH_BACKGROUND_SWITCH"
     }
   },
   "camera5ReferencePrecedence": [
@@ -588,23 +653,22 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "INSTALL_V067_AND_EXPORT_ONE_KNOWN_DNG_THROUGH_FULL_RESOLUTION_RESTORATION",
-    "VERIFY_SOURCE_SHA256_STABLE_BEFORE_AFTER_V067_EXPORT",
-    "VERIFY_FULL_RES_OUTPUT_DIMENSIONS_EQUAL_SOURCE_DIMENSIONS",
-    "VERIFY_PRESERVED_PLUS_CENSORED_EQUALS_ALL_PIXELS",
-    "VERIFY_RESTORED_PLUS_UNRESOLVED_EQUALS_CENSORED_PIXELS",
-    "VERIFY_ONLY_AESTHETIC_REINTEGRATION_ROLE_PIXELS_DIFFER_FROM_BASE_MASTER",
-    "KEEP_V063_PURE_CRC_PIXEL_ROUTE_FROZEN",
-    "CONTINUE_TN3_AND_FULL_OPEN_SCENE_DYNAMIC_AUTHORITY_ONLY_AFTER_V067_DEVICE_ARTIFACT_CHECK"
+    "INSTALL_V068_AND_REPEAT_SAME_FULL_RESOLUTION_RESTORATION_EXPORT",
+    "SWITCH_TO_ANOTHER_APP_DURING_STAGING_AND_CONFIRM_FOREGROUND_JOB_CONTINUES",
+    "VERIFY_FINAL_TRR_HAS_NONZERO_VALID_HEADER_AND_ALL_EXPECTED_TILES",
+    "VERIFY_WHOLE_FILE_DESTINATION_SHA_EQUALS_VERIFIED_STAGING_SHA",
+    "VERIFY_NO_PARTIAL_ARTIFACT_SURVIVES_FORCED_INTERRUPTION",
+    "KEEP_V067_RESTORATION_SCIENCE_AND_V063_PURE_ROUTE_UNCHANGED",
+    "ONLY_AFTER_V068_DEVICE_PASS_CONTINUE_TN3_AND_FULL_OPEN_SCENE_RUNTIME"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md",
     "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md",
     "docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md",
     "docs/TRUTHRAW_V064_ADVANCED_DERIVATIVE_2026-09-19.md",
     "docs/TRUTHRAW_V063_CRC_UI_BRANDING_2026-09-19.md",
-    "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md",
-    "docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md"
+    "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md"
   ]
 }
