@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 96
+    private const val HEADER_INTS = 128
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -279,6 +279,78 @@ object AdvancedTilePreviewLoader {
             )
         }
 
+        val illuminationWhitePointAuthority = packet[96]
+        val illuminationWhitePointKnown = packet[97] != 0
+        val illuminationCctK = Float.fromBits(packet[98])
+        val illuminationDuv1960 = Float.fromBits(packet[99])
+        val illuminationWhiteX = Float.fromBits(packet[100])
+        val illuminationWhiteY = Float.fromBits(packet[101])
+        val illuminationSceneLightKind = packet[102]
+        val illuminationSpectrumAuthority = packet[103]
+        val illuminationDirectionAuthority = packet[104]
+        val illuminationSpatialExtentAuthority = packet[105]
+        val illuminationTemporalAuthority = packet[106]
+        val illuminationDualCalibrationUsed = packet[107] != 0
+        val illuminationCalibrationIlluminant1 = packet[108]
+        val illuminationCalibrationIlluminant2 = packet[109]
+        val illuminationStateSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[118 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+
+        if (illuminationWhitePointAuthority !in 0..1 ||
+            illuminationSceneLightKind != 0 ||
+            illuminationSpectrumAuthority != 0 ||
+            illuminationDirectionAuthority != 0 ||
+            illuminationSpatialExtentAuthority != 0 ||
+            illuminationTemporalAuthority != 0 ||
+            packet[110] != 0 ||
+            packet[111] != 0 ||
+            packet[112] != 0 ||
+            packet[113] != 0 ||
+            packet[114] != 0 ||
+            packet[115] != 0 ||
+            packet[116] != 1 ||
+            packet[117] != 1 ||
+            packet[126] != 0 ||
+            packet[127] != 0 ||
+            illuminationStateSha256.all { it == '0' }
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Fail-closed: v0.82 illumination-authority/state contract week af.",
+            )
+        }
+
+        if (illuminationWhitePointKnown) {
+            if (illuminationWhitePointAuthority != 1 ||
+                !illuminationCctK.isFinite() || illuminationCctK <= 0f ||
+                !illuminationDuv1960.isFinite() ||
+                !illuminationWhiteX.isFinite() || illuminationWhiteX <= 0f ||
+                !illuminationWhiteY.isFinite() || illuminationWhiteY <= 0f ||
+                illuminationWhiteX + illuminationWhiteY >= 1f
+            ) {
+                return TilePreviewUiState.Failed(
+                    job.id,
+                    "Fail-closed: v0.82 bekende white-point staat mist geldige brongebonden coördinaten.",
+                )
+            }
+        } else {
+            if (illuminationWhitePointAuthority != 0 ||
+                packet[98] != 0 || packet[99] != 0 ||
+                packet[100] != 0 || packet[101] != 0
+            ) {
+                return TilePreviewUiState.Failed(
+                    job.id,
+                    "Fail-closed: v0.82 onbekende white-point mag geen CCT/Duv/x/y payload dragen.",
+                )
+            }
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -353,6 +425,21 @@ object AdvancedTilePreviewLoader {
             outputAcutanceHdrRebasedPixels = outputAcutanceHdrRebasedPixels,
             outputAcutanceMaxHdrTargetAbsError = outputAcutanceMaxHdrTargetAbsError,
             outputAcutanceBindingSha256 = outputAcutanceBindingSha256,
+            illuminationWhitePointAuthority = illuminationWhitePointAuthority,
+            illuminationWhitePointKnown = illuminationWhitePointKnown,
+            illuminationCctK = if (illuminationWhitePointKnown) illuminationCctK else null,
+            illuminationDuv1960 = if (illuminationWhitePointKnown) illuminationDuv1960 else null,
+            illuminationWhiteX = if (illuminationWhitePointKnown) illuminationWhiteX else null,
+            illuminationWhiteY = if (illuminationWhitePointKnown) illuminationWhiteY else null,
+            illuminationSceneLightKind = illuminationSceneLightKind,
+            illuminationSpectrumAuthority = illuminationSpectrumAuthority,
+            illuminationDirectionAuthority = illuminationDirectionAuthority,
+            illuminationSpatialExtentAuthority = illuminationSpatialExtentAuthority,
+            illuminationTemporalAuthority = illuminationTemporalAuthority,
+            illuminationDualCalibrationUsed = illuminationDualCalibrationUsed,
+            illuminationCalibrationIlluminant1 = illuminationCalibrationIlluminant1,
+            illuminationCalibrationIlluminant2 = illuminationCalibrationIlluminant2,
+            illuminationStateSha256 = illuminationStateSha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
