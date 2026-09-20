@@ -38,6 +38,9 @@ jobs:
           grep -F 'selected = TruthRawComputeBackend.CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
           grep -F 'authorityChanged = false' "$JAVA/TruthRawComputeRouter.kt"
           grep -F 'Hardware acceleration · research' "$JAVA/TruthRawProActivity.kt"
+          grep -F '$<$<CONFIG:Debug>:-O2>' "$CPP/CMakeLists.txt"
+          grep -F '$<$<CONFIG:Debug>:-fno-fast-math>' "$CPP/CMakeLists.txt"
+          grep -F '$<$<CONFIG:Debug>:-ffp-contract=off>' "$CPP/CMakeLists.txt"
 
           # Acceleration research must not edit the byte-frozen streaming module.
           git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
