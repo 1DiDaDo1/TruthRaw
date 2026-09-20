@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 40
+    private const val HEADER_INTS = 48
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -122,7 +122,7 @@ object AdvancedTilePreviewLoader {
         if (packet[15] <= 0 || packet[15] > MAX_LOGICAL_RESIDENT_BYTES) {
             return TilePreviewUiState.Failed(job.id, "Advanced logical resident budget werd overschreden.")
         }
-        if (packet[31] != 2 ||
+        if (packet[31] != 3 ||
             packet[32] != 1 ||
             packet[33] != 2 ||
             packet[34] != 4 ||
@@ -131,6 +131,21 @@ object AdvancedTilePreviewLoader {
             return TilePreviewUiState.Failed(
                 job.id,
                 "Advanced Open-World/Dynamic-Authority contract ontbreekt of is niet fail-closed.",
+            )
+        }
+
+        val canonicalOpenSceneSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[40 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        if (canonicalOpenSceneSha256.all { it == '0' }) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Advanced canonical Open Scene artifact identity ontbreekt.",
             )
         }
 
@@ -183,6 +198,7 @@ object AdvancedTilePreviewLoader {
             dynamicAuthorityCensoredPreviewPixels = packet[37],
             dynamicAuthorityUnknownRgbSamples = packet[38],
             restorationPresentationOnly = packet[39] != 0,
+            canonicalOpenSceneArtifactSha256 = canonicalOpenSceneSha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -211,6 +227,7 @@ object AdvancedTilePreviewLoader {
         -7 -> "Advanced: verboden full-frame RAW/file materialisatie gedetecteerd."
         -8 -> "Advanced: previewoppervlak bleef onvolledig."
         -9 -> "Advanced: Open-World illumination-authority binding werd geweigerd."
+        -10 -> "Advanced: canonical Open Scene v0.70 kon niet exact uit de bron worden opgebouwd."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
