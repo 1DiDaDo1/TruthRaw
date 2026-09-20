@@ -4,7 +4,7 @@ Date: 2026-09-20
 
 Branch context:
 
-`integration/truthraw-suite-v0-69-tn3-open-scene-projection`
+`integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed`
 
 Purpose: make the remaining disconnected or only partially bound project lines explicit so later chats do not silently reopen old architecture or treat research modules as already closed.
 
@@ -39,7 +39,7 @@ Closure requirement:
 - no counterfactual or appearance state may upgrade measured/reconstructed authority;
 - fail closed on missing uncertainty/support needed for any stronger claim.
 
-Status: **PARTIAL v0.70 — TN-3 and normal DNG/TIFF/EXR projection now share one native canonical Open Scene algorithm + artifact identity. Advanced runtime and the v0.67 .trr container still need the exact same artifact hash propagated.**
+Status: **CLOSED AT IMPLEMENTATION LEVEL IN v0.71 — TN-3, Advanced, the binding-extended TRR container and DNG/TIFF/EXR projections now use/verify the same canonical Open Scene artifact identity.**
 
 ## Direct cable B — Restoration role-mask export binding
 
@@ -59,7 +59,7 @@ Closure requirement:
 - flattening role-1 pixels into an ordinary image must never erase their derivative-only status;
 - role-2 unresolved pixels must never be presented as successfully restored scientific truth.
 
-Status: **PARTIAL v0.70 — DNG, TIFF and EXR now bind the exact full role-mask SHA-256. The complete mask bytes still live in .trr; self-contained embedding or a bound companion sidecar remains open.**
+Status: **CLOSED AT IMPLEMENTATION LEVEL IN v0.71 — every projection retains the exact role-mask SHA-256 and the full mask payload itself: DNGPrivateData binary payload, TIFF private BYTE tag 65000, and OpenEXR UINT channel TR_ROLE.**
 
 ## Direct cable C — DNG / TIFF / EXR conformance
 
@@ -126,13 +126,12 @@ Open Scene State can carry geometry/material/visibility/illumination variables, 
 
 ## Required development order
 
-1. finish and validate v0.69 Android build;
-2. canonicalize TN-3 with Open Scene v0.7/v0.8;
-3. bind full role-mask identity into DNG/TIFF/EXR outputs;
-4. run independent format-conformance validation;
-5. run an effectful clipped/censored Restoration device test;
-6. then version a current PTC/certificate over the now-connected lineage;
-7. continue multi-vendor and deeper physical Scene Physics independently.
+1. v0.71 implementation closes cable A and B;
+2. run independent DNG/TIFF/OpenEXR format-conformance validation;
+3. run real-device v0.71 TRR + DNG/TIFF/EXR export validation;
+4. run an effectful clipped/censored Restoration device test;
+5. then version a current PTC/certificate over the connected lineage;
+6. continue multi-vendor and deeper physical Scene Physics independently.
 
 ## Do not regress
 
