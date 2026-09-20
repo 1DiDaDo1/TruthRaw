@@ -51,7 +51,7 @@ class TruthRawAdvancedActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("TRUTHRAW ADVANCED", 24f))
-                addView(body("Open-World · Scene Physics · Dynamic Authority", 11.5f))
+                addView(body("Full Open Scene · Scene Physics · Dynamic Authority", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
@@ -88,7 +88,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.68 voert die volledige-resolutie Restoration nu als foreground transactie uit: private staging, volledige verify, body-commit en geldige header pas als laatste.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.69 behoudt de transactionele full-resolution Restoration en kan een geverifieerde .trr daarna als Float32 DNG, Float32 TIFF of OpenEXR projecteren.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
