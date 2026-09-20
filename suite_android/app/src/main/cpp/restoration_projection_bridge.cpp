@@ -368,6 +368,7 @@ private:int fd_=-1;std::uint64_t expected_=0,written_=0;bool active_=false;
 };
 
 struct Lineage final {
+    std::shared_ptr<PosixFdByteSource> bytes;
     SourceSeal seal{};
     ProducerResult color{};
     PreparedScientificPreviewSource prepared{};
@@ -387,17 +388,17 @@ jlong dng_status(const float_dng::Status& s){return 10000+static_cast<jlong>(s.c
 bool establish_lineage(
     int sourceFd,int maxSourceResidentBytes,int maxLogicalResidentBytes,
     Lineage& out,jlong& status) {
-    auto bytes=std::make_shared<PosixFdByteSource>(sourceFd);
-    auto s=truthraw::scientific_preview_binding_v0_1::seal_source_sha256(*bytes,out.seal);
+    out.bytes=std::make_shared<PosixFdByteSource>(sourceFd);
+    auto s=truthraw::scientific_preview_binding_v0_1::seal_source_sha256(*out.bytes,out.seal);
     if(!s){status=binding_status(s);return false;}
-    auto cs=truthraw::dng_color_binding_producer_v0_2::produce_source_metadata_color_binding(*bytes,out.seal,out.color);
+    auto cs=truthraw::dng_color_binding_producer_v0_2::produce_source_metadata_color_binding(*out.bytes,out.seal,out.color);
     if(!cs){status=producer_status(cs);return false;}
     auto ps=truthraw::scientific_preview_binding_v0_2::prepare_scientific_color_source(out.seal,out.color.color,out.prepared);
     if(!ps){status=binding_status(ps);return false;}
     if(!out.prepared.mainHouseComputeAllowed||out.prepared.physicalFrameCount!=1u||out.prepared.independentEvidenceCount!=1u){status=-20;return false;}
     auto opts=out.prepared.tileNativeOptions;opts.maxResidentBytes=static_cast<std::size_t>(maxSourceResidentBytes);
     truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource opened;
-    auto os=truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(bytes,out.seal,opts,opened);
+    auto os=truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(out.bytes,out.seal,opts,opened);
     if(!os){status=adapter_status(os);return false;}
     out.source=std::move(opened.source);
     out.reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
@@ -607,6 +608,13 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
             : write_exr(static_cast<int>(outputFd),trr,c2s,outBytes,neg,over);
         if(!ok){(void)::ftruncate(outputFd,0);return packet(env,-5);}
         rasterVerified=true; // TrrReader already verified derivative identity before projection.
+    }
+
+    const auto sourcePost = truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(
+        *line.bytes, line.seal);
+    if (!sourcePost) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, binding_status(sourcePost));
     }
 
     std::array<jlong,kPacketLongs> v{};
