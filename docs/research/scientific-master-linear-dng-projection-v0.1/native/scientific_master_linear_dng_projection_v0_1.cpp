@@ -178,6 +178,16 @@ std::string printable_identity(std::string text) {
     return text;
 }
 
+std::string printable_manifest(std::string text) {
+    if (text.size() > kMaxIdentityTextBytes) text.resize(kMaxIdentityTextBytes);
+    for (char& c : text) {
+        const unsigned char u = static_cast<unsigned char>(c);
+        if (c == '\n') continue;
+        if (u < 0x20u || u > 0x7eu) c = '_';
+    }
+    return text;
+}
+
 bool nonzero_hash(const Hash256& hash) noexcept;
 
 std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
@@ -237,7 +247,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         descriptor.downstreamEditManifest.empty()
             ? std::string{}
             : (std::string("downstream_edit_manifest_begin\n") +
-               printable_identity(descriptor.downstreamEditManifest) +
+               printable_manifest(descriptor.downstreamEditManifest) +
                "\ndownstream_edit_manifest_end\n");
     const std::string previewExtra =
         descriptor.jpegPreviewBytes.empty()
@@ -252,7 +262,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
             ? std::string("output_channel_authority_bound=0\n")
             : (std::string("output_channel_authority_bound=1\n") +
                "output_channel_authority_manifest_begin\n" +
-               printable_identity(descriptor.outputAuthorityManifest) +
+               printable_manifest(descriptor.outputAuthorityManifest) +
                "\noutput_channel_authority_manifest_end\n");
     const std::string body =
         std::string("role=") + role + "\n" +
