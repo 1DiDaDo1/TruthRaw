@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 48
+    private const val HEADER_INTS = 56
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -149,6 +149,21 @@ object AdvancedTilePreviewLoader {
             )
         }
 
+        val channelAuthoritySha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[48 + word]
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+        if (channelAuthoritySha256.all { it == '0' }) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Advanced Open Scene v0.78 channel-authority identity ontbreekt.",
+            )
+        }
+
         val authority = when (packet[20]) {
             1 -> PreviewAuthority.FINALIZED_SOURCE_BOUND_SCIENTIFIC_PREVIEW
             2 -> PreviewAuthority.FINALIZED_INDEPENDENTLY_CALIBRATED_SCIENTIFIC_PREVIEW
@@ -199,6 +214,7 @@ object AdvancedTilePreviewLoader {
             dynamicAuthorityUnknownRgbSamples = packet[38],
             restorationPresentationOnly = packet[39] != 0,
             canonicalOpenSceneArtifactSha256 = canonicalOpenSceneSha256,
+            canonicalOpenSceneChannelAuthoritySha256 = channelAuthoritySha256,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -228,6 +244,7 @@ object AdvancedTilePreviewLoader {
         -8 -> "Advanced: previewoppervlak bleef onvolledig."
         -9 -> "Advanced: Open-World illumination-authority binding werd geweigerd."
         -10 -> "Advanced: canonical Open Scene v0.70 kon niet exact uit de bron worden opgebouwd."
+        -11 -> "Advanced: Open Scene v0.78 channel-authority sidecar faalde fail-closed."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
