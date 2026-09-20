@@ -52,6 +52,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     open_scene_canonical_v0_70.cpp
     open_scene_channel_authority_v0_78.cpp
     output_channel_authority_v0_84.cpp
+    truthraw_compute_capabilities_v0_1.cpp
     bound_uncertainty_admission_v0_79.cpp
     adaptive_detail_v47j_adapter.cpp
     output_acutance_v0_81.cpp
