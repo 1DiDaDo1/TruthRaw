@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
@@ -38,6 +40,16 @@ class MainActivity : Activity() {
     private var truthNegativeStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
+    private val restorationStatusHandler = Handler(Looper.getMainLooper())
+    private val restorationStatusPoll = object : Runnable {
+        override fun run() {
+            syncFullResRestorationStatus()
+            val snapshot = FullResRestorationJobStore.read(this@MainActivity)
+            if (snapshot != null && !snapshot.phase.terminal) {
+                restorationStatusHandler.postDelayed(this, 1000L)
+            }
+        }
+    }
     private var pendingLinearDngJobId: String? = null
     private var linearDngStatus: String? = null
     private var empiricalAudit: EmpiricalRunAudit? = null
@@ -114,10 +126,35 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
+        syncFullResRestorationStatus()
+        restorationStatusHandler.removeCallbacks(restorationStatusPoll)
+        val snapshot = FullResRestorationJobStore.read(this)
+        if (snapshot != null && !snapshot.phase.terminal) {
+            restorationStatusHandler.post(restorationStatusPoll)
+        }
+    }
+
+    override fun onPause() {
+        restorationStatusHandler.removeCallbacks(restorationStatusPoll)
+        super.onPause()
+    }
+
     override fun onDestroy() {
+        restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
+    }
+
+    private fun syncFullResRestorationStatus() {
+        val snapshot = FullResRestorationJobStore.read(this) ?: return
+        if (snapshot.message != fullResRestorationStatus) {
+            fullResRestorationStatus = snapshot.message
+            render()
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -218,6 +255,9 @@ class MainActivity : Activity() {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/octet-stream"
             putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_fullres_restoration_v0_67.trr")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_SAVE_FULLRES_RESTORATION)
     }
@@ -423,31 +463,22 @@ class MainActivity : Activity() {
                 return
             }
 
-            fullResRestorationStatus =
-                "Full-resolution Restoration wordt opgebouwd… 1:1 pixels + retreatable role-mask + Master replay."
+            val started = FullResRestorationForegroundService.start(
+                this,
+                job,
+                destination,
+                data?.flags ?: 0,
+            )
+            fullResRestorationStatus = if (started) {
+                "Full-resolution Restoration v0.68 foreground transactie gestart · " +
+                    "private staging → verify → body commit → header-last commit → whole-file SHA verify."
+            } else {
+                FullResRestorationJobStore.read(this)?.message
+                    ?: "Full-resolution Restoration foreground job kon niet worden gestart."
+            }
+            restorationStatusHandler.removeCallbacks(restorationStatusPoll)
+            restorationStatusHandler.post(restorationStatusPoll)
             render()
-
-            Thread({
-                val exportResult =
-                    FullResRestorationExporter.export(contentResolver, job, destination)
-                runOnUiThread {
-                    if (activeJobId != expectedJob) return@runOnUiThread
-                    fullResRestorationStatus = when (exportResult) {
-                        is FullResRestorationExportResult.Failed -> exportResult.reason
-                        is FullResRestorationExportResult.Success -> {
-                            val m = exportResult.metrics
-                            "Full-resolution Restoration v0.67 opgeslagen + teruggelezen · " +
-                                "${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
-                                "preserved/censored/restored/unresolved=" +
-                                "${m.preservedPixels}/${m.censoredPixels}/${m.restoredPixels}/${m.unresolvedPixels} · " +
-                                "changedComponents=${m.changedComponents} · " +
-                                "Master replay=${m.masterReplayVerified} · retreatable=${m.retreatable} · " +
-                                "post-write=${m.postWriteVerified}."
-                        }
-                    }
-                    render()
-                }
-            }, "truthraw-fullres-restoration-${job.id.take(8)}").start()
             return
         }
 
