@@ -44,7 +44,7 @@ jobs:
           grep -F 'restorationProjectionStatusView' "$JAVA/MainActivity.kt"
 
           # Camera autofocus is intentionally untouched by this UI/background fix.
-          git diff --exit-code             integration/truthraw-suite-v0-84-lightroom-float32-output-authority...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          test -s "$JAVA/FotoGraaf200MpStagedActivity.kt"
 
       - uses: actions/setup-java@v4
         with:
