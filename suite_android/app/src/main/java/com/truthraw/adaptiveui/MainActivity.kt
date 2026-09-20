@@ -1129,6 +1129,27 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun startGuardedBackgroundThread(
+        name: String,
+        operationKey: String,
+        onUnexpected: (String) -> Unit,
+        block: () -> Unit,
+    ) {
+        Thread({
+            try {
+                block()
+            } catch (error: Throwable) {
+                val message =
+                    "Onverwachte achtergrondfout: ${error.message ?: error.javaClass.simpleName}"
+                finishBackgroundOperation(operationKey, false, message)
+                runOnUiThread {
+                    onUnexpected(message)
+                    render()
+                }
+            }
+        }, name).start()
+    }
+
     private fun operationStatusVisual(
         message: String,
         phase: TruthRawOperationPhase,
