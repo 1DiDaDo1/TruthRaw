@@ -2,6 +2,8 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.ParcelFileDescriptor
+import java.io.File
 import java.util.zip.CRC32
 
 private const val PURE_FLOAT_MAGIC = 0x54525046L
@@ -22,6 +24,9 @@ object PureFloat32DngNativeBridge {
         userQuarterTurns: Int,
         exportMode: Int,
         advancedFlags: Int,
+        previewFd: Int,
+        previewWidth: Int,
+        previewHeight: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -65,6 +70,9 @@ object PureFloat32DngExporter {
         userQuarterTurns: Int = 0,
         flavor: Float32DngExportFlavor = Float32DngExportFlavor.PURE,
         advancedFlags: Int = 0,
+        previewFile: File? = null,
+        previewWidth: Int = 0,
+        previewHeight: Int = 0,
     ): PureFloat32DngExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return PureFloat32DngExportResult.Failed(
@@ -85,17 +93,55 @@ object PureFloat32DngExporter {
                     )
                 }
 
+            val preview = if (previewFile != null) {
+                runCatching {
+                    ParcelFileDescriptor.open(
+                        previewFile,
+                        ParcelFileDescriptor.MODE_READ_ONLY,
+                    )
+                }.getOrNull()
+                    ?: run {
+                        source.close()
+                        output.close()
+                        return PureFloat32DngExportResult.Failed(
+                            "Float32 DNG previewbestand kon niet worden geopend.",
+                        )
+                    }
+            } else {
+                null
+            }
+
             val packet = source.use { src ->
                 output.use { dst ->
-                    PureFloat32DngNativeBridge.exportPureFloat32Dng(
-                        src.fd,
-                        dst.fd,
-                        userQuarterTurns,
-                        flavor.nativeCode,
-                        if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
-                        PURE_MAX_SOURCE_RESIDENT_BYTES,
-                        PURE_MAX_LOGICAL_RESIDENT_BYTES,
-                    )
+                    if (preview != null) {
+                        preview.use { p ->
+                            PureFloat32DngNativeBridge.exportPureFloat32Dng(
+                                src.fd,
+                                dst.fd,
+                                userQuarterTurns,
+                                flavor.nativeCode,
+                                if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
+                                p.fd,
+                                previewWidth,
+                                previewHeight,
+                                PURE_MAX_SOURCE_RESIDENT_BYTES,
+                                PURE_MAX_LOGICAL_RESIDENT_BYTES,
+                            )
+                        }
+                    } else {
+                        PureFloat32DngNativeBridge.exportPureFloat32Dng(
+                            src.fd,
+                            dst.fd,
+                            userQuarterTurns,
+                            flavor.nativeCode,
+                            if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
+                            -1,
+                            0,
+                            0,
+                            PURE_MAX_SOURCE_RESIDENT_BYTES,
+                            PURE_MAX_LOGICAL_RESIDENT_BYTES,
+                        )
+                    }
                 }
             }
 
@@ -106,7 +152,13 @@ object PureFloat32DngExporter {
             }
 
             val success = decoded as PureFloat32DngExportResult.Success
-            val postWrite = verifySavedPureDng(resolver, destination, flavor, advancedFlags)
+            val postWrite = verifySavedPureDng(
+                resolver,
+                destination,
+                flavor,
+                advancedFlags,
+                previewFile != null,
+            )
             if (!postWrite.ok) {
                 runCatching { resolver.delete(destination, null, null) }
                 return PureFloat32DngExportResult.Failed(
@@ -137,6 +189,7 @@ object PureFloat32DngExporter {
         destination: Uri,
         flavor: Float32DngExportFlavor,
         advancedFlags: Int,
+        previewExpected: Boolean,
     ): PostWriteVerification {
         val roleMarker = when (flavor) {
             Float32DngExportFlavor.PURE ->
@@ -164,6 +217,15 @@ object PureFloat32DngExporter {
             "physical_frame_count=1",
             "independent_evidence_count=1",
         )
+        if (previewExpected) {
+            requiredMarkers += listOf(
+                "embedded_jpeg_preview=1",
+                "preview_role=NON_AUTHORITY_RENDERED_PREVIEW",
+                "preview_scientific_writeback_allowed=0",
+            )
+        } else {
+            requiredMarkers += "embedded_jpeg_preview=0"
+        }
         if (flavor == Float32DngExportFlavor.JPGL_RAW_EDIT) {
             requiredMarkers += listOf(
                 "downstream_edit_manifest_begin",
@@ -420,6 +482,7 @@ object PureFloat32DngExporter {
         -2L -> "PURE Float32: pre-master authority-state was niet canoniek."
         -3L -> "PURE Float32: Phase-2/Scientific-Master/source binding kwam niet exact overeen."
         -4L -> "PURE Float32: projection probeerde master/appearance/evidence-invariant te schenden."
+        -5L -> "Float32 DNG: ingebedde JPEG-preview kon niet veilig worden gelezen."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
