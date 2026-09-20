@@ -209,7 +209,11 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
            "restoration_role_mask_sha256=" +
            (nonzero_hash(descriptor.restorationRoleMaskSha256)
                ? hex_hash(descriptor.restorationRoleMaskSha256)
-               : std::string(64u, '0')) + "\n")
+               : std::string(64u, '0')) + "\n" +
+           "restoration_role_mask_encoding=CANONICAL_64X64_CELL_SEQUENCE_UINT8\n" +
+           "restoration_role_mask_bytes=" +
+           std::to_string(descriptor.restorationRoleMaskBytes.size()) + "\n" +
+           "restoration_role_mask_embedded=1\n")
         : std::string{};
     const std::string body =
         std::string("role=") + role + "\n" +
@@ -254,6 +258,21 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
     std::vector<std::uint8_t> out(id.begin(), id.end());
     out.push_back(0u);
     out.insert(out.end(), body.begin(), body.end());
+    if (derivative && descriptor.restorationDerivative) {
+        constexpr char kMaskMarker[] =
+            "END_TRUTHRAW_TEXT\nTRUTHRAW_ROLE_MASK_BINARY_V1\n";
+        out.insert(out.end(), kMaskMarker, kMaskMarker + sizeof(kMaskMarker) - 1u);
+        append_u32(out, descriptor.width);
+        append_u32(out, descriptor.height);
+        append_u32(out, kCanonicalTileEdge);
+        append_u32(
+            out,
+            static_cast<std::uint32_t>(descriptor.restorationRoleMaskBytes.size()));
+        out.insert(
+            out.end(),
+            descriptor.restorationRoleMaskBytes.begin(),
+            descriptor.restorationRoleMaskBytes.end());
+    }
     return out;
 }
 
@@ -322,13 +341,20 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
             "Technical Backplane identity does not match PURE projection lineage");
     }
 
+    const std::uint64_t expectedRoleBytes =
+        static_cast<std::uint64_t>(descriptor.width) *
+        static_cast<std::uint64_t>(descriptor.height);
     if (descriptor.restorationDerivative &&
         (!nonzero_hash(descriptor.projectedRasterSha256) ||
          !nonzero_hash(descriptor.restorationRoleMaskSha256) ||
+         descriptor.restorationRoleMaskBytes.empty() ||
+         descriptor.restorationRoleMaskBytes.size() != expectedRoleBytes ||
+         descriptor.restorationRoleMaskBytes.size() >
+            static_cast<std::size_t>(std::numeric_limits<std::uint32_t>::max()) ||
          descriptor.projectionRole.empty())) {
         return Status::error(
             StatusCode::ScientificBindingMismatch,
-            "restoration derivative projection requires explicit raster hash, role-mask hash and role");
+            "restoration derivative projection requires explicit raster hash, exact full role-mask bytes/hash and role");
     }
 
     if (!(descriptor.zeroLineGauge.L0 > 0.0) ||
