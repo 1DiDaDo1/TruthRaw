@@ -261,6 +261,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         addView(horizontal().apply {
             gravity = Gravity.TOP
+            minimumHeight = dp(
+                if (isTruthRaw) {
+                    if (compactHeight) 40 else 44
+                } else 30,
+            )
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
                 text = if (selected) "✓" else "○"
                 textSize = 20f
@@ -281,11 +286,16 @@ class TruthRawSuiteLauncherActivity : Activity() {
                     if (isTruthRaw) 13f else 16f
                 }
                 maxLines = if (isTruthRaw) 2 else 1
+                minLines = if (isTruthRaw) 2 else 1
                 setTextColor(textPrimary)
                 setTypeface(typeface, Typeface.BOLD)
-                includeFontPadding = false
-                setLineSpacing(0f, 0.95f)
-            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                includeFontPadding = true
+                setLineSpacing(0f, 1.0f)
+            }, LinearLayout.LayoutParams(
+                0,
+                if (isTruthRaw) dp(if (compactHeight) 40 else 44) else ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f,
+            ))
         })
         addView(space(if (compactHeight) 4 else 7))
         addView(body(subtitleText, if (compactHeight) 11f else 12f))
