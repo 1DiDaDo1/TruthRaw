@@ -32,8 +32,11 @@ constexpr std::uint16_t kTagImageLength = 257u;
 constexpr std::uint16_t kTagBitsPerSample = 258u;
 constexpr std::uint16_t kTagCompression = 259u;
 constexpr std::uint16_t kTagPhotometricInterpretation = 262u;
+constexpr std::uint16_t kTagStripOffsets = 273u;
 constexpr std::uint16_t kTagOrientation = 274u;
 constexpr std::uint16_t kTagSamplesPerPixel = 277u;
+constexpr std::uint16_t kTagRowsPerStrip = 278u;
+constexpr std::uint16_t kTagStripByteCounts = 279u;
 constexpr std::uint16_t kTagPlanarConfiguration = 284u;
 constexpr std::uint16_t kTagSoftware = 305u;
 constexpr std::uint16_t kTagTileWidth = 322u;
@@ -421,6 +424,23 @@ Status make_header(
     std::vector<IfdEntry> entries;
     entries.reserve(22u);
 
+    const bool hasPreview = !descriptor.jpegPreviewBytes.empty();
+    if (hasPreview) {
+        if (descriptor.jpegPreviewWidth == 0u ||
+            descriptor.jpegPreviewHeight == 0u ||
+            descriptor.jpegPreviewBytes.size() < 4u ||
+            descriptor.jpegPreviewBytes.size() >
+                static_cast<std::size_t>(std::numeric_limits<std::uint32_t>::max()) ||
+            descriptor.jpegPreviewBytes[0] != 0xffu ||
+            descriptor.jpegPreviewBytes[1] != 0xd8u ||
+            descriptor.jpegPreviewBytes[descriptor.jpegPreviewBytes.size()-2u] != 0xffu ||
+            descriptor.jpegPreviewBytes[descriptor.jpegPreviewBytes.size()-1u] != 0xd9u) {
+            return Status::error(
+                StatusCode::InvalidArgument,
+                "optional DNG preview is not a complete JPEG stream");
+        }
+    }
+
     const auto add = [&](std::uint16_t tag, std::uint16_t type,
                          std::uint32_t count, std::vector<std::uint8_t> payload) {
         entries.push_back(IfdEntry{tag, type, count, std::move(payload), 0u});
@@ -498,15 +518,45 @@ Status make_header(
         entry.outOfLineOffset = cursor;
         cursor += static_cast<std::uint32_t>(entry.payload.size());
     }
+
+    constexpr std::uint16_t kPreviewEntryCount = 11u;
+    std::uint32_t previewIfdOffset = 0u;
+    std::uint32_t previewBitsOffset = 0u;
+    if (hasPreview) {
+        previewIfdOffset = align4(cursor);
+        std::uint64_t previewIfdBytes = 0u;
+        if (!mul_u64(kPreviewEntryCount, 12u, previewIfdBytes) ||
+            !add_u64(previewIfdBytes, 2u + 4u, previewIfdBytes) ||
+            previewIfdOffset >
+                std::numeric_limits<std::uint32_t>::max() - previewIfdBytes) {
+            return Status::error(StatusCode::SizeOverflow, "preview IFD layout overflow");
+        }
+        const std::uint32_t previewIfdEnd =
+            previewIfdOffset + static_cast<std::uint32_t>(previewIfdBytes);
+        previewBitsOffset = align4(previewIfdEnd);
+        if (previewBitsOffset > std::numeric_limits<std::uint32_t>::max() - 6u) {
+            return Status::error(StatusCode::SizeOverflow, "preview bits payload overflow");
+        }
+        cursor = previewBitsOffset + 6u;
+    }
     dataStart = align4(cursor);
 
     const std::uint64_t tileBytesTotal =
         static_cast<std::uint64_t>(tileCount) * static_cast<std::uint64_t>(tileByteCount);
-    if (!add_u64(dataStart, tileBytesTotal, totalBytes) ||
-        totalBytes > std::numeric_limits<std::uint32_t>::max()) {
+    std::uint64_t previewDataOffset64 = 0u;
+    if (!add_u64(dataStart, tileBytesTotal, previewDataOffset64) ||
+        previewDataOffset64 > std::numeric_limits<std::uint32_t>::max()) {
         return Status::error(StatusCode::SizeOverflow,
-                             "classic TIFF/DNG projection would exceed 4 GiB");
+                             "classic TIFF/DNG raw raster would exceed 4 GiB");
     }
+    totalBytes = previewDataOffset64;
+    if (hasPreview &&
+        (!add_u64(totalBytes, descriptor.jpegPreviewBytes.size(), totalBytes) ||
+         totalBytes > std::numeric_limits<std::uint32_t>::max())) {
+        return Status::error(StatusCode::SizeOverflow,
+                             "classic TIFF/DNG with preview would exceed 4 GiB");
+    }
+    const auto previewDataOffset = static_cast<std::uint32_t>(previewDataOffset64);
 
     for (auto& entry : entries) {
         if (entry.tag != kTagTileOffsets) continue;
@@ -541,7 +591,7 @@ Status make_header(
             append_u32(header, entry.outOfLineOffset);
         }
     }
-    append_u32(header, 0u);
+    append_u32(header, hasPreview ? previewIfdOffset : 0u);
 
     for (const auto& entry : entries) {
         if (entry.payload.size() <= 4u) continue;
@@ -551,6 +601,48 @@ Status make_header(
         header.resize(entry.outOfLineOffset, 0u);
         header.insert(header.end(), entry.payload.begin(), entry.payload.end());
     }
+
+    if (hasPreview) {
+        if (header.size() > previewIfdOffset) {
+            return Status::error(StatusCode::SizeOverflow, "preview IFD overlaps DNG metadata");
+        }
+        header.resize(previewIfdOffset, 0u);
+        append_u16(header, kPreviewEntryCount);
+
+        const auto previewEntry = [&](std::uint16_t tag, std::uint16_t type,
+                                      std::uint32_t count, std::uint32_t value) {
+            append_u16(header, tag);
+            append_u16(header, type);
+            append_u32(header, count);
+            append_u32(header, value);
+        };
+
+        previewEntry(kTagNewSubFileType, kTiffLong, 1u, 1u);
+        previewEntry(kTagImageWidth, kTiffLong, 1u, descriptor.jpegPreviewWidth);
+        previewEntry(kTagImageLength, kTiffLong, 1u, descriptor.jpegPreviewHeight);
+        previewEntry(kTagBitsPerSample, kTiffShort, 3u, previewBitsOffset);
+        previewEntry(kTagCompression, kTiffShort, 1u, 7u); // new-style JPEG
+        previewEntry(kTagPhotometricInterpretation, kTiffShort, 1u, 6u); // YCbCr
+        previewEntry(kTagStripOffsets, kTiffLong, 1u, previewDataOffset);
+        previewEntry(kTagOrientation, kTiffShort, 1u, 1u);
+        previewEntry(kTagSamplesPerPixel, kTiffShort, 1u, 3u);
+        previewEntry(kTagRowsPerStrip, kTiffLong, 1u, descriptor.jpegPreviewHeight);
+        previewEntry(
+            kTagStripByteCounts,
+            kTiffLong,
+            1u,
+            static_cast<std::uint32_t>(descriptor.jpegPreviewBytes.size()));
+        append_u32(header, 0u);
+
+        if (header.size() > previewBitsOffset) {
+            return Status::error(StatusCode::SizeOverflow, "preview BitsPerSample overlap");
+        }
+        header.resize(previewBitsOffset, 0u);
+        append_u16(header, 8u);
+        append_u16(header, 8u);
+        append_u16(header, 8u);
+    }
+
     if (header.size() > dataStart) {
         return Status::error(StatusCode::SizeOverflow, "internal DNG header exceeds data start");
     }
@@ -728,6 +820,18 @@ Status write_xyz_d50_linear_dng_projection(
                     out.logicalResidentUpperBound,
                     workspace + source.residentBytesUpperBound() + sink.residentBytesUpperBound());
             }
+        }
+
+        if (!descriptor.jpegPreviewBytes.empty()) {
+            if (!sink.write(
+                    descriptor.jpegPreviewBytes.data(),
+                    descriptor.jpegPreviewBytes.size())) {
+                return fail_transaction(
+                    sink,
+                    StatusCode::SinkFailed,
+                    "DNG JPEG preview write failed");
+            }
+            out.bytesWritten += descriptor.jpegPreviewBytes.size();
         }
 
         if (tileOrdinal != tileCount || out.bytesWritten != expectedBytes) {
