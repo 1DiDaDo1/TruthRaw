@@ -6,36 +6,43 @@
 
 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-3. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
-4. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
-5. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
-6. `docs/research/adaptive-detail-v47j-adapter-v0.80/README.md`
-7. `canonical/output-acutance/v4.7k/README_v4_7k.md`
+3. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
+4. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
+5. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
+6. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+7. `docs/research/output-acutance-v0.81/README.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
+`integration/truthraw-suite-v0-81-output-acutance-v47k`
 
 Current app:
 
-`0.46-v0.80-adaptive-detail-v47j`
+`0.47-v0.81-output-acutance-v47k`
 
 Current green CI:
 
-`35520838931`
+`35521878189`
 
 Current APK SHA-256:
 
-`3523a34d3188eb13567e95508fa1aedfe0aee585609a73c93cfda24e790ee4bb`
+`fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
 
-Current detail boundary:
-canonical v4.7j is integrated as **appearance/detail compensation only**. The scientific v4.7i reconstruction translation unit stays frozen; v0.78 authority and v0.79 uncertainty admission are unchanged.
+Current finite-output order:
+
+`final resize -> canonical v4.7k Output Acutance -> HDR rebase -> shoulder -> OETF/presentation`
+
+Current HDR safety:
+- output acutance cannot create positive HDR gain where upstream gain was unity;
+- censored support remains gain 1;
+- only pre-existing positive HDR transport is rebased;
+- Scientific Master and scientific authority remain unchanged.
 
 Immediate next branch:
 
-`integration/truthraw-suite-v0-81-output-acutance-v47k`
+`integration/truthraw-suite-v0-82-illumination-state`
 
-v4.7k must run only after final resize and before final HDR-gain/OETF presentation. The HDR relation must be recomputed against the acutance-adjusted SDR base.
+Objective: richer single-frame illumination/light-dark/artificial-light scene state with explicit inferred authority and no writeback into scientific truth.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
