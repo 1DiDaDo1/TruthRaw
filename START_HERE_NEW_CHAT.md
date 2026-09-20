@@ -28,6 +28,11 @@ Current APK SHA-256:
 
 `fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
 
+Frozen v0.72 baseline references retained for governance/provenance:
+
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+
 Current output boundary:
 canonical v4.7k runs only after final resize. Existing positive HDR transport is rebased against the acutance-adjusted SDR base; zero upstream HDR and censored support remain gain 1. Scientific Master, v0.78 authority and v0.79 uncertainty admission remain unchanged.
 
