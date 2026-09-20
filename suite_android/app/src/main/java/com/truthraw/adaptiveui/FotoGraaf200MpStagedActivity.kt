@@ -167,6 +167,26 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (!productionCameraEntry) return
+
+        // Rebuild only the presentation hierarchy. The camera/session objects are
+        // retained because orientation is declared as a handled config change.
+        // The existing TextureView surface is replaced, so reopen the preview route
+        // through the same admitted Camera-5 path once the new surface is ready.
+        closeCameraResources(keepOutputs = true)
+        autoStartPreviewWhenReady = capabilityReady
+        setContentView(buildUi())
+        setStatus(
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                "LANDSCAPE · Camera-5 route behouden · live preview wordt passend heropend."
+            } else {
+                "PORTRAIT · Camera-5 route behouden · live preview wordt passend heropend."
+            },
+        )
+    }
+
     override fun onPause() {
         closeCameraResources(keepOutputs = true)
         super.onPause()
