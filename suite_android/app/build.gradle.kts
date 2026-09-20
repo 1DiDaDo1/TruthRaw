@@ -19,8 +19,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 33
-        versionName = "0.33-v0.68-restoration-transactional-fgs"
+        versionCode = 34
+        versionName = "0.34-v0.69-tn3-open-scene-projection"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
