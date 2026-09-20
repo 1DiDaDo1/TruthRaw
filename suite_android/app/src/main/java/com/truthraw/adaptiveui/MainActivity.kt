@@ -1316,187 +1316,154 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
                 addView(space(6))
-                val preferredOutput = getSharedPreferences(
-                    TruthRawSuiteLauncherActivity.PREFS,
-                    MODE_PRIVATE,
-                ).getString(
-                    TruthRawSuiteLauncherActivity.KEY_OUTPUT,
-                    TruthRawSuiteLauncherActivity.OUTPUT_PURE,
-                ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+                val preferredOutput = preferredRoute()
                 addView(label(
-                    "Voorkeursuitvoer: " + when (preferredOutput) {
-                        TruthRawSuiteLauncherActivity.OUTPUT_JPG -> "JPG"
+                    "Route: " + when (preferredOutput) {
                         TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED"
-                        TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE -> "TRUTHNEGATIVE"
+                        TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "TRUTHRAW PRO"
                         else -> "TRUTHRAW PURE"
                     },
-                    10f,
-                    muted = true,
+                    11f,
+                    bold = true,
                 ))
+
                 if (m.advancedDerivative) {
                     addView(label(
-                        "OPEN-WORLD ADVANCED · sceneBound=${m.openWorldSceneBound} · " +
-                            "illuminationAuthority=${m.openWorldIlluminationAuthority} · " +
-                            "outputAuthority=${m.openWorldOutputAuthority}",
-                        10f,
-                        muted = true,
-                    ))
-                    addView(label(
-                        "Dynamic Authority preview CAL/REC/CENS/UNK=${m.dynamicAuthorityCalibratedPreviewPixels}/" +
+                        "Open Scene · illuminationAuthority=${m.openWorldIlluminationAuthority} · " +
+                            "outputAuthority=${m.openWorldOutputAuthority} · " +
+                            "CAL/REC/CENS/UNK=${m.dynamicAuthorityCalibratedPreviewPixels}/" +
                             "${m.dynamicAuthorityReconstructedPreviewPixels}/" +
-                            "${m.dynamicAuthorityCensoredPreviewPixels}/" +
-                            "${m.dynamicAuthorityUnknownRgbSamples} · restored=${m.advancedRestoredPixels}",
+                            "${m.dynamicAuthorityCensoredPreviewPixels}/${m.dynamicAuthorityUnknownRgbSamples}",
                         10f,
                         muted = true,
                     ))
-                    addView(label(
-                        "Scene Physics begrenst HDR/light/restoration. CENSORED/UNKNOWN wordt niet als gemeten herstel " +
-                            "gepromoveerd; restoration blijft een retreatable presentation derivative.",
-                        10f,
-                        muted = true,
-                    ))
-                    addView(space(5))
-                    addView(actionButton("Advanced instellingen") {
-                        startActivity(
-                            Intent(this@MainActivity, TruthRawAdvancedActivity::class.java),
-                        )
-                    })
-                    addView(space(5))
                 }
+                addView(space(8))
 
-                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED &&
-                    m.advancedDerivative
-                ) {
-                    addView(actionButton("TRUTHRAW ADVANCED · JPEG derivative opslaan") {
-                        launchJpegExport(active)
-                    })
-                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
-                    addView(space(5))
-                    addView(actionButton("FULL-RES Restoration · 1:1 derivative + role-mask opslaan") {
-                        launchFullResRestorationExport(active)
-                    })
-                    fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
-                    addView(label(
-                        "Full-res Restoration bewaart elke bronpixelpositie. Alleen source-censored sites mogen een " +
-                            "retreatable presentation-reintegration krijgen; geldige support wordt niet overschreven.",
-                        10f,
-                        muted = true,
-                    ))
-                    val restoration = FullResRestorationJobStore.read(this@MainActivity)
-                    if (restoration != null &&
-                        restoration.jobId == active.id &&
-                        restoration.phase == FullResRestorationJobPhase.SUCCESS
-                    ) {
-                        addView(space(5))
+                when (preferredOutput) {
+                    TruthRawSuiteLauncherActivity.OUTPUT_PURE -> {
+                        addView(actionButton("Bewaar PURE · 32-bit Float DNG") {
+                            launchPureFloatDngExport(active)
+                        })
+                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
                         addView(label(
-                            "Volledige Restoration geverifieerd · normale full-resolution projecties:",
+                            "Directe wetenschappelijke projectie: Float32, negatieve en >1 waarden behouden, " +
+                                "Scientific Master digest + self-binding, geen appearance.",
                             10f,
                             muted = true,
                         ))
-                        val activeProjection =
-                            RestorationProjectionJobStore.read(this@MainActivity)
-                        val projectionBusy =
-                            activeProjection != null && !activeProjection.phase.terminal
-
-                        addView(actionButton(
-                            "Restoration → Float32 DNG",
-                            enabled = !projectionBusy,
-                        ) {
-                            launchRestorationProjection(active, RestorationProjectionFormat.DNG)
+                        addView(space(7))
+                        addView(actionButton("JPG · full resolution compatibility") {
+                            launchJpegExport(active)
                         })
-                        addView(actionButton(
-                            "Restoration → Float32 TIFF",
-                            enabled = !projectionBusy,
-                        ) {
-                            launchRestorationProjection(active, RestorationProjectionFormat.TIFF)
-                        })
-                        addView(actionButton(
-                            "Restoration → OpenEXR",
-                            enabled = !projectionBusy,
-                        ) {
-                            launchRestorationProjection(active, RestorationProjectionFormat.EXR)
-                        })
-
-                        if (projectionBusy && activeProjection != null) {
-                            addView(space(5))
-                            addView(horizontal().apply {
-                                gravity = Gravity.CENTER_VERTICAL
-                                addView(
-                                    ProgressBar(this@MainActivity).apply {
-                                        isIndeterminate = true
-                                    },
-                                    LinearLayout.LayoutParams(dp(30), dp(30)).apply {
-                                        marginEnd = dp(10)
-                                    },
-                                )
-                                addView(Chronometer(this@MainActivity).apply {
-                                    val wallElapsed =
-                                        (System.currentTimeMillis() - activeProjection.startedAtMs)
-                                            .coerceAtLeast(0L)
-                                    base = SystemClock.elapsedRealtime() - wallElapsed
-                                    format = "${activeProjection.format.label} bezig · %s"
-                                    setTextColor(palette.text)
-                                    textSize = 12f
-                                    start()
-                                })
-                            })
-                            addView(label(
-                                "Fase: ${activeProjection.phase.name.lowercase()} · " +
-                                    "laat TruthRaw open of gebruik de app normaal; de foreground service blijft doorwerken.",
-                                10f,
-                                muted = true,
-                            ))
-                        }
-                        projectionStatus?.let { addView(label(it, 10f, muted = true)) }
+                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
                     }
-                    addView(space(5))
+
+                    TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> {
+                        addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
+                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("JPG-L · layered Float32/Open Scene") {
+                            launchJpgLExport(active)
+                        })
+                        jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(label(
+                            "JPG-L bevat een full-resolution SDR-JPEG voorkant én de TN-3 camera-native Float32 Scientific Master/Open Scene achterkant. " +
+                                "HDR blijft in v0.83 dynamische informatie; Restoration wordt niet als gemeten waarheid in de JPEG-voorkant gebakken.",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(space(5))
+                        addView(actionButton("Advanced instellingen") {
+                            startActivity(Intent(this@MainActivity, TruthRawAdvancedActivity::class.java))
+                        })
+                        addView(space(5))
+                        addView(actionButton("Full-res Restoration · retreatable .trr") {
+                            launchFullResRestorationExport(active)
+                        })
+                        fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("Wetenschappelijke PURE-projectie") {
+                            launchPureFloatDngExport(active)
+                        })
+                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                    }
+
+                    TruthRawSuiteLauncherActivity.OUTPUT_PRO -> {
+                        addView(actionButton("JPG · full resolution professional") {
+                            launchJpegExport(active)
+                        })
+                        jpegStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("JPG-L · layered photograph v0.1") {
+                            launchJpgLExport(active)
+                        })
+                        jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("PURE · 32-bit Float DNG") {
+                            launchPureFloatDngExport(active)
+                        })
+                        pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("Scientific Negative · TN-3") {
+                            launchTruthNegativeExport(active)
+                        })
+                        truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("Full-res Restoration · .trr") {
+                            launchFullResRestorationExport(active)
+                        })
+                        fullResRestorationStatus?.let { addView(label(it, 10f, muted = true)) }
+
+                        val restoration = FullResRestorationJobStore.read(this@MainActivity)
+                        if (restoration != null &&
+                            restoration.jobId == active.id &&
+                            restoration.phase == FullResRestorationJobPhase.SUCCESS
+                        ) {
+                            addView(space(6))
+                            addView(label("Restoration projecties", 12f, bold = true))
+                            val activeProjection = RestorationProjectionJobStore.read(this@MainActivity)
+                            val projectionBusy = activeProjection != null && !activeProjection.phase.terminal
+                            addView(actionButton("Float32 DNG", enabled = !projectionBusy) {
+                                launchRestorationProjection(active, RestorationProjectionFormat.DNG)
+                            })
+                            addView(actionButton("Float32 TIFF", enabled = !projectionBusy) {
+                                launchRestorationProjection(active, RestorationProjectionFormat.TIFF)
+                            })
+                            addView(actionButton("OpenEXR", enabled = !projectionBusy) {
+                                launchRestorationProjection(active, RestorationProjectionFormat.EXR)
+                            })
+                            if (projectionBusy && activeProjection != null) {
+                                addView(horizontal().apply {
+                                    gravity = Gravity.CENTER_VERTICAL
+                                    addView(
+                                        ProgressBar(this@MainActivity).apply { isIndeterminate = true },
+                                        LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(10) },
+                                    )
+                                    addView(Chronometer(this@MainActivity).apply {
+                                        val elapsed = (System.currentTimeMillis() - activeProjection.startedAtMs).coerceAtLeast(0L)
+                                        base = SystemClock.elapsedRealtime() - elapsed
+                                        format = "${activeProjection.format.label} bezig · %s"
+                                        setTextColor(palette.text)
+                                        textSize = 12f
+                                        start()
+                                    })
+                                })
+                            }
+                            projectionStatus?.let { addView(label(it, 10f, muted = true)) }
+                        }
+
+                        addView(space(5))
+                        addView(actionButton("16-bit Linear DNG · compatibility") {
+                            launchLinearDngExport(active)
+                        })
+                        linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
+                        addView(space(5))
+                        addView(actionButton("Pro-instellingen") {
+                            startActivity(Intent(this@MainActivity, TruthRawProActivity::class.java))
+                        })
+                    }
                 }
-
-                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE) {
-                    addView(actionButton("TRUTHNEGATIVE · Scientific Negative TN-3 opslaan") {
-                        launchTruthNegativeExport(active)
-                    })
-                    truthNegativeStatus?.let { addView(label(it, 10f, muted = true)) }
-                    addView(label(
-                        "TN-3 = bronresolutie Scientific Master + per-channel Dynamic Authority + canonical Open Scene v0.70 " +
-                            "(semantic parents v0.7/v0.8) · geen resampling, geen appearance, geen nieuw bewijs.",
-                        10f,
-                        muted = true,
-                    ))
-                    addView(space(5))
-                }
-
-                if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_JPG) {
-                    addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
-                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
-                    addView(space(5))
-                }
-
-                addView(actionButton("TRUTHRAW PURE · 32-bit Float DNG opslaan") {
-                    launchPureFloatDngExport(active)
-                })
-                pureFloatDngStatus?.let { addView(label(it, 10f, muted = true)) }
-                addView(label(
-                    "PURE = XYZ-D50 LinearRaw · IEEE Float32 · negatieve en >1 waarden behouden · " +
-                        "exact Scientific-Master digest gate · v0.63 self-binding + inhoudelijke Backplane CRC verify · geen appearance/tone.",
-                    10f,
-                    muted = true,
-                ))
-
-                if (preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_JPG &&
-                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED &&
-                    preferredOutput != TruthRawSuiteLauncherActivity.OUTPUT_NEGATIVE
-                ) {
-                    addView(space(5))
-                    addView(actionButton("JPG · finalized preview opslaan") { launchJpegExport(active) })
-                    jpegStatus?.let { addView(label(it, 10f, muted = true)) }
-                }
-
-                addView(space(5))
-                addView(actionButton("16-bit Linear DNG opslaan (compatibility)") {
-                    launchLinearDngExport(active)
-                })
-                linearDngStatus?.let { addView(label(it, 10f, muted = true)) }
             }
         }
 
