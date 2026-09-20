@@ -18,6 +18,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 
@@ -163,6 +164,30 @@ truthraw::Orientation composeOrientation(
     return orientationFromQuarterTurns(sourceTurns + userQuarterTurns);
 }
 
+bool readPreviewJpeg(int fd, std::vector<std::uint8_t>& out) noexcept {
+    out.clear();
+    if (fd < 0) return true;
+    struct stat st {};
+    if (::fstat(fd, &st) != 0 || st.st_size <= 0 ||
+        st.st_size > static_cast<off_t>(128u * 1024u * 1024u)) {
+        return false;
+    }
+    out.resize(static_cast<std::size_t>(st.st_size));
+    std::size_t done = 0u;
+    while (done < out.size()) {
+        const ssize_t n = ::pread(
+            fd,
+            out.data() + done,
+            out.size() - done,
+            static_cast<off_t>(done));
+        if (n <= 0) return false;
+        done += static_cast<std::size_t>(n);
+    }
+    return out.size() >= 4u &&
+           out[0] == 0xffu && out[1] == 0xd8u &&
+           out[out.size()-2u] == 0xffu && out[out.size()-1u] == 0xd9u;
+}
+
 } // namespace
 
 extern "C" JNIEXPORT jlongArray JNICALL
@@ -174,6 +199,9 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint userQuarterTurns,
     jint exportMode,
     jint advancedFlags,
+    jint previewFd,
+    jint previewWidth,
+    jint previewHeight,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     constexpr jint kPureMode = 0;
@@ -184,6 +212,8 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         (exportMode != kPureMode && exportMode != kJpgLRawEditMode) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
         (exportMode == kPureMode && advancedFlags != 0) ||
+        ((previewFd < 0) != (previewWidth == 0 && previewHeight == 0)) ||
+        previewWidth < 0 || previewHeight < 0 ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -275,6 +305,11 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     float_dng::StreamingScientificMasterTileSource masterSource(
         *source, *reconstruction);
 
+    std::vector<std::uint8_t> previewJpeg;
+    if (!readPreviewJpeg(previewFd, previewJpeg)) {
+        return packet(env, -5);
+    }
+
     float_dng::ProjectionDescriptor descriptor{};
     descriptor.width = static_cast<std::uint32_t>(source->metadata().width);
     descriptor.height = static_cast<std::uint32_t>(source->metadata().height);
@@ -291,6 +326,9 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     descriptor.colorBindingId = produced.color.bindingId;
     descriptor.precisionPolicyId = kPurePrecisionPolicyId;
     descriptor.runtimeReconstructionBackendId = reconstruction->name();
+    descriptor.jpegPreviewBytes = previewJpeg;
+    descriptor.jpegPreviewWidth = static_cast<std::uint32_t>(previewWidth);
+    descriptor.jpegPreviewHeight = static_cast<std::uint32_t>(previewHeight);
 
     if (exportMode == kJpgLRawEditMode) {
         descriptor.projectionRole =
