@@ -31,7 +31,7 @@ void put_u64(truthraw::sha256_v0_69::Hasher& h, std::uint64_t v) noexcept {
 }
 
 bool valid_binding(
-    const truthraw::streaming_v0_1::DngMetadata& md,
+    const truthraw::DngMetadata& md,
     const Binding& b) noexcept {
     return nonzero(b.sourceEvidenceSha256) &&
            nonzero(b.scientificMasterSha256) &&
