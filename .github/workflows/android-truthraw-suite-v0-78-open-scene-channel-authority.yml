@@ -1,0 +1,94 @@
+name: TruthRaw v0.78 Open Scene Channel Authority
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-78-open-scene-channel-authority
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/open-scene-channel-authority-v0.78/**'
+      - '.github/workflows/android-truthraw-suite-v0-78-open-scene-channel-authority.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authority:
+    name: Channel authority exactness
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test v0.78 authority sidecar
+        run: |
+          cmake -S docs/research/open-scene-channel-authority-v0.78 -B build/v078 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v078 --parallel 2
+          ctest --test-dir build/v078 --output-on-failure
+
+  lineage:
+    name: Existing scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+          python3 tests/test_v5g_exact_feature_replay_v02.py
+
+  android:
+    name: Android v0.78 channel authority
+    runs-on: ubuntu-24.04
+    needs: [authority, lineage]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fail-closed integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          A='suite_android/app/src/main/cpp/advanced_preview_bridge.cpp'
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawAdvanced.kt'
+          P='suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+          grep -F '0.44-v0.78-open-scene-channel-authority' "$G"
+          grep -F 'open_scene_channel_authority_v0_78.h' "$A"
+          grep -F 'reconstructedAuthorityAllowed = false' "$A"
+          grep -F 'channelSummary.authorityCounts[1] != 0u' "$A"
+          grep -F 'out[48u + word]' "$A"
+          grep -F 'private const val HEADER_INTS = 56' "$K"
+          grep -F 'channelAuthoritySha256' "$K"
+          ! grep -F 'open_scene_channel_authority_v0_78' "$P"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-78-open-scene-channel-authority-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
