@@ -266,3 +266,5 @@ These are frozen downstream references for their validated source and are not au
 4. obtain black/white/noise/shading/colour/optics calibration separately for any readout domain that may eventually be admitted;
 5. resume physical focus/multi-camera research only with per-observation sealing and explicit authority counts;
 6. keep Scientific Master, Dynamic Authority, TruthRange, HDR, restoration and appearance downstream from correctly established source topology.
+
+v0.71 CI run `35506676249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Documentation governance run `35506676288` = **SUCCESS**. Artifact ID `10604525855`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
