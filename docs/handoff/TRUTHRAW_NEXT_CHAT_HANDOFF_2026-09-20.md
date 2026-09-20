@@ -4,25 +4,25 @@
 
 Active branch:
 
-`integration/truthraw-suite-v0-82-illumination-state`
+`integration/truthraw-suite-v0-83-authority-aware-hdr`
 
 Current app:
 
-`0.48-v0.82-illumination-state`
+`0.49-v0.83-authority-aware-hdr`
 
 Latest fully green CI:
 
-`35522724167`
+`35523343893`
 
 CI head:
 
-`86f92217a700a52bb26583d1f967a072e3e4c660`
+`6c86a321eea44028f5d6cebbe99c0ff7df99159e`
 
 Latest APK:
-- bytes: `6,491,089`
-- SHA-256: `9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb`
-- artifact id: `10609012748`
-- artifact ZIP SHA-256: `5875b9f72670fd87c153e0193b6f598d8c4601906b34c2e80e432c1dd71a2b6b`
+- bytes: `6,498,017`
+- SHA-256: `88d8ac29b64ddef67668c026c05711974c645e3fc1ef6da4b8fb942bda4066a7`
+- artifact id: `10609178219`
+- artifact ZIP SHA-256: `5a4112454d163a233072a7525f29a75de62fe43f69a7f50d2e35a619cad1822f`
 
 This is the current integration/research line, not a main/canonical promotion.
 
@@ -36,146 +36,157 @@ Source Evidence remains immutable. Every child state preserves ancestry, authori
 
 ## Current validated chain
 
-`v0.73 camera admission -> v0.74 Scientific-Master stripe performance -> v0.75 bit-exact preview core -> v0.76 responsive camera UI -> v0.77 canonical ancestry -> v0.78 per-channel authority -> v0.79 bound uncertainty admission -> v0.80 canonical Adaptive Detail -> v0.81 canonical Output Acutance -> v0.82 observed illumination state`
+`v0.73 camera admission -> v0.74 Scientific-Master stripe performance -> v0.75 bit-exact preview core -> v0.76 responsive camera UI -> v0.77 canonical ancestry -> v0.78 per-channel authority -> v0.79 bound uncertainty admission -> v0.80 canonical Adaptive Detail -> v0.81 canonical Output Acutance -> v0.82 observed illumination state -> v0.83 HDR authority contract`
 
-## v0.82 closure
+## v0.83 closure
 
 Schema:
 
-`TruthRawObservedIlluminationState/0.82`
+`TruthRawHdrAuthorityContract/0.83`
 
-Purpose:
+v0.83 separates two meanings that previously shared one UI control:
 
-Keep illumination authority separate from RGB/channel authority.
+1. **presentation HDR** — allowed as appearance/output;
+2. **scientific HDR gain** — only allowed when local output authority supports it.
 
-Current admitted knowledge:
-- for dual-illuminant DNG color binding where the existing source-bound producer exposes resolved source white, v0.82 records x/y, CCT and a signed CIE-1960 uv Planckian-locus polyline Duv estimate;
-- authority for those coordinates is `SOURCE_METADATA_BOUND_ESTIMATE`;
-- delegated single-illuminant paths remain white-point UNKNOWN because the current public producer audit does not expose a bound resolved source white.
+Current generic/imported and Camera-5-derived runtime result:
 
-Current explicit UNKNOWN:
-- DAYLIGHT / ARTIFICIAL / MIXED classification;
-- SPD;
-- physical light direction;
-- spatial/angular extent;
-- temporal modulation/flicker.
+- scientific HDR authority = `BLOCKED`;
+- blocked reason = `NO_PER_OUTPUT_CHANNEL_AUTHORITY`;
+- Natural HDR ON -> `APPEARANCE_ONLY`;
+- Natural HDR OFF -> `DISABLED`;
+- scientificGainAllowed=false;
+- censoredExactRecoveryAllowed=false;
+- unknownHeadroomAllowed=false;
+- illuminationCreatesHeadroom=false.
 
-Hard non-claims:
-- CCT is not SPD;
-- DNG CalibrationIlluminant1/2 are profile calibration references, not proof of scene illumination;
-- warm/cool CCT does not classify daylight/artificial;
-- missing timing evidence cannot become flicker evidence.
+The actual existing HDR pixels/gain math are unchanged by v0.83.
 
-v0.82 state binds:
+v0.83 binds:
 - source evidence SHA;
 - Scientific Master SHA;
-- canonical Open Scene v0.70 SHA;
-- sourceEvidenceId;
-- colorBindingId;
-- exact white-point coordinates when known;
-- profile calibration-reference codes;
-- evidence count 1/1.
+- canonical Open Scene SHA;
+- v0.78 channel-authority SHA;
+- v0.79 uncertainty-admission SHA;
+- v0.82 illumination-state SHA;
+- authority counts;
+- output-pixel count;
+- presentation HDR gain-pixel count;
+- censor-suppression state;
+- physical/evidence count 1/1.
 
-Always:
-- createsNewEvidence=false;
-- scientificMasterModified=false;
-- channelAuthorityModified=false;
-- counterfactual=false.
+Future scientific admission states exist in the contract:
+- `DIRECT_EVIDENCE_BOUND`;
+- `RECONSTRUCTION_UNCERTAINTY_BOUND`.
 
-## Previous closed boundaries
+They are not the current runtime result.
 
-### v0.81 Output Acutance
+## Why scientific HDR is still blocked
 
-Canonical v4.7k is strictly post-final-resize.
+v0.78 has source/Open-Scene per-channel authority, but Advanced does not yet have a canonical mapping from those source/channel records to each final output RGB channel after reconstruction and resampling.
 
-`final resized linear SDR -> v4.7k -> HDR rebase -> shoulder -> OETF/presentation`
+Without that mapping, presentation gain cannot be relabeled scientific gain.
 
-Output acutance can re-express only existing positive HDR transport. It cannot create HDR gain where upstream gain was unity. Censored support remains gain 1.
+Current generic/camera DNG also retains:
+- missing RGB channels UNKNOWN;
+- RECONSTRUCTED=0;
+- no admitted reconstructed uncertainty through v0.79.
 
-### v0.80 Adaptive Detail
+## v0.82 illumination boundary retained
 
-Canonical v4.7j is appearance/detail compensation only. Frozen v4.7i Scientific-Master reconstruction remains unchanged. No optical/sensor detail authority is created.
+Source-bound CCT/Duv is context only.
 
-### v0.79 uncertainty admission
+CCT/Duv, profile illuminant codes, future SPD or appearance relighting cannot bypass:
+- RGB/channel authority;
+- censor bounds;
+- uncertainty admission;
+- output mapping.
 
-Current Camera-5 processing DNG: `BLOCKED_SOURCE_DOMAIN_MISMATCH`.
+`illuminationCreatesHeadroom=false` remains mandatory.
 
-Generic import without source attestation: `BLOCKED_NO_SOURCE_ATTESTATION`.
+## v0.81/v0.80 retained
 
-Exact historical v5.0g vendor-DNG tele domain: `ELIGIBLE_TRACE_GATE_OPEN`, not ADMITTED.
+v0.81:
+`final resize -> canonical v4.7k -> existing HDR rebase -> shoulder -> OETF`.
 
-Therefore current generic/camera-derived DNG still has no admitted reconstructed-channel uncertainty.
+Zero upstream HDR remains unity; censored support remains gain 1.
 
-### v0.78 channel authority
+v0.80:
+canonical v4.7j Adaptive Detail is appearance/detail compensation only; frozen v4.7i Scientific-Master reconstruction remains unchanged.
 
-Current generic/camera-derived DNG:
+## v0.79/v0.78 retained
+
+v0.79:
+- Camera-5 derived processing DNG -> `BLOCKED_SOURCE_DOMAIN_MISMATCH`;
+- generic unattested import -> `BLOCKED_NO_SOURCE_ATTESTATION`;
+- exact historical v5.0g tele vendor-DNG -> `ELIGIBLE_TRACE_GATE_OPEN`, not ADMITTED.
+
+v0.78 current generic/camera DNG:
 - direct uncensored CFA = CALIBRATED_ESTIMATE;
-- direct clipped CFA = CENSORED + explicit source-code lower bound;
-- missing RGB channels = UNKNOWN;
-- RECONSTRUCTED = 0.
+- direct clipped CFA = CENSORED + bound;
+- missing channels = UNKNOWN;
+- RECONSTRUCTED=0.
 
 ## Frozen / do not silently change
 
 - immutable Source Evidence
 - physicalFrameCount=1
 - independentEvidenceCount=1
-- PURE self-binding v0.63
+- PURE v0.63
 - Zero-Line/L0
 - scene-scale
 - Technical Backplane
 - frozen v4.7i Scientific-Master reconstruction
-- Restoration algorithm v0.67
-- canonical Open Scene parent v0.70
+- Restoration v0.67
+- canonical Open Scene v0.70 parent
 - role-mask projection v0.71
 - projection lifecycle v0.72
-- Camera-5 topology admission law
+- Camera-5 topology admission
 - appearance never writes back
 - counterfactual never evidence
-- 16320x12288 Camera-5 envelope is not automatically 200 MP Scientific Master
+- 16320x12288 Camera-5 envelope is not proven 200 MP Scientific Master
 
 ## Immediate next branch
 
-`integration/truthraw-suite-v0-83-authority-aware-hdr`
+`integration/truthraw-suite-v0-84-output-channel-authority-map`
 
 Objective:
 
-Build a local single-frame HDR authority contract using:
-- Scientific Master;
-- v0.78 per-channel authority;
-- explicit CENSORED bounds;
-- v0.79 admitted uncertainty where available;
-- v0.82 illumination state as context only.
+Construct a canonical per-output-channel authority/support map through reconstruction and preview resampling **without changing HDR gain yet**.
 
 Hard rules:
-- CENSORED remains a bound, never an exact latent value;
-- UNKNOWN never gains HDR headroom;
-- CCT/Duv cannot create HDR authority;
-- no admitted uncertainty means no reconstructed-channel HDR promotion;
-- one physical frame remains one independent evidence item.
+- CENSORED remains a bound;
+- UNKNOWN remains unknown;
+- RECONSTRUCTED requires v0.79 admitted uncertainty;
+- resampling may combine support but cannot upgrade authority;
+- compute tiles are execution geometry, never authority regions;
+- v0.82 illumination context cannot create RGB authority;
+- v0.80/v0.81 appearance/output processing cannot write authority backwards.
 
-The first v0.83 implementation should **not** increase current Camera-5 authority. It should make the current limits explicit and make later promotion possible only when real uncertainty/calibration evidence arrives.
+Only after v0.84 can `perOutputChannelAuthorityAvailable` legitimately become true in v0.83.
 
-After v0.83:
-1. Restoration v2 using local per-channel authority/support/uncertainty;
-2. independent DNG/TIFF/EXR conformance + source replay;
-3. current Camera-5 noise/PTC uncertainty campaign;
-4. historical v5.0g F64 trace certification;
-5. multi-vendor proprietary RAW promotion gates.
+After v0.84:
+1. admit scientific HDR gain only where the v0.84 output map permits;
+2. Restoration v2 with local authority/support/uncertainty;
+3. DNG/TIFF/EXR conformance + original-source replay;
+4. current Camera-5 noise/PTC uncertainty calibration;
+5. historical v5.0g F64 trace certification;
+6. multi-vendor proprietary RAW promotion gates.
 
 ## Open real-device validation
 
 - v0.81 Output Acutance/HDR-rebase smoke test;
 - v0.82 illumination-state smoke test;
-- v0.82 dual-illuminant white-point smoke test when such a source is available;
+- v0.83 presentation/scientific HDR separation smoke test;
 - same-device v0.74/v0.75 performance timing;
 - projection conformance/source replay.
 
 ## Read next
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-2. `docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md`
-3. `docs/research/illumination-state-v0.82/README.md`
-4. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
-5. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
-6. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
-7. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+2. `docs/TRUTHRAW_V083_HDR_AUTHORITY_2026-09-20.md`
+3. `docs/research/hdr-authority-v0.83/README.md`
+4. `docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md`
+5. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
+6. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
+7. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
