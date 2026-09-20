@@ -424,73 +424,20 @@ bool lineage_matches(const TrrMeta& m,const Lineage& l) {
            m.height==static_cast<std::uint32_t>(l.source->metadata().height);
 }
 
-int measured_channel(CfaPattern cfa, int x, int y) noexcept {
-    const bool xe=(x&1)==0, ye=(y&1)==0;
-    switch(cfa){
-        case CfaPattern::BGGR: if(ye&&xe)return 2; if(!ye&&!xe)return 0; return 1;
-        case CfaPattern::RGGB: if(ye&&xe)return 0; if(!ye&&!xe)return 2; return 1;
-        case CfaPattern::GRBG: if(ye&&!xe)return 0; if(!ye&&xe)return 2; return 1;
-        case CfaPattern::GBRG: if(!ye&&xe)return 0; if(ye&&!xe)return 2; return 1;
-    }
-    return -1;
-}
-
 bool build_canonical_open_scene(
     Lineage& line,
     canonical_scene::Summary& summary) {
-    const auto& md=line.source->metadata();
-    if(md.width<=0||md.height<=0) return false;
+    const auto& md = line.source->metadata();
+    if (md.width <= 0 || md.height <= 0) return false;
     canonical_scene::Binding binding{};
-    binding.sourceEvidenceSha256=line.seal.sha256;
-    binding.scientificMasterSha256=line.scientific.scientificMasterHash;
-    binding.width=static_cast<std::uint32_t>(md.width);
-    binding.height=static_cast<std::uint32_t>(md.height);
-    binding.physicalFrameCount=line.scientific.physicalFrameCount;
-    binding.independentEvidenceCount=line.scientific.independentEvidenceCount;
-    binding.colourBindingId=line.color.color.bindingId;
-    canonical_scene::Builder builder(binding);
-    if(!builder.valid()) return false;
-
-    std::vector<std::uint16_t> raw;
-    std::vector<float> gain;
-    std::vector<std::uint8_t> auth;
-    std::vector<std::uint8_t> states;
-    for(int y=0;y<md.height;y+=static_cast<int>(kTileEdge)){
-        const int h=std::min(static_cast<int>(kTileEdge),md.height-y);
-        for(int x=0;x<md.width;x+=static_cast<int>(kTileEdge)){
-            const int w=std::min(static_cast<int>(kTileEdge),md.width-x);
-            const std::size_t pixels=static_cast<std::size_t>(w)*h;
-            raw.resize(pixels);
-            if(md.hasGainField) gain.resize(pixels); else gain.clear();
-            truthraw::TileRect rect{x,y,x+w,y+h,x,y,x+w,y+h};
-            const auto s=line.source->readRawTile(
-                rect,raw.data(),raw.size(),
-                md.hasGainField?gain.data():nullptr,
-                md.hasGainField?gain.size():0u);
-            if(!s) return false;
-            auth.assign(pixels*3u,4u);
-            states.assign(pixels,0u);
-            for(int yy=0;yy<h;++yy){
-                for(int xx=0;xx<w;++xx){
-                    const std::size_t i=static_cast<std::size_t>(yy)*w+xx;
-                    const int ch=measured_channel(md.cfa,x+xx,y+yy);
-                    if(ch<0||ch>2) return false;
-                    const bool clipped=static_cast<float>(raw[i])>=md.whiteLevel;
-                    auth[3u*i+static_cast<std::size_t>(ch)]=clipped?3u:1u;
-                    states[i]=static_cast<std::uint8_t>(
-                        clipped
-                            ? (ch==0?canonical_scene::PixelState::RCensored:
-                               ch==1?canonical_scene::PixelState::GCensored:
-                                     canonical_scene::PixelState::BCensored)
-                            : (ch==0?canonical_scene::PixelState::RCalibratedEstimate:
-                               ch==1?canonical_scene::PixelState::GCalibratedEstimate:
-                                     canonical_scene::PixelState::BCalibratedEstimate));
-                }
-            }
-            if(!builder.append(auth,states)) return false;
-        }
-    }
-    return builder.finalize(summary);
+    binding.sourceEvidenceSha256 = line.seal.sha256;
+    binding.scientificMasterSha256 = line.scientific.scientificMasterHash;
+    binding.width = static_cast<std::uint32_t>(md.width);
+    binding.height = static_cast<std::uint32_t>(md.height);
+    binding.physicalFrameCount = line.scientific.physicalFrameCount;
+    binding.independentEvidenceCount = line.scientific.independentEvidenceCount;
+    binding.colourBindingId = line.color.color.bindingId;
+    return canonical_scene::build_from_source(*line.source, binding, summary);
 }
 
 std::string provenance_text(
