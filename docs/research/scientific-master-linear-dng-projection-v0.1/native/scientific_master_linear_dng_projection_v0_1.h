@@ -54,6 +54,7 @@ struct ProjectionDescriptor final {
     // contract: stored raster must hash exactly as Scientific Master.
     Hash256 projectedRasterSha256{};
     Hash256 openSceneStateSha256{};
+    Hash256 restorationRoleMaskSha256{};
     TruthRangeGaugeV02 zeroLineGauge{};
     LatentSceneBindingV02 sceneBinding{};
     technical_backplane::v0_1::SerializedBackplane serializedBackplane{};
