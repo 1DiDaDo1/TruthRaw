@@ -479,6 +479,11 @@ object FullResRestorationExporter {
             "role_0=PRESERVE_SCIENTIFIC_MASTER",
             "role_1=AESTHETIC_REINTEGRATION_ONLY",
             "role_2=UNRESOLVED_LOSS",
+            "binding_extension=TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71",
+            "open_scene_canonical_schema=TruthRawOpenSceneCanonicalState/0.70",
+            "open_scene_semantic_parent_region=TruthRawOpenSceneRegion/0.7",
+            "open_scene_semantic_parent_stream=TruthRawOpenSceneStateSummary/0.8",
+            "open_scene_creates_new_evidence=0",
             "full_resolution=1",
             "retreatable=1",
             "provenance_bound=1",
@@ -505,6 +510,11 @@ object FullResRestorationExporter {
             "restoration_derivative_rgb_sha256",
             "zero_line_sha256",
             "scene_scale_sha256",
+            "dynamic_authority_artifact_sha256",
+            "open_scene_state_sha256",
+            "open_scene_policy_sha256",
+            "open_scene_artifact_sha256",
+            "restoration_role_mask_sha256",
         )) {
             val value = shaField(field)
             if (value.length != 64 || value.any { it !in "0123456789abcdef" }) {
@@ -520,7 +530,7 @@ object FullResRestorationExporter {
             return false to "Technical Backplane is niet exact 180 bytes"
         }
 
-        return true to "restoration contract geldig"
+        return true to "restoration + canonical Open Scene + exact role-mask binding geldig"
     }
 
     private fun sha256(file: File): String? = try {
