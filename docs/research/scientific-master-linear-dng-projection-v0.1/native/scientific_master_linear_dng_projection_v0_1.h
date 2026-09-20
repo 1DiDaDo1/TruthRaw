@@ -71,6 +71,9 @@ struct ProjectionDescriptor final {
     std::string precisionPolicyId;
     std::string runtimeReconstructionBackendId;
     std::string projectionRole;
+    // Optional downstream edit recipe. This never changes the stored PURE raster
+    // or Scientific Master identity; it is provenance for RAW/Edit workflows.
+    std::string downstreamEditManifest;
     bool restorationDerivative = false;
 };
 
