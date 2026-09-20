@@ -296,7 +296,16 @@ class MainActivity : Activity() {
             render()
             return
         }
-        pendingProjectionFormat = format
+        val existingProjection = RestorationProjectionJobStore.recoverInterruptedIfNeeded(this)
+        if (existingProjection != null && !existingProjection.phase.terminal) {
+            projectionStatus =
+                "${existingProjection.format.label} is nog bezig (${existingProjection.phase.name.lowercase()}). " +
+                    "Wacht op de gereedmelding voordat je een tweede projectie start."
+            render()
+            return
+        }
+
+        setPendingProjectionFormat(format)
         projectionStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -308,6 +317,26 @@ class MainActivity : Activity() {
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_SAVE_RESTORATION_PROJECTION)
+    }
+
+    private fun setPendingProjectionFormat(format: RestorationProjectionFormat) {
+        pendingProjectionFormat = format
+        getSharedPreferences(PROJECTION_PICKER_PREFS, MODE_PRIVATE).edit()
+            .putString(KEY_PENDING_PROJECTION_FORMAT, format.name)
+            .commit()
+    }
+
+    private fun consumePendingProjectionFormat(): RestorationProjectionFormat? {
+        val persisted = getSharedPreferences(PROJECTION_PICKER_PREFS, MODE_PRIVATE)
+            .getString(KEY_PENDING_PROJECTION_FORMAT, null)
+        val format = pendingProjectionFormat ?: persisted?.let {
+            runCatching { RestorationProjectionFormat.valueOf(it) }.getOrNull()
+        }
+        pendingProjectionFormat = null
+        getSharedPreferences(PROJECTION_PICKER_PREFS, MODE_PRIVATE).edit()
+            .remove(KEY_PENDING_PROJECTION_FORMAT)
+            .apply()
+        return format
     }
 
     @Suppress("DEPRECATION")
@@ -532,8 +561,7 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_RESTORATION_PROJECTION) {
-            val format = pendingProjectionFormat
-            pendingProjectionFormat = null
+            val format = consumePendingProjectionFormat()
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null || format == null) {
                 projectionStatus = "Restoration-projectie geannuleerd."
@@ -555,7 +583,7 @@ class MainActivity : Activity() {
                 data?.flags ?: 0,
             )
             projectionStatus = if (started) {
-                "${format.label} v0.69 foreground projectie gestart · .trr digest/lineage → private staging → post-write SHA verify."
+                "${format.label} v0.72 foreground projectie gestart · private full-resolution staging → Open Scene/role-mask verify → commit → whole-file SHA verify. Gereedmelding volgt in app én notificatie."
             } else {
                 RestorationProjectionJobStore.read(this)?.message
                     ?: "${format.label}-projectie kon niet worden gestart."
@@ -1168,15 +1196,60 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
-                        addView(actionButton("Restoration → Float32 DNG") {
+                        val activeProjection =
+                            RestorationProjectionJobStore.read(this@MainActivity)
+                        val projectionBusy =
+                            activeProjection != null && !activeProjection.phase.terminal
+
+                        addView(actionButton(
+                            "Restoration → Float32 DNG",
+                            enabled = !projectionBusy,
+                        ) {
                             launchRestorationProjection(active, RestorationProjectionFormat.DNG)
                         })
-                        addView(actionButton("Restoration → Float32 TIFF") {
+                        addView(actionButton(
+                            "Restoration → Float32 TIFF",
+                            enabled = !projectionBusy,
+                        ) {
                             launchRestorationProjection(active, RestorationProjectionFormat.TIFF)
                         })
-                        addView(actionButton("Restoration → OpenEXR") {
+                        addView(actionButton(
+                            "Restoration → OpenEXR",
+                            enabled = !projectionBusy,
+                        ) {
                             launchRestorationProjection(active, RestorationProjectionFormat.EXR)
                         })
+
+                        if (projectionBusy && activeProjection != null) {
+                            addView(space(5))
+                            addView(horizontal().apply {
+                                gravity = Gravity.CENTER_VERTICAL
+                                addView(
+                                    ProgressBar(this@MainActivity).apply {
+                                        isIndeterminate = true
+                                    },
+                                    LinearLayout.LayoutParams(dp(30), dp(30)).apply {
+                                        marginEnd = dp(10)
+                                    },
+                                )
+                                addView(Chronometer(this@MainActivity).apply {
+                                    val wallElapsed =
+                                        (System.currentTimeMillis() - activeProjection.startedAtMs)
+                                            .coerceAtLeast(0L)
+                                    base = SystemClock.elapsedRealtime() - wallElapsed
+                                    format = "${activeProjection.format.label} bezig · %s"
+                                    setTextColor(palette.text)
+                                    textSize = 12f
+                                    start()
+                                })
+                            })
+                            addView(label(
+                                "Fase: ${activeProjection.phase.name.lowercase()} · " +
+                                    "laat TruthRaw open of gebruik de app normaal; de foreground service blijft doorwerken.",
+                                10f,
+                                muted = true,
+                            ))
+                        }
                         projectionStatus?.let { addView(label(it, 10f, muted = true)) }
                     }
                     addView(space(5))
@@ -1365,12 +1438,18 @@ class MainActivity : Activity() {
             if (bold) setTypeface(typeface, Typeface.BOLD)
         }
 
-    private fun actionButton(text: String, action: () -> Unit): Button = Button(this).apply {
+    private fun actionButton(
+        text: String,
+        enabled: Boolean = true,
+        action: () -> Unit,
+    ): Button = Button(this).apply {
         this.text = text
         isAllCaps = false
         setTextColor(palette.text)
         background = rounded(palette.surfaceAlt, 14f)
-        setOnClickListener { action() }
+        isEnabled = enabled
+        alpha = if (enabled) 1f else 0.55f
+        setOnClickListener { if (enabled) action() }
     }
 
     private fun rounded(color: Int, radiusDp: Float): GradientDrawable = GradientDrawable().apply {
@@ -1422,6 +1501,8 @@ class MainActivity : Activity() {
     private fun dp(value: Float): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
     companion object {
+        private const val PROJECTION_PICKER_PREFS = "truthraw_projection_picker_v072"
+        private const val KEY_PENDING_PROJECTION_FORMAT = "pending_projection_format"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
         const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
 
