@@ -95,7 +95,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHNEGATIVE",
                     subtitleText = "Scientific Negative",
-                    detail = "Master + Dynamic Authority",
+                    detail = "TN-3 · Dynamic Authority · Open Scene",
                     accent = purple,
                     selected = selected == OUTPUT_NEGATIVE,
                     enabled = true,
@@ -120,7 +120,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Open-World · Full-res Restoration · Authority",
+                    detail = "Open Scene · Full-res Restoration · DNG/TIFF/EXR",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
@@ -139,7 +139,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.68 · transactionele foreground Restoration · v0.67 science ongewijzigd", 11f).apply {
+        root.addView(body("v0.69 · TN-3 + Full Open Scene + DNG/TIFF/EXR Restoration projection", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -278,8 +278,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
         addView(title("Eén Scientific Master, meerdere veilige afleidingen", 14f))
         addView(space(4))
         addView(body(
-            "PURE blijft de meetbare projectie. TruthNegative bindt de camera-native Master aan Dynamic Authority. " +
-                "Advanced gebruikt Open-World/Scene Physics downstream. Full-res Restoration draait transactioneel via private staging + header-last commit, zonder evidence-upgrade.",
+            "PURE blijft de gevalideerde meetbare projectie. TN-3 bindt camera-native Master + per-channel Dynamic Authority + full-frame Open Scene State. " +
+                "Advanced/Restoration blijft downstream en kan nu full-resolution DNG/TIFF/EXR projecteren zonder evidence-upgrade.",
             11.5f,
         ))
     }
