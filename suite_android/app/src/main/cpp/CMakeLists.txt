@@ -40,6 +40,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     advanced_preview_bridge.cpp
+    photo_export_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
     pure_float32_dng_export_bridge.cpp
