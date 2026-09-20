@@ -2,7 +2,9 @@
 
 ## Status
 
-Integration candidate on:
+**CLOSED INTEGRATION — CI + Android APK PASS**
+
+Integration branch:
 
 `integration/truthraw-suite-v0-83-authority-aware-hdr`
 
@@ -141,3 +143,54 @@ The next HDR step should construct a canonical **per-output-channel authority ma
 Only after that map exists may local scientific HDR gain be attempted.
 
 Current v0.83 does not claim that gate is closed.
+
+
+## Validation closure
+
+Full integration CI run:
+
+`35523343893`
+
+All green:
+- GCC HDR authority contract
+- Clang HDR authority contract
+- Clang ASan/UBSan HDR authority contract
+- v0.82 illumination state
+- v0.81 canonical Output Acutance
+- v0.80 canonical Adaptive Detail parity
+- v0.78-v0.79 authority and uncertainty gates
+- existing scientific lineage contracts
+- Android v0.83 HDR Authority
+- APK verification
+- artifact upload
+
+Artifact:
+- GitHub artifact id: `10609178219`
+- artifact ZIP SHA-256: `5a4112454d163a233072a7525f29a75de62fe43f69a7f50d2e35a619cad1822f`
+- APK bytes: `6,498,017`
+- APK SHA-256: `88d8ac29b64ddef67668c026c05711974c645e3fc1ef6da4b8fb942bda4066a7`
+- CI head: `6c86a321eea44028f5d6cebbe99c0ff7df99159e`
+
+v0.83 is therefore the current closed integration baseline.
+
+## Immediate next integration
+
+Recommended next branch:
+
+`integration/truthraw-suite-v0-84-output-channel-authority-map`
+
+Goal:
+construct a canonical per-output-channel authority/support map through reconstruction and preview resampling, without changing HDR gain.
+
+This is the missing scientific gate identified by v0.83.
+
+The map must:
+- start from v0.78 per-channel source/Open-Scene authority;
+- preserve CENSORED as bounds;
+- preserve UNKNOWN as unknown;
+- admit RECONSTRUCTED only where v0.79 uncertainty is admitted;
+- propagate support through resize without treating compute tiles as authority regions;
+- never infer authority from v0.82 CCT/Duv;
+- remain independent from v0.80/v0.81 appearance/output acutance.
+
+Only after v0.84 exists may v0.83's `perOutputChannelAuthorityAvailable` legitimately become true.
