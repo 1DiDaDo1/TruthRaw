@@ -167,24 +167,41 @@ bool build_conservative(
                         md.hasGainField?gain.size():0u);
                     if(!s) return false;
 
+                    // Summed-area map of saturated source samples. This preserves
+                    // the same conservative support rule while making each output
+                    // authority query O(1), independent of reconstruction halo size.
+                    const int psw=rw+1;
+                    std::vector<std::uint32_t> prefix(
+                        static_cast<std::size_t>(psw)*(rh+1),0u);
+                    for(int yy=0;yy<rh;++yy) {
+                        std::uint32_t row=0u;
+                        for(int xx=0;xx<rw;++xx) {
+                            const std::size_t ri=
+                                static_cast<std::size_t>(yy)*rw+xx;
+                            row += static_cast<float>(raw[ri])>=md.whiteLevel ? 1u : 0u;
+                            prefix[static_cast<std::size_t>(yy+1)*psw+(xx+1)] =
+                                prefix[static_cast<std::size_t>(yy)*psw+(xx+1)] + row;
+                        }
+                    }
+                    const auto saturated_count = [&](int ax0,int ay0,int ax1,int ay1) {
+                        const int lx0=ax0-rx0;
+                        const int ly0=ay0-ry0;
+                        const int lx1=ax1-rx0;
+                        const int ly1=ay1-ry0;
+                        return
+                            prefix[static_cast<std::size_t>(ly1)*psw+lx1] -
+                            prefix[static_cast<std::size_t>(ly0)*psw+lx1] -
+                            prefix[static_cast<std::size_t>(ly1)*psw+lx0] +
+                            prefix[static_cast<std::size_t>(ly0)*psw+lx0];
+                    };
+
                     for(int y=y0;y<y1;++y) {
                         for(int x=x0;x<x1;++x) {
-                            bool censored=false;
-                            for(int yy=std::max(0,y-radius);
-                                yy<=std::min(md.height-1,y+radius) && !censored;
-                                ++yy) {
-                                for(int xx=std::max(0,x-radius);
-                                    xx<=std::min(md.width-1,x+radius);
-                                    ++xx) {
-                                    const std::size_t i=
-                                        static_cast<std::size_t>(yy-ry0)*rw+
-                                        static_cast<std::size_t>(xx-rx0);
-                                    if(static_cast<float>(raw[i])>=md.whiteLevel) {
-                                        censored=true;
-                                        break;
-                                    }
-                                }
-                            }
+                            const int ax0=std::max(0,x-radius);
+                            const int ay0=std::max(0,y-radius);
+                            const int ax1=std::min(md.width,x+radius+1);
+                            const int ay1=std::min(md.height,y+radius+1);
+                            const bool censored=saturated_count(ax0,ay0,ax1,ay1)>0u;
 
                             const Authority a = censored
                                 ? Authority::Censored
