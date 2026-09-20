@@ -10,7 +10,26 @@ App version:
 
 `0.36-v0.71-open-scene-trr-rolemask-embed`
 
-Status: **active integration / CI running at document creation**.
+Status: **CI GREEN / APK BUILT — real-device artifact validation pending**.
+
+CI run: `35506676249`
+
+- host GCC PURE writer: SUCCESS;
+- host Clang PURE writer: SUCCESS;
+- Open Scene/Dynamic Authority/Restoration scientific contract tests: SUCCESS;
+- Android arm64 debug APK: SUCCESS;
+- documentation governance run `35506676288`: SUCCESS.
+
+Artifact ID: `10604525855`
+
+Artifact ZIP SHA-256:
+
+`d58966ae55cdde57345534255620c55fddf60fea7423efbe81eced833255a3ee`
+
+Extracted APK:
+
+- bytes: `6,314,361`;
+- SHA-256: `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
 
 ## Purpose
 
