@@ -131,8 +131,18 @@ class TruthRawProActivity : Activity() {
                         TruthRawComputeClass.APPEARANCE,
                         capabilities,
                     )
+                    val cpuPlan = TruthRawCpuSchedulingPolicyV01.plan(
+                        context = this@TruthRawProActivity,
+                        workload = TruthRawCpuWorkload.EXACT_SCIENTIFIC,
+                        // Current 128px tile paths remain comfortably below this
+                        // conservative per-worker envelope; future 200MP kernels
+                        // must provide their own measured estimate.
+                        bytesPerWorkerEstimate = 16L * 1024L * 1024L,
+                    )
                     buildString {
                         append(capabilities.summary)
+                        append("\nCPU worker plan: ")
+                        append(cpuPlan.reason)
                         append("\nCandidates: ")
                         append(appearancePlan.candidates.joinToString())
                         append("\nActief: ")
