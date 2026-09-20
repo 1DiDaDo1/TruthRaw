@@ -2,7 +2,9 @@
 
 ## Status
 
-Integration candidate on:
+**CLOSED INTEGRATION — HOST GATES + ANDROID APK PASS**
+
+Integration branch:
 
 `integration/truthraw-suite-v0-81-output-acutance-v47k`
 
@@ -166,6 +168,24 @@ Unchanged:
 - v0.80 Adaptive Detail authority boundary;
 - Restoration v0.67 scientific algorithm.
 
-## Remaining closure gate
+## Validation closure
 
-Android integration CI and APK verification must pass before v0.81 becomes the current closed integration baseline.
+Full integration CI run: `35521878189`
+
+All green:
+- GCC canonical v4.7k Output Acutance
+- Clang canonical v4.7k Output Acutance
+- Clang ASan/UBSan v0.81
+- v0.80 canonical Adaptive Detail parity
+- v0.78-v0.79 authority and uncertainty
+- existing scientific lineage contracts
+- Android v0.81 Output Acutance
+- APK verification and artifact upload
+
+Artifact:
+- GitHub artifact id: `10609071299`
+- artifact ZIP SHA-256: `1c094d99f5f0d634354d71259bfa262511e53e6fa7f5bd91aa3b590aacecb936`
+- APK bytes: `6,463,957`
+- APK SHA-256: `fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
+
+v0.81 is the current closed output-acutance integration baseline.
