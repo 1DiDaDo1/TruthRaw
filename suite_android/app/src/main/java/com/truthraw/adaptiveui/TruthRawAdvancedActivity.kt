@@ -88,7 +88,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved en elke reparatie blijft retreatable.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.67 kan deze restoration nu ook op volledige bronresolutie als retreatable derivative met role-mask exporteren.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
@@ -101,7 +101,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(title("Scientific separation", 16f))
             addView(space(6))
             addView(body(
-                "Advanced consumeert dezelfde Scientific Master en Dynamic Authority als TruthNegative. " +
+                "Advanced consumeert dezelfde Scientific Master en Dynamic Authority als TruthNegative. Full-res Restoration werkt 1:1 op de bronrasterpositie en blijft een aparte derivative. " +
                     "CALIBRATED_ESTIMATE, RECONSTRUCTED, CENSORED en UNKNOWN blijven onderscheiden. " +
                     "Open-World, HDR en Restoration zijn downstream; Scientific Master, Zero-Line, scene-scale en Backplane worden niet teruggeschreven.",
                 12f,
