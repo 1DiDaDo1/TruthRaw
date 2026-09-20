@@ -22,8 +22,10 @@ For each non-censored preview pixel, v0.81:
 1. computes the old effective display target from the pre-acutance final SDR base and existing bounded HDR gain;
 2. applies canonical v4.7k to the final resized SDR base;
 3. derives a new direct display gain relative to that acutance-adjusted base;
-4. caps the re-expressed gain at the existing maximum display gain;
-5. forces censored support to gain 1.
+4. re-expresses gain only where a positive upstream HDR relation already existed;
+5. keeps an upstream unity/no-HDR pixel exactly at gain 1;
+6. caps the re-expressed gain at the existing maximum display gain;
+7. forces censored support to gain 1.
 
 This does not create a new HDR target or new evidence. It only changes the coordinate/base against which the existing downstream display relationship is expressed.
 
@@ -45,5 +47,6 @@ The standalone tests require:
 - exact canonical acutance output float-bit parity;
 - HDR target preservation in the unclamped domain;
 - gain >= 1 and <= the existing display maximum;
+- upstream zero-HDR pixels remain exactly gain 1;
 - censored pixels always gain 1;
 - invalid shapes/noise/resize contracts fail closed.
