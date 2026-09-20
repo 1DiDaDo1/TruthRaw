@@ -19,6 +19,7 @@ object PureFloat32DngNativeBridge {
     external fun exportPureFloat32Dng(
         sourceFd: Int,
         outputFd: Int,
+        userQuarterTurns: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -54,6 +55,7 @@ object PureFloat32DngExporter {
         resolver: ContentResolver,
         job: RawJob,
         destination: Uri,
+        userQuarterTurns: Int = 0,
     ): PureFloat32DngExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return PureFloat32DngExportResult.Failed(
@@ -79,6 +81,7 @@ object PureFloat32DngExporter {
                     PureFloat32DngNativeBridge.exportPureFloat32Dng(
                         src.fd,
                         dst.fd,
+                        userQuarterTurns,
                         PURE_MAX_SOURCE_RESIDENT_BYTES,
                         PURE_MAX_LOGICAL_RESIDENT_BYTES,
                     )
