@@ -49,7 +49,7 @@ jobs:
           PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
           DNGC='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
 
-          grep -F '0.38-v0.73-camera-source-admission-tn3' "$G"
+          grep -F '0.39-v0.73.1-real-device-closeout-ui' "$G"
 
           # Restored v0.65-style launcher/icon contract.
           grep -F 'setImageResource(R.drawable.truthraw_icon)' "$LAUNCH"
