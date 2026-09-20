@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-67-fullres-restoration":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-68-restoration-transactional-fgs":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -300,6 +300,45 @@ if v067_output.get("extension") != ".trr":
     errors.append("v067_restoration_container_extension_mismatch")
 if v067_output.get("conventionalDngExrTiffProjectionReady") is not False:
     errors.append("v067_conventional_restoration_projection_must_remain_open")
+
+v068 = (((current_state.get("multiVendorRaw") or {}).get("v068")) or {})
+v068_tx = v068.get("transaction") or {}
+v068_inv = v068.get("scientificInvariants") or {}
+v068_find = v068.get("realDeviceV067LifecycleFinding") or {}
+if v068.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v068_must_keep_v063_pure_writer_contract")
+if v068.get("inheritsV067ScientificRestorationUnchanged") is not True:
+    errors.append("v068_must_not_change_v067_restoration_science")
+if v068_find.get("incompleteArtifactObserved") is not True:
+    errors.append("v068_must_preserve_v067_lifecycle_failure_finding")
+if v068_find.get("finalHeaderPresent") is not False:
+    errors.append("v068_v067_failure_header_finding_mismatch")
+if v068_tx.get("foregroundServiceType") != "dataSync":
+    errors.append("v068_foreground_service_type_mismatch")
+if v068_tx.get("stagingLocation") != "APP_PRIVATE_FILES":
+    errors.append("v068_staging_must_be_app_private")
+if v068_tx.get("finalSafDestinationReceivesNativeLongRunDirectly") is not False:
+    errors.append("v068_native_long_run_must_not_write_direct_to_saf")
+if v068_tx.get("stagingVerifiedBeforeCommit") is not True:
+    errors.append("v068_staging_verify_required")
+if v068_tx.get("destinationHeaderPolicy") != "ZERO_HEADER_UNTIL_BODY_COMPLETE_THEN_VALID_HEADER_LAST":
+    errors.append("v068_header_last_commit_required")
+if v068_tx.get("exactDestinationReopened") is not True:
+    errors.append("v068_exact_destination_reopen_required")
+if v068_tx.get("wholeFileSha256ComparedToStaging") is not True:
+    errors.append("v068_whole_file_sha_compare_required")
+if v068_tx.get("staleProcessDeathCleanup") is not True:
+    errors.append("v068_stale_cleanup_required")
+if v068_inv.get("v067NativeAlgorithmChanged") is not False:
+    errors.append("v068_may_not_change_v067_native_algorithm")
+if v068_inv.get("scientificMasterModified") is not False:
+    errors.append("v068_may_not_modify_scientific_master")
+if v068_inv.get("scientificWritebackAllowed") is not False:
+    errors.append("v068_scientific_writeback_forbidden")
+if v068_inv.get("createsNewEvidence") is not False or v068_inv.get("createsSecondScientificWorld") is not False:
+    errors.append("v068_may_not_inflate_evidence_or_worlds")
+if v068_inv.get("physicalFrameCount") != 1 or v068_inv.get("independentEvidenceCount") != 1:
+    errors.append("v068_frame_evidence_must_remain_one_one")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
