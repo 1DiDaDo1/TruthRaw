@@ -30,6 +30,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact-replay numerical dependency
+        run: python -m pip install --disable-pip-version-check numpy
       - run: |
           python3 tests/test_truthnegative_foundation_v01.py
           python3 tests/test_truthnegative_existing_house_binding_v02.py
