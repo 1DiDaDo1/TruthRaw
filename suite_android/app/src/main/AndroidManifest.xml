@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -213,6 +214,11 @@
             android:name=".RestorationProjectionForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name=".TruthRawMediaProcessingForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProcessing" />
 
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
