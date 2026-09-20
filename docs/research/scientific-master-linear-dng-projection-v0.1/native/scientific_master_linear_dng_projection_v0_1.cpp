@@ -175,6 +175,8 @@ std::string printable_identity(std::string text) {
     return text;
 }
 
+bool nonzero_hash(const Hash256& hash) noexcept;
+
 std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
     const std::string id = "TruthRaw scientific-master-linear-dng-projection-v0.1";
 
