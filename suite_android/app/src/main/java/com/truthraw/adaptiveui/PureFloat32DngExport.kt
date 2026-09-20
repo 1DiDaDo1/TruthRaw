@@ -20,6 +20,8 @@ object PureFloat32DngNativeBridge {
         sourceFd: Int,
         outputFd: Int,
         userQuarterTurns: Int,
+        exportMode: Int,
+        advancedFlags: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -50,12 +52,19 @@ sealed interface PureFloat32DngExportResult {
     data class Failed(val reason: String) : PureFloat32DngExportResult
 }
 
+enum class Float32DngExportFlavor(val nativeCode: Int) {
+    PURE(0),
+    JPGL_RAW_EDIT(1),
+}
+
 object PureFloat32DngExporter {
     fun export(
         resolver: ContentResolver,
         job: RawJob,
         destination: Uri,
         userQuarterTurns: Int = 0,
+        flavor: Float32DngExportFlavor = Float32DngExportFlavor.PURE,
+        advancedFlags: Int = 0,
     ): PureFloat32DngExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return PureFloat32DngExportResult.Failed(
@@ -82,6 +91,8 @@ object PureFloat32DngExporter {
                         src.fd,
                         dst.fd,
                         userQuarterTurns,
+                        flavor.nativeCode,
+                        if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
                         PURE_MAX_SOURCE_RESIDENT_BYTES,
                         PURE_MAX_LOGICAL_RESIDENT_BYTES,
                     )
@@ -95,12 +106,12 @@ object PureFloat32DngExporter {
             }
 
             val success = decoded as PureFloat32DngExportResult.Success
-            val postWrite = verifySavedPureDng(resolver, destination)
+            val postWrite = verifySavedPureDng(resolver, destination, flavor, advancedFlags)
             if (!postWrite.ok) {
                 runCatching { resolver.delete(destination, null, null) }
                 return PureFloat32DngExportResult.Failed(
-                    "Fail-closed: writer meldde succes, maar het opgeslagen DNG-bestand kon de " +
-                        "v0.63 self-binding niet terugbewijzen (${postWrite.reason}).",
+                    "Fail-closed: writer meldde succes, maar de opgeslagen Float32 DNG kon de " +
+                        "self-binding/edit-binding niet terugbewijzen (${postWrite.reason}).",
                 )
             }
 
@@ -124,10 +135,18 @@ object PureFloat32DngExporter {
     private fun verifySavedPureDng(
         resolver: ContentResolver,
         destination: Uri,
+        flavor: Float32DngExportFlavor,
+        advancedFlags: Int,
     ): PostWriteVerification {
-        val requiredMarkers = listOf(
+        val roleMarker = when (flavor) {
+            Float32DngExportFlavor.PURE ->
+                "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
+            Float32DngExportFlavor.JPGL_RAW_EDIT ->
+                "role=TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG"
+        }
+        val requiredMarkers = mutableListOf(
             "TruthRaw scientific-master-linear-dng-projection-v0.1",
-            "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION",
+            roleMarker,
             "private_contract=$PURE_SELF_BINDING_CONTRACT",
             "sealed_source_sha256=",
             "scientific_master_sha256=",
@@ -145,6 +164,20 @@ object PureFloat32DngExporter {
             "physical_frame_count=1",
             "independent_evidence_count=1",
         )
+        if (flavor == Float32DngExportFlavor.JPGL_RAW_EDIT) {
+            requiredMarkers += listOf(
+                "downstream_edit_manifest_begin",
+                "schema=TruthRawJpgLRawEditRecipe/0.3",
+                "primary_image_role=FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER",
+                "source_scientific_master_unchanged=1",
+                "appearance_baked_into_primary=0",
+                "advanced_recipe_flags=$advancedFlags",
+                "lightroom_editable_primary=1",
+                "scientific_writeback_allowed=0",
+                "creates_new_evidence=0",
+                "downstream_edit_manifest_end",
+            )
+        }
         val forbiddenMarkers = listOf(
             "role=LINEAR_DNG_XYZ_D50_COMPATIBILITY_PROJECTION",
         )
@@ -310,7 +343,14 @@ object PureFloat32DngExporter {
                 return PostWriteVerification(false, "precision/runtime provenance ontbreekt")
             }
 
-            PostWriteVerification(true, "v0.63 contract + Backplane CRC inhoudelijk geverifieerd")
+            PostWriteVerification(
+                true,
+                if (flavor == Float32DngExportFlavor.PURE) {
+                    "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
+                } else {
+                    "JPG-L RAW/Edit Float32 primary + v0.63 lineage + recipe manifest geverifieerd"
+                },
+            )
         } catch (error: Throwable) {
             PostWriteVerification(
                 false,
