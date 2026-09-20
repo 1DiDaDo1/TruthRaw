@@ -186,6 +186,7 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         empiricalAudit = null
         jpegStatus = null
+        jpgLStatus = null
         pureFloatDngStatus = null
         truthNegativeStatus = null
         fullResRestorationStatus = null
@@ -889,6 +890,13 @@ class MainActivity : Activity() {
             render()
         } else {
             selectJob(first)
+            if (first.source.format.nativeProcessingReady) {
+                window.decorView.post {
+                    if (activeJobId == first.id && previewState is TilePreviewUiState.Idle) {
+                        requestPreview(first)
+                    }
+                }
+            }
         }
     }
 
@@ -904,6 +912,9 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingJpgLJobId = null
+        pendingPhotoRoute = null
+        pendingPhotoFlags = 0
         pendingPureFloatDngJobId = null
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
