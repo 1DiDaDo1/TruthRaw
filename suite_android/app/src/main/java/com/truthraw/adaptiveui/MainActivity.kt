@@ -73,12 +73,6 @@ class MainActivity : Activity() {
     private var pendingNefMeasurementJobId: String? = null
     private var pendingNefMeasurementJson: String? = null
     private var nefMeasurementExportStatus: String? = null
-    private val operationTracker = TruthRawOperationTracker()
-
-    private data class UiContinuitySnapshot(
-        val focusedTag: String?,
-        val scrollYByTag: Map<String, Int>,
-    )
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -1112,7 +1106,6 @@ class MainActivity : Activity() {
     }
 
     private fun render() {
-        val continuity = captureUiContinuity()
         val tier = currentLayoutTier()
         val root = vertical().apply {
             setBackgroundColor(palette.background)
@@ -1136,7 +1129,6 @@ class MainActivity : Activity() {
         }
 
         setContentView(root)
-        restoreUiContinuity(root, continuity)
     }
 
     private fun topBar(tier: LayoutTier): View = horizontal().apply {
@@ -1161,7 +1153,6 @@ class MainActivity : Activity() {
     }
 
     private fun compactLayout(): View = ScrollView(this).apply {
-        tag = "truthraw-scroll:compact"
         isFillViewport = true
         addView(
             vertical().apply {
@@ -1693,9 +1684,7 @@ class MainActivity : Activity() {
         addView(label("Ingang", 16f, bold = true))
         addView(label("${session.selectedCount} onafhankelijke bronhandle(s)", 12f, muted = true))
         addView(space(6))
-        val scroll = ScrollView(this@MainActivity).apply {
-            tag = "truthraw-scroll:jobs"
-        }
+        val scroll = ScrollView(this@MainActivity)
         scroll.addView(vertical().apply {
             if (session.jobs.isEmpty()) {
                 addView(label("Nog geen RAW geselecteerd.", 13f, muted = true))
@@ -1707,15 +1696,12 @@ class MainActivity : Activity() {
     }
 
     private fun jobStrip(): View = ScrollView(this).apply {
-        tag = "truthraw-scroll:jobstrip"
         addView(vertical().apply {
             session.jobs.forEachIndexed { index, job -> addView(jobRow(index, job)) }
         })
     }
 
     private fun jobRow(index: Int, job: RawJob): View = vertical().apply {
-        tag = "truthraw-job:${job.id}"
-        isFocusable = true
         setPadding(dp(10), dp(8), dp(10), dp(8))
         background = rounded(palette.surfaceAlt, 12f)
         addView(label("${if (job.id == activeJobId) "▶ " else ""}${index + 1}. ${job.source.displayName}", 13f, bold = true))
@@ -1766,119 +1752,12 @@ class MainActivity : Activity() {
         action: () -> Unit,
     ): Button = Button(this).apply {
         this.text = text
-        tag = "truthraw-action:$text"
         isAllCaps = false
         setTextColor(palette.text)
         background = rounded(palette.surfaceAlt, 14f)
         isEnabled = enabled
         alpha = if (enabled) 1f else 0.55f
         setOnClickListener { if (enabled) action() }
-    }
-
-    private fun operationStatusView(
-        key: String,
-        fallbackMessage: String,
-    ): View {
-        val state = operationTracker.get(key)
-            ?: TruthRawOperationState(
-                key = key,
-                message = fallbackMessage,
-                phase = TruthRawOperationPhase.SUCCESS,
-                startedAtElapsedMs = SystemClock.elapsedRealtime(),
-                finishedAtElapsedMs = SystemClock.elapsedRealtime(),
-            )
-        return operationStatusView(state.copy(message = fallbackMessage))
-    }
-
-    private fun operationStatusView(state: TruthRawOperationState): View = horizontal().apply {
-        gravity = Gravity.CENTER_VERTICAL
-        tag = "truthraw-operation:${state.key}"
-        val dotColor = when (state.phase) {
-            TruthRawOperationPhase.RUNNING,
-            TruthRawOperationPhase.SUCCESS -> Color.rgb(65, 196, 106)
-            TruthRawOperationPhase.ERROR -> Color.rgb(232, 73, 73)
-            TruthRawOperationPhase.CANCELLED -> palette.textMuted
-        }
-        addView(View(this@MainActivity).apply {
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(dotColor)
-            }
-            contentDescription = when (state.phase) {
-                TruthRawOperationPhase.RUNNING -> "Proces loopt normaal"
-                TruthRawOperationPhase.SUCCESS -> "Proces gereed"
-                TruthRawOperationPhase.ERROR -> "Proces onverwacht gestopt"
-                TruthRawOperationPhase.CANCELLED -> "Proces geannuleerd"
-            }
-        }, LinearLayout.LayoutParams(dp(10), dp(10)).apply { marginEnd = dp(8) })
-
-        addView(vertical().apply {
-            addView(label(state.message, 10.5f, muted = true))
-            if (state.phase == TruthRawOperationPhase.RUNNING) {
-                addView(Chronometer(this@MainActivity).apply {
-                    base = state.startedAtElapsedMs
-                    textSize = 10f
-                    setTextColor(palette.textMuted)
-                    format = "Looptijd %s"
-                    start()
-                })
-            } else {
-                val seconds = state.elapsedMs() / 1000L
-                val minutes = seconds / 60L
-                val remainder = seconds % 60L
-                val prefix = when (state.phase) {
-                    TruthRawOperationPhase.SUCCESS -> "Gereed in"
-                    TruthRawOperationPhase.ERROR -> "Gestopt na"
-                    TruthRawOperationPhase.CANCELLED -> "Geannuleerd na"
-                    TruthRawOperationPhase.RUNNING -> "Looptijd"
-                }
-                addView(label(
-                    "%s %02d:%02d".format(prefix, minutes, remainder),
-                    9.5f,
-                    muted = true,
-                ))
-            }
-        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-    }
-
-    private fun captureUiContinuity(): UiContinuitySnapshot {
-        val content = window.decorView.findViewById<View>(android.R.id.content)
-        val scrolls = linkedMapOf<String, Int>()
-        fun visit(view: View?) {
-            if (view == null) return
-            val viewTag = view.tag as? String
-            if (view is ScrollView && viewTag?.startsWith("truthraw-scroll:") == true) {
-                scrolls[viewTag] = view.scrollY
-            }
-            if (view is ViewGroup) {
-                for (index in 0 until view.childCount) visit(view.getChildAt(index))
-            }
-        }
-        visit(content)
-        return UiContinuitySnapshot(
-            focusedTag = currentFocus?.tag as? String,
-            scrollYByTag = scrolls,
-        )
-    }
-
-    private fun restoreUiContinuity(root: View, snapshot: UiContinuitySnapshot) {
-        root.post {
-            fun findByTag(view: View, wanted: String): View? {
-                if (view.tag == wanted) return view
-                if (view is ViewGroup) {
-                    for (index in 0 until view.childCount) {
-                        findByTag(view.getChildAt(index), wanted)?.let { return it }
-                    }
-                }
-                return null
-            }
-            snapshot.scrollYByTag.forEach { (tag, y) ->
-                (findByTag(root, tag) as? ScrollView)?.scrollTo(0, y)
-            }
-            snapshot.focusedTag?.let { tag ->
-                findByTag(root, tag)?.requestFocus()
-            }
-        }
     }
 
     private fun rounded(color: Int, radiusDp: Float): GradientDrawable = GradientDrawable().apply {
