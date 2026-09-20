@@ -244,18 +244,26 @@ object RestorationProjectionExporter {
                     prefix[0] == 'I'.code.toByte() && prefix[1] == 'I'.code.toByte() &&
                     prefix[2] == 42.toByte() && prefix[3] == 0.toByte()
                 val text = prefix.toString(Charsets.ISO_8859_1)
-                if (!tiff || !text.contains("TRUTHRAW_RESTORATION_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION_V0_69")) {
-                    false to "DNG/TIFF header of TruthRaw private role ontbreekt"
-                } else true to "DNG header + private role geldig"
+                if (!tiff ||
+                    !text.contains("TRUTHRAW_RESTORATION_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION_V0_69") ||
+                    !text.contains("restoration_role_mask_sha256=") ||
+                    !text.contains("open_scene_state_sha256=")
+                ) {
+                    false to "DNG/TIFF header, role-mask of canonical Open Scene binding ontbreekt"
+                } else true to "DNG header + derivative/role/Open-Scene binding geldig"
             }
             RestorationProjectionFormat.TIFF -> {
                 val tiff = prefix.size >= 4 &&
                     prefix[0] == 'I'.code.toByte() && prefix[1] == 'I'.code.toByte() &&
                     prefix[2] == 42.toByte() && prefix[3] == 0.toByte()
                 val text = prefix.toString(Charsets.ISO_8859_1)
-                if (!tiff || !text.contains("TruthRaw Restoration Projection v0.69")) {
-                    false to "TIFF header/provenance ontbreekt"
-                } else true to "TIFF header/provenance geldig"
+                if (!tiff ||
+                    !text.contains("TruthRaw Restoration Projection v0.69") ||
+                    !text.contains("restoration_role_mask_sha256=") ||
+                    !text.contains("open_scene_artifact_sha256=")
+                ) {
+                    false to "TIFF header/provenance/role-mask/Open-Scene binding ontbreekt"
+                } else true to "TIFF header + provenance + role/Open-Scene binding geldig"
             }
             RestorationProjectionFormat.EXR -> {
                 val exr = prefix.size >= 4 &&
@@ -265,10 +273,12 @@ object RestorationProjectionExporter {
                     (prefix[3].toInt() and 0xff) == 0x01
                 val text = prefix.toString(Charsets.ISO_8859_1)
                 if (!exr || !text.contains("truthrawProvenance") ||
-                    !text.contains("TruthRaw Restoration Projection v0.69")
+                    !text.contains("TruthRaw Restoration Projection v0.69") ||
+                    !text.contains("restoration_role_mask_sha256=") ||
+                    !text.contains("open_scene_artifact_sha256=")
                 ) {
-                    false to "OpenEXR magic/provenance ontbreekt"
-                } else true to "OpenEXR header/provenance geldig"
+                    false to "OpenEXR magic/provenance/role-mask/Open-Scene binding ontbreekt"
+                } else true to "OpenEXR header + provenance + role/Open-Scene binding geldig"
             }
         }
     }
