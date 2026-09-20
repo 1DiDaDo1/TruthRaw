@@ -38,6 +38,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
         setContentView(buildUi())
     }
 
+    override fun onResume() {
+        super.onResume()
+        setContentView(buildUi())
+    }
+
     private fun buildUi(): ScrollView {
         val root = vertical().apply {
             setBackgroundColor(backgroundColor)
@@ -45,7 +50,52 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }
 
         root.addView(header())
-        root.addView(space(if (compactHeight) 12 else 22))
+        root.addView(space(if (compactHeight) 12 else 20))
+        root.addView(title("Kies route", if (compactHeight) 24f else 27f))
+        root.addView(body("Alle routes vertrekken uit dezelfde verzegelde bron en Scientific Master.", if (compactHeight) 12.5f else 14f))
+        root.addView(space(10))
+
+        val selected = preferredOutput()
+        root.addView(routeCard(
+            titleText = "TRUTHRAW PURE",
+            subtitleText = "Direct · wetenschappelijk",
+            detail = "Kortste route naar de self-binding 32-bit Float scientific projectie. Geen appearance.",
+            accent = cyan,
+            selected = selected == OUTPUT_PURE,
+        ) { setPreferredOutput(OUTPUT_PURE) })
+        root.addView(space(9))
+        root.addView(routeCard(
+            titleText = "TRUTHRAW ADVANCED",
+            subtitleText = "Fotografische ontwikkeling",
+            detail = "Light · authority-aware HDR · Detail · Restoration. Scientific Master blijft onaangeraakt.",
+            accent = amber,
+            selected = selected == OUTPUT_ADVANCED,
+        ) { setPreferredOutput(OUTPUT_ADVANCED) })
+        root.addView(space(9))
+        root.addView(routeCard(
+            titleText = "TRUTHRAW PRO",
+            subtitleText = "Professionele werkbank",
+            detail = "Color · illumination · precision · projecties · provenance en uitgebreide exports.",
+            accent = purple,
+            selected = selected == OUTPUT_PRO,
+        ) { setPreferredOutput(OUTPUT_PRO) })
+
+        if (selected == OUTPUT_ADVANCED || selected == OUTPUT_PRO) {
+            root.addView(space(8))
+            root.addView(action(
+                if (selected == OUTPUT_ADVANCED) "Advanced instellingen" else "Open professionele werkbank",
+            ) {
+                startActivity(
+                    Intent(
+                        this,
+                        if (selected == OUTPUT_ADVANCED) TruthRawAdvancedActivity::class.java
+                        else TruthRawProActivity::class.java,
+                    ),
+                )
+            })
+        }
+
+        root.addView(space(if (compactHeight) 16 else 24))
         root.addView(title("Kies invoer", if (compactHeight) 24f else 27f))
         root.addView(body("Waar komt je foto vandaan?", if (compactHeight) 13.5f else 15f))
         root.addView(space(if (compactHeight) 8 else 12))
@@ -58,6 +108,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                     accent = blue,
                 ) {
                     startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                         putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
                     })
                 },
@@ -67,7 +118,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 inputCard(
                     iconRes = R.drawable.ic_camera_truthraw,
                     titleText = "Gebruik camera",
-                    subtitleText = "Maak direct een nieuwe opname via de RAW-ingang.",
+                    subtitleText = "Maak één fysieke RAW-opname en ga via dezelfde admission.",
                     accent = blue,
                 ) {
                     startActivity(
@@ -83,73 +134,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
             )
         })
 
-        root.addView(space(if (compactHeight) 14 else 24))
-        root.addView(title("Kies uitvoer", if (compactHeight) 24f else 27f))
-        root.addView(body("Je voorkeur bepaalt welke echte exportactie na verwerking bovenaan staat.", if (compactHeight) 12.5f else 14f))
-        root.addView(space(if (compactHeight) 8 else 12))
-
-        val selected = preferredOutput()
-        root.addView(horizontal().apply {
-            addView(
-                outputCard(
-                    titleText = "JPG",
-                    subtitleText = "Universeel",
-                    detail = "Finalized sRGB preview",
-                    accent = blue,
-                    selected = selected == OUTPUT_JPG,
-                    enabled = true,
-                ) { setPreferredOutput(OUTPUT_JPG) },
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
-            )
-            addView(
-                outputCard(
-                    titleText = "JPG XL",
-                    subtitleText = "Hoge kwaliteit",
-                    detail = "Nog niet toegelaten",
-                    accent = purple,
-                    selected = false,
-                    enabled = false,
-                ) {},
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
-            )
-        })
-        root.addView(space(if (compactHeight) 8 else 12))
-        root.addView(horizontal().apply {
-            addView(
-                outputCard(
-                    titleText = "TRUTHRAW PURE",
-                    subtitleText = "Wetenschappelijk",
-                    detail = "32-bit Float DNG · self-binding",
-                    accent = cyan,
-                    selected = selected == OUTPUT_PURE,
-                    enabled = true,
-                ) { setPreferredOutput(OUTPUT_PURE) },
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
-            )
-            addView(
-                outputCard(
-                    titleText = "TRUTHRAW ADVANCED",
-                    subtitleText = "Volledige controle",
-                    detail = "Natural HDR · Light · Detail · Restoration",
-                    accent = amber,
-                    selected = selected == OUTPUT_ADVANCED,
-                    enabled = true,
-                ) {
-                    startActivity(
-                        Intent(
-                            this@TruthRawSuiteLauncherActivity,
-                            TruthRawAdvancedActivity::class.java,
-                        ),
-                    )
-                },
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
-            )
-        })
-
         root.addView(space(if (compactHeight) 14 else 22))
-        root.addView(infoStrip())
+        root.addView(infoStrip(selected))
         root.addView(space(8))
-        root.addView(body("v0.83 · HDR authority · presentation ≠ scientific gain", 11f).apply {
+        root.addView(body("v0.83.1 · drie routes · sealed source → Scientific Master → vrije ontwikkeling", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -204,6 +192,33 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }, LinearLayout.LayoutParams(dp(if (compactHeight) 48 else 54), dp(if (compactHeight) 48 else 54)))
     }
 
+    private fun routeCard(
+        titleText: String,
+        subtitleText: String,
+        detail: String,
+        accent: Int,
+        selected: Boolean,
+        action: () -> Unit,
+    ): View = horizontal().apply {
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(15), dp(14), dp(15), dp(14))
+        background = cardBackground(if (selected) Color.rgb(12, 31, 52) else surface, accent, selected)
+        addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
+            text = if (selected) "✓" else "○"
+            textSize = 24f
+            gravity = Gravity.CENTER
+            setTextColor(if (selected) accent else textMuted)
+        }, LinearLayout.LayoutParams(dp(38), dp(44)).apply { marginEnd = dp(8) })
+        addView(vertical().apply {
+            addView(title(titleText, if (compactHeight) 16f else 18f))
+            addView(space(2))
+            addView(body(subtitleText, if (compactHeight) 11.5f else 12.5f))
+            addView(space(4))
+            addView(body(detail, if (compactHeight) 10.5f else 11.5f))
+        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        setOnClickListener { action() }
+    }
+
     private fun inputCard(
         iconRes: Int,
         titleText: String,
@@ -214,7 +229,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         val pad = if (compactHeight) 11 else 14
         setPadding(dp(pad), dp(pad), dp(pad), dp(pad))
         background = cardBackground(surfaceSoft, accent, true)
-        minimumHeight = dp(if (compactHeight) 158 else 185)
+        minimumHeight = dp(if (compactHeight) 150 else 174)
 
         addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
             setImageResource(iconRes)
@@ -222,11 +237,10 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setPadding(dp(8), dp(8), dp(8), dp(8))
             background = cardBackground(Color.rgb(8, 30, 56), accent, false)
         }, LinearLayout.LayoutParams(dp(if (compactHeight) 46 else 54), dp(if (compactHeight) 46 else 54)))
-        addView(space(if (compactHeight) 9 else 14))
+        addView(space(if (compactHeight) 9 else 12))
         addView(title(titleText, if (compactHeight) 16.5f else 18f))
         addView(space(4))
         addView(body(subtitleText, if (compactHeight) 11.5f else 12.5f))
-        addView(space(if (compactHeight) 6 else 10))
         addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
             text = "›"
             textSize = 31f
@@ -236,90 +250,32 @@ class TruthRawSuiteLauncherActivity : Activity() {
         setOnClickListener { action() }
     }
 
-    private fun outputCard(
-        titleText: String,
-        subtitleText: String,
-        detail: String,
-        accent: Int,
-        selected: Boolean,
-        enabled: Boolean,
-        action: () -> Unit,
-    ): View = vertical().apply {
-        val pad = if (compactHeight) 10 else 13
-        setPadding(dp(pad), dp(pad), dp(pad), dp(pad))
-        background = cardBackground(if (selected) Color.rgb(12, 31, 52) else surface, accent, selected)
-        alpha = if (enabled) 1f else 0.56f
-
-        val isTruthRaw = titleText.startsWith("TRUTHRAW ")
-        minimumHeight = dp(
-            if (compactHeight) {
-                if (isTruthRaw) 132 else 124
-            } else {
-                if (isTruthRaw) 158 else 142
-            },
-        )
-
-        addView(horizontal().apply {
-            gravity = Gravity.TOP
-            minimumHeight = dp(
-                if (isTruthRaw) {
-                    if (compactHeight) 40 else 44
-                } else 30,
-            )
-            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
-                text = if (selected) "✓" else "○"
-                textSize = 20f
-                gravity = Gravity.CENTER
-                setTextColor(if (selected) accent else textMuted)
-            }, LinearLayout.LayoutParams(dp(28), dp(30)).apply { marginEnd = dp(7) })
-
-            val displayTitle = when (titleText) {
-                "TRUTHRAW PURE" -> "TRUTHRAW\nPURE"
-                "TRUTHRAW ADVANCED" -> "TRUTHRAW\nADVANCED"
-                else -> titleText
-            }
-            addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
-                text = displayTitle
-                textSize = if (compactHeight) {
-                    if (isTruthRaw) 12.2f else 15f
-                } else {
-                    if (isTruthRaw) 13f else 16f
-                }
-                maxLines = if (isTruthRaw) 2 else 1
-                minLines = if (isTruthRaw) 2 else 1
-                setTextColor(textPrimary)
-                setTypeface(typeface, Typeface.BOLD)
-                includeFontPadding = true
-                setLineSpacing(0f, 1.0f)
-            }, LinearLayout.LayoutParams(
-                0,
-                if (isTruthRaw) dp(if (compactHeight) 40 else 44) else ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f,
-            ))
-        })
-        addView(space(if (compactHeight) 4 else 7))
-        addView(body(subtitleText, if (compactHeight) 11f else 12f))
-        addView(space(if (compactHeight) 4 else 7))
-        addView(body(detail, if (compactHeight) 10f else 10.8f).apply {
-            maxLines = if (isTruthRaw) 3 else 2
-        })
-        if (enabled) setOnClickListener { action() }
-    }
-
-    private fun infoStrip(): View = vertical().apply {
+    private fun infoStrip(selected: String): View = vertical().apply {
         setPadding(dp(14), dp(if (compactHeight) 10 else 13), dp(14), dp(if (compactHeight) 10 else 13))
         background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
-        addView(title("PURE blijft meetbaar", 14f))
+        val heading = when (selected) {
+            OUTPUT_ADVANCED -> "ADVANCED bouwt vrij bovenop dezelfde master"
+            OUTPUT_PRO -> "PRO toont de bouwtekeningen"
+            else -> "PURE blijft de rechte meetbare route"
+        }
+        val detail = when (selected) {
+            OUTPUT_ADVANCED -> "Appearance, HDR, Light, Detail en Restoration schrijven nooit terug naar de sealed source of Scientific Master."
+            OUTPUT_PRO -> "Professionele opties veranderen precision- en exportkeuzes, niet de herkomst of evidence-authority."
+            else -> "Sealed source → Scientific Master → PURE-projectie. Geen tone, relight of appearance in de route."
+        }
+        addView(title(heading, 14f))
         addView(space(4))
-        addView(body(
-            if (compactHeight) {
-                "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority."
-            } else {
-                "De UI verandert geen Scientific Master, Zero-Line, scene-scale, Backplane of evidence-authority. " +
-                    "TN-3/Open Scene blijft beschikbaar in de wetenschappelijke verwerkingsroute."
-            },
-            if (compactHeight) 10.8f else 11.5f,
-        ))
+        addView(body(detail, if (compactHeight) 10.8f else 11.5f))
+    }
+
+    private fun action(label: String, onClick: () -> Unit): View = TextView(this).apply {
+        text = label
+        textSize = 13.5f
+        setTextColor(textPrimary)
+        gravity = Gravity.CENTER
+        setPadding(dp(13), dp(12), dp(13), dp(12))
+        background = cardBackground(surfaceSoft, Color.rgb(44, 75, 111), false)
+        setOnClickListener { onClick() }
     }
 
     private fun setPreferredOutput(mode: String) {
@@ -331,7 +287,11 @@ class TruthRawSuiteLauncherActivity : Activity() {
         val value = getSharedPreferences(PREFS, MODE_PRIVATE)
             .getString(KEY_OUTPUT, OUTPUT_PURE)
             ?: OUTPUT_PURE
-        return if (value == OUTPUT_NEGATIVE) OUTPUT_PURE else value
+        return when (value) {
+            OUTPUT_ADVANCED, OUTPUT_PRO, OUTPUT_PURE -> value
+            OUTPUT_JPG -> OUTPUT_ADVANCED
+            else -> OUTPUT_PURE
+        }
     }
 
     private fun cardBackground(fill: Int, stroke: Int, selected: Boolean): GradientDrawable =
@@ -365,8 +325,9 @@ class TruthRawSuiteLauncherActivity : Activity() {
         const val PREFS = "truthraw_ui"
         const val KEY_OUTPUT = "preferred_output"
         const val OUTPUT_PURE = "PURE"
-        const val OUTPUT_JPG = "JPG"
         const val OUTPUT_ADVANCED = "ADVANCED"
+        const val OUTPUT_PRO = "PRO"
+        const val OUTPUT_JPG = "JPG"
         const val OUTPUT_NEGATIVE = "NEGATIVE"
     }
 }
