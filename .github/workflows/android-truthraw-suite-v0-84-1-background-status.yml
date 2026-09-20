@@ -1,0 +1,83 @@
+name: TruthRaw v0.84.1 Background Status
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-1-focus-operation-status
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - '.github/workflows/android-truthraw-suite-v0-84-1-background-status.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify background execution and status contracts
+        run: |
+          set -euo pipefail
+          JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+
+          grep -F 'FOREGROUND_SERVICE_MEDIA_PROCESSING' "$MANIFEST"
+          grep -F 'android:foregroundServiceType="mediaProcessing"' "$MANIFEST"
+          grep -F 'class TruthRawMediaProcessingForegroundService'             "$JAVA/TruthRawMediaProcessingForegroundService.kt"
+          grep -F 'FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING'             "$JAVA/TruthRawMediaProcessingForegroundService.kt"
+          grep -F 'PowerManager.PARTIAL_WAKE_LOCK'             "$JAVA/TruthRawMediaProcessingForegroundService.kt"
+          grep -F 'setUsesChronometer(ongoing)'             "$JAVA/TruthRawMediaProcessingForegroundService.kt"
+          grep -F 'TruthRawOperationStore' "$JAVA/MainActivity.kt"
+          grep -F 'Color.rgb(65, 196, 106)' "$JAVA/MainActivity.kt"
+          grep -F 'Color.rgb(232, 73, 73)' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("preview"' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("jpeg"' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("jpgl-raw-edit"' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("pure-float32"' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("truthnegative"' "$JAVA/MainActivity.kt"
+          grep -F 'backgroundOperationKey("linear-dng"' "$JAVA/MainActivity.kt"
+          grep -F 'restorationProjectionStatusView' "$JAVA/MainActivity.kt"
+
+          # Camera autofocus is intentionally untouched by this UI/background fix.
+          git diff --exit-code             integration/truthraw-suite-v0-84-lightroom-float32-output-authority...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v0-84-1-background-status-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
