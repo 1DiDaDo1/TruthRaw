@@ -288,11 +288,10 @@ class MainActivity : Activity() {
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            // JPG-L is a JPEG-compatible layered photograph. Android/Gallery
-            // must see the ordinary JPEG identity; TruthRaw detects the layer
-            // by the TRJPGL footer at EOF.
-            type = "image/jpeg"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_layered_v0_2.jpg")
+            // JPG-L v0.3 RAW/Edit: Float32 DNG is the primary Lightroom-editable
+            // image. JPEG remains preview/delivery only and is never the authority.
+            type = "image/x-adobe-dng"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_jpgl_raw_edit_v0_3.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPG_L)
     }
@@ -574,7 +573,7 @@ class MainActivity : Activity() {
             pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
-                jpgLStatus = "JPG-L-export geannuleerd."
+                jpgLStatus = "JPG-L RAW/Edit-export geannuleerd."
                 render()
                 return
             }
@@ -583,33 +582,42 @@ class MainActivity : Activity() {
             if (expectedJob == null || job == null || ready == null ||
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
-                jpgLStatus = "JPG-L geblokkeerd: actieve TruthRaw-route veranderde."
+                jpgLStatus = "JPG-L RAW/Edit geblokkeerd: actieve TruthRaw-route veranderde."
                 render()
                 return
             }
 
-            jpgLStatus = "JPG-L · layered photograph wordt opgebouwd… full-res JPEG + TN-3 Float32/Open Scene + manifest."
+            jpgLStatus =
+                "JPG-L RAW/Edit · 32-bit Float DNG wordt opgebouwd… " +
+                    "Float32 is primaire editlaag; Advanced blijft non-destructief recipe."
             render()
             Thread({
-                val dir = File(filesDir, "jpgl_export/$expectedJob").apply { mkdirs() }
-                val exported = JpgLExporter.export(
-                    contentResolver, job, destination, route, flags, quarterTurns, dir,
+                val exportResult = PureFloat32DngExporter.export(
+                    contentResolver,
+                    job,
+                    destination,
+                    quarterTurns,
+                    Float32DngExportFlavor.JPGL_RAW_EDIT,
+                    flags,
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
-                    jpgLStatus = when (exported) {
-                        is JpgLResult.Failed -> exported.reason
-                        is JpgLResult.Success -> {
-                            val m = exported.metrics
-                            "JPG-L v0.1 gereed + teruggeverifieerd · ${m.width}×${m.height} · " +
-                                "${formatBytes(m.outputBytes)} · JPEG=${formatBytes(m.jpegBytes)} · " +
-                                "Float32/OpenScene=${formatBytes(m.scienceBytes)} · 64-bit chunk offsets · " +
-                                "container SHA=${m.containerSha256.take(16)}…"
+                    jpgLStatus = when (exportResult) {
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                        is PureFloat32DngExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "JPG-L RAW/Edit v0.3 gereed · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · IEEE Float32 · " +
+                                "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
+                                "Advanced recipe flags=$flags · route=$route · " +
+                                "Scientific Master replay=${m.scientificMasterIdentityVerified} · " +
+                                "self/edit-binding=${m.postWriteSelfBindingVerified} · " +
+                                "rotatie=${quarterTurns * 90}°."
                         }
                     }
                     render()
                 }
-            }, "truthraw-jpgl-${job.id.take(8)}").start()
+            }, "truthraw-jpgl-raw-edit-${job.id.take(8)}").start()
             return
         }
 
@@ -1430,14 +1438,14 @@ class MainActivity : Activity() {
                         addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
                         jpegStatus?.let { addView(label(it, 10f, muted = true)) }
                         addView(space(5))
-                        addView(actionButton("JPG-L · layered Float32/Open Scene") {
+                        addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
                             launchJpgLExport(active)
                         })
                         jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
                         addView(label(
-                            "JPG-L bevat een full-resolution ontwikkelde JPEG-voorkant én de TN-3 camera-native Float32 Scientific Master/Open Scene achterkant. " +
-                                "Natural HDR in de voorkant blijft APPEARANCE_ONLY; Restoration blijft AESTHETIC_REINTEGRATION_ONLY. " +
-                                "Geen van beide schrijft terug naar de Scientific Master.",
+                            "JPG-L RAW/Edit gebruikt Float32 Linear DNG als primaire bewerkbare afbeelding. " +
+                                "Negatieve en >1 waarden blijven behouden; Advanced-instellingen worden als non-destructief recipe gebonden. " +
+                                "De gewone JPG blijft uitsluitend preview/delivery.",
                             10f,
                             muted = true,
                         ))
@@ -1463,7 +1471,7 @@ class MainActivity : Activity() {
                         })
                         jpegStatus?.let { addView(label(it, 10f, muted = true)) }
                         addView(space(5))
-                        addView(actionButton("JPG-L · layered photograph v0.1") {
+                        addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
                             launchJpgLExport(active)
                         })
                         jpgLStatus?.let { addView(label(it, 10f, muted = true)) }
