@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-69-tn3-open-scene-projection":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-70-canonical-open-scene-role-binding":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -364,6 +364,43 @@ for cable in (
 ):
     if v069_cables.get(cable) != "OPEN":
         errors.append("v069_loose_cable_state_must_remain_explicit_" + cable)
+
+v070 = (((current_state.get("multiVendorRaw") or {}).get("v070")) or {})
+v070_scene = v070.get("canonicalOpenScene") or {}
+v070_role = v070.get("restorationRoleMaskBinding") or {}
+v070_cables = v070.get("directLooseCables") or {}
+if v070.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v070_must_keep_v063_pure_writer_contract")
+if v070_scene.get("schema") != "TruthRawOpenSceneCanonicalState/0.70":
+    errors.append("v070_open_scene_schema_mismatch")
+if v070_scene.get("semanticParentRegion") != "TruthRawOpenSceneRegion/0.7":
+    errors.append("v070_region_parent_mismatch")
+if v070_scene.get("semanticParentStream") != "TruthRawOpenSceneStateSummary/0.8":
+    errors.append("v070_stream_parent_mismatch")
+if v070_scene.get("chunkingChangesScientificIdentity") is not False:
+    errors.append("v070_chunking_may_not_change_scene_identity")
+if v070_scene.get("scientificMasterWritebackAllowed") is not False:
+    errors.append("v070_open_scene_writeback_forbidden")
+if v070_scene.get("createsNewEvidence") is not False:
+    errors.append("v070_open_scene_may_not_create_evidence")
+if v070_scene.get("physicalFrameCount") != 1 or v070_scene.get("independentEvidenceCount") != 1:
+    errors.append("v070_frame_evidence_must_remain_one_one")
+if v070_role.get("exactMaskSha256ComputedFromTrr") is not True:
+    errors.append("v070_role_mask_exact_hash_required")
+if v070_role.get("dngPrivateBinding") is not True or v070_role.get("tiffProvenanceBinding") is not True or v070_role.get("exrProvenanceBinding") is not True:
+    errors.append("v070_role_mask_must_bind_all_normal_projections")
+if v070_role.get("fullMaskBytesRemainInTrr") is not True:
+    errors.append("v070_full_role_mask_source_must_remain_trr")
+if v070_role.get("selfContainedMaskEmbeddingReady") is not False:
+    errors.append("v070_self_contained_mask_embedding_must_remain_open")
+if v070_cables.get("canonicalOpenSceneBinding") != "PARTIAL_V070_TN3_AND_PROJECTIONS_CONNECTED":
+    errors.append("v070_canonical_open_scene_cable_state_mismatch")
+if v070_cables.get("restorationRoleMaskExportBinding") != "PARTIAL_V070_EXACT_HASH_BOUND_ALL_NORMAL_PROJECTIONS":
+    errors.append("v070_role_mask_cable_state_mismatch")
+if v070_cables.get("externalDngTiffExrConformance") != "OPEN":
+    errors.append("v070_external_conformance_must_remain_open")
+if v070_cables.get("effectfulCensoredRestorationDeviceValidation") != "OPEN":
+    errors.append("v070_effectful_restoration_validation_must_remain_open")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
