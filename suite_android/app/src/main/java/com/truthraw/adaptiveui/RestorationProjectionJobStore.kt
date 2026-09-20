@@ -25,7 +25,7 @@ data class RestorationProjectionJobSnapshot(
 )
 
 object RestorationProjectionJobStore {
-    private const val PREFS = "truthraw_restoration_projection_v069"
+    private const val PREFS = "truthraw_restoration_projection_v071"
 
     fun begin(
         context: Context,
