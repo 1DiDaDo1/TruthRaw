@@ -1,7 +1,7 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-19",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-69-tn3-open-scene-projection",
+  "activeBranch": "integration/truthraw-suite-v0-70-canonical-open-scene-role-binding",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
   "permanentLaws": {
     "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
@@ -723,6 +723,63 @@
         "extractedApkSha256": "9f14ca159b1c4b3615e0b897355e648b0f37d4cd91477ca1dc692d0407b7126e"
       },
       "realDeviceValidation": "PENDING_V069_TN3_AND_DNG_TIFF_EXR_ARTIFACT_TEST"
+    },
+    "v070": {
+      "branch": "integration/truthraw-suite-v0-70-canonical-open-scene-role-binding",
+      "appVersion": "0.35-v0.70-canonical-open-scene-role-binding",
+      "role": "CANONICAL_OPEN_SCENE_AND_RESTORATION_ROLE_MASK_BINDING",
+      "inheritsV069Tn3AndProjection": true,
+      "pureWriterContractUnchanged": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+      "canonicalOpenScene": {
+        "schema": "TruthRawOpenSceneCanonicalState/0.70",
+        "semanticParentRegion": "TruthRawOpenSceneRegion/0.7",
+        "semanticParentStream": "TruthRawOpenSceneStateSummary/0.8",
+        "perPixelStates": 6,
+        "directCfaChannelIdentityPreserved": true,
+        "dynamicAuthorityArtifactSha256": true,
+        "contentSha256": true,
+        "policySha256": true,
+        "artifactSha256": true,
+        "chunkingChangesScientificIdentity": false,
+        "colourAuthority": "SOURCE_METADATA_BOUND",
+        "illuminationAuthority": "SOURCE_BOUND_ESTIMATE",
+        "detailStatus": "NEUTRAL_OR_BLOCKED",
+        "counterfactualPixelCount": 0,
+        "scientificMasterWritebackAllowed": false,
+        "createsNewEvidence": false,
+        "physicalFrameCount": 1,
+        "independentEvidenceCount": 1,
+        "consumers": [
+          "TN3",
+          "DNG_PROJECTION",
+          "TIFF_PROJECTION",
+          "EXR_PROJECTION"
+        ],
+        "advancedExactArtifactPropagation": "OPEN",
+        "trrContainerExactArtifactPropagation": "OPEN"
+      },
+      "restorationRoleMaskBinding": {
+        "exactMaskSha256ComputedFromTrr": true,
+        "dngPrivateBinding": true,
+        "tiffProvenanceBinding": true,
+        "exrProvenanceBinding": true,
+        "dngRequiresNonzeroRoleMaskHash": true,
+        "fullMaskBytesRemainInTrr": true,
+        "selfContainedMaskEmbeddingReady": false,
+        "companionMaskSidecarReady": false
+      },
+      "directLooseCables": {
+        "roadmap": "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
+        "canonicalOpenSceneBinding": "PARTIAL_V070_TN3_AND_PROJECTIONS_CONNECTED",
+        "restorationRoleMaskExportBinding": "PARTIAL_V070_EXACT_HASH_BOUND_ALL_NORMAL_PROJECTIONS",
+        "externalDngTiffExrConformance": "OPEN",
+        "effectfulCensoredRestorationDeviceValidation": "OPEN"
+      },
+      "documentation": "docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md",
+      "ci": {
+        "status": "PENDING_FIRST_V070_RUN"
+      },
+      "realDeviceValidation": "PENDING_V070_APK_TN3_AND_PROJECTION_TEST"
     }
   },
   "camera5ReferencePrecedence": [
@@ -743,20 +800,20 @@
     "nativeFull200mpAdcProven": false
   },
   "immediateNextSafeWork": [
-    "FINISH_V069_ANDROID_BUILD_AND_VERIFY_APK",
-    "CANONICALIZE_TN3_OPEN_SCENE_WITH_RECOVERED_V07_V08_RUNTIME",
-    "BIND_FULL_RESTORATION_ROLE_MASK_DIGEST_INTO_EACH_NORMAL_PROJECTION",
+    "BUILD_AND_VERIFY_V070_ANDROID_APK",
+    "PROPAGATE_CANONICAL_OPEN_SCENE_ARTIFACT_IDENTITY_INTO_ADVANCED_AND_TRR_CONTAINER",
+    "IMPLEMENT_FULL_ROLE_MASK_EMBEDDING_OR_VERSIONED_COMPANION_SIDECAR",
     "RUN_INDEPENDENT_DNG_TIFF_EXR_CONFORMANCE_VALIDATION",
     "RUN_EFFECTFUL_FULLRES_RESTORATION_TEST_ON_DNG_WITH_CENSORED_CFA_SUPPORT",
     "THEN_VERSION_CURRENT_PTC_OVER_CONNECTED_LINEAGE",
-    "KEEP_V063_PURE_AND_V067_RESTORATION_SCIENCE_UNCHANGED"
+    "KEEP_V063_PURE_AND_V067_RESTORATION_ALGORITHM_UNCHANGED"
   ],
   "nextChatReadOrder": [
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md",
     "state/CURRENT_PROJECT_STATE_2026-09-19.json",
+    "docs/TRUTHRAW_V070_CANONICAL_OPEN_SCENE_ROLE_BINDING_2026-09-20.md",
     "docs/TRUTHRAW_POST_V069_LOOSE_CABLE_ROADMAP_2026-09-20.md",
     "docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md",
-    "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md",
-    "docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md"
+    "docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md"
   ]
 }
