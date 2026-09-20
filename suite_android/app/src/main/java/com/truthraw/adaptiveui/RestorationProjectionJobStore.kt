@@ -5,6 +5,7 @@ import android.net.Uri
 import java.io.File
 
 enum class RestorationProjectionJobPhase(val terminal: Boolean) {
+    STARTING(false),
     STAGING(false),
     COMMITTING(false),
     VERIFYING(false),
@@ -21,11 +22,13 @@ data class RestorationProjectionJobSnapshot(
     val format: RestorationProjectionFormat,
     val phase: RestorationProjectionJobPhase,
     val message: String,
+    val startedAtMs: Long,
     val updatedAtMs: Long,
 )
 
 object RestorationProjectionJobStore {
-    private const val PREFS = "truthraw_restoration_projection_v071"
+    private const val PREFS = "truthraw_restoration_projection_v072"
+    private const val STARTUP_GRACE_MS = 30_000L
 
     fun begin(
         context: Context,
@@ -35,16 +38,18 @@ object RestorationProjectionJobStore {
         staging: File,
         format: RestorationProjectionFormat,
     ) {
+        val now = System.currentTimeMillis()
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putString("source", sourceUri.toString())
             .putString("trr", trrUri.toString())
             .putString("destination", destinationUri.toString())
             .putString("staging", staging.absolutePath)
             .putString("format", format.name)
-            .putString("phase", RestorationProjectionJobPhase.STAGING.name)
-            .putString("message", "${format.label}-projectie foreground staging gestart.")
-            .putLong("updated", System.currentTimeMillis())
-            .apply()
+            .putString("phase", RestorationProjectionJobPhase.STARTING.name)
+            .putString("message", "${format.label}-projectie wordt gestart…")
+            .putLong("started", now)
+            .putLong("updated", now)
+            .commit()
     }
 
     fun update(
@@ -71,6 +76,8 @@ object RestorationProjectionJobStore {
         val phase = runCatching {
             RestorationProjectionJobPhase.valueOf(p.getString("phase", "") ?: "")
         }.getOrNull() ?: return null
+        val updated = p.getLong("updated", 0L)
+        val started = p.getLong("started", updated)
         return RestorationProjectionJobSnapshot(
             sourceUri = source,
             trrUri = trr,
@@ -79,13 +86,25 @@ object RestorationProjectionJobStore {
             format = format,
             phase = phase,
             message = p.getString("message", "") ?: "",
-            updatedAtMs = p.getLong("updated", 0L),
+            startedAtMs = started,
+            updatedAtMs = updated,
         )
     }
 
     fun recoverInterruptedIfNeeded(context: Context): RestorationProjectionJobSnapshot? {
         val snapshot = read(context) ?: return null
-        if (snapshot.phase.terminal || RestorationProjectionForegroundService.isRunning) return snapshot
+        if (snapshot.phase.terminal || RestorationProjectionForegroundService.isRunning) {
+            return snapshot
+        }
+
+        // ACTION_CREATE_DOCUMENT returns to MainActivity very close to the moment
+        // startForegroundService() is issued. Service.onCreate() may not have run yet.
+        // Never classify that normal startup window as an interrupted export.
+        val age = System.currentTimeMillis() - snapshot.updatedAtMs
+        if (age in 0 until STARTUP_GRACE_MS) {
+            return snapshot
+        }
+
         runCatching { File(snapshot.stagingPath).delete() }
         runCatching {
             RestorationProjectionExporter.cleanup(
@@ -96,8 +115,13 @@ object RestorationProjectionJobStore {
         update(
             context,
             RestorationProjectionJobPhase.STALE_CLEANED,
-            "Onderbroken ${snapshot.format.label}-projectie opgeruimd; geen gedeeltelijk doelbestand blijft geldig.",
+            "Onderbroken ${snapshot.format.label}-projectie veilig opgeruimd na startup-grace; " +
+                "geen gedeeltelijk doelbestand blijft geldig.",
         )
         return read(context)
+    }
+
+    fun clear(context: Context) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()
     }
 }
