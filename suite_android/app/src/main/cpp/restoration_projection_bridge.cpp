@@ -574,7 +574,7 @@ bool write_tiff(
     const std::uint32_t dataStart=align4(cursor);
     for(auto& x:e)if(x.tag==324){for(std::size_t i=0;i<trr.tileCount();++i)store_u32_le(x.payload,i*4u,dataStart+static_cast<std::uint32_t>(i)*tileBytes);}
     std::vector<std::uint8_t> header;header.push_back('I');header.push_back('I');put_u16_le(header,42);put_u32_le(header,8);put_u16_le(header,static_cast<std::uint16_t>(e.size()));
-    for(const auto& x:e){put_u16_le(header,x.tag);put_u16_le(header,x.type);put_u32_le(header,x.count);if(x.payload.size()<=4u){header.insert(header.end(),x.payload.begin(),x.payload.end());while((header.size()%12u)!=2u && header.size()<8u+2u+e.size()*12u){} // no-op guard
+    for(const auto& x:e){put_u16_le(header,x.tag);put_u16_le(header,x.type);put_u32_le(header,x.count);if(x.payload.size()<=4u){header.insert(header.end(),x.payload.begin(),x.payload.end());
             for(std::size_t p=x.payload.size();p<4u;++p)header.push_back(0);}else put_u32_le(header,x.off);}
     put_u32_le(header,0);
     for(const auto& x:e)if(x.payload.size()>4u){header.resize(x.off,0);header.insert(header.end(),x.payload.begin(),x.payload.end());}
