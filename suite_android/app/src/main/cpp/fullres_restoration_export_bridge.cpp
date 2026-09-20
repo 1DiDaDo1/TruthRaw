@@ -115,10 +115,6 @@ jlong science_status(const truthraw::scientific_master_streaming_binding::v0_2::
 jlong phase2_status(const truthraw::technical_backplane_phase2::v0_1::Status& s) {
     return 9000 + static_cast<jlong>(s.code);
 }
-jlong stream_status(const streaming::StreamStatus& s) {
-    return 4000 + static_cast<jlong>(s.code);
-}
-
 bool finite_rgb(const float* p) noexcept {
     return std::isfinite(p[0]) && std::isfinite(p[1]) && std::isfinite(p[2]);
 }
