@@ -7,6 +7,7 @@
 #include "open_scene_channel_authority_v0_78.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "adaptive_detail_v47j_adapter.h"
+#include "output_acutance_v0_81.h"
 #include "truthraw_sha256_v0_69.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -49,10 +50,11 @@ namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace output_acutance = truthraw::output_acutance_v0_81;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 76u;
+constexpr std::size_t kHeaderInts = 96u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -127,6 +129,70 @@ canonical_scene::Digest build_adaptive_detail_binding(
     h.update(little);
     return h.finalize();
 }
+
+canonical_scene::Digest build_output_acutance_binding(
+    const canonical_scene::Digest& openSceneSha256,
+    const canonical_scene::Digest& channelAuthoritySha256,
+    const canonical_scene::Digest& uncertaintyAdmissionSha256,
+    const canonical_scene::Digest& adaptiveDetailBindingSha256,
+    const output_acutance::Result& result,
+    int width,
+    int height) {
+    sha::Hasher h;
+    constexpr char kDomain[] =
+        "TruthRawOutputAcutanceBinding/0.81\n"
+        "canonical_algorithm=canonical/output-acutance/v4.7k\n"
+        "role=POST_FINAL_RESIZE_OUTPUT_ACUTANCE_ONLY\n"
+        "order=FINAL_RESIZE_THEN_ACUTANCE_THEN_HDR_REBASE_THEN_OETF\n"
+        "scientific_master_modified=0\n"
+        "authority_modified=0\n"
+        "creates_optical_or_sensor_evidence=0\n"
+        "zero_upstream_hdr_gain_stays_unity=1\n"
+        "censored_hdr_gain_stays_unity=1\n";
+    h.update(
+        reinterpret_cast<const std::uint8_t*>(kDomain),
+        sizeof(kDomain) - 1u);
+    h.update(openSceneSha256);
+    h.update(channelAuthoritySha256);
+    h.update(uncertaintyAdmissionSha256);
+    h.update(adaptiveDetailBindingSha256);
+
+    const auto put_u32 = [&](std::uint32_t value) {
+        const std::array<std::uint8_t, 4> little{
+            static_cast<std::uint8_t>(value),
+            static_cast<std::uint8_t>(value >> 8u),
+            static_cast<std::uint8_t>(value >> 16u),
+            static_cast<std::uint8_t>(value >> 24u),
+        };
+        h.update(little);
+    };
+    const auto put_u64 = [&](std::uint64_t value) {
+        std::array<std::uint8_t, 8> little{};
+        for (std::size_t i = 0u; i < little.size(); ++i) {
+            little[i] = static_cast<std::uint8_t>(value >> (8u * i));
+        }
+        h.update(little);
+    };
+    const auto put_f32 = [&](float value) {
+        put_u32(std::bit_cast<std::uint32_t>(value));
+    };
+
+    put_u32(static_cast<std::uint32_t>(result.profile));
+    put_u32(result.applied ? 1u : 0u);
+    put_u32(result.hdrRebased ? 1u : 0u);
+    put_u32(static_cast<std::uint32_t>(width));
+    put_u32(static_cast<std::uint32_t>(height));
+    put_f32(result.plan.noiseSigmaAt2Pct);
+    put_f32(result.plan.resizeRatio);
+    put_f32(result.plan.resizeNeed);
+    put_f32(result.plan.strength);
+    put_f32(result.plan.deltaCap);
+    put_u64(result.changedPixels);
+    put_u64(result.hdrRebasedPixels);
+    put_f32(result.maxEffectiveHdrTargetAbsError);
+    return h.finalize();
+}
+
 
 jintArray status_packet(JNIEnv* env, jint status) {
     std::array<jint, kHeaderInts> header{};
