@@ -127,9 +127,12 @@ class TruthRawProActivity : Activity() {
         Thread({
             val text = TruthRawComputeCapabilitiesProbe.probe().fold(
                 onSuccess = { capabilities ->
+                    val systemHeadroom =
+                        TruthRawSystemHeadroomProbe.sample(force = true).getOrNull()
                     val appearancePlan = TruthRawComputeRouterV01.plan(
                         TruthRawComputeClass.APPEARANCE,
                         capabilities,
+                        systemHeadroom,
                     )
                     val cpuPlan = TruthRawCpuSchedulingPolicyV01.plan(
                         context = this@TruthRawProActivity,
@@ -142,6 +145,11 @@ class TruthRawProActivity : Activity() {
                     val apv = TruthRawApvCapabilitiesProbe.probe().getOrNull()
                     buildString {
                         append(capabilities.summary)
+                        append("\n")
+                        append(
+                            systemHeadroom?.summary
+                                ?: "ADPF resource headroom: unavailable/fail-closed",
+                        )
                         append("\nCPU worker plan: ")
                         append(cpuPlan.reason)
                         append("\nCandidates: ")
