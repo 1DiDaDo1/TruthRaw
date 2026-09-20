@@ -40,6 +40,11 @@ jobs:
           grep -F 'scratchRgbOffset_' "$CPP/photo_export_bridge.cpp"
           grep -F 'legacy_display_gain_from_half_log' "$CPP/photo_export_bridge.cpp"
           grep -F 'restorationBaked' "$CPP/photo_export_bridge.cpp"
+          grep -F 'canonical_scene::build_from_source' "$CPP/photo_export_bridge.cpp"
+          grep -F 'channel_authority::build_generic_fail_closed_from_source' "$CPP/photo_export_bridge.cpp"
+          grep -F 'illumination_state::build' "$CPP/photo_export_bridge.cpp"
+          grep -F 'hdr_authority::build' "$CPP/photo_export_bridge.cpp"
+          grep -F 'per_output_channel_authority_available=' "$JAVA/JpgLExport.kt"
           grep -F 'APPEARANCE_ONLY' "$JAVA/MainActivity.kt"
           grep -F 'AESTHETIC_REINTEGRATION_ONLY' "$JAVA/MainActivity.kt"
 
