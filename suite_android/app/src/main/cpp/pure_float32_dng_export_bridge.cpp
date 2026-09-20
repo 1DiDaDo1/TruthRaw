@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <string>
 #include <unistd.h>
 #include <vector>
 
@@ -171,10 +172,18 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint sourceFd,
     jint outputFd,
     jint userQuarterTurns,
+    jint exportMode,
+    jint advancedFlags,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
+    constexpr jint kPureMode = 0;
+    constexpr jint kJpgLRawEditMode = 1;
+    constexpr jint kAllowedAdvancedFlags = 0x0f;
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
+        (exportMode != kPureMode && exportMode != kJpgLRawEditMode) ||
+        (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
+        (exportMode == kPureMode && advancedFlags != 0) ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -282,6 +291,26 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     descriptor.colorBindingId = produced.color.bindingId;
     descriptor.precisionPolicyId = kPurePrecisionPolicyId;
     descriptor.runtimeReconstructionBackendId = reconstruction->name();
+
+    if (exportMode == kJpgLRawEditMode) {
+        descriptor.projectionRole =
+            "TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG";
+        descriptor.downstreamEditManifest =
+            std::string("schema=TruthRawJpgLRawEditRecipe/0.3\n") +
+            "primary_image_role=FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER\n" +
+            "source_scientific_master_unchanged=1\n" +
+            "appearance_baked_into_primary=0\n" +
+            "advanced_recipe_flags=" + std::to_string(advancedFlags) + "\n" +
+            "flag_open_world_light=" + std::to_string((advancedFlags & 0x01) ? 1 : 0) + "\n" +
+            "flag_natural_hdr=" + std::to_string((advancedFlags & 0x02) ? 1 : 0) + "\n" +
+            "flag_adaptive_detail=" + std::to_string((advancedFlags & 0x04) ? 1 : 0) + "\n" +
+            "flag_restoration=" + std::to_string((advancedFlags & 0x08) ? 1 : 0) + "\n" +
+            "hdr_recipe_authority=APPEARANCE_ONLY_UNTIL_OUTPUT_CHANNEL_AUTHORITY\n" +
+            "restoration_recipe_role=AESTHETIC_REINTEGRATION_ONLY\n" +
+            "lightroom_editable_primary=1\n" +
+            "scientific_writeback_allowed=0\n" +
+            "creates_new_evidence=0";
+    }
 
     FdTransactionalByteSink sink(static_cast<int>(outputFd));
     float_dng::Result exported{};
