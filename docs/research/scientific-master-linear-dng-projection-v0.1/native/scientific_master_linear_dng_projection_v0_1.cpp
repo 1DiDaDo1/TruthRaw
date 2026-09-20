@@ -203,28 +203,35 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
     const std::string derivativeExtra = derivative
         ? (std::string("projected_raster_sha256=") +
            hex_hash(descriptor.projectedRasterSha256) + "\n" +
+           "derivative_projection=1\n" +
+           "projected_appearance_applied=" +
+           std::string(descriptor.projectedAppearanceApplied ? "1\n" : "0\n") +
+           "projected_counterfactual_observation_created=" +
+           std::string(descriptor.projectedCounterfactualObservationCreated ? "1\n" : "0\n") +
            "restoration_derivative=" +
            std::string(descriptor.restorationDerivative ? "1\n" : "0\n") +
            "open_scene_state_sha256=" +
            (nonzero_hash(descriptor.openSceneStateSha256)
                ? hex_hash(descriptor.openSceneStateSha256)
                : std::string(64u, '0')) + "\n" +
-           "restoration_role_mask_sha256=" +
-           (nonzero_hash(descriptor.restorationRoleMaskSha256)
-               ? hex_hash(descriptor.restorationRoleMaskSha256)
-               : std::string(64u, '0')) + "\n" +
-           "restoration_role_mask_encoding=CANONICAL_64X64_CELL_SEQUENCE_UINT8\n" +
-           "restoration_role_mask_bytes=" +
-           std::to_string(descriptor.restorationRoleMaskBytes.size()) + "\n" +
-           "restoration_role_mask_embedded=1\n" +
-           "canonical_ancestry_schema=TruthRawCanonicalAncestry/0.77\n" +
-           "canonical_ancestry_sha256=" +
-           (nonzero_hash(descriptor.canonicalAncestrySha256)
-                ? hex_hash(descriptor.canonicalAncestrySha256)
-                : std::string(64u, '0')) + "\n" +
-           "canonical_ancestry_manifest_begin\n" +
-           descriptor.canonicalAncestryManifest +
-           "canonical_ancestry_manifest_end\n")
+           (descriptor.restorationDerivative
+               ? (std::string("restoration_role_mask_sha256=") +
+                  (nonzero_hash(descriptor.restorationRoleMaskSha256)
+                      ? hex_hash(descriptor.restorationRoleMaskSha256)
+                      : std::string(64u, '0')) + "\n" +
+                  "restoration_role_mask_encoding=CANONICAL_64X64_CELL_SEQUENCE_UINT8\n" +
+                  "restoration_role_mask_bytes=" +
+                  std::to_string(descriptor.restorationRoleMaskBytes.size()) + "\n" +
+                  "restoration_role_mask_embedded=1\n" +
+                  "canonical_ancestry_schema=TruthRawCanonicalAncestry/0.77\n" +
+                  "canonical_ancestry_sha256=" +
+                  (nonzero_hash(descriptor.canonicalAncestrySha256)
+                       ? hex_hash(descriptor.canonicalAncestrySha256)
+                       : std::string(64u, '0')) + "\n" +
+                  "canonical_ancestry_manifest_begin\n" +
+                  descriptor.canonicalAncestryManifest +
+                  "canonical_ancestry_manifest_end\n")
+               : std::string{}))
         : std::string{};
     const std::string editManifestExtra =
         descriptor.downstreamEditManifest.empty()
@@ -253,8 +260,10 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "writer_identity=TruthRaw scientific-master-linear-dng-projection-v0.1\n" +
         "representation_only=1\n" +
         "scientific_master_modified=0\n" +
-        "appearance_applied=0\n" +
-        "counterfactual_observation_created=0\n" +
+        "appearance_applied=" +
+            std::string(descriptor.projectedAppearanceApplied ? "1\n" : "0\n") +
+        "counterfactual_observation_created=" +
+            std::string(descriptor.projectedCounterfactualObservationCreated ? "1\n" : "0\n") +
         "physical_frame_count=1\n" +
         "independent_evidence_count=1\n" +
         "sealed_source_sha256=" + hex_hash(descriptor.sealedSourceSha256) + "\n" +
@@ -374,6 +383,15 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
         return Status::error(
             StatusCode::ScientificBindingMismatch,
             "Technical Backplane identity does not match PURE projection lineage");
+    }
+
+    const bool derivative = nonzero_hash(descriptor.projectedRasterSha256);
+    if (derivative &&
+        (descriptor.projectionRole.empty() ||
+         !nonzero_hash(descriptor.openSceneStateSha256))) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "derivative projection requires projected-raster identity, role and Open Scene identity");
     }
 
     const std::uint64_t expectedRoleBytes =
@@ -876,6 +894,9 @@ Status write_xyz_d50_linear_dng_projection(
         out.projectedRasterIdentityVerified = true;
         out.scientificMasterIdentityVerified =
             actualMaster == descriptor.scientificMasterSha256;
+        out.appearanceApplied = descriptor.projectedAppearanceApplied;
+        out.counterfactualObservationCreated =
+            descriptor.projectedCounterfactualObservationCreated;
 
         if (!sink.commit()) {
             sink.abort();
