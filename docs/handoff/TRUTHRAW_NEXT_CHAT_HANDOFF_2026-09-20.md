@@ -4,23 +4,23 @@
 
 Active branch:
 
-`integration/truthraw-suite-v0-78-open-scene-channel-authority`
+`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
 
-Current app version:
+Current app:
 
-`0.44-v0.78-open-scene-channel-authority`
+`0.45-v0.79-bound-uncertainty-admission`
 
 Latest fully green CI:
 
-`35519235748`
+`35520033588`
 
 Latest APK:
-- bytes: `6,407,245`
-- SHA-256: `7a02fc07472158003423a1232a2c320956c3f80b7ff02d94c303fa46a1e181ff`
-- GitHub artifact id: `10608121004`
-- artifact ZIP SHA-256: `f7125be3edbbaf4017fc1fee6aa57e7d384c16e1d9ab4a288ab1400eebc17ae1`
+- bytes: `6,420,905`
+- SHA-256: `55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5`
+- artifact id: `10607269631`
+- artifact ZIP SHA-256: `c0e3730f0b88f6c718ff0af9ecbf9abc01954696832f913c9fe1ee8adc388403`
 
-This branch is the current integration/research line. It is not a main/canonical promotion.
+This is the current integration/research line, not a main/canonical promotion.
 
 ## Permanent law
 
@@ -28,98 +28,108 @@ This branch is the current integration/research line. It is not a main/canonical
 
 > Representation can exceed the source. Knowledge claims cannot exceed the evidence.
 
-Original source evidence remains immutable. Every later building block must know its ancestry, authority, uncertainty/support and intervention history.
+Source Evidence remains immutable. Every child state must preserve ancestry, authority, uncertainty/support and intervention history.
 
-## Current product line
+## Current validated chain
 
-The active product now includes:
-- multi-vendor RAW/DNG import
-- real Camera-5 capture entry
-- source-first Camera-5 sealing and topology admission
-- Main-House DNG admission
-- finalized Scientific Preview
-- PURE 32-bit Float DNG v0.63
-- TN-3 downstream Scientific Negative path
-- Advanced appearance controls
-- full-resolution Restoration + DNG/TIFF/EXR projection
-- responsive portrait/landscape camera UI
-- bit-exact performance optimisations v0.74/v0.75
-- canonical derivative ancestry v0.77
-- per-channel Open Scene authority sidecar v0.78
+`v0.73 camera admission -> v0.74 Scientific-Master stripe performance -> v0.75 bit-exact 512 preview core -> v0.76 responsive camera UI -> v0.77 canonical ancestry -> v0.78 per-channel authority -> v0.79 bound uncertainty admission`
 
-## v0.73 real-device closure
+### v0.73
 
-The real Camera-5 route has been demonstrated on device:
+Real-device route demonstrated:
 
-`launcher -> Gebruik camera -> Camera-5 capture -> admitted 4080x3072 DNG -> Main House -> finalized Scientific Preview -> PURE Float32 DNG`.
+`Gebruik camera -> Camera-5 source-first capture -> sealed 16320x12288 envelope -> exact topology admission -> 4080x3072 processing DNG -> Main House -> finalized Scientific Preview -> PURE Float32`.
 
-The known camera-derived DNG is a processing container admitted from the source-first Camera2 RAW envelope.
+The 16320x12288 envelope is **not** a proven 200 MP Scientific Master.
 
-Do not promote the 16320x12288 envelope itself to 200 MP Scientific Master authority.
+### v0.74 / v0.75
 
-## v0.74 / v0.75 performance
+Performance execution was changed without changing scientific identity:
+- Scientific Master SHA unchanged;
+- exact L0 bits unchanged;
+- Backplane unchanged;
+- preview pixels/exposure/HDR state unchanged.
 
-v0.74 replaced thousands of small Scientific-Master source calls with bit-exact bounded stripes.
+Theoretical logical source-call count for 4080x3072 fell from 7680 toward ~336. Same-device timing benchmark is still open.
 
-v0.75 proved 128x128 -> 512x512 finalized-preview runtime tiles bit-exact.
+### v0.76
 
-Host equivalence gates preserve:
-- Scientific Master SHA
-- exact L0 bits
-- Backplane
-- preview pixels
-- exposure/HDR state
-- frame/evidence 1/1
+Portrait/landscape camera UI + clear shutter. No camera science changed.
 
-Theoretical logical tile requests on 4080x3072 dropped from 7680 toward about 336.
+### v0.77
 
-A same-device physical latency benchmark against the historical ~87.96 s baseline is still desired.
-
-## v0.76 camera UI
-
-Camera UI is responsive to portrait/landscape orientation and has a clear shutter.
-
-The source/capture science was not changed.
-
-## v0.77 canonical ancestry
-
-New schema:
+Schema:
 
 `TruthRawCanonicalAncestry/0.77`
 
-It binds:
+Format-neutral ancestry binds:
 
 `source -> Scientific Master -> Zero-Line -> scene-scale -> 180-byte Backplane -> Open Scene -> derivative raster -> role-mask`.
 
-Restoration DNG, TIFF and EXR now receive the same format-neutral ancestry manifest.
+Restoration DNG/TIFF/EXR carry the same ancestry manifest.
 
-PURE v0.63 remains frozen and unchanged.
+PURE v0.63 remains untouched.
 
-## v0.78 per-channel authority
+### v0.78
 
-New child schema:
+Schema:
 
 `TruthRawOpenSceneChannelAuthority/0.78`
 
-It is bound to canonical Open Scene v0.70.
+Per RGB channel:
+- CALIBRATED_ESTIMATE
+- RECONSTRUCTED
+- CENSORED
+- UNKNOWN
 
-Authority and uncertainty are separate axes.
+Uncertainty knowledge is a separate axis.
 
-For current generic admitted DNG:
-- direct CFA uncensored = CALIBRATED_ESTIMATE
-- direct CFA clipped = CENSORED + explicit source-code bound
-- missing RGB channels = UNKNOWN
+Current generic/camera-derived DNG remains:
+- direct uncensored CFA = CALIBRATED_ESTIMATE
+- clipped direct CFA = CENSORED + explicit source-code lower bound
+- missing channels = UNKNOWN
 - RECONSTRUCTED = 0
 
-That last point is intentional. No reconstruction gets scientific authority without an admitted source/backend-bound uncertainty model.
+### v0.79
 
-Advanced returns both:
-- v0.70 Open Scene artifact SHA
-- v0.78 channel-authority artifact SHA
+Schema:
+
+`TruthRawBoundUncertaintyAdmission/0.79`
+
+This is the gate between uncertainty evidence and v0.78 authority.
+
+Current decisions:
+- Camera-5 derived processing DNG -> `BLOCKED_SOURCE_DOMAIN_MISMATCH`
+- generic imported DNG without source attestation -> `BLOCKED_NO_SOURCE_ATTESTATION`
+- exact historical v5.0g tele vendor-DNG class + exact backend/model assets -> `ELIGIBLE_TRACE_GATE_OPEN`
+
+Even the historical exact tele class does **not** reach ADMITTED because the accepted exact F64 reconstructed-quantity trace certificate is still absent.
+
+A fake/nonzero trace hash cannot unlock it.
+
+Advanced now binds three immutable identities:
+1. canonical Open Scene v0.70 SHA;
+2. channel authority v0.78 SHA;
+3. uncertainty-admission decision v0.79 SHA.
+
+Current `reconstructedAuthorityAllowed=false` is mandatory.
+
+## Historical v5.0g boundary
+
+Prospective uncertainty PASS is valid only for the exact old HONOR BKQ-N49 22.48 mm tele **vendor-DNG** source class and exact v4.7i backend/hash.
+
+Do not transfer it to:
+- Camera-5 derived processing DNG;
+- MotionCam/direct-CFA;
+- Main/Wide/Front;
+- Google/computational DNG;
+- any different backend/hash/sample domain.
+
+The exact historical feature semantics replay is green. The exact F64 reconstructed-quantity trace binding is still open.
 
 ## Frozen / do not silently change
 
-- source evidence immutable
+- immutable Source Evidence
 - physicalFrameCount=1
 - independentEvidenceCount=1
 - PURE self-binding v0.63
@@ -127,50 +137,51 @@ Advanced returns both:
 - scene-scale
 - Technical Backplane
 - Restoration algorithm v0.67
-- canonical Open Scene v0.70 parent semantics
+- canonical Open Scene parent v0.70
 - role-mask projection v0.71
 - projection lifecycle v0.72
 - Camera-5 topology admission law
-- appearance cannot write back into Scientific Master
-- counterfactual state never becomes evidence
+- appearance never writes back
+- counterfactual never evidence
 
-## v5.0g boundary
+## Important detail correction
 
-Exact historical v5.0g feature replay is green.
+Canonical v4.7j is an **appearance/detail-compensation** layer. It is validated to preserve the Scientific Master and chromaticity, but it does not create new optical/sensor detail authority.
 
-However the historical tele uncertainty domain must not automatically be transferred to the current camera-derived DNG.
+Therefore the next app integration may replace the old Detailed/Crisp appearance with v4.7j, but:
+- Scientific Master stays unchanged;
+- v0.78 authority stays unchanged;
+- v0.79 admission stays unchanged;
+- output must not claim recovered optical frequencies.
 
-Before v0.78 can emit RECONSTRUCTED authority, uncertainty must be:
-- source-bound
-- backend-bound
-- sample-domain compatible
-- F64 trace/replay compatible where required
-- independently validated / held-out where applicable
+Any future scientific-detail authority needs separate structure/support and optical/MTF evidence.
 
-## Immediate next step
+v4.7k remains later and strictly post-resize output acutance.
 
-Start:
+## Immediate next branch
 
-`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
+`integration/truthraw-suite-v0-80-adaptive-detail-v47j`
 
-First objective: build an exact uncertainty-admission interface feeding v0.78 without changing reconstruction pixels.
+Objective:
+replace legacy `SkinSafeDetailedCrispAppearance` in Advanced with canonical v4.7j Adaptive Detail, keeping it appearance-only and authority-neutral.
 
-Fail closed on current camera-derived DNG until a matching camera-domain uncertainty/PTC binding exists.
-
-Then continue:
-1. v4.7j support-aware detail integration;
-2. v4.7k downstream acutance;
-3. local HDR/light/dark/artificial-illumination state;
-4. authority-aware single-frame HDR;
-5. Restoration v2;
-6. independent DNG/TIFF/EXR conformance + source replay;
-7. proprietary RAW promotion gates such as Nikon NEF.
+Then:
+1. v4.7k post-resize acutance;
+2. richer illumination/light/dark/artificial-light state;
+3. authority-aware single-frame HDR;
+4. Restoration v2;
+5. independent DNG/TIFF/EXR conformance + original-source replay;
+6. current Camera-5 noise/PTC/uncertainty calibration;
+7. exact historical v5.0g F64 trace certification;
+8. multi-vendor proprietary RAW promotion gates.
 
 ## Read next
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-2. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
-3. `docs/research/open-scene-channel-authority-v0.78/README.md`
-4. `docs/research/canonical-ancestry-spine-v0.77/README.md`
-5. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
-6. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
+2. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
+3. `docs/research/bound-uncertainty-admission-v0.79/README.md`
+4. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+5. `docs/research/open-scene-channel-authority-v0.78/README.md`
+6. `docs/research/canonical-ancestry-spine-v0.77/README.md`
+7. `canonical/detail/v4.7j/README_v4_7j.md`
+8. `canonical/output-acutance/v4.7k/README_v4_7k.md`
