@@ -1,0 +1,134 @@
+name: TruthRaw v0.67 Full-Resolution Restoration
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-67-fullres-restoration
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-67-fullres-restoration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-pure-float32:
+    name: Host PURE Float32 writer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure PURE writer
+        run: cmake -S docs/research/scientific-master-linear-dng-projection-v0.1 -B build/pure-f32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build PURE writer
+        run: cmake --build build/pure-f32 --parallel 2
+      - name: Run PURE writer tests
+        run: ctest --test-dir build/pure-f32 --output-on-failure
+
+  scientific-contracts:
+    name: OpenWorld Dynamic Authority Restoration contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scientific contract tests
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v067:
+    name: Android v0.67 full-resolution restoration
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v0.67 scientific integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          UI='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          L='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSuiteLauncherActivity.kt'
+          A='suite_android/app/src/main/cpp/advanced_preview_bridge.cpp'
+          TN='suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+          FR='suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp'
+          FRK='suite_android/app/src/main/java/com/truthraw/adaptiveui/FullResRestorationExport.kt'
+          CMAKE='suite_android/app/src/main/cpp/CMakeLists.txt'
+
+          grep -F '0.32-v0.67-fullres-restoration' "$G"
+
+          # PURE stays frozen on the real-device validated v0.63 scientific route.
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'technical_backplane_crc_scope=PREFIX_176_BYTES' docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp
+          grep -F 'crcEngine.update(backplane, 0, 176)' suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt
+
+          # v0.66 TruthNegative/Open-World authority remains present.
+          grep -F 'TRUTHNEGATIVE_SOURCE_RESOLUTION_SCIENTIFIC_NEGATIVE' "$TN"
+          grep -F 'OPEN_WORLD_SINGLE_FRAME_SCENE_V0_66' "$A"
+          grep -F 'OutputAuthority::AppearanceOnly' "$A"
+
+          # Full-resolution Restoration is a retreatable derivative only.
+          grep -F 'TRUTHRAW_FULLRES_RESTORATION_V0_67' "$FR"
+          grep -F 'FULL_RESOLUTION_RETREATABLE_RESTORATION_DERIVATIVE' "$FR"
+          grep -F 'SOURCE_CFA_SAMPLE_AT_OR_ABOVE_WHITELEVEL' "$FR"
+          grep -F 'AestheticReintegrationOnly' "$FR"
+          grep -F 'UnresolvedLoss' "$FR"
+          grep -F 'baseHash != scientific.scientificMasterHash' "$FR"
+          grep -F 'scientific_master_modified=0' "$FR"
+          grep -F 'scientific_writeback_allowed=0' "$FR"
+          grep -F 'creates_new_evidence=0' "$FR"
+          grep -F 'creates_second_scientific_world=0' "$FR"
+          grep -F 'restoredPixels + unresolvedPixels != censoredPixels' "$FR"
+          grep -F 'verifySavedRestoration' "$FRK"
+          grep -F '_truthraw_fullres_restoration_v0_67.trr' "$UI"
+          grep -F 'FULL-RES Restoration · 1:1 derivative + role-mask opslaan' "$UI"
+
+          # App packaging contains the new exporter.
+          grep -F 'fullres_restoration_export_bridge.cpp' "$CMAKE"
+          grep -F 'Open-World · Full-res Restoration · Authority' "$L"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-67-fullres-restoration-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
