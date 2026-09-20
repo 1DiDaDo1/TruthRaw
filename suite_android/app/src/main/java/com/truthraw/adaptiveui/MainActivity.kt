@@ -288,8 +288,11 @@ class MainActivity : Activity() {
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/octet-stream"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_layered_v0_1.jpgl")
+            // JPG-L is a JPEG-compatible layered photograph. Android/Gallery
+            // must see the ordinary JPEG identity; TruthRaw detects the layer
+            // by the TRJPGL footer at EOF.
+            type = "image/jpeg"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_layered_v0_2.jpg")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPG_L)
     }
