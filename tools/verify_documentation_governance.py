@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-68-restoration-transactional-fgs":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-69-tn3-open-scene-projection":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -339,6 +339,31 @@ if v068_inv.get("createsNewEvidence") is not False or v068_inv.get("createsSecon
     errors.append("v068_may_not_inflate_evidence_or_worlds")
 if v068_inv.get("physicalFrameCount") != 1 or v068_inv.get("independentEvidenceCount") != 1:
     errors.append("v068_frame_evidence_must_remain_one_one")
+
+v069 = (((current_state.get("multiVendorRaw") or {}).get("v069")) or {})
+v069_tn = v069.get("truthNegative") or {}
+v069_proj = v069.get("restorationProjection") or {}
+v069_cables = v069.get("directLooseCables") or {}
+if v069.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v069_must_keep_v063_pure_writer_contract")
+if v069_tn.get("version") != 3 or v069_tn.get("fullFrameOpenSceneState") is not True:
+    errors.append("v069_truthnegative_tn3_required")
+if v069_tn.get("scientificMasterWritebackAllowed") is not False:
+    errors.append("v069_open_scene_scientific_writeback_forbidden")
+if v069_tn.get("createsNewEvidence") is not False or v069_tn.get("createsSecondScientificWorld") is not False:
+    errors.append("v069_tn3_may_not_inflate_evidence_or_worlds")
+if v069_proj.get("fullResolution") is not True or v069_proj.get("requiresTrrDerivativeDigestMatch") is not True:
+    errors.append("v069_projection_must_be_fullres_and_derivative_bound")
+if v069_proj.get("stagingWholeFileSha256") is not True or v069_proj.get("destinationWholeFileSha256Match") is not True:
+    errors.append("v069_projection_transaction_sha_required")
+for cable in (
+    "canonicalOpenSceneBinding",
+    "restorationRoleMaskExportBinding",
+    "externalDngTiffExrConformance",
+    "effectfulCensoredRestorationDeviceValidation",
+):
+    if v069_cables.get(cable) != "OPEN":
+        errors.append("v069_loose_cable_state_must_remain_explicit_" + cable)
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
