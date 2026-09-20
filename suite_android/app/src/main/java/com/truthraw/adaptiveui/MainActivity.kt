@@ -1478,7 +1478,8 @@ class MainActivity : Activity() {
             }
         }
 
-        empiricalAudit?.let { audit ->
+        if (preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO) {
+            empiricalAudit?.let { audit ->
             addView(space(8))
             addView(label("RAW ingress empirical v0.1", 13f, bold = true))
             val probe = audit.preProbe
@@ -1507,6 +1508,7 @@ class MainActivity : Activity() {
             addView(space(5))
             addView(actionButton("Empirical JSON opslaan") { launchEmpiricalExport(active) })
             empiricalStatus?.let { addView(label(it, 10f, muted = true)) }
+        }
         }
     }
 
