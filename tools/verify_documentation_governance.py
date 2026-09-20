@@ -54,52 +54,57 @@ for required in current_pointers:
     if required != "docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md" and required not in current_index:
         errors.append(f"current_index_missing_current_pointer:{required}")
 
-# v0.73 is a current overlay on top of the fully validated v0.72 baseline state.
-# Keep the older detailed state checks below intact; validate only the new overlay's
-# own branch/admission invariants here.
+# Current 2026-09-20 overlay validation.
+# The detailed v0.72 baseline checks below remain intact; this block validates
+# the moving current integration overlay without hard-coding one historical app version.
 for required in (
     "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
     "state/CURRENT_PROJECT_STATE_2026-09-20.json",
-    "docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md",
 ):
     if required not in bootstrap:
-        errors.append(f"bootstrap_missing_v073_pointer:{required}")
+        errors.append(f"bootstrap_missing_current_2026_09_20_pointer:{required}")
 
 try:
-    v073_state = json.loads(v073_state_text)
+    overlay_state = json.loads(v073_state_text)
 except Exception as exc:
     errors.append(f"current_2026_09_20_project_state_invalid_json:{exc}")
-    v073_state = {}
+    overlay_state = {}
 
-if v073_state.get("schema") != "TruthRawCurrentProjectState/2026-09-20":
+if overlay_state.get("schema") != "TruthRawCurrentProjectState/2026-09-20":
     errors.append("current_2026_09_20_project_state_schema_mismatch")
-if v073_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
+if overlay_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_20_project_state_status_mismatch")
-if v073_state.get("activeBranch") != "integration/truthraw-suite-v0-73-camera-source-admission-tn3":
-    errors.append("v073_active_branch_mismatch")
-if v073_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md":
-    errors.append("v073_next_chat_handoff_mismatch")
+active_overlay_branch = overlay_state.get("activeBranch")
+if not isinstance(active_overlay_branch, str) or not active_overlay_branch.startswith("integration/truthraw-suite-v0-"):
+    errors.append("current_2026_09_20_active_branch_invalid")
+if overlay_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md":
+    errors.append("current_2026_09_20_next_chat_handoff_mismatch")
 
-v073 = v073_state.get("v073") or {}
-v073_env = v073.get("envelope") or {}
-if v073.get("latestActiveCamera5CaptureBasis") != "v0.53 Android-17 replay of proven v0.14 route":
-    errors.append("v073_camera5_capture_basis_mismatch")
-if v073.get("v055Role") != "READ_ONLY_BASELINE_NOT_CAPTURE_ROUTE":
-    errors.append("v073_v055_must_remain_read_only_baseline")
-if v073.get("sourceFirstSeal") is not True:
-    errors.append("v073_source_first_seal_required")
-if v073_env.get("width") != 16320 or v073_env.get("height") != 12288:
-    errors.append("v073_camera5_envelope_geometry_mismatch")
-if v073_env.get("mayNotBePromotedDirectlyTo200MpScientificMaster") is not True:
-    errors.append("v073_envelope_direct_200mp_promotion_forbidden")
-if v073.get("mainHouseResealsDng") is not True:
-    errors.append("v073_main_house_reseal_required")
-if v073.get("truthNegativeRole") != "DOWNSTREAM_OF_MAIN_HOUSE_ADMISSION_ONLY":
-    errors.append("v073_truthnegative_must_remain_downstream_of_admission")
-if v073.get("direct200MpTruthClaimAllowed") is not False:
-    errors.append("v073_direct_200mp_truth_claim_forbidden")
-if (v073_state.get("frozenScience") or {}).get("pureContract") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
-    errors.append("v073_must_keep_v063_pure_contract")
+laws = overlay_state.get("permanentLaws") or {}
+if laws.get("sourceEvidenceImmutable") is not True:
+    errors.append("current_overlay_source_evidence_must_remain_immutable")
+if laws.get("knowledgeClaimsMayNotExceedEvidence") is not True:
+    errors.append("current_overlay_knowledge_claims_may_not_exceed_evidence")
+if laws.get("physicalFrameCount") != 1 or laws.get("independentEvidenceCount") != 1:
+    errors.append("current_overlay_frame_evidence_must_remain_one_one")
+if laws.get("appearanceNeverWritesBack") is not True:
+    errors.append("current_overlay_appearance_writeback_forbidden")
+if laws.get("counterfactualNeverEvidence") is not True:
+    errors.append("current_overlay_counterfactual_never_evidence")
+
+frozen_overlay = overlay_state.get("frozenScience") or {}
+if frozen_overlay.get("pureContract") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("current_overlay_must_keep_v063_pure_contract")
+if frozen_overlay.get("restorationAlgorithm") != "v0.67 unchanged":
+    errors.append("current_overlay_must_keep_v067_restoration_frozen")
+if frozen_overlay.get("canonicalOpenSceneParent") != "v0.70":
+    errors.append("current_overlay_must_keep_v070_open_scene_parent")
+
+open_validation = overlay_state.get("openValidation") or {}
+if open_validation.get("native16320x12288ScientificAdmission") not in (
+    "UNPROVEN_AND_NOT_ALLOWED", "OPEN", None
+):
+    errors.append("current_overlay_16320x12288_may_not_be_promoted_by_documentation")
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
