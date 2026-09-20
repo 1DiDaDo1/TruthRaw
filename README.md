@@ -240,3 +240,5 @@ A 200 MP raster proof would still not prove 200 MP optical detail. SFR/MTF/PSF, 
 ## Repository navigation
 
 Use `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md` before treating any dated README, report, audit or state file as current. Historical documents are kept precisely so later states can be audited against what was actually known at the time.
+
+> v0.71 CI run `35506676249`: **SUCCESS** on GCC, Clang, scientific contracts and Android. Documentation governance `35506676288`: **SUCCESS**. Artifact ID `10604525855`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
