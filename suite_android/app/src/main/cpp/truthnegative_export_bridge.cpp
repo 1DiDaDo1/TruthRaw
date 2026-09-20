@@ -2,6 +2,7 @@
 
 #include "dng_color_binding_producer_v0_2.h"
 #include "raw_source_adapter_bridge_common.h"
+#include "open_scene_canonical_v0_70.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_linear_dng_projection_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -41,6 +42,7 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 namespace master_projection = truthraw::scientific_master_linear_dng_projection::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace digest = truthraw::scientific_master_digest::v0_1;
+namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 
 constexpr jlong kMagic = 0x54524e47; // TRNG
 constexpr std::size_t kPacketLongs = 28u;
@@ -52,11 +54,6 @@ enum class AuthorityByte : std::uint8_t {
     Reconstructed = 2,
     Censored = 3,
     Unknown = 4,
-};
-
-enum class OpenSceneStateByte : std::uint8_t {
-    SourceBoundFinite = 1,
-    CensoredBound = 2,
 };
 
 bool write_all(int fd, const std::uint8_t* data, std::size_t size) noexcept {
@@ -178,7 +175,7 @@ bool write_header(
     std::uint64_t openSceneBytes,
     std::uint64_t openSceneFinitePixels,
     std::uint64_t openSceneCensoredPixels,
-    const truthraw::sha256_v0_69::Digest& openSceneHash) noexcept {
+    const canonical_scene::Summary& openSceneSummary) noexcept {
     const auto sourceHex = hex_bytes(sourceSeal.sha256);
     const auto masterHex = digest::to_hex(scientific.scientificMasterHash);
     const auto zeroHex = hex_bytes(phase2.zeroLineHash);
@@ -207,14 +204,36 @@ bool write_header(
     text += "technical_backplane_serialized_hex=" + backplaneHex + "\n";
     text += "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_69\n";
     text += "open_scene_state_schema=TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69\n";
-    text += "open_scene_state_sha256=" + truthraw::sha256_v0_69::hex(openSceneHash) + "\n";
+    text += "open_scene_canonical_schema=" + std::string(canonical_scene::schema_name()) + "\n";
+    text += "open_scene_semantic_parent_region=" + std::string(canonical_scene::semantic_parent_region()) + "\n";
+    text += "open_scene_semantic_parent_stream=" + std::string(canonical_scene::semantic_parent_stream()) + "\n";
+    text += "dynamic_authority_artifact_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneSummary.dynamicAuthoritySha256) + "\n";
+    text += "open_scene_state_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneSummary.contentSha256) + "\n";
+    text += "open_scene_policy_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneSummary.policySha256) + "\n";
+    text += "open_scene_artifact_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneSummary.artifactSha256) + "\n";
     text += "open_scene_state_bytes=" + std::to_string(openSceneBytes) + "\n";
     text += "open_scene_finite_pixels=" + std::to_string(openSceneFinitePixels) + "\n";
     text += "open_scene_censored_pixels=" + std::to_string(openSceneCensoredPixels) + "\n";
-    text += "open_scene_state_1=SOURCE_BOUND_FINITE|COLOR_SOURCE_METADATA_BOUND|ILLUMINATION_SOURCE_BOUND_ESTIMATE|DETAIL_APPEARANCE_ONLY|HDR_EVIDENCE_SUPPORTED_SAMPLED_CHANNEL|RESTORATION_PRESERVE\n";
-    text += "open_scene_state_2=CENSORED_BOUND|COLOR_SOURCE_METADATA_BOUND|ILLUMINATION_SOURCE_BOUND_ESTIMATE|DETAIL_APPEARANCE_ONLY|HDR_CENSORED_BOUND_ONLY|RESTORATION_AESTHETIC_ONLY_OR_UNRESOLVED\n";
-    text += "open_scene_counterfactual_pixels=0\n";
+    text += "open_scene_state_1=R_CALIBRATED_ESTIMATE__G_UNKNOWN__B_UNKNOWN\n";
+    text += "open_scene_state_2=R_UNKNOWN__G_CALIBRATED_ESTIMATE__B_UNKNOWN\n";
+    text += "open_scene_state_3=R_UNKNOWN__G_UNKNOWN__B_CALIBRATED_ESTIMATE\n";
+    text += "open_scene_state_4=R_CENSORED__G_UNKNOWN__B_UNKNOWN\n";
+    text += "open_scene_state_5=R_UNKNOWN__G_CENSORED__B_UNKNOWN\n";
+    text += "open_scene_state_6=R_UNKNOWN__G_UNKNOWN__B_CENSORED\n";
+    text += "open_scene_colour_authority=SOURCE_METADATA_BOUND\n";
+    text += "open_scene_illumination_authority=SOURCE_BOUND_ESTIMATE\n";
+    text += "open_scene_detail_status=NEUTRAL_OR_BLOCKED\n";
+    text += "open_scene_chunking_changes_scientific_identity=0\n";
+    text += "open_scene_counterfactual_pixels=" +
+        std::to_string(openSceneSummary.counterfactualPixelCount) + "\n";
+    text += "open_scene_scientific_master_writeback_pixels=" +
+        std::to_string(openSceneSummary.scientificWritebackPixelCount) + "\n";
     text += "open_scene_scientific_master_writeback_allowed=0\n";
+    text += "open_scene_creates_new_evidence=0\n";
     text += "authority_calibrated_estimate=" + std::to_string(calibrated) + "\n";
     text += "authority_reconstructed=" + std::to_string(reconstructed) + "\n";
     text += "authority_censored=" + std::to_string(censored) + "\n";
@@ -364,7 +383,19 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     std::uint64_t openSceneFinitePixels = 0u;
     std::uint64_t openSceneCensoredPixels = 0u;
     std::uint64_t cellCount = 0u;
-    truthraw::sha256_v0_69::Hasher openSceneHasher;
+    canonical_scene::Binding openSceneBinding{};
+    openSceneBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    openSceneBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    openSceneBinding.width = static_cast<std::uint32_t>(width);
+    openSceneBinding.height = static_cast<std::uint32_t>(height);
+    openSceneBinding.physicalFrameCount = scientific.physicalFrameCount;
+    openSceneBinding.independentEvidenceCount = scientific.independentEvidenceCount;
+    openSceneBinding.colourBindingId = produced.color.bindingId;
+    canonical_scene::Builder openSceneBuilder(openSceneBinding);
+    if (!openSceneBuilder.valid()) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -16);
+    }
 
     std::vector<float> rgb;
     std::vector<std::uint16_t> raw;
@@ -425,7 +456,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             }
 
             auth.assign(samples, static_cast<std::uint8_t>(AuthorityByte::Unknown));
-            openScene.assign(pixels, static_cast<std::uint8_t>(OpenSceneStateByte::SourceBoundFinite));
+            openScene.assign(pixels, 0u);
             for (int yy = 0; yy < h; ++yy) {
                 for (int xx = 0; xx < w; ++xx) {
                     const std::size_t pi =
@@ -446,10 +477,17 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
                     if (clipped) {
                         ++censored;
                         ++openSceneCensoredPixels;
-                        openScene[pi] = static_cast<std::uint8_t>(OpenSceneStateByte::CensoredBound);
+                        openScene[pi] = static_cast<std::uint8_t>(
+                            channel == 0 ? canonical_scene::PixelState::RCensored :
+                            channel == 1 ? canonical_scene::PixelState::GCensored :
+                                           canonical_scene::PixelState::BCensored);
                     } else {
                         ++calibrated;
                         ++openSceneFinitePixels;
+                        openScene[pi] = static_cast<std::uint8_t>(
+                            channel == 0 ? canonical_scene::PixelState::RCalibratedEstimate :
+                            channel == 1 ? canonical_scene::PixelState::GCalibratedEstimate :
+                                           canonical_scene::PixelState::BCalibratedEstimate);
                     }
                     // Generic v0.66 has no admitted source-bound uncertainty model
                     // for arbitrary DNGs. The two demosaiced channels therefore keep
@@ -458,7 +496,10 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
                 }
             }
 
-            openSceneHasher.update(openScene.data(), openScene.size());
+            if (!openSceneBuilder.append(auth, openScene)) {
+                (void)::ftruncate(outputFd, 0);
+                return packet(env, -17);
+            }
 
             record.clear();
             record.reserve(16u + samples * 4u + auth.size() + openScene.size());
@@ -503,7 +544,17 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
         return packet(env, -13);
     }
 
-    const auto openSceneHash = openSceneHasher.finalize();
+    canonical_scene::Summary openSceneSummary{};
+    if (!openSceneBuilder.finalize(openSceneSummary) ||
+        openSceneSummary.pixelCount !=
+            static_cast<std::uint64_t>(width) * static_cast<std::uint64_t>(height) ||
+        openSceneSummary.counterfactualPixelCount != 0u ||
+        openSceneSummary.scientificWritebackPixelCount != 0u ||
+        openSceneSummary.createsNewEvidence ||
+        openSceneSummary.chunkingChangesScientificIdentity) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -18);
+    }
 
     if (!write_header(
             outputFd,
@@ -523,7 +574,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             openSceneBytes,
             openSceneFinitePixels,
             openSceneCensoredPixels,
-            openSceneHash)) {
+            openSceneSummary)) {
         (void)::ftruncate(outputFd, 0);
         return packet(env, -14);
     }
