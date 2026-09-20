@@ -1,0 +1,125 @@
+name: TruthRaw v0.79 Bound Uncertainty Admission
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-79-bound-uncertainty-admission
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/bound-uncertainty-admission-v0.79/**'
+      - 'docs/research/open-scene-channel-authority-v0.78/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-79-bound-uncertainty-admission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  uncertainty-admission:
+    name: Bound uncertainty admission
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test v0.79
+        run: |
+          cmake -S docs/research/bound-uncertainty-admission-v0.79 -B build/v079 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v079 --parallel 2
+          ctest --test-dir build/v079 --output-on-failure
+
+  channel-authority:
+    name: Open Scene channel authority
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test v0.78
+        run: |
+          cmake -S docs/research/open-scene-channel-authority-v0.78 -B build/v078 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/v078 --parallel 2
+          ctest --test-dir build/v078 --output-on-failure
+
+  lineage:
+    name: Existing scientific lineage contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact replay dependency
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Run lineage contracts
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+          PYTHONPATH=. python3 tests/test_v5g_exact_feature_replay_v02.py
+
+  android:
+    name: Android v0.79 uncertainty admission
+    runs-on: ubuntu-24.04
+    needs: [uncertainty-admission, channel-authority, lineage]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.79 fail-closed integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          C='suite_android/app/src/main/cpp/advanced_preview_bridge.cpp'
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawAdvanced.kt'
+          N='suite_android/app/src/main/java/com/truthraw/adaptiveui/NativeTilePreview.kt'
+          PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+
+          grep -F '0.45-v0.79-bound-uncertainty-admission' "$G"
+          grep -F '#include "bound_uncertainty_admission_v0_79.h"' "$C"
+          grep -F 'constexpr std::size_t kHeaderInts = 66u;' "$C"
+          grep -F 'make_current_camera5_derived_blocked_candidate' "$C"
+          grep -F 'BlockedSourceDomainMismatch' suite_android/app/src/main/cpp/bound_uncertainty_admission_v0_79.cpp
+          grep -F 'EligibleTraceGateOpen' suite_android/app/src/main/cpp/bound_uncertainty_admission_v0_79.cpp
+          grep -F 'reconstructedAuthorityAllowed=false' docs/research/bound-uncertainty-admission-v0.79/README.md
+          grep -F 'sourceRouteCode: Int' "$N"
+          grep -F 'private const val HEADER_INTS = 66' "$K"
+          grep -F 'reconstructedAllowedByAdmission' "$K"
+          grep -F 'packet[36] != 0' "$K"
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-79-bound-uncertainty-admission-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
