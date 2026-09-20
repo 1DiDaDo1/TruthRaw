@@ -67,3 +67,9 @@ Two independent ways forward exist:
 2. Current Camera-5 derived DNG: calibrate and prospectively validate its own source-domain PTC/noise/uncertainty model.
 
 The second path must not reuse v5.0g merely because the raster is 4080x3072.
+
+## Machine-readable current admission invariant
+
+`reconstructedAuthorityAllowed=false`
+
+This remains mandatory until an exact accepted F64 trace certificate and runtime p95 field path are both present.
