@@ -56,6 +56,13 @@ data class FullResJpegMetrics(
     val presentationHdrAuthorityCode: Int,
     val hdrBlockedReasonCode: Int,
     val perOutputChannelAuthorityAvailable: Boolean,
+    val outputChannelAuthorityMappingMode: Int,
+    val outputAuthorityCalibratedChannels: Long,
+    val outputAuthorityReconstructedChannels: Long,
+    val outputAuthorityCensoredChannels: Long,
+    val outputAuthorityUnknownChannels: Long,
+    val outputAuthorityCensoredSupportPixels: Long,
+    val outputAuthorityArtifactSha256: String,
     val jpegSha256: String,
 )
 
@@ -66,7 +73,7 @@ sealed interface FullResJpegResult {
 
 object FullResJpegExporter {
     private const val MAGIC = 0x54524a50L
-    private const val PACKET_LONGS = 32
+    private const val PACKET_LONGS = 48
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
     private const val JPEG_QUALITY = 96
@@ -143,6 +150,14 @@ object FullResJpegExporter {
         val nv21Bytes = packet[7]
         val packetUserQuarterTurns = packet[20].toInt()
         val effectiveOrientation = packet[21].toInt()
+        val outputAuthorityArtifactSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[39 + word].toInt()
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
         if (width <= 0 || height <= 0 || sourceWidth <= 0 || sourceHeight <= 0 ||
             nv21Bytes != width.toLong() * height.toLong() * 3L / 2L ||
             nv21File.length() != nv21Bytes ||
@@ -153,7 +168,11 @@ object FullResJpegExporter {
             effectiveOrientation !in setOf(1, 3, 6, 8) ||
             packet[22] != 1L || packet[23] != 1L ||
             packet[25] != 0L || packet[26] != 1L ||
-            packet[28] != 0L || packet[30] != 1L || packet[31] != 0L
+            packet[28] != 0L || packet[30] != 2L || packet[31] != 1L ||
+            packet[32] != 1L || packet[34] != 0L || packet[36] <= 0L ||
+            packet[38] != sourceWidth.toLong() * sourceHeight.toLong() ||
+            packet[33] + packet[34] + packet[35] + packet[36] != packet[38] * 3L ||
+            outputAuthorityArtifactSha256.all { it == '0' }
         ) {
             nv21File.delete()
             return FullResJpegResult.Failed("JPG full-resolution lineage/raster invariant faalde.")
@@ -237,6 +256,13 @@ object FullResJpegExporter {
                 presentationHdrAuthorityCode = packet[29].toInt(),
                 hdrBlockedReasonCode = packet[30].toInt(),
                 perOutputChannelAuthorityAvailable = packet[31] != 0L,
+                outputChannelAuthorityMappingMode = packet[32].toInt(),
+                outputAuthorityCalibratedChannels = packet[33],
+                outputAuthorityReconstructedChannels = packet[34],
+                outputAuthorityCensoredChannels = packet[35],
+                outputAuthorityUnknownChannels = packet[36],
+                outputAuthorityCensoredSupportPixels = packet[37],
+                outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
                 jpegSha256 = jpegSha,
             ),
             jpegFile,
