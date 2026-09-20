@@ -275,14 +275,23 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         applySafeSystemInsets(root)
 
         val header = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(label("TruthRaw Camera", if (landscape) 17f else 20f, true))
-            addView(label(
-                "Camera-5 · één fysiek frame · RAW source-first",
-                if (landscape) 8.5f else 9.5f,
-                false,
-                Color.rgb(184, 191, 202),
-            ))
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(label("‹", if (landscape) 30f else 34f, false, Color.WHITE).apply {
+                gravity = Gravity.CENTER
+                contentDescription = "Terug"
+                setOnClickListener { finish() }
+            }, LinearLayout.LayoutParams(dp(46), dp(46)).apply { marginEnd = dp(6) })
+            addView(LinearLayout(this@FotoGraaf200MpStagedActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(label("TruthRaw Camera", if (landscape) 17f else 20f, true))
+                addView(label(
+                    "Camera-5 · één fysiek frame · RAW source-first",
+                    if (landscape) 8.5f else 9.5f,
+                    false,
+                    Color.rgb(184, 191, 202),
+                ))
+            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         }
 
         // Keep the TextureView inside a bounded pane. AutoFitTextureView then receives
@@ -370,7 +379,17 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             setBackgroundColor(Color.rgb(10, 12, 15))
         }
         applySafeSystemInsets(root)
-        root.addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true))
+        root.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(label("‹", 34f, false, Color.WHITE).apply {
+                gravity = Gravity.CENTER
+                contentDescription = "Terug"
+                setOnClickListener { finish() }
+            }, LinearLayout.LayoutParams(dp(46), dp(46)).apply { marginEnd = dp(6) })
+            addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true),
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        })
         root.addView(label(
             "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen.",
             11f,
