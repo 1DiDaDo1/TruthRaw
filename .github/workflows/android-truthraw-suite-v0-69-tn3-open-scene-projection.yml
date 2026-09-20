@@ -1,0 +1,142 @@
+name: TruthRaw v0.69 TN3 Open Scene Restoration Projections
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-69-tn3-open-scene-projection
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-69-tn3-open-scene-projection.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-pure-float32:
+    name: Host PURE Float32 writer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure PURE writer
+        run: cmake -S docs/research/scientific-master-linear-dng-projection-v0.1 -B build/pure-f32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build PURE writer
+        run: cmake --build build/pure-f32 --parallel 2
+      - name: Run PURE writer tests
+        run: ctest --test-dir build/pure-f32 --output-on-failure
+
+  scientific-contracts:
+    name: Open Scene Dynamic Authority Restoration contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scientific contract tests
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v069:
+    name: Android v0.69 TN3 Open Scene projections
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v0.69 integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          TN='suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+          TNK='suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+          PJK='suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionExport.kt'
+          PJS='suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionForegroundService.kt'
+          UI='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          CMAKE='suite_android/app/src/main/cpp/CMakeLists.txt'
+          MANIFEST='suite_android/app/src/main/AndroidManifest.xml'
+          PURE='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+
+          grep -F '0.34-v0.69-tn3-open-scene-projection' "$G"
+
+          # PURE remains v0.63 and derivative metadata is conditional only.
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$PURE"
+          grep -F 'const std::string derivativeExtra = derivative' "$PURE"
+          grep -F 'TRUTHRAW_PURE_SELF_BINDING_V0_63' suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt
+
+          # TN-3 = Scientific Master + per-channel Dynamic Authority + full-frame Open Scene State.
+          grep -F 'magic=TRUTHNEGATIVE_V0_3_TN3' "$TN"
+          grep -F 'TRUTHNEGATIVE_TN3_OPEN_SCENE_SCIENTIFIC_NEGATIVE' "$TN"
+          grep -F 'TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69' "$TN"
+          grep -F 'open_scene_state_sha256=' "$TN"
+          grep -F 'open_scene_scientific_master_writeback_allowed=0' "$TN"
+          grep -F 'tn3_full_open_scene_state=1' "$TN"
+          grep -F 'fullOpenSceneStateBound' "$TNK"
+
+          # Full-resolution projections consume only a fully validated v0.67 .trr.
+          grep -F 'TRUTHRAW_FULLRES_RESTORATION_V0_67' "$PJ"
+          grep -F 'restoration_derivative_rgb_sha256' "$PJ"
+          grep -F 'TRUTHRAW_RESTORATION_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION_V0_69' "$PJ"
+          grep -F 'TruthRaw v0.69 Restoration TIFF' "$PJ"
+          grep -F 'truthrawProvenance' "$PJ"
+          grep -F 'projectedRasterIdentityVerified' "$PJ"
+          grep -F 'staging en doel zijn niet byte-identiek' "$PJK"
+          grep -F 'RestorationProjectionForegroundService.start' "$UI"
+          grep -F 'Restoration → Float32 DNG' "$UI"
+          grep -F 'Restoration → Float32 TIFF' "$UI"
+          grep -F 'Restoration → OpenEXR' "$UI"
+
+          # Projection service is explicit dataSync foreground work.
+          grep -F 'android:name=".RestorationProjectionForegroundService"' "$MANIFEST"
+          grep -F 'android:foregroundServiceType="dataSync"' "$MANIFEST"
+          grep -F 'PARTIAL_WAKE_LOCK' "$PJS"
+
+          grep -F 'restoration_projection_bridge.cpp' "$CMAKE"
+          grep -F 'truthraw_sha256_v0_69.cpp' "$CMAKE"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-69-tn3-open-scene-projection-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
