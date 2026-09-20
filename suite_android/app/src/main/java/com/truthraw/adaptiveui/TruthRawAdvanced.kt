@@ -56,7 +56,7 @@ object TruthRawAdvancedSettings {
 
 object AdvancedTilePreviewLoader {
     private const val MAGIC = 0x54524144
-    private const val HEADER_INTS = 32
+    private const val HEADER_INTS = 40
     private const val MAX_PREVIEW_EDGE = 384
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -122,8 +122,16 @@ object AdvancedTilePreviewLoader {
         if (packet[15] <= 0 || packet[15] > MAX_LOGICAL_RESIDENT_BYTES) {
             return TilePreviewUiState.Failed(job.id, "Advanced logical resident budget werd overschreden.")
         }
-        if (packet[31] != 1) {
-            return TilePreviewUiState.Failed(job.id, "Advanced derivative contractversie ontbreekt.")
+        if (packet[31] != 2 ||
+            packet[32] != 1 ||
+            packet[33] != 2 ||
+            packet[34] != 4 ||
+            packet[39] != 1
+        ) {
+            return TilePreviewUiState.Failed(
+                job.id,
+                "Advanced Open-World/Dynamic-Authority contract ontbreekt of is niet fail-closed.",
+            )
         }
 
         val authority = when (packet[20]) {
@@ -167,6 +175,14 @@ object AdvancedTilePreviewLoader {
             advancedLightAdjustedPixels = packet[28],
             advancedDetailEnabled = packet[29] != 0,
             advancedRestorationEnabled = packet[30] != 0,
+            openWorldSceneBound = packet[32] != 0,
+            openWorldIlluminationAuthority = packet[33],
+            openWorldOutputAuthority = packet[34],
+            dynamicAuthorityCalibratedPreviewPixels = packet[35],
+            dynamicAuthorityReconstructedPreviewPixels = packet[36],
+            dynamicAuthorityCensoredPreviewPixels = packet[37],
+            dynamicAuthorityUnknownRgbSamples = packet[38],
+            restorationPresentationOnly = packet[39] != 0,
         )
 
         if (!metrics.sourceBoundAppearanceReleaseAllowed ||
@@ -194,6 +210,7 @@ object AdvancedTilePreviewLoader {
         -6 -> "Advanced: restoration-mask kon niet veilig worden toegepast."
         -7 -> "Advanced: verboden full-frame RAW/file materialisatie gedetecteerd."
         -8 -> "Advanced: previewoppervlak bleef onvolledig."
+        -9 -> "Advanced: Open-World illumination-authority binding werd geweigerd."
         in 2001..2099 -> "Advanced source binding faalde ($status)."
         in 2101..2199 -> "Advanced DNG-kleurbinding faalde ($status)."
         in 4001..4099 -> "Advanced streaming faalde ($status)."
