@@ -1,0 +1,79 @@
+name: TruthRaw v0.85 Advanced Render Edit Float32
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-85-advanced-render-edit-float32
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - '.github/workflows/android-truthraw-suite-v0-85-render-edit-float32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Render Edit contracts
+        run: |
+          set -euo pipefail
+          JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
+          CPP='suite_android/app/src/main/cpp'
+
+          grep -F 'ADVANCED_RENDER_EDIT(2)' "$JAVA/PureFloat32DngExport.kt"
+          grep -F 'Render/Edit · Extended Float32 DNG · Lightroom' "$JAVA/MainActivity.kt"
+          grep -F 'TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'primary_image_role=EXTENDED_LINEAR_SRGB_FLOAT32_DERIVATIVE'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'pre_tone_extended_linear=1' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'display_oetf_applied=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'sdr_max_rgb_normalization_applied=0'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'light_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'natural_hdr_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'restoration_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'projectedRasterSha256 = renderEditBuild.projectedRasterSha256'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'kLinearSrgbToXyzD50' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'ScientificMasterDigestAccumulator digest'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'backgroundOperationKey("advanced-render-edit"' "$JAVA/MainActivity.kt"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw.so
+          readelf -Ws /tmp/libtruthraw.so |             grep -F 'Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v0-85-render-edit-float32-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
