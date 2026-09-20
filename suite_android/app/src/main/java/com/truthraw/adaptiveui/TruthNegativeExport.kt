@@ -34,6 +34,12 @@ data class TruthNegativeExportMetrics(
     val independentEvidenceCount: Int,
     val payloadBytes: Long,
     val authorityBytes: Long,
+    val openSceneBytes: Long,
+    val openSceneFinitePixels: Long,
+    val openSceneCensoredPixels: Long,
+    val fullOpenSceneStateBound: Boolean,
+    val openSceneCounterfactualPixels: Long,
+    val tnVersion: Int,
     val postWriteVerified: Boolean,
 )
 
@@ -44,8 +50,8 @@ sealed interface TruthNegativeExportResult {
 
 object TruthNegativeExporter {
     private const val MAGIC = 0x54524e47L
-    private const val PACKET_LONGS = 22
-    private const val HEADER_BYTES = 4096
+    private const val PACKET_LONGS = 28
+    private const val HEADER_BYTES = 8192
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 
@@ -121,6 +127,12 @@ object TruthNegativeExporter {
             independentEvidenceCount = packet[19].toInt(),
             payloadBytes = packet[20],
             authorityBytes = packet[21],
+            openSceneBytes = packet[22],
+            openSceneFinitePixels = packet[23],
+            openSceneCensoredPixels = packet[24],
+            fullOpenSceneStateBound = packet[25] != 0L,
+            openSceneCounterfactualPixels = packet[26],
+            tnVersion = packet[27].toInt(),
             postWriteVerified = false,
         )
 
@@ -137,7 +149,14 @@ object TruthNegativeExporter {
                 metrics.calibratedEstimateSamples + metrics.censoredSamples !=
                     metrics.width.toLong() * metrics.height.toLong() ||
                 metrics.unknownSamples !=
-                    2L * metrics.width.toLong() * metrics.height.toLong()
+                    2L * metrics.width.toLong() * metrics.height.toLong() ||
+                metrics.openSceneBytes !=
+                    metrics.width.toLong() * metrics.height.toLong() ||
+                metrics.openSceneFinitePixels + metrics.openSceneCensoredPixels !=
+                    metrics.width.toLong() * metrics.height.toLong() ||
+                !metrics.fullOpenSceneStateBound ||
+                metrics.openSceneCounterfactualPixels != 0L ||
+                metrics.tnVersion != 3
 
         if (invariantFailure) {
             runCatching { resolver.delete(destination, null, null) }
@@ -174,7 +193,7 @@ object TruthNegativeExporter {
                     if (n <= 0) break
                     offset += n
                 }
-                if (offset != HEADER_BYTES) return false to "header is korter dan 4096 bytes"
+                if (offset != HEADER_BYTES) return false to "header is korter dan 8192 bytes"
                 bytes.toString(Charsets.US_ASCII)
             }
         } catch (_: Exception) {
@@ -182,13 +201,18 @@ object TruthNegativeExporter {
         } ?: return false to "doel kon niet worden teruggelezen"
 
         val required = listOf(
-            "magic=TRUTHNEGATIVE_V0_2_TN2",
-            "container_version=2",
-            "role=TRUTHNEGATIVE_SOURCE_RESOLUTION_SCIENTIFIC_NEGATIVE",
+            "magic=TRUTHNEGATIVE_V0_3_TN3",
+            "container_version=3",
+            "role=TRUTHNEGATIVE_TN3_OPEN_SCENE_SCIENTIFIC_NEGATIVE",
             "pixel_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB",
             "sample_encoding=IEEE754_BINARY32_LE",
-            "layout=CANONICAL_64X64_CELL_SEQUENCE",
-            "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_66",
+            "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE",
+            "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_69",
+            "open_scene_state_schema=TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69",
+            "open_scene_state_1=SOURCE_BOUND_FINITE",
+            "open_scene_state_2=CENSORED_BOUND",
+            "open_scene_counterfactual_pixels=0",
+            "open_scene_scientific_master_writeback_allowed=0",
             "generic_missing_channel_policy=UNKNOWN_UNTIL_SOURCE_BOUND_UNCERTAINTY_IS_ADMITTED",
             "creates_new_evidence=0",
             "creates_second_scientific_world=0",
@@ -197,6 +221,7 @@ object TruthNegativeExporter {
             "counterfactual_observation_created=0",
             "physical_frame_count=1",
             "independent_evidence_count=1",
+            "tn3_full_open_scene_state=1",
             "END_HEADER",
         )
         val missing = required.firstOrNull { !header.contains(it) }
@@ -235,6 +260,14 @@ object TruthNegativeExporter {
             return false to "bestandsgrootte $size != verwacht $expectedBytes"
         }
 
-        return true to "TN-2 header, lineage en bestandsgrootte geverifieerd"
+        val openSceneHash = header.lineSequence()
+            .firstOrNull { it.startsWith("open_scene_state_sha256=") }
+            ?.substringAfter('=')
+            .orEmpty()
+        if (openSceneHash.length != 64 || openSceneHash.any { it !in "0123456789abcdef" }) {
+            return false to "ongeldige Open Scene State SHA-256"
+        }
+
+        return true to "TN-3 header, Open Scene lineage en bestandsgrootte geverifieerd"
     }
 }
