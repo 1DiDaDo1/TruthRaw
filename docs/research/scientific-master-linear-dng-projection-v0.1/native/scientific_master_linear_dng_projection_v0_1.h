@@ -74,6 +74,11 @@ struct ProjectionDescriptor final {
     // Optional downstream edit recipe. This never changes the stored PURE raster
     // or Scientific Master identity; it is provenance for RAW/Edit workflows.
     std::string downstreamEditManifest;
+    // Optional ordinary JPEG preview stored as a reduced-resolution secondary
+    // TIFF IFD. It is presentation only; the Float32 LinearRaw IFD stays primary.
+    std::span<const std::uint8_t> jpegPreviewBytes{};
+    std::uint32_t jpegPreviewWidth = 0u;
+    std::uint32_t jpegPreviewHeight = 0u;
     bool restorationDerivative = false;
 };
 
