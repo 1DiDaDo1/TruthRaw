@@ -45,6 +45,14 @@ jobs:
           # Camera acquisition remains untouched by compute discovery.
           git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
 
+      - name: Verify ordered multicore executor
+        run: |
+          set -euo pipefail
+          g++ -std=c++20 -O2 -pthread -Wall -Wextra -Werror \
+            suite_android/app/src/main/cpp/tests/ordered_parallel_executor_v0_1_test.cpp \
+            -o /tmp/truthraw_ordered_executor_test
+          /tmp/truthraw_ordered_executor_test
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
