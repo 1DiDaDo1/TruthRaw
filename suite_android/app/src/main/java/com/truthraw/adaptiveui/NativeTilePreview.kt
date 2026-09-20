@@ -91,6 +91,7 @@ data class TilePreviewMetrics(
     val dynamicAuthorityCensoredPreviewPixels: Int = 0,
     val dynamicAuthorityUnknownRgbSamples: Int = 0,
     val restorationPresentationOnly: Boolean = false,
+    val canonicalOpenSceneArtifactSha256: String? = null,
 )
 
 sealed interface TilePreviewUiState {
