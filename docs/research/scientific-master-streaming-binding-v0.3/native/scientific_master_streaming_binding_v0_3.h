@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../scientific-master-streaming-binding-v0.2/native/scientific_master_streaming_binding_v0_2.h"
+#include "scientific_master_streaming_binding_v0_2.h"
 
 namespace truthraw::scientific_master_streaming_binding::v0_3 {
 
