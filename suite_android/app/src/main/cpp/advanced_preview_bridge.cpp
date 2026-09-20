@@ -6,6 +6,8 @@
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
 #include "bound_uncertainty_admission_v0_79.h"
+#include "adaptive_detail_v47j_adapter.h"
+#include "truthraw_sha256_v0_69.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -17,6 +19,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -28,7 +31,6 @@ namespace {
 
 using truthraw::NeutralReferenceAppearance;
 using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
-using truthraw::SkinSafeDetailedCrispAppearance;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
@@ -46,9 +48,11 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
+namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 66u;
+constexpr std::size_t kHeaderInts = 76u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -88,6 +92,40 @@ std::string hex_sha256(const std::array<std::uint8_t, 32>& bytes) {
         out[2u * i + 1u] = kHex[bytes[i] & 0x0fu];
     }
     return out;
+}
+
+canonical_scene::Digest build_adaptive_detail_binding(
+    const canonical_scene::Digest& openSceneSha256,
+    const canonical_scene::Digest& channelAuthoritySha256,
+    const canonical_scene::Digest& uncertaintyAdmissionSha256,
+    float noiseSigmaAt2Pct) {
+    sha::Hasher h;
+    constexpr char kDomain[] =
+        "TruthRawAdaptiveDetailBinding/0.80\n"
+        "canonical_algorithm=canonical/detail/v4.7j\n"
+        "backend=adaptive_detailed_crisp_multiband_hard_edge_guard_v47j\n"
+        "role=APPEARANCE_DETAIL_COMPENSATION_ONLY\n"
+        "scientific_master_modified=0\n"
+        "authority_modified=0\n"
+        "creates_optical_or_sensor_evidence=0\n"
+        "color_policy=luminance_only_rgb_direction_preserved_no_semantic_segmentation\n"
+        "required_halo=5\n";
+    h.update(
+        reinterpret_cast<const std::uint8_t*>(kDomain),
+        sizeof(kDomain) - 1u);
+    h.update(openSceneSha256);
+    h.update(channelAuthoritySha256);
+    h.update(uncertaintyAdmissionSha256);
+    const std::uint32_t bits =
+        std::bit_cast<std::uint32_t>(noiseSigmaAt2Pct);
+    const std::array<std::uint8_t, 4> little{
+        static_cast<std::uint8_t>(bits),
+        static_cast<std::uint8_t>(bits >> 8u),
+        static_cast<std::uint8_t>(bits >> 16u),
+        static_cast<std::uint8_t>(bits >> 24u),
+    };
+    h.update(little);
+    return h.finalize();
 }
 
 jintArray status_packet(JNIEnv* env, jint status) {
@@ -832,9 +870,14 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -9);
     }
 
+    const float adaptiveDetailNoiseSigmaAt2Pct =
+        adaptive_detail::noise_sigma_2pct_from_metadata(source->metadata());
+
     std::shared_ptr<truthraw::IAppearanceBackend> appearance;
     if ((flags & kFlagDetail) != 0) {
-        appearance = std::make_shared<SkinSafeDetailedCrispAppearance>();
+        appearance =
+            std::make_shared<adaptive_detail::AdaptiveDetailedCrispAppearanceV47j>(
+                adaptiveDetailNoiseSigmaAt2Pct);
     } else {
         appearance = std::make_shared<NeutralReferenceAppearance>();
     }
@@ -935,10 +978,29 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[39] = 1; // restoration/relight remain derivative; no scientific writeback
     out[56] = static_cast<jint>(uncertaintyDecision.code);
     out[57] = uncertaintyDecision.reconstructedAuthorityAllowed ? 1 : 0;
+
+    canonical_scene::Digest adaptiveDetailBindingSha256{};
+    const bool adaptiveDetailEnabled = (flags & kFlagDetail) != 0;
+    if (adaptiveDetailEnabled) {
+        adaptiveDetailBindingSha256 = build_adaptive_detail_binding(
+            openSceneSummary.artifactSha256,
+            channelSummary.artifactSha256,
+            uncertaintyDecision.decisionSha256,
+            adaptiveDetailNoiseSigmaAt2Pct);
+    }
+    out[66] = adaptiveDetailEnabled ? 1 : 0;
+    out[67] = adaptiveDetailEnabled
+        ? static_cast<jint>(
+            std::bit_cast<std::uint32_t>(adaptiveDetailNoiseSigmaAt2Pct))
+        : 0;
+
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
         out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
         out[58u + word] = digest_word_le(uncertaintyDecision.decisionSha256, word);
+        out[68u + word] = adaptiveDetailEnabled
+            ? digest_word_le(adaptiveDetailBindingSha256, word)
+            : 0;
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
