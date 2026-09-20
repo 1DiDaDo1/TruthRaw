@@ -42,6 +42,10 @@
             android:name=".TruthRawAdvancedActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
+        <activity
+            android:name=".TruthRawProActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <activity
             android:name=".CurrentAndroid17HonorCameraBaselineActivity"
