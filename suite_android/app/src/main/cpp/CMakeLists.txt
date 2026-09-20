@@ -53,6 +53,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     bound_uncertainty_admission_v0_79.cpp
     adaptive_detail_v47j_adapter.cpp
     output_acutance_v0_81.cpp
+    illumination_state_v0_82.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
