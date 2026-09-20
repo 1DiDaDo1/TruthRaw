@@ -4,9 +4,14 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.RectF
 import android.graphics.SurfaceTexture
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -25,11 +30,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import android.view.Gravity
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.json.JSONArray
@@ -70,7 +78,7 @@ import java.util.Locale
  */
 class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListener {
 
-    private lateinit var preview: TextureView
+    private lateinit var preview: AutoFitTextureView
     private lateinit var telemetry: TextView
     private lateinit var status: TextView
     private lateinit var capabilityButton: Button
@@ -92,6 +100,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private var camera: CameraDevice? = null
     private var session: CameraCaptureSession? = null
     private var previewSurface: Surface? = null
+    private var previewBufferSize: Size? = null
     private var rawReader: ImageReader? = null
 
     @Volatile private var lastPreviewResult: TotalCaptureResult? = null
@@ -192,69 +201,166 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     }
 
     private fun buildUi(): View {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), dp(12), dp(12), dp(16))
-            setBackgroundColor(Color.rgb(10, 12, 15))
-        }
-        root.addView(label(
-            if (productionCameraEntry) "TruthRaw Camera" else "TruthRaw · Android 17 · v0.14 route replay v0.53",
-            22f,
-            true,
-        ))
-        root.addView(label(
-            if (productionCameraEntry) {
-                "Live Camera-5 route · één fysiek frame → RAW source-first seal → topology admission → dezelfde TruthRaw RAW-ingang."
-            } else {
-                "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen."
-            },
-            11f, false, Color.rgb(184, 191, 202),
-        ))
-        root.addView(space(6))
-
-        preview = TextureView(this).apply {
+        preview = AutoFitTextureView(this).apply {
             surfaceTextureListener = this@FotoGraaf200MpStagedActivity
             // Never set a TextureView background drawable/color: v0.9 fixed that crash.
         }
+        telemetry = label("Preview nog niet gestart.", 11f, true, Color.rgb(220, 225, 234)).apply {
+            maxLines = if (productionCameraEntry) 3 else Int.MAX_VALUE
+        }
+        status = label("Initialiseren…", 11f, false, Color.WHITE).apply {
+            maxLines = if (productionCameraEntry) 3 else Int.MAX_VALUE
+        }
+
+        capabilityButton = button("Stap 1 · lees alle Camera-5 RAW capability-routes") { readCapability() }
+        previewButton = button("Stap 2 · start live beeld via logical 0 · 3.7×") { startLogicalPreview() }.apply {
+            isEnabled = false
+        }
+        captureButton = if (productionCameraEntry) {
+            shutterButton { capture200Mp() }.apply { isEnabled = false }
+        } else {
+            button("Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288") { capture200Mp() }.apply {
+                isEnabled = false
+            }
+        }
+        saveRawButton = button("Originele 200MP RAW buffer opslaan") {
+            saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW)
+        }.apply { isEnabled = false }
+        saveDngButton = button(
+            if (productionCameraEntry) "Admitted RAW/DNG verwerkingsbron opslaan" else "Auxiliary 200MP DNG opslaan",
+        ) {
+            saveFile(
+                if (productionCameraEntry) admittedProcessingDng ?: capturedDng else capturedDng,
+                "image/x-adobe-dng",
+                REQUEST_SAVE_DNG,
+            )
+        }.apply { isEnabled = false }
+        saveJsonButton = button("200MP evidence JSON opslaan") {
+            saveFile(capturedJson, "application/json", REQUEST_SAVE_JSON)
+        }.apply { isEnabled = false }
+
+        return if (productionCameraEntry) {
+            buildProductionCameraUi()
+        } else {
+            buildResearchCameraUi()
+        }
+    }
+
+    private fun buildProductionCameraUi(): View {
+        val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val root = LinearLayout(this).apply {
+            orientation = if (landscape) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+            setBackgroundColor(Color.rgb(10, 12, 15))
+        }
+        applySafeSystemInsets(root)
+
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(label("TruthRaw Camera", if (landscape) 19f else 22f, true))
+            addView(label(
+                "Camera-5 · één fysiek frame · RAW source-first · topology admission",
+                if (landscape) 9.5f else 10.5f,
+                false,
+                Color.rgb(184, 191, 202),
+            ))
+        }
+
+        val previewPane = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
+            addView(
+                preview,
+                FrameLayout.LayoutParams(
+                    if (landscape) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT,
+                    if (landscape) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER,
+                ),
+            )
+        }
+
+        val shutter = shutterPanel()
+        val sourceNote = label(
+            "RAW-envelope wordt eerst verzegeld; alleen de read-only toegelaten sample-domain gaat verder.",
+            9f,
+            false,
+            Color.rgb(145, 153, 165),
+        )
+
+        if (landscape) {
+            root.addView(
+                previewPane,
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
+                    marginEnd = dp(10)
+                },
+            )
+            root.addView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(8), dp(4), dp(4), dp(4))
+                    addView(header)
+                    addView(space(8))
+                    addView(telemetry)
+                    addView(space(4))
+                    addView(status)
+                    addView(View(this@FotoGraaf200MpStagedActivity), LinearLayout.LayoutParams(1, 0, 1f))
+                    addView(shutter)
+                    addView(space(8))
+                    addView(sourceNote)
+                },
+                LinearLayout.LayoutParams(dp(310), ViewGroup.LayoutParams.MATCH_PARENT),
+            )
+        } else {
+            root.addView(header)
+            root.addView(space(8))
+            root.addView(
+                previewPane,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f),
+            )
+            root.addView(space(8))
+            root.addView(telemetry)
+            root.addView(space(3))
+            root.addView(status)
+            root.addView(space(8))
+            root.addView(shutter)
+            root.addView(space(6))
+            root.addView(sourceNote)
+        }
+        return root
+    }
+
+    private fun buildResearchCameraUi(): View {
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.rgb(10, 12, 15))
+        }
+        applySafeSystemInsets(root)
+        root.addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true))
+        root.addView(label(
+            "Android-16 v0.14 route exact opnieuw: logical 0 → physical 5 → MAX output → physical-only MAX request → RAW eerst verzegelen.",
+            11f,
+            false,
+            Color.rgb(184, 191, 202),
+        ))
+        root.addView(space(6))
         root.addView(preview, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         root.addView(space(6))
-
-        telemetry = label("Preview nog niet gestart.", 11f, true, Color.rgb(220, 225, 234))
-        status = label("Initialiseren…", 11f, false, Color.WHITE)
         root.addView(telemetry)
         root.addView(space(4))
         root.addView(status)
         root.addView(space(6))
-
-        capabilityButton = button("Stap 1 · lees alle Camera-5 RAW capability-routes") { readCapability() }
-        previewButton = button("Stap 2 · start live beeld via logical 0 · 3.7×") { startLogicalPreview() }.apply { isEnabled = false }
-        captureButton = button(
-            if (productionCameraEntry) "Maak RAW-opname" else "Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288",
-        ) { capture200Mp() }.apply { isEnabled = false }
-        saveRawButton = button("Originele 200MP RAW buffer opslaan") { saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW) }.apply { isEnabled = false }
-        saveDngButton = button(
-            if (productionCameraEntry) "Admitted RAW/DNG verwerkingsbron opslaan" else "Auxiliary 200MP DNG opslaan",
-        ) { saveFile(if (productionCameraEntry) admittedProcessingDng ?: capturedDng else capturedDng, "image/x-adobe-dng", REQUEST_SAVE_DNG) }.apply { isEnabled = false }
-        saveJsonButton = button("200MP evidence JSON opslaan") { saveFile(capturedJson, "application/json", REQUEST_SAVE_JSON) }.apply { isEnabled = false }
-
-        if (productionCameraEntry) {
-            root.addView(captureButton)
-            root.addView(label(
-                "De 16320×12288 Camera2-buffer is alleen de capture-envelope. TruthRaw bepaalt na sealing read-only welke sample-domain werkelijk gevuld en toegelaten is; alleen die gaat verder.",
-                9.5f, false, Color.rgb(145, 153, 165),
-            ))
-        } else {
-            root.addView(capabilityButton)
-            root.addView(previewButton)
-            root.addView(captureButton)
-            root.addView(saveRawButton)
-            root.addView(saveDngButton)
-            root.addView(saveJsonButton)
-            root.addView(label(
-                "Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd.",
-                9f, false, Color.rgb(145, 153, 165),
-            ))
-        }
+        root.addView(capabilityButton)
+        root.addView(previewButton)
+        root.addView(captureButton)
+        root.addView(saveRawButton)
+        root.addView(saveDngButton)
+        root.addView(saveJsonButton)
+        root.addView(label(
+            "Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd.",
+            9f,
+            false,
+            Color.rgb(145, 153, 165),
+        ))
         return root
     }
 
