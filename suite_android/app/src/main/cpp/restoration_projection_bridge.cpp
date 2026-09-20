@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "dng_color_binding_producer_v0_2.h"
+#include "open_scene_canonical_v0_70.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_linear_dng_projection_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -31,6 +32,7 @@
 
 namespace {
 
+using truthraw::CfaPattern;
 using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
@@ -42,6 +44,7 @@ namespace float_dng = truthraw::scientific_master_linear_dng_projection::v0_1;
 namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace sha = truthraw::sha256_v0_69;
+namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 
 constexpr jlong kMagic = 0x5452504a; // TRPJ
 constexpr std::size_t kPacketLongs = 20u;
@@ -421,12 +424,88 @@ bool lineage_matches(const TrrMeta& m,const Lineage& l) {
            m.height==static_cast<std::uint32_t>(l.source->metadata().height);
 }
 
-std::string provenance_text(const TrrReader& trr) {
+int measured_channel(CfaPattern cfa, int x, int y) noexcept {
+    const bool xe=(x&1)==0, ye=(y&1)==0;
+    switch(cfa){
+        case CfaPattern::BGGR: if(ye&&xe)return 2; if(!ye&&!xe)return 0; return 1;
+        case CfaPattern::RGGB: if(ye&&xe)return 0; if(!ye&&!xe)return 2; return 1;
+        case CfaPattern::GRBG: if(ye&&!xe)return 0; if(!ye&&xe)return 2; return 1;
+        case CfaPattern::GBRG: if(!ye&&xe)return 0; if(ye&&!xe)return 2; return 1;
+    }
+    return -1;
+}
+
+bool build_canonical_open_scene(
+    Lineage& line,
+    canonical_scene::Summary& summary) {
+    const auto& md=line.source->metadata();
+    if(md.width<=0||md.height<=0) return false;
+    canonical_scene::Binding binding{};
+    binding.sourceEvidenceSha256=line.seal.sha256;
+    binding.scientificMasterSha256=line.scientific.scientificMasterHash;
+    binding.width=static_cast<std::uint32_t>(md.width);
+    binding.height=static_cast<std::uint32_t>(md.height);
+    binding.physicalFrameCount=line.scientific.physicalFrameCount;
+    binding.independentEvidenceCount=line.scientific.independentEvidenceCount;
+    binding.colourBindingId=line.color.color.bindingId;
+    canonical_scene::Builder builder(binding);
+    if(!builder.valid()) return false;
+
+    std::vector<std::uint16_t> raw;
+    std::vector<float> gain;
+    std::vector<std::uint8_t> auth;
+    std::vector<std::uint8_t> states;
+    for(int y=0;y<md.height;y+=static_cast<int>(kTileEdge)){
+        const int h=std::min(static_cast<int>(kTileEdge),md.height-y);
+        for(int x=0;x<md.width;x+=static_cast<int>(kTileEdge)){
+            const int w=std::min(static_cast<int>(kTileEdge),md.width-x);
+            const std::size_t pixels=static_cast<std::size_t>(w)*h;
+            raw.resize(pixels);
+            if(md.hasGainField) gain.resize(pixels); else gain.clear();
+            truthraw::TileRect rect{x,y,x+w,y+h,x,y,x+w,y+h};
+            const auto s=line.source->readRawTile(
+                rect,raw.data(),raw.size(),
+                md.hasGainField?gain.data():nullptr,
+                md.hasGainField?gain.size():0u);
+            if(!s) return false;
+            auth.assign(pixels*3u,4u);
+            states.assign(pixels,0u);
+            for(int yy=0;yy<h;++yy){
+                for(int xx=0;xx<w;++xx){
+                    const std::size_t i=static_cast<std::size_t>(yy)*w+xx;
+                    const int ch=measured_channel(md.cfa,x+xx,y+yy);
+                    if(ch<0||ch>2) return false;
+                    const bool clipped=static_cast<float>(raw[i])>=md.whiteLevel;
+                    auth[3u*i+static_cast<std::size_t>(ch)]=clipped?3u:1u;
+                    states[i]=static_cast<std::uint8_t>(
+                        clipped
+                            ? (ch==0?canonical_scene::PixelState::RCensored:
+                               ch==1?canonical_scene::PixelState::GCensored:
+                                     canonical_scene::PixelState::BCensored)
+                            : (ch==0?canonical_scene::PixelState::RCalibratedEstimate:
+                               ch==1?canonical_scene::PixelState::GCalibratedEstimate:
+                                     canonical_scene::PixelState::BCalibratedEstimate));
+                }
+            }
+            if(!builder.append(auth,states)) return false;
+        }
+    }
+    return builder.finalize(summary);
+}
+
+std::string provenance_text(
+    const TrrReader& trr,
+    const canonical_scene::Summary& openScene) {
     return std::string("TruthRaw Restoration Projection v0.69\n")+
         "role=RETREATABLE_RESTORATION_DERIVATIVE\n"+
         "scientific_master_sha256="+digest::to_hex(trr.meta().masterHash)+"\n"+
         "restoration_derivative_rgb_sha256="+digest::to_hex(trr.meta().derivativeHash)+"\n"+
         "restoration_role_mask_sha256="+sha::hex(trr.roleHash())+"\n"+
+        "dynamic_authority_artifact_sha256="+sha::hex(openScene.dynamicAuthoritySha256)+"\n"+
+        "open_scene_content_sha256="+sha::hex(openScene.contentSha256)+"\n"+
+        "open_scene_policy_sha256="+sha::hex(openScene.policySha256)+"\n"+
+        "open_scene_artifact_sha256="+sha::hex(openScene.artifactSha256)+"\n"+
+        "open_scene_schema=TruthRawOpenSceneCanonicalState/0.70\n"+
         "role0_preserve="+std::to_string(trr.role0())+"\n"+
         "role1_aesthetic="+std::to_string(trr.role1())+"\n"+
         "role2_unresolved="+std::to_string(trr.role2())+"\n"+
@@ -463,8 +542,10 @@ std::vector<std::uint8_t> shortp(std::uint16_t v){std::vector<std::uint8_t> o;pu
 std::vector<std::uint8_t> longp(std::uint32_t v){std::vector<std::uint8_t> o;put_u32_le(o,v);return o;}
 std::vector<std::uint8_t> asciip(const std::string& s){std::vector<std::uint8_t> o(s.begin(),s.end());o.push_back(0);return o;}
 
-bool write_tiff(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
-                std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over) {
+bool write_tiff(
+    int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
+    const canonical_scene::Summary& openScene,
+    std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over) {
     constexpr std::uint16_t ASCII=2,SHORT=3,LONG=4;
     constexpr std::uint32_t tileBytes=kTileEdge*kTileEdge*3u*4u;
     std::vector<IfdEntry> e;
@@ -478,7 +559,7 @@ bool write_tiff(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     std::vector<std::uint8_t> offs(trr.tileCount()*4u,0);add(324,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(offs));
     std::vector<std::uint8_t> counts;counts.reserve(trr.tileCount()*4u);for(std::size_t i=0;i<trr.tileCount();++i)put_u32_le(counts,tileBytes);add(325,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(counts));
     std::vector<std::uint8_t> sf;for(int i=0;i<3;++i)put_u16_le(sf,3);add(339,SHORT,3,std::move(sf));
-    auto desc=asciip(provenance_text(trr)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n");add(270,ASCII,static_cast<std::uint32_t>(desc.size()),std::move(desc));
+    auto desc=asciip(provenance_text(trr,openScene)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n");add(270,ASCII,static_cast<std::uint32_t>(desc.size()),std::move(desc));
     std::sort(e.begin(),e.end(),[](auto&a,auto&b){return a.tag<b.tag;});
     std::uint32_t cursor=8u+2u+static_cast<std::uint32_t>(e.size())*12u+4u;
     for(auto& x:e){if(x.payload.size()>4u){cursor=align4(cursor);x.off=cursor;cursor+=static_cast<std::uint32_t>(x.payload.size());}}
@@ -513,8 +594,10 @@ void exr_attr(std::vector<std::uint8_t>& h,const std::string& name,const std::st
 }
 std::vector<std::uint8_t> exr_i32x4(std::int32_t a,std::int32_t b,std::int32_t c,std::int32_t d){std::vector<std::uint8_t> o;put_u32_le(o,static_cast<std::uint32_t>(a));put_u32_le(o,static_cast<std::uint32_t>(b));put_u32_le(o,static_cast<std::uint32_t>(c));put_u32_le(o,static_cast<std::uint32_t>(d));return o;}
 
-bool write_exr(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
-               std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over){
+bool write_exr(
+    int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
+    const canonical_scene::Summary& openScene,
+    std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over){
     std::vector<std::uint8_t> h;put_u32_le(h,20000630u);put_u32_le(h,2u);
     std::vector<std::uint8_t> ch;
     for(const char* name:{"B","G","R"}){ch.insert(ch.end(),name,name+1);ch.push_back(0);put_u32_le(ch,2u);ch.push_back(0);ch.push_back(0);ch.push_back(0);ch.push_back(0);put_u32_le(ch,1u);put_u32_le(ch,1u);}ch.push_back(0);
@@ -525,7 +608,7 @@ bool write_exr(int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     std::vector<std::uint8_t> one;put_f32_le(one,1.f);exr_attr(h,"pixelAspectRatio","float",one);
     std::vector<std::uint8_t> center;put_f32_le(center,0.f);put_f32_le(center,0.f);exr_attr(h,"screenWindowCenter","v2f",center);exr_attr(h,"screenWindowWidth","float",one);
     std::vector<std::uint8_t> chrom;for(float v:{0.64f,0.33f,0.30f,0.60f,0.15f,0.06f,0.3127f,0.3290f})put_f32_le(chrom,v);exr_attr(h,"chromaticities","chromaticities",chrom);
-    const auto pv=provenance_text(trr)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n";
+    const auto pv=provenance_text(trr,openScene)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n";
     exr_attr(h,"truthrawProvenance","string",std::vector<std::uint8_t>(pv.begin(),pv.end()));h.push_back(0);
     const std::uint64_t tableStart=h.size(), tableBytes=static_cast<std::uint64_t>(trr.meta().height)*8u;
     const std::uint64_t rowData=static_cast<std::uint64_t>(trr.meta().width)*3u*4u;
@@ -580,6 +663,15 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
     if(!establish_lineage(static_cast<int>(sourceFd),maxSourceResidentBytes,maxLogicalResidentBytes,line,ls))return packet(env,ls);
     if(!lineage_matches(trr.meta(),line))return packet(env,-3);
 
+    canonical_scene::Summary openScene{};
+    if(!build_canonical_open_scene(line,openScene) ||
+       openScene.counterfactualPixelCount!=0u ||
+       openScene.scientificWritebackPixelCount!=0u ||
+       openScene.createsNewEvidence ||
+       openScene.chunkingChangesScientificIdentity){
+        return packet(env,-6);
+    }
+
     std::uint64_t outBytes=0,neg=0,over=0;
     bool rasterVerified=false;
     if(format==kFormatDng){
@@ -587,7 +679,10 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
         d.width=trr.meta().width;d.height=trr.meta().height;d.orientation=static_cast<std::uint16_t>(trr.meta().orientation);
         d.sealedSourceSha256=line.seal.sha256;d.scientificMasterSha256=line.scientific.scientificMasterHash;
         d.zeroLineSha256=line.phase2.zeroLineHash;d.sceneScaleSha256=line.phase2.sceneScaleHash;
-        d.projectedRasterSha256=trr.meta().derivativeHash;d.zeroLineGauge=line.scientific.zeroLineGauge;d.sceneBinding=line.scientific.sceneBinding;
+        d.projectedRasterSha256=trr.meta().derivativeHash;
+        d.openSceneStateSha256=openScene.artifactSha256;
+        d.restorationRoleMaskSha256=trr.roleHash();
+        d.zeroLineGauge=line.scientific.zeroLineGauge;d.sceneBinding=line.scientific.sceneBinding;
         d.serializedBackplane=line.phase2.serializedBackplane;d.sourceEvidenceId=line.seal.sourceEvidenceId;d.colorBindingId=line.color.color.bindingId;
         d.precisionPolicyId=kPrecisionPolicy;d.runtimeReconstructionBackendId=line.reconstruction->name();
         d.projectionRole="TRUTHRAW_RESTORATION_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION_V0_69";d.restorationDerivative=true;
@@ -599,8 +694,8 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
     } else {
         const auto c2s=camera_to_linear_srgb(line.color.color.cameraToXyzD50);
         bool ok=format==kFormatTiff
-            ? write_tiff(static_cast<int>(outputFd),trr,c2s,outBytes,neg,over)
-            : write_exr(static_cast<int>(outputFd),trr,c2s,outBytes,neg,over);
+            ? write_tiff(static_cast<int>(outputFd),trr,c2s,openScene,outBytes,neg,over)
+            : write_exr(static_cast<int>(outputFd),trr,c2s,openScene,outBytes,neg,over);
         if(!ok){(void)::ftruncate(outputFd,0);return packet(env,-5);}
         rasterVerified=true; // TrrReader already verified derivative identity before projection.
     }
