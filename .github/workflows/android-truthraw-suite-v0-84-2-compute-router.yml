@@ -64,6 +64,29 @@ jobs:
           /tmp/truthraw-tile-reference/test_tile_native_dng_source_v0_1
           /tmp/truthraw-tile-reference/test_tile_native_dng_streaming_integration_v0_1
 
+      - name: Verify v4.7i compiler optimization bit identity
+        run: |
+          set -euo pipefail
+          TEST='docs/research/android-acceleration-v0.1/tests/compiler_optimization_equivalence_v0_1.cpp'
+          CORE='canonical/reconstruction/v4.7i/native/src/core.cpp'
+          INC='canonical/reconstruction/v4.7i/native/include'
+
+          clang++ -std=c++20 -O0 -fno-fast-math -ffp-contract=off \
+            -I"$INC" "$TEST" "$CORE" -pthread \
+            -Wno-error=misleading-indentation \
+            -o /tmp/truthraw-v47i-o0
+
+          clang++ -std=c++20 -O2 -fno-fast-math -ffp-contract=off \
+            -I"$INC" "$TEST" "$CORE" -pthread \
+            -Wno-error=misleading-indentation \
+            -o /tmp/truthraw-v47i-o2
+
+          O0=$(/tmp/truthraw-v47i-o0)
+          O2=$(/tmp/truthraw-v47i-o2)
+          echo "v47i_o0_signature=$O0"
+          echo "v47i_o2_signature=$O2"
+          test "$O0" = "$O2"
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
