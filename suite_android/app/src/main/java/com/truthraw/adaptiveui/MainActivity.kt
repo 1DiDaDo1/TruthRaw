@@ -108,16 +108,13 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
 
+        var cameraJobToAutoStart: RawJob? = null
         if (savedInstanceState == null) {
-            val internalCameraPath = intent.getStringExtra(EXTRA_INTERNAL_CAMERA_SOURCE_PATH)
-            if (!internalCameraPath.isNullOrBlank()) {
-                val cameraJob = runCatching {
-                    RawIngress.readInternalCameraFile(File(internalCameraPath))
-                }.getOrNull()
-                if (cameraJob != null) {
-                    session = session.withJobs(listOf(cameraJob))
-                    activeJobId = cameraJob.id
-                    previewState = TilePreviewUiState.Idle
+            val cameraJob = readInternalCameraJob(intent)
+            if (cameraJob != null) {
+                installInternalCameraJob(cameraJob)
+                if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
+                    cameraJobToAutoStart = cameraJob
                 }
             }
         }
@@ -128,12 +125,67 @@ class MainActivity : Activity() {
 
         render()
 
+        cameraJobToAutoStart?.let { job ->
+            window.decorView.post {
+                if (activeJobId == job.id && previewState is TilePreviewUiState.Idle) {
+                    requestPreview(job)
+                }
+            }
+        }
+
         if (savedInstanceState == null &&
             intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
             session.jobs.isEmpty()
         ) {
             window.decorView.post { launchRawPicker() }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val cameraJob = readInternalCameraJob(intent) ?: return
+        installInternalCameraJob(cameraJob)
+        render()
+        if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
+            window.decorView.post {
+                if (activeJobId == cameraJob.id && previewState is TilePreviewUiState.Idle) {
+                    requestPreview(cameraJob)
+                }
+            }
+        }
+    }
+
+    private fun readInternalCameraJob(sourceIntent: Intent): RawJob? {
+        val sourcePath = sourceIntent.getStringExtra(EXTRA_INTERNAL_CAMERA_SOURCE_PATH)
+            ?.takeIf { it.isNotBlank() }
+            ?: return null
+        val evidencePath = sourceIntent.getStringExtra(EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH)
+            ?.takeIf { it.isNotBlank() }
+        val upstreamSha = sourceIntent.getStringExtra(EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256)
+            ?.takeIf { it.isNotBlank() }
+        return runCatching {
+            RawIngress.readInternalCameraFile(
+                file = File(sourcePath),
+                acquisitionEvidenceFile = evidencePath?.let(::File),
+                upstreamSealedSourceSha256 = upstreamSha,
+            )
+        }.getOrNull()
+    }
+
+    private fun installInternalCameraJob(cameraJob: RawJob) {
+        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        ++previewGeneration
+        session = session.withJobs(listOf(cameraJob))
+        activeJobId = cameraJob.id
+        previewState = TilePreviewUiState.Idle
+        loadingStartedAtElapsedMs = null
+        empiricalAudit = null
+        jpegStatus = null
+        pureFloatDngStatus = null
+        truthNegativeStatus = null
+        fullResRestorationStatus = null
+        projectionStatus = null
     }
 
     override fun onResume() {
@@ -963,6 +1015,17 @@ class MainActivity : Activity() {
             11f,
             muted = true,
         ))
+        if (active.source.sourceRoute == SourceIngressRoute.CAMERA_CAPTURE &&
+            active.source.upstreamSealedSourceSha256 != null
+        ) {
+            addView(label(
+                "Acquisitie-ouder=${active.source.upstreamSourceRole ?: "SEALED_CAMERA_SOURCE"} · " +
+                    "upstream SHA-256=${active.source.upstreamSealedSourceSha256.take(16)}… · " +
+                    "DNG wordt opnieuw zelfstandig sealed/admitted; authority wordt niet geërfd.",
+                10.5f,
+                muted = true,
+            ))
+        }
         addView(label(
             "Finalized Scientific Preview · Scientific Master/TruthRange/Backplane-lineage vereist vóór vrijgave",
             11f,
@@ -1531,6 +1594,9 @@ class MainActivity : Activity() {
         private const val KEY_PENDING_PROJECTION_FORMAT = "pending_projection_format"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
         const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
+        const val EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH = "truthraw.extra.INTERNAL_CAMERA_EVIDENCE_PATH"
+        const val EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256 = "truthraw.extra.INTERNAL_CAMERA_UPSTREAM_SHA256"
+        const val EXTRA_AUTO_START_TRUTHRAW = "truthraw.extra.AUTO_START_TRUTHRAW"
 
         private const val REQUEST_OPEN_RAW = 4101
         private const val REQUEST_SAVE_JPEG = 4102
