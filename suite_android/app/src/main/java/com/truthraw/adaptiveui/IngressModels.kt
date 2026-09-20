@@ -23,6 +23,12 @@ data class RawHandle(
     val mimeType: String? = null,
     val format: RawFormatProfile = RawFormatRegistry.classify(displayName, mimeType),
     val sourceRoute: SourceIngressRoute = SourceIngressRoute.IMPORTED_FILE,
+    // Optional acquisition ancestry. For camera-origin DNG this points back to
+    // the separately sealed app-visible RAW_SENSOR evidence; it does not make
+    // the DNG byte-identical to that upstream evidence.
+    val acquisitionEvidencePath: String? = null,
+    val upstreamSealedSourceSha256: String? = null,
+    val upstreamSourceRole: String? = null,
 )
 
 enum class JobState {
@@ -64,8 +70,23 @@ data class BatchSession(
 }
 
 object RawIngress {
-    fun readInternalCameraFile(file: File): RawJob {
+    fun readInternalCameraFile(
+        file: File,
+        acquisitionEvidenceFile: File? = null,
+        upstreamSealedSourceSha256: String? = null,
+    ): RawJob {
         require(file.isFile && file.canRead()) { "Camera source file is not readable." }
+        if (acquisitionEvidenceFile != null) {
+            require(acquisitionEvidenceFile.isFile && acquisitionEvidenceFile.canRead()) {
+                "Camera acquisition evidence file is not readable."
+            }
+        }
+        val upstreamSha = upstreamSealedSourceSha256?.lowercase()
+        if (upstreamSha != null) {
+            require(upstreamSha.matches(Regex("[0-9a-f]{64}"))) {
+                "Camera upstream sealed source SHA-256 is invalid."
+            }
+        }
         val mimeType = when (file.extension.lowercase()) {
             "dng" -> "image/x-adobe-dng"
             else -> "application/octet-stream"
@@ -79,6 +100,11 @@ object RawIngress {
                 mimeType = mimeType,
                 format = format,
                 sourceRoute = SourceIngressRoute.CAMERA_CAPTURE,
+                acquisitionEvidencePath = acquisitionEvidenceFile?.absolutePath,
+                upstreamSealedSourceSha256 = upstreamSha,
+                upstreamSourceRole = if (upstreamSha != null) {
+                    "APP_VISIBLE_CAMERA2_RAW_SENSOR_SOURCE_FIRST_SEALED"
+                } else null,
             ),
         )
     }
