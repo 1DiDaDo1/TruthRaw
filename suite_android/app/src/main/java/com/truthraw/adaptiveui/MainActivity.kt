@@ -36,6 +36,8 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingJpgLJobId: String? = null
     private var jpgLStatus: String? = null
+    private var pendingPhotoRoute: String? = null
+    private var pendingPhotoFlags: Int = 0
     private var pendingPureFloatDngJobId: String? = null
     private var pureFloatDngStatus: String? = null
     private var pendingTruthNegativeJobId: String? = null
@@ -257,8 +259,10 @@ class MainActivity : Activity() {
         if (ready.jobId != job.id) return
         pendingJpegJobId = job.id
         jpegStatus = null
-        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val route = preferredRoute()
+        pendingPhotoRoute = route
+        pendingPhotoFlags = photoFlagsForRoute(route)
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/jpeg"
@@ -273,6 +277,9 @@ class MainActivity : Activity() {
         if (ready.jobId != job.id) return
         pendingJpgLJobId = job.id
         jpgLStatus = null
+        val route = preferredRoute()
+        pendingPhotoRoute = route
+        pendingPhotoFlags = photoFlagsForRoute(route)
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -485,31 +492,110 @@ class MainActivity : Activity() {
         if (requestCode == REQUEST_SAVE_JPEG) {
             val expectedJob = pendingJpegJobId
             pendingJpegJobId = null
-            if (resultCode != RESULT_OK || data?.data == null) {
-                jpegStatus = "JPEG-export geannuleerd."
+            val route = pendingPhotoRoute ?: preferredRoute()
+            val flags = pendingPhotoFlags
+            pendingPhotoRoute = null
+            pendingPhotoFlags = 0
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                jpegStatus = "JPG-export geannuleerd."
                 render()
                 return
             }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
             val ready = previewState as? TilePreviewUiState.Ready
-            if (expectedJob == null || ready == null || ready.jobId != expectedJob) {
-                jpegStatus = "JPEG-export geblokkeerd: actieve preview veranderde tijdens de bestandsdialoog."
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                jpegStatus = "JPG-export geblokkeerd: actieve TruthRaw-route veranderde."
                 render()
                 return
             }
-            jpegStatus = try {
-                val stream = contentResolver.openOutputStream(data.data!!, "w")
-                    ?: throw IOException("Documentprovider gaf geen outputstream.")
-                stream.use { PortablePreviewEncoder.encodeJpeg(ready.bitmap, it) }
-                if (ready.metrics.advancedDerivative) {
-                    "TRUTHRAW ADVANCED JPEG opgeslagen · appearance/restoration derivative · " +
-                        "PURE Scientific Master/evidence niet gewijzigd."
-                } else {
-                    "JPEG opgeslagen · sRGB-projectie van finalized Scientific Preview · geen Scientific Master/evidence."
-                }
-            } catch (error: Exception) {
-                "JPEG-export faalde: ${error.message ?: error.javaClass.simpleName}"
-            }
+
+            jpegStatus = "JPG · full-resolution $route wordt opgebouwd… 384px-preview wordt niet gebruikt."
             render()
+            Thread({
+                val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
+                val rendered = FullResJpegExporter.renderToPrivateJpeg(
+                    contentResolver, job, flags, dir,
+                )
+                var status = when (rendered) {
+                    is FullResJpegResult.Failed -> rendered.reason
+                    is FullResJpegResult.Success -> {
+                        val ok = FullResJpegExporter.commit(
+                            contentResolver,
+                            rendered.file,
+                            destination,
+                            rendered.metrics.jpegSha256,
+                        )
+                        val m = rendered.metrics
+                        rendered.file.delete()
+                        if (!ok) {
+                            runCatching { contentResolver.delete(destination, null, null) }
+                            "JPG commit/post-write SHA-verify faalde."
+                        } else {
+                            "JPG full-resolution gereed · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
+                                "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
+                                "HDR blijft dynamisch en is niet destructief in de SDR-JPEG gebakken."
+                        }
+                    }
+                }
+                runOnUiThread {
+                    if (activeJobId == expectedJob) {
+                        jpegStatus = status
+                        render()
+                    }
+                }
+            }, "truthraw-fullres-jpg-${job.id.take(8)}").start()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_JPG_L) {
+            val expectedJob = pendingJpgLJobId
+            pendingJpgLJobId = null
+            val route = pendingPhotoRoute ?: preferredRoute()
+            val flags = pendingPhotoFlags
+            pendingPhotoRoute = null
+            pendingPhotoFlags = 0
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                jpgLStatus = "JPG-L-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                jpgLStatus = "JPG-L geblokkeerd: actieve TruthRaw-route veranderde."
+                render()
+                return
+            }
+
+            jpgLStatus = "JPG-L · layered photograph wordt opgebouwd… full-res JPEG + TN-3 Float32/Open Scene + manifest."
+            render()
+            Thread({
+                val dir = File(filesDir, "jpgl_export/$expectedJob").apply { mkdirs() }
+                val exported = JpgLExporter.export(
+                    contentResolver, job, destination, route, flags, dir,
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    jpgLStatus = when (exported) {
+                        is JpgLResult.Failed -> exported.reason
+                        is JpgLResult.Success -> {
+                            val m = exported.metrics
+                            "JPG-L v0.1 gereed + teruggeverifieerd · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · JPEG=${formatBytes(m.jpegBytes)} · " +
+                                "Float32/OpenScene=${formatBytes(m.scienceBytes)} · 64-bit chunk offsets · " +
+                                "container SHA=${m.containerSha256.take(16)}…"
+                        }
+                    }
+                    render()
+                }
+            }, "truthraw-jpgl-${job.id.take(8)}").start()
             return
         }
 
