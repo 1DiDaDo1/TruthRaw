@@ -10,7 +10,27 @@ App version:
 
 `0.35-v0.70-canonical-open-scene-role-binding`
 
-Status: **active integration / CI pending at document creation**.
+Status: **CI GREEN / APK BUILT — real-device validation pending**.
+
+CI run: `35505972249`
+
+- GCC PURE writer: SUCCESS
+- Clang PURE writer: SUCCESS
+- Open Scene v0.7/v0.8 + Dynamic Authority + Restoration contracts: SUCCESS
+- Android arm64 build: SUCCESS
+
+Artifact ID: `10603629201`
+
+Artifact ZIP SHA-256:
+
+`4ac0f816d244524aff3d376ae357080cefdcc6706bb5c9760421c9b4ed6011ce`
+
+Extracted APK:
+
+- bytes: `6,305,789`
+- SHA-256: `43be7ac637f1e24d346c82ea8b3c717f4f2fd394fb3f977b490127db8eecca7d`
+
+The APK contains `classes.dex` and the arm64 native bridge `libtruthraw_ui_preview_bridge.so`.
 
 ## Purpose
 
