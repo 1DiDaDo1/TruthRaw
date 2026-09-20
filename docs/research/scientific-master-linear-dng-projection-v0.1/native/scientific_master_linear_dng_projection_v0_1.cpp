@@ -205,6 +205,10 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
            "open_scene_state_sha256=" +
            (nonzero_hash(descriptor.openSceneStateSha256)
                ? hex_hash(descriptor.openSceneStateSha256)
+               : std::string(64u, '0')) + "\n" +
+           "restoration_role_mask_sha256=" +
+           (nonzero_hash(descriptor.restorationRoleMaskSha256)
+               ? hex_hash(descriptor.restorationRoleMaskSha256)
                : std::string(64u, '0')) + "\n")
         : std::string{};
     const std::string body =
@@ -319,10 +323,12 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
     }
 
     if (descriptor.restorationDerivative &&
-        (!nonzero_hash(descriptor.projectedRasterSha256) || descriptor.projectionRole.empty())) {
+        (!nonzero_hash(descriptor.projectedRasterSha256) ||
+         !nonzero_hash(descriptor.restorationRoleMaskSha256) ||
+         descriptor.projectionRole.empty())) {
         return Status::error(
             StatusCode::ScientificBindingMismatch,
-            "restoration derivative projection requires explicit raster hash and role");
+            "restoration derivative projection requires explicit raster hash, role-mask hash and role");
     }
 
     if (!(descriptor.zeroLineGauge.L0 > 0.0) ||
