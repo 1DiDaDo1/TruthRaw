@@ -592,14 +592,37 @@ class MainActivity : Activity() {
                     "Float32 is primaire editlaag; Advanced blijft non-destructief recipe."
             render()
             Thread({
-                val exportResult = PureFloat32DngExporter.export(
+                val dir = File(filesDir, "jpgl_raw_edit/$expectedJob").apply { mkdirs() }
+                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver,
                     job,
-                    destination,
-                    quarterTurns,
-                    Float32DngExportFlavor.JPGL_RAW_EDIT,
                     flags,
+                    quarterTurns,
+                    dir,
                 )
+                val exportResult = when (previewResult) {
+                    is FullResJpegResult.Failed ->
+                        PureFloat32DngExportResult.Failed(
+                            "JPG-L RAW/Edit preview faalde: ${previewResult.reason}",
+                        )
+                    is FullResJpegResult.Success -> {
+                        try {
+                            PureFloat32DngExporter.export(
+                                contentResolver,
+                                job,
+                                destination,
+                                quarterTurns,
+                                Float32DngExportFlavor.JPGL_RAW_EDIT,
+                                flags,
+                                previewResult.file,
+                                previewResult.metrics.width,
+                                previewResult.metrics.height,
+                            )
+                        } finally {
+                            previewResult.file.delete()
+                        }
+                    }
+                }
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     jpgLStatus = when (exportResult) {
@@ -607,7 +630,7 @@ class MainActivity : Activity() {
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
                             "JPG-L RAW/Edit v0.3 gereed · ${m.width}×${m.height} · " +
-                                "${formatBytes(m.outputBytes)} · IEEE Float32 · " +
+                                "${formatBytes(m.outputBytes)} · IEEE Float32 primary + embedded JPEG preview · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "Advanced recipe flags=$flags · route=$route · " +
                                 "Scientific Master replay=${m.scientificMasterIdentityVerified} · " +
@@ -648,16 +671,40 @@ class MainActivity : Activity() {
             render()
 
             Thread({
-                val exportResult =
-                    PureFloat32DngExporter.export(contentResolver, job, destination, quarterTurns)
+                val dir = File(filesDir, "pure_float32/$expectedJob").apply { mkdirs() }
+                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                    contentResolver,
+                    job,
+                    0,
+                    quarterTurns,
+                    dir,
+                )
+                val preview = previewResult as? FullResJpegResult.Success
+                val exportResult = try {
+                    PureFloat32DngExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                        quarterTurns,
+                        Float32DngExportFlavor.PURE,
+                        0,
+                        preview?.file,
+                        preview?.metrics?.width ?: 0,
+                        preview?.metrics?.height ?: 0,
+                    )
+                } finally {
+                    preview?.file?.delete()
+                }
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     pureFloatDngStatus = when (exportResult) {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHRAW PURE v0.63 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
-                                "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · " +
+                            val previewText =
+                                if (preview != null) "embedded neutral JPEG preview" else "zonder preview"
+                            "TRUTHRAW PURE opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · $previewText · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "Master digest verified=${m.scientificMasterIdentityVerified} · " +
                                 "self-binding verified=${m.postWriteSelfBindingVerified} · " +
