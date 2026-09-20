@@ -41,7 +41,7 @@ using truthraw::tile_dng_v0_1::PosixFdByteSource;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
-constexpr std::size_t kPacketLongs = 20u;
+constexpr std::size_t kPacketLongs = 22u;
 constexpr jint kFlagLight = 1 << 0;
 constexpr jint kFlagHdr = 1 << 1;
 constexpr jint kFlagDetail = 1 << 2;
@@ -94,6 +94,33 @@ bool valid_orientation(truthraw::Orientation o) noexcept {
            o == truthraw::Orientation::Rotate180 ||
            o == truthraw::Orientation::Rotate90CW ||
            o == truthraw::Orientation::Rotate90CCW;
+}
+
+int orientation_quarter_turns(truthraw::Orientation o) noexcept {
+    switch (o) {
+        case truthraw::Orientation::Normal: return 0;
+        case truthraw::Orientation::Rotate90CW: return 1;
+        case truthraw::Orientation::Rotate180: return 2;
+        case truthraw::Orientation::Rotate90CCW: return 3;
+    }
+    return -1;
+}
+
+truthraw::Orientation orientation_from_quarter_turns(int turns) noexcept {
+    switch (((turns % 4) + 4) % 4) {
+        case 0: return truthraw::Orientation::Normal;
+        case 1: return truthraw::Orientation::Rotate90CW;
+        case 2: return truthraw::Orientation::Rotate180;
+        default: return truthraw::Orientation::Rotate90CCW;
+    }
+}
+
+truthraw::Orientation compose_orientation(
+    truthraw::Orientation sourceOrientation,
+    int userQuarterTurns) noexcept {
+    const int sourceTurns = orientation_quarter_turns(sourceOrientation);
+    if (sourceTurns < 0) return sourceOrientation;
+    return orientation_from_quarter_turns(sourceTurns + userQuarterTurns);
 }
 
 struct Rect {
@@ -153,7 +180,8 @@ float smoothstep(float x) noexcept {
 
 class FullResNv21Sink final : public IStreamingSink {
 public:
-    FullResNv21Sink(int fd, jint flags) : fd_(fd), flags_(flags) {}
+    FullResNv21Sink(int fd, jint flags, jint userQuarterTurns)
+        : fd_(fd), flags_(flags), userQuarterTurns_(userQuarterTurns) {}
 
     std::size_t residentBytesUpperBound() const override {
         // Only one 128x128 tile plus temporary Y/VU rows are resident.
@@ -167,7 +195,9 @@ public:
             diagnosticsEnabled) {
             return StreamStatus::error(StreamStatusCode::InvalidArgument, "invalid full-res NV21 begin frame");
         }
-        sourceWidth_=width; sourceHeight_=height; orientation_=orientation; exposure_=exposure;
+        sourceWidth_=width; sourceHeight_=height; sourceOrientation_=orientation;
+        orientation_=compose_orientation(orientation, userQuarterTurns_);
+        exposure_=exposure;
         hdrPipelineEnabled_=hdrEnabled;
         const bool rotated=orientation==truthraw::Orientation::Rotate90CW ||
                            orientation==truthraw::Orientation::Rotate90CCW;
@@ -315,8 +345,10 @@ private:
     int fd_=-1;
     jint flags_=0;
     int sourceWidth_=0, sourceHeight_=0, displayWidth_=0, displayHeight_=0;
+    truthraw::Orientation sourceOrientation_=truthraw::Orientation::Normal;
     truthraw::Orientation orientation_=truthraw::Orientation::Normal;
     truthraw::ExposurePlan exposure_{};
+    jint userQuarterTurns_=0;
     bool hdrPipelineEnabled_=false, begun_=false, finished_=false;
     std::uint64_t outputBytes_=0, writtenPixels_=0, lightAdjustedPixels_=0, hdrPositiveGainSamples_=0;
 };
@@ -337,8 +369,9 @@ StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
 extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     JNIEnv* env, jobject, jint sourceFd, jint outputFd, jint flags, jint sourceRouteCode,
-    jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
+    jint userQuarterTurns, jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
     if (sourceFd<0 || outputFd<0 || maxSourceResidentBytes<=0 || maxLogicalResidentBytes<=0 ||
+        userQuarterTurns<0 || userQuarterTurns>3 ||
         (flags&~kAllowedFlags)!=0 || (sourceRouteCode!=0 && sourceRouteCode!=1)) {
         return packet(env,-1);
     }
@@ -403,7 +436,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
 
-    FullResNv21Sink sink(static_cast<int>(outputFd),flags);
+    FullResNv21Sink sink(static_cast<int>(outputFd),flags,userQuarterTurns);
     StreamingTruthRawProcessor processor(reconstruction,appearance);
     StreamingResult stream;
     const auto processed=processor.process(
@@ -436,6 +469,8 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     v[17]=0; // Restoration not baked into compatibility JPEG front.
     v[18]=stream.provenance.physicalFrameCount;
     v[19]=stream.provenance.independentEvidenceCount;
+    v[20]=userQuarterTurns;
+    v[21]=static_cast<jlong>(compose_orientation(source->metadata().orientation, userQuarterTurns));
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));
     if(out) env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());
     return out;
