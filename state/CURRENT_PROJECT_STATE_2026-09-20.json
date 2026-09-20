@@ -1,0 +1,74 @@
+{
+  "schema": "TruthRawCurrentProjectState/2026-09-20",
+  "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
+  "activeBranch": "integration/truthraw-suite-v0-73-camera-source-admission-tn3",
+  "appVersion": "0.38-v0.73-camera-source-admission-tn3",
+  "previousStableIntegration": "integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix",
+  "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md",
+  "permanentLaws": {
+    "sourceEvidenceImmutable": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "measuredWhereMeasuredReconstructedWhereNecessaryNeverInvented": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1
+  },
+  "v073": {
+    "productCameraEntry": "FotoGraaf200MpStagedActivity production mode",
+    "latestActiveCamera5CaptureBasis": "v0.53 Android-17 replay of proven v0.14 route",
+    "v055Role": "READ_ONLY_BASELINE_NOT_CAPTURE_ROUTE",
+    "sourceFirstSeal": true,
+    "envelope": {
+      "width": 16320,
+      "height": 12288,
+      "mayNotBePromotedDirectlyTo200MpScientificMaster": true
+    },
+    "topologyAdmission": [
+      "RawSensorRasterAudit",
+      "RawPayloadGeometryDecoder",
+      "UNIQUE_ADVERTISED_STANDARD_RAW_BYTE_MATCH"
+    ],
+    "knownHistoricalCandidate": {
+      "width": 4080,
+      "height": 3072,
+      "bytes": 25067520,
+      "authority": "APP_VISIBLE_STANDARD_RAW_PREFIX_CANDIDATE_NOT_NATIVE_ADC_GEOMETRY_PROOF"
+    },
+    "processingDngRole": "DERIVED_CONTAINER_FOR_SAME_MAIN_HOUSE_DNG_ADMISSION",
+    "mainHouseResealsDng": true,
+    "upstreamAncestryBound": true,
+    "truthNegativeRole": "DOWNSTREAM_OF_MAIN_HOUSE_ADMISSION_ONLY",
+    "truthNegativeVersion": "TN-3",
+    "direct200MpTruthClaimAllowed": false,
+    "ui": {
+      "restoredFrom": "v0.65 product presentation",
+      "cleanTruthRawIconRetained": true,
+      "jpgXlCardRestoredDisabled": true,
+      "pureAdvancedCardsVisible": true,
+      "compactHeightLayout": true
+    }
+  },
+  "frozenScience": {
+    "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
+    "restorationAlgorithm": "v0.67 unchanged",
+    "canonicalOpenScene": "v0.70 semantics",
+    "roleMaskProjection": "v0.71",
+    "projectionLifecycle": "v0.72"
+  },
+  "ci": {
+    "workflow": "android-truthraw-suite-v0-73-camera-source-admission-tn3.yml",
+    "run": 35513839890,
+    "status": "QUEUED_AT_STATE_CREATION"
+  },
+  "immediateValidation": [
+    "wait for v0.73 CI",
+    "install green APK",
+    "tap Use camera and verify live preview opens",
+    "capture one physical frame",
+    "verify source-first seal",
+    "verify topology admission or fail-closed behavior",
+    "verify automatic Main-House entry only for admitted processing DNG",
+    "verify TN-3/PURE only after Main-House admission"
+  ]
+}
