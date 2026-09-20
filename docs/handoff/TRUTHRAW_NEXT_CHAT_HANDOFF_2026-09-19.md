@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-65-ui-icon-polish`
+`integration/truthraw-suite-v0-67-fullres-restoration`
 
 Current app version:
 
-`0.30-v0.65-ui-icon-polish`
+`0.32-v0.67-fullres-restoration`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -111,6 +111,37 @@ v0.65 is presentation-only on top of v0.64. System-bar insets now belong to the 
 Read `docs/TRUTHRAW_V065_UI_ICON_POLISH_2026-09-19.md`.
 
 v0.65 CI run `35473170260` is green on GCC, Clang and Android. Artifact ID `10593941511`; extracted APK SHA-256 `9557aaba0222ebed23be961b3865fe5004eaa0af5589de654439eacb766bf21d`.
+
+## 2F. v0.66 — TruthNegative + Open-World + Dynamic Authority
+
+v0.66 reconnects three recovered scientific lines into the current Android app rather than leaving them as separate research islands.
+
+- TruthNegative TN-2 writes a source-resolution camera-native Float32 Scientific Negative bound to the exact Scientific Master and Technical Backplane.
+- Open-World/Scene Physics becomes a runtime authority corridor for Advanced. Single-frame inferred illumination may constrain a derivative but is not promoted into a physical relight claim.
+- Dynamic Authority remains fail-closed. Generic missing channels stay UNKNOWN until a source-bound uncertainty model is admitted. Censored support is not promoted to an exact recovered value.
+- The dormant JPG XL output card is replaced by TRUTHNEGATIVE.
+
+PURE stays on the real-device validated `TRUTHRAW_PURE_SELF_BINDING_V0_63` route.
+
+v0.66 CI run `35497663010` is green on GCC, Clang, recovered scientific contract tests and Android. Artifact ID `10600757246`; extracted APK SHA-256 `746e43c5e675f556cb1d9eb40aef37773c79092b746987bd92c506dd467a60f5`.
+
+## 2G. v0.67 — full-resolution retreatable Restoration
+
+v0.67 makes Restoration a true source-resolution derivative instead of only a 384-pixel-edge Advanced preview effect.
+
+New output:
+
+`*_truthraw_fullres_restoration_v0_67.trr`
+
+The file stores the full camera-native Float32 raster plus one restoration-role byte per source pixel. The roles are `PRESERVE_SCIENTIFIC_MASTER`, `AESTHETIC_REINTEGRATION_ONLY` and `UNRESOLVED_LOSS`.
+
+Only a source site whose measured CFA sample is at/above admitted WhiteLevel is eligible for reintegration. Support excludes censored neighbours, requires at least three finite neighbours within radius 2, and never writes back into the Scientific Master. Before release the exporter recomputes the complete Scientific-Master digest; mismatch truncates/rejects the artifact. Android reopens the exact saved file and verifies the lineage/role contract and final size.
+
+Read `docs/TRUTHRAW_V067_FULLRES_RESTORATION_2026-09-20.md`.
+
+v0.67 CI run `35498407249` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contracts and Android. Artifact ID `10601092611`; extracted APK SHA-256 `1ce0e75d409f3c2c8e5f6886e43cb39796dae58fc406d9aa3b78bc4406783c94`.
+
+Real-device export validation of the new `.trr` path is still pending.
 
 v0.62 CI run `35466767939` is green on host GCC, host Clang and Android. Artifact ID `10591985003`; extracted APK SHA-256 `36e468a8a7e5449d6c649006a109f3a9163dbd5f3f746ed0c7cf521a4f88c447`.
 
