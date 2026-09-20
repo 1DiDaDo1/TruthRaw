@@ -230,7 +230,7 @@ public:
                     }
                 }
                 const auto R=linear_to_srgb(rr), G=linear_to_srgb(gg), B=linear_to_srgb(bb);
-                std::uint8_t Y,U,V; rgb_to_yuv(R,G,B,Y,U,V);
+                std::uint8_t Y,U,V; rgb_to_yuv(R,G,B,Y,U,V); (void)U; (void)V;
                 yrow[static_cast<std::size_t>(dx-dr.x0)]=Y;
             }
             const std::uint64_t off=static_cast<std::uint64_t>(dy)*displayWidth_ + dr.x0;
@@ -264,7 +264,7 @@ public:
                 const std::uint8_t R=static_cast<std::uint8_t>((rs+2)/4);
                 const std::uint8_t G=static_cast<std::uint8_t>((gs+2)/4);
                 const std::uint8_t B=static_cast<std::uint8_t>((bs+2)/4);
-                std::uint8_t Y,U,V; rgb_to_yuv(R,G,B,Y,U,V);
+                std::uint8_t Y,U,V; rgb_to_yuv(R,G,B,Y,U,V); (void)Y;
                 const std::size_t p=static_cast<std::size_t>(dx-dr.x0);
                 uvrow[p]=V; uvrow[p+1u]=U;
             }
