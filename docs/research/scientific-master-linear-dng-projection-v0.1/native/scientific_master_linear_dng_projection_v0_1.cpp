@@ -232,6 +232,14 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
             : (std::string("downstream_edit_manifest_begin\n") +
                printable_identity(descriptor.downstreamEditManifest) +
                "\ndownstream_edit_manifest_end\n");
+    const std::string previewExtra =
+        descriptor.jpegPreviewBytes.empty()
+            ? std::string("embedded_jpeg_preview=0\n")
+            : (std::string("embedded_jpeg_preview=1\n") +
+               "preview_role=NON_AUTHORITY_RENDERED_PREVIEW\n" +
+               "preview_width=" + std::to_string(descriptor.jpegPreviewWidth) + "\n" +
+               "preview_height=" + std::to_string(descriptor.jpegPreviewHeight) + "\n" +
+               "preview_scientific_writeback_allowed=0\n");
     const std::string body =
         std::string("role=") + role + "\n" +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
@@ -271,6 +279,7 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
             printable_identity(descriptor.runtimeReconstructionBackendId) + "\n" +
         "source_evidence_id=" + printable_identity(descriptor.sourceEvidenceId) + "\n" +
         "color_binding_id=" + printable_identity(descriptor.colorBindingId) + "\n" +
+        previewExtra +
         editManifestExtra;
 
     std::vector<std::uint8_t> out(id.begin(), id.end());
