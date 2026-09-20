@@ -74,9 +74,9 @@ class RestorationProjectionForegroundService : Service() {
         RestorationProjectionJobStore.update(
             this,
             RestorationProjectionJobPhase.STAGING,
-            "${format.label}: .trr lineage + derivative digest worden geverifieerd; full-resolution staging draait.",
+            "${format.label}: full-resolution staging actief · .trr + Open Scene + role-mask worden geverifieerd. Dit kan enkele minuten duren.",
         )
-        updateNotification("${format.label}: lineage verifiëren + staging…")
+        updateNotification("${format.label}: full-resolution staging actief…")
 
         val staged = RestorationProjectionExporter.exportToStaging(
             contentResolver, source, trr, format, staging,
@@ -111,7 +111,7 @@ class RestorationProjectionForegroundService : Service() {
         val m = (committed as RestorationProjectionResult.Success).metrics
         staging.delete()
         val msg =
-            "${format.label} v0.69 gereed · ${m.width}×${m.height} · " +
+            "${format.label} v0.72 gereed · ${m.width}×${m.height} · " +
                 "role0/1/2=${m.role0Pixels}/${m.role1Pixels}/${m.role2Pixels} · " +
                 "derivative=${m.derivativeIdentityVerified} · lineage=${m.lineageVerified} · " +
                 "post-write=${m.postWriteVerified}."
@@ -187,7 +187,7 @@ class RestorationProjectionForegroundService : Service() {
     }
 
     companion object {
-        private const val CHANNEL_ID = "truthraw_restoration_projection_v069"
+        private const val CHANNEL_ID = "truthraw_restoration_projection_v072"
         private const val NOTIFICATION_ID = 6901
         private const val EXTRA_SOURCE = "source"
         private const val EXTRA_TRR = "trr"
@@ -207,12 +207,12 @@ class RestorationProjectionForegroundService : Service() {
             format: RestorationProjectionFormat,
             resultIntentFlags: Int,
         ): Boolean {
-            val existing = RestorationProjectionJobStore.read(context)
-            if (existing != null && !existing.phase.terminal && isRunning) return false
+            val existing = RestorationProjectionJobStore.recoverInterruptedIfNeeded(context)
+            if (existing != null && !existing.phase.terminal) return false
 
             persistWritePermission(context, destination, resultIntentFlags)
             val dir = File(context.filesDir, "projection_staging").apply { mkdirs() }
-            val staging = File(dir, "restoration_v069.${format.extension}.part")
+            val staging = File(dir, "restoration_v072.${format.extension}.part")
             runCatching { staging.delete() }
 
             RestorationProjectionJobStore.begin(
@@ -225,9 +225,12 @@ class RestorationProjectionForegroundService : Service() {
                 .putExtra(EXTRA_STAGING, staging.absolutePath)
                 .putExtra(EXTRA_FORMAT, format.name)
             return try {
+                // Close the MainActivity/onResume race before Service.onCreate() runs.
+                isRunning = true
                 context.startForegroundService(serviceIntent)
                 true
             } catch (error: Throwable) {
+                isRunning = false
                 staging.delete()
                 RestorationProjectionExporter.cleanup(context.contentResolver, destination)
                 RestorationProjectionJobStore.update(
