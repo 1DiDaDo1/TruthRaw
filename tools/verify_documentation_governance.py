@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-65-ui-icon-polish":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-67-fullres-restoration":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -261,6 +261,45 @@ if v065_icon.get("subtleLensReflectionInUpperR") is not True:
     errors.append("v065_lens_reflection_icon_contract_missing")
 if v065_icon.get("assetSha256") != "398874fcf8052761fce9451e70088e20985210ef49b869e7c6f14cf7cb4fe607":
     errors.append("v065_icon_asset_sha256_mismatch")
+
+v066 = (((current_state.get("multiVendorRaw") or {}).get("v066")) or {})
+v066_tn = v066.get("truthNegative") or {}
+v066_ow = v066.get("openWorld") or {}
+v066_da = v066.get("dynamicAuthority") or {}
+if v066.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v066_must_keep_v063_pure_writer_contract")
+if v066_tn.get("active") is not True or v066_tn.get("exactMasterReplayRequired") is not True:
+    errors.append("v066_truthnegative_master_replay_required")
+if v066_tn.get("createsNewEvidence") is not False or v066_tn.get("createsSecondScientificWorld") is not False:
+    errors.append("v066_truthnegative_may_not_inflate_evidence_or_worlds")
+if v066_ow.get("genericPhysicalRelightClaim") is not False:
+    errors.append("v066_open_world_may_not_claim_generic_physical_relight")
+if v066_da.get("censoredSupportNotPromoted") is not True:
+    errors.append("v066_dynamic_authority_censored_support_must_not_promote")
+if v066_da.get("restorationScientificWriteback") is not False:
+    errors.append("v066_restoration_scientific_writeback_forbidden")
+
+v067 = (((current_state.get("multiVendorRaw") or {}).get("v067")) or {})
+v067_rest = v067.get("fullResolutionRestoration") or {}
+v067_output = v067.get("output") or {}
+if v067.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v067_must_keep_v063_pure_writer_contract")
+if v067_rest.get("active") is not True or v067_rest.get("sourceResolutionOneToOne") is not True:
+    errors.append("v067_fullres_restoration_must_be_one_to_one")
+if v067_rest.get("retreatable") is not True or v067_rest.get("provenanceBound") is not True:
+    errors.append("v067_restoration_must_be_retreatable_and_provenance_bound")
+if v067_rest.get("scientificMasterModified") is not False:
+    errors.append("v067_restoration_must_not_modify_scientific_master")
+if v067_rest.get("scientificWritebackAllowed") is not False:
+    errors.append("v067_restoration_scientific_writeback_forbidden")
+if v067_rest.get("createsNewEvidence") is not False or v067_rest.get("createsSecondScientificWorld") is not False:
+    errors.append("v067_restoration_may_not_inflate_evidence_or_worlds")
+if v067_rest.get("physicalFrameCount") != 1 or v067_rest.get("independentEvidenceCount") != 1:
+    errors.append("v067_frame_evidence_must_remain_one_one")
+if v067_output.get("extension") != ".trr":
+    errors.append("v067_restoration_container_extension_mismatch")
+if v067_output.get("conventionalDngExrTiffProjectionReady") is not False:
+    errors.append("v067_conventional_restoration_projection_must_remain_open")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
