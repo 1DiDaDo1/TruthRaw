@@ -102,10 +102,26 @@ class FullResRestorationForegroundService : Service() {
         )
         updateNotification("Private staging + Scientific Master replay…")
 
+        val cpuPlan = TruthRawCpuSchedulingPolicyV01.plan(
+            context = this,
+            workload = TruthRawCpuWorkload.EXACT_SCIENTIFIC,
+            bytesPerWorkerEstimate = 2L * 1024L * 1024L,
+        )
+        FullResRestorationJobStore.update(
+            this,
+            FullResRestorationJobPhase.STAGING,
+            "Foreground Restoration actief · ${cpuPlan.recommendedWorkers} dynamische CPU-workers · " +
+                "private staging · 1:1 pixels · Master replay. Je mag TruthRaw verlaten.",
+        )
+        updateNotification(
+            "Restoration · ${cpuPlan.recommendedWorkers} CPU-workers · private staging…",
+        )
+
         val staged = FullResRestorationExporter.exportToStaging(
             contentResolver,
             source,
             stagingFile,
+            cpuPlan.recommendedWorkers,
         )
         if (staged is FullResRestorationExportResult.Failed) {
             finishFailure(staged.reason, destination, stagingFile)
@@ -159,7 +175,7 @@ class FullResRestorationForegroundService : Service() {
                 "preserved/censored/restored/unresolved=" +
                 "${metrics.preservedPixels}/${metrics.censoredPixels}/" +
                 "${metrics.restoredPixels}/${metrics.unresolvedPixels} · " +
-                "Master replay=${metrics.masterReplayVerified} · " +
+                "workers=${metrics.workerCount} · Master replay=${metrics.masterReplayVerified} · " +
                 "staging SHA=doel SHA · post-write=${metrics.postWriteVerified}."
 
         FullResRestorationJobStore.update(
