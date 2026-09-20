@@ -1,11 +1,11 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-20",
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-78-open-scene-channel-authority",
-  "appVersion": "0.44-v0.78-open-scene-channel-authority",
-  "previousStableIntegration": "integration/truthraw-suite-v0-76-responsive-camera-ui",
+  "activeBranch": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
+  "appVersion": "0.45-v0.79-bound-uncertainty-admission",
+  "previousStableIntegration": "integration/truthraw-suite-v0-78-open-scene-channel-authority",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md",
-  "primaryRead": "docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md",
+  "primaryRead": "docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
     "representationMayExceedSource": true,
@@ -22,7 +22,8 @@
     "v075": "bit-exact 512 preview runtime core",
     "v076": "responsive portrait/landscape camera UI",
     "v077": "format-neutral canonical ancestry for Restoration DNG/TIFF/EXR",
-    "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty"
+    "v078": "per-channel Open Scene authority child sidecar with fail-closed uncertainty",
+    "v079": "source/backend/model/trace-bound uncertainty admission decision with immutable decision SHA"
   },
   "frozenScience": {
     "pureContract": "TRUTHRAW_PURE_SELF_BINDING_V0_63",
@@ -35,16 +36,6 @@
   },
   "v077": {
     "schema": "TruthRawCanonicalAncestry/0.77",
-    "chain": [
-      "sealed source evidence",
-      "Scientific Master",
-      "Zero-Line",
-      "scene-scale",
-      "180-byte Technical Backplane",
-      "canonical Open Scene",
-      "derivative raster",
-      "restoration role-mask"
-    ],
     "sameManifestAcross": [
       "Restoration DNG",
       "Restoration TIFF",
@@ -62,46 +53,57 @@
       "CENSORED",
       "UNKNOWN"
     ],
-    "uncertaintyStates": [
-      "UNRESOLVED",
-      "SOURCE_NOISE_PROFILE_P95",
-      "BACKEND_BOUND_P95",
-      "CERTIFIED_VARIANCE"
-    ],
     "genericAdmittedDng": {
       "directUncensored": "CALIBRATED_ESTIMATE + support=1 + uncertainty UNRESOLVED",
       "directClipped": "CENSORED + explicit SOURCE_RAW_CODE lower bound",
       "missingChannels": "UNKNOWN",
       "reconstructedAuthorityCount": 0
-    },
-    "reconstructedRequires": [
-      "nonzero admitted uncertainty binding SHA-256",
-      "bound reconstruction backend identity",
-      "finite nonnegative p95",
-      "positive finite support",
-      "source/backend/sample-domain compatibility"
+    }
+  },
+  "v079": {
+    "schema": "TruthRawBoundUncertaintyAdmission/0.79",
+    "currentCamera5Decision": "BLOCKED_SOURCE_DOMAIN_MISMATCH",
+    "genericImportedDngDecision": "BLOCKED_NO_SOURCE_ATTESTATION",
+    "exactHistoricalV5gDecision": "ELIGIBLE_TRACE_GATE_OPEN",
+    "admittedDecisionReachable": false,
+    "reconstructedAuthorityAllowed": false,
+    "fakeNonzeroTraceCertificateCannotAdmit": true,
+    "historicalScope": [
+      "HONOR BKQ-N49",
+      "HONOR vendor DNG",
+      "4080x3072",
+      "BGGR",
+      "WhiteLevel 1023",
+      "22.48 mm tele",
+      "valid NoiseProfile",
+      "exact v4.7i backend hashes",
+      "exact v5.0g model/feature/binding assets",
+      "exact prospective holdout/PTC bridge"
     ],
-    "advancedReturns": [
-      "canonical Open Scene v0.70 artifact SHA-256",
-      "channel-authority v0.78 artifact SHA-256"
+    "missingPromotionGate": "accepted exact F64 reconstructed-quantity trace certificate",
+    "advancedBinds": [
+      "v0.70 Open Scene SHA",
+      "v0.78 channel-authority SHA",
+      "v0.79 uncertainty-admission decision SHA"
     ]
   },
   "ci": {
-    "workflow": "android-truthraw-suite-v0-78-open-scene-channel-authority.yml",
-    "run": 35519235748,
+    "workflow": "android-truthraw-suite-v0-79-bound-uncertainty-admission.yml",
+    "run": 35520033588,
     "status": "SUCCESS",
     "jobs": {
-      "channelAuthorityExactness": "SUCCESS",
+      "boundUncertaintyAdmission": "SUCCESS",
+      "openSceneChannelAuthority": "SUCCESS",
       "existingScientificLineage": "SUCCESS",
       "androidBuild": "SUCCESS"
     },
-    "artifactId": 10608121004,
-    "artifactZipSha256": "f7125be3edbbaf4017fc1fee6aa57e7d384c16e1d9ab4a288ab1400eebc17ae1",
-    "apkBytes": 6407245,
-    "apkSha256": "7a02fc07472158003423a1232a2c320956c3f80b7ff02d94c303fa46a1e181ff"
+    "artifactId": 10607269631,
+    "artifactZipSha256": "c0e3730f0b88f6c718ff0af9ecbf9abc01954696832f913c9fe1ee8adc388403",
+    "apkBytes": 6420905,
+    "apkSha256": "55276baf7da35da5b4147143c94523b319c28ca39bdf0fe08609cfd2af0b36e5"
   },
   "openValidation": {
-    "realDeviceV078SmokeTest": "OPEN",
+    "realDeviceV079SmokeTest": "OPEN",
     "sameDeviceV074V075PerformanceBenchmark": "OPEN",
     "independentDngTiffExrConformance": "OPEN",
     "originalSourceReplayForEffectfulRestoration": "OPEN",
@@ -110,11 +112,10 @@
     "native16320x12288ScientificAdmission": "UNPROVEN_AND_NOT_ALLOWED"
   },
   "immediateNext": {
-    "branch": "integration/truthraw-suite-v0-79-bound-uncertainty-admission",
-    "objective": "admit only source/backend-bound uncertainty into v0.78; keep current camera-derived DNG fail-closed until its own calibration exists",
+    "branch": "integration/truthraw-suite-v0-80-adaptive-detail-v47j",
+    "objective": "replace legacy Detailed/Crisp appearance with canonical v4.7j Adaptive Detail while preserving Scientific Master and all authority; bind v0.78/v0.79 state as a non-promotion guard",
     "after": [
-      "v4.7j support-aware scientific detail",
-      "v4.7k downstream acutance",
+      "v4.7k post-resize output acutance",
       "richer illumination/light/dark/artificial-light state",
       "authority-aware single-frame HDR",
       "Restoration v2",
