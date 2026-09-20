@@ -15,6 +15,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 class TruthRawProActivity : Activity() {
+    private var computeProbeView: TextView? = null
+
     private val bg = Color.rgb(5, 12, 22)
     private val surface = Color.rgb(10, 22, 37)
     private val textColor = Color.rgb(244, 248, 255)
@@ -76,6 +78,20 @@ class TruthRawProActivity : Activity() {
         })
 
         root.addView(space(12))
+        root.addView(card("Hardware acceleration · research").apply {
+            addView(body(
+                "Deze probe verandert geen pixels en kiest nog geen accelerator. Hij inventariseert alleen CPU/Vulkan-capabilities; " +
+                    "CPU_REFERENCE blijft de actieve authority.",
+                11.5f,
+            ))
+            addView(space(8))
+            computeProbeView = body("Hardware wordt read-only geïnventariseerd…", 11f)
+            addView(computeProbeView)
+            addView(space(8))
+            addView(action("Hardware opnieuw meten") { runComputeProbe() })
+        })
+
+        root.addView(space(12))
         root.addView(action("Advanced scene-instellingen openen") {
             startActivity(Intent(this, TruthRawAdvancedActivity::class.java))
         })
@@ -92,7 +108,7 @@ class TruthRawProActivity : Activity() {
             finish()
         })
 
-        return ScrollView(this).apply {
+        val scroll = ScrollView(this).apply {
             isFillViewport = true
             setBackgroundColor(bg)
             setOnApplyWindowInsetsListener { view, insets ->
@@ -102,6 +118,37 @@ class TruthRawProActivity : Activity() {
             }
             addView(root)
         }
+        scroll.post { runComputeProbe() }
+        return scroll
+    }
+
+    private fun runComputeProbe() {
+        computeProbeView?.text = "Hardware wordt read-only geïnventariseerd…"
+        Thread({
+            val text = TruthRawComputeCapabilitiesProbe.probe().fold(
+                onSuccess = { capabilities ->
+                    val appearancePlan = TruthRawComputeRouterV01.plan(
+                        TruthRawComputeClass.APPEARANCE,
+                        capabilities,
+                    )
+                    buildString {
+                        append(capabilities.summary)
+                        append("\nCandidates: ")
+                        append(appearancePlan.candidates.joinToString())
+                        append("\nActief: ")
+                        append(appearancePlan.selected)
+                        append("\n")
+                        append(appearancePlan.reason)
+                    }
+                },
+                onFailure = { error ->
+                    "Hardware-probe fail-closed: " +
+                        (error.message ?: error.javaClass.simpleName) +
+                        "\nActief: CPU_REFERENCE"
+                },
+            )
+            runOnUiThread { computeProbeView?.text = text }
+        }, "truthraw-compute-probe").start()
     }
 
     private fun header(): View = horizontal().apply {
