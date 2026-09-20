@@ -206,8 +206,11 @@ object JpgLExporter {
         jpegSha: String,
         scienceSha: String,
     ): String = buildString {
-        appendLine("magic=TRUTHRAW_JPGL_MANIFEST_V0_1")
-        appendLine("container_role=LAYERED_PHOTOGRAPH")
+        appendLine("magic=TRUTHRAW_JPGL_MANIFEST_V0_2")
+        appendLine("container_role=JPEG_COMPATIBLE_LAYERED_PHOTOGRAPH")
+        appendLine("external_mime=image/jpeg")
+        appendLine("recommended_extension=.jpg")
+        appendLine("legacy_extension=.jpgl")
         appendLine("front_role=FULL_RESOLUTION_SRGB_JPEG_COMPATIBILITY")
         appendLine("science_role=TN3_CAMERA_NATIVE_FLOAT32_SCIENTIFIC_MASTER_OPEN_SCENE")
         appendLine("route=$route")
