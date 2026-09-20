@@ -1,0 +1,129 @@
+name: TruthRaw v0.72 Projection Lifecycle Progress Fix
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/**'
+      - 'tools/**'
+      - 'tests/**'
+      - '.github/workflows/android-truthraw-suite-v0-72-projection-lifecycle-progress-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-pure-float32:
+    name: Host PURE Float32 writer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure PURE writer
+        run: cmake -S docs/research/scientific-master-linear-dng-projection-v0.1 -B build/pure-f32 -DCMAKE_BUILD_TYPE=Release
+      - name: Build PURE writer
+        run: cmake --build build/pure-f32 --parallel 2
+      - name: Run PURE writer tests
+        run: ctest --test-dir build/pure-f32 --output-on-failure
+
+  scientific-contracts:
+    name: Open Scene Dynamic Authority Restoration contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run scientific contract tests
+        run: |
+          python3 tests/test_truthnegative_foundation_v01.py
+          python3 tests/test_truthnegative_existing_house_binding_v02.py
+          python3 tests/test_open_world_foundations_v01.py
+          python3 tests/test_open_world_integration_v03.py
+          python3 tests/test_open_world_dynamic_authority_v05.py
+          python3 tests/test_open_world_dynamic_runtime_v06.py
+          python3 tests/test_open_scene_region_runtime_v07.py
+          python3 tests/test_open_scene_state_stream_v08.py
+          python3 tests/test_restoration_authority_v01.py
+
+  android-v072:
+    name: Android v0.72 projection lifecycle progress fix
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v0.72 integration guards
+        run: |
+          G='suite_android/app/build.gradle.kts'
+          STORE='suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionJobStore.kt'
+          SERVICE='suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionForegroundService.kt'
+          MAIN='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          DNGC='docs/research/scientific-master-linear-dng-projection-v0.1/native/scientific_master_linear_dng_projection_v0_1.cpp'
+          PJ='suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+
+          grep -F '0.37-v0.72-projection-lifecycle-progress-fix' "$G"
+
+          # Scientific routes remain unchanged.
+          grep -F 'private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63' "$DNGC"
+          grep -F 'TRUTHRAW_TRR_CANONICAL_OPEN_SCENE_ROLEMASK_V0_71' "$PJ"
+          grep -F 'TRUTHRAW_ROLE_MASK_BINARY_V1' "$DNGC"
+          grep -F 'add(65000,BYTE' "$PJ"
+          grep -F 'TR_ROLE' "$PJ"
+
+          # Startup recovery race must be explicitly guarded.
+          grep -F 'STARTING(false)' "$STORE"
+          grep -F 'STARTUP_GRACE_MS = 30_000L' "$STORE"
+          grep -F 'if (age in 0 until STARTUP_GRACE_MS)' "$STORE"
+          grep -F 'isRunning = true' "$SERVICE"
+          grep -F 'if (existing != null && !existing.phase.terminal) return false' "$SERVICE"
+
+          # Picker format survives recreation and source session can be restored.
+          grep -F 'truthraw_projection_picker_v072' "$MAIN"
+          grep -F 'consumePendingProjectionFormat()' "$MAIN"
+          grep -F 'restoreProjectionSourceSession()' "$MAIN"
+
+          # Visible progress + one-at-a-time UI admission.
+          grep -F 'projectionBusy' "$MAIN"
+          grep -F 'Chronometer(this@MainActivity)' "$MAIN"
+          grep -F 'ProgressBar(this@MainActivity)' "$MAIN"
+          grep -F 'enabled = !projectionBusy' "$MAIN"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK components
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;27.2.12479018"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F "classes.dex"
+          unzip -l "$APK" | grep -F "lib/arm64-v8a/libtruthraw_ui_preview_bridge.so"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-suite-v0-72-projection-lifecycle-progress-fix-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
