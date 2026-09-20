@@ -130,7 +130,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 outputCard(
                     titleText = "TRUTHRAW ADVANCED",
                     subtitleText = "Volledige controle",
-                    detail = "Full role-mask · veilige foreground DNG/TIFF/EXR",
+                    detail = "Natural HDR · Light · Detail · Restoration",
                     accent = amber,
                     selected = selected == OUTPUT_ADVANCED,
                     enabled = true,
