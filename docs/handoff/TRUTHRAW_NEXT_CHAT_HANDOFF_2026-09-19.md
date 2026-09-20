@@ -6,11 +6,11 @@ This file is the current operational handoff for the active TruthRaw integration
 
 Active branch:
 
-`integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed`
+`integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix`
 
 Current app version:
 
-`0.36-v0.71-open-scene-trr-rolemask-embed`
+`0.37-v0.72-projection-lifecycle-progress-fix`
 
 This branch is an integration/research branch. It is **not** a canonical/main promotion.
 
@@ -270,6 +270,73 @@ PURE remains `TRUTHRAW_PURE_SELF_BINDING_V0_63`; v0.67 Restoration eligibility/s
 v0.71 CI run `35506676249` is fully green on GCC, Clang, scientific contracts and Android. Documentation governance run `35506676288` is also green. Artifact ID `10604525855`; extracted APK bytes `6,314,361`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
 
 Real-device v0.71 validation is still pending. Generate a fresh binding-extended TRR with v0.71 before testing DNG/TIFF/EXR projections; old persisted v0.70 TRR job state is intentionally not reused.
+
+## 2L. v0.72 — projection lifecycle + visible progress
+
+v0.72 fixes a real Android lifecycle race observed on-device while projecting TIFF from a verified v0.71 Restoration container.
+
+Observed symptom:
+
+`Onderbroken TIFF-projectie opgeruimd; geen gedeeltelijk doelbestand blijft geldig.`
+
+could appear immediately after a fresh save-picker result, even though the user had not interrupted the export.
+
+Root cause:
+
+`JobStore.begin(non-terminal)`
+→ `startForegroundService()`
+→ MainActivity resumes before `Service.onCreate()`
+→ transient `isRunning=false`
+→ fresh projection misclassified as stale and cleaned.
+
+v0.72 adds:
+
+- explicit `STARTING` phase;
+- 30-second startup grace before stale cleanup;
+- optimistic foreground-service running flag before `startForegroundService()`;
+- exactly one active projection at a time;
+- disabled DNG/TIFF/EXR buttons while another projection is active;
+- indeterminate progress + elapsed chronometer + current phase in MainActivity;
+- persistent selected projection format across document-picker/Activity recreation;
+- source-session restoration after picker recreation;
+- terminal app status + foreground notification.
+
+Uploaded real-device artifacts were also inspected:
+
+TRR:
+- 4080×3072;
+- 15,855 censored source pixels;
+- 15,855 role-1 restored pixels;
+- 0 unresolved role-2 pixels;
+- exact role-mask SHA-256 `8cf0f1bff562c20190f53e7cc6969d7d6d7cf7d855df999c3b479cb09f2211ae`.
+
+Uploaded Restoration DNG:
+- complete classic-TIFF/DNG tile table;
+- final tile ends exactly at file size;
+- full embedded role mask length `12,533,760`;
+- embedded role-mask SHA exactly matches the TRR;
+- therefore that DNG itself did finish successfully despite the ambiguous UI lifecycle.
+
+Read:
+
+- `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`.
+
+CI run `35509438260` is green on GCC, Clang, scientific contracts and Android.
+
+Artifact ID `10603869532`.
+
+APK:
+
+- bytes `6,314,357`;
+- SHA-256 `977879e6f297f01b25bd58c86f7827e3ef4d62c8d5e1c99e1686e55fa8997ee7`.
+
+Still open:
+
+1. install v0.72 and retest TIFF then EXR sequentially;
+2. upload completed TIFF/EXR for independent conformance inspection;
+3. original sealed source replay is still desirable to fully close every effectful Restoration equality rule.
+
+PURE v0.63, canonical Open Scene semantics, v0.67 Restoration math and v0.71 full role-mask embedding remain unchanged.
 
 ## 3. Recovery work completed before app unification
 
