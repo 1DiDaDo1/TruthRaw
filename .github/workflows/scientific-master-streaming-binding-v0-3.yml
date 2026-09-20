@@ -1,0 +1,56 @@
+name: Scientific Master Streaming Binding v0.3 Stripes
+
+on:
+  push:
+    branches:
+      - research/scientific-master-streaming-binding-v0-3-stripes-2026-09-20
+    paths:
+      - 'docs/research/scientific-master-streaming-binding-v0.3/**'
+      - '.github/workflows/scientific-master-streaming-binding-v0-3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-equivalence:
+    name: ${{ matrix.compiler }} Release equivalence
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.3 \
+                -B build/smsb3 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/smsb3 --parallel 2
+      - name: Test exact v0.2/v0.3 equivalence
+        run: ctest --test-dir build/smsb3 --output-on-failure
+
+  sanitizer-equivalence:
+    name: Clang ASan UBSan equivalence
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure sanitizer build
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.3 \
+                -B build/smsb3-san -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DTRUTHRAW_SMSB3_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build/smsb3-san --parallel 2
+      - name: Test exact v0.2/v0.3 equivalence under sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/smsb3-san --output-on-failure
