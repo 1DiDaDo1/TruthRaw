@@ -6,45 +6,41 @@
 
 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-3. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
-4. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
-5. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
-6. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
-7. `docs/research/output-acutance-v0.81/README.md`
+3. `docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md`
+4. `docs/research/illumination-state-v0.82/README.md`
+5. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
+6. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
+7. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-81-output-acutance-v47k`
+`integration/truthraw-suite-v0-82-illumination-state`
 
 Current app:
 
-`0.47-v0.81-output-acutance-v47k`
+`0.48-v0.82-illumination-state`
 
 Current green CI:
 
-`35521878189`
+`35522724167`
 
 Current APK SHA-256:
 
-`fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
+`9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb`
 
 Frozen v0.72 baseline references retained for governance/provenance:
 
 - `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
 - `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 
-Current output boundary:
-canonical v4.7k runs only after final resize. Existing positive HDR transport is rebased against the acutance-adjusted SDR base; zero upstream HDR and censored support remain gain 1. Scientific Master, v0.78 authority and v0.79 uncertainty admission remain unchanged.
-
-Frozen v0.72 baseline references retained for governance/provenance:
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+Current illumination boundary:
+v0.82 records only source-supported white-point/chromaticity information. CCT/Duv are not SPD proof. DAYLIGHT/ARTIFICIAL/MIXED, SPD, direction, spatial extent and flicker remain UNKNOWN unless separate evidence is admitted.
 
 Immediate next branch:
 
-`integration/truthraw-suite-v0-82-illumination-state`
+`integration/truthraw-suite-v0-83-authority-aware-hdr`
 
-Next objective: richer light/dark/artificial-illumination state with illumination authority separate from RGB/channel authority. CCT is not SPD; missing spectral/directional/temporal evidence remains UNKNOWN.
+Next objective: local single-frame HDR authority driven by Scientific Master + v0.78 authority + censor bounds + admitted uncertainty. v0.82 illumination state is context only and may not create headroom.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
