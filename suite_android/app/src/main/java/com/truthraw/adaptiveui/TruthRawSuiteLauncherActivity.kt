@@ -149,7 +149,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip())
         root.addView(space(8))
-        root.addView(body("v0.80 · canonical v4.7j Adaptive Detail · authority unchanged", 11f).apply {
+        root.addView(body("v0.81 · v4.7k Output Acutance · HDR rebased · authority unchanged", 11f).apply {
             gravity = Gravity.CENTER
         })
 
