@@ -34,6 +34,8 @@ class MainActivity : Activity() {
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
+    private var pendingJpgLJobId: String? = null
+    private var jpgLStatus: String? = null
     private var pendingPureFloatDngJobId: String? = null
     private var pureFloatDngStatus: String? = null
     private var pendingTruthNegativeJobId: String? = null
@@ -256,19 +258,28 @@ class MainActivity : Activity() {
         pendingJpegJobId = job.id
         jpegStatus = null
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val route = preferredRoute()
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/jpeg"
-            putExtra(
-                Intent.EXTRA_TITLE,
-                if (ready.metrics.advancedDerivative) {
-                    "${stem}_truthraw_advanced_v0_64.jpg"
-                } else {
-                    "${stem}_truthraw_finalized_scientific_preview.jpg"
-                },
-            )
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_${route.lowercase()}_fullres.jpg")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPEG)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchJpgLExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        pendingJpgLJobId = job.id
+        jpgLStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_layered_v0_1.jpgl")
+        }
+        startActivityForResult(intent, REQUEST_SAVE_JPG_L)
     }
 
     @Suppress("DEPRECATION")
@@ -889,7 +900,9 @@ class MainActivity : Activity() {
         ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
 
         Thread({
-            if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED) {
+            if (preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ||
+                preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_PRO
+            ) {
                 val state = AdvancedTilePreviewLoader.load(
                     this@MainActivity,
                     contentResolver,
@@ -952,6 +965,15 @@ class MainActivity : Activity() {
     private fun topBar(tier: LayoutTier): View = horizontal().apply {
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(4), dp(8), dp(4), dp(8))
+
+        addView(TextView(this@MainActivity).apply {
+            text = "‹"
+            textSize = 34f
+            setTextColor(palette.text)
+            gravity = Gravity.CENTER
+            contentDescription = "Terug"
+            setOnClickListener { finish() }
+        }, LinearLayout.LayoutParams(dp(46), dp(46)).apply { marginEnd = dp(6) })
 
         addView(vertical().apply {
             addView(label("TruthRaw", 22f, bold = true))
@@ -1424,27 +1446,46 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun routePane(): View = card().apply {
-        addView(label("Uitkomst", 16f, bold = true))
-        addView(space(6))
-
-        when (session.jobs.size) {
-            0 -> addView(label("Kies eerst RAW-bestanden.", 13f, muted = true))
-            1 -> {
-                addView(routeButton("1 upload → 1 uitkomst", InputRoute.SINGLE_ONE_OUTPUT))
-                addView(routeButton("1 upload → meerdere uitkomsten", InputRoute.SINGLE_MULTIPLE_OUTPUTS))
-            }
-            else -> {
-                addView(routeButton("Afzonderlijk verwerken", InputRoute.BATCH_INDEPENDENT))
-                addView(routeButton("Verbeterde foto", InputRoute.MULTI_CAPTURE_ENHANCED))
-                addView(routeButton("HDR", InputRoute.MULTI_CAPTURE_HDR))
-                addView(label(
-                    "Fusion/HDR is nog alleen een expliciete kandidaatroute. Frames worden niet automatisch als gezamenlijk bewijs behandeld.",
-                    11f,
-                    muted = true,
-                ))
-            }
+    private fun preferredRoute(): String {
+        val value = getSharedPreferences(
+            TruthRawSuiteLauncherActivity.PREFS,
+            MODE_PRIVATE,
+        ).getString(
+            TruthRawSuiteLauncherActivity.KEY_OUTPUT,
+            TruthRawSuiteLauncherActivity.OUTPUT_PURE,
+        ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+        return when (value) {
+            TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED,
+            TruthRawSuiteLauncherActivity.OUTPUT_PRO -> value
+            else -> TruthRawSuiteLauncherActivity.OUTPUT_PURE
         }
+    }
+
+    private fun photoFlagsForRoute(route: String): Int = when (route) {
+        TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED,
+        TruthRawSuiteLauncherActivity.OUTPUT_PRO -> TruthRawAdvancedSettings.load(this).flags()
+        else -> 0
+    }
+
+    private fun routePane(): View = card().apply {
+        val route = preferredRoute()
+        addView(label("Actieve route", 16f, bold = true))
+        addView(space(6))
+        addView(label(
+            when (route) {
+                TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED · vrije fotografische ontwikkeling"
+                TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "TRUTHRAW PRO · professionele werkbank"
+                else -> "TRUTHRAW PURE · directe wetenschappelijke route"
+            },
+            13f,
+            bold = true,
+        ))
+        addView(space(4))
+        addView(label(
+            "Terug brengt je naar de routekeuze. Deze pagina opent nooit opnieuw vanzelf de RAW-kiezer.",
+            11f,
+            muted = true,
+        ))
     }
 
     private fun toolsPane(): View = vertical().apply {
@@ -1607,5 +1648,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_TRUTHNEGATIVE = 4107
         private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
         private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
+        private const val REQUEST_SAVE_JPG_L = 4110
     }
 }
