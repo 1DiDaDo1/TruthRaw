@@ -28,21 +28,14 @@ Current APK SHA-256:
 
 `fa3cb7ef4fc3c64221e89c7a0c7e6da49bf3ce1061d75d988bf942faa8d2b250`
 
-Current finite-output order:
-
-`final resize -> canonical v4.7k Output Acutance -> HDR rebase -> shoulder -> OETF/presentation`
-
-Current HDR safety:
-- output acutance cannot create positive HDR gain where upstream gain was unity;
-- censored support remains gain 1;
-- only pre-existing positive HDR transport is rebased;
-- Scientific Master and scientific authority remain unchanged.
+Current output boundary:
+canonical v4.7k runs only after final resize. Existing positive HDR transport is rebased against the acutance-adjusted SDR base; zero upstream HDR and censored support remain gain 1. Scientific Master, v0.78 authority and v0.79 uncertainty admission remain unchanged.
 
 Immediate next branch:
 
 `integration/truthraw-suite-v0-82-illumination-state`
 
-Objective: richer single-frame illumination/light-dark/artificial-light scene state with explicit inferred authority and no writeback into scientific truth.
+Next objective: richer light/dark/artificial-illumination state with illumination authority separate from RGB/channel authority. CCT is not SPD; missing spectral/directional/temporal evidence remains UNKNOWN.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
