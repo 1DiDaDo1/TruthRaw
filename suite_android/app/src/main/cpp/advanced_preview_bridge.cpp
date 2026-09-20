@@ -2,6 +2,7 @@
 
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
+#include "open_world_native_v03.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -40,7 +41,7 @@ using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 32u;
+constexpr std::size_t kHeaderInts = 40u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -60,6 +61,16 @@ struct IntRect {
 jint clamp_metric(std::uint64_t value) {
     const auto cap = static_cast<std::uint64_t>(std::numeric_limits<jint>::max());
     return static_cast<jint>(std::min(value, cap));
+}
+
+std::string hex_sha256(const std::array<std::uint8_t, 32>& bytes) {
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out(64u, '0');
+    for (std::size_t i = 0u; i < bytes.size(); ++i) {
+        out[2u * i] = kHex[(bytes[i] >> 4u) & 0x0fu];
+        out[2u * i + 1u] = kHex[bytes[i] & 0x0fu];
+    }
+    return out;
 }
 
 jintArray status_packet(JNIEnv* env, jint status) {
@@ -214,6 +225,7 @@ public:
         owners_.assign(pixels, 0u);
         gainOwners_.assign(pixels, 0u);
         argb_.assign(pixels, 0xff000000u);
+        censorMask_.assign(pixels, 0u);
         begun_ = true;
         return StreamStatus::ok();
     }
@@ -372,6 +384,7 @@ public:
 
     bool applyCensorMask(const std::vector<std::uint8_t>& mask) {
         if (!finished_ || mask.size() != owners_.size()) return false;
+        censorMask_ = mask;
         censoredPreviewPixels_ = 0u;
         restoredPixels_ = 0u;
         for (const auto value : mask) if (value != 0u) ++censoredPreviewPixels_;
@@ -451,7 +464,13 @@ private:
                 r = g = b = 0.0f;
             }
 
-            if ((flags_ & kFlagLight) != 0) {
+            const bool censored = !censorMask_.empty() && censorMask_[i] != 0u;
+
+            // Open-World/Scene-Physics rule: no generic inverse-square or physical
+            // relight claim is made from a single RGB observation. This bounded
+            // adjustment is explicitly APPEARANCE_ONLY and is suppressed on
+            // censored support.
+            if ((flags_ & kFlagLight) != 0 && !censored) {
                 const float y = std::max(truthraw::luminance709(r, g, b), 0.0f);
                 const float darkGate = 1.0f - smoothstep((y - 0.02f) / 0.30f);
                 const float blackProtect = smoothstep(y / 0.025f);
@@ -465,7 +484,9 @@ private:
                 }
             }
 
-            if ((flags_ & kFlagHdr) != 0 && hdrPipelineEnabled_) {
+            // Scientific HDR transport may use only non-censored support here.
+            // CENSORED/UNKNOWN support is not assigned invented recoverable gain.
+            if ((flags_ & kFlagHdr) != 0 && hdrPipelineEnabled_ && !censored) {
                 const float lg = std::clamp(halfLogGain_[i], 0.0f, 2.0f);
                 if (lg > 1e-5f) {
                     const float rawGain = std::exp2(lg);
@@ -513,6 +534,7 @@ private:
     std::vector<float> halfLogGain_;
     std::vector<std::uint8_t> owners_;
     std::vector<std::uint8_t> gainOwners_;
+    std::vector<std::uint8_t> censorMask_;
     std::vector<std::uint32_t> argb_;
 };
 
@@ -678,9 +700,28 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     if (phase2.admission.claimScope == ColorClaimScope::None ||
         phase2.backplane.sourceEvidenceHash != sourceSeal.sha256 ||
         phase2.backplane.scientificMasterHash != scientific.scientificMasterHash ||
+        phase2.backplane.forbiddenFlags != 0u ||
         scientific.physicalFrameCount != 1u ||
         scientific.independentEvidenceCount != 1u) {
         return status_packet(env, -4);
+    }
+
+    // Restore the Open-World authority corridor as a runtime gate. With only one
+    // admitted frame, illumination inferred from that frame may constrain an
+    // appearance derivative but may not become another measured exposure or
+    // modify the Scientific Master.
+    truthraw::open_world::v0_3::IlluminationBinding illumination{};
+    illumination.present = true;
+    illumination.authority =
+        truthraw::open_world::v0_3::IlluminationAuthority::Inferred;
+    illumination.recordId = "OPEN_WORLD_SINGLE_FRAME_SCENE_V0_66";
+    illumination.spatialScope = "OPEN_SCENE_GLOBAL_NO_FIXED_WORLD_BOUNDARY";
+    illumination.provenanceSha256 = hex_sha256(sourceSeal.sha256);
+    illumination.inferenceMethod =
+        "SOURCE_BOUND_SINGLE_FRAME_SCENE_STATE_NO_PHYSICAL_RELIGHT_CLAIM";
+    if (truthraw::open_world::v0_3::validate_illumination_binding(illumination) !=
+        truthraw::open_world::v0_3::Status::Ok) {
+        return status_packet(env, -9);
     }
 
     std::shared_ptr<truthraw::IAppearanceBackend> appearance;
@@ -712,12 +753,12 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -5);
     }
 
+    // Dynamic Authority is always evaluated for Advanced. Restoration is only
+    // one downstream consumer of the resulting CENSORED mask.
     std::vector<std::uint8_t> censorMask;
-    if ((flags & kFlagRestoration) != 0) {
-        const auto maskStatus = build_censor_mask(*source, sink, censorMask);
-        if (!maskStatus) return status_packet(env, stream_status(maskStatus));
-        if (!sink.applyCensorMask(censorMask)) return status_packet(env, -6);
-    }
+    const auto maskStatus = build_censor_mask(*source, sink, censorMask);
+    if (!maskStatus) return status_packet(env, stream_status(maskStatus));
+    if (!sink.applyCensorMask(censorMask)) return status_packet(env, -6);
 
     const auto postVerified =
         truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(
@@ -772,7 +813,18 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[28] = clamp_metric(sink.lightAdjustedPixels());
     out[29] = (flags & kFlagDetail) != 0 ? 1 : 0;
     out[30] = (flags & kFlagRestoration) != 0 ? 1 : 0;
-    out[31] = 1; // ADVANCED_DERIVATIVE_V0_1
+    out[31] = 2; // ADVANCED_OPEN_WORLD_AUTHORITY_V0_66
+    out[32] = 1; // open-world scene authority binding validated
+    out[33] = static_cast<jint>(
+        truthraw::open_world::v0_3::IlluminationAuthority::Inferred);
+    out[34] = static_cast<jint>(
+        truthraw::open_world::v0_3::OutputAuthority::AppearanceOnly);
+    out[35] = clamp_metric(
+        static_cast<std::uint64_t>(expectedPixels) - sink.censoredPreviewPixels());
+    out[36] = 0; // generic RECONSTRUCTED authority requires admitted uncertainty
+    out[37] = clamp_metric(sink.censoredPreviewPixels());
+    out[38] = clamp_metric(2u * static_cast<std::uint64_t>(expectedPixels));
+    out[39] = 1; // restoration/relight remain derivative; no scientific writeback
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
         out[kHeaderInts + i] = static_cast<jint>(pixels[i]);
