@@ -42,6 +42,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     pure_float32_dng_export_bridge.cpp
     truthnegative_export_bridge.cpp
     fullres_restoration_export_bridge.cpp
+    restoration_projection_bridge.cpp
+    truthraw_sha256_v0_69.cpp
     nef_measurement_preview_bridge.cpp
     hardware_buffer_envelope_probe.cpp
     idealraw_native_type_oracle.cpp
