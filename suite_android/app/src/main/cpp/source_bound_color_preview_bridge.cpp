@@ -39,7 +39,8 @@ constexpr jint kFinalizedMagic = 0x54524631;   // TRF1
 constexpr std::size_t kSourceBoundHeaderInts = 23;
 constexpr std::size_t kFinalizedHeaderInts = 24;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
-constexpr int kTileCore = 128;
+constexpr int kSourceBoundTileCore = 128;
+constexpr int kFinalizedTileCore = 512;
 constexpr int kTileHalo = 16;
 
 jint clamp_metric(std::uint64_t value) {
@@ -78,9 +79,9 @@ jint finalized_status(const truthraw::finalized_scientific_preview_release::v0_3
     return 5000 + static_cast<jint>(status.code);
 }
 
-StreamingOptions preview_options(std::size_t memoryBudgetBytes) {
+StreamingOptions preview_options(int tileCore, std::size_t memoryBudgetBytes) {
     StreamingOptions options;
-    options.tile = {kTileCore, kTileHalo};
+    options.tile = {tileCore, kTileHalo};
     options.workers = 1;
     options.hdrEnabled = true;
     options.streamScientificDiagnostics = false;
@@ -156,7 +157,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildSourceBoundColorPrevie
     const auto processed = processor.process(
         *source,
         sink,
-        preview_options(static_cast<std::size_t>(maxLogicalResidentBytes)),
+        preview_options(kSourceBoundTileCore, static_cast<std::size_t>(maxLogicalResidentBytes)),
         streaming);
     if (!processed) return status_packet(env, kSourceBoundMagic, kSourceBoundHeaderInts, stream_status(processed));
 
@@ -279,7 +280,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificCol
             reconstruction,
             appearance,
             scientificOptions,
-            preview_options(static_cast<std::size_t>(maxLogicalResidentBytes)),
+            preview_options(kFinalizedTileCore, static_cast<std::size_t>(maxLogicalResidentBytes)),
             roomStatus,
             truthraw::technical_backplane::v0_1::ClaimStatus::Candidate,
             sink,
