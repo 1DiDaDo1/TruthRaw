@@ -4,11 +4,21 @@
 
 Active branch:
 
-`integration/truthraw-suite-v0-73-camera-source-admission-tn3`
+`integration/truthraw-suite-v0-78-open-scene-channel-authority`
 
 Current app version:
 
-`0.38-v0.73-camera-source-admission-tn3`
+`0.44-v0.78-open-scene-channel-authority`
+
+Latest fully green CI:
+
+`35519235748`
+
+Latest APK:
+- bytes: `6,407,245`
+- SHA-256: `7a02fc07472158003423a1232a2c320956c3f80b7ff02d94c303fa46a1e181ff`
+- GitHub artifact id: `10608121004`
+- artifact ZIP SHA-256: `f7125be3edbbaf4017fc1fee6aa57e7d384c16e1d9ab4a288ab1400eebc17ae1`
 
 This branch is the current integration/research line. It is not a main/canonical promotion.
 
@@ -18,141 +28,149 @@ This branch is the current integration/research line. It is not a main/canonical
 
 > Representation can exceed the source. Knowledge claims cannot exceed the evidence.
 
-The original admitted source remains immutable. The free scientific world may build richer representations, but every value must preserve authority, ancestry, uncertainty/support and intervention history.
+Original source evidence remains immutable. Every later building block must know its ancestry, authority, uncertainty/support and intervention history.
 
-## What changed after v0.72
+## Current product line
 
-v0.72 remains the frozen projection-lifecycle baseline.
+The active product now includes:
+- multi-vendor RAW/DNG import
+- real Camera-5 capture entry
+- source-first Camera-5 sealing and topology admission
+- Main-House DNG admission
+- finalized Scientific Preview
+- PURE 32-bit Float DNG v0.63
+- TN-3 downstream Scientific Negative path
+- Advanced appearance controls
+- full-resolution Restoration + DNG/TIFF/EXR projection
+- responsive portrait/landscape camera UI
+- bit-exact performance optimisations v0.74/v0.75
+- canonical derivative ancestry v0.77
+- per-channel Open Scene authority sidecar v0.78
 
-v0.73 makes the product camera tile a real camera ingress and connects the latest active Camera-5 capture route to the same Main-House DNG admission used by imported RAW.
+## v0.73 real-device closure
 
-The visible launcher keeps the polished v0.65 style and clean TruthRaw icon.
+The real Camera-5 route has been demonstrated on device:
 
-### Product UI
+`launcher -> Gebruik camera -> Camera-5 capture -> admitted 4080x3072 DNG -> Main House -> finalized Scientific Preview -> PURE Float32 DNG`.
 
-The launcher again shows:
-- JPG;
-- JPG XL, disabled / not yet admitted;
-- TRUTHRAW PURE;
-- TRUTHRAW ADVANCED with Natural HDR / Light / Detail / Restoration.
+The known camera-derived DNG is a processing container admitted from the source-first Camera2 RAW envelope.
 
-TruthNegative no longer consumes the JPG XL launcher card. TN-3 remains available in the scientific processing path.
+Do not promote the 16320x12288 envelope itself to 200 MP Scientific Master authority.
 
-Compact phone heights receive reduced header/card sizes so PURE and ADVANCED are not half cut off.
+## v0.74 / v0.75 performance
 
-### Camera route
+v0.74 replaced thousands of small Scientific-Master source calls with bit-exact bounded stripes.
 
-`Gebruik camera` now opens `FotoGraaf200MpStagedActivity` in production mode.
+v0.75 proved 128x128 -> 512x512 finalized-preview runtime tiles bit-exact.
 
-Production mode:
-- requests CAMERA permission if necessary;
-- runs Camera-5 capability admission automatically;
-- opens a real logical-0 live preview at the tele route;
-- exposes one RAW capture button instead of the staged laboratory controls.
+Host equivalence gates preserve:
+- Scientific Master SHA
+- exact L0 bits
+- Backplane
+- preview pixels
+- exposure/HDR state
+- frame/evidence 1/1
 
-The latest active capture basis is v0.53, not v0.55:
-- v0.53 = active Android-17 replay of the proven v0.14 Camera-5 source-first route;
-- v0.55 = read-only current Android/HONOR baseline only.
+Theoretical logical tile requests on 4080x3072 dropped from 7680 toward about 336.
 
-## Critical Camera-5 scientific boundary
+A same-device physical latency benchmark against the historical ~87.96 s baseline is still desired.
 
-Do not infer 200 MP measurement authority from the 16320x12288 Camera2 envelope.
+## v0.76 camera UI
 
-Historical v0.19/v0.20 evidence found:
-- envelope: 16320x12288, 401,080,320 bytes;
-- only rows 0..767 populated in the qualifying sample;
-- populated prefix: 25,067,520 bytes;
-- exactly equals 4080x3072x2 bytes;
-- 4080x3072 was the only runtime-advertised STANDARD RAW_SENSOR geometry with that byte count.
+Camera UI is responsive to portrait/landscape orientation and has a clear shutter.
 
-Therefore v0.73 enforces:
+The source/capture science was not changed.
 
-`sealed 16320x12288 envelope`
--> `RawSensorRasterAudit`
--> `RawPayloadGeometryDecoder`
--> unique exact advertised standard RAW byte-match required
--> exact prefix copied with no transform
--> derived processing DNG
--> normal Main-House DNG seal/admission.
+## v0.77 canonical ancestry
 
-If topology is ambiguous or DNG creation fails, the route stops before Scientific Master creation.
+New schema:
 
-The envelope is never directly promoted to a 200 MP Scientific Master.
+`TruthRawCanonicalAncestry/0.77`
 
-## Source ancestry
+It binds:
 
-The original app-visible RAW_SENSOR buffer is sealed first and remains upstream acquisition evidence.
+`source -> Scientific Master -> Zero-Line -> scene-scale -> 180-byte Backplane -> Open Scene -> derivative raster -> role-mask`.
 
-The derived processing DNG carries no inherited truth authority. Main House must independently re-seal/admit it.
+Restoration DNG, TIFF and EXR now receive the same format-neutral ancestry manifest.
 
-The camera-origin RawHandle now records:
-- acquisition evidence JSON path;
-- upstream RAW_SENSOR SHA-256;
-- upstream role `APP_VISIBLE_CAMERA2_RAW_SENSOR_SOURCE_FIRST_SEALED`;
-- source route `CAMERA_CAPTURE`.
+PURE v0.63 remains frozen and unchanged.
 
-The Main UI states explicitly that authority is not inherited.
+## v0.78 per-channel authority
 
-## TruthNegative
+New child schema:
 
-TruthNegative TN-3 is important, but only downstream.
+`TruthRawOpenSceneChannelAuthority/0.78`
 
-Correct chain:
+It is bound to canonical Open Scene v0.70.
 
-`sealed camera source`
--> `admitted sample-domain`
--> `Main-House DNG admission`
--> `Scientific Master + Zero-Line + scene-scale + Backplane`
--> `Dynamic Authority + Canonical Open Scene`
--> `TN-3`.
+Authority and uncertainty are separate axes.
 
-TN-3 is the full-resolution camera-native Scientific Negative/state carrier for the admitted Scientific Master. It may preserve reconstructed full-colour RGB and Open Scene identity at that admitted resolution.
+For current generic admitted DNG:
+- direct CFA uncensored = CALIBRATED_ESTIMATE
+- direct CFA clipped = CENSORED + explicit source-code bound
+- missing RGB channels = UNKNOWN
+- RECONSTRUCTED = 0
 
-TN-3 may not:
-- turn the 16320x12288 HAL envelope into 200 MP evidence;
-- invent missing measured colour;
-- convert CENSORED or UNKNOWN into exact measurement;
-- upgrade reconstructed channels to MEASURED.
+That last point is intentional. No reconstruction gets scientific authority without an admitted source/backend-bound uncertainty model.
 
-## Frozen science
+Advanced returns both:
+- v0.70 Open Scene artifact SHA
+- v0.78 channel-authority artifact SHA
 
-Do not change while closing v0.73:
-- PURE pixel math / self-binding: `TRUTHRAW_PURE_SELF_BINDING_V0_63`;
-- Zero-Line/L0/scene-scale/Technical Backplane semantics;
-- v0.67 Restoration algorithm;
-- v0.70 Canonical Open Scene semantics;
-- v0.71 full role-mask embedding;
-- v0.72 projection lifecycle/progress fixes.
+## Frozen / do not silently change
+
+- source evidence immutable
+- physicalFrameCount=1
+- independentEvidenceCount=1
+- PURE self-binding v0.63
+- Zero-Line/L0
+- scene-scale
+- Technical Backplane
+- Restoration algorithm v0.67
+- canonical Open Scene v0.70 parent semantics
+- role-mask projection v0.71
+- projection lifecycle v0.72
+- Camera-5 topology admission law
+- appearance cannot write back into Scientific Master
+- counterfactual state never becomes evidence
+
+## v5.0g boundary
+
+Exact historical v5.0g feature replay is green.
+
+However the historical tele uncertainty domain must not automatically be transferred to the current camera-derived DNG.
+
+Before v0.78 can emit RECONSTRUCTED authority, uncertainty must be:
+- source-bound
+- backend-bound
+- sample-domain compatible
+- F64 trace/replay compatible where required
+- independently validated / held-out where applicable
+
+## Immediate next step
+
+Start:
+
+`integration/truthraw-suite-v0-79-bound-uncertainty-admission`
+
+First objective: build an exact uncertainty-admission interface feeding v0.78 without changing reconstruction pixels.
+
+Fail closed on current camera-derived DNG until a matching camera-domain uncertainty/PTC binding exists.
+
+Then continue:
+1. v4.7j support-aware detail integration;
+2. v4.7k downstream acutance;
+3. local HDR/light/dark/artificial-illumination state;
+4. authority-aware single-frame HDR;
+5. Restoration v2;
+6. independent DNG/TIFF/EXR conformance + source replay;
+7. proprietary RAW promotion gates such as Nikon NEF.
 
 ## Read next
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-2. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
-3. `docs/TRUTHRAW_V072_PROJECTION_LIFECYCLE_PROGRESS_FIX_2026-09-20.md`
-4. `docs/HONOR_MAGIC8_PRO_TELE_PAYLOAD_GEOMETRY_V020_2026-09-17.md`
-5. `docs/TRUTHRAW_V071_OPEN_SCENE_TRR_ROLEMASK_EMBED_2026-09-20.md`
+2. `docs/TRUTHRAW_V078_OPEN_SCENE_CHANNEL_AUTHORITY_2026-09-20.md`
+3. `docs/research/open-scene-channel-authority-v0.78/README.md`
+4. `docs/research/canonical-ancestry-spine-v0.77/README.md`
+5. `docs/TRUTHRAW_V073_CAMERA_SOURCE_ADMISSION_TN3_2026-09-20.md`
 6. `docs/TRUTHRAW_FULL_GENEALOGY_RECOVERY_AUDIT_2026-09-19.md`
-
-## CI / APK status
-
-Workflow:
-
-`.github/workflows/android-truthraw-suite-v0-73-camera-source-admission-tn3.yml`
-
-Initial run:
-
-`35513839890`
-
-At the time this handoff was created, CI had been queued. Do not claim the v0.73 APK is validated until both scientific-contract and Android-build jobs are green.
-
-## Immediate continuation
-
-1. Check v0.73 CI.
-2. Fix any compile/guard failure without weakening the source/topology gates.
-3. Download the green APK artifact.
-4. Real-device test:
-   `launcher -> Gebruik camera -> live preview -> one RAW capture -> source-first seal -> topology admission -> Main House`.
-5. Verify the known device either admits the exact 4080x3072 standard prefix or fails closed if current Android/HONOR behavior changed.
-6. After admission, test PURE and TN-3.
-7. Upload the evidence JSON and admitted processing DNG for independent inspection.
-8. Only after v0.73 acquisition is proven should the larger code/science upgrades (ancestry-aware Open Scene, v4.7j Detail integration, richer illumination/HDR/restoration) continue.
