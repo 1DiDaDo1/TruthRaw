@@ -40,10 +40,13 @@ object JpgLExporter {
         destination: Uri,
         route: String,
         flags: Int,
+        userQuarterTurns: Int,
         workingDir: File,
     ): JpgLResult {
         workingDir.mkdirs()
-        val frontResult = FullResJpegExporter.renderToPrivateJpeg(resolver, job, flags, workingDir)
+        val frontResult = FullResJpegExporter.renderToPrivateJpeg(
+            resolver, job, flags, userQuarterTurns, workingDir,
+        )
         if (frontResult is FullResJpegResult.Failed) return JpgLResult.Failed(frontResult.reason)
         val front = frontResult as FullResJpegResult.Success
 
@@ -212,7 +215,10 @@ object JpgLExporter {
         appendLine("height=${m.height}")
         appendLine("source_width=${m.sourceWidth}")
         appendLine("source_height=${m.sourceHeight}")
-        appendLine("orientation=${m.orientation}")
+        appendLine("source_orientation=${m.sourceOrientation}")
+        appendLine("user_rotation_quarter_turns=${m.userQuarterTurns}")
+        appendLine("effective_front_orientation=${m.effectiveOrientation}")
+        appendLine("science_orientation_unchanged=1")
         appendLine("precision=F32_CANONICAL")
         appendLine("advanced_flags=$flags")
         appendLine("detail_applied_to_front=${if (m.detailApplied) 1 else 0}")
