@@ -163,6 +163,25 @@ object TruthRawOperationStore {
         editor.apply()
     }
 
+    fun recoverInterruptedIfNeeded(
+        context: Context,
+        key: String,
+        serviceRunning: Boolean,
+        startupGraceMs: Long = 30_000L,
+    ): TruthRawPersistedOperation? {
+        val snapshot = read(context, key) ?: return null
+        if (snapshot.terminal || serviceRunning) return snapshot
+        val age = System.currentTimeMillis() - snapshot.updatedAtWallMs
+        if (age in 0 until startupGraceMs) return snapshot
+        update(
+            context,
+            key,
+            TruthRawOperationPhase.ERROR,
+            "Vorige verwerking werd onverwacht onderbroken; geen actieve Android media-processing service meer gevonden.",
+        )
+        return read(context, key)
+    }
+
     fun read(context: Context, key: String): TruthRawPersistedOperation? {
         val p = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val phase = runCatching {
