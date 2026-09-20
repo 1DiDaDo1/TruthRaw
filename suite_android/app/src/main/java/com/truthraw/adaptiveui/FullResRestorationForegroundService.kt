@@ -154,7 +154,7 @@ class FullResRestorationForegroundService : Service() {
         stagingFile.delete()
 
         val message =
-            "Full-resolution Restoration v0.67 transactioneel opgeslagen · " +
+            "Full-resolution Restoration v0.67 + v0.71 canonical binding transactioneel opgeslagen · " +
                 "${metrics.width}×${metrics.height} · ${formatBytes(metrics.outputBytes)} · " +
                 "preserved/censored/restored/unresolved=" +
                 "${metrics.preservedPixels}/${metrics.censoredPixels}/" +
