@@ -1856,24 +1856,18 @@ class MainActivity : Activity() {
                             addView(actionButton("OpenEXR", enabled = !projectionBusy) {
                                 launchRestorationProjection(active, RestorationProjectionFormat.EXR)
                             })
-                            if (projectionBusy && activeProjection != null) {
-                                addView(horizontal().apply {
-                                    gravity = Gravity.CENTER_VERTICAL
-                                    addView(
-                                        ProgressBar(this@MainActivity).apply { isIndeterminate = true },
-                                        LinearLayout.LayoutParams(dp(30), dp(30)).apply { marginEnd = dp(10) },
-                                    )
-                                    addView(Chronometer(this@MainActivity).apply {
-                                        val elapsed = (System.currentTimeMillis() - activeProjection.startedAtMs).coerceAtLeast(0L)
-                                        base = SystemClock.elapsedRealtime() - elapsed
-                                        format = "${activeProjection.format.label} bezig · %s"
-                                        setTextColor(palette.text)
-                                        textSize = 12f
-                                        start()
-                                    })
-                                })
+                            if (activeProjection != null) {
+                                if (projectionBusy) {
+                                    addView(ProgressBar(this@MainActivity).apply {
+                                        isIndeterminate = true
+                                    }, LinearLayout.LayoutParams(dp(30), dp(30)))
+                                }
+                                addView(restorationProjectionStatusView(activeProjection))
+                            } else {
+                                projectionStatus?.let {
+                                    addView(label(it, 10f, muted = true))
+                                }
                             }
-                            projectionStatus?.let { addView(label(it, 10f, muted = true)) }
                         }
 
                         addView(space(5))
