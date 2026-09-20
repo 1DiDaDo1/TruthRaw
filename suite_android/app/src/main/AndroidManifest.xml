@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
@@ -192,6 +194,11 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Passive CameraManager and MediaStore observation plus read-only exported JPEG EXIF fingerprinting after stable save; no camera open, no capture, no pixel-array decode, no GPS-tag read, no Honor Binder." />
         </service>
+
+        <service
+            android:name=".FullResRestorationForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
