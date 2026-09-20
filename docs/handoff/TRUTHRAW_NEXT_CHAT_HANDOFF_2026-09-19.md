@@ -163,7 +163,7 @@ If the process is later restarted with a non-terminal job but no live foreground
 
 Read `docs/TRUTHRAW_V068_RESTORATION_TRANSACTIONAL_FGS_2026-09-20.md`.
 
-v0.68 CI run `35501207534` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contract tests and Android. Artifact ID `10602377966`; extracted APK SHA-256 `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`.
+v0.68 CI run `35501501178` is green on GCC, Clang, OpenWorld/Dynamic-Authority/Restoration contract tests and Android. Artifact ID `10602377966`; extracted APK SHA-256 `82a4fad83bc112067be00faf59609698daf742f19b71fcd65608e19e3b8c0d59`.
 
 Real-device gate: repeat the full-resolution export and deliberately switch to another app while staging is running. Require a complete valid header, all tiles and staging↔destination SHA-256 equality.
 
