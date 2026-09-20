@@ -172,3 +172,25 @@ It does not change:
 - v0.71 role-mask embedding;
 - evidence counts;
 - scientific writeback rules.
+
+
+## Build status
+
+CI run: `35509701132`
+
+- GCC PURE writer: SUCCESS;
+- Clang PURE writer: SUCCESS;
+- scientific contracts: SUCCESS;
+- Android arm64 debug APK: SUCCESS;
+- documentation governance: SUCCESS.
+
+Artifact ID: `10604514809`
+
+Artifact ZIP SHA-256:
+
+`a0fb5b5fc8dd3d6148cc3c0f5b877645fbd6fb512f2af0df1e3dc2d1c4c29c2f`
+
+Extracted APK:
+
+- bytes: `6,314,357`;
+- SHA-256: `cc3d84ec84177692873b9447e67d7d92b150ddb74921aac5206a94c0cb09b1ae`.
