@@ -40,10 +40,10 @@ jobs:
           grep -F 'Hardware acceleration · research' "$JAVA/TruthRawProActivity.kt"
 
           # Acceleration research must not edit the byte-frozen streaming module.
-          git diff --exit-code             integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
+          git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
 
           # Camera acquisition remains untouched by compute discovery.
-          git diff --exit-code             integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
 
       - uses: actions/setup-java@v4
         with:
