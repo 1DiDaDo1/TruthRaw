@@ -417,7 +417,9 @@ public:
     std::uint64_t restoredPixels() const noexcept { return restoredPixels_; }
     std::uint64_t censoredPixels() const noexcept { return censoredPixels_; }
     bool hdrBaked() const noexcept {
-        return (flags_&kFlagHdr)!=0 && hdrPipelineEnabled_;
+        return (flags_&kFlagHdr)!=0 &&
+               hdrPipelineEnabled_ &&
+               hdrPositiveGainSamples_>0u;
     }
     bool restorationBaked() const noexcept {
         return (flags_&kFlagRestoration)!=0 && restoredPixels_>0u;
@@ -489,7 +491,6 @@ private:
         const int sx1=std::min(sourceWidth_,x1+kSupportHalo);
         const int sy1=std::min(sourceHeight_,y1+kSupportHalo);
         const int sw=sx1-sx0;
-        const int sh=sy1-sy0;
 
         std::vector<float> supportRgb;
         std::vector<std::uint8_t> supportMask;
