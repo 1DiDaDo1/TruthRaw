@@ -113,7 +113,7 @@ if current_state.get("schema") != "TruthRawCurrentProjectState/2026-09-19":
     errors.append("current_2026_09_19_project_state_schema_mismatch")
 if current_state.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
     errors.append("current_2026_09_19_project_state_status_mismatch")
-if current_state.get("activeBranch") != "integration/truthraw-suite-v0-71-open-scene-trr-rolemask-embed":
+if current_state.get("activeBranch") != "integration/truthraw-suite-v0-72-projection-lifecycle-progress-fix":
     errors.append("current_active_branch_mismatch")
 if current_state.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md":
     errors.append("current_next_chat_handoff_mismatch")
@@ -439,6 +439,45 @@ if v071_cables.get("externalDngTiffExrConformance") != "OPEN":
     errors.append("v071_external_conformance_must_remain_open_until_tested")
 if v071_cables.get("effectfulCensoredRestorationDeviceValidation") != "OPEN":
     errors.append("v071_effectful_restoration_gate_must_remain_open")
+
+v072 = (((current_state.get("multiVendorRaw") or {}).get("v072")) or {})
+v072_lifecycle = v072.get("lifecycleFixes") or {}
+v072_artifacts = v072.get("uploadedRealDeviceArtifacts") or {}
+v072_remaining = v072.get("remainingDirectValidation") or {}
+if v072.get("pureWriterContractUnchanged") != "TRUTHRAW_PURE_SELF_BINDING_V0_63":
+    errors.append("v072_must_keep_v063_pure_writer_contract")
+if v072.get("restorationAlgorithmUnchangedFromV067") is not True:
+    errors.append("v072_must_not_change_v067_restoration_algorithm")
+if v072.get("scientificPixelMathChanged") is not False:
+    errors.append("v072_must_be_lifecycle_only")
+if v072_lifecycle.get("startPhase") != "STARTING":
+    errors.append("v072_projection_start_phase_required")
+if v072_lifecycle.get("startupGraceMs") != 30000:
+    errors.append("v072_projection_startup_grace_mismatch")
+if v072_lifecycle.get("foregroundRunningFlagSetBeforeStartForegroundService") is not True:
+    errors.append("v072_foreground_race_fix_required")
+if v072_lifecycle.get("oneProjectionAtATime") is not True:
+    errors.append("v072_single_projection_required")
+if v072_lifecycle.get("persistentPendingProjectionFormat") is not True:
+    errors.append("v072_picker_persistence_required")
+if v072_lifecycle.get("sourceSessionRestoredAfterPickerActivityRecreation") is not True:
+    errors.append("v072_picker_recreation_source_restore_required")
+if v072_lifecycle.get("visibleElapsedChronometer") is not True:
+    errors.append("v072_visible_elapsed_progress_required")
+trr = v072_artifacts.get("restorationTrr") or {}
+dng = v072_artifacts.get("restorationDng") or {}
+if trr.get("censoredSourcePixels") != 15855 or trr.get("restoredRole1Pixels") != 15855:
+    errors.append("v072_effectful_uploaded_trr_counts_mismatch")
+if trr.get("roleMaskSha256") != "8cf0f1bff562c20190f53e7cc6969d7d6d7cf7d855df999c3b479cb09f2211ae":
+    errors.append("v072_uploaded_trr_role_hash_mismatch")
+if dng.get("fullRoleMaskEmbedded") is not True or dng.get("embeddedRoleCountsMatchTrr") is not True:
+    errors.append("v072_uploaded_dng_role_embedding_validation_required")
+if v072_remaining.get("independentDngTiffExrConformance") != "OPEN":
+    errors.append("v072_external_conformance_must_remain_open")
+if v072_remaining.get("realDeviceV072TiffExrCompletionUi") != "OPEN":
+    errors.append("v072_tiff_exr_ui_retest_must_remain_open")
+if v072_remaining.get("originalSourceReplayForEffectfulRestoration") != "OPEN":
+    errors.append("v072_effectful_source_replay_must_remain_open")
 
 laws = state.get("scientific_laws") or {}
 for key, expected in {
