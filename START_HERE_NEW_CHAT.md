@@ -6,41 +6,41 @@
 
 1. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-3. `docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md`
-4. `docs/research/illumination-state-v0.82/README.md`
-5. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
-6. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
-7. `docs/TRUTHRAW_V079_BOUND_UNCERTAINTY_ADMISSION_2026-09-20.md`
+3. `docs/TRUTHRAW_V083_HDR_AUTHORITY_2026-09-20.md`
+4. `docs/research/hdr-authority-v0.83/README.md`
+5. `docs/TRUTHRAW_V082_ILLUMINATION_STATE_2026-09-20.md`
+6. `docs/TRUTHRAW_V081_OUTPUT_ACUTANCE_V47K_2026-09-20.md`
+7. `docs/TRUTHRAW_V080_ADAPTIVE_DETAIL_V47J_2026-09-20.md`
 
 Current active branch:
 
-`integration/truthraw-suite-v0-82-illumination-state`
+`integration/truthraw-suite-v0-83-authority-aware-hdr`
 
 Current app:
 
-`0.48-v0.82-illumination-state`
+`0.49-v0.83-authority-aware-hdr`
 
 Current green CI:
 
-`35522724167`
+`35523343893`
 
 Current APK SHA-256:
 
-`9dd30ca31c810e71080ae7bdb512e2c3145bb4f5eaadb48ff0e95fdacea1e6fb`
+`88d8ac29b64ddef67668c026c05711974c645e3fc1ef6da4b8fb942bda4066a7`
 
 Frozen v0.72 baseline references retained for governance/provenance:
 
 - `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
 - `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 
-Current illumination boundary:
-v0.82 records only source-supported white-point/chromaticity information. CCT/Duv are not SPD proof. DAYLIGHT/ARTIFICIAL/MIXED, SPD, direction, spatial extent and flicker remain UNKNOWN unless separate evidence is admitted.
+Current HDR boundary:
+presentation HDR remains usable but is explicitly `APPEARANCE_ONLY`. Scientific HDR is `BLOCKED / NO_PER_OUTPUT_CHANNEL_AUTHORITY` until a canonical authority/support map exists at final output RGB coordinates. CENSORED stays a bound, UNKNOWN gets no headroom, v0.82 illumination cannot create headroom.
 
 Immediate next branch:
 
-`integration/truthraw-suite-v0-83-authority-aware-hdr`
+`integration/truthraw-suite-v0-84-output-channel-authority-map`
 
-Next objective: local single-frame HDR authority driven by Scientific Master + v0.78 authority + censor bounds + admitted uncertainty. v0.82 illumination state is context only and may not create headroom.
+Next objective: propagate channel authority/support through reconstruction and resampling without altering HDR gain. Compute tiles must never become authority regions.
 
 ## TruthNegative research-branch overlay — 2026-09-19
 
