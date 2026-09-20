@@ -46,6 +46,7 @@ object NativeTilePreviewBridge {
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
         flags: Int,
+        sourceRouteCode: Int,
     ): IntArray
 }
 
@@ -93,6 +94,9 @@ data class TilePreviewMetrics(
     val restorationPresentationOnly: Boolean = false,
     val canonicalOpenSceneArtifactSha256: String? = null,
     val canonicalOpenSceneChannelAuthoritySha256: String? = null,
+    val uncertaintyAdmissionCode: Int = -1,
+    val uncertaintyAdmissionSha256: String? = null,
+    val reconstructedAuthorityAllowedByAdmission: Boolean = false,
 )
 
 sealed interface TilePreviewUiState {
