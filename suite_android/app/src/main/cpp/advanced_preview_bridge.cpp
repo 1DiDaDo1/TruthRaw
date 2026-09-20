@@ -4,6 +4,7 @@
 #include "full_frame_streaming_v0_1.h"
 #include "open_world_native_v03.h"
 #include "open_scene_canonical_v0_70.h"
+#include "open_scene_channel_authority_v0_78.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_streaming_binding_v0_2.h"
 #include "scientific_preview_source_binding_v0_1.h"
@@ -42,9 +43,10 @@ using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 
 constexpr jint kMagic = 0x54524144; // TRAD
-constexpr std::size_t kHeaderInts = 48u;
+constexpr std::size_t kHeaderInts = 56u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -739,6 +741,38 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
         return status_packet(env, -10);
     }
 
+    // v0.78 is an immutable child of the exact v0.70 Open Scene artifact.
+    // Generic admitted DNGs intentionally get no RECONSTRUCTED authority here:
+    // missing channels remain UNKNOWN until a source/backend-bound uncertainty
+    // model is separately admitted.
+    channel_authority::Binding channelBinding{};
+    channelBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    channelBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    channelBinding.zeroLineSha256 = phase2.zeroLineHash;
+    channelBinding.sceneScaleSha256 = phase2.sceneScaleHash;
+    channelBinding.parentOpenSceneV070Sha256 = openSceneSummary.artifactSha256;
+    channelBinding.width = static_cast<std::uint32_t>(source->metadata().width);
+    channelBinding.height = static_cast<std::uint32_t>(source->metadata().height);
+    channelBinding.physicalFrameCount = scientific.physicalFrameCount;
+    channelBinding.independentEvidenceCount = scientific.independentEvidenceCount;
+    channelBinding.reconstructionBackendId = reconstruction->name();
+    channelBinding.reconstructedAuthorityAllowed = false;
+
+    channel_authority::Summary channelSummary{};
+    if (!channel_authority::build_generic_fail_closed_from_source(
+            *source, channelBinding, channelSummary) ||
+        channelSummary.recordCount !=
+            static_cast<std::uint64_t>(source->metadata().width) *
+            static_cast<std::uint64_t>(source->metadata().height) * 3u ||
+        channelSummary.authorityCounts[1] != 0u ||
+        channelSummary.p95KnownCount != 0u ||
+        channelSummary.createsNewEvidence ||
+        channelSummary.scientificWritebackAllowed ||
+        channelSummary.counterfactualAuthorityPresent ||
+        channelSummary.chunkingChangesScientificIdentity) {
+        return status_packet(env, -11);
+    }
+
     // Restore the Open-World authority corridor as a runtime gate. With only one
     // admitted frame, illumination inferred from that frame may constrain an
     // appearance derivative but may not become another measured exposure or
@@ -860,6 +894,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     out[39] = 1; // restoration/relight remain derivative; no scientific writeback
     for (std::size_t word = 0u; word < 8u; ++word) {
         out[40u + word] = digest_word_le(openSceneSummary.artifactSha256, word);
+        out[48u + word] = digest_word_le(channelSummary.artifactSha256, word);
     }
 
     for (std::size_t i = 0; i < pixels.size(); ++i) {
