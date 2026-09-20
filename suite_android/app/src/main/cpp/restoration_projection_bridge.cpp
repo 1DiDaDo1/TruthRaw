@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "dng_color_binding_producer_v0_2.h"
+#include "canonical_ancestry_v0_77.h"
 #include "open_scene_canonical_v0_70.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_linear_dng_projection_v0_1.h"
@@ -45,6 +46,7 @@ namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace sha = truthraw::sha256_v0_69;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace ancestry = truthraw::canonical_ancestry::v0_77;
 
 constexpr jlong kMagic = 0x5452504a; // TRPJ
 constexpr std::size_t kPacketLongs = 20u;
@@ -456,9 +458,37 @@ bool build_canonical_open_scene(
     return canonical_scene::build_from_source(*line.source, binding, summary);
 }
 
+bool build_canonical_ancestry(
+    const Lineage& line,
+    const TrrReader& trr,
+    const canonical_scene::Summary& openScene,
+    ancestry::Manifest& out) {
+    ancestry::Binding b{};
+    b.sourceEvidenceSha256 = line.seal.sha256;
+    b.scientificMasterSha256 = line.scientific.scientificMasterHash;
+    b.zeroLineSha256 = line.phase2.zeroLineHash;
+    b.sceneScaleSha256 = line.phase2.sceneScaleHash;
+    b.serializedBackplane = line.phase2.serializedBackplane;
+    b.openSceneArtifactSha256 = openScene.artifactSha256;
+    b.derivativeRasterSha256 = trr.meta().derivativeHash;
+    b.restorationRoleMaskSha256 = trr.roleHash();
+    b.width = trr.meta().width;
+    b.height = trr.meta().height;
+    b.physicalFrameCount = line.scientific.physicalFrameCount;
+    b.independentEvidenceCount = line.scientific.independentEvidenceCount;
+    b.sourceEvidenceId = line.seal.sourceEvidenceId;
+    b.colourBindingId = line.color.color.bindingId;
+    b.precisionPolicyId = kPrecisionPolicy;
+    b.reconstructionBackendId = line.reconstruction->name();
+    b.scientificCoordinateSpace = "CAMERA_NATIVE_SCENE_LINEAR_RGB";
+    b.derivativeRole = "RETREATABLE_RESTORATION_DERIVATIVE";
+    return ancestry::build(b, out) && ancestry::validate_manifest(b, out);
+}
+
 std::string provenance_text(
     const TrrReader& trr,
-    const canonical_scene::Summary& openScene) {
+    const canonical_scene::Summary& openScene,
+    const ancestry::Manifest& ancestryManifest) {
     return std::string("TruthRaw Restoration Projection v0.69\n")+
         "role=RETREATABLE_RESTORATION_DERIVATIVE\n"+
         "scientific_master_sha256="+digest::to_hex(trr.meta().masterHash)+"\n"+
@@ -471,6 +501,11 @@ std::string provenance_text(
         "open_scene_policy_sha256="+sha::hex(openScene.policySha256)+"\n"+
         "open_scene_artifact_sha256="+sha::hex(openScene.artifactSha256)+"\n"+
         "open_scene_schema=TruthRawOpenSceneCanonicalState/0.70\n"+
+        "canonical_ancestry_schema="+ancestryManifest.schema+"\n"+
+        "canonical_ancestry_sha256="+sha::hex(ancestryManifest.sha256)+"\n"+
+        "canonical_ancestry_manifest_begin\n"+
+        ancestryManifest.canonicalText+
+        "canonical_ancestry_manifest_end\n"+
         "role0_preserve="+std::to_string(trr.role0())+"\n"+
         "role1_aesthetic="+std::to_string(trr.role1())+"\n"+
         "role2_unresolved="+std::to_string(trr.role2())+"\n"+
@@ -510,6 +545,7 @@ std::vector<std::uint8_t> asciip(const std::string& s){std::vector<std::uint8_t>
 bool write_tiff(
     int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     const canonical_scene::Summary& openScene,
+    const ancestry::Manifest& ancestryManifest,
     std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over) {
     constexpr std::uint16_t BYTE=1,ASCII=2,SHORT=3,LONG=4;
     constexpr std::uint32_t tileBytes=kTileEdge*kTileEdge*3u*4u;
@@ -525,7 +561,7 @@ bool write_tiff(
     std::vector<std::uint8_t> counts;counts.reserve(trr.tileCount()*4u);for(std::size_t i=0;i<trr.tileCount();++i)put_u32_le(counts,tileBytes);add(325,LONG,static_cast<std::uint32_t>(trr.tileCount()),std::move(counts));
     std::vector<std::uint8_t> sf;for(int i=0;i<3;++i)put_u16_le(sf,3);add(339,SHORT,3,std::move(sf));
     auto desc=asciip(
-        provenance_text(trr,openScene)+
+        provenance_text(trr,openScene,ancestryManifest)+
         "pixel_space=LINEAR_SRGB_D65_FLOAT32\n"+
         "restoration_role_mask_storage=TIFF_PRIVATE_TAG_65000\n");
     add(270,ASCII,static_cast<std::uint32_t>(desc.size()),std::move(desc));
@@ -569,6 +605,7 @@ std::vector<std::uint8_t> exr_i32x4(std::int32_t a,std::int32_t b,std::int32_t c
 bool write_exr(
     int fd,TrrReader& trr,const std::array<float,9>& c2srgb,
     const canonical_scene::Summary& openScene,
+    const ancestry::Manifest& ancestryManifest,
     std::uint64_t& bytesOut,std::uint64_t& neg,std::uint64_t& over){
     std::vector<std::uint8_t> h;put_u32_le(h,20000630u);put_u32_le(h,2u);
     std::vector<std::uint8_t> ch;
@@ -591,7 +628,7 @@ bool write_exr(
     std::vector<std::uint8_t> one;put_f32_le(one,1.f);exr_attr(h,"pixelAspectRatio","float",one);
     std::vector<std::uint8_t> center;put_f32_le(center,0.f);put_f32_le(center,0.f);exr_attr(h,"screenWindowCenter","v2f",center);exr_attr(h,"screenWindowWidth","float",one);
     std::vector<std::uint8_t> chrom;for(float v:{0.64f,0.33f,0.30f,0.60f,0.15f,0.06f,0.3127f,0.3290f})put_f32_le(chrom,v);exr_attr(h,"chromaticities","chromaticities",chrom);
-    const auto pv=provenance_text(trr,openScene)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n";
+    const auto pv=provenance_text(trr,openScene,ancestryManifest)+"pixel_space=LINEAR_SRGB_D65_FLOAT32\n";
     exr_attr(h,"truthrawProvenance","string",std::vector<std::uint8_t>(pv.begin(),pv.end()));h.push_back(0);
     const std::uint64_t tableStart=h.size(), tableBytes=static_cast<std::uint64_t>(trr.meta().height)*8u;
     const std::uint64_t rowData=static_cast<std::uint64_t>(trr.meta().width)*4u*4u;
@@ -671,6 +708,11 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
         return packet(env,-6);
     }
 
+    ancestry::Manifest ancestryManifest{};
+    if(!build_canonical_ancestry(line,trr,openScene,ancestryManifest)){
+        return packet(env,-7);
+    }
+
     std::uint64_t outBytes=0,neg=0,over=0;
     bool rasterVerified=false;
     if(format==kFormatDng){
@@ -681,6 +723,8 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
         d.projectedRasterSha256=trr.meta().derivativeHash;
         d.openSceneStateSha256=openScene.artifactSha256;
         d.restorationRoleMaskSha256=trr.roleHash();
+        d.canonicalAncestrySha256=ancestryManifest.sha256;
+        d.canonicalAncestryManifest=ancestryManifest.canonicalText;
         d.restorationRoleMaskBytes=std::span<const std::uint8_t>(
             trr.roleMaskBytes().data(), trr.roleMaskBytes().size());
         d.zeroLineGauge=line.scientific.zeroLineGauge;d.sceneBinding=line.scientific.sceneBinding;
@@ -695,8 +739,8 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
     } else {
         const auto c2s=camera_to_linear_srgb(line.color.color.cameraToXyzD50);
         bool ok=format==kFormatTiff
-            ? write_tiff(static_cast<int>(outputFd),trr,c2s,openScene,outBytes,neg,over)
-            : write_exr(static_cast<int>(outputFd),trr,c2s,openScene,outBytes,neg,over);
+            ? write_tiff(static_cast<int>(outputFd),trr,c2s,openScene,ancestryManifest,outBytes,neg,over)
+            : write_exr(static_cast<int>(outputFd),trr,c2s,openScene,ancestryManifest,outBytes,neg,over);
         if(!ok){(void)::ftruncate(outputFd,0);return packet(env,-5);}
         rasterVerified=true; // TrrReader already verified derivative identity before projection.
     }
