@@ -522,6 +522,12 @@ class MainActivity : Activity() {
                 return
             }
 
+            val operationKey = backgroundOperationKey("jpeg", expectedJob)
+            if (!startBackgroundOperation(operationKey, "JPG full-resolution opbouwen")) {
+                jpegStatus = "JPG achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
             jpegStatus = "JPG · full-resolution $route wordt opgebouwd… 384px-preview wordt niet gebruikt."
             render()
             Thread({
@@ -552,6 +558,12 @@ class MainActivity : Activity() {
                         }
                     }
                 }
+                finishBackgroundOperation(
+                    operationKey,
+                    rendered is FullResJpegResult.Success &&
+                        status.startsWith("JPG full-resolution gereed"),
+                    status,
+                )
                 runOnUiThread {
                     if (activeJobId == expectedJob) {
                         jpegStatus = status
@@ -587,6 +599,12 @@ class MainActivity : Activity() {
                 return
             }
 
+            val operationKey = backgroundOperationKey("jpgl-raw-edit", expectedJob)
+            if (!startBackgroundOperation(operationKey, "JPG-L RAW/Edit Float32 DNG opbouwen")) {
+                jpgLStatus = "JPG-L achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
             jpgLStatus =
                 "JPG-L RAW/Edit · 32-bit Float DNG wordt opgebouwd… " +
                     "Float32 is primaire editlaag; Advanced blijft non-destructief recipe."
@@ -623,6 +641,14 @@ class MainActivity : Activity() {
                         }
                     }
                 }
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is PureFloat32DngExportResult.Success,
+                    when (exportResult) {
+                        is PureFloat32DngExportResult.Success -> "JPG-L RAW/Edit gereed."
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                    },
+                )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     jpgLStatus = when (exportResult) {
@@ -666,6 +692,12 @@ class MainActivity : Activity() {
                 return
             }
 
+            val operationKey = backgroundOperationKey("pure-float32", expectedJob)
+            if (!startBackgroundOperation(operationKey, "PURE Float32 DNG opbouwen")) {
+                pureFloatDngStatus = "PURE Float32 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
             pureFloatDngStatus =
                 "TRUTHRAW PURE · 32-bit Float DNG wordt opgebouwd… exact Master replay + digest gate."
             render()
@@ -695,6 +727,14 @@ class MainActivity : Activity() {
                 } finally {
                     preview?.file?.delete()
                 }
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is PureFloat32DngExportResult.Success,
+                    when (exportResult) {
+                        is PureFloat32DngExportResult.Success -> "PURE Float32 DNG gereed."
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                    },
+                )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     pureFloatDngStatus = when (exportResult) {
@@ -738,6 +778,12 @@ class MainActivity : Activity() {
                 return
             }
 
+            val operationKey = backgroundOperationKey("truthnegative", expectedJob)
+            if (!startBackgroundOperation(operationKey, "TRUTHNEGATIVE TN-3 opbouwen")) {
+                truthNegativeStatus = "TRUTHNEGATIVE achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
             truthNegativeStatus =
                 "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
             render()
@@ -745,6 +791,14 @@ class MainActivity : Activity() {
             Thread({
                 val exportResult =
                     TruthNegativeExporter.export(contentResolver, job, destination)
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is TruthNegativeExportResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeExportResult.Success -> "TRUTHNEGATIVE TN-3 gereed."
+                        is TruthNegativeExportResult.Failed -> exportResult.reason
+                    },
+                )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     truthNegativeStatus = when (exportResult) {
@@ -859,10 +913,24 @@ class MainActivity : Activity() {
                 render()
                 return
             }
+            val operationKey = backgroundOperationKey("linear-dng", expectedJob)
+            if (!startBackgroundOperation(operationKey, "Linear DNG opbouwen")) {
+                linearDngStatus = "Linear DNG achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
             linearDngStatus = "Linear DNG wordt opgebouwd… finalized gate + camera-native RGB-projectie."
             render()
             Thread({
                 val exportResult = LinearDngExporter.export(contentResolver, job, destination)
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is LinearDngExportResult.Success,
+                    when (exportResult) {
+                        is LinearDngExportResult.Success -> "Linear DNG gereed."
+                        is LinearDngExportResult.Failed -> exportResult.reason
+                    },
+                )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
                     linearDngStatus = when (exportResult) {
