@@ -191,8 +191,12 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
             descriptor.serializedBackplane.data(),
             descriptor.serializedBackplane.size() - kBackplaneStoredCrcBytes));
 
+    const bool derivative = nonzero_hash(descriptor.projectedRasterSha256);
+    const std::string role = descriptor.projectionRole.empty()
+        ? "TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
+        : printable_identity(descriptor.projectionRole);
     const std::string body =
-        std::string("role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION\n") +
+        std::string("role=") + role + "\n" +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
         "writer_identity=TruthRaw scientific-master-linear-dng-projection-v0.1\n" +
         "representation_only=1\n" +
@@ -203,6 +207,14 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
         "independent_evidence_count=1\n" +
         "sealed_source_sha256=" + hex_hash(descriptor.sealedSourceSha256) + "\n" +
         "scientific_master_sha256=" + hex_hash(descriptor.scientificMasterSha256) + "\n" +
+        "projected_raster_sha256=" +
+            (derivative ? hex_hash(descriptor.projectedRasterSha256)
+                        : hex_hash(descriptor.scientificMasterSha256)) + "\n" +
+        "restoration_derivative=" + std::string(descriptor.restorationDerivative ? "1\n" : "0\n") +
+        "open_scene_state_sha256=" +
+            (nonzero_hash(descriptor.openSceneStateSha256)
+                ? hex_hash(descriptor.openSceneStateSha256)
+                : std::string(64u, '0')) + "\n" +
         "zero_line_sha256=" + hex_hash(descriptor.zeroLineSha256) + "\n" +
         "zero_line_mode=" + gauge_mode_name(descriptor.zeroLineGauge.mode) + "\n" +
         "zero_line_l0_f64_bits=0x" + hex_u64(l0Bits) + "\n" +
@@ -299,6 +311,13 @@ Status validate_scientific_binding(const ProjectionDescriptor& descriptor) noexc
         return Status::error(
             StatusCode::ScientificBindingMismatch,
             "Technical Backplane identity does not match PURE projection lineage");
+    }
+
+    if (descriptor.restorationDerivative &&
+        (!nonzero_hash(descriptor.projectedRasterSha256) || descriptor.projectionRole.empty())) {
+        return Status::error(
+            StatusCode::ScientificBindingMismatch,
+            "restoration derivative projection requires explicit raster hash and role");
     }
 
     if (!(descriptor.zeroLineGauge.L0 > 0.0) ||
@@ -667,12 +686,20 @@ Status write_xyz_d50_linear_dng_projection(
                 sink, StatusCode::DigestFailed,
                 "Scientific Master digest finalization failed: " + digest.error());
         }
-        if (actualMaster != descriptor.scientificMasterSha256) {
+        const bool derivativeProjection = nonzero_hash(descriptor.projectedRasterSha256);
+        const auto& expectedRasterHash = derivativeProjection
+            ? descriptor.projectedRasterSha256
+            : descriptor.scientificMasterSha256;
+        if (actualMaster != expectedRasterHash) {
             return fail_transaction(
                 sink, StatusCode::ScientificMasterMismatch,
-                "camera-native export source does not match admitted Scientific Master identity");
+                derivativeProjection
+                    ? "camera-native derivative source does not match declared projected raster identity"
+                    : "camera-native export source does not match admitted Scientific Master identity");
         }
-        out.scientificMasterIdentityVerified = true;
+        out.projectedRasterIdentityVerified = true;
+        out.scientificMasterIdentityVerified =
+            actualMaster == descriptor.scientificMasterSha256;
 
         if (!sink.commit()) {
             sink.abort();
