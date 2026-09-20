@@ -1,0 +1,221 @@
+{
+  "schema": "TruthRawCurrentProjectState/2026-09-21",
+  "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
+  "activeBranch": "integration/truthraw-suite-v0-84-2-adaptive-compute-router",
+  "appVersion": "0.51-v0.84.2-adaptive-compute-router",
+  "codeBearingHead": "86307391ca726c2389fc3468fd79dee8b7dc864b",
+  "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md",
+  "previousState": "state/CURRENT_PROJECT_STATE_2026-09-20.json",
+  "permanentLaws": {
+    "sourceEvidenceImmutable": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "appearanceNeverWritesBack": true,
+    "counterfactualNeverEvidence": true,
+    "computeResourcesNeverIncreaseAuthority": true,
+    "sealedFullFrameStreamingV01ByteFrozen": true
+  },
+  "integrationLine": {
+    "v0831": "three-route PURE/ADVANCED/PRO UI, full-resolution JPG and first JPG-L work",
+    "v0832": "non-destructive quarter-turn orientation override across preview/export",
+    "v084": "canonical conservative per-output-channel RGB authority map",
+    "v0841": "true Android background mediaProcessing execution with timers and green/red operation state",
+    "v0842": "strict-FP O2, adaptive multicore, Android CPU/GPU headroom, ADPF worker hints, Vulkan/APV capability discovery"
+  },
+  "float32Editing": {
+    "pure": {
+      "externalIdentity": "DNG",
+      "primaryRaster": "IEEE754_FLOAT32_XYZ_D50_LINEAR",
+      "embeddedJpegPreview": "optional_non_authority",
+      "negativeValuesPreserved": true,
+      "overOneValuesPreserved": true,
+      "sdrClampInPrimary": false,
+      "scientificMasterModified": false
+    },
+    "jpgLRawEdit": {
+      "version": "0.3",
+      "externalIdentity": "DNG",
+      "primaryRaster": "IEEE754_FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER",
+      "embeddedJpegPreview": "rendered_non_authority",
+      "advancedRecipeBound": true,
+      "appearanceBakedIntoPrimary": false,
+      "scientificWritebackAllowed": false,
+      "createsNewEvidence": false
+    },
+    "advancedRenderEdit": {
+      "status": "OPEN_NOT_PRODUCTION_COMPLETE",
+      "goal": "developed extended-linear Float32 derivative with own projected-raster digest, before SDR tone/clamp/OETF",
+      "scientificMasterRole": "UNCHANGED_PARENT_ONLY"
+    }
+  },
+  "v084OutputAuthority": {
+    "schema": "TruthRawOutputChannelAuthority/0.84",
+    "perOutputChannelAuthorityAvailable": true,
+    "channels": [
+      "CALIBRATED_ESTIMATE",
+      "RECONSTRUCTED",
+      "CENSORED",
+      "UNKNOWN"
+    ],
+    "orientationChangesAuthority": false,
+    "resamplingWithoutBoundPropagation": "FAIL_CLOSED_UNKNOWN",
+    "reconstructedUncertaintyCurrentlyAdmitted": false,
+    "scientificHdrAuthority": "BLOCKED",
+    "scientificHdrBlockedReason": "UNKNOWN_CHANNEL_AUTHORITY_PRESENT",
+    "presentationHdr": "APPEARANCE_ONLY_WHEN_ENABLED",
+    "scientificGainAllowed": false
+  },
+  "backgroundExecution": {
+    "mediaProcessingForegroundService": true,
+    "partialWakeLock": true,
+    "persistentOperationState": true,
+    "liveTimer": true,
+    "successIndicator": "GREEN",
+    "unexpectedStopIndicator": "RED",
+    "staleWorkerRecovery": true,
+    "guardedOperations": [
+      "preview/render",
+      "NEF measurement",
+      "full-resolution JPG",
+      "JPG-L RAW/Edit Float32 DNG",
+      "PURE Float32 DNG",
+      "TruthNegative TN-3",
+      "Linear DNG"
+    ],
+    "specializedExistingForegroundWorkersRetained": [
+      "full-resolution Restoration",
+      "Restoration DNG/TIFF/EXR projection"
+    ]
+  },
+  "acceleration": {
+    "strictFpO2": {
+      "enabledForDebugNativeLibrary": true,
+      "flags": [
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off"
+      ],
+      "v47iO0Signature": "5dba058e5742346a",
+      "v47iO2Signature": "5dba058e5742346a",
+      "bitIdentityGate": true
+    },
+    "orderedParallelExecutor": {
+      "implemented": true,
+      "boundedInflight": true,
+      "parallelCompute": true,
+      "canonicalOrderedCommit": true,
+      "hostConcurrencyOrderingFailFastTest": "PASS"
+    },
+    "restoration": {
+      "multicoreEnabled": true,
+      "workerRange": "1..8",
+      "perWorkerReadOnlyDngSource": true,
+      "perWorkerV47iWorkspace": true,
+      "workerCountExcludedFromArtifactIdentity": true,
+      "adpfRuntimeHints": true,
+      "adpfMinimumApi": 33,
+      "wholeFileSha1WorkerVsNWorker": "OPEN_REAL_EQUIVALENCE_GATE"
+    },
+    "dynamicCpuPolicy": {
+      "inputs": [
+        "online cores",
+        "memory class / bytes per worker",
+        "power-save mode",
+        "thermal status",
+        "thermal headroom",
+        "Android 16+ CPU resource headroom"
+      ],
+      "manualCoreAffinity": false
+    },
+    "systemHeadroom": {
+      "schema": "TruthRawSystemHeadroom/0.1",
+      "runtimeLoadedFrom": "libandroid.so",
+      "cpuApi": "ASystemHealth_getCpuHeadroom",
+      "gpuApi": "ASystemHealth_getGpuHeadroom",
+      "compileSdk36Dependency": false,
+      "cacheRespectsReportedMinimumPollInterval": true,
+      "cpuHeadroomCanReduceWorkers": true,
+      "gpuHeadroomCanSuppressFutureVulkanCandidate": true
+    },
+    "vulkan": {
+      "capabilityProbe": true,
+      "hardwareDeviceRequired": true,
+      "computeQueueRequired": true,
+      "cpuSoftwareVulkanRejected": true,
+      "ahardwarebufferExtensionObserved": true,
+      "pixelKernelSelected": false,
+      "activeBackend": "CPU_REFERENCE"
+    },
+    "armSha2": {
+      "capabilityProbe": true,
+      "optimizedTruthRawSha256TransformSelected": false
+    },
+    "vendorCompute": {
+      "qualcommFastCvSelected": false,
+      "qualcommQnnHexagonSelected": false,
+      "mediatekNeuroPilotSelected": false
+    }
+  },
+  "apv": {
+    "mime": "video/apv",
+    "runtimeCodecProbe": true,
+    "reports": [
+      "encoder/decoder identity",
+      "hardware acceleration",
+      "vendor/software classification",
+      "color formats",
+      "profile/levels",
+      "maximum width/height/bitrate",
+      "performance points"
+    ],
+    "android16PlatformExpected": true,
+    "android17ExplicitDiagnostic": true,
+    "role": "PROFESSIONAL_VIDEO_INTERMEDIATE_OR_PROXY_CANDIDATE_ONLY",
+    "scientificMasterReplacement": false,
+    "productionEncodeDecodeRouteSelected": false,
+    "openApvBundled": false
+  },
+  "orientation": {
+    "manualQuarterTurns": true,
+    "nonDestructive": true,
+    "sealedSourceUnchanged": true,
+    "scientificMasterCoordinatesUnchanged": true,
+    "authorityUnchanged": true
+  },
+  "ci": {
+    "workflow": "TruthRaw v0.84.2 Adaptive Compute Router",
+    "run": 35545744042,
+    "status": "SUCCESS",
+    "headSha": "86307391ca726c2389fc3468fd79dee8b7dc864b",
+    "v47iO0Signature": "5dba058e5742346a",
+    "v47iO2Signature": "5dba058e5742346a",
+    "artifactId": 10615818161,
+    "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
+    "artifactZipSha256": "d995d1977a93fde4859d8f8418154b6cb0cad3979542fcf02074b1fb40b8c08a",
+    "apkBytes": 5960669,
+    "apkSha256": "d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a"
+  },
+  "openValidation": {
+    "android17BackgroundExecutionRealDevice": "OPEN",
+    "android17ProHardwareProbe": "OPEN",
+    "restorationWholeFileSha1WorkerVsNWorker": "OPEN",
+    "advancedRenderEditFloat32Derivative": "OPEN",
+    "firstVulkanAppearancePresentationKernel": "OPEN",
+    "armv8Sha2ExactDigestBackend": "OPEN",
+    "parallelScientificMasterWrapper": "RESEARCH_PLAN_ONLY",
+    "apvHardwareEncodeDecodeRoundTrip": "OPEN",
+    "openApv44412Comparison": "RESEARCH_ONLY",
+    "scientificHdrGainAdmission": "BLOCKED_BY_UNKNOWN_CHANNEL_AUTHORITY"
+  },
+  "immediateNext": [
+    "real-device Android 17 smoke test for background execution, worker/headroom/APV/Vulkan diagnostics",
+    "prove whole-file Restoration .trr SHA equality at workers=1 versus workers=N",
+    "complete ADVANCED Render/Edit extended-linear Float32 derivative without modifying sealed streaming v0.1",
+    "build first Vulkan APPEARANCE/PRESENTATION correctness+benchmark kernel; keep CPU reference",
+    "implement ARMv8 SHA2 exact backend only behind digest-equivalence gate",
+    "prototype parallel Scientific Master wrapper only after exact v0.3 identity gates",
+    "run APV hardware encode/decode round-trip before any production APV route"
+  ]
+}
