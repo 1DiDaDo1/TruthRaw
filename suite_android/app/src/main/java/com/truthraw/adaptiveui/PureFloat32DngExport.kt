@@ -7,7 +7,7 @@ import java.io.File
 import java.util.zip.CRC32
 
 private const val PURE_FLOAT_MAGIC = 0x54525046L
-private const val PURE_FLOAT_PACKET_LONGS = 18
+private const val PURE_FLOAT_PACKET_LONGS = 34
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 private const val PURE_POSTWRITE_SCAN_BYTES = 64 * 1024
@@ -23,6 +23,7 @@ object PureFloat32DngNativeBridge {
         outputFd: Int,
         userQuarterTurns: Int,
         exportMode: Int,
+        sourceRouteCode: Int,
         advancedFlags: Int,
         previewFd: Int,
         previewWidth: Int,
@@ -49,6 +50,14 @@ data class PureFloat32DngMetrics(
     val physicalFrameCount: Long,
     val independentEvidenceCount: Long,
     val colorClaimScopeCode: Long,
+    val outputChannelAuthorityAvailable: Boolean,
+    val outputChannelAuthorityMappingMode: Int,
+    val outputAuthorityCalibratedChannels: Long,
+    val outputAuthorityReconstructedChannels: Long,
+    val outputAuthorityCensoredChannels: Long,
+    val outputAuthorityUnknownChannels: Long,
+    val outputAuthorityCensoredSupportPixels: Long,
+    val outputAuthorityArtifactSha256: String,
     val postWriteSelfBindingVerified: Boolean = false,
 )
 
@@ -120,6 +129,10 @@ object PureFloat32DngExporter {
                                 dst.fd,
                                 userQuarterTurns,
                                 flavor.nativeCode,
+                                when (job.source.sourceRoute) {
+                                    SourceIngressRoute.IMPORTED_FILE -> 0
+                                    SourceIngressRoute.CAMERA_CAPTURE -> 1
+                                },
                                 if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
                                 p.fd,
                                 previewWidth,
@@ -134,6 +147,10 @@ object PureFloat32DngExporter {
                             dst.fd,
                             userQuarterTurns,
                             flavor.nativeCode,
+                            when (job.source.sourceRoute) {
+                                SourceIngressRoute.IMPORTED_FILE -> 0
+                                SourceIngressRoute.CAMERA_CAPTURE -> 1
+                            },
                             if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
                             -1,
                             0,
@@ -216,6 +233,15 @@ object PureFloat32DngExporter {
             "runtime_reconstruction_backend_id=",
             "physical_frame_count=1",
             "independent_evidence_count=1",
+            "output_channel_authority_bound=1",
+            "output_channel_authority_manifest_begin",
+            "schema=TruthRawOutputChannelAuthority/0.84",
+            "artifact_sha256=",
+            "mapping_mode=FULL_RESOLUTION_CONSERVATIVE",
+            "reconstructed_channels=0",
+            "unknown_channels=",
+            "orientation_transform_changes_authority=0",
+            "output_channel_authority_manifest_end",
         )
         if (previewExpected) {
             requiredMarkers += listOf(
@@ -432,6 +458,15 @@ object PureFloat32DngExporter {
             return PureFloat32DngExportResult.Failed(statusDescription(status))
         }
 
+        val outputAuthorityArtifactSha256 = buildString(64) {
+            for (word in 0 until 8) {
+                val value = packet[26 + word].toInt()
+                for (byte in 0 until 4) {
+                    append(((value ushr (byte * 8)) and 0xff).toString(16).padStart(2, '0'))
+                }
+            }
+        }
+
         val metrics = PureFloat32DngMetrics(
             width = packet[2],
             height = packet[3],
@@ -449,6 +484,14 @@ object PureFloat32DngExporter {
             physicalFrameCount = packet[15],
             independentEvidenceCount = packet[16],
             colorClaimScopeCode = packet[17],
+            outputChannelAuthorityAvailable = packet[18] != 0L,
+            outputChannelAuthorityMappingMode = packet[19].toInt(),
+            outputAuthorityCalibratedChannels = packet[20],
+            outputAuthorityReconstructedChannels = packet[21],
+            outputAuthorityCensoredChannels = packet[22],
+            outputAuthorityUnknownChannels = packet[23],
+            outputAuthorityCensoredSupportPixels = packet[24],
+            outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
         )
 
         val violation =
@@ -466,7 +509,17 @@ object PureFloat32DngExporter {
                 metrics.counterfactualObservationCreated ||
                 metrics.physicalFrameCount != 1L ||
                 metrics.independentEvidenceCount != 1L ||
-                metrics.colorClaimScopeCode !in 1L..2L
+                metrics.colorClaimScopeCode !in 1L..2L ||
+                !metrics.outputChannelAuthorityAvailable ||
+                metrics.outputChannelAuthorityMappingMode != 1 ||
+                metrics.outputAuthorityReconstructedChannels != 0L ||
+                metrics.outputAuthorityUnknownChannels <= 0L ||
+                metrics.outputAuthorityCalibratedChannels +
+                    metrics.outputAuthorityReconstructedChannels +
+                    metrics.outputAuthorityCensoredChannels +
+                    metrics.outputAuthorityUnknownChannels !=
+                    metrics.projectedPixels * 3L ||
+                metrics.outputAuthorityArtifactSha256.all { it == '0' }
 
         if (violation) {
             return PureFloat32DngExportResult.Failed(
@@ -483,6 +536,10 @@ object PureFloat32DngExporter {
         -3L -> "PURE Float32: Phase-2/Scientific-Master/source binding kwam niet exact overeen."
         -4L -> "PURE Float32: projection probeerde master/appearance/evidence-invariant te schenden."
         -5L -> "Float32 DNG: ingebedde JPEG-preview kon niet veilig worden gelezen."
+        -6L -> "Float32 DNG: canonical Open Scene v0.70 kon niet worden gebonden."
+        -7L -> "Float32 DNG: v0.79 uncertainty-admission promoveerde onverwacht authority."
+        -8L -> "Float32 DNG: v0.78 source-channel authority kon niet fail-closed worden opgebouwd."
+        -9L -> "Float32 DNG: v0.84 output-channel authority kon niet fail-closed worden opgebouwd."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
