@@ -171,7 +171,9 @@ std::uint32_t ExtendedLinearSrgbTileSource::flags() const noexcept {
 bool ExtendedLinearSrgbTileSource::appearanceBakedIntoPrimary() const noexcept {
     if (!impl_) return false;
     return (impl_->flags & (kFlagLight | kFlagDetail | kFlagRestoration)) != 0u ||
-           controls::color_fullness(impl_->flags) != 0;
+           controls::color_fullness(impl_->flags) != 0 ||
+           std::abs(controls::exposure_compensation_ev(impl_->flags)) > 1.0e-7f ||
+           controls::shadow_recovery_mix(impl_->flags) > 0.0f;
 }
 
 bool ExtendedLinearSrgbTileSource::hdrBakedIntoPrimary() const noexcept {
@@ -203,7 +205,13 @@ float_dng::Status ExtendedLinearSrgbTileSource::readCameraNativeTile(
         const bool useDetail = (impl_->flags & kFlagDetail) != 0u;
         const bool useRestoration = (impl_->flags & kFlagRestoration) != 0u;
         const bool useLight = (impl_->flags & kFlagLight) != 0u;
-        const bool needsRawMask = useRestoration || useLight;
+        const float exposureGain = controls::presentation_exposure_gain(
+            impl_->flags,
+            impl_->exposure.anchorsY[2],
+            impl_->exposure.evidenceConfidence,
+            useLight);
+        const float shadowMix = controls::shadow_recovery_mix(impl_->flags);
+        const bool needsRawMask = useRestoration || useLight || shadowMix > 0.0f;
 
         const int coreX0 = static_cast<int>(x);
         const int coreY0 = static_cast<int>(y);
@@ -469,6 +477,10 @@ float_dng::Status ExtendedLinearSrgbTileSource::readCameraNativeTile(
                     }
                 }
 
+                r *= exposureGain;
+                g *= exposureGain;
+                b *= exposureGain;
+
                 if (useLight && !censored) {
                     const float lum =
                         std::max(truthraw::luminance709(r, g, b), 0.0f);
@@ -488,6 +500,18 @@ float_dng::Status ExtendedLinearSrgbTileSource::readCameraNativeTile(
                         r *= scale;
                         g *= scale;
                         b *= scale;
+                    }
+                }
+
+                if (!censored && shadowMix > 0.0f) {
+                    if (!controls::apply_shadow_recovery(
+                            r,
+                            g,
+                            b,
+                            shadowMix,
+                            impl_->exposure.evidenceConfidence)) {
+                        return source_error(
+                            "Render/Edit shadow recovery failed");
                     }
                 }
 
