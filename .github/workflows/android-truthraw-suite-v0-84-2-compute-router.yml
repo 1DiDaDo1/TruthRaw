@@ -119,6 +119,26 @@ jobs:
           echo "v47i_o2_signature=$O2"
           test "$O0" = "$O2"
 
+      - name: Verify Render Edit partition invariance
+        run: |
+          set -euo pipefail
+          g++ -std=c++20 -O2 -fno-fast-math -ffp-contract=off \
+            -Wall -Wextra -Werror -Wno-error=misleading-indentation \
+            -Isuite_android/app/src/main/cpp \
+            -Icanonical/reconstruction/v4.7i/native/include \
+            -Idocs/research/full-frame-streaming-v0.1/native \
+            -Idocs/research/scientific-master-linear-dng-projection-v0.1/native \
+            -Idocs/research/scientific-master-digest-v0.1/native \
+            -Idocs/research/technical-backplane-v0.1/native \
+            -Idocs/research/truthrange-latent-binding-v0.2/native \
+            docs/research/android-acceleration-v0.1/tests/advanced_render_edit_partition_v0_1.cpp \
+            suite_android/app/src/main/cpp/advanced_render_edit_tile_source_v0_1.cpp \
+            suite_android/app/src/main/cpp/adaptive_detail_v47j_adapter.cpp \
+            canonical/reconstruction/v4.7i/native/src/core.cpp \
+            docs/research/scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.cpp \
+            -pthread -o /tmp/truthraw-render-edit-partition
+          /tmp/truthraw-render-edit-partition
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
