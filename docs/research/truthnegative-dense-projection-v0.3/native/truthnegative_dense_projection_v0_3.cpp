@@ -152,7 +152,15 @@ std::size_t DenseProjectionTileSource::residentBytesUpperBound() const noexcept 
     if (total > std::numeric_limits<std::size_t>::max() - extra) {
         return std::numeric_limits<std::size_t>::max();
     }
-    return total + extra;
+    total += extra;
+    if (impl_->accelerator != nullptr) {
+        const auto acceleratorBytes=impl_->accelerator->residentBytesUpperBound();
+        if (total > std::numeric_limits<std::size_t>::max() - acceleratorBytes) {
+            return std::numeric_limits<std::size_t>::max();
+        }
+        total += acceleratorBytes;
+    }
+    return total;
 }
 
 float_dng::Status DenseProjectionTileSource::readCameraNativeTile(
