@@ -56,6 +56,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     truthraw_compute_capabilities_v0_1.cpp
     truthraw_system_headroom_v0_1.cpp
     truthraw_performance_hint_v0_1.cpp
+    truthnegative_vulkan_dense_v0_1.cpp
     bound_uncertainty_admission_v0_79.cpp
     adaptive_detail_v47j_adapter.cpp
     advanced_render_edit_tile_source_v0_1.cpp
@@ -128,10 +129,54 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${V47I_NATIVE}/include
     ${V47K_NATIVE})
 
+if(ANDROID)
+    file(GLOB TRUTHRAW_GLSLC_CANDIDATES
+        "${CMAKE_ANDROID_NDK}/shader-tools/*/glslc")
+    list(LENGTH TRUTHRAW_GLSLC_CANDIDATES TRUTHRAW_GLSLC_COUNT)
+    if(TRUTHRAW_GLSLC_COUNT EQUAL 0)
+        message(FATAL_ERROR "NDK glslc not found under ${CMAKE_ANDROID_NDK}/shader-tools")
+    endif()
+    list(GET TRUTHRAW_GLSLC_CANDIDATES 0 TRUTHRAW_GLSLC)
+
+    set(TRUTHRAW_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+    set(TRUTHRAW_DENSE_SHADER
+        "${CMAKE_CURRENT_LIST_DIR}/shaders/truthnegative_dense_4x.comp")
+    set(TRUTHRAW_DENSE_SPV
+        "${TRUTHRAW_GENERATED_DIR}/truthnegative_dense_4x.comp.spv")
+    set(TRUTHRAW_DENSE_SPV_HEADER
+        "${TRUTHRAW_GENERATED_DIR}/truthnegative_dense_4x_spv.h")
+    add_custom_command(
+        OUTPUT "${TRUTHRAW_DENSE_SPV_HEADER}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${TRUTHRAW_GENERATED_DIR}"
+        COMMAND "${TRUTHRAW_GLSLC}"
+            -fshader-stage=compute
+            -O0
+            --target-env=vulkan1.1
+            "${TRUTHRAW_DENSE_SHADER}"
+            -o "${TRUTHRAW_DENSE_SPV}"
+        COMMAND "${CMAKE_COMMAND}"
+            -DINPUT="${TRUTHRAW_DENSE_SPV}"
+            -DOUTPUT="${TRUTHRAW_DENSE_SPV_HEADER}"
+            -P "${CMAKE_CURRENT_LIST_DIR}/cmake/embed_spirv.cmake"
+        DEPENDS
+            "${TRUTHRAW_DENSE_SHADER}"
+            "${CMAKE_CURRENT_LIST_DIR}/cmake/embed_spirv.cmake"
+        VERBATIM)
+    add_custom_target(
+        truthraw_dense_spirv
+        DEPENDS "${TRUTHRAW_DENSE_SPV_HEADER}")
+    add_dependencies(truthraw_ui_preview_bridge truthraw_dense_spirv)
+    target_include_directories(
+        truthraw_ui_preview_bridge PRIVATE "${TRUTHRAW_GENERATED_DIR}")
+endif()
+
 find_library(ANDROID_LIB android)
 find_library(CAMERA2NDK_LIB camera2ndk)
 find_library(DL_LIB dl)
-target_link_libraries(truthraw_ui_preview_bridge PRIVATE ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB})
+find_library(VULKAN_LIB vulkan)
+target_link_libraries(
+    truthraw_ui_preview_bridge PRIVATE
+    ${ANDROID_LIB} ${CAMERA2NDK_LIB} ${DL_LIB} ${VULKAN_LIB})
 
 target_compile_options(truthraw_ui_preview_bridge PRIVATE
     -Wall
