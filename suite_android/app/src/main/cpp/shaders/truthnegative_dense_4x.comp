@@ -1,0 +1,108 @@
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(std430, binding = 0) readonly buffer SourceBuffer {
+    float src[];
+};
+
+layout(std430, binding = 1) writeonly buffer TargetBuffer {
+    float dst[];
+};
+
+layout(push_constant) uniform Push {
+    uint sourceFullWidth;
+    uint sourceFullHeight;
+    uint patchOriginX;
+    uint patchOriginY;
+    uint patchWidth;
+    uint patchHeight;
+    uint targetOriginX;
+    uint targetOriginY;
+    uint targetWidth;
+    uint targetHeight;
+} pc;
+
+uint clampIndex(int v, uint limit) {
+    if (v <= 0) return 0u;
+    uint u = uint(v);
+    return u >= limit ? limit - 1u : u;
+}
+
+void axisMap(uint targetCoord, out uint s0, out uint s1, out precise float f) {
+    uint n = targetCoord >> 2u;
+    uint r = targetCoord & 3u;
+    int base;
+    if (r == 0u) {
+        base = int(n) - 1;
+        f = 0.625;
+    } else if (r == 1u) {
+        base = int(n) - 1;
+        f = 0.875;
+    } else if (r == 2u) {
+        base = int(n);
+        f = 0.125;
+    } else {
+        base = int(n);
+        f = 0.375;
+    }
+    s0 = clampIndex(base, r == r ? (targetCoord == targetCoord ? 0xffffffffu : 0xffffffffu) : 0xffffffffu);
+    s1 = 0u;
+}
+
+void main() {
+    uvec2 local = gl_GlobalInvocationID.xy;
+    if (local.x >= pc.targetWidth || local.y >= pc.targetHeight) return;
+
+    uint tx = pc.targetOriginX + local.x;
+    uint ty = pc.targetOriginY + local.y;
+
+    uint nx = tx >> 2u;
+    uint rx = tx & 3u;
+    int bx;
+    precise float fx;
+    if (rx == 0u) { bx = int(nx) - 1; fx = 0.625; }
+    else if (rx == 1u) { bx = int(nx) - 1; fx = 0.875; }
+    else if (rx == 2u) { bx = int(nx); fx = 0.125; }
+    else { bx = int(nx); fx = 0.375; }
+
+    uint ny = ty >> 2u;
+    uint ry = ty & 3u;
+    int by;
+    precise float fy;
+    if (ry == 0u) { by = int(ny) - 1; fy = 0.625; }
+    else if (ry == 1u) { by = int(ny) - 1; fy = 0.875; }
+    else if (ry == 2u) { by = int(ny); fy = 0.125; }
+    else { by = int(ny); fy = 0.375; }
+
+    uint x0 = clampIndex(bx, pc.sourceFullWidth);
+    uint x1 = clampIndex(bx + 1, pc.sourceFullWidth);
+    uint y0 = clampIndex(by, pc.sourceFullHeight);
+    uint y1 = clampIndex(by + 1, pc.sourceFullHeight);
+
+    uint lx0 = x0 - pc.patchOriginX;
+    uint lx1 = x1 - pc.patchOriginX;
+    uint ly0 = y0 - pc.patchOriginY;
+    uint ly1 = y1 - pc.patchOriginY;
+    if (lx0 >= pc.patchWidth || lx1 >= pc.patchWidth ||
+        ly0 >= pc.patchHeight || ly1 >= pc.patchHeight) {
+        return;
+    }
+
+    uint outPixel = local.y * pc.targetWidth + local.x;
+    for (uint c = 0u; c < 3u; ++c) {
+        uint i00 = (ly0 * pc.patchWidth + lx0) * 3u + c;
+        uint i10 = (ly0 * pc.patchWidth + lx1) * 3u + c;
+        uint i01 = (ly1 * pc.patchWidth + lx0) * 3u + c;
+        uint i11 = (ly1 * pc.patchWidth + lx1) * 3u + c;
+
+        precise float p00 = src[i00];
+        precise float p10 = src[i10];
+        precise float p01 = src[i01];
+        precise float p11 = src[i11];
+        precise float top = p00 + (p10 - p00) * fx;
+        precise float bottom = p01 + (p11 - p01) * fx;
+        precise float value = top + (bottom - top) * fy;
+        dst[outPixel * 3u + c] = value;
+    }
+}
