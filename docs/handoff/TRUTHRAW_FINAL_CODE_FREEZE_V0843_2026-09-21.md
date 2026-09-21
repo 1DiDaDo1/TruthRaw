@@ -11,19 +11,24 @@ The user explicitly requested:
 Therefore the current code-bearing state is frozen at:
 
 - branch: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
-- code-bearing commit: `d44e0096e85d75703e8de54d5a832b727c450f66`
+- code-bearing commit: `172a100786eb18d4b08564bbfb025a44f42cfa1e`
 - workflow: `TruthRaw v0.84.2 Adaptive Compute Router`
-- workflow run: `35625892299`
+- workflow run: `35626531163`
 - CI result: **SUCCESS**
-- artifact id: `10652446563`
+- artifact id: `10652233067`
 - artifact name: `truthraw-v0-84-2-compute-router-debug-arm64`
-- artifact ZIP digest: `sha256:334a3f550b9f42922812ba807e2d75cf4ab11fee96f72cf7f834bdd6853a7548`
+- artifact ZIP digest: `sha256:0c56e94eb7124338ebae45d8ea78a5833ed62ea28a168dff367ecf6e25f3effa`
 - APK bytes: `6,095,333`
-- APK SHA-256: `ee9bdf25f85c7790301f7419146061b1366974073172f7e5a0e251fc3348a676`
+- APK SHA-256: `5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e`
 
 Documentation commits after the code-bearing commit do **not** change the APK binary.
 
 Do not modify code in a successor chat unless the user explicitly reverses this freeze.
+
+
+### Final-head clarification
+
+The earlier green build at `d44e0096e85d75703e8de54d5a832b727c450f66` was superseded before the user's freeze instruction by six additional code commits. The final pre-freeze code head is `172a100786eb18d4b08564bbfb025a44f42cfa1e`, and workflow run `35626531163` built that head successfully. Therefore the frozen APK is the artifact from `172a100…`, not the earlier `d44e0096…` artifact.
 
 ## Green build gates at the frozen code head
 
