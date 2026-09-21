@@ -43,6 +43,7 @@ public:
     virtual ~IExactDenseAccelerator() = default;
     virtual bool exactScientificEligible() const noexcept = 0;
     virtual const char* backendName() const noexcept = 0;
+    virtual std::size_t residentBytesUpperBound() const noexcept = 0;
     virtual bool projectPatch(
         const AcceleratorPatchRequest& request,
         const float* sourceRgb,
