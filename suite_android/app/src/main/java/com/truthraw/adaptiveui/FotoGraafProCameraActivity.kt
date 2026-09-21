@@ -606,6 +606,11 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
             if (nr.contains(CameraMetadata.NOISE_REDUCTION_MODE_OFF)) setRouteKey(b, route, CaptureRequest.NOISE_REDUCTION_MODE, CameraMetadata.NOISE_REDUCTION_MODE_OFF)
             val edge = c.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES) ?: intArrayOf()
             if (edge.contains(CameraMetadata.EDGE_MODE_OFF)) setRouteKey(b, route, CaptureRequest.EDGE_MODE, CameraMetadata.EDGE_MODE_OFF)
+            CameraCalibrationTelemetry.requestLensShadingMap(
+                b,
+                c,
+                route.physicalCameraId,
+            )
 
             setStatus("Single RAW verstuurd · exact Image.timestamp ↔ SENSOR_TIMESTAMP + physical/MAX result wordt gecontroleerd…")
             s.capture(b.build(), object : CameraCaptureSession.CaptureCallback() {
@@ -707,6 +712,8 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
         pixelMode: Int?,
     ): JSONObject {
         val physicalIds = logicalResult.physicalCameraResults.keys.sorted()
+        val effectiveCharacteristics =
+            FotoGraafProRoutes.effectiveCharacteristics(cameraManager, route)
         return JSONObject()
             .put("schema", "truthraw.fotograaf-pro-route-evidence.v0.5")
             .put("createdAtUtc", Instant.now().toString())
@@ -736,6 +743,10 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
                 .put("oisActual", effective.get(CaptureResult.LENS_OPTICAL_STABILIZATION_MODE) ?: JSONObject.NULL)
                 .put("afState", effective.get(CaptureResult.CONTROL_AF_STATE) ?: JSONObject.NULL)
                 .put("aeState", effective.get(CaptureResult.CONTROL_AE_STATE) ?: JSONObject.NULL))
+            .put(
+                "cameraCalibrationTelemetry",
+                CameraCalibrationTelemetry.toJson(effective, effectiveCharacteristics),
+            )
             .put("requestedControls", JSONObject()
                 .put("manualExposure", manualExposureBox.isChecked)
                 .put("evCompensationIndex", if (!manualExposureBox.isChecked) selectedEvIndex() else JSONObject.NULL)
