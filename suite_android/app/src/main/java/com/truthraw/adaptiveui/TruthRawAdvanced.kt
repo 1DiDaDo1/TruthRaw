@@ -9,6 +9,8 @@ data class TruthRawAdvancedOptions(
     val naturalHdr: Boolean = true,
     val detailStrength: Int = 0,
     val colorFullness: Int = 0,
+    val exposureStep: Int = 0,
+    val shadowRecoveryLevel: Int = 0,
     val restoration: Boolean = true,
 ) {
     val detail: Boolean
@@ -29,6 +31,15 @@ data class TruthRawAdvancedOptions(
         val boundedColor = colorFullness.coerceIn(-50, 50)
         flags = flags or FLAG_COLOR_CONTROL
         flags = flags or ((boundedColor + 50) shl COLOR_FULLNESS_SHIFT)
+
+        val boundedExposure = exposureStep.coerceIn(-50, 50)
+        if (boundedExposure != 0) {
+            flags = flags or FLAG_EXPOSURE_CONTROL
+            flags = flags or ((boundedExposure + 50) shl EXPOSURE_SHIFT)
+        }
+
+        val boundedShadows = shadowRecoveryLevel.coerceIn(0, 3)
+        flags = flags or (boundedShadows shl SHADOW_STRENGTH_SHIFT)
         return flags
     }
 
@@ -38,8 +49,11 @@ data class TruthRawAdvancedOptions(
         const val FLAG_DETAIL = 1 shl 2
         const val FLAG_RESTORATION = 1 shl 3
         const val FLAG_COLOR_CONTROL = 1 shl 4
+        const val FLAG_EXPOSURE_CONTROL = 1 shl 5
+        const val SHADOW_STRENGTH_SHIFT = 6
         const val DETAIL_STRENGTH_SHIFT = 8
         const val COLOR_FULLNESS_SHIFT = 16
+        const val EXPOSURE_SHIFT = 24
     }
 }
 
@@ -50,6 +64,8 @@ object TruthRawAdvancedSettings {
     private const val KEY_DETAIL = "detail"
     private const val KEY_DETAIL_STRENGTH = "detail_strength"
     private const val KEY_COLOR_FULLNESS = "color_fullness"
+    private const val KEY_EXPOSURE_STEP = "exposure_step"
+    private const val KEY_SHADOW_RECOVERY_LEVEL = "shadow_recovery_level"
     private const val KEY_RESTORATION = "restoration"
 
     fun load(context: Context): TruthRawAdvancedOptions {
@@ -63,6 +79,9 @@ object TruthRawAdvancedSettings {
                 if (legacyDetail) 100 else 0,
             ).coerceIn(0, 100),
             colorFullness = p.getInt(KEY_COLOR_FULLNESS, 0).coerceIn(-50, 50),
+            exposureStep = p.getInt(KEY_EXPOSURE_STEP, 0).coerceIn(-50, 50),
+            shadowRecoveryLevel =
+                p.getInt(KEY_SHADOW_RECOVERY_LEVEL, 0).coerceIn(0, 3),
             restoration = p.getBoolean(KEY_RESTORATION, true),
         )
     }
@@ -74,6 +93,11 @@ object TruthRawAdvancedSettings {
             .putBoolean(KEY_DETAIL, options.detail)
             .putInt(KEY_DETAIL_STRENGTH, options.detailStrength.coerceIn(0, 100))
             .putInt(KEY_COLOR_FULLNESS, options.colorFullness.coerceIn(-50, 50))
+            .putInt(KEY_EXPOSURE_STEP, options.exposureStep.coerceIn(-50, 50))
+            .putInt(
+                KEY_SHADOW_RECOVERY_LEVEL,
+                options.shadowRecoveryLevel.coerceIn(0, 3),
+            )
             .putBoolean(KEY_RESTORATION, options.restoration)
             .apply()
     }
