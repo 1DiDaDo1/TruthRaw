@@ -9,6 +9,7 @@
 3. `docs/research/android-acceleration-v0.1/README.md`
 4. `docs/research/android-acceleration-v0.1/APV_PROFESSIONAL_VIDEO_ROUTE.md`
 5. `docs/research/android-acceleration-v0.1/PARALLEL_SCIENTIFIC_MASTER_PLAN.md`
+6. `docs/TRUTHRAW_V0842_ADVANCED_RENDER_EDIT_FLOAT32_2026-09-21.md`
 
 Active branch:
 
@@ -20,12 +21,12 @@ Current Android integration:
 
 Latest fully green code-bearing CI:
 
-`35545744042` at `86307391ca726c2389fc3468fd79dee8b7dc864b`
+`35547319268` at `5a7acf28f90cac82297c2d5af3e81006c438da2f`
 
 Current APK:
-- bytes: `5,960,669`
-- SHA-256: `d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a`
-- artifact id: `10615818161`
+- bytes: `5,994,861`
+- SHA-256: `9b4184afdec22d6313ba08d7abe8884e812e3b3cadc7f29d492685af4d820295`
+- artifact id: `10617071043`
 
 Current scientific boundary:
 
@@ -47,7 +48,8 @@ Current implementation additions since the old 2026-09-20 bootstrap:
 - Android thermal + CPU/GPU resource headroom scheduling;
 - runtime ADPF worker hints on API33+;
 - Vulkan hardware capability discovery;
-- APV hardware encoder/decoder discovery in PRO.
+- APV hardware encoder/decoder discovery in PRO;
+- ADVANCED/PRO Render/Edit Float32 DNG: developed extended-linear derivative, deterministic projected-raster SHA replay, embedded non-authority JPEG preview, tile-partition invariance and negative-headroom preservation.
 
 Immediate continuation is documented in the 2026-09-21 handoff. Do not revert to the
 old v0.83 assumption that output-channel authority is absent.
