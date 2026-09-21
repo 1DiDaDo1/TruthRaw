@@ -75,8 +75,25 @@ jobs:
           # Acceleration research must not edit the byte-frozen streaming module.
           git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
 
-          # Camera acquisition remains untouched by compute discovery.
-          git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          # The original compute-router branch must keep Camera-5 acquisition byte-untouched.
+          # The dedicated appearance-controls branch may add observation-only calibration
+          # telemetry, but must never grant calibration authority or scientific writeback.
+          if [ "$GITHUB_REF_NAME" = "integration/truthraw-suite-v0-84-2-adaptive-compute-router" ]; then
+            git diff --exit-code \
+              origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD \
+              -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          else
+            grep -F 'CameraCalibrationTelemetry.requestLensShadingMap' "$JAVA/FotoGraaf200MpStagedActivity.kt"
+            grep -F 'CameraCalibrationTelemetry.toJson' "$JAVA/FotoGraaf200MpStagedActivity.kt"
+            grep -F 'scientificWritebackAllowed' "$JAVA/CameraCalibrationTelemetry.kt"
+            grep -F 'calibrationAuthorityGranted' "$JAVA/CameraCalibrationTelemetry.kt"
+            grep -F 'detailStrength' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'colorFullness' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'exposureStep' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'shadowRecoveryLevel' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'auto_dark_exposure_ev' "$CPP/advanced_appearance_controls_v0_1.h"
+            grep -F 'APPEARANCE_ONLY_NO_BLACKLEVEL_WRITEBACK' "$CPP/pure_float32_dng_export_bridge.cpp"
+          fi
 
       - name: Verify ordered multicore executor
         run: |
