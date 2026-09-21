@@ -353,6 +353,12 @@ class MainActivity : Activity() {
     private fun launchTruthNegative200MpFullColourExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
+        if (!job.source.verifiedCamera5TruthNegative200MpEnvelope) {
+            truthNegative200MpStatus =
+                "TruthNegative 200MP geblokkeerd: physical Camera-5 envelope/admission-lineage is niet exact geverifieerd."
+            render()
+            return
+        }
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             truthNegative200MpStatus =
                 "TruthNegative 200MP vereist de volledig admitted DNG/Camera-5-route."
@@ -2156,7 +2162,10 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(5))
-                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
+                        addView(actionButton(
+                            "TruthNegative 200MP · Float32 Full Colour · DNG",
+                            enabled = active.source.verifiedCamera5TruthNegative200MpEnvelope,
+                        ) {
                             launchTruthNegative200MpFullColourExport(active)
                         })
                         truthNegative200MpStatus?.let { status ->
@@ -2169,9 +2178,14 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(label(
-                            "Camera-5 only · 4080×3072 Scientific Master → 16320×12288 dense projection. " +
-                                "Ongeveer 2,24 GiB primaire Float32-raster. Alle extra targetposities blijven " +
-                                "RECONSTRUCTED/UNKNOWN; dit claimt geen 200MP gemeten CFA-detail.",
+                            if (active.source.verifiedCamera5TruthNegative200MpEnvelope) {
+                                "Camera-5 lineage VERIFIED · 4080×3072 Scientific Master → 16320×12288 dense projection. " +
+                                    "Ongeveer 2,24 GiB primaire Float32-raster. Alle targetkanalen blijven fail-closed UNKNOWN/RECONSTRUCTED support; " +
+                                    "dit claimt geen 200MP gemeten CFA-detail."
+                            } else {
+                                "Niet beschikbaar voor deze bron: vereist de exact geverifieerde physical Camera-5 " +
+                                    "16320×12288 sealed-envelope → 4080×3072 admission-lineage."
+                            },
                             10f,
                             muted = true,
                         ))
@@ -2241,7 +2255,10 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(space(5))
-                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
+                        addView(actionButton(
+                            "TruthNegative 200MP · Float32 Full Colour · DNG",
+                            enabled = active.source.verifiedCamera5TruthNegative200MpEnvelope,
+                        ) {
                             launchTruthNegative200MpFullColourExport(active)
                         })
                         truthNegative200MpStatus?.let { status ->
@@ -2254,8 +2271,12 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(label(
-                            "Camera-5 target 16320×12288 · reconstructed full-colour Float32 · " +
-                                "geen 200MP measured-detail claim.",
+                            if (active.source.verifiedCamera5TruthNegative200MpEnvelope) {
+                                "Camera-5 lineage VERIFIED · target 16320×12288 · reconstructed full-colour Float32 · " +
+                                    "geen 200MP measured-detail claim."
+                            } else {
+                                "200MP-projectie fail-closed: Camera-5 envelope/admission-lineage ontbreekt of is niet geverifieerd."
+                            },
                             10f,
                             muted = true,
                         ))
