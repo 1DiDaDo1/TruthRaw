@@ -206,18 +206,21 @@
   },
   "ci": {
     "workflow": "TruthRaw v0.84.2 Adaptive Compute Router",
-    "run": 35547172234,
+    "run": 35547319268,
     "status": "SUCCESS",
-    "headSha": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
+    "headSha": "5a7acf28f90cac82297c2d5af3e81006c438da2f",
+    "codeBearingRenderEditHead": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
     "v47iO0Signature": "5dba058e5742346a",
     "v47iO2Signature": "5dba058e5742346a",
-    "artifactId": 10616094393,
+    "artifactId": 10617071043,
     "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifactZipSha256": "d17b8cb413b824a8890efaa45d6dfafe16665476118a56b88169040ca4491b2d",
+    "artifactZipSha256": "25e1dd0568f1ed91acb93f2bcee01cf39520184d5e824d0f2ae5317332cdae96",
     "apkBytes": 5994861,
-    "apkSha256": "7033e2e116317de259f08925c6a3d6a318cf055edceece1c3755430b053dd49d",
-    "renderEditPartitionInvariance": "PASS_SEPARATE_HEAD_GATE",
-    "renderEditPartitionGateRun": 35547319268
+    "apkSha256": "9b4184afdec22d6313ba08d7abe8884e812e3b3cadc7f29d492685af4d820295",
+    "renderEditPartitionInvariance": "PASS",
+    "renderEditNegativeHeadroomPreservation": "PASS",
+    "sealedTileNativeStreamingReference": "PASS",
+    "orderedParallelExecutor": "PASS"
   },
   "openValidation": {
     "android17BackgroundExecutionRealDevice": "OPEN",
