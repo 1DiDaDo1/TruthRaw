@@ -368,6 +368,12 @@ class FotoGraafCameraActivity : Activity() {
                 }
                 val edgeModes = c.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES) ?: intArrayOf()
                 if (edgeModes.contains(CameraMetadata.EDGE_MODE_OFF)) set(CaptureRequest.EDGE_MODE, CameraMetadata.EDGE_MODE_OFF)
+
+                CameraCalibrationTelemetry.requestLensShadingMap(
+                    this,
+                    c,
+                    route.physicalCameraId,
+                )
             }.build()
 
             status("Capture verstuurd · wachten op RAW + exact SENSOR_TIMESTAMP-resultaat…")
@@ -543,6 +549,10 @@ class FotoGraafCameraActivity : Activity() {
                 .put("afState", effectiveResult.get(CaptureResult.CONTROL_AF_STATE))
                 .put("oisMode", effectiveResult.get(CaptureResult.LENS_OPTICAL_STABILIZATION_MODE))
                 .put("noiseReductionMode", effectiveResult.get(CaptureResult.NOISE_REDUCTION_MODE)))
+            .put(
+                "cameraCalibrationTelemetry",
+                CameraCalibrationTelemetry.toJson(effectiveResult, c),
+            )
             .put("honorVendorResults", vendorResults)
             .put("sourceDng", JSONObject()
                 .put("sha256", dngSha256)
