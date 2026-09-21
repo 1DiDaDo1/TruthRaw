@@ -5,7 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import java.io.File
+import java.security.MessageDigest
 import java.util.UUID
+import org.json.JSONObject
 
 /**
  * Ingress holds only document handles and lightweight metadata.
@@ -29,6 +31,12 @@ data class RawHandle(
     val acquisitionEvidencePath: String? = null,
     val upstreamSealedSourceSha256: String? = null,
     val upstreamSourceRole: String? = null,
+    // True only when the app-internal Camera-5 v0.53 evidence binds this exact
+    // processing DNG to the sealed 16320x12288 envelope and admitted 4080x3072
+    // payload. This authorizes the TruthNegative target geometry only; it does
+    // not upgrade any target pixel to measured authority.
+    val verifiedCamera5TruthNegative200MpEnvelope: Boolean = false,
+    val acquisitionEvidenceSha256: String? = null,
 )
 
 enum class JobState {
@@ -70,6 +78,90 @@ data class BatchSession(
 }
 
 object RawIngress {
+    private data class Camera5Qualification(
+        val verified: Boolean = false,
+        val evidenceSha256: String? = null,
+    )
+
+    private fun sha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(1024 * 1024)
+            while (true) {
+                val read = input.read(buffer)
+                if (read <= 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    private fun qualifyCamera5TruthNegative200Mp(
+        processingDng: File,
+        evidenceFile: File?,
+        upstreamSha256: String?,
+    ): Camera5Qualification {
+        if (evidenceFile == null || upstreamSha256 == null) {
+            return Camera5Qualification()
+        }
+        return runCatching {
+            val root = JSONObject(evidenceFile.readText())
+            val topology = root.getJSONObject("topologyAdmission")
+            val request = root.getJSONObject("requestTopology")
+            val capture = root.getJSONObject("captureRoute")
+            val raw = root.getJSONObject("rawPayload")
+
+            val processingSha = sha256(processingDng)
+            val evidenceSha = sha256(evidenceFile)
+            val reportedIds = capture.getJSONArray("reportedPhysicalIds")
+            val reportedPhysical5 =
+                (0 until reportedIds.length()).any { reportedIds.optString(it) == "5" }
+
+            val verified =
+                root.optString("schema") ==
+                    "truthraw.fotograaf-camera5-200mp-v014-route-replay.v0.53" &&
+                root.optInt("physicalFrameCount", -1) == 1 &&
+                root.optInt("independentEvidenceCount", -1) == 1 &&
+                request.optString("requestedPhysicalCameraId") == "5" &&
+                request.optBoolean("outputPhysicalBinding", false) &&
+                capture.optString("physicalResultCameraId") == "5" &&
+                reportedPhysical5 &&
+                capture.optInt("width", -1) == 16320 &&
+                capture.optInt("height", -1) == 12288 &&
+                raw.optString("sha256").equals(upstreamSha256, ignoreCase = true) &&
+                raw.optLong("bytes", -1L) == 401080320L &&
+                topology.optString("status") ==
+                    "ADMITTED_EXACT_STANDARD_RAW_PREFIX_TO_DERIVED_DNG" &&
+                topology.optInt("sourceEnvelopeWidth", -1) == 16320 &&
+                topology.optInt("sourceEnvelopeHeight", -1) == 12288 &&
+                topology.optString("sourceEnvelopeSha256")
+                    .equals(upstreamSha256, ignoreCase = true) &&
+                !topology.optBoolean(
+                    "sourceEnvelopePromotedTo200MpScientificMaster",
+                    true,
+                ) &&
+                topology.optInt("admittedWidth", -1) == 4080 &&
+                topology.optInt("admittedHeight", -1) == 3072 &&
+                topology.optLong("admittedPayloadBytes", -1L) == 25067520L &&
+                topology.optString("processingDngFile") == processingDng.name &&
+                topology.optString("processingDngSha256")
+                    .equals(processingSha, ignoreCase = true) &&
+                topology.optBoolean("mainHouseMustResealDng", false) &&
+                topology.optBoolean("scientificMasterCreationAllowed", false) &&
+                topology.optBoolean(
+                    "truthNegativeAllowedOnlyAfterMainHouseAdmission",
+                    false,
+                ) &&
+                !topology.optBoolean("nativeAdcGeometryProven", true) &&
+                !topology.optBoolean("optical200MpIndependenceProven", true)
+
+            Camera5Qualification(
+                verified = verified,
+                evidenceSha256 = evidenceSha.takeIf { verified },
+            )
+        }.getOrElse { Camera5Qualification() }
+    }
+
     fun readInternalCameraFile(
         file: File,
         acquisitionEvidenceFile: File? = null,
@@ -92,6 +184,11 @@ object RawIngress {
             else -> "application/octet-stream"
         }
         val format = RawFormatRegistry.classify(file.name, mimeType)
+        val camera5Qualification = qualifyCamera5TruthNegative200Mp(
+            processingDng = file,
+            evidenceFile = acquisitionEvidenceFile,
+            upstreamSha256 = upstreamSha,
+        )
         return RawJob(
             source = RawHandle(
                 uri = Uri.fromFile(file),
@@ -105,6 +202,10 @@ object RawIngress {
                 upstreamSourceRole = if (upstreamSha != null) {
                     "APP_VISIBLE_CAMERA2_RAW_SENSOR_SOURCE_FIRST_SEALED"
                 } else null,
+                verifiedCamera5TruthNegative200MpEnvelope =
+                    camera5Qualification.verified,
+                acquisitionEvidenceSha256 =
+                    camera5Qualification.evidenceSha256,
             ),
         )
     }
