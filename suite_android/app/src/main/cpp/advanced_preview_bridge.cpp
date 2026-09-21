@@ -304,9 +304,9 @@ public:
     AdvancedPreviewSink(int maxEdge, jint flags, float noiseSigmaAt2Pct)
         : maxEdge_(maxEdge),
           flags_(flags),
-          outputNoiseSigmaAt2Pct_(noiseSigmaAt2Pct),
           detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
           colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
+          outputNoiseSigmaAt2Pct_(noiseSigmaAt2Pct),
           outputProfile_(
               detailMix_ > 0.0f
                   ? truthraw_v47k::OutputProfile::AdaptiveDetail
