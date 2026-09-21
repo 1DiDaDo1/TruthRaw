@@ -105,6 +105,8 @@ struct ExtendedLinearSrgbTileSource::Impl final {
     std::array<float, 9> cameraToXyzD50{};
     std::uint32_t flags = 0u;
     ExposurePlan exposure{};
+    float detailMix = 0.0f;
+    float colorFullnessMix = 0.0f;
     streaming_v0_1::detail::Workspace reconstructionWorkspace{};
     adaptive_detail::AdaptiveDetailedCrispAppearanceV47j detail;
 
@@ -125,7 +127,11 @@ struct ExtendedLinearSrgbTileSource::Impl final {
           cameraToXyzD50(matrix),
           flags(flagsIn & kAllowedFlags),
           exposure(exposureIn),
-          detail(adaptive_detail::noise_sigma_2pct_from_metadata(sourceIn.metadata())) {}
+          detailMix(controls::detail_mix(flags)),
+          colorFullnessMix(controls::color_fullness_mix(flags)),
+          detail(
+              adaptive_detail::noise_sigma_2pct_from_metadata(sourceIn.metadata()),
+              detailMix) {}
 };
 
 ExtendedLinearSrgbTileSource::ExtendedLinearSrgbTileSource(
@@ -164,7 +170,8 @@ std::uint32_t ExtendedLinearSrgbTileSource::flags() const noexcept {
 
 bool ExtendedLinearSrgbTileSource::appearanceBakedIntoPrimary() const noexcept {
     if (!impl_) return false;
-    return (impl_->flags & (kFlagLight | kFlagDetail | kFlagRestoration)) != 0u;
+    return (impl_->flags & (kFlagLight | kFlagDetail | kFlagRestoration)) != 0u ||
+           controls::color_fullness(impl_->flags) != 0;
 }
 
 bool ExtendedLinearSrgbTileSource::hdrBakedIntoPrimary() const noexcept {
@@ -482,6 +489,12 @@ float_dng::Status ExtendedLinearSrgbTileSource::readCameraNativeTile(
                         g *= scale;
                         b *= scale;
                     }
+                }
+
+                if (!controls::apply_color_fullness(
+                        r, g, b, impl_->colorFullnessMix)) {
+                    return source_error(
+                        "Render/Edit color-fullness transform failed");
                 }
 
                 if (!std::isfinite(r) || !std::isfinite(g) || !std::isfinite(b)) {
