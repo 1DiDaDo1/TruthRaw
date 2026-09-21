@@ -6,11 +6,11 @@ Frozen code-bearing branch/head:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 
-`d44e0096e85d75703e8de54d5a832b727c450f66`
+`172a100786eb18d4b08564bbfb025a44f42cfa1e`
 
 Frozen APK SHA-256:
 
-`ee9bdf25f85c7790301f7419146061b1366974073172f7e5a0e251fc3348a676`
+`5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e`
 
 The user explicitly requested **no more code changes**. Documentation commits after the frozen head do not change the APK binary. Real-device validation is the next action. Do not modify code unless the user explicitly lifts the freeze.
 
