@@ -1,10 +1,10 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-21",
-  "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
-  "activeBranch": "integration/truthraw-suite-v0-84-2-adaptive-compute-router",
-  "appVersion": "0.51-v0.84.2-adaptive-compute-router",
-  "codeBearingHead": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
-  "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md",
+  "status": "CURRENT_FROZEN_INTEGRATION_STATE_REAL_DEVICE_VALIDATION_NEXT",
+  "activeBranch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
+  "appVersion": "0.84.3-float32-full-colour-scientific-master-truthnegative-200mp",
+  "codeBearingHead": "d44e0096e85d75703e8de54d5a832b727c450f66",
+  "nextChatHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
   "previousState": "state/CURRENT_PROJECT_STATE_2026-09-20.json",
   "permanentLaws": {
     "sourceEvidenceImmutable": true,
@@ -22,7 +22,8 @@
     "v0832": "non-destructive quarter-turn orientation override across preview/export",
     "v084": "canonical conservative per-output-channel RGB authority map",
     "v0841": "true Android background mediaProcessing execution with timers and green/red operation state",
-    "v0842": "strict-FP O2, adaptive multicore, Android CPU/GPU headroom, ADPF worker hints, Vulkan/APV capability discovery, and ADVANCED Render/Edit Float32 derivative"
+    "v0842": "strict-FP O2, adaptive multicore, Android CPU/GPU headroom, ADPF worker hints, Vulkan/APV capability discovery, and ADVANCED Render/Edit Float32 derivative",
+    "v0843": "Float32 camera-native Full Colour Scientific Master, ADVANCED tone/detail/colour controls, Camera2 calibration telemetry, TruthNegative 4x dense 16320x12288 full-colour derivative, exact-gated Vulkan acceleration path"
   },
   "float32Editing": {
     "pure": {
@@ -33,16 +34,6 @@
       "overOneValuesPreserved": true,
       "sdrClampInPrimary": false,
       "scientificMasterModified": false
-    },
-    "jpgLRawEdit": {
-      "version": "0.3",
-      "externalIdentity": "DNG",
-      "primaryRaster": "IEEE754_FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER",
-      "embeddedJpegPreview": "rendered_non_authority",
-      "advancedRecipeBound": true,
-      "appearanceBakedIntoPrimary": false,
-      "scientificWritebackAllowed": false,
-      "createsNewEvidence": false
     },
     "advancedRenderEdit": {
       "status": "IMPLEMENTED_CI_GREEN_REAL_LIGHTROOM_ROUNDTRIP_OPEN",
@@ -67,6 +58,19 @@
       "createsNewEvidence": false,
       "partitionInvarianceTest": "PASS",
       "negativeHeadroomPreservationTest": "PASS"
+    },
+    "fullColourScientificMaster": {
+      "status": "IMPLEMENTED_CI_GREEN_REAL_LIGHTROOM_ROUNDTRIP_OPEN",
+      "externalIdentity": "DNG",
+      "primaryRaster": "IEEE754_FLOAT32_CAMERA_NATIVE_FULL_COLOUR_LINEARRAW",
+      "sourceScientificMasterUnchanged": true,
+      "primaryRasterEqualsScientificMaster": true,
+      "embeddedJpegPreview": "non_authority_preview_only",
+      "negativeValuesPreserved": true,
+      "overOneValuesPreserved": true,
+      "appearanceBakedIntoPrimary": false,
+      "scientificWritebackAllowed": false,
+      "createsNewEvidence": false
     }
   },
   "v084OutputAuthority": {
@@ -166,7 +170,11 @@
       "cpuSoftwareVulkanRejected": true,
       "ahardwarebufferExtensionObserved": true,
       "pixelKernelSelected": false,
-      "activeBackend": "CPU_REFERENCE"
+      "activeBackend": "RUNTIME_EXACT_GATED_CPU_OR_VULKAN",
+      "denseTruthNegativeKernelPresent": true,
+      "denseKernelSelfTest": "RUNTIME_BIT_EXACT_CPU_REFERENCE_REQUIRED",
+      "denseKernelFallback": "CPU_REFERENCE",
+      "backendChangesAuthority": false
     },
     "armSha2": {
       "capabilityProbe": true,
@@ -206,21 +214,22 @@
   },
   "ci": {
     "workflow": "TruthRaw v0.84.2 Adaptive Compute Router",
-    "run": 35547319268,
+    "run": 35625892299,
     "status": "SUCCESS",
-    "headSha": "5a7acf28f90cac82297c2d5af3e81006c438da2f",
-    "codeBearingRenderEditHead": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
+    "headSha": "d44e0096e85d75703e8de54d5a832b727c450f66",
     "v47iO0Signature": "5dba058e5742346a",
     "v47iO2Signature": "5dba058e5742346a",
-    "artifactId": 10617071043,
+    "artifactId": 10652446563,
     "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifactZipSha256": "25e1dd0568f1ed91acb93f2bcee01cf39520184d5e824d0f2ae5317332cdae96",
-    "apkBytes": 5994861,
-    "apkSha256": "9b4184afdec22d6313ba08d7abe8884e812e3b3cadc7f29d492685af4d820295",
+    "artifactZipSha256": "334a3f550b9f42922812ba807e2d75cf4ab11fee96f72cf7f834bdd6853a7548",
+    "apkBytes": 6095333,
+    "apkSha256": "ee9bdf25f85c7790301f7419146061b1366974073172f7e5a0e251fc3348a676",
+    "orderedParallelExecutor": "PASS",
+    "sealedTileNativeStreamingReference": "PASS",
+    "truthNegativeDenseProjectionV03": "PASS",
     "renderEditPartitionInvariance": "PASS",
     "renderEditNegativeHeadroomPreservation": "PASS",
-    "sealedTileNativeStreamingReference": "PASS",
-    "orderedParallelExecutor": "PASS"
+    "androidArm64DebugBuild": "SUCCESS"
   },
   "openValidation": {
     "android17BackgroundExecutionRealDevice": "OPEN",
@@ -233,15 +242,47 @@
     "apvHardwareEncodeDecodeRoundTrip": "OPEN",
     "openApv44412Comparison": "RESEARCH_ONLY",
     "scientificHdrGainAdmission": "BLOCKED_BY_UNKNOWN_CHANNEL_AUTHORITY",
-    "advancedRenderEditLightroomAndroid17RoundTrip": "OPEN"
+    "advancedRenderEditLightroomAndroid17RoundTrip": "OPEN",
+    "fullColourScientificMasterLightroomAndroid17RoundTrip": "OPEN",
+    "truthNegative200MpRealDeviceExport": "OPEN",
+    "truthNegative200MpProducedDngInspection": "OPEN",
+    "truthNegativeVulkanRuntimeExactSelfTest": "OPEN_REAL_DEVICE",
+    "dng17ProfileDynamicRangeResearch": "OPEN",
+    "codeChanges": "FROZEN_UNTIL_EXPLICIT_USER_REQUEST"
   },
   "immediateNext": [
-    "real-device Android 17 smoke test for background execution, worker/headroom/APV/Vulkan diagnostics",
-    "prove whole-file Restoration .trr SHA equality at workers=1 versus workers=N",
-    "run real-device Lightroom Android 17 import/edit/export round-trip on ADVANCED Render/Edit Float32 DNG and verify the Float32 primary is used",
-    "build first Vulkan APPEARANCE/PRESENTATION correctness+benchmark kernel; keep CPU reference",
-    "implement ARMv8 SHA2 exact backend only behind digest-equivalence gate",
-    "prototype parallel Scientific Master wrapper only after exact v0.3 identity gates",
-    "run APV hardware encode/decode round-trip before any production APV route"
-  ]
+    "do not change code unless the user explicitly lifts the freeze",
+    "install and real-device smoke-test the frozen APK",
+    "export Float32 Full Colour Scientific Master DNG and inspect the actual primary raster/tags",
+    "run Lightroom Android import/edit/export round-trip and verify Float32 LinearRaw primary behavior",
+    "export TruthNegative 200MP full-colour DNG on Camera-5 route and verify 16320x12288 output, projected-raster identity, fail-closed UNKNOWN authority and source Scientific Master immutability",
+    "record whether Vulkan exact runtime self-test selects GPU or falls back to CPU"
+  ],
+  "finalCodeFreezeHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
+  "codeFreeze": {
+    "enabled": true,
+    "userInstruction": "Geen code meer veranderen.",
+    "codeBearingHead": "d44e0096e85d75703e8de54d5a832b727c450f66",
+    "liftOnlyOnExplicitUserRequest": true
+  },
+  "truthNegative200Mp": {
+    "status": "IMPLEMENTED_CI_GREEN_REAL_DEVICE_EXPORT_OPEN",
+    "sourceScientificMasterGeometry": "4080x3072",
+    "targetGeometry": "16320x12288",
+    "scalePerAxis": 4,
+    "targetAuthority": "RECONSTRUCTED_DENSE_SUPPORT",
+    "measuredTargetClaimCount": 0,
+    "outputChannelAuthority": "RESAMPLED_FAIL_CLOSED_UNKNOWN",
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "createsNewEvidence": false,
+    "sourceScientificMasterUnchanged": true,
+    "projectedRasterDigest": true,
+    "negativeValuesPreserved": true,
+    "overOneValuesPreserved": true,
+    "jpegRole": "NON_AUTHORITY_PREVIEW_ONLY",
+    "historicalCamera5EnvelopeBytes": 401080320,
+    "historicalPopulatedPrefixBytes": 25067520,
+    "historicalEvidenceBoundary": "16320x12288 envelope proven; only exact 4080x3072 U16 prefix proven populated; no 200MP measured CFA claim"
+  }
 }
