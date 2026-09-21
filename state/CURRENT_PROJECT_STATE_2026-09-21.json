@@ -3,7 +3,7 @@
   "status": "CURRENT_FROZEN_INTEGRATION_STATE_REAL_DEVICE_VALIDATION_NEXT",
   "activeBranch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
   "appVersion": "0.84.3-float32-full-colour-scientific-master-truthnegative-200mp",
-  "codeBearingHead": "d44e0096e85d75703e8de54d5a832b727c450f66",
+  "codeBearingHead": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
   "previousState": "state/CURRENT_PROJECT_STATE_2026-09-20.json",
   "permanentLaws": {
@@ -214,16 +214,16 @@
   },
   "ci": {
     "workflow": "TruthRaw v0.84.2 Adaptive Compute Router",
-    "run": 35625892299,
+    "run": 35626531163,
     "status": "SUCCESS",
-    "headSha": "d44e0096e85d75703e8de54d5a832b727c450f66",
+    "headSha": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
     "v47iO0Signature": "5dba058e5742346a",
     "v47iO2Signature": "5dba058e5742346a",
-    "artifactId": 10652446563,
+    "artifactId": 10652233067,
     "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifactZipSha256": "334a3f550b9f42922812ba807e2d75cf4ab11fee96f72cf7f834bdd6853a7548",
+    "artifactZipSha256": "0c56e94eb7124338ebae45d8ea78a5833ed62ea28a168dff367ecf6e25f3effa",
     "apkBytes": 6095333,
-    "apkSha256": "ee9bdf25f85c7790301f7419146061b1366974073172f7e5a0e251fc3348a676",
+    "apkSha256": "5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e",
     "orderedParallelExecutor": "PASS",
     "sealedTileNativeStreamingReference": "PASS",
     "truthNegativeDenseProjectionV03": "PASS",
@@ -262,7 +262,7 @@
   "codeFreeze": {
     "enabled": true,
     "userInstruction": "Geen code meer veranderen.",
-    "codeBearingHead": "d44e0096e85d75703e8de54d5a832b727c450f66",
+    "codeBearingHead": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
     "liftOnlyOnExplicitUserRequest": true
   },
   "truthNegative200Mp": {
@@ -284,5 +284,11 @@
     "historicalCamera5EnvelopeBytes": 401080320,
     "historicalPopulatedPrefixBytes": 25067520,
     "historicalEvidenceBoundary": "16320x12288 envelope proven; only exact 4080x3072 U16 prefix proven populated; no 200MP measured CFA claim"
+  },
+  "finalHeadClarification": {
+    "supersededEarlierGreenHead": "d44e0096e85d75703e8de54d5a832b727c450f66",
+    "finalPreFreezeCodeHead": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
+    "finalBuildRun": 35626531163,
+    "note": "Six code commits landed after d44 and before the user freeze instruction; the final frozen APK is built from 172a100."
   }
 }
