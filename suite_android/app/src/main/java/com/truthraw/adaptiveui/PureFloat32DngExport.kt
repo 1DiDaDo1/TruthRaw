@@ -88,13 +88,27 @@ object PureFloat32DngExporter {
         return encoded - 50
     }
 
+    private fun exposureFromFlags(flags: Int): Float {
+        if ((flags and TruthRawAdvancedOptions.FLAG_EXPOSURE_CONTROL) == 0) return 0f
+        val encoded =
+            ((flags ushr TruthRawAdvancedOptions.EXPOSURE_SHIFT) and 0x7f)
+                .coerceIn(0, 100)
+        return (encoded - 50) * 0.04f
+    }
+
+    private fun shadowLevelFromFlags(flags: Int): Int =
+        ((flags ushr TruthRawAdvancedOptions.SHADOW_STRENGTH_SHIFT) and 0x03)
+            .coerceIn(0, 3)
+
     private fun advancedAppearanceBaked(flags: Int): Boolean =
         (flags and (
             TruthRawAdvancedOptions.FLAG_LIGHT or
                 TruthRawAdvancedOptions.FLAG_DETAIL or
                 TruthRawAdvancedOptions.FLAG_RESTORATION
             )) != 0 ||
-            colorFullnessFromFlags(flags) != 0
+            colorFullnessFromFlags(flags) != 0 ||
+            kotlin.math.abs(exposureFromFlags(flags)) > 1e-6f ||
+            shadowLevelFromFlags(flags) > 0
 
     fun export(
         resolver: ContentResolver,
@@ -312,6 +326,9 @@ object PureFloat32DngExporter {
                 "detail_strength_percent=${detailStrengthFromFlags(advancedFlags)}",
                 "color_fullness=${colorFullnessFromFlags(advancedFlags)}",
                 "color_fullness_role=APPEARANCE_ONLY_LUMINANCE_PRESERVING",
+                "exposure_compensation_ev=${exposureFromFlags(advancedFlags)}",
+                "shadow_recovery_level=${shadowLevelFromFlags(advancedFlags)}",
+                "tone_controls_role=APPEARANCE_ONLY_NO_BLACKLEVEL_WRITEBACK",
                 "detail_baked_into_primary=" + if ((advancedFlags and 0x04) != 0) "1" else "0",
                 "light_baked_into_primary=" + if ((advancedFlags and 0x01) != 0) "1" else "0",
                 "restoration_baked_into_primary=" + if ((advancedFlags and 0x08) != 0) "1" else "0",
