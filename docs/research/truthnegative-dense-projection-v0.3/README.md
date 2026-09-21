@@ -18,18 +18,18 @@ The historical `16320x12288 / 401,080,320-byte` RAW_SENSOR envelope is not recla
 
 ## v0.3 interpolation
 
-The initial implementation deliberately uses pixel-centre bilinear interpolation in Float64 and stores Float32 output.
+The initial implementation deliberately uses pixel-centre bilinear interpolation in canonical Float32 operation order.
 
 Properties:
 
-- local convex interpolation; no overshoot;
+- local convex interpolation; no overshoot;\n- fixed Float32 operation order with FP contraction disabled;
 - negative and >1 Scientific-Master values remain legal;
 - no sharpening, texture synthesis, AI hallucination or appearance transform;
 - no new extrema are introduced by the interpolation;
 - bounded tile-local source reads;
 - deterministic canonical projected-raster digest.
 
-This is intentionally conservative. A later optics-aware dense reconstruction may replace the interpolation only after independent PSF/MTF/calibration evidence exists and only under a new method/authority identifier.
+A Float64 oracle is used only to validate the bounded numerical error of the Float32 canonical path. This is intentionally conservative. A later optics-aware dense reconstruction may replace the interpolation only after independent PSF/MTF/calibration evidence exists and only under a new method/authority identifier.
 
 ## Relationship to the sealed house
 
