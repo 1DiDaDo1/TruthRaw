@@ -10,8 +10,11 @@ float noise_sigma_2pct_from_metadata(const DngMetadata& metadata) noexcept;
 // The scientific v4.7i reconstruction translation unit remains untouched.
 class AdaptiveDetailedCrispAppearanceV47j final : public IAppearanceBackend {
 public:
-    explicit AdaptiveDetailedCrispAppearanceV47j(float noiseSigmaAt2Pct) noexcept
-        : noiseSigmaAt2Pct_(noiseSigmaAt2Pct) {}
+    explicit AdaptiveDetailedCrispAppearanceV47j(
+        float noiseSigmaAt2Pct,
+        float detailMix = 1.0f) noexcept
+        : noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          detailMix_(detailMix) {}
 
     AppearanceProfile profile() const override {
         return AppearanceProfile::ExternalProfile;
@@ -38,9 +41,11 @@ public:
         float* coreAppearanceRgb) const override;
 
     float noiseSigmaAt2Pct() const noexcept { return noiseSigmaAt2Pct_; }
+    float detailMix() const noexcept { return detailMix_; }
 
 private:
     float noiseSigmaAt2Pct_ = 0.0f;
+    float detailMix_ = 1.0f;
 };
 
 }  // namespace truthraw::adaptive_detail_v47j_adapter
