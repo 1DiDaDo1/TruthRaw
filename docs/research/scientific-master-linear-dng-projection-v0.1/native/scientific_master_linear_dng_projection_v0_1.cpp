@@ -361,6 +361,8 @@ std::vector<std::uint8_t> d50_neutral_payload() {
     return out;
 }
 
+bool valid_matrix(const std::array<float, 9>& m) noexcept;
+
 struct CameraNativeProfile final {
     std::array<float, 9> xyzD50ToCamera{};
     std::array<float, 3> asShotNeutral{};
@@ -1073,6 +1075,10 @@ Status write_camera_native_full_colour_scientific_master_dng(
     ProjectionDescriptor nativeDescriptor = descriptor;
     nativeDescriptor.primaryStorageSpace =
         PrimaryStorageSpace::CameraNativeScientificMaster;
+    if (nativeDescriptor.projectionRole.empty()) {
+        nativeDescriptor.projectionRole =
+            "TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1";
+    }
     return write_xyz_d50_linear_dng_projection(
         source, nativeDescriptor, cameraToXyzD50, sink, out);
 }
