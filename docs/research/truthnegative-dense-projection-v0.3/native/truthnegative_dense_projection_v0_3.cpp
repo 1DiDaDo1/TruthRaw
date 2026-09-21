@@ -32,11 +32,25 @@ inline std::uint32_t clamp_index(
     return u >= limit ? limit - 1u : static_cast<std::uint32_t>(u);
 }
 
-inline double source_coordinate(std::uint32_t targetCoordinate) noexcept {
-    return (static_cast<double>(targetCoordinate) + 0.5) /
-               static_cast<double>(kScale) -
-           0.5;
+inline void axis_map(
+    std::uint32_t targetCoordinate,
+    std::uint32_t sourceLimit,
+    std::uint32_t& s0,
+    std::uint32_t& s1,
+    float& fraction) noexcept {
+    const std::uint32_t n = targetCoordinate >> 2u;
+    int base = 0;
+    switch (targetCoordinate & 3u) {
+        case 0u: base = static_cast<int>(n) - 1; fraction = 0.625f; break;
+        case 1u: base = static_cast<int>(n) - 1; fraction = 0.875f; break;
+        case 2u: base = static_cast<int>(n); fraction = 0.125f; break;
+        default: base = static_cast<int>(n); fraction = 0.375f; break;
+    }
+    s0 = clamp_index(base, sourceLimit);
+    s1 = clamp_index(base + 1, sourceLimit);
 }
+
+inline constexpr std::uint32_t kAcceleratedBlockEdge = 256u;
 
 }  // namespace
 
@@ -45,6 +59,18 @@ struct DenseProjectionTileSource::Impl final {
     bool valid = false;
     std::string error;
     std::vector<SourceCell> cells;
+    IExactDenseAccelerator* accelerator = nullptr;
+    bool acceleratorDisabled = false;
+    bool acceleratorUsed = false;
+    std::string acceleratorFailure;
+
+    bool acceleratedBlockValid = false;
+    std::uint32_t acceleratedBlockX = 0u;
+    std::uint32_t acceleratedBlockY = 0u;
+    std::uint32_t acceleratedBlockWidth = 0u;
+    std::uint32_t acceleratedBlockHeight = 0u;
+    std::vector<float> packedPatch;
+    std::vector<float> acceleratedBlock;
 
     const SourceCell* findCell(std::uint32_t sx, std::uint32_t sy) const noexcept {
         for (const auto& cell : cells) {
@@ -61,7 +87,8 @@ struct DenseProjectionTileSource::Impl final {
 DenseProjectionTileSource::DenseProjectionTileSource(
     float_dng::IScientificMasterTileSource& scientificMaster,
     std::uint32_t sourceWidth,
-    std::uint32_t sourceHeight) noexcept
+    std::uint32_t sourceHeight,
+    IExactDenseAccelerator* accelerator) noexcept
     : source_(scientificMaster), impl_(new (std::nothrow) Impl{}) {
     if (!impl_) return;
     if (sourceWidth == 0u || sourceHeight == 0u ||
@@ -70,6 +97,7 @@ DenseProjectionTileSource::DenseProjectionTileSource(
         impl_->error = "TruthNegative dense geometry is invalid or overflows";
         return;
     }
+    impl_->accelerator = accelerator;
     impl_->geometry.sourceWidth = sourceWidth;
     impl_->geometry.sourceHeight = sourceHeight;
     impl_->geometry.targetWidth = sourceWidth * kScale;
@@ -93,6 +121,21 @@ const std::string& DenseProjectionTileSource::error() const noexcept {
     return impl_ ? impl_->error : kAllocationFailure;
 }
 
+bool DenseProjectionTileSource::acceleratorEligible() const noexcept {
+    return impl_ && impl_->accelerator != nullptr &&
+           !impl_->acceleratorDisabled &&
+           impl_->accelerator->exactScientificEligible();
+}
+
+bool DenseProjectionTileSource::acceleratorUsed() const noexcept {
+    return impl_ && impl_->acceleratorUsed;
+}
+
+const char* DenseProjectionTileSource::acceleratorBackendName() const noexcept {
+    if (!impl_ || impl_->accelerator == nullptr) return "CPU_REFERENCE";
+    return impl_->accelerator->backendName();
+}
+
 std::size_t DenseProjectionTileSource::residentBytesUpperBound() const noexcept {
     std::size_t total = source_.residentBytesUpperBound();
     if (!impl_) return total;
@@ -103,7 +146,13 @@ std::size_t DenseProjectionTileSource::residentBytesUpperBound() const noexcept 
         }
         total += bytes;
     }
-    return total;
+    const std::size_t extra =
+        (impl_->packedPatch.capacity() + impl_->acceleratedBlock.capacity()) *
+        sizeof(float);
+    if (total > std::numeric_limits<std::size_t>::max() - extra) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+    return total + extra;
 }
 
 float_dng::Status DenseProjectionTileSource::readCameraNativeTile(
@@ -135,135 +184,223 @@ float_dng::Status DenseProjectionTileSource::readCameraNativeTile(
                 "TruthNegative dense target tile size mismatch");
         }
 
-        // The wrapped Scientific Master source admits only canonical 64x64
-        // source cells. Determine the bounded source footprint for this target tile.
-        const double sxf0 = source_coordinate(x);
-        const double sxf1 = source_coordinate(x + width - 1u);
-        const double syf0 = source_coordinate(y);
-        const double syf1 = source_coordinate(y + height - 1u);
-        const auto minSx = clamp_index(
-            static_cast<std::int64_t>(std::floor(std::min(sxf0, sxf1))),
-            g.sourceWidth);
-        const auto maxSx = clamp_index(
-            static_cast<std::int64_t>(std::ceil(std::max(sxf0, sxf1))),
-            g.sourceWidth);
-        const auto minSy = clamp_index(
-            static_cast<std::int64_t>(std::floor(std::min(syf0, syf1))),
-            g.sourceHeight);
-        const auto maxSy = clamp_index(
-            static_cast<std::int64_t>(std::ceil(std::max(syf0, syf1))),
-            g.sourceHeight);
+        auto loadCells = [&](
+            std::uint32_t tx,
+            std::uint32_t ty,
+            std::uint32_t tw,
+            std::uint32_t th,
+            std::uint32_t& minSx,
+            std::uint32_t& maxSx,
+            std::uint32_t& minSy,
+            std::uint32_t& maxSy) -> float_dng::Status {
+            std::uint32_t ax0=0u, ax1=0u, bx0=0u, bx1=0u;
+            std::uint32_t ay0=0u, ay1=0u, by0=0u, by1=0u;
+            float unused=0.0f;
+            axis_map(tx, g.sourceWidth, ax0, ax1, unused);
+            axis_map(tx + tw - 1u, g.sourceWidth, bx0, bx1, unused);
+            axis_map(ty, g.sourceHeight, ay0, ay1, unused);
+            axis_map(ty + th - 1u, g.sourceHeight, by0, by1, unused);
+            minSx=std::min(std::min(ax0,ax1),std::min(bx0,bx1));
+            maxSx=std::max(std::max(ax0,ax1),std::max(bx0,bx1));
+            minSy=std::min(std::min(ay0,ay1),std::min(by0,by1));
+            maxSy=std::max(std::max(ay0,ay1),std::max(by0,by1));
 
-        const std::uint32_t cellEdge = float_dng::kCanonicalTileEdge;
-        const std::uint32_t firstCellX = (minSx / cellEdge) * cellEdge;
-        const std::uint32_t lastCellX = (maxSx / cellEdge) * cellEdge;
-        const std::uint32_t firstCellY = (minSy / cellEdge) * cellEdge;
-        const std::uint32_t lastCellY = (maxSy / cellEdge) * cellEdge;
+            const std::uint32_t cellEdge = float_dng::kCanonicalTileEdge;
+            const std::uint32_t firstCellX = (minSx / cellEdge) * cellEdge;
+            const std::uint32_t lastCellX = (maxSx / cellEdge) * cellEdge;
+            const std::uint32_t firstCellY = (minSy / cellEdge) * cellEdge;
+            const std::uint32_t lastCellY = (maxSy / cellEdge) * cellEdge;
 
-        impl_->cells.clear();
-        for (std::uint32_t cy = firstCellY;; cy += cellEdge) {
-            for (std::uint32_t cx = firstCellX;; cx += cellEdge) {
-                SourceCell cell{};
-                cell.x = cx;
-                cell.y = cy;
-                cell.width = std::min(cellEdge, g.sourceWidth - cx);
-                cell.height = std::min(cellEdge, g.sourceHeight - cy);
-                const std::size_t cellFloats =
-                    static_cast<std::size_t>(cell.width) * cell.height * 3u;
-                cell.rgb.resize(cellFloats);
-                const auto read = source_.readCameraNativeTile(
-                    cell.x, cell.y, cell.width, cell.height,
-                    cell.rgb.data(), cell.rgb.size());
-                if (!read) {
-                    return float_dng::Status::error(
-                        float_dng::StatusCode::SourceFailed,
-                        "TruthNegative source Scientific Master tile failed: " +
-                            read.message);
+            impl_->cells.clear();
+            for (std::uint32_t cy=firstCellY;; cy+=cellEdge) {
+                for (std::uint32_t cx=firstCellX;; cx+=cellEdge) {
+                    SourceCell cell{};
+                    cell.x=cx; cell.y=cy;
+                    cell.width=std::min(cellEdge,g.sourceWidth-cx);
+                    cell.height=std::min(cellEdge,g.sourceHeight-cy);
+                    cell.rgb.resize(
+                        static_cast<std::size_t>(cell.width)*cell.height*3u);
+                    const auto read=source_.readCameraNativeTile(
+                        cell.x,cell.y,cell.width,cell.height,
+                        cell.rgb.data(),cell.rgb.size());
+                    if(!read) {
+                        return float_dng::Status::error(
+                            float_dng::StatusCode::SourceFailed,
+                            "TruthNegative source Scientific Master tile failed: "+
+                                read.message);
+                    }
+                    impl_->cells.push_back(std::move(cell));
+                    if(cx==lastCellX) break;
+                    if(cx>lastCellX-cellEdge) {
+                        return float_dng::Status::error(
+                            float_dng::StatusCode::InvalidArgument,
+                            "TruthNegative source-cell x iteration overflow");
+                    }
                 }
-                impl_->cells.push_back(std::move(cell));
-                if (cx == lastCellX) break;
-                if (cx > lastCellX - cellEdge) {
+                if(cy==lastCellY) break;
+                if(cy>lastCellY-cellEdge) {
                     return float_dng::Status::error(
                         float_dng::StatusCode::InvalidArgument,
-                        "TruthNegative source-cell x iteration overflow");
+                        "TruthNegative source-cell y iteration overflow");
                 }
             }
-            if (cy == lastCellY) break;
-            if (cy > lastCellY - cellEdge) {
-                return float_dng::Status::error(
-                    float_dng::StatusCode::InvalidArgument,
-                    "TruthNegative source-cell y iteration overflow");
-            }
-        }
+            return float_dng::Status::ok();
+        };
 
         auto sample = [&](std::uint32_t sx, std::uint32_t sy, int channel,
-                          double& value) -> bool {
-            const auto* cell = impl_->findCell(sx, sy);
-            if (!cell) return false;
-            const std::size_t lx = sx - cell->x;
-            const std::size_t ly = sy - cell->y;
-            const std::size_t index =
-                (ly * static_cast<std::size_t>(cell->width) + lx) * 3u +
+                          float& value) -> bool {
+            const auto* cell=impl_->findCell(sx,sy);
+            if(!cell) return false;
+            const std::size_t lx=sx-cell->x;
+            const std::size_t ly=sy-cell->y;
+            const std::size_t index=
+                (ly*static_cast<std::size_t>(cell->width)+lx)*3u+
                 static_cast<std::size_t>(channel);
-            if (index >= cell->rgb.size()) return false;
-            value = static_cast<double>(cell->rgb[index]);
+            if(index>=cell->rgb.size()) return false;
+            value=cell->rgb[index];
             return std::isfinite(value);
         };
 
-        for (std::uint32_t oy = 0u; oy < height; ++oy) {
-            const double sy = source_coordinate(y + oy);
-            const auto iy = static_cast<std::int64_t>(std::floor(sy));
-            const double fy = std::clamp(sy - static_cast<double>(iy), 0.0, 1.0);
-            const std::uint32_t y0 = clamp_index(iy, g.sourceHeight);
-            const std::uint32_t y1 = clamp_index(iy + 1, g.sourceHeight);
+        // GPU block cache: one exact dispatch creates up to 256x256 target
+        // pixels, which feeds sixteen canonical 64x64 DNG tiles.
+        if (acceleratorEligible()) {
+            const std::uint32_t blockX=(x/kAcceleratedBlockEdge)*kAcceleratedBlockEdge;
+            const std::uint32_t blockY=(y/kAcceleratedBlockEdge)*kAcceleratedBlockEdge;
+            const std::uint32_t blockW=std::min(
+                kAcceleratedBlockEdge,g.targetWidth-blockX);
+            const std::uint32_t blockH=std::min(
+                kAcceleratedBlockEdge,g.targetHeight-blockY);
+            const bool requestInsideBlock =
+                x>=blockX && y>=blockY &&
+                x+width<=blockX+blockW && y+height<=blockY+blockH;
 
-            for (std::uint32_t ox = 0u; ox < width; ++ox) {
-                const double sx = source_coordinate(x + ox);
-                const auto ix = static_cast<std::int64_t>(std::floor(sx));
-                const float fx = static_cast<float>(
-                    std::clamp(sx - static_cast<double>(ix), 0.0, 1.0));
-                const std::uint32_t x0 = clamp_index(ix, g.sourceWidth);
-                const std::uint32_t x1 = clamp_index(ix + 1, g.sourceWidth);
+            if(requestInsideBlock) {
+                const bool cacheHit=
+                    impl_->acceleratedBlockValid &&
+                    impl_->acceleratedBlockX==blockX &&
+                    impl_->acceleratedBlockY==blockY &&
+                    impl_->acceleratedBlockWidth==blockW &&
+                    impl_->acceleratedBlockHeight==blockH;
+                if(!cacheHit) {
+                    std::uint32_t minSx=0u,maxSx=0u,minSy=0u,maxSy=0u;
+                    const auto loaded=loadCells(
+                        blockX,blockY,blockW,blockH,
+                        minSx,maxSx,minSy,maxSy);
+                    if(!loaded) return loaded;
 
-                for (int c = 0; c < 3; ++c) {
-                    double p00d=0.0, p10d=0.0, p01d=0.0, p11d=0.0;
-                    if (!sample(x0, y0, c, p00d) ||
-                        !sample(x1, y0, c, p10d) ||
-                        !sample(x0, y1, c, p01d) ||
-                        !sample(x1, y1, c, p11d)) {
+                    const std::uint32_t patchW=maxSx-minSx+1u;
+                    const std::uint32_t patchH=maxSy-minSy+1u;
+                    impl_->packedPatch.resize(
+                        static_cast<std::size_t>(patchW)*patchH*3u);
+                    for(std::uint32_t py=0u;py<patchH;++py) {
+                        for(std::uint32_t px=0u;px<patchW;++px) {
+                            for(int c=0;c<3;++c) {
+                                float value=0.0f;
+                                if(!sample(minSx+px,minSy+py,c,value)) {
+                                    return float_dng::Status::error(
+                                        float_dng::StatusCode::SourceFailed,
+                                        "TruthNegative accelerator patch assembly failed");
+                                }
+                                impl_->packedPatch[
+                                    (static_cast<std::size_t>(py)*patchW+px)*3u+
+                                    static_cast<std::size_t>(c)]=value;
+                            }
+                        }
+                    }
+
+                    impl_->acceleratedBlock.resize(
+                        static_cast<std::size_t>(blockW)*blockH*3u);
+                    AcceleratorPatchRequest request{};
+                    request.sourceFullWidth=g.sourceWidth;
+                    request.sourceFullHeight=g.sourceHeight;
+                    request.patchOriginX=minSx;
+                    request.patchOriginY=minSy;
+                    request.patchWidth=patchW;
+                    request.patchHeight=patchH;
+                    request.targetOriginX=blockX;
+                    request.targetOriginY=blockY;
+                    request.targetWidth=blockW;
+                    request.targetHeight=blockH;
+                    std::string acceleratorError;
+                    if(impl_->accelerator->projectPatch(
+                            request,
+                            impl_->packedPatch.data(),impl_->packedPatch.size(),
+                            impl_->acceleratedBlock.data(),impl_->acceleratedBlock.size(),
+                            acceleratorError)) {
+                        impl_->acceleratedBlockValid=true;
+                        impl_->acceleratedBlockX=blockX;
+                        impl_->acceleratedBlockY=blockY;
+                        impl_->acceleratedBlockWidth=blockW;
+                        impl_->acceleratedBlockHeight=blockH;
+                        impl_->acceleratorUsed=true;
+                    } else {
+                        impl_->acceleratorDisabled=true;
+                        impl_->acceleratedBlockValid=false;
+                        impl_->acceleratorFailure=acceleratorError;
+                    }
+                }
+
+                if(impl_->acceleratedBlockValid) {
+                    const std::uint32_t localX=x-impl_->acceleratedBlockX;
+                    const std::uint32_t localY=y-impl_->acceleratedBlockY;
+                    for(std::uint32_t oy=0u;oy<height;++oy) {
+                        const std::size_t srcOffset=
+                            (static_cast<std::size_t>(localY+oy)*
+                                 impl_->acceleratedBlockWidth+localX)*3u;
+                        const std::size_t dstOffset=
+                            static_cast<std::size_t>(oy)*width*3u;
+                        std::copy_n(
+                            impl_->acceleratedBlock.data()+srcOffset,
+                            static_cast<std::size_t>(width)*3u,
+                            rgb+dstOffset);
+                    }
+                    return float_dng::Status::ok();
+                }
+            }
+        }
+
+        // Canonical CPU reference/fallback.
+        std::uint32_t minSx=0u,maxSx=0u,minSy=0u,maxSy=0u;
+        const auto loaded=loadCells(
+            x,y,width,height,minSx,maxSx,minSy,maxSy);
+        if(!loaded) return loaded;
+        (void)minSx; (void)maxSx; (void)minSy; (void)maxSy;
+
+        for(std::uint32_t oy=0u;oy<height;++oy) {
+            std::uint32_t y0=0u,y1=0u;
+            float fy=0.0f;
+            axis_map(y+oy,g.sourceHeight,y0,y1,fy);
+            for(std::uint32_t ox=0u;ox<width;++ox) {
+                std::uint32_t x0=0u,x1=0u;
+                float fx=0.0f;
+                axis_map(x+ox,g.sourceWidth,x0,x1,fx);
+                for(int c=0;c<3;++c) {
+                    float p00=0.0f,p10=0.0f,p01=0.0f,p11=0.0f;
+                    if(!sample(x0,y0,c,p00) || !sample(x1,y0,c,p10) ||
+                       !sample(x0,y1,c,p01) || !sample(x1,y1,c,p11)) {
                         return float_dng::Status::error(
                             float_dng::StatusCode::SourceFailed,
                             "TruthNegative dense interpolation footprint incomplete");
                     }
-                    const float p00=static_cast<float>(p00d);
-                    const float p10=static_cast<float>(p10d);
-                    const float p01=static_cast<float>(p01d);
-                    const float p11=static_cast<float>(p11d);
-                    const float fyf=static_cast<float>(fy);
-                    // Canonical Float32 operation order. Android builds compile
-                    // this module with FP contraction disabled. Vulkan uses the
-                    // same ordered operations with precise/NoContraction.
-                    const float top = p00 + (p10 - p00) * fx;
-                    const float bottom = p01 + (p11 - p01) * fx;
-                    const float value = top + (bottom - top) * fyf;
-                    if (!std::isfinite(value)) {
+                    const float top=p00+(p10-p00)*fx;
+                    const float bottom=p01+(p11-p01)*fx;
+                    const float value=top+(bottom-top)*fy;
+                    if(!std::isfinite(value)) {
                         return float_dng::Status::error(
                             float_dng::StatusCode::SourceFailed,
                             "TruthNegative dense interpolation produced non-finite value");
                     }
-                    const std::size_t outIndex =
-                        (static_cast<std::size_t>(oy) * width + ox) * 3u +
-                        static_cast<std::size_t>(c);
-                    rgb[outIndex] = value;
+                    rgb[(static_cast<std::size_t>(oy)*width+ox)*3u+
+                        static_cast<std::size_t>(c)]=value;
                 }
             }
         }
         return float_dng::Status::ok();
-    } catch (const std::bad_alloc&) {
+    } catch(const std::bad_alloc&) {
         return float_dng::Status::error(
             float_dng::StatusCode::SizeOverflow,
             "TruthNegative dense projection allocation failed");
-    } catch (...) {
+    } catch(...) {
         return float_dng::Status::error(
             float_dng::StatusCode::SourceFailed,
             "TruthNegative dense projection failed unexpectedly");
@@ -281,6 +418,11 @@ float_dng::Status compute_projected_raster_identity(
         }
         const auto g = source.geometry();
         out.geometry = g;
+        out.acceleratorEligible = source.acceleratorEligible();
+        out.acceleratorBackend =
+            source.acceleratorEligible()
+                ? source.acceleratorBackendName()
+                : "CPU_REFERENCE";
         out.createsNewEvidence = false;
         out.impliesPhysicalSensorGeometry = false;
         out.measuredTargetClaimCount = kMeasuredTargetClaimCount;
@@ -348,6 +490,8 @@ float_dng::Status compute_projected_raster_identity(
                     accumulator.error());
         }
         out.projectedRasterIdentityAvailable = true;
+        out.acceleratorUsed = source.acceleratorUsed();
+        if (!out.acceleratorUsed) out.acceleratorBackend = "CPU_REFERENCE";
         return float_dng::Status::ok();
     } catch (const std::bad_alloc&) {
         return float_dng::Status::error(
@@ -369,6 +513,10 @@ std::string authority_manifest(const Result& result) {
         << "target_width=" << result.geometry.targetWidth << "\n"
         << "target_height=" << result.geometry.targetHeight << "\n"
         << "target_authority=" << result.targetAuthority << "\n"
+        << "compute_backend=" << result.acceleratorBackend << "\n"
+        << "accelerator_eligible=" << (result.acceleratorEligible ? 1 : 0) << "\n"
+        << "accelerator_used=" << (result.acceleratorUsed ? 1 : 0) << "\n"
+        << "backend_changes_authority=0\n"
         << "creates_new_evidence=0\n"
         << "implies_physical_sensor_geometry=0\n"
         << "measured_target_claim_count=0\n"
