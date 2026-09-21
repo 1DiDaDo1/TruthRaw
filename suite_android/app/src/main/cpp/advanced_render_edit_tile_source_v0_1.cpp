@@ -2,7 +2,7 @@
 
 #include "adaptive_detail_v47j_adapter.h"
 #include "scientific_master_digest_v0_1.h"
-#include "streaming_scientific_master_tile_source_v0_1.h"
+#include "full_frame_streaming_v0_1_internal.h"
 
 #include <algorithm>
 #include <cmath>
@@ -105,7 +105,7 @@ struct ExtendedLinearSrgbTileSource::Impl final {
     std::array<float, 9> cameraToXyzD50{};
     std::uint32_t flags = 0u;
     ExposurePlan exposure{};
-    float_dng::StreamingScientificMasterTileSource master;
+    streaming_v0_1::detail::Workspace reconstructionWorkspace{};
     adaptive_detail::AdaptiveDetailedCrispAppearanceV47j detail;
 
     std::vector<float> cameraExpanded;
@@ -125,7 +125,6 @@ struct ExtendedLinearSrgbTileSource::Impl final {
           cameraToXyzD50(matrix),
           flags(flagsIn & kAllowedFlags),
           exposure(exposureIn),
-          master(sourceIn, reconstructionIn),
           detail(adaptive_detail::noise_sigma_2pct_from_metadata(sourceIn.metadata())) {}
 };
 
@@ -146,7 +145,17 @@ std::size_t ExtendedLinearSrgbTileSource::residentBytesUpperBound() const noexce
     // restoration(2) + detail(5) on every side. Keep a conservative bound that
     // also includes the underlying Scientific Master replay workspace.
     constexpr std::size_t kLocalBound = 2u * 1024u * 1024u;
-    return impl_->master.residentBytesUpperBound() + kLocalBound;
+    const std::size_t workspace =
+        streaming_v0_1::detail::vector_bytes(
+            impl_->reconstructionWorkspace);
+    const std::size_t sourceBytes = impl_->source.residentBytesUpperBound();
+    if (sourceBytes >
+            std::numeric_limits<std::size_t>::max() - workspace ||
+        sourceBytes + workspace >
+            std::numeric_limits<std::size_t>::max() - kLocalBound) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+    return sourceBytes + workspace + kLocalBound;
 }
 
 std::uint32_t ExtendedLinearSrgbTileSource::flags() const noexcept {
@@ -213,17 +222,54 @@ float_dng::Status ExtendedLinearSrgbTileSource::readCameraNativeTile(
             static_cast<std::size_t>(expandedW) *
             static_cast<std::size_t>(expandedH);
 
-        impl_->cameraExpanded.resize(expandedPixels * 3u);
-        auto s = impl_->master.readCameraNativeTile(
-            static_cast<std::uint32_t>(expandedX0),
-            static_cast<std::uint32_t>(expandedY0),
-            static_cast<std::uint32_t>(expandedW),
-            static_cast<std::uint32_t>(expandedH),
-            impl_->cameraExpanded.data(),
-            impl_->cameraExpanded.size());
-        if (!s) {
+        const int reconstructionHalo =
+            impl_->reconstruction.requiredHalo();
+        if (reconstructionHalo < 0) {
             return source_error(
-                "Render/Edit Scientific Master replay failed: " + s.message);
+                "Render/Edit reconstruction backend returned negative halo");
+        }
+
+        ::truthraw::TileRect reconstructionTile{};
+        reconstructionTile.x0 = expandedX0;
+        reconstructionTile.y0 = expandedY0;
+        reconstructionTile.x1 = expandedX1;
+        reconstructionTile.y1 = expandedY1;
+        reconstructionTile.hx0 =
+            std::max(0, expandedX0 - reconstructionHalo);
+        reconstructionTile.hy0 =
+            std::max(0, expandedY0 - reconstructionHalo);
+        reconstructionTile.hx1 =
+            std::min(m.width, expandedX1 + reconstructionHalo);
+        reconstructionTile.hy1 =
+            std::min(m.height, expandedY1 + reconstructionHalo);
+
+        auto fill = streaming_v0_1::detail::fill_stage2(
+            impl_->source,
+            reconstructionTile,
+            impl_->reconstructionWorkspace);
+        if (!fill) {
+            return source_error(
+                "Render/Edit Stage-2 source read failed: " + fill.message);
+        }
+
+        impl_->cameraExpanded.resize(expandedPixels * 3u);
+        const auto reconstructionStatus =
+            impl_->reconstruction.reconstructTile(
+                impl_->reconstructionWorkspace.stage2.data(),
+                reconstructionTile.hx1 - reconstructionTile.hx0,
+                reconstructionTile.hy1 - reconstructionTile.hy0,
+                reconstructionTile.hx0,
+                reconstructionTile.hy0,
+                expandedX0,
+                expandedY0,
+                expandedW,
+                expandedH,
+                m.cfa,
+                impl_->cameraExpanded.data());
+        if (!reconstructionStatus) {
+            return source_error(
+                "Render/Edit v4.7i reconstruction failed: " +
+                    reconstructionStatus.message);
         }
 
         impl_->linearExpanded.resize(expandedPixels * 3u);
