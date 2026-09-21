@@ -1,3 +1,21 @@
+# FINAL CODE FREEZE NOTICE — 2026-09-21
+
+**Read first:** `docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md`
+
+Frozen code-bearing branch/head:
+
+`integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+
+`d44e0096e85d75703e8de54d5a832b727c450f66`
+
+Frozen APK SHA-256:
+
+`ee9bdf25f85c7790301f7419146061b1366974073172f7e5a0e251fc3348a676`
+
+The user explicitly requested **no more code changes**. Documentation commits after the frozen head do not change the APK binary. Real-device validation is the next action. Do not modify code unless the user explicitly lifts the freeze.
+
+---
+
 # START HERE — TruthRaw current bootstrap
 
 ## CURRENT ACTIVE INTEGRATION — 2026-09-21
