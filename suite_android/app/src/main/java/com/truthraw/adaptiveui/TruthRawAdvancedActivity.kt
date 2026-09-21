@@ -61,8 +61,8 @@ class TruthRawAdvancedActivity : Activity() {
             addView(title("Authority-bound scene processing", 18f))
             addView(space(8))
             addView(toggle(
-                "Open-World / Scene Physics",
-                "Bindt de single-frame scene aan de Open-World illumination-authority corridor. Zonder onafhankelijke geometry/material/illumination blijft een lichtaanpassing APPEARANCE_ONLY; er wordt geen inverse-square of fysieke relight verzonnen.",
+                "Natural Light / lichtbalans",
+                "Ontwikkelt de bestaande single-frame scène zonder fysieke relight te verzinnen. Bij aantoonbaar te donkere renders mag een begrensde automatische exposure-correctie worden toegepast; lichtaanpassing blijft APPEARANCE_ONLY en schrijft nooit terug naar PURE.",
                 options.naturalLight,
             ) { checked ->
                 options = options.copy(naturalLight = checked)
@@ -70,8 +70,8 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Scientific HDR / Dynamic Authority",
-                "Gebruikt scene-aware HDR alleen waar de Dynamic Authority dit toelaat. CENSORED of UNKNOWN support krijgt geen verzonnen recoverable gain en schrijft nooit terug naar PURE.",
+                "Natural HDR / Dynamic Authority",
+                "Presentation-HDR gebruikt alleen bestaande gebonden gain. Scientific HDR blijft fail-closed zolang UNKNOWN output-channel authority bestaat; CENSORED of UNKNOWN support krijgt geen verzonnen recoverable gain en schrijft nooit terug naar PURE.",
                 options.naturalHdr,
             ) { checked ->
                 options = options.copy(naturalHdr = checked)
