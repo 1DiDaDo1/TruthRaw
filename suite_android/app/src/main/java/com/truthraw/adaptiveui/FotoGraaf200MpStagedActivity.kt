@@ -780,6 +780,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             if (edge.contains(CameraMetadata.EDGE_MODE_OFF)) {
                 setIfSupported(requestBuilder, CaptureRequest.EDGE_MODE, CameraMetadata.EDGE_MODE_OFF, logical)
             }
+            CameraCalibrationTelemetry.requestLensShadingMap(
+                requestBuilder,
+                physical5Characteristics,
+                PHYSICAL_ID,
+            )
 
             val request = requestBuilder.build()
             setStatusAny(
@@ -1032,6 +1037,13 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("noiseReductionMode", physicalResult.get(CaptureResult.NOISE_REDUCTION_MODE) ?: JSONObject.NULL)
                 .put("edgeMode", physicalResult.get(CaptureResult.EDGE_MODE) ?: JSONObject.NULL)
                 .put("rawBinningFactorUsed", physicalResult.get(CaptureResult.SENSOR_RAW_BINNING_FACTOR_USED) ?: JSONObject.NULL))
+            .put(
+                "cameraCalibrationTelemetry",
+                CameraCalibrationTelemetry.toJson(
+                    physicalResult,
+                    physical5Characteristics,
+                ),
+            )
             .put("rawPayload", JSONObject()
                 .put("file", raw.file.name)
                 .put("sha256", raw.sha256)
