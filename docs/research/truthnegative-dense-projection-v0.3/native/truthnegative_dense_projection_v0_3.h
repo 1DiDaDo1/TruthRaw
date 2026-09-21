@@ -25,6 +25,33 @@ struct Geometry final {
     std::uint32_t targetHeight = 0u;
 };
 
+struct AcceleratorPatchRequest final {
+    std::uint32_t sourceFullWidth = 0u;
+    std::uint32_t sourceFullHeight = 0u;
+    std::uint32_t patchOriginX = 0u;
+    std::uint32_t patchOriginY = 0u;
+    std::uint32_t patchWidth = 0u;
+    std::uint32_t patchHeight = 0u;
+    std::uint32_t targetOriginX = 0u;
+    std::uint32_t targetOriginY = 0u;
+    std::uint32_t targetWidth = 0u;
+    std::uint32_t targetHeight = 0u;
+};
+
+class IExactDenseAccelerator {
+public:
+    virtual ~IExactDenseAccelerator() = default;
+    virtual bool exactScientificEligible() const noexcept = 0;
+    virtual const char* backendName() const noexcept = 0;
+    virtual bool projectPatch(
+        const AcceleratorPatchRequest& request,
+        const float* sourceRgb,
+        std::size_t sourceFloatCount,
+        float* targetRgb,
+        std::size_t targetFloatCount,
+        std::string& error) noexcept = 0;
+};
+
 struct Result final {
     Geometry geometry{};
     float_dng::Hash256 projectedRasterSha256{};
@@ -33,6 +60,9 @@ struct Result final {
     std::uint64_t overOneComponentCount = 0u;
     std::size_t logicalResidentUpperBound = 0u;
     bool projectedRasterIdentityAvailable = false;
+    bool acceleratorEligible = false;
+    bool acceleratorUsed = false;
+    std::string acceleratorBackend = "CPU_REFERENCE";
     bool createsNewEvidence = false;
     bool impliesPhysicalSensorGeometry = false;
     std::uint32_t measuredTargetClaimCount = 0u;
@@ -47,7 +77,8 @@ public:
     DenseProjectionTileSource(
         float_dng::IScientificMasterTileSource& scientificMaster,
         std::uint32_t sourceWidth,
-        std::uint32_t sourceHeight) noexcept;
+        std::uint32_t sourceHeight,
+        IExactDenseAccelerator* accelerator = nullptr) noexcept;
     ~DenseProjectionTileSource() override;
 
     DenseProjectionTileSource(const DenseProjectionTileSource&) = delete;
@@ -56,6 +87,9 @@ public:
     Geometry geometry() const noexcept;
     bool valid() const noexcept;
     const std::string& error() const noexcept;
+    bool acceleratorEligible() const noexcept;
+    bool acceleratorUsed() const noexcept;
+    const char* acceleratorBackendName() const noexcept;
 
     std::size_t residentBytesUpperBound() const noexcept override;
 
