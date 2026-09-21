@@ -8,6 +8,7 @@
 #include "output_channel_authority_v0_84.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "adaptive_detail_v47j_adapter.h"
+#include "advanced_appearance_controls_v0_1.h"
 #include "output_acutance_v0_81.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
@@ -54,6 +55,7 @@ namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace advanced_controls = truthraw::advanced_appearance_controls::v0_1;
 namespace output_acutance = truthraw::output_acutance_v0_81;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
@@ -64,11 +66,11 @@ constexpr std::size_t kHeaderInts = 176u;
 constexpr int kAbsoluteMaxPreviewEdge = 512;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
-constexpr jint kFlagLight = 1 << 0;
-constexpr jint kFlagHdr = 1 << 1;
-constexpr jint kFlagDetail = 1 << 2;
-constexpr jint kFlagRestoration = 1 << 3;
-constexpr jint kAllowedFlags = kFlagLight | kFlagHdr | kFlagDetail | kFlagRestoration;
+constexpr jint kFlagLight = static_cast<jint>(advanced_controls::kFlagLight);
+constexpr jint kFlagHdr = static_cast<jint>(advanced_controls::kFlagHdr);
+constexpr jint kFlagDetail = static_cast<jint>(advanced_controls::kFlagDetail);
+constexpr jint kFlagRestoration = static_cast<jint>(advanced_controls::kFlagRestoration);
+constexpr jint kAllowedFlags = static_cast<jint>(advanced_controls::kAllowedFlags);
 
 struct IntRect {
     int x0 = 0;
@@ -303,8 +305,10 @@ public:
         : maxEdge_(maxEdge),
           flags_(flags),
           outputNoiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
+          colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
           outputProfile_(
-              (flags & kFlagDetail) != 0
+              detailMix_ > 0.0f
                   ? truthraw_v47k::OutputProfile::AdaptiveDetail
                   : truthraw_v47k::OutputProfile::Neutral) {}
 
@@ -664,13 +668,14 @@ private:
 
         const bool hdrEnabled =
             (flags_ & kFlagHdr) != 0 && hdrPipelineEnabled_;
-        if (!output_acutance::apply_final_resize_acutance_and_rebase_hdr(
+        if (!output_acutance::apply_final_resize_acutance_and_rebase_hdr_tuned(
                 preAcutanceBase_,
                 previewWidth_,
                 previewHeight_,
                 outputNoiseSigmaAt2Pct_,
                 outputResizeRatio_,
                 outputProfile_,
+                detailMix_,
                 hdrEnabled,
                 halfLogGain_,
                 censorMask_,
@@ -711,6 +716,11 @@ private:
                 return false;
             }
 
+            if (!advanced_controls::apply_color_fullness(
+                    r, g, b, colorFullnessMix_)) {
+                return false;
+            }
+
             const float mx = std::max(r, std::max(g, b));
             if (mx > 0.92f) {
                 const float shoulder =
@@ -731,6 +741,8 @@ private:
 
     int maxEdge_ = 0;
     jint flags_ = 0;
+    float detailMix_ = 0.0f;
+    float colorFullnessMix_ = 0.0f;
     int sourceWidth_ = 0;
     int sourceHeight_ = 0;
     int displayWidth_ = 0;
@@ -1098,7 +1110,8 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     if ((flags & kFlagDetail) != 0) {
         appearance =
             std::make_shared<adaptive_detail::AdaptiveDetailedCrispAppearanceV47j>(
-                adaptiveDetailNoiseSigmaAt2Pct);
+                adaptiveDetailNoiseSigmaAt2Pct,
+                advanced_controls::detail_mix(static_cast<std::uint32_t>(flags)));
     } else {
         appearance = std::make_shared<NeutralReferenceAppearance>();
     }
