@@ -228,17 +228,19 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     constexpr jint kPureMode = 0;
-    constexpr jint kJpgLRawEditMode = 1;
+    constexpr jint kFullColourScientificMasterMode = 1;
     constexpr jint kAdvancedRenderEditMode = 2;
     constexpr jint kAllowedAdvancedFlags = static_cast<jint>(render_edit::kAllowedFlags);
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
         (exportMode != kPureMode &&
-         exportMode != kJpgLRawEditMode &&
+         exportMode != kFullColourScientificMasterMode &&
          exportMode != kAdvancedRenderEditMode) ||
         (sourceRouteCode != 0 && sourceRouteCode != 1) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
-        (exportMode == kPureMode && advancedFlags != 0) ||
+        ((exportMode == kPureMode ||
+          exportMode == kFullColourScientificMasterMode) &&
+         advancedFlags != 0) ||
         ((previewFd < 0) != (previewWidth == 0 && previewHeight == 0)) ||
         previewWidth < 0 || previewHeight < 0 ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
@@ -510,21 +512,21 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         "scientific_writeback_allowed=0\n" +
         "creates_new_evidence=0";
 
-    if (exportMode == kJpgLRawEditMode) {
+    if (exportMode == kFullColourScientificMasterMode) {
         descriptor.projectionRole =
-            "TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG";
+            "TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1";
         descriptor.downstreamEditManifest =
-            std::string("schema=TruthRawJpgLRawEditRecipe/0.3\n") +
-            "primary_image_role=FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER\n" +
+            std::string("schema=TruthRawFullColourScientificMaster/0.1\n") +
+            "primary_image_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32\n" +
+            "stored_primary_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32\n" +
+            "photometric_role=LINEARRAW_FULL_COLOUR_CAMERA_NATIVE\n" +
             "source_scientific_master_unchanged=1\n" +
+            "primary_raster_equals_scientific_master=1\n" +
             "appearance_baked_into_primary=0\n" +
-            "advanced_recipe_flags=" + std::to_string(advancedFlags) + "\n" +
-            "flag_open_world_light=" + std::to_string((advancedFlags & 0x01) ? 1 : 0) + "\n" +
-            "flag_natural_hdr=" + std::to_string((advancedFlags & 0x02) ? 1 : 0) + "\n" +
-            "flag_adaptive_detail=" + std::to_string((advancedFlags & 0x04) ? 1 : 0) + "\n" +
-            "flag_restoration=" + std::to_string((advancedFlags & 0x08) ? 1 : 0) + "\n" +
-            "hdr_recipe_authority=APPEARANCE_ONLY_OUTPUT_CHANNEL_MAP_HAS_UNKNOWN\n" +
-            "restoration_recipe_role=AESTHETIC_REINTEGRATION_ONLY\n" +
+            "advanced_recipe_flags=0\n" +
+            "negative_components_preserved=1\n" +
+            "over_one_components_preserved=1\n" +
+            "jpeg_role=NON_AUTHORITY_PREVIEW_ONLY\n" +
             "lightroom_editable_primary=1\n" +
             "scientific_writeback_allowed=0\n" +
             "creates_new_evidence=0";
@@ -624,12 +626,19 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
                   render_edit::linear_srgb_to_xyz_d50_matrix(),
                   sink,
                   exported)
-            : float_dng::write_xyz_d50_linear_dng_projection(
-                  masterSource,
-                  descriptor,
-                  produced.color.cameraToXyzD50,
-                  sink,
-                  exported);
+            : (exportMode == kFullColourScientificMasterMode
+                ? float_dng::write_camera_native_full_colour_scientific_master_dng(
+                      masterSource,
+                      descriptor,
+                      produced.color.cameraToXyzD50,
+                      sink,
+                      exported)
+                : float_dng::write_xyz_d50_linear_dng_projection(
+                      masterSource,
+                      descriptor,
+                      produced.color.cameraToXyzD50,
+                      sink,
+                      exported));
     if (!exportedStatus) return packet(env, floatStatus(exportedStatus));
 
     const bool commonInvariant =
@@ -668,7 +677,7 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     values[1] = 0;
     values[2] = descriptor.width;
     values[3] = descriptor.height;
-    values[4] = 3;   // XYZ-D50 LinearRaw channels
+    values[4] = 3;   // three-channel IEEE Float32 LinearRaw primary
     values[5] = 32;  // IEEE float32 bits/component
     values[6] = clampToJlong(exported.bytesWritten);
     values[7] = clampToJlong(exported.projectedPixels);
