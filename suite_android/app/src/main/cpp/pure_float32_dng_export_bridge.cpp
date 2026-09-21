@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -577,6 +578,17 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
                     render_edit::controls::color_fullness(
                         static_cast<std::uint32_t>(advancedFlags))) + "\n" +
             "color_fullness_role=APPEARANCE_ONLY_LUMINANCE_PRESERVING\n" +
+            "exposure_compensation_ev=" +
+                std::to_string(
+                    render_edit::controls::exposure_compensation_ev(
+                        static_cast<std::uint32_t>(advancedFlags))) + "\n" +
+            "shadow_recovery_level=" +
+                std::to_string(
+                    static_cast<int>(
+                        std::lround(
+                            3.0f * render_edit::controls::shadow_recovery_mix(
+                                static_cast<std::uint32_t>(advancedFlags))))) + "\n" +
+            "tone_controls_role=APPEARANCE_ONLY_NO_BLACKLEVEL_WRITEBACK\n" +
             "detail_baked_into_primary=" +
                 std::to_string(
                     (advancedFlags & static_cast<jint>(render_edit::kFlagDetail))
