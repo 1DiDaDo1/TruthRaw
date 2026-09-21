@@ -7,15 +7,28 @@ import android.graphics.Bitmap
 data class TruthRawAdvancedOptions(
     val naturalLight: Boolean = true,
     val naturalHdr: Boolean = true,
-    val detail: Boolean = false,
+    val detailStrength: Int = 0,
+    val colorFullness: Int = 0,
     val restoration: Boolean = true,
 ) {
+    val detail: Boolean
+        get() = detailStrength > 0
+
     fun flags(): Int {
         var flags = 0
         if (naturalLight) flags = flags or FLAG_LIGHT
         if (naturalHdr) flags = flags or FLAG_HDR
-        if (detail) flags = flags or FLAG_DETAIL
         if (restoration) flags = flags or FLAG_RESTORATION
+
+        val boundedDetail = detailStrength.coerceIn(0, 100)
+        if (boundedDetail > 0) {
+            flags = flags or FLAG_DETAIL
+            flags = flags or (boundedDetail shl DETAIL_STRENGTH_SHIFT)
+        }
+
+        val boundedColor = colorFullness.coerceIn(-50, 50)
+        flags = flags or FLAG_COLOR_CONTROL
+        flags = flags or ((boundedColor + 50) shl COLOR_FULLNESS_SHIFT)
         return flags
     }
 
@@ -24,6 +37,9 @@ data class TruthRawAdvancedOptions(
         const val FLAG_HDR = 1 shl 1
         const val FLAG_DETAIL = 1 shl 2
         const val FLAG_RESTORATION = 1 shl 3
+        const val FLAG_COLOR_CONTROL = 1 shl 4
+        const val DETAIL_STRENGTH_SHIFT = 8
+        const val COLOR_FULLNESS_SHIFT = 16
     }
 }
 
@@ -32,14 +48,21 @@ object TruthRawAdvancedSettings {
     private const val KEY_LIGHT = "natural_light"
     private const val KEY_HDR = "natural_hdr"
     private const val KEY_DETAIL = "detail"
+    private const val KEY_DETAIL_STRENGTH = "detail_strength"
+    private const val KEY_COLOR_FULLNESS = "color_fullness"
     private const val KEY_RESTORATION = "restoration"
 
     fun load(context: Context): TruthRawAdvancedOptions {
         val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val legacyDetail = p.getBoolean(KEY_DETAIL, false)
         return TruthRawAdvancedOptions(
             naturalLight = p.getBoolean(KEY_LIGHT, true),
             naturalHdr = p.getBoolean(KEY_HDR, true),
-            detail = p.getBoolean(KEY_DETAIL, false),
+            detailStrength = p.getInt(
+                KEY_DETAIL_STRENGTH,
+                if (legacyDetail) 100 else 0,
+            ).coerceIn(0, 100),
+            colorFullness = p.getInt(KEY_COLOR_FULLNESS, 0).coerceIn(-50, 50),
             restoration = p.getBoolean(KEY_RESTORATION, true),
         )
     }
@@ -49,6 +72,8 @@ object TruthRawAdvancedSettings {
             .putBoolean(KEY_LIGHT, options.naturalLight)
             .putBoolean(KEY_HDR, options.naturalHdr)
             .putBoolean(KEY_DETAIL, options.detail)
+            .putInt(KEY_DETAIL_STRENGTH, options.detailStrength.coerceIn(0, 100))
+            .putInt(KEY_COLOR_FULLNESS, options.colorFullness.coerceIn(-50, 50))
             .putBoolean(KEY_RESTORATION, options.restoration)
             .apply()
     }
