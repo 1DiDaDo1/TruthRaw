@@ -1,9 +1,11 @@
 #include <jni.h>
 
+#include "advanced_render_edit_tile_source_v0_1.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "open_scene_canonical_v0_70.h"
 #include "open_scene_channel_authority_v0_78.h"
 #include "bound_uncertainty_admission_v0_79.h"
+#include "full_frame_streaming_v0_1_internal.h"
 #include "output_channel_authority_v0_84.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_linear_dng_projection_v0_1.h"
@@ -36,6 +38,7 @@ using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace float_dng = truthraw::scientific_master_linear_dng_projection::v0_1;
+namespace render_edit = truthraw::advanced_render_edit::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
@@ -225,10 +228,13 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint maxLogicalResidentBytes) {
     constexpr jint kPureMode = 0;
     constexpr jint kJpgLRawEditMode = 1;
+    constexpr jint kAdvancedRenderEditMode = 2;
     constexpr jint kAllowedAdvancedFlags = 0x0f;
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
-        (exportMode != kPureMode && exportMode != kJpgLRawEditMode) ||
+        (exportMode != kPureMode &&
+         exportMode != kJpgLRawEditMode &&
+         exportMode != kAdvancedRenderEditMode) ||
         (sourceRouteCode != 0 && sourceRouteCode != 1) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
         (exportMode == kPureMode && advancedFlags != 0) ||
@@ -419,6 +425,42 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             *bytes, sourceSeal);
     if (!beforeProjection) return packet(env, bindingStatus(beforeProjection));
 
+    truthraw::ExposurePlan renderEditExposure{};
+    if (exportMode == kAdvancedRenderEditMode) {
+        const auto exposureTiles = truthraw::make_tiles(
+            source->metadata().width,
+            source->metadata().height,
+            truthraw::TilePolicy{128, 16});
+        truthraw::streaming_v0_1::detail::Workspace exposureWorkspace{};
+        truthraw::streaming_v0_1::detail::Pass1Stats pass1{};
+        const auto exposureStatus =
+            truthraw::streaming_v0_1::detail::run_pass1(
+                *source,
+                exposureTiles,
+                *reconstruction,
+                exposureWorkspace,
+                pass1);
+        if (!exposureStatus) {
+            return packet(env, -10);
+        }
+        const std::size_t pixelCount =
+            static_cast<std::size_t>(source->metadata().width) *
+            static_cast<std::size_t>(source->metadata().height);
+        const float clipFraction =
+            pixelCount > 0u
+                ? static_cast<float>(pass1.totalClipped) /
+                    static_cast<float>(pixelCount)
+                : 0.0f;
+        renderEditExposure = truthraw::choose_exposure_plan_from_histograms(
+            pass1.display.bins,
+            pass1.scene.bins,
+            4.0f,
+            truthraw::streaming_v0_1::detail::noise_sigma_2pct(
+                source->metadata()),
+            clipFraction,
+            pass1.totalOver1);
+    }
+
     float_dng::StreamingScientificMasterTileSource masterSource(
         *source, *reconstruction);
 
@@ -487,25 +529,107 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             "creates_new_evidence=0";
     }
 
+    std::unique_ptr<render_edit::ExtendedLinearSrgbTileSource>
+        renderEditSource;
+    if (exportMode == kAdvancedRenderEditMode) {
+        renderEditSource =
+            std::make_unique<render_edit::ExtendedLinearSrgbTileSource>(
+                *source,
+                *reconstruction,
+                produced.color.cameraToXyzD50,
+                static_cast<std::uint32_t>(advancedFlags),
+                renderEditExposure);
+
+        float_dng::Hash256 projectedHash{};
+        const auto projectedStatus =
+            render_edit::compute_projected_raster_sha256(
+                *renderEditSource,
+                descriptor.width,
+                descriptor.height,
+                projectedHash);
+        if (!projectedStatus) {
+            return packet(env, floatStatus(projectedStatus));
+        }
+
+        descriptor.projectedRasterSha256 = projectedHash;
+        descriptor.openSceneStateSha256 = openSceneSummary.artifactSha256;
+        descriptor.projectionRole =
+            "TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1";
+        descriptor.projectedAppearanceApplied =
+            renderEditSource->appearanceBakedIntoPrimary();
+        descriptor.projectedCounterfactualObservationCreated = false;
+        descriptor.restorationDerivative = false;
+        descriptor.downstreamEditManifest =
+            std::string("schema=TruthRawAdvancedRenderEdit/0.1\n") +
+            "derivative_identity_space=EXTENDED_LINEAR_SRGB_FLOAT32\n" +
+            "stored_primary_space=XYZ_D50_LINEAR_FLOAT32\n" +
+            "storage_transform=LINEAR_SRGB_TO_XYZ_D50\n" +
+            "source_scientific_master_unchanged=1\n" +
+            "negative_components_preserved=1\n" +
+            "over_one_components_preserved=1\n" +
+            "advanced_flags=" + std::to_string(advancedFlags) + "\n" +
+            "detail_baked_into_primary=" +
+                std::to_string(
+                    (advancedFlags & static_cast<jint>(render_edit::kFlagDetail))
+                        ? 1 : 0) + "\n" +
+            "light_baked_into_primary=" +
+                std::to_string(
+                    (advancedFlags & static_cast<jint>(render_edit::kFlagLight))
+                        ? 1 : 0) + "\n" +
+            "restoration_baked_into_primary=" +
+                std::to_string(
+                    (advancedFlags & static_cast<jint>(render_edit::kFlagRestoration))
+                        ? 1 : 0) + "\n" +
+            "restoration_role=AESTHETIC_REINTEGRATION_ONLY\n" +
+            "natural_hdr_baked_into_primary=0\n" +
+            "natural_hdr_recipe_only=" +
+                std::to_string(
+                    (advancedFlags & static_cast<jint>(render_edit::kFlagHdr))
+                        ? 1 : 0) + "\n" +
+            "hdr_authority=APPEARANCE_ONLY_OUTPUT_CHANNEL_MAP_HAS_UNKNOWN\n" +
+            "output_acutance_baked_into_primary=0\n" +
+            "lightroom_editable_primary=1\n" +
+            "scientific_writeback_allowed=0\n" +
+            "creates_new_evidence=0";
+    }
+
     FdTransactionalByteSink sink(static_cast<int>(outputFd));
     float_dng::Result exported{};
     const auto exportedStatus =
-        float_dng::write_xyz_d50_linear_dng_projection(
-            masterSource,
-            descriptor,
-            produced.color.cameraToXyzD50,
-            sink,
-            exported);
+        exportMode == kAdvancedRenderEditMode
+            ? float_dng::write_xyz_d50_linear_dng_projection(
+                  *renderEditSource,
+                  descriptor,
+                  render_edit::linear_srgb_to_xyz_d50_matrix(),
+                  sink,
+                  exported)
+            : float_dng::write_xyz_d50_linear_dng_projection(
+                  masterSource,
+                  descriptor,
+                  produced.color.cameraToXyzD50,
+                  sink,
+                  exported);
     if (!exportedStatus) return packet(env, floatStatus(exportedStatus));
 
-    if (!exported.representationOnly ||
-        exported.scientificMasterModified ||
-        exported.appearanceApplied ||
-        exported.counterfactualObservationCreated ||
-        !exported.scientificMasterIdentityVerified ||
-        !exported.artifactCommitted ||
-        exported.physicalFrameCount != 1u ||
-        exported.independentEvidenceCount != 1u) {
+    const bool commonInvariant =
+        exported.representationOnly &&
+        !exported.scientificMasterModified &&
+        !exported.counterfactualObservationCreated &&
+        exported.artifactCommitted &&
+        exported.physicalFrameCount == 1u &&
+        exported.independentEvidenceCount == 1u;
+
+    const bool flavorInvariant =
+        exportMode == kAdvancedRenderEditMode
+            ? (exported.projectedRasterIdentityVerified &&
+               !exported.scientificMasterIdentityVerified &&
+               exported.appearanceApplied ==
+                   renderEditSource->appearanceBakedIntoPrimary())
+            : (exported.projectedRasterIdentityVerified &&
+               exported.scientificMasterIdentityVerified &&
+               !exported.appearanceApplied);
+
+    if (!commonInvariant || !flavorInvariant) {
         sink.abort();
         return packet(env, -4);
     }
