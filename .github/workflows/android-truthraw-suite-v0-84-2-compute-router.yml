@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - integration/truthraw-suite-v0-84-2-adaptive-compute-router
+      - integration/truthraw-suite-v0-84-2-advanced-appearance-controls
     paths:
       - 'suite_android/**'
       - 'docs/research/android-acceleration-v0.1/**'
