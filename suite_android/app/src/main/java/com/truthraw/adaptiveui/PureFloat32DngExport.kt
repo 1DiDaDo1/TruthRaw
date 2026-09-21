@@ -70,6 +70,7 @@ enum class Float32DngExportFlavor(val nativeCode: Int) {
     PURE(0),
     FULL_COLOUR_SCIENTIFIC_MASTER(1),
     ADVANCED_RENDER_EDIT(2),
+    TRUTHNEGATIVE_200MP_FULL_COLOUR(3),
 }
 
 object PureFloat32DngExporter {
@@ -253,6 +254,8 @@ object PureFloat32DngExporter {
                 "role=TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1"
             Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
                 "role=TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1"
+            Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR ->
+                "role=TRUTHRAW_TRUTHNEGATIVE_200MP_FULL_COLOUR_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1"
         }
         val requiredMarkers = mutableListOf(
             "TruthRaw scientific-master-linear-dng-projection-v0.1",
@@ -275,14 +278,34 @@ object PureFloat32DngExporter {
             "independent_evidence_count=1",
             "output_channel_authority_bound=1",
             "output_channel_authority_manifest_begin",
-            "schema=TruthRawOutputChannelAuthority/0.84",
             "artifact_sha256=",
-            "mapping_mode=FULL_RESOLUTION_CONSERVATIVE",
             "reconstructed_channels=0",
             "unknown_channels=",
-            "orientation_transform_changes_authority=0",
+            "scientific_writeback_allowed=0",
+            "creates_new_evidence=0",
             "output_channel_authority_manifest_end",
         )
+        if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+            requiredMarkers += listOf(
+                "schema=TruthNegativeOutputChannelAuthority/0.1",
+                "parent_schema=TruthRawOutputChannelAuthority/0.84",
+                "mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT",
+                "source_width=4080",
+                "source_height=3072",
+                "output_width=16320",
+                "output_height=12288",
+                "uniform_authority=UNKNOWN",
+                "target_support_role=RECONSTRUCTED_DENSE_SUPPORT",
+                "measured_target_claim_count=0",
+                "backend_changes_authority=0",
+            )
+        } else {
+            requiredMarkers += listOf(
+                "schema=TruthRawOutputChannelAuthority/0.84",
+                "mapping_mode=FULL_RESOLUTION_CONSERVATIVE",
+                "orientation_transform_changes_authority=0",
+            )
+        }
         if (previewExpected) {
             requiredMarkers += listOf(
                 "embedded_jpeg_preview=1",
@@ -307,6 +330,43 @@ object PureFloat32DngExporter {
                 "primary_raster_equals_scientific_master=1",
                 "appearance_baked_into_primary=0",
                 "advanced_recipe_flags=0",
+                "negative_components_preserved=1",
+                "over_one_components_preserved=1",
+                "jpeg_role=NON_AUTHORITY_PREVIEW_ONLY",
+                "lightroom_editable_primary=1",
+                "scientific_writeback_allowed=0",
+                "creates_new_evidence=0",
+                "downstream_edit_manifest_end",
+            )
+        }
+        if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+            requiredMarkers += listOf(
+                "derivative_projection=1",
+                "projected_raster_sha256=",
+                "open_scene_state_sha256=",
+                "primary_storage_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32",
+                "camera_profile_role=DERIVED_FROM_AUTHORIZED_CAMERA_TO_XYZ_D50",
+                "primary_linearraw_is_full_colour=1",
+                "primary_is_jpeg_snapshot=0",
+                "downstream_edit_manifest_begin",
+                "schema=TruthRawTruthNegative200MpFullColour/0.1",
+                "primary_image_role=TRUTHNEGATIVE_DENSE_CAMERA_NATIVE_RGB_FLOAT32",
+                "stored_primary_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32_DERIVATIVE",
+                "source_scientific_master_width=4080",
+                "source_scientific_master_height=3072",
+                "target_width=16320",
+                "target_height=12288",
+                "scale_x=4",
+                "scale_y=4",
+                "target_geometry_matches_historical_camera5_envelope=1",
+                "source_scientific_master_unchanged=1",
+                "primary_raster_equals_scientific_master=0",
+                "target_authority=RECONSTRUCTED_DENSE_SUPPORT",
+                "measured_target_claim_count=0",
+                "compute_backend=",
+                "accelerator_eligible=",
+                "accelerator_used=",
+                "appearance_baked_into_primary=0",
                 "negative_components_preserved=1",
                 "over_one_components_preserved=1",
                 "jpeg_role=NON_AUTHORITY_PREVIEW_ONLY",
@@ -531,6 +591,8 @@ object PureFloat32DngExporter {
                         "Full Colour Scientific Master Float32 camera-native primary + lineage geverifieerd"
                     Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
                         "ADVANCED Render/Edit derivative + projected-raster/Open-Scene binding geverifieerd"
+                    Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR ->
+                        "TruthNegative 200MP full-colour Float32 derivative + fail-closed authority geverifieerd"
                 },
             )
         } catch (error: Throwable) {
@@ -607,7 +669,6 @@ object PureFloat32DngExporter {
                 metrics.independentEvidenceCount != 1L ||
                 metrics.colorClaimScopeCode !in 1L..2L ||
                 !metrics.outputChannelAuthorityAvailable ||
-                metrics.outputChannelAuthorityMappingMode != 1 ||
                 metrics.outputAuthorityReconstructedChannels != 0L ||
                 metrics.outputAuthorityUnknownChannels <= 0L ||
                 metrics.outputAuthorityCalibratedChannels +
@@ -616,6 +677,18 @@ object PureFloat32DngExporter {
                     metrics.outputAuthorityUnknownChannels !=
                     metrics.projectedPixels * 3L ||
                 metrics.outputAuthorityArtifactSha256.all { it == '0' }
+
+        val authorityGeometryViolation =
+            if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+                metrics.width != 16320L ||
+                    metrics.height != 12288L ||
+                    metrics.outputChannelAuthorityMappingMode != 2 ||
+                    metrics.outputAuthorityCalibratedChannels != 0L ||
+                    metrics.outputAuthorityCensoredChannels != 0L ||
+                    metrics.outputAuthorityUnknownChannels != metrics.projectedPixels * 3L
+            } else {
+                metrics.outputChannelAuthorityMappingMode != 1
+            }
 
         val expectedRenderAppearance = advancedAppearanceBaked(advancedFlags)
         val flavorViolation = when (flavor) {
@@ -626,9 +699,13 @@ object PureFloat32DngExporter {
             Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
                 metrics.scientificMasterIdentityVerified ||
                     metrics.appearanceApplied != expectedRenderAppearance
+            Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR ->
+                metrics.scientificMasterIdentityVerified ||
+                    metrics.appearanceApplied
         }
 
-        val violation = commonViolation || flavorViolation
+        val violation =
+            commonViolation || authorityGeometryViolation || flavorViolation
 
         if (violation) {
             return PureFloat32DngExportResult.Failed(
@@ -650,6 +727,9 @@ object PureFloat32DngExporter {
         -8L -> "Float32 DNG: v0.78 source-channel authority kon niet fail-closed worden opgebouwd."
         -9L -> "Float32 DNG: v0.84 output-channel authority kon niet fail-closed worden opgebouwd."
         -10L -> "ADVANCED Render/Edit: sealed exposure-analyse faalde fail-closed."
+        -11L -> "TruthNegative 200MP: alleen admitted Camera-5 4080×3072 mag deze projectieroute gebruiken."
+        -12L -> "TruthNegative 200MP: dense projectiebron kon niet veilig worden opgebouwd."
+        -13L -> "TruthNegative 200MP: projected-raster identity/authority-contract faalde fail-closed."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
