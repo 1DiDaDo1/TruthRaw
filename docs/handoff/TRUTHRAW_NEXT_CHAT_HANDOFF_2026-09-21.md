@@ -13,14 +13,14 @@ Current Android integration version:
 Latest fully green **code-bearing** CI:
 
 - workflow: `TruthRaw v0.84.2 Adaptive Compute Router`
-- run: `35545744042`
-- code head: `86307391ca726c2389fc3468fd79dee8b7dc864b`
+- run: `35547319268`
+- code head: `5a7acf28f90cac82297c2d5af3e81006c438da2f`
 - status: **SUCCESS**
-- artifact id: `10615818161`
+- artifact id: `10617071043`
 - artifact: `truthraw-v0-84-2-compute-router-debug-arm64`
-- artifact ZIP SHA-256: `d995d1977a93fde4859d8f8418154b6cb0cad3979542fcf02074b1fb40b8c08a`
-- APK bytes: `5,960,669`
-- APK SHA-256: `d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a`
+- artifact ZIP SHA-256: `25e1dd0568f1ed91acb93f2bcee01cf39520184d5e824d0f2ae5317332cdae96`
+- APK bytes: `5,994,861`
+- APK SHA-256: `9b4184afdec22d6313ba08d7abe8884e812e3b3cadc7f29d492685af4d820295`
 
 Documentation commits may make the branch HEAD newer than the code-bearing head above.
 Do not interpret that as an unverified code change.
@@ -109,22 +109,62 @@ Current JPG-L RAW/Edit:
 
 The generic 8-bit JPG remains a delivery/compatibility export.
 
-### ADVANCED Render/Edit
+### ADVANCED Render/Edit Float32 v0.1
 
-Still open.
+Implemented and CI-green.
 
-Goal:
-`Scientific Master parent -> developed extended-linear Float32 derivative -> own projected-raster digest -> DNG/TIFF edit master`
+UI/export:
+`Render/Edit · Float32 DNG · Lightroom`
 
-The tap must occur before:
-- negative clamp;
-- max-RGB normalization;
-- SDR tone/OETF.
+Correct model:
+`Scientific Master parent -> developed extended-linear Float32 derivative -> own projected-raster digest -> deterministic replay -> XYZ-D50 Float32 DNG`
 
-The derivative may carry appearance, but must never be called the Scientific Master.
-The earlier attempt to add a callback inside byte-frozen
-`full-frame-streaming-v0.1` was correctly rejected by integrity checks and reverted.
-Build this **above/outside** the sealed module.
+Primary derivative identity:
+`EXTENDED_LINEAR_SRGB_FLOAT32`
+
+Stored DNG primary:
+`XYZ_D50_LINEAR_FLOAT32`
+
+The route is implemented **above/outside** byte-frozen
+`full-frame-streaming-v0.1`. The sealed streaming module remains unchanged.
+
+Current baked/recipe rules:
+- v4.7j Detail may be baked into the Float32 derivative;
+- Open-World Light may be baked;
+- Restoration may be baked only as `AESTHETIC_REINTEGRATION_ONLY`;
+- negative components are preserved;
+- values above 1 are preserved;
+- Natural HDR is **not** baked into the primary while v0.84 output authority contains UNKNOWN;
+- Natural HDR remains recipe/preview-only;
+- v4.7k Output Acutance is not baked because it belongs after final output sizing;
+- Scientific Master remains the unchanged verified parent;
+- `scientific_writeback_allowed=0`;
+- `creates_new_evidence=0`.
+
+Identity gate:
+1. derive the extended-linear raster;
+2. hash it on the canonical 64×64 grid;
+3. replay the same derivative source;
+4. require the DNG writer to reproduce the declared projected-raster SHA exactly;
+5. only then commit the artifact.
+
+A corrected halo implementation reconstructs Detail/Restoration support directly from
+the same admitted Stage-2 source + canonical v4.7i, so storage/compute tile boundaries
+do not become image boundaries.
+
+Automated gates currently pass:
+- wide-tile versus split-tile Float32 bit identity;
+- exact negative-headroom preservation;
+- repeated projected-raster SHA determinism;
+- sealed tile-native streaming reference;
+- exact v4.7i O0/O2 signature equality.
+
+Architecture/details:
+`docs/TRUTHRAW_V0842_ADVANCED_RENDER_EDIT_FLOAT32_2026-09-21.md`
+
+Still open:
+- real-device Lightroom Android 17 import/edit/export round-trip proving that Lightroom
+  edits the Float32 primary as intended rather than only the embedded preview.
 
 ## v0.84 output-channel authority
 
@@ -185,6 +225,7 @@ Guarded main operations include:
 - NEF measurement;
 - full-resolution JPG;
 - JPG-L RAW/Edit;
+- ADVANCED Render/Edit Float32 DNG;
 - PURE Float32 DNG;
 - TruthNegative TN-3;
 - Linear DNG.
@@ -428,7 +469,7 @@ In this order:
    - inspect PRO CPU/GPU headroom, Vulkan and APV probe;
    - record actual dynamic worker count and ADPF worker coverage;
 2. prove `.trr` whole-file SHA equality for workers=1 versus workers=N;
-3. complete ADVANCED Render/Edit extended-linear Float32 derivative outside the sealed streaming module;
+3. run the real-device Lightroom Android 17 import/edit/export round-trip for ADVANCED Render/Edit and verify Lightroom uses the Float32 primary;
 4. create first Vulkan APPEARANCE/PRESENTATION kernel and require correctness + CPU benchmark;
 5. add exact ARMv8 SHA2 transform only behind digest-equivalence testing;
 6. prototype parallel Scientific Master wrapper per
@@ -442,5 +483,6 @@ In this order:
 3. `docs/research/android-acceleration-v0.1/README.md`
 4. `docs/research/android-acceleration-v0.1/APV_PROFESSIONAL_VIDEO_ROUTE.md`
 5. `docs/research/android-acceleration-v0.1/PARALLEL_SCIENTIFIC_MASTER_PLAN.md`
-6. `docs/TRUTHRAW_V083_HDR_AUTHORITY_2026-09-20.md` as historical v0.83 contract background
-7. current v0.84 output-authority code before changing HDR semantics.
+6. `docs/TRUTHRAW_V0842_ADVANCED_RENDER_EDIT_FLOAT32_2026-09-21.md`
+7. `docs/TRUTHRAW_V083_HDR_AUTHORITY_2026-09-20.md` as historical v0.83 contract background
+8. current v0.84 output-authority code before changing HDR semantics.
