@@ -51,6 +51,7 @@ constexpr std::uint16_t kTagColorMatrix1 = 50721u;
 constexpr std::uint16_t kTagAsShotNeutral = 50728u;
 constexpr std::uint16_t kTagDngPrivateData = 50740u;
 constexpr std::uint16_t kTagCalibrationIlluminant1 = 50778u;
+constexpr std::uint16_t kTagForwardMatrix1 = 50964u;
 
 constexpr std::uint32_t kClassicTiffFirstIfd = 8u;
 constexpr std::uint32_t kSamplesPerPixel = 3u;
@@ -264,8 +265,17 @@ std::vector<std::uint8_t> private_data(const ProjectionDescriptor& descriptor) {
                "output_channel_authority_manifest_begin\n" +
                printable_manifest(descriptor.outputAuthorityManifest) +
                "\noutput_channel_authority_manifest_end\n");
+    const std::string storageSpaceExtra =
+        descriptor.primaryStorageSpace == PrimaryStorageSpace::CameraNativeScientificMaster
+            ? (std::string("primary_storage_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32\n") +
+               "camera_profile_role=DERIVED_FROM_AUTHORIZED_CAMERA_TO_XYZ_D50\n" +
+               "primary_linearraw_is_full_colour=1\n" +
+               "primary_is_jpeg_snapshot=0\n")
+            : std::string{};
+
     const std::string body =
         std::string("role=") + role + "\n" +
+        storageSpaceExtra +
         "private_contract=TRUTHRAW_PURE_SELF_BINDING_V0_63\n" +
         "writer_identity=TruthRaw scientific-master-linear-dng-projection-v0.1\n" +
         "representation_only=1\n" +
@@ -348,6 +358,106 @@ std::vector<std::uint8_t> d50_neutral_payload() {
     append_u32(out, 9643u); append_u32(out, 10000u);
     append_u32(out, 1u);    append_u32(out, 1u);
     append_u32(out, 8251u); append_u32(out, 10000u);
+    return out;
+}
+
+struct CameraNativeProfile final {
+    std::array<float, 9> xyzD50ToCamera{};
+    std::array<float, 3> asShotNeutral{};
+    std::array<float, 9> forwardMatrixD50{};
+};
+
+bool invert_matrix3(
+    const std::array<float, 9>& in,
+    std::array<float, 9>& out) noexcept {
+    const double a=in[0], b=in[1], c=in[2];
+    const double d=in[3], e=in[4], f=in[5];
+    const double g=in[6], h=in[7], i=in[8];
+    const double det =
+        a*(e*i-f*h) - b*(d*i-f*g) + c*(d*h-e*g);
+    if (!std::isfinite(det) || std::abs(det) <= kMatrixDeterminantEpsilon) return false;
+    const double invDet = 1.0 / det;
+    const double values[9] = {
+        (e*i-f*h)*invDet, (c*h-b*i)*invDet, (b*f-c*e)*invDet,
+        (f*g-d*i)*invDet, (a*i-c*g)*invDet, (c*d-a*f)*invDet,
+        (d*h-e*g)*invDet, (b*g-a*h)*invDet, (a*e-b*d)*invDet,
+    };
+    for (std::size_t n=0; n<9u; ++n) {
+        if (!std::isfinite(values[n]) || std::abs(values[n]) > 128.0) return false;
+        out[n] = static_cast<float>(values[n]);
+    }
+    return true;
+}
+
+bool build_camera_native_profile(
+    const std::array<float, 9>& cameraToXyzD50,
+    CameraNativeProfile& out) noexcept {
+    CameraNativeProfile profile{};
+    if (!invert_matrix3(cameraToXyzD50, profile.xyzD50ToCamera)) return false;
+
+    constexpr double d50[3] = {0.9643, 1.0, 0.8251};
+    for (int row=0; row<3; ++row) {
+        const double v =
+            static_cast<double>(profile.xyzD50ToCamera[row*3+0])*d50[0] +
+            static_cast<double>(profile.xyzD50ToCamera[row*3+1])*d50[1] +
+            static_cast<double>(profile.xyzD50ToCamera[row*3+2])*d50[2];
+        if (!std::isfinite(v) || !(v > 1.0e-8) || v > 128.0) return false;
+        profile.asShotNeutral[static_cast<std::size_t>(row)] =
+            static_cast<float>(v);
+    }
+
+    // With AB=CC=identity, DNG computes CameraToXYZ_D50 = FM * D,
+    // where D = diag(1 / AsShotNeutral). Therefore FM = M * diag(neutral)
+    // reproduces the already-authorized cameraToXyzD50 transform exactly.
+    for (int row=0; row<3; ++row) {
+        for (int col=0; col<3; ++col) {
+            const double v =
+                static_cast<double>(cameraToXyzD50[row*3+col]) *
+                static_cast<double>(profile.asShotNeutral[static_cast<std::size_t>(col)]);
+            if (!std::isfinite(v) || std::abs(v) > 128.0) return false;
+            profile.forwardMatrixD50[static_cast<std::size_t>(row*3+col)] =
+                static_cast<float>(v);
+        }
+    }
+    if (!valid_matrix(profile.xyzD50ToCamera) ||
+        !valid_matrix(profile.forwardMatrixD50)) return false;
+
+    for (int row=0; row<3; ++row) {
+        const double sum =
+            profile.forwardMatrixD50[row*3+0] +
+            profile.forwardMatrixD50[row*3+1] +
+            profile.forwardMatrixD50[row*3+2];
+        if (!std::isfinite(sum) || std::abs(sum - d50[row]) > 2.0e-4) return false;
+    }
+
+    out = profile;
+    return true;
+}
+
+std::vector<std::uint8_t> srational_matrix_payload(
+    const std::array<float, 9>& matrix) {
+    constexpr std::int32_t denominator = 1000000;
+    std::vector<std::uint8_t> out;
+    out.reserve(9u * 8u);
+    for (const float value : matrix) {
+        const double scaled = std::round(static_cast<double>(value) * denominator);
+        append_i32(out, static_cast<std::int32_t>(scaled));
+        append_i32(out, denominator);
+    }
+    return out;
+}
+
+std::vector<std::uint8_t> rational_neutral_payload(
+    const std::array<float, 3>& neutral) {
+    constexpr std::uint32_t denominator = 1000000u;
+    std::vector<std::uint8_t> out;
+    out.reserve(3u * 8u);
+    for (const float value : neutral) {
+        const auto numerator = static_cast<std::uint32_t>(
+            std::llround(static_cast<double>(value) * denominator));
+        append_u32(out, numerator);
+        append_u32(out, denominator);
+    }
     return out;
 }
 
@@ -461,13 +571,14 @@ void encode_float32_le(float value, std::uint8_t* dst) noexcept {
 
 Status make_header(
     const ProjectionDescriptor& descriptor,
+    const std::array<float, 9>& cameraToXyzD50,
     std::uint32_t tileCount,
     std::uint32_t tileByteCount,
     std::vector<std::uint8_t>& header,
     std::uint32_t& dataStart,
     std::uint64_t& totalBytes) {
     std::vector<IfdEntry> entries;
-    entries.reserve(22u);
+    entries.reserve(24u);
 
     const bool hasPreview = !descriptor.jpegPreviewBytes.empty();
     if (hasPreview) {
@@ -529,9 +640,27 @@ Status make_header(
     add(kTagDngVersion, kTiffByte, 4u, std::vector<std::uint8_t>{1u, 4u, 0u, 0u});
     add(kTagDngBackwardVersion, kTiffByte, 4u,
         std::vector<std::uint8_t>{1u, 4u, 0u, 0u});
-    add_ascii(kTagUniqueCameraModel, "TruthRaw Scientific Master XYZ D50 Projection");
-    add(kTagColorMatrix1, kTiffSRational, 9u, identity_color_matrix_payload());
-    add(kTagAsShotNeutral, kTiffRational, 3u, d50_neutral_payload());
+
+    if (descriptor.primaryStorageSpace ==
+        PrimaryStorageSpace::CameraNativeScientificMaster) {
+        CameraNativeProfile profile{};
+        if (!build_camera_native_profile(cameraToXyzD50, profile)) {
+            return Status::error(
+                StatusCode::InvalidColorTransform,
+                "cannot derive a bounded camera-native DNG profile from authorized cameraToXyzD50");
+        }
+        add_ascii(kTagUniqueCameraModel, "TruthRaw Full Colour Scientific Master");
+        add(kTagColorMatrix1, kTiffSRational, 9u,
+            srational_matrix_payload(profile.xyzD50ToCamera));
+        add(kTagAsShotNeutral, kTiffRational, 3u,
+            rational_neutral_payload(profile.asShotNeutral));
+        add(kTagForwardMatrix1, kTiffSRational, 9u,
+            srational_matrix_payload(profile.forwardMatrixD50));
+    } else {
+        add_ascii(kTagUniqueCameraModel, "TruthRaw Scientific Master XYZ D50 Projection");
+        add(kTagColorMatrix1, kTiffSRational, 9u, identity_color_matrix_payload());
+        add(kTagAsShotNeutral, kTiffRational, 3u, d50_neutral_payload());
+    }
     auto privatePayload = private_data(descriptor);
     const auto privateCount = static_cast<std::uint32_t>(privatePayload.size());
     add(kTagDngPrivateData, kTiffByte, privateCount, std::move(privatePayload));
@@ -754,7 +883,8 @@ Status write_xyz_d50_linear_dng_projection(
         std::uint32_t dataStart = 0u;
         std::uint64_t expectedBytes = 0u;
         auto headerStatus = make_header(
-            descriptor, tileCount, tileByteCount, header, dataStart, expectedBytes);
+            descriptor, cameraToXyzD50, tileCount, tileByteCount,
+            header, dataStart, expectedBytes);
         if (!headerStatus) return headerStatus;
         (void)dataStart;
 
@@ -824,16 +954,25 @@ Status write_xyz_d50_linear_dng_projection(
                         const double r = cameraTile[src + 0u];
                         const double g = cameraTile[src + 1u];
                         const double b = cameraTile[src + 2u];
-                        const float xyz[3] = {
-                            static_cast<float>(cameraToXyzD50[0] * r + cameraToXyzD50[1] * g + cameraToXyzD50[2] * b),
-                            static_cast<float>(cameraToXyzD50[3] * r + cameraToXyzD50[4] * g + cameraToXyzD50[5] * b),
-                            static_cast<float>(cameraToXyzD50[6] * r + cameraToXyzD50[7] * g + cameraToXyzD50[8] * b),
-                        };
-                        for (const float value : xyz) {
+                        float stored[3]{};
+                        if (descriptor.primaryStorageSpace ==
+                            PrimaryStorageSpace::CameraNativeScientificMaster) {
+                            stored[0] = static_cast<float>(r);
+                            stored[1] = static_cast<float>(g);
+                            stored[2] = static_cast<float>(b);
+                        } else {
+                            stored[0] = static_cast<float>(
+                                cameraToXyzD50[0] * r + cameraToXyzD50[1] * g + cameraToXyzD50[2] * b);
+                            stored[1] = static_cast<float>(
+                                cameraToXyzD50[3] * r + cameraToXyzD50[4] * g + cameraToXyzD50[5] * b);
+                            stored[2] = static_cast<float>(
+                                cameraToXyzD50[6] * r + cameraToXyzD50[7] * g + cameraToXyzD50[8] * b);
+                        }
+                        for (const float value : stored) {
                             if (!std::isfinite(value)) {
                                 return fail_transaction(
                                     sink, StatusCode::InvalidColorTransform,
-                                    "XYZ D50 projection produced non-finite component");
+                                    "Float32 LinearRaw projection produced non-finite component");
                             }
                             if (value < 0.0f) ++out.negativeComponentCount;
                             if (value > 1.0f) ++out.overOneComponentCount;
@@ -842,9 +981,9 @@ Status write_xyz_d50_linear_dng_projection(
                         const std::size_t dstPixel =
                             static_cast<std::size_t>(localY) * kCanonicalTileEdge + localX;
                         const std::size_t dst = dstPixel * kBytesPerPixel;
-                        encode_float32_le(xyz[0], encodedTile.data() + dst + 0u);
-                        encode_float32_le(xyz[1], encodedTile.data() + dst + 4u);
-                        encode_float32_le(xyz[2], encodedTile.data() + dst + 8u);
+                        encode_float32_le(stored[0], encodedTile.data() + dst + 0u);
+                        encode_float32_le(stored[1], encodedTile.data() + dst + 4u);
+                        encode_float32_le(stored[2], encodedTile.data() + dst + 8u);
                     }
                 }
 
@@ -923,6 +1062,19 @@ Status write_xyz_d50_linear_dng_projection(
         return Status::error(StatusCode::InvalidArgument,
                              "unexpected exception while building DNG projection");
     }
+}
+
+Status write_camera_native_full_colour_scientific_master_dng(
+    IScientificMasterTileSource& source,
+    const ProjectionDescriptor& descriptor,
+    const std::array<float, 9>& cameraToXyzD50,
+    ITransactionalByteSink& sink,
+    Result& out) noexcept {
+    ProjectionDescriptor nativeDescriptor = descriptor;
+    nativeDescriptor.primaryStorageSpace =
+        PrimaryStorageSpace::CameraNativeScientificMaster;
+    return write_xyz_d50_linear_dng_projection(
+        source, nativeDescriptor, cameraToXyzD50, sink, out);
 }
 
 const char* status_name(StatusCode code) noexcept {
