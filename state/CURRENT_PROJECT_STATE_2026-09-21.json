@@ -3,7 +3,7 @@
   "status": "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION",
   "activeBranch": "integration/truthraw-suite-v0-84-2-adaptive-compute-router",
   "appVersion": "0.51-v0.84.2-adaptive-compute-router",
-  "codeBearingHead": "86307391ca726c2389fc3468fd79dee8b7dc864b",
+  "codeBearingHead": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
   "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md",
   "previousState": "state/CURRENT_PROJECT_STATE_2026-09-20.json",
   "permanentLaws": {
@@ -22,7 +22,7 @@
     "v0832": "non-destructive quarter-turn orientation override across preview/export",
     "v084": "canonical conservative per-output-channel RGB authority map",
     "v0841": "true Android background mediaProcessing execution with timers and green/red operation state",
-    "v0842": "strict-FP O2, adaptive multicore, Android CPU/GPU headroom, ADPF worker hints, Vulkan/APV capability discovery"
+    "v0842": "strict-FP O2, adaptive multicore, Android CPU/GPU headroom, ADPF worker hints, Vulkan/APV capability discovery, and ADVANCED Render/Edit Float32 derivative"
   },
   "float32Editing": {
     "pure": {
@@ -45,9 +45,28 @@
       "createsNewEvidence": false
     },
     "advancedRenderEdit": {
-      "status": "OPEN_NOT_PRODUCTION_COMPLETE",
-      "goal": "developed extended-linear Float32 derivative with own projected-raster digest, before SDR tone/clamp/OETF",
-      "scientificMasterRole": "UNCHANGED_PARENT_ONLY"
+      "status": "IMPLEMENTED_CI_GREEN_REAL_LIGHTROOM_ROUNDTRIP_OPEN",
+      "externalIdentity": "DNG",
+      "primaryRaster": "DEVELOPED_EXTENDED_LINEAR_FLOAT32_DERIVATIVE_STORED_AS_XYZ_D50_LINEAR_FLOAT32",
+      "derivativeIdentitySpace": "EXTENDED_LINEAR_SRGB_FLOAT32",
+      "storedPrimarySpace": "XYZ_D50_LINEAR_FLOAT32",
+      "projectedRasterDigest": true,
+      "deterministicReplayGate": true,
+      "embeddedJpegPreview": "rendered_non_authority",
+      "negativeValuesPreserved": true,
+      "overOneValuesPreserved": true,
+      "detailMayBeBaked": true,
+      "lightMayBeBaked": true,
+      "restorationMayBeBaked": true,
+      "restorationRole": "AESTHETIC_REINTEGRATION_ONLY",
+      "naturalHdrBakedIntoPrimary": false,
+      "naturalHdrRole": "RECIPE_ONLY_WHILE_OUTPUT_AUTHORITY_HAS_UNKNOWN",
+      "outputAcutanceBakedIntoPrimary": false,
+      "scientificMasterRole": "UNCHANGED_VERIFIED_PARENT_ONLY",
+      "scientificWritebackAllowed": false,
+      "createsNewEvidence": false,
+      "partitionInvarianceTest": "PASS",
+      "negativeHeadroomPreservationTest": "PASS"
     }
   },
   "v084OutputAuthority": {
@@ -80,6 +99,7 @@
       "NEF measurement",
       "full-resolution JPG",
       "JPG-L RAW/Edit Float32 DNG",
+      "ADVANCED Render/Edit Float32 DNG",
       "PURE Float32 DNG",
       "TruthNegative TN-3",
       "Linear DNG"
@@ -186,33 +206,36 @@
   },
   "ci": {
     "workflow": "TruthRaw v0.84.2 Adaptive Compute Router",
-    "run": 35545744042,
+    "run": 35547172234,
     "status": "SUCCESS",
-    "headSha": "86307391ca726c2389fc3468fd79dee8b7dc864b",
+    "headSha": "280c98f93545e54c60ecc82fe2dc6549e40e6c9c",
     "v47iO0Signature": "5dba058e5742346a",
     "v47iO2Signature": "5dba058e5742346a",
-    "artifactId": 10615818161,
+    "artifactId": 10616094393,
     "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifactZipSha256": "d995d1977a93fde4859d8f8418154b6cb0cad3979542fcf02074b1fb40b8c08a",
-    "apkBytes": 5960669,
-    "apkSha256": "d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a"
+    "artifactZipSha256": "d17b8cb413b824a8890efaa45d6dfafe16665476118a56b88169040ca4491b2d",
+    "apkBytes": 5994861,
+    "apkSha256": "7033e2e116317de259f08925c6a3d6a318cf055edceece1c3755430b053dd49d",
+    "renderEditPartitionInvariance": "PASS_SEPARATE_HEAD_GATE",
+    "renderEditPartitionGateRun": 35547319268
   },
   "openValidation": {
     "android17BackgroundExecutionRealDevice": "OPEN",
     "android17ProHardwareProbe": "OPEN",
     "restorationWholeFileSha1WorkerVsNWorker": "OPEN",
-    "advancedRenderEditFloat32Derivative": "OPEN",
+    "advancedRenderEditFloat32Derivative": "IMPLEMENTED_CI_GREEN_REAL_LIGHTROOM_ROUNDTRIP_OPEN",
     "firstVulkanAppearancePresentationKernel": "OPEN",
     "armv8Sha2ExactDigestBackend": "OPEN",
     "parallelScientificMasterWrapper": "RESEARCH_PLAN_ONLY",
     "apvHardwareEncodeDecodeRoundTrip": "OPEN",
     "openApv44412Comparison": "RESEARCH_ONLY",
-    "scientificHdrGainAdmission": "BLOCKED_BY_UNKNOWN_CHANNEL_AUTHORITY"
+    "scientificHdrGainAdmission": "BLOCKED_BY_UNKNOWN_CHANNEL_AUTHORITY",
+    "advancedRenderEditLightroomAndroid17RoundTrip": "OPEN"
   },
   "immediateNext": [
     "real-device Android 17 smoke test for background execution, worker/headroom/APV/Vulkan diagnostics",
     "prove whole-file Restoration .trr SHA equality at workers=1 versus workers=N",
-    "complete ADVANCED Render/Edit extended-linear Float32 derivative without modifying sealed streaming v0.1",
+    "run real-device Lightroom Android 17 import/edit/export round-trip on ADVANCED Render/Edit Float32 DNG and verify the Float32 primary is used",
     "build first Vulkan APPEARANCE/PRESENTATION correctness+benchmark kernel; keep CPU reference",
     "implement ARMv8 SHA2 exact backend only behind digest-equivalence gate",
     "prototype parallel Scientific Master wrapper only after exact v0.3 identity gates",
