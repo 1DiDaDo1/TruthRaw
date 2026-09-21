@@ -220,25 +220,32 @@ float_dng::Status DenseProjectionTileSource::readCameraNativeTile(
             for (std::uint32_t ox = 0u; ox < width; ++ox) {
                 const double sx = source_coordinate(x + ox);
                 const auto ix = static_cast<std::int64_t>(std::floor(sx));
-                const double fx = std::clamp(sx - static_cast<double>(ix), 0.0, 1.0);
+                const float fx = static_cast<float>(
+                    std::clamp(sx - static_cast<double>(ix), 0.0, 1.0));
                 const std::uint32_t x0 = clamp_index(ix, g.sourceWidth);
                 const std::uint32_t x1 = clamp_index(ix + 1, g.sourceWidth);
 
                 for (int c = 0; c < 3; ++c) {
-                    double p00=0.0, p10=0.0, p01=0.0, p11=0.0;
-                    if (!sample(x0, y0, c, p00) ||
-                        !sample(x1, y0, c, p10) ||
-                        !sample(x0, y1, c, p01) ||
-                        !sample(x1, y1, c, p11)) {
+                    double p00d=0.0, p10d=0.0, p01d=0.0, p11d=0.0;
+                    if (!sample(x0, y0, c, p00d) ||
+                        !sample(x1, y0, c, p10d) ||
+                        !sample(x0, y1, c, p01d) ||
+                        !sample(x1, y1, c, p11d)) {
                         return float_dng::Status::error(
                             float_dng::StatusCode::SourceFailed,
                             "TruthNegative dense interpolation footprint incomplete");
                     }
-                    // F64 convex bilinear interpolation. It cannot overshoot the
-                    // local four-sample support and therefore adds no new extrema.
-                    const double top = p00 + (p10 - p00) * fx;
-                    const double bottom = p01 + (p11 - p01) * fx;
-                    const double value = top + (bottom - top) * fy;
+                    const float p00=static_cast<float>(p00d);
+                    const float p10=static_cast<float>(p10d);
+                    const float p01=static_cast<float>(p01d);
+                    const float p11=static_cast<float>(p11d);
+                    const float fyf=static_cast<float>(fy);
+                    // Canonical Float32 operation order. Android builds compile
+                    // this module with FP contraction disabled. Vulkan uses the
+                    // same ordered operations with precise/NoContraction.
+                    const float top = p00 + (p10 - p00) * fx;
+                    const float bottom = p01 + (p11 - p01) * fx;
+                    const float value = top + (bottom - top) * fyf;
                     if (!std::isfinite(value)) {
                         return float_dng::Status::error(
                             float_dng::StatusCode::SourceFailed,
@@ -247,7 +254,7 @@ float_dng::Status DenseProjectionTileSource::readCameraNativeTile(
                     const std::size_t outIndex =
                         (static_cast<std::size_t>(oy) * width + ox) * 3u +
                         static_cast<std::size_t>(c);
-                    rgb[outIndex] = static_cast<float>(value);
+                    rgb[outIndex] = value;
                 }
             }
         }
