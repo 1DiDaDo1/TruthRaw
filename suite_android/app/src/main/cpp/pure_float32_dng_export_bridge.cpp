@@ -252,7 +252,7 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
          exportMode != kFullColourScientificMasterMode &&
          exportMode != kAdvancedRenderEditMode &&
          exportMode != kTruthNegative200MpFullColourMode) ||
-        (sourceRouteCode != 0 && sourceRouteCode != 1) ||
+        (sourceRouteCode != 0 && sourceRouteCode != 1 && sourceRouteCode != 2) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
         ((exportMode == kPureMode ||
           exportMode == kFullColourScientificMasterMode ||
@@ -306,7 +306,7 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     auto& source = openedSource.source;
 
     if (exportMode == kTruthNegative200MpFullColourMode &&
-        (sourceRouteCode != 1 ||
+        (sourceRouteCode != 2 ||
          source->metadata().width != 4080 ||
          source->metadata().height != 3072)) {
         return packet(env, -11);
