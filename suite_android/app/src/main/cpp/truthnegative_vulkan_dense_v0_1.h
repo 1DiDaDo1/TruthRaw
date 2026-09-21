@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include "truthnegative_dense_projection_v0_3.h"
+
 namespace truthraw::truthnegative_vulkan_dense::v0_1 {
 
 struct Probe final {
@@ -21,20 +23,10 @@ struct Probe final {
     std::string reason;
 };
 
-struct PatchRequest final {
-    std::uint32_t sourceFullWidth = 0u;
-    std::uint32_t sourceFullHeight = 0u;
-    std::uint32_t patchOriginX = 0u;
-    std::uint32_t patchOriginY = 0u;
-    std::uint32_t patchWidth = 0u;
-    std::uint32_t patchHeight = 0u;
-    std::uint32_t targetOriginX = 0u;
-    std::uint32_t targetOriginY = 0u;
-    std::uint32_t targetWidth = 0u;
-    std::uint32_t targetHeight = 0u;
-};
+namespace dense = truthraw::truthnegative_dense_projection::v0_3;
+using PatchRequest = dense::AcceleratorPatchRequest;
 
-class Backend final {
+class Backend final : public dense::IExactDenseAccelerator {
 public:
     Backend() noexcept;
     ~Backend();
@@ -44,6 +36,8 @@ public:
 
     const Probe& probe() const noexcept;
     bool available() const noexcept;
+    bool exactScientificEligible() const noexcept override;
+    const char* backendName() const noexcept override;
 
     // Exact-scientific dispatch. This method returns false unless the runtime
     // self-test proved bit identity against the canonical CPU Float32 formula.
@@ -53,7 +47,7 @@ public:
         std::size_t sourceFloatCount,
         float* targetRgb,
         std::size_t targetFloatCount,
-        std::string* error = nullptr) noexcept;
+        std::string& error) noexcept override;
 
 private:
     struct Impl;
