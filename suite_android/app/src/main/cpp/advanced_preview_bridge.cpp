@@ -632,20 +632,30 @@ private:
         hdrGainPixels_ = 0u;
         lightAdjustedPixels_ = 0u;
 
-        // Build the actual final-resize SDR base first. Existing Light is an
-        // APPEARANCE_ONLY adjustment and therefore belongs to the presentation
-        // base before output acutance; it remains suppressed on censored support.
+        // Build the actual final-resize SDR base first. Exposure/Shadows/Light
+        // are APPEARANCE_ONLY and therefore live here, after the canonical
+        // Scientific Master/exposure plan and before final output acutance.
+        const bool naturalLightEnabled = (flags_ & kFlagLight) != 0;
+        const float exposureGain = advanced_controls::presentation_exposure_gain(
+            static_cast<std::uint32_t>(flags_),
+            exposure_.anchorsY[2],
+            exposure_.evidenceConfidence,
+            naturalLightEnabled);
+        const float shadowMix =
+            advanced_controls::shadow_recovery_mix(
+                static_cast<std::uint32_t>(flags_));
+
         preAcutanceBase_.resize(linear_.size());
         for (std::size_t i = 0u; i < owners_.size(); ++i) {
-            float r = std::max(linear_[3u * i], 0.0f);
-            float g = std::max(linear_[3u * i + 1u], 0.0f);
-            float b = std::max(linear_[3u * i + 2u], 0.0f);
+            float r = std::max(linear_[3u * i], 0.0f) * exposureGain;
+            float g = std::max(linear_[3u * i + 1u], 0.0f) * exposureGain;
+            float b = std::max(linear_[3u * i + 2u], 0.0f) * exposureGain;
             if (!std::isfinite(r) || !std::isfinite(g) || !std::isfinite(b)) {
                 r = g = b = 0.0f;
             }
 
             const bool censored = censorMask_[i] != 0u;
-            if ((flags_ & kFlagLight) != 0 && !censored) {
+            if (naturalLightEnabled && !censored) {
                 const float y = std::max(truthraw::luminance709(r, g, b), 0.0f);
                 const float darkGate = 1.0f - smoothstep((y - 0.02f) / 0.30f);
                 const float blackProtect = smoothstep(y / 0.025f);
@@ -658,6 +668,12 @@ private:
                     g *= scale;
                     b *= scale;
                     ++lightAdjustedPixels_;
+                }
+            }
+            if (!censored && shadowMix > 0.0f) {
+                if (!advanced_controls::apply_shadow_recovery(
+                        r, g, b, shadowMix, exposure_.evidenceConfidence)) {
+                    return false;
                 }
             }
 
