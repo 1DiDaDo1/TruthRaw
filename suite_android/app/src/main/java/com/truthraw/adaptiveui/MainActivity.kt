@@ -2171,19 +2171,6 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(5))
-                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
-                            launchTruthNegative200MpFullColourExport(active)
-                        })
-                        truthNegative200MpStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey(
-                                    "truthnegative-200mp-full-colour",
-                                    active.id,
-                                ),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
-                        addView(space(5))
                         addView(actionButton("Render/Edit · Float32 DNG · Lightroom") {
                             launchAdvancedRenderEditExport(active)
                         })
@@ -2248,6 +2235,25 @@ class MainActivity : Activity() {
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
+                        addView(space(5))
+                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
+                            launchTruthNegative200MpFullColourExport(active)
+                        })
+                        truthNegative200MpStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-200mp-full-colour",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Camera-5 target 16320×12288 · reconstructed full-colour Float32 · " +
+                                "geen 200MP measured-detail claim.",
+                            10f,
+                            muted = true,
+                        ))
                         addView(space(5))
                         addView(actionButton("Render/Edit · Float32 DNG · Lightroom") {
                             launchAdvancedRenderEditExport(active)
