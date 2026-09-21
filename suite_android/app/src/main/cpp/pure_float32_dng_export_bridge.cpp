@@ -17,6 +17,9 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "truthnegative_dense_projection_v0_3.h"
+#include "truthnegative_vulkan_dense_v0_1.h"
+#include "truthraw_sha256_v0_69.h"
 
 #include <algorithm>
 #include <array>
@@ -45,6 +48,9 @@ namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
+namespace tn_dense = truthraw::truthnegative_dense_projection::v0_3;
+namespace tn_vulkan = truthraw::truthnegative_vulkan_dense::v0_1;
+namespace sha256 = truthraw::sha256_v0_69;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
 constexpr std::size_t kPacketLongs = 34u;
@@ -186,6 +192,14 @@ std::string hexDigest(const std::array<std::uint8_t,32>& digest) {
     return out;
 }
 
+sha256::Digest hashText(const std::string& text) noexcept {
+    sha256::Hasher h;
+    h.update(
+        reinterpret_cast<const std::uint8_t*>(text.data()),
+        text.size());
+    return h.finalize();
+}
+
 bool readPreviewJpeg(int fd, std::vector<std::uint8_t>& out) noexcept {
     out.clear();
     if (fd < 0) return true;
@@ -230,16 +244,19 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     constexpr jint kPureMode = 0;
     constexpr jint kFullColourScientificMasterMode = 1;
     constexpr jint kAdvancedRenderEditMode = 2;
+    constexpr jint kTruthNegative200MpFullColourMode = 3;
     constexpr jint kAllowedAdvancedFlags = static_cast<jint>(render_edit::kAllowedFlags);
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
         (exportMode != kPureMode &&
          exportMode != kFullColourScientificMasterMode &&
-         exportMode != kAdvancedRenderEditMode) ||
+         exportMode != kAdvancedRenderEditMode &&
+         exportMode != kTruthNegative200MpFullColourMode) ||
         (sourceRouteCode != 0 && sourceRouteCode != 1) ||
         (advancedFlags & ~kAllowedAdvancedFlags) != 0 ||
         ((exportMode == kPureMode ||
-          exportMode == kFullColourScientificMasterMode) &&
+          exportMode == kFullColourScientificMasterMode ||
+          exportMode == kTruthNegative200MpFullColourMode) &&
          advancedFlags != 0) ||
         ((previewFd < 0) != (previewWidth == 0 && previewHeight == 0)) ||
         previewWidth < 0 || previewHeight < 0 ||
@@ -287,6 +304,13 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         bytes, sourceSeal, openOptions, openedSource);
     if (!opened) return packet(env, adapterStatus(opened));
     auto& source = openedSource.source;
+
+    if (exportMode == kTruthNegative200MpFullColourMode &&
+        (sourceRouteCode != 1 ||
+         source->metadata().width != 4080 ||
+         source->metadata().height != 3072)) {
+        return packet(env, -11);
+    }
 
     auto reconstruction =
         std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
@@ -467,6 +491,10 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     float_dng::StreamingScientificMasterTileSource masterSource(
         *source, *reconstruction);
 
+    std::unique_ptr<tn_vulkan::Backend> truthNegativeVulkan;
+    std::unique_ptr<tn_dense::DenseProjectionTileSource> truthNegativeDense;
+    tn_dense::Result truthNegativeDenseResult{};
+
     std::vector<std::uint8_t> previewJpeg;
     if (!readPreviewJpeg(previewFd, previewJpeg)) {
         return packet(env, -5);
@@ -511,6 +539,146 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         "orientation_transform_changes_authority=0\n" +
         "scientific_writeback_allowed=0\n" +
         "creates_new_evidence=0";
+
+    sha256::Digest packetAuthorityArtifact =
+        outputAuthoritySummary.artifactSha256;
+    std::uint64_t packetAuthorityCounts[4] = {
+        outputAuthoritySummary.authorityCounts[0],
+        outputAuthoritySummary.authorityCounts[1],
+        outputAuthoritySummary.authorityCounts[2],
+        outputAuthoritySummary.authorityCounts[3],
+    };
+    std::uint64_t packetAuthorityOutputPixels =
+        outputAuthoritySummary.outputPixelCount;
+    std::uint64_t packetCensoredSupportPixels =
+        outputAuthoritySummary.censoredSupportPixels;
+    std::uint32_t packetAuthorityMappingMode =
+        static_cast<std::uint32_t>(outputAuthoritySummary.mappingMode);
+
+    if (exportMode == kTruthNegative200MpFullColourMode) {
+        truthNegativeVulkan = std::make_unique<tn_vulkan::Backend>();
+        tn_dense::IExactDenseAccelerator* accelerator =
+            truthNegativeVulkan->available()
+                ? static_cast<tn_dense::IExactDenseAccelerator*>(
+                      truthNegativeVulkan.get())
+                : nullptr;
+        truthNegativeDense =
+            std::make_unique<tn_dense::DenseProjectionTileSource>(
+                masterSource,
+                static_cast<std::uint32_t>(source->metadata().width),
+                static_cast<std::uint32_t>(source->metadata().height),
+                accelerator);
+        if (!truthNegativeDense->valid()) {
+            return packet(env, -12);
+        }
+        const auto denseIdentity =
+            tn_dense::compute_projected_raster_identity(
+                *truthNegativeDense,
+                truthNegativeDenseResult);
+        if (!denseIdentity ||
+            !truthNegativeDenseResult.projectedRasterIdentityAvailable ||
+            truthNegativeDenseResult.geometry.targetWidth != 16320u ||
+            truthNegativeDenseResult.geometry.targetHeight != 12288u ||
+            truthNegativeDenseResult.createsNewEvidence ||
+            truthNegativeDenseResult.impliesPhysicalSensorGeometry ||
+            truthNegativeDenseResult.measuredTargetClaimCount != 0u ||
+            truthNegativeDenseResult.physicalFrameCount != 1u ||
+            truthNegativeDenseResult.independentEvidenceCount != 1u) {
+            return packet(env, -13);
+        }
+
+        descriptor.width = truthNegativeDenseResult.geometry.targetWidth;
+        descriptor.height = truthNegativeDenseResult.geometry.targetHeight;
+        descriptor.projectedRasterSha256 =
+            truthNegativeDenseResult.projectedRasterSha256;
+        descriptor.openSceneStateSha256 = openSceneSummary.artifactSha256;
+        descriptor.projectionRole =
+            "TRUTHRAW_TRUTHNEGATIVE_200MP_FULL_COLOUR_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1";
+        descriptor.projectedAppearanceApplied = false;
+        descriptor.projectedCounterfactualObservationCreated = false;
+        descriptor.restorationDerivative = false;
+
+        const std::uint64_t targetPixels =
+            static_cast<std::uint64_t>(descriptor.width) *
+            static_cast<std::uint64_t>(descriptor.height);
+        const std::uint64_t unknownChannels = targetPixels * 3u;
+        const std::string authorityBody =
+            std::string("schema=TruthNegativeOutputChannelAuthority/0.1\n") +
+            "parent_schema=TruthRawOutputChannelAuthority/0.84\n" +
+            "parent_artifact_sha256=" +
+                hexDigest(outputAuthoritySummary.artifactSha256) + "\n" +
+            "mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT\n" +
+            "source_width=4080\n" +
+            "source_height=3072\n" +
+            "output_width=16320\n" +
+            "output_height=12288\n" +
+            "output_pixels=" + std::to_string(targetPixels) + "\n" +
+            "record_count=" + std::to_string(unknownChannels) + "\n" +
+            "uniform_authority=UNKNOWN\n" +
+            "calibrated_estimate_channels=0\n" +
+            "reconstructed_channels=0\n" +
+            "censored_channels=0\n" +
+            "unknown_channels=" + std::to_string(unknownChannels) + "\n" +
+            "target_support_role=RECONSTRUCTED_DENSE_SUPPORT\n" +
+            "measured_target_claim_count=0\n" +
+            "physical_frame_count=1\n" +
+            "independent_evidence_count=1\n" +
+            "backend_changes_authority=0\n" +
+            "scientific_writeback_allowed=0\n" +
+            "creates_new_evidence=0\n";
+        packetAuthorityArtifact = hashText(authorityBody);
+        descriptor.outputAuthorityManifest =
+            authorityBody +
+            "artifact_sha256=" + hexDigest(packetAuthorityArtifact) + "\n";
+
+        packetAuthorityCounts[0] = 0u;
+        packetAuthorityCounts[1] = 0u;
+        packetAuthorityCounts[2] = 0u;
+        packetAuthorityCounts[3] = unknownChannels;
+        packetAuthorityOutputPixels = targetPixels;
+        packetCensoredSupportPixels = 0u;
+        packetAuthorityMappingMode =
+            static_cast<std::uint32_t>(
+                output_channel_authority::MappingMode::ResampledFailClosedUnknown);
+
+        descriptor.downstreamEditManifest =
+            std::string("schema=TruthRawTruthNegative200MpFullColour/0.1\n") +
+            "primary_image_role=TRUTHNEGATIVE_DENSE_CAMERA_NATIVE_RGB_FLOAT32\n" +
+            "stored_primary_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32_DERIVATIVE\n" +
+            "photometric_role=LINEARRAW_FULL_COLOUR_CAMERA_NATIVE\n" +
+            "source_scientific_master_width=4080\n" +
+            "source_scientific_master_height=3072\n" +
+            "target_width=16320\n" +
+            "target_height=12288\n" +
+            "scale_x=4\n" +
+            "scale_y=4\n" +
+            "target_geometry_matches_historical_camera5_envelope=1\n" +
+            "source_scientific_master_unchanged=1\n" +
+            "primary_raster_equals_scientific_master=0\n" +
+            "projected_raster_sha256=" +
+                hexDigest(truthNegativeDenseResult.projectedRasterSha256) + "\n" +
+            "reconstruction_method=" +
+                truthNegativeDenseResult.methodId + "\n" +
+            "target_authority=" +
+                truthNegativeDenseResult.targetAuthority + "\n" +
+            "measured_target_claim_count=0\n" +
+            "compute_backend=" +
+                truthNegativeDenseResult.acceleratorBackend + "\n" +
+            "accelerator_eligible=" +
+                std::to_string(
+                    truthNegativeDenseResult.acceleratorEligible ? 1 : 0) + "\n" +
+            "accelerator_used=" +
+                std::to_string(
+                    truthNegativeDenseResult.acceleratorUsed ? 1 : 0) + "\n" +
+            "appearance_baked_into_primary=0\n" +
+            "advanced_recipe_flags=0\n" +
+            "negative_components_preserved=1\n" +
+            "over_one_components_preserved=1\n" +
+            "jpeg_role=NON_AUTHORITY_PREVIEW_ONLY\n" +
+            "lightroom_editable_primary=1\n" +
+            "scientific_writeback_allowed=0\n" +
+            "creates_new_evidence=0";
+    }
 
     if (exportMode == kFullColourScientificMasterMode) {
         descriptor.projectionRole =
@@ -626,19 +794,26 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
                   render_edit::linear_srgb_to_xyz_d50_matrix(),
                   sink,
                   exported)
-            : (exportMode == kFullColourScientificMasterMode
+            : (exportMode == kTruthNegative200MpFullColourMode
                 ? float_dng::write_camera_native_full_colour_scientific_master_dng(
-                      masterSource,
+                      *truthNegativeDense,
                       descriptor,
                       produced.color.cameraToXyzD50,
                       sink,
                       exported)
-                : float_dng::write_xyz_d50_linear_dng_projection(
-                      masterSource,
-                      descriptor,
-                      produced.color.cameraToXyzD50,
-                      sink,
-                      exported));
+                : (exportMode == kFullColourScientificMasterMode
+                    ? float_dng::write_camera_native_full_colour_scientific_master_dng(
+                          masterSource,
+                          descriptor,
+                          produced.color.cameraToXyzD50,
+                          sink,
+                          exported)
+                    : float_dng::write_xyz_d50_linear_dng_projection(
+                          masterSource,
+                          descriptor,
+                          produced.color.cameraToXyzD50,
+                          sink,
+                          exported)));
     if (!exportedStatus) return packet(env, floatStatus(exportedStatus));
 
     const bool commonInvariant =
@@ -655,9 +830,13 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
                !exported.scientificMasterIdentityVerified &&
                exported.appearanceApplied ==
                    renderEditSource->appearanceBakedIntoPrimary())
-            : (exported.projectedRasterIdentityVerified &&
-               exported.scientificMasterIdentityVerified &&
-               !exported.appearanceApplied);
+            : (exportMode == kTruthNegative200MpFullColourMode
+                ? (exported.projectedRasterIdentityVerified &&
+                   !exported.scientificMasterIdentityVerified &&
+                   !exported.appearanceApplied)
+                : (exported.projectedRasterIdentityVerified &&
+                   exported.scientificMasterIdentityVerified &&
+                   !exported.appearanceApplied));
 
     if (!commonInvariant || !flavorInvariant) {
         sink.abort();
@@ -691,17 +870,17 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     values[15] = exported.physicalFrameCount;
     values[16] = exported.independentEvidenceCount;
     values[17] = static_cast<jlong>(phase2.admission.claimScope);
-    values[18] = outputAuthoritySummary.perOutputChannelAuthorityAvailable ? 1 : 0;
-    values[19] = static_cast<jlong>(outputAuthoritySummary.mappingMode);
-    values[20] = clampToJlong(outputAuthoritySummary.authorityCounts[0]);
-    values[21] = clampToJlong(outputAuthoritySummary.authorityCounts[1]);
-    values[22] = clampToJlong(outputAuthoritySummary.authorityCounts[2]);
-    values[23] = clampToJlong(outputAuthoritySummary.authorityCounts[3]);
-    values[24] = clampToJlong(outputAuthoritySummary.censoredSupportPixels);
-    values[25] = clampToJlong(outputAuthoritySummary.outputPixelCount);
+    values[18] = 1;
+    values[19] = static_cast<jlong>(packetAuthorityMappingMode);
+    values[20] = clampToJlong(packetAuthorityCounts[0]);
+    values[21] = clampToJlong(packetAuthorityCounts[1]);
+    values[22] = clampToJlong(packetAuthorityCounts[2]);
+    values[23] = clampToJlong(packetAuthorityCounts[3]);
+    values[24] = clampToJlong(packetCensoredSupportPixels);
+    values[25] = clampToJlong(packetAuthorityOutputPixels);
     for(std::size_t word=0;word<8u;++word){
         const std::size_t i=word*4u;
-        const auto& d=outputAuthoritySummary.artifactSha256;
+        const auto& d=packetAuthorityArtifact;
         const std::uint32_t value=
             static_cast<std::uint32_t>(d[i]) |
             (static_cast<std::uint32_t>(d[i+1u])<<8u) |
