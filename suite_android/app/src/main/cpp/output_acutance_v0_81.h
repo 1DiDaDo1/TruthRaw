@@ -19,6 +19,21 @@ struct Result final {
 
 float legacy_display_gain_from_half_log(float halfLogGain) noexcept;
 
+bool apply_final_resize_acutance_and_rebase_hdr_tuned(
+    const std::vector<float>& resizedLinearSdrBase,
+    int width,
+    int height,
+    float noiseSigmaAt2Pct,
+    float resizeRatio,
+    truthraw_v47k::OutputProfile profile,
+    float detailMix,
+    bool hdrEnabled,
+    const std::vector<float>& halfLogGain,
+    const std::vector<std::uint8_t>& censorMask,
+    std::vector<float>& acutanceAdjustedSdrBase,
+    std::vector<float>& rebasedDisplayGain,
+    Result& result) noexcept;
+
 bool apply_final_resize_acutance_and_rebase_hdr(
     const std::vector<float>& resizedLinearSdrBase,
     int width,
