@@ -38,6 +38,7 @@ public:
     bool available() const noexcept;
     bool exactScientificEligible() const noexcept override;
     const char* backendName() const noexcept override;
+    std::size_t residentBytesUpperBound() const noexcept override;
 
     // Exact-scientific dispatch. This method returns false unless the runtime
     // self-test proved bit identity against the canonical CPU Float32 formula.
