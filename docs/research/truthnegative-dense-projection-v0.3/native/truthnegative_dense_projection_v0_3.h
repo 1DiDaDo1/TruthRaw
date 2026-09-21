@@ -13,7 +13,7 @@ namespace float_dng = truthraw::scientific_master_linear_dng_projection::v0_1;
 
 inline constexpr std::uint32_t kScale = 4u;
 inline constexpr const char* kMethodId =
-    "PIXEL_CENTER_BILINEAR_F64_CONVEX_V0_3";
+    "PIXEL_CENTER_BILINEAR_F32_EXACT_ORDER_V0_3";
 inline constexpr const char* kAuthority =
     "RECONSTRUCTED_DENSE_SUPPORT";
 inline constexpr std::uint32_t kMeasuredTargetClaimCount = 0u;
