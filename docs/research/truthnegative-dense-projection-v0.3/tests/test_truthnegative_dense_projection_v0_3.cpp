@@ -30,7 +30,7 @@ public:
                 0.002f * static_cast<float>(y),
             0.20f + 0.004f * static_cast<float>(x) +
                 0.001f * static_cast<float>(y),
-            0.85f + 0.006f * static_cast<float>(x) +
+            0.95f + 0.006f * static_cast<float>(x) +
                 0.003f * static_cast<float>(y),
         };
     }
