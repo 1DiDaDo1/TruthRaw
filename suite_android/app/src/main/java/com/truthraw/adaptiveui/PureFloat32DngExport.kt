@@ -127,6 +127,19 @@ object PureFloat32DngExporter {
                 "TRUTHRAW PURE Float32 is momenteel alleen toegelaten voor de volledig admitted DNG-route.",
             )
         }
+        if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR &&
+            !job.source.verifiedCamera5TruthNegative200MpEnvelope
+        ) {
+            return PureFloat32DngExportResult.Failed(
+                "TruthNegative 200MP is fail-closed: deze DNG mist de exact geverifieerde physical Camera-5 16320×12288 envelope → 4080×3072 admission-lineage.",
+            )
+        }
+
+        val sourceRouteCode = when {
+            flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR -> 2
+            job.source.sourceRoute == SourceIngressRoute.CAMERA_CAPTURE -> 1
+            else -> 0
+        }
 
         return try {
             val source = resolver.openFileDescriptor(job.source.uri, "r")
@@ -168,10 +181,7 @@ object PureFloat32DngExporter {
                                 dst.fd,
                                 userQuarterTurns,
                                 flavor.nativeCode,
-                                when (job.source.sourceRoute) {
-                                    SourceIngressRoute.IMPORTED_FILE -> 0
-                                    SourceIngressRoute.CAMERA_CAPTURE -> 1
-                                },
+                                sourceRouteCode,
                                 if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
                                 p.fd,
                                 previewWidth,
@@ -186,10 +196,7 @@ object PureFloat32DngExporter {
                             dst.fd,
                             userQuarterTurns,
                             flavor.nativeCode,
-                            when (job.source.sourceRoute) {
-                                SourceIngressRoute.IMPORTED_FILE -> 0
-                                SourceIngressRoute.CAMERA_CAPTURE -> 1
-                            },
+                            sourceRouteCode,
                             if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
                             -1,
                             0,
