@@ -69,6 +69,7 @@ sealed interface PureFloat32DngExportResult {
 enum class Float32DngExportFlavor(val nativeCode: Int) {
     PURE(0),
     JPGL_RAW_EDIT(1),
+    ADVANCED_RENDER_EDIT(2),
 }
 
 object PureFloat32DngExporter {
@@ -162,7 +163,7 @@ object PureFloat32DngExporter {
                 }
             }
 
-            val decoded = decode(packet)
+            val decoded = decode(packet, flavor, advancedFlags)
             if (decoded is PureFloat32DngExportResult.Failed) {
                 runCatching { resolver.delete(destination, null, null) }
                 return decoded
@@ -213,6 +214,8 @@ object PureFloat32DngExporter {
                 "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
             Float32DngExportFlavor.JPGL_RAW_EDIT ->
                 "role=TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG"
+            Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                "role=TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1"
         }
         val requiredMarkers = mutableListOf(
             "TruthRaw scientific-master-linear-dng-projection-v0.1",
@@ -260,6 +263,38 @@ object PureFloat32DngExporter {
                 "source_scientific_master_unchanged=1",
                 "appearance_baked_into_primary=0",
                 "advanced_recipe_flags=$advancedFlags",
+                "lightroom_editable_primary=1",
+                "scientific_writeback_allowed=0",
+                "creates_new_evidence=0",
+                "downstream_edit_manifest_end",
+            )
+        }
+        if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+            val bakedAppearance =
+                (advancedFlags and (0x01 or 0x04 or 0x08)) != 0
+            requiredMarkers += listOf(
+                "derivative_projection=1",
+                "projected_raster_sha256=",
+                "open_scene_state_sha256=",
+                "restoration_derivative=0",
+                "projected_appearance_applied=" + if (bakedAppearance) "1" else "0",
+                "downstream_edit_manifest_begin",
+                "schema=TruthRawAdvancedRenderEdit/0.1",
+                "derivative_identity_space=EXTENDED_LINEAR_SRGB_FLOAT32",
+                "stored_primary_space=XYZ_D50_LINEAR_FLOAT32",
+                "storage_transform=LINEAR_SRGB_TO_XYZ_D50",
+                "source_scientific_master_unchanged=1",
+                "negative_components_preserved=1",
+                "over_one_components_preserved=1",
+                "advanced_flags=$advancedFlags",
+                "detail_baked_into_primary=" + if ((advancedFlags and 0x04) != 0) "1" else "0",
+                "light_baked_into_primary=" + if ((advancedFlags and 0x01) != 0) "1" else "0",
+                "restoration_baked_into_primary=" + if ((advancedFlags and 0x08) != 0) "1" else "0",
+                "restoration_role=AESTHETIC_REINTEGRATION_ONLY",
+                "natural_hdr_baked_into_primary=0",
+                "natural_hdr_recipe_only=" + if ((advancedFlags and 0x02) != 0) "1" else "0",
+                "hdr_authority=APPEARANCE_ONLY_OUTPUT_CHANNEL_MAP_HAS_UNKNOWN",
+                "output_acutance_baked_into_primary=0",
                 "lightroom_editable_primary=1",
                 "scientific_writeback_allowed=0",
                 "creates_new_evidence=0",
@@ -316,12 +351,16 @@ object PureFloat32DngExporter {
                     it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F'
                 }
 
-            val hashKeys = listOf(
+            val hashKeys = mutableListOf(
                 "sealed_source_sha256=",
                 "scientific_master_sha256=",
                 "zero_line_sha256=",
                 "scene_scale_sha256=",
             )
+            if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+                hashKeys += "projected_raster_sha256="
+                hashKeys += "open_scene_state_sha256="
+            }
             val badHash = hashKeys.firstOrNull { key ->
                 !isHex(valueOf(key).orEmpty(), 64)
             }
@@ -433,10 +472,13 @@ object PureFloat32DngExporter {
 
             PostWriteVerification(
                 true,
-                if (flavor == Float32DngExportFlavor.PURE) {
-                    "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
-                } else {
-                    "JPG-L RAW/Edit Float32 primary + v0.63 lineage + recipe manifest geverifieerd"
+                when (flavor) {
+                    Float32DngExportFlavor.PURE ->
+                        "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
+                    Float32DngExportFlavor.JPGL_RAW_EDIT ->
+                        "JPG-L RAW/Edit Float32 primary + v0.63 lineage + recipe manifest geverifieerd"
+                    Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                        "ADVANCED Render/Edit derivative + projected-raster/Open-Scene binding geverifieerd"
                 },
             )
         } catch (error: Throwable) {
@@ -447,7 +489,11 @@ object PureFloat32DngExporter {
         }
     }
 
-    private fun decode(packet: LongArray): PureFloat32DngExportResult {
+    private fun decode(
+        packet: LongArray,
+        flavor: Float32DngExportFlavor,
+        advancedFlags: Int,
+    ): PureFloat32DngExportResult {
         if (packet.size != PURE_FLOAT_PACKET_LONGS || packet[0] != PURE_FLOAT_MAGIC) {
             return PureFloat32DngExportResult.Failed(
                 "Ongeldig native TRUTHRAW PURE Float32-resultaat.",
@@ -494,7 +540,7 @@ object PureFloat32DngExporter {
             outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
         )
 
-        val violation =
+        val commonViolation =
             metrics.width <= 0L ||
                 metrics.height <= 0L ||
                 metrics.samplesPerPixel != 3L ||
@@ -504,8 +550,6 @@ object PureFloat32DngExporter {
                 metrics.tilesWritten <= 0L ||
                 metrics.logicalResidentUpperBoundBytes <= 0L ||
                 metrics.logicalResidentUpperBoundBytes > PURE_MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
-                !metrics.scientificMasterIdentityVerified ||
-                metrics.appearanceApplied ||
                 metrics.counterfactualObservationCreated ||
                 metrics.physicalFrameCount != 1L ||
                 metrics.independentEvidenceCount != 1L ||
@@ -521,9 +565,23 @@ object PureFloat32DngExporter {
                     metrics.projectedPixels * 3L ||
                 metrics.outputAuthorityArtifactSha256.all { it == '0' }
 
+        val expectedRenderAppearance =
+            (advancedFlags and (0x01 or 0x04 or 0x08)) != 0
+        val flavorViolation = when (flavor) {
+            Float32DngExportFlavor.PURE,
+            Float32DngExportFlavor.JPGL_RAW_EDIT ->
+                !metrics.scientificMasterIdentityVerified ||
+                    metrics.appearanceApplied
+            Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                metrics.scientificMasterIdentityVerified ||
+                    metrics.appearanceApplied != expectedRenderAppearance
+        }
+
+        val violation = commonViolation || flavorViolation
+
         if (violation) {
             return PureFloat32DngExportResult.Failed(
-                "Fail-closed: PURE Float32 DNG schond master-, representation- of evidencecontract.",
+                "Fail-closed: Float32 DNG schond flavor-, representation- of evidencecontract.",
             )
         }
 
@@ -540,6 +598,7 @@ object PureFloat32DngExporter {
         -7L -> "Float32 DNG: v0.79 uncertainty-admission promoveerde onverwacht authority."
         -8L -> "Float32 DNG: v0.78 source-channel authority kon niet fail-closed worden opgebouwd."
         -9L -> "Float32 DNG: v0.84 output-channel authority kon niet fail-closed worden opgebouwd."
+        -10L -> "ADVANCED Render/Edit: sealed exposure-analyse faalde fail-closed."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
