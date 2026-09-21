@@ -10,7 +10,7 @@ private const val PURE_FLOAT_MAGIC = 0x54525046L
 private const val PURE_FLOAT_PACKET_LONGS = 34
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
-private const val PURE_POSTWRITE_SCAN_BYTES = 64 * 1024
+private const val PURE_POSTWRITE_SCAN_BYTES = 2 * 1024 * 1024
 private const val PURE_SELF_BINDING_CONTRACT = "TRUTHRAW_PURE_SELF_BINDING_V0_63"
 
 object PureFloat32DngNativeBridge {
