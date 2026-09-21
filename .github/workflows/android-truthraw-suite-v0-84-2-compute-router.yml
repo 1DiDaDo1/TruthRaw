@@ -38,6 +38,18 @@ jobs:
           grep -F 'selected = TruthRawComputeBackend.CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
           grep -F 'authorityChanged = false' "$JAVA/TruthRawComputeRouter.kt"
           grep -F 'Hardware acceleration · research' "$JAVA/TruthRawProActivity.kt"
+
+          # ADVANCED Render/Edit Float32 must stay extended-linear and fail-closed.
+          grep -F 'ADVANCED_RENDER_EDIT(2)' "$JAVA/PureFloat32DngExport.kt"
+          grep -F 'TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'negative_components_preserved=1' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'over_one_components_preserved=1' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'natural_hdr_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'output_acutance_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'projectedRasterSha256' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'compute_projected_raster_sha256'             "$CPP/advanced_render_edit_tile_source_v0_1.cpp"
+          grep -F 'linear_srgb_to_xyz_d50_matrix'             "$CPP/advanced_render_edit_tile_source_v0_1.cpp"
+          grep -F 'Render/Edit · Float32 DNG · Lightroom' "$JAVA/MainActivity.kt"
           grep -F 'video/apv' "$JAVA/TruthRawApvCapabilities.kt"
           grep -F 'androidSdk >= 37' "$JAVA/TruthRawApvCapabilities.kt"
           grep -F 'hardwareAccelerated' "$JAVA/TruthRawApvCapabilities.kt"
