@@ -68,7 +68,7 @@ sealed interface PureFloat32DngExportResult {
 
 enum class Float32DngExportFlavor(val nativeCode: Int) {
     PURE(0),
-    JPGL_RAW_EDIT(1),
+    FULL_COLOUR_SCIENTIFIC_MASTER(1),
     ADVANCED_RENDER_EDIT(2),
 }
 
@@ -171,7 +171,7 @@ object PureFloat32DngExporter {
                                     SourceIngressRoute.IMPORTED_FILE -> 0
                                     SourceIngressRoute.CAMERA_CAPTURE -> 1
                                 },
-                                if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
+                                if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
                                 p.fd,
                                 previewWidth,
                                 previewHeight,
@@ -189,7 +189,7 @@ object PureFloat32DngExporter {
                                 SourceIngressRoute.IMPORTED_FILE -> 0
                                 SourceIngressRoute.CAMERA_CAPTURE -> 1
                             },
-                            if (flavor == Float32DngExportFlavor.PURE) 0 else advancedFlags,
+                            if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
                             -1,
                             0,
                             0,
@@ -249,8 +249,8 @@ object PureFloat32DngExporter {
         val roleMarker = when (flavor) {
             Float32DngExportFlavor.PURE ->
                 "role=TRUTHRAW_PURE_FLOAT32_XYZ_D50_LINEAR_DNG_PROJECTION"
-            Float32DngExportFlavor.JPGL_RAW_EDIT ->
-                "role=TRUTHRAW_JPGL_RAW_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG"
+            Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER ->
+                "role=TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1"
             Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
                 "role=TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1"
         }
@@ -292,14 +292,24 @@ object PureFloat32DngExporter {
         } else {
             requiredMarkers += "embedded_jpeg_preview=0"
         }
-        if (flavor == Float32DngExportFlavor.JPGL_RAW_EDIT) {
+        if (flavor == Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER) {
             requiredMarkers += listOf(
+                "primary_storage_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32",
+                "camera_profile_role=DERIVED_FROM_AUTHORIZED_CAMERA_TO_XYZ_D50",
+                "primary_linearraw_is_full_colour=1",
+                "primary_is_jpeg_snapshot=0",
                 "downstream_edit_manifest_begin",
-                "schema=TruthRawJpgLRawEditRecipe/0.3",
-                "primary_image_role=FLOAT32_XYZ_D50_LINEAR_EDIT_MASTER",
+                "schema=TruthRawFullColourScientificMaster/0.1",
+                "primary_image_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32",
+                "stored_primary_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32",
+                "photometric_role=LINEARRAW_FULL_COLOUR_CAMERA_NATIVE",
                 "source_scientific_master_unchanged=1",
+                "primary_raster_equals_scientific_master=1",
                 "appearance_baked_into_primary=0",
-                "advanced_recipe_flags=$advancedFlags",
+                "advanced_recipe_flags=0",
+                "negative_components_preserved=1",
+                "over_one_components_preserved=1",
+                "jpeg_role=NON_AUTHORITY_PREVIEW_ONLY",
                 "lightroom_editable_primary=1",
                 "scientific_writeback_allowed=0",
                 "creates_new_evidence=0",
@@ -517,8 +527,8 @@ object PureFloat32DngExporter {
                 when (flavor) {
                     Float32DngExportFlavor.PURE ->
                         "v0.63 PURE contract + Backplane CRC inhoudelijk geverifieerd"
-                    Float32DngExportFlavor.JPGL_RAW_EDIT ->
-                        "JPG-L RAW/Edit Float32 primary + v0.63 lineage + recipe manifest geverifieerd"
+                    Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER ->
+                        "Full Colour Scientific Master Float32 camera-native primary + lineage geverifieerd"
                     Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
                         "ADVANCED Render/Edit derivative + projected-raster/Open-Scene binding geverifieerd"
                 },
@@ -610,7 +620,7 @@ object PureFloat32DngExporter {
         val expectedRenderAppearance = advancedAppearanceBaked(advancedFlags)
         val flavorViolation = when (flavor) {
             Float32DngExportFlavor.PURE,
-            Float32DngExportFlavor.JPGL_RAW_EDIT ->
+            Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER ->
                 !metrics.scientificMasterIdentityVerified ||
                     metrics.appearanceApplied
             Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
