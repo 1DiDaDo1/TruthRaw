@@ -545,6 +545,11 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
                 if (edgeModes.contains(CameraMetadata.EDGE_MODE_OFF)) {
                     setRouteKey(this, route, CaptureRequest.EDGE_MODE, CameraMetadata.EDGE_MODE_OFF)
                 }
+                CameraCalibrationTelemetry.requestLensShadingMap(
+                    this,
+                    c,
+                    route.physicalCameraId,
+                )
             }.build()
 
             val before = preCaptureSnapshot!!
@@ -706,6 +711,10 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
                 .put("standardPhysicalRequestKeysUsedWhenAdvertised", route.physicalCameraId != null))
             .put("previewBeforeCapture", before?.toJson() ?: JSONObject.NULL)
             .put("captureResult", after.toJson())
+            .put(
+                "cameraCalibrationTelemetry",
+                CameraCalibrationTelemetry.toJson(effective, effectiveCharacteristics(route)),
+            )
             .put("importantHonorResults", importantHonor)
             .put("sourceDng", JSONObject()
                 .put("sha256", sha)
