@@ -750,6 +750,124 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_ADVANCED_RENDER_EDIT) {
+            val expectedJob = pendingRenderEditJobId
+            pendingRenderEditJobId = null
+            val flags = pendingRenderEditFlags
+            val quarterTurns = pendingRenderEditQuarterTurns
+            pendingRenderEditFlags = 0
+            pendingRenderEditQuarterTurns = 0
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                renderEditStatus = "ADVANCED Render/Edit-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                renderEditStatus =
+                    "ADVANCED Render/Edit geblokkeerd: actieve TruthRaw-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey("advanced-render-edit", expectedJob)
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "ADVANCED Render/Edit Float32 DNG opbouwen",
+                )
+            ) {
+                renderEditStatus =
+                    "ADVANCED Render/Edit achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            renderEditStatus =
+                "ADVANCED Render/Edit · extended-linear Float32 derivative wordt opgebouwd… " +
+                    "projected-raster SHA → replay-verificatie → DNG commit."
+            render()
+
+            startGuardedBackgroundThread(
+                name = "truthraw-render-edit-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { renderEditStatus = it },
+            ) {
+                val dir = File(
+                    filesDir,
+                    "advanced_render_edit/$expectedJob",
+                ).apply { mkdirs() }
+
+                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                    contentResolver,
+                    job,
+                    flags,
+                    quarterTurns,
+                    dir,
+                )
+
+                val exportResult = when (previewResult) {
+                    is FullResJpegResult.Failed ->
+                        PureFloat32DngExportResult.Failed(
+                            "Render/Edit embedded preview faalde: " +
+                                previewResult.reason,
+                        )
+
+                    is FullResJpegResult.Success -> {
+                        try {
+                            PureFloat32DngExporter.export(
+                                contentResolver,
+                                job,
+                                destination,
+                                quarterTurns,
+                                Float32DngExportFlavor.ADVANCED_RENDER_EDIT,
+                                flags,
+                                previewResult.file,
+                                previewResult.metrics.width,
+                                previewResult.metrics.height,
+                            )
+                        } finally {
+                            previewResult.file.delete()
+                        }
+                    }
+                }
+
+                val finalMessage = when (exportResult) {
+                    is PureFloat32DngExportResult.Failed -> exportResult.reason
+                    is PureFloat32DngExportResult.Success -> {
+                        val m = exportResult.metrics
+                        "ADVANCED Render/Edit v0.1 gereed · " +
+                            "${m.width}×${m.height} · ${formatBytes(m.outputBytes)} · " +
+                            "IEEE Float32 derivative · negatief/>1=" +
+                            "${m.negativeComponentCount}/${m.overOneComponentCount} · " +
+                            "appearance in primary=${m.appearanceApplied} · " +
+                            "Scientific Master blijft parent · " +
+                            "projected/edit binding=${m.postWriteSelfBindingVerified} · " +
+                            "Natural HDR=recipe-only · Output Acutance=not baked · " +
+                            "rotatie=${quarterTurns * 90}°."
+                    }
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is PureFloat32DngExportResult.Success,
+                    finalMessage,
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    renderEditStatus = finalMessage
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_PURE_FLOAT_DNG) {
             val expectedJob = pendingPureFloatDngJobId
             pendingPureFloatDngJobId = null
@@ -1109,6 +1227,10 @@ class MainActivity : Activity() {
         session = session.withJobs(jobs)
         val first = session.jobs.firstOrNull()
         jpegStatus = null
+        renderEditStatus = null
+        pendingRenderEditJobId = null
+        pendingRenderEditFlags = 0
+        pendingRenderEditQuarterTurns = 0
         pureFloatDngStatus = null
         linearDngStatus = null
         empiricalStatus = null
