@@ -78,8 +78,7 @@ object CameraCalibrationTelemetry {
             ?.get(CameraCharacteristics.SENSOR_INFO_WHITE_LEVEL)
         val shadingApplied = characteristics
             ?.get(CameraCharacteristics.SENSOR_INFO_LENS_SHADING_APPLIED)
-        val shadingSize = characteristics
-            ?.get(CameraCharacteristics.LENS_INFO_SHADING_MAP_SIZE)
+        val lensShadingMap = read(KEY_LENS_SHADING_MAP) as? LensShadingMap
 
         return JSONObject()
             .put("authority", "CAMERA2_RESULT_OBSERVATION_ONLY")
@@ -89,10 +88,10 @@ object CameraCalibrationTelemetry {
             .put("dynamicWhiteLevel", render(read(KEY_DYNAMIC_WHITE)))
             .put("staticBlackLevelPattern", staticBlack?.let {
                 JSONArray(listOf(
-                    it.getOffsetForIndex(0),
-                    it.getOffsetForIndex(1),
-                    it.getOffsetForIndex(2),
-                    it.getOffsetForIndex(3),
+                    it.getOffsetForIndex(0, 0),
+                    it.getOffsetForIndex(1, 0),
+                    it.getOffsetForIndex(0, 1),
+                    it.getOffsetForIndex(1, 1),
                 ))
             } ?: JSONObject.NULL)
             .put("staticWhiteLevel", staticWhite ?: JSONObject.NULL)
@@ -103,10 +102,10 @@ object CameraCalibrationTelemetry {
             .put("lensIntrinsicCalibration", render(read(KEY_LENS_INTRINSICS)))
             .put("lensDistortion", render(read(KEY_LENS_DISTORTION)))
             .put("lensShadingAlreadyAppliedToRaw", shadingApplied ?: JSONObject.NULL)
-            .put("lensShadingMapSize", shadingSize?.let {
-                JSONArray(listOf(it.width, it.height))
+            .put("lensShadingMapSize", lensShadingMap?.let {
+                JSONArray(listOf(it.columnCount, it.rowCount))
             } ?: JSONObject.NULL)
-            .put("lensShadingMap", render(read(KEY_LENS_SHADING_MAP)))
+            .put("lensShadingMap", render(lensShadingMap))
             .put("colorCorrectionGains", render(read(KEY_COLOR_GAINS)))
             .put("colorCorrectionTransform", render(read(KEY_COLOR_TRANSFORM)))
     }
