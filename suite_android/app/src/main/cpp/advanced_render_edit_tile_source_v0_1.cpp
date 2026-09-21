@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <new>
 #include <string>
 #include <utility>
 #include <vector>
@@ -134,7 +135,7 @@ ExtendedLinearSrgbTileSource::ExtendedLinearSrgbTileSource(
     const std::array<float, 9>& cameraToXyzD50,
     std::uint32_t flags,
     const ExposurePlan& exposure) noexcept
-    : impl_(std::make_unique<Impl>(
+    : impl_(new (std::nothrow) Impl(
           source, reconstruction, cameraToXyzD50, flags, exposure)) {}
 
 ExtendedLinearSrgbTileSource::~ExtendedLinearSrgbTileSource() = default;
