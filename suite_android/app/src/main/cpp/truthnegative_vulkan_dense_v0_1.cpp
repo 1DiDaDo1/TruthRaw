@@ -528,7 +528,11 @@ Backend::Backend() noexcept : impl_(new (std::nothrow) Impl{}) {
 Backend::~Backend() = default;
 
 const Probe& Backend::probe() const noexcept {
-    static const Probe unavailable{.reason="backend allocation failed"};
+    static const Probe unavailable = [] {
+        Probe p{};
+        p.reason = "backend allocation failed";
+        return p;
+    }();
     return impl_ ? impl_->probe : unavailable;
 }
 
