@@ -73,6 +73,29 @@ enum class Float32DngExportFlavor(val nativeCode: Int) {
 }
 
 object PureFloat32DngExporter {
+    private fun detailStrengthFromFlags(flags: Int): Int {
+        if ((flags and TruthRawAdvancedOptions.FLAG_DETAIL) == 0) return 0
+        val encoded =
+            (flags ushr TruthRawAdvancedOptions.DETAIL_STRENGTH_SHIFT) and 0x7f
+        return if (encoded == 0) 100 else encoded.coerceIn(1, 100)
+    }
+
+    private fun colorFullnessFromFlags(flags: Int): Int {
+        if ((flags and TruthRawAdvancedOptions.FLAG_COLOR_CONTROL) == 0) return 0
+        val encoded =
+            ((flags ushr TruthRawAdvancedOptions.COLOR_FULLNESS_SHIFT) and 0x7f)
+                .coerceIn(0, 100)
+        return encoded - 50
+    }
+
+    private fun advancedAppearanceBaked(flags: Int): Boolean =
+        (flags and (
+            TruthRawAdvancedOptions.FLAG_LIGHT or
+                TruthRawAdvancedOptions.FLAG_DETAIL or
+                TruthRawAdvancedOptions.FLAG_RESTORATION
+            )) != 0 ||
+            colorFullnessFromFlags(flags) != 0
+
     fun export(
         resolver: ContentResolver,
         job: RawJob,
@@ -270,8 +293,7 @@ object PureFloat32DngExporter {
             )
         }
         if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
-            val bakedAppearance =
-                (advancedFlags and (0x01 or 0x04 or 0x08)) != 0
+            val bakedAppearance = advancedAppearanceBaked(advancedFlags)
             requiredMarkers += listOf(
                 "derivative_projection=1",
                 "projected_raster_sha256=",
@@ -287,6 +309,9 @@ object PureFloat32DngExporter {
                 "negative_components_preserved=1",
                 "over_one_components_preserved=1",
                 "advanced_flags=$advancedFlags",
+                "detail_strength_percent=${detailStrengthFromFlags(advancedFlags)}",
+                "color_fullness=${colorFullnessFromFlags(advancedFlags)}",
+                "color_fullness_role=APPEARANCE_ONLY_LUMINANCE_PRESERVING",
                 "detail_baked_into_primary=" + if ((advancedFlags and 0x04) != 0) "1" else "0",
                 "light_baked_into_primary=" + if ((advancedFlags and 0x01) != 0) "1" else "0",
                 "restoration_baked_into_primary=" + if ((advancedFlags and 0x08) != 0) "1" else "0",
@@ -565,8 +590,7 @@ object PureFloat32DngExporter {
                     metrics.projectedPixels * 3L ||
                 metrics.outputAuthorityArtifactSha256.all { it == '0' }
 
-        val expectedRenderAppearance =
-            (advancedFlags and (0x01 or 0x04 or 0x08)) != 0
+        val expectedRenderAppearance = advancedAppearanceBaked(advancedFlags)
         val flavorViolation = when (flavor) {
             Float32DngExportFlavor.PURE,
             Float32DngExportFlavor.JPGL_RAW_EDIT ->
