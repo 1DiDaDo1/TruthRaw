@@ -478,12 +478,12 @@ struct Backend::Impl final {
             for(std::uint32_t y=0u;y<sh;++y) {
                 for(std::uint32_t x=0u;x<sw;++x) {
                     const auto i=(static_cast<std::size_t>(y)*sw+x)*3u;
-                    source[i+0]=-0.125f+0.03125f*static_cast<float>(x)+
-                                0.015625f*static_cast<float>(y);
-                    source[i+1]=0.25f+0.046875f*static_cast<float>(x)+
+                    source[i+0]=-0.17320508f+0.01953125f*static_cast<float>(x)+
                                 0.0078125f*static_cast<float>(y);
-                    source[i+2]=0.75f+0.0625f*static_cast<float>(x)+
-                                0.0234375f*static_cast<float>(y);
+                    source[i+1]=0.31415927f+0.033203125f*static_cast<float>(x)+
+                                0.01171875f*static_cast<float>(y);
+                    source[i+2]=1.2345679f-0.02734375f*static_cast<float>(x)+
+                                0.015625f*static_cast<float>(y);
                 }
             }
             PatchRequest req{};
