@@ -536,22 +536,30 @@ bool Backend::available() const noexcept {
     return impl_ && impl_->probe.exactScientificEligible;
 }
 
+bool Backend::exactScientificEligible() const noexcept {
+    return available();
+}
+
+const char* Backend::backendName() const noexcept {
+    return "VULKAN_GENERIC_EXACT";
+}
+
 bool Backend::projectPatch(
     const PatchRequest& request,
     const float* sourceRgb,
     std::size_t sourceFloatCount,
     float* targetRgb,
     std::size_t targetFloatCount,
-    std::string* error) noexcept {
+    std::string& error) noexcept {
     if(!available()) {
-        if(error) *error=probe().reason;
+        error=probe().reason;
         return false;
     }
     if(!sourceRgb || !targetRgb ||
        request.sourceFullWidth==0u || request.sourceFullHeight==0u ||
        request.patchWidth==0u || request.patchHeight==0u ||
        request.targetWidth==0u || request.targetHeight==0u) {
-        if(error) *error="invalid Vulkan dense patch request";
+        error="invalid Vulkan dense patch request";
         return false;
     }
     const auto expectedSource =
@@ -559,7 +567,7 @@ bool Backend::projectPatch(
     const auto expectedTarget =
         static_cast<std::size_t>(request.targetWidth)*request.targetHeight*3u;
     if(sourceFloatCount!=expectedSource || targetFloatCount!=expectedTarget) {
-        if(error) *error="Vulkan dense patch float-count mismatch";
+        error="Vulkan dense patch float-count mismatch";
         return false;
     }
     try {
@@ -567,10 +575,10 @@ bool Backend::projectPatch(
         std::string local;
         const bool ok=impl_->dispatch(
             request,sourceRgb,sourceFloatCount,targetRgb,targetFloatCount,local);
-        if(!ok && error) *error=local;
+        if(!ok) error=local;
         return ok;
     } catch(...) {
-        if(error) *error="unexpected Vulkan dense dispatch failure";
+        error="unexpected Vulkan dense dispatch failure";
         return false;
     }
 }
