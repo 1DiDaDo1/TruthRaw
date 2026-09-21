@@ -29,27 +29,6 @@ uint clampIndex(int v, uint limit) {
     return u >= limit ? limit - 1u : u;
 }
 
-void axisMap(uint targetCoord, out uint s0, out uint s1, out precise float f) {
-    uint n = targetCoord >> 2u;
-    uint r = targetCoord & 3u;
-    int base;
-    if (r == 0u) {
-        base = int(n) - 1;
-        f = 0.625;
-    } else if (r == 1u) {
-        base = int(n) - 1;
-        f = 0.875;
-    } else if (r == 2u) {
-        base = int(n);
-        f = 0.125;
-    } else {
-        base = int(n);
-        f = 0.375;
-    }
-    s0 = clampIndex(base, r == r ? (targetCoord == targetCoord ? 0xffffffffu : 0xffffffffu) : 0xffffffffu);
-    s1 = 0u;
-}
-
 void main() {
     uvec2 local = gl_GlobalInvocationID.xy;
     if (local.x >= pc.targetWidth || local.y >= pc.targetHeight) return;
