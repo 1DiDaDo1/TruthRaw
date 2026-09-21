@@ -36,6 +36,8 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingFullColourMasterJobId: String? = null
     private var fullColourMasterStatus: String? = null
+    private var pendingTruthNegative200MpJobId: String? = null
+    private var truthNegative200MpStatus: String? = null
     private var pendingRenderEditJobId: String? = null
     private var renderEditStatus: String? = null
     private var pendingRenderEditFlags: Int = 0
@@ -193,6 +195,8 @@ class MainActivity : Activity() {
         empiricalAudit = null
         jpegStatus = null
         fullColourMasterStatus = null
+        truthNegative200MpStatus = null
+        pendingTruthNegative200MpJobId = null
         renderEditStatus = null
         pendingRenderEditJobId = null
         pendingRenderEditFlags = 0
@@ -246,6 +250,7 @@ class MainActivity : Activity() {
 
         recover("jpeg")?.let { jpegStatus = it.message }
         recover("full-colour-scientific-master")?.let { fullColourMasterStatus = it.message }
+        recover("truthnegative-200mp-full-colour")?.let { truthNegative200MpStatus = it.message }
         recover("advanced-render-edit")?.let { renderEditStatus = it.message }
         recover("pure-float32")?.let { pureFloatDngStatus = it.message }
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
@@ -342,6 +347,34 @@ class MainActivity : Activity() {
             )
         }
         startActivityForResult(intent, REQUEST_SAVE_FULL_COLOUR_MASTER)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchTruthNegative200MpFullColourExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            truthNegative200MpStatus =
+                "TruthNegative 200MP vereist de volledig admitted DNG/Camera-5-route."
+            render()
+            return
+        }
+        pendingTruthNegative200MpJobId = job.id
+        truthNegative200MpStatus = null
+        pendingPhotoRoute = preferredRoute()
+        pendingPhotoFlags = 0
+        pendingPhotoQuarterTurns =
+            TruthRawOrientationOverride.quarterTurns(this, job.source)
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "${stem}_truthraw_truthnegative_200mp_full_colour_float32_v0_1.dng",
+            )
+        }
+        startActivityForResult(intent, REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR)
     }
 
     @Suppress("DEPRECATION")
@@ -744,6 +777,116 @@ class MainActivity : Activity() {
                                 "Scientific Master replay=${m.scientificMasterIdentityVerified} · " +
                                 "self-binding=${m.postWriteSelfBindingVerified} · " +
                                 "JPEG=preview-only · rotatie=${quarterTurns * 90}°."
+                        }
+                    }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+            val expectedJob = pendingTruthNegative200MpJobId
+            pendingTruthNegative200MpJobId = null
+            val route = pendingPhotoRoute ?: preferredRoute()
+            val quarterTurns = pendingPhotoQuarterTurns
+            pendingPhotoRoute = null
+            pendingPhotoFlags = 0
+            pendingPhotoQuarterTurns = 0
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                truthNegative200MpStatus = "TruthNegative 200MP-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null || job == null || ready == null ||
+                ready.jobId != expectedJob || activeJobId != expectedJob
+            ) {
+                truthNegative200MpStatus =
+                    "TruthNegative 200MP geblokkeerd: actieve TruthRaw-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey("truthnegative-200mp-full-colour", expectedJob)
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "TruthNegative 200MP Full Colour Float32 DNG opbouwen",
+                )
+            ) {
+                truthNegative200MpStatus =
+                    "TruthNegative 200MP kon niet veilig in de achtergrond starten."
+                render()
+                return
+            }
+            truthNegative200MpStatus =
+                "TruthNegative 200MP · 16320×12288 camera-native Float32 wordt opgebouwd… " +
+                    "targetpixels zijn RECONSTRUCTED_DENSE_SUPPORT; gemeten-targetclaims=0."
+            render()
+
+            startGuardedBackgroundThread(
+                name = "truthraw-truthnegative-200mp-${job.id.take(8)}",
+                operationKey = operationKey,
+                onUnexpected = { truthNegative200MpStatus = it },
+            ) {
+                val dir = File(
+                    filesDir,
+                    "truthnegative_200mp_full_colour/$expectedJob",
+                ).apply { mkdirs() }
+                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                    contentResolver,
+                    job,
+                    0,
+                    quarterTurns,
+                    dir,
+                )
+                val exportResult = when (previewResult) {
+                    is FullResJpegResult.Failed ->
+                        PureFloat32DngExportResult.Failed(
+                            "TruthNegative 200MP preview faalde: ${previewResult.reason}",
+                        )
+                    is FullResJpegResult.Success -> {
+                        try {
+                            PureFloat32DngExporter.export(
+                                contentResolver,
+                                job,
+                                destination,
+                                quarterTurns,
+                                Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR,
+                                0,
+                                previewResult.file,
+                                previewResult.metrics.width,
+                                previewResult.metrics.height,
+                            )
+                        } finally {
+                            previewResult.file.delete()
+                        }
+                    }
+                }
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is PureFloat32DngExportResult.Success,
+                    when (exportResult) {
+                        is PureFloat32DngExportResult.Success ->
+                            "TruthNegative 200MP Full Colour gereed."
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    truthNegative200MpStatus = when (exportResult) {
+                        is PureFloat32DngExportResult.Failed -> exportResult.reason
+                        is PureFloat32DngExportResult.Success -> {
+                            val m = exportResult.metrics
+                            "TruthNegative 200MP v0.1 gereed · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · IEEE Float32 LinearRaw · " +
+                                "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
+                                "projected identity=verified · source Scientific Master ongewijzigd · " +
+                                "authority=RESAMPLED_FAIL_CLOSED_UNKNOWN · " +
+                                "rotatie=${quarterTurns * 90}°."
                         }
                     }
                     render()
@@ -2008,6 +2151,39 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(5))
+                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
+                            launchTruthNegative200MpFullColourExport(active)
+                        })
+                        truthNegative200MpStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-200mp-full-colour",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Camera-5 only · 4080×3072 Scientific Master → 16320×12288 dense projection. " +
+                                "Ongeveer 2,24 GiB primaire Float32-raster. Alle extra targetposities blijven " +
+                                "RECONSTRUCTED/UNKNOWN; dit claimt geen 200MP gemeten CFA-detail.",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(space(5))
+                        addView(actionButton("TruthNegative 200MP · Float32 Full Colour · DNG") {
+                            launchTruthNegative200MpFullColourExport(active)
+                        })
+                        truthNegative200MpStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-200mp-full-colour",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(space(5))
                         addView(actionButton("Render/Edit · Float32 DNG · Lightroom") {
                             launchAdvancedRenderEditExport(active)
                         })
@@ -2404,5 +2580,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
         private const val REQUEST_SAVE_FULL_COLOUR_MASTER = 4110
         private const val REQUEST_SAVE_ADVANCED_RENDER_EDIT = 4111
+        private const val REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR = 4112
     }
 }
