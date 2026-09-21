@@ -1404,12 +1404,17 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         previewState = TilePreviewUiState.Idle
         jpegStatus = null
+        fullColourMasterStatus = null
+        truthNegative200MpStatus = null
+        renderEditStatus = null
         pureFloatDngStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
         pendingFullColourMasterJobId = null
+        pendingTruthNegative200MpJobId = null
+        pendingRenderEditJobId = null
         pendingPhotoRoute = null
         pendingPhotoFlags = 0
         pendingPhotoQuarterTurns = 0
