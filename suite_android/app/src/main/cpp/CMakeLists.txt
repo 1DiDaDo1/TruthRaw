@@ -131,7 +131,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
 
 if(ANDROID)
     file(GLOB TRUTHRAW_GLSLC_CANDIDATES
-        "${CMAKE_ANDROID_NDK}/shader-tools/*/glslc")
+        "${CMAKE_ANDROID_NDK}/shader-tools/*/glslc*")
     list(LENGTH TRUTHRAW_GLSLC_CANDIDATES TRUTHRAW_GLSLC_COUNT)
     if(TRUTHRAW_GLSLC_COUNT EQUAL 0)
         message(FATAL_ERROR "NDK glslc not found under ${CMAKE_ANDROID_NDK}/shader-tools")
@@ -155,8 +155,8 @@ if(ANDROID)
             "${TRUTHRAW_DENSE_SHADER}"
             -o "${TRUTHRAW_DENSE_SPV}"
         COMMAND "${CMAKE_COMMAND}"
-            -DINPUT="${TRUTHRAW_DENSE_SPV}"
-            -DOUTPUT="${TRUTHRAW_DENSE_SPV_HEADER}"
+            -DINPUT=${TRUTHRAW_DENSE_SPV}
+            -DOUTPUT=${TRUTHRAW_DENSE_SPV_HEADER}
             -P "${CMAKE_CURRENT_LIST_DIR}/cmake/embed_spirv.cmake"
         DEPENDS
             "${TRUTHRAW_DENSE_SHADER}"
