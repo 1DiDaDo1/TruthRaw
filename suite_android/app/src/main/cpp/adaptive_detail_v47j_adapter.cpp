@@ -253,9 +253,13 @@ Status AdaptiveDetailedCrispAppearanceV47j::applyTile(
             yd = std::max(yd, 0.0f);
 
             const float sc = yy > 1e-8f ? yd / yy : 1.0f;
-            out[3 * oi] = nr * sc;
-            out[3 * oi + 1] = ng * sc;
-            out[3 * oi + 2] = nb * sc;
+            const float detailMix = clamp01(detailMix_);
+            const float dr = nr * sc;
+            const float dg = ng * sc;
+            const float db = nb * sc;
+            out[3 * oi] = a[3 * si] + detailMix * (dr - a[3 * si]);
+            out[3 * oi + 1] = a[3 * si + 1] + detailMix * (dg - a[3 * si + 1]);
+            out[3 * oi + 2] = a[3 * si + 2] + detailMix * (db - a[3 * si + 2]);
         }
     }
 
