@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "adaptive_detail_v47j_adapter.h"
+#include "advanced_appearance_controls_v0_1.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
 #include "open_scene_canonical_v0_70.h"
@@ -46,6 +47,7 @@ using truthraw::streaming_v0_1::StreamingTruthRawProcessor;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
 
 namespace adaptive_detail = truthraw::adaptive_detail_v47j_adapter;
+namespace advanced_controls = truthraw::advanced_appearance_controls::v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
@@ -55,11 +57,11 @@ namespace hdr_authority = truthraw::hdr_authority::v0_83;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
 constexpr std::size_t kPacketLongs = 48u;
-constexpr jint kFlagLight = 1 << 0;
-constexpr jint kFlagHdr = 1 << 1;
-constexpr jint kFlagDetail = 1 << 2;
-constexpr jint kFlagRestoration = 1 << 3;
-constexpr jint kAllowedFlags = kFlagLight | kFlagHdr | kFlagDetail | kFlagRestoration;
+constexpr jint kFlagLight = static_cast<jint>(advanced_controls::kFlagLight);
+constexpr jint kFlagHdr = static_cast<jint>(advanced_controls::kFlagHdr);
+constexpr jint kFlagDetail = static_cast<jint>(advanced_controls::kFlagDetail);
+constexpr jint kFlagRestoration = static_cast<jint>(advanced_controls::kFlagRestoration);
+constexpr jint kAllowedFlags = static_cast<jint>(advanced_controls::kAllowedFlags);
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
 
@@ -215,8 +217,10 @@ public:
           userQuarterTurns_(userQuarterTurns),
           source_(source),
           noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
+          colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
           outputProfile_(
-              (flags & kFlagDetail) != 0
+              detailMix_ > 0.0f
                   ? truthraw_v47k::OutputProfile::AdaptiveDetail
                   : truthraw_v47k::OutputProfile::Neutral) {}
 
@@ -398,8 +402,19 @@ public:
                 "full-res staged coverage incomplete");
         }
 
-        const auto plan=truthraw_v47k::choose_output_acutance_plan(
+        auto plan=truthraw_v47k::choose_output_acutance_plan(
             noiseSigmaAt2Pct_,1.0f,outputProfile_);
+        if(outputProfile_==truthraw_v47k::OutputProfile::AdaptiveDetail) {
+            const auto neutral=truthraw_v47k::choose_output_acutance_plan(
+                noiseSigmaAt2Pct_,1.0f,truthraw_v47k::OutputProfile::Neutral);
+            const auto adaptive=truthraw_v47k::choose_output_acutance_plan(
+                noiseSigmaAt2Pct_,1.0f,truthraw_v47k::OutputProfile::AdaptiveDetail);
+            plan=adaptive;
+            plan.strength=neutral.strength+
+                detailMix_*(adaptive.strength-neutral.strength);
+            plan.deltaCap=neutral.deltaCap+
+                detailMix_*(adaptive.deltaCap-neutral.deltaCap);
+        }
 
         for(int y0=0;y0<sourceHeight_;y0+=kTileCore) {
             const int y1=std::min(sourceHeight_,y0+kTileCore);
@@ -649,6 +664,13 @@ private:
                     }
                 }
 
+                if(!advanced_controls::apply_color_fullness(
+                        r,g,b,colorFullnessMix_)) {
+                    return StreamStatus::error(
+                        StreamStatusCode::SinkFailed,
+                        "full-res color-fullness transform failed");
+                }
+
                 const float mx=std::max(r,std::max(g,b));
                 if(mx>0.92f) {
                     const float shoulder=
@@ -744,6 +766,8 @@ private:
     jint userQuarterTurns_=0;
     truthraw::streaming_v0_1::IRawTileSource& source_;
     float noiseSigmaAt2Pct_=0.0f;
+    float detailMix_=0.0f;
+    float colorFullnessMix_=0.0f;
     truthraw_v47k::OutputProfile outputProfile_=truthraw_v47k::OutputProfile::Neutral;
 
     int sourceWidth_=0;
@@ -973,7 +997,9 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     std::shared_ptr<truthraw::IAppearanceBackend> appearance;
     const float noiseSigma=adaptive_detail::noise_sigma_2pct_from_metadata(source->metadata());
     if((flags&kFlagDetail)!=0) {
-        appearance=std::make_shared<adaptive_detail::AdaptiveDetailedCrispAppearanceV47j>(noiseSigma);
+        appearance=std::make_shared<adaptive_detail::AdaptiveDetailedCrispAppearanceV47j>(
+            noiseSigma,
+            advanced_controls::detail_mix(static_cast<std::uint32_t>(flags)));
     } else {
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
