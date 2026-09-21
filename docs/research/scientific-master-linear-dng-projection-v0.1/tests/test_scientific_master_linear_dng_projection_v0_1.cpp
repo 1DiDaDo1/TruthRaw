@@ -56,6 +56,20 @@ float f32(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
     return value;
 }
 
+double srational(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
+    const auto num = static_cast<std::int32_t>(u32(bytes, offset));
+    const auto den = static_cast<std::int32_t>(u32(bytes, offset + 4u));
+    REQUIRE(den != 0);
+    return static_cast<double>(num) / static_cast<double>(den);
+}
+
+double rational(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
+    const auto num = u32(bytes, offset);
+    const auto den = u32(bytes, offset + 4u);
+    REQUIRE(den != 0u);
+    return static_cast<double>(num) / static_cast<double>(den);
+}
+
 class SyntheticMasterSource final : public projection::IScientificMasterTileSource {
 public:
     SyntheticMasterSource(std::uint32_t width, std::uint32_t height)
@@ -392,6 +406,150 @@ void verify_dng_structure(
     REQUIRE(privateText.find(descriptor.colorBindingId) != std::string::npos);
 }
 
+void verify_camera_native_full_colour_dng(
+    const std::vector<std::uint8_t>& bytes,
+    const projection::ProjectionDescriptor& descriptor,
+    const std::array<float, 9>& cameraToXyzD50) {
+    const auto entries = parse_ifd(bytes);
+
+    REQUIRE(entries.count(254u) == 1u);
+    REQUIRE(u32(bytes, payload_offset(entries.at(254u))) == 0u);
+    REQUIRE(entries.count(262u) == 1u);
+    REQUIRE(u16(bytes, payload_offset(entries.at(262u))) ==
+            projection::kPhotometricLinearRaw);
+
+    REQUIRE(entries.count(258u) == 1u);
+    const auto bitsOff = payload_offset(entries.at(258u));
+    REQUIRE(u16(bytes, bitsOff + 0u) == 32u);
+    REQUIRE(u16(bytes, bitsOff + 2u) == 32u);
+    REQUIRE(u16(bytes, bitsOff + 4u) == 32u);
+
+    REQUIRE(entries.count(339u) == 1u);
+    const auto fmtOff = payload_offset(entries.at(339u));
+    REQUIRE(u16(bytes, fmtOff + 0u) == 3u);
+    REQUIRE(u16(bytes, fmtOff + 2u) == 3u);
+    REQUIRE(u16(bytes, fmtOff + 4u) == 3u);
+
+    REQUIRE(entries.count(50721u) == 1u); // ColorMatrix1: XYZ D50 -> camera
+    REQUIRE(entries.count(50728u) == 1u); // AsShotNeutral
+    REQUIRE(entries.count(50964u) == 1u); // ForwardMatrix1
+    REQUIRE(entries.count(50778u) == 1u);
+    REQUIRE(u16(bytes, payload_offset(entries.at(50778u))) ==
+            projection::kCalibrationIlluminantD50);
+
+    const auto cmOff = payload_offset(entries.at(50721u));
+    double colorMatrix[9]{};
+    for (int n=0; n<9; ++n) {
+        colorMatrix[n] = srational(bytes, cmOff + static_cast<std::size_t>(n)*8u);
+    }
+    // ColorMatrix1 is the inverse of the authorized camera->XYZ-D50 transform.
+    for (int row=0; row<3; ++row) {
+        for (int col=0; col<3; ++col) {
+            double value = 0.0;
+            for (int k=0; k<3; ++k) {
+                value += colorMatrix[row*3+k] *
+                         static_cast<double>(cameraToXyzD50[k*3+col]);
+            }
+            REQUIRE(std::abs(value - (row == col ? 1.0 : 0.0)) < 5.0e-5);
+        }
+    }
+
+    const auto neutralOff = payload_offset(entries.at(50728u));
+    double neutral[3] = {
+        rational(bytes, neutralOff + 0u),
+        rational(bytes, neutralOff + 8u),
+        rational(bytes, neutralOff + 16u),
+    };
+    for (double v : neutral) REQUIRE(std::isfinite(v) && v > 0.0);
+
+    const auto fmOff = payload_offset(entries.at(50964u));
+    double forward[9]{};
+    for (int n=0; n<9; ++n) {
+        forward[n] = srational(bytes, fmOff + static_cast<std::size_t>(n)*8u);
+    }
+    // DNG formula with AB=CC=I: CameraToXYZ_D50 = FM * diag(1/neutral).
+    for (int row=0; row<3; ++row) {
+        for (int col=0; col<3; ++col) {
+            const double reconstructed = forward[row*3+col] / neutral[col];
+            REQUIRE(std::abs(
+                reconstructed - static_cast<double>(cameraToXyzD50[row*3+col])) <
+                5.0e-5);
+        }
+    }
+
+    REQUIRE(entries.count(324u) == 1u);
+    const auto offsetsOff = payload_offset(entries.at(324u));
+    const std::uint32_t tile0 = u32(bytes, offsetsOff);
+    const auto expected = SyntheticMasterSource::pixel(0u, 0u);
+    const float actualR = f32(bytes, tile0 + 0u);
+    const float actualG = f32(bytes, tile0 + 4u);
+    const float actualB = f32(bytes, tile0 + 8u);
+    REQUIRE(std::memcmp(&expected[0], &actualR, sizeof(float)) == 0);
+    REQUIRE(std::memcmp(&expected[1], &actualG, sizeof(float)) == 0);
+    REQUIRE(std::memcmp(&expected[2], &actualB, sizeof(float)) == 0);
+
+    REQUIRE(entries.count(50740u) == 1u);
+    const auto privateOff = payload_offset(entries.at(50740u));
+    const auto privateText = bytes_as_string(
+        bytes, privateOff, entries.at(50740u).count);
+    REQUIRE(privateText.find(
+        "role=TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1") !=
+        std::string::npos);
+    REQUIRE(privateText.find(
+        "primary_storage_space=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB_FLOAT32") !=
+        std::string::npos);
+    REQUIRE(privateText.find("primary_linearraw_is_full_colour=1") != std::string::npos);
+    REQUIRE(privateText.find("primary_is_jpeg_snapshot=0") != std::string::npos);
+    REQUIRE(privateText.find("scientific_master_modified=0") != std::string::npos);
+    REQUIRE(privateText.find("appearance_applied=0") != std::string::npos);
+    REQUIRE(privateText.find("scientific_master_sha256=") != std::string::npos);
+    (void)descriptor;
+}
+
+void test_camera_native_full_colour_scientific_master() {
+    constexpr std::uint32_t width = 66u;
+    constexpr std::uint32_t height = 50u;
+    SyntheticMasterSource hashingSource(width, height);
+    const auto master = compute_master_hash(hashingSource, width, height);
+    auto descriptor = descriptor_for(width, height, master);
+    descriptor.projectionRole =
+        "TRUTHRAW_FULL_COLOUR_SCIENTIFIC_MASTER_FLOAT32_CAMERA_NATIVE_LINEAR_DNG_V0_1";
+
+    const std::array<float, 9> matrix = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.5f, 0.0f,
+        0.0f, 0.0f, 0.75f,
+    };
+
+    SyntheticMasterSource sourceA(width, height);
+    MemoryTransactionSink sinkA;
+    projection::Result resultA{};
+    const auto statusA =
+        projection::write_camera_native_full_colour_scientific_master_dng(
+            sourceA, descriptor, matrix, sinkA, resultA);
+    if (!statusA) std::cerr << "camera-native projection failed: "
+                            << statusA.message << '\n';
+    REQUIRE(statusA);
+    REQUIRE(resultA.scientificMasterIdentityVerified);
+    REQUIRE(resultA.projectedRasterIdentityVerified);
+    REQUIRE(resultA.artifactCommitted);
+    REQUIRE(resultA.representationOnly);
+    REQUIRE(!resultA.scientificMasterModified);
+    REQUIRE(!resultA.appearanceApplied);
+    REQUIRE(!resultA.counterfactualObservationCreated);
+    verify_camera_native_full_colour_dng(
+        sinkA.committed, descriptor, matrix);
+
+    SyntheticMasterSource sourceB(width, height);
+    MemoryTransactionSink sinkB;
+    projection::Result resultB{};
+    const auto statusB =
+        projection::write_camera_native_full_colour_scientific_master_dng(
+            sourceB, descriptor, matrix, sinkB, resultB);
+    REQUIRE(statusB);
+    REQUIRE(sinkA.committed == sinkB.committed);
+}
+
 void test_transactional_projection_and_identity_gate() {
     constexpr std::uint32_t width = 66u;
     constexpr std::uint32_t height = 50u;
@@ -501,6 +659,7 @@ void test_transactional_projection_and_identity_gate() {
 
 int main() {
     test_transactional_projection_and_identity_gate();
+    test_camera_native_full_colour_scientific_master();
     std::cout << "SCIENTIFIC_MASTER_LINEAR_DNG_PROJECTION_V0_1_PASS\n";
     std::cout << "photometric_linear_raw=34892\n";
     std::cout << "sample_format_ieee_float32=1\n";
@@ -512,5 +671,7 @@ int main() {
     std::cout << "representation_only=1\n";
     std::cout << "physical_frame_count=1\n";
     std::cout << "independent_evidence_count=1\n";
+    std::cout << "camera_native_full_colour_scientific_master=1\n";
+    std::cout << "camera_native_primary_bit_exact=1\n";
     return 0;
 }
