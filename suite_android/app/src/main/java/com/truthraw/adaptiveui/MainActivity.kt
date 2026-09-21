@@ -34,8 +34,8 @@ class MainActivity : Activity() {
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
     private var jpegStatus: String? = null
-    private var pendingJpgLJobId: String? = null
-    private var jpgLStatus: String? = null
+    private var pendingFullColourMasterJobId: String? = null
+    private var fullColourMasterStatus: String? = null
     private var pendingRenderEditJobId: String? = null
     private var renderEditStatus: String? = null
     private var pendingRenderEditFlags: Int = 0
@@ -192,7 +192,7 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = null
         empiricalAudit = null
         jpegStatus = null
-        jpgLStatus = null
+        fullColourMasterStatus = null
         renderEditStatus = null
         pendingRenderEditJobId = null
         pendingRenderEditFlags = 0
@@ -245,7 +245,7 @@ class MainActivity : Activity() {
             )
 
         recover("jpeg")?.let { jpegStatus = it.message }
-        recover("jpgl-raw-edit")?.let { jpgLStatus = it.message }
+        recover("full-colour-scientific-master")?.let { fullColourMasterStatus = it.message }
         recover("advanced-render-edit")?.let { renderEditStatus = it.message }
         recover("pure-float32")?.let { pureFloatDngStatus = it.message }
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
@@ -321,24 +321,27 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun launchJpgLExport(job: RawJob) {
+    private fun launchFullColourScientificMasterExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
-        pendingJpgLJobId = job.id
-        jpgLStatus = null
+        pendingFullColourMasterJobId = job.id
+        fullColourMasterStatus = null
         val route = preferredRoute()
         pendingPhotoRoute = route
-        pendingPhotoFlags = photoFlagsForRoute(route)
+        pendingPhotoFlags = 0
         pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            // JPG-L v0.3 RAW/Edit: Float32 DNG is the primary Lightroom-editable
-            // image. JPEG remains preview/delivery only and is never the authority.
+            // Full-colour Scientific Master: camera-native IEEE Float32 LinearRaw
+            // is the primary image. JPEG is secondary preview only.
             type = "image/x-adobe-dng"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_jpgl_raw_edit_v0_3.dng")
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "${stem}_truthraw_full_colour_scientific_master_float32_v0_1.dng",
+            )
         }
-        startActivityForResult(intent, REQUEST_SAVE_JPG_L)
+        startActivityForResult(intent, REQUEST_SAVE_FULL_COLOUR_MASTER)
     }
 
     @Suppress("DEPRECATION")
@@ -650,9 +653,9 @@ class MainActivity : Activity() {
             return
         }
 
-        if (requestCode == REQUEST_SAVE_JPG_L) {
-            val expectedJob = pendingJpgLJobId
-            pendingJpgLJobId = null
+        if (requestCode == REQUEST_SAVE_FULL_COLOUR_MASTER) {
+            val expectedJob = pendingFullColourMasterJobId
+            pendingFullColourMasterJobId = null
             val route = pendingPhotoRoute ?: preferredRoute()
             val flags = pendingPhotoFlags
             val quarterTurns = pendingPhotoQuarterTurns
@@ -661,7 +664,7 @@ class MainActivity : Activity() {
             pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
-                jpgLStatus = "JPG-L RAW/Edit-export geannuleerd."
+                fullColourMasterStatus = "Full Colour Scientific Master-export geannuleerd."
                 render()
                 return
             }
@@ -670,27 +673,27 @@ class MainActivity : Activity() {
             if (expectedJob == null || job == null || ready == null ||
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
-                jpgLStatus = "JPG-L RAW/Edit geblokkeerd: actieve TruthRaw-route veranderde."
+                fullColourMasterStatus = "Full Colour Scientific Master geblokkeerd: actieve TruthRaw-route veranderde."
                 render()
                 return
             }
 
-            val operationKey = backgroundOperationKey("jpgl-raw-edit", expectedJob)
-            if (!startBackgroundOperation(operationKey, "JPG-L RAW/Edit Float32 DNG opbouwen")) {
-                jpgLStatus = "JPG-L achtergrondverwerking kon niet veilig starten."
+            val operationKey = backgroundOperationKey("full-colour-scientific-master", expectedJob)
+            if (!startBackgroundOperation(operationKey, "Full Colour Scientific Master Float32 DNG opbouwen")) {
+                fullColourMasterStatus = "Full Colour Scientific Master kon niet veilig in de achtergrond starten."
                 render()
                 return
             }
-            jpgLStatus =
-                "JPG-L RAW/Edit · 32-bit Float DNG wordt opgebouwd… " +
-                    "Float32 is primaire editlaag; Advanced blijft non-destructief recipe."
+            fullColourMasterStatus =
+                "Full Colour Scientific Master · camera-native 32-bit Float DNG wordt opgebouwd… " +
+                    "Scientific Master is de primaire LinearRaw; JPEG blijft alleen preview."
             render()
             startGuardedBackgroundThread(
-                name = "truthraw-jpgl-raw-edit-${job.id.take(8)}",
+                name = "truthraw-full-colour-master-${job.id.take(8)}",
                 operationKey = operationKey,
-                onUnexpected = { jpgLStatus = it },
+                onUnexpected = { fullColourMasterStatus = it },
             ) {
-                val dir = File(filesDir, "jpgl_raw_edit/$expectedJob").apply { mkdirs() }
+                val dir = File(filesDir, "full_colour_scientific_master/$expectedJob").apply { mkdirs() }
                 val previewResult = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver,
                     job,
@@ -701,7 +704,7 @@ class MainActivity : Activity() {
                 val exportResult = when (previewResult) {
                     is FullResJpegResult.Failed ->
                         PureFloat32DngExportResult.Failed(
-                            "JPG-L RAW/Edit preview faalde: ${previewResult.reason}",
+                            "Full Colour Scientific Master preview faalde: ${previewResult.reason}",
                         )
                     is FullResJpegResult.Success -> {
                         try {
@@ -710,7 +713,7 @@ class MainActivity : Activity() {
                                 job,
                                 destination,
                                 quarterTurns,
-                                Float32DngExportFlavor.JPGL_RAW_EDIT,
+                                Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER,
                                 flags,
                                 previewResult.file,
                                 previewResult.metrics.width,
@@ -725,23 +728,22 @@ class MainActivity : Activity() {
                     operationKey,
                     exportResult is PureFloat32DngExportResult.Success,
                     when (exportResult) {
-                        is PureFloat32DngExportResult.Success -> "JPG-L RAW/Edit gereed."
+                        is PureFloat32DngExportResult.Success -> "Full Colour Scientific Master gereed."
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                     },
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
-                    jpgLStatus = when (exportResult) {
+                    fullColourMasterStatus = when (exportResult) {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
-                            "JPG-L RAW/Edit v0.3 gereed · ${m.width}×${m.height} · " +
-                                "${formatBytes(m.outputBytes)} · IEEE Float32 primary + embedded JPEG preview · " +
+                            "Full Colour Scientific Master v0.1 gereed · ${m.width}×${m.height} · " +
+                                "${formatBytes(m.outputBytes)} · camera-native IEEE Float32 LinearRaw primary · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
-                                "Advanced recipe flags=$flags · route=$route · " +
                                 "Scientific Master replay=${m.scientificMasterIdentityVerified} · " +
-                                "self/edit-binding=${m.postWriteSelfBindingVerified} · " +
-                                "rotatie=${quarterTurns * 90}°."
+                                "self-binding=${m.postWriteSelfBindingVerified} · " +
+                                "JPEG=preview-only · rotatie=${quarterTurns * 90}°."
                         }
                     }
                     render()
@@ -1264,7 +1266,7 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
-        pendingJpgLJobId = null
+        pendingFullColourMasterJobId = null
         pendingPhotoRoute = null
         pendingPhotoFlags = 0
         pendingPhotoQuarterTurns = 0
@@ -1989,19 +1991,19 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(space(5))
-                        addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
-                            launchJpgLExport(active)
+                        addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
+                            launchFullColourScientificMasterExport(active)
                         })
-                        jpgLStatus?.let { status ->
+                        fullColourMasterStatus?.let { status ->
                             backgroundOperationStatusView(
-                                backgroundOperationKey("jpgl-raw-edit", active.id),
+                                backgroundOperationKey("full-colour-scientific-master", active.id),
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(label(
-                            "JPG-L RAW/Edit gebruikt Float32 Linear DNG als primaire bewerkbare afbeelding. " +
-                                "Negatieve en >1 waarden blijven behouden; Advanced-instellingen worden als non-destructief recipe gebonden. " +
-                                "De gewone JPG blijft uitsluitend preview/delivery.",
+                            "Camera-native full-colour Scientific Master RGB wordt rechtstreeks als IEEE Float32 LinearRaw-primary opgeslagen. " +
+                                "Negatieve en >1 waarden blijven behouden; er wordt geen Advanced appearance in de primary gebakken. " +
+                                "De ingebedde JPEG is uitsluitend een niet-autoritatieve preview.",
                             10f,
                             muted = true,
                         ))
@@ -2061,12 +2063,12 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(space(5))
-                        addView(actionButton("JPG-L RAW/Edit · Float32 DNG · Lightroom") {
-                            launchJpgLExport(active)
+                        addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
+                            launchFullColourScientificMasterExport(active)
                         })
-                        jpgLStatus?.let { status ->
+                        fullColourMasterStatus?.let { status ->
                             backgroundOperationStatusView(
-                                backgroundOperationKey("jpgl-raw-edit", active.id),
+                                backgroundOperationKey("full-colour-scientific-master", active.id),
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
@@ -2400,7 +2402,7 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_TRUTHNEGATIVE = 4107
         private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
         private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
-        private const val REQUEST_SAVE_JPG_L = 4110
+        private const val REQUEST_SAVE_FULL_COLOUR_MASTER = 4110
         private const val REQUEST_SAVE_ADVANCED_RENDER_EDIT = 4111
     }
 }
