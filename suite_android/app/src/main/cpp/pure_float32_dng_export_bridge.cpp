@@ -229,7 +229,7 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     constexpr jint kPureMode = 0;
     constexpr jint kJpgLRawEditMode = 1;
     constexpr jint kAdvancedRenderEditMode = 2;
-    constexpr jint kAllowedAdvancedFlags = 0x0f;
+    constexpr jint kAllowedAdvancedFlags = static_cast<jint>(render_edit::kAllowedFlags);
     if (sourceFd < 0 || outputFd < 0 ||
         userQuarterTurns < 0 || userQuarterTurns > 3 ||
         (exportMode != kPureMode &&
@@ -568,6 +568,15 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             "negative_components_preserved=1\n" +
             "over_one_components_preserved=1\n" +
             "advanced_flags=" + std::to_string(advancedFlags) + "\n" +
+            "detail_strength_percent=" +
+                std::to_string(
+                    render_edit::controls::detail_strength_percent(
+                        static_cast<std::uint32_t>(advancedFlags))) + "\n" +
+            "color_fullness=" +
+                std::to_string(
+                    render_edit::controls::color_fullness(
+                        static_cast<std::uint32_t>(advancedFlags))) + "\n" +
+            "color_fullness_role=APPEARANCE_ONLY_LUMINANCE_PRESERVING\n" +
             "detail_baked_into_primary=" +
                 std::to_string(
                     (advancedFlags & static_cast<jint>(render_edit::kFlagDetail))
