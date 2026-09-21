@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scientific_master_linear_dng_projection_v0_1.h"
+#include "advanced_appearance_controls_v0_1.h"
 #include "full_frame_streaming_v0_1.h"
 #include "truthraw/core.h"
 
@@ -14,12 +15,14 @@ namespace truthraw::advanced_render_edit::v0_1 {
 namespace float_dng =
     truthraw::scientific_master_linear_dng_projection::v0_1;
 
-inline constexpr std::uint32_t kFlagLight = 1u << 0u;
-inline constexpr std::uint32_t kFlagHdr = 1u << 1u;
-inline constexpr std::uint32_t kFlagDetail = 1u << 2u;
-inline constexpr std::uint32_t kFlagRestoration = 1u << 3u;
-inline constexpr std::uint32_t kAllowedFlags =
-    kFlagLight | kFlagHdr | kFlagDetail | kFlagRestoration;
+namespace controls = truthraw::advanced_appearance_controls::v0_1;
+
+inline constexpr std::uint32_t kFlagLight = controls::kFlagLight;
+inline constexpr std::uint32_t kFlagHdr = controls::kFlagHdr;
+inline constexpr std::uint32_t kFlagDetail = controls::kFlagDetail;
+inline constexpr std::uint32_t kFlagRestoration = controls::kFlagRestoration;
+inline constexpr std::uint32_t kFlagColorControl = controls::kFlagColorControl;
+inline constexpr std::uint32_t kAllowedFlags = controls::kAllowedFlags;
 
 // Returns the exact storage transform used for the Render/Edit DNG:
 // extended linear-sRGB derivative -> XYZ-D50 Float32 LinearRaw.
