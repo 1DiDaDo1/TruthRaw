@@ -18,6 +18,11 @@ inline constexpr std::uint32_t kCanonicalTileEdge = 64u;
 inline constexpr std::uint16_t kPhotometricLinearRaw = 34892u;
 inline constexpr std::uint16_t kCalibrationIlluminantD50 = 23u;
 
+enum class PrimaryStorageSpace : std::uint8_t {
+    XyzD50 = 0,
+    CameraNativeScientificMaster = 1,
+};
+
 enum class StatusCode : std::uint8_t {
     Ok = 0,
     InvalidArgument,
@@ -83,6 +88,11 @@ struct ProjectionDescriptor final {
     std::span<const std::uint8_t> jpegPreviewBytes{};
     std::uint32_t jpegPreviewWidth = 0u;
     std::uint32_t jpegPreviewHeight = 0u;
+    // Historical routes store an XYZ-D50 Float32 projection. The full-colour
+    // Scientific Master route stores the camera-native Scientific Master RGB
+    // directly and supplies a self-consistent DNG camera profile derived from
+    // the already-authorized cameraToXyzD50 binding.
+    PrimaryStorageSpace primaryStorageSpace = PrimaryStorageSpace::XyzD50;
     bool restorationDerivative = false;
     bool projectedAppearanceApplied = false;
     bool projectedCounterfactualObservationCreated = false;
@@ -151,6 +161,17 @@ struct Result final {
 // CFA evidence. Values are not clipped before storage. DNG readers are allowed
 // to apply their own raw-domain clipping/rendering behavior downstream.
 Status write_xyz_d50_linear_dng_projection(
+    IScientificMasterTileSource& source,
+    const ProjectionDescriptor& descriptor,
+    const std::array<float, 9>& cameraToXyzD50,
+    ITransactionalByteSink& sink,
+    Result& out) noexcept;
+
+// Stores the camera-native, full-colour Scientific Master RGB directly as
+// IEEE Float32 LinearRaw. The camera profile is synthesized only from the
+// already-authorized cameraToXyzD50 binding, so it does not create stronger
+// color authority or modify the Scientific Master.
+Status write_camera_native_full_colour_scientific_master_dng(
     IScientificMasterTileSource& source,
     const ProjectionDescriptor& descriptor,
     const std::array<float, 9>& cameraToXyzD50,
