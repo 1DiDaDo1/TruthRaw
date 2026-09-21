@@ -5,9 +5,12 @@ on:
     branches:
       - integration/truthraw-suite-v0-84-2-adaptive-compute-router
       - integration/truthraw-suite-v0-84-2-advanced-appearance-controls
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
     paths:
       - 'suite_android/**'
       - 'docs/research/android-acceleration-v0.1/**'
+      - 'docs/research/truthnegative-dense-projection-v0.3/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
       - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
   workflow_dispatch:
 
@@ -136,6 +139,16 @@ jobs:
           echo "v47i_o0_signature=$O0"
           echo "v47i_o2_signature=$O2"
           test "$O0" = "$O2"
+
+      - name: Verify TruthNegative 4x dense CPU reference
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-dense-projection-v0.3 \
+            -B /tmp/truthnegative-dense-v03 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/truthnegative-dense-v03 --parallel 2
+          /tmp/truthnegative-dense-v03/test_truthnegative_dense_projection_v0_3
 
       - name: Verify Render Edit partition invariance
         run: |
