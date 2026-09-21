@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.TextView
 
 class TruthRawAdvancedActivity : Activity() {
@@ -77,12 +78,40 @@ class TruthRawAdvancedActivity : Activity() {
                 save()
             })
             addView(space(8))
-            addView(toggle(
-                "Structure / Detail",
-                "Activeert support-limited detail appearance downstream van de authority-bound scene. Sample count of contrast wordt niet als extra optische detail-evidence behandeld.",
-                options.detail,
-            ) { checked ->
-                options = options.copy(detail = checked)
+            addView(slider(
+                label = "Detail / scherpte",
+                explanation = "Doseerbare v4.7j/v4.7k appearance. 0 houdt de neutrale detailroute; hogere waarden mengen meer support-limited structuur en output-acutance in. Dit verandert geen optische detail-authority of Scientific Master.",
+                minValue = 0,
+                maxValue = 100,
+                value = options.detailStrength,
+                format = { value ->
+                    when {
+                        value == 0 -> "Neutraal · 0"
+                        value < 35 -> "Subtiel · $value"
+                        value < 70 -> "Duidelijk · $value"
+                        else -> "Sterk · $value"
+                    }
+                },
+            ) { value ->
+                options = options.copy(detailStrength = value)
+                save()
+            })
+            addView(space(8))
+            addView(slider(
+                label = "Kleurvolheid",
+                explanation = "Luminantie-behoudende kleurintensiteit. Positief werkt vibrance-achtig: reeds sterke kleuren krijgen minder extra chroma; negatief maakt het beeld rustiger. Geen semantische huiddetectie en geen wijziging van de brongebonden kleur-authority.",
+                minValue = -50,
+                maxValue = 50,
+                value = options.colorFullness,
+                format = { value ->
+                    when {
+                        value == 0 -> "Neutraal · 0"
+                        value > 0 -> "Voller · +$value"
+                        else -> "Rustiger · $value"
+                    }
+                },
+            ) { value ->
+                options = options.copy(colorFullness = value)
                 save()
             })
             addView(space(8))
@@ -158,6 +187,49 @@ class TruthRawAdvancedActivity : Activity() {
             isChecked = checked
             setOnCheckedChangeListener { _, value -> onChange(value) }
         })
+        addView(body(explanation, 11.5f))
+    }
+
+    private fun slider(
+        label: String,
+        explanation: String,
+        minValue: Int,
+        maxValue: Int,
+        value: Int,
+        format: (Int) -> String,
+        onChange: (Int) -> Unit,
+    ): View = vertical().apply {
+        require(maxValue > minValue)
+        setPadding(dp(12), dp(12), dp(12), dp(12))
+        background = rounded(Color.rgb(13, 26, 42), Color.rgb(60, 75, 92), 14f)
+
+        val valueText = body(format(value.coerceIn(minValue, maxValue)), 11.5f)
+        addView(horizontal().apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(title(label, 15f), LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f,
+            ))
+            addView(valueText)
+        })
+        addView(space(6))
+        addView(SeekBar(this@TruthRawAdvancedActivity).apply {
+            max = maxValue - minValue
+            progress = value.coerceIn(minValue, maxValue) - minValue
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val actual = minValue + progress
+                    valueText.text = format(actual)
+                    if (fromUser) onChange(actual)
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+        ))
         addView(body(explanation, 11.5f))
     }
 
