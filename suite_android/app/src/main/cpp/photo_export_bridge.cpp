@@ -535,6 +535,15 @@ private:
         std::vector<float> preAcutance(
             3u*static_cast<std::size_t>(aw)*static_cast<std::size_t>(ah));
 
+        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;
+        const float exposureGain=advanced_controls::presentation_exposure_gain(
+            static_cast<std::uint32_t>(flags_),
+            exposure_.anchorsY[2],
+            exposure_.evidenceConfidence,
+            naturalLightEnabled);
+        const float shadowMix=advanced_controls::shadow_recovery_mix(
+            static_cast<std::uint32_t>(flags_));
+
         for(int y=ay0;y<ay1;++y) {
             for(int x=ax0;x<ax1;++x) {
                 const std::size_t si=
@@ -580,7 +589,9 @@ private:
                     }
                 }
 
-                if((flags_&kFlagLight)!=0 && !censored) {
+                r*=exposureGain; g*=exposureGain; b*=exposureGain;
+
+                if(naturalLightEnabled && !censored) {
                     const float lum=std::max(truthraw::luminance709(r,g,b),0.0f);
                     const float darkGate=1.0f-smoothstep((lum-0.02f)/0.30f);
                     const float blackProtect=smoothstep(lum/0.025f);
@@ -591,6 +602,15 @@ private:
                         const float sc=1.0f+strength;
                         r*=sc; g*=sc; b*=sc;
                         if(x>=x0&&x<x1&&y>=y0&&y<y1) ++lightAdjustedPixels_;
+                    }
+                }
+
+                if(!censored && shadowMix>0.0f) {
+                    if(!advanced_controls::apply_shadow_recovery(
+                            r,g,b,shadowMix,exposure_.evidenceConfidence)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res shadow recovery failed");
                     }
                 }
 
