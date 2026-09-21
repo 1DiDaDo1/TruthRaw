@@ -544,6 +544,16 @@ const char* Backend::backendName() const noexcept {
     return "VULKAN_GENERIC_EXACT";
 }
 
+std::size_t Backend::residentBytesUpperBound() const noexcept {
+    if (!impl_) return 0u;
+    const auto a=static_cast<std::uint64_t>(impl_->sourceBuffer.size);
+    const auto b=static_cast<std::uint64_t>(impl_->targetBuffer.size);
+    const auto sum=a+b;
+    return sum > std::numeric_limits<std::size_t>::max()
+        ? std::numeric_limits<std::size_t>::max()
+        : static_cast<std::size_t>(sum);
+}
+
 bool Backend::projectPatch(
     const PatchRequest& request,
     const float* sourceRgb,
