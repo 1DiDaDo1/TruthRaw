@@ -36,6 +36,10 @@ class MainActivity : Activity() {
     private var jpegStatus: String? = null
     private var pendingJpgLJobId: String? = null
     private var jpgLStatus: String? = null
+    private var pendingRenderEditJobId: String? = null
+    private var renderEditStatus: String? = null
+    private var pendingRenderEditFlags: Int = 0
+    private var pendingRenderEditQuarterTurns: Int = 0
     private var pendingPhotoRoute: String? = null
     private var pendingPhotoFlags: Int = 0
     private var pendingPhotoQuarterTurns: Int = 0
@@ -189,6 +193,10 @@ class MainActivity : Activity() {
         empiricalAudit = null
         jpegStatus = null
         jpgLStatus = null
+        renderEditStatus = null
+        pendingRenderEditJobId = null
+        pendingRenderEditFlags = 0
+        pendingRenderEditQuarterTurns = 0
         pureFloatDngStatus = null
         truthNegativeStatus = null
         fullResRestorationStatus = null
@@ -238,6 +246,7 @@ class MainActivity : Activity() {
 
         recover("jpeg")?.let { jpegStatus = it.message }
         recover("jpgl-raw-edit")?.let { jpgLStatus = it.message }
+        recover("advanced-render-edit")?.let { renderEditStatus = it.message }
         recover("pure-float32")?.let { pureFloatDngStatus = it.message }
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
         recover("linear-dng")?.let { linearDngStatus = it.message }
@@ -330,6 +339,33 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_jpgl_raw_edit_v0_3.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPG_L)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchAdvancedRenderEditExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
+            renderEditStatus =
+                "ADVANCED Render/Edit is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+            render()
+            return
+        }
+        pendingRenderEditJobId = job.id
+        pendingRenderEditFlags = photoFlagsForRoute(preferredRoute())
+        pendingRenderEditQuarterTurns =
+            TruthRawOrientationOverride.quarterTurns(this, job.source)
+        renderEditStatus = null
+        val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/x-adobe-dng"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "${stem}_truthraw_advanced_render_edit_float32_v0_1.dng",
+            )
+        }
+        startActivityForResult(intent, REQUEST_SAVE_ADVANCED_RENDER_EDIT)
     }
 
     @Suppress("DEPRECATION")
@@ -1848,6 +1884,23 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(5))
+                        addView(actionButton("Render/Edit · Float32 DNG · Lightroom") {
+                            launchAdvancedRenderEditExport(active)
+                        })
+                        renderEditStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("advanced-render-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Ontwikkelde extended-linear Float32-master: Detail/Light/Restoration kunnen in de primary zitten; " +
+                                "negatieve en >1 waarden blijven behouden. Natural HDR blijft recipe-only zolang output authority UNKNOWN bevat; " +
+                                "Output Acutance blijft voor finale output.",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(space(5))
                         addView(actionButton("Advanced instellingen") {
                             startActivity(Intent(this@MainActivity, TruthRawAdvancedActivity::class.java))
                         })
@@ -1892,6 +1945,16 @@ class MainActivity : Activity() {
                         jpgLStatus?.let { status ->
                             backgroundOperationStatusView(
                                 backgroundOperationKey("jpgl-raw-edit", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+                        addView(space(5))
+                        addView(actionButton("Render/Edit · Float32 DNG · Lightroom") {
+                            launchAdvancedRenderEditExport(active)
+                        })
+                        renderEditStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("advanced-render-edit", active.id),
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
@@ -2216,5 +2279,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_FULLRES_RESTORATION = 4108
         private const val REQUEST_SAVE_RESTORATION_PROJECTION = 4109
         private const val REQUEST_SAVE_JPG_L = 4110
+        private const val REQUEST_SAVE_ADVANCED_RENDER_EDIT = 4111
     }
 }
