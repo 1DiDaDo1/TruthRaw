@@ -34,13 +34,14 @@ float legacy_display_gain_from_half_log(float halfLogGain) noexcept {
     return 1.0f + kLegacyHdrBlend * (rawGain - 1.0f);
 }
 
-bool apply_final_resize_acutance_and_rebase_hdr(
+bool apply_final_resize_acutance_and_rebase_hdr_tuned(
     const std::vector<float>& resizedLinearSdrBase,
     int width,
     int height,
     float noiseSigmaAt2Pct,
     float resizeRatio,
     truthraw_v47k::OutputProfile profile,
+    float detailMix,
     bool hdrEnabled,
     const std::vector<float>& halfLogGain,
     const std::vector<std::uint8_t>& censorMask,
@@ -69,8 +70,21 @@ bool apply_final_resize_acutance_and_rebase_hdr(
         if (!std::isfinite(value)) return false;
     }
 
-    result.plan = truthraw_v47k::choose_output_acutance_plan(
-        noiseSigmaAt2Pct, resizeRatio, profile);
+    detailMix = std::clamp(detailMix, 0.0f, 1.0f);
+    if (profile == truthraw_v47k::OutputProfile::AdaptiveDetail) {
+        const auto neutral = truthraw_v47k::choose_output_acutance_plan(
+            noiseSigmaAt2Pct, resizeRatio, truthraw_v47k::OutputProfile::Neutral);
+        const auto adaptive = truthraw_v47k::choose_output_acutance_plan(
+            noiseSigmaAt2Pct, resizeRatio, truthraw_v47k::OutputProfile::AdaptiveDetail);
+        result.plan = adaptive;
+        result.plan.strength =
+            neutral.strength + detailMix * (adaptive.strength - neutral.strength);
+        result.plan.deltaCap =
+            neutral.deltaCap + detailMix * (adaptive.deltaCap - neutral.deltaCap);
+    } else {
+        result.plan = truthraw_v47k::choose_output_acutance_plan(
+            noiseSigmaAt2Pct, resizeRatio, profile);
+    }
 
     acutanceAdjustedSdrBase.resize(3u * pixels);
     if (!truthraw_v47k::apply_output_acutance(
@@ -146,6 +160,37 @@ bool apply_final_resize_acutance_and_rebase_hdr(
     }
 
     return true;
+}
+
+bool apply_final_resize_acutance_and_rebase_hdr(
+    const std::vector<float>& resizedLinearSdrBase,
+    int width,
+    int height,
+    float noiseSigmaAt2Pct,
+    float resizeRatio,
+    truthraw_v47k::OutputProfile profile,
+    bool hdrEnabled,
+    const std::vector<float>& halfLogGain,
+    const std::vector<std::uint8_t>& censorMask,
+    std::vector<float>& acutanceAdjustedSdrBase,
+    std::vector<float>& rebasedDisplayGain,
+    Result& result) noexcept {
+    const float legacyMix =
+        profile == truthraw_v47k::OutputProfile::AdaptiveDetail ? 1.0f : 0.0f;
+    return apply_final_resize_acutance_and_rebase_hdr_tuned(
+        resizedLinearSdrBase,
+        width,
+        height,
+        noiseSigmaAt2Pct,
+        resizeRatio,
+        profile,
+        legacyMix,
+        hdrEnabled,
+        halfLogGain,
+        censorMask,
+        acutanceAdjustedSdrBase,
+        rebasedDisplayGain,
+        result);
 }
 
 }  // namespace truthraw::output_acutance_v0_81
