@@ -79,6 +79,44 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(slider(
+                label = "Belichting",
+                explanation = "Lineaire presentation-only exposure compensation. Natural Light kan daarnaast maximaal ongeveer +0,7 EV automatische correctie toevoegen als de render-mediaan aantoonbaar te donker is. Scientific Master en RAW-black/white blijven onaangeraakt.",
+                minValue = -50,
+                maxValue = 50,
+                value = options.exposureStep,
+                format = { value ->
+                    val ev = value * 0.04f
+                    when {
+                        value == 0 -> "Neutraal · 0,00 EV"
+                        value > 0 -> "Lichter · +%.2f EV".format(ev)
+                        else -> "Donkerder · %.2f EV".format(ev)
+                    }
+                },
+            ) { value ->
+                options = options.copy(exposureStep = value)
+                save()
+            })
+            addView(space(8))
+            addView(slider(
+                label = "Schaduwen",
+                explanation = "Herstelt uitsluitend donkere toongebieden met zwartbescherming en evidence-confidence gating. Dit verandert geen sensor-blacklevel en maakt geen ontbrekende details tot gemeten informatie.",
+                minValue = 0,
+                maxValue = 3,
+                value = options.shadowRecoveryLevel,
+                format = { value ->
+                    when (value) {
+                        0 -> "Neutraal"
+                        1 -> "Zacht"
+                        2 -> "Medium"
+                        else -> "Sterk"
+                    }
+                },
+            ) { value ->
+                options = options.copy(shadowRecoveryLevel = value)
+                save()
+            })
+            addView(space(8))
+            addView(slider(
                 label = "Detail / scherpte",
                 explanation = "Doseerbare v4.7j/v4.7k appearance. 0 houdt de neutrale detailroute; hogere waarden mengen meer support-limited structuur en output-acutance in. Dit verandert geen optische detail-authority of Scientific Master.",
                 minValue = 0,
