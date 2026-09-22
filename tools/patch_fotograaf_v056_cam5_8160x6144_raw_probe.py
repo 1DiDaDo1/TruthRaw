@@ -59,7 +59,7 @@ replacement = '''            capturedDng = dng
                 exportResearchFileToDcimTruthRaw(report, "application/json")
                 "EVIDENCE EXPORTED ✓"
             }.getOrElse { "EVIDENCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" }
-            setStatusAny(sourceExportStatus + "\\n" + evidenceExportStatus)
+            setStatusAny(evidenceExportStatus)
 
             val admitted = admittedProcessingDng
 '''
