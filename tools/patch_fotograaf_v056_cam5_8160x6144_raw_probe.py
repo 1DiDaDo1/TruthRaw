@@ -43,7 +43,6 @@ replacement = '''            capturedDng = dng
             // These are exports of existing evidence; this does not alter authority or admission.
             val diagnosticPreview = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_ADMITTED_diagnostic.png")
             val autoExports = listOf(
-                rawEvidence.file to "application/octet-stream",
                 report to "application/json",
                 diagnosticPreview to "image/png",
             ).filter { it.first.isFile }.map { (file, mime) ->
@@ -56,6 +55,11 @@ replacement = '''            capturedDng = dng
             evidence.put("v056AutomaticResearchExports", JSONArray(autoExports))
             // Rewrite report once so it also records the export attempt outcomes.
             report.writeText(evidence.toString(2))
+            val evidenceExportStatus = runCatching {
+                exportResearchFileToDcimTruthRaw(report, "application/json")
+                "EVIDENCE EXPORTED ✓"
+            }.getOrElse { "EVIDENCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" }
+            setStatusAny("$sourceExportStatus\n$evidenceExportStatus")
 
             val admitted = admittedProcessingDng
 '''
