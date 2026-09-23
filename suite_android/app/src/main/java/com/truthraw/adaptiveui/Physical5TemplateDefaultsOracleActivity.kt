@@ -27,11 +27,11 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 /**
- * v0.63 corrected physical-camera template-default oracle.
+ * v0.64 permission-aware corrected physical-camera template-default oracle.
  *
  * v0.61 used CameraDevice.createCaptureRequest(TEMPLATE_STILL_CAPTURE) and then
  * getPhysicalCameraKey(..., "5"). Android rejects that because the builder was not created
- * with physical camera IDs. v0.63 uses the API-28 overload
+ * with physical camera IDs. v0.64 uses the API-28 overload
  * createCaptureRequest(template, setOf("5")) and remains read-only:
  * no request values are written, no session is created, no request is submitted.
  */
@@ -52,10 +52,10 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
             setPadding(dp(16), dp(12), dp(16), dp(20))
             setBackgroundColor(Color.rgb(12, 14, 18))
         }
-        body.addView(label("TruthRaw v0.63 · Physical-5 template defaults", 21f, true))
+        body.addView(label("TruthRaw v0.64 · Physical-5 template defaults", 21f, true))
         body.addView(label(
-            "Corrigeert de v0.61 physical-default read: request-builder wordt nu expliciet voor physical camera 5 gemaakt. " +
-                "Geen vendor writes, geen session, geen capture.",
+            "Corrigeert de v0.61 physical-default read en vraagt CAMERA-toestemming wanneer nodig. " +
+                "Daarna wordt de request-builder expliciet voor physical camera 5 gemaakt. Geen vendor writes, geen session, geen capture.",
             12f, false, Color.rgb(190, 198, 210)
         ))
         body.addView(space(10))
@@ -63,7 +63,7 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
         saveButton = button("2 · JSON opslaan") { saveReport() }.apply { isEnabled = false }
         body.addView(saveButton)
         body.addView(space(10))
-        status = label("Nog geen v0.63 report.", 10f, false)
+        status = label("Nog geen v0.64 report.", 10f, false)
         body.addView(status)
 
         return ScrollView(this).apply {
@@ -82,7 +82,16 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
     }
 
     private fun runOracle() {
-        status.text = "v0.63 opent logical 0 alleen voor read-only request templates…"
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            status.text = "v0.64 vraagt CAMERA-toestemming voor alleen de read-only template-builder."
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            return
+        }
+        executeOracle()
+    }
+
+    private fun executeOracle() {
+        status.text = "v0.64 opent logical 0 alleen voor read-only request templates…"
         saveButton.isEnabled = false
         Thread {
             val report = runCatching { buildReport() }.getOrElse { e ->
@@ -90,7 +99,7 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
                     .put("schema", SCHEMA)
                     .put("createdAtUtc", Instant.now().toString())
                     .put("authority", AUTHORITY)
-                    .put("classification", "V063_FATAL_ERROR")
+                    .put("classification", "V064_FATAL_ERROR")
                     .put("errorClass", e.javaClass.name)
                     .put("errorMessage", e.message ?: JSONObject.NULL)
                     .put("vendorRequestWrittenByTruthRaw", false)
@@ -100,6 +109,21 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
             reportFile().writeText(report.toString(2))
             runOnUiThread { refreshStatus() }
         }.start()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_CAMERA_PERMISSION) return
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            status.text = "CAMERA-toestemming verleend; v0.64 start nu automatisch."
+            executeOracle()
+        } else {
+            status.text = "CAMERA-toestemming niet verleend; er is niets geopend of vastgelegd."
+        }
     }
 
     private fun buildReport(): JSONObject {
@@ -300,13 +324,13 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
         val file = reportFile()
         saveButton.isEnabled = file.exists() && file.length() > 0L
         if (!file.exists()) {
-            status.text = "Nog geen v0.63 report."
+            status.text = "Nog geen v0.64 report."
             return
         }
 
         val report = runCatching { JSONObject(file.readText()) }.getOrNull()
         if (report == null) {
-            status.text = "v0.63 report bestaat maar kon niet als JSON worden gelezen."
+            status.text = "v0.64 report bestaat maar kon niet als JSON worden gelezen."
             return
         }
 
@@ -351,7 +375,7 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
                 source.inputStream().use { input -> input.copyTo(out) }
             } ?: error("Geen output stream")
         }.onSuccess {
-            status.text = "v0.63 JSON opgeslagen."
+            status.text = "v0.64 JSON opgeslagen."
         }.onFailure {
             status.text = "Opslaan faalde: " + it.javaClass.simpleName + ": " + it.message
         }
@@ -380,10 +404,10 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val SCHEMA = "truthraw.physical5-template-defaults-oracle.v0.63"
+        private const val SCHEMA = "truthraw.physical5-template-defaults-oracle.v0.64"
         private const val AUTHORITY = "CAMERA2_REQUEST_TEMPLATE_READ_ONLY"
-        private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_TEMPLATE_DEFAULTS_ORACLE_v063.json"
-        private const val REQUEST_SAVE_JSON = 66363
+        private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_TEMPLATE_DEFAULTS_ORACLE_v064.json"
+        private const val REQUEST_CAMERA_PERMISSION = 66462\n        private const val REQUEST_SAVE_JSON = 66463
         private const val LOGICAL_ID = "0"
         private const val PHYSICAL_ID = "5"
 
