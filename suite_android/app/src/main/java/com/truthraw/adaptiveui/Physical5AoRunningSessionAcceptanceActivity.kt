@@ -514,7 +514,7 @@ class Physical5AoRunningSessionAcceptanceActivity : Activity() {
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val SCHEMA = "truthraw.physical5-masterfilm-session-acceptance.v0.67"
+        private const val SCHEMA = "truthraw.physical5-aorunning-session-acceptance.v0.67"
         private const val AUTHORITY = "CAMERA2_HAL_SESSION_ACCEPTANCE_NO_CAPTURE"
         private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_AORUNNING_SESSION_ACCEPTANCE_v067.json"
         private const val REQUEST_CAMERA_PERMISSION = 66762
