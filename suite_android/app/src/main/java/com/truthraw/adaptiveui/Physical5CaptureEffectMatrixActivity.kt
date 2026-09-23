@@ -529,6 +529,8 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
             return FrameOutcome(label, false, false, candidateKey != null, false, null, false, null, null, null, it.javaClass.name, it.message)
         }
 
+        val imageThread = HandlerThread("truthraw-v070-raw10-image").apply { start() }
+        val imageHandler = Handler(imageThread.looper)
         val imageRef = AtomicReference<Image?>(null)
         val imageLatch = CountDownLatch(1)
         reader.setOnImageAvailableListener({ source: ImageReader ->
@@ -538,7 +540,7 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
             } else {
                 image?.close()
             }
-        }, android.os.Handler(android.os.Looper.getMainLooper()))
+        }, imageHandler)
 
         val sessionLatch = CountDownLatch(1)
         val sessionClosedLatch = CountDownLatch(1)
