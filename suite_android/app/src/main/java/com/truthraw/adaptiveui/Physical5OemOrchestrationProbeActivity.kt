@@ -1331,6 +1331,10 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 cc.noiseReductionMode != vc.noiseReductionMode ||
                 cc.edgeMode != vc.edgeMode
 
+        val hintDifferential =
+            !valuesEquivalentNullable(cc.logicalHintUserValue, vc.logicalHintUserValue) ||
+                !valuesEquivalentNullable(cc.physicalHintUserValue, vc.physicalHintUserValue)
+
         val acquisitionExact =
             cc.iso == vc.iso &&
                 cc.exposureNs == vc.exposureNs &&
@@ -1344,6 +1348,12 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         return JSONObject()
             .put("structuralTopologyDifferentialObserved", structural)
             .put("selectedResultMetadataDifferentialObserved", selectedMetadata)
+            .put("hintUserValueDifferentialObserved", hintDifferential)
+            .put("controlLogicalHintUserValue", jsonValue(cc.logicalHintUserValue))
+            .put("candidateLogicalHintUserValue", jsonValue(vc.logicalHintUserValue))
+            .put("controlPhysicalHintUserValue", jsonValue(cc.physicalHintUserValue))
+            .put("candidatePhysicalHintUserValue", jsonValue(vc.physicalHintUserValue))
+            .put("candidateRawMfUltraHighPixelHintObserved", vc.rawMfUltraHighPixelHintObserved)
             .put("acquisitionStateExactlyMatched", acquisitionExact)
             .put("controlLockedControlWriteComplete", control.lockedControlWriteComplete)
             .put("candidateLockedControlWriteComplete", candidate.lockedControlWriteComplete)
@@ -1355,10 +1365,19 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             .put("sampleMeanDeltaCandidateMinusControl", meanDelta ?: JSONObject.NULL)
             .put("sampleStatisticsAttributionAllowed", acquisitionExact)
             .put("interpretation",
-                if (acquisitionExact)
-                    "Manual ISO/exposure/frame-duration/focus matched exactly. Remaining sample differences can be compared, but scene motion, sensor noise and unmeasured processing remain possible confounds."
+                if (vc.rawMfUltraHighPixelHintObserved)
+                    "Candidate returned hintUserValue in the OEM processor-code set 23/24/32/33. This is a route signal to investigate, not native-sensor proof."
+                else if (acquisitionExact)
+                    "Acquisition state matched. No processor-code hit is inferred from hintUserValue; remaining sample differences still include sensor noise, scene variation and unmeasured processing."
                 else
-                    "Requested manual lock did not produce an exact matched physical result; sample-value differences are not attributable to the candidate key.")
+                    "Requested manual lock did not produce an exact matched physical result; sample-value differences are not attributable to the OEM vector.")
+    }
+
+    private fun valuesEquivalentNullable(a: Any?, b: Any?): Boolean = when {
+        a == null && b == null -> true
+        a is IntArray && b is IntArray -> a.contentEquals(b)
+        a is ByteArray && b is ByteArray -> a.contentEquals(b)
+        else -> a == b
     }
 
     private fun safeSizes(block: () -> Array<android.util.Size>?): List<android.util.Size> =
