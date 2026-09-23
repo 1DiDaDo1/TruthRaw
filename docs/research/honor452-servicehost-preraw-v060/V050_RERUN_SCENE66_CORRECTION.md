@@ -82,7 +82,64 @@ The existing v0.46 code grouped this characteristic in blocks of 10 based on pri
 
 Notably, scene-like values `53` and `65` appear inside these groups, but this alone does not establish the meaning of their column.
 
+## cameraIdCustomInfo consumer decoded
+
+A full Dalvik instruction walk of:
+
+`com.hihonor.camera2.camerafactory.CameraServiceFactory.createCameraAbility`
+
+now resolves the consumer of `Ls8/a;->E5`, the field initialized from:
+
+`com.hihonor.device.capabilities.cameraIdCustomInfo`.
+
+The important correction is that this consumer does **not** parse the array in groups of 10.
+
+Its exact algorithm is:
+
+1. read the characteristic as `int[]`;
+2. if it is null, replace it with an empty array;
+3. if non-empty and not the special single-element `[1]` case, iterate from index 0 in steps of **2**;
+4. treat each pair as `(array[i], array[i+1])`;
+5. only retain pairs whose first element is one of:
+   `59, 19, 23, 64, 67`;
+6. store the retained mapping in `LI1/c;->h` as:
+   `Integer(array[i]) -> String(array[i+1]) + ","`.
+
+The static whitelist is initialized in `LI1/c.<clinit>()` as exactly:
+
+`[59, 19, 23, 64, 67]`.
+
+Known downstream uses establish that these first-element IDs select camera-ID mappings for specific modes:
+
+- `59` -> MovieMode custom/persisted camera ID
+- `19` -> AperturePhotoMode custom/persisted camera ID
+- `23` -> BeautyMode custom/persisted camera ID
+- `64` -> VideoMode camera-ID mapping
+- `67` -> SuperNightVideoMode camera-ID mapping
+
+Therefore the characteristic is, in this consumer, a **pair-oriented custom camera-route list**, not a ten-field record table.
+
+### Consequence for the current Camera-5 runtime array
+
+The earlier grouping into 10-integer rows was only a diagnostic display convention in the v0.46 TruthRaw code. It is not supported by this exact consumer.
+
+In the first 90 configured integers of the current Camera-5 array, values such as `59`, `53`, `65` and `67` occur at odd positions in the displayed 10-wide view. In the decoded pair consumer, the whitelist is applied to the **even-index / first element of each pair**.
+
+Therefore:
+
+- the visible occurrence of `53` cannot be promoted as an UltraHighPixel route key from this consumer;
+- the visible occurrences of `59` and `67` likewise do not become retained map keys merely because those numbers appear in the array;
+- the previous idea that the group containing `53` might directly expose a 200MP route is not supported by `CameraServiceFactory.createCameraAbility`.
+
+This closes one speculative path and replaces it with an exact pair-level interpretation for this consumer.
+
 ## Next exact target
+
+Two higher-value targets remain:
+
+1. trace other static consumers, if any, of the same `cameraIdCustomInfo` characteristic to determine whether a different parser gives meaning to the values `53`, `65` or `67` at their observed positions;
+2. continue the Android-17/API-37 vendor-extension route, because it is now a separate official discovery surface that could expose HONOR-specific high-pixel processing without relying on this characteristic.
+
 
 Trace the consumer of `cameraIdCustomInfo` in:
 
