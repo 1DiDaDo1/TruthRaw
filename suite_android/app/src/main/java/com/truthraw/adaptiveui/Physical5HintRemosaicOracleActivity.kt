@@ -65,9 +65,9 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             setPadding(dp(16), dp(12), dp(16), dp(20))
             setBackgroundColor(Color.rgb(12, 14, 18))
         }
-        body.addView(label("TruthRaw v0.74 · Hint/Remosaic Oracle", 21f, true))
+        body.addView(label("TruthRaw v0.75 · Visible OEM State Oracle", 21f, true))
         body.addView(label(
-            "OEM-route: cameraSceneMode=53 → runtime result-key discovery → lees hintUserValue → leid qcomRemosaicEnable af → één physical-5 RAW10/MAX frame.",
+            "OEM-route: cameraSceneMode=53 → trace zichtbare HONOR/QTI runtime-state → lees hintUserValue indien zichtbaar → één physical-5 RAW10/MAX frame.",
             12f, false, Color.rgb(190, 198, 210)
         ))
         body.addView(space(10))
@@ -104,7 +104,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                     .put("schema", SCHEMA)
                     .put("createdAtUtc", Instant.now().toString())
                     .put("authority", AUTHORITY)
-                    .put("classification", "V074_FATAL_ERROR")
+                    .put("classification", "V075_FATAL_ERROR")
                     .put("errorClass", e.javaClass.name)
                     .put("errorMessage", e.message ?: JSONObject.NULL)
                     .put("scientificMasterModified", false)
@@ -167,7 +167,9 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 .put("hintUserValueMeaning", "HAL/result-driven SMART_SCENE_MODE source")
                 .put("rawMfHintValues", JSONArray(RAW_MF_HINTS.toList()))
                 .put("qcomRemosaicEnableJavaType", "java.lang.Integer")
-                .put("stockRemosaicRule", "hintUserValue == 5 -> 1; otherwise -> 0"))
+                .put("stockRemosaicRule", "hintUserValue == 5 -> 1; otherwise -> 0")
+                .put("analysisBasisHonorCameraApkBytes", 84167938)
+                .put("analysisBasisHonorCameraApkSha256", "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"))
             .put("runtimeSurfaces", JSONObject()
                 .put("physical5ListedByLogical0", physicalChildPresent)
                 .put("sceneLogicalRequestPresent", sceneLogical != null)
@@ -196,18 +198,18 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         if (!physicalChildPresent) {
             return report
                 .put("stage", "COMPLETE_WITH_ROUTE_REJECTION")
-                .put("classification", "V074_PHYSICAL5_NOT_LISTED_BY_LOGICAL0")
+                .put("classification", "V075_PHYSICAL5_NOT_LISTED_BY_LOGICAL0")
         }
         if (!sceneKeyPresent) {
             return report
                 .put("stage", "COMPLETE_WITH_ROUTE_REJECTION")
-                .put("classification", "V074_SCENE53_REQUEST_KEY_NOT_AVAILABLE")
+                .put("classification", "V075_SCENE53_REQUEST_KEY_NOT_AVAILABLE")
         }
 
         val opened = openLogicalCamera(cm)
         val device = opened.device ?: return report
             .put("stage", "CAMERA_OPEN_FAILED")
-            .put("classification", "V074_CAMERA_OPEN_FAILED")
+            .put("classification", "V075_CAMERA_OPEN_FAILED")
             .put("cameraOpenError", opened.error ?: JSONObject.NULL)
 
         try {
@@ -231,7 +233,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
 
             if (!prime.frameCompleted) {
                 return report
-                    .put("classification", "V074_SCENE53_PRIME_FAILED")
+                    .put("classification", "V075_SCENE53_PRIME_FAILED")
                     .put("stage", "COMPLETE_WITH_PRIME_FAILURE")
             }
 
@@ -279,13 +281,13 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 .put("stage", "COMPLETE")
                 .put("classification",
                     when {
-                        rawMfPrime -> "V074_RAW_MF_HINT_REACHED_DURING_SCENE53_PRIME"
-                        rawMfRaw -> "V074_RAW_MF_HINT_REACHED_DURING_RAW_CAPTURE"
+                        rawMfPrime -> "V075_RAW_MF_HINT_REACHED_DURING_SCENE53_PRIME"
+                        rawMfRaw -> "V075_RAW_MF_HINT_REACHED_DURING_RAW_CAPTURE"
                         raw.frameCaptured && chosenHint == null && rawHint == null ->
-                            "V074_HINT_NOT_OBSERVED_BUT_RAW_CAPTURE_COMPLETED"
+                            "V075_VISIBLE_OEM_STATE_TRACE_COMPLETED_HINT_NOT_OBSERVED"
                         raw.frameCaptured ->
-                            "V074_NON_RAW_MF_HINT_OBSERVED_DIRECT_CAMERA2_ROUTE"
-                        else -> "V074_RAW_CAPTURE_FAILED_AFTER_PRIME"
+                            "V075_VISIBLE_OEM_STATE_TRACE_COMPLETED_NON_RAW_MF_HINT"
+                        else -> "V075_RAW_CAPTURE_FAILED_AFTER_PRIME"
                     })
         } finally {
             device.close()
@@ -360,6 +362,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         val physicalRuntimeResultKeyNames: List<String>,
         val errorClass: String?,
         val errorMessage: String?,
+        val logicalVisibleOemState: JSONObject? = null,
+        val physicalVisibleOemState: JSONObject? = null,
     ) {
         fun toJson() = JSONObject()
             .put("frameCompleted", frameCompleted)
@@ -377,6 +381,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             .put("physicalHintReadError", physicalHintReadError ?: JSONObject.NULL)
             .put("logicalRuntimeResultKeyNames", JSONArray(logicalRuntimeResultKeyNames))
             .put("physicalRuntimeResultKeyNames", JSONArray(physicalRuntimeResultKeyNames))
+            .put("logicalVisibleOemState", logicalVisibleOemState ?: JSONObject.NULL)
+            .put("physicalVisibleOemState", physicalVisibleOemState ?: JSONObject.NULL)
             .put("errorClass", errorClass ?: JSONObject.NULL)
             .put("errorMessage", errorMessage ?: JSONObject.NULL)
     }
@@ -503,6 +509,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             val physicalResult = result.physicalCameraResults[PHYSICAL_ID]
             val logicalHintRead = readHintWithRuntimeDiscovery(result, hintLogical)
             val physicalHintRead = readHintWithRuntimeDiscovery(physicalResult, hintPhysical)
+            val logicalVisibleState = snapshotVisibleOemState(result)
+            val physicalVisibleState = snapshotVisibleOemState(physicalResult)
 
             session?.close()
             closedLatch.await(2, TimeUnit.SECONDS)
@@ -514,7 +522,9 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 logicalHintRead.keySource, physicalHintRead.keySource,
                 logicalHintRead.error, physicalHintRead.error,
                 logicalHintRead.runtimeKeyNames, physicalHintRead.runtimeKeyNames,
-                null, null
+                null, null,
+                logicalVisibleOemState = logicalVisibleState,
+                physicalVisibleOemState = physicalVisibleState,
             )
         } catch (e: Throwable) {
             runCatching { session?.close() }
@@ -564,6 +574,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         val knownV059TopologyMatch: Boolean?,
         val errorClass: String?,
         val errorMessage: String?,
+        val logicalVisibleOemState: JSONObject? = null,
+        val physicalVisibleOemState: JSONObject? = null,
     ) {
         fun toJson() = JSONObject()
             .put("frameCaptured", frameCaptured)
@@ -597,6 +609,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             .put("effectivePadNonZeroByteCount", effectivePadNonZeroByteCount ?: JSONObject.NULL)
             .put("fullPlaneSha256", fullPlaneSha256 ?: JSONObject.NULL)
             .put("knownV059TopologyMatch", knownV059TopologyMatch ?: JSONObject.NULL)
+            .put("logicalVisibleOemState", logicalVisibleOemState ?: JSONObject.NULL)
+            .put("physicalVisibleOemState", physicalVisibleOemState ?: JSONObject.NULL)
             .put("errorClass", errorClass ?: JSONObject.NULL)
             .put("errorMessage", errorMessage ?: JSONObject.NULL)
     }
@@ -615,7 +629,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         hintPhysical: CaptureResult.Key<Any>?,
     ): RawOutcome {
         val reader = ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW10, 1)
-        val imageThread = HandlerThread("truthraw-v074-raw").apply { start() }
+        val imageThread = HandlerThread("truthraw-v075-raw").apply { start() }
         val imageHandler = Handler(imageThread.looper)
         val imageRef = AtomicReference<Image?>(null)
         val imageLatch = CountDownLatch(1)
@@ -812,6 +826,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 val physicalResult = result.physicalCameraResults[PHYSICAL_ID]
                 val logicalHintRead = readHintWithRuntimeDiscovery(result, hintLogical)
                 val physicalHintRead = readHintWithRuntimeDiscovery(physicalResult, hintPhysical)
+                val logicalVisibleState = snapshotVisibleOemState(result)
+                val physicalVisibleState = snapshotVisibleOemState(physicalResult)
 
                 val topo = analyzeRaw(image)
 
@@ -847,6 +863,8 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                     knownV059TopologyMatch = topo.knownMatch,
                     errorClass = null,
                     errorMessage = null,
+                    logicalVisibleOemState = logicalVisibleState,
+                    physicalVisibleOemState = physicalVisibleState,
                 )
             } finally {
                 image.close()
@@ -941,6 +959,43 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             }
         }
         return HintRead(null, null, candidates.first().first, errors.joinToString(" | "), runtimeNames)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun snapshotVisibleOemState(result: CaptureResult?): JSONObject {
+        val out = JSONObject()
+        if (result == null) {
+            out.put("_resultPresent", false)
+            return out
+        }
+        out.put("_resultPresent", true)
+        val byName = runCatching {
+            result.keys.associateBy { it.name }
+        }.getOrElse { emptyMap() }
+
+        for (name in VISIBLE_OEM_STATE_KEYS) {
+            val entry = JSONObject()
+            val key = byName[name] as? CaptureResult.Key<Any>
+            entry.put("presentInRuntimeResultKeys", key != null)
+            if (key == null) {
+                entry.put("value", JSONObject.NULL)
+                entry.put("javaClass", JSONObject.NULL)
+                entry.put("readError", JSONObject.NULL)
+            } else {
+                try {
+                    val raw = result.get(key)
+                    entry.put("value", jsonValue(raw))
+                    entry.put("javaClass", raw?.javaClass?.name ?: JSONObject.NULL)
+                    entry.put("readError", JSONObject.NULL)
+                } catch (e: Throwable) {
+                    entry.put("value", JSONObject.NULL)
+                    entry.put("javaClass", JSONObject.NULL)
+                    entry.put("readError", e.javaClass.name + ": " + (e.message ?: ""))
+                }
+            }
+            out.put(name, entry)
+        }
+        return out
     }
 
     private data class Topology(
@@ -1052,12 +1107,12 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         val file = reportFile()
         saveButton.isEnabled = file.exists() && file.length() > 0L
         if (!file.exists()) {
-            status.text = "Nog geen v0.74 report."
+            status.text = "Nog geen v0.75 report."
             return
         }
         val r = runCatching { JSONObject(file.readText()) }.getOrNull()
         if (r == null) {
-            status.text = "v0.74 report kon niet worden gelezen."
+            status.text = "v0.75 report kon niet worden gelezen."
             return
         }
         val d = r.optJSONObject("derivedState")
@@ -1090,7 +1145,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 reportFile().inputStream().use { it.copyTo(out) }
             } ?: error("no output stream")
         }.onSuccess {
-            status.text = "v0.74 JSON opgeslagen."
+            status.text = "v0.75 JSON opgeslagen."
         }.onFailure {
             status.text = "Opslaan faalde: " + it.javaClass.simpleName + ": " + it.message
         }
@@ -1119,9 +1174,9 @@ class Physical5HintRemosaicOracleActivity : Activity() {
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val SCHEMA = "truthraw.physical5-hint-remosaic-oracle.v0.74"
-        private const val AUTHORITY = "CAMERA2_OEM_DERIVED_SCENE53_HINT_REMOSAIC_SINGLE_FRAME_ORACLE"
-        private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_HINT_REMOSAIC_ORACLE_v074.json"
+        private const val SCHEMA = "truthraw.physical5-visible-oem-state-oracle.v0.75"
+        private const val AUTHORITY = "CAMERA2_OEM_SCENE53_VISIBLE_STATE_SINGLE_FRAME_ORACLE"
+        private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_VISIBLE_OEM_STATE_ORACLE_v075.json"
         private const val REQUEST_CAMERA_PERMISSION = 67362
         private const val REQUEST_SAVE_JSON = 67363
         private const val LOGICAL_ID = "0"
@@ -1131,6 +1186,28 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         private const val REMOSAIC_KEY = "com.hihonor.capture.metadata.qcomRemosaicEnable"
         private const val SCENE_ULTRA_HIGH_PIXEL = 53
         private val RAW_MF_HINTS = setOf(23,24,32,33)
+        private val VISIBLE_OEM_STATE_KEYS = listOf(
+            "android.logicalMultiCamera.activePhysicalId",
+            "android.sensor.pixelMode",
+            "android.sensor.rawBinningFactorUsed",
+            "com.hihonor.capture.metadata.cameraSceneMode",
+            "com.hihonor.capture.metadata.aiCaptureHint",
+            "com.hihonor.capture.metadata.smartSuggestHint",
+            "com.hihonor.capture.metadata.FrameType",
+            "com.hihonor.capture.metadata.masterSensorSlotId",
+            "com.hihonor.capture.metadata.previewCameraPhysicalId",
+            "com.hihonor.capture.metadata.previewPhysicalCam",
+            "com.hihonor.capture.metadata.activeSensors",
+            "com.hihonor.capture.metadata.binningFactor",
+            "com.hihonor.capture.metadata.EnvBrightnessForA200Decision",
+            "com.hihonor.capture.metadata.hwFirstValidFrame",
+            "com.qti.chi.metadataOwnerInfo.MetadataOwner",
+            "com.qti.chi.multicamerainfo.ActiveCameraInfo",
+            "com.qti.chi.multicamerainfo.MasterCamera",
+            "com.qti.chi.multicamerainfo.MultiCameraIds",
+            "org.quic.camera2.tuning.feature.Feature1Mode",
+            "org.quic.camera2.tuning.feature.Feature2Mode",
+        )
 
         private const val TARGET_W = 16320
         private const val TARGET_H = 12288
@@ -1142,7 +1219,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         private const val EFFECTIVE_PREFIX_BYTES = 15728640L
 
         private const val BOUNDARY =
-            "THIS_ORACLE_TESTS_WHETHER_DIRECT_CAMERA2_REACHES_THE_STOCK_APP_HINT_TO_PROCESSOR_BRIDGE; APP_VISIBLE_RUNTIME_RESULTS_DO_NOT_PROVE_NATIVE_SENSOR_GEOMETRY, DIRECT_CFA_200MP, ADC_BIT_DEPTH, OR_CALIBRATION_TRUTH"
+            "THIS_ORACLE_TRACES_APP_VISIBLE_HONOR_QTI_RUNTIME_STATE_AROUND_SCENE53_AND_PHYSICAL5_RAW10_MAX; IT_DOES_NOT_EQUATE_VISIBLE_STATE_WITH_STOCK_SERVICEHOST_INTERNALS_OR_PROVE_NATIVE_SENSOR_GEOMETRY_DIRECT_CFA_200MP_ADC_BIT_DEPTH_OR_CALIBRATION_TRUTH"
 
         private fun intValue(v: Any?): Int? = when (v) {
             is Int -> v
