@@ -86,6 +86,7 @@ class TruthRawSettingsActivity : Activity() {
             addDiagnostic("v0.66 · MasterFilm session acceptance", Physical5MasterFilmSessionAcceptanceActivity::class.java)
             addDiagnostic("v0.67 · aoRunningMode session acceptance", Physical5AoRunningSessionAcceptanceActivity::class.java)
             addDiagnostic("v0.68 · Physical-5 complete session matrix", Physical5SessionAcceptanceMatrixActivity::class.java)
+            addDiagnostic("v0.69 · Physical-5 crash-safe matrix", Physical5CrashSafeSessionAcceptanceMatrixActivity::class.java)
             addDiagnostic("v0.51 · CameraDeviceSetup RAW14 query", CameraDeviceSetupRaw14SessionOracleActivity::class.java)
             addDiagnostic("v0.53 · Android 17 replay bewezen route", Android17Camera5PayloadDeltaActivity::class.java)
             addDiagnostic("v0.54 · Honor Pro RAW/DNG fingerprint", PassiveHonorProRawDngFingerprintActivity::class.java)
