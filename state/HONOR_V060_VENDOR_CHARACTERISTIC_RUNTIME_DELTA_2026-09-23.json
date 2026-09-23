@@ -1,0 +1,70 @@
+{
+  "schema": "truthraw.v060.vendor-characteristic-runtime-delta/1",
+  "date": "2026-09-23",
+  "authority": "CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY",
+  "physicalCameraSceneByCamera": {
+    "0": [
+      66
+    ],
+    "1": null,
+    "2": [
+      66
+    ],
+    "4": [
+      66
+    ],
+    "5": [
+      66
+    ]
+  },
+  "sceneCameraIdCapabilityByCamera": {
+    "0": [
+      1
+    ],
+    "1": null,
+    "2": [
+      1
+    ],
+    "4": [
+      1
+    ],
+    "5": [
+      1
+    ]
+  },
+  "cameraIdCustomInfo": {
+    "length": 310,
+    "identicalAcrossRearIds": [
+      "0",
+      "2",
+      "4",
+      "5"
+    ],
+    "apparentRecordWidth": 10,
+    "populatedRearRecords": 9,
+    "trailingZeroStartIndex": 90,
+    "fieldSemanticsProven": false
+  },
+  "interpretation": {
+    "scene66TeleSpecificProven": false,
+    "scene66UltraHighPixelSpecificProven": false,
+    "cameraIdCustomInfoSchemaProven": false
+  },
+  "v059Replications": {
+    "captureCount": 4,
+    "declaredBytesEach": 250675200,
+    "effectivePrefixBytes": 15728640,
+    "lastNonZeroOffset": 15728619,
+    "effectiveRows": 3072,
+    "effectiveRowStride": 5120,
+    "packedBytesPerEffectiveRow": 5100,
+    "zeroPaddingPerEffectiveRow": 20,
+    "allBytesAfterEffectivePrefixZero": true,
+    "distinctPrefixHashes": [
+      "964cdcce24485f2a5f835ce3575c5dae1d05bc346d64ff2542c51da596423232",
+      "958aa4922aa2cbe8fbeb917ba60602886dccd586b62a9af40ddf1b864eca2d9d",
+      "919f2f2f33a93a25c43d26d371bdbd9ce82d11c28df82a49e553051fa8a885e8",
+      "05c8e8ba4ca6d67ac17327232beca495b716b726f5672854505c1cbc57e550b6"
+    ]
+  }
+}
