@@ -20,6 +20,8 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageReader
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Size
 import android.view.View
 import android.view.ViewGroup
@@ -551,6 +553,7 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
             output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)
         } catch (e: Throwable) {
             reader.close()
+            imageThread.quitSafely()
             return FrameOutcome(label, false, false, candidateKey != null, false, null, false, null, null, null, e.javaClass.name, e.message)
         }
 
@@ -598,6 +601,7 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
                 runCatching { sessionRef.get()?.close() }
                 sessionClosedLatch.await(2, TimeUnit.SECONDS)
                 reader.close()
+            imageThread.quitSafely()
                 return FrameOutcome(
                     label, false, false, candidateSessionParameterAttached, false, candidateReadback,
                     false, null, null, null,
@@ -688,6 +692,7 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
                 session.close()
                 sessionClosedLatch.await(2, TimeUnit.SECONDS)
                 reader.close()
+            imageThread.quitSafely()
                 return FrameOutcome(
                     label, true, false, candidateSessionParameterAttached, candidateRequestWritten,
                     candidateReadback, physicalPixelModeWritten, physicalPixelModeReadback,
@@ -742,12 +747,14 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
                 session.close()
                 sessionClosedLatch.await(2, TimeUnit.SECONDS)
                 reader.close()
+            imageThread.quitSafely()
             }
         } catch (e: Throwable) {
             runCatching { imageRef.getAndSet(null)?.close() }
             runCatching { sessionRef.get()?.close() }
             sessionClosedLatch.await(2, TimeUnit.SECONDS)
             reader.close()
+            imageThread.quitSafely()
             return FrameOutcome(
                 label, sessionConfigured, false, candidateSessionParameterAttached, false,
                 candidateReadback, false, null, null, null, e.javaClass.name, e.message
