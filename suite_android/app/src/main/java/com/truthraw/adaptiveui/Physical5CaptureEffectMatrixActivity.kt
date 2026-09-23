@@ -529,14 +529,14 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
 
         val imageRef = AtomicReference<Image?>(null)
         val imageLatch = CountDownLatch(1)
-        reader.setOnImageAvailableListenerWithExecutor({ source ->
+        reader.setOnImageAvailableListener({ source: ImageReader ->
             val image = runCatching { source.acquireNextImage() }.getOrNull()
             if (image != null && imageRef.compareAndSet(null, image)) {
                 imageLatch.countDown()
             } else {
                 image?.close()
             }
-        }, executor)
+        }, android.os.Handler(android.os.Looper.getMainLooper()))
 
         val sessionLatch = CountDownLatch(1)
         val sessionClosedLatch = CountDownLatch(1)
