@@ -17,10 +17,11 @@ import android.widget.TextView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.security.MessageDigest
 import java.time.Instant
 
 /**
- * v0.50 direct typed vendor-characteristics oracle.
+ * v0.61 expanded typed vendor-characteristics oracle.
  *
  * Read only. No CameraDevice, CaptureRequest, ImageReader, Honor Binder, package spoofing,
  * vendor write, or extension session.
@@ -49,14 +50,14 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
 
         body.addView(label("TruthRaw v0.50 · direct typed vendor-key oracle", 22f, true))
         body.addView(label(
-            "Leest CameraCharacteristics zonder camera-open. De key-namen én Java-types zijn exact uit de " +
-                "Honor Camera .452/.706 APKs herleid. Eerst wordt normale key-enumeratie vastgelegd; daarna " +
-                "wordt dezelfde key direct read-only opgevraagd.",
+            "Leest CameraCharacteristics zonder camera-open. v0.61 herhaalt de v0.50 keys en breidt ze uit met exact uit de " +
+                "Honor Camera .452/.706 bytecode herleide RAW-, high-pixel- en remosaic-keys. Iedere key wordt " +
+                "read-only opgevraagd en daarna twee keer herlezen om runtime-stabiliteit te controleren.",
             12f, false, Color.rgb(190, 198, 210),
         ))
 
         body.addView(space(10))
-        body.addView(button("1 · Lees directe typed vendor keys") { runOracle() })
+        body.addView(button("1 · Lees uitgebreide RAW/remosaic vendor keys") { runOracle() })
         saveButton = button("2 · JSON opslaan") { saveReport() }.apply { isEnabled = false }
         body.addView(saveButton)
 
@@ -68,7 +69,7 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
         ))
 
         body.addView(space(10))
-        status = label("Nog geen v0.50 report.", 10f, false)
+        status = label("Nog geen v0.61 report.", 10f, false)
         body.addView(status)
 
         return ScrollView(this).apply {
@@ -87,7 +88,7 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
     }
 
     private fun runOracle() {
-        status.text = "v0.50 leest uitsluitend CameraCharacteristics…"
+        status.text = "v0.61 leest uitsluitend CameraCharacteristics…"
         saveButton.isEnabled = false
 
         Thread {
@@ -225,17 +226,49 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
 
         out.put("keyConstructed", true)
 
+        var firstCanonical: String? = null
         runCatching { c.get(key) }
             .onSuccess { value ->
+                val encoded = jsonValue(value)
+                firstCanonical = if (value == null) "<NULL>" else encoded.toString()
                 out.put("directGetCompleted", true)
                 out.put("valueIsNull", value == null)
                 out.put("valueRuntimeClass", value?.javaClass?.name ?: JSONObject.NULL)
-                out.put("value", jsonValue(value))
+                out.put("value", encoded)
+                out.put("valueSha256", sha256Text(firstCanonical!!))
             }
             .onFailure { e ->
                 out.put("directGetCompleted", false)
                 out.put("lookupError", errorJson(e))
             }
+
+        val repeats = JSONArray()
+        var repeatsStable = out.optBoolean("directGetCompleted", false)
+        if (repeatsStable) {
+            repeat(2) { index ->
+                val one = JSONObject().put("ordinal", index + 2)
+                runCatching { c.get(key) }
+                    .onSuccess { value ->
+                        val encoded = jsonValue(value)
+                        val canonical = if (value == null) "<NULL>" else encoded.toString()
+                        val same = canonical == firstCanonical
+                        if (!same) repeatsStable = false
+                        one.put("completed", true)
+                            .put("valueIsNull", value == null)
+                            .put("valueRuntimeClass", value?.javaClass?.name ?: JSONObject.NULL)
+                            .put("sameAsFirst", same)
+                            .put("valueSha256", sha256Text(canonical))
+                    }
+                    .onFailure { e ->
+                        repeatsStable = false
+                        one.put("completed", false)
+                            .put("error", errorJson(e))
+                    }
+                repeats.put(one)
+            }
+        }
+        out.put("repeatReads", repeats)
+        out.put("repeatReadStable", repeatsStable)
 
         return out
     }
@@ -245,6 +278,7 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
         val clazz: Class<Any> = when (spec.kind) {
             KeyKind.INT_ARRAY -> IntArray::class.java as Class<Any>
             KeyKind.BYTE_SCALAR -> java.lang.Byte.TYPE as Class<Any>
+            KeyKind.INT_SCALAR -> java.lang.Integer.TYPE as Class<Any>
         }
         return CameraCharacteristics.Key(spec.name, clazz)
     }
@@ -263,6 +297,11 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
             .put("message", e.message ?: JSONObject.NULL)
             .put("causeClass", e.cause?.javaClass?.name ?: JSONObject.NULL)
             .put("causeMessage", e.cause?.message ?: JSONObject.NULL)
+
+    private fun sha256Text(value: String): String =
+        MessageDigest.getInstance("SHA-256")
+            .digest(value.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
 
     private fun jsonValue(value: Any?): Any = when (value) {
         null -> JSONObject.NULL
@@ -284,13 +323,13 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
         val file = reportFile()
         saveButton.isEnabled = file.exists() && file.length() > 0L
         if (!file.exists()) {
-            status.text = "Nog geen v0.50 report."
+            status.text = "Nog geen v0.61 report."
             return
         }
 
         val report = runCatching { JSONObject(file.readText()) }.getOrNull()
         if (report == null) {
-            status.text = "v0.50 report bestaat maar kon niet als JSON worden gelezen."
+            status.text = "v0.61 report bestaat maar kon niet als JSON worden gelezen."
             return
         }
 
@@ -349,7 +388,7 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
                 source.inputStream().use { input -> input.copyTo(out) }
             } ?: error("Geen output stream")
         }.onSuccess {
-            status.text = "v0.50 JSON opgeslagen · characteristics read-only."
+            status.text = "v0.61 JSON opgeslagen · characteristics read-only."
         }.onFailure {
             status.text = "Opslaan faalde: ${it.javaClass.simpleName}: ${it.message}"
         }
@@ -378,7 +417,7 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
-    private enum class KeyKind { INT_ARRAY, BYTE_SCALAR }
+    private enum class KeyKind { INT_ARRAY, BYTE_SCALAR, INT_SCALAR }
 
     private data class KeySpec(
         val name: String,
@@ -387,59 +426,48 @@ class DirectTypedVendorCharacteristicsOracleActivity : Activity() {
     )
 
     companion object {
-        private const val SCHEMA = "truthraw.direct-typed-vendor-characteristics-oracle.v0.50"
+        private const val SCHEMA = "truthraw.expanded-vendor-characteristics-oracle.v0.61"
         private const val AUTHORITY = "CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY"
-        private const val REPORT_FILENAME = "TRUTHRAW_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE_v050.json"
-        private const val REQUEST_SAVE_JSON = 65050
+        private const val REPORT_FILENAME = "TRUTHRAW_EXPANDED_VENDOR_CHARACTERISTICS_ORACLE_v061.json"
+        private const val REQUEST_SAVE_JSON = 65061
         private const val APK_452_SHA256 = "3985d9ce23ca4e47cdd34231723b8006f033753c6a3f611685c5c8fffd457d52"
         private const val APK_706_SHA256 = "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027"
 
         private val KEY_SPECS = listOf(
-            KeySpec(
-                "com.hihonor.device.capabilities.physicalCameraScene",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.rawSensorResolution",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.sceneCameraIdCapability",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.cameraIdCustomInfo",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.needOpenPhysicalCamera",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize",
-                KeyKind.INT_ARRAY,
-                "int[]",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.teleSupport",
-                KeyKind.BYTE_SCALAR,
-                "byte",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.ultraHighPixelMonoSupported",
-                KeyKind.BYTE_SCALAR,
-                "byte",
-            ),
-            KeySpec(
-                "com.hihonor.device.capabilities.rawZoomSupported",
-                KeyKind.BYTE_SCALAR,
-                "byte",
-            ),
+            // v0.50 control keys
+            KeySpec("com.hihonor.device.capabilities.physicalCameraScene", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.rawSensorResolution", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.sceneCameraIdCapability", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.cameraIdCustomInfo", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.needOpenPhysicalCamera", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.ultraResolutionSwitchSupportedSize", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.teleSupport", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.ultraHighPixelMonoSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.rawZoomSupported", KeyKind.BYTE_SCALAR, "byte"),
+
+            // Exact .452/.706 bytecode types: RAW/high-pixel/remosaic expansion.
+            KeySpec("com.hihonor.device.capabilities.rawImgSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.rawCaptureSize", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.rawForBokehSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.supportOfflineRawSceneMode", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.hwCaptureRawStreamConfigurations", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.hwProfessionalRawCaptureMode", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.professionalTeleRawLogicalCameraID", KeyKind.INT_SCALAR, "int"),
+            KeySpec("com.hihonor.device.capabilities.remosaicSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.softRemosaicSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.frontSensorRemosaicSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.sensorRemosaicSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.rearSensorZoomRemosaicSupported", KeyKind.INT_SCALAR, "int"),
+            KeySpec("com.hihonor.device.capabilities.subSensorRemosaic", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.remosaicFlashSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.ultraHighPixel", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.highPixelAlgoSupported", KeyKind.BYTE_SCALAR, "byte"),
+            KeySpec("com.hihonor.device.capabilities.customIdWithA200", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.brightnessThresholdWithA200", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.highPixelLivePhotoSupported", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.highPixelLivePhotoResolution", KeyKind.INT_ARRAY, "int[]"),
+            KeySpec("com.hihonor.device.capabilities.isUltraHighPixelSupportBeauty", KeyKind.INT_SCALAR, "int"),
+            KeySpec("com.hihonor.device.capabilities.ultraHighPixelWatermarkSupported", KeyKind.INT_SCALAR, "int")
         )
     }
 }
