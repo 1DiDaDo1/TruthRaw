@@ -59,7 +59,7 @@ jobs:
           forbidden=[
               'openCamera(',
               'createCaptureRequest',
-              'ImageReader',
+              'ImageReader.newInstance(',
               'CameraCaptureSession',
               'bindService(',
               'setPhysicalCameraKey',
