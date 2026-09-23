@@ -23,6 +23,7 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Size
 import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
@@ -608,7 +609,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 return RawOutcome(
                     false, false, sceneSessionAttached, false, false,
                     false, false, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null, null,
                     "RAW_SESSION_FAILED", null
                 )
             }
@@ -689,7 +690,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 return RawOutcome(
                     false, true, sceneSessionAttached, sceneLogicalWritten, scenePhysicalWritten,
                     remosaicLogicalWritten, remosaicPhysicalWritten, remosaicReadback, pixelReadback,
-                    null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null, null, null, null, null,
                     "RAW_CAPTURE_PAIRING_FAILED", "resultReady=" + resultReady + " imageReady=" + imageReady
                 )
             }
@@ -720,7 +721,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
             return RawOutcome(
                 false, configured, false, false, false,
                 false, false, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
                 e.javaClass.name, e.message
             )
         } finally {
