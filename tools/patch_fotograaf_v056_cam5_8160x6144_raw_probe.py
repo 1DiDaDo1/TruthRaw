@@ -18,7 +18,7 @@ repls = {
     '"Donkere preview is geen blokkade. Stage 3 PASS vereist 16320×12288 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. Returned SENSOR_PIXEL_MODE wordt pas ná sealing geïnterpreteerd."':
     '"Donkere preview is geen blokkade. v0.56 TEST vereist 8160×6144 RAW_SENSOR + physical Camera-5 result + timestampidentiteit. RAW wordt vóór interpretatie verzegeld; geen native-ADC-promotie."',
     '"schema", "truthraw.fotograaf-camera5-200mp-v014-route-replay.v0.53"':
-    '"schema", "truthraw.fotograaf-camera5-8160x6144-raw-probe.v0.56"',
+    '"schema", "truthraw.fotograaf-camera5-8160x6144-raw-probe.v0.56c"',
     '"TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v011.${if (contiguous) "rawsensor" else "rawbuffer"}"':
     '"TRUTHRAW_${stamp}_CAM5_8160_PROBE_SOURCE_${TARGET_W}x${TARGET_H}_v056.${if (contiguous) "rawsensor" else "rawbuffer"}"',
     'val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v053.json")':
@@ -30,6 +30,36 @@ for old,new in repls.items():
         raise SystemExit(f"required anchor missing: {old}")
     s=s.replace(old,new,1)
 
+source_export_anchor = '''            val rawEvidence = persistOriginalRawBuffer(image, stamp)
+            capturedRaw = rawEvidence.file
+
+            val returnedPixelMode'''
+source_export_replacement = '''            val rawEvidence = persistOriginalRawBuffer(image, stamp)
+            capturedRaw = rawEvidence.file
+
+            // v0.56c: publish the already-sealed source BEFORE DNG creation or topology admission.
+            // Downloads/TRUTHRAW is intentionally used for arbitrary research files on scoped storage.
+            val sourceExport = runCatching {
+                exportResearchFileToDownloadsTruthRaw(rawEvidence.file, "application/octet-stream")
+            }.fold(
+                onSuccess = { "SOURCE EXPORTED ✓ · $it" },
+                onFailure = { "SOURCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" },
+            )
+            setStatusAny(sourceExport)
+
+            val returnedPixelMode'''
+if source_export_anchor not in s:
+    raise SystemExit("source export insertion anchor missing")
+s=s.replace(source_export_anchor, source_export_replacement, 1)
+
+evidence_anchor = '''            val evidence = buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError)
+            image.close()'''
+evidence_replacement = '''            val evidence = buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError)
+            evidence.put("v056cSourceExport", sourceExport)
+            image.close()'''
+if evidence_anchor not in s:
+    raise SystemExit("source export evidence anchor missing")
+s=s.replace(evidence_anchor, evidence_replacement, 1)
 anchor = '''            capturedDng = dng
             capturedJson = report
 
@@ -43,7 +73,6 @@ replacement = '''            capturedDng = dng
             // These are exports of existing evidence; this does not alter authority or admission.
             val diagnosticPreview = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_ADMITTED_diagnostic.png")
             val autoExports = listOf(
-                report to "application/json",
                 diagnosticPreview to "image/png",
             ).filter { it.first.isFile }.map { (file, mime) ->
                 runCatching { exportResearchFileToDcimTruthRaw(file, mime) }
@@ -56,8 +85,8 @@ replacement = '''            capturedDng = dng
             // Rewrite report once so it also records the export attempt outcomes.
             report.writeText(evidence.toString(2))
             val evidenceExportStatus = runCatching {
-                exportResearchFileToDcimTruthRaw(report, "application/json")
-                "EVIDENCE EXPORTED ✓"
+                val location = exportResearchFileToDownloadsTruthRaw(report, "application/json")
+                "EVIDENCE EXPORTED ✓ · $location"
             }.getOrElse { "EVIDENCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" }
             setStatusAny(evidenceExportStatus)
 
@@ -69,7 +98,30 @@ s=s.replace(anchor,replacement,1)
 
 helper_anchor = '''    private fun saveFile(file: File?, mime: String, requestCode: Int) {
 '''
-helper = '''    private fun exportResearchFileToDcimTruthRaw(file: File, mime: String) {
+helper = '''    private fun exportResearchFileToDownloadsTruthRaw(file: File, mime: String): String {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+            put(MediaStore.MediaColumns.MIME_TYPE, mime)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/TRUTHRAW")
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val uri = contentResolver.insert(collection, values)
+            ?: error("Downloads MediaStore insert returned null")
+        try {
+            contentResolver.openOutputStream(uri, "w")?.use { out ->
+                FileInputStream(file).use { input -> input.copyTo(out, 1024 * 1024) }
+            } ?: error("Downloads MediaStore output stream unavailable")
+            val publish = ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }
+            contentResolver.update(uri, publish, null, null)
+        } catch (t: Throwable) {
+            runCatching { contentResolver.delete(uri, null, null) }
+            throw t
+        }
+        return "Downloads/TRUTHRAW/${file.name} · $uri"
+    }
+
+    private fun exportResearchFileToDcimTruthRaw(file: File, mime: String) {
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
             put(MediaStore.MediaColumns.MIME_TYPE, mime)
