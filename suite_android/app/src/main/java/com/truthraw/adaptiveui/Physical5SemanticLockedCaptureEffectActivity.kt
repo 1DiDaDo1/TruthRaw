@@ -437,7 +437,7 @@ class Physical5SemanticLockedCaptureEffectActivity : Activity() {
         val opened = openLogicalCamera(cm)
         val device = opened.device ?: return FrameOutcome(
             label, false, false, candidateKey != null, false, null, false, null,
-            false, null, null, null, "CAMERA_OPEN_FAILED", opened.error
+            false, null, null, "CAMERA_OPEN_FAILED", opened.error
         )
 
         return try {
