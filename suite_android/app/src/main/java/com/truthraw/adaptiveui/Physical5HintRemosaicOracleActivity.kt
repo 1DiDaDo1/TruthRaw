@@ -690,7 +690,7 @@ class Physical5HintRemosaicOracleActivity : Activity() {
                 return RawOutcome(
                     false, true, sceneSessionAttached, sceneLogicalWritten, scenePhysicalWritten,
                     remosaicLogicalWritten, remosaicPhysicalWritten, remosaicReadback, pixelReadback,
-                    null, null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                     "RAW_CAPTURE_PAIRING_FAILED", "resultReady=" + resultReady + " imageReady=" + imageReady
                 )
             }
