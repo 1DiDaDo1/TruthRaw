@@ -1473,32 +1473,28 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
-    private enum class ValueType(val label: String) {
-        INT_ARRAY("int[]"),
-        BYTE_ARRAY("byte[]"),
-    }
-
-    private data class CandidateSpec(
-        val shortName: String,
+    private data class SettingSpec(
         val keyName: String,
-        val type: ValueType,
+        val semanticValue: Int,
+        val preferredRepresentation: String,
         val semanticBasis: String,
-        val intValue: Int,
-    ) {
-        fun value(): Any = when (type) {
-            ValueType.INT_ARRAY -> intArrayOf(intValue)
-            ValueType.BYTE_ARRAY -> byteArrayOf(intValue.toByte())
-        }
-    }
+    )
+
+    private data class VectorSpec(
+        val shortName: String,
+        val semanticBasis: String,
+        val settings: List<SettingSpec>,
+    )
 
     companion object {
-        private const val SCHEMA = "truthraw.physical5-semantic-locked-capture-effect.v0.72"
-        private const val AUTHORITY = "CAMERA2_SINGLE_FRAME_SEMANTIC_VALUE_LOCKED_CONTROL_CANDIDATE_EFFECT"
+        private const val SCHEMA = "truthraw.physical5-oem-orchestration.v0.72"
+        private const val AUTHORITY = "CAMERA2_SINGLE_FRAME_OEM_ORCHESTRATION_LOCKED_CONTROL_CANDIDATE_EFFECT"
         private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_OEM_ORCHESTRATION_v072.json"
         private const val REQUEST_CAMERA_PERMISSION = 67262
         private const val REQUEST_SAVE_JSON = 67263
         private const val LOGICAL_ID = "0"
         private const val PHYSICAL_ID = "5"
+        private const val HINT_USER_VALUE_KEY = "com.hihonor.capture.metadata.hintUserValue"
 
         private const val TARGET_W = 16320
         private const val TARGET_H = 12288
@@ -1511,43 +1507,39 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         private const val EFFECTIVE_PREFIX_BYTES = 15728640L
 
         private const val BOUNDARY =
-            "A_LOCKED_CONTROL_CANDIDATE_DIFFERENTIAL_CAN_ESTABLISH_AN_APP_VISIBLE_EFFECT_IN_THIS_EXACT_CONTEXT_ONLY; STATIC_OEM_SEMANTICS_DO_NOT_PROVE_RUNTIME_EFFECT; NO_NATIVE_SENSOR_GEOMETRY, DIRECT_CFA_200MP, ADC_BIT_DEPTH, OR_CALIBRATION_TRUTH_IS_INFERRED"
+            "AN_OEM_DERIVED_LOCKED_CONTROL_CANDIDATE_DIFFERENTIAL_CAN_ESTABLISH_AN_APP_VISIBLE_EFFECT_IN_THIS_EXACT_DIRECT_CAMERA2_ROUTE_ONLY; HINTUSERVALUE_23_24_32_33_IS_A_SERVICEHOST_ROUTE_SIGNAL_NOT_NATIVE_SENSOR_PROOF; NO_NATIVE_SENSOR_GEOMETRY, DIRECT_CFA_200MP, ADC_BIT_DEPTH, OR_CALIBRATION_TRUTH_IS_INFERRED"
 
-        private val CANDIDATES = listOf(
-            CandidateSpec(
-                "MasterFilmSensorType_tele_3",
-                "com.hihonor.capture.metadata.MasterFilmSensorType",
-                ValueType.INT_ARRAY,
-                "HONOR .452 CameraUtil.getMasterVideoSensorType(): OEM tele role -> 3",
-                3
+        private val QCOM_REMOSAIC = SettingSpec(
+            keyName = "com.hihonor.capture.metadata.qcomRemosaicEnable",
+            semanticValue = 1,
+            preferredRepresentation = "INT",
+            semanticBasis = "HONOR .452 PhotoResolutionFunction pre-capture path uses qcomRemosaicEnable with Integer isRemosaicEnable; constructor default is 1"
+        )
+
+        private val HIGH_PIXEL_SCENE = SettingSpec(
+            keyName = "com.hihonor.capture.metadata.cameraSceneMode",
+            semanticValue = 53,
+            preferredRepresentation = "INT_ARRAY",
+            semanticBasis = "HONOR .452 CameraSceneModeUtil UltraHighPixel/200M scene = 53; v0.65 physical Camera2 marshaling resolved int[]"
+        )
+
+        private val UNIQUE_SETTINGS = listOf(QCOM_REMOSAIC, HIGH_PIXEL_SCENE)
+
+        private val VECTORS = listOf(
+            VectorSpec(
+                shortName = "qcomRemosaicEnable_1",
+                semanticBasis = "Isolated Qualcomm remosaic pre-capture control from exact HONOR .452 code",
+                settings = listOf(QCOM_REMOSAIC)
             ),
-            CandidateSpec(
-                "cameraSceneMode_UltraHighPixel_53",
-                "com.hihonor.capture.metadata.cameraSceneMode",
-                ValueType.INT_ARRAY,
-                "HONOR .452 CameraSceneModeUtil.getHighPixelSceneMode(): UltraHighPixel/200M -> 53",
-                53
+            VectorSpec(
+                shortName = "cameraSceneMode_53",
+                semanticBasis = "Isolated HONOR UltraHighPixel/200M UI/vendor scene value",
+                settings = listOf(HIGH_PIXEL_SCENE)
             ),
-            CandidateSpec(
-                "cameraSceneMode_UltraResolution_110",
-                "com.hihonor.capture.metadata.cameraSceneMode",
-                ValueType.INT_ARRAY,
-                "HONOR .452 CameraSceneModeUtil.getHighPixelSceneMode(): UltraResolution/50M -> 110",
-                110
-            ),
-            CandidateSpec(
-                "cameraSceneMode_ProRaw_66",
-                "com.hihonor.capture.metadata.cameraSceneMode",
-                ValueType.INT_ARRAY,
-                "HONOR .452 CameraSceneModeUtil.getProPhotoSceneMode(): RAW branch -> 66",
-                66
-            ),
-            CandidateSpec(
-                "teleconverterEnable_on",
-                "com.hihonor.capture.metadata.teleconverterEnable",
-                ValueType.BYTE_ARRAY,
-                "HONOR .452 TeleConverterFunction: \"on\" -> Boolean true; direct Camera2 type resolved byte[]",
-                1
+            VectorSpec(
+                shortName = "scene53_plus_qcomRemosaic1",
+                semanticBasis = "Smallest current OEM-derived direct-Camera2 high-pixel vector: scene 53 plus Qualcomm remosaic enable",
+                settings = listOf(HIGH_PIXEL_SCENE, QCOM_REMOSAIC)
             ),
         )
 
