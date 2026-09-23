@@ -158,6 +158,12 @@
             android:exported="false" />
 
         <activity
+            android:name=".Api37VendorExtensionOracleActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
             android:name=".HonorCameraPackageExportActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
