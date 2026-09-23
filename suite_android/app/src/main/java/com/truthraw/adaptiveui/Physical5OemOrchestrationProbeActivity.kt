@@ -171,9 +171,24 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             "physical camera 5 does not advertise 16320x12288 RAW10 in maximum-resolution map"
         }
 
-        val requestByName = physical.availableCaptureRequestKeys.orEmpty().associateBy { it.name }
-        val sessionNames = physical.availableSessionKeys.orEmpty().map { it.name }.toSet()
+        val logicalRequestNames = logical.availableCaptureRequestKeys.orEmpty().map { it.name }.toSet()
+        val physicalRequestNames = physical.availableCaptureRequestKeys.orEmpty().map { it.name }.toSet()
+        val logicalSessionNames = logical.availableSessionKeys.orEmpty().map { it.name }.toSet()
+        val physicalSessionNames = physical.availableSessionKeys.orEmpty().map { it.name }.toSet()
+        val logicalResultNames = logical.availableCaptureResultKeys.orEmpty().map { it.name }.toSet()
+        val physicalResultNames = physical.availableCaptureResultKeys.orEmpty().map { it.name }.toSet()
         val locked = chooseLockedSettings(physical)
+
+        val surfaces = JSONObject()
+        for (setting in UNIQUE_SETTINGS) {
+            surfaces.put(setting.keyName, JSONObject()
+                .put("logicalRequestPresent", setting.keyName in logicalRequestNames)
+                .put("physicalRequestPresent", setting.keyName in physicalRequestNames)
+                .put("logicalSessionPresent", setting.keyName in logicalSessionNames)
+                .put("physicalSessionPresent", setting.keyName in physicalSessionNames)
+                .put("staticPreferredRepresentation", setting.preferredRepresentation)
+                .put("semanticValue", setting.semanticValue))
+        }
 
         val results = JSONArray()
         val report = JSONObject()
@@ -191,9 +206,15 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 .put("outputMaximumResolutionModeDeclared", true)
                 .put("physicalSensorPixelModeRequested", CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION))
             .put("lockedRequest", locked.toJson())
+            .put("vendorKeySurfaces", surfaces)
+            .put("hintUserValue", JSONObject()
+                .put("name", HINT_USER_VALUE_KEY)
+                .put("logicalResultPresent", HINT_USER_VALUE_KEY in logicalResultNames)
+                .put("physicalResultPresent", HINT_USER_VALUE_KEY in physicalResultNames)
+                .put("rawMfUltraHighPixelProcessorCodes", JSONArray(listOf(23, 24, 32, 33))))
             .put("freshCameraOpenPerFrame", true)
             .put("mirroredPairOrder", true)
-            .put("candidateCount", CANDIDATES.size)
+            .put("candidateCount", VECTORS.size)
             .put("results", results)
             .put("stage", "INITIALIZED")
             .put("pairsComplete", 0)
@@ -210,41 +231,49 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         var frames = 0
         var topologyDiffs = 0
         var selectedMetadataDiffs = 0
+        var hintDiffs = 0
+        var rawMfHintHits = 0
         var exactStatePairs = 0
         var failed = 0
 
-        for ((index, spec) in CANDIDATES.withIndex()) {
+        for ((index, vector) in VECTORS.withIndex()) {
             runOnUiThread {
-                status.text = "v0.72 " + (index + 1) + "/" + CANDIDATES.size + " · " + spec.shortName
+                status.text = "v0.72 " + (index + 1) + "/" + VECTORS.size + " · " + vector.shortName
+            }
+
+            val settingsJson = JSONArray()
+            for (s in vector.settings) {
+                settingsJson.put(JSONObject()
+                    .put("name", s.keyName)
+                    .put("semanticValue", s.semanticValue)
+                    .put("semanticBasis", s.semanticBasis)
+                    .put("preferredRepresentation", s.preferredRepresentation)
+                    .put("logicalRequestPresent", s.keyName in logicalRequestNames)
+                    .put("physicalRequestPresent", s.keyName in physicalRequestNames)
+                    .put("logicalSessionPresent", s.keyName in logicalSessionNames)
+                    .put("physicalSessionPresent", s.keyName in physicalSessionNames))
             }
 
             val item = JSONObject()
                 .put("index", index)
-                .put("shortName", spec.shortName)
-                .put("name", spec.keyName)
-                .put("semanticBasis", spec.semanticBasis)
-                .put("resolvedRepresentation", spec.type.label)
-                .put("candidateValue", jsonValue(spec.value()))
-                .put("physicalRequestPresent", requestByName.containsKey(spec.keyName))
-                .put("physicalSessionPresent", spec.keyName in sessionNames)
+                .put("shortName", vector.shortName)
+                .put("semanticBasis", vector.semanticBasis)
+                .put("settings", settingsJson)
                 .put("order", if (index % 2 == 0) "CONTROL_THEN_CANDIDATE" else "CANDIDATE_THEN_CONTROL")
                 .put("pairCompleted", false)
             results.put(item)
 
-            val keyAny = requestByName[spec.keyName]
-            if (keyAny == null || spec.keyName !in sessionNames) {
+            if (vector.settings.any { it.keyName !in logicalRequestNames && it.keyName !in physicalRequestNames }) {
                 failed++
-                item.put("classification", "SKIPPED_KEY_NOT_AVAILABLE_ON_REQUIRED_REQUEST_AND_SESSION_SURFACES")
-                report.put("stage", "PAIR_SKIPPED")
+                item.put("classification", "SKIPPED_REQUIRED_VENDOR_KEY_NOT_ADVERTISED_ON_LOGICAL_OR_PHYSICAL_REQUEST_SURFACE")
+                report.put("stage", "PAIR_SKIPPED_KEY_SURFACE")
+                    .put("failedOrSkippedPairCount", failed)
                 writeCheckpoint(report)
                 continue
             }
 
-            @Suppress("UNCHECKED_CAST")
-            val key = keyAny as CaptureRequest.Key<Any>
-
             report.put("candidateIndexInFlight", index)
-                .put("candidateNameInFlight", spec.keyName)
+                .put("candidateNameInFlight", vector.shortName)
                 .put("stage", "BEFORE_PAIR")
             writeCheckpoint(report)
 
@@ -252,7 +281,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             val candidate: FrameOutcome
 
             if (index % 2 == 0) {
-                control = captureFresh(cm, physical, locked, null, null, "CONTROL")
+                control = captureFresh(cm, logical, physical, locked, emptyList(), "CONTROL")
                 if (control.frameCaptured) frames++
                 item.put("control", control.toJson())
                 report.put("physicalFrameCount", frames)
@@ -260,11 +289,11 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                     .put("stage", "CONTROL_RETURNED")
                 writeCheckpoint(report)
 
-                candidate = captureFresh(cm, physical, locked, key, spec.value(), spec.shortName)
+                candidate = captureFresh(cm, logical, physical, locked, vector.settings, vector.shortName)
                 if (candidate.frameCaptured) frames++
                 item.put("candidate", candidate.toJson())
             } else {
-                candidate = captureFresh(cm, physical, locked, key, spec.value(), spec.shortName)
+                candidate = captureFresh(cm, logical, physical, locked, vector.settings, vector.shortName)
                 if (candidate.frameCaptured) frames++
                 item.put("candidate", candidate.toJson())
                 report.put("physicalFrameCount", frames)
@@ -272,7 +301,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                     .put("stage", "CANDIDATE_RETURNED")
                 writeCheckpoint(report)
 
-                control = captureFresh(cm, physical, locked, null, null, "CONTROL")
+                control = captureFresh(cm, logical, physical, locked, emptyList(), "CONTROL")
                 if (control.frameCaptured) frames++
                 item.put("control", control.toJson())
             }
@@ -289,6 +318,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 failed++
                 item.put("classification", "PAIR_CAPTURE_FAILED")
                 report.put("stage", "PAIR_CAPTURE_FAILED")
+                    .put("failedOrSkippedPairCount", failed)
                 writeCheckpoint(report)
                 continue
             }
@@ -296,11 +326,13 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             val comparison = comparePair(control, candidate)
             item.put("comparison", comparison)
                 .put("pairCompleted", true)
-                .put("classification", "LOCKED_CONTROL_CANDIDATE_PAIR_COMPLETE")
+                .put("classification", "OEM_VECTOR_LOCKED_CONTROL_CANDIDATE_PAIR_COMPLETE")
 
             pairs++
             if (comparison.optBoolean("structuralTopologyDifferentialObserved", false)) topologyDiffs++
             if (comparison.optBoolean("selectedResultMetadataDifferentialObserved", false)) selectedMetadataDiffs++
+            if (comparison.optBoolean("hintUserValueDifferentialObserved", false)) hintDiffs++
+            if (candidate.capture.rawMfUltraHighPixelHintObserved) rawMfHintHits++
             if (comparison.optBoolean("acquisitionStateExactlyMatched", false)) exactStatePairs++
 
             report
@@ -309,6 +341,8 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 .put("independentEvidenceCount", frames)
                 .put("structuralTopologyDifferentialCount", topologyDiffs)
                 .put("selectedResultMetadataDifferentialCount", selectedMetadataDiffs)
+                .put("hintUserValueDifferentialCount", hintDiffs)
+                .put("candidateRawMfUltraHighPixelHintHitCount", rawMfHintHits)
                 .put("acquisitionStateExactlyMatchedPairCount", exactStatePairs)
                 .put("failedOrSkippedPairCount", failed)
                 .put("stage", "PAIR_RECORDED")
@@ -324,6 +358,8 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             .put("independentEvidenceCount", frames)
             .put("structuralTopologyDifferentialCount", topologyDiffs)
             .put("selectedResultMetadataDifferentialCount", selectedMetadataDiffs)
+            .put("hintUserValueDifferentialCount", hintDiffs)
+            .put("candidateRawMfUltraHighPixelHintHitCount", rawMfHintHits)
             .put("acquisitionStateExactlyMatchedPairCount", exactStatePairs)
             .put("failedOrSkippedPairCount", failed)
             .put("classification", "PHYSICAL5_OEM_ORCHESTRATION_CAPTURE_EFFECT_COMPLETE_OR_PARTIAL")
