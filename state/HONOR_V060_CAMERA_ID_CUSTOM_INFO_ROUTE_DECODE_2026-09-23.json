@@ -1,0 +1,54 @@
+{
+  "schema": "truthraw.honor-camera-id-custom-info-route-decode.v0.60",
+  "date": "2026-09-23",
+  "authority": {
+    "runtime": "CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY",
+    "static": "STATIC_APK_BYTECODE_ROUTE_ANALYSIS_ONLY"
+  },
+  "sourceV050": {
+    "file": "TRUTHRAW_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE_v050 (3).json",
+    "bytes": 45265,
+    "sha256": "49ab002751bea88e5ff1cccf77a783e4d1fd1e6c7099a55d2837198f68af96a8"
+  },
+  "rearRuntime": {
+    "physicalCameraScene": [
+      66
+    ],
+    "sceneCameraIdCapability": [
+      1
+    ],
+    "cameraIdCustomInfoRecordWidth": 10,
+    "scene53Record": [
+      1,
+      53,
+      -1,
+      -1,
+      -1,
+      -1,
+      10,
+      -1,
+      -1,
+      0
+    ],
+    "scene53NormalRearCameraId": 0,
+    "scene53TeleconverterCameraId": 10
+  },
+  "provenFieldSemantics": {
+    "0": "enabled_valid_record_marker",
+    "1": "sceneMode",
+    "2": "videoFps_or_minus1_wildcard",
+    "6": "teleconverter_state_camera_id",
+    "8": "special_gimbal_ui_style_camera_id",
+    "9": "normal_rear_type1_camera_id"
+  },
+  "sceneSemantics": {
+    "ultraHighPixel": 53,
+    "livePhotoUltraHighPixel": 87,
+    "ultraResolution50M": 110,
+    "proPhotoRaw": 66,
+    "proPhotoJpegL": 65
+  },
+  "conclusion": "ULTRAHIGHPIXEL_SCENE53_NORMAL_REAR_ROUTES_TO_LOGICAL_CAMERA0_NOT_DIRECT_PHYSICAL_CAMERA_GATE",
+  "next": "TRACE_LOGICAL0_TO_PHYSICAL5_SELECTION_AND_SERVICEHOST_PROCESSOR_SCENE_TRANSLATION",
+  "scientificMasterModified": false
+}
