@@ -955,12 +955,12 @@ class Physical5HintRemosaicOracleActivity : Activity() {
         val file = reportFile()
         saveButton.isEnabled = file.exists() && file.length() > 0L
         if (!file.exists()) {
-            status.text = "Nog geen v0.73 report."
+            status.text = "Nog geen v0.74 report."
             return
         }
         val r = runCatching { JSONObject(file.readText()) }.getOrNull()
         if (r == null) {
-            status.text = "v0.73 report kon niet worden gelezen."
+            status.text = "v0.74 report kon niet worden gelezen."
             return
         }
         val d = r.optJSONObject("derivedState")
