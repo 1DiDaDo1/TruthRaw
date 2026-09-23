@@ -1,0 +1,92 @@
+name: TruthRaw v0.62 Android 17 vendor extension oracle
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/api37-vendor-extension-oracle-v062
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Api37VendorExtensionOracleActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSettingsActivity.kt'
+      - 'docs/research/api37-vendor-extension-v062/**'
+      - '.github/workflows/android-truthraw-v062-api37-vendor-extension-oracle.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-v062:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify read-only v0.62 invariants
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/Api37VendorExtensionOracleActivity.kt'
+          grep -F 'truthraw.api37-vendor-extension-oracle.v0.62' "$SRC"
+          grep -F 'isExtensionSupported' "$SRC"
+          grep -F 'SCAN_MAX = 255' "$SRC"
+          grep -F 'getSupportedExtensions' "$SRC"
+          grep -F 'getAvailableCaptureRequestKeys' "$SRC"
+          grep -F 'getAvailableCaptureResultKeys' "$SRC"
+          grep -F 'getExtensionSupportedSizes' "$SRC"
+          grep -F 'extensionSessionCreatedByTruthRaw", false' "$SRC"
+          grep -F 'cameraOpenedByTruthRaw", false' "$SRC"
+          grep -F 'captureSubmittedByTruthRaw", false' "$SRC"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Api37VendorExtensionOracleActivity.kt').read_text()
+          forbidden=[
+              'openCamera(',
+              'createExtensionSession',
+              'ImageReader.newInstance',
+              'createCaptureRequest',
+              '.capture(',
+              'setRepeatingRequest',
+              'builder.set(',
+              'setPhysicalCameraKey(',
+              'bindService(',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+          print('v0.62 read-only invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v062-api37-vendor-extension-oracle-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
