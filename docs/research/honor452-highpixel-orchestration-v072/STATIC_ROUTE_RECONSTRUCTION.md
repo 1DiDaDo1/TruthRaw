@@ -133,3 +133,101 @@ Only then should TruthRaw test the smallest OEM-derived combination in one isola
 Permanent boundary:
 
 **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+
+## New exact bridge: hintUserValue -> SMART_SCENE_MODE -> ServiceHost processor
+
+Further cross-DEX decoding closes an important missing link.
+
+The CaptureResult key field:
+
+`Ls8/d;->k`
+
+is constructed from the literal:
+
+`com.hihonor.capture.metadata.hintUserValue`
+
+using the Integer-class key factory. Therefore the OEM Java value type is scalar `Integer`.
+
+In:
+
+`UltraHighPixelMode$2.onCaptureCompleted(...)`
+
+the stock app performs this sequence:
+
+1. read `hintUserValue` from the CaptureResult;
+2. convert it to an integer;
+3. compare it against `UltraHighPixelMode.sceneMode`;
+4. when changed, store the new integer as `sceneMode`;
+5. when `lastSceneMode != sceneMode`, write `Key.SMART_SCENE_MODE = Integer.valueOf(sceneMode)` to both:
+   - the mode CaptureFlow;
+   - the mode PreviewFlow;
+6. then update `lastSceneMode = sceneMode`.
+
+In:
+
+`ServiceHostCaptureFlowImpl.setParameterInternal(...)`
+
+`Key.SMART_SCENE_MODE` is recognized as an internal app key and forwarded to:
+
+`CameraService.setSceneMode(int)`.
+
+The ServiceHost processor chain eventually reaches:
+
+`UltraHighPixelModeProcessor.setSceneMode(int)`
+
+and `getJsonFileName()` maps:
+
+- 23 -> `pipeline4rawmfultrahighpixelcap.json`
+- 24 -> `pipeline4rawmfultrahighpixelcap.json`
+- 32 -> `pipeline4rawmfultrahighpixelcap.json`
+- 33 -> `pipeline4rawmfultrahighpixelcap.json`
+
+This establishes an exact orchestration bridge:
+
+`CaptureResult hintUserValue -> UltraHighPixelMode.sceneMode -> SMART_SCENE_MODE -> CameraService.setSceneMode -> UltraHighPixelModeProcessor -> ServiceHost JSON pipeline`
+
+The still-unresolved step is what exact request/state combination causes the HAL/result side to emit hint values 23/24/32/33.
+
+## qcomRemosaicEnable Java type and state semantics
+
+The static initializer for:
+
+`com.hihonor.capture.metadata.qcomRemosaicEnable`
+
+uses the `Integer.TYPE` key factory argument.
+
+Thus the stock OEM Java representation is scalar `Integer`, not `int[]`.
+
+The Qualcomm pre-capture handler writes:
+
+`qcomRemosaicEnable = Integer.valueOf(PhotoResolutionFunction.isRemosaicEnable)`.
+
+`PhotoResolutionFunction` initializes `isRemosaicEnable = 1`.
+
+Its remosaic-status callback reads the scalar Integer result `hintUserValue` and updates the remosaic state as:
+
+- `hintUserValue == 5` -> `isRemosaicEnable = 1`
+- otherwise -> `isRemosaicEnable = 0`
+
+Therefore blindly combining `qcomRemosaicEnable=1` with the RAW-MF UltraHighPixel internal modes 23/24/32/33 would not be a faithful reconstruction of the observed state machine. The remosaic state is downstream of the previous result hint in this path.
+
+## Revised next runtime gate
+
+The next experiment should not brute-force more output keys.
+
+It should directly measure the missing bridge:
+
+- matched locked control;
+- `cameraSceneMode=53` (UltraHighPixel/200M);
+- `cameraSceneMode=110` (UltraResolution/50M);
+- `cameraSceneMode=66` (Pro Photo RAW reference);
+- `qcomRemosaicEnable=1` as an isolated stock-backed remosaic control.
+
+For every frame, read the physical Camera-5 scalar result:
+
+`com.hihonor.capture.metadata.hintUserValue`.
+
+The decisive question is whether any defensible request candidate causes `hintUserValue` to become 23, 24, 32 or 33.
+
+If so, direct Camera2 has reached the OEM processor-scene trigger while still bypassing the ServiceHost processing leg. If not, additional stock-mode orchestration is required upstream of the hint generation.
