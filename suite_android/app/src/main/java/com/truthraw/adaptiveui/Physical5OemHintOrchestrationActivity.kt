@@ -363,13 +363,16 @@ class Physical5OemHintOrchestrationActivity : Activity() {
             if (observation.optBoolean("frameObserved", false)) {
                 observed++
                 val chosenHint = observation.optInt("preferredHintUserValue", Int.MIN_VALUE)
-                if (chosenHint in RAW_MF_HINTS) rawMfHints++
+                val rawMf = RAW_MF_HINTS.contains(chosenHint)
+                if (rawMf) rawMfHints++
+                val writesComplete = observation.optBoolean("requestedVendorWritesComplete", false)
                 item.put(
                     "classification",
-                    if (chosenHint in RAW_MF_HINTS)
-                        "RAW_MF_ULTRAHIGHPIXEL_HINT_OBSERVED"
-                    else
-                        "PREVIEW_HINT_OBSERVED__NOT_RAW_MF_ULTRAHIGHPIXEL"
+                    when {
+                        !writesComplete -> "PREVIEW_OBSERVED__REQUESTED_VENDOR_WRITE_INCOMPLETE"
+                        rawMf -> "RAW_MF_ULTRAHIGHPIXEL_HINT_OBSERVED"
+                        else -> "PREVIEW_HINT_OBSERVED__NOT_RAW_MF_ULTRAHIGHPIXEL"
+                    }
                 )
             } else {
                 failed++
@@ -621,9 +624,14 @@ class Physical5OemHintOrchestrationActivity : Activity() {
                     .put("derivation", "hintUserValue present and != 5 -> 1; null or 5 -> 0")
             }
 
+            val requestedWritesComplete =
+                (spec.sceneValue == null || sceneWrite.optBoolean("written", false)) &&
+                    (spec.remosaicMode != RemosaicMode.FORCE_ONE || remosaicWrite.optBoolean("written", false))
+
             return JSONObject()
                 .put("frameObserved", true)
                 .put("sessionConfigured", true)
+                .put("requestedVendorWritesComplete", requestedWritesComplete)
                 .put("sceneWrite", sceneWrite)
                 .put("remosaicWrite", remosaicWrite)
                 .put("logicalHintUserValueRaw", jsonValue(logicalHint))
@@ -631,7 +639,7 @@ class Physical5OemHintOrchestrationActivity : Activity() {
                 .put("logicalHintUserValueInt", logicalHintInt ?: JSONObject.NULL)
                 .put("physical5HintUserValueInt", physicalHintInt ?: JSONObject.NULL)
                 .put("preferredHintUserValue", preferredHint ?: JSONObject.NULL)
-                .put("rawMfUltraHighPixelHintObserved", preferredHint in RAW_MF_HINTS)
+                .put("rawMfUltraHighPixelHintObserved", preferredHint != null && RAW_MF_HINTS.contains(preferredHint))
                 .put("physicalResultPresent", physicalResult != null)
                 .put("physicalResultCameraId", physicalResult?.cameraId ?: JSONObject.NULL)
                 .put("logicalSensorTimestampNs", result.get(CaptureResult.SENSOR_TIMESTAMP) ?: JSONObject.NULL)
