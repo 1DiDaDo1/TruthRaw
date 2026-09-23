@@ -1,0 +1,90 @@
+name: TruthRaw v0.72 HONOR hintUserValue bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/physical5-hint-bridge-v072
+    paths:
+      - 'suite_android/app/src/main/AndroidManifest.xml'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/Physical5HintBridgeOracleActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSettingsActivity.kt'
+      - 'docs/research/honor452-highpixel-orchestration-v072/**'
+      - '.github/workflows/android-truthraw-v072-hint-bridge.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-v072:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify v0.72 bridge/single-frame invariants
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/Physical5HintBridgeOracleActivity.kt'
+          grep -F 'truthraw.physical5-hint-bridge-oracle.v0.72' "$SRC"
+          grep -F 'com.hihonor.capture.metadata.hintUserValue' "$SRC"
+          grep -F 'cameraSceneMode_UltraHighPixel_53' "$SRC"
+          grep -F 'cameraSceneMode_UltraResolution_110' "$SRC"
+          grep -F 'cameraSceneMode_ProRaw_66' "$SRC"
+          grep -F 'qcomRemosaicEnable_on' "$SRC"
+          grep -F 'ValueType.INT' "$SRC"
+          grep -F 'HIGH_PIXEL_PROCESSOR_HINTS = setOf(23, 24, 32, 33)' "$SRC"
+          grep -F 'captureSingleRequest(' "$SRC"
+          grep -F 'CONTROL_AE_MODE_OFF' "$SRC"
+          grep -F 'CONTROL_AF_MODE_OFF' "$SRC"
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/Physical5HintBridgeOracleActivity.kt').read_text()
+          forbidden=[
+              'setRepeatingRequest',
+              'captureBurst',
+              'setRepeatingBurst',
+              'DngCreator(',
+              'bindService(',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+          assert 'multiFrameFusionUsed", false' in s
+          assert 'scientificMasterModified", false' in s
+          print('v0.72 bridge/single-frame invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v072-hint-bridge-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
