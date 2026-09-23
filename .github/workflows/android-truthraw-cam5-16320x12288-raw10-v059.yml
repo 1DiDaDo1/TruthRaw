@@ -1,0 +1,86 @@
+name: TruthRaw Camera5 16320x12288 RAW10 v0.59 test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/cam5-16320x12288-raw10-v059]
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+      - '.github/workflows/android-truthraw-cam5-16320x12288-raw10-v059.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify isolated 16320 RAW10 probe invariants
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt'
+          grep -F 'private const val TARGET_W = 16320' "$SRC"
+          grep -F 'private const val TARGET_H = 12288' "$SRC"
+          grep -F 'private const val TARGET_SAMPLES = 200_540_160L' "$SRC"
+          grep -F 'ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW10, 1)' "$SRC"
+          grep -F 'output.addSensorPixelModeUsed(CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION)' "$SRC"
+          grep -F 'requestBuilder.setPhysicalCameraKey(' "$SRC"
+          grep -F 'MAXIMUM_RESOLUTION_RAW10_16320x12288_PHYSICAL5' "$SRC"
+          grep -F 'RAW10_SEALED_ANALYSIS_ONLY_NO_U16_ADMISSION' "$SRC"
+          grep -F 'physicalFrameCount", 1' "$SRC"
+          grep -F 'independentEvidenceCount", 1' "$SRC"
+          grep -F 'scientificMasterCreationAllowed", false' "$SRC"
+          grep -F 'truthNegativeAllowed", false' "$SRC"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-cam5-16320x12288-raw10-v059-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish direct APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='truthraw-cam5-16320-raw10-v059-test'
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          OUT='TruthRaw_CAM5_16320x12288_RAW10_v059_debug_arm64.apk'
+          cp "$APK" "$OUT"
+          gh release delete "$TAG" -y --cleanup-tag >/dev/null 2>&1 || true
+          gh release create "$TAG" "$OUT" \
+            --target "$GITHUB_SHA" \
+            --title 'TruthRaw CAM5 16320x12288 RAW10 v0.59 test' \
+            --notes 'Experimental sealed RAW10 probe only. Frozen v0.84.3 remains unchanged; no DNG/Main House/Scientific Master/TruthNegative admission.'
