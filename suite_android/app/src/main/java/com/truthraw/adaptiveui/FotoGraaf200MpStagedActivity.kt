@@ -769,7 +769,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
             val request = requestBuilder.build()
             setStatusAny(
-                "STAGE 3 CAPTURE SENT · v0.58 STANDARD RAW10 control · scopedRequest=$lastScopedRequestUsed · globalMAX=false · " + +
+                "STAGE 3 CAPTURE SENT · v0.58 STANDARD RAW10 control · scopedRequest=$lastScopedRequestUsed · globalMAX=false · " +
                     "physicalMAXAttempted=false · physicalMAX=false · " +
                     "physicalReadback=null · advertised=$lastPhysicalOverrideAdvertised" +
                     (lastPhysicalPixelModeError?.let { "\nphysicalMAX write/readback error=$it" } ?: "") +
@@ -999,7 +999,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("physicalSensorPixelModeWriteError", lastPhysicalPixelModeError ?: JSONObject.NULL)
                 .put("physicalOverrideAdvertised", lastPhysicalOverrideAdvertised)
                 .put("outputPhysicalBinding", true)
-                .put("outputMaximumResolutionModeDeclared", false)\n                .put("controlRoute", "STANDARD_RAW10_4080x3072_NO_MAX_PIXEL_MODE"))
+                .put("outputMaximumResolutionModeDeclared", false)
+                .put("controlRoute", "STANDARD_RAW10_4080x3072_NO_MAX_PIXEL_MODE"))
             .put("captureRoute", JSONObject()
                 .put("reportedPhysicalIds", JSONArray(logicalResult.physicalCameraResults.keys.sorted()))
                 .put("physicalResultCameraId", physicalResult.cameraId)
