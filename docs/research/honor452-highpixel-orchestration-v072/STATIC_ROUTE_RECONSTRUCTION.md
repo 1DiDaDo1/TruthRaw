@@ -231,3 +231,112 @@ For every frame, read the physical Camera-5 scalar result:
 The decisive question is whether any defensible request candidate causes `hintUserValue` to become 23, 24, 32 or 33.
 
 If so, direct Camera2 has reached the OEM processor-scene trigger while still bypassing the ServiceHost processing leg. If not, additional stock-mode orchestration is required upstream of the hint generation.
+
+
+## Newly resolved: 23/24/32/33 are HAL result-driven, not app-selected constants
+
+The exact key behind the UltraHighPixel preview callback is:
+
+`com.hihonor.capture.metadata.hintUserValue`
+
+Static field:
+
+`Ls8/d;->k:Landroid/hardware/camera2/CaptureResult$Key;`
+
+`UltraHighPixelMode$2.onCaptureCompleted(...)` reads this CaptureResult value. When it changes, the app:
+1. stores the returned integer as the mode's current sceneMode;
+2. writes that exact integer to the internal `Key.SMART_SCENE_MODE` on the capture flow;
+3. writes the same value to the preview flow.
+
+`ServiceHostCaptureFlowImpl.setParameterInternal(...)` intercepts `Key.SMART_SCENE_MODE` and calls:
+
+`CameraService.setSceneMode(int)`
+
+`ServiceHostProcessor.setSceneMode(int)` delegates to the active Processor, and `UltraHighPixelModeProcessor.setSceneMode(int)` stores the integer consumed by `getJsonFileName(sceneMode)`.
+
+Therefore the values 23/24/32/33 are not selected in the Java app by a direct constant assignment in UltraHighPixelMode. They arrive from the camera/HAL as `hintUserValue` and are then mirrored into the ServiceHost processor.
+
+This resolves the earlier question about the exact app-side selector:
+
+**the app-side selector is the returned `hintUserValue`; the upstream condition that causes the HAL to emit 23/24/32/33 is not encoded as a direct Java constant branch.**
+
+## Exact UltraHighPixel mode-name request path
+
+`AbstractPhotoMode.active()` calls:
+
+`CaptureMode.setModeNameFlag(mode, configurationName)`
+
+which calls:
+
+`CameraSceneModeUtil.writeModeName(...)`
+
+For `UltraHighPixelMode`, `getHighPixelSceneMode(...)` returns:
+- 87 when Live Photo is open;
+- 110 for `UltraResolutionMode`;
+- 53 for ordinary `UltraHighPixelMode`.
+
+`writeModeName(...)` writes `com.hihonor.capture.metadata.cameraSceneMode` to both capture and preview flows, then triggers the preview flow once.
+
+Thus scene 53 is the directly app-authored UltraHighPixel mode request, while 23/24/32/33 are later HAL-returned `hintUserValue` states used to select the ServiceHost capture pipeline.
+
+## Exact remosaic feedback loop for UltraHighPixel
+
+`PhotoResolutionFunction.isBackRemosaicSupported()` is true only when:
+- mode name is `UltraHighPixelMode`; and
+- `CameraUtil.isSensorRemosaicSupported(characteristics)` is true.
+
+On that path, PhotoResolutionFunction registers:
+- a preview capture callback that updates remosaic state;
+- a pre-capture handler that writes the remosaic parameter.
+
+The callback reads the same `hintUserValue` result:
+- if hintUserValue is present and not 5 -> `isRemosaicEnable = 1`;
+- if the result is null or value 5 -> `isRemosaicEnable = 0`.
+
+Immediately before capture, on Qualcomm, the handler writes:
+
+`com.hihonor.capture.metadata.qcomRemosaicEnable = isRemosaicEnable`
+
+through the mode CaptureFlow.
+
+Therefore, for the raw-MF UltraHighPixel processor values 23/24/32/33, the stock Java orchestration leads to remosaic enable 1.
+
+This shows that scene 53 and qcomRemosaicEnable are not independent blind switches: scene 53 establishes the mode; HAL `hintUserValue` feeds the processor scene; the same hint feeds the remosaic state; the pre-capture handler writes that derived state.
+
+## Processor factory binding
+
+`ProcessorFactory.<clinit>()` maps the exact mode string:
+
+`com.hihonor.camera2.mode.ultrahighpixel.UltraHighPixelMode`
+
+to:
+
+`UltraHighPixelModeProcessor.class`
+
+So the UltraHighPixel UI/mode path and the previously decoded processor pipeline are statically joined by the processor factory, not merely by similar naming.
+
+## Raw-surface boundary refinement
+
+A separate static ServiceHost path in `NormalProcessor.setRawFormat(...)` reads:
+
+`com.hihonor.capture.metadata.captureFormat`
+
+and, when the metadata byte is present and is not 32, removes the normal capture target and adds `rawCaptureHolder`.
+
+This proves a metadata-controlled raw-surface swap for NormalProcessor.
+
+It must **not** yet be generalized to UltraHighPixelModeProcessor, which directly extends AbstractProcessor and has its own ServiceHost capture path. The exact UltraHighPixel raw-surface binding remains a separate unresolved gate.
+
+## Next runtime oracle
+
+The next runtime probe should not inject 23/24/32/33 as if they were request controls.
+
+Instead it should:
+1. submit the defensible OEM mode request `cameraSceneMode=53`;
+2. observe logical and physical-5 `hintUserValue` on a single preview/priming request;
+3. derive the stock remosaic state from that returned hint (hint != 5 -> 1);
+4. apply qcomRemosaicEnable only with a locally proven Camera2 representation;
+5. perform one isolated physical-5 RAW10/MAX capture;
+6. record the returned hintUserValue, result metadata and exact payload topology.
+
+If direct Camera2 never produces a raw-MF hint (23/24/32/33), that is evidence that additional OEM mode/session/ServiceHost orchestration is still missing; it is not evidence that the stock route does not exist.
