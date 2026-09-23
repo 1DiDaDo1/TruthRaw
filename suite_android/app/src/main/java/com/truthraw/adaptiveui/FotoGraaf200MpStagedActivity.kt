@@ -3,6 +3,7 @@ package com.truthraw.adaptiveui
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -26,7 +27,9 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageReader
+import android.provider.MediaStore
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
@@ -88,7 +91,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private lateinit var saveDngButton: Button
     private lateinit var saveJsonButton: Button
 
-    private val cameraThread = HandlerThread("truthraw-200mp-v053").apply { start() }
+    private val cameraThread = HandlerThread("truthraw-cam5-8160-raw10-v057").apply { start() }
     private val cameraHandler = Handler(cameraThread.looper)
 
     private var manager: CameraManager? = null
@@ -154,10 +157,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         autoStartPreviewWhenReady = productionCameraEntry
         setStatus(
             if (productionCameraEntry) {
-                "CAMERA-INGANG · v0.53 physical-5 source-first route wordt voorbereid. " +
+                "CAMERA-INGANG · v0.57 physical-5 8160×6144 RAW10 source-first test wordt voorbereid. " +
                     "Capability-admission en live preview starten automatisch; capture blijft één fysiek frame."
             } else {
-                "STAGE 0 PASS · v0.53 Android-17 replay van bewezen v0.14 route.\nDruk eerst op Stap 1."
+                "STAGE 0 · v0.57 RAW10 8160×6144 format-context test.\nDruk eerst op Stap 1."
             },
         )
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -239,11 +242,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         captureButton = if (productionCameraEntry) {
             shutterButton { capture200Mp() }.apply { isEnabled = false }
         } else {
-            button("Stap 3 · PHYSICAL-SCOPED CAPTURE · 16320×12288") { capture200Mp() }.apply {
+            button("Stap 3 · PHYSICAL-SCOPED RAW10 TEST · 8160×6144") { capture200Mp() }.apply {
                 isEnabled = false
             }
         }
-        saveRawButton = button("Originele 200MP RAW buffer opslaan") {
+        saveRawButton = button("Originele 8160×6144 RAW10 buffer opslaan") {
             saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW)
         }.apply { isEnabled = false }
         saveDngButton = button(
@@ -439,10 +442,10 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 val standard = physical.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                 val maximum = physical.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION)
 
-                val standardOutput = safeSizes { standard?.getOutputSizes(ImageFormat.RAW_SENSOR) }
-                val standardHigh = safeSizes { standard?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR) }
-                val maximumOutput = safeSizes { maximum?.getOutputSizes(ImageFormat.RAW_SENSOR) }
-                val maximumHigh = safeSizes { maximum?.getHighResolutionOutputSizes(ImageFormat.RAW_SENSOR) }
+                val standardOutput = safeSizes { standard?.getOutputSizes(ImageFormat.RAW10) }
+                val standardHigh = safeSizes { standard?.getHighResolutionOutputSizes(ImageFormat.RAW10) }
+                val maximumOutput = safeSizes { maximum?.getOutputSizes(ImageFormat.RAW10) }
+                val maximumHigh = safeSizes { maximum?.getHighResolutionOutputSizes(ImageFormat.RAW10) }
 
                 val selected = when {
                     containsTarget(maximumHigh) -> "MAXIMUM_MAP_HIGH_RESOLUTION"
@@ -450,7 +453,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                     containsTarget(standardHigh) -> "STANDARD_MAP_HIGH_RESOLUTION"
                     containsTarget(standardOutput) -> "STANDARD_MAP_OUTPUT"
                     else -> error(
-                        "16320×12288 RAW_SENSOR ontbreekt; standard.out=[$standardOutput] standard.high=[$standardHigh] " +
+                        "8160×6144 RAW10 ontbreekt; standard.out=[$standardOutput] standard.high=[$standardHigh] " +
                             "maximum.out=[$maximumOutput] maximum.high=[$maximumHigh]",
                     )
                 }
@@ -468,7 +471,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                     previewButton.isEnabled = preview.isAvailable
                     val r = packed.second
                     setStatus(
-                        "STAGE 1 PASS · exact 16320×12288 RAW_SENSOR route aangeboden via ${r.selectedSource}.\n" +
+                        "STAGE 1 PASS · exact 8160×6144 RAW10 route aangeboden via ${r.selectedSource}.\n" +
                             "standard.out=[${routeText(r.standardOutput)}]\n" +
                             "standard.high=[${routeText(r.standardHigh)}]\n" +
                             "maximum.out=[${routeText(r.maximumOutput)}]\n" +
@@ -657,7 +660,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         runCatching { previewSurface?.release() }
         previewSurface = null
 
-        val reader = runCatching { ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW_SENSOR, 1) }
+        val reader = runCatching { ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW10, 1) }
             .getOrElse { e ->
                 setStatus("STAGE 3 ImageReader FAIL · ${e.javaClass.simpleName}: ${e.message}")
                 previewButton.isEnabled = true
@@ -695,7 +698,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                     submitPhysicalScopedStill(device, s, logical, physical)
                 }
                 override fun onConfigureFailed(s: CameraCaptureSession) {
-                    setStatusAny("STAGE 3 RAW SESSION BLOCKED · physical-5/MAX 16320×12288 geweigerd.")
+                    setStatusAny("STAGE 3 RAW10 SESSION BLOCKED · physical-5/MAX 8160×6144 geweigerd.")
                     closeCameraResources(keepOutputs = true)
                     runOnUiThread { previewButton.isEnabled = true }
                 }
@@ -705,7 +708,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         val support = runCatching { device.isSessionConfigurationSupported(config) }.getOrNull()
         setStatus("STAGE 3 · physical-5/MAX session · isSessionConfigurationSupported=$support")
         if (support == false) {
-            setStatus("STAGE 3 BLOCKED · Android meldt de exacte 200MP sessie unsupported.")
+            setStatus("STAGE 3 BLOCKED · Android meldt de exacte 8160×6144 RAW10 sessie unsupported.")
             closeCameraResources(keepOutputs = true)
             previewButton.isEnabled = true
             return
@@ -847,9 +850,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             require(sensorTs == image.timestamp) {
                 "Image.timestamp=${image.timestamp} != physical5 SENSOR_TIMESTAMP=$sensorTs"
             }
-            val plane = image.planes.singleOrNull() ?: error("RAW_SENSOR planeCount=${image.planes.size}, exact 1 vereist")
-            require(plane.pixelStride == 2) { "RAW pixelStride=${plane.pixelStride}, 2 vereist" }
-            require(plane.rowStride >= TARGET_W * 2) { "RAW rowStride=${plane.rowStride} te klein" }
+            val plane = image.planes.singleOrNull() ?: error("RAW10 planeCount=${image.planes.size}, exact 1 vereist")
+            val packedRowBytes = (TARGET_W * 10 + 7) / 8
+            require(plane.rowStride >= packedRowBytes) {
+                "RAW10 rowStride=${plane.rowStride} te klein voor packedRowBytes=$packedRowBytes"
+            }
 
             // v0.14 source-first rule: seal the primary buffer BEFORE interpreting advisory
             // result metadata such as SENSOR_PIXEL_MODE. The Android-16 qualifying run returned 0.
@@ -857,54 +862,50 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             val rawEvidence = persistOriginalRawBuffer(image, stamp)
             capturedRaw = rawEvidence.file
 
+            // v0.57: publish sealed packed RAW10 bytes immediately, before any interpretation.
+            val sourceExport = runCatching {
+                exportResearchFileToDownloadsTruthRaw(rawEvidence.file, "application/octet-stream")
+            }.fold(
+                onSuccess = { "SOURCE EXPORTED ✓ · $it" },
+                onFailure = { "SOURCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" },
+            )
+            setStatusAny(sourceExport)
+
             val returnedPixelMode = physicalResult.get(CaptureResult.SENSOR_PIXEL_MODE)
             val physical = physical5Characteristics ?: error("physical characteristics ontbreken")
-            var dng: File? = null
-            var dngSha: String? = null
-            var dngError: String? = null
-            runCatching {
-                val candidate = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v053.dng")
-                FileOutputStream(candidate).use { out ->
-                    DngCreator(physical, physicalResult).use { creator ->
-                        creator.setOrientation(1)
-                        creator.writeImage(out, image)
-                    }
-                }
-                dng = candidate
-                dngSha = sha256File(candidate)
-            }.onFailure { e ->
-                dngError = "${e.javaClass.simpleName}: ${e.message}"
-            }
+            // Packed RAW10 is sealed as byte evidence only. DngCreator/U16 admission is intentionally
+            // not attempted in this experiment, so packed bytes can never be misread as RAW_SENSOR U16.
+            val dng: File? = null
+            val dngSha: String? = null
+            val dngError: String? = "NOT_ATTEMPTED_PACKED_RAW10_EXPERIMENT"
 
             val evidence = buildEvidence(logicalResult, physicalResult, image, rawEvidence, dng, dngSha, dngError)
+            evidence.put("v057SourceExport", sourceExport)
             image.close()
 
-            val topologyAdmission = runCatching {
-                buildTopologyAdmissionAndProcessingDng(
-                    rawEvidence = rawEvidence,
-                    physical = physical,
-                    physicalResult = physicalResult,
-                    stamp = stamp,
-                )
-            }.getOrElse { e ->
-                JSONObject()
-                    .put("status", "BLOCKED_TOPOLOGY_OR_DNG_ADMISSION")
-                    .put("errorClass", e.javaClass.name)
-                    .put("errorMessage", e.message ?: JSONObject.NULL)
-                    .put("scientificMasterCreationAllowed", false)
-            }
+            val topologyAdmission = JSONObject()
+                .put("status", "RAW10_SEALED_ANALYSIS_ONLY_NO_U16_ADMISSION")
+                .put("sourceFormat", "RAW10")
+                .put("sourceEnvelopeWidth", TARGET_W)
+                .put("sourceEnvelopeHeight", TARGET_H)
+                .put("sourceEnvelopeSha256", rawEvidence.sha256)
+                .put("scientificMasterCreationAllowed", false)
+                .put("truthNegativeAllowed", false)
+                .put("reason", "Packed RAW10 must be decoded and audited separately before any geometry or Scientific Master admission.")
             evidence.put("topologyAdmission", topologyAdmission)
+            admittedProcessingDng = null
 
-            val processingName = topologyAdmission.optString("processingDngFile", "")
-            admittedProcessingDng = processingName
-                .takeIf { it.isNotBlank() }
-                ?.let { File(cacheDir, it) }
-                ?.takeIf { it.isFile }
-
-            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_200MP_EVIDENCE_v053.json")
+            val report = File(cacheDir, "TRUTHRAW_${stamp}_CAM5_8160_RAW10_EVIDENCE_v057.json")
             report.writeText(evidence.toString(2))
             capturedDng = dng
             capturedJson = report
+
+            val evidenceExport = runCatching {
+                exportResearchFileToDownloadsTruthRaw(report, "application/json")
+            }.fold(
+                onSuccess = { "EVIDENCE EXPORTED ✓ · $it" },
+                onFailure = { "EVIDENCE EXPORT FAIL · ${it.javaClass.simpleName}: ${it.message}" },
+            )
 
             val admitted = admittedProcessingDng
             setStatusAny(
@@ -915,8 +916,9 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                         "wordt als derived processing-DNG opnieuw door Main House admitted.\n" +
                         "De envelope zelf wordt NIET als 200MP Scientific Master gepromoveerd."
                 } else {
-                    "CAMERA CAPTURE SEALED · physical 5 envelope 16320×12288 bewaard, maar topology-admission is fail-closed.\n" +
-                        "Geen Scientific Master/TN-3 wordt uit de envelope gemaakt totdat een exacte sample-domain is toegelaten."
+                    "RAW10 CAPTURE SEALED · physical 5 envelope 8160×6144 bewaard.\n" +
+                        "Packed RAW10 blijft analysis-only; geen U16/DNG/Main House-admission.\n" +
+                        sourceExport + "\n" + evidenceExport
                 },
             )
             runOnUiThread {
@@ -955,11 +957,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         val plane = image.planes.single()
         val source = plane.buffer.duplicate().apply { rewind() }
         val accessible = source.remaining().toLong()
-        val expected = TARGET_SAMPLES * 2L
-        val contiguous = plane.pixelStride == 2 && plane.rowStride == TARGET_W * 2 && accessible == expected
+        val expected = TARGET_SAMPLES * 10L / 8L
+        val contiguous = plane.rowStride == (TARGET_W * 10 / 8) && accessible == expected
         val file = File(
             cacheDir,
-            "TRUTHRAW_${stamp}_CAM5_200MP_${TARGET_W}x${TARGET_H}_v011.${if (contiguous) "rawsensor" else "rawbuffer"}",
+            "TRUTHRAW_${stamp}_CAM5_8160_RAW10_SOURCE_${TARGET_W}x${TARGET_H}_v057.${if (contiguous) "raw10" else "raw10buffer"}",
         )
         val md = MessageDigest.getInstance("SHA-256")
         FileOutputStream(file).channel.use { channel ->
@@ -987,7 +989,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         dngError: String?,
     ): JSONObject {
         return JSONObject()
-            .put("schema", "truthraw.fotograaf-camera5-200mp-v014-route-replay.v0.53")
+            .put("schema", "truthraw.fotograaf-camera5-8160x6144-raw10-probe.v0.57")
             .put("createdAtUtc", Instant.now().toString())
             .put("authority", "CAMERA2_ACQUISITION_OBSERVATION_ONLY")
             .put("calibrationAuthorityGranted", false)
@@ -997,7 +999,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             .put("capability", JSONObject()
                 .put("discoverySource", capabilitySource ?: JSONObject.NULL)
                 .put("targetWidth", TARGET_W)
-                .put("targetHeight", TARGET_H))
+                .put("targetHeight", TARGET_H)\n                .put("imageFormat", "RAW10")\n                .put("bitsPerSamplePacked", 10))
             .put("preview", JSONObject()
                 .put("logicalCameraId", LOGICAL_ID)
                 .put("requestedZoomRatio", ZOOM_REQUEST)
@@ -1051,16 +1053,18 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("accessibleBufferBytes", raw.accessibleBytes)
                 .put("rowStride", raw.rowStride)
                 .put("pixelStride", raw.pixelStride)
-                .put("canonicalContiguousRawSensor", raw.contiguous)
-                .put("expectedContiguousBytes", TARGET_SAMPLES * 2L))
+                .put("imageFormat", "RAW10")
+                .put("packing", "ANDROID_IMAGEFORMAT_RAW10_PACKED")
+                .put("canonicalContiguousRaw10", raw.contiguous)
+                .put("expectedContiguousBytes", TARGET_SAMPLES * 10L / 8L))
             .put("dng", JSONObject()
-                .put("attempted", true)
+                .put("attempted", false)
                 .put("file", dng?.name ?: JSONObject.NULL)
                 .put("bytes", dng?.length() ?: JSONObject.NULL)
                 .put("sha256", dngSha ?: JSONObject.NULL)
                 .put("error", dngError ?: JSONObject.NULL)
-                .put("semantics", "Auxiliary DngCreator container; original app-visible Image.Plane buffer is primary byte evidence."))
-            .put("sourceFirstOrdering", "IMAGE_DIMENSIONS -> PHYSICAL5_RESULT -> TIMESTAMP_IDENTITY -> PLANE_LAYOUT -> RAW_SEAL_SHA256 -> ADVISORY_METADATA -> OPTIONAL_DNG")
+                .put("semantics", "Not attempted for packed RAW10; sealed Image.Plane bytes are the primary evidence."))
+            .put("sourceFirstOrdering", "IMAGE_DIMENSIONS -> PHYSICAL5_RESULT -> TIMESTAMP_IDENTITY -> RAW10_PLANE_LAYOUT -> RAW10_SEAL_SHA256 -> ADVISORY_METADATA -> EXPORT")
             .put("android16V014Reference", JSONObject()
                 .put("globalSensorPixelModeWritten", false)
                 .put("physicalSensorPixelModeWritten", true)
@@ -1069,7 +1073,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("returnedPhysicalSensorPixelMode", 0)
                 .put("qualifyingRawBytes", 401080320L)
                 .put("qualifyingRawSha256", "af3ad73e5919b816881a661f00ffd84a7b537f23198a5877c242717c5d7526de"))
-            .put("boundary", "APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF")
+            .put("boundary", "APP_VISIBLE_CAMERA2_RAW10_PACKED_BYTES_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF")
     }
 
     private fun buildTopologyAdmissionAndProcessingDng(
@@ -1206,6 +1210,33 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         if (::saveRawButton.isInitialized) saveRawButton.isEnabled = false
         if (::saveDngButton.isInitialized) saveDngButton.isEnabled = false
         if (::saveJsonButton.isInitialized) saveJsonButton.isEnabled = false
+    }
+
+    private fun exportResearchFileToDownloadsTruthRaw(file: File, mime: String): String {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+            put(MediaStore.MediaColumns.MIME_TYPE, mime)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/TRUTHRAW")
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val uri = contentResolver.insert(collection, values)
+            ?: error("Downloads MediaStore insert returned null")
+        try {
+            contentResolver.openOutputStream(uri, "w")?.use { out ->
+                FileInputStream(file).use { input -> input.copyTo(out, 1024 * 1024) }
+            } ?: error("Downloads MediaStore output stream unavailable")
+            contentResolver.update(
+                uri,
+                ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) },
+                null,
+                null,
+            )
+        } catch (t: Throwable) {
+            runCatching { contentResolver.delete(uri, null, null) }
+            throw t
+        }
+        return "Downloads/TRUTHRAW/${file.name}"
     }
 
     private fun saveFile(file: File?, mime: String, requestCode: Int) {
@@ -1390,9 +1421,9 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     companion object {
         private const val LOGICAL_ID = "0"
         private const val PHYSICAL_ID = "5"
-        private const val TARGET_W = 16320
-        private const val TARGET_H = 12288
-        private const val TARGET_SAMPLES = 200_540_160L
+        private const val TARGET_W = 8160
+        private const val TARGET_H = 6144
+        private const val TARGET_SAMPLES = 50_135_040L
         private const val ZOOM_REQUEST = 3.7f
         private const val REQUEST_CAMERA = 5800
         private const val REQUEST_SAVE_RAW = 5801
