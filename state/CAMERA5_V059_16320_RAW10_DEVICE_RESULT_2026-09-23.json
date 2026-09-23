@@ -1,0 +1,52 @@
+{
+  "schema": "TruthRawCamera5V059Raw10DeviceResult/1",
+  "date": "2026-09-23",
+  "status": "DEVICE_RESULT_CLOSED_PUBLIC_CAMERA2_200MP_RAW10_NOT_POPULATED",
+  "branch": "test/cam5-16320x12288-raw10-v059",
+  "source": {
+    "file": "TRUTHRAW_1790175506221_CAM5_16320_RAW10_SOURCE_16320x12288_v059.raw10",
+    "sha256": "e058d33821bb3ec66242c6618c0e0083bf597645e31089e4877ecd3e31bb1ee6",
+    "bytes": 250675200
+  },
+  "declaredPlane": {
+    "width": 16320,
+    "height": 12288,
+    "rowStride": 20400,
+    "pixelStride": 0,
+    "packedRaw10": true,
+    "allocationContiguous": true
+  },
+  "requestResult": {
+    "physicalCameraId": "5",
+    "physicalScopedRequestUsed": true,
+    "outputMaximumResolutionModeDeclared": true,
+    "physicalSensorPixelModeWritten": true,
+    "physicalSensorPixelModeReadback": 1,
+    "returnedPhysicalSensorPixelMode": 0,
+    "timestampIdentityPass": true,
+    "rawBinningFactorUsed": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1
+  },
+  "populationAudit": {
+    "effectiveWidth": 4080,
+    "effectiveHeight": 3072,
+    "effectiveRowStride": 5120,
+    "packedPixelBytesPerEffectiveRow": 5100,
+    "zeroPaddingBytesPerEffectiveRow": 20,
+    "effectivePrefixBytes": 15728640,
+    "actualPackedPixelBytes": 15667200,
+    "tailZeroBytes": 234946560,
+    "tailZeroFraction": 0.9372549019607843,
+    "allEffectivePaddingZero": true,
+    "allBytesAfterEffectivePrefixZero": true,
+    "meaningfulPrefixSha256": "964cdcce24485f2a5f835ce3575c5dae1d05bc346d64ff2542c51da596423232",
+    "packedDataOnlySha256": "19f6e9ec605003ed035c88d6ab8c9fd7ca9393e328f0bd7960a344150bc3ff99"
+  },
+  "classification": "APP_VISIBLE_4080x3072_PACKED_RAW10_PAYLOAD_EMBEDDED_IN_16320x12288_CAMERA2_ENVELOPE",
+  "scientificMasterCreationAllowed": false,
+  "truthNegativeAllowed": false,
+  "native200MpAdcProven": false,
+  "publicCamera2HighResolutionRawSearch": "PRACTICALLY_EXHAUSTED_FOR_INDEPENDENTLY_POPULATED_50MP_200MP_SAMPLE_DOMAIN",
+  "nextDirection": "HONOR_QTI_PRE_RENDER_PRE_JPEG_REMOSAIC_BUFFER_OR_METADATA_SURFACE_READ_ONLY_RESEARCH"
+}
