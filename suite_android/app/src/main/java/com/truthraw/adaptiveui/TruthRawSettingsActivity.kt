@@ -77,6 +77,7 @@ class TruthRawSettingsActivity : Activity() {
             addDiagnostic("v0.45 · Exported JPEG metadata fingerprint", PassiveExportedJpegMetadataFingerprintActivity::class.java)
             addDiagnostic("v0.46 · Honor capability route oracle", HonorCapabilityRouteOracleActivity::class.java)
             addDiagnostic("v0.48 · Target 37 RAW14 retest", Api37Raw14ExtensionOracleActivity::class.java)
+            addDiagnostic("v0.62 · Android 17 vendor extensions", Api37VendorExtensionOracleActivity::class.java)
             addDiagnostic("v0.49 · Honor Camera package export", HonorCameraPackageExportActivity::class.java)
             addDiagnostic("v0.50 · Direct typed Honor vendor-key read", DirectTypedVendorCharacteristicsOracleActivity::class.java)
             addDiagnostic("v0.61 · MotionCam vendor/session oracle", MotionCamVendorSessionOracleActivity::class.java)
