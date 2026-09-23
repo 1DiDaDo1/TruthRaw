@@ -462,30 +462,95 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         return OpenResult(device, executor, closedLatch, error)
     }
 
+    private data class ResolvedSetting(
+        val spec: SettingSpec,
+        val logicalKey: CaptureRequest.Key<Any>?,
+        val logicalValue: Any?,
+        val logicalRepresentation: String?,
+        val physicalKey: CaptureRequest.Key<Any>?,
+        val physicalValue: Any?,
+        val physicalRepresentation: String?,
+        val logicalSessionEligible: Boolean,
+        val physicalSessionEligible: Boolean,
+    ) {
+        fun hasAnyResolvedScope(): Boolean = logicalKey != null || physicalKey != null
+
+        fun toJson(): JSONObject = JSONObject()
+            .put("name", spec.keyName)
+            .put("semanticValue", spec.semanticValue)
+            .put("preferredRepresentation", spec.preferredRepresentation)
+            .put("logicalResolved", logicalKey != null)
+            .put("logicalRepresentation", logicalRepresentation ?: JSONObject.NULL)
+            .put("logicalSessionEligible", logicalSessionEligible)
+            .put("physicalResolved", physicalKey != null)
+            .put("physicalRepresentation", physicalRepresentation ?: JSONObject.NULL)
+            .put("physicalSessionEligible", physicalSessionEligible)
+    }
+
+    private data class ResolvedValue(
+        val value: Any,
+        val representation: String,
+        val readback: Any?,
+    )
+
     private fun captureFresh(
         cm: CameraManager,
+        logical: CameraCharacteristics,
         physical: CameraCharacteristics,
         locked: LockedSettings,
-        candidateKey: CaptureRequest.Key<Any>?,
-        candidateValue: Any?,
+        settings: List<SettingSpec>,
         label: String,
     ): FrameOutcome {
         val opened = openLogicalCamera(cm)
         val device = opened.device ?: return FrameOutcome(
-            label, false, false, candidateKey != null, false, null, false, null,
-            false, null, null, "CAMERA_OPEN_FAILED", opened.error
+            label = label,
+            sessionConfigured = false,
+            frameCaptured = false,
+            candidateSessionParameterAttached = false,
+            candidateRequestKeyWritten = false,
+            candidateReadback = JSONObject.NULL,
+            vendorEvidence = JSONObject().put("resolution", "CAMERA_OPEN_FAILED"),
+            physicalPixelModeWritten = false,
+            physicalPixelModeReadback = null,
+            lockedControlWriteComplete = false,
+            capture = null,
+            raw = null,
+            errorClass = "CAMERA_OPEN_FAILED",
+            errorMessage = opened.error,
         )
 
         return try {
-            runSingleFrame(
-                device = device,
-                executor = opened.executor!!,
-                physical = physical,
-                locked = locked,
-                candidateKey = candidateKey,
-                candidateValue = candidateValue,
-                label = label,
-            )
+            val resolved = resolveSettings(device, logical, physical, settings)
+            if (resolved.any { !it.hasAnyResolvedScope() }) {
+                FrameOutcome(
+                    label = label,
+                    sessionConfigured = false,
+                    frameCaptured = false,
+                    candidateSessionParameterAttached = false,
+                    candidateRequestKeyWritten = false,
+                    candidateReadback = JSONObject.NULL,
+                    vendorEvidence = JSONObject()
+                        .put("resolvedSettings", JSONArray(resolved.map { it.toJson() }))
+                        .put("failure", "ONE_OR_MORE_VENDOR_SETTINGS_COULD_NOT_BE_MARSHALED_ON_ANY_ADVERTISED_SCOPE"),
+                    physicalPixelModeWritten = false,
+                    physicalPixelModeReadback = null,
+                    lockedControlWriteComplete = false,
+                    capture = null,
+                    raw = null,
+                    errorClass = "VENDOR_VALUE_RESOLUTION_FAILED",
+                    errorMessage = null,
+                )
+            } else {
+                runSingleFrame(
+                    device = device,
+                    executor = opened.executor!!,
+                    logical = logical,
+                    physical = physical,
+                    locked = locked,
+                    settings = resolved,
+                    label = label,
+                )
+            }
         } finally {
             device.close()
             opened.closedLatch?.await(2, TimeUnit.SECONDS)
@@ -495,6 +560,93 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         }
     }
 
+    private fun resolveSettings(
+        device: CameraDevice,
+        logical: CameraCharacteristics,
+        physical: CameraCharacteristics,
+        specs: List<SettingSpec>,
+    ): List<ResolvedSetting> {
+        val logicalRequest = logical.availableCaptureRequestKeys.orEmpty().associateBy { it.name }
+        val physicalRequest = physical.availableCaptureRequestKeys.orEmpty().associateBy { it.name }
+        val logicalSession = logical.availableSessionKeys.orEmpty().map { it.name }.toSet()
+        val physicalSession = physical.availableSessionKeys.orEmpty().map { it.name }.toSet()
+
+        return specs.map { spec ->
+            @Suppress("UNCHECKED_CAST")
+            val logicalKey = logicalRequest[spec.keyName] as CaptureRequest.Key<Any>?
+            @Suppress("UNCHECKED_CAST")
+            val physicalKey = physicalRequest[spec.keyName] as CaptureRequest.Key<Any>?
+
+            val logicalResolved = logicalKey?.let {
+                resolveValue(device, it, spec, physicalScope = false)
+            }
+            val physicalResolved = physicalKey?.let {
+                resolveValue(device, it, spec, physicalScope = true)
+            }
+
+            ResolvedSetting(
+                spec = spec,
+                logicalKey = if (logicalResolved != null) logicalKey else null,
+                logicalValue = logicalResolved?.value,
+                logicalRepresentation = logicalResolved?.representation,
+                physicalKey = if (physicalResolved != null) physicalKey else null,
+                physicalValue = physicalResolved?.value,
+                physicalRepresentation = physicalResolved?.representation,
+                logicalSessionEligible = logicalResolved != null && spec.keyName in logicalSession,
+                physicalSessionEligible = physicalResolved != null && spec.keyName in physicalSession,
+            )
+        }
+    }
+
+    private fun resolveValue(
+        device: CameraDevice,
+        key: CaptureRequest.Key<Any>,
+        spec: SettingSpec,
+        physicalScope: Boolean,
+    ): ResolvedValue? {
+        for ((representation, value) in candidateRepresentations(spec)) {
+            val builder = runCatching {
+                if (physicalScope) {
+                    device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE, setOf(PHYSICAL_ID))
+                } else {
+                    device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                }
+            }.getOrNull() ?: continue
+
+            val readback = runCatching {
+                if (physicalScope) {
+                    builder.setPhysicalCameraKey(key, value, PHYSICAL_ID)
+                    builder.getPhysicalCameraKey(key, PHYSICAL_ID)
+                } else {
+                    builder.set(key, value)
+                    builder.get(key)
+                }
+            }.getOrNull()
+
+            if (readback != null && valuesEquivalent(value, readback)) {
+                return ResolvedValue(value, representation, readback)
+            }
+        }
+        return null
+    }
+
+    private fun candidateRepresentations(spec: SettingSpec): List<Pair<String, Any>> {
+        val scalar = "INT" to spec.semanticValue
+        val array = "INT_ARRAY" to intArrayOf(spec.semanticValue)
+        return if (spec.preferredRepresentation == "INT") {
+            listOf(scalar, array)
+        } else {
+            listOf(array, scalar)
+        }
+    }
+
+    private fun valuesEquivalent(expected: Any, actual: Any): Boolean = when {
+        expected is Int && actual is Int -> expected == actual
+        expected is IntArray && actual is IntArray -> expected.contentEquals(actual)
+        expected is ByteArray && actual is ByteArray -> expected.contentEquals(actual)
+        else -> expected.toString() == actual.toString()
+    }
+
     private data class FrameOutcome(
         val label: String,
         val sessionConfigured: Boolean,
@@ -502,6 +654,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         val candidateSessionParameterAttached: Boolean,
         val candidateRequestKeyWritten: Boolean,
         val candidateReadback: Any?,
+        val vendorEvidence: JSONObject,
         val physicalPixelModeWritten: Boolean,
         val physicalPixelModeReadback: Any?,
         val lockedControlWriteComplete: Boolean,
@@ -517,6 +670,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             .put("candidateSessionParameterAttached", candidateSessionParameterAttached)
             .put("candidateRequestKeyWritten", candidateRequestKeyWritten)
             .put("candidateReadback", jsonValue(candidateReadback))
+            .put("vendorEvidence", vendorEvidence)
             .put("physicalSensorPixelModeWritten", physicalPixelModeWritten)
             .put("physicalSensorPixelModeReadback", jsonValue(physicalPixelModeReadback))
             .put("lockedControlWriteComplete", lockedControlWriteComplete)
@@ -541,6 +695,9 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         val edgeMode: Int?,
         val dynamicBlackLevel: FloatArray?,
         val physicalResultCameraId: String?,
+        val logicalHintUserValue: Any?,
+        val physicalHintUserValue: Any?,
+        val rawMfUltraHighPixelHintObserved: Boolean,
     ) {
         fun toJson(): JSONObject = JSONObject()
             .put("sensorTimestampNs", timestampNs ?: JSONObject.NULL)
@@ -557,6 +714,9 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             .put("edgeMode", edgeMode ?: JSONObject.NULL)
             .put("dynamicBlackLevel", dynamicBlackLevel?.let { JSONArray(it.map { v -> v.toDouble() }) } ?: JSONObject.NULL)
             .put("physicalResultCameraId", physicalResultCameraId ?: JSONObject.NULL)
+            .put("logicalHintUserValue", jsonValue(logicalHintUserValue))
+            .put("physicalHintUserValue", jsonValue(physicalHintUserValue))
+            .put("rawMfUltraHighPixelHintObserved", rawMfUltraHighPixelHintObserved)
     }
 
     private data class RawSummary(
