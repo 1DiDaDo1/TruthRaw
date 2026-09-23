@@ -1,9 +1,9 @@
-name: TruthRaw Camera5 8160x6144 RAW v0.56 test
+name: TruthRaw Camera5 8160x6144 runtime result inventory v0.57
 
 on:
   workflow_dispatch:
   push:
-    branches: [test/cam5-8160x6144-raw-v056]
+    branches: [test/cam5-runtime-result-inventory-v057]
     paths:
       - 'tools/patch_fotograaf_v056_cam5_8160x6144_raw_probe.py'
       - '.github/workflows/android-truthraw-cam5-8160x6144-v056.yml'
@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Apply isolated 8160x6144 probe patch
+      - name: Apply isolated 8160x6144 v0.57 result-inventory patch
         run: |
           python3 tools/patch_fotograaf_v056_cam5_8160x6144_raw_probe.py
           grep -F 'private const val TARGET_W = 8160' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
@@ -25,7 +25,7 @@ jobs:
           grep -F 'private const val TARGET_SAMPLES = 50_135_040L' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
           grep -F 'physicalFrameCount", 1' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
           grep -F 'independentEvidenceCount", 1' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
-          grep -F 'calibrationAuthorityGranted", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
+          grep -F 'calibrationAuthorityGranted", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt\n          grep -F 'truthraw.camera5-runtime-result-inventory.v0.57' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt\n          grep -F 'vendorRequestWrittenByV057", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -52,6 +52,6 @@ jobs:
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
       - uses: actions/upload-artifact@v4
         with:
-          name: truthraw-cam5-8160x6144-v056-debug-arm64
+          name: truthraw-cam5-8160x6144-v057-result-inventory-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
