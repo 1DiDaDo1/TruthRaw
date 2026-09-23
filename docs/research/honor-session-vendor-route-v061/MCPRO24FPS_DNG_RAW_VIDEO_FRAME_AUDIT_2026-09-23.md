@@ -176,3 +176,91 @@ The next useful experiment is source-bound:
 Permanent law:
 
 **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+
+## Extended consecutive-frame validation: frames 33 through 42
+
+Ten additional consecutive DNG frames from the same mcpro24fps RAW-video sequence were audited read-only.
+
+Files:
+- `00000033`
+- `00000034`
+- `00000035`
+- `00000036`
+- `00000037`
+- `00000038`
+- `00000039`
+- `00000040`
+- `00000041`
+- `00000042`
+
+Every file is exactly `16,605,437` bytes and declares the same `3840x2160` uncompressed 16-bit CFA raster with WhiteLevel `1023`.
+
+### Exact topology invariant
+
+All ten frames independently have:
+
+- non-zero/image-bearing rows: exactly `0..1839`
+- all-zero rows: exactly `1840..2159`
+- non-zero row count: `1840`
+- zero row count: `320`
+- last non-zero row: `1839`
+- first all-zero row: `1840`
+- populated prefix bytes: `14,131,200`
+- zero tail bytes: `2,457,600`
+- zero-tail SHA-256: `54f980b5b3be8ce80cb6490c527e38d681deade50f239f2cb7d23cf9d0108c37`
+
+The zero-tail hash is byte-identical across all ten frames and matches the previously audited frames 0 and 22.
+
+Therefore the same payload boundary has now been observed in **12 distinct frames** from this sequence.
+
+### Distinct live frame payloads
+
+All ten full-file SHA-256 values are unique.
+All ten populated-prefix SHA-256 values are also unique.
+
+Consecutive populated prefixes 33→42 differ strongly:
+- approximately `98.58%..98.60%` of sample positions change between adjacent frames;
+- mean absolute code difference is approximately `23.1..23.3` codes;
+- median absolute code difference is `19` codes.
+
+This excludes an identical/cached populated payload explanation for the repeated geometry boundary.
+
+### Numerical code-domain observations
+
+Per-frame maxima for frames 33..42:
+`526, 456, 518, 543, 598, 540, 477, 581, 584, 425`.
+
+All remain below DNG WhiteLevel `1023`.
+
+The bitwise OR across each complete frame is either `0x1ff` or `0x3ff`, consistent with these frames occupying no more than the lower ten code bits. This remains a file-domain observation only and is not promoted to physical ADC bit-depth evidence.
+
+### Time-code continuity
+
+The DNG TimeCodes for frames 33..42 carry the matching frame-number BCD sequence:
+`33,34,35,36,37,38,39,40,41,42`.
+
+This strengthens the interpretation that the audited files are consecutive members of the same RAW-video sequence rather than arbitrary exports.
+
+### Opcode behavior
+
+`OpcodeList3` is byte-identical across all ten added frames.
+
+`OpcodeList2` is not constant across the sequence; it changes in groups of frames. This confirms that some DNG processing metadata is dynamic while the `3840x1840 + 320 zero rows` payload topology remains invariant.
+
+## Strengthened bounded conclusion
+
+Across 12 independently differing mcpro24fps DNG frames from one 60-fps tele RAW-video sequence, the measured raster topology is invariant:
+
+`DECLARED_3840x2160_U16_CFA__POPULATED_3840x1840__EXACT_ZERO_ROWS_1840_TO_2159`
+
+This makes an accidental single-frame write failure unlikely.
+
+It still does not identify the stage that created the truncation. The remaining hypotheses must stay separate:
+- Camera2/HAL producer surface is itself 3840x1840;
+- source buffer is larger but mcpro24fps copies only 1840 rows;
+- DNG writer declares 2160 while consuming a 1840-row producer;
+- row/height/stride metadata disagreement occurs upstream;
+- another private producer convention is involved.
+
+A direct Camera2 Image width/height/rowStride/plane-byte observation from the mcpro24fps source path would discriminate these possibilities.
