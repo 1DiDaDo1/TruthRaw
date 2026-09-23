@@ -762,18 +762,35 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
     private fun runSingleFrame(
         device: CameraDevice,
         executor: ExecutorService,
+        logical: CameraCharacteristics,
         physical: CameraCharacteristics,
         locked: LockedSettings,
-        candidateKey: CaptureRequest.Key<Any>?,
-        candidateValue: Any?,
+        settings: List<ResolvedSetting>,
         label: String,
     ): FrameOutcome {
+        val resolvedJson = JSONArray(settings.map { it.toJson() })
+        val vendorEvidence = JSONObject()
+            .put("resolvedSettings", resolvedJson)
+            .put("logicalAndPhysicalScopesMayBothBeWrittenWhenAdvertised", true)
+
         val reader = runCatching {
             ImageReader.newInstance(TARGET_W, TARGET_H, ImageFormat.RAW10, 1)
         }.getOrElse {
             return FrameOutcome(
-                label, false, false, candidateKey != null, false, null, false, null,
-                false, null, null, it.javaClass.name, it.message
+                label = label,
+                sessionConfigured = false,
+                frameCaptured = false,
+                candidateSessionParameterAttached = false,
+                candidateRequestKeyWritten = false,
+                candidateReadback = JSONObject.NULL,
+                vendorEvidence = vendorEvidence,
+                physicalPixelModeWritten = false,
+                physicalPixelModeReadback = null,
+                lockedControlWriteComplete = false,
+                capture = null,
+                raw = null,
+                errorClass = it.javaClass.name,
+                errorMessage = it.message,
             )
         }
 
@@ -793,7 +810,6 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         val sessionRef = AtomicReference<CameraCaptureSession?>(null)
         var sessionConfigured = false
         var sessionError: String? = null
-        var candidateSessionParameterAttached = false
 
         val output = OutputConfiguration(reader.surface)
         try {
@@ -802,8 +818,20 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         } catch (e: Throwable) {
             reader.close()
             return FrameOutcome(
-                label, false, false, candidateKey != null, false, null, false, null,
-                false, null, null, e.javaClass.name, e.message
+                label = label,
+                sessionConfigured = false,
+                frameCaptured = false,
+                candidateSessionParameterAttached = false,
+                candidateRequestKeyWritten = false,
+                candidateReadback = JSONObject.NULL,
+                vendorEvidence = vendorEvidence,
+                physicalPixelModeWritten = false,
+                physicalPixelModeReadback = null,
+                lockedControlWriteComplete = false,
+                capture = null,
+                raw = null,
+                errorClass = e.javaClass.name,
+                errorMessage = e.message,
             )
         }
 
@@ -832,20 +860,43 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             callback
         )
 
-        var candidateReadback: Any? = null
+        val sessionReadbacks = JSONObject()
+        var sessionAttachedCount = 0
+        val requestReadbacks = JSONObject()
+        var requestWriteCount = 0
 
         try {
-            if (candidateKey != null) {
-                require(candidateValue != null)
-                val sessionBuilder = device.createCaptureRequest(
-                    CameraDevice.TEMPLATE_STILL_CAPTURE,
-                    setOf(PHYSICAL_ID)
-                )
-                sessionBuilder.setPhysicalCameraKey(candidateKey, candidateValue, PHYSICAL_ID)
-                candidateReadback = sessionBuilder.getPhysicalCameraKey(candidateKey, PHYSICAL_ID)
+            val anyPhysicalSession = settings.any { it.physicalKey != null && it.physicalSessionEligible }
+            val anyLogicalSession = settings.any { it.logicalKey != null && it.logicalSessionEligible }
+
+            if (anyPhysicalSession || anyLogicalSession) {
+                val sessionBuilder = if (anyPhysicalSession) {
+                    device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE, setOf(PHYSICAL_ID))
+                } else {
+                    device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                }
+
+                for (setting in settings) {
+                    if (setting.logicalKey != null && setting.logicalValue != null && setting.logicalSessionEligible) {
+                        sessionBuilder.set(setting.logicalKey, setting.logicalValue)
+                        val rb = sessionBuilder.get(setting.logicalKey)
+                        sessionReadbacks.put("logical:" + setting.spec.keyName, jsonValue(rb))
+                        sessionAttachedCount++
+                    }
+                    if (setting.physicalKey != null && setting.physicalValue != null && setting.physicalSessionEligible) {
+                        sessionBuilder.setPhysicalCameraKey(setting.physicalKey, setting.physicalValue, PHYSICAL_ID)
+                        val rb = sessionBuilder.getPhysicalCameraKey(setting.physicalKey, PHYSICAL_ID)
+                        sessionReadbacks.put("physical:" + setting.spec.keyName, jsonValue(rb))
+                        sessionAttachedCount++
+                    }
+                }
+
                 config.setSessionParameters(sessionBuilder.build())
-                candidateSessionParameterAttached = true
             }
+
+            vendorEvidence
+                .put("sessionAttachedScopeCount", sessionAttachedCount)
+                .put("sessionReadbacks", sessionReadbacks)
 
             device.createCaptureSession(config)
             if (!sessionLatch.await(8, TimeUnit.SECONDS) || !sessionConfigured) {
@@ -853,9 +904,20 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 sessionClosedLatch.await(2, TimeUnit.SECONDS)
                 reader.close()
                 return FrameOutcome(
-                    label, false, false, candidateSessionParameterAttached, false, candidateReadback,
-                    false, null, false, null, null,
-                    "SESSION_CONFIGURATION_FAILED_OR_TIMED_OUT", sessionError
+                    label = label,
+                    sessionConfigured = false,
+                    frameCaptured = false,
+                    candidateSessionParameterAttached = sessionAttachedCount > 0,
+                    candidateRequestKeyWritten = false,
+                    candidateReadback = requestReadbacks,
+                    vendorEvidence = vendorEvidence,
+                    physicalPixelModeWritten = false,
+                    physicalPixelModeReadback = null,
+                    lockedControlWriteComplete = false,
+                    capture = null,
+                    raw = null,
+                    errorClass = "SESSION_CONFIGURATION_FAILED_OR_TIMED_OUT",
+                    errorMessage = sessionError,
                 )
             }
 
@@ -868,28 +930,37 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
 
             var physicalPixelModeWritten = false
             var physicalPixelModeReadback: Any? = null
-            runCatching {
-                builder.setPhysicalCameraKey(
-                    CaptureRequest.SENSOR_PIXEL_MODE,
-                    CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION,
-                    PHYSICAL_ID
-                )
-                physicalPixelModeWritten = true
-                physicalPixelModeReadback = builder.getPhysicalCameraKey(
-                    CaptureRequest.SENSOR_PIXEL_MODE,
-                    PHYSICAL_ID
-                )
-            }.getOrElse { throw it }
+            builder.setPhysicalCameraKey(
+                CaptureRequest.SENSOR_PIXEL_MODE,
+                CameraMetadata.SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION,
+                PHYSICAL_ID
+            )
+            physicalPixelModeWritten = true
+            physicalPixelModeReadback = builder.getPhysicalCameraKey(
+                CaptureRequest.SENSOR_PIXEL_MODE,
+                PHYSICAL_ID
+            )
 
             val lockedComplete = applyLockedControls(builder, locked)
 
-            var candidateRequestWritten = false
-            if (candidateKey != null) {
-                require(candidateValue != null)
-                builder.setPhysicalCameraKey(candidateKey, candidateValue, PHYSICAL_ID)
-                candidateRequestWritten = true
-                candidateReadback = builder.getPhysicalCameraKey(candidateKey, PHYSICAL_ID)
+            for (setting in settings) {
+                if (setting.logicalKey != null && setting.logicalValue != null) {
+                    builder.set(setting.logicalKey, setting.logicalValue)
+                    val rb = builder.get(setting.logicalKey)
+                    requestReadbacks.put("logical:" + setting.spec.keyName, jsonValue(rb))
+                    requestWriteCount++
+                }
+                if (setting.physicalKey != null && setting.physicalValue != null) {
+                    builder.setPhysicalCameraKey(setting.physicalKey, setting.physicalValue, PHYSICAL_ID)
+                    val rb = builder.getPhysicalCameraKey(setting.physicalKey, PHYSICAL_ID)
+                    requestReadbacks.put("physical:" + setting.spec.keyName, jsonValue(rb))
+                    requestWriteCount++
+                }
             }
+
+            vendorEvidence
+                .put("requestWrittenScopeCount", requestWriteCount)
+                .put("requestReadbacks", requestReadbacks)
 
             val resultRef = AtomicReference<TotalCaptureResult?>(null)
             val resultLatch = CountDownLatch(1)
@@ -933,11 +1004,20 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 sessionClosedLatch.await(2, TimeUnit.SECONDS)
                 reader.close()
                 return FrameOutcome(
-                    label, true, false, candidateSessionParameterAttached, candidateRequestWritten,
-                    candidateReadback, physicalPixelModeWritten, physicalPixelModeReadback,
-                    lockedComplete, null, null,
-                    "CAPTURE_PAIRING_FAILED",
-                    captureFailureText ?: "resultReady=" + resultReady + " imageReady=" + imageReady
+                    label = label,
+                    sessionConfigured = true,
+                    frameCaptured = false,
+                    candidateSessionParameterAttached = sessionAttachedCount > 0,
+                    candidateRequestKeyWritten = requestWriteCount > 0,
+                    candidateReadback = requestReadbacks,
+                    vendorEvidence = vendorEvidence,
+                    physicalPixelModeWritten = physicalPixelModeWritten,
+                    physicalPixelModeReadback = physicalPixelModeReadback,
+                    lockedControlWriteComplete = lockedComplete,
+                    capture = null,
+                    raw = null,
+                    errorClass = "CAPTURE_PAIRING_FAILED",
+                    errorMessage = captureFailureText ?: "resultReady=" + resultReady + " imageReady=" + imageReady,
                 )
             }
 
@@ -948,6 +1028,17 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                 require(sensorTs == image.timestamp) {
                     "physical timestamp " + sensorTs + " != image timestamp " + image.timestamp
                 }
+
+                @Suppress("UNCHECKED_CAST")
+                val logicalHintKey = logical.availableCaptureResultKeys.orEmpty()
+                    .firstOrNull { it.name == HINT_USER_VALUE_KEY } as CaptureResult.Key<Any>?
+                @Suppress("UNCHECKED_CAST")
+                val physicalHintKey = physical.availableCaptureResultKeys.orEmpty()
+                    .firstOrNull { it.name == HINT_USER_VALUE_KEY } as CaptureResult.Key<Any>?
+
+                val logicalHint = logicalHintKey?.let { runCatching { logicalResult.get(it) }.getOrNull() }
+                val physicalHint = physicalHintKey?.let { runCatching { physicalResult.get(it) }.getOrNull() }
+                val rawMfHint = isRawMfUltraHighPixelHint(logicalHint) || isRawMfUltraHighPixelHint(physicalHint)
 
                 val raw = analyzeRaw10(image)
                 val capture = CaptureSummary(
@@ -965,15 +1056,19 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
                     edgeMode = physicalResult.get(CaptureResult.EDGE_MODE),
                     dynamicBlackLevel = physicalResult.get(CaptureResult.SENSOR_DYNAMIC_BLACK_LEVEL),
                     physicalResultCameraId = physicalResult.cameraId,
+                    logicalHintUserValue = logicalHint,
+                    physicalHintUserValue = physicalHint,
+                    rawMfUltraHighPixelHintObserved = rawMfHint,
                 )
 
                 return FrameOutcome(
                     label = label,
                     sessionConfigured = true,
                     frameCaptured = true,
-                    candidateSessionParameterAttached = candidateSessionParameterAttached,
-                    candidateRequestKeyWritten = candidateRequestWritten,
-                    candidateReadback = candidateReadback,
+                    candidateSessionParameterAttached = sessionAttachedCount > 0,
+                    candidateRequestKeyWritten = requestWriteCount > 0,
+                    candidateReadback = requestReadbacks,
+                    vendorEvidence = vendorEvidence,
                     physicalPixelModeWritten = physicalPixelModeWritten,
                     physicalPixelModeReadback = physicalPixelModeReadback,
                     lockedControlWriteComplete = lockedComplete,
@@ -994,10 +1089,32 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             sessionClosedLatch.await(2, TimeUnit.SECONDS)
             reader.close()
             return FrameOutcome(
-                label, sessionConfigured, false, candidateSessionParameterAttached, false,
-                candidateReadback, false, null, false, null, null, e.javaClass.name, e.message
+                label = label,
+                sessionConfigured = sessionConfigured,
+                frameCaptured = false,
+                candidateSessionParameterAttached = sessionAttachedCount > 0,
+                candidateRequestKeyWritten = requestWriteCount > 0,
+                candidateReadback = requestReadbacks,
+                vendorEvidence = vendorEvidence,
+                physicalPixelModeWritten = false,
+                physicalPixelModeReadback = null,
+                lockedControlWriteComplete = false,
+                capture = null,
+                raw = null,
+                errorClass = e.javaClass.name,
+                errorMessage = e.message,
             )
         }
+    }
+
+    private fun isRawMfUltraHighPixelHint(value: Any?): Boolean {
+        val scalar = when (value) {
+            is Int -> value
+            is IntArray -> value.firstOrNull()
+            is Number -> value.toInt()
+            else -> null
+        }
+        return scalar in setOf(23, 24, 32, 33)
     }
 
     private fun applyLockedControls(
