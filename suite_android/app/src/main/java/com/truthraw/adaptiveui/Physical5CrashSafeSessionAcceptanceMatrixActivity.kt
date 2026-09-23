@@ -149,6 +149,42 @@ class Physical5CrashSafeSessionAcceptanceMatrixActivity : Activity() {
         var skippedNotSessionKey = 0
         var controlFailed = 0
 
+        val checkpoint = JSONObject()
+            .put("schema", SCHEMA)
+            .put("createdAtUtc", Instant.now().toString())
+            .put("authority", AUTHORITY)
+            .put("logicalCameraId", LOGICAL_ID)
+            .put("physicalCameraId", PHYSICAL_ID)
+            .put("physicalId5ListedByLogicalCharacteristics", logical.physicalCameraIds.contains(PHYSICAL_ID))
+            .put("previewSurface", JSONObject()
+                .put("class", "android.graphics.SurfaceTexture")
+                .put("width", chosenSize.width)
+                .put("height", chosenSize.height)
+                .put("physicalCameraBinding", PHYSICAL_ID))
+            .put("candidateCount", CANDIDATES.size)
+            .put("results", results)
+            .put("cameraPermissionGranted", true)
+            .put("oneCandidatePerSession", true)
+            .put("matchedControlPerCandidate", true)
+            .put("freshCameraOpenPerCandidate", true)
+            .put("cameraDeviceCallbackExecutorKeptAliveUntilDeviceClosed", true)
+            .put("checkpointedBeforeEachHalTouch", true)
+            .put("captureSubmittedByTruthRaw", false)
+            .put("repeatingRequestSubmittedByTruthRaw", false)
+            .put("imageReaderCreatedByTruthRaw", false)
+            .put("imageBufferAccessedByTruthRaw", false)
+            .put("scientificMasterModified", false)
+            .put("calibrationAuthorityGranted", false)
+            .put("physicalFrameCount", 0)
+            .put("independentEvidenceCount", 0)
+            .put("candidateInFlight", false)
+            .put("nextCandidateIndex", 0)
+            .put("lastStage", "MATRIX_INITIALIZED")
+            .put("classification", "V069_IN_PROGRESS_CHECKPOINT")
+            .put("boundary", BOUNDARY)
+
+        writeCheckpoint(checkpoint)
+
         for ((index, spec) in CANDIDATES.withIndex()) {
             runOnUiThread {
                 status.text = "v0.69 test \${index + 1}/\${CANDIDATES.size}: \${spec.shortName}"
