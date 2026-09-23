@@ -90,6 +90,7 @@ class TruthRawSettingsActivity : Activity() {
             addDiagnostic("v0.70 · Physical-5 capture-effect matrix", Physical5CaptureEffectMatrixActivity::class.java)
             addDiagnostic("v0.71 · Semantic locked capture-effect", Physical5SemanticLockedCaptureEffectActivity::class.java)
             addDiagnostic("v0.75 · Scene53 visible OEM state oracle", Physical5HintRemosaicOracleActivity::class.java)
+            addDiagnostic("v0.76 · Matched scene-state matrix", Physical5SceneStateMatrixActivity::class.java)
             addDiagnostic("v0.51 · CameraDeviceSetup RAW14 query", CameraDeviceSetupRaw14SessionOracleActivity::class.java)
             addDiagnostic("v0.53 · Android 17 replay bewezen route", Android17Camera5PayloadDeltaActivity::class.java)
             addDiagnostic("v0.54 · Honor Pro RAW/DNG fingerprint", PassiveHonorProRawDngFingerprintActivity::class.java)
