@@ -1,0 +1,119 @@
+name: TruthRaw v0.61 Expanded Honor RAW/remosaic Characteristics Oracle
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/honor-v061-expanded-vendor-characteristics]
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DirectTypedVendorCharacteristicsOracleActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawSettingsActivity.kt'
+      - 'docs/HONOR_V061_EXPANDED_VENDOR_CHARACTERISTICS_ORACLE_PLAN_2026-09-23.md'
+      - 'state/HONOR_V050_RERUN_V059_REPEATABILITY_2026-09-23.json'
+      - '.github/workflows/android-truthraw-v061-expanded-vendor-characteristics.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-v061:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify read-only v0.61 invariants
+        run: |
+          set -euo pipefail
+          ACT='suite_android/app/src/main/java/com/truthraw/adaptiveui/DirectTypedVendorCharacteristicsOracleActivity.kt'
+          grep -F 'truthraw.expanded-vendor-characteristics-oracle.v0.61' "$ACT"
+          grep -F 'CAMERA2_CHARACTERISTICS_DIRECT_TYPED_VENDOR_KEY_READ_ONLY' "$ACT"
+          grep -F 'java.lang.Byte.TYPE' "$ACT"
+          grep -F 'java.lang.Integer.TYPE' "$ACT"
+          grep -F 'IntArray::class.java' "$ACT"
+          grep -F 'rawCaptureSize' "$ACT"
+          grep -F 'hwCaptureRawStreamConfigurations' "$ACT"
+          grep -F 'professionalTeleRawLogicalCameraID' "$ACT"
+          grep -F 'remosaicSupported' "$ACT"
+          grep -F 'sensorRemosaicSupported' "$ACT"
+          grep -F 'rearSensorZoomRemosaicSupported' "$ACT"
+          grep -F 'ultraHighPixel' "$ACT"
+          grep -F 'customIdWithA200' "$ACT"
+          grep -F 'repeatReadStable' "$ACT"
+          grep -F 'c.get(key)' "$ACT"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/DirectTypedVendorCharacteristicsOracleActivity.kt').read_text()
+          required=[
+              'getCameraCharacteristics(',
+              'CameraCharacteristics.Key(spec.name, clazz)',
+              'listedInCameraCharacteristicsKeys',
+              'directGetCompleted',
+              'repeatReadStable',
+              'packageIdentitySpoofedByTruthRaw", false',
+          ]
+          for token in required:
+              assert token in s, token
+          forbidden=[
+              'openCamera(',
+              'createCaptureRequest',
+              'import android.media.ImageReader',
+              'CameraCaptureSession',
+              'bindService(',
+              'setPhysicalCameraKey',
+              'createExtensionSession',
+          ]
+          for token in forbidden:
+              assert token not in s, token
+          print('v0.61 read-only invariants PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-v061-expanded-honor-vendor-characteristics-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish direct APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='truthraw-honor-v061-vendor-oracle-test'
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          OUT='TruthRaw_v061_Expanded_Honor_RAW_Remosaic_Oracle_debug_arm64.apk'
+          cp "$APK" "$OUT"
+          gh release delete "$TAG" -y --cleanup-tag >/dev/null 2>&1 || true
+          gh release create "$TAG" "$OUT" \
+            --target "$GITHUB_SHA" \
+            --title 'TruthRaw v0.61 Expanded Honor RAW/remosaic Oracle' \
+            --notes 'Read-only CameraCharacteristics experiment. No camera open, capture, vendor write, Binder invocation, package spoofing, Scientific Master admission, or calibration authority.'
