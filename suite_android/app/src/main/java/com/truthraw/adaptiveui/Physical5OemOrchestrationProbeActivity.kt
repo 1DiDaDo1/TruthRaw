@@ -44,16 +44,17 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * v0.72 semantic-value + locked-acquisition physical Camera-5 capture-effect probe.
+ * v0.72 minimal OEM-orchestration probe for physical Camera 5.
  *
- * Static HONOR .452 evidence selects only defensible OEM values:
- * - MasterFilmSensorType = 3 for OEM tele role
- * - cameraSceneMode = 53 UltraHighPixel / 200M
- * - cameraSceneMode = 110 UltraResolution / 50M
- * - cameraSceneMode = 66 Pro Photo RAW reference
- * - teleconverterEnable = true encoded as byteArrayOf(1) for direct Camera2
+ * Exact HONOR .452 bytecode justifies two direct controls:
+ * - cameraSceneMode = 53 for UltraHighPixel/200M;
+ * - qcomRemosaicEnable = 1 in the Qualcomm pre-capture path.
  *
- * Every frame gets a fresh camera open. Control/candidate order is mirrored across candidates.
+ * It also records capture-result hintUserValue because the stock UltraHighPixel mode routes that
+ * value into ServiceHost SMART_SCENE_MODE; processor values 23/24/32/33 select
+ * pipeline4rawmfultrahighpixelcap.json.
+ *
+ * Every frame gets a fresh camera open. Control/candidate order is mirrored across vectors.
  * Both sides use the same manual ISO/exposure/frame-duration/focus request state.
  * No multi-frame fusion, no DNG creation, no Scientific Master mutation.
  */
@@ -81,11 +82,11 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
         }
         body.addView(label("TruthRaw v0.72 · OEM orchestration RAW test", 21f, true))
         body.addView(label(
-            "Alleen OEM-onderbouwde waarden. Iedere control/candidate frame krijgt een verse camera-open en dezelfde handmatige ISO, exposure, frame duration en focus.",
+            "3 OEM-vectoren: qcom remosaic, UltraHighPixel scene 53, en de combinatie. Iedere control/candidate frame krijgt een verse camera-open en dezelfde handmatige ISO, exposure, frame duration en focus.",
             12f, false, Color.rgb(190, 198, 210)
         ))
         body.addView(space(10))
-        body.addView(button("1 · Run semantic locked matrix") { runMatrix() })
+        body.addView(button("1 · Run OEM orchestration matrix") { runMatrix() })
         saveButton = button("2 · JSON opslaan") { saveReport() }.apply { isEnabled = false }
         body.addView(saveButton)
         body.addView(space(10))
@@ -1547,6 +1548,7 @@ class Physical5OemOrchestrationProbeActivity : Activity() {
             null -> JSONObject.NULL
             is IntArray -> JSONArray(value.toList())
             is ByteArray -> JSONArray(value.map { it.toInt() and 0xff })
+            is JSONObject, is JSONArray -> value
             is Number, is Boolean, is String -> value
             else -> value.toString()
         }
