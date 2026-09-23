@@ -206,6 +206,12 @@
             android:exported="false" />
 
         <activity
+            android:name=".Physical5SessionAcceptanceMatrixActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:exported="false" />
+
+        <activity
             android:name=".CameraDeviceSetupRaw14SessionOracleActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
