@@ -1,0 +1,88 @@
+{
+  "schema": "TruthRawHonorV050RerunAndV059Repeatability/2026-09-23",
+  "status": "NEW_RUNTIME_CHARACTERISTICS_VALUES_PLUS_RAW10_TOPOLOGY_REPEATABILITY",
+  "v050Rerun": {
+    "sourceFile": "TRUTHRAW_DIRECT_TYPED_VENDOR_CHARACTERISTICS_ORACLE_v050 (3).json",
+    "sourceSha256": "49ab002751bea88e5ff1cccf77a783e4d1fd1e6c7099a55d2837198f68af96a8",
+    "previousSourceSha256": "735e4280909867b3485f72db11cb58ee8256f2c1b38e689d07e2fdae2a248fea",
+    "deviceFingerprint": "HONOR/BKQ-N49/HNBKQ:17/HONORBKQ-NXX/11.0.0.120C901E8:user/release-keys",
+    "directOracleSourceBlobSha": "25df33a8379ecf6ae5707e7479111136909c1c1b",
+    "oldResult": {
+      "nonNull": 0,
+      "null": 40,
+      "errors": 5
+    },
+    "rerunResult": {
+      "nonNull": 19,
+      "null": 21,
+      "errors": 5
+    },
+    "camera5": {
+      "physicalCameraScene": [
+        66
+      ],
+      "rawSensorResolution": null,
+      "sceneCameraIdCapability": [
+        1
+      ],
+      "cameraIdCustomInfoNonNull": true,
+      "needOpenPhysicalCamera": null,
+      "ultraResolutionSwitchSupportedSize": null,
+      "teleSupport": 1,
+      "ultraHighPixelMonoSupported": "ILLEGAL_ARGUMENT_TAG_NOT_FOUND",
+      "rawZoomSupported": 1
+    },
+    "causeOfDifference": "UNKNOWN_DO_NOT_INFER"
+  },
+  "installedHonorCamera": {
+    "version": "171.0.10.706",
+    "bytes": 86018325,
+    "sha256": "bbc6312e0289d01a51dbe45efc519e56715e6250521227df81cf64a633b8f027",
+    "packageArtifactOnly": true
+  },
+  "v059Repeatability": {
+    "captures": [
+      {
+        "stem": "1790175506221",
+        "sourceSha256": "e058d33821bb3ec66242c6618c0e0083bf597645e31089e4877ecd3e31bb1ee6",
+        "prefixSha256": "964cdcce24485f2a5f835ce3575c5dae1d05bc346d64ff2542c51da596423232",
+        "iso": 1953,
+        "exposureNs": 9999993
+      },
+      {
+        "stem": "1790176701736",
+        "sourceSha256": "b7e8227150cff52b55d8434c0c1d3c86caac9d90985917eff99fd0515ce7c813",
+        "prefixSha256": "958aa4922aa2cbe8fbeb917ba60602886dccd586b62a9af40ddf1b864eca2d9d",
+        "iso": 3988,
+        "exposureNs": 29999970
+      },
+      {
+        "stem": "1790176738316",
+        "sourceSha256": "16ebfb34a49e75b43f3fa2da3960f6e2ae0aae9c0a4328894233cda1c9360b56",
+        "prefixSha256": "919f2f2f33a93a25c43d26d371bdbd9ce82d11c28df82a49e553051fa8a885e8",
+        "iso": 4372,
+        "exposureNs": 29999970
+      },
+      {
+        "stem": "1790176781214",
+        "sourceSha256": "b489812c9dd26a2d574fc74e620a2df812e2fb24f17ab879188886139f1e6dc1",
+        "prefixSha256": "05c8e8ba4ca6d67ac17327232beca495b716b726f5672854505c1cbc57e550b6",
+        "iso": 4156,
+        "exposureNs": 29999970
+      }
+    ],
+    "fullEnvelopeBytes": 250675200,
+    "effectivePrefixBytes": 15728640,
+    "effectiveRows": 3072,
+    "effectiveRowStride": 5120,
+    "packedBytesPerEffectiveRow": 5100,
+    "zeroPaddingPerEffectiveRow": 20,
+    "exactZeroTailBytes": 234946560,
+    "allFourTailZero": true,
+    "allFourPaddingZero": true,
+    "allFourLastNonZeroByteOffset": 15728619,
+    "classification": "REPEATABLE_APP_VISIBLE_4080x3072_PACKED_RAW10_PAYLOAD_EMBEDDED_IN_16320x12288_CAMERA2_ENVELOPE"
+  },
+  "next": "RUN_V061_EXPANDED_EXACT_TYPED_VENDOR_CHARACTERISTICS_ORACLE",
+  "frozenProductionV0843Untouched": true
+}
