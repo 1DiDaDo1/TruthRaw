@@ -1,0 +1,146 @@
+{
+  "schema": "TruthRawCurrentChatKnownState/2026-09-23",
+  "status": "DOCUMENTATION_ONLY_SNAPSHOT_MAY_BE_SUPERSEDED_BY_NEWER_BRANCH_OR_CHAT",
+  "finalUserInstruction": "DO_NOT_CHANGE_CODE_UNLESS_USER_EXPLICITLY_AUTHORIZES_IT_AGAIN",
+  "documentationBranch": "test/cam5-4080x3072-raw10-control-v058",
+  "codeBearingHeadKnownToThisChat": "e8639e79197ce589a8bb8a096d1dd8cb926757ec",
+  "handoff": "docs/handoff/TRUTHRAW_FINAL_CHAT_HANDOFF_2026-09-23.md",
+  "frozenProductionAnchor": {
+    "branch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
+    "commit": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
+    "handoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
+    "apkSha256": "5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e",
+    "frozen": true
+  },
+  "permanentLaws": {
+    "sourceEvidenceImmutable": true,
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "measuredReconstructedAppearanceSeparated": true,
+    "scientificMasterSeparateFromExportPresentation": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "computationalOemApkCannotDefineTruthRawEvidenceOrCalibration": true
+  },
+  "camera5PublicRaw": {
+    "physicalCameraId": "5",
+    "standardRawSensor": [
+      4080,
+      3072
+    ],
+    "maximumRawSensor": [
+      8160,
+      6144
+    ],
+    "maximumHighResolutionRawSensor": [
+      16320,
+      12288
+    ],
+    "standardRaw10": [
+      4080,
+      3072
+    ],
+    "maximumRaw10": [
+      8160,
+      6144
+    ],
+    "maximumHighResolutionRaw10": [
+      16320,
+      12288
+    ],
+    "standardSensorInfoBinningFactor": [
+      2,
+      2
+    ],
+    "interpretationBoundary": "CAMERA2_APP_VISIBLE_RAW_NOT_NATIVE_ADC_PROOF"
+  },
+  "v056cRawSensor8160": {
+    "sourceGeometry": [
+      8160,
+      6144
+    ],
+    "sourceBytes": 100270080,
+    "rowStride": 16320,
+    "pixelStride": 2,
+    "sourceSha256": "756cf869184fc8b1d0a2c29ef0f7e79aa9ae16b8693ac26adf49b989517559be",
+    "populatedRows": [
+      0,
+      1535
+    ],
+    "zeroRows": [
+      1536,
+      6143
+    ],
+    "populatedBytes": 25067520,
+    "exactAdvertisedStandardRawMatch": [
+      4080,
+      3072
+    ],
+    "classification": "APP_VISIBLE_4080x3072_U16_PAYLOAD_EMBEDDED_IN_8160x6144_CAMERA2_ENVELOPE"
+  },
+  "v057Raw10_8160": {
+    "branch": "test/cam5-8160x6144-raw10-v057",
+    "codeHead": "5a95b7075eacfcd5e9b478cd2877e92924c93d57",
+    "ciRun": 35855642767,
+    "captures": [
+      {
+        "stem": "1790163972953",
+        "sha256": "0e8614f086aa9347877bfeeecf3abf4ff9bde72cb032c112ff618f8e2bb03601"
+      },
+      {
+        "stem": "1790164019677",
+        "sha256": "68c11fa279d57b8f7c4fa77c0d7f8390daf768991bbfd639c410594a962ed48c"
+      }
+    ],
+    "envelopeGeometry": [
+      8160,
+      6144
+    ],
+    "rowStride": 10240,
+    "totalBytes": 62914560,
+    "meaningfulRows": [
+      0,
+      3071
+    ],
+    "effectiveEmbeddedStandardRowStride": 5120,
+    "packedPixelBytesPerMeaningfulRow": 5100,
+    "zeroPaddingBytesPerMeaningfulRow": 20,
+    "meaningfulRegionBytes": 15728640,
+    "packedPixelBytes": 15667200,
+    "classification": "APP_VISIBLE_4080x3072_PACKED_RAW10_PAYLOAD_EMBEDDED_IN_8160x6144_CAMERA2_ENVELOPE",
+    "scientificMasterCreationAllowed": false
+  },
+  "v058StandardRaw10Control": {
+    "branch": "test/cam5-4080x3072-raw10-control-v058",
+    "codeBearingHead": "e8639e79197ce589a8bb8a096d1dd8cb926757ec",
+    "ciRun": 35857800114,
+    "artifactId": 10747379436,
+    "artifactName": "truthraw-cam5-4080x3072-raw10-control-v058-debug-arm64",
+    "artifactZipSha256": "94b9eceedb13ce484295b5158e5654c2b9af587be6b39fb344299fb0bdd5fa2a",
+    "deviceResultKnownToThisChat": false,
+    "nextGate": "CHECK_FOR_NEWER_DEVICE_RESULT_BEFORE_REPEATING_CAPTURE"
+  },
+  "publicCamera2Boundary": {
+    "rawSensor16320MeaningfulDomain": [
+      4080,
+      3072
+    ],
+    "rawSensor8160MeaningfulDomain": [
+      4080,
+      3072
+    ],
+    "raw10_8160MeaningfulDomain": [
+      4080,
+      3072
+    ],
+    "conclusion": "TESTED_PUBLIC_CAMERA2_PATH_HAS_NOT_EXPOSED_INDEPENDENTLY_POPULATED_50MP_OR_200MP_RAW_SAMPLE_DOMAIN",
+    "doesNotProveSensorCannotInternallyReadHigherResolution": true
+  },
+  "oemHighPixelWorkingHypothesis": "ONE_HIGH_RES_SENSOR_OR_READOUT_CONTEXT_TO_VENDOR_REMOSAIC_HIGH_PIXEL_PROCESSING_TO_16320x12288_OUTPUT_JPEG",
+  "oemHypothesisAuthority": "INFERENCE_NOT_SENSOR_EVIDENCE",
+  "immediateNext": [
+    "Check whether newer code/handoff/device evidence exists beyond this snapshot",
+    "If v0.58 device result exists, compare its STANDARD 4080x3072 RAW10 row structure against v0.57",
+    "Do not modify code without explicit user authorization"
+  ]
+}
