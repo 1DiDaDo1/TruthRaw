@@ -82,6 +82,7 @@ class TruthRawSettingsActivity : Activity() {
             addDiagnostic("v0.50 · Direct typed Honor vendor-key read", DirectTypedVendorCharacteristicsOracleActivity::class.java)
             addDiagnostic("v0.61 · MotionCam vendor/session oracle", MotionCamVendorSessionOracleActivity::class.java)
             addDiagnostic("v0.64 · Physical-5 template defaults", Physical5TemplateDefaultsOracleActivity::class.java)
+            addDiagnostic("v0.65 · Physical-5 local type oracle", Physical5LocalTypeOracleActivity::class.java)
             addDiagnostic("v0.51 · CameraDeviceSetup RAW14 query", CameraDeviceSetupRaw14SessionOracleActivity::class.java)
             addDiagnostic("v0.53 · Android 17 replay bewezen route", Android17Camera5PayloadDeltaActivity::class.java)
             addDiagnostic("v0.54 · Honor Pro RAW/DNG fingerprint", PassiveHonorProRawDngFingerprintActivity::class.java)
