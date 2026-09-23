@@ -529,14 +529,14 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
 
         val imageRef = AtomicReference<Image?>(null)
         val imageLatch = CountDownLatch(1)
-        reader.setOnImageAvailableListener({ source ->
+        reader.setOnImageAvailableListenerWithExecutor({ source ->
             val image = runCatching { source.acquireNextImage() }.getOrNull()
             if (image != null && imageRef.compareAndSet(null, image)) {
                 imageLatch.countDown()
             } else {
                 image?.close()
             }
-        }, null)
+        }, executor)
 
         val sessionLatch = CountDownLatch(1)
         val sessionClosedLatch = CountDownLatch(1)
@@ -651,28 +651,32 @@ class Physical5CaptureEffectMatrixActivity : Activity() {
             val resultLatch = CountDownLatch(1)
             var captureFailureText: String? = null
 
-            session.capture(requestBuilder.build(), object : CameraCaptureSession.CaptureCallback() {
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult,
-                ) {
-                    resultRef.set(result)
-                    resultLatch.countDown()
-                }
+            session.captureSingleRequest(
+                requestBuilder.build(),
+                executor,
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        resultRef.set(result)
+                        resultLatch.countDown()
+                    }
 
-                override fun onCaptureFailed(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    failure: CaptureFailure,
-                ) {
-                    captureFailureText =
-                        "reason=" + failure.reason +
-                            " wasImageCaptured=" + failure.wasImageCaptured() +
-                            " frameNumber=" + failure.frameNumber
-                    resultLatch.countDown()
+                    override fun onCaptureFailed(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        failure: CaptureFailure,
+                    ) {
+                        captureFailureText =
+                            "reason=" + failure.reason +
+                                " wasImageCaptured=" + failure.wasImageCaptured() +
+                                " frameNumber=" + failure.frameNumber
+                        resultLatch.countDown()
+                    }
                 }
-            }, null)
+            )
 
             val resultReady = resultLatch.await(10, TimeUnit.SECONDS)
             val imageReady = imageLatch.await(10, TimeUnit.SECONDS)
