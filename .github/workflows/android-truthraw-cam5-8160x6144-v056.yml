@@ -25,7 +25,9 @@ jobs:
           grep -F 'private const val TARGET_SAMPLES = 50_135_040L' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
           grep -F 'physicalFrameCount", 1' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
           grep -F 'independentEvidenceCount", 1' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
-          grep -F 'calibrationAuthorityGranted", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt\n          grep -F 'truthraw.camera5-runtime-result-inventory.v0.57' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt\n          grep -F 'vendorRequestWrittenByV057", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
+          grep -F 'calibrationAuthorityGranted", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
+          grep -F 'truthraw.camera5-runtime-result-inventory.v0.57' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
+          grep -F 'vendorRequestWrittenByV057", false' suite_android/app/src/main/java/com/truthraw/adaptiveui/FotoGraaf200MpStagedActivity.kt
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
