@@ -407,7 +407,8 @@ class Physical5TemplateDefaultsOracleActivity : Activity() {
         private const val SCHEMA = "truthraw.physical5-template-defaults-oracle.v0.64"
         private const val AUTHORITY = "CAMERA2_REQUEST_TEMPLATE_READ_ONLY"
         private const val REPORT_FILENAME = "TRUTHRAW_PHYSICAL5_TEMPLATE_DEFAULTS_ORACLE_v064.json"
-        private const val REQUEST_CAMERA_PERMISSION = 66462\n        private const val REQUEST_SAVE_JSON = 66463
+        private const val REQUEST_CAMERA_PERMISSION = 66462
+        private const val REQUEST_SAVE_JSON = 66463
         private const val LOGICAL_ID = "0"
         private const val PHYSICAL_ID = "5"
 
