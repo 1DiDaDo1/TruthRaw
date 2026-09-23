@@ -9,7 +9,7 @@ on:
       - '.github/workflows/android-truthraw-cam5-4080x3072-raw10-control-v058.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -67,3 +67,18 @@ jobs:
           name: truthraw-cam5-4080x3072-raw10-control-v058-debug-arm64
           path: suite_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish direct APK download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='truthraw-cam5-raw10-control-v058-test'
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          OUT='TruthRaw_CAM5_4080x3072_RAW10_CONTROL_v058_debug_arm64.apk'
+          cp "$APK" "$OUT"
+          gh release delete "$TAG" -y --cleanup-tag >/dev/null 2>&1 || true
+          gh release create "$TAG" "$OUT" \
+            --target "$GITHUB_SHA" \
+            --title 'TruthRaw CAM5 4080x3072 RAW10 control v0.58 test' \
+            --notes 'Experimental test build only. Frozen v0.84.3 remains unchanged.'
