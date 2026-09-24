@@ -17,17 +17,16 @@ import android.widget.TextView
 class TruthRawProActivity : Activity() {
     private var computeProbeView: TextView? = null
 
-    private val bg = Color.rgb(5, 12, 22)
-    private val surface = Color.rgb(10, 22, 37)
-    private val textColor = Color.rgb(244, 248, 255)
-    private val muted = Color.rgb(158, 178, 205)
-    private val purple = Color.rgb(190, 92, 238)
+    private val bg = DrawVisualTheme.PAPER_YELLOW
+    private val surface = DrawVisualTheme.PAPER_WHITE
+    private val textColor = DrawVisualTheme.INK
+    private val muted = DrawVisualTheme.MUTED
+    private val purple = DrawVisualTheme.PURPLE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
-        window.statusBarColor = bg
-        window.navigationBarColor = bg
+        DrawVisualTheme.applyWindow(this)
         setContentView(buildUi())
     }
 
@@ -129,6 +128,9 @@ class TruthRawProActivity : Activity() {
             finish()
         })
 
+        root.addView(space(18))
+        root.addView(DrawVisualTheme.brandFooter(this, 72))
+
         val scroll = ScrollView(this).apply {
             isFillViewport = true
             setBackgroundColor(bg)
@@ -216,7 +218,7 @@ class TruthRawProActivity : Activity() {
 
     private fun card(heading: String): LinearLayout = vertical().apply {
         setPadding(dp(15), dp(15), dp(15), dp(15))
-        background = rounded(surface, Color.rgb(70, 51, 92), 18f)
+        background = rounded(surface, DrawVisualTheme.PURPLE, 18f)
         addView(title(heading, 17f))
         addView(space(7))
     }
@@ -227,7 +229,7 @@ class TruthRawProActivity : Activity() {
         setTextColor(textColor)
         gravity = Gravity.CENTER
         setPadding(dp(14), dp(14), dp(14), dp(14))
-        background = rounded(Color.rgb(32, 22, 43), purple, 16f)
+        background = rounded(DrawVisualTheme.PAPER_PURPLE, purple, 16f)
         setOnClickListener { onClick() }
     }
 
