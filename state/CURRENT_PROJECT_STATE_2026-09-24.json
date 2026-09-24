@@ -158,5 +158,41 @@
     "scientificHdrUsesLocalPolicyGate": true,
     "detailSupportUsesLocalPolicyGate": true,
     "appearanceHdrRemainsSeparate": true
+  },
+  "truthNegativePostWriteVerifier": {
+    "status": "FIXED_TN4_V02_LOCAL_FIELD_CONTRACT",
+    "oldVerifierBug": {
+      "staleSchema": "TruthNegativeOutputChannelAuthority/0.1",
+      "staleMappingMode": "RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT",
+      "staleTargetSupportRole": "RECONSTRUCTED_DENSE_SUPPORT",
+      "symptom": "writer succeeded but post-write verifier rejected valid TN-4 DNG"
+    },
+    "currentChecks": {
+      "schema": "TruthNegativeOutputChannelAuthority/0.2",
+      "mappingMode": "RESAMPLED_PROCEDURAL_LOCAL_FIELD_V04",
+      "localFieldSchema": "TruthRawOpenSceneField/0.85",
+      "localProjectionSchema": "TruthNegativeLocalAuthorityProjection/0.4",
+      "verifiesProjectedRasterSha256": true,
+      "verifiesOpenSceneStateSha256": true,
+      "verifiesLocalFieldPolicySha256": true,
+      "verifiesLocalFieldArtifactSha256": true,
+      "verifiesDownstreamLocalAuthorityArtifactSha256": true,
+      "verifiesAuthorityAndEditBindingArtifactEquality": true,
+      "failClosed": true
+    },
+    "validation": {
+      "run": 35958961941,
+      "headSha": "77f7d49660d5629e79af550d0e4a61d272b4caa2",
+      "status": "SUCCESS",
+      "gcc": "PASS",
+      "clang": "PASS",
+      "authorityContract": "PASS",
+      "androidArm64Build": "PASS",
+      "apkBytes": 6151421,
+      "apkSha256": "79eadbc2cfa16c64f7f896fd054e3608e4f637d020342acf58b5ecb55afb60f7",
+      "artifactId": 10791476986,
+      "artifactName": "truthraw-open-scene-v085-tn4-main-debug-arm64",
+      "artifactDigest": "sha256:c7136c272454d9915287f0331661ad463dbbb942d2d0ffab614fbd8a72a4f391"
+    }
   }
 }
