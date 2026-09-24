@@ -291,6 +291,7 @@ class MainActivity : Activity() {
                 sourceUri = android.net.Uri.parse(snapshot.sourceUri),
                 trrUri = android.net.Uri.parse(snapshot.destinationUri),
                 outputLabel = "Full-res Restoration .trr",
+                applyStoredOrientation = true,
                 requestKey =
                     "trr:" + snapshot.jobId + ":" +
                         (snapshot.containerSha256 ?: snapshot.updatedAtMs.toString()),
@@ -314,6 +315,8 @@ class MainActivity : Activity() {
                 sourceUri = android.net.Uri.parse(snapshot.sourceUri),
                 trrUri = android.net.Uri.parse(snapshot.trrUri),
                 outputLabel = "Restoration " + snapshot.format.label + " projectie",
+                applyStoredOrientation =
+                    snapshot.format != RestorationProjectionFormat.EXR,
                 requestKey =
                     "projection:" + snapshot.format.name + ":" +
                         snapshot.destinationUri + ":" + snapshot.updatedAtMs,
@@ -325,6 +328,7 @@ class MainActivity : Activity() {
         sourceUri: android.net.Uri,
         trrUri: android.net.Uri,
         outputLabel: String,
+        applyStoredOrientation: Boolean,
         requestKey: String,
     ) {
         if (restorationUnifiedPreviewKey == requestKey) return
@@ -356,6 +360,7 @@ class MainActivity : Activity() {
                 trrUri,
                 staging,
                 outputLabel,
+                applyStoredOrientation = applyStoredOrientation,
             )
             finishBackgroundOperation(
                 operationKey,
@@ -2298,9 +2303,11 @@ class MainActivity : Activity() {
                         setImageBitmap(outputPreview.bitmap)
                         adjustViewBounds = true
                         scaleType = ImageView.ScaleType.FIT_CENTER
-                        rotation = userQuarterTurns * 90f
+                        val outputQuarterTurns =
+                            outputPreview.metrics.displayQuarterTurns
+                        rotation = outputQuarterTurns * 90f
                         if (
-                            userQuarterTurns % 2 != 0 &&
+                            outputQuarterTurns % 2 != 0 &&
                             outputPreview.bitmap.width > 0 &&
                             outputPreview.bitmap.height > 0
                         ) {
@@ -2331,7 +2338,8 @@ class MainActivity : Activity() {
                     addView(label(
                         "${om.width}×${om.height} preview uit " +
                             "${om.sourceWidth}×${om.sourceHeight} primary · " +
-                            "space=$sourceSpace · directPrimary=${om.primaryTileSourceUsedDirectly} · " +
+                            "space=$sourceSpace · outputRotation=${om.displayQuarterTurns * 90}° · " +
+                            "directPrimary=${om.primaryTileSourceUsedDirectly} · " +
                             "appearanceAdded=${om.appearanceAddedByPreview} · " +
                             "scientificWriteback=${om.scientificWritebackAllowed}",
                         9.5f,
