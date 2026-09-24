@@ -1,3 +1,15 @@
+# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-24
+
+**Official project/product name from this point forward: `D.RAW`.**
+
+`TruthRaw` remains only where required for historical provenance, sealed evidence,
+legacy schema/wire identifiers, stable Android package/class identities, and
+backward compatibility. Historical documents are not rewritten.
+
+See: `docs/PROJECT_RENAME_DRAW_2026-09-24.md`.
+
+---
+
 # CURRENT MAIN NOTICE — 2026-09-24
 
 **Read first:**
