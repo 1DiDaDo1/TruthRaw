@@ -93,6 +93,43 @@ Dedicated main F64 + color validation:
 
 Dedicated main F64 compiler/sanitizer run `35939327728` is also fully green on GCC, Clang and Clang ASan/UBSan.
 
+## OPEN SCENE FIELD v0.85 / TRUTHNEGATIVE TN-4 — MAIN CODE
+
+The Open Scene / "new house" work is now implemented in the main integration.
+
+Main additions:
+
+- `TruthRawOpenSceneField/0.85`: local per-pixel/per-RGB-channel creation role, authority, uncertainty class, optional p95, support, censor bound/domain and contribution provenance;
+- compact canonical 64x64 tile encoding with uniform / 2-bit / 4-bit / dense fallback;
+- `TruthNegativeLocalAuthorityProjection/0.4`: exact 4x footprint-local authority/provenance projection without creating target measurements;
+- `TruthRawOpenSceneLocalPolicy/0.86`: one local policy for Restoration, Scientific HDR gating and future detail support;
+- TN-4 embeds the v0.85 source-grid field physically per cell;
+- the 16320x12288 Full Colour TruthNegative DNG now carries a procedural per-target-channel local field bound to the exact `PROJECTED_RASTER_SHA256`, avoiding a multi-gigabyte metadata duplication.
+
+Current conservative Camera-5 interpretation remains:
+
+- directly measured uncensored CFA channel -> calibrated-estimate authority at the source coordinate;
+- clipped measured CFA channel -> censored with source-RAW-code bound;
+- reconstructed source RGB channels -> numeric value may exist while scientific authority remains UNKNOWN until admitted uncertainty exists;
+- dense 4x target channels -> `DENSE_PROJECTION + UNKNOWN + UNRESOLVED` unless a future projection uncertainty model is independently admitted.
+
+The local field does not create new evidence, does not promote uncertainty through resampling and does not allow scientific writeback.
+
+Final production validation:
+
+- workflow run: `35943061088`;
+- head: `dbe66ee9f43d92b5412c12d1c4e17a6db9e1d1d5`;
+- status: **SUCCESS**;
+- GCC local-field gates: PASS;
+- Clang local-field gates: PASS;
+- main-project authority invariants: PASS;
+- Android arm64 assembleDebug: PASS;
+- APK bytes: `6,151,421`;
+- APK SHA-256: `a9e5bc9417b80e53ad4d1e08823fac0ecef3e355b64f5de3684db5595a7129fc`;
+- artifact id: `10785173626`;
+- artifact: `truthraw-open-scene-v085-tn4-main-debug-arm64`;
+- artifact digest: `sha256:f87921dd69470bd7e133f30f6e85a7d6a317641a8ffda83137c4e38102c94c17`.
+
 ## FORMAL COLOUR / CALIBRATION AUDIT IS NOW MAIN PROJECT STATE
 
 Read:
