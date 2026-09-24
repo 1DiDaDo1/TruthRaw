@@ -104,7 +104,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 inputCard(
                     iconRes = R.drawable.ic_folder_truthraw,
                     titleText = "Open RAW / DNG",
-                    subtitleText = "Kies een bestaand RAW- of DNG-bestand.",
+                    subtitleText = "DNG volledig · proprietary RAW adapter-afhankelijk.",
                     accent = blue,
                 ) {
                     startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
@@ -137,7 +137,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(if (compactHeight) 14 else 22))
         root.addView(infoStrip(selected))
         root.addView(space(8))
-        root.addView(body("v0.84.2 · drie routes · sealed source → Scientific Master → adaptive compute → vrije ontwikkeling", 11f).apply {
+        root.addView(body("F64 reconstructie · Open Scene v0.85 · TN-4 · Unified Output Preview v0.1", 11f).apply {
             gravity = Gravity.CENTER
         })
 
@@ -260,7 +260,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }
         val detail = when (selected) {
             OUTPUT_ADVANCED -> "Appearance, HDR, Light, Detail en Restoration schrijven nooit terug naar de sealed source of Scientific Master."
-            OUTPUT_PRO -> "Professionele opties veranderen precision- en exportkeuzes, niet de herkomst of evidence-authority."
+            OUTPUT_PRO -> "F64 branch-sensitive compute, Open Scene/local authority en exports veranderen representatie en precisie, nooit de evidence-herkomst."
             else -> "Sealed source → Scientific Master → PURE-projectie. Geen tone, relight of appearance in de route."
         }
         addView(title(heading, 14f))
