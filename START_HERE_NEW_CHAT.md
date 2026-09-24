@@ -14,6 +14,14 @@ Active main integration:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 
+Current green code-bearing checkpoint:
+
+`675265b084577aa0c005905363ab9f6ba39dfc7f`
+
+Final general Android validation: run `35963545440` — **SUCCESS**.
+
+Final Unified Output Preview validation: run `35963625751` — GCC/Clang/route-contract/Android **SUCCESS**.
+
 Current 2026-09-24 architecture checkpoint includes:
 
 - active F64 branch-sensitive Scientific-Master reconstruction with Float32 canonical storage;
