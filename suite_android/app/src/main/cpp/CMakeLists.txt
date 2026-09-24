@@ -53,6 +53,9 @@ add_library(truthraw_ui_preview_bridge SHARED
     canonical_ancestry_v0_77.cpp
     open_scene_canonical_v0_70.cpp
     open_scene_channel_authority_v0_78.cpp
+    open_scene_field_v0_85.cpp
+    open_scene_local_policy_v0_86.cpp
+    truthnegative_local_authority_projection_v0_4.cpp
     output_channel_authority_v0_84.cpp
     truthraw_compute_capabilities_v0_1.cpp
     truthraw_system_headroom_v0_1.cpp
