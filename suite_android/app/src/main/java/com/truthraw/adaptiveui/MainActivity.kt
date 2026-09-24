@@ -1402,7 +1402,18 @@ class MainActivity : Activity() {
                 operationKey = operationKey,
                 onUnexpected = { linearDngStatus = it },
             ) {
-                val exportResult = LinearDngExporter.export(contentResolver, job, destination)
+                val dir = File(
+                    filesDir,
+                    "linear_dng/$expectedJob",
+                ).apply { mkdirs() }
+                val exportResult = LinearDngExporter.export(
+                    contentResolver,
+                    job,
+                    destination,
+                    unifiedOutputPreviewFile =
+                        File(dir, "unified_output_preview.uop1"),
+                    unifiedOutputPreviewMaxEdge = 384,
+                )
                 finishBackgroundOperation(
                     operationKey,
                     exportResult is LinearDngExportResult.Success,
@@ -1413,6 +1424,10 @@ class MainActivity : Activity() {
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is LinearDngExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     linearDngStatus = when (exportResult) {
                         is LinearDngExportResult.Failed -> exportResult.reason
                         is LinearDngExportResult.Success -> {
