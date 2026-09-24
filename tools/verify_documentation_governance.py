@@ -36,6 +36,8 @@ state_text = need("state/CURRENT_PROJECT_STATE_2026-09-16.json")
 current_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-19.json")
 v073_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-20.json")
 v084_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-21.json")
+current_2026_09_24_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-24.json")
+current_2026_09_24_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -124,12 +126,12 @@ except Exception as exc:
 
 if current_2026_09_21.get("schema") != "TruthRawCurrentProjectState/2026-09-21":
     errors.append("current_2026_09_21_project_state_schema_mismatch")
-if current_2026_09_21.get("status") != "CURRENT_RESEARCH_INTEGRATION_STATE_NOT_MAIN_PROMOTION":
-    errors.append("current_2026_09_21_project_state_status_mismatch")
-if current_2026_09_21.get("activeBranch") != "integration/truthraw-suite-v0-84-2-adaptive-compute-router":
-    errors.append("current_2026_09_21_active_branch_mismatch")
-if current_2026_09_21.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md":
-    errors.append("current_2026_09_21_next_chat_handoff_mismatch")
+if current_2026_09_21.get("status") != "CURRENT_FROZEN_INTEGRATION_STATE_REAL_DEVICE_VALIDATION_NEXT":
+    errors.append("historical_2026_09_21_project_state_status_mismatch")
+if current_2026_09_21.get("activeBranch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
+    errors.append("historical_2026_09_21_active_branch_mismatch")
+if current_2026_09_21.get("nextChatHandoff") != "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md":
+    errors.append("historical_2026_09_21_next_chat_handoff_mismatch")
 
 laws_21 = current_2026_09_21.get("permanentLaws") or {}
 for key, expected in {
@@ -160,12 +162,57 @@ if authority_21.get("reconstructedUncertaintyCurrentlyAdmitted") is not False:
 ci_21 = current_2026_09_21.get("ci") or {}
 if ci_21.get("status") != "SUCCESS":
     errors.append("current_2026_09_21_ci_must_be_green")
-if ci_21.get("run") != 35545744042:
-    errors.append("current_2026_09_21_ci_run_mismatch")
-if ci_21.get("headSha") != "86307391ca726c2389fc3468fd79dee8b7dc864b":
-    errors.append("current_2026_09_21_code_head_mismatch")
-if ci_21.get("apkSha256") != "d2f1eb0f76d6b3ca302a98d17d12ec1b2b382280b8d39341c964bb52f44cec3a":
-    errors.append("current_2026_09_21_apk_sha_mismatch")
+if ci_21.get("run") != 35626531163:
+    errors.append("historical_2026_09_21_ci_run_mismatch")
+if ci_21.get("headSha") != "172a100786eb18d4b08564bbfb025a44f42cfa1e":
+    errors.append("historical_2026_09_21_code_head_mismatch")
+if ci_21.get("apkSha256") != "5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e":
+    errors.append("historical_2026_09_21_apk_sha_mismatch")
+
+# Current 2026-09-24 main-integration overlay. The 2026-09-21 freeze is
+# historical provenance; explicit user authorization on 2026-09-24 lifted it.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-09-24.json",
+    "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_09_24_pointer:{required}")
+
+try:
+    current_2026_09_24 = json.loads(current_2026_09_24_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_09_24_project_state_invalid_json:{exc}")
+    current_2026_09_24 = {}
+
+if current_2026_09_24.get("schema") != "TruthRawCurrentProjectState/2026-09-24":
+    errors.append("current_2026_09_24_project_state_schema_mismatch")
+if current_2026_09_24.get("activeBranch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
+    errors.append("current_2026_09_24_active_branch_mismatch")
+
+freeze_24 = current_2026_09_24.get("freeze") or {}
+if freeze_24.get("previousFreezeHistorical") is not True:
+    errors.append("current_2026_09_24_previous_freeze_must_be_historical")
+if freeze_24.get("liftedByExplicitUserInstruction") is not True:
+    errors.append("current_2026_09_24_freeze_lift_authorization_missing")
+if freeze_24.get("codeChangesAllowedOnMainIntegration") is not True:
+    errors.append("current_2026_09_24_main_changes_not_authorized")
+
+laws_24 = current_2026_09_24.get("permanentLaws") or {}
+for key, expected in {
+    "sourceEvidenceImmutable": True,
+    "representationMayExceedSource": True,
+    "knowledgeClaimsMayNotExceedEvidence": True,
+    "measuredReconstructedAppearanceSeparated": True,
+    "appearanceNeverWritesBack": True,
+    "singleFrameAuthorityPreserved": True,
+    "precisionDoesNotIncreaseAuthority": True,
+    "sealedFullFrameStreamingV01ByteFrozen": True,
+}.items():
+    if laws_24.get(key) != expected:
+        errors.append(f"current_2026_09_24_law_mismatch:{key}")
+
+if "Representation can exceed the source. Knowledge claims cannot exceed the evidence." not in current_2026_09_24_handoff:
+    errors.append("current_2026_09_24_handoff_permanent_law_missing")
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
@@ -653,6 +700,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-19.json",
             "state/CURRENT_PROJECT_STATE_2026-09-20.json",
             "state/CURRENT_PROJECT_STATE_2026-09-21.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-24.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
