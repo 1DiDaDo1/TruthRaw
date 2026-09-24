@@ -193,7 +193,7 @@ bool project_target_tile(
 
 bool summarize_full_projection(
     IFieldTileSource& source,
-    IProjectedRgbTileSource& projectedRgb,
+    const field::Digest& projectedRasterSha256,
     std::uint32_t tileEdge,
     ProjectionSummary& out) noexcept {
     out={};
@@ -202,11 +202,15 @@ bool summarize_full_projection(
         if(g.sourceWidth==0u||g.sourceHeight==0u||
            g.targetWidth!=g.sourceWidth*kScale||
            g.targetHeight!=g.sourceHeight*kScale||
-           tileEdge==0u)return false;
+           tileEdge==0u||
+           !std::any_of(
+               projectedRasterSha256.begin(),projectedRasterSha256.end(),
+               [](std::uint8_t v){return v!=0u;}))return false;
 
         truthraw::sha256_v0_69::Hasher h;
         constexpr char domain[]=
             "TruthNegativeLocalAuthorityProjection/0.4\n"
+            "field_value_binding=PROJECTED_RASTER_SHA256\n"
             "target_role=DENSE_PROJECTION\n"
             "measured_target_claims=0\n"
             "resampling_uncertainty_promotion=0\n"
@@ -214,24 +218,23 @@ bool summarize_full_projection(
             "censored_mixed_footprint_fails_to_unknown=1\n"
             "creates_new_evidence=0\n";
         h.update(reinterpret_cast<const std::uint8_t*>(domain),sizeof(domain)-1u);
+        h.update(projectedRasterSha256);
         hash_u32(h,g.sourceWidth);hash_u32(h,g.sourceHeight);
         hash_u32(h,g.targetWidth);hash_u32(h,g.targetHeight);
 
-        std::vector<float> rgb;
         std::vector<field::ChannelRecord> records;
+        std::vector<float> placeholder;
         for(std::uint32_t y=0u;y<g.targetHeight;y+=tileEdge){
             const auto th=std::min(tileEdge,g.targetHeight-y);
             for(std::uint32_t x=0u;x<g.targetWidth;x+=tileEdge){
                 const auto tw=std::min(tileEdge,g.targetWidth-x);
-                rgb.resize(static_cast<std::size_t>(tw)*th*3u);
-                if(!projectedRgb.readTargetRgbTile(
-                        x,y,tw,th,rgb.data(),rgb.size()))return false;
-                if(!project_target_tile(source,x,y,tw,th,rgb,records))return false;
+                placeholder.assign(static_cast<std::size_t>(tw)*th*3u,0.0f);
+                if(!project_target_tile(
+                        source,x,y,tw,th,placeholder,records))return false;
 
                 hash_u32(h,x);hash_u32(h,y);hash_u32(h,tw);hash_u32(h,th);
                 for(const auto& r:records){
                     hash_u32(h,field::classification_word(r));
-                    hash_f32(h,r.value);
                     if(r.boundKnown)hash_f32(h,r.bound);
                     ++out.authorityCounts[authority_index(r.authority)];
                     ++out.contributionMaskCounts[
