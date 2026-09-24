@@ -156,7 +156,7 @@ object TruthNegativeExporter {
                     metrics.width.toLong() * metrics.height.toLong() ||
                 !metrics.fullOpenSceneStateBound ||
                 metrics.openSceneCounterfactualPixels != 0L ||
-                metrics.tnVersion != 3
+                metrics.tnVersion != 4
 
         if (invariantFailure) {
             runCatching { resolver.delete(destination, null, null) }
@@ -201,15 +201,25 @@ object TruthNegativeExporter {
         } ?: return false to "doel kon niet worden teruggelezen"
 
         val required = listOf(
-            "magic=TRUTHNEGATIVE_V0_3_TN3",
-            "container_version=3",
-            "role=TRUTHNEGATIVE_TN3_OPEN_SCENE_SCIENTIFIC_NEGATIVE",
+            "magic=TRUTHNEGATIVE_V0_4_TN4",
+            "container_version=4",
+            "role=TRUTHNEGATIVE_TN4_OPEN_SCENE_LOCAL_AUTHORITY_SCIENTIFIC_NEGATIVE",
             "pixel_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB",
             "sample_encoding=IEEE754_BINARY32_LE",
-            "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE",
+            "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE_OPEN_SCENE_FIELD_V085",
             "dynamic_authority_schema=TRUTHRAW_DYNAMIC_AUTHORITY_GENERIC_FAIL_CLOSED_V0_69",
             "open_scene_state_schema=TRUTHRAW_OPEN_SCENE_FULLFRAME_DENSE_V0_69",
             "open_scene_canonical_schema=TruthRawOpenSceneCanonicalState/0.70",
+            "open_scene_field_schema=TruthRawOpenSceneField/0.85",
+            "open_scene_field_per_pixel_per_channel_authority=1",
+            "open_scene_field_per_pixel_per_channel_uncertainty=1",
+            "open_scene_field_per_pixel_per_channel_bounds=1",
+            "open_scene_field_encoding_changes_scientific_identity=0",
+            "open_scene_field_creates_new_evidence=0",
+            "open_scene_field_scientific_writeback_allowed=0",
+            "truthnegative_local_authority_projection_schema=TruthNegativeLocalAuthorityProjection/0.4",
+            "truthnegative_local_authority_projection_policy=DENSE_ROLE_LOCAL_AUTHORITY_FAIL_CLOSED_NO_UNCERTAINTY_PROMOTION",
+            "truthnegative_local_authority_projection_applied_to_native_grid=0",
             "open_scene_semantic_parent_region=TruthRawOpenSceneRegion/0.7",
             "open_scene_semantic_parent_stream=TruthRawOpenSceneStateSummary/0.8",
             "open_scene_state_1=R_CALIBRATED_ESTIMATE__G_UNKNOWN__B_UNKNOWN",
@@ -229,7 +239,8 @@ object TruthNegativeExporter {
             "counterfactual_observation_created=0",
             "physical_frame_count=1",
             "independent_evidence_count=1",
-            "tn3_full_open_scene_state=1",
+            "tn3_legacy_open_scene_state_retained=1",
+            "tn4_open_scene_field_v085_bound=1",
             "END_HEADER",
         )
         val missing = required.firstOrNull { !header.contains(it) }
@@ -273,6 +284,10 @@ object TruthNegativeExporter {
             "open_scene_state_sha256",
             "open_scene_policy_sha256",
             "open_scene_artifact_sha256",
+            "open_scene_field_content_sha256",
+            "open_scene_field_encoding_sha256",
+            "open_scene_field_policy_sha256",
+            "open_scene_field_artifact_sha256",
         )) {
             val value = header.lineSequence()
                 .firstOrNull { it.startsWith("$field=") }
@@ -283,6 +298,6 @@ object TruthNegativeExporter {
             }
         }
 
-        return true to "TN-3 header + canonical Open Scene v0.70 lineage geverifieerd"
+        return true to "TN-4 header + canonical Open Scene v0.70 + local Open Scene Field v0.85 geverifieerd"
     }
 }
