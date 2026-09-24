@@ -17,17 +17,16 @@ import io.truthraw.debug.MainActivity as DeviceVerificationActivity
 import java.io.File
 
 class TruthRawSettingsActivity : Activity() {
-    private val backgroundColor = Color.rgb(5, 12, 22)
-    private val surface = Color.rgb(10, 22, 37)
-    private val textPrimary = Color.rgb(244, 248, 255)
-    private val textMuted = Color.rgb(158, 178, 205)
-    private val blue = Color.rgb(63, 142, 255)
+    private val backgroundColor = DrawVisualTheme.PAPER_YELLOW
+    private val surface = DrawVisualTheme.PAPER_WHITE
+    private val textPrimary = DrawVisualTheme.INK
+    private val textMuted = DrawVisualTheme.MUTED
+    private val blue = DrawVisualTheme.BLUE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
-        window.statusBarColor = backgroundColor
-        window.navigationBarColor = backgroundColor
+        DrawVisualTheme.applyWindow(this)
         setContentView(buildUi())
     }
 
@@ -106,6 +105,9 @@ class TruthRawSettingsActivity : Activity() {
             ))
         })
 
+        root.addView(space(18))
+        root.addView(DrawVisualTheme.brandFooter(this, 72))
+
         return ScrollView(this).apply {
             isFillViewport = true
             clipToPadding = true
@@ -132,7 +134,7 @@ class TruthRawSettingsActivity : Activity() {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = dp(18).toFloat()
             setColor(surface)
-            setStroke(dp(1), Color.rgb(37, 63, 92))
+            setStroke(dp(1), DrawVisualTheme.BORDER)
         }
         addView(title(heading, 18f))
         addView(space(8))
@@ -147,8 +149,8 @@ class TruthRawSettingsActivity : Activity() {
         background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = dp(13).toFloat()
-            setColor(Color.rgb(14, 30, 49))
-            setStroke(dp(1), Color.rgb(44, 75, 111))
+            setColor(DrawVisualTheme.PAPER_BLUE)
+            setStroke(dp(1), blue)
         }
         setOnClickListener { }
     }
