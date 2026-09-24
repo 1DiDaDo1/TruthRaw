@@ -89,7 +89,9 @@ jobs:
           for f in \
             suite_android/app/src/main/cpp/advanced_preview_bridge.cpp \
             suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp \
+            suite_android/app/src/main/cpp/photo_export_bridge.cpp \
             suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp \
+            suite_android/app/src/main/cpp/restoration_projection_bridge.cpp \
             suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp \
             suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp \
             suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp
