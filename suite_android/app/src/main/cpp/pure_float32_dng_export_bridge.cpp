@@ -17,6 +17,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthnegative_dense_projection_v0_3.h"
 #include "truthnegative_vulkan_dense_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
@@ -34,7 +35,7 @@
 
 namespace {
 
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
