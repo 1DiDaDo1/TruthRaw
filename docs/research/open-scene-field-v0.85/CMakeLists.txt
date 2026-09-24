@@ -16,6 +16,7 @@ add_executable(test_open_scene_field_v085
     "${APP_CPP}/open_scene_field_v0_85.cpp"
     "${APP_CPP}/open_scene_local_policy_v0_86.cpp"
     "${APP_CPP}/truthnegative_local_authority_projection_v0_4.cpp"
+    "${APP_CPP}/truthnegative_dense_local_field_adapter_v0_4.cpp"
 )
 
 target_include_directories(test_open_scene_field_v085 PRIVATE
