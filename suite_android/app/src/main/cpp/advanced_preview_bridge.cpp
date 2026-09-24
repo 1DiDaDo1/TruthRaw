@@ -21,6 +21,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -35,7 +36,7 @@
 namespace {
 
 using truthraw::NeutralReferenceAppearance;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
