@@ -7,7 +7,7 @@ import java.io.File
 import java.util.zip.CRC32
 
 private const val PURE_FLOAT_MAGIC = 0x54525046L
-private const val PURE_FLOAT_PACKET_LONGS = 34
+private const val PURE_FLOAT_PACKET_LONGS = 40
 private const val PURE_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val PURE_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 private const val PURE_POSTWRITE_SCAN_BYTES = 2 * 1024 * 1024
@@ -28,6 +28,8 @@ object PureFloat32DngNativeBridge {
         previewFd: Int,
         previewWidth: Int,
         previewHeight: Int,
+        outputPreviewFd: Int,
+        outputPreviewMaxEdge: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -58,11 +60,20 @@ data class PureFloat32DngMetrics(
     val outputAuthorityUnknownChannels: Long,
     val outputAuthorityCensoredSupportPixels: Long,
     val outputAuthorityArtifactSha256: String,
+    val unifiedOutputPreviewAvailable: Boolean,
+    val unifiedOutputPreviewWidth: Int,
+    val unifiedOutputPreviewHeight: Int,
+    val unifiedOutputPreviewSourceSpaceCode: Int,
+    val unifiedOutputPreviewNegativeClampedComponents: Long,
+    val unifiedOutputPreviewOverOneClampedComponents: Long,
     val postWriteSelfBindingVerified: Boolean = false,
 )
 
 sealed interface PureFloat32DngExportResult {
-    data class Success(val metrics: PureFloat32DngMetrics) : PureFloat32DngExportResult
+    data class Success(
+        val metrics: PureFloat32DngMetrics,
+        val unifiedOutputPreview: UnifiedOutputPreviewResult.Ready? = null,
+    ) : PureFloat32DngExportResult
     data class Failed(val reason: String) : PureFloat32DngExportResult
 }
 
@@ -121,6 +132,8 @@ object PureFloat32DngExporter {
         previewFile: File? = null,
         previewWidth: Int = 0,
         previewHeight: Int = 0,
+        unifiedOutputPreviewFile: File? = null,
+        unifiedOutputPreviewMaxEdge: Int = 384,
     ): PureFloat32DngExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return PureFloat32DngExportResult.Failed(
