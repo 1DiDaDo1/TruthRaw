@@ -150,6 +150,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         setContentView(buildUi())
         autoStartPreviewWhenReady = productionCameraEntry
         setStatus(
@@ -270,7 +271,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.rgb(10, 12, 15))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         applySafeSystemInsets(root)
 
@@ -376,7 +377,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private fun buildResearchCameraUi(): View {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.rgb(10, 12, 15))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         applySafeSystemInsets(root)
         root.addView(LinearLayout(this).apply {
@@ -387,7 +388,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 contentDescription = "Terug"
                 setOnClickListener { finish() }
             }, LinearLayout.LayoutParams(dp(46), dp(46)).apply { marginEnd = dp(6) })
-            addView(label("TruthRaw · Android 17 · v0.14 route replay v0.53", 22f, true),
+            addView(label("D.RAW · Android 17 · v0.14 route replay v0.53", 22f, true),
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
         root.addView(label(
