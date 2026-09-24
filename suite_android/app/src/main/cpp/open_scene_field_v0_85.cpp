@@ -504,18 +504,13 @@ bool decode_tile(
         if(off!=encoded.size()) return false;
 
         for(auto& r:records){
-            // Value is intentionally not duplicated in the metadata encoding.
-            // Decoding reconstructs metadata only; caller binds numeric values from
-            // the Scientific Master / projected raster via the artifact lineage.
+            // The numeric channel value is not duplicated in the metadata stream.
+            // Keep valuePresent exactly as encoded so classification identity can be
+            // verified; value itself is rebound from the Scientific Master/raster.
             r.value=0.0f;
-            if(r.valuePresent) r.valuePresent=false;
-            if(!r.valuePresent){
-                // Validate all non-value axes manually; full validate_record requires
-                // the externally bound numeric value.
-                if(r.p95Known && (!std::isfinite(r.p95)||r.p95<0.0f))return false;
-                if(r.supportKnown && (!std::isfinite(r.support)||r.support<0.0f||r.support>1.0f))return false;
-                if(r.boundKnown && !std::isfinite(r.bound))return false;
-            }
+            if(r.p95Known && (!std::isfinite(r.p95)||r.p95<0.0f))return false;
+            if(r.supportKnown && (!std::isfinite(r.support)||r.support<0.0f||r.support>1.0f))return false;
+            if(r.boundKnown && !std::isfinite(r.bound))return false;
         }
 
         metadata.x=x;metadata.y=y;metadata.width=w;metadata.height=h;
@@ -552,7 +547,15 @@ bool Builder::appendTile(
     if(!decode_tile(encoded,decodedMeta,decoded) ||
        decodedMeta.x!=x||decodedMeta.y!=y||
        decodedMeta.width!=width||decodedMeta.height!=height||
-       decodedMeta.recordCount!=records.size()) return false;
+       decodedMeta.recordCount!=records.size() ||
+       decoded.size()!=records.size()) return false;
+
+    for(std::size_t i=0u;i<records.size();++i){
+        if(classification_word(decoded[i])!=classification_word(records[i]))return false;
+        if(records[i].p95Known && decoded[i].p95!=records[i].p95)return false;
+        if(records[i].supportKnown && decoded[i].support!=records[i].support)return false;
+        if(records[i].boundKnown && decoded[i].bound!=records[i].bound)return false;
+    }
 
     put_u32_hash(contentHasher_,x);put_u32_hash(contentHasher_,y);
     put_u32_hash(contentHasher_,width);put_u32_hash(contentHasher_,height);
