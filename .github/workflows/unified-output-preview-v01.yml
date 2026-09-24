@@ -1,0 +1,105 @@
+name: Unified Output Preview v0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+    paths:
+      - 'suite_android/app/src/main/cpp/unified_output_preview_v0_1.*'
+      - 'suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/unified-output-preview-v0.1/**'
+      - '.github/workflows/unified-output-preview-v01.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    name: ${{ matrix.compiler }} UOP1 gates
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/unified-output-preview-v0.1 \
+                -B build/uop1 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/uop1 --parallel 2
+      - name: Test
+        run: ctest --test-dir build/uop1 --output-on-failure
+      - name: Contract output
+        run: build/uop1/test_unified_output_preview_v01
+
+  contract:
+    name: Unified preview route contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify direct-primary routing
+        run: |
+          set -euo pipefail
+          N='suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
+          M='suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+          U='suite_android/app/src/main/cpp/unified_output_preview_v0_1.cpp'
+          grep -F 'TruthRawUnifiedOutputPreview/0.1' "$U"
+          grep -F 'primaryTileSourceUsedDirectly=true' docs/research/unified-output-preview-v0.1/README.md || true
+          grep -F 'unified_preview::render' "$N"
+          grep -F 'previewPrimary = renderEditSource.get()' "$N"
+          grep -F 'previewPrimary = truthNegativeDense.get()' "$N"
+          grep -F 'unifiedOutputPreviewAvailable = packet[34] != 0L' "$K"
+          test "$(grep -c 'unifiedOutputPreviewFile =' "$M")" -ge 4
+          grep -F 'Uitkomst-preview' "$M"
+          grep -F 'appearanceAddedByPreview: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
+          grep -F 'scientificWritebackAllowed: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
+
+  android:
+    name: Android main integration
+    runs-on: ubuntu-24.04
+    needs: [host, contract]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble debug
+        working-directory: suite_android
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if gradle --no-daemon :app:assembleDebug; then exit 0; fi
+            echo "Gradle attempt $attempt failed; retrying..."
+            sleep $((attempt * 10))
+          done
+          exit 1
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
