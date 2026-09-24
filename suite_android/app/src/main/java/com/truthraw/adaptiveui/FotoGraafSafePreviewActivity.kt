@@ -57,6 +57,7 @@ class FotoGraafSafePreviewActivity : Activity(), TextureView.SurfaceTextureListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         manager = getSystemService(CameraManager::class.java)
         window.setDecorFitsSystemWindows(false)
         setContentView(buildUi())
@@ -77,7 +78,7 @@ class FotoGraafSafePreviewActivity : Activity(), TextureView.SurfaceTextureListe
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(14), dp(14), dp(24))
-            setBackgroundColor(Color.rgb(12, 14, 17))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
                 view.setPadding(dp(14) + bars.left, dp(14) + bars.top, dp(14) + bars.right, dp(24) + bars.bottom)
@@ -122,7 +123,7 @@ class FotoGraafSafePreviewActivity : Activity(), TextureView.SurfaceTextureListe
             startActivity(Intent(this, FotoGraafCameraActivity::class.java))
         })
         root.addView(space(4))
-        root.addView(button("Open TruthRaw processor") {
+        root.addView(button("Open D.RAW processor") {
             closePreview(null)
             startActivity(Intent(this, MainActivity::class.java))
         })
