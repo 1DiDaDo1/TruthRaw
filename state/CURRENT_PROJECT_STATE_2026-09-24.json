@@ -1,6 +1,6 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-24",
-  "status": "CURRENT_MAIN_INTEGRATION_F64_COLOR_OPEN_SCENE_V085_TN4_PROMOTED",
+  "status": "CURRENT_MAIN_F64_OPEN_SCENE_V085_TN4_UOP_V01_INGRESS_SYNC",
   "activeBranch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
   "previousState": "state/CURRENT_PROJECT_STATE_2026-09-21.json",
   "previousFreezeHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
@@ -194,5 +194,102 @@
       "artifactName": "truthraw-open-scene-v085-tn4-main-debug-arm64",
       "artifactDigest": "sha256:c7136c272454d9915287f0331661ad463dbbb942d2d0ffab614fbd8a72a4f391"
     }
-  }
+  },
+  "currentCodeCheckpoint": {
+    "codeBearingHead": "c020af855dfe67bad6b0c9ef9f03d44f74d10999",
+    "note": "Latest code checkpoint before documentation-only state/handoff sync; includes per-output stored-orientation UOP1 contract and UI ingress synchronization."
+  },
+  "rawIngress": {
+    "policy": "FORMAT_SPECIFIC_DECODER_TO_COMMON_IRAWTILESOURCE_FAIL_CLOSED",
+    "wholeRawCopiedToSingleRamBuffer": false,
+    "cameraProcessingDngResealedIndependently": true,
+    "upstreamCameraAuthorityInherited": false,
+    "dng": {
+      "status": "FULL_SCIENTIFIC_ROUTE_WHEN_STRICT_PROFILE_ADMITTED",
+      "decoder": "MULTIVENDOR_RAW_SOURCE_ADAPTER_V0_1_DNG / TileNativeDngSource v0.1",
+      "downstream": [
+        "F64_BRANCH_SENSITIVE_RECONSTRUCTION",
+        "FLOAT32_CANONICAL_SCIENTIFIC_MASTER",
+        "OPEN_SCENE_FIELD_V0_85",
+        "LOCAL_POLICY_V0_86",
+        "TN_4",
+        "UNIFIED_OUTPUT_PREVIEW_V0_1"
+      ],
+      "strictProfile": {
+        "classicTiffMagic42": true,
+        "bigTiff": false,
+        "compression": "UNCOMPRESSED_ONLY_COMPRESSION_1",
+        "sampleStorageBits": 16,
+        "samplesPerPixel": 1,
+        "cfa": "2X2_RGB_BAYER_BGGR_RGGB_GRBG_GBRG",
+        "stripOrTileStorage": true,
+        "blackLevel": "ONE_OR_FOUR_FINITE_VALUES",
+        "whiteLevel": "FINITE_AND_ABOVE_ALL_BLACK_PHASES",
+        "opcodeList2": "GAINMAP_ONLY_WHEN_PRESENT"
+      }
+    },
+    "nikonNef": {
+      "status": "MEASUREMENT_ONLY_CALIBRATION_PENDING",
+      "decoder": "NIKON_NEF_UNCOMPRESSED16_CFA_V0_1",
+      "exactCfaSampleInspection": true,
+      "scientificMasterAllowed": false
+    },
+    "proprietaryPending": [
+      "CANON_CR3",
+      "CANON_CR2",
+      "NIKON_NRW",
+      "SONY_ARW_SRF_SR2",
+      "FUJIFILM_RAF",
+      "PANASONIC_RW2",
+      "OLYMPUS_OM_ORF",
+      "PENTAX_PEF",
+      "LEICA_RWL",
+      "LEAF_MOS",
+      "HASSELBLAD_3FR",
+      "HASSELBLAD_FFF",
+      "PHASE_ONE_IIQ",
+      "SIGMA_X3F",
+      "SAMSUNG_SRW",
+      "EPSON_ERF",
+      "KODAK_DCR_KDC",
+      "MINOLTA_MRW",
+      "MAMIYA_MEF",
+      "GENERIC_RAW"
+    ],
+    "proprietaryPendingMeaning": "IMMUTABLE_HANDLE_ONLY_UNTIL_VALIDATED_DECODER_ADAPTER"
+  },
+  "unifiedOutputPreview": {
+    "activeInMain": true,
+    "schema": "TruthRawUnifiedOutputPreview/0.1",
+    "sourceAdapterSchema": "TruthRawUnifiedOutputPreviewSources/0.1",
+    "sameOutputPrimaryRoute": true,
+    "presentationOnly": true,
+    "createsNewEvidence": false,
+    "scientificWritebackAllowed": false,
+    "addsAppearanceBeyondPrimary": false,
+    "displayQuarterTurnsBoundToStoredOutput": true,
+    "maxEdgeHardLimit": 1024,
+    "routeBindings": {
+      "pureFloat32Dng": "RANDOM_ACCESS_F64_SCIENTIFIC_MASTER_PRIMARY",
+      "fullColourScientificMasterDng": "RANDOM_ACCESS_F64_SCIENTIFIC_MASTER_PRIMARY",
+      "advancedRenderEditDng": "FINAL_RENDER_EDIT_PRIMARY",
+      "truthNegative200MpDng": "DENSE_TRUTHNEGATIVE_PRIMARY",
+      "truthNegativeTn4": "TN4_SCIENTIFIC_MASTER_PRIMARY",
+      "fullResRestoration": "RESTORATION_DERIVATIVE_PRIMARY",
+      "restorationProjection": "RESTORATION_DERIVATIVE_PRIMARY",
+      "linearDng": "EXACT_BOUNDED_U16_PRIMARY_REPRESENTATION",
+      "jpeg": "ACTUALLY_COMMITTED_JPEG_BYTES"
+    }
+  },
+  "uiArchitectureSync": {
+    "date": "2026-09-24",
+    "launcherIngressText": "DNG volledig · proprietary RAW adapter-afhankelijk.",
+    "launcherCoreText": "F64 reconstructie · Open Scene v0.85 · TN-4 · Unified Output Preview v0.1",
+    "advancedHeader": "Canonical Open Scene v0.85 · gedeeld met TN-4/TRR/projecties",
+    "proPrecision": "F32 canonical storage · F64 compute actief",
+    "visibleScientificNegative": "TN-4",
+    "settingsLegacyV0842LabelRemoved": true
+  },
+  "currentArchitectureDocument": "docs/CURRENT_RAW_DNG_INGRESS_AND_OUTPUT_PREVIEW_2026-09-24.md",
+  "nextChatHandoff": "docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md"
 }
