@@ -234,6 +234,46 @@ void test_dense_projection_fail_closed(){
             "dense projection authority invariants");
 }
 
+void test_procedural_dense_binding(){
+    projection::Geometry g{4u,4u,16u,16u};
+    const auto source=digest(11u);
+    const auto master=digest(51u);
+    const auto parent=digest(91u);
+    auto raster=digest(131u);
+
+    projection::ProceduralBinding a{};
+    require(projection::build_procedural_binding(
+                source,master,parent,raster,g,
+                "research_edge_aware_support_limited_measured_preserving_f64_v0_1",
+                a),
+            "procedural dense binding");
+    require(a.perTargetChannelQueryable,"procedural field queryable");
+    require(!a.materializedFieldRequired,"procedural field need not be materialized");
+    require(!a.targetMeasuredClaimsCreated,"procedural field creates no measured target");
+    require(!a.uncertaintyPromotedByResampling,"procedural field cannot promote uncertainty");
+    require(!a.createsNewEvidence&&!a.scientificWritebackAllowed,
+            "procedural field authority invariant");
+
+    auto raster2=raster;
+    raster2[7]^=0x01u;
+    projection::ProceduralBinding b{};
+    require(projection::build_procedural_binding(
+                source,master,parent,raster2,g,
+                "research_edge_aware_support_limited_measured_preserving_f64_v0_1",
+                b),
+            "mutated procedural dense binding");
+    require(a.policySha256==b.policySha256,"raster mutation does not change policy");
+    require(a.artifactSha256!=b.artifactSha256,"raster mutation changes field artifact");
+
+    projection::ProceduralBinding invalid{};
+    const field::Digest zero{};
+    require(!projection::build_procedural_binding(
+                source,master,parent,zero,g,
+                "research_edge_aware_support_limited_measured_preserving_f64_v0_1",
+                invalid),
+            "zero projected raster digest fails closed");
+}
+
 void test_scene_linear_bound_projection(){
     VectorFieldSource source{};
     source.g={1u,1u,4u,4u};
@@ -274,6 +314,7 @@ void test_scene_linear_bound_projection(){
 int main(){
     test_source_field_and_encoding();
     test_dense_projection_fail_closed();
+    test_procedural_dense_binding();
     test_scene_linear_bound_projection();
 
     std::cout<<"OPEN_SCENE_FIELD_V085_PASS\n";
@@ -282,6 +323,7 @@ int main(){
     std::cout<<"censor_bound_domain_preserved=1\n";
     std::cout<<"dense_projection_measured_claims=0\n";
     std::cout<<"dense_projection_uncertainty_promotion=0\n";
+    std::cout<<"procedural_dense_field_binding=1\n";
     std::cout<<"local_hdr_restoration_detail_policy=1\n";
     return 0;
 }
