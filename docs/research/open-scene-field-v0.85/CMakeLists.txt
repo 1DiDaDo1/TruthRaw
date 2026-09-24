@@ -11,6 +11,8 @@ set(V47I "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 set(STREAMING "${REPO_ROOT}/docs/research/full-frame-streaming-v0.1/native")
 set(SCIENTIFIC_MASTER_FLOAT_DNG "${REPO_ROOT}/docs/research/scientific-master-linear-dng-projection-v0.1/native")
 set(TRUTHNEGATIVE_DENSE_V03 "${REPO_ROOT}/docs/research/truthnegative-dense-projection-v0.3/native")
+set(TECHNICAL_BACKPLANE "${REPO_ROOT}/docs/research/technical-backplane-v0.1/native")
+set(TRUTHRANGE_LATENT "${REPO_ROOT}/docs/research/truthrange-latent-binding-v0.2/native")
 
 add_executable(test_open_scene_field_v085
     tests/test_open_scene_field_v085.cpp
@@ -27,6 +29,8 @@ target_include_directories(test_open_scene_field_v085 PRIVATE
     "${STREAMING}"
     "${SCIENTIFIC_MASTER_FLOAT_DNG}"
     "${TRUTHNEGATIVE_DENSE_V03}"
+    "${TECHNICAL_BACKPLANE}"
+    "${TRUTHRANGE_LATENT}"
 )
 
 if(MSVC)
