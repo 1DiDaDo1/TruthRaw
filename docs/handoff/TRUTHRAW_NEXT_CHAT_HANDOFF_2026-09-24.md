@@ -100,6 +100,39 @@ It is now migrated to:
 
 JPG-L remains a JPEG-compatible layered photograph; the front JPEG is presentation/compatibility and the embedded TN-4 scientific layer remains the separate scientific payload.
 
+### Final validation for this handoff checkpoint
+
+General ARM64 main-integration validation:
+
+- workflow: `TruthRaw v0.84.2 Adaptive Compute Router`;
+- run: `35963545440`;
+- code head: `675265b084577aa0c005905363ab9f6ba39dfc7f`;
+- status: **SUCCESS**;
+- Android arm64 assembleDebug: PASS;
+- APK bytes: `6,217,309`;
+- APK SHA-256: `009f04a471f3cdaafc40bd10117e031606c46936e40d64034c55aebbcfd4a4d2`;
+- artifact id: `10793630629`;
+- artifact: `truthraw-v0-84-2-compute-router-debug-arm64`;
+- artifact digest: `sha256:9d01e11b63f41d9f97094aff9bf81029efb5e957d24f9551d3544a65452333aa`.
+
+Dedicated UOP1/output-route validation:
+
+- workflow: `Unified Output Preview v0.1`;
+- run: `35963625751`;
+- workflow head: `b1a0a52c802da20354397ff3a2a98b3a1ec7b948` (same code plus CI contract);
+- status: **SUCCESS**;
+- GCC UOP1 gates: PASS;
+- Clang UOP1 gates: PASS;
+- direct-primary route contract: PASS;
+- Android main integration: PASS;
+- APK bytes: `6,217,309`;
+- APK SHA-256: `8fd3092785d2b84309a14ef4414ff74c40450582519ba68a7bb831b5824b2865`;
+- artifact id: `10793695531`;
+- artifact: `truthraw-unified-output-preview-v01-main-debug-arm64`;
+- artifact digest: `sha256:b9bd4defa7b248240e9089234f4b59081bffb557070934900507c121308ae8c9`.
+
+The APK hashes differ between the two workflows although the code payload is equivalent because they are separate APK build invocations; use the workflow/run/artifact identity when reproducing a specific package.
+
 ## F64 SCIENTIFIC-MASTER RECONSTRUCTION IS NOW MAIN CODE
 
 The F64 work is no longer only a research-branch experiment.
