@@ -77,5 +77,41 @@
     "precisionDoesNotIncreaseAuthority": true,
     "sealedFullFrameStreamingV01ByteFrozen": true
   },
-  "nextWorkPolicy": "Validated improvements may be implemented directly on the main integration branch; do not modify sealed/frozen evidence modules merely to avoid creating a new versioned module."
+  "nextWorkPolicy": "Validated improvements may be implemented directly on the main integration branch; do not modify sealed/frozen evidence modules merely to avoid creating a new versioned module.",
+  "mainValidation": {
+    "status": "SUCCESS",
+    "codeBearingPromotionHead": "ad3a1f465fc77f76972c64b3a806838fbeddc310",
+    "adaptiveComputeRouter": {
+      "run": 35939298642,
+      "headSha": "ad3a1f465fc77f76972c64b3a806838fbeddc310",
+      "status": "SUCCESS",
+      "apkBytes": 6101301,
+      "apkSha256": "ab7efc32561996305cc4884cd7594a1a06259be380f5a0dc5322a42ee9615070",
+      "artifactId": 10784082914,
+      "artifactName": "truthraw-v0-84-2-compute-router-debug-arm64",
+      "artifactDigest": "sha256:2855311de5bc25ceadf5bf45d2d5f4c6f349680e2f30fd20db08a7660aa59f02"
+    },
+    "f64ColorAudit": {
+      "run": 35939324830,
+      "headSha": "eb22ba203240051fc8273fdd1624323477f5e6a7",
+      "status": "SUCCESS",
+      "f64HostPrecision": "PASS",
+      "dngColorGcc": "PASS",
+      "dngColorClang": "PASS",
+      "colorAuthorityContract": "PASS",
+      "androidArm64Build": "PASS",
+      "apkBytes": 6101301,
+      "apkSha256": "d9766f247effe3b64e8734fe34fe87821745ba841d473a5396d6fb689319bb9d",
+      "artifactId": 10783889536,
+      "artifactName": "truthraw-f64-scientific-master-color-audit-v01-debug-arm64",
+      "artifactDigest": "sha256:1c639997838b13131d974c442ffe2eb170548b835d205e001cb58993aafbe6a7"
+    },
+    "dedicatedF64Precision": {
+      "run": 35939327728,
+      "status": "SUCCESS",
+      "gcc": "PASS",
+      "clang": "PASS",
+      "asanUbsan": "PASS"
+    }
+  }
 }
