@@ -12,6 +12,8 @@
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
 #include "scientific_master_f64_reconstruction_v0_1.h"
+#include "unified_output_preview_v0_1.h"
+#include "unified_output_preview_sources_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -33,9 +35,12 @@ using truthraw::preview_surface_v0_1::BoundedSrgbPreviewSink;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
 using truthraw::scientific_preview_binding_v0_2::PreparedScientificPreviewSource;
 using truthraw::tile_dng_v0_1::PosixFdByteSource;
+namespace unified_preview = truthraw::unified_output_preview::v0_1;
+namespace unified_preview_sources =
+    truthraw::unified_output_preview_sources::v0_1;
 
 constexpr jlong kMagic = 0x5452444c; // TRDL
-constexpr std::size_t kPacketLongs = 13u;
+constexpr std::size_t kPacketLongs = 19u;
 constexpr int kExportPreviewEdge = 64;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
@@ -101,9 +106,16 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
     jobject,
     jint sourceFd,
     jint destinationFd,
+    jint outputPreviewFd,
+    jint outputPreviewMaxEdge,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
-    if (sourceFd < 0 || destinationFd < 0 || maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
+    if (sourceFd < 0 || destinationFd < 0 ||
+        ((outputPreviewFd < 0) != (outputPreviewMaxEdge == 0)) ||
+        outputPreviewMaxEdge < 0 ||
+        outputPreviewMaxEdge >
+            static_cast<jint>(unified_preview::kMaxEdgeHardLimit) ||
+        maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
 
@@ -201,6 +213,39 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
         return packet(env, -4);
     }
 
+    unified_preview::Result exactPreview{};
+    bool exactPreviewAvailable=false;
+    if(outputPreviewFd>=0){
+        unified_preview_sources::RandomAccessScientificMasterSource
+            randomMaster(*source,*reconstruction);
+        unified_preview_sources::BoundedU16PrimarySource
+            boundedPrimary(randomMaster);
+        unified_preview::Descriptor descriptor{};
+        descriptor.sourceWidth=projection.width;
+        descriptor.sourceHeight=projection.height;
+        descriptor.maxEdge=static_cast<std::uint32_t>(outputPreviewMaxEdge);
+        descriptor.sourceSpace=unified_preview::SourceSpace::CameraNative;
+        descriptor.cameraToXyzD50=produced.color.cameraToXyzD50;
+        descriptor.outputRole="BOUNDED_U16_LINEAR_DNG_PRIMARY";
+        if(!unified_preview::render(
+                boundedPrimary,
+                descriptor,
+                exactPreview) ||
+           !unified_preview::write_uop1_fd(
+                static_cast<int>(outputPreviewFd),
+                descriptor,
+                exactPreview) ||
+           !exactPreview.primaryTileSourceUsedDirectly ||
+           exactPreview.appearanceAddedByPreview ||
+           exactPreview.scientificWritebackAllowed ||
+           exactPreview.negativeDisplayClampedComponents!=0u ||
+           exactPreview.overOneDisplayClampedComponents!=0u){
+            (void)::ftruncate(outputPreviewFd,0);
+            return packet(env,-6);
+        }
+        exactPreviewAvailable=true;
+    }
+
     std::array<jlong, kPacketLongs> values{};
     values[0] = kMagic;
     values[1] = 0;
@@ -215,6 +260,18 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
     values[10] = projection.fullScientificMasterMaterialized ? 1 : 0;
     values[11] = projection.physicalFrameCount;
     values[12] = projection.independentEvidenceCount;
+    values[13] = exactPreviewAvailable ? 1 : 0;
+    values[14] = exactPreview.width;
+    values[15] = exactPreview.height;
+    values[16] = exactPreviewAvailable
+        ? static_cast<jlong>(
+              static_cast<std::uint8_t>(
+                  unified_preview::SourceSpace::CameraNative))
+        : 0;
+    values[17] = exactPreviewAvailable
+        ? static_cast<jlong>(exactPreview.sampledPrimaryPixels)
+        : 0;
+    values[18] = exactPreviewAvailable ? 1 : 0; // exact bounded-U16 adapter used
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) env->SetLongArrayRegion(out, 0, static_cast<jsize>(values.size()), values.data());
