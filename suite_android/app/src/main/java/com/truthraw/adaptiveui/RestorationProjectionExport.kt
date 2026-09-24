@@ -19,6 +19,15 @@ object RestorationProjectionNativeBridge {
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
+
+    external fun buildUnifiedOutputPreview(
+        sourceFd: Int,
+        trrFd: Int,
+        previewFd: Int,
+        maxEdge: Int,
+        maxSourceResidentBytes: Int,
+        maxLogicalResidentBytes: Int,
+    ): LongArray
 }
 
 enum class RestorationProjectionFormat(
@@ -53,6 +62,139 @@ data class RestorationProjectionMetrics(
 sealed interface RestorationProjectionResult {
     data class Success(val metrics: RestorationProjectionMetrics) : RestorationProjectionResult
     data class Failed(val reason: String) : RestorationProjectionResult
+}
+
+object RestorationUnifiedOutputPreviewBuilder {
+    private const val MAGIC = 0x5452504aL
+    private const val PACKET_LONGS = 20
+    private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
+    private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
+
+    fun build(
+        resolver: ContentResolver,
+        sourceUri: Uri,
+        trrUri: Uri,
+        staging: File,
+        outputLabel: String,
+        maxEdge: Int = 384,
+    ): UnifiedOutputPreviewResult {
+        if (maxEdge !in 1..1024) {
+            return UnifiedOutputPreviewResult.Failed(
+                "Restoration Unified Output Preview maxEdge is buiten contract.",
+            )
+        }
+        staging.parentFile?.mkdirs()
+        staging.delete()
+
+        val source = openRead(resolver, sourceUri)
+            ?: return UnifiedOutputPreviewResult.Failed(
+                "Restoration preview: bron-DNG kon niet worden geopend.",
+            )
+        val trr = openRead(resolver, trrUri)
+            ?: run {
+                source.close()
+                return UnifiedOutputPreviewResult.Failed(
+                    "Restoration preview: .trr kon niet worden geopend.",
+                )
+            }
+        val preview = runCatching {
+            ParcelFileDescriptor.open(
+                staging,
+                ParcelFileDescriptor.MODE_CREATE or
+                    ParcelFileDescriptor.MODE_READ_WRITE or
+                    ParcelFileDescriptor.MODE_TRUNCATE,
+            )
+        }.getOrNull()
+            ?: run {
+                source.close()
+                trr.close()
+                return UnifiedOutputPreviewResult.Failed(
+                    "Restoration preview: UOP1 staging kon niet worden geopend.",
+                )
+            }
+
+        val packet = try {
+            source.use { sourceFd ->
+                trr.use { trrFd ->
+                    preview.use { previewFd ->
+                        RestorationProjectionNativeBridge.buildUnifiedOutputPreview(
+                            sourceFd.fd,
+                            trrFd.fd,
+                            previewFd.fd,
+                            maxEdge,
+                            MAX_SOURCE_RESIDENT_BYTES,
+                            MAX_LOGICAL_RESIDENT_BYTES,
+                        )
+                    }
+                }
+            }
+        } catch (error: Throwable) {
+            staging.delete()
+            return UnifiedOutputPreviewResult.Failed(
+                "Restoration Unified Output Preview faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+
+        if (
+            packet.size != PACKET_LONGS ||
+            packet[0] != MAGIC ||
+            packet[1] != 0L ||
+            packet[2] <= 0L ||
+            packet[3] <= 0L ||
+            packet[4] <= 0L ||
+            packet[5] <= 0L ||
+            packet[6] != 1L ||
+            packet[7] != packet[2] * packet[3] ||
+            packet[10] != 1L ||
+            packet[11] != 0L ||
+            packet[12] != 0L ||
+            packet[13] != 1L ||
+            packet[14] != 1L ||
+            packet[15] != 1L
+        ) {
+            val status = packet.getOrNull(1)?.toString() ?: "pakketfout"
+            staging.delete()
+            return UnifiedOutputPreviewResult.Failed(
+                "Restoration Unified Output Preview native contract faalde (status=" +
+                    status + ").",
+            )
+        }
+
+        val loaded = UnifiedOutputPreviewLoader.load(staging, outputLabel)
+        staging.delete()
+        if (loaded is UnifiedOutputPreviewResult.Ready) {
+            val m = loaded.metrics
+            if (
+                m.width != packet[2].toInt() ||
+                m.height != packet[3].toInt() ||
+                m.sourceWidth != packet[4].toInt() ||
+                m.sourceHeight != packet[5].toInt() ||
+                m.sourceSpaceCode != packet[6].toInt() ||
+                m.sampledPrimaryPixels != packet[7]
+            ) {
+                loaded.bitmap.recycle()
+                return UnifiedOutputPreviewResult.Failed(
+                    "Restoration UOP1 sidecar/native packet binding mismatch.",
+                )
+            }
+        }
+        return loaded
+    }
+
+    private fun openRead(
+        resolver: ContentResolver,
+        uri: Uri,
+    ): ParcelFileDescriptor? = try {
+        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            val path = uri.path ?: return null
+            ParcelFileDescriptor.open(File(path), ParcelFileDescriptor.MODE_READ_ONLY)
+        } else {
+            resolver.openFileDescriptor(uri, "r")
+        }
+    } catch (_: Throwable) {
+        null
+    }
 }
 
 object RestorationProjectionExporter {
