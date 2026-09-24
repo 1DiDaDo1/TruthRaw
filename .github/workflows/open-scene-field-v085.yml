@@ -9,6 +9,8 @@ on:
       - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.*'
       - 'suite_android/app/src/main/cpp/open_scene_local_policy_v0_86.*'
       - 'suite_android/app/src/main/cpp/truthnegative_local_authority_projection_v0_4.*'
+      - 'suite_android/app/src/main/cpp/truthnegative_dense_local_field_adapter_v0_4.*'
+      - 'suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp'
       - 'suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
       - 'suite_android/app/src/main/cpp/CMakeLists.txt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
@@ -62,6 +64,9 @@ jobs:
           grep -F 'unknownMayBecomeMeasured=false' "$L"
           grep -F 'open_scene_field_v0_85.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
           grep -F 'truthnegative_local_authority_projection_v0_4.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          grep -F 'truthnegative_dense_local_field_adapter_v0_4.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          grep -F 'restoration_trigger_uses_open_scene_local_policy=1' suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp
+          grep -F 'TruthNegativeDenseLocalFieldAdapter/0.4' suite_android/app/src/main/cpp/truthnegative_dense_local_field_adapter_v0_4.cpp
           grep -F 'open_scene_local_policy_v0_86.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
           python3 - <<'PY'
           from pathlib import Path
