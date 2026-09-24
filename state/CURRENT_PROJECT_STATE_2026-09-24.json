@@ -1,0 +1,81 @@
+{
+  "schema": "TruthRawCurrentProjectState/2026-09-24",
+  "status": "CURRENT_MAIN_INTEGRATION_F64_SCIENTIFIC_MASTER_COLOR_AUDIT_PROMOTED",
+  "activeBranch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
+  "previousState": "state/CURRENT_PROJECT_STATE_2026-09-21.json",
+  "previousFreezeHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
+  "freeze": {
+    "previousFreezeHistorical": true,
+    "liftedByExplicitUserInstruction": true,
+    "liftedDate": "2026-09-24",
+    "codeChangesAllowedOnMainIntegration": true
+  },
+  "productionPromotion": {
+    "codeBearingPromotionHead": "ad3a1f465fc77f76972c64b3a806838fbeddc310",
+    "promotedFileCount": 19,
+    "temporaryPr33ClosedUnmerged": true,
+    "integrationMethod": "single Git tree/commit directly on current main integration history",
+    "preservedPostFreezeMainHistory": true
+  },
+  "f64ScientificMaster": {
+    "activeInMain": true,
+    "module": "docs/research/scientific-master-f64-reconstruction-v0.1/native/",
+    "stage2Storage": "FLOAT32",
+    "branchSensitiveCompute": "FLOAT64",
+    "reconstructedStorageBoundary": "FLOAT64_TO_FLOAT32_ONCE",
+    "measuredCfaReinjection": "ORIGINAL_FLOAT32_BIT_EXACT",
+    "canonicalV47iCoreByteFrozen": true,
+    "consumers": [
+      "advanced_preview",
+      "source_bound_color_preview",
+      "photo_export",
+      "fullres_restoration_export",
+      "restoration_projection",
+      "linear_dng_export",
+      "pure_float32_dng_export",
+      "truthnegative_export"
+    ],
+    "validation": {
+      "contentEquivalentFullRun": 35938923291,
+      "gcc": "PASS",
+      "clang": "PASS",
+      "asanUbsan": "PASS",
+      "measuredCfaBitExact": true,
+      "reconstructedComponentsTested": 35624,
+      "differingStoredComponents": 11040,
+      "maxAbsStoredDelta": 0.000003039836883544922
+    }
+  },
+  "colorCalibrationAudit": {
+    "activeInMain": true,
+    "currentAuthority": "SOURCE_METADATA_BOUND",
+    "fullPhysicalColorEstablished": false,
+    "dngOneTwoCalibrationSupported": true,
+    "colorMatrixDirection": "PASS",
+    "cameraCalibrationDirection": "PASS",
+    "calibrationSignatureGate": "PASS",
+    "inverseCctInterpolation": "PASS",
+    "neutralToXySolve": "PASS_FAIL_CLOSED_ON_NONCONVERGENCE",
+    "bradfordFallback": "PASS",
+    "bothForwardMatrixEndpoints": "PASS",
+    "singleForwardMatrixAcrossDualRange": "REVIEW_REQUIRED_SOURCE_BOUND_ONLY",
+    "tripleCalibration": "FAIL_CLOSED_UNSUPPORTED",
+    "customIlluminant255IlluminantData": "FAIL_CLOSED_UNSUPPORTED",
+    "producerInternalMatrixPrecision": "FLOAT64",
+    "storedCameraToXyzD50Precision": "FLOAT32",
+    "runtimeCameraToXyzPrecision": "FLOAT32_FUTURE_MAIN_MODULE",
+    "camera5MetadataConsistency": "UNRESOLVED",
+    "independentPhysicalCalibration": "NOT_ESTABLISHED"
+  },
+  "permanentLaws": {
+    "sourceEvidenceImmutable": true,
+    "representationMayExceedSource": true,
+    "knowledgeClaimsMayNotExceedEvidence": true,
+    "measuredReconstructedAppearanceSeparated": true,
+    "appearanceNeverWritesBack": true,
+    "singleFrameAuthorityPreserved": true,
+    "precisionDoesNotIncreaseAuthority": true,
+    "sealedFullFrameStreamingV01ByteFrozen": true
+  },
+  "nextWorkPolicy": "Validated improvements may be implemented directly on the main integration branch; do not modify sealed/frozen evidence modules merely to avoid creating a new versioned module."
+}
