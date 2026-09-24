@@ -58,14 +58,35 @@ class TruthRawProActivity : Activity() {
 
         root.addView(space(12))
         root.addView(card("Precision").apply {
-            addView(title("F32 canonical", 14f))
+            addView(title("F32 canonical storage · F64 compute actief", 14f))
             addView(body(
-                "De huidige Scientific Master-identiteit blijft exact IEEE Float32. F64 mag branch-sensitive compute/reference ondersteunen, " +
-                    "maar wordt niet als extra evidence gepresenteerd.",
+                "De opgeslagen Scientific Master-identiteit blijft exact IEEE Float32. Branch-sensitive reconstructie draait in de hoofdcode actief in Float64 en wordt daarna gecontroleerd naar Float32 canonical storage teruggebracht. " +
+                    "Meer rekenprecisie wordt nooit als extra evidence gepresenteerd.",
                 11.5f,
             ))
             addView(space(8))
-            addView(body("F64 canonical storage blijft geblokkeerd totdat een eigen identity/replay-contract is gevalideerd.", 11.5f))
+            addView(body(
+                "F64 canonical storage blijft apart geblokkeerd totdat een eigen identity/replay-contract daarvoor is gevalideerd.",
+                11.5f,
+            ))
+        })
+
+        root.addView(space(12))
+        root.addView(card("Huidige scientific core").apply {
+            addView(body(
+                "Open Scene Field v0.85 · TruthNegative TN-4 local authority v0.4 · local HDR/Restoration/detail policy v0.86 · Unified Output Preview v0.1. " +
+                    "De outputpreview leest de gekozen primary-route en blijft presentation-only.",
+                12f,
+            ))
+        })
+
+        root.addView(space(12))
+        root.addView(card("RAW / DNG ingress").apply {
+            addView(body(
+                "DNG gebruikt de volledige admitted tile-native Scientific-Master-route. Nikon NEF heeft een beperkte measurement-only uncompressed-16 CFA decoder. " +
+                    "CR3/CR2, ARW, RAF, RW2, ORF, PEF, RWL, 3FR/FFF, IIQ en andere proprietary RAW-formaten worden veilig als immutable bronhandle opgenomen en blijven fail-closed totdat hun decoder-adapter is gekoppeld.",
+                11.5f,
+            ))
         })
 
         root.addView(space(12))
@@ -80,8 +101,8 @@ class TruthRawProActivity : Activity() {
         root.addView(space(12))
         root.addView(card("Hardware acceleration · research").apply {
             addView(body(
-                "Deze probe verandert geen pixels en kiest nog geen accelerator. Hij inventariseert CPU/Vulkan en op Android 17 ook APV-codecs. " +
-                    "CPU_REFERENCE blijft de actieve authority; APV is alleen professionele video/intermediate.",
+                "Deze probe verandert geen pixels. De algemene compute-router blijft CPU_REFERENCE selecteren totdat een kernel afzonderlijk correctness + benchmark-validatie heeft. " +
+                    "ARM64/NEON, Vulkan, ADPF/headroom en dynamische workers worden wel gedetecteerd/gebruikt waar hun eigen contract dat toelaat; de TruthNegative Vulkan-kernel heeft een aparte bit-exact selftest. APV blijft alleen professionele video/intermediate en vervangt de Scientific Master niet.",
                 11.5f,
             ))
             addView(space(8))
