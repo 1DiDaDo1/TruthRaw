@@ -23,6 +23,7 @@
 #include "truthnegative_local_authority_projection_v0_4.h"
 #include "truthnegative_vulkan_dense_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
+#include "unified_output_preview_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -56,9 +57,10 @@ namespace tn_dense_field = truthraw::truthnegative_dense_local_field_adapter::v0
 namespace tn_local_field = truthraw::truthnegative_local_authority_projection::v0_4;
 namespace tn_vulkan = truthraw::truthnegative_vulkan_dense::v0_1;
 namespace sha256 = truthraw::sha256_v0_69;
+namespace unified_preview = truthraw::unified_output_preview::v0_1;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
-constexpr std::size_t kPacketLongs = 34u;
+constexpr std::size_t kPacketLongs = 40u;
 constexpr const char* kPurePrecisionPolicyId =
     "EXACT_SOURCE__F64_BRANCH_SENSITIVE_REFERENCE_POLICY__"
     "F64_CAL_OPT_COV_REFERENCE_POLICY__CONTROLLED_F32_MASTER_STORAGE__"
@@ -244,6 +246,8 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     jint previewFd,
     jint previewWidth,
     jint previewHeight,
+    jint outputPreviewFd,
+    jint outputPreviewMaxEdge,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     constexpr jint kPureMode = 0;
@@ -265,6 +269,10 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
          advancedFlags != 0) ||
         ((previewFd < 0) != (previewWidth == 0 && previewHeight == 0)) ||
         previewWidth < 0 || previewHeight < 0 ||
+        ((outputPreviewFd < 0) != (outputPreviewMaxEdge == 0)) ||
+        outputPreviewMaxEdge < 0 ||
+        outputPreviewMaxEdge >
+            static_cast<jint>(unified_preview::kMaxEdgeHardLimit) ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -902,6 +910,58 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         return packet(env, bindingStatus(postVerified));
     }
 
+    unified_preview::Result unifiedPreview{};
+    bool unifiedPreviewAvailable = false;
+    unified_preview::SourceSpace unifiedPreviewSpace =
+        unified_preview::SourceSpace::CameraNative;
+    if (outputPreviewFd >= 0) {
+        float_dng::IScientificMasterTileSource* previewPrimary = &masterSource;
+        std::string previewRole =
+            "PURE_SCIENTIFIC_MASTER_PRIMARY";
+
+        if (exportMode == kAdvancedRenderEditMode) {
+            previewPrimary = renderEditSource.get();
+            unifiedPreviewSpace = unified_preview::SourceSpace::LinearSrgb;
+            previewRole = "ADVANCED_RENDER_EDIT_PRIMARY";
+        } else if (exportMode == kTruthNegative200MpFullColourMode) {
+            previewPrimary = truthNegativeDense.get();
+            unifiedPreviewSpace = unified_preview::SourceSpace::CameraNative;
+            previewRole = "TRUTHNEGATIVE_200MP_DENSE_PRIMARY";
+        } else if (exportMode == kFullColourScientificMasterMode) {
+            previewRole = "FULL_COLOUR_SCIENTIFIC_MASTER_PRIMARY";
+        }
+
+        if (previewPrimary == nullptr) {
+            sink.abort();
+            return packet(env, -15);
+        }
+
+        unified_preview::Descriptor previewDescriptor{};
+        previewDescriptor.sourceWidth = descriptor.width;
+        previewDescriptor.sourceHeight = descriptor.height;
+        previewDescriptor.maxEdge =
+            static_cast<std::uint32_t>(outputPreviewMaxEdge);
+        previewDescriptor.sourceSpace = unifiedPreviewSpace;
+        previewDescriptor.cameraToXyzD50 = produced.color.cameraToXyzD50;
+        previewDescriptor.outputRole = previewRole;
+
+        if (!unified_preview::render(
+                *previewPrimary,
+                previewDescriptor,
+                unifiedPreview) ||
+            !unified_preview::write_uop1_fd(
+                static_cast<int>(outputPreviewFd),
+                previewDescriptor,
+                unifiedPreview) ||
+            !unifiedPreview.primaryTileSourceUsedDirectly ||
+            unifiedPreview.appearanceAddedByPreview ||
+            unifiedPreview.scientificWritebackAllowed) {
+            sink.abort();
+            return packet(env, -16);
+        }
+        unifiedPreviewAvailable = true;
+    }
+
     std::array<jlong, kPacketLongs> values{};
     values[0] = kMagic;
     values[1] = 0;
@@ -939,6 +999,15 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             (static_cast<std::uint32_t>(d[i+3u])<<24u);
         values[26u+word]=static_cast<jlong>(value);
     }
+    values[34] = unifiedPreviewAvailable ? 1 : 0;
+    values[35] = unifiedPreview.width;
+    values[36] = unifiedPreview.height;
+    values[37] = static_cast<jlong>(
+        static_cast<std::uint8_t>(unifiedPreviewSpace));
+    values[38] = clampToJlong(
+        unifiedPreview.negativeDisplayClampedComponents);
+    values[39] = clampToJlong(
+        unifiedPreview.overOneDisplayClampedComponents);
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
