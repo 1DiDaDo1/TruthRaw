@@ -61,6 +61,38 @@ Validation content-equivalent to the promoted main code passed in workflow run `
 
 This proves the F64 change is not cosmetic: near the existing 0.72 directional boundary it can select a different reconstruction branch while leaving measured source samples unchanged.
 
+## MAIN-BRANCH VALIDATION — GREEN
+
+The promoted main code has now passed both the existing integration workflow and the new dedicated F64/color workflows.
+
+Code-bearing production validation:
+
+- workflow: `TruthRaw v0.84.2 Adaptive Compute Router`;
+- run: `35939298642`;
+- head: `ad3a1f465fc77f76972c64b3a806838fbeddc310`;
+- status: **SUCCESS**;
+- APK bytes: `6,101,301`;
+- APK SHA-256: `ab7efc32561996305cc4884cd7594a1a06259be380f5a0dc5322a42ee9615070`;
+- artifact id: `10784082914`;
+- artifact: `truthraw-v0-84-2-compute-router-debug-arm64`;
+- artifact digest: `sha256:2855311de5bc25ceadf5bf45d2d5f4c6f349680e2f30fd20db08a7660aa59f02`.
+
+Dedicated main F64 + color validation:
+
+- workflow run: `35939324830`;
+- status: **SUCCESS**;
+- F64 host precision: PASS;
+- DNG color v0.2 GCC: PASS;
+- DNG color v0.2 Clang: PASS;
+- color authority/precision contract: PASS;
+- Android arm64 assembleDebug: PASS;
+- APK bytes: `6,101,301`;
+- APK SHA-256: `d9766f247effe3b64e8734fe34fe87821745ba841d473a5396d6fb689319bb9d`;
+- artifact id: `10783889536`;
+- artifact digest: `sha256:1c639997838b13131d974c442ffe2eb170548b835d205e001cb58993aafbe6a7`.
+
+Dedicated main F64 compiler/sanitizer run `35939327728` is also fully green on GCC, Clang and Clang ASan/UBSan.
+
 ## FORMAL COLOUR / CALIBRATION AUDIT IS NOW MAIN PROJECT STATE
 
 Read:
