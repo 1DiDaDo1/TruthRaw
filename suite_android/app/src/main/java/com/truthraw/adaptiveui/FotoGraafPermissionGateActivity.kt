@@ -24,6 +24,7 @@ class FotoGraafPermissionGateActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         launched = savedInstanceState?.getBoolean(STATE_LAUNCHED, false) ?: false
         permissionRequestInFlight = savedInstanceState?.getBoolean(STATE_PERMISSION_IN_FLIGHT, false) ?: false
         setContentView(buildUi())
@@ -100,18 +101,18 @@ class FotoGraafPermissionGateActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(24), dp(32), dp(24), dp(32))
-            setBackgroundColor(Color.rgb(18, 20, 24))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
         root.addView(TextView(this).apply {
             text = "FotoGraaf · Camera toegang"
             textSize = 28f
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         })
         statusView = TextView(this).apply {
             textSize = 15f
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setPadding(0, dp(16), 0, dp(18))
         }
         root.addView(statusView)
