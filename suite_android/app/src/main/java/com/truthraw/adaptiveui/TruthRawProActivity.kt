@@ -118,7 +118,7 @@ class TruthRawProActivity : Activity() {
         })
 
         root.addView(space(10))
-        root.addView(action("Gebruik TRUTHRAW PRO") {
+        root.addView(action("Gebruik D.RAW PRO") {
             getSharedPreferences(TruthRawSuiteLauncherActivity.PREFS, MODE_PRIVATE)
                 .edit()
                 .putString(
@@ -209,7 +209,7 @@ class TruthRawProActivity : Activity() {
             setOnClickListener { finish() }
         }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
         addView(vertical().apply {
-            addView(title("TRUTHRAW PRO", 24f))
+            addView(title("D.RAW PRO", 24f))
             addView(body("Professionele werkbank · dezelfde scientific core", 11.5f))
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
     }
