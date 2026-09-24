@@ -2,7 +2,9 @@
 
 #include "open_scene_field_v0_85.h"
 
+#include <array>
 #include <cstdint>
+#include <span>
 
 namespace truthraw::open_scene_local_policy::v0_86 {
 
@@ -42,7 +44,23 @@ struct Decision final {
     bool unknownMayBecomeMeasured = false;
 };
 
+struct Summary final {
+    std::array<std::uint64_t,4> restorationCounts{};
+    std::array<std::uint64_t,4> hdrCounts{};
+    std::array<std::uint64_t,4> detailCounts{};
+    std::uint64_t recordCount = 0u;
+    bool allScientificHdrEligible = false;
+    bool anyCensored = false;
+    bool anyUnknown = false;
+    bool createsNewEvidence = false;
+    bool scientificWritebackAllowed = false;
+};
+
 bool evaluate(const field::ChannelRecord& record, Decision& out) noexcept;
+
+bool summarize(
+    std::span<const field::ChannelRecord> records,
+    Summary& out) noexcept;
 
 const char* schema_name() noexcept;
 
