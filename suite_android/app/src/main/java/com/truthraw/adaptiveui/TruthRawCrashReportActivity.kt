@@ -14,18 +14,19 @@ import java.io.File
 class TruthRawCrashReportActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         val crash = File(filesDir, TruthRawSuiteApplication.CRASH_FILE)
         val text = if (crash.exists()) crash.readText() else "Geen lokaal crashrapport aanwezig."
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(24))
-            setBackgroundColor(Color.rgb(12, 14, 17))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         root.addView(TextView(this).apply {
-            this.text = "TruthRaw · laatste crash"
+            this.text = "D.RAW · laatste crash"
             textSize = 23f
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
         })
         root.addView(Button(this).apply {
             this.text = "Crashrapport opslaan"
