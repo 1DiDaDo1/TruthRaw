@@ -42,6 +42,7 @@ class Android17Camera5PayloadDeltaActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         window.setDecorFitsSystemWindows(false)
         setContentView(buildUi())
         refreshStatus()
