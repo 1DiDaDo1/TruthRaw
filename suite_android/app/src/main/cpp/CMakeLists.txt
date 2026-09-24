@@ -62,6 +62,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     truthraw_system_headroom_v0_1.cpp
     truthraw_performance_hint_v0_1.cpp
     truthnegative_vulkan_dense_v0_1.cpp
+    unified_output_preview_v0_1.cpp
     bound_uncertainty_admission_v0_79.cpp
     adaptive_detail_v47j_adapter.cpp
     advanced_render_edit_tile_source_v0_1.cpp
