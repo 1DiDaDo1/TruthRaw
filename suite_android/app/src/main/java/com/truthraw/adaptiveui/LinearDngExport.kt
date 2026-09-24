@@ -2,9 +2,11 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.ParcelFileDescriptor
+import java.io.File
 
 private const val LINEAR_DNG_MAGIC = 0x5452444cL
-private const val LINEAR_DNG_PACKET_LONGS = 13
+private const val LINEAR_DNG_PACKET_LONGS = 19
 private const val LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
 
@@ -16,6 +18,8 @@ object LinearDngNativeBridge {
     external fun exportFinalizedLinearDng(
         sourceFd: Int,
         destinationFd: Int,
+        outputPreviewFd: Int,
+        outputPreviewMaxEdge: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -33,10 +37,19 @@ data class LinearDngExportMetrics(
     val fullScientificMasterMaterialized: Boolean,
     val physicalFrameCount: Long,
     val independentEvidenceCount: Long,
+    val unifiedOutputPreviewAvailable: Boolean,
+    val unifiedOutputPreviewWidth: Int,
+    val unifiedOutputPreviewHeight: Int,
+    val unifiedOutputPreviewSourceSpaceCode: Int,
+    val unifiedOutputPreviewSampledPixels: Long,
+    val exactBoundedU16PreviewSourceUsed: Boolean,
 )
 
 sealed interface LinearDngExportResult {
-    data class Success(val metrics: LinearDngExportMetrics) : LinearDngExportResult
+    data class Success(
+        val metrics: LinearDngExportMetrics,
+        val unifiedOutputPreview: UnifiedOutputPreviewResult.Ready? = null,
+    ) : LinearDngExportResult
     data class Failed(val reason: String) : LinearDngExportResult
 }
 
@@ -45,6 +58,8 @@ object LinearDngExporter {
         resolver: ContentResolver,
         job: RawJob,
         destination: Uri,
+        unifiedOutputPreviewFile: File? = null,
+        unifiedOutputPreviewMaxEdge: Int = 384,
     ): LinearDngExportResult {
         return try {
             val source = resolver.openFileDescriptor(job.source.uri, "r")
@@ -54,21 +69,109 @@ object LinearDngExporter {
                     source.close()
                     return LinearDngExportResult.Failed("Bestemmingsprovider gaf geen schrijfbare file descriptor.")
                 }
-            val packet = source.use { sourcePfd ->
-                output.use { outputPfd ->
-                    LinearDngNativeBridge.exportFinalizedLinearDng(
-                        sourcePfd.fd,
-                        outputPfd.fd,
-                        LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES,
-                        LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES,
+
+            val exactPreview = if (unifiedOutputPreviewFile != null) {
+                if (unifiedOutputPreviewMaxEdge !in 1..1024) {
+                    source.close()
+                    output.close()
+                    return LinearDngExportResult.Failed(
+                        "Linear DNG Unified Output Preview maxEdge is buiten contract.",
                     )
                 }
+                unifiedOutputPreviewFile.parentFile?.mkdirs()
+                unifiedOutputPreviewFile.delete()
+                runCatching {
+                    ParcelFileDescriptor.open(
+                        unifiedOutputPreviewFile,
+                        ParcelFileDescriptor.MODE_CREATE or
+                            ParcelFileDescriptor.MODE_READ_WRITE or
+                            ParcelFileDescriptor.MODE_TRUNCATE,
+                    )
+                }.getOrNull()
+                    ?: run {
+                        source.close()
+                        output.close()
+                        return LinearDngExportResult.Failed(
+                            "Linear DNG Unified Output Preview staging kon niet worden geopend.",
+                        )
+                    }
+            } else {
+                null
             }
-            val decoded = decode(packet)
+
+            val packet = source.use { sourcePfd ->
+                output.use { outputPfd ->
+                    if (exactPreview != null) {
+                        exactPreview.use { previewPfd ->
+                            LinearDngNativeBridge.exportFinalizedLinearDng(
+                                sourcePfd.fd,
+                                outputPfd.fd,
+                                previewPfd.fd,
+                                unifiedOutputPreviewMaxEdge,
+                                LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES,
+                                LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES,
+                            )
+                        }
+                    } else {
+                        LinearDngNativeBridge.exportFinalizedLinearDng(
+                            sourcePfd.fd,
+                            outputPfd.fd,
+                            -1,
+                            0,
+                            LINEAR_DNG_MAX_SOURCE_RESIDENT_BYTES,
+                            LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES,
+                        )
+                    }
+                }
+            }
+            val decoded = decode(packet, unifiedOutputPreviewFile != null)
             if (decoded is LinearDngExportResult.Failed) {
+                unifiedOutputPreviewFile?.delete()
                 runCatching { resolver.delete(destination, null, null) }
+                decoded
+            } else {
+                val success = decoded as LinearDngExportResult.Success
+                val previewResult = if (unifiedOutputPreviewFile != null) {
+                    when (
+                        val loaded = UnifiedOutputPreviewLoader.load(
+                            unifiedOutputPreviewFile,
+                            "Bounded Linear DNG",
+                        )
+                    ) {
+                        is UnifiedOutputPreviewResult.Failed -> {
+                            unifiedOutputPreviewFile.delete()
+                            runCatching { resolver.delete(destination, null, null) }
+                            return LinearDngExportResult.Failed(loaded.reason)
+                        }
+                        is UnifiedOutputPreviewResult.Ready -> {
+                            val m = loaded.metrics
+                            if (
+                                m.width != success.metrics.unifiedOutputPreviewWidth ||
+                                m.height != success.metrics.unifiedOutputPreviewHeight ||
+                                m.sourceSpaceCode !=
+                                    success.metrics.unifiedOutputPreviewSourceSpaceCode ||
+                                m.sampledPrimaryPixels !=
+                                    success.metrics.unifiedOutputPreviewSampledPixels
+                            ) {
+                                loaded.bitmap.recycle()
+                                unifiedOutputPreviewFile.delete()
+                                runCatching { resolver.delete(destination, null, null) }
+                                return LinearDngExportResult.Failed(
+                                    "Linear DNG UOP1 sidecar/native packet binding mismatch.",
+                                )
+                            }
+                            loaded
+                        }
+                    }
+                } else {
+                    null
+                }
+                unifiedOutputPreviewFile?.delete()
+                LinearDngExportResult.Success(
+                    success.metrics,
+                    unifiedOutputPreview = previewResult,
+                )
             }
-            decoded
         } catch (error: Throwable) {
             runCatching { resolver.delete(destination, null, null) }
             LinearDngExportResult.Failed(
@@ -77,7 +180,10 @@ object LinearDngExporter {
         }
     }
 
-    private fun decode(packet: LongArray): LinearDngExportResult {
+    private fun decode(
+        packet: LongArray,
+        unifiedOutputPreviewExpected: Boolean,
+    ): LinearDngExportResult {
         if (packet.size != LINEAR_DNG_PACKET_LONGS || packet[0] != LINEAR_DNG_MAGIC) {
             return LinearDngExportResult.Failed("Ongeldig native Linear DNG-resultaat.")
         }
@@ -98,13 +204,37 @@ object LinearDngExporter {
             fullScientificMasterMaterialized = packet[10] != 0L,
             physicalFrameCount = packet[11],
             independentEvidenceCount = packet[12],
+            unifiedOutputPreviewAvailable = packet[13] != 0L,
+            unifiedOutputPreviewWidth = packet[14].toInt(),
+            unifiedOutputPreviewHeight = packet[15].toInt(),
+            unifiedOutputPreviewSourceSpaceCode = packet[16].toInt(),
+            unifiedOutputPreviewSampledPixels = packet[17],
+            exactBoundedU16PreviewSourceUsed = packet[18] != 0L,
         )
         if (metrics.width <= 0L || metrics.height <= 0L || metrics.outputBytes <= 0L ||
             metrics.pixelPayloadBytes <= 0L || metrics.tilesWritten <= 0L ||
             metrics.logicalResidentUpperBoundBytes <= 0L ||
             metrics.logicalResidentUpperBoundBytes > LINEAR_DNG_MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
             metrics.fullScientificMasterMaterialized ||
-            metrics.physicalFrameCount != 1L || metrics.independentEvidenceCount != 1L) {
+            metrics.physicalFrameCount != 1L ||
+            metrics.independentEvidenceCount != 1L ||
+            metrics.unifiedOutputPreviewAvailable != unifiedOutputPreviewExpected ||
+            (unifiedOutputPreviewExpected &&
+                (metrics.unifiedOutputPreviewWidth <= 0 ||
+                    metrics.unifiedOutputPreviewHeight <= 0 ||
+                    metrics.unifiedOutputPreviewWidth > 1024 ||
+                    metrics.unifiedOutputPreviewHeight > 1024 ||
+                    metrics.unifiedOutputPreviewSourceSpaceCode != 1 ||
+                    metrics.unifiedOutputPreviewSampledPixels !=
+                        metrics.unifiedOutputPreviewWidth.toLong() *
+                            metrics.unifiedOutputPreviewHeight.toLong() ||
+                    !metrics.exactBoundedU16PreviewSourceUsed)) ||
+            (!unifiedOutputPreviewExpected &&
+                (metrics.unifiedOutputPreviewWidth != 0 ||
+                    metrics.unifiedOutputPreviewHeight != 0 ||
+                    metrics.unifiedOutputPreviewSourceSpaceCode != 0 ||
+                    metrics.unifiedOutputPreviewSampledPixels != 0L ||
+                    metrics.exactBoundedU16PreviewSourceUsed))) {
             return LinearDngExportResult.Failed(
                 "Fail-closed: Linear DNG schond output-, memory- of evidencecontract.",
             )
@@ -118,6 +248,7 @@ object LinearDngExporter {
         -3L -> "Fail-closed: finalized admission/evidence was niet geldig voor export."
         -4L -> "Fail-closed: geschreven projectie schond het Linear DNG-contract."
         -5L -> "Fail-closed: finalized Backplane/admission en exportbron hebben niet exact dezelfde bronidentiteit."
+        -6L -> "Linear DNG Unified Output Preview kon niet exact uit de bounded U16-primary worden opgebouwd."
 
         2001L -> "Source binding: ongeldig argument."
         2002L -> "Source binding: bron kon niet volledig worden gelezen voor SHA-256."
