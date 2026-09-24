@@ -29,7 +29,7 @@ public:
         for(std::uint32_t y=0;y<h_;++y){
             for(std::uint32_t x=0;x<w_;++x){
                 const std::size_t p=(static_cast<std::size_t>(y)*w_+x)*3u;
-                rgb_[p+0u]=x==0u?-0.25f:static_cast<float>(x)/static_cast<float>(w_-1u);
+                rgb_[p+0u]=x<=1u?-0.25f:static_cast<float>(x)/static_cast<float>(w_-1u);
                 rgb_[p+1u]=static_cast<float>(y)/static_cast<float>(h_-1u);
                 rgb_[p+2u]=x==w_-1u?1.5f:0.25f;
             }
