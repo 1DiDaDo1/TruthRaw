@@ -1,0 +1,60 @@
+name: Scientific Master F64 Reconstruction v0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/scientific-master-f64-color-audit-v01-2026-09-24
+    paths:
+      - 'canonical/reconstruction/v4.7i/native/include/truthraw/core.h'
+      - 'canonical/reconstruction/v4.7i/native/src/core.cpp'
+      - 'docs/research/scientific-master-f64-reconstruction-v0.1/**'
+      - '.github/workflows/scientific-master-f64-reconstruction-v0-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  precision:
+    name: ${{ matrix.compiler }} F64 reconstruction gates
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/scientific-master-f64-reconstruction-v0.1 \
+                -B build/f64-recon -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/f64-recon --parallel 2
+      - name: Precision gates
+        run: ctest --test-dir build/f64-recon --output-on-failure
+      - name: Emit metrics
+        run: build/f64-recon/test_scientific_master_f64_reconstruction_v01
+
+  sanitizer:
+    name: Clang ASan UBSan F64 reconstruction
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S docs/research/scientific-master-f64-reconstruction-v0.1 \
+                -B build/f64-recon-san -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+                -DTRUTHRAW_F64_RECON_ENABLE_SANITIZERS=ON
+      - name: Build
+        run: cmake --build build/f64-recon-san --parallel 2
+      - name: Sanitizer precision gates
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build/f64-recon-san --output-on-failure
