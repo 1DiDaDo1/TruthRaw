@@ -77,6 +77,7 @@ void test_linear_srgb_primary(){
     d.sourceHeight=4u;
     d.maxEdge=4u;
     d.sourceSpace=uop::SourceSpace::LinearSrgb;
+    d.displayQuarterTurns=1u;
     d.outputRole="TEST_LINEAR_PRIMARY";
 
     uop::Result r{};
