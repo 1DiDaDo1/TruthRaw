@@ -31,7 +31,7 @@
 
 namespace {
 
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
@@ -263,7 +263,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
     if (!opened) return packet(env, adapter_status(opened));
     auto& source = openedSource.source;
 
-    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
 
     truthraw::scientific_master_streaming_binding::v0_2::Options scientificOptions;
     scientificOptions.memoryBudgetBytes = static_cast<std::size_t>(maxLogicalResidentBytes);
@@ -353,7 +353,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
 
     struct RestorationWorkerContext final {
         truthraw::android_raw_adapter_bridge::v0_1::OpenedDngSource opened;
-        std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstruction> reconstruction;
+        std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstructionF64> reconstruction;
         streaming::detail::Workspace workspace;
         std::vector<std::uint16_t> raw;
         std::vector<float> gain;
@@ -427,7 +427,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
             return packet(env, -26);
         }
         ctx.reconstruction =
-            std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+            std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
     }
 
     const auto parallelStatus = ordered::run<RestorationTileResult>(
