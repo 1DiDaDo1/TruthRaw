@@ -1,4 +1,5 @@
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -132,7 +133,7 @@ Metrics compare_backends(truthraw::CfaPattern cfa) {
     const auto input = make_stress_tile(w, h);
 
     truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction f32;
-    truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64 f64;
+    truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64 f64;
     std::vector<float> out32(3u * input.size());
     std::vector<float> out64(3u * input.size());
 
