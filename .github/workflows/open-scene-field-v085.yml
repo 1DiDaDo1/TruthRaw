@@ -102,7 +102,16 @@ jobs:
           gradle-version: '8.9'
       - name: Assemble arm64 debug APK
         working-directory: suite_android
-        run: gradle --no-daemon :app:assembleDebug
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if gradle --no-daemon :app:assembleDebug; then
+              exit 0
+            fi
+            echo "Gradle attempt $attempt failed; retrying transient repository/dependency failure..."
+            sleep $((attempt * 10))
+          done
+          exit 1
       - name: Verify APK
         run: |
           set -euo pipefail
