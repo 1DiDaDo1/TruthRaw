@@ -96,8 +96,10 @@ jobs:
           do
             grep -F 'ResearchEdgeAwareMeasuredPreservingReconstructionF64' "$f"
           done
-          grep -F 'research_edge_aware_support_limited_measured_preserving_f64_v47i' \
-            canonical/reconstruction/v4.7i/native/include/truthraw/core.h
+          grep -F 'research_edge_aware_support_limited_measured_preserving_f64_v0_1' \
+            docs/research/scientific-master-f64-reconstruction-v0.1/native/scientific_master_f64_reconstruction_v0_1.h
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/include/truthraw/core.h)" = "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a"
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/src/core.cpp)" = "f79b951ba54cff08db400023e528e4eb91909ba6"
           grep -F 'physically measured CFA component is re-injected directly from the original Float32 input, bit-exact' \
             docs/research/scientific-master-f64-reconstruction-v0.1/README.md
 
