@@ -50,7 +50,7 @@ namespace field85 = truthraw::open_scene_field::v0_85;
 namespace dense_field_v04 = truthraw::truthnegative_local_authority_projection::v0_4;
 
 constexpr jlong kMagic = 0x54524e47; // TRNG
-constexpr std::size_t kPacketLongs = 28u;
+constexpr std::size_t kPacketLongs = 32u;
 constexpr std::size_t kHeaderBytes = 8192u;
 constexpr std::uint32_t kCellEdge = 64u;
 
@@ -772,6 +772,10 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     values[25] = 1; // full Open Scene State dense sidecar hashed
     values[26] = 0; // open-scene counterfactual pixels
     values[27] = 4; // TN-4 Open Scene Field v0.85
+    values[28] = clamp_jlong(openSceneFieldStorageBytes);
+    values[29] = clamp_jlong(openSceneFieldSummary.recordCount);
+    values[30] = clamp_jlong(openSceneFieldSummary.boundKnownCount);
+    values[31] = clamp_jlong(openSceneFieldSummary.supportKnownCount);
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
