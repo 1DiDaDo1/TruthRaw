@@ -8,6 +8,13 @@ on:
     paths:
       - 'suite_android/app/src/main/cpp/unified_output_preview_v0_1.*'
       - 'suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionExport.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/LinearDngExport.kt'
+      - 'suite_android/app/src/main/cpp/restoration_projection_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/unified_output_preview_sources_v0_1.*'
       - 'suite_android/app/src/main/cpp/CMakeLists.txt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
@@ -62,6 +69,14 @@ jobs:
           grep -F 'unifiedOutputPreviewAvailable = packet[34] != 0L' "$K"
           test "$(grep -c 'unifiedOutputPreviewFile =' "$M")" -ge 4
           grep -F 'Uitkomst-preview' "$M"
+          grep -F 'RandomAccessScientificMasterSource' suite_android/app/src/main/cpp/unified_output_preview_sources_v0_1.cpp
+          grep -F 'BoundedU16PrimarySource' suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp
+          grep -F 'TRUTHNEGATIVE_TN4_SCIENTIFIC_MASTER_PRIMARY' suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp
+          grep -F 'FULL_RES_RESTORATION_DERIVATIVE_PRIMARY' suite_android/app/src/main/cpp/restoration_projection_bridge.cpp
+          grep -F 'RestorationUnifiedOutputPreviewBuilder' suite_android/app/src/main/java/com/truthraw/adaptiveui/RestorationProjectionExport.kt
+          grep -F 'loadSavedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'unifiedOutputPreviewFile' suite_android/app/src/main/java/com/truthraw/adaptiveui/LinearDngExport.kt
+          grep -F 'unifiedOutputPreviewFile' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt
           grep -F 'appearanceAddedByPreview: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
           grep -F 'scientificWritebackAllowed: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
 
