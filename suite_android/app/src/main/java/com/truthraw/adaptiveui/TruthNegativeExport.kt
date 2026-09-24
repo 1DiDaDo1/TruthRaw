@@ -2,7 +2,9 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import java.io.BufferedInputStream
+import java.io.File
 
 object TruthNegativeNativeBridge {
     init {
@@ -12,6 +14,8 @@ object TruthNegativeNativeBridge {
     external fun exportTruthNegative(
         sourceFd: Int,
         outputFd: Int,
+        outputPreviewFd: Int,
+        outputPreviewMaxEdge: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -44,17 +48,26 @@ data class TruthNegativeExportMetrics(
     val openSceneFieldRecordCount: Long,
     val openSceneFieldBoundCount: Long,
     val openSceneFieldSupportCount: Long,
+    val unifiedOutputPreviewAvailable: Boolean,
+    val unifiedOutputPreviewWidth: Int,
+    val unifiedOutputPreviewHeight: Int,
+    val unifiedOutputPreviewSourceSpaceCode: Int,
+    val unifiedOutputPreviewNegativeClampedComponents: Long,
+    val unifiedOutputPreviewOverOneClampedComponents: Long,
     val postWriteVerified: Boolean,
 )
 
 sealed interface TruthNegativeExportResult {
-    data class Success(val metrics: TruthNegativeExportMetrics) : TruthNegativeExportResult
+    data class Success(
+        val metrics: TruthNegativeExportMetrics,
+        val unifiedOutputPreview: UnifiedOutputPreviewResult.Ready? = null,
+    ) : TruthNegativeExportResult
     data class Failed(val reason: String) : TruthNegativeExportResult
 }
 
 object TruthNegativeExporter {
     private const val MAGIC = 0x54524e47L
-    private const val PACKET_LONGS = 32
+    private const val PACKET_LONGS = 38
     private const val HEADER_BYTES = 8192
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -63,6 +76,8 @@ object TruthNegativeExporter {
         resolver: ContentResolver,
         job: RawJob,
         destination: Uri,
+        unifiedOutputPreviewFile: File? = null,
+        unifiedOutputPreviewMaxEdge: Int = 384,
     ): TruthNegativeExportResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return TruthNegativeExportResult.Failed(
@@ -85,15 +100,59 @@ object TruthNegativeExporter {
             return TruthNegativeExportResult.Failed("TruthNegative: doel-FD kon niet worden geopend.")
         }
 
+        val exactPreview = if (unifiedOutputPreviewFile != null) {
+            if (unifiedOutputPreviewMaxEdge !in 1..1024) {
+                source.close()
+                output.close()
+                return TruthNegativeExportResult.Failed(
+                    "TruthNegative Unified Output Preview maxEdge is buiten contract.",
+                )
+            }
+            unifiedOutputPreviewFile.parentFile?.mkdirs()
+            unifiedOutputPreviewFile.delete()
+            runCatching {
+                ParcelFileDescriptor.open(
+                    unifiedOutputPreviewFile,
+                    ParcelFileDescriptor.MODE_CREATE or
+                        ParcelFileDescriptor.MODE_READ_WRITE or
+                        ParcelFileDescriptor.MODE_TRUNCATE,
+                )
+            }.getOrNull()
+                ?: run {
+                    source.close()
+                    output.close()
+                    return TruthNegativeExportResult.Failed(
+                        "TruthNegative UOP1 staging kon niet worden geopend.",
+                    )
+                }
+        } else {
+            null
+        }
+
         val packet = try {
             source.use { src ->
                 output.use { dst ->
-                    TruthNegativeNativeBridge.exportTruthNegative(
-                        src.fd,
-                        dst.fd,
-                        MAX_SOURCE_RESIDENT_BYTES,
-                        MAX_LOGICAL_RESIDENT_BYTES,
-                    )
+                    if (exactPreview != null) {
+                        exactPreview.use { preview ->
+                            TruthNegativeNativeBridge.exportTruthNegative(
+                                src.fd,
+                                dst.fd,
+                                preview.fd,
+                                unifiedOutputPreviewMaxEdge,
+                                MAX_SOURCE_RESIDENT_BYTES,
+                                MAX_LOGICAL_RESIDENT_BYTES,
+                            )
+                        }
+                    } else {
+                        TruthNegativeNativeBridge.exportTruthNegative(
+                            src.fd,
+                            dst.fd,
+                            -1,
+                            0,
+                            MAX_SOURCE_RESIDENT_BYTES,
+                            MAX_LOGICAL_RESIDENT_BYTES,
+                        )
+                    }
                 }
             }
         } catch (error: Throwable) {
@@ -141,6 +200,12 @@ object TruthNegativeExporter {
             openSceneFieldRecordCount = packet[29],
             openSceneFieldBoundCount = packet[30],
             openSceneFieldSupportCount = packet[31],
+            unifiedOutputPreviewAvailable = packet[32] != 0L,
+            unifiedOutputPreviewWidth = packet[33].toInt(),
+            unifiedOutputPreviewHeight = packet[34].toInt(),
+            unifiedOutputPreviewSourceSpaceCode = packet[35].toInt(),
+            unifiedOutputPreviewNegativeClampedComponents = packet[36],
+            unifiedOutputPreviewOverOneClampedComponents = packet[37],
             postWriteVerified = false,
         )
 
@@ -170,7 +235,21 @@ object TruthNegativeExporter {
                     3L * metrics.width.toLong() * metrics.height.toLong() ||
                 metrics.openSceneFieldBoundCount != metrics.censoredSamples ||
                 metrics.openSceneFieldSupportCount !=
-                    metrics.width.toLong() * metrics.height.toLong()
+                    metrics.width.toLong() * metrics.height.toLong() ||
+                metrics.unifiedOutputPreviewAvailable !=
+                    (unifiedOutputPreviewFile != null) ||
+                (unifiedOutputPreviewFile != null &&
+                    (metrics.unifiedOutputPreviewWidth <= 0 ||
+                        metrics.unifiedOutputPreviewHeight <= 0 ||
+                        metrics.unifiedOutputPreviewWidth > 1024 ||
+                        metrics.unifiedOutputPreviewHeight > 1024 ||
+                        metrics.unifiedOutputPreviewSourceSpaceCode != 1 ||
+                        metrics.unifiedOutputPreviewNegativeClampedComponents < 0L ||
+                        metrics.unifiedOutputPreviewOverOneClampedComponents < 0L)) ||
+                (unifiedOutputPreviewFile == null &&
+                    (metrics.unifiedOutputPreviewWidth != 0 ||
+                        metrics.unifiedOutputPreviewHeight != 0 ||
+                        metrics.unifiedOutputPreviewSourceSpaceCode != 0))
 
         if (invariantFailure) {
             runCatching { resolver.delete(destination, null, null) }
@@ -187,8 +266,44 @@ object TruthNegativeExporter {
             )
         }
 
+        val previewResult = if (unifiedOutputPreviewFile != null) {
+            when (
+                val loaded = UnifiedOutputPreviewLoader.load(
+                    unifiedOutputPreviewFile,
+                    "TruthNegative TN-4",
+                )
+            ) {
+                is UnifiedOutputPreviewResult.Failed -> {
+                    unifiedOutputPreviewFile.delete()
+                    runCatching { resolver.delete(destination, null, null) }
+                    return TruthNegativeExportResult.Failed(loaded.reason)
+                }
+                is UnifiedOutputPreviewResult.Ready -> {
+                    val p = loaded.metrics
+                    if (
+                        p.width != metrics.unifiedOutputPreviewWidth ||
+                        p.height != metrics.unifiedOutputPreviewHeight ||
+                        p.sourceSpaceCode !=
+                            metrics.unifiedOutputPreviewSourceSpaceCode
+                    ) {
+                        loaded.bitmap.recycle()
+                        unifiedOutputPreviewFile.delete()
+                        runCatching { resolver.delete(destination, null, null) }
+                        return TruthNegativeExportResult.Failed(
+                            "TruthNegative UOP1 sidecar/native packet binding mismatch.",
+                        )
+                    }
+                    loaded
+                }
+            }
+        } else {
+            null
+        }
+        unifiedOutputPreviewFile?.delete()
+
         return TruthNegativeExportResult.Success(
             metrics.copy(postWriteVerified = true),
+            unifiedOutputPreview = previewResult,
         )
     }
 
