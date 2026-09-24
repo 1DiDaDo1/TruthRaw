@@ -107,6 +107,83 @@ bool project_one(
 
 } // namespace
 
+bool build_procedural_binding(
+    const field::Digest& sourceEvidenceSha256,
+    const field::Digest& scientificMasterSha256,
+    const field::Digest& parentOpenSceneSha256,
+    const field::Digest& projectedRasterSha256,
+    const Geometry& geometry,
+    const std::string& reconstructionBackendId,
+    ProceduralBinding& out) noexcept {
+    out={};
+    const auto nonzero=[](const field::Digest& d) noexcept {
+        return std::any_of(d.begin(),d.end(),[](std::uint8_t v){return v!=0u;});
+    };
+    if(!nonzero(sourceEvidenceSha256) ||
+       !nonzero(scientificMasterSha256) ||
+       !nonzero(parentOpenSceneSha256) ||
+       !nonzero(projectedRasterSha256) ||
+       geometry.sourceWidth==0u || geometry.sourceHeight==0u ||
+       geometry.targetWidth!=geometry.sourceWidth*kScale ||
+       geometry.targetHeight!=geometry.sourceHeight*kScale ||
+       reconstructionBackendId.empty()) {
+        return false;
+    }
+
+    truthraw::sha256_v0_69::Hasher policy;
+    constexpr char policyText[]=
+        "schema=TruthNegativeLocalAuthorityProjection/0.4\n"
+        "representation=PROCEDURAL_PER_TARGET_CHANNEL_FIELD\n"
+        "source_field_schema=TruthRawOpenSceneField/0.85\n"
+        "pixel_center_operator=PIXEL_CENTER_BILINEAR_F32_EXACT_ORDER_V0_3\n"
+        "target_creation_role=DENSE_PROJECTION\n"
+        "target_measured_claims=0\n"
+        "uncertainty_promotion_by_resampling=0\n"
+        "source_raw_code_bound_is_not_scene_linear_bound=1\n"
+        "mixed_censor_footprint_fails_closed_unknown=1\n"
+        "materialized_field_required=0\n"
+        "scientific_writeback_allowed=0\n"
+        "creates_new_evidence=0\n";
+    policy.update(
+        reinterpret_cast<const std::uint8_t*>(policyText),
+        sizeof(policyText)-1u);
+    out.policySha256=policy.finalize();
+
+    truthraw::sha256_v0_69::Hasher artifact;
+    constexpr char domain[]=
+        "TRUTHNEGATIVE_PROCEDURAL_LOCAL_AUTHORITY_FIELD_V0_4";
+    artifact.update(
+        reinterpret_cast<const std::uint8_t*>(domain),
+        sizeof(domain)-1u);
+    artifact.update(sourceEvidenceSha256);
+    artifact.update(scientificMasterSha256);
+    artifact.update(parentOpenSceneSha256);
+    artifact.update(projectedRasterSha256);
+    artifact.update(out.policySha256);
+    hash_u32(artifact,geometry.sourceWidth);
+    hash_u32(artifact,geometry.sourceHeight);
+    hash_u32(artifact,geometry.targetWidth);
+    hash_u32(artifact,geometry.targetHeight);
+    artifact.update(
+        reinterpret_cast<const std::uint8_t*>(reconstructionBackendId.data()),
+        reconstructionBackendId.size());
+
+    out.sourceEvidenceSha256=sourceEvidenceSha256;
+    out.scientificMasterSha256=scientificMasterSha256;
+    out.parentOpenSceneSha256=parentOpenSceneSha256;
+    out.projectedRasterSha256=projectedRasterSha256;
+    out.geometry=geometry;
+    out.reconstructionBackendId=reconstructionBackendId;
+    out.artifactSha256=artifact.finalize();
+    out.perTargetChannelQueryable=true;
+    out.materializedFieldRequired=false;
+    out.targetMeasuredClaimsCreated=false;
+    out.uncertaintyPromotedByResampling=false;
+    out.createsNewEvidence=false;
+    out.scientificWritebackAllowed=false;
+    return nonzero(out.policySha256)&&nonzero(out.artifactSha256);
+}
+
 bool project_target_tile(
     IFieldTileSource& source,
     std::uint32_t tx,
