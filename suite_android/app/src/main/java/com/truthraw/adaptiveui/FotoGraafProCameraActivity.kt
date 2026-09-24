@@ -111,6 +111,7 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         cameraManager = getSystemService(CameraManager::class.java)
         setContentView(buildUi())
         scanRoutes()
@@ -144,14 +145,14 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(10), dp(12), dp(24))
-            setBackgroundColor(Color.rgb(10, 12, 15))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         val scroll = ScrollView(this).apply {
             isFillViewport = true
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
-        root.addView(text("TruthRaw · FotoGraaf Pro", 23f, true))
+        root.addView(text("D.RAW · FotoGraaf Pro", 23f, true))
         root.addView(text(
             "v0.5 · runtime fysieke lensroute · Pro exposure/focus · één sample-exact gekoppelde RAW",
             12f,
@@ -184,7 +185,7 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
 
         manualExposureBox = CheckBox(this).apply {
             text = "M · handmatige ISO + sluitertijd"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setOnCheckedChangeListener { _, enabled ->
                 isoInput.isEnabled = enabled
                 exposureUsInput.isEnabled = enabled
@@ -220,7 +221,7 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
 
         manualFocusBox = CheckBox(this).apply {
             text = "MF · AF uit + focusafstand in dioptrie"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setOnCheckedChangeListener { _, enabled ->
                 focusSeek.isEnabled = enabled && focusMaxDiopters > 0f
                 updateFocusLabel()
@@ -244,7 +245,7 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
 
         oisBox = CheckBox(this).apply {
             text = "OIS aanvragen · requested/actual blijven apart"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             isChecked = true
             setOnCheckedChangeListener { _, _ -> restartPreview() }
         }
@@ -895,7 +896,7 @@ class FotoGraafProCameraActivity : Activity(), TextureView.SurfaceTextureListene
 
     private fun numberInput(label: String, decimal: Boolean): EditText = EditText(this).apply {
         hint = label
-        setTextColor(Color.WHITE)
+        setTextColor(DrawVisualTheme.INK)
         setHintTextColor(Color.GRAY)
         inputType = if (decimal) InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL else InputType.TYPE_CLASS_NUMBER
         setPadding(dp(8), dp(4), dp(8), dp(4))
