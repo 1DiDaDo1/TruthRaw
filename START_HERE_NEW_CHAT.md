@@ -1,18 +1,37 @@
-# FINAL CODE FREEZE NOTICE — 2026-09-21
+# CURRENT MAIN NOTICE — 2026-09-24
 
-**Read first:** `docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md`
+**Read first:**
 
-Frozen code-bearing branch/head:
+1. `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+2. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+3. `docs/research/scientific-master-f64-reconstruction-v0.1/README.md`
+4. `docs/research/formal-color-calibration-audit-v0.1/README.md`
+
+Active main integration:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 
+F64 + formal-color production promotion code commit:
+
+`ad3a1f465fc77f76972c64b3a806838fbeddc310`
+
+The user's 2026-09-21 **no-more-code-changes freeze was explicitly lifted on 2026-09-24**. Validated recommendations may now be integrated directly into the main project. Sealed source evidence and byte-frozen scientific reference modules remain immutable; new science must use explicit versioned successors rather than silently rewriting historical reference code.
+
+The 2026-09-21 freeze notice below is preserved as historical provenance only.
+
+---
+
+# HISTORICAL FINAL CODE FREEZE NOTICE — 2026-09-21
+
+**Historical reference:** `docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md`
+
+The historical frozen code-bearing head was:
+
 `172a100786eb18d4b08564bbfb025a44f42cfa1e`
 
-Frozen APK SHA-256:
+Historical frozen APK SHA-256:
 
 `5805d291b163d66e68d5ab98aa4d2971e38b062b724325469d6002fbd8b1917e`
-
-The user explicitly requested **no more code changes**. Documentation commits after the frozen head do not change the APK binary. Real-device validation is the next action. Do not modify code unless the user explicitly lifts the freeze.
 
 ---
 
