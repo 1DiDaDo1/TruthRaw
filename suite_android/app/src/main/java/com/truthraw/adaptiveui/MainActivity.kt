@@ -416,7 +416,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/jpeg"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_${route.lowercase()}_fullres.jpg")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_${route.lowercase()}_fullres.jpg")
         }
         startActivityForResult(intent, REQUEST_SAVE_JPEG)
     }
@@ -439,7 +439,7 @@ class MainActivity : Activity() {
             type = "image/x-adobe-dng"
             putExtra(
                 Intent.EXTRA_TITLE,
-                "${stem}_truthraw_full_colour_scientific_master_float32_v0_1.dng",
+                "${stem}_draw_full_colour_scientific_master_float32_v0_1.dng",
             )
         }
         startActivityForResult(intent, REQUEST_SAVE_FULL_COLOUR_MASTER)
@@ -473,7 +473,7 @@ class MainActivity : Activity() {
             type = "image/x-adobe-dng"
             putExtra(
                 Intent.EXTRA_TITLE,
-                "${stem}_truthraw_truthnegative_200mp_full_colour_float32_v0_1.dng",
+                "${stem}_draw_truthnegative_200mp_full_colour_float32_v0_1.dng",
             )
         }
         startActivityForResult(intent, REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR)
@@ -500,7 +500,7 @@ class MainActivity : Activity() {
             type = "image/x-adobe-dng"
             putExtra(
                 Intent.EXTRA_TITLE,
-                "${stem}_truthraw_advanced_render_edit_float32_v0_1.dng",
+                "${stem}_draw_advanced_render_edit_float32_v0_1.dng",
             )
         }
         startActivityForResult(intent, REQUEST_SAVE_ADVANCED_RENDER_EDIT)
@@ -512,7 +512,7 @@ class MainActivity : Activity() {
         if (ready.jobId != job.id) return
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             pureFloatDngStatus =
-                "TRUTHRAW PURE Float32 is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+                "D.RAW PURE Float32 is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
             render()
             return
         }
@@ -523,7 +523,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/x-adobe-dng"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_pure_float32_v0_63.dng")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_pure_float32_v0_63.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
     }
@@ -565,7 +565,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/octet-stream"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_fullres_restoration_v0_67.trr")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_fullres_restoration_v0_67.trr")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
@@ -603,7 +603,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = format.mimeType
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_restoration_v0_72.${format.extension}")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_restoration_v0_72.${format.extension}")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
@@ -666,7 +666,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/x-adobe-dng"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_linear_v0_1.dng")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_linear_v0_1.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_LINEAR_DNG)
     }
@@ -682,7 +682,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_raw_ingress_empirical_v0_2.json")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_raw_ingress_empirical_v0_2.json")
         }
         startActivityForResult(intent, REQUEST_SAVE_EMPIRICAL_JSON)
     }
@@ -698,7 +698,7 @@ class MainActivity : Activity() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "${stem}_truthraw_nef_measurement_v0_58.json")
+            putExtra(Intent.EXTRA_TITLE, "${stem}_draw_nef_measurement_v0_58.json")
         }
         startActivityForResult(intent, REQUEST_SAVE_NEF_MEASUREMENT_JSON)
     }
@@ -727,7 +727,7 @@ class MainActivity : Activity() {
             if (expectedJob == null || job == null || ready == null ||
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
-                jpegStatus = "JPG-export geblokkeerd: actieve TruthRaw-route veranderde."
+                jpegStatus = "JPG-export geblokkeerd: actieve D.RAW-route veranderde."
                 render()
                 return
             }
@@ -830,7 +830,7 @@ class MainActivity : Activity() {
             if (expectedJob == null || job == null || ready == null ||
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
-                fullColourMasterStatus = "Full Colour Scientific Master geblokkeerd: actieve TruthRaw-route veranderde."
+                fullColourMasterStatus = "Full Colour Scientific Master geblokkeerd: actieve D.RAW-route veranderde."
                 render()
                 return
             }
@@ -936,7 +936,7 @@ class MainActivity : Activity() {
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
                 truthNegative200MpStatus =
-                    "TruthNegative 200MP geblokkeerd: actieve TruthRaw-route veranderde."
+                    "TruthNegative 200MP geblokkeerd: actieve D.RAW-route veranderde."
                 render()
                 return
             }
@@ -1053,7 +1053,7 @@ class MainActivity : Activity() {
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
                 renderEditStatus =
-                    "ADVANCED Render/Edit geblokkeerd: actieve TruthRaw-route veranderde."
+                    "ADVANCED Render/Edit geblokkeerd: actieve D.RAW-route veranderde."
                 render()
                 return
             }
@@ -1165,7 +1165,7 @@ class MainActivity : Activity() {
             pendingPureQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
-                pureFloatDngStatus = "TRUTHRAW PURE Float32-export geannuleerd."
+                pureFloatDngStatus = "D.RAW PURE Float32-export geannuleerd."
                 render()
                 return
             }
@@ -1175,7 +1175,7 @@ class MainActivity : Activity() {
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
                 pureFloatDngStatus =
-                    "TRUTHRAW PURE Float32-export geblokkeerd: actieve finalized preview veranderde."
+                    "D.RAW PURE Float32-export geblokkeerd: actieve finalized preview veranderde."
                 render()
                 return
             }
@@ -1187,7 +1187,7 @@ class MainActivity : Activity() {
                 return
             }
             pureFloatDngStatus =
-                "TRUTHRAW PURE · 32-bit Float DNG wordt opgebouwd… exact Master replay + digest gate."
+                "D.RAW PURE · 32-bit Float DNG wordt opgebouwd… exact Master replay + digest gate."
             render()
 
             startGuardedBackgroundThread(
@@ -1242,7 +1242,7 @@ class MainActivity : Activity() {
                             val m = exportResult.metrics
                             val previewText =
                                 if (preview != null) "embedded neutral JPEG preview" else "zonder preview"
-                            "TRUTHRAW PURE opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                            "D.RAW PURE opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · 32-bit IEEE Float · $previewText · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "Master digest verified=${m.scientificMasterIdentityVerified} · " +
@@ -1844,7 +1844,7 @@ class MainActivity : Activity() {
         loadingStartedAtElapsedMs = SystemClock.elapsedRealtime()
         previewState = TilePreviewUiState.Loading(job.id)
         val operationKey = backgroundOperationKey("preview", job.id)
-        if (!startBackgroundOperation(operationKey, "TruthRaw foto verwerken")) {
+        if (!startBackgroundOperation(operationKey, "D.RAW foto verwerken")) {
             loadingStartedAtElapsedMs = null
             previewState = TilePreviewUiState.Failed(
                 job.id,
@@ -1883,10 +1883,10 @@ class MainActivity : Activity() {
                     operationKey,
                     state is TilePreviewUiState.Ready,
                     when (state) {
-                        is TilePreviewUiState.Ready -> "TruthRaw Advanced/PRO render gereed."
+                        is TilePreviewUiState.Ready -> "D.RAW Advanced/PRO render gereed."
                         is TilePreviewUiState.Failed -> state.reason
-                        is TilePreviewUiState.Loading -> "TruthRaw render bleef onverwacht in loading."
-                        TilePreviewUiState.Idle -> "TruthRaw render gaf onverwacht Idle terug."
+                        is TilePreviewUiState.Loading -> "D.RAW render bleef onverwacht in loading."
+                        TilePreviewUiState.Idle -> "D.RAW render gaf onverwacht Idle terug."
                     },
                 )
                 runOnUiThread {
@@ -1906,10 +1906,10 @@ class MainActivity : Activity() {
                     operationKey,
                     result.state is TilePreviewUiState.Ready,
                     when (val state = result.state) {
-                        is TilePreviewUiState.Ready -> "TruthRaw PURE render gereed."
+                        is TilePreviewUiState.Ready -> "D.RAW PURE render gereed."
                         is TilePreviewUiState.Failed -> state.reason
-                        is TilePreviewUiState.Loading -> "TruthRaw PURE render bleef onverwacht in loading."
-                        TilePreviewUiState.Idle -> "TruthRaw PURE render gaf onverwacht Idle terug."
+                        is TilePreviewUiState.Loading -> "D.RAW PURE render bleef onverwacht in loading."
+                        TilePreviewUiState.Idle -> "D.RAW PURE render gaf onverwacht Idle terug."
                     },
                 )
                 runOnUiThread {
@@ -1967,7 +1967,7 @@ class MainActivity : Activity() {
         }, LinearLayout.LayoutParams(dp(46), dp(46)).apply { marginEnd = dp(6) })
 
         addView(vertical().apply {
-            addView(label("TruthRaw", 22f, bold = true))
+            addView(label("D.RAW", 22f, bold = true))
             addView(label("${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · ${session.selectedCount} RAW geselecteerd", 12f, muted = true))
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
 
@@ -2055,7 +2055,7 @@ class MainActivity : Activity() {
                         muted = true,
                     ))
                     addView(space(8))
-                    addView(actionButton("Start TruthRaw") { requestPreview(active) })
+                    addView(actionButton("Start D.RAW") { requestPreview(active) })
                 } else if (
                     active.source.format.support == RawIngressSupport.NATIVE_SAMPLE_DECODE_CALIBRATION_PENDING &&
                     active.source.format.decoderBackend == RawDecoderBackend.NIKON_NEF_UNCOMPRESSED16_CFA_V0_1
@@ -2155,7 +2155,7 @@ class MainActivity : Activity() {
                     })
                     backgroundOperationStatusView(
                         backgroundOperationKey("preview", active.id),
-                        "TruthRaw foto wordt verwerkt…",
+                        "D.RAW foto wordt verwerkt…",
                     )?.let(::addView)
                 })
                 addView(space(8))
@@ -2182,7 +2182,7 @@ class MainActivity : Activity() {
             is TilePreviewUiState.Ready -> {
                 backgroundOperationStatusView(
                     backgroundOperationKey("preview", active.id),
-                    "TruthRaw render gereed.",
+                    "D.RAW render gereed.",
                 )?.let(::addView)
                 addView(space(5))
                 val userQuarterTurns =
@@ -2201,7 +2201,7 @@ class MainActivity : Activity() {
                         scaleY = ratio
                     }
                     contentDescription =
-                        "Finalized TruthRaw Scientific Preview voor ${active.source.displayName}, " +
+                        "Finalized D.RAW Scientific Preview voor ${active.source.displayName}, " +
                             "user rotation +${userQuarterTurns * 90} graden"
                     if (currentLayoutTier() == LayoutTier.COMPACT) {
                         minimumHeight = dp(180)
@@ -2266,9 +2266,9 @@ class MainActivity : Activity() {
                 val preferredOutput = preferredRoute()
                 addView(label(
                     "Route: " + when (preferredOutput) {
-                        TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED"
-                        TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "TRUTHRAW PRO"
-                        else -> "TRUTHRAW PURE"
+                        TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED"
+                        TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO"
+                        else -> "D.RAW PURE"
                     },
                     11f,
                     bold = true,
@@ -2677,9 +2677,9 @@ class MainActivity : Activity() {
         addView(space(6))
         addView(label(
             when (route) {
-                TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "TRUTHRAW ADVANCED · vrije fotografische ontwikkeling"
-                TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "TRUTHRAW PRO · professionele werkbank"
-                else -> "TRUTHRAW PURE · directe wetenschappelijke route"
+                TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED · vrije fotografische ontwikkeling"
+                TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO · professionele werkbank"
+                else -> "D.RAW PURE · directe wetenschappelijke route"
             },
             13f,
             bold = true,
