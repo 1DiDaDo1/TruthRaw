@@ -10,13 +10,95 @@ The previous 2026-09-21 code freeze is now **historical**. On 2026-09-24 the use
 
 Historical freeze documents and the old frozen commit remain provenance and must not be rewritten as though they never existed.
 
-Production promotion code-bearing commit:
+Current code-bearing checkpoint for the architecture described in this handoff:
+
+`675265b084577aa0c005905363ab9f6ba39dfc7f`
+
+This checkpoint includes the F64/Open-Scene/TN-4 work, synchronized product UI, per-output Unified Output Preview/orientation handling, and the JPG-L migration from an internal TN-3 scientific layer to TN-4.
+
+Historical F64 + formal-colour production-promotion commit:
 
 `ad3a1f465fc77f76972c64b3a806838fbeddc310`
 
-The promotion was applied directly on top of the then-current main integration head `905803ff36bce8d2d5ec98167410771d0d741510`, preserving the eight post-freeze main-history commits.
+That promotion was applied directly on top of the then-current main integration head `905803ff36bce8d2d5ec98167410771d0d741510`, preserving the eight post-freeze main-history commits.
 
 The temporary promotion PR #33 was closed unmerged after the same final file set was installed directly as one Git tree/commit on main.
+
+## CURRENT RAW/DNG INGRESS + OUTPUT PREVIEW — MAIN CODE
+
+Read the dedicated current-state document:
+
+`docs/CURRENT_RAW_DNG_INGRESS_AND_OUTPUT_PREVIEW_2026-09-24.md`
+
+### RAW/DNG ingress
+
+The product UI now reflects the actual backend rather than implying universal proprietary RAW decoding.
+
+Current support:
+
+- **DNG:** full scientific route when the strict DNG profile is admitted;
+- **Nikon NEF:** strict uncompressed-16 CFA **measurement-only** subset; no Scientific Master until calibration/authority requirements are admitted;
+- **CR3/CR2, ARW/SRF/SR2, RAF, RW2, ORF, PEF, RWL, 3FR/FFF, IIQ and other proprietary RAW:** immutable source handle only, decoder adapter pending, fail-closed before Scientific Master;
+- **generic .raw:** no universal scientific decoder.
+
+For an admitted DNG the active route is:
+
+`independent source seal -> source-bound colour -> MultiVendorRawSourceAdapter -> TileNativeDngSource -> Stage-2 -> F64 branch-sensitive reconstruction -> Float32 canonical Scientific Master -> Dynamic Authority/Open Scene -> Open Scene Field v0.85 -> local policy v0.86 -> outputs`.
+
+A camera-origin processing DNG is independently resealed/admitted. It may retain upstream Camera2 acquisition provenance, but it does not inherit scientific authority from that upstream capture.
+
+The strict DNG source currently requires classic TIFF/DNG, uncompressed 16-bit unsigned one-sample CFA storage, an admitted 2x2 RGB Bayer pattern, valid BlackLevel/WhiteLevel and exactly one strip/tile storage model. Unsupported compression, BigTIFF, packed 10/12/14-bit TIFF sample storage and unsupported topology remain fail-closed.
+
+### Unified Output Preview v0.1
+
+UOP1 is now the current output-preview contract.
+
+Rule:
+
+**same stored/selected output primary route, smaller display projection.**
+
+Current route bindings include:
+
+- PURE Float32 DNG -> random-access F64 Scientific-Master primary;
+- Full Colour Scientific Master DNG -> random-access F64 Scientific-Master primary;
+- Advanced Render/Edit DNG -> final Render/Edit primary;
+- TruthNegative 200MP DNG -> dense TruthNegative primary;
+- TruthNegative TN-4 scientific negative -> TN-4 Scientific-Master primary;
+- Full-res Restoration / restoration projections -> restoration derivative primary;
+- compatibility Linear DNG -> exact bounded-U16 primary representation;
+- saved JPEG -> the actually committed JPEG bytes.
+
+UOP1 carries the stored output orientation in `displayQuarterTurns`. The UI now renders each result with its own stored-orientation contract instead of blindly reusing editor rotation.
+
+The preview is presentation-only: no new HDR/detail/restoration/relight, no scientific authority, no writeback.
+
+### UI synchronization
+
+Visible stale wording has been removed:
+
+- launcher: `DNG volledig · proprietary RAW adapter-afhankelijk`;
+- launcher core line: active F64 reconstruction + Open Scene v0.85 + TN-4 + UOP v0.1;
+- Advanced: `Canonical Open Scene v0.85 · gedeeld met TN-4/TRR/projecties`;
+- Advanced Restoration names Open Scene Field v0.85 + local policy v0.86;
+- PRO Precision: `F32 canonical storage · F64 compute actief`;
+- PRO explicitly exposes Open Scene v0.85 / TN-4 v0.4 / local policy v0.86 / UOP v0.1 and the real RAW-ingress matrix;
+- Scientific Negative button says TN-4;
+- Settings no longer labels the current app as the old v0.84.2 architecture.
+
+### JPG-L scientific layer
+
+The layered JPG-L container previously embedded a TN-3 scientific payload. That was stale after TN-4 promotion and also caused a native-signature compile break once UOP arguments were added.
+
+It is now migrated to:
+
+- TN-4 packet contract;
+- `magic=TRUTHNEGATIVE_V0_4_TN4`;
+- Open Scene Field v0.85 markers;
+- local authority projection v0.4 marker;
+- TN-4 manifest role/hash naming;
+- TN-4 science-chunk post-write verification.
+
+JPG-L remains a JPEG-compatible layered photograph; the front JPEG is presentation/compatibility and the embedded TN-4 scientific layer remains the separate scientific payload.
 
 ## F64 SCIENTIFIC-MASTER RECONSTRUCTION IS NOW MAIN CODE
 
