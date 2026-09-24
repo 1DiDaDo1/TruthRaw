@@ -2140,6 +2140,64 @@ class MainActivity : Activity() {
                         muted = true,
                     ))
                 }
+
+                unifiedOutputPreviewState?.let { outputPreview ->
+                    addView(space(8))
+                    addView(label(
+                        "Uitkomst-preview · ${outputPreview.outputLabel}",
+                        12f,
+                        bold = true,
+                    ))
+                    addView(label(
+                        "Zelfde primary tile-source als het opgeslagen resultaat · " +
+                            "alleen display-clamp + sRGB-transfer · geen extra HDR/detail/restoration.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(ImageView(this@MainActivity).apply {
+                        setImageBitmap(outputPreview.bitmap)
+                        adjustViewBounds = true
+                        scaleType = ImageView.ScaleType.FIT_CENTER
+                        rotation = userQuarterTurns * 90f
+                        if (
+                            userQuarterTurns % 2 != 0 &&
+                            outputPreview.bitmap.width > 0 &&
+                            outputPreview.bitmap.height > 0
+                        ) {
+                            val ratio = minOf(
+                                outputPreview.bitmap.width.toFloat() /
+                                    outputPreview.bitmap.height.toFloat(),
+                                outputPreview.bitmap.height.toFloat() /
+                                    outputPreview.bitmap.width.toFloat(),
+                            )
+                            scaleX = ratio
+                            scaleY = ratio
+                        }
+                        contentDescription =
+                            "Exacte uitkomst-preview voor ${outputPreview.outputLabel}"
+                        if (currentLayoutTier() == LayoutTier.COMPACT) {
+                            minimumHeight = dp(160)
+                            maxHeight = dp(300)
+                        }
+                    })
+                    val om = outputPreview.metrics
+                    val sourceSpace = when (om.sourceSpaceCode) {
+                        1 -> "CAMERA_NATIVE"
+                        2 -> "LINEAR_SRGB"
+                        3 -> "XYZ_D50"
+                        else -> "UNKNOWN"
+                    }
+                    addView(label(
+                        "${om.width}×${om.height} preview uit " +
+                            "${om.sourceWidth}×${om.sourceHeight} primary · " +
+                            "space=$sourceSpace · directPrimary=${om.primaryTileSourceUsedDirectly} · " +
+                            "appearanceAdded=${om.appearanceAddedByPreview} · " +
+                            "scientificWriteback=${om.scientificWritebackAllowed}",
+                        9.5f,
+                        muted = true,
+                    ))
+                }
+
                 addView(space(8))
 
                 when (preferredOutput) {
