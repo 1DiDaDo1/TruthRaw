@@ -162,6 +162,22 @@ void test_source_field_and_encoding(){
     require(!summary.createsNewEvidence&&!summary.scientificWritebackAllowed,
             "field never upgrades evidence");
 
+    policy::Summary localSummary{};
+    require(policy::summarize(records,localSummary),"local policy tile summary");
+    require(localSummary.recordCount==records.size(),"local policy record count");
+    require(localSummary.anyCensored&&localSummary.anyUnknown,
+            "local policy sees censored and unknown channels");
+    require(!localSummary.allScientificHdrEligible,
+            "local scientific HDR fails closed with unknown/censored");
+    require(localSummary.hdrCounts[2]==1u,
+            "one censored HDR channel blocked");
+    require(localSummary.hdrCounts[3]==32u,
+            "unknown HDR channels blocked");
+    require(localSummary.detailCounts[2]==1u&&localSummary.detailCounts[3]==32u,
+            "detail support blocks censored and unknown");
+    require(!localSummary.createsNewEvidence&&!localSummary.scientificWritebackAllowed,
+            "local policy summary cannot create/write science");
+
     policy::Decision d{};
     require(policy::evaluate(records[2],d),"policy measured/censored eval");
     require(d.restoration==policy::RestorationDisposition::CensorBoundOnly,
