@@ -35,15 +35,61 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setDecorFitsSystemWindows(false)
-        DrawVisualTheme.applyWindow(this)
-        setContentView(buildUi())
+        runCatching { window.setDecorFitsSystemWindows(false) }
+        runCatching { DrawVisualTheme.applyWindow(this) }
+        val content = runCatching { buildUi() }.getOrElse { buildSafeUi() }
+        setContentView(content)
     }
 
     override fun onResume() {
         super.onResume()
-        DrawVisualTheme.applyWindow(this)
-        setContentView(buildUi())
+        runCatching { DrawVisualTheme.applyWindow(this) }
+    }
+
+
+    private fun buildSafeUi(): ScrollView {
+        val root = vertical().apply {
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
+            setPadding(dp(18), dp(18), dp(18), dp(24))
+            addView(title("D.RAW", 34f).apply { gravity = Gravity.CENTER })
+            addView(body("BEYOND THE OBVIOUS", 12f).apply { gravity = Gravity.CENTER })
+            addView(space(20))
+            addView(title("Kies route", 24f))
+            addView(action("D.RAW PURE") { setPreferredOutput(OUTPUT_PURE) })
+            addView(space(8))
+            addView(action("D.RAW ADVANCED") {
+                setPreferredOutput(OUTPUT_ADVANCED)
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawAdvancedActivity::class.java))
+            })
+            addView(space(8))
+            addView(action("D.RAW PRO") {
+                setPreferredOutput(OUTPUT_PRO)
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawProActivity::class.java))
+            })
+            addView(space(20))
+            addView(title("Kies invoer", 24f))
+            addView(action("Bestand · Open RAW / DNG") {
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
+                })
+            })
+            addView(space(8))
+            addView(action("Camera · Maak één fysieke RAW") {
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraaf200MpStagedActivity::class.java).apply {
+                    putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
+                })
+            })
+            addView(space(18))
+            addView(body("Evidence-bound computational photography and open scene reconstruction", 10.5f).apply {
+                gravity = Gravity.CENTER
+            })
+        }
+        return ScrollView(this).apply {
+            isFillViewport = true
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
+            addView(root)
+        }
     }
 
     private fun buildUi(): ScrollView {
@@ -234,8 +280,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
             addView(space(4))
             addView(body(detail, if (compactHeight) 10.7f else 11.8f))
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        addView(PencilScribbleView(this@TruthRawSuiteLauncherActivity, accent),
-            LinearLayout.LayoutParams(dp(54), dp(54)).apply { marginStart = dp(6) })
         setOnClickListener { action() }
     }
 
@@ -266,8 +310,6 @@ class TruthRawSuiteLauncherActivity : Activity() {
         addView(title(titleText, if (compactHeight) 15.5f else 17f).apply { gravity = Gravity.CENTER })
         addView(space(2))
         addView(body(subtitleText, if (compactHeight) 10.5f else 11.5f).apply { gravity = Gravity.CENTER })
-        addView(PencilScribbleView(this@TruthRawSuiteLauncherActivity, accent),
-            LinearLayout.LayoutParams(dp(52), dp(22)).apply { topMargin = dp(3) })
         setOnClickListener { action() }
     }
 

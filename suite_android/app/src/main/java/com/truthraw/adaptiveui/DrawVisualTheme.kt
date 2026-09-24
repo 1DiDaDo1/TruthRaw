@@ -7,7 +7,6 @@ import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -33,9 +32,6 @@ object DrawVisualTheme {
     fun applyWindow(activity: Activity) {
         activity.window.statusBarColor = PAPER_YELLOW
         activity.window.navigationBarColor = PAPER_WHITE
-        val light = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-            WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-        activity.window.insetsController?.setSystemBarsAppearance(light, light)
     }
 
     fun rounded(activity: Activity, fill: Int, stroke: Int, radiusDp: Float = 18f, strokeDp: Int = 1) =
