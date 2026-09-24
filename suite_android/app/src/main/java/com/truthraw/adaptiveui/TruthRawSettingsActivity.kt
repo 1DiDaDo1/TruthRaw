@@ -48,14 +48,14 @@ class TruthRawSettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("Instellingen", 26f))
-                addView(body("TruthRaw v0.84.2 · PURE / ADVANCED / PRO · adaptive compute", 11.5f))
+                addView(body("TruthRaw main · F64 reconstructie · Open Scene v0.85 · TN-4 · UOP v0.1", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
         root.addView(space(18))
         root.addView(sectionCard("Interface").apply {
             addView(body(
-                "De normale productieroute staat op het hoofdscherm: kies PURE, ADVANCED of PRO en daarna RAW/DNG of Camera. " +
+                "De normale productieroute staat op het hoofdscherm: kies PURE, ADVANCED of PRO en daarna RAW/DNG of Camera. DNG gebruikt de volledige admitted scientific route; proprietary RAW blijft adapter-afhankelijk en fail-closed. " +
                     "Instellingen bevat daarom geen dubbele productieknoppen meer.",
                 12.5f,
             ))
