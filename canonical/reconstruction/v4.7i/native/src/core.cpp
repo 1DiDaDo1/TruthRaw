@@ -70,6 +70,39 @@ static inline float support_limited(float estimate,const float* vals,int n){
     return clampf(estimate,lo-margin,hi+margin);
 }
 
+static inline double sample_clamped_f64(const float* a,int w,int h,int x,int y){
+    x=std::max(0,std::min(w-1,x));
+    y=std::max(0,std::min(h-1,y));
+    return static_cast<double>(a[std::size_t(y)*w+x]);
+}
+
+static inline double directional_blend_f64(double a,double b,double ga,double gb){
+    constexpr double e=1e-7;
+    if(ga<0.72*gb)return a;
+    if(gb<0.72*ga)return b;
+    const double wa=1.0/(ga+e),wb=1.0/(gb+e);
+    return (wa*a+wb*b)/(wa+wb);
+}
+
+static inline void directional_axis_f64(
+    const float* a,int w,int h,int x,int y,int dx,int dy,double measured,
+    double& est,double& grad){
+    const double p=sample_clamped_f64(a,w,h,x-dx,y-dy);
+    const double q=sample_clamped_f64(a,w,h,x+dx,y+dy);
+    const double c0=sample_clamped_f64(a,w,h,x-2*dx,y-2*dy);
+    const double c1=sample_clamped_f64(a,w,h,x+2*dx,y+2*dy);
+    const double curvature=2.0*measured-c0-c1;
+    est=0.5*(p+q)+0.25*curvature;
+    grad=std::abs(p-q)+0.5*std::abs(curvature);
+}
+
+static inline double support_limited_f64(double estimate,const double* vals,int n){
+    double lo=vals[0],hi=vals[0];
+    for(int i=1;i<n;++i){lo=std::min(lo,vals[i]);hi=std::max(hi,vals[i]);}
+    const double margin=0.125*(hi-lo)+1e-5;
+    return std::max(lo-margin,std::min(hi+margin,estimate));
+}
+
 struct Oklab{float L,a,b;};
 static inline Oklab linear_srgb_to_oklab(float r,float g,float b){
     r=std::max(r,0.f);g=std::max(g,0.f);b=std::max(b,0.f);
@@ -168,6 +201,128 @@ Status ResearchEdgeAwareMeasuredPreservingReconstruction::reconstructTile(const 
             }
             std::size_t oi=std::size_t(cy)*coreW+cx;
             out[3*oi]=rgb[0];out[3*oi+1]=rgb[1];out[3*oi+2]=rgb[2];
+        }
+    }
+    return Status::ok();
+}
+
+Status ResearchEdgeAwareMeasuredPreservingReconstructionF64::reconstructTile(
+    const float* a,int w,int h,int ghx0,int ghy0,
+    int coreX0,int coreY0,int coreW,int coreH,CfaPattern cfa,float* out){
+    if(!a||!out||w<=0||h<=0)
+        return Status::error(StatusCode::InvalidArgument,"invalid f64 research reconstruction tile");
+
+    thread_local std::vector<double> greenScratchF64;
+    greenScratchF64.resize(std::size_t(w)*h);
+    auto& green=greenScratchF64;
+
+    for(int ly=0;ly<h;++ly){
+        const int gy=ghy0+ly;
+        for(int lx=0;lx<w;++lx){
+            const int gx=ghx0+lx;
+            const int c=color_for_phase(cfa,phase_index(gy,gx));
+            const float measuredF32=sample_clamped(a,w,h,lx,ly);
+            const double measured=static_cast<double>(measuredF32);
+            if(c==1){
+                green[std::size_t(ly)*w+lx]=measured;
+                continue;
+            }
+
+            double eh=0.0,ev=0.0,gh=0.0,gv=0.0;
+            directional_axis_f64(a,w,h,lx,ly,1,0,measured,eh,gh);
+            directional_axis_f64(a,w,h,lx,ly,0,1,measured,ev,gv);
+            const double ge=directional_blend_f64(eh,ev,gh,gv);
+            const double support[4]={
+                sample_clamped_f64(a,w,h,lx-1,ly),
+                sample_clamped_f64(a,w,h,lx+1,ly),
+                sample_clamped_f64(a,w,h,lx,ly-1),
+                sample_clamped_f64(a,w,h,lx,ly+1)
+            };
+            green[std::size_t(ly)*w+lx]=support_limited_f64(ge,support,4);
+        }
+    }
+
+    auto colorDiffEstimate=[&](int lx,int ly,int targetColor,const int* xy,int n)->double{
+        const double gc=green[std::size_t(ly)*w+lx];
+        double sum=0.0;
+        double ws=0.0;
+        for(int i=0;i<n;++i){
+            const int xx=std::max(0,std::min(w-1,xy[2*i]));
+            const int yy=std::max(0,std::min(h-1,xy[2*i+1]));
+            const int gx=ghx0+xx;
+            const int gy=ghy0+yy;
+            if(color_for_phase(cfa,phase_index(gy,gx))!=targetColor)continue;
+            const double gn=green[std::size_t(yy)*w+xx];
+            const double cn=static_cast<double>(a[std::size_t(yy)*w+xx]);
+            const double wt=1.0/(1e-4+std::abs(gn-gc));
+            sum+=wt*(cn-gn);
+            ws+=wt;
+        }
+
+        const double est=ws>0.0?gc+sum/ws:gc;
+        double vals[4]={gc,gc,gc,gc};
+        int vc=0;
+        for(int i=0;i<n&&vc<4;++i){
+            const int xx=std::max(0,std::min(w-1,xy[2*i]));
+            const int yy=std::max(0,std::min(h-1,xy[2*i+1]));
+            const int gx=ghx0+xx;
+            const int gy=ghy0+yy;
+            if(color_for_phase(cfa,phase_index(gy,gx))==targetColor){
+                vals[vc++]=static_cast<double>(a[std::size_t(yy)*w+xx]);
+            }
+        }
+        return vc>0?support_limited_f64(est,vals,vc):gc;
+    };
+
+    for(int cy=0;cy<coreH;++cy){
+        const int gy=coreY0+cy;
+        const int ly=gy-ghy0;
+        for(int cx=0;cx<coreW;++cx){
+            const int gx=coreX0+cx;
+            const int lx=gx-ghx0;
+            const int c=color_for_phase(cfa,phase_index(gy,gx));
+            const float measured=sample_clamped(a,w,h,lx,ly);
+            double rgb64[3]={0.0,green[std::size_t(ly)*w+lx],0.0};
+
+            if(c==0){
+                const int diag[]={lx-1,ly-1,lx+1,ly-1,lx-1,ly+1,lx+1,ly+1};
+                rgb64[0]=static_cast<double>(measured);
+                rgb64[2]=colorDiffEstimate(lx,ly,2,diag,4);
+            }else if(c==2){
+                const int diag[]={lx-1,ly-1,lx+1,ly-1,lx-1,ly+1,lx+1,ly+1};
+                rgb64[2]=static_cast<double>(measured);
+                rgb64[0]=colorDiffEstimate(lx,ly,0,diag,4);
+            }else{
+                rgb64[1]=static_cast<double>(measured);
+                const int leftColor=color_for_phase(cfa,phase_index(gy,gx-1));
+                if(leftColor==0){
+                    const int rxy[]={lx-1,ly,lx+1,ly};
+                    const int bxy[]={lx,ly-1,lx,ly+1};
+                    rgb64[0]=colorDiffEstimate(lx,ly,0,rxy,2);
+                    rgb64[2]=colorDiffEstimate(lx,ly,2,bxy,2);
+                }else{
+                    const int bxy[]={lx-1,ly,lx+1,ly};
+                    const int rxy[]={lx,ly-1,lx,ly+1};
+                    rgb64[2]=colorDiffEstimate(lx,ly,2,bxy,2);
+                    rgb64[0]=colorDiffEstimate(lx,ly,0,rxy,2);
+                }
+            }
+
+            const std::size_t oi=std::size_t(cy)*coreW+cx;
+            // Preserve the measured CFA component bit-exact from Float32 input.
+            if(c==0){
+                out[3*oi]=measured;
+                out[3*oi+1]=static_cast<float>(rgb64[1]);
+                out[3*oi+2]=static_cast<float>(rgb64[2]);
+            }else if(c==1){
+                out[3*oi]=static_cast<float>(rgb64[0]);
+                out[3*oi+1]=measured;
+                out[3*oi+2]=static_cast<float>(rgb64[2]);
+            }else{
+                out[3*oi]=static_cast<float>(rgb64[0]);
+                out[3*oi+1]=static_cast<float>(rgb64[1]);
+                out[3*oi+2]=measured;
+            }
         }
     }
     return Status::ok();
