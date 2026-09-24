@@ -24,6 +24,11 @@ jobs:
         compiler: [gcc, clang]
     steps:
       - uses: actions/checkout@v4
+      - name: Verify frozen v4.7i byte identity
+        run: |
+          set -euo pipefail
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/include/truthraw/core.h)" = "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a"
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/src/core.cpp)" = "f79b951ba54cff08db400023e528e4eb91909ba6"
       - name: Configure
         env:
           CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
@@ -43,6 +48,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Verify frozen v4.7i byte identity
+        run: |
+          set -euo pipefail
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/include/truthraw/core.h)" = "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a"
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/src/core.cpp)" = "f79b951ba54cff08db400023e528e4eb91909ba6"
       - name: Configure
         env:
           CC: clang
