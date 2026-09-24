@@ -4,12 +4,26 @@
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-24.json`
 2. `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
-3. `docs/research/scientific-master-f64-reconstruction-v0.1/README.md`
-4. `docs/research/formal-color-calibration-audit-v0.1/README.md`
+3. `docs/CURRENT_RAW_DNG_INGRESS_AND_OUTPUT_PREVIEW_2026-09-24.md`
+4. `docs/research/scientific-master-f64-reconstruction-v0.1/README.md`
+5. `docs/research/formal-color-calibration-audit-v0.1/README.md`
+6. `docs/research/open-scene-field-v0.85/README.md`
+7. `docs/research/unified-output-preview-v0.1/README.md`
 
 Active main integration:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+
+Current 2026-09-24 architecture checkpoint includes:
+
+- active F64 branch-sensitive Scientific-Master reconstruction with Float32 canonical storage;
+- Open Scene Field v0.85;
+- TruthNegative TN-4 + local authority projection v0.4;
+- local authority policy v0.86;
+- Unified Output Preview v0.1 with per-output stored-orientation binding;
+- DNG full scientific ingress, NEF measurement-only subset, proprietary RAW decoder-pending fail-closed handling;
+- visible UI synchronized away from stale TN-3 / v0.84.2 wording;
+- JPG-L scientific payload migrated from TN-3 to TN-4.
 
 F64 + formal-color production promotion code commit:
 
