@@ -1,0 +1,103 @@
+name: Open Scene Field v0.85 + TruthNegative Local Authority v0.4
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+    paths:
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.*'
+      - 'suite_android/app/src/main/cpp/open_scene_local_policy_v0_86.*'
+      - 'suite_android/app/src/main/cpp/truthnegative_local_authority_projection_v0_4.*'
+      - 'suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
+      - 'docs/research/open-scene-field-v0.85/**'
+      - '.github/workflows/open-scene-field-v085.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    name: ${{ matrix.compiler }} local field gates
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/open-scene-field-v0.85 \
+                -B build/open-scene-field -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/open-scene-field --parallel 2
+      - name: Test
+        run: ctest --test-dir build/open-scene-field --output-on-failure
+      - name: Emit contract
+        run: build/open-scene-field/test_open_scene_field_v085
+
+  contract:
+    name: Main-project authority invariants
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify local-field semantics
+        run: |
+          set -euo pipefail
+          H='suite_android/app/src/main/cpp/open_scene_field_v0_85.h'
+          P='suite_android/app/src/main/cpp/truthnegative_local_authority_projection_v0_4.cpp'
+          L='suite_android/app/src/main/cpp/open_scene_local_policy_v0_86.cpp'
+          grep -F 'TruthRawOpenSceneField/0.85' suite_android/app/src/main/cpp/open_scene_field_v0_85.cpp
+          grep -F 'CreationRole::DenseProjection' "$P"
+          grep -F 'uncertaintyPromotedByResampling=false' "$P"
+          grep -F 'targetMeasuredClaimsCreated=false' "$P"
+          grep -F 'scientificWritebackAllowed=false' "$L"
+          grep -F 'exactCensoredRecoveryAllowed=false' "$L"
+          grep -F 'unknownMayBecomeMeasured=false' "$L"
+          grep -F 'open_scene_field_v0_85.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          grep -F 'truthnegative_local_authority_projection_v0_4.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          grep -F 'open_scene_local_policy_v0_86.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('suite_android/app/src/main/cpp/truthnegative_local_authority_projection_v0_4.cpp').read_text()
+          assert 'Authority::CalibratedEstimate' not in p.split('bool project_one',1)[1].split('} // namespace',1)[0], 'dense target must not become calibrated measurement'
+          print('open-scene local authority invariants PASS')
+          PY
+
+  android:
+    name: Android main integration
+    runs-on: ubuntu-24.04
+    needs: [host, contract]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
