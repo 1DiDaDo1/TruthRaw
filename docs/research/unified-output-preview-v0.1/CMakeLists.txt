@@ -10,6 +10,7 @@ set(APP_CPP "${REPO_ROOT}/suite_android/app/src/main/cpp")
 set(SCI_FLOAT "${REPO_ROOT}/docs/research/scientific-master-linear-dng-projection-v0.1/native")
 set(TECH "${REPO_ROOT}/docs/research/technical-backplane-v0.1/native")
 set(LATENT "${REPO_ROOT}/docs/research/truthrange-latent-binding-v0.2/native")
+set(V47I "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_executable(test_unified_output_preview_v01
     tests/test_unified_output_preview_v01.cpp
@@ -21,6 +22,7 @@ target_include_directories(test_unified_output_preview_v01 PRIVATE
     "${SCI_FLOAT}"
     "${TECH}"
     "${LATENT}"
+    "${V47I}/include"
 )
 
 if(MSVC)
