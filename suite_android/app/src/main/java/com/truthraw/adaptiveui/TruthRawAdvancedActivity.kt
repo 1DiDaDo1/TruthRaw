@@ -51,7 +51,7 @@ class TruthRawAdvancedActivity : Activity() {
                 setOnClickListener { finish() }
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
-                addView(title("TRUTHRAW ADVANCED", 24f))
+                addView(title("D.RAW ADVANCED", 24f))
                 addView(body("Canonical Open Scene v0.85 · gedeeld met TN-4/TRR/projecties", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
@@ -177,7 +177,7 @@ class TruthRawAdvancedActivity : Activity() {
 
         root.addView(space(18))
         root.addView(Button(this).apply {
-            text = "Gebruik TRUTHRAW ADVANCED"
+            text = "Gebruik D.RAW ADVANCED"
             isAllCaps = false
             textSize = 16f
             setTextColor(textColor)
