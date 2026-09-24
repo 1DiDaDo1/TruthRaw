@@ -18,7 +18,13 @@ A Float32 rounding change at those points can change a branch, not merely the la
 
 v0.1 adds a parallel research backend:
 
-`ResearchEdgeAwareMeasuredPreservingReconstructionF64`
+`truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64`
+
+Implementation lives under:
+
+`docs/research/scientific-master-f64-reconstruction-v0.1/native/`
+
+The frozen canonical v4.7i `core.h` and `core.cpp` remain byte-identical to the production freeze. CI verifies their Git blob identities before the F64 tests run.
 
 The policy is deliberately narrow:
 
@@ -45,6 +51,29 @@ The host test requires:
 - ASan/UBSan pass.
 
 The old F32 backend remains available for A/B comparison.
+
+## Measured validation result
+
+Dedicated workflow run `35937139853` passed on GCC, Clang, and Clang ASan/UBSan.
+
+The deterministic threshold case proves a real branch change at the existing 0.72 decision:
+
+- Float32 directional choice: `2` (weighted blend);
+- Float64 directional choice: `1` (vertical branch);
+- Float32 horizontal gradient: `0.85889846086502075`;
+- Float32 vertical gradient: `0.61840689182281494`;
+- Float64 horizontal gradient: `0.85889847576618195`;
+- Float64 vertical gradient: `0.61840688437223434`.
+
+Across the deterministic four-CFA stress suite:
+
+- reconstructed components tested: `35,624`;
+- reconstructed Float32 storage values that differed after F64 compute: `11,040`;
+- maximum absolute stored F32 delta: `3.0398368835449219e-06`;
+- physically measured CFA component bit-exact: PASS.
+
+This establishes that the mixed-precision change is not cosmetic. It can change reconstruction decisions while preserving measured source samples exactly.
+
 
 ## Storage and memory
 
