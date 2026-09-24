@@ -3,6 +3,16 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val drawSigningStoreFile = providers.environmentVariable("DRAW_SIGNING_STORE_FILE").orNull
+val drawSigningStorePassword = providers.environmentVariable("DRAW_SIGNING_STORE_PASSWORD").orNull
+val drawSigningKeyAlias = providers.environmentVariable("DRAW_SIGNING_KEY_ALIAS").orNull
+val drawSigningKeyPassword = providers.environmentVariable("DRAW_SIGNING_KEY_PASSWORD").orNull
+val hasDrawStableSigning =
+    !drawSigningStoreFile.isNullOrBlank() &&
+    !drawSigningStorePassword.isNullOrBlank() &&
+    !drawSigningKeyAlias.isNullOrBlank() &&
+    !drawSigningKeyPassword.isNullOrBlank()
+
 android {
     namespace = "com.truthraw.adaptiveui"
     compileSdk = 35
@@ -15,6 +25,17 @@ android {
 
     kotlinOptions { jvmTarget = "17" }
 
+    signingConfigs {
+        if (hasDrawStableSigning) {
+            create("drawStableDebug") {
+                storeFile = file(drawSigningStoreFile!!)
+                storePassword = drawSigningStorePassword
+                keyAlias = drawSigningKeyAlias
+                keyPassword = drawSigningKeyPassword
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
@@ -24,6 +45,14 @@ android {
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            if (hasDrawStableSigning) {
+                signingConfig = signingConfigs.getByName("drawStableDebug")
+            }
+        }
     }
 
     externalNativeBuild {

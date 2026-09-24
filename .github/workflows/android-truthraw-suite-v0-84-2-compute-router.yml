@@ -187,8 +187,29 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Materialize stable D.RAW development signing identity
+        env:
+          DRAW_DEBUG_KEYSTORE_B64: ${{ secrets.DRAW_DEBUG_KEYSTORE_B64 }}
+          DRAW_DEBUG_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_DEBUG_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_DEBUG_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::Missing DRAW_DEBUG_KEYSTORE_B64"; exit 1; }
+          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::Missing DRAW_DEBUG_STORE_PASSWORD"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::Missing DRAW_DEBUG_KEY_ALIAS"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::Missing DRAW_DEBUG_KEY_PASSWORD"; exit 1; }
+          printf '%s' "$DRAW_DEBUG_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/draw-debug.jks"
+          test -s "$RUNNER_TEMP/draw-debug.jks"
+          keytool -list             -keystore "$RUNNER_TEMP/draw-debug.jks"             -storepass "$DRAW_DEBUG_STORE_PASSWORD"             -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
+
       - name: Assemble arm64 debug APK
         working-directory: suite_android
+        env:
+          DRAW_SIGNING_STORE_FILE: ${{ runner.temp }}/draw-debug.jks
+          DRAW_SIGNING_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_SIGNING_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_SIGNING_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Verify compute probe symbol and APK
@@ -201,6 +222,10 @@ jobs:
           unzip -l "$APK" | grep -F 'classes.dex'
           echo "apk_bytes=$(stat -c%s "$APK")"
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)
+          echo "apk_signing_cert_sha256=$CERT_SHA256"
+          test "$CERT_SHA256" = "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
 
       - uses: actions/upload-artifact@v4
         with:
