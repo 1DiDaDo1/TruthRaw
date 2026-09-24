@@ -134,6 +134,23 @@ Current route bindings include:
 The preview also carries the stored output-orientation contract. The UI must display each outcome
 using its own stored orientation rather than blindly reusing the current UI rotation.
 
+## JPG-L scientific payload
+
+The layered JPG-L container is also synchronized to the current scientific core.
+
+Its front layer remains a full-resolution JPEG compatibility/presentation image. The embedded
+scientific payload is now TruthNegative **TN-4**, not TN-3, and is verified against:
+
+- `magic=TRUTHNEGATIVE_V0_4_TN4`;
+- container version 4;
+- Open Scene Field v0.85;
+- per-pixel/per-channel authority and uncertainty markers;
+- TruthNegative local authority projection v0.4;
+- no new evidence / no scientific writeback;
+- TN-4 packet invariants and post-write chunk hash verification.
+
+This keeps the layered photo container aligned with the same current scientific negative architecture.
+
 ## UI wording synchronized on 2026-09-24
 
 The active product UI now states:
@@ -156,8 +173,8 @@ Main integration branch:
 
 Code-bearing checkpoint immediately before this documentation sync:
 
-`c020af855dfe67bad6b0c9ef9f03d44f74d10999`
+`675265b084577aa0c005905363ab9f6ba39dfc7f`
 
-This checkpoint contains the current per-output stored-orientation preview contract on top of the
-F64/Open-Scene/TN-4/UI-ingress synchronization work.
+This checkpoint contains the current per-output stored-orientation preview contract, synchronized
+F64/Open-Scene/TN-4/UI ingress, and the JPG-L TN-4 scientific-layer migration.
 
