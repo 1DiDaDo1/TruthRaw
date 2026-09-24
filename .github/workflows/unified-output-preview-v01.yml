@@ -79,6 +79,10 @@ jobs:
           grep -F 'unifiedOutputPreviewFile' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt
           grep -F 'appearanceAddedByPreview: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
           grep -F 'scientificWritebackAllowed: Boolean = false' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
+          grep -F 'displayQuarterTurns' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt
+          grep -F 'displayQuarterTurns' suite_android/app/src/main/cpp/unified_output_preview_v0_1.h
+          grep -F 'outputQuarterTurns' "$M"
+          grep -F 'DISPLAY_SRGB_JPEG' "$M"
 
   android:
     name: Android main integration
@@ -118,3 +122,8 @@ jobs:
           unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
           echo "apk_bytes=$(stat -c%s "$APK")"
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-unified-output-preview-v01-main-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
