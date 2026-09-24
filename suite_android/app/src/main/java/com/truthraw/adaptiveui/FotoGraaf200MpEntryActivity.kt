@@ -15,15 +15,16 @@ import android.widget.TextView
 class FotoGraaf200MpEntryActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(18), dp(18), dp(24))
-            setBackgroundColor(Color.rgb(11, 13, 16))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         root.addView(TextView(this).apply {
-            text = "TruthRaw · 200MP crash-isolatie"
+            text = "D.RAW · 200MP crash-isolatie"
             textSize = 24f
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
         })
         root.addView(TextView(this).apply {
             text = "ENTRY PASS betekent alleen dat de Activity/UI stabiel opent. Hier is nog geen Camera2-code geladen of uitgevoerd."
@@ -48,7 +49,7 @@ class FotoGraaf200MpEntryActivity : Activity() {
             setOnClickListener { startActivity(Intent(this@FotoGraaf200MpEntryActivity, TruthRawCrashReportActivity::class.java)) }
         })
         root.addView(TextView(this).apply {
-            text = "Als een volgende stap toch crasht: open TruthRaw opnieuw → Laatste crashrapport → sla het txt-bestand op en upload het hier."
+            text = "Als een volgende stap toch crasht: open D.RAW opnieuw → Laatste crashrapport → sla het txt-bestand op en upload het hier."
             textSize = 12f
             setTextColor(Color.rgb(155, 164, 178))
             setPadding(0, dp(14), 0, 0)
