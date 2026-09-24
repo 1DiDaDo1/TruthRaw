@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
       - research/scientific-master-f64-color-audit-v01-2026-09-24
     paths:
       - 'canonical/reconstruction/v4.7i/**'
