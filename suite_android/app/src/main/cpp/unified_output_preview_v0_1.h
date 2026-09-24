@@ -28,6 +28,7 @@ struct Descriptor final {
     std::uint32_t sourceHeight = 0u;
     std::uint32_t maxEdge = 384u;
     SourceSpace sourceSpace = SourceSpace::CameraNative;
+    std::uint32_t displayQuarterTurns = 0u;
     std::array<float,9> cameraToXyzD50{1,0,0,0,1,0,0,0,1};
     std::string outputRole;
 };
