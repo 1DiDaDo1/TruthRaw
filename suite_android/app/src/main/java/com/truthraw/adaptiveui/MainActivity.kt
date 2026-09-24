@@ -760,6 +760,9 @@ class MainActivity : Activity() {
                                 previewResult.file,
                                 previewResult.metrics.width,
                                 previewResult.metrics.height,
+                                unifiedOutputPreviewFile =
+                                    File(dir, "unified_output_preview.uop1"),
+                                unifiedOutputPreviewMaxEdge = 384,
                             )
                         } finally {
                             previewResult.file.delete()
@@ -776,6 +779,10 @@ class MainActivity : Activity() {
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is PureFloat32DngExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     fullColourMasterStatus = when (exportResult) {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
@@ -869,6 +876,9 @@ class MainActivity : Activity() {
                                 previewResult.file,
                                 previewResult.metrics.width,
                                 previewResult.metrics.height,
+                                unifiedOutputPreviewFile =
+                                    File(dir, "unified_output_preview.uop1"),
+                                unifiedOutputPreviewMaxEdge = 384,
                             )
                         } finally {
                             previewResult.file.delete()
@@ -886,6 +896,10 @@ class MainActivity : Activity() {
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is PureFloat32DngExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     truthNegative200MpStatus = when (exportResult) {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
@@ -984,6 +998,9 @@ class MainActivity : Activity() {
                                 previewResult.file,
                                 previewResult.metrics.width,
                                 previewResult.metrics.height,
+                                unifiedOutputPreviewFile =
+                                    File(dir, "unified_output_preview.uop1"),
+                                unifiedOutputPreviewMaxEdge = 384,
                             )
                         } finally {
                             previewResult.file.delete()
@@ -1015,6 +1032,10 @@ class MainActivity : Activity() {
 
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is PureFloat32DngExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     renderEditStatus = finalMessage
                     render()
                 }
@@ -1079,6 +1100,9 @@ class MainActivity : Activity() {
                         preview?.file,
                         preview?.metrics?.width ?: 0,
                         preview?.metrics?.height ?: 0,
+                        unifiedOutputPreviewFile =
+                            File(dir, "unified_output_preview.uop1"),
+                        unifiedOutputPreviewMaxEdge = 384,
                     )
                 } finally {
                     preview?.file?.delete()
@@ -1093,6 +1117,10 @@ class MainActivity : Activity() {
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is PureFloat32DngExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     pureFloatDngStatus = when (exportResult) {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
