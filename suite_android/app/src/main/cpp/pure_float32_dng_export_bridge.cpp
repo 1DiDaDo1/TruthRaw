@@ -1002,8 +1002,10 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     values[34] = unifiedPreviewAvailable ? 1 : 0;
     values[35] = unifiedPreview.width;
     values[36] = unifiedPreview.height;
-    values[37] = static_cast<jlong>(
-        static_cast<std::uint8_t>(unifiedPreviewSpace));
+    values[37] = unifiedPreviewAvailable
+        ? static_cast<jlong>(
+              static_cast<std::uint8_t>(unifiedPreviewSpace))
+        : 0;
     values[38] = clampToJlong(
         unifiedPreview.negativeDisplayClampedComponents);
     values[39] = clampToJlong(
