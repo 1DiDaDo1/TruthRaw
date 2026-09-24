@@ -1,6 +1,20 @@
-# TruthRaw
+<p align="center">
+  <img src="docs/assets/draw_brand_banner.webp" alt="D.RAW" width="100%">
+</p>
 
-> **CURRENT ACTIVE INTEGRATION — 2026-09-20**
+# D.RAW
+
+> **CURRENT PROJECT IDENTITY — 2026-09-24**
+>
+> D.RAW is the current project/product name. Historical `TruthRaw` identifiers remain where required for provenance, sealed evidence, schemas, Android compatibility and reproducibility.
+>
+> Current bootstrap: `START_HERE_NEW_CHAT.md`
+>
+> Active integration: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+>
+> D.RAW preserves the permanent rule: **representation can exceed the source; knowledge claims cannot exceed the evidence.**
+
+> **HISTORICAL ACTIVE INTEGRATION — 2026-09-20**
 >
 > New chats should start with:
 >

@@ -49,6 +49,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setPadding(dp(18), dp(12), dp(18), dp(24))
         }
 
+        root.addView(brandHero())
+        root.addView(space(if (compactHeight) 8 else 12))
         root.addView(header())
         root.addView(space(if (compactHeight) 12 else 20))
         root.addView(title("Kies route", if (compactHeight) 24f else 27f))
@@ -154,10 +156,17 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }
     }
 
+    private fun brandHero(): View = ImageView(this).apply {
+        setImageResource(R.drawable.draw_opening_banner)
+        contentDescription = "D.RAW — Evidence-bound computational photography and open scene reconstruction"
+        adjustViewBounds = true
+        scaleType = ImageView.ScaleType.FIT_CENTER
+    }
+
     private fun header(): View = horizontal().apply {
         gravity = Gravity.CENTER_VERTICAL
         addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
-            setImageResource(R.drawable.truthraw_icon)
+            setImageResource(R.drawable.draw_icon)
             contentDescription = "D.RAW"
             scaleType = ImageView.ScaleType.CENTER_CROP
         }, LinearLayout.LayoutParams(dp(if (compactHeight) 58 else 68), dp(if (compactHeight) 58 else 68)).apply {
