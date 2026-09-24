@@ -104,6 +104,7 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         cameraManager = getSystemService(CameraManager::class.java)
         setContentView(buildUi())
         scanRuntime()
@@ -136,7 +137,7 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(10), dp(12), dp(20))
-            setBackgroundColor(Color.rgb(12, 14, 17))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         val scroll = ScrollView(this).apply {
             isFillViewport = true
@@ -170,7 +171,7 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
 
         manualFocusBox = CheckBox(this).apply {
             text = "MF · AF OFF + physical LENS_FOCUS_DISTANCE waar ondersteund"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setOnCheckedChangeListener { _, enabled ->
                 focusSeek.isEnabled = enabled && focusMaxDiopters > 0f
                 updateFocusLabel()
@@ -198,7 +199,7 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
 
         oisBox = CheckBox(this).apply {
             text = "OIS aanvragen · requested en actual blijven gescheiden"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             isChecked = true
             setOnCheckedChangeListener { _, _ -> restartRepeatingRequest() }
         }
@@ -221,7 +222,7 @@ class FotoGraafLiveCameraActivity : Activity(), TextureView.SurfaceTextureListen
 
         root.addView(button("Camera-routes opnieuw scannen") { scanRuntime() })
         root.addView(space(4))
-        root.addView(button("Open TruthRaw processor") {
+        root.addView(button("Open D.RAW processor") {
             startActivity(Intent(this, MainActivity::class.java))
         })
         root.addView(space(8))
