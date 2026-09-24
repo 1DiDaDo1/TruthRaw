@@ -31,6 +31,7 @@ class MainActivity : Activity() {
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
     private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
+    private var restorationUnifiedPreviewKey: String? = null
     private var previewGeneration: Long = 0
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
@@ -282,6 +283,19 @@ class MainActivity : Activity() {
             fullResRestorationStatus = snapshot.message
             render()
         }
+        if (
+            snapshot.phase == FullResRestorationJobPhase.SUCCESS &&
+            activeJobId == snapshot.jobId
+        ) {
+            requestRestorationUnifiedOutputPreview(
+                sourceUri = android.net.Uri.parse(snapshot.sourceUri),
+                trrUri = android.net.Uri.parse(snapshot.destinationUri),
+                outputLabel = "Full-res Restoration .trr",
+                requestKey =
+                    "trr:" + snapshot.jobId + ":" +
+                        (snapshot.containerSha256 ?: snapshot.updatedAtMs.toString()),
+            )
+        }
     }
 
     private fun syncRestorationProjectionStatus() {
@@ -289,6 +303,80 @@ class MainActivity : Activity() {
         if (snapshot.message != projectionStatus) {
             projectionStatus = snapshot.message
             render()
+        }
+        val active = session.jobs.firstOrNull { it.id == activeJobId }
+        if (
+            snapshot.phase == RestorationProjectionJobPhase.SUCCESS &&
+            active != null &&
+            active.source.uri.toString() == snapshot.sourceUri
+        ) {
+            requestRestorationUnifiedOutputPreview(
+                sourceUri = android.net.Uri.parse(snapshot.sourceUri),
+                trrUri = android.net.Uri.parse(snapshot.trrUri),
+                outputLabel = "Restoration " + snapshot.format.label + " projectie",
+                requestKey =
+                    "projection:" + snapshot.format.name + ":" +
+                        snapshot.destinationUri + ":" + snapshot.updatedAtMs,
+            )
+        }
+    }
+
+    private fun requestRestorationUnifiedOutputPreview(
+        sourceUri: android.net.Uri,
+        trrUri: android.net.Uri,
+        outputLabel: String,
+        requestKey: String,
+    ) {
+        if (restorationUnifiedPreviewKey == requestKey) return
+        restorationUnifiedPreviewKey = requestKey
+        val operationKey =
+            "main:unified-restoration-preview:" + requestKey.hashCode().toUInt().toString(16)
+        if (!startBackgroundOperation(operationKey, outputLabel + " preview opbouwen")) {
+            restorationUnifiedPreviewKey = null
+            return
+        }
+
+        startGuardedBackgroundThread(
+            name = "truthraw-uop-restoration",
+            operationKey = operationKey,
+            onUnexpected = {
+                if (restorationUnifiedPreviewKey == requestKey) {
+                    restorationUnifiedPreviewKey = null
+                }
+            },
+        ) {
+            val staging = File(
+                filesDir,
+                "unified_output_preview/restoration_" +
+                    requestKey.hashCode().toUInt().toString(16) + ".uop1",
+            )
+            val result = RestorationUnifiedOutputPreviewBuilder.build(
+                contentResolver,
+                sourceUri,
+                trrUri,
+                staging,
+                outputLabel,
+            )
+            finishBackgroundOperation(
+                operationKey,
+                result is UnifiedOutputPreviewResult.Ready,
+                when (result) {
+                    is UnifiedOutputPreviewResult.Ready ->
+                        outputLabel + " preview gereed."
+                    is UnifiedOutputPreviewResult.Failed -> result.reason
+                },
+            )
+            runOnUiThread {
+                if (restorationUnifiedPreviewKey != requestKey) {
+                    (result as? UnifiedOutputPreviewResult.Ready)?.bitmap?.recycle()
+                    return@runOnUiThread
+                }
+                if (result is UnifiedOutputPreviewResult.Ready) {
+                    unifiedOutputPreviewState?.bitmap?.recycle()
+                    unifiedOutputPreviewState = result
+                    render()
+                }
+            }
         }
     }
 
@@ -1438,6 +1526,7 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        restorationUnifiedPreviewKey = null
         ++previewGeneration
         activeJobId = job.id
         loadingStartedAtElapsedMs = null
