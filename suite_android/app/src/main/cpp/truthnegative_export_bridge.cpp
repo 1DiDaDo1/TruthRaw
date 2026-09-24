@@ -3,6 +3,8 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "open_scene_canonical_v0_70.h"
+#include "open_scene_field_v0_85.h"
+#include "truthnegative_local_authority_projection_v0_4.h"
 #include "scientific_master_digest_v0_1.h"
 #include "scientific_master_linear_dng_projection_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -44,6 +46,8 @@ namespace master_projection = truthraw::scientific_master_linear_dng_projection:
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace field85 = truthraw::open_scene_field::v0_85;
+namespace dense_field_v04 = truthraw::truthnegative_local_authority_projection::v0_4;
 
 constexpr jlong kMagic = 0x54524e47; // TRNG
 constexpr std::size_t kPacketLongs = 28u;
@@ -176,7 +180,9 @@ bool write_header(
     std::uint64_t openSceneBytes,
     std::uint64_t openSceneFinitePixels,
     std::uint64_t openSceneCensoredPixels,
-    const canonical_scene::Summary& openSceneSummary) noexcept {
+    std::uint64_t openSceneFieldStorageBytes,
+    const canonical_scene::Summary& openSceneSummary,
+    const field85::Summary& openSceneFieldSummary) noexcept {
     const auto sourceHex = hex_bytes(sourceSeal.sha256);
     const auto masterHex = digest::to_hex(scientific.scientificMasterHash);
     const auto zeroHex = hex_bytes(phase2.zeroLineHash);
@@ -184,13 +190,13 @@ bool write_header(
     const auto backplaneHex = hex_bytes(phase2.serializedBackplane);
 
     std::string text;
-    text.reserve(4200u);
-    text += "magic=TRUTHNEGATIVE_V0_3_TN3\n";
-    text += "container_version=3\n";
-    text += "role=TRUTHNEGATIVE_TN3_OPEN_SCENE_SCIENTIFIC_NEGATIVE\n";
+    text.reserve(6800u);
+    text += "magic=TRUTHNEGATIVE_V0_4_TN4\n";
+    text += "container_version=4\n";
+    text += "role=TRUTHNEGATIVE_TN4_OPEN_SCENE_LOCAL_AUTHORITY_SCIENTIFIC_NEGATIVE\n";
     text += "pixel_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB\n";
     text += "sample_encoding=IEEE754_BINARY32_LE\n";
-    text += "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE\n";
+    text += "layout=CANONICAL_64X64_CELL_SEQUENCE_RGB_AUTHORITY_OPEN_SCENE_OPEN_SCENE_FIELD_V085\n";
     text += "width=" + std::to_string(width) + "\n";
     text += "height=" + std::to_string(height) + "\n";
     text += "channels=3\n";
@@ -216,6 +222,54 @@ bool write_header(
         truthraw::sha256_v0_69::hex(openSceneSummary.policySha256) + "\n";
     text += "open_scene_artifact_sha256=" +
         truthraw::sha256_v0_69::hex(openSceneSummary.artifactSha256) + "\n";
+    text += "open_scene_field_schema=" + std::string(field85::schema_name()) + "\n";
+    text += "open_scene_field_content_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneFieldSummary.contentSha256) + "\n";
+    text += "open_scene_field_encoding_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneFieldSummary.encodingSha256) + "\n";
+    text += "open_scene_field_policy_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneFieldSummary.policySha256) + "\n";
+    text += "open_scene_field_artifact_sha256=" +
+        truthraw::sha256_v0_69::hex(openSceneFieldSummary.artifactSha256) + "\n";
+    text += "open_scene_field_storage_bytes=" +
+        std::to_string(openSceneFieldStorageBytes) + "\n";
+    text += "open_scene_field_encoded_bytes=" +
+        std::to_string(openSceneFieldSummary.encodedBytes) + "\n";
+    text += "open_scene_field_record_count=" +
+        std::to_string(openSceneFieldSummary.recordCount) + "\n";
+    text += "open_scene_field_tile_count=" +
+        std::to_string(openSceneFieldSummary.tileCount) + "\n";
+    text += "open_scene_field_role_source_measured_cfa=" +
+        std::to_string(openSceneFieldSummary.creationRoleCounts[1]) + "\n";
+    text += "open_scene_field_role_scientific_reconstruction=" +
+        std::to_string(openSceneFieldSummary.creationRoleCounts[2]) + "\n";
+    text += "open_scene_field_role_dense_projection=" +
+        std::to_string(openSceneFieldSummary.creationRoleCounts[3]) + "\n";
+    text += "open_scene_field_authority_calibrated_estimate=" +
+        std::to_string(openSceneFieldSummary.authorityCounts[0]) + "\n";
+    text += "open_scene_field_authority_reconstructed=" +
+        std::to_string(openSceneFieldSummary.authorityCounts[1]) + "\n";
+    text += "open_scene_field_authority_censored=" +
+        std::to_string(openSceneFieldSummary.authorityCounts[2]) + "\n";
+    text += "open_scene_field_authority_unknown=" +
+        std::to_string(openSceneFieldSummary.authorityCounts[3]) + "\n";
+    text += "open_scene_field_p95_known_count=" +
+        std::to_string(openSceneFieldSummary.p95KnownCount) + "\n";
+    text += "open_scene_field_support_known_count=" +
+        std::to_string(openSceneFieldSummary.supportKnownCount) + "\n";
+    text += "open_scene_field_bound_known_count=" +
+        std::to_string(openSceneFieldSummary.boundKnownCount) + "\n";
+    text += "open_scene_field_per_pixel_per_channel_authority=1\n";
+    text += "open_scene_field_per_pixel_per_channel_uncertainty=1\n";
+    text += "open_scene_field_per_pixel_per_channel_bounds=1\n";
+    text += "open_scene_field_encoding_changes_scientific_identity=0\n";
+    text += "open_scene_field_creates_new_evidence=0\n";
+    text += "open_scene_field_scientific_writeback_allowed=0\n";
+    text += "truthnegative_local_authority_projection_schema=" +
+        std::string(dense_field_v04::schema_name()) + "\n";
+    text += "truthnegative_local_authority_projection_policy=" +
+        std::string(dense_field_v04::policy_name()) + "\n";
+    text += "truthnegative_local_authority_projection_applied_to_native_grid=0\n";
     text += "open_scene_state_bytes=" + std::to_string(openSceneBytes) + "\n";
     text += "open_scene_finite_pixels=" + std::to_string(openSceneFinitePixels) + "\n";
     text += "open_scene_censored_pixels=" + std::to_string(openSceneCensoredPixels) + "\n";
@@ -253,7 +307,8 @@ bool write_header(
     text += "independent_evidence_count=1\n";
     text += "payload_bytes=" + std::to_string(payloadBytes) + "\n";
     text += "authority_bytes=" + std::to_string(authorityBytes) + "\n";
-    text += "tn3_full_open_scene_state=1\n";
+    text += "tn3_legacy_open_scene_state_retained=1\n";
+    text += "tn4_open_scene_field_v085_bound=1\n";
     text += "END_HEADER\n";
 
     if (text.size() > kHeaderBytes) return false;
@@ -398,12 +453,32 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
         return packet(env, -16);
     }
 
+    field85::Binding fieldBinding{};
+    fieldBinding.sourceEvidenceSha256 = sourceSeal.sha256;
+    fieldBinding.scientificMasterSha256 = scientific.scientificMasterHash;
+    fieldBinding.zeroLineSha256 = phase2.zeroLineHash;
+    fieldBinding.sceneScaleSha256 = phase2.sceneScaleHash;
+    fieldBinding.width = static_cast<std::uint32_t>(width);
+    fieldBinding.height = static_cast<std::uint32_t>(height);
+    fieldBinding.physicalFrameCount = scientific.physicalFrameCount;
+    fieldBinding.independentEvidenceCount = scientific.independentEvidenceCount;
+    fieldBinding.reconstructionBackendId = reconstruction->name();
+    fieldBinding.colourBindingId = produced.color.bindingId;
+    field85::Builder openSceneFieldBuilder(fieldBinding);
+    if (!openSceneFieldBuilder.valid()) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -19);
+    }
+
+    std::uint64_t openSceneFieldStorageBytes = 0u;
     std::vector<float> rgb;
     std::vector<std::uint16_t> raw;
     std::vector<float> gain;
     std::vector<std::uint8_t> record;
     std::vector<std::uint8_t> auth;
     std::vector<std::uint8_t> openScene;
+    std::vector<field85::ChannelRecord> openSceneFieldRecords;
+    field85::EncodedTile openSceneFieldTile{};
 
     for (int y = 0; y < height; y += static_cast<int>(kCellEdge)) {
         const int h = std::min(static_cast<int>(kCellEdge), height - y);
@@ -456,6 +531,34 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
                 return packet(env, 4000 + static_cast<jlong>(rawStatus.code));
             }
 
+            if (!field85::build_source_tile_records(
+                    source->metadata().cfa,
+                    static_cast<std::uint32_t>(x),
+                    static_cast<std::uint32_t>(y),
+                    static_cast<std::uint32_t>(w),
+                    static_cast<std::uint32_t>(h),
+                    raw,
+                    source->metadata().whiteLevel,
+                    rgb,
+                    openSceneFieldRecords) ||
+                !field85::encode_tile(
+                    static_cast<std::uint32_t>(x),
+                    static_cast<std::uint32_t>(y),
+                    static_cast<std::uint32_t>(w),
+                    static_cast<std::uint32_t>(h),
+                    openSceneFieldRecords,
+                    openSceneFieldTile) ||
+                !openSceneFieldBuilder.appendTile(
+                    static_cast<std::uint32_t>(x),
+                    static_cast<std::uint32_t>(y),
+                    static_cast<std::uint32_t>(w),
+                    static_cast<std::uint32_t>(h),
+                    openSceneFieldRecords,
+                    openSceneFieldTile.bytes)) {
+                (void)::ftruncate(outputFd, 0);
+                return packet(env, -20);
+            }
+
             auth.assign(samples, static_cast<std::uint8_t>(AuthorityByte::Unknown));
             openScene.assign(pixels, 0u);
             for (int yy = 0; yy < h; ++yy) {
@@ -503,7 +606,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             }
 
             record.clear();
-            record.reserve(16u + samples * 4u + auth.size() + openScene.size());
+            record.reserve(
+                16u + samples * 4u + auth.size() + openScene.size() +
+                4u + openSceneFieldTile.bytes.size());
             append_u32_le(record, static_cast<std::uint32_t>(x));
             append_u32_le(record, static_cast<std::uint32_t>(y));
             append_u32_le(record, static_cast<std::uint32_t>(w));
@@ -514,6 +619,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             }
             record.insert(record.end(), auth.begin(), auth.end());
             record.insert(record.end(), openScene.begin(), openScene.end());
+            append_u32_le(
+                record,
+                static_cast<std::uint32_t>(openSceneFieldTile.bytes.size()));
+            record.insert(
+                record.end(),
+                openSceneFieldTile.bytes.begin(),
+                openSceneFieldTile.bytes.end());
 
             if (!write_all(outputFd, record.data(), record.size())) {
                 (void)::ftruncate(outputFd, 0);
@@ -522,6 +634,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             payloadBytes += static_cast<std::uint64_t>(samples) * 4u;
             authorityBytes += static_cast<std::uint64_t>(auth.size());
             openSceneBytes += static_cast<std::uint64_t>(openScene.size());
+            openSceneFieldStorageBytes +=
+                4u + static_cast<std::uint64_t>(openSceneFieldTile.bytes.size());
             ++cellCount;
         }
     }
@@ -557,6 +671,32 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
         return packet(env, -18);
     }
 
+    field85::Summary openSceneFieldSummary{};
+    const std::uint64_t sourcePixels =
+        static_cast<std::uint64_t>(width) * static_cast<std::uint64_t>(height);
+    if (!openSceneFieldBuilder.finalize(
+            openSceneSummary.artifactSha256,
+            openSceneFieldSummary) ||
+        openSceneFieldSummary.recordCount != sourcePixels * 3u ||
+        openSceneFieldSummary.creationRoleCounts[1] != sourcePixels ||
+        openSceneFieldSummary.creationRoleCounts[2] != sourcePixels * 2u ||
+        openSceneFieldSummary.creationRoleCounts[3] != 0u ||
+        openSceneFieldSummary.authorityCounts[0] != calibrated ||
+        openSceneFieldSummary.authorityCounts[1] != 0u ||
+        openSceneFieldSummary.authorityCounts[2] != censored ||
+        openSceneFieldSummary.authorityCounts[3] != unknown ||
+        openSceneFieldSummary.p95KnownCount != 0u ||
+        openSceneFieldSummary.supportKnownCount != sourcePixels ||
+        openSceneFieldSummary.boundKnownCount != censored ||
+        openSceneFieldSummary.createsNewEvidence ||
+        openSceneFieldSummary.scientificWritebackAllowed ||
+        !openSceneFieldSummary.perPixelPerChannelAuthority ||
+        !openSceneFieldSummary.perPixelPerChannelUncertainty ||
+        !openSceneFieldSummary.perPixelPerChannelBounds) {
+        (void)::ftruncate(outputFd, 0);
+        return packet(env, -21);
+    }
+
     if (!write_header(
             outputFd,
             sourceSeal,
@@ -575,7 +715,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
             openSceneBytes,
             openSceneFinitePixels,
             openSceneCensoredPixels,
-            openSceneSummary)) {
+            openSceneFieldStorageBytes,
+            openSceneSummary,
+            openSceneFieldSummary)) {
         (void)::ftruncate(outputFd, 0);
         return packet(env, -14);
     }
@@ -585,7 +727,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
         cellCount * 16u +
         payloadBytes +
         authorityBytes +
-        openSceneBytes;
+        openSceneBytes +
+        openSceneFieldStorageBytes;
     if (::ftruncate(outputFd, static_cast<off_t>(expectedBytes)) != 0 ||
         ::fsync(outputFd) != 0) {
         (void)::ftruncate(outputFd, 0);
@@ -628,7 +771,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     values[24] = clamp_jlong(openSceneCensoredPixels);
     values[25] = 1; // full Open Scene State dense sidecar hashed
     values[26] = 0; // open-scene counterfactual pixels
-    values[27] = 3; // TN-3
+    values[27] = 4; // TN-4 Open Scene Field v0.85
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
