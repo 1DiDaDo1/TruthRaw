@@ -57,7 +57,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         val selected = preferredOutput()
         root.addView(routeCard(
-            titleText = "TRUTHRAW PURE",
+            titleText = "D.RAW PURE",
             subtitleText = "Direct · wetenschappelijk",
             detail = "Kortste route naar de self-binding 32-bit Float scientific projectie. Geen appearance.",
             accent = cyan,
@@ -65,7 +65,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         ) { setPreferredOutput(OUTPUT_PURE) })
         root.addView(space(9))
         root.addView(routeCard(
-            titleText = "TRUTHRAW ADVANCED",
+            titleText = "D.RAW ADVANCED",
             subtitleText = "Fotografische ontwikkeling",
             detail = "Light · authority-aware HDR · Detail · Restoration. Scientific Master blijft onaangeraakt.",
             accent = amber,
@@ -73,7 +73,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         ) { setPreferredOutput(OUTPUT_ADVANCED) })
         root.addView(space(9))
         root.addView(routeCard(
-            titleText = "TRUTHRAW PRO",
+            titleText = "D.RAW PRO",
             subtitleText = "Professionele werkbank",
             detail = "Color · illumination · precision · projecties · provenance en uitgebreide exports.",
             accent = purple,
@@ -158,7 +158,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
         gravity = Gravity.CENTER_VERTICAL
         addView(ImageView(this@TruthRawSuiteLauncherActivity).apply {
             setImageResource(R.drawable.truthraw_icon)
-            contentDescription = "TruthRaw"
+            contentDescription = "D.RAW"
             scaleType = ImageView.ScaleType.CENTER_CROP
         }, LinearLayout.LayoutParams(dp(if (compactHeight) 58 else 68), dp(if (compactHeight) 58 else 68)).apply {
             marginEnd = dp(if (compactHeight) 10 else 14)
@@ -166,7 +166,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
         addView(vertical().apply {
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
-                text = "TruthRaw"
+                text = "D.RAW"
                 textSize = if (compactHeight) 28f else 31f
                 setTextColor(textPrimary)
                 setTypeface(typeface, Typeface.BOLD)
