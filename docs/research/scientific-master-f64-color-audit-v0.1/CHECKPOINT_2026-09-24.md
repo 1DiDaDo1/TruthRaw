@@ -52,7 +52,9 @@ The following Android/native consumers are routed to the isolated F64 reconstruc
 
 - advanced preview;
 - source-bound color preview;
+- photo export;
 - full-resolution restoration export;
+- restoration projection;
 - linear DNG export;
 - Pure Float32 DNG export;
 - TruthNegative export.
