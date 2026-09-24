@@ -35,7 +35,7 @@
 namespace {
 
 using truthraw::NeutralReferenceAppearance;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
@@ -926,7 +926,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildAdvancedDerivativePrev
     if (dngSource == nullptr) return status_packet(env, -3);
 
     auto reconstruction =
-        std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+        std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
 
     truthraw::scientific_master_streaming_binding::v0_2::Options scientificOptions;
     scientificOptions.memoryBudgetBytes =
