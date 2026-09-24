@@ -51,7 +51,7 @@ object DrawVisualTheme {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             addView(ImageView(activity).apply {
-                setImageResource(R.drawable.draw_icon)
+                runCatching { setImageResource(R.drawable.draw_icon) }
                 contentDescription = "D.RAW"
                 adjustViewBounds = true
                 scaleType = ImageView.ScaleType.FIT_CENTER
