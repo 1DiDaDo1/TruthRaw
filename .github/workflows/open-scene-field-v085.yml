@@ -73,6 +73,19 @@ jobs:
           grep -F 'resampling_promotes_uncertainty=0' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
           grep -F 'openSceneFieldRecordCount' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt
           grep -F 'open_scene_local_policy_v0_86.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
+          K='suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
+          grep -F 'schema=TruthNegativeOutputChannelAuthority/0.2' "$K"
+          grep -F 'mapping_mode=RESAMPLED_PROCEDURAL_LOCAL_FIELD_V04' "$K"
+          grep -F 'local_field_value_binding=PROJECTED_RASTER_SHA256' "$K"
+          grep -F 'local_authority_projection_artifact_sha256=' "$K"
+          if grep -F 'schema=TruthNegativeOutputChannelAuthority/0.1' "$K"; then
+            echo 'stale TN authority verifier v0.1 still present' >&2
+            exit 1
+          fi
+          if grep -F 'mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT' "$K"; then
+            echo 'stale uniform TN mapping verifier still present' >&2
+            exit 1
+          fi
           python3 - <<'PY'
           from pathlib import Path
           p=Path('suite_android/app/src/main/cpp/truthnegative_local_authority_projection_v0_4.cpp').read_text()
