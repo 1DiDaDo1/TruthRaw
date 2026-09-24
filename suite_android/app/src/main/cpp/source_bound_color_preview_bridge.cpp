@@ -22,7 +22,7 @@
 namespace {
 
 using truthraw::NeutralReferenceAppearance;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::finalized_scientific_preview_release::v0_3::PreviewAuthority;
 using truthraw::finalized_scientific_preview_release::v0_3::ReleaseResult;
@@ -148,7 +148,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildSourceBoundColorPrevie
     auto& source = openedSource.source;
     auto* dngSource = openedSource.dngAuditSource;
 
-    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
     StreamingTruthRawProcessor processor(reconstruction, appearance);
     BoundedSrgbPreviewSink sink(maxEdge);
@@ -261,7 +261,7 @@ Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildFinalizedScientificCol
     auto& source = openedSource.source;
     auto* dngSource = openedSource.dngAuditSource;
 
-    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
     BoundedSrgbPreviewSink sink(maxEdge);
 
