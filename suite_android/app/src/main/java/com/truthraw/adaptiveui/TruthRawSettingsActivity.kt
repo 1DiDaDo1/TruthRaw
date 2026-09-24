@@ -48,7 +48,7 @@ class TruthRawSettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("Instellingen", 26f))
-                addView(body("TruthRaw main · F64 reconstructie · Open Scene v0.85 · TN-4 · UOP v0.1", 11.5f))
+                addView(body("D.RAW main · F64 reconstructie · Open Scene v0.85 · TN-4 · UOP v0.1", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
