@@ -98,7 +98,7 @@ jobs:
           done
           grep -F 'research_edge_aware_support_limited_measured_preserving_f64_v47i' \
             canonical/reconstruction/v4.7i/native/include/truthraw/core.h
-          grep -F 'measured CFA component bit-exact' \
+          grep -F 'physically measured CFA component is re-injected directly from the original Float32 input, bit-exact' \
             docs/research/scientific-master-f64-reconstruction-v0.1/README.md
 
       - uses: actions/setup-java@v4
