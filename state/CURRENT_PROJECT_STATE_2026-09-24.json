@@ -1,6 +1,6 @@
 {
   "schema": "TruthRawCurrentProjectState/2026-09-24",
-  "status": "CURRENT_MAIN_INTEGRATION_F64_SCIENTIFIC_MASTER_COLOR_AUDIT_PROMOTED",
+  "status": "CURRENT_MAIN_INTEGRATION_F64_COLOR_OPEN_SCENE_V085_TN4_PROMOTED",
   "activeBranch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
   "previousState": "state/CURRENT_PROJECT_STATE_2026-09-21.json",
   "previousFreezeHandoff": "docs/handoff/TRUTHRAW_FINAL_CODE_FREEZE_V0843_2026-09-21.md",
@@ -112,6 +112,51 @@
       "gcc": "PASS",
       "clang": "PASS",
       "asanUbsan": "PASS"
+    },
+    "openSceneV085Tn4": {
+      "run": 35943061088,
+      "headSha": "dbe66ee9f43d92b5412c12d1c4e17a6db9e1d1d5",
+      "status": "SUCCESS",
+      "gcc": "PASS",
+      "clang": "PASS",
+      "authorityContract": "PASS",
+      "androidArm64Build": "PASS",
+      "apkBytes": 6151421,
+      "apkSha256": "a9e5bc9417b80e53ad4d1e08823fac0ecef3e355b64f5de3684db5595a7129fc",
+      "artifactId": 10785173626,
+      "artifactName": "truthraw-open-scene-v085-tn4-main-debug-arm64",
+      "artifactDigest": "sha256:f87921dd69470bd7e133f30f6e85a7d6a317641a8ffda83137c4e38102c94c17"
     }
+  },
+  "openSceneField": {
+    "activeInMain": true,
+    "schema": "TruthRawOpenSceneField/0.85",
+    "perPixelPerChannelAuthority": true,
+    "perPixelPerChannelUncertainty": true,
+    "perPixelPerChannelBounds": true,
+    "creationRoleIndependentFromAuthority": true,
+    "compactTileEncoding": true,
+    "canonicalTileEdge": 64,
+    "createsNewEvidence": false,
+    "scientificWritebackAllowed": false
+  },
+  "truthNegativeLocalAuthority": {
+    "activeInMain": true,
+    "containerVersion": "TN-4",
+    "projectionSchema": "TruthNegativeLocalAuthorityProjection/0.4",
+    "localPolicySchema": "TruthRawOpenSceneLocalPolicy/0.86",
+    "targetCreationRole": "DENSE_PROJECTION",
+    "targetMeasuredClaimsCreated": false,
+    "uncertaintyPromotedByResampling": false,
+    "sourceRawCodeBoundRelabelledSceneLinear": false,
+    "proceduralPerTargetChannelField": true,
+    "valueBinding": "PROJECTED_RASTER_SHA256",
+    "materializedFieldRequired": false
+  },
+  "localConsumers": {
+    "restorationUsesLocalPolicy": true,
+    "scientificHdrUsesLocalPolicyGate": true,
+    "detailSupportUsesLocalPolicyGate": true,
+    "appearanceHdrRemainsSeparate": true
   }
 }
