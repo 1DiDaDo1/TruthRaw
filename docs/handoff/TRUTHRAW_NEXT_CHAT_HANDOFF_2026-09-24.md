@@ -130,6 +130,44 @@ Final production validation:
 - artifact: `truthraw-open-scene-v085-tn4-main-debug-arm64`;
 - artifact digest: `sha256:f87921dd69470bd7e133f30f6e85a7d6a317641a8ffda83137c4e38102c94c17`.
 
+## TN-4 POST-WRITE VERIFIER FIX — GREEN
+
+A real-device test exposed a verifier mismatch after TN-4/Open Scene v0.85 promotion.
+
+The writer succeeded, but `PureFloat32DngExport.kt` still required the old authority markers:
+
+- `schema=TruthNegativeOutputChannelAuthority/0.1`;
+- `mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT`;
+- `target_support_role=RECONSTRUCTED_DENSE_SUPPORT`.
+
+This was a verifier bug, not a 200MP writer failure.
+
+The main verifier now requires the TN-4 contract:
+
+- `schema=TruthNegativeOutputChannelAuthority/0.2`;
+- `mapping_mode=RESAMPLED_PROCEDURAL_LOCAL_FIELD_V04`;
+- `open_scene_field_schema=TruthRawOpenSceneField/0.85`;
+- `local_projection_schema=TruthNegativeLocalAuthorityProjection/0.4`;
+- projected-raster and Open Scene SHA-256 values;
+- local-field policy/artifact SHA-256 values;
+- downstream local-authority projection artifact SHA-256;
+- equality of the authority-binding and edit-binding local-field artifact identity.
+
+Fail-closed behavior is retained; only the expected contract was migrated.
+
+Final validation:
+
+- workflow run: `35958961941`;
+- head: `77f7d49660d5629e79af550d0e4a61d272b4caa2`;
+- GCC local-field gates: PASS;
+- Clang local-field gates: PASS;
+- main authority invariants: PASS;
+- Android arm64 build: PASS;
+- APK bytes: `6,151,421`;
+- APK SHA-256: `79eadbc2cfa16c64f7f896fd054e3608e4f637d020342acf58b5ecb55afb60f7`;
+- artifact id: `10791476986`;
+- artifact digest: `sha256:c7136c272454d9915287f0331661ad463dbbb942d2d0ffab614fbd8a72a4f391`.
+
 ## FORMAL COLOUR / CALIBRATION AUDIT IS NOW MAIN PROJECT STATE
 
 Read:
