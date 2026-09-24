@@ -947,6 +947,9 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         previewDescriptor.maxEdge =
             static_cast<std::uint32_t>(outputPreviewMaxEdge);
         previewDescriptor.sourceSpace = unifiedPreviewSpace;
+        previewDescriptor.displayQuarterTurns = static_cast<std::uint32_t>(
+            orientationQuarterTurns(
+                static_cast<truthraw::Orientation>(descriptor.orientation)));
         previewDescriptor.cameraToXyzD50 = produced.color.cameraToXyzD50;
         previewDescriptor.outputRole = previewRole;
 
