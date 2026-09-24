@@ -168,19 +168,6 @@ public:
     Status reconstructTile(const float*,int,int,int,int,int,int,int,int,CfaPattern,float*) override;
 };
 
-// v4.7i-F64 research backend. Stage-2 remains Float32 storage, but all
-// branch-sensitive directional/weight/support computations are promoted to
-// Float64. The physically measured CFA component is reinjected from the
-// original Float32 input without an intermediate Float64 round trip. Only
-// reconstructed channels are rounded once when written back to Float32.
-class ResearchEdgeAwareMeasuredPreservingReconstructionF64 final : public IReconstructionBackend {
-public:
-    ReconstructionQuality quality() const override { return ReconstructionQuality::ResearchBackend; }
-    const char* name() const override { return "research_edge_aware_support_limited_measured_preserving_f64_v47i"; }
-    int requiredHalo() const override { return 3; }
-    Status reconstructTile(const float*,int,int,int,int,int,int,int,int,CfaPattern,float*) override;
-};
-
 class IAppearanceBackend {
 public:
     virtual ~IAppearanceBackend() = default;
