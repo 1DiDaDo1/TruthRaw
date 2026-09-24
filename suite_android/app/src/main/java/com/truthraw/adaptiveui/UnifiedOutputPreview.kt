@@ -1,6 +1,9 @@
 package com.truthraw.adaptiveui
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import java.io.File
 import java.io.FileInputStream
 
@@ -31,6 +34,95 @@ sealed interface UnifiedOutputPreviewResult {
 }
 
 object UnifiedOutputPreviewLoader {
+    fun loadSavedJpeg(
+        resolver: ContentResolver,
+        uri: Uri,
+        outputLabel: String,
+        maxEdge: Int = 384,
+    ): UnifiedOutputPreviewResult {
+        if (maxEdge !in 1..1024) {
+            return UnifiedOutputPreviewResult.Failed(
+                "JPEG uitkomst-preview maxEdge is buiten contract.",
+            )
+        }
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            resolver.openInputStream(uri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, bounds)
+            } ?: return UnifiedOutputPreviewResult.Failed(
+                "Opgeslagen JPEG kon niet worden geopend voor preview.",
+            )
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+                return UnifiedOutputPreviewResult.Failed(
+                    "Opgeslagen JPEG heeft geen geldige afmetingen.",
+                )
+            }
+
+            var sample = 1
+            while (
+                bounds.outWidth / (sample * 2) >= maxEdge ||
+                bounds.outHeight / (sample * 2) >= maxEdge
+            ) {
+                sample *= 2
+            }
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = false
+                inSampleSize = sample
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+            val decoded = resolver.openInputStream(uri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, options)
+            } ?: return UnifiedOutputPreviewResult.Failed(
+                "Opgeslagen JPEG kon niet worden gedecodeerd.",
+            )
+
+            val scale = minOf(
+                1f,
+                maxEdge.toFloat() /
+                    maxOf(decoded.width, decoded.height).toFloat(),
+            )
+            val targetWidth =
+                maxOf(1, kotlin.math.round(decoded.width * scale).toInt())
+            val targetHeight =
+                maxOf(1, kotlin.math.round(decoded.height * scale).toInt())
+            val preview = if (
+                targetWidth == decoded.width &&
+                targetHeight == decoded.height
+            ) {
+                decoded
+            } else {
+                Bitmap.createScaledBitmap(
+                    decoded,
+                    targetWidth,
+                    targetHeight,
+                    true,
+                ).also { decoded.recycle() }
+            }
+
+            UnifiedOutputPreviewResult.Ready(
+                bitmap = preview,
+                metrics = UnifiedOutputPreviewMetrics(
+                    width = preview.width,
+                    height = preview.height,
+                    sourceWidth = bounds.outWidth,
+                    sourceHeight = bounds.outHeight,
+                    sourceSpaceCode = 4,
+                    sampledPrimaryPixels =
+                        preview.width.toLong() * preview.height.toLong(),
+                    primaryTileSourceUsedDirectly = true,
+                    appearanceAddedByPreview = false,
+                    scientificWritebackAllowed = false,
+                ),
+                outputLabel = outputLabel,
+            )
+        } catch (error: Throwable) {
+            UnifiedOutputPreviewResult.Failed(
+                "Opgeslagen JPEG uitkomst-preview faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
     fun load(file: File, outputLabel: String): UnifiedOutputPreviewResult {
         if (!file.isFile || file.length() < UOP1_HEADER_BYTES.toLong()) {
             return UnifiedOutputPreviewResult.Failed(
