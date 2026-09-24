@@ -4,6 +4,8 @@
 #include "full_frame_streaming_v0_1_internal.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "open_scene_canonical_v0_70.h"
+#include "open_scene_field_v0_85.h"
+#include "open_scene_local_policy_v0_86.h"
 #include "truthraw_sha256_v0_69.h"
 #include "truthraw_ordered_parallel_executor_v0_1.h"
 #include "truthraw_performance_hint_v0_1.h"
@@ -44,6 +46,8 @@ namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace streaming = truthraw::streaming_v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace field85 = truthraw::open_scene_field::v0_85;
+namespace local_policy = truthraw::open_scene_local_policy::v0_86;
 namespace sha = truthraw::sha256_v0_69;
 namespace ordered = truthraw::ordered_parallel_executor::v0_1;
 namespace perf_hint = truthraw::performance_hint::v0_1;
@@ -179,6 +183,10 @@ bool write_header(
     text += "restoration_min_support=3\n";
     text += "condition_trigger=SOURCE_CFA_SAMPLE_AT_OR_ABOVE_WHITELEVEL\n";
     text += "support_excludes_censored_source_sites=1\n";
+    text += "open_scene_local_policy_schema=" + std::string(local_policy::schema_name()) + "\n";
+    text += "restoration_trigger_uses_open_scene_local_policy=1\n";
+    text += "censored_disposition=CENSOR_BOUND_ONLY\n";
+    text += "unknown_disposition=APPEARANCE_ONLY_NO_WRITEBACK\n";
     text += "role_0=PRESERVE_SCIENTIFIC_MASTER\n";
     text += "role_1=AESTHETIC_REINTEGRATION_ONLY\n";
     text += "role_2=UNRESOLVED_LOSS\n";
@@ -358,6 +366,7 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
         streaming::detail::Workspace workspace;
         std::vector<std::uint16_t> raw;
         std::vector<float> gain;
+        std::vector<field85::ChannelRecord> localField;
         perf_hint::CpuWorkerSession performanceHint;
     };
 
@@ -527,6 +536,33 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                     rawStatus.message);
             }
 
+            if (!field85::build_source_tile_records(
+                    workerSource->metadata().cfa,
+                    static_cast<std::uint32_t>(ex0),
+                    static_cast<std::uint32_t>(ey0),
+                    static_cast<std::uint32_t>(expW),
+                    static_cast<std::uint32_t>(expH),
+                    ctx.raw,
+                    workerSource->metadata().whiteLevel,
+                    ctx.workspace.cam,
+                    ctx.localField)) {
+                return ordered::Status::error(
+                    "Restoration Open Scene Field v0.85 tile build failed");
+            }
+
+            const auto measured_record = [&](std::size_t pixel)
+                -> const field85::ChannelRecord* {
+                const std::size_t base = pixel * 3u;
+                if (base + 2u >= ctx.localField.size()) return nullptr;
+                for (std::size_t channel = 0u; channel < 3u; ++channel) {
+                    const auto& candidate = ctx.localField[base + channel];
+                    if (candidate.role == field85::CreationRole::SourceMeasuredCfa) {
+                        return &candidate;
+                    }
+                }
+                return nullptr;
+            };
+
             const std::size_t corePixels =
                 static_cast<std::size_t>(result.coreW) *
                 static_cast<std::size_t>(result.coreH);
@@ -562,12 +598,35 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                         result.restoredCore[3u * cpi + channel] = base[channel];
                     }
 
+                    const auto* localMeasured = measured_record(epi);
+                    if (localMeasured == nullptr) {
+                        return ordered::Status::error(
+                            "Restoration local measured-channel record missing");
+                    }
+                    local_policy::Decision localDecision{};
+                    if (!local_policy::evaluate(*localMeasured, localDecision)) {
+                        return ordered::Status::error(
+                            "Restoration local authority policy rejected record");
+                    }
+
                     const bool censored =
-                        static_cast<float>(ctx.raw[epi]) >=
-                        workerSource->metadata().whiteLevel;
+                        localMeasured->authority == field85::Authority::Censored;
                     if (!censored) {
+                        if (localDecision.restoration !=
+                            local_policy::RestorationDisposition::Preserve) {
+                            return ordered::Status::error(
+                                "Restoration uncensored source was not preserve-only");
+                        }
                         ++result.preservedPixels;
                         continue;
+                    }
+
+                    if (localDecision.restoration !=
+                            local_policy::RestorationDisposition::CensorBoundOnly ||
+                        localDecision.exactCensoredRecoveryAllowed ||
+                        localDecision.scientificWritebackAllowed) {
+                        return ordered::Status::error(
+                            "Restoration censored local policy invariant failed");
                     }
 
                     ++result.censoredPixels;
@@ -594,8 +653,21 @@ Java_com_truthraw_adaptiveui_FullResRestorationNativeBridge_exportFullResRestora
                                     static_cast<std::size_t>(ny) *
                                         static_cast<std::size_t>(expW) +
                                     static_cast<std::size_t>(nx);
-                                if (static_cast<float>(ctx.raw[npi]) >=
-                                    workerSource->metadata().whiteLevel) {
+                                const auto* neighbourMeasured =
+                                    measured_record(npi);
+                                if (neighbourMeasured == nullptr) {
+                                    return ordered::Status::error(
+                                        "Restoration neighbour local record missing");
+                                }
+                                local_policy::Decision neighbourDecision{};
+                                if (!local_policy::evaluate(
+                                        *neighbourMeasured,
+                                        neighbourDecision)) {
+                                    return ordered::Status::error(
+                                        "Restoration neighbour local policy invalid");
+                                }
+                                if (neighbourDecision.restoration !=
+                                    local_policy::RestorationDisposition::Preserve) {
                                     continue;
                                 }
                                 const float* neighbour =
