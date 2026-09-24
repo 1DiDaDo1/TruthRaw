@@ -18,19 +18,18 @@ import android.widget.SeekBar
 import android.widget.TextView
 
 class TruthRawAdvancedActivity : Activity() {
-    private val bg = Color.rgb(5, 12, 22)
-    private val surface = Color.rgb(10, 22, 37)
-    private val textColor = Color.rgb(244, 248, 255)
-    private val muted = Color.rgb(158, 178, 205)
-    private val amber = Color.rgb(236, 176, 82)
+    private val bg = DrawVisualTheme.PAPER_YELLOW
+    private val surface = DrawVisualTheme.PAPER_WHITE
+    private val textColor = DrawVisualTheme.INK
+    private val muted = DrawVisualTheme.MUTED
+    private val amber = DrawVisualTheme.ORANGE
 
     private var options = TruthRawAdvancedOptions()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
-        window.statusBarColor = bg
-        window.navigationBarColor = bg
+        DrawVisualTheme.applyWindow(this)
         options = TruthRawAdvancedSettings.load(this)
         setContentView(buildUi())
     }
@@ -181,7 +180,7 @@ class TruthRawAdvancedActivity : Activity() {
             isAllCaps = false
             textSize = 16f
             setTextColor(textColor)
-            background = rounded(Color.rgb(49, 39, 22), amber, 18f)
+            background = rounded(DrawVisualTheme.PAPER_ORANGE, amber, 18f)
             setOnClickListener {
                 save()
                 getSharedPreferences(TruthRawSuiteLauncherActivity.PREFS, MODE_PRIVATE)
@@ -194,6 +193,9 @@ class TruthRawAdvancedActivity : Activity() {
                 finish()
             }
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(58)))
+
+        root.addView(space(18))
+        root.addView(DrawVisualTheme.brandFooter(this, 72))
 
         return ScrollView(this).apply {
             isFillViewport = true
@@ -217,7 +219,7 @@ class TruthRawAdvancedActivity : Activity() {
         onChange: (Boolean) -> Unit,
     ): View = vertical().apply {
         setPadding(dp(12), dp(12), dp(12), dp(12))
-        background = rounded(Color.rgb(13, 26, 42), Color.rgb(60, 75, 92), 14f)
+        background = rounded(DrawVisualTheme.PAPER_ORANGE, amber, 14f)
         addView(CheckBox(this@TruthRawAdvancedActivity).apply {
             text = label
             textSize = 15f
@@ -239,7 +241,7 @@ class TruthRawAdvancedActivity : Activity() {
     ): View = vertical().apply {
         require(maxValue > minValue)
         setPadding(dp(12), dp(12), dp(12), dp(12))
-        background = rounded(Color.rgb(13, 26, 42), Color.rgb(60, 75, 92), 14f)
+        background = rounded(DrawVisualTheme.PAPER_ORANGE, amber, 14f)
 
         val valueText = body(format(value.coerceIn(minValue, maxValue)), 11.5f)
         addView(horizontal().apply {
@@ -273,7 +275,7 @@ class TruthRawAdvancedActivity : Activity() {
 
     private fun card(): LinearLayout = vertical().apply {
         setPadding(dp(15), dp(15), dp(15), dp(15))
-        background = rounded(surface, Color.rgb(46, 63, 82), 18f)
+        background = rounded(surface, DrawVisualTheme.BORDER, 18f)
     }
 
     private fun rounded(fill: Int, stroke: Int, radius: Float): GradientDrawable =
