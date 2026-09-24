@@ -25,7 +25,7 @@
         android:allowBackup="false"
         android:icon="@drawable/truthraw_icon"
         android:roundIcon="@drawable/truthraw_icon"
-        android:label="TruthRaw"
+        android:label="D.RAW"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
         <activity android:name=".TruthRawSuiteLauncherActivity" android:screenOrientation="portrait" android:exported="true">
