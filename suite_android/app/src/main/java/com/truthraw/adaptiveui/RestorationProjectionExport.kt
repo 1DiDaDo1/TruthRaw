@@ -25,6 +25,7 @@ object RestorationProjectionNativeBridge {
         trrFd: Int,
         previewFd: Int,
         maxEdge: Int,
+        applyStoredOrientation: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -76,6 +77,7 @@ object RestorationUnifiedOutputPreviewBuilder {
         trrUri: Uri,
         staging: File,
         outputLabel: String,
+        applyStoredOrientation: Boolean = true,
         maxEdge: Int = 384,
     ): UnifiedOutputPreviewResult {
         if (maxEdge !in 1..1024) {
@@ -122,6 +124,7 @@ object RestorationUnifiedOutputPreviewBuilder {
                             trrFd.fd,
                             previewFd.fd,
                             maxEdge,
+                            if (applyStoredOrientation) 1 else 0,
                             MAX_SOURCE_RESIDENT_BYTES,
                             MAX_LOGICAL_RESIDENT_BYTES,
                         )
