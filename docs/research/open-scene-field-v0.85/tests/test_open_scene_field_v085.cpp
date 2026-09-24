@@ -67,22 +67,6 @@ struct VectorFieldSource final : projection::IFieldTileSource {
     }
 };
 
-struct ConstantRgb final : projection::IProjectedRgbTileSource {
-    bool readTargetRgbTile(
-        std::uint32_t x,std::uint32_t y,std::uint32_t w,std::uint32_t h,
-        float* out,std::size_t count) noexcept override {
-        if(!out||count!=static_cast<std::size_t>(w)*h*3u)return false;
-        for(std::uint32_t yy=0;yy<h;++yy){
-            for(std::uint32_t xx=0;xx<w;++xx){
-                const std::size_t p=static_cast<std::size_t>(yy)*w+xx;
-                out[3u*p+0u]=0.1f+0.0001f*static_cast<float>(x+xx);
-                out[3u*p+1u]=0.2f+0.0001f*static_cast<float>(y+yy);
-                out[3u*p+2u]=1.05f;
-            }
-        }
-        return true;
-    }
-};
 
 void test_source_field_and_encoding(){
     constexpr std::uint32_t w=4u,h=4u;
@@ -231,9 +215,10 @@ void test_dense_projection_fail_closed(){
     require(censoredContribution>0u,"censored footprint survives as local provenance");
     require(reconstructedContribution>0u,"reconstruction footprint survives");
 
-    ConstantRgb target{};
     projection::ProjectionSummary summary{};
-    require(projection::summarize_full_projection(source,target,7u,summary),
+    const auto projectedRasterSha = digest(210u);
+    require(projection::summarize_full_projection(
+                source,projectedRasterSha,7u,summary),
             "dense projection summary");
     require(summary.recordCount==
             static_cast<std::uint64_t>(source.g.targetWidth)*source.g.targetHeight*3u,
