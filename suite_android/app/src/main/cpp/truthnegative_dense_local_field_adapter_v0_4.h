@@ -42,27 +42,11 @@ private:
     std::vector<field::ChannelRecord> fieldScratch_;
 };
 
-class ProjectedRgbAdapter final : public local::IProjectedRgbTileSource {
-public:
-    explicit ProjectedRgbAdapter(dense::DenseProjectionTileSource& denseSource) noexcept
-        : dense_(denseSource) {}
-
-    bool readTargetRgbTile(
-        std::uint32_t x,
-        std::uint32_t y,
-        std::uint32_t width,
-        std::uint32_t height,
-        float* out,
-        std::size_t floatCount) noexcept override;
-
-private:
-    dense::DenseProjectionTileSource& dense_;
-};
-
 bool compute_dense_local_authority_summary(
     truthraw::streaming_v0_1::IRawTileSource& rawSource,
     float_dng::IScientificMasterTileSource& masterSource,
     dense::DenseProjectionTileSource& denseSource,
+    const field::Digest& projectedRasterSha256,
     std::uint32_t tileEdge,
     local::ProjectionSummary& out) noexcept;
 
