@@ -811,3 +811,104 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_projectRestoratio
     v[19]=1; // projection contract v0.71
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));if(out)env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());return out;
 }
+
+
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_buildUnifiedOutputPreview(
+    JNIEnv* env,
+    jobject,
+    jint sourceFd,
+    jint trrFd,
+    jint previewFd,
+    jint maxEdge,
+    jint maxSourceResidentBytes,
+    jint maxLogicalResidentBytes) {
+    if(sourceFd<0 || trrFd<0 || previewFd<0 ||
+       maxEdge<=0 ||
+       maxEdge>static_cast<jint>(unified_preview::kMaxEdgeHardLimit) ||
+       maxSourceResidentBytes<=0 || maxLogicalResidentBytes<=0) {
+        return packet(env,-30);
+    }
+
+    TrrReader trr(static_cast<int>(trrFd));
+    std::string error;
+    if(!trr.open(error)) return packet(env,-31);
+
+    Lineage line{};
+    jlong lineageStatus=0;
+    if(!establish_lineage(
+            static_cast<int>(sourceFd),
+            maxSourceResidentBytes,
+            maxLogicalResidentBytes,
+            line,
+            lineageStatus)) {
+        return packet(env,lineageStatus);
+    }
+    if(!lineage_matches(trr.meta(),line)) return packet(env,-32);
+
+    canonical_scene::Summary openScene{};
+    if(!build_canonical_open_scene(line,openScene) ||
+       openScene.artifactSha256!=trr.meta().openSceneArtifactHash ||
+       openScene.counterfactualPixelCount!=0u ||
+       openScene.scientificWritebackPixelCount!=0u ||
+       openScene.createsNewEvidence ||
+       openScene.chunkingChangesScientificIdentity) {
+        return packet(env,-33);
+    }
+
+    unified_preview::Descriptor descriptor{};
+    descriptor.sourceWidth=trr.meta().width;
+    descriptor.sourceHeight=trr.meta().height;
+    descriptor.maxEdge=static_cast<std::uint32_t>(maxEdge);
+    descriptor.sourceSpace=unified_preview::SourceSpace::CameraNative;
+    descriptor.cameraToXyzD50=line.color.color.cameraToXyzD50;
+    descriptor.outputRole="FULL_RES_RESTORATION_DERIVATIVE_PRIMARY";
+
+    unified_preview::Result preview{};
+    if(!unified_preview::render(trr,descriptor,preview) ||
+       !unified_preview::write_uop1_fd(
+            static_cast<int>(previewFd),
+            descriptor,
+            preview) ||
+       !preview.primaryTileSourceUsedDirectly ||
+       preview.appearanceAddedByPreview ||
+       preview.scientificWritebackAllowed) {
+        (void)::ftruncate(previewFd,0);
+        return packet(env,-34);
+    }
+
+    const auto post=
+        truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(
+            *line.bytes,
+            line.seal);
+    if(!post) {
+        (void)::ftruncate(previewFd,0);
+        return packet(env,binding_status(post));
+    }
+
+    std::array<jlong,kPacketLongs> values{};
+    values[0]=kMagic;
+    values[1]=0;
+    values[2]=preview.width;
+    values[3]=preview.height;
+    values[4]=trr.meta().width;
+    values[5]=trr.meta().height;
+    values[6]=static_cast<jlong>(
+        static_cast<std::uint8_t>(descriptor.sourceSpace));
+    values[7]=clamp_jlong(preview.sampledPrimaryPixels);
+    values[8]=clamp_jlong(preview.negativeDisplayClampedComponents);
+    values[9]=clamp_jlong(preview.overOneDisplayClampedComponents);
+    values[10]=1; // direct TRR derivative primary tile source
+    values[11]=0; // preview added appearance
+    values[12]=0; // scientific writeback
+    values[13]=1; // lineage/source/master verified
+    values[14]=1; // canonical Open Scene verified
+    values[15]=1; // TRR derivative digest was verified by TrrReader::open
+    auto out=env->NewLongArray(static_cast<jsize>(values.size()));
+    if(out) env->SetLongArrayRegion(
+        out,
+        0,
+        static_cast<jsize>(values.size()),
+        values.data());
+    return out;
+}
