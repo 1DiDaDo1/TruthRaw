@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TruthRawAdaptiveUiV01"
+rootProject.name = "DRAWAdaptiveUiV01"
 include(":app")
