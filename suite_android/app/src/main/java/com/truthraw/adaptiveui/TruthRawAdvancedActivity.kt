@@ -52,7 +52,7 @@ class TruthRawAdvancedActivity : Activity() {
             }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(8) })
             addView(vertical().apply {
                 addView(title("TRUTHRAW ADVANCED", 24f))
-                addView(body("Canonical Open Scene · gedeeld met TN-3/TRR/projecties", 11.5f))
+                addView(body("Canonical Open Scene v0.85 · gedeeld met TN-4/TRR/projecties", 11.5f))
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         })
 
@@ -155,7 +155,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(space(8))
             addView(toggle(
                 "Restoration / Dynamic Authority",
-                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. v0.72 behoudt dezelfde canonical Open Scene/role-mask inhoud, maar maakt lange DNG/TIFF/EXR-projecties lifecycle-safe: geen startup-cleanup race, één projectie tegelijk en zichtbare foreground voortgang.",
+                "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Open Scene Field v0.85 + local policy v0.86 behandelen gemeten, RECONSTRUCTED, CENSORED en UNKNOWN support lokaal en fail-closed. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. De v0.72 projectielaag blijft lifecycle-safe voor lange DNG/TIFF/EXR-projecties.",
                 options.restoration,
             ) { checked ->
                 options = options.copy(restoration = checked)
@@ -168,7 +168,7 @@ class TruthRawAdvancedActivity : Activity() {
             addView(title("Scientific separation", 16f))
             addView(space(6))
             addView(body(
-                "Advanced consumeert dezelfde Scientific Master en Dynamic Authority als TruthNegative. Full-res Restoration werkt 1:1 op de bronrasterpositie en blijft een aparte derivative. " +
+                "Advanced consumeert dezelfde F64 branch-sensitive Scientific-Master-route, Dynamic Authority en Open Scene Field v0.85 als TruthNegative TN-4. Full-res Restoration werkt 1:1 op de bronrasterpositie en blijft een aparte derivative. " +
                     "CALIBRATED_ESTIMATE, RECONSTRUCTED, CENSORED en UNKNOWN blijven onderscheiden. " +
                     "Open-World, HDR en Restoration zijn downstream; Scientific Master, Zero-Line, scene-scale en Backplane worden niet teruggeschreven.",
                 12f,
