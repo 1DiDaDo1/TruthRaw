@@ -30,6 +30,7 @@ class MainActivity : Activity() {
     private var session = BatchSession()
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
+    private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
     private var previewGeneration: Long = 0
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
@@ -233,6 +234,8 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        unifiedOutputPreviewState?.bitmap?.recycle()
+        unifiedOutputPreviewState = null
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
     }
@@ -1405,6 +1408,8 @@ class MainActivity : Activity() {
 
     private fun selectJob(job: RawJob) {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        unifiedOutputPreviewState?.bitmap?.recycle()
+        unifiedOutputPreviewState = null
         ++previewGeneration
         activeJobId = job.id
         loadingStartedAtElapsedMs = null
@@ -1649,6 +1654,8 @@ class MainActivity : Activity() {
             return
         }
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        unifiedOutputPreviewState?.bitmap?.recycle()
+        unifiedOutputPreviewState = null
         activeJobId = job.id
         jpegStatus = null
         pureFloatDngStatus = null
