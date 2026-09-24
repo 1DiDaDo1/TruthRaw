@@ -50,7 +50,7 @@ object JpgLExporter {
         if (frontResult is FullResJpegResult.Failed) return JpgLResult.Failed(frontResult.reason)
         val front = frontResult as FullResJpegResult.Success
 
-        val science = File(workingDir, "photo_science_tn3.part")
+        val science = File(workingDir, "photo_science_tn4.part")
         science.delete()
         val scienceResult = exportScienceToFile(resolver, job, science)
         if (scienceResult != null) {
@@ -156,29 +156,51 @@ object JpgLExporter {
                     ParcelFileDescriptor.MODE_TRUNCATE,
             )
         } catch (_: Throwable) { null } ?: run {
-            source.close(); return "JPG-L TN-3 staging kon niet worden geopend."
+            source.close(); return "JPG-L TN-4 staging kon niet worden geopend."
         }
 
         val packet = try {
             source.use { src ->
                 output.use { dst ->
                     TruthNegativeNativeBridge.exportTruthNegative(
-                        src.fd, dst.fd,
+                        src.fd,
+                        dst.fd,
+                        -1,
+                        0,
                         8 * 1024 * 1024,
                         64 * 1024 * 1024,
                     )
                 }
             }
         } catch (error: Throwable) {
-            return "JPG-L TN-3 export faalde: ${error.message ?: error.javaClass.simpleName}"
+            return "JPG-L TN-4 export faalde: ${error.message ?: error.javaClass.simpleName}"
         }
-        if (packet.size != 28 || packet[0] != 0x54524e47L || packet[1] != 0L ||
-            packet[14] != 1L || packet[15] != 1L ||
-            packet[16] != 0L || packet[17] != 0L ||
-            packet[18] != 1L || packet[19] != 1L || packet[25] != 1L || packet[27] != 3L ||
+        if (
+            packet.size != 38 ||
+            packet[0] != 0x54524e47L ||
+            packet[1] != 0L ||
+            packet[14] != 1L ||
+            packet[15] != 1L ||
+            packet[16] != 0L ||
+            packet[17] != 0L ||
+            packet[18] != 1L ||
+            packet[19] != 1L ||
+            packet[25] != 1L ||
+            packet[26] != 0L ||
+            packet[27] != 4L ||
+            packet[28] <= 0L ||
+            packet[29] != 3L * packet[2] * packet[3] ||
+            packet[30] != packet[10] ||
+            packet[31] != packet[2] * packet[3] ||
+            packet[32] != 0L ||
+            packet[33] != 0L ||
+            packet[34] != 0L ||
+            packet[35] != 0L ||
+            packet[36] != 0L ||
+            packet[37] != 0L ||
             file.length() != packet[6]
         ) {
-            return "JPG-L TN-3 scientific-layer invariant faalde."
+            return "JPG-L TN-4 scientific-layer invariant faalde."
         }
         val header = FileInputStream(file).use { input ->
             val bytes = ByteArray(8192)
@@ -188,14 +210,22 @@ object JpgLExporter {
                 if (n <= 0) break
                 offset += n
             }
-            if (offset != bytes.size) return "JPG-L TN-3 header is onvolledig."
+            if (offset != bytes.size) return "JPG-L TN-4 header is onvolledig."
             bytes.toString(Charsets.US_ASCII)
         }
-        if (!header.contains("magic=TRUTHNEGATIVE_V0_3_TN3") ||
+        if (
+            !header.contains("magic=TRUTHNEGATIVE_V0_4_TN4") ||
+            !header.contains("container_version=4") ||
             !header.contains("sample_encoding=IEEE754_BINARY32_LE") ||
             !header.contains("pixel_role=CAMERA_NATIVE_SCIENTIFIC_MASTER_RGB") ||
-            !header.contains("tn3_full_open_scene_state=1")
-        ) return "JPG-L TN-3 headercontract ontbreekt."
+            !header.contains("open_scene_field_schema=TruthRawOpenSceneField/0.85") ||
+            !header.contains("open_scene_field_per_pixel_per_channel_authority=1") ||
+            !header.contains("open_scene_field_per_pixel_per_channel_uncertainty=1") ||
+            !header.contains("open_scene_field_creates_new_evidence=0") ||
+            !header.contains("truthnegative_local_authority_projection_schema=TruthNegativeLocalAuthorityProjection/0.4") ||
+            !header.contains("tn3_legacy_open_scene_state_retained=1") ||
+            !header.contains("tn4_open_scene_field_v085_bound=1")
+        ) return "JPG-L TN-4 headercontract ontbreekt."
         return null
     }
 
@@ -212,7 +242,7 @@ object JpgLExporter {
         appendLine("recommended_extension=.jpg")
         appendLine("legacy_extension=.jpgl")
         appendLine("front_role=FULL_RESOLUTION_SRGB_JPEG_COMPATIBILITY")
-        appendLine("science_role=TN3_CAMERA_NATIVE_FLOAT32_SCIENTIFIC_MASTER_OPEN_SCENE")
+        appendLine("science_role=TN4_CAMERA_NATIVE_FLOAT32_SCIENTIFIC_MASTER_OPEN_SCENE_FIELD_V085")
         appendLine("route=$route")
         appendLine("width=${m.width}")
         appendLine("height=${m.height}")
@@ -248,7 +278,7 @@ object JpgLExporter {
         appendLine("physical_frame_count=1")
         appendLine("independent_evidence_count=1")
         appendLine("front_jpeg_sha256=$jpegSha")
-        appendLine("science_tn3_sha256=$scienceSha")
+        appendLine("science_tn4_sha256=$scienceSha")
         appendLine("representation_can_exceed_source=1")
         appendLine("knowledge_claims_cannot_exceed_evidence=1")
         appendLine("scientific_writeback_allowed=0")
@@ -317,10 +347,10 @@ object JpgLExporter {
             raf.seek(scienceOffset)
             raf.readFully(tnMagic)
         }
-        if (!tnMagic.toString(Charsets.US_ASCII).startsWith("magic=TRUTHNEGATIVE_V0_3_TN3")) {
-            return false to "TN-3 science chunk ontbreekt"
+        if (!tnMagic.toString(Charsets.US_ASCII).startsWith("magic=TRUTHNEGATIVE_V0_4_TN4")) {
+            return false to "TN-4 science chunk ontbreekt"
         }
-        return true to "JPEG-front + TN-3 Float32/Open Scene + manifest + 64-bit footer geverifieerd"
+        return true to "JPEG-front + TN-4 Float32/Open Scene Field v0.85 + manifest + 64-bit footer geverifieerd"
     }
 
     private fun copy(file: File, out: FileOutputStream) {
