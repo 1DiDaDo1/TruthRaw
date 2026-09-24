@@ -17,6 +17,7 @@ data class UnifiedOutputPreviewMetrics(
     val sourceWidth: Int,
     val sourceHeight: Int,
     val sourceSpaceCode: Int,
+    val displayQuarterTurns: Int,
     val sampledPrimaryPixels: Long,
     val primaryTileSourceUsedDirectly: Boolean = true,
     val appearanceAddedByPreview: Boolean = false,
@@ -107,6 +108,7 @@ object UnifiedOutputPreviewLoader {
                     sourceWidth = bounds.outWidth,
                     sourceHeight = bounds.outHeight,
                     sourceSpaceCode = 4,
+                    displayQuarterTurns = 0,
                     sampledPrimaryPixels =
                         preview.width.toLong() * preview.height.toLong(),
                     primaryTileSourceUsedDirectly = true,
@@ -167,7 +169,7 @@ object UnifiedOutputPreviewLoader {
                 val sourceWidth = u32(16)
                 val sourceHeight = u32(20)
                 val sourceSpace = u32(24)
-                val flags = u32(28)
+                val displayQuarterTurns = u32(28)
                 val sampled = u64(32)
 
                 if (
@@ -178,7 +180,7 @@ object UnifiedOutputPreviewLoader {
                     sourceWidth <= 0 ||
                     sourceHeight <= 0 ||
                     sourceSpace !in 1..3 ||
-                    flags != 0 ||
+                    displayQuarterTurns !in 0..3 ||
                     sampled != width.toLong() * height.toLong()
                 ) {
                     return UnifiedOutputPreviewResult.Failed(
@@ -231,6 +233,7 @@ object UnifiedOutputPreviewLoader {
                         sourceWidth = sourceWidth,
                         sourceHeight = sourceHeight,
                         sourceSpaceCode = sourceSpace,
+                        displayQuarterTurns = displayQuarterTurns,
                         sampledPrimaryPixels = sampled,
                     ),
                     outputLabel = outputLabel,
