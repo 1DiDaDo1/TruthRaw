@@ -744,6 +744,7 @@ class MainActivity : Activity() {
                 val rendered = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver, job, flags, quarterTurns, dir,
                 )
+                var jpegOutputPreview: UnifiedOutputPreviewResult.Ready? = null
                 var status = when (rendered) {
                     is FullResJpegResult.Failed -> rendered.reason
                     is FullResJpegResult.Success -> {
@@ -759,6 +760,21 @@ class MainActivity : Activity() {
                             runCatching { contentResolver.delete(destination, null, null) }
                             "JPG commit/post-write SHA-verify faalde."
                         } else {
+                            when (
+                                val preview = UnifiedOutputPreviewLoader.loadSavedJpeg(
+                                    contentResolver,
+                                    destination,
+                                    "JPG full-resolution " + route,
+                                    384,
+                                )
+                            ) {
+                                is UnifiedOutputPreviewResult.Ready ->
+                                    jpegOutputPreview = preview
+                                is UnifiedOutputPreviewResult.Failed ->
+                                    jpegStatus =
+                                        "JPG opgeslagen; uitkomst-preview faalde: " +
+                                            preview.reason
+                            }
                             "JPG full-resolution gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
                                 "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
@@ -775,8 +791,14 @@ class MainActivity : Activity() {
                 )
                 runOnUiThread {
                     if (activeJobId == expectedJob) {
+                        jpegOutputPreview?.let { preview ->
+                            unifiedOutputPreviewState?.bitmap?.recycle()
+                            unifiedOutputPreviewState = preview
+                        }
                         jpegStatus = status
                         render()
+                    } else {
+                        jpegOutputPreview?.bitmap?.recycle()
                     }
                 }
             }
@@ -2289,6 +2311,7 @@ class MainActivity : Activity() {
                         1 -> "CAMERA_NATIVE"
                         2 -> "LINEAR_SRGB"
                         3 -> "XYZ_D50"
+                        4 -> "DISPLAY_SRGB_JPEG"
                         else -> "UNKNOWN"
                     }
                     addView(label(
