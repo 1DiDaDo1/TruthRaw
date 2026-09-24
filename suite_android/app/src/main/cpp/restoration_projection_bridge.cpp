@@ -15,6 +15,7 @@
 #include "truthraw/core.h"
 #include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
+#include "unified_output_preview_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -48,6 +49,7 @@ namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace sha = truthraw::sha256_v0_69;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace ancestry = truthraw::canonical_ancestry::v0_77;
+namespace unified_preview = truthraw::unified_output_preview::v0_1;
 
 constexpr jlong kMagic = 0x5452504a; // TRPJ
 constexpr std::size_t kPacketLongs = 20u;
@@ -284,21 +286,63 @@ public:
     float_dng::Status readCameraNativeTile(
         std::uint32_t x,std::uint32_t y,std::uint32_t w,std::uint32_t h,
         float* rgb,std::size_t floatCount) noexcept override {
-        if(rgb==nullptr || floatCount!=static_cast<std::size_t>(w)*h*3u)
-            return float_dng::Status::error(float_dng::StatusCode::InvalidArgument,"TRR tile output size mismatch");
-        const auto cols=(meta_.width+kTileEdge-1u)/kTileEdge;
-        if((x%kTileEdge)!=0u || (y%kTileEdge)!=0u)
-            return float_dng::Status::error(float_dng::StatusCode::InvalidArgument,"TRR tile origin not canonical");
-        const std::size_t idx=static_cast<std::size_t>(y/kTileEdge)*cols+(x/kTileEdge);
-        if(idx>=tiles_.size()) return float_dng::Status::error(float_dng::StatusCode::SourceFailed,"TRR tile index out of range");
-        const auto& t=tiles_[idx];
-        if(t.x!=x||t.y!=y||t.w!=w||t.h!=h)
-            return float_dng::Status::error(float_dng::StatusCode::SourceFailed,"TRR tile geometry mismatch");
-        const auto bytes=floatCount*sizeof(float);
-        if(!pread_all(fd_,t.rgbOffset,reinterpret_cast<std::uint8_t*>(rgb),bytes))
-            return float_dng::Status::error(float_dng::StatusCode::SourceFailed,"TRR tile read failed");
-        for(std::size_t i=0;i<floatCount;++i) if(!std::isfinite(rgb[i]))
-            return float_dng::Status::error(float_dng::StatusCode::SourceFailed,"TRR contains non-finite float");
+        if(rgb==nullptr || w==0u || h==0u ||
+           x>=meta_.width || y>=meta_.height ||
+           x+w>meta_.width || y+h>meta_.height ||
+           floatCount!=static_cast<std::size_t>(w)*h*3u)
+            return float_dng::Status::error(
+                float_dng::StatusCode::InvalidArgument,
+                "TRR subrect output size/geometry mismatch");
+
+        const std::uint32_t cols=(meta_.width+kTileEdge-1u)/kTileEdge;
+        for(std::uint32_t oy=0u;oy<h;++oy){
+            const std::uint32_t sy=y+oy;
+            std::uint32_t ox=0u;
+            while(ox<w){
+                const std::uint32_t sx=x+ox;
+                const std::uint32_t tx=sx/kTileEdge;
+                const std::uint32_t ty=sy/kTileEdge;
+                const std::size_t idx=
+                    static_cast<std::size_t>(ty)*cols+tx;
+                if(idx>=tiles_.size())
+                    return float_dng::Status::error(
+                        float_dng::StatusCode::SourceFailed,
+                        "TRR subrect tile index out of range");
+                const auto& t=tiles_[idx];
+                if(sx<t.x || sy<t.y || sx>=t.x+t.w || sy>=t.y+t.h)
+                    return float_dng::Status::error(
+                        float_dng::StatusCode::SourceFailed,
+                        "TRR subrect tile geometry mismatch");
+
+                const std::uint32_t localX=sx-t.x;
+                const std::uint32_t localY=sy-t.y;
+                const std::uint32_t take=
+                    std::min<std::uint32_t>(w-ox,t.w-localX);
+                const std::uint64_t sampleOffset=
+                    (static_cast<std::uint64_t>(localY)*t.w+localX)*3u;
+                const std::uint64_t byteOffset=
+                    t.rgbOffset+sampleOffset*sizeof(float);
+                float* dst=
+                    rgb+(static_cast<std::size_t>(oy)*w+ox)*3u;
+                const std::size_t bytes=
+                    static_cast<std::size_t>(take)*3u*sizeof(float);
+                if(!pread_all(
+                        fd_,
+                        byteOffset,
+                        reinterpret_cast<std::uint8_t*>(dst),
+                        bytes))
+                    return float_dng::Status::error(
+                        float_dng::StatusCode::SourceFailed,
+                        "TRR subrect tile read failed");
+                ox+=take;
+            }
+        }
+
+        for(std::size_t i=0;i<floatCount;++i)
+            if(!std::isfinite(rgb[i]))
+                return float_dng::Status::error(
+                    float_dng::StatusCode::SourceFailed,
+                    "TRR contains non-finite float");
         return float_dng::Status::ok();
     }
 
