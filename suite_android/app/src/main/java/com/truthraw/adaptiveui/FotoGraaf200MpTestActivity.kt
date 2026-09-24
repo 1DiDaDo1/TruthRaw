@@ -79,6 +79,7 @@ class FotoGraaf200MpTestActivity : Activity(), TextureView.SurfaceTextureListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         manager = getSystemService(CameraManager::class.java)
         setContentView(buildUi())
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -113,14 +114,14 @@ class FotoGraaf200MpTestActivity : Activity(), TextureView.SurfaceTextureListene
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(12), dp(12), dp(24))
-            setBackgroundColor(Color.rgb(10, 12, 15))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         val scroll = ScrollView(this).apply {
             isFillViewport = true
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
-        root.addView(label("TruthRaw · 200MP Tele Test", 25f, true))
+        root.addView(label("D.RAW · 200MP Tele Test", 25f, true))
         root.addView(label(
             "Één vaste route: logical 0 → physical 5 → MAX RAW 16320×12288. De live preview is alleen framing in normale previewmode; 200MP wordt pas bij de RAW-capture aangevraagd.",
             12f,
