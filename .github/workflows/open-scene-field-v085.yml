@@ -12,6 +12,7 @@ on:
       - 'suite_android/app/src/main/cpp/truthnegative_dense_local_field_adapter_v0_4.*'
       - 'suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp'
       - 'suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp'
       - 'suite_android/app/src/main/cpp/CMakeLists.txt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt'
       - 'docs/research/open-scene-field-v0.85/**'
@@ -67,6 +68,10 @@ jobs:
           grep -F 'truthnegative_dense_local_field_adapter_v0_4.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
           grep -F 'restoration_trigger_uses_open_scene_local_policy=1' suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp
           grep -F 'TruthNegativeDenseLocalFieldAdapter/0.4' suite_android/app/src/main/cpp/truthnegative_dense_local_field_adapter_v0_4.cpp
+          grep -F 'local_field_per_target_channel_queryable=1' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
+          grep -F 'target_creation_role=DENSE_PROJECTION' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
+          grep -F 'resampling_promotes_uncertainty=0' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
+          grep -F 'openSceneFieldRecordCount' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeExport.kt
           grep -F 'open_scene_local_policy_v0_86.cpp' suite_android/app/src/main/cpp/CMakeLists.txt
           python3 - <<'PY'
           from pathlib import Path
