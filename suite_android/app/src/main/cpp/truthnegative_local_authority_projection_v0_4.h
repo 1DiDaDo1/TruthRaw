@@ -21,6 +21,34 @@ struct Geometry final {
     std::uint32_t targetHeight = 0u;
 };
 
+struct ProceduralBinding final {
+    field::Digest sourceEvidenceSha256{};
+    field::Digest scientificMasterSha256{};
+    field::Digest parentOpenSceneSha256{};
+    field::Digest projectedRasterSha256{};
+    field::Digest policySha256{};
+    field::Digest artifactSha256{};
+
+    Geometry geometry{};
+    std::string reconstructionBackendId;
+
+    bool perTargetChannelQueryable = false;
+    bool materializedFieldRequired = false;
+    bool targetMeasuredClaimsCreated = false;
+    bool uncertaintyPromotedByResampling = false;
+    bool createsNewEvidence = false;
+    bool scientificWritebackAllowed = false;
+};
+
+bool build_procedural_binding(
+    const field::Digest& sourceEvidenceSha256,
+    const field::Digest& scientificMasterSha256,
+    const field::Digest& parentOpenSceneSha256,
+    const field::Digest& projectedRasterSha256,
+    const Geometry& geometry,
+    const std::string& reconstructionBackendId,
+    ProceduralBinding& out) noexcept;
+
 struct ProjectionSummary final {
     field::Digest contentSha256{};
     std::array<std::uint64_t,4> authorityCounts{};
