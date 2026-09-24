@@ -18,6 +18,7 @@
 #include "technical_backplane_phase2_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -32,7 +33,7 @@
 namespace {
 
 using truthraw::NeutralReferenceAppearance;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
@@ -871,7 +872,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     auto& source=opened.source;
     if ((source->metadata().width&1)!=0 || (source->metadata().height&1)!=0) return packet(env,-3);
 
-    auto reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    auto reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
 
     truthraw::scientific_master_streaming_binding::v0_3::Options sciOptions;
     sciOptions.memoryBudgetBytes=static_cast<std::size_t>(maxLogicalResidentBytes);

@@ -1,0 +1,143 @@
+name: Scientific Master F64 + Color Audit v0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/scientific-master-f64-color-audit-v01-2026-09-24
+    paths:
+      - 'canonical/reconstruction/v4.7i/**'
+      - 'suite_android/app/src/main/cpp/**'
+      - 'docs/research/scientific-master-f64-reconstruction-v0.1/**'
+      - 'docs/research/formal-color-calibration-audit-v0.1/**'
+      - 'docs/research/dng-color-binding-producer-v0.2/**'
+      - '.github/workflows/scientific-master-f64-color-audit-v0-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  f64-host:
+    name: F64 host precision
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S docs/research/scientific-master-f64-reconstruction-v0.1 \
+                -B build/f64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/f64 --parallel 2
+      - name: Precision tests
+        run: ctest --test-dir build/f64 --output-on-failure
+      - name: Metrics
+        run: build/f64/test_scientific_master_f64_reconstruction_v01
+
+  color-model:
+    name: DNG color v0.2 model tests
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -S docs/research/dng-color-binding-producer-v0.2 \
+                -B build/color-v02 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/color-v02 --parallel 2
+      - name: Tests
+        run: ctest --test-dir build/color-v02 --output-on-failure
+
+  audit-contract:
+    name: Color authority and precision contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify formal audit facts
+        run: |
+          set -euo pipefail
+          P='docs/research/dng-color-binding-producer-v0.2/native/dng_color_binding_producer_v0_2.cpp'
+          H='docs/research/scientific-preview-source-binding-v0.1/native/scientific_preview_source_binding_v0_1.h'
+          A='docs/research/formal-color-calibration-audit-v0.1/STATE_v0_1.json'
+          grep -F 'TripleCalibrationUnsupported' "$P"
+          grep -F 'custom calibration illuminant requires IlluminantData parsing' "$P"
+          grep -F 'record.authority = ColorBindingAuthority::SourceMetadataBound' "$P"
+          grep -F 'static_cast<float>(cameraToXyzD50.v[i])' "$P"
+          grep -F 'std::array<float, 9> cameraToXyzD50' "$H"
+          grep -F '"fullPhysicalColorEstablished": false' "$A"
+          grep -F '"runtimeCameraToXyzComputePrecision": "FLOAT32_RESEARCH_GAP"' "$A"
+
+  android:
+    name: Android mixed-precision research integration
+    runs-on: ubuntu-24.04
+    needs: [f64-host, color-model, audit-contract]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify F64 Scientific-Master routing
+        run: |
+          set -euo pipefail
+          for f in \
+            suite_android/app/src/main/cpp/advanced_preview_bridge.cpp \
+            suite_android/app/src/main/cpp/source_bound_color_preview_bridge.cpp \
+            suite_android/app/src/main/cpp/photo_export_bridge.cpp \
+            suite_android/app/src/main/cpp/fullres_restoration_export_bridge.cpp \
+            suite_android/app/src/main/cpp/restoration_projection_bridge.cpp \
+            suite_android/app/src/main/cpp/linear_dng_export_bridge.cpp \
+            suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp \
+            suite_android/app/src/main/cpp/truthnegative_export_bridge.cpp
+          do
+            grep -F 'ResearchEdgeAwareMeasuredPreservingReconstructionF64' "$f"
+          done
+          grep -F 'research_edge_aware_support_limited_measured_preserving_f64_v0_1' \
+            docs/research/scientific-master-f64-reconstruction-v0.1/native/scientific_master_f64_reconstruction_v0_1.h
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/include/truthraw/core.h)" = "cfb9fd42bc310ddb4fd16ee8f26c3ed554a0f92a"
+          test "$(git hash-object canonical/reconstruction/v4.7i/native/src/core.cpp)" = "f79b951ba54cff08db400023e528e4eb91909ba6"
+          grep -F 'physically measured CFA component is re-injected directly from the original Float32 input, bit-exact' \
+            docs/research/scientific-master-f64-reconstruction-v0.1/README.md
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'classes.dex'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libtruthraw_ui_preview_bridge.so'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truthraw-f64-scientific-master-color-audit-v01-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

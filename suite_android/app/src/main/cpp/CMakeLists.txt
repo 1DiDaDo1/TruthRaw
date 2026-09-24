@@ -35,6 +35,7 @@ set(OPEN_WORLD_NATIVE_V03 "${RESEARCH_ROOT}/open-world-native-integration-v0.3/n
 set(CICM_V1 "${RESEARCH_ROOT}/counterfactual-illumination-capture-manifold-v1/native")
 set(ROOM_CAPSULE_V01 "${RESEARCH_ROOT}/local-illumination-room-capsule-v0.1/native")
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
+set(F64_RECON_NATIVE "${RESEARCH_ROOT}/scientific-master-f64-reconstruction-v0.1/native")
 set(V47K_NATIVE "${REPO_ROOT}/canonical/output-acutance/v4.7k/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
@@ -99,6 +100,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${CICM_V1}/cicm_v1.cpp
     ${ROOM_CAPSULE_V01}/room_capsule_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp
+    ${F64_RECON_NATIVE}/scientific_master_f64_reconstruction_v0_1.cpp
     ${V47K_NATIVE}/output_acutance.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
@@ -127,6 +129,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${CICM_V1}
     ${ROOM_CAPSULE_V01}
     ${V47I_NATIVE}/include
+    ${F64_RECON_NATIVE}
     ${V47K_NATIVE})
 
 if(ANDROID)

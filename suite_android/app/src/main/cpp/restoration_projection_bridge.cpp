@@ -13,6 +13,7 @@
 #include "tile_native_dng_source_v0_1.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
 
 #include <algorithm>
@@ -34,7 +35,7 @@
 namespace {
 
 using truthraw::CfaPattern;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
 using truthraw::scientific_preview_binding_v0_1::SourceSeal;
@@ -391,7 +392,7 @@ struct Lineage final {
     truthraw::scientific_master_streaming_binding::v0_2::Result scientific{};
     truthraw::technical_backplane_phase2::v0_1::Phase2Result phase2{};
     std::unique_ptr<truthraw::streaming_v0_1::IRawTileSource> source;
-    std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstruction> reconstruction;
+    std::shared_ptr<ResearchEdgeAwareMeasuredPreservingReconstructionF64> reconstruction;
 };
 
 jlong binding_status(const truthraw::scientific_preview_binding_v0_1::BindingStatus& s){return 2000+static_cast<jlong>(s.code);}
@@ -417,7 +418,7 @@ bool establish_lineage(
     auto os=truthraw::android_raw_adapter_bridge::v0_1::openDngViaAdapter(out.bytes,out.seal,opts,opened);
     if(!os){status=adapter_status(os);return false;}
     out.source=std::move(opened.source);
-    out.reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    out.reconstruction=std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
     truthraw::scientific_master_streaming_binding::v0_2::Options so;so.memoryBudgetBytes=static_cast<std::size_t>(maxLogicalResidentBytes);
     auto ss=truthraw::scientific_master_streaming_binding::v0_2::bind_scientific_master_streaming(*out.source,*out.reconstruction,so,out.scientific);
     if(!ss){status=science_status(ss);return false;}

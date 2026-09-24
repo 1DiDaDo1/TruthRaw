@@ -1,0 +1,32 @@
+{
+  "schema": "truthraw.formal-color-calibration-audit.v0.1",
+  "date": "2026-09-24",
+  "branch": "research/scientific-master-f64-color-audit-v01-2026-09-24",
+  "frozenProductionBase": "172a100786eb18d4b08564bbfb025a44f42cfa1e",
+  "dngSpecification": "Adobe DNG 1.7.1.0 (September 2023)",
+  "currentAuthority": "SOURCE_METADATA_BOUND",
+  "fullPhysicalColorEstablished": false,
+  "items": {
+    "colorMatrixDirection": "PASS",
+    "cameraCalibrationDirection": "PASS",
+    "calibrationSignatureGate": "PASS",
+    "dualInverseCctInterpolation": "PASS",
+    "neutralToXyIterativeSolve": "PASS_FAIL_CLOSED_ON_NONCONVERGENCE",
+    "bradfordFallback": "PASS",
+    "dualForwardMatrixBothEndpoints": "PASS",
+    "singleForwardMatrixAcrossDualRange": "REVIEW_REQUIRED_PROJECT_POLICY",
+    "thirdCalibration": "FAIL_CLOSED_UNSUPPORTED",
+    "customIlluminant255IlluminantData": "FAIL_CLOSED_UNSUPPORTED",
+    "producerInternalPrecision": "FLOAT64",
+    "storedCameraToXyzD50Precision": "FLOAT32",
+    "runtimeCameraToXyzComputePrecision": "FLOAT32_RESEARCH_GAP",
+    "camera5MetadataConsistency": "UNRESOLVED_BLUE_CAST_DIAGNOSTIC",
+    "independentPhysicalCalibration": "NOT_ESTABLISHED"
+  },
+  "authorityInvariants": {
+    "sourceMetadataDoesNotEqualPhysicalCalibration": true,
+    "asShotNeutralDoesNotEqualMeasuredSpd": true,
+    "camera2TelemetryObservationOnly": true,
+    "diagnosticNeutralCannotWriteScientificCalibration": true
+  }
+}

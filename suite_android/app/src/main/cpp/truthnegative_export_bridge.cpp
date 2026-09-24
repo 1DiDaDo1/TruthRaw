@@ -13,6 +13,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
 
 #include <algorithm>
@@ -31,7 +32,7 @@
 namespace {
 
 using truthraw::CfaPattern;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::TileRect;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::scientific_preview_binding_v0_1::ColorClaimScope;
@@ -319,7 +320,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     auto& source = openedSource.source;
 
     auto reconstruction =
-        std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+        std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
 
     truthraw::scientific_master_streaming_binding::v0_2::Options scientificOptions;
     scientificOptions.memoryBudgetBytes = static_cast<std::size_t>(maxLogicalResidentBytes);

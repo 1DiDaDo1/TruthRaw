@@ -11,6 +11,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthraw/core.h"
+#include "scientific_master_f64_reconstruction_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -22,7 +23,7 @@
 namespace {
 
 using truthraw::NeutralReferenceAppearance;
-using truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction;
+using truthraw::scientific_master_f64_reconstruction_v0_1::ResearchEdgeAwareMeasuredPreservingReconstructionF64;
 using truthraw::dng_color_binding_producer_v0_2::ProducerResult;
 using truthraw::finalized_scientific_preview_release::v0_2::PreviewAuthority;
 using truthraw::finalized_scientific_preview_release::v0_2::ReleaseResult;
@@ -137,7 +138,7 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
     if (!opened) return packet(env, adapter_status(opened));
     auto& source = openedSource.source;
 
-    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstruction>();
+    auto reconstruction = std::make_shared<ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
     auto appearance = std::make_shared<NeutralReferenceAppearance>();
     BoundedSrgbPreviewSink releaseSink(kExportPreviewEdge);
 
