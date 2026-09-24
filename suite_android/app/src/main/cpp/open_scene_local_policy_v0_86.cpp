@@ -41,6 +41,51 @@ bool evaluate(const field::ChannelRecord& record, Decision& out) noexcept {
     return false;
 }
 
+bool summarize(
+    std::span<const field::ChannelRecord> records,
+    Summary& out) noexcept {
+    out={};
+    if(records.empty()) return false;
+
+    for(const auto& record:records){
+        Decision d{};
+        if(!evaluate(record,d)) {
+            out={};
+            return false;
+        }
+
+        const auto restorationIndex=
+            static_cast<std::uint8_t>(d.restoration)-1u;
+        const auto hdrIndex=static_cast<std::uint8_t>(d.hdr)-1u;
+        const auto detailIndex=static_cast<std::uint8_t>(d.detail)-1u;
+        if(restorationIndex>=out.restorationCounts.size() ||
+           hdrIndex>=out.hdrCounts.size() ||
+           detailIndex>=out.detailCounts.size()){
+            out={};return false;
+        }
+        ++out.restorationCounts[restorationIndex];
+        ++out.hdrCounts[hdrIndex];
+        ++out.detailCounts[detailIndex];
+        ++out.recordCount;
+
+        if(record.authority==field::Authority::Censored) out.anyCensored=true;
+        if(record.authority==field::Authority::Unknown) out.anyUnknown=true;
+    }
+
+    out.allScientificHdrEligible=
+        out.hdrCounts[
+            static_cast<std::size_t>(
+                static_cast<std::uint8_t>(
+                    HdrDisposition::CensoredExactGainForbidden)-1u)]==0u &&
+        out.hdrCounts[
+            static_cast<std::size_t>(
+                static_cast<std::uint8_t>(
+                    HdrDisposition::UnknownHeadroomForbidden)-1u)]==0u;
+    out.createsNewEvidence=false;
+    out.scientificWritebackAllowed=false;
+    return true;
+}
+
 const char* schema_name() noexcept {
     return "TruthRawOpenSceneLocalPolicy/0.86";
 }
