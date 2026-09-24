@@ -17,22 +17,11 @@ bool nonzero(const Digest& d) noexcept {
     return std::any_of(d.begin(), d.end(), [](std::uint8_t v){ return v != 0u; });
 }
 
-void put_u16(std::vector<std::uint8_t>& out, std::uint16_t v) {
-    out.push_back(static_cast<std::uint8_t>(v));
-    out.push_back(static_cast<std::uint8_t>(v >> 8u));
-}
 void put_u32(std::vector<std::uint8_t>& out, std::uint32_t v) {
     out.push_back(static_cast<std::uint8_t>(v));
     out.push_back(static_cast<std::uint8_t>(v >> 8u));
     out.push_back(static_cast<std::uint8_t>(v >> 16u));
     out.push_back(static_cast<std::uint8_t>(v >> 24u));
-}
-void put_u64_hash(truthraw::sha256_v0_69::Hasher& h, std::uint64_t v) noexcept {
-    std::array<std::uint8_t,8> b{};
-    for(std::size_t i=0;i<b.size();++i) {
-        b[i]=static_cast<std::uint8_t>(v >> (8u*i));
-    }
-    h.update(b);
 }
 void put_u32_hash(truthraw::sha256_v0_69::Hasher& h, std::uint32_t v) noexcept {
     const std::array<std::uint8_t,4> b{
@@ -49,12 +38,6 @@ void put_f32_hash(truthraw::sha256_v0_69::Hasher& h, float v) noexcept {
     put_u32_hash(h, std::bit_cast<std::uint32_t>(v));
 }
 
-bool get_u16(std::span<const std::uint8_t> in, std::size_t& off, std::uint16_t& v) noexcept {
-    if(off > in.size() || in.size()-off < 2u) return false;
-    v=static_cast<std::uint16_t>(in[off]) |
-      static_cast<std::uint16_t>(static_cast<std::uint16_t>(in[off+1u]) << 8u);
-    off+=2u; return true;
-}
 bool get_u32(std::span<const std::uint8_t> in, std::size_t& off, std::uint32_t& v) noexcept {
     if(off > in.size() || in.size()-off < 4u) return false;
     v=static_cast<std::uint32_t>(in[off]) |
