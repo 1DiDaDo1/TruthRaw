@@ -57,21 +57,9 @@ bool project_target_tile(
     std::span<const float> targetRgb,
     std::vector<field::ChannelRecord>& out) noexcept;
 
-class IProjectedRgbTileSource {
-public:
-    virtual ~IProjectedRgbTileSource() = default;
-    virtual bool readTargetRgbTile(
-        std::uint32_t x,
-        std::uint32_t y,
-        std::uint32_t width,
-        std::uint32_t height,
-        float* out,
-        std::size_t floatCount) noexcept = 0;
-};
-
 bool summarize_full_projection(
     IFieldTileSource& source,
-    IProjectedRgbTileSource& projectedRgb,
+    const field::Digest& projectedRasterSha256,
     std::uint32_t tileEdge,
     ProjectionSummary& out) noexcept;
 
