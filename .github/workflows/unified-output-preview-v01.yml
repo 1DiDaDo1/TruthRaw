@@ -17,6 +17,7 @@ on:
       - 'suite_android/app/src/main/cpp/unified_output_preview_sources_v0_1.*'
       - 'suite_android/app/src/main/cpp/CMakeLists.txt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPreview.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/JpgLExport.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PureFloat32DngExport.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'docs/research/unified-output-preview-v0.1/**'
@@ -83,6 +84,14 @@ jobs:
           grep -F 'displayQuarterTurns' suite_android/app/src/main/cpp/unified_output_preview_v0_1.h
           grep -F 'outputQuarterTurns' "$M"
           grep -F 'DISPLAY_SRGB_JPEG' "$M"
+          J='suite_android/app/src/main/java/com/truthraw/adaptiveui/JpgLExport.kt'
+          grep -F 'science_role=TN4_CAMERA_NATIVE_FLOAT32_SCIENTIFIC_MASTER_OPEN_SCENE_FIELD_V085' "$J"
+          grep -F 'magic=TRUTHNEGATIVE_V0_4_TN4' "$J"
+          grep -F 'tn4_open_scene_field_v085_bound=1' "$J"
+          if grep -F 'magic=TRUTHNEGATIVE_V0_3_TN3' "$J"; then
+            echo 'stale TN-3 JPG-L science contract present' >&2
+            exit 1
+          fi
 
   android:
     name: Android main integration
