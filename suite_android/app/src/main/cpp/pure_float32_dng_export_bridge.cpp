@@ -24,6 +24,7 @@
 #include "truthnegative_vulkan_dense_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
 #include "unified_output_preview_v0_1.h"
+#include "unified_output_preview_sources_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -58,6 +59,7 @@ namespace tn_local_field = truthraw::truthnegative_local_authority_projection::v
 namespace tn_vulkan = truthraw::truthnegative_vulkan_dense::v0_1;
 namespace sha256 = truthraw::sha256_v0_69;
 namespace unified_preview = truthraw::unified_output_preview::v0_1;
+namespace unified_preview_sources = truthraw::unified_output_preview_sources::v0_1;
 
 constexpr jlong kMagic = 0x54525046; // TRPF = TruthRaw PURE Float
 constexpr std::size_t kPacketLongs = 40u;
@@ -910,12 +912,15 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
         return packet(env, bindingStatus(postVerified));
     }
 
+    unified_preview_sources::RandomAccessScientificMasterSource
+        previewMasterSource(*source,*reconstruction);
     unified_preview::Result unifiedPreview{};
     bool unifiedPreviewAvailable = false;
     unified_preview::SourceSpace unifiedPreviewSpace =
         unified_preview::SourceSpace::CameraNative;
     if (outputPreviewFd >= 0) {
-        float_dng::IScientificMasterTileSource* previewPrimary = &masterSource;
+        float_dng::IScientificMasterTileSource* previewPrimary =
+            &previewMasterSource;
         std::string previewRole =
             "PURE_SCIENTIFIC_MASTER_PRIMARY";
 
