@@ -84,6 +84,7 @@ class FotoGraafCameraActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         cameraManager = getSystemService(CameraManager::class.java)
         setContentView(buildUi())
         scanRuntime()
@@ -104,7 +105,7 @@ class FotoGraafCameraActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(24))
-            setBackgroundColor(Color.rgb(18, 20, 24))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
         val scroll = ScrollView(this).apply {
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
@@ -127,7 +128,7 @@ class FotoGraafCameraActivity : Activity() {
 
         manualFocusBox = CheckBox(this).apply {
             text = "Manual focus · AF OFF + LENS_FOCUS_DISTANCE"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
             setOnCheckedChangeListener { _, enabled ->
                 focusSeek.isEnabled = enabled && focusMaxDiopters > 0f
                 updateFocusLabel()
@@ -149,7 +150,7 @@ class FotoGraafCameraActivity : Activity() {
 
         oisBox = CheckBox(this).apply {
             text = "OIS aanvragen · actual CaptureResult wordt apart bewaard"
-            setTextColor(Color.WHITE)
+            setTextColor(DrawVisualTheme.INK)
         }
         root.addView(oisBox)
         root.addView(space(8))
