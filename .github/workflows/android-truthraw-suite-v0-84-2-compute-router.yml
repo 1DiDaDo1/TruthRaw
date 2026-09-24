@@ -195,10 +195,10 @@ jobs:
           DRAW_DEBUG_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::Missing DRAW_DEBUG_KEYSTORE_B64"; exit 1; }
-          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::Missing DRAW_DEBUG_STORE_PASSWORD"; exit 1; }
-          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::Missing DRAW_DEBUG_KEY_ALIAS"; exit 1; }
-          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::Missing DRAW_DEBUG_KEY_PASSWORD"; exit 1; }
+          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::D.RAW signing slot A missing: keystore Base64 payload"; exit 1; }
+          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::D.RAW signing slot B missing: keystore password"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::D.RAW signing slot C missing: key alias"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::D.RAW signing slot D missing: key password"; exit 1; }
           printf '%s' "$DRAW_DEBUG_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/draw-debug.jks"
           test -s "$RUNNER_TEMP/draw-debug.jks"
           keytool -list             -keystore "$RUNNER_TEMP/draw-debug.jks"             -storepass "$DRAW_DEBUG_STORE_PASSWORD"             -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
