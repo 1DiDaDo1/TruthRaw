@@ -40,6 +40,16 @@ namespace unified_preview = truthraw::unified_output_preview::v0_1;
 namespace unified_preview_sources =
     truthraw::unified_output_preview_sources::v0_1;
 
+std::uint32_t display_quarter_turns(truthraw::Orientation orientation) noexcept {
+    switch(orientation){
+        case truthraw::Orientation::Normal: return 0u;
+        case truthraw::Orientation::Rotate90CW: return 1u;
+        case truthraw::Orientation::Rotate180: return 2u;
+        case truthraw::Orientation::Rotate90CCW: return 3u;
+    }
+    return 0u;
+}
+
 constexpr jlong kMagic = 0x5452444c; // TRDL
 constexpr std::size_t kPacketLongs = 19u;
 constexpr int kExportPreviewEdge = 64;
@@ -226,6 +236,8 @@ Java_com_truthraw_adaptiveui_LinearDngNativeBridge_exportFinalizedLinearDng(
         descriptor.sourceHeight=projection.height;
         descriptor.maxEdge=static_cast<std::uint32_t>(outputPreviewMaxEdge);
         descriptor.sourceSpace=unified_preview::SourceSpace::CameraNative;
+        descriptor.displayQuarterTurns =
+            display_quarter_turns(source->metadata().orientation);
         descriptor.cameraToXyzD50=produced.color.cameraToXyzD50;
         descriptor.outputRole="BOUNDED_U16_LINEAR_DNG_PRIMARY";
         if(!unified_preview::render(
