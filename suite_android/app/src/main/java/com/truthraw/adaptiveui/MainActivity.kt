@@ -1273,37 +1273,51 @@ class MainActivity : Activity() {
             }
 
             val operationKey = backgroundOperationKey("truthnegative", expectedJob)
-            if (!startBackgroundOperation(operationKey, "TRUTHNEGATIVE TN-3 opbouwen")) {
+            if (!startBackgroundOperation(operationKey, "TRUTHNEGATIVE TN-4 opbouwen")) {
                 truthNegativeStatus = "TRUTHNEGATIVE achtergrondverwerking kon niet veilig starten."
                 render()
                 return
             }
             truthNegativeStatus =
-                "TRUTHNEGATIVE TN-3 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
+                "TRUTHNEGATIVE TN-4 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
             render()
 
             startGuardedBackgroundThread(
-                name = "truthnegative-tn3-${job.id.take(8)}",
+                name = "truthnegative-tn4-${job.id.take(8)}",
                 operationKey = operationKey,
                 onUnexpected = { truthNegativeStatus = it },
             ) {
-                val exportResult =
-                    TruthNegativeExporter.export(contentResolver, job, destination)
+                val dir = File(
+                    filesDir,
+                    "truthnegative_tn4/$expectedJob",
+                ).apply { mkdirs() }
+                val exportResult = TruthNegativeExporter.export(
+                    contentResolver,
+                    job,
+                    destination,
+                    unifiedOutputPreviewFile =
+                        File(dir, "unified_output_preview.uop1"),
+                    unifiedOutputPreviewMaxEdge = 384,
+                )
                 finishBackgroundOperation(
                     operationKey,
                     exportResult is TruthNegativeExportResult.Success,
                     when (exportResult) {
-                        is TruthNegativeExportResult.Success -> "TRUTHNEGATIVE TN-3 gereed."
+                        is TruthNegativeExportResult.Success -> "TRUTHNEGATIVE TN-4 gereed."
                         is TruthNegativeExportResult.Failed -> exportResult.reason
                     },
                 )
                 runOnUiThread {
                     if (activeJobId != expectedJob) return@runOnUiThread
+                    if (exportResult is TruthNegativeExportResult.Success) {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState = exportResult.unifiedOutputPreview
+                    }
                     truthNegativeStatus = when (exportResult) {
                         is TruthNegativeExportResult.Failed -> exportResult.reason
                         is TruthNegativeExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHNEGATIVE TN-3 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                            "TRUTHNEGATIVE TN-4 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · camera-native Float32 · " +
                                 "authority CAL/REC/CENS/UNK=${m.calibratedEstimateSamples}/" +
                                 "${m.reconstructedSamples}/${m.censoredSamples}/${m.unknownSamples} · " +
