@@ -40,6 +40,10 @@ data class TruthNegativeExportMetrics(
     val fullOpenSceneStateBound: Boolean,
     val openSceneCounterfactualPixels: Long,
     val tnVersion: Int,
+    val openSceneFieldStorageBytes: Long,
+    val openSceneFieldRecordCount: Long,
+    val openSceneFieldBoundCount: Long,
+    val openSceneFieldSupportCount: Long,
     val postWriteVerified: Boolean,
 )
 
@@ -50,7 +54,7 @@ sealed interface TruthNegativeExportResult {
 
 object TruthNegativeExporter {
     private const val MAGIC = 0x54524e47L
-    private const val PACKET_LONGS = 28
+    private const val PACKET_LONGS = 32
     private const val HEADER_BYTES = 8192
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -133,6 +137,10 @@ object TruthNegativeExporter {
             fullOpenSceneStateBound = packet[25] != 0L,
             openSceneCounterfactualPixels = packet[26],
             tnVersion = packet[27].toInt(),
+            openSceneFieldStorageBytes = packet[28],
+            openSceneFieldRecordCount = packet[29],
+            openSceneFieldBoundCount = packet[30],
+            openSceneFieldSupportCount = packet[31],
             postWriteVerified = false,
         )
 
@@ -156,7 +164,13 @@ object TruthNegativeExporter {
                     metrics.width.toLong() * metrics.height.toLong() ||
                 !metrics.fullOpenSceneStateBound ||
                 metrics.openSceneCounterfactualPixels != 0L ||
-                metrics.tnVersion != 4
+                metrics.tnVersion != 4 ||
+                metrics.openSceneFieldStorageBytes <= 0L ||
+                metrics.openSceneFieldRecordCount !=
+                    3L * metrics.width.toLong() * metrics.height.toLong() ||
+                metrics.openSceneFieldBoundCount != metrics.censoredSamples ||
+                metrics.openSceneFieldSupportCount !=
+                    metrics.width.toLong() * metrics.height.toLong()
 
         if (invariantFailure) {
             runCatching { resolver.delete(destination, null, null) }
