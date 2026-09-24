@@ -294,15 +294,26 @@ object PureFloat32DngExporter {
         )
         if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
             requiredMarkers += listOf(
-                "schema=TruthNegativeOutputChannelAuthority/0.1",
+                "schema=TruthNegativeOutputChannelAuthority/0.2",
                 "parent_schema=TruthRawOutputChannelAuthority/0.84",
-                "mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT",
+                "open_scene_field_schema=TruthRawOpenSceneField/0.85",
+                "local_projection_schema=TruthNegativeLocalAuthorityProjection/0.4",
+                "local_projection_policy=DENSE_ROLE_LOCAL_AUTHORITY_FAIL_CLOSED_NO_UNCERTAINTY_PROMOTION",
+                "local_field_policy_sha256=",
+                "local_field_artifact_sha256=",
+                "local_field_value_binding=PROJECTED_RASTER_SHA256",
+                "local_field_per_target_channel_queryable=1",
+                "local_field_materialized_required=0",
+                "mapping_mode=RESAMPLED_PROCEDURAL_LOCAL_FIELD_V04",
                 "source_width=4080",
                 "source_height=3072",
                 "output_width=16320",
                 "output_height=12288",
-                "uniform_authority=UNKNOWN",
-                "target_support_role=RECONSTRUCTED_DENSE_SUPPORT",
+                "uniform_authority=UNKNOWN_UNTIL_PROJECTION_UNCERTAINTY_ADMITTED",
+                "target_creation_role=DENSE_PROJECTION",
+                "source_contribution_provenance=PROCEDURALLY_QUERYABLE_PER_TARGET_CHANNEL",
+                "source_raw_code_bounds_relabelled_scene_linear=0",
+                "resampling_promotes_uncertainty=0",
                 "measured_target_claim_count=0",
                 "backend_changes_authority=0",
             )
@@ -369,6 +380,12 @@ object PureFloat32DngExporter {
                 "source_scientific_master_unchanged=1",
                 "primary_raster_equals_scientific_master=0",
                 "target_authority=RECONSTRUCTED_DENSE_SUPPORT",
+                "local_open_scene_field_schema=TruthRawOpenSceneField/0.85",
+                "local_authority_projection_schema=TruthNegativeLocalAuthorityProjection/0.4",
+                "local_authority_projection_artifact_sha256=",
+                "local_authority_value_binding=PROJECTED_RASTER_SHA256",
+                "target_creation_role=DENSE_PROJECTION",
+                "target_uncertainty=UNRESOLVED_UNTIL_ADMITTED_MODEL",
                 "measured_target_claim_count=0",
                 "compute_backend=",
                 "accelerator_eligible=",
@@ -476,15 +493,46 @@ object PureFloat32DngExporter {
                 "zero_line_sha256=",
                 "scene_scale_sha256=",
             )
-            if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) {
+            if (
+                flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT ||
+                flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR
+            ) {
                 hashKeys += "projected_raster_sha256="
                 hashKeys += "open_scene_state_sha256="
+            }
+            if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+                hashKeys += "local_field_policy_sha256="
+                hashKeys += "local_field_artifact_sha256="
+                hashKeys += "local_authority_projection_artifact_sha256="
             }
             val badHash = hashKeys.firstOrNull { key ->
                 !isHex(valueOf(key).orEmpty(), 64)
             }
             if (badHash != null) {
                 return PostWriteVerification(false, "ongeldige SHA-256 waarde: $badHash")
+            }
+
+            if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
+                val fieldArtifact = valueOf("local_field_artifact_sha256=").orEmpty()
+                val downstreamFieldArtifact =
+                    valueOf("local_authority_projection_artifact_sha256=").orEmpty()
+                if (!fieldArtifact.equals(downstreamFieldArtifact, ignoreCase = true)) {
+                    return PostWriteVerification(
+                        false,
+                        "TN-4 local-field artifact mismatch tussen authority- en edit-binding",
+                    )
+                }
+                if (
+                    valueOf("local_field_value_binding=").orEmpty() !=
+                        "PROJECTED_RASTER_SHA256" ||
+                    valueOf("local_authority_value_binding=").orEmpty() !=
+                        "PROJECTED_RASTER_SHA256"
+                ) {
+                    return PostWriteVerification(
+                        false,
+                        "TN-4 local-field value-binding is niet PROJECTED_RASTER_SHA256",
+                    )
+                }
             }
 
             val l0Bits = valueOf("zero_line_l0_f64_bits=").orEmpty()
