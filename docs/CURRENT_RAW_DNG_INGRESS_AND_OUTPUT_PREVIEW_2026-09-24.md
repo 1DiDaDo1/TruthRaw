@@ -165,6 +165,28 @@ The active product UI now states:
 - visible Scientific Negative button says TN-4;
 - Settings no longer claims the old v0.84.2 architecture.
 
+## Final validation
+
+The synchronized code is green.
+
+General ARM64 integration:
+
+- run `35963545440`;
+- code head `675265b084577aa0c005905363ab9f6ba39dfc7f`;
+- Android arm64 build PASS;
+- APK bytes `6,217,309`;
+- APK SHA-256 `009f04a471f3cdaafc40bd10117e031606c46936e40d64034c55aebbcfd4a4d2`.
+
+Dedicated UOP1 route validation:
+
+- run `35963625751`;
+- GCC PASS;
+- Clang PASS;
+- direct-primary route contract PASS;
+- Android main integration PASS;
+- artifact `truthraw-unified-output-preview-v01-main-debug-arm64`;
+- artifact id `10793695531`.
+
 ## Current code-bearing checkpoint
 
 Main integration branch:
