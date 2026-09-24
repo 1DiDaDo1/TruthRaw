@@ -2535,7 +2535,7 @@ class MainActivity : Activity() {
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
                         addView(space(5))
-                        addView(actionButton("Scientific Negative · TN-3") {
+                        addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
                         truthNegativeStatus?.let { status ->
