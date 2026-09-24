@@ -9,13 +9,16 @@ option(TRUTHRAW_F64_RECON_ENABLE_SANITIZERS "Enable ASan/UBSan" OFF)
 
 get_filename_component(TRUTHRAW_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
 set(V47I "${TRUTHRAW_REPO_ROOT}/canonical/reconstruction/v4.7i/native")
+set(F64_NATIVE "${CMAKE_CURRENT_SOURCE_DIR}/native")
 
 add_executable(test_scientific_master_f64_reconstruction_v01
     tests/test_scientific_master_f64_reconstruction_v01.cpp
+    "${F64_NATIVE}/scientific_master_f64_reconstruction_v0_1.cpp"
     "${V47I}/src/core.cpp"
 )
 
 target_include_directories(test_scientific_master_f64_reconstruction_v01 PRIVATE
+    "${F64_NATIVE}"
     "${V47I}/include"
 )
 
