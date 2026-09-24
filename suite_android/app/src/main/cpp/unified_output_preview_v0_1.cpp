@@ -81,6 +81,7 @@ bool render(
     try{
         if(d.sourceWidth==0u||d.sourceHeight==0u||
            d.maxEdge==0u||d.maxEdge>kMaxEdgeHardLimit||
+           d.displayQuarterTurns>3u||
            d.outputRole.empty()||
            !finite_matrix(d.cameraToXyzD50)) return false;
 
@@ -184,7 +185,7 @@ bool write_uop1_fd(
     put_u32(header,16u,d.sourceWidth);
     put_u32(header,20u,d.sourceHeight);
     put_u32(header,24u,static_cast<std::uint32_t>(d.sourceSpace));
-    put_u32(header,28u,0u); // flags: preview adds no appearance
+    put_u32(header,28u,d.displayQuarterTurns);
     put_u64(header,32u,r.sampledPrimaryPixels);
     if(!write_all(fd,header.data(),header.size()))return false;
 
