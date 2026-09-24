@@ -19,6 +19,8 @@
 #include "truthraw/core.h"
 #include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthnegative_dense_projection_v0_3.h"
+#include "truthnegative_dense_local_field_adapter_v0_4.h"
+#include "truthnegative_local_authority_projection_v0_4.h"
 #include "truthnegative_vulkan_dense_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
 
@@ -50,6 +52,8 @@ namespace channel_authority = truthraw::open_scene_channel_authority::v0_78;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace tn_dense = truthraw::truthnegative_dense_projection::v0_3;
+namespace tn_dense_field = truthraw::truthnegative_dense_local_field_adapter::v0_4;
+namespace tn_local_field = truthraw::truthnegative_local_authority_projection::v0_4;
 namespace tn_vulkan = truthraw::truthnegative_vulkan_dense::v0_1;
 namespace sha256 = truthraw::sha256_v0_69;
 
@@ -495,6 +499,7 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
     std::unique_ptr<tn_vulkan::Backend> truthNegativeVulkan;
     std::unique_ptr<tn_dense::DenseProjectionTileSource> truthNegativeDense;
     tn_dense::Result truthNegativeDenseResult{};
+    tn_local_field::ProceduralBinding truthNegativeLocalFieldBinding{};
 
     std::vector<std::uint8_t> previewJpeg;
     if (!readPreviewJpeg(previewFd, previewJpeg)) {
@@ -588,6 +593,28 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             return packet(env, -13);
         }
 
+        const tn_local_field::Geometry localFieldGeometry{
+            truthNegativeDenseResult.geometry.sourceWidth,
+            truthNegativeDenseResult.geometry.sourceHeight,
+            truthNegativeDenseResult.geometry.targetWidth,
+            truthNegativeDenseResult.geometry.targetHeight};
+        if (!tn_local_field::build_procedural_binding(
+                sourceSeal.sha256,
+                scientific.scientificMasterHash,
+                openSceneSummary.artifactSha256,
+                truthNegativeDenseResult.projectedRasterSha256,
+                localFieldGeometry,
+                reconstruction->name(),
+                truthNegativeLocalFieldBinding) ||
+            !truthNegativeLocalFieldBinding.perTargetChannelQueryable ||
+            truthNegativeLocalFieldBinding.materializedFieldRequired ||
+            truthNegativeLocalFieldBinding.targetMeasuredClaimsCreated ||
+            truthNegativeLocalFieldBinding.uncertaintyPromotedByResampling ||
+            truthNegativeLocalFieldBinding.createsNewEvidence ||
+            truthNegativeLocalFieldBinding.scientificWritebackAllowed) {
+            return packet(env, -14);
+        }
+
         descriptor.width = truthNegativeDenseResult.geometry.targetWidth;
         descriptor.height = truthNegativeDenseResult.geometry.targetHeight;
         descriptor.projectedRasterSha256 =
@@ -604,23 +631,38 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
             static_cast<std::uint64_t>(descriptor.height);
         const std::uint64_t unknownChannels = targetPixels * 3u;
         const std::string authorityBody =
-            std::string("schema=TruthNegativeOutputChannelAuthority/0.1\n") +
+            std::string("schema=TruthNegativeOutputChannelAuthority/0.2\n") +
             "parent_schema=TruthRawOutputChannelAuthority/0.84\n" +
             "parent_artifact_sha256=" +
                 hexDigest(outputAuthoritySummary.artifactSha256) + "\n" +
-            "mapping_mode=RESAMPLED_UNIFORM_UNKNOWN_IMPLICIT\n" +
+            "open_scene_field_schema=TruthRawOpenSceneField/0.85\n" +
+            "local_projection_schema=" +
+                std::string(tn_local_field::schema_name()) + "\n" +
+            "local_projection_policy=" +
+                std::string(tn_local_field::policy_name()) + "\n" +
+            "local_field_policy_sha256=" +
+                hexDigest(truthNegativeLocalFieldBinding.policySha256) + "\n" +
+            "local_field_artifact_sha256=" +
+                hexDigest(truthNegativeLocalFieldBinding.artifactSha256) + "\n" +
+            "local_field_value_binding=PROJECTED_RASTER_SHA256\n" +
+            "local_field_per_target_channel_queryable=1\n" +
+            "local_field_materialized_required=0\n" +
+            "mapping_mode=RESAMPLED_PROCEDURAL_LOCAL_FIELD_V04\n" +
             "source_width=4080\n" +
             "source_height=3072\n" +
             "output_width=16320\n" +
             "output_height=12288\n" +
             "output_pixels=" + std::to_string(targetPixels) + "\n" +
             "record_count=" + std::to_string(unknownChannels) + "\n" +
-            "uniform_authority=UNKNOWN\n" +
+            "uniform_authority=UNKNOWN_UNTIL_PROJECTION_UNCERTAINTY_ADMITTED\n" +
             "calibrated_estimate_channels=0\n" +
             "reconstructed_channels=0\n" +
             "censored_channels=0\n" +
             "unknown_channels=" + std::to_string(unknownChannels) + "\n" +
-            "target_support_role=RECONSTRUCTED_DENSE_SUPPORT\n" +
+            "target_creation_role=DENSE_PROJECTION\n" +
+            "source_contribution_provenance=PROCEDURALLY_QUERYABLE_PER_TARGET_CHANNEL\n" +
+            "source_raw_code_bounds_relabelled_scene_linear=0\n" +
+            "resampling_promotes_uncertainty=0\n" +
             "measured_target_claim_count=0\n" +
             "physical_frame_count=1\n" +
             "independent_evidence_count=1\n" +
@@ -662,6 +704,14 @@ Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng(
                 truthNegativeDenseResult.methodId + "\n" +
             "target_authority=" +
                 truthNegativeDenseResult.targetAuthority + "\n" +
+            "local_open_scene_field_schema=TruthRawOpenSceneField/0.85\n" +
+            "local_authority_projection_schema=" +
+                std::string(tn_local_field::schema_name()) + "\n" +
+            "local_authority_projection_artifact_sha256=" +
+                hexDigest(truthNegativeLocalFieldBinding.artifactSha256) + "\n" +
+            "local_authority_value_binding=PROJECTED_RASTER_SHA256\n" +
+            "target_creation_role=DENSE_PROJECTION\n" +
+            "target_uncertainty=UNRESOLVED_UNTIL_ADMITTED_MODEL\n" +
             "measured_target_claim_count=0\n" +
             "compute_backend=" +
                 truthNegativeDenseResult.acceleratorBackend + "\n" +
