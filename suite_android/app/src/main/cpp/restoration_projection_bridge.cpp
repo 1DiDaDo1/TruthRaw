@@ -51,6 +51,18 @@ namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
 namespace ancestry = truthraw::canonical_ancestry::v0_77;
 namespace unified_preview = truthraw::unified_output_preview::v0_1;
 
+bool tiff_orientation_quarter_turns(
+    std::uint32_t orientation,
+    std::uint32_t& turns) noexcept {
+    switch(orientation){
+        case 1u: turns=0u; return true;
+        case 6u: turns=1u; return true;
+        case 3u: turns=2u; return true;
+        case 8u: turns=3u; return true;
+        default: return false;
+    }
+}
+
 constexpr jlong kMagic = 0x5452504a; // TRPJ
 constexpr std::size_t kPacketLongs = 20u;
 constexpr std::size_t kTrrHeaderBytes = 8192u;
@@ -821,11 +833,13 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_buildUnifiedOutpu
     jint trrFd,
     jint previewFd,
     jint maxEdge,
+    jint applyStoredOrientation,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     if(sourceFd<0 || trrFd<0 || previewFd<0 ||
        maxEdge<=0 ||
        maxEdge>static_cast<jint>(unified_preview::kMaxEdgeHardLimit) ||
+       (applyStoredOrientation!=0 && applyStoredOrientation!=1) ||
        maxSourceResidentBytes<=0 || maxLogicalResidentBytes<=0) {
         return packet(env,-30);
     }
@@ -861,6 +875,18 @@ Java_com_truthraw_adaptiveui_RestorationProjectionNativeBridge_buildUnifiedOutpu
     descriptor.sourceHeight=trr.meta().height;
     descriptor.maxEdge=static_cast<std::uint32_t>(maxEdge);
     descriptor.sourceSpace=unified_preview::SourceSpace::CameraNative;
+    if(applyStoredOrientation!=0){
+        std::uint32_t turns=0u;
+        if(!tiff_orientation_quarter_turns(
+                trr.meta().orientation,
+                turns)){
+            (void)::ftruncate(previewFd,0);
+            return packet(env,-35);
+        }
+        descriptor.displayQuarterTurns=turns;
+    } else {
+        descriptor.displayQuarterTurns=0u;
+    }
     descriptor.cameraToXyzD50=line.color.color.cameraToXyzD50;
     descriptor.outputRole="FULL_RES_RESTORATION_DERIVATIVE_PRIMARY";
 
