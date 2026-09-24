@@ -28,6 +28,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DrawVisualTheme.applyWindow(this)
         window.setDecorFitsSystemWindows(false)
         setContentView(buildUi())
         show("BOOT_OK · nog geen CameraManager aangeraakt.\n" +
@@ -38,7 +39,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.TOP
-            setBackgroundColor(Color.rgb(12, 14, 17))
+            setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
             setPadding(dp(16), dp(16), dp(16), dp(24))
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
@@ -94,7 +95,7 @@ class FotoGraafDiagnosticBootstrapActivity : Activity() {
             startActivity(Intent(this, FotoGraafCameraActivity::class.java))
         })
         root.addView(space(6))
-        root.addView(button("Open TruthRaw processor") {
+        root.addView(button("Open D.RAW processor") {
             startActivity(Intent(this, MainActivity::class.java))
         })
         root.addView(space(16))
