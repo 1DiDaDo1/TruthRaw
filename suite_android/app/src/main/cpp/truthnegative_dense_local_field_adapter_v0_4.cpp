@@ -76,22 +76,11 @@ bool SourceFieldAdapter::readSourceTile(
     }
 }
 
-bool ProjectedRgbAdapter::readTargetRgbTile(
-    std::uint32_t x,
-    std::uint32_t y,
-    std::uint32_t width,
-    std::uint32_t height,
-    float* out,
-    std::size_t floatCount) noexcept {
-    const auto status=dense_.readCameraNativeTile(
-        x,y,width,height,out,floatCount);
-    return static_cast<bool>(status);
-}
-
 bool compute_dense_local_authority_summary(
     truthraw::streaming_v0_1::IRawTileSource& rawSource,
     float_dng::IScientificMasterTileSource& masterSource,
     dense::DenseProjectionTileSource& denseSource,
+    const field::Digest& projectedRasterSha256,
     std::uint32_t tileEdge,
     local::ProjectionSummary& out) noexcept {
     SourceFieldAdapter fieldSource(rawSource,masterSource);
@@ -102,9 +91,8 @@ bool compute_dense_local_authority_summary(
        fg.targetWidth!=dg.targetWidth||fg.targetHeight!=dg.targetHeight){
         out={};return false;
     }
-    ProjectedRgbAdapter rgbSource(denseSource);
     return local::summarize_full_projection(
-        fieldSource,rgbSource,tileEdge,out);
+        fieldSource,projectedRasterSha256,tileEdge,out);
 }
 
 const char* schema_name() noexcept {
