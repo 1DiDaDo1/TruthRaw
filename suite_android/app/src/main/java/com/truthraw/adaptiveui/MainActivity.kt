@@ -94,33 +94,19 @@ class MainActivity : Activity() {
     )
 
     private val palette: Palette
-        get() {
-            val dark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-                Configuration.UI_MODE_NIGHT_YES
-            return if (dark) {
-                Palette(
-                    background = Color.rgb(15, 17, 20),
-                    surface = Color.rgb(27, 30, 35),
-                    surfaceAlt = Color.rgb(36, 40, 46),
-                    text = Color.rgb(245, 246, 248),
-                    textMuted = Color.rgb(172, 178, 187),
-                    accent = Color.rgb(128, 157, 255),
-                )
-            } else {
-                Palette(
-                    background = Color.rgb(246, 247, 249),
-                    surface = Color.WHITE,
-                    surfaceAlt = Color.rgb(235, 238, 243),
-                    text = Color.rgb(24, 27, 31),
-                    textMuted = Color.rgb(92, 99, 109),
-                    accent = Color.rgb(54, 88, 200),
-                )
-            }
-        }
+        get() = Palette(
+            background = DrawVisualTheme.PAPER_YELLOW_SOFT,
+            surface = DrawVisualTheme.PAPER_WHITE,
+            surfaceAlt = DrawVisualTheme.PAPER_BLUE,
+            text = DrawVisualTheme.INK,
+            textMuted = DrawVisualTheme.MUTED,
+            accent = DrawVisualTheme.BLUE,
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
+        DrawVisualTheme.applyWindow(this)
 
         var cameraJobToAutoStart: RawJob? = null
         if (savedInstanceState == null) {
