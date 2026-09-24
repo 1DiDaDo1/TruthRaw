@@ -17,6 +17,8 @@
 #include "truthraw/core.h"
 #include "scientific_master_f64_reconstruction_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
+#include "unified_output_preview_v0_1.h"
+#include "unified_output_preview_sources_v0_1.h"
 
 #include <algorithm>
 #include <array>
@@ -46,11 +48,14 @@ namespace master_projection = truthraw::scientific_master_linear_dng_projection:
 namespace adapter = truthraw::multivendor_raw_source_adapter::v0_1;
 namespace digest = truthraw::scientific_master_digest::v0_1;
 namespace canonical_scene = truthraw::open_scene_canonical::v0_70;
+namespace unified_preview = truthraw::unified_output_preview::v0_1;
+namespace unified_preview_sources =
+    truthraw::unified_output_preview_sources::v0_1;
 namespace field85 = truthraw::open_scene_field::v0_85;
 namespace dense_field_v04 = truthraw::truthnegative_local_authority_projection::v0_4;
 
 constexpr jlong kMagic = 0x54524e47; // TRNG
-constexpr std::size_t kPacketLongs = 32u;
+constexpr std::size_t kPacketLongs = 38u;
 constexpr std::size_t kHeaderBytes = 8192u;
 constexpr std::uint32_t kCellEdge = 64u;
 
@@ -326,9 +331,15 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     jobject,
     jint sourceFd,
     jint outputFd,
+    jint outputPreviewFd,
+    jint outputPreviewMaxEdge,
     jint maxSourceResidentBytes,
     jint maxLogicalResidentBytes) {
     if (sourceFd < 0 || outputFd < 0 ||
+        ((outputPreviewFd < 0) != (outputPreviewMaxEdge == 0)) ||
+        outputPreviewMaxEdge < 0 ||
+        outputPreviewMaxEdge >
+            static_cast<jint>(unified_preview::kMaxEdgeHardLimit) ||
         maxSourceResidentBytes <= 0 || maxLogicalResidentBytes <= 0) {
         return packet(env, -1);
     }
@@ -743,6 +754,37 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
         return packet(env, binding_status(postVerified));
     }
 
+    unified_preview::Result exactPreview{};
+    bool exactPreviewAvailable=false;
+    if(outputPreviewFd>=0){
+        unified_preview_sources::RandomAccessScientificMasterSource
+            previewMaster(*source,*reconstruction);
+        unified_preview::Descriptor previewDescriptor{};
+        previewDescriptor.sourceWidth=static_cast<std::uint32_t>(width);
+        previewDescriptor.sourceHeight=static_cast<std::uint32_t>(height);
+        previewDescriptor.maxEdge=
+            static_cast<std::uint32_t>(outputPreviewMaxEdge);
+        previewDescriptor.sourceSpace=
+            unified_preview::SourceSpace::CameraNative;
+        previewDescriptor.cameraToXyzD50=produced.color.cameraToXyzD50;
+        previewDescriptor.outputRole="TRUTHNEGATIVE_TN4_SCIENTIFIC_MASTER_PRIMARY";
+        if(!unified_preview::render(
+                previewMaster,
+                previewDescriptor,
+                exactPreview) ||
+           !unified_preview::write_uop1_fd(
+                static_cast<int>(outputPreviewFd),
+                previewDescriptor,
+                exactPreview) ||
+           !exactPreview.primaryTileSourceUsedDirectly ||
+           exactPreview.appearanceAddedByPreview ||
+           exactPreview.scientificWritebackAllowed){
+            (void)::ftruncate(outputPreviewFd,0);
+            return packet(env,-22);
+        }
+        exactPreviewAvailable=true;
+    }
+
     std::array<jlong, kPacketLongs> values{};
     values[0] = kMagic;
     values[1] = 0;
@@ -776,6 +818,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeBridge_exportTruthNegative(
     values[29] = clamp_jlong(openSceneFieldSummary.recordCount);
     values[30] = clamp_jlong(openSceneFieldSummary.boundKnownCount);
     values[31] = clamp_jlong(openSceneFieldSummary.supportKnownCount);
+    values[32] = exactPreviewAvailable ? 1 : 0;
+    values[33] = exactPreview.width;
+    values[34] = exactPreview.height;
+    values[35] = exactPreviewAvailable ? 1 : 0; // CAMERA_NATIVE
+    values[36] = clamp_jlong(exactPreview.negativeDisplayClampedComponents);
+    values[37] = clamp_jlong(exactPreview.overOneDisplayClampedComponents);
 
     auto out = env->NewLongArray(static_cast<jsize>(values.size()));
     if (out != nullptr) {
