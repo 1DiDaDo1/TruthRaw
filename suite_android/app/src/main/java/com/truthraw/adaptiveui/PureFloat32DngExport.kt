@@ -185,25 +185,43 @@ object PureFloat32DngExporter {
                 null
             }
 
+            val unifiedPreviewOutput = if (unifiedOutputPreviewFile != null) {
+                if (unifiedOutputPreviewMaxEdge !in 1..1024) {
+                    source.close()
+                    output.close()
+                    preview?.close()
+                    return PureFloat32DngExportResult.Failed(
+                        "Unified Output Preview maxEdge is buiten contract.",
+                    )
+                }
+                unifiedOutputPreviewFile.parentFile?.mkdirs()
+                unifiedOutputPreviewFile.delete()
+                runCatching {
+                    ParcelFileDescriptor.open(
+                        unifiedOutputPreviewFile,
+                        ParcelFileDescriptor.MODE_CREATE or
+                            ParcelFileDescriptor.MODE_READ_WRITE or
+                            ParcelFileDescriptor.MODE_TRUNCATE,
+                    )
+                }.getOrNull()
+                    ?: run {
+                        source.close()
+                        output.close()
+                        preview?.close()
+                        return PureFloat32DngExportResult.Failed(
+                            "Unified Output Preview staging kon niet worden geopend.",
+                        )
+                    }
+            } else {
+                null
+            }
+
             val packet = source.use { src ->
                 output.use { dst ->
-                    if (preview != null) {
-                        preview.use { p ->
-                            PureFloat32DngNativeBridge.exportPureFloat32Dng(
-                                src.fd,
-                                dst.fd,
-                                userQuarterTurns,
-                                flavor.nativeCode,
-                                sourceRouteCode,
-                                if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
-                                p.fd,
-                                previewWidth,
-                                previewHeight,
-                                PURE_MAX_SOURCE_RESIDENT_BYTES,
-                                PURE_MAX_LOGICAL_RESIDENT_BYTES,
-                            )
-                        }
-                    } else {
+                    fun invokeNative(
+                        embeddedPreviewFd: Int,
+                        exactPreviewFd: Int,
+                    ): LongArray =
                         PureFloat32DngNativeBridge.exportPureFloat32Dng(
                             src.fd,
                             dst.fd,
@@ -211,17 +229,41 @@ object PureFloat32DngExporter {
                             flavor.nativeCode,
                             sourceRouteCode,
                             if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) advancedFlags else 0,
-                            -1,
-                            0,
-                            0,
+                            embeddedPreviewFd,
+                            if (embeddedPreviewFd >= 0) previewWidth else 0,
+                            if (embeddedPreviewFd >= 0) previewHeight else 0,
+                            exactPreviewFd,
+                            if (exactPreviewFd >= 0) unifiedOutputPreviewMaxEdge else 0,
                             PURE_MAX_SOURCE_RESIDENT_BYTES,
                             PURE_MAX_LOGICAL_RESIDENT_BYTES,
                         )
+
+                    if (preview != null) {
+                        preview.use { p ->
+                            if (unifiedPreviewOutput != null) {
+                                unifiedPreviewOutput.use { uop ->
+                                    invokeNative(p.fd, uop.fd)
+                                }
+                            } else {
+                                invokeNative(p.fd, -1)
+                            }
+                        }
+                    } else if (unifiedPreviewOutput != null) {
+                        unifiedPreviewOutput.use { uop ->
+                            invokeNative(-1, uop.fd)
+                        }
+                    } else {
+                        invokeNative(-1, -1)
                     }
                 }
             }
 
-            val decoded = decode(packet, flavor, advancedFlags)
+            val decoded = decode(
+                packet,
+                flavor,
+                advancedFlags,
+                unifiedOutputPreviewFile != null,
+            )
             if (decoded is PureFloat32DngExportResult.Failed) {
                 runCatching { resolver.delete(destination, null, null) }
                 return decoded
@@ -243,8 +285,52 @@ object PureFloat32DngExporter {
                 )
             }
 
+            val unifiedPreview = if (unifiedOutputPreviewFile != null) {
+                when (
+                    val loaded = UnifiedOutputPreviewLoader.load(
+                        unifiedOutputPreviewFile,
+                        when (flavor) {
+                            Float32DngExportFlavor.PURE -> "PURE Float32 DNG"
+                            Float32DngExportFlavor.FULL_COLOUR_SCIENTIFIC_MASTER ->
+                                "Full Colour Scientific Master"
+                            Float32DngExportFlavor.ADVANCED_RENDER_EDIT ->
+                                "Advanced Render/Edit Float32"
+                            Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR ->
+                                "TruthNegative 200MP Float32"
+                        },
+                    )
+                ) {
+                    is UnifiedOutputPreviewResult.Failed -> {
+                        runCatching { resolver.delete(destination, null, null) }
+                        return PureFloat32DngExportResult.Failed(loaded.reason)
+                    }
+                    is UnifiedOutputPreviewResult.Ready -> {
+                        val m = loaded.metrics
+                        if (
+                            m.width != success.metrics.unifiedOutputPreviewWidth ||
+                            m.height != success.metrics.unifiedOutputPreviewHeight ||
+                            m.sourceSpaceCode !=
+                                success.metrics.unifiedOutputPreviewSourceSpaceCode ||
+                            m.sampledPrimaryPixels !=
+                                m.width.toLong() * m.height.toLong()
+                        ) {
+                            loaded.bitmap.recycle()
+                            runCatching { resolver.delete(destination, null, null) }
+                            return PureFloat32DngExportResult.Failed(
+                                "Unified Output Preview packet/sidecar binding mismatch.",
+                            )
+                        }
+                        loaded
+                    }
+                }
+            } else {
+                null
+            }
+            unifiedOutputPreviewFile?.delete()
+
             PureFloat32DngExportResult.Success(
                 success.metrics.copy(postWriteSelfBindingVerified = true),
+                unifiedOutputPreview = unifiedPreview,
             )
         } catch (error: Throwable) {
             runCatching { resolver.delete(destination, null, null) }
@@ -675,6 +761,7 @@ object PureFloat32DngExporter {
         packet: LongArray,
         flavor: Float32DngExportFlavor,
         advancedFlags: Int,
+        unifiedOutputPreviewExpected: Boolean,
     ): PureFloat32DngExportResult {
         if (packet.size != PURE_FLOAT_PACKET_LONGS || packet[0] != PURE_FLOAT_MAGIC) {
             return PureFloat32DngExportResult.Failed(
@@ -720,6 +807,12 @@ object PureFloat32DngExporter {
             outputAuthorityUnknownChannels = packet[23],
             outputAuthorityCensoredSupportPixels = packet[24],
             outputAuthorityArtifactSha256 = outputAuthorityArtifactSha256,
+            unifiedOutputPreviewAvailable = packet[34] != 0L,
+            unifiedOutputPreviewWidth = packet[35].toInt(),
+            unifiedOutputPreviewHeight = packet[36].toInt(),
+            unifiedOutputPreviewSourceSpaceCode = packet[37].toInt(),
+            unifiedOutputPreviewNegativeClampedComponents = packet[38],
+            unifiedOutputPreviewOverOneClampedComponents = packet[39],
         )
 
         val commonViolation =
@@ -744,7 +837,20 @@ object PureFloat32DngExporter {
                     metrics.outputAuthorityCensoredChannels +
                     metrics.outputAuthorityUnknownChannels !=
                     metrics.projectedPixels * 3L ||
-                metrics.outputAuthorityArtifactSha256.all { it == '0' }
+                metrics.outputAuthorityArtifactSha256.all { it == '0' } ||
+                metrics.unifiedOutputPreviewAvailable != unifiedOutputPreviewExpected ||
+                (unifiedOutputPreviewExpected &&
+                    (metrics.unifiedOutputPreviewWidth <= 0 ||
+                        metrics.unifiedOutputPreviewHeight <= 0 ||
+                        metrics.unifiedOutputPreviewWidth > 1024 ||
+                        metrics.unifiedOutputPreviewHeight > 1024 ||
+                        metrics.unifiedOutputPreviewSourceSpaceCode !in 1..3 ||
+                        metrics.unifiedOutputPreviewNegativeClampedComponents < 0L ||
+                        metrics.unifiedOutputPreviewOverOneClampedComponents < 0L)) ||
+                (!unifiedOutputPreviewExpected &&
+                    (metrics.unifiedOutputPreviewWidth != 0 ||
+                        metrics.unifiedOutputPreviewHeight != 0 ||
+                        metrics.unifiedOutputPreviewSourceSpaceCode != 0))
 
         val authorityGeometryViolation =
             if (flavor == Float32DngExportFlavor.TRUTHNEGATIVE_200MP_FULL_COLOUR) {
@@ -757,6 +863,12 @@ object PureFloat32DngExporter {
             } else {
                 metrics.outputChannelAuthorityMappingMode != 1
             }
+
+        val expectedPreviewSpace =
+            if (flavor == Float32DngExportFlavor.ADVANCED_RENDER_EDIT) 2 else 1
+        val previewSpaceViolation =
+            unifiedOutputPreviewExpected &&
+                metrics.unifiedOutputPreviewSourceSpaceCode != expectedPreviewSpace
 
         val expectedRenderAppearance = advancedAppearanceBaked(advancedFlags)
         val flavorViolation = when (flavor) {
@@ -773,7 +885,10 @@ object PureFloat32DngExporter {
         }
 
         val violation =
-            commonViolation || authorityGeometryViolation || flavorViolation
+            commonViolation ||
+                authorityGeometryViolation ||
+                previewSpaceViolation ||
+                flavorViolation
 
         if (violation) {
             return PureFloat32DngExportResult.Failed(
@@ -798,6 +913,9 @@ object PureFloat32DngExporter {
         -11L -> "TruthNegative 200MP: alleen admitted Camera-5 4080×3072 mag deze projectieroute gebruiken."
         -12L -> "TruthNegative 200MP: dense projectiebron kon niet veilig worden opgebouwd."
         -13L -> "TruthNegative 200MP: projected-raster identity/authority-contract faalde fail-closed."
+        -14L -> "TruthNegative 200MP: local Open Scene authority-binding faalde fail-closed."
+        -15L -> "Unified Output Preview: gekozen primary tile source ontbreekt."
+        -16L -> "Unified Output Preview: directe primary render/UOP1-write faalde."
 
         in 2001L..2099L -> "PURE Float32: source binding faalde (status $status)."
         in 2101L..2199L -> "PURE Float32: DNG color binding faalde (status $status)."
