@@ -7,6 +7,9 @@ struct Input{
  double center=0,left=0,right=0,up=0,down=0;
  double sigma=0; bool sigmaKnown=false,censored=false,boundaryCensored=false;
  bool measuredSupport=false; double registrationConfidence=1,visibilityConfidence=1;
+ // Physical/sample-grid spacing represented by left/right/up/down. The
+ // derivative tests are normalized to unit source-pixel distance.
+ double sampleStep=1.0;
 };
 struct Result{
  Decision decision=Decision::Unresolved; double gradientSigma=0,laplacianSigma=0;
