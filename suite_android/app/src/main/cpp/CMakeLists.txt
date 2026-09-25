@@ -43,6 +43,7 @@ set(FREE_WORLD_V04 "${RESEARCH_ROOT}/free-world-deep-scene-contribution-v0.4/nat
 set(FREE_WORLD_V05 "${RESEARCH_ROOT}/free-world-deep-scene-binding-v0.5/native")
 set(FREE_WORLD_V06 "${RESEARCH_ROOT}/free-world-light-transport-state-v0.6/native")
 set(FREE_WORLD_V07 "${RESEARCH_ROOT}/free-world-appearance-resolve-v0.7/native")
+set(FREE_WORLD_NOISE_FUSION_V01 "${RESEARCH_ROOT}/free-world-observation-noise-fusion-v0.1/native")
 set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5/native")
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
 set(TRUTHNEGATIVE_OPTICS_V07 "${RESEARCH_ROOT}/truthnegative-optics-support-v0.7/native")
@@ -130,6 +131,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V05}/free_world_deep_scene_binding_v0_5.cpp
     ${FREE_WORLD_V06}/free_world_light_transport_state_v0_6.cpp
     ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp
+    ${FREE_WORLD_NOISE_FUSION_V01}/free_world_observation_noise_fusion_v0_1.cpp
     ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
     ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
@@ -172,6 +174,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FREE_WORLD_V05}
     ${FREE_WORLD_V06}
     ${FREE_WORLD_V07}
+    ${FREE_WORLD_NOISE_FUSION_V01}
     ${TRUTHNEGATIVE_CONTINUOUS_V05}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
     ${TRUTHNEGATIVE_OPTICS_V07}
