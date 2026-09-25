@@ -355,8 +355,16 @@ class TruthRawSuiteLauncherActivity : Activity() {
     }
 
     private fun setPreferredOutput(mode: String) {
-        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_OUTPUT, mode).apply()
-        setContentView(buildUi())
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(KEY_OUTPUT, mode)
+            .apply()
+        // Route switching is presentation-only and must never terminate the
+        // launcher. Fall back to the safe launcher if a future UI surface
+        // cannot be rebuilt on a particular vendor configuration.
+        val content = runCatching { buildUi() }
+            .getOrElse { buildSafeUi() }
+        setContentView(content)
     }
 
     private fun preferredOutput(): String {
