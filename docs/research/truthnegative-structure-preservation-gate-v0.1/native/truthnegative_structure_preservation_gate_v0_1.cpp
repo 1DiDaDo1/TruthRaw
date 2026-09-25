@@ -3,13 +3,14 @@
 #include <cmath>
 namespace truthraw::truthnegative_structure_preservation_gate::v0_1 {
 bool evaluate(const Input& i,Result& o) noexcept{o={};
- const double vals[]={i.center,i.left,i.right,i.up,i.down,i.sigma,i.registrationConfidence,i.visibilityConfidence};
+ const double vals[]={i.center,i.left,i.right,i.up,i.down,i.sigma,i.registrationConfidence,i.visibilityConfidence,i.sampleStep};
  for(double v:vals)if(!std::isfinite(v))return false;
- if(i.sigma<0||i.registrationConfidence<0||i.registrationConfidence>1||i.visibilityConfidence<0||i.visibilityConfidence>1)return false;
+ if(i.sigma<0||i.sampleStep<=0||i.registrationConfidence<0||i.registrationConfidence>1||i.visibilityConfidence<0||i.visibilityConfidence>1)return false;
  if(!i.sigmaKnown||i.sigma<=0||!i.measuredSupport||i.censored||i.boundaryCensored||i.registrationConfidence<0.9||i.visibilityConfidence<0.9){o.decision=Decision::Preserve;return true;}
- const double gx=0.5*(i.right-i.left), gy=0.5*(i.down-i.up);
+ const double gx=(i.right-i.left)/(2.0*i.sampleStep);
+ const double gy=(i.down-i.up)/(2.0*i.sampleStep);
  const double grad=std::hypot(gx,gy);
- const double lap=std::abs(i.left+i.right+i.up+i.down-4*i.center);
+ const double lap=std::abs(i.left+i.right+i.up+i.down-4*i.center)/(i.sampleStep*i.sampleStep);
  o.gradientSigma=grad/i.sigma;o.laplacianSigma=lap/i.sigma;
  // Conservative N2 admission: only locally weak structure can become
  // eligible. This gate does not itself alter a value.
