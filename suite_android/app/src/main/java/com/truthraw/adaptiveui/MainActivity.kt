@@ -3173,7 +3173,7 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(7))
-                        addView(actionButton("N2 · 1:1 Full-colour A/B/Δ") {
+                        addView(actionButton("N2 · 1:1 Full-colour SAFE A/B/Δ") {
                             launchN2CropAbDiagnostic(active)
                         })
                         n2CropAbStatus?.let { status ->
@@ -3210,17 +3210,18 @@ class MainActivity : Activity() {
 
                             addView(space(8))
                             addView(label(
-                                "N2 1:1 broncrops · full-colour candidate-reconstructie",
+                                "N2 1:1 broncrops · full-colour support-safe candidate",
                                 11.5f,
                                 bold = true,
                             ))
                             addView(label(
                                 "Iedere crop is 1 bronpixel → 1 previewpixel. A blijft de " +
                                     "ongewijzigde TruthNegative/Appearance. Voor B worden uitsluitend " +
-                                    "N2-toegelaten CFA-correcties in een private Stage-2-kopie gezet en daarna " +
-                                    "door exact dezelfde measured-preserving Float64 full-colour reconstructie " +
-                                    "geleid als de Scientific Master. Daarna wordt alleen de tijdelijke B-displaykopie " +
-                                    "getoond. Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
+                                    "N2-toegelaten CFA-correcties gebruikt. Correcties binnen de reconstructie-support " +
+                                    "van een beschermd outputpixel worden eerst conservatief onderdrukt; daarna gaat de " +
+                                    "private Stage-2-kopie door exact dezelfde measured-preserving Float64 full-colour " +
+                                    "reconstructie als de Scientific Master. Beschermde core-pixels moeten daardoor " +
+                                    "bit-identiek blijven. Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
                                     "Bron, Scientific Master en TruthNegative blijven ongewijzigd.",
                                 9.2f,
                                 muted = true,
@@ -3339,6 +3340,9 @@ class MainActivity : Activity() {
                                         "edge A/B=${"%.5f".format(m.edgeEnergyA)}/${"%.5f".format(m.edgeEnergyB)} · " +
                                         "B/A=${"%.6f".format(m.edgeEnergyRatio)} · " +
                                         "mean |Δgrad|=${"%.7f".format(m.meanAbsGradientDelta)} · " +
+                                        "support-guard suppressed=${m.supportGuardSuppressedStage2Sites} · " +
+                                        "protected-core=${m.protectedCorePixels} · protected-changed=" +
+                                        "${m.protectedCoreChangedRgbChannels} · radius=${m.reconstructionInfluenceRadius}px · " +
                                         "QA=${m.qualitySha256.take(12)}…",
                                     8.7f,
                                     muted = true,
@@ -3348,6 +3352,7 @@ class MainActivity : Activity() {
                             addView(label(
                                 "1:1 full-colour diagnose: baseline-reconstructie moet Float32-bit-identiek " +
                                     "zijn aan de exacte Scientific Master bronpixel; anders faalt de route gesloten. " +
+                                    "Reconstruction-support closure vereist protected-core-changed=0. " +
                                     "Risk/Quality meet encoded-display Δ en gradientenergie alleen als diagnose " +
                                     "(geen MTF-claim). source/Scientific Master/TruthNegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
