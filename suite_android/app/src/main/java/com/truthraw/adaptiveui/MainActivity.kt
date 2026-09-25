@@ -56,6 +56,8 @@ class MainActivity : Activity() {
     private var camera5ColorHighlightStatus: String? = null
     private var pendingTruthNegativeNativeContainerJobId: String? = null
     private var truthNegativeNativeContainerStatus: String? = null
+    private var pendingN2SpatialSidecarJobId: String? = null
+    private var n2SpatialSidecarStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
@@ -199,6 +201,8 @@ class MainActivity : Activity() {
         camera5ColorHighlightStatus = null
         pendingTruthNegativeNativeContainerJobId = null
         truthNegativeNativeContainerStatus = null
+        pendingN2SpatialSidecarJobId = null
+        n2SpatialSidecarStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -252,6 +256,9 @@ class MainActivity : Activity() {
         recover("advanced-render-edit")?.let { renderEditStatus = it.message }
         recover("pure-float32")?.let { pureFloatDngStatus = it.message }
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
+        recover("truthnegative-n2-spatial-sidecar")?.let {
+            n2SpatialSidecarStatus = it.message
+        }
         recover("linear-dng")?.let { linearDngStatus = it.message }
 
         recover("nef-measurement")?.let { op ->
@@ -530,6 +537,7 @@ class MainActivity : Activity() {
             "truthnegative-continuous-preview",
             "camera5-color-highlight-oracle",
             "truthnegative-native-container",
+            "truthnegative-n2-spatial-sidecar",
         )
         return kinds
             .map { backgroundOperationKey(it, jobId) }
