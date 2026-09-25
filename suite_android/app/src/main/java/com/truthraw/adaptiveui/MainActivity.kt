@@ -1575,6 +1575,120 @@ class MainActivity : Activity() {
         }
 
 
+        if (requestCode == REQUEST_SAVE_N2_SPATIAL_SIDECAR) {
+            val expectedJob = pendingN2SpatialSidecarJobId
+            pendingN2SpatialSidecarJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2SpatialSidecarStatus =
+                    "N2 Spatial Audit-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                n2SpatialSidecarStatus =
+                    "N2 Spatial Audit geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-spatial-sidecar",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2SpatialSidecarStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "N2 Spatial Audit start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Spatial Audit sidecar opbouwen",
+                )
+            ) {
+                n2SpatialSidecarStatus =
+                    "N2 Spatial Audit achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2SpatialSidecarStatus =
+                "N2 Spatial Audit · per 64×64 source-tile wordt een audit-only " +
+                    "candidate/protection-kaart opgebouwd; zichtbare afbeelding blijft ongewijzigd…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-spatial-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2SpatialSidecarStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeN2SpatialSidecarExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is TruthNegativeN2SpatialSidecarResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeN2SpatialSidecarResult.Success ->
+                            "N2 Spatial Audit sidecar opgeslagen + SHA geverifieerd."
+                        is TruthNegativeN2SpatialSidecarResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2SpatialSidecarStatus =
+                        when (exportResult) {
+                            is TruthNegativeN2SpatialSidecarResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeN2SpatialSidecarResult.Success -> {
+                                val m = exportResult.metrics
+                                "N2 Spatial Audit opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · tiles=" + m.tileCount +
+                                    " · sampled=" + m.sampled +
+                                    " · candidate=" + m.candidateCorrected +
+                                    " · preserved=" + m.preserved +
+                                    " · structure=" + m.structureProtected +
+                                    " · censored/boundary=" +
+                                    m.censoredProtected + "/" +
+                                    m.censorBoundaryProtected +
+                                    " · removed-energy=" +
+                                    "%.3f%%".format(
+                                        m.removedResidualEnergyFraction * 100.0,
+                                    ) +
+                                    " · max|Δ|stage2=" +
+                                    "%.8f".format(m.maxAbsCorrectionStage2) +
+                                    " · spatial=" +
+                                    m.spatialSha256.take(16) +
+                                    "… · JSON=" +
+                                    m.jsonSha256.take(16) +
+                                    "… · candidate-applied=false."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER) {
             val expectedJob = pendingTruthNegativeNativeContainerJobId
             pendingTruthNegativeNativeContainerJobId = null
@@ -3474,5 +3588,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_ADVANCED_RENDER_EDIT = 4111
         private const val REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR = 4112
         private const val REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER = 4113
+        private const val REQUEST_SAVE_N2_SPATIAL_SIDECAR = 4114
     }
 }
