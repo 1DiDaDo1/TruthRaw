@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
 set(APP_CPP "${REPO_ROOT}/suite_android/app/src/main/cpp")
 set(FREE_WORLD_V02 "${REPO_ROOT}/docs/research/free-world-pixel-resolve-2d-v0.2/native")
+set(STREAMING "${REPO_ROOT}/docs/research/full-frame-streaming-v0.1/native")
+set(V47I "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 
 add_executable(test_truthnegative_continuous_v0_5
     tests/test_truthnegative_continuous_v0_5.cpp
@@ -22,6 +24,8 @@ target_include_directories(test_truthnegative_continuous_v0_5 PRIVATE
     native
     "${FREE_WORLD_V02}"
     "${APP_CPP}"
+    "${STREAMING}"
+    "${V47I}/include"
 )
 
 if(MSVC)
