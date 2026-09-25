@@ -45,8 +45,16 @@ int main(){
             if(x>=4&&x<8&&y>=4&&y<8){
                 bin.corrected[cc]=1u;
                 bin.correctionSum[cc]=-0.001;
+                bin.preserveReasonMask=
+                    1u<<static_cast<std::uint32_t>(
+                        truthraw::truthnegative_n2_candidate_pipeline::v0_1::
+                            PreserveReason::None);
             }else{
                 bin.protectedCount[cc]=1u;
+                bin.preserveReasonMask=
+                    1u<<static_cast<std::uint32_t>(
+                        truthraw::truthnegative_n2_candidate_pipeline::v0_1::
+                            PreserveReason::Structure);
             }
         }
     }
@@ -75,6 +83,22 @@ int main(){
         out.candidateIdentitySha256.begin(),
         out.candidateIdentitySha256.end(),
         [](auto v){return v!=0u;}));
+
+    fc::Input guarded=in;
+    guarded.closeProtectionOverReconstructionSupport=true;
+    guarded.reconstructionInfluenceRadius=backend.requiredHalo();
+    fc::Result safe{};
+    R(fc::reconstruct(guarded,backend,safe));
+    R(safe.supportGuardApplied);
+    R(safe.protectedCorePixels==20u);
+    R(safe.supportGuardSuppressedStage2Sites==16u);
+    R(safe.correctedStage2Sites==0u);
+    R(safe.changedRgbChannels==0u);
+    R(safe.protectedCoreChangedRgbChannels==0u);
+    R(safe.baselineCameraRgb==safe.candidateCameraRgb);
+    R(!safe.sourceStage2Modified);
+    R(!safe.scientificWritebackAllowed);
+    R(!safe.createsNewEvidence);
 
     for(std::size_t i=0;i<stage2.size();++i){
         const float expected=0.20f+
