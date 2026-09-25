@@ -3320,9 +3320,14 @@ class MainActivity : Activity() {
         this.text = text
         isAllCaps = false
         setTextColor(palette.text)
-        background = rounded(palette.surfaceAlt, 14f)
+        background = rounded(
+            if (enabled) palette.surfaceAlt else palette.surface,
+            14f,
+        )
         isEnabled = enabled
-        alpha = if (enabled) 1f else 0.55f
+        // Disabled actions stay visibly disabled by their surface, not by
+        // washing out the label. User-facing text remains dark/readable.
+        alpha = 1f
         setOnClickListener { if (enabled) action() }
     }
 
