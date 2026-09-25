@@ -4,7 +4,7 @@
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
   "active_integration_branch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
-  "code_checkpoint_sha": "c7d7cef05502aca6f22f0d049987aad3a9f37b0a",
+  "code_checkpoint_sha": "55a4e61dc4888b7e05da1de1808ecce8466404c9",
   "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
   "free_world_main_integration": {
     "compiled_into_android_main": true,
@@ -202,10 +202,47 @@
     "corruption_fails_closed": true,
     "host_export_import_bit_identity_verified": true,
     "android_bridge_compiled": true,
-    "real_device_export_import_pending": true,
+    "real_device_export_import_pending": false,
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false,
     "host_validation_run_id": 36114391772,
-    "result": "SUCCESS"
+    "result": "SUCCESS",
+    "real_device_export_import_verified": true,
+    "header_authority_value_census": true,
+    "size_difference_is_not_authority_difference": true
+  },
+  "device_validation_2026_09_25": {
+    "truthnegative_performance_fix": {
+      "continuous_preview_seconds": 34,
+      "camera5_oracle_seconds": 24,
+      "native_export_import_seconds": 26,
+      "prior_long_running_status_resolved": true
+    },
+    "admitted_native_containers": [
+      {
+        "sha256": "ddfcdc0165d772f477119fb2441d2fa34f2c94972f9ebc2857b5397a72feee25",
+        "bytes": 161337568,
+        "width": 4080,
+        "height": 3072,
+        "tile_count": 3072,
+        "record_count": 37601280
+      },
+      {
+        "sha256": "79d94c625aa40a25a9522cc377fef36b8516a649b97ec91c43901f89575ecfee",
+        "bytes": 162495240,
+        "width": 4080,
+        "height": 3072,
+        "tile_count": 3072,
+        "record_count": 37601280
+      }
+    ],
+    "admitted_tn4_reference": {
+      "sha256": "396819e0dd3f1369e63c14304b7a23c91a7688f3f39dcfd232490b82777d4991",
+      "bytes": 210161584,
+      "authority_calibrated_estimate": 12532803,
+      "authority_censored": 957,
+      "authority_unknown": 25067520,
+      "authority_reconstructed": 0
+    }
   }
 }
