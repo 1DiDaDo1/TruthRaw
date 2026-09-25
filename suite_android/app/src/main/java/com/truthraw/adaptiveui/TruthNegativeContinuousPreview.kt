@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 
 private const val TN_CONTINUOUS_MAGIC = 0x35434e54
-private const val TN_CONTINUOUS_HEADER_INTS = 48
+private const val TN_CONTINUOUS_HEADER_INTS = 92
 private const val TN_CONTINUOUS_MAX_EDGE = 192
 private const val TN_CONTINUOUS_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val TN_CONTINUOUS_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
