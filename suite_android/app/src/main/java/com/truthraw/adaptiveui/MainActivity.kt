@@ -630,7 +630,18 @@ class MainActivity : Activity() {
                                 "state=${m.stateSha256.take(16)}… · " +
                                 "display-clamp=${m.displayClampPixels} px · " +
                                 "frame/evidence=${m.physicalFrameCount}/" +
-                                "${m.independentEvidenceCount} · writeback=false."
+                                "${m.independentEvidenceCount} · writeback=false · " +
+                                "N2 audit-only: sampled=${m.n2Sampled}, " +
+                                "candidate-corrected=${m.n2CorrectedCandidates}, " +
+                                "preserved=${m.n2Preserved}, structure-protected=" +
+                                "${m.n2StructureProtected}, censored/boundary=" +
+                                "${m.n2CensoredProtected}/${m.n2CensorBoundaryProtected}, " +
+                                "noiseProfile=${m.n2NoiseProfileAvailable}, removed-energy=" +
+                                "%.3f%%".format(m.n2RemovedResidualEnergyFraction * 100.0) +
+                                ", max|Δ|stage2=" +
+                                "%.8f".format(m.n2MaxAbsCorrectionStage2) +
+                                ", audit=${m.n2AuditSha256.take(16)}… · " +
+                                "candidate-applied=false."
                     }
                 }
                 render()
