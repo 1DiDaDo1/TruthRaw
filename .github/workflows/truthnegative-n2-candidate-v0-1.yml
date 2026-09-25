@@ -1,0 +1,47 @@
+name: D.RAW TruthNegative N2 Candidate v0.1
+
+on:
+  push:
+    branches:
+      - integration/pro-truthnegative-continuous-primary-route-v075
+    paths:
+      - 'docs/research/truthnegative-n2-candidate-pipeline-v0.1/**'
+      - 'docs/research/truthnegative-structure-preservation-gate-v0.1/**'
+      - 'docs/research/truthnegative-authority-aware-neighborhood-v0.1/**'
+      - 'docs/research/truthnegative-bounded-residual-estimator-v0.1/**'
+      - '.github/workflows/truthnegative-n2-candidate-v0-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/truthnegative-n2-candidate-pipeline-v0.1                 -B /tmp/tn-n2-v01                 -DCMAKE_BUILD_TYPE=Release                 -DCMAKE_CXX_COMPILER="$CXX"
+      - name: Build
+        run: cmake --build /tmp/tn-n2-v01 --parallel 2
+      - name: Test
+        run: ctest --test-dir /tmp/tn-n2-v01 --output-on-failure
+
+  sanitizer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-n2-candidate-pipeline-v0.1                 -B /tmp/tn-n2-v01-san                 -DCMAKE_BUILD_TYPE=Debug                 -DCMAKE_CXX_COMPILER=clang++                 -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"                 -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/tn-n2-v01-san --parallel 2
+          ctest --test-dir /tmp/tn-n2-v01-san --output-on-failure
