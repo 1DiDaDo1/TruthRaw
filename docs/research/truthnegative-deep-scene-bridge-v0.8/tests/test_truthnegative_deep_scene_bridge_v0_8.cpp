@@ -145,8 +145,9 @@ void test_inferred_geometry_does_not_change_radiometric_authority() {
 void test_state_query_mismatch_fails_closed() {
     auto a = state();
     auto b = state();
-    b.input.scientificMasterSha256[0] ^= 1u;
-    REQUIRE(tn::finalizeState(b.input, b));
+    auto changedInput = b.input;
+    changedInput.scientificMasterSha256[0] ^= 1u;
+    REQUIRE(tn::finalizeState(changedInput, b));
     const auto q = query(a);
 
     bridge::ScenePacket packet{};
