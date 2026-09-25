@@ -50,19 +50,17 @@ void put32(std::uint8_t* p, std::uint32_t v) noexcept {
     p[2]=static_cast<std::uint8_t>(v>>16u);
     p[3]=static_cast<std::uint8_t>(v>>24u);
 }
-void put64(std::uint8_t* p, std::uint64_t v) noexcept {
-    for(unsigned i=0;i<8u;++i) p[i]=static_cast<std::uint8_t>(v>>(8u*i));
-}
 std::uint32_t get32(const std::uint8_t* p) noexcept {
     return static_cast<std::uint32_t>(p[0]) |
       (static_cast<std::uint32_t>(p[1])<<8u) |
       (static_cast<std::uint32_t>(p[2])<<16u) |
       (static_cast<std::uint32_t>(p[3])<<24u);
 }
-std::uint64_t get64(const std::uint8_t* p) noexcept {
-    std::uint64_t v=0u;
-    for(unsigned i=0;i<8u;++i) v|=static_cast<std::uint64_t>(p[i])<<(8u*i);
-    return v;
+
+Digest digestBytes(std::span<const std::uint8_t> bytes) noexcept {
+    truthraw::sha256_v0_69::Hasher h;
+    h.update(bytes);
+    return h.finalize();
 }
 
 std::string makeHeader(const WriteInput& input, const Summary& s) {
@@ -161,7 +159,7 @@ bool write(
                 if(!field::encode_tile(x,y,w,h,records,enc)) return false;
 
                 const Digest payloadSha=
-                    truthraw::sha256_v0_69::compute(enc.bytes);
+                    digestBytes(enc.bytes);
                 std::array<std::uint8_t,kTileHeaderBytes> th{};
                 put32(th.data()+0,x); put32(th.data()+4,y);
                 put32(th.data()+8,w); put32(th.data()+12,h);
@@ -269,7 +267,7 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
                 error_="tile payload read failed";return false;
             }
             bodyHasher.update(payload);
-            if(truthraw::sha256_v0_69::compute(payload)!=idx.payloadSha256){
+            if(digestBytes(payload)!=idx.payloadSha256){
                 error_="tile payload sha mismatch";return false;
             }
             field::EncodedTile meta{};
