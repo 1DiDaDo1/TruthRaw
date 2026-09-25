@@ -101,6 +101,9 @@ bool run(
            options.tileEdge<8u||
            options.samplingPeriod<2u||
            (options.samplingPeriod&1u)!=0u||
+           ((options.appearanceGridWidth==0u)!=(options.appearanceGridHeight==0u))||
+           options.appearanceGridWidth>static_cast<std::uint32_t>(md.width)||
+           options.appearanceGridHeight>static_cast<std::uint32_t>(md.height)||
            !valid_noise_profile(md)){
             return false;
         }
@@ -108,6 +111,18 @@ bool run(
         out.noiseProfileAvailable=md.hasNoiseProfile;
         out.samplingPeriod=options.samplingPeriod;
         out.tileEdge=options.tileEdge;
+        if(options.appearanceGridWidth>0u){
+            const std::uint64_t gridCount64=
+                static_cast<std::uint64_t>(options.appearanceGridWidth)*
+                options.appearanceGridHeight;
+            if(gridCount64==0u||
+               gridCount64>static_cast<std::uint64_t>(
+                   std::numeric_limits<std::size_t>::max())) return false;
+            out.appearanceGridWidth=options.appearanceGridWidth;
+            out.appearanceGridHeight=options.appearanceGridHeight;
+            out.appearanceGrid.resize(static_cast<std::size_t>(gridCount64));
+            out.appearanceGridDerived=true;
+        }
 
         truthraw::sha256_v0_69::Hasher candidateHasher;
         constexpr char candidateDomain[]="D_RAW_TN_N2_CFA_AUDIT_CANDIDATE_V0_1";
@@ -183,6 +198,8 @@ bool run(
                         ++out.cfaPhaseSamples[phaseIndex];
                         ++tile.cfaPhaseSamples[phaseIndex];
 
+                        const int channel=measured_channel(md.cfa,gx,gy);
+                        if(channel<0||channel>2)return false;
                         n2::PixelResult pr{};
                         const bool border=
                             gx<kStep||gy<kStep||
@@ -196,7 +213,6 @@ bool run(
                             ++out.borderProtected;
                             ++tile.borderProtected;
                         }else{
-                            const int channel=measured_channel(md.cfa,gx,gy);
                             const bool centerCensored=
                                 static_cast<float>(workspace.raw[ci])>=md.whiteLevel;
 
@@ -272,6 +288,33 @@ bool run(
                             }
                         }
 
+                        if(out.appearanceGridDerived){
+                            const auto bx=std::min<std::uint32_t>(
+                                out.appearanceGridWidth-1u,
+                                static_cast<std::uint32_t>(
+                                    (static_cast<std::uint64_t>(gx)*
+                                     out.appearanceGridWidth)/
+                                    static_cast<std::uint64_t>(md.width)));
+                            const auto by=std::min<std::uint32_t>(
+                                out.appearanceGridHeight-1u,
+                                static_cast<std::uint32_t>(
+                                    (static_cast<std::uint64_t>(gy)*
+                                     out.appearanceGridHeight)/
+                                    static_cast<std::uint64_t>(md.height)));
+                            auto& bin=out.appearanceGrid[
+                                static_cast<std::size_t>(by)*
+                                out.appearanceGridWidth+bx];
+                            const auto cc=static_cast<std::size_t>(channel);
+                            ++bin.sampled[cc];
+                            if(pr.correctionApplied){
+                                bin.correctionSum[cc]+=pr.correction;
+                                ++bin.corrected[cc];
+                            }else{
+                                ++bin.protectedCount[cc];
+                            }
+                            if(!std::isfinite(bin.correctionSum[cc]))return false;
+                        }
+
                         hash_u32(candidateHasher,static_cast<std::uint32_t>(gx));
                         hash_u32(candidateHasher,static_cast<std::uint32_t>(gy));
                         hash_f64(candidateHasher,pr.inputValue);
@@ -313,6 +356,34 @@ bool run(
         out.candidateSha256=candidateHasher.finalize();
         if(!nonzero(out.candidateSha256))return false;
 
+        if(out.appearanceGridDerived){
+            truthraw::sha256_v0_69::Hasher gridHasher;
+            constexpr char gridDomain[]=
+                "D_RAW_TN_N2_CFA_APPEARANCE_GRID_V0_1";
+            gridHasher.update(
+                reinterpret_cast<const std::uint8_t*>(gridDomain),
+                sizeof(gridDomain)-1u);
+            gridHasher.update(binding.sourceEvidenceSha256);
+            gridHasher.update(binding.truthNegativeStateSha256);
+            gridHasher.update(out.candidateSha256);
+            hash_u32(gridHasher,out.appearanceGridWidth);
+            hash_u32(gridHasher,out.appearanceGridHeight);
+            for(const auto& bin:out.appearanceGrid){
+                for(std::size_t cc=0u;cc<3u;++cc){
+                    if(!std::isfinite(bin.correctionSum[cc]))return false;
+                    if(bin.corrected[cc]+bin.protectedCount[cc]!=bin.sampled[cc]){
+                        return false;
+                    }
+                    hash_f64(gridHasher,bin.correctionSum[cc]);
+                    hash_u32(gridHasher,bin.sampled[cc]);
+                    hash_u32(gridHasher,bin.corrected[cc]);
+                    hash_u32(gridHasher,bin.protectedCount[cc]);
+                }
+            }
+            out.appearanceGridSha256=gridHasher.finalize();
+            if(!nonzero(out.appearanceGridSha256))return false;
+        }
+
         truthraw::sha256_v0_69::Hasher auditHasher;
         constexpr char auditDomain[]="D_RAW_TN_N2_CFA_AUDIT_REPORT_V0_1";
         auditHasher.update(
@@ -340,6 +411,7 @@ bool run(
 
         return nonzero(out.auditSha256)&&
                nonzero(out.spatialSha256)&&
+               (!out.appearanceGridDerived||nonzero(out.appearanceGridSha256))&&
                !out.sourceValuesModified&&
                !out.truthNegativeModified&&
                !out.createsNewEvidence&&
