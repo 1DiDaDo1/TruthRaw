@@ -25,6 +25,11 @@ struct Input final {
     int coreHeight = 0;
     CfaPattern cfa = CfaPattern::BGGR;
     const audit::Result* n2Audit = nullptr;
+    // Optional conservative closure: an admitted correction is suppressed when
+    // it lies within this Chebyshev radius of any protected core output pixel.
+    // Android binds this to backend.requiredHalo().
+    int reconstructionInfluenceRadius = 0;
+    bool closeProtectionOverReconstructionSupport = false;
 };
 
 struct Result final {
@@ -32,8 +37,12 @@ struct Result final {
     std::vector<float> candidateCameraRgb{};
     Digest candidateIdentitySha256{};
     std::uint64_t correctedStage2Sites = 0u;
+    std::uint64_t supportGuardSuppressedStage2Sites = 0u;
+    std::uint64_t protectedCorePixels = 0u;
+    std::uint64_t protectedCoreChangedRgbChannels = 0u;
     std::uint64_t changedRgbChannels = 0u;
     double maxAbsRgbDelta = 0.0;
+    bool supportGuardApplied = false;
     bool sourceStage2Modified = false;
     bool scientificWritebackAllowed = false;
     bool createsNewEvidence = false;
