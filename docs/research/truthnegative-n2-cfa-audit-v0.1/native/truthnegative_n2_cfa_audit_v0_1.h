@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cstdint>
+#include <vector>
 
 namespace truthraw::truthnegative_n2_cfa_audit::v0_1 {
 
@@ -25,14 +26,28 @@ struct Options final {
     std::uint32_t samplingPeriod = 8u;
 };
 
+struct TileAudit final {
+    std::uint32_t x = 0u;
+    std::uint32_t y = 0u;
+    std::uint32_t width = 0u;
+    std::uint32_t height = 0u;
+    n2::Audit audit{};
+    std::array<std::uint64_t,4u> cfaPhaseSamples{};
+    std::uint64_t borderProtected = 0u;
+    std::uint64_t sampled = 0u;
+};
+
 struct Result final {
     n2::Audit audit{};
     Digest candidateSha256{};
     Digest auditSha256{};
+    Digest spatialSha256{};
     std::array<std::uint64_t,4u> cfaPhaseSamples{};
     std::uint64_t borderProtected = 0u;
     std::uint64_t sampled = 0u;
     std::uint32_t samplingPeriod = 0u;
+    std::uint32_t tileEdge = 0u;
+    std::vector<TileAudit> tiles{};
     bool noiseProfileAvailable = false;
     bool sourceValuesModified = false;
     bool truthNegativeModified = false;
