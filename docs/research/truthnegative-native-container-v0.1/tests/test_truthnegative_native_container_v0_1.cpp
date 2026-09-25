@@ -32,7 +32,9 @@ public:
  }
  std::uint64_t sizeBytes() const noexcept override{return bytes.size();}
  bool readAt(std::uint64_t o,void* p,std::size_t n) const noexcept override{
-  if(o+n>bytes.size())return false; std::memcpy(p,bytes.data()+o,n); return true;
+  if(o+n>bytes.size()) return false;
+  std::memcpy(p,bytes.data()+o,n);
+  return true;
  }
  std::vector<std::uint8_t> bytes;
 };
