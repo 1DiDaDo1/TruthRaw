@@ -50,6 +50,7 @@ set(TRUTHNEGATIVE_NOISE_V01 "${RESEARCH_ROOT}/truthnegative-noise-state-v0.1/nat
 set(TRUTHNEGATIVE_STRUCTURE_GATE_V01 "${RESEARCH_ROOT}/truthnegative-structure-preservation-gate-v0.1/native")
 set(TRUTHNEGATIVE_RESIDUAL_V01 "${RESEARCH_ROOT}/truthnegative-bounded-residual-estimator-v0.1/native")
 set(TRUTHNEGATIVE_NEIGHBORHOOD_V01 "${RESEARCH_ROOT}/truthnegative-authority-aware-neighborhood-v0.1/native")
+set(TRUTHNEGATIVE_N2_PIPELINE_V01 "${RESEARCH_ROOT}/truthnegative-n2-candidate-pipeline-v0.1/native")
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
 set(TRUTHNEGATIVE_OPTICS_V07 "${RESEARCH_ROOT}/truthnegative-optics-support-v0.7/native")
 set(TRUTHNEGATIVE_DEEP_V08 "${RESEARCH_ROOT}/truthnegative-deep-scene-bridge-v0.8/native")
@@ -144,6 +145,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}/truthnegative_structure_preservation_gate_v0_1.cpp
     ${TRUTHNEGATIVE_RESIDUAL_V01}/truthnegative_bounded_residual_estimator_v0_1.cpp
     ${TRUTHNEGATIVE_NEIGHBORHOOD_V01}/truthnegative_authority_aware_neighborhood_v0_1.cpp
+    ${TRUTHNEGATIVE_N2_PIPELINE_V01}/truthnegative_n2_candidate_pipeline_v0_1.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
     ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
     ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp
@@ -192,6 +194,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}
     ${TRUTHNEGATIVE_RESIDUAL_V01}
     ${TRUTHNEGATIVE_NEIGHBORHOOD_V01}
+    ${TRUTHNEGATIVE_N2_PIPELINE_V01}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
     ${TRUTHNEGATIVE_OPTICS_V07}
     ${TRUTHNEGATIVE_DEEP_V08}
