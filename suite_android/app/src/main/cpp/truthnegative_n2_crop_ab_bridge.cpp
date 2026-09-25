@@ -2,8 +2,10 @@
 
 #include "free_world_appearance_resolve_v0_7.h"
 #include "free_world_scientific_open_scene_binding_v0_3.h"
+#include "full_frame_streaming_v0_1_internal.h"
 #include "truthnegative_deep_scene_bridge_v0_8.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
+#include "truthnegative_n2_full_colour_candidate_v0_1.h"
 #include "truthnegative_pipeline_bridge_common.h"
 #include "truthraw_sha256_v0_69.h"
 
@@ -27,6 +29,8 @@ namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
 namespace tn_deep = truthraw::truthnegative_deep_scene_bridge::v0_8;
 namespace n2 = truthraw::truthnegative_n2_cfa_audit::v0_1;
+namespace n2fc = truthraw::truthnegative_n2_full_colour_candidate::v0_1;
+namespace stream_detail = truthraw::streaming_v0_1::detail;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x31424132; // "2AB1" little-endian view.
@@ -197,8 +201,11 @@ struct CropMetrics final {
     std::uint64_t adjustedChannels=0u;
     std::uint64_t clampA=0u;
     std::uint64_t clampB=0u;
+    std::uint64_t baselineRgbMismatches=0u;
+    std::uint64_t candidateStage2Sites=0u;
     double absDeltaSum=0.0;
     double maxAbsDelta=0.0;
+    double maxBaselineRgbDelta=0.0;
 };
 
 bool make_scientific_view(
@@ -334,6 +341,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
     packet[7]=1;packet[8]=1;
     packet[9]=0;packet[10]=0;packet[11]=0;
     packet[12]=static_cast<jint>(kDeltaGain);
+    packet[13]=1; // full-colour candidate reconstruction enabled
     digest_to_words(ctx.truthNegativeState.stateSha256,packet.data()+14u);
     digest_to_words(ctx.authorityField.contentSha256,packet.data()+22u);
     digest_to_words(coarse.auditSha256,packet.data()+30u);
@@ -369,7 +377,108 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
             return status_packet(env,-7);
         }
 
+        // Build a private Stage-2 tile with the exact halo required by the
+        // existing measured-preserving reconstruction. N2 is evaluated on the
+        // complete halo tile so colour reconstruction can propagate admitted
+        // CFA corrections without inventing un-audited neighbours.
+        const int reconstructionHalo=ctx.reconstruction->requiredHalo();
+        if(reconstructionHalo<0)return status_packet(env,-15);
+        truthraw::TileRect reconstructionTile{};
+        reconstructionTile.x0=static_cast<int>(crop.x);
+        reconstructionTile.y0=static_cast<int>(crop.y);
+        reconstructionTile.x1=static_cast<int>(crop.x+crop.width);
+        reconstructionTile.y1=static_cast<int>(crop.y+crop.height);
+        reconstructionTile.hx0=std::max(
+            0,reconstructionTile.x0-reconstructionHalo);
+        reconstructionTile.hy0=std::max(
+            0,reconstructionTile.y0-reconstructionHalo);
+        reconstructionTile.hx1=std::min(
+            static_cast<int>(ctx.width),
+            reconstructionTile.x1+reconstructionHalo);
+        reconstructionTile.hy1=std::min(
+            static_cast<int>(ctx.height),
+            reconstructionTile.y1+reconstructionHalo);
+
+        stream_detail::Workspace reconstructionWorkspace{};
+        const auto stage2Status=stream_detail::fill_stage2(
+            *ctx.openedSource.source,
+            reconstructionTile,
+            reconstructionWorkspace);
+        if(!stage2Status)return status_packet(env,-15);
+
+        const int tileWidth=
+            reconstructionTile.hx1-reconstructionTile.hx0;
+        const int tileHeight=
+            reconstructionTile.hy1-reconstructionTile.hy0;
+        if(tileWidth<=0||tileHeight<=0||
+           reconstructionWorkspace.stage2.size()!=
+               static_cast<std::size_t>(tileWidth)*
+               static_cast<std::size_t>(tileHeight)){
+            return status_packet(env,-15);
+        }
+
+        n2::Options reconstructionAuditOptions{};
+        reconstructionAuditOptions.tileEdge=64u;
+        reconstructionAuditOptions.samplingPeriod=2u;
+        reconstructionAuditOptions.regionX=
+            static_cast<std::uint32_t>(reconstructionTile.hx0);
+        reconstructionAuditOptions.regionY=
+            static_cast<std::uint32_t>(reconstructionTile.hy0);
+        reconstructionAuditOptions.regionWidth=
+            static_cast<std::uint32_t>(tileWidth);
+        reconstructionAuditOptions.regionHeight=
+            static_cast<std::uint32_t>(tileHeight);
+        reconstructionAuditOptions.appearanceGridWidth=
+            static_cast<std::uint32_t>(tileWidth);
+        reconstructionAuditOptions.appearanceGridHeight=
+            static_cast<std::uint32_t>(tileHeight);
+
+        n2::Result reconstructionAudit{};
+        if(!n2::run(
+                *ctx.openedSource.source,
+                coarseBinding,
+                reconstructionAuditOptions,
+                reconstructionAudit)||
+           !reconstructionAudit.appearanceGridDerived||
+           reconstructionAudit.sampled!=
+               static_cast<std::uint64_t>(tileWidth)*
+               static_cast<std::uint64_t>(tileHeight)||
+           reconstructionAudit.sourceValuesModified||
+           reconstructionAudit.truthNegativeModified||
+           reconstructionAudit.createsNewEvidence||
+           reconstructionAudit.scientificWritebackAllowed){
+            return status_packet(env,-16);
+        }
+
+        n2fc::Input fullColourInput{};
+        fullColourInput.stage2=reconstructionWorkspace.stage2.data();
+        fullColourInput.tileWidth=tileWidth;
+        fullColourInput.tileHeight=tileHeight;
+        fullColourInput.globalHx0=reconstructionTile.hx0;
+        fullColourInput.globalHy0=reconstructionTile.hy0;
+        fullColourInput.coreX0=reconstructionTile.x0;
+        fullColourInput.coreY0=reconstructionTile.y0;
+        fullColourInput.coreWidth=static_cast<int>(crop.width);
+        fullColourInput.coreHeight=static_cast<int>(crop.height);
+        fullColourInput.cfa=ctx.openedSource.source->metadata().cfa;
+        fullColourInput.n2Audit=&reconstructionAudit;
+
+        n2fc::Result fullColour{};
+        if(!n2fc::reconstruct(
+                fullColourInput,
+                *ctx.reconstruction,
+                fullColour)||
+           fullColour.sourceStage2Modified||
+           fullColour.createsNewEvidence||
+           fullColour.scientificWritebackAllowed||
+           fullColour.baselineCameraRgb.size()!=cropPixels*3u||
+           fullColour.candidateCameraRgb.size()!=cropPixels*3u){
+            return status_packet(env,-17);
+        }
+
         CropMetrics metrics{};
+        metrics.adjustedChannels=fullColour.changedRgbChannels;
+        metrics.candidateStage2Sites=fullColour.correctedStage2Sites;
         const std::size_t aBase=
             rasterBase+(cropIndex*3u+0u)*cropPixels;
         const std::size_t bBase=
@@ -415,21 +524,38 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 }
                 if(aVisible.gamutOrDisplayClampApplied)++metrics.clampA;
 
-                auto candidateScene=scientificView;
-                const auto& bin=audit.appearanceGrid[local];
-                bool adjusted=false;
+                const std::size_t rgbBase=local*3u;
                 for(std::size_t cc=0u;cc<3u;++cc){
-                    if(bin.sampled[cc]==0u)continue;
-                    const double correction=
-                        bin.correctionSum[cc]/
-                        static_cast<double>(bin.sampled[cc]);
-                    if(!std::isfinite(correction))return status_packet(env,-11);
-                    if(correction!=0.0){
-                        candidateScene.sceneLinearRgb[cc]+=correction;
-                        adjusted=true;
-                        ++metrics.adjustedChannels;
+                    const double baseline=
+                        static_cast<double>(
+                            fullColour.baselineCameraRgb[rgbBase+cc]);
+                    const double scientific=
+                        scientificView.sceneLinearRgb[cc];
+                    if(!std::isfinite(baseline)||
+                       !std::isfinite(scientific)){
+                        return status_packet(env,-18);
+                    }
+                    const double delta=std::abs(baseline-scientific);
+                    metrics.maxBaselineRgbDelta=
+                        std::max(metrics.maxBaselineRgbDelta,delta);
+                    const double scale=std::max(
+                        {1.0,std::abs(baseline),std::abs(scientific)});
+                    if(delta>1.0e-6*scale){
+                        ++metrics.baselineRgbMismatches;
                     }
                 }
+                if(metrics.baselineRgbMismatches!=0u){
+                    return status_packet(env,-18);
+                }
+
+                auto candidateScene=scientificView;
+                candidateScene.sceneLinearRgb={
+                    static_cast<double>(
+                        fullColour.candidateCameraRgb[rgbBase+0u]),
+                    static_cast<double>(
+                        fullColour.candidateCameraRgb[rgbBase+1u]),
+                    static_cast<double>(
+                        fullColour.candidateCameraRgb[rgbBase+2u])};
                 candidateScene.channelAuthority.fill(
                     free_world::ResolvedAuthority::Unknown);
                 candidateScene.uncertaintyKnown.fill(false);
@@ -439,7 +565,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 candidateScene.displayEncoded=false;
                 candidateScene.sourcePacketSha256=candidate_scene_digest(
                     scientificView.sourcePacketSha256,
-                    audit.appearanceGridSha256,
+                    fullColour.candidateIdentitySha256,
                     gx,gy,candidateScene.sceneLinearRgb);
                 candidateScene.createsNewEvidence=false;
                 candidateScene.scientificWritebackAllowed=false;
@@ -479,7 +605,6 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 }
                 if(displayChanged)++metrics.changedPixels;
                 packet[dBase+local]=static_cast<jint>(argb(delta));
-                (void)adjusted;
             }
         }
 
@@ -513,8 +638,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
             audit.audit.maxAbsCorrection,1000000000.0);
         packet[m+19u]=clamp_metric(metrics.clampA);
         packet[m+20u]=clamp_metric(metrics.clampB);
-        packet[m+21u]=0;
-        digest_to_words(audit.appearanceGridSha256,packet.data()+m+22u);
+        packet[m+21u]=clamp_metric(metrics.baselineRgbMismatches);
+        digest_to_words(
+            fullColour.candidateIdentitySha256,
+            packet.data()+m+22u);
+        packet[m+30u]=clamp_metric(metrics.candidateStage2Sites);
+        packet[m+31u]=1; // full-colour measured-preserving reconstruction
     }
 
     const auto report=scene.report();
