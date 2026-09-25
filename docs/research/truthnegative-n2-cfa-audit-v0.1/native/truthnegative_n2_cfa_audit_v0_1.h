@@ -24,6 +24,10 @@ struct Options final {
     // Even period. period=2 audits every CFA sample. period=8 samples one
     // location of each 2x2 CFA phase per 8x8 source block (1/16 of pixels).
     std::uint32_t samplingPeriod = 8u;
+    // Optional low-resolution appearance-only correction grid. Zero/zero
+    // disables it. This never changes source, Scientific Master or TN state.
+    std::uint32_t appearanceGridWidth = 0u;
+    std::uint32_t appearanceGridHeight = 0u;
 };
 
 struct TileAudit final {
@@ -37,17 +41,29 @@ struct TileAudit final {
     std::uint64_t sampled = 0u;
 };
 
+struct AppearanceCorrectionBin final {
+    std::array<double,3u> correctionSum{};
+    std::array<std::uint32_t,3u> sampled{};
+    std::array<std::uint32_t,3u> corrected{};
+    std::array<std::uint32_t,3u> protectedCount{};
+};
+
 struct Result final {
     n2::Audit audit{};
     Digest candidateSha256{};
     Digest auditSha256{};
     Digest spatialSha256{};
+    Digest appearanceGridSha256{};
     std::array<std::uint64_t,4u> cfaPhaseSamples{};
     std::uint64_t borderProtected = 0u;
     std::uint64_t sampled = 0u;
     std::uint32_t samplingPeriod = 0u;
     std::uint32_t tileEdge = 0u;
     std::vector<TileAudit> tiles{};
+    std::uint32_t appearanceGridWidth = 0u;
+    std::uint32_t appearanceGridHeight = 0u;
+    std::vector<AppearanceCorrectionBin> appearanceGrid{};
+    bool appearanceGridDerived = false;
     bool noiseProfileAvailable = false;
     bool sourceValuesModified = false;
     bool truthNegativeModified = false;
