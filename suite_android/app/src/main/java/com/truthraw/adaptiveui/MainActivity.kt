@@ -1616,6 +1616,14 @@ class MainActivity : Activity() {
                                     " · RAW bound=" + m.censoredRawCodeBoundMin +
                                     "…" + m.censoredRawCodeBoundMax +
                                     " · bound mismatch=" + m.censoredRawCodeBoundMismatchCount +
+                                    " · CFA 00/10/01/11=" +
+                                    m.censoredParity00 + "/" + m.censoredParity10 + "/" +
+                                    m.censoredParity01 + "/" + m.censoredParity11 +
+                                    " · RAW10=1023=" + m.censoredRaw10MaxCount +
+                                    " (" + m.censoredRaw10Parity00 + "/" +
+                                    m.censoredRaw10Parity10 + "/" +
+                                    m.censoredRaw10Parity01 + "/" +
+                                    m.censoredRaw10Parity11 + ")" +
                                     " · values <0/>1=" +
                                     m.valueNegativeCount + "/" +
                                     m.valueAboveOneCount +
