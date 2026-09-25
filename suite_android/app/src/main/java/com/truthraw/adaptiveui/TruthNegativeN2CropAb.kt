@@ -281,8 +281,15 @@ object TruthNegativeN2CropAbLoader {
                 val qualitySha256 = digestWords(packet, m + 74)
                 val qualityCreatesNewEvidence = packet[m + 82] != 0
                 val qualityScientificWriteback = packet[m + 83] != 0
-                if (maxDeltaSourceX !in x until (x + width) ||
+                if (!validQuantiles(pixelDelta) ||
+                    !validQuantiles(redDelta) ||
+                    !validQuantiles(greenDelta) ||
+                    !validQuantiles(blueDelta) ||
+                    !validQuantiles(lumaDelta) ||
+                    !validQuantiles(chromaDelta) ||
+                    maxDeltaSourceX !in x until (x + width) ||
                     maxDeltaSourceY !in y until (y + height) ||
+                    maxDeltaPreserveReasonMask < 0 ||
                     distanceToStructurePx < -1.0 ||
                     distanceToCensorBoundaryPx < -1.0 ||
                     edgeEnergyA < 0.0 ||
@@ -441,6 +448,15 @@ object TruthNegativeN2CropAbLoader {
             it.deltaBitmap.recycle()
         }
     }
+
+    private fun validQuantiles(
+        q: TruthNegativeN2Quantiles,
+    ): Boolean =
+        q.mean >= 0.0 &&
+            q.p50 >= 0.0 &&
+            q.p95 >= q.p50 &&
+            q.p99 >= q.p95 &&
+            q.max >= q.p99
 
     private fun readQuantiles(
         packet: IntArray,
