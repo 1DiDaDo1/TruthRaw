@@ -8,7 +8,7 @@ Active integration branch:
 
 Current code-bearing integration checkpoint:
 
-`58e3b6332c828d9b8ea955b0c79b0c5f69342761`
+`420bc1df259ef4db80448c2088bc5c4bf77a4599`
 
 Initial Free-World v0.2-v0.7 promotion checkpoint:
 
@@ -120,13 +120,15 @@ The v0.2-v0.7 and TruthNegative Continuous v0.5 native modules are part of the A
 
 ## Green validation
 
-Current bridge checkpoint `58e3b6332c828d9b8ea955b0c79b0c5f69342761`:
+Current bridge checkpoint `420bc1df259ef4db80448c2088bc5c4bf77a4599`:
 
-- Android signed ARM64 build + PRO bridge run `36108523949`: **SUCCESS**
-- Scientific Master F64 + Color Audit run `36079724798`: **SUCCESS**
-- Open Scene Field/local authority run `36079724888`: **SUCCESS**
-- Unified Output Preview + Android integration run `36108523910`: **SUCCESS**
+- Android signed ARM64 build + PRO bridge run `36112964452`: **SUCCESS**
+- Scientific Master F64 + Color Audit run `36112964482`: **SUCCESS**
+- Open Scene Field/local authority run `36112964500`: **SUCCESS**
+- Unified Output Preview + Android integration run `36112964468`: **SUCCESS**
 - TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan run `36107899950`: **SUCCESS**
+- TruthNegative Round-Trip + Optics gates run `36111981454`: **SUCCESS**
+- TruthNegative Deep Scene Bridge v0.8 run `36112847260`: **SUCCESS**
 
 Research validation before promotion:
 
@@ -138,11 +140,11 @@ Research validation before promotion:
 
 GitHub Actions artifact:
 
-- artifact ID: `10851937980`
+- artifact ID: `10854211375`
 - artifact name: `truthraw-v0-84-2-compute-router-debug-arm64`
-- artifact ZIP digest: `sha256:c5a3e3ccb11be25c7b33530295bb4ffbe7abc429cc94705503c8b7f04b5f3004`
-- APK size: `6355587` bytes
-- extracted APK SHA-256: `a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b`
+- artifact ZIP digest: `sha256:4f41ffd716a1ec61776a0f4721169ec14195f9864f3b80129a74f019f7029686`
+- APK size: `6375691` bytes
+- extracted APK SHA-256: `8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
 
 Stable development signing certificate SHA-256:
 
