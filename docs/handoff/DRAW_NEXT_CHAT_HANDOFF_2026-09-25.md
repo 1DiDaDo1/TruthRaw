@@ -40,6 +40,8 @@ The new layers are compiled into main. Existing validated output/export routes a
 
 ## Permanent scientific boundaries
 
+**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
 - Source Evidence remains immutable.
 - Scientific Master remains separate from appearance/display derivatives.
 - Geometry authority and radiometric authority are separate axes.
