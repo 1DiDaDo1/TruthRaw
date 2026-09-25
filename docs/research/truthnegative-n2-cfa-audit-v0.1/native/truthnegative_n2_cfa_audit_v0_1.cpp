@@ -107,6 +107,7 @@ bool run(
 
         out.noiseProfileAvailable=md.hasNoiseProfile;
         out.samplingPeriod=options.samplingPeriod;
+        out.tileEdge=options.tileEdge;
 
         truthraw::sha256_v0_69::Hasher candidateHasher;
         constexpr char candidateDomain[]="D_RAW_TN_N2_CFA_AUDIT_CANDIDATE_V0_1";
@@ -117,6 +118,16 @@ bool run(
         candidateHasher.update(binding.truthNegativeStateSha256);
         hash_u32(candidateHasher,options.samplingPeriod);
 
+        truthraw::sha256_v0_69::Hasher spatialHasher;
+        constexpr char spatialDomain[]="D_RAW_TN_N2_CFA_SPATIAL_AUDIT_V0_1";
+        spatialHasher.update(
+            reinterpret_cast<const std::uint8_t*>(spatialDomain),
+            sizeof(spatialDomain)-1u);
+        spatialHasher.update(binding.sourceEvidenceSha256);
+        spatialHasher.update(binding.truthNegativeStateSha256);
+        hash_u32(spatialHasher,options.tileEdge);
+        hash_u32(spatialHasher,options.samplingPeriod);
+
         detail::Workspace workspace{};
         constexpr int kStep=2;
 
@@ -124,6 +135,11 @@ bool run(
             const int y1=std::min(md.height,y0+static_cast<int>(options.tileEdge));
             for(int x0=0;x0<md.width;x0+=static_cast<int>(options.tileEdge)){
                 const int x1=std::min(md.width,x0+static_cast<int>(options.tileEdge));
+                TileAudit tile{};
+                tile.x=static_cast<std::uint32_t>(x0);
+                tile.y=static_cast<std::uint32_t>(y0);
+                tile.width=static_cast<std::uint32_t>(x1-x0);
+                tile.height=static_cast<std::uint32_t>(y1-y0);
                 TileRect t{};
                 t.x0=x0;t.y0=y0;t.x1=x1;t.y1=y1;
                 t.hx0=std::max(0,x0-kStep);
@@ -161,8 +177,11 @@ bool run(
                         if(!std::isfinite(center))return false;
 
                         ++out.sampled;
-                        ++out.cfaPhaseSamples[
-                            static_cast<std::size_t>((gy&1)*2+(gx&1))];
+                        ++tile.sampled;
+                        const auto phaseIndex=
+                            static_cast<std::size_t>((gy&1)*2+(gx&1));
+                        ++out.cfaPhaseSamples[phaseIndex];
+                        ++tile.cfaPhaseSamples[phaseIndex];
 
                         n2::PixelResult pr{};
                         const bool border=
@@ -172,8 +191,10 @@ bool run(
                             pr.inputValue=center;
                             pr.candidateValue=center;
                             pr.preserveReason=n2::PreserveReason::NoCompatibleNeighborhood;
-                            if(!n2::accumulate(pr,out.audit))return false;
+                            if(!n2::accumulate(pr,out.audit)||
+                               !n2::accumulate(pr,tile.audit))return false;
                             ++out.borderProtected;
+                            ++tile.borderProtected;
                         }else{
                             const int channel=measured_channel(md.cfa,gx,gy);
                             const bool centerCensored=
@@ -245,7 +266,8 @@ bool run(
                             }
 
                             if(!n2::evaluatePixel(pi,pr)||
-                               !n2::accumulate(pr,out.audit)){
+                               !n2::accumulate(pr,out.audit)||
+                               !n2::accumulate(pr,tile.audit)){
                                 return false;
                             }
                         }
@@ -260,10 +282,34 @@ bool run(
                             static_cast<std::uint32_t>(pr.preserveReason));
                     }
                 }
+
+                if(tile.sampled==0u||tile.audit.total!=tile.sampled)return false;
+                hash_u32(spatialHasher,tile.x);
+                hash_u32(spatialHasher,tile.y);
+                hash_u32(spatialHasher,tile.width);
+                hash_u32(spatialHasher,tile.height);
+                hash_u64(spatialHasher,tile.sampled);
+                hash_u64(spatialHasher,tile.audit.eligible);
+                hash_u64(spatialHasher,tile.audit.corrected);
+                hash_u64(spatialHasher,tile.audit.preserved);
+                hash_u64(spatialHasher,tile.audit.censoredProtected);
+                hash_u64(spatialHasher,tile.audit.censorBoundaryProtected);
+                hash_u64(spatialHasher,tile.audit.structureProtected);
+                hash_u64(spatialHasher,tile.audit.unknownNoiseProtected);
+                hash_u64(spatialHasher,tile.audit.noNeighborhoodProtected);
+                hash_u64(spatialHasher,tile.audit.residualOutlierProtected);
+                hash_u64(spatialHasher,tile.borderProtected);
+                hash_f64(spatialHasher,tile.audit.totalResidualEnergy);
+                hash_f64(spatialHasher,tile.audit.removedResidualEnergy);
+                hash_f64(spatialHasher,tile.audit.maxAbsCorrection);
+                for(auto v:tile.cfaPhaseSamples)hash_u64(spatialHasher,v);
+                out.tiles.push_back(tile);
             }
         }
 
-        if(out.sampled==0u||out.audit.total!=out.sampled)return false;
+        if(out.sampled==0u||out.audit.total!=out.sampled||out.tiles.empty())return false;
+        out.spatialSha256=spatialHasher.finalize();
+        if(!nonzero(out.spatialSha256))return false;
         out.candidateSha256=candidateHasher.finalize();
         if(!nonzero(out.candidateSha256))return false;
 
@@ -293,6 +339,7 @@ bool run(
         out.auditSha256=auditHasher.finalize();
 
         return nonzero(out.auditSha256)&&
+               nonzero(out.spatialSha256)&&
                !out.sourceValuesModified&&
                !out.truthNegativeModified&&
                !out.createsNewEvidence&&
