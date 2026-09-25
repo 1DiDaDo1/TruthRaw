@@ -43,6 +43,14 @@ data class TruthNegativeNativeContainerMetrics(
     val censoredB: Long,
     val censoredValueAboveOne: Long,
     val censoredValueAtOrBelowOne: Long,
+    val censoredTileCount: Long,
+    val censoredMinX: Long,
+    val censoredMinY: Long,
+    val censoredMaxX: Long,
+    val censoredMaxY: Long,
+    val censoredRawCodeBoundMin: Double,
+    val censoredRawCodeBoundMax: Double,
+    val censoredRawCodeBoundMismatchCount: Long,
     val uncertaintyKnownCount: Long,
     val supportKnownCount: Long,
     val boundKnownCount: Long,
@@ -137,6 +145,15 @@ object TruthNegativeNativeContainerExporter {
             censoredB = json.optLong("censoredB"),
             censoredValueAboveOne = json.optLong("censoredValueAboveOne"),
             censoredValueAtOrBelowOne = json.optLong("censoredValueAtOrBelowOne"),
+            censoredTileCount = json.optLong("censoredTileCount"),
+            censoredMinX = json.optLong("censoredMinX"),
+            censoredMinY = json.optLong("censoredMinY"),
+            censoredMaxX = json.optLong("censoredMaxX"),
+            censoredMaxY = json.optLong("censoredMaxY"),
+            censoredRawCodeBoundMin = json.optDouble("censoredRawCodeBoundMin"),
+            censoredRawCodeBoundMax = json.optDouble("censoredRawCodeBoundMax"),
+            censoredRawCodeBoundMismatchCount =
+                json.optLong("censoredRawCodeBoundMismatchCount"),
             uncertaintyKnownCount = json.optLong("uncertaintyKnownCount"),
             supportKnownCount = json.optLong("supportKnownCount"),
             boundKnownCount = json.optLong("boundKnownCount"),
@@ -189,6 +206,7 @@ object TruthNegativeNativeContainerExporter {
                 metrics.authorityCensored ||
             metrics.censoredValueAboveOne +
                 metrics.censoredValueAtOrBelowOne != metrics.authorityCensored ||
+            metrics.censoredRawCodeBoundMismatchCount != 0L ||
             metrics.valueNonFiniteCount != 0L ||
             identityDigests.any {
                 it.length != 64 ||
