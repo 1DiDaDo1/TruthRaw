@@ -10,7 +10,7 @@ Active integration:
 
 Current code-bearing integration checkpoint:
 
-`c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
+`55a4e61dc4888b7e05da1de1808ecce8466404c9`
 
 Read first:
 
@@ -83,3 +83,9 @@ Development certificate SHA-256:
 ## Recommended continuation
 
 Steps A-D are now implemented in code and CI. The next useful evidence comes from the physical device: run the PRO Camera-5 Color/Highlight Oracle on an exactly verified physical-5 DNG/evidence pair, then export **TruthNegative Native · .tnc** and retain the success/status text. Remosaic remains UNKNOWN unless separately sealed runtime evidence is supplied. Do not enable inverse-optics/deconvolution until independently admitted PSF/MTF calibration exists. Do not reroute PURE or existing exports without their own validation.
+
+## Real-device TruthNegative evidence admitted after A-D
+
+The performance/status fix was verified on-device: TruthNegative Continuous v0.5 completed in 34 s, Camera-5 Color/Highlight Oracle in 24 s, and Native v0.1 export/import in 26 s. Two real 4080x3072 Native containers were structurally inspected; each contains 3,072 canonical tiles and 37,601,280 channel records with distinct source/master/authority/TN identities. The prior TN-4 reference reports 12,532,803 CALIBRATED_ESTIMATE, 957 CENSORED, 25,067,520 UNKNOWN and zero RECONSTRUCTED authority records. Native v0.1 now emits and verifies this authority/value-range census directly in its sealed header. UNKNOWN remains UNKNOWN; reconstruction values do not become measured authority.
+
+File-size differences between TN-4 and Native v0.1 are representation/serialization differences, not evidence or authority differences.
