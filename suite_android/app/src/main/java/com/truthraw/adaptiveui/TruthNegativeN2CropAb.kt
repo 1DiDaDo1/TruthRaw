@@ -216,7 +216,7 @@ object TruthNegativeN2CropAbLoader {
                 val cropFullColourCandidate = packet[m + 31] != 0
                 if (baselineRgbMismatches != 0 ||
                     candidateStage2Sites < 0 ||
-                    candidateStage2Sites > (width + 6) * (height + 6) ||
+                    candidateStage2Sites > sourceWidth * sourceHeight ||
                     !cropFullColourCandidate ||
                     candidateIdentitySha256.length != 64 ||
                     candidateIdentitySha256.all { it == '0' }
