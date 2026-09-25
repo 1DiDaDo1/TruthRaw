@@ -238,7 +238,7 @@ if current_2026_09_25.get("product_name") != "D.RAW":
     errors.append("current_2026_09_25_product_name_mismatch")
 if current_2026_09_25.get("active_integration_branch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
     errors.append("current_2026_09_25_active_branch_mismatch")
-if current_2026_09_25.get("code_checkpoint_sha") != "c7d7cef05502aca6f22f0d049987aad3a9f37b0a":
+if current_2026_09_25.get("code_checkpoint_sha") != "55a4e61dc4888b7e05da1de1808ecce8466404c9":
     errors.append("current_2026_09_25_code_checkpoint_mismatch")
 if current_2026_09_25.get("permanent_rule") != "Representation can exceed the source. Knowledge claims cannot exceed the evidence.":
     errors.append("current_2026_09_25_permanent_rule_mismatch")
