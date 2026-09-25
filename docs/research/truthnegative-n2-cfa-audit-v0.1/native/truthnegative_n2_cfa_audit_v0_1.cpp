@@ -108,9 +108,36 @@ bool run(
             return false;
         }
 
+        const bool regionDefault =
+            options.regionWidth==0u && options.regionHeight==0u;
+        if((options.regionWidth==0u)!=(options.regionHeight==0u))return false;
+        const std::uint32_t regionX =
+            regionDefault ? 0u : options.regionX;
+        const std::uint32_t regionY =
+            regionDefault ? 0u : options.regionY;
+        const std::uint32_t regionWidth =
+            regionDefault ? static_cast<std::uint32_t>(md.width)
+                          : options.regionWidth;
+        const std::uint32_t regionHeight =
+            regionDefault ? static_cast<std::uint32_t>(md.height)
+                          : options.regionHeight;
+        if(regionWidth==0u||regionHeight==0u||
+           regionX>=static_cast<std::uint32_t>(md.width)||
+           regionY>=static_cast<std::uint32_t>(md.height)||
+           static_cast<std::uint64_t>(regionX)+regionWidth>
+               static_cast<std::uint64_t>(md.width)||
+           static_cast<std::uint64_t>(regionY)+regionHeight>
+               static_cast<std::uint64_t>(md.height)){
+            return false;
+        }
+
         out.noiseProfileAvailable=md.hasNoiseProfile;
         out.samplingPeriod=options.samplingPeriod;
         out.tileEdge=options.tileEdge;
+        out.regionX=regionX;
+        out.regionY=regionY;
+        out.regionWidth=regionWidth;
+        out.regionHeight=regionHeight;
         if(options.appearanceGridWidth>0u){
             const std::uint64_t gridCount64=
                 static_cast<std::uint64_t>(options.appearanceGridWidth)*
@@ -132,6 +159,10 @@ bool run(
         candidateHasher.update(binding.sourceEvidenceSha256);
         candidateHasher.update(binding.truthNegativeStateSha256);
         hash_u32(candidateHasher,options.samplingPeriod);
+        hash_u32(candidateHasher,regionX);
+        hash_u32(candidateHasher,regionY);
+        hash_u32(candidateHasher,regionWidth);
+        hash_u32(candidateHasher,regionHeight);
 
         truthraw::sha256_v0_69::Hasher spatialHasher;
         constexpr char spatialDomain[]="D_RAW_TN_N2_CFA_SPATIAL_AUDIT_V0_1";
@@ -142,14 +173,22 @@ bool run(
         spatialHasher.update(binding.truthNegativeStateSha256);
         hash_u32(spatialHasher,options.tileEdge);
         hash_u32(spatialHasher,options.samplingPeriod);
+        hash_u32(spatialHasher,regionX);
+        hash_u32(spatialHasher,regionY);
+        hash_u32(spatialHasher,regionWidth);
+        hash_u32(spatialHasher,regionHeight);
 
         detail::Workspace workspace{};
         constexpr int kStep=2;
 
-        for(int y0=0;y0<md.height;y0+=static_cast<int>(options.tileEdge)){
-            const int y1=std::min(md.height,y0+static_cast<int>(options.tileEdge));
-            for(int x0=0;x0<md.width;x0+=static_cast<int>(options.tileEdge)){
-                const int x1=std::min(md.width,x0+static_cast<int>(options.tileEdge));
+        const int regionX0=static_cast<int>(regionX);
+        const int regionY0=static_cast<int>(regionY);
+        const int regionX1=static_cast<int>(regionX+regionWidth);
+        const int regionY1=static_cast<int>(regionY+regionHeight);
+        for(int y0=regionY0;y0<regionY1;y0+=static_cast<int>(options.tileEdge)){
+            const int y1=std::min(regionY1,y0+static_cast<int>(options.tileEdge));
+            for(int x0=regionX0;x0<regionX1;x0+=static_cast<int>(options.tileEdge)){
+                const int x1=std::min(regionX1,x0+static_cast<int>(options.tileEdge));
                 TileAudit tile{};
                 tile.x=static_cast<std::uint32_t>(x0);
                 tile.y=static_cast<std::uint32_t>(y0);
@@ -292,15 +331,17 @@ bool run(
                             const auto bx=std::min<std::uint32_t>(
                                 out.appearanceGridWidth-1u,
                                 static_cast<std::uint32_t>(
-                                    (static_cast<std::uint64_t>(gx)*
+                                    (static_cast<std::uint64_t>(
+                                         static_cast<std::uint32_t>(gx)-regionX)*
                                      out.appearanceGridWidth)/
-                                    static_cast<std::uint64_t>(md.width)));
+                                    static_cast<std::uint64_t>(regionWidth)));
                             const auto by=std::min<std::uint32_t>(
                                 out.appearanceGridHeight-1u,
                                 static_cast<std::uint32_t>(
-                                    (static_cast<std::uint64_t>(gy)*
+                                    (static_cast<std::uint64_t>(
+                                         static_cast<std::uint32_t>(gy)-regionY)*
                                      out.appearanceGridHeight)/
-                                    static_cast<std::uint64_t>(md.height)));
+                                    static_cast<std::uint64_t>(regionHeight)));
                             auto& bin=out.appearanceGrid[
                                 static_cast<std::size_t>(by)*
                                 out.appearanceGridWidth+bx];
@@ -368,6 +409,10 @@ bool run(
             gridHasher.update(out.candidateSha256);
             hash_u32(gridHasher,out.appearanceGridWidth);
             hash_u32(gridHasher,out.appearanceGridHeight);
+            hash_u32(gridHasher,regionX);
+            hash_u32(gridHasher,regionY);
+            hash_u32(gridHasher,regionWidth);
+            hash_u32(gridHasher,regionHeight);
             for(const auto& bin:out.appearanceGrid){
                 for(std::size_t cc=0u;cc<3u;++cc){
                     if(!std::isfinite(bin.correctionSum[cc]))return false;
