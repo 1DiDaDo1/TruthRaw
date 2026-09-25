@@ -4,7 +4,7 @@
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
   "active_integration_branch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
-  "code_checkpoint_sha": "58e3b6332c828d9b8ea955b0c79b0c5f69342761",
+  "code_checkpoint_sha": "420bc1df259ef4db80448c2088bc5c4bf77a4599",
   "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
   "free_world_main_integration": {
     "compiled_into_android_main": true,
@@ -37,19 +37,19 @@
   },
   "validation": {
     "android_signed_arm64": {
-      "run_id": 36108523949,
+      "run_id": 36112964452,
       "result": "SUCCESS"
     },
     "scientific_master_f64_color_audit": {
-      "run_id": 36079724798,
+      "run_id": 36112964482,
       "result": "SUCCESS"
     },
     "open_scene_local_authority": {
-      "run_id": 36079724888,
+      "run_id": 36112964500,
       "result": "SUCCESS"
     },
     "unified_output_preview": {
-      "run_id": 36108523910,
+      "run_id": 36112964468,
       "result": "SUCCESS"
     },
     "free_world_gcc": "PASS",
@@ -58,14 +58,22 @@
     "truthnegative_continuous_v0_5": {
       "run_id": 36107899950,
       "result": "SUCCESS"
+    },
+    "truthnegative_roundtrip_optics": {
+      "run_id": 36111981454,
+      "result": "SUCCESS"
+    },
+    "truthnegative_deep_scene_v0_8": {
+      "run_id": 36112847260,
+      "result": "SUCCESS"
     }
   },
   "apk": {
-    "artifact_id": 10851937980,
+    "artifact_id": 10854211375,
     "artifact_name": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifact_zip_sha256": "c5a3e3ccb11be25c7b33530295bb4ffbe7abc429cc94705503c8b7f04b5f3004",
-    "apk_size_bytes": 6355587,
-    "apk_sha256": "a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b",
+    "artifact_zip_sha256": "4f41ffd716a1ec61776a0f4721169ec14195f9864f3b80129a74f019f7029686",
+    "apk_size_bytes": 6375691,
+    "apk_sha256": "8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5",
     "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
   },
   "truthnegative_continuous_v0_5": {
@@ -94,5 +102,38 @@
       "existing_exports_changed": false,
       "pure_route_changed": false
     }
+  },
+  "truthnegative_roundtrip_oracle_v0_6": {
+    "status": "MAIN_COMPILED_GREEN_ORACLE",
+    "global_area_conservation": true,
+    "target_raster_changes_state_identity": false,
+    "measured_target_claim_count": 0,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "validation_run_id": 36111981454,
+    "result": "SUCCESS"
+  },
+  "truthnegative_optics_support_v0_7": {
+    "status": "MAIN_COMPILED_CALIBRATION_GATE",
+    "measured_or_calibrated_support_only": true,
+    "inferred_optics_scientific_use_allowed": false,
+    "deconvolution_allowed": false,
+    "numeric_scene_value_changed": false,
+    "authority_upgraded": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "validation_run_id": 36111981454,
+    "result": "SUCCESS"
+  },
+  "truthnegative_deep_scene_bridge_v0_8": {
+    "status": "MAIN_COMPILED_AUTHORITY_PRESERVING_BRIDGE",
+    "truthnegative_radiometry_bound": true,
+    "geometry_authority_separate": true,
+    "inferred_light_transport_remains_hypothesis": true,
+    "inherited_scientific_radiometry_as_hidden_scene_measurement": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "validation_run_id": 36112847260,
+    "result": "SUCCESS"
   }
 }

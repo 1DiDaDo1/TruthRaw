@@ -238,7 +238,7 @@ if current_2026_09_25.get("product_name") != "D.RAW":
     errors.append("current_2026_09_25_product_name_mismatch")
 if current_2026_09_25.get("active_integration_branch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
     errors.append("current_2026_09_25_active_branch_mismatch")
-if current_2026_09_25.get("code_checkpoint_sha") != "58e3b6332c828d9b8ea955b0c79b0c5f69342761":
+if current_2026_09_25.get("code_checkpoint_sha") != "420bc1df259ef4db80448c2088bc5c4bf77a4599":
     errors.append("current_2026_09_25_code_checkpoint_mismatch")
 if current_2026_09_25.get("permanent_rule") != "Representation can exceed the source. Knowledge claims cannot exceed the evidence.":
     errors.append("current_2026_09_25_permanent_rule_mismatch")
@@ -262,6 +262,41 @@ if tn25.get("creates_new_evidence") is not False:
     errors.append("current_2026_09_25_tn_must_not_create_evidence")
 if tn25.get("scientific_writeback_allowed") is not False:
     errors.append("current_2026_09_25_tn_writeback_forbidden")
+
+
+rt25 = current_2026_09_25.get("truthnegative_roundtrip_oracle_v0_6") or {}
+if rt25.get("status") != "MAIN_COMPILED_GREEN_ORACLE":
+    errors.append("current_2026_09_25_tn_roundtrip_status_mismatch")
+if rt25.get("global_area_conservation") is not True:
+    errors.append("current_2026_09_25_tn_roundtrip_area_conservation_missing")
+if rt25.get("target_raster_changes_state_identity") is not False:
+    errors.append("current_2026_09_25_tn_roundtrip_state_identity_mismatch")
+if rt25.get("measured_target_claim_count") != 0:
+    errors.append("current_2026_09_25_tn_roundtrip_measured_claim_nonzero")
+
+optics25 = current_2026_09_25.get("truthnegative_optics_support_v0_7") or {}
+if optics25.get("status") != "MAIN_COMPILED_CALIBRATION_GATE":
+    errors.append("current_2026_09_25_tn_optics_status_mismatch")
+if optics25.get("inferred_optics_scientific_use_allowed") is not False:
+    errors.append("current_2026_09_25_inferred_optics_must_fail_scientific_use")
+if optics25.get("deconvolution_allowed") is not False:
+    errors.append("current_2026_09_25_deconvolution_must_remain_blocked")
+if optics25.get("numeric_scene_value_changed") is not False:
+    errors.append("current_2026_09_25_optics_support_must_not_change_scene_value")
+if optics25.get("authority_upgraded") is not False:
+    errors.append("current_2026_09_25_optics_support_must_not_upgrade_authority")
+
+deep25 = current_2026_09_25.get("truthnegative_deep_scene_bridge_v0_8") or {}
+if deep25.get("status") != "MAIN_COMPILED_AUTHORITY_PRESERVING_BRIDGE":
+    errors.append("current_2026_09_25_tn_deep_status_mismatch")
+if deep25.get("truthnegative_radiometry_bound") is not True:
+    errors.append("current_2026_09_25_tn_deep_radiometry_binding_missing")
+if deep25.get("geometry_authority_separate") is not True:
+    errors.append("current_2026_09_25_tn_deep_geometry_authority_not_separate")
+if deep25.get("inferred_light_transport_remains_hypothesis") is not True:
+    errors.append("current_2026_09_25_tn_deep_inferred_light_transport_promoted")
+if deep25.get("inherited_scientific_radiometry_as_hidden_scene_measurement") is not False:
+    errors.append("current_2026_09_25_tn_deep_hidden_scene_measurement_promotion")
 
 bridges25 = current_2026_09_25.get("production_bridges") or {}
 pro_tn25 = bridges25.get("pro_truthnegative_continuous_preview") or {}
@@ -302,9 +337,9 @@ if validation25.get("asan_ubsan") != "PASS":
     errors.append("current_2026_09_25_sanitizers_not_green")
 
 apk25 = current_2026_09_25.get("apk") or {}
-if apk25.get("artifact_id") != 10851937980:
+if apk25.get("artifact_id") != 10854211375:
     errors.append("current_2026_09_25_apk_artifact_mismatch")
-if apk25.get("apk_sha256") != "a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b":
+if apk25.get("apk_sha256") != "8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5":
     errors.append("current_2026_09_25_apk_sha_mismatch")
 if apk25.get("stable_dev_cert_sha256") != "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44":
     errors.append("current_2026_09_25_signing_cert_mismatch")
