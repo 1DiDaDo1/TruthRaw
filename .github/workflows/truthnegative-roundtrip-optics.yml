@@ -1,0 +1,85 @@
+name: D.RAW TruthNegative Roundtrip and Optics
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+    paths:
+      - 'docs/research/truthnegative-roundtrip-oracle-v0.6/**'
+      - 'docs/research/truthnegative-optics-support-v0.7/**'
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/free-world-pixel-resolve-2d-v0.2/**'
+      - '.github/workflows/truthnegative-roundtrip-optics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure round-trip oracle
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/truthnegative-roundtrip-oracle-v0.6 \
+                -B /tmp/tn-roundtrip \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER="$CXX"
+
+      - name: Build round-trip oracle
+        run: cmake --build /tmp/tn-roundtrip --parallel 2
+
+      - name: Test round-trip oracle
+        run: ctest --test-dir /tmp/tn-roundtrip --output-on-failure
+
+      - name: Configure optics support
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/truthnegative-optics-support-v0.7 \
+                -B /tmp/tn-optics \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER="$CXX"
+
+      - name: Build optics support
+        run: cmake --build /tmp/tn-optics --parallel 2
+
+      - name: Test optics support
+        run: ctest --test-dir /tmp/tn-optics --output-on-failure
+
+  sanitizer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Round-trip ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-roundtrip-oracle-v0.6 \
+                -B /tmp/tn-roundtrip-san \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
+                -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/tn-roundtrip-san --parallel 2
+          ctest --test-dir /tmp/tn-roundtrip-san --output-on-failure
+
+      - name: Optics ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-optics-support-v0.7 \
+                -B /tmp/tn-optics-san \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
+                -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/tn-optics-san --parallel 2
+          ctest --test-dir /tmp/tn-optics-san --output-on-failure
