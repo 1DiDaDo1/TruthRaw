@@ -5,6 +5,7 @@
 #include "truthnegative_local_authority_projection_v0_4.h"
 #include "truthraw_sha256_v0_69.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -69,6 +70,9 @@ struct Summary final {
     std::uint64_t authorityReconstructed = 0u;
     std::uint64_t authorityCensored = 0u;
     std::uint64_t authorityUnknown = 0u;
+    std::array<std::uint64_t,3u> censoredByRgb{};
+    std::uint64_t censoredValueAboveOneCount = 0u;
+    std::uint64_t censoredValueAtOrBelowOneCount = 0u;
     std::uint64_t uncertaintyKnownCount = 0u;
     std::uint64_t supportKnownCount = 0u;
     std::uint64_t boundKnownCount = 0u;
