@@ -258,7 +258,18 @@ object TruthNegativeContinuousPreviewLoader {
                 metrics.targetPixels != pixels ||
                 metrics.authorityFieldRecords <= 0 ||
                 metrics.stateSha256.all { it == '0' } ||
-                metrics.authorityFieldSha256.all { it == '0' }
+                metrics.authorityFieldSha256.all { it == '0' } ||
+                !metrics.n2AuditExecuted ||
+                metrics.n2Sampled <= 0 ||
+                metrics.n2CandidateSha256.all { it == '0' } ||
+                metrics.n2AuditSha256.all { it == '0' } ||
+                metrics.n2SourceValuesModified ||
+                metrics.n2TruthNegativeModified ||
+                metrics.n2CreatesNewEvidence ||
+                metrics.n2ScientificWritebackAllowed ||
+                metrics.n2CandidateAppliedToAppearance ||
+                !metrics.n2AuditOnly ||
+                !metrics.n2MeasuredCfaDomain
 
         if (contractViolation) {
             bitmap.recycle()
