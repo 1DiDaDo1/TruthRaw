@@ -353,6 +353,10 @@ bool run(
                             }else{
                                 ++bin.protectedCount[cc];
                             }
+                            const auto reasonValue=
+                                static_cast<std::uint32_t>(pr.preserveReason);
+                            if(reasonValue>=32u)return false;
+                            bin.preserveReasonMask|=(1u<<reasonValue);
                             if(!std::isfinite(bin.correctionSum[cc]))return false;
                         }
 
@@ -424,6 +428,7 @@ bool run(
                     hash_u32(gridHasher,bin.corrected[cc]);
                     hash_u32(gridHasher,bin.protectedCount[cc]);
                 }
+                hash_u32(gridHasher,bin.preserveReasonMask);
             }
             out.appearanceGridSha256=gridHasher.finalize();
             if(!nonzero(out.appearanceGridSha256))return false;
