@@ -1,4 +1,4 @@
-name: D.RAW Free-World Scene Research v0.2-v0.5
+name: D.RAW Free-World Scene Research v0.2-v0.6
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - 'docs/research/free-world-scientific-open-scene-binding-v0.3/**'
       - 'docs/research/free-world-deep-scene-contribution-v0.4/**'
       - 'docs/research/free-world-deep-scene-binding-v0.5/**'
+      - 'docs/research/free-world-light-transport-state-v0.6/**'
       - '.github/workflows/free-world-pixel-resolve-v0-2.yml'
   workflow_dispatch:
 
@@ -80,6 +81,21 @@ jobs:
       - name: Test v0.5 deep binding
         run: ctest --test-dir /tmp/free-world-deep-v05 --output-on-failure
 
+      - name: Configure v0.6 light transport
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/free-world-light-transport-state-v0.6 \
+                -B /tmp/free-world-light-v06 \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER="$CXX"
+
+      - name: Build v0.6 light transport
+        run: cmake --build /tmp/free-world-light-v06 --parallel 2
+
+      - name: Test v0.6 light transport
+        run: ctest --test-dir /tmp/free-world-light-v06 --output-on-failure
+
   sanitizer:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -121,3 +137,15 @@ jobs:
                 -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
           cmake --build /tmp/free-world-deep-v05-sanitize --parallel 2
           ctest --test-dir /tmp/free-world-deep-v05-sanitize --output-on-failure
+
+      - name: Configure and run v0.6 ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/free-world-light-transport-state-v0.6 \
+                -B /tmp/free-world-light-v06-sanitize \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
+                -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/free-world-light-v06-sanitize --parallel 2
+          ctest --test-dir /tmp/free-world-light-v06-sanitize --output-on-failure
