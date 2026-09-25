@@ -65,3 +65,24 @@ Permanent invariants:
 
 The Android PRO UI exposes the experiment through
 `N2 · 1:1 A/B/Δ cropdiagnose`.
+
+
+## Android validation
+
+Combined Android integration validated on branch
+`integration/pro-truthnegative-continuous-primary-route-v075`:
+
+- code head: `602e409888001184840bbf80fa47c6cb35d39982`
+- GitHub Actions run: `36193318446` — SUCCESS
+- signed ARM64 APK bytes: `6634679`
+- APK SHA-256: `e358b73d253658c092aef15aaae513b99dda7ef77af0f885071caafad3487222`
+- signing certificate SHA-256:
+  `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+- artifact ID: `10889257450`
+
+The bounded/full-lattice N2 CFA audit was separately green before the Android
+integration build, including host GCC/Clang and sanitizer coverage.
+
+The PRO diagnostic remains user-triggered and transient. It does not change
+the automatic TruthNegative Continuous primary preview or any scientific/export
+state.
