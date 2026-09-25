@@ -561,6 +561,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
         fullColourInput.coreHeight=static_cast<int>(crop.height);
         fullColourInput.cfa=ctx.openedSource.source->metadata().cfa;
         fullColourInput.n2Audit=&reconstructionAudit;
+        fullColourInput.reconstructionInfluenceRadius=
+            reconstructionHalo;
+        fullColourInput.closeProtectionOverReconstructionSupport=true;
 
         n2fc::Result fullColour{};
         if(!n2fc::reconstruct(
@@ -570,6 +573,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
            fullColour.sourceStage2Modified||
            fullColour.createsNewEvidence||
            fullColour.scientificWritebackAllowed||
+           !fullColour.supportGuardApplied||
+           fullColour.protectedCoreChangedRgbChannels!=0u||
            fullColour.baselineCameraRgb.size()!=cropPixels*3u||
            fullColour.candidateCameraRgb.size()!=cropPixels*3u){
             return status_packet(env,-17);
@@ -773,6 +778,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
         digest_to_words(quality.qualitySha256,packet.data()+m+74u);
         packet[m+82u]=0; // quality createsNewEvidence
         packet[m+83u]=0; // quality scientificWritebackAllowed
+        packet[m+84u]=clamp_metric(
+            fullColour.supportGuardSuppressedStage2Sites);
+        packet[m+85u]=clamp_metric(fullColour.protectedCorePixels);
+        packet[m+86u]=clamp_metric(
+            fullColour.protectedCoreChangedRgbChannels);
+        packet[m+87u]=static_cast<jint>(reconstructionHalo);
     }
 
     const auto report=scene.report();
