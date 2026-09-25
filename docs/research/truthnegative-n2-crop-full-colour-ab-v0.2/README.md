@@ -99,3 +99,28 @@ Master.
 The Android PRO button is:
 
 `N2 · 1:1 Full-colour A/B/Δ`
+
+
+## Android validation
+
+Latest combined Android validation:
+
+- branch: `integration/pro-truthnegative-continuous-primary-route-v075`
+- code head: `a0780243b367e253de51c0053650a42b4004dc72`
+- GitHub Actions run: `36197020024` — SUCCESS
+- signed ARM64 APK bytes: `6638935`
+- APK SHA-256: `57bd137ff295845fb7bd78c5ad181d9d9e871b35a7be6367325ad796d1fe0ae4`
+- signing certificate SHA-256:
+  `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+- artifact ID: `10890641200`
+
+The separate N2 full-colour candidate host workflow is also green for GCC,
+Clang and ASan/UBSan. The Android route remains fail-closed if the baseline
+reconstruction diverges from the existing Scientific Master / TruthNegative
+ScientificView.
+
+The provenance parser intentionally bounds candidate Stage-2 site counts
+against the admitted source size rather than a hard-coded halo width, so a
+future reconstruction backend with a larger declared halo cannot be falsely
+rejected by the Android UI while native geometry and digest checks remain
+authoritative.
