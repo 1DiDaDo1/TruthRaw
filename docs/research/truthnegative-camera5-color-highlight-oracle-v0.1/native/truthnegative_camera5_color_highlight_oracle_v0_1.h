@@ -43,6 +43,7 @@ struct Sample final {
         fw::ResolvedAuthority::Unknown,
         fw::ResolvedAuthority::Unknown,
         fw::ResolvedAuthority::Unknown};
+    std::array<double, 3u> censoredWeight{};
 };
 
 struct Input final {
