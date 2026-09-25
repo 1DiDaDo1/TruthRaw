@@ -52,6 +52,7 @@ class MainActivity : Activity() {
     private var pureFloatDngStatus: String? = null
     private var pendingTruthNegativeJobId: String? = null
     private var truthNegativeStatus: String? = null
+    private var truthNegativeContinuousStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
@@ -512,6 +513,100 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_TITLE, "${stem}_draw_pure_float32_v0_63.dng")
         }
         startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
+    }
+
+    private fun launchTruthNegativeContinuousPreview(job: RawJob) {
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            truthNegativeContinuousStatus =
+                "TruthNegative Continuous v0.5 vereist de volledig admitted DNG-route."
+            render()
+            return
+        }
+
+        val operationKey =
+            backgroundOperationKey("truthnegative-continuous-preview", job.id)
+        if (!startBackgroundOperation(
+                operationKey,
+                "TruthNegative Continuous v0.5 · Scientific Negative → Free-World preview",
+            )
+        ) {
+            truthNegativeContinuousStatus =
+                "TruthNegative Continuous preview kon niet veilig starten."
+            render()
+            return
+        }
+
+        truthNegativeContinuousStatus =
+            "TruthNegative Continuous v0.5 bouwt de raster-onafhankelijke scientific-negative state, " +
+                "lokale authority en area-integrated PRO preview…"
+        render()
+
+        startGuardedBackgroundThread(
+            name = "draw-tn-continuous-${job.id.take(8)}",
+            operationKey = operationKey,
+            onUnexpected = { message ->
+                truthNegativeContinuousStatus = message
+            },
+        ) {
+            val result =
+                TruthNegativeContinuousPreviewLoader.load(contentResolver, job)
+            finishBackgroundOperation(
+                operationKey,
+                result is TruthNegativeContinuousPreviewResult.Ready,
+                when (result) {
+                    is TruthNegativeContinuousPreviewResult.Ready ->
+                        "TruthNegative Continuous v0.5 preview gereed."
+                    is TruthNegativeContinuousPreviewResult.Failed ->
+                        result.reason
+                },
+            )
+
+            runOnUiThread {
+                if (activeJobId != job.id) {
+                    (result as? TruthNegativeContinuousPreviewResult.Ready)
+                        ?.bitmap
+                        ?.recycle()
+                    return@runOnUiThread
+                }
+
+                when (result) {
+                    is TruthNegativeContinuousPreviewResult.Failed -> {
+                        truthNegativeContinuousStatus = result.reason
+                    }
+                    is TruthNegativeContinuousPreviewResult.Ready -> {
+                        unifiedOutputPreviewState?.bitmap?.recycle()
+                        unifiedOutputPreviewState =
+                            TruthNegativeContinuousPreviewLoader.toUnifiedPreview(
+                                result,
+                                TruthRawOrientationOverride.quarterTurns(
+                                    this@MainActivity,
+                                    job.source,
+                                ),
+                            )
+                        val m = result.metrics
+                        truthNegativeContinuousStatus =
+                            "TN Continuous v0.5 · ${m.width}×${m.height} uit " +
+                                "${m.sourceWidth}×${m.sourceHeight} · " +
+                                "authority-field CAL/REC/CENS/UNK=" +
+                                "${m.calibratedEstimateRecords}/" +
+                                "${m.reconstructedRecords}/" +
+                                "${m.censoredRecords}/${m.unknownRecords} · " +
+                                "target REC/CENS/UNK=" +
+                                "${m.resolvedReconstructedChannels}/" +
+                                "${m.resolvedCensoredChannels}/" +
+                                "${m.resolvedUnknownChannels} · " +
+                                "footprint-links=${m.sourceFootprintLinks} · " +
+                                "state=${m.stateSha256.take(16)}… · " +
+                                "display-clamp=${m.displayClampPixels} px · " +
+                                "frame/evidence=${m.physicalFrameCount}/" +
+                                "${m.independentEvidenceCount} · writeback=false."
+                    }
+                }
+                render()
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -1544,6 +1639,7 @@ class MainActivity : Activity() {
         pendingRenderEditFlags = 0
         pendingRenderEditQuarterTurns = 0
         pureFloatDngStatus = null
+        truthNegativeContinuousStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
@@ -2276,8 +2372,13 @@ class MainActivity : Activity() {
                         bold = true,
                     ))
                     addView(label(
-                        "Zelfde primary tile-source als het opgeslagen resultaat · " +
-                            "alleen display-clamp + sRGB-transfer · geen extra HDR/detail/restoration.",
+                        if (outputPreview.metrics.appearanceAddedByPreview) {
+                            "TruthNegative/Free-World derivative · area-integrated scene resolve + " +
+                                "expliciete Appearance/Display-laag · source scene en authority blijven immutable."
+                        } else {
+                            "Zelfde primary tile-source als het opgeslagen resultaat · " +
+                                "alleen display-clamp + sRGB-transfer · geen extra HDR/detail/restoration."
+                        },
                         10f,
                         muted = true,
                     ))
@@ -2524,6 +2625,33 @@ class MainActivity : Activity() {
                                 status,
                             )?.let(::addView) ?: addView(label(status, 10f, muted = true))
                         }
+                        addView(space(5))
+                        addView(actionButton(
+                            "PRO · TruthNegative Continuous v0.5",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchTruthNegativeContinuousPreview(active)
+                        })
+                        truthNegativeContinuousStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-continuous-preview",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Raster-onafhankelijke Scientific Negative: bron + Scientific Master + " +
+                                "Open Scene authority → continue area-resolve → neutrale v0.7 display-view. " +
+                                "PURE en bestaande exports blijven ongewijzigd.",
+                            10f,
+                            muted = true,
+                        ))
                         addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
