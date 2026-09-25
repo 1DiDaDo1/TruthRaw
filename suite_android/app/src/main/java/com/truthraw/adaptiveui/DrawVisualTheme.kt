@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
-import android.view.WindowInsetsController
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -31,14 +30,13 @@ object DrawVisualTheme {
     val PENCIL_YELLOW: Int = Color.rgb(244, 188, 42)
 
     fun applyWindow(activity: Activity) {
-        activity.window.statusBarColor = PAPER_YELLOW
-        activity.window.navigationBarColor = PAPER_WHITE
-        // The D.RAW paper surfaces are light. Keep system-bar glyphs dark too,
-        // so the complete interface uses the same high-contrast ink language.
-        val mask =
-            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-        activity.window.insetsController?.setSystemBarsAppearance(mask, mask)
+        // Keep the shared theme lifecycle-safe. Android/vendor System UI can
+        // throw while an Activity is entering/leaving the foreground; window
+        // decoration must never be allowed to take down a scientific session.
+        runCatching {
+            activity.window.statusBarColor = PAPER_YELLOW
+            activity.window.navigationBarColor = PAPER_WHITE
+        }
     }
 
     fun rounded(activity: Activity, fill: Int, stroke: Int, radiusDp: Float = 18f, strokeDp: Int = 1) =
