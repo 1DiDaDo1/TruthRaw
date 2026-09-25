@@ -89,6 +89,14 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"censored_b="<<s.censoredByRgb[2]<<"\n";
     o<<"censored_value_above_one="<<s.censoredValueAboveOneCount<<"\n";
     o<<"censored_value_at_or_below_one="<<s.censoredValueAtOrBelowOneCount<<"\n";
+    o<<"censored_tile_count="<<s.censoredTileCount<<"\n";
+    o<<"censored_min_x="<<s.censoredMinX<<"\n";
+    o<<"censored_min_y="<<s.censoredMinY<<"\n";
+    o<<"censored_max_x="<<s.censoredMaxX<<"\n";
+    o<<"censored_max_y="<<s.censoredMaxY<<"\n";
+    o<<"censored_raw_code_bound_min="<<s.censoredRawCodeBoundMin<<"\n";
+    o<<"censored_raw_code_bound_max="<<s.censoredRawCodeBoundMax<<"\n";
+    o<<"censored_raw_code_bound_mismatch_count="<<s.censoredRawCodeBoundMismatchCount<<"\n";
     o<<"uncertainty_known_count="<<s.uncertaintyKnownCount<<"\n";
     o<<"support_known_count="<<s.supportKnownCount<<"\n";
     o<<"bound_known_count="<<s.boundKnownCount<<"\n";
@@ -179,6 +187,7 @@ bool write(
                 field::EncodedTile enc{};
                 if(!field::encode_tile(x,y,w,h,records,enc)) return false;
 
+                bool tileHasCensored=false;
                 for(const auto& record : records){
                     switch(record.role){
                         case field::CreationRole::Unknown:
@@ -199,6 +208,28 @@ bool write(
                             ++out.authorityReconstructed; break;
                         case field::Authority::Censored:
                             ++out.authorityCensored;
+                            tileHasCensored=true;
+                            const std::size_t recordIndex=
+                                static_cast<std::size_t>(&record - records.data());
+                            const std::size_t pixelIndex=recordIndex/3u;
+                            const std::uint32_t px=x+static_cast<std::uint32_t>(pixelIndex%w);
+                            const std::uint32_t py=y+static_cast<std::uint32_t>(pixelIndex/w);
+                            if(out.authorityCensored==1u){
+                                out.censoredMinX=out.censoredMaxX=px;
+                                out.censoredMinY=out.censoredMaxY=py;
+                                out.censoredRawCodeBoundMin=record.bound;
+                                out.censoredRawCodeBoundMax=record.bound;
+                            }else{
+                                out.censoredMinX=std::min(out.censoredMinX,px);
+                                out.censoredMinY=std::min(out.censoredMinY,py);
+                                out.censoredMaxX=std::max(out.censoredMaxX,px);
+                                out.censoredMaxY=std::max(out.censoredMaxY,py);
+                                out.censoredRawCodeBoundMin=std::min(out.censoredRawCodeBoundMin,record.bound);
+                                out.censoredRawCodeBoundMax=std::max(out.censoredRawCodeBoundMax,record.bound);
+                            }
+                            if(!record.boundKnown ||
+                               record.boundDomain!=field::BoundDomain::SourceRawCode)
+                                ++out.censoredRawCodeBoundMismatchCount;
                             ++out.censoredByRgb[
                                 static_cast<std::size_t>(&record - records.data()) % 3u];
                             if(std::isfinite(record.value) && record.value > 1.0f)
@@ -218,6 +249,8 @@ bool write(
                         if(record.value > 1.0f) ++out.valueAboveOneCount;
                     }
                 }
+
+                if(tileHasCensored) ++out.censoredTileCount;
 
                 const std::uint64_t valueBytes64=
                     static_cast<std::uint64_t>(records.size())*4u;
