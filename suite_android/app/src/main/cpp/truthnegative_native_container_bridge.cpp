@@ -173,6 +173,19 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
     o << ",\"recordCount\":" << written.recordCount;
     o << ",\"bodyBytes\":" << written.bodyBytes;
     o << ",\"fileBytes\":" << written.fileBytes;
+    o << ",\"roleSourceMeasuredCfa\":" << written.roleSourceMeasuredCfa;
+    o << ",\"roleScientificReconstruction\":" << written.roleScientificReconstruction;
+    o << ",\"roleDenseProjection\":" << written.roleDenseProjection;
+    o << ",\"authorityCalibratedEstimate\":" << written.authorityCalibratedEstimate;
+    o << ",\"authorityReconstructed\":" << written.authorityReconstructed;
+    o << ",\"authorityCensored\":" << written.authorityCensored;
+    o << ",\"authorityUnknown\":" << written.authorityUnknown;
+    o << ",\"uncertaintyKnownCount\":" << written.uncertaintyKnownCount;
+    o << ",\"supportKnownCount\":" << written.supportKnownCount;
+    o << ",\"boundKnownCount\":" << written.boundKnownCount;
+    o << ",\"valueNegativeCount\":" << written.valueNegativeCount;
+    o << ",\"valueAboveOneCount\":" << written.valueAboveOneCount;
+    o << ",\"valueNonFiniteCount\":" << written.valueNonFiniteCount;
     o << ",\"sourceSha256\":\""
       << sha::hex(written.sourceEvidenceSha256) << "\"";
     o << ",\"scientificMasterSha256\":\""
