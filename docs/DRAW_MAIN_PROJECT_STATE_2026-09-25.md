@@ -150,6 +150,34 @@ Stable development signing certificate SHA-256:
 
 The stable signing identity remains development/test-only and unchanged.
 
+## TruthNegative Round-Trip Oracle v0.6
+
+The round-trip/explainability gate now exists as an executable reference.
+
+Across multiple finite target rasters it requires:
+
+- unchanged TruthNegative Continuous state identity;
+- zero measured-target claims;
+- normalized positive source footprints;
+- one physical frame / one independent evidence item;
+- no scientific writeback;
+- global scene-linear area-average conservation against the canonical 1x1 whole-frame integral;
+- deterministic query-chain SHA-256.
+
+This deliberately tests conservation/explainability rather than claiming arbitrary resize inversion.
+
+## TruthNegative Optics Support v0.7
+
+A calibration-bound optics-support gate now exists.
+
+It accepts a PSF/MTF calibration identity and separates MEASURED, CALIBRATED_ESTIMATE, INFERRED and UNKNOWN calibration authority.
+
+Only MEASURED or CALIBRATED_ESTIMATE optics may affect the **scientific support footprint**. The v0.7 gate does not change scene RGB, does not sharpen, does not deconvolve and does not upgrade authority.
+
+Inferred optics may be retained for research but fail closed for scientific support.
+
+Both v0.6 and v0.7 are compiled into the Android main native library after green GCC/Clang/ASan/UBSan validation.
+
 ## Next implementation boundary
 
-The first bridge now exists. Next: validate the PRO preview on-device with real admitted DNGs, then build the TruthNegative round-trip/explainability oracle and an optics-aware successor gated by measured PSF/MTF/calibration. No optics prior may be promoted to measurement merely because it improves appearance.
+Validate the PRO TruthNegative Continuous preview on-device with real admitted DNGs. For inverse-optics reconstruction, first acquire/derive independently admitted lens/sensor PSF/MTF calibration; do not enable deconvolution before that evidence exists. The next software-only step can be the Camera-5 colour/highlight oracle and a native TruthNegative scientific-negative container/export contract.

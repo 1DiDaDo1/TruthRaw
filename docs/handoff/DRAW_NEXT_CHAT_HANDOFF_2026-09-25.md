@@ -24,6 +24,8 @@ Read first:
 8. `docs/research/free-world-light-transport-state-v0.6/README.md`
 9. `docs/research/free-world-appearance-resolve-v0.7/README.md`
 10. `docs/research/truthnegative-continuous-v0.5/README.md`
+11. `docs/research/truthnegative-roundtrip-oracle-v0.6/README.md`
+12. `docs/research/truthnegative-optics-support-v0.7/README.md`
 
 ## What just changed
 
@@ -37,7 +39,7 @@ ADVANCED = Appearance / Restoration View
 PRO      = Open Scene / Light Transport
 ```
 
-The new layers are compiled into main. TruthNegative Continuous v0.5 now defines a raster-independent scientific-negative state and the first admitted bridge is a PRO-only DNG diagnostic preview through v0.7. Existing exports and PURE remain unchanged.
+The new layers are compiled into main. TruthNegative Continuous v0.5 now defines a raster-independent scientific-negative state and the first admitted bridge is a PRO-only DNG diagnostic preview through v0.7. TruthNegative Round-Trip Oracle v0.6 and calibration-bound Optics Support v0.7 are also green and compiled into main. Existing exports and PURE remain unchanged.
 
 ## Permanent scientific boundaries
 
@@ -74,4 +76,4 @@ Development certificate SHA-256:
 
 ## Recommended continuation
 
-Continue from the current main branch. First run the new PRO · TruthNegative Continuous v0.5 preview on real admitted DNGs and retain any failure/status output. Then build the round-trip/explainability oracle and only after that research optics-aware reconstruction with independently measured PSF/MTF/calibration. Do not reroute PURE or existing exports without their own validation.
+Continue from the current main branch. First run the PRO · TruthNegative Continuous v0.5 preview on real admitted DNGs and retain any failure/status output. The round-trip oracle and optics calibration gate are now implemented. Do not enable inverse-optics/deconvolution until independently admitted PSF/MTF calibration exists. The next software-only gates are the Camera-5 colour/highlight oracle and a native TruthNegative container/export contract. Do not reroute PURE or existing exports without their own validation.

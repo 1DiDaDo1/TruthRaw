@@ -90,6 +90,17 @@ class TruthRawProActivity : Activity() {
         })
 
         root.addView(space(12))
+        root.addView(card("TruthNegative explainability & optics gate").apply {
+            addView(body(
+                "Round-trip Oracle v0.6 controleert nu dat verschillende rasterprojecties dezelfde TruthNegative-state behouden, " +
+                    "globale scene-area conserveren, genormaliseerde bron-footprints houden en nooit nieuwe measured target-pixels claimen. " +
+                    "Optics Support v0.7 kan een gemeten/gekalibreerde PSF/MTF aan het effectieve bron-support binden zonder RGB-waarden of authority te veranderen. " +
+                    "Inferred optics faalt wetenschappelijk gesloten; deconvolutie blijft geblokkeerd totdat echte lens/sensor-calibratie beschikbaar is.",
+                11.5f,
+            ))
+        })
+
+        root.addView(space(12))
         root.addView(card("RAW / DNG ingress").apply {
             addView(body(
                 "DNG gebruikt de volledige admitted tile-native Scientific-Master-route. Nikon NEF heeft een beperkte measurement-only uncompressed-16 CFA decoder. " +
