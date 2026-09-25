@@ -1610,6 +1610,12 @@ class MainActivity : Activity() {
                                     " · censored >1/≤1=" +
                                     m.censoredValueAboveOne + "/" +
                                     m.censoredValueAtOrBelowOne +
+                                    " · censor tiles=" + m.censoredTileCount +
+                                    " · censor bbox=" + m.censoredMinX + "," + m.censoredMinY +
+                                    "–" + m.censoredMaxX + "," + m.censoredMaxY +
+                                    " · RAW bound=" + m.censoredRawCodeBoundMin +
+                                    "…" + m.censoredRawCodeBoundMax +
+                                    " · bound mismatch=" + m.censoredRawCodeBoundMismatchCount +
                                     " · values <0/>1=" +
                                     m.valueNegativeCount + "/" +
                                     m.valueAboveOneCount +
