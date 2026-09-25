@@ -131,3 +131,21 @@ against the admitted source size rather than a hard-coded halo width, so a
 future reconstruction backend with a larger declared halo cannot be falsely
 rejected by the Android UI while native geometry and digest checks remain
 authoritative.
+
+
+## Corrected exact-baseline Android validation
+
+The corrected baseline-equivalence implementation is validated on Android:
+
+- exact-baseline code head: `bde83be02d810a8f8073c328f010772b36e6bdf8`
+- GitHub Actions run: `36198248245` — SUCCESS
+- signed ARM64 APK bytes: `6638911`
+- APK SHA-256: `fffe03a41f49d346ab3089950d095375356df22e75cde9221ab51eae073c0909`
+- signing certificate SHA-256:
+  `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+- artifact ID: `10890763024`
+
+This build no longer treats a same-size TruthNegative Continuous raster query
+as an identity Scientific Master sample. The baseline candidate reconstruction
+is checked directly against the exact canonical Scientific Master source
+pixel, Float32 bit-for-bit, before any B/Delta diagnostic output is admitted.
