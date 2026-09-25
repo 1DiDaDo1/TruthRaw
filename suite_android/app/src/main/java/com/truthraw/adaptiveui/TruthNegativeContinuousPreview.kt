@@ -343,6 +343,7 @@ object TruthNegativeContinuousPreviewLoader {
         -14 -> "TruthNegative Continuous: camera-plane bijdrage kon niet authority-preserving aan Deep Scene worden gebonden."
         -15 -> "TruthNegative Continuous: Deep Scene scientific resolve faalde."
         -16 -> "TruthNegative Continuous: Deep Scene veranderde radiometrische authority/uncertainty."
+        -17 -> "TruthNegative Continuous: N2 CFA audit-only side-car faalde fail-closed."
         in 2000..2099 -> "TruthNegative Continuous source-binding faalde (status $status)."
         in 2100..2199 -> "TruthNegative Continuous color-binding faalde (status $status)."
         in 7000..7099 -> "TruthNegative Continuous RAW-adapter faalde (status $status)."
