@@ -96,11 +96,36 @@ BindingReport BoundScenePlane::report() const noexcept {
     return out;
 }
 
-bool BoundScenePlane::loadCanonicalTile(
+const BoundScenePlane::CachedTile*
+BoundScenePlane::findOrLoadCanonicalTile(
     std::uint32_t tileX,
     std::uint32_t tileY) const noexcept {
+    for (auto& slot : cache_) {
+        if (slot.valid && slot.x == tileX && slot.y == tileY) {
+            slot.lastUse = ++cacheClock_;
+            return &slot;
+        }
+    }
+
+    auto* victim = &cache_[0];
+    for (auto& slot : cache_) {
+        if (!slot.valid) {
+            victim = &slot;
+            break;
+        }
+        if (slot.lastUse < victim->lastUse) victim = &slot;
+    }
+    if (!loadCanonicalTile(tileX, tileY, *victim)) return nullptr;
+    victim->lastUse = ++cacheClock_;
+    return victim;
+}
+
+bool BoundScenePlane::loadCanonicalTile(
+    std::uint32_t tileX,
+    std::uint32_t tileY,
+    CachedTile& destination) const noexcept {
     try {
-        cacheValid_ = false;
+        destination.valid = false;
         if (!valid_ || tileX >= width_ || tileY >= height_ ||
             (tileX % field::kCanonicalTileEdge) != 0u ||
             (tileY % field::kCanonicalTileEdge) != 0u) {
@@ -125,7 +150,8 @@ bool BoundScenePlane::loadCanonicalTile(
             tileX, tileY, tileWidth, tileHeight,
             masterRgb_.data(), masterRgb_.size());
         if (!masterStatus) {
-            error_ = "Scientific Master tile read failed: " + masterStatus.message;
+            error_ = "Scientific Master tile read failed: " +
+                masterStatus.message;
             return false;
         }
 
@@ -137,7 +163,7 @@ bool BoundScenePlane::loadCanonicalTile(
             return false;
         }
 
-        mappedPixels_.assign(pixels, free_world::SourcePixel{});
+        destination.pixels.assign(pixels, free_world::SourcePixel{});
         for (std::size_t i = 0u; i < channels; ++i) {
             const auto& record = fieldRecords_[i];
             if (!field::validate_record(record) || !record.valuePresent) {
@@ -154,7 +180,7 @@ bool BoundScenePlane::loadCanonicalTile(
             }
             ++report_.masterFieldValueBitMatches;
 
-            auto& dst = mappedPixels_[i / 3u].channel[i % 3u];
+            auto& dst = destination.pixels[i / 3u].channel[i % 3u];
             dst.value = static_cast<double>(masterRgb_[i]);
             dst.role = mapRole(record.role);
             dst.authority = mapAuthority(record.authority);
@@ -168,17 +194,17 @@ bool BoundScenePlane::loadCanonicalTile(
             dst.contributionMask = record.contributionMask;
         }
 
-        cacheX_ = tileX;
-        cacheY_ = tileY;
-        cacheWidth_ = tileWidth;
-        cacheHeight_ = tileHeight;
-        cacheValid_ = true;
+        destination.x = tileX;
+        destination.y = tileY;
+        destination.width = tileWidth;
+        destination.height = tileHeight;
+        destination.valid = true;
         ++report_.tileLoads;
         error_.clear();
         return true;
     } catch (...) {
         error_ = "unexpected Scientific Master/Open Scene binding failure";
-        cacheValid_ = false;
+        destination.valid = false;
         return false;
     }
 }
@@ -195,28 +221,25 @@ bool BoundScenePlane::readPixel(
     const std::uint32_t tileY =
         (y / field::kCanonicalTileEdge) * field::kCanonicalTileEdge;
 
-    const bool hit =
-        cacheValid_ &&
-        tileX == cacheX_ &&
-        tileY == cacheY_;
-    if (!hit && !loadCanonicalTile(tileX, tileY)) return false;
+    const CachedTile* tile = findOrLoadCanonicalTile(tileX, tileY);
+    if (tile == nullptr || !tile->valid) return false;
 
-    if (x < cacheX_ || y < cacheY_ ||
-        x >= cacheX_ + cacheWidth_ ||
-        y >= cacheY_ + cacheHeight_) {
+    if (x < tile->x || y < tile->y ||
+        x >= tile->x + tile->width ||
+        y >= tile->y + tile->height) {
         error_ = "Scientific Master/Open Scene cache address mismatch";
         return false;
     }
 
-    const std::size_t localX = x - cacheX_;
-    const std::size_t localY = y - cacheY_;
+    const std::size_t localX = x - tile->x;
+    const std::size_t localY = y - tile->y;
     const std::size_t index =
-        localY * static_cast<std::size_t>(cacheWidth_) + localX;
-    if (index >= mappedPixels_.size()) {
+        localY * static_cast<std::size_t>(tile->width) + localX;
+    if (index >= tile->pixels.size()) {
         error_ = "Scientific Master/Open Scene cache index overflow";
         return false;
     }
-    out = mappedPixels_[index];
+    out = tile->pixels[index];
     return true;
 }
 
