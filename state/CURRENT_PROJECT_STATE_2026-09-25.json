@@ -1,0 +1,65 @@
+{
+  "schema": "DRAW_CURRENT_PROJECT_STATE/2026-09-25",
+  "date": "2026-09-25",
+  "product_name": "D.RAW",
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_integration_branch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
+  "code_checkpoint_sha": "e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "free_world_main_integration": {
+    "compiled_into_android_main": true,
+    "modules": [
+      "free-world-pixel-resolve-2d-v0.2",
+      "free-world-scientific-open-scene-binding-v0.3",
+      "free-world-deep-scene-contribution-v0.4",
+      "free-world-deep-scene-binding-v0.5",
+      "free-world-light-transport-state-v0.6",
+      "free-world-appearance-resolve-v0.7"
+    ],
+    "existing_validated_exports_automatically_rerouted": false,
+    "production_bridge_required": true
+  },
+  "ui_routes": {
+    "PURE": "SCIENTIFIC_VIEW",
+    "ADVANCED": "APPEARANCE_VIEW + RESTORATION_VIEW",
+    "PRO": "OPEN_SCENE_VIEW + LIGHT_TRANSPORT"
+  },
+  "scientific_invariants": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "createsNewEvidence": false,
+    "scientificWritebackAllowed": false,
+    "sealed_source_immutable": true,
+    "appearance_never_upgrades_authority": true,
+    "display_target_never_changes_scene_identity": true
+  },
+  "validation": {
+    "android_signed_arm64": {
+      "run_id": 36079724937,
+      "result": "SUCCESS"
+    },
+    "scientific_master_f64_color_audit": {
+      "run_id": 36079724798,
+      "result": "SUCCESS"
+    },
+    "open_scene_local_authority": {
+      "run_id": 36079724888,
+      "result": "SUCCESS"
+    },
+    "unified_output_preview": {
+      "run_id": 36079725063,
+      "result": "SUCCESS"
+    },
+    "free_world_gcc": "PASS",
+    "free_world_clang": "PASS",
+    "asan_ubsan": "PASS"
+  },
+  "apk": {
+    "artifact_id": 10841122875,
+    "artifact_name": "truthraw-v0-84-2-compute-router-debug-arm64",
+    "artifact_zip_sha256": "d3a8fcda7f412540773cd1f89fe81ff12132e5b4d16a59e4214747277e3b913b",
+    "apk_size_bytes": 6297315,
+    "apk_sha256": "23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448",
+    "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+  }
+}

@@ -1,3 +1,63 @@
+# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-25
+
+**Official current product name: `D.RAW`.**
+
+Current code-bearing Free-World promotion checkpoint:
+
+`e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`
+
+Active integration:
+
+`integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+
+**Read first:**
+
+1. `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+2. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
+4. `docs/research/free-world-output-pixel-v0.1/README.md`
+5. `docs/research/free-world-appearance-resolve-v0.7/README.md`
+
+Current main architecture:
+
+```text
+sealed Source Evidence
+ -> Scientific Master
+ -> Continuous Scene Field
+ -> Deep Scene
+ -> geometry/radiometry authority
+ -> Light Transport
+ -> Appearance / Viewing / Display Resolve
+ -> finite output
+```
+
+Current route semantics:
+
+```text
+D.RAW PURE     = Scientific View
+D.RAW ADVANCED = Appearance / Restoration View
+D.RAW PRO      = Open Scene / Light Transport
+```
+
+The v0.2-v0.7 modules are compiled into the Android main native library. Existing validated output/export paths are not silently rerouted; a dedicated validated bridge must opt into the new resolver.
+
+Current green main validation:
+
+- Android signed ARM64: `36079724937` — SUCCESS
+- Scientific Master F64 + Color Audit: `36079724798` — SUCCESS
+- Open Scene Field/local authority: `36079724888` — SUCCESS
+- Unified Output Preview: `36079725063` — SUCCESS
+
+Current installable APK:
+
+- artifact ID `10841122875`
+- APK SHA-256 `23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448`
+- stable development certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+
+Permanent rule: **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+---
+
 # D.RAW — CURRENT PROJECT IDENTITY — 2026-09-24
 
 **Official project/product name from this point forward: `D.RAW`.**

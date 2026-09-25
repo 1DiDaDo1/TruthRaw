@@ -4,13 +4,21 @@
 
 # D.RAW
 
-> **CURRENT PROJECT IDENTITY — 2026-09-24**
+> **CURRENT PROJECT IDENTITY — 2026-09-25**
 >
 > D.RAW is the current project/product name. Historical `TruthRaw` identifiers remain where required for provenance, sealed evidence, schemas, Android compatibility and reproducibility.
 >
 > Current bootstrap: `START_HERE_NEW_CHAT.md`
 >
+> Current state: `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md` and `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+>
 > Active integration: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+>
+> Free-World v0.2-v0.7 is now compiled into the Android main native library. UI routes are aligned as PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. Existing validated exports remain unchanged until an explicit bridge opts into the new downstream resolver.
+>
+> Code checkpoint: `e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`
+>
+> Current signed ARM64 APK SHA-256: `23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448`
 >
 > D.RAW preserves the permanent rule: **representation can exceed the source; knowledge claims cannot exceed the evidence.**
 
