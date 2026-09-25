@@ -15,6 +15,7 @@
 #include "truthnegative_continuous_v0_5.h"
 #include "truthnegative_deep_scene_bridge_v0_8.h"
 #include "truthnegative_dense_local_field_adapter_v0_4.h"
+#include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthraw/core.h"
 #include "truthraw_sha256_v0_69.h"
 
@@ -50,16 +51,29 @@ namespace tn = truthraw::truthnegative_continuous::v0_5;
 namespace tn_deep = truthraw::truthnegative_deep_scene_bridge::v0_8;
 namespace tn_field =
     truthraw::truthnegative_dense_local_field_adapter::v0_4;
+namespace n2_cfa =
+    truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x35434e54; // TNC5 in little-endian byte view.
-constexpr std::size_t kHeaderInts = 48u;
+constexpr std::size_t kHeaderInts = 92u;
 constexpr jint kMaxEdgeHardLimit = 256;
 
 jint clamp_metric(std::uint64_t value) noexcept {
     const auto cap =
         static_cast<std::uint64_t>(std::numeric_limits<jint>::max());
     return static_cast<jint>(std::min(value, cap));
+}
+
+jint scaled_metric(double value, double scale) noexcept {
+    if (!std::isfinite(value) || value <= 0.0 || !std::isfinite(scale) ||
+        scale <= 0.0) {
+        return 0;
+    }
+    const double cap =
+        static_cast<double>(std::numeric_limits<jint>::max());
+    return static_cast<jint>(
+        std::llround(std::min(value * scale, cap)));
 }
 
 jintArray status_packet(JNIEnv* env, jint status) {
@@ -344,6 +358,25 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
         return status_packet(env, -6);
     }
 
+    // N2 remains a side-car validation path. It reads the same admitted RAW
+    // source and computes candidate corrections on a balanced CFA sample set,
+    // but its values are never supplied to Scientific Master, TruthNegative,
+    // Deep Scene, Appearance or the visible preview below.
+    n2_cfa::Binding n2Binding{};
+    n2Binding.sourceEvidenceSha256 = sourceSeal.sha256;
+    n2Binding.truthNegativeStateSha256 = tnState.stateSha256;
+    n2_cfa::Options n2Options{};
+    n2Options.tileEdge = 64u;
+    n2Options.samplingPeriod = 8u;
+    n2_cfa::Result n2Audit{};
+    if (!n2_cfa::run(*source, n2Binding, n2Options, n2Audit) ||
+        n2Audit.sourceValuesModified ||
+        n2Audit.truthNegativeModified ||
+        n2Audit.createsNewEvidence ||
+        n2Audit.scientificWritebackAllowed) {
+        return status_packet(env, -17);
+    }
+
     binding::BoundScenePlane scene(
         masterSource, fieldSource, sourceWidth, sourceHeight);
     if (!scene.valid()) return status_packet(env, -7);
@@ -589,6 +622,43 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     digest_to_words(tnState.stateSha256, packet.data() + 32u);
     digest_to_words(
         authorityField.contentSha256, packet.data() + 40u);
+
+    packet[48] = 1;
+    packet[49] = n2Audit.noiseProfileAvailable ? 1 : 0;
+    packet[50] = clamp_metric(n2Audit.sampled);
+    packet[51] = clamp_metric(n2Audit.audit.eligible);
+    packet[52] = clamp_metric(n2Audit.audit.corrected);
+    packet[53] = clamp_metric(n2Audit.audit.preserved);
+    packet[54] = clamp_metric(n2Audit.audit.censoredProtected);
+    packet[55] = clamp_metric(n2Audit.audit.censorBoundaryProtected);
+    packet[56] = clamp_metric(n2Audit.audit.structureProtected);
+    packet[57] = clamp_metric(n2Audit.audit.unknownNoiseProtected);
+    packet[58] = clamp_metric(n2Audit.audit.noNeighborhoodProtected);
+    packet[59] = clamp_metric(n2Audit.audit.residualOutlierProtected);
+    packet[60] = clamp_metric(n2Audit.borderProtected);
+    const double removedEnergyFraction =
+        n2Audit.audit.totalResidualEnergy > 0.0
+            ? n2Audit.audit.removedResidualEnergy /
+                n2Audit.audit.totalResidualEnergy
+            : 0.0;
+    packet[61] = scaled_metric(
+        std::clamp(removedEnergyFraction, 0.0, 1.0), 1000000.0);
+    packet[62] = scaled_metric(
+        n2Audit.audit.maxAbsCorrection, 1000000000.0);
+    packet[63] = static_cast<jint>(n2Audit.samplingPeriod);
+    digest_to_words(n2Audit.candidateSha256, packet.data() + 64u);
+    digest_to_words(n2Audit.auditSha256, packet.data() + 72u);
+    for (std::size_t i = 0u; i < 4u; ++i) {
+        packet[80u + i] = clamp_metric(n2Audit.cfaPhaseSamples[i]);
+    }
+    packet[84] = n2Audit.sourceValuesModified ? 1 : 0;
+    packet[85] = n2Audit.truthNegativeModified ? 1 : 0;
+    packet[86] = n2Audit.createsNewEvidence ? 1 : 0;
+    packet[87] = n2Audit.scientificWritebackAllowed ? 1 : 0;
+    packet[88] = 0; // candidateAppliedToAppearance = false
+    packet[89] = 1; // auditOnly = true
+    packet[90] = 1; // measuredCfaDomain = true
+    packet[91] = 0; // reserved
 
     jintArray out =
         env->NewIntArray(static_cast<jsize>(packet.size()));
