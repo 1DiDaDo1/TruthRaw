@@ -81,6 +81,15 @@ bool reconstruct(
             return false;
         }
 
+        const int coreLocalX0=input.coreX0-input.globalHx0;
+        const int coreLocalY0=input.coreY0-input.globalHy0;
+        if(coreLocalX0<0||coreLocalY0<0||
+           coreLocalX0+input.coreWidth>input.tileWidth||
+           coreLocalY0+input.coreHeight>input.tileHeight||
+           input.reconstructionInfluenceRadius<0){
+            return false;
+        }
+
         const std::size_t tilePixels=
             static_cast<std::size_t>(input.tileWidth)*
             static_cast<std::size_t>(input.tileHeight);
@@ -91,6 +100,54 @@ bool reconstruct(
         std::vector<float> candidateStage2(
             input.stage2,input.stage2+tilePixels);
         if(!finite_vector(candidateStage2))return false;
+
+        std::vector<std::uint8_t> protectedCoreMask(tilePixels,0u);
+        const std::uint32_t noneBit=
+            1u<<static_cast<std::uint32_t>(
+                truthraw::truthnegative_n2_candidate_pipeline::v0_1::
+                    PreserveReason::None);
+        if(input.closeProtectionOverReconstructionSupport){
+            for(int cy=0;cy<input.coreHeight;++cy){
+                for(int cx=0;cx<input.coreWidth;++cx){
+                    const int tx=coreLocalX0+cx;
+                    const int ty=coreLocalY0+cy;
+                    const std::size_t i=
+                        static_cast<std::size_t>(ty)*input.tileWidth+tx;
+                    const auto& bin=a.appearanceGrid[i];
+                    if((bin.preserveReasonMask&~noneBit)!=0u){
+                        protectedCoreMask[i]=1u;
+                        ++out.protectedCorePixels;
+                    }
+                }
+            }
+            out.supportGuardApplied=true;
+        }
+
+        const auto suppressedBySupportGuard=
+            [&](std::size_t i) noexcept {
+                if(!out.supportGuardApplied||
+                   input.reconstructionInfluenceRadius<=0||
+                   out.protectedCorePixels==0u){
+                    return false;
+                }
+                const int x=static_cast<int>(
+                    i%static_cast<std::size_t>(input.tileWidth));
+                const int y=static_cast<int>(
+                    i/static_cast<std::size_t>(input.tileWidth));
+                const int r=input.reconstructionInfluenceRadius;
+                const int x0=std::max(0,x-r);
+                const int y0=std::max(0,y-r);
+                const int x1=std::min(input.tileWidth-1,x+r);
+                const int y1=std::min(input.tileHeight-1,y+r);
+                for(int yy=y0;yy<=y1;++yy){
+                    for(int xx=x0;xx<=x1;++xx){
+                        const std::size_t pi=
+                            static_cast<std::size_t>(yy)*input.tileWidth+xx;
+                        if(protectedCoreMask[pi]!=0u)return true;
+                    }
+                }
+                return false;
+            };
 
         for(std::size_t i=0u;i<tilePixels;++i){
             const auto& bin=a.appearanceGrid[i];
@@ -110,6 +167,10 @@ bool reconstruct(
             if(sampledTotal!=1u||measuredChannel<0)return false;
             const auto cc=static_cast<std::size_t>(measuredChannel);
             if(bin.corrected[cc]>0u){
+                if(suppressedBySupportGuard(i)){
+                    ++out.supportGuardSuppressedStage2Sites;
+                    continue;
+                }
                 const double correction=
                     bin.correctionSum[cc]/
                     static_cast<double>(bin.sampled[cc]);
@@ -179,6 +240,29 @@ bool reconstruct(
             out.maxAbsRgbDelta=std::max(out.maxAbsRgbDelta,d);
         }
 
+        if(out.supportGuardApplied){
+            for(int cy=0;cy<input.coreHeight;++cy){
+                for(int cx=0;cx<input.coreWidth;++cx){
+                    const int tx=coreLocalX0+cx;
+                    const int ty=coreLocalY0+cy;
+                    const std::size_t ti=
+                        static_cast<std::size_t>(ty)*input.tileWidth+tx;
+                    if(protectedCoreMask[ti]==0u)continue;
+                    const std::size_t ci=
+                        (static_cast<std::size_t>(cy)*input.coreWidth+cx)*3u;
+                    for(std::size_t cc=0u;cc<3u;++cc){
+                        if(std::bit_cast<std::uint32_t>(
+                               out.baselineCameraRgb[ci+cc])!=
+                           std::bit_cast<std::uint32_t>(
+                               out.candidateCameraRgb[ci+cc])){
+                            ++out.protectedCoreChangedRgbChannels;
+                        }
+                    }
+                }
+            }
+            if(out.protectedCoreChangedRgbChannels!=0u)return false;
+        }
+
         truthraw::sha256_v0_69::Hasher hasher;
         constexpr char domain[]=
             "D_RAW_TN_N2_FULL_COLOUR_CANDIDATE_V0_1";
@@ -194,7 +278,17 @@ bool reconstruct(
         hash_u32(hasher,static_cast<std::uint32_t>(input.coreY0));
         hash_u32(hasher,static_cast<std::uint32_t>(input.coreWidth));
         hash_u32(hasher,static_cast<std::uint32_t>(input.coreHeight));
+        hash_u32(
+            hasher,
+            static_cast<std::uint32_t>(
+                input.reconstructionInfluenceRadius));
+        hash_u32(
+            hasher,
+            input.closeProtectionOverReconstructionSupport?1u:0u);
         hash_u64(hasher,out.correctedStage2Sites);
+        hash_u64(hasher,out.supportGuardSuppressedStage2Sites);
+        hash_u64(hasher,out.protectedCorePixels);
+        hash_u64(hasher,out.protectedCoreChangedRgbChannels);
         hash_u64(hasher,out.changedRgbChannels);
         for(float v:out.candidateCameraRgb)hash_f32(hasher,v);
         out.candidateIdentitySha256=hasher.finalize();
