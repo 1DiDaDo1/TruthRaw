@@ -29,8 +29,11 @@ data class TruthNegativeNativeContainerMetrics(
     val recordCount: Long,
     val bodyBytes: Long,
     val fileBytes: Long,
+    val roleUnknown: Long,
     val roleSourceMeasuredCfa: Long,
     val roleScientificReconstruction: Long,
+    val roleDenseProjection: Long,
+    val roleRestorationDerivative: Long,
     val authorityCalibratedEstimate: Long,
     val authorityReconstructed: Long,
     val authorityCensored: Long,
@@ -115,8 +118,11 @@ object TruthNegativeNativeContainerExporter {
             recordCount = json.optLong("recordCount"),
             bodyBytes = json.optLong("bodyBytes"),
             fileBytes = json.optLong("fileBytes"),
+            roleUnknown = json.optLong("roleUnknown"),
             roleSourceMeasuredCfa = json.optLong("roleSourceMeasuredCfa"),
             roleScientificReconstruction = json.optLong("roleScientificReconstruction"),
+            roleDenseProjection = json.optLong("roleDenseProjection"),
+            roleRestorationDerivative = json.optLong("roleRestorationDerivative"),
             authorityCalibratedEstimate = json.optLong("authorityCalibratedEstimate"),
             authorityReconstructed = json.optLong("authorityReconstructed"),
             authorityCensored = json.optLong("authorityCensored"),
@@ -160,8 +166,11 @@ object TruthNegativeNativeContainerExporter {
             metrics.recordCount !=
                 metrics.width.toLong() *
                 metrics.height.toLong() * 3L ||
-            metrics.roleSourceMeasuredCfa +
-                metrics.roleScientificReconstruction != metrics.recordCount ||
+            metrics.roleUnknown +
+                metrics.roleSourceMeasuredCfa +
+                metrics.roleScientificReconstruction +
+                metrics.roleDenseProjection +
+                metrics.roleRestorationDerivative != metrics.recordCount ||
             metrics.authorityCalibratedEstimate +
                 metrics.authorityReconstructed +
                 metrics.authorityCensored +
