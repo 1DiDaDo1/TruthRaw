@@ -1605,6 +1605,11 @@ class MainActivity : Activity() {
                                     m.authorityReconstructed + "/" +
                                     m.authorityCensored + "/" +
                                     m.authorityUnknown +
+                                    " · censored RGB=" +
+                                    m.censoredR + "/" + m.censoredG + "/" + m.censoredB +
+                                    " · censored >1/≤1=" +
+                                    m.censoredValueAboveOne + "/" +
+                                    m.censoredValueAtOrBelowOne +
                                     " · values <0/>1=" +
                                     m.valueNegativeCount + "/" +
                                     m.valueAboveOneCount +
