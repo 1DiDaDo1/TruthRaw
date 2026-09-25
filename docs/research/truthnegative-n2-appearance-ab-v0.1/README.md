@@ -67,3 +67,20 @@ display-clamp count and the correction-grid digest.
 No result from this experiment may be promoted to measured evidence. A future
 appearance denoise may consume a validated candidate policy, but Scientific
 Master and TruthNegative remain immutable.
+
+
+## Android validation
+
+Combined Android integration validated on branch
+`integration/pro-truthnegative-continuous-primary-route-v075`:
+
+- code head: `cd32ee40e25c4bfdb385b6f908c206a7571d5d1a`
+- GitHub Actions run: `36191219003` — SUCCESS
+- signed ARM64 APK bytes: `6572503`
+- APK SHA-256: `23e611afd77c65556a7910764558a017e9b0f42e9d253df9c07ee7906796f81b`
+- signing certificate SHA-256:
+  `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+
+The PRO UI renders A and B next to each other. The existing TruthNegative
+Appearance preview remains A and remains the only primary preview. B is held
+only as transient UI bitmap state and is cleared when the active RAW changes.
