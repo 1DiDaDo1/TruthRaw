@@ -14,11 +14,25 @@ inline constexpr const char* kCreationRole =
     "AREA_INTEGRATED_CONTINUOUS_PROJECTION";
 inline constexpr std::uint32_t kMeasuredTargetClaimCount = 0u;
 
+enum class SourceCreationRole : std::uint8_t {
+    Unknown = 0u,
+    SourceMeasuredCfa = 1u,
+    ScientificReconstruction = 2u,
+    DenseProjection = 3u,
+    RestorationDerivative = 4u,
+};
+
 enum class SourceAuthority : std::uint8_t {
     CalibratedEstimate = 0u,
     Reconstructed = 1u,
     Censored = 2u,
     Unknown = 3u,
+};
+
+enum class BoundDomain : std::uint8_t {
+    None = 0u,
+    SourceRawCode = 1u,
+    SceneLinear = 2u,
 };
 
 enum class ResolvedAuthority : std::uint8_t {
@@ -29,9 +43,14 @@ enum class ResolvedAuthority : std::uint8_t {
 
 struct SourceChannelState final {
     double value = 0.0;
+    SourceCreationRole role = SourceCreationRole::Unknown;
     SourceAuthority authority = SourceAuthority::Unknown;
     bool uncertaintyKnown = false;
     double p95Uncertainty = 0.0;
+    bool boundKnown = false;
+    double lowerBound = 0.0;
+    BoundDomain boundDomain = BoundDomain::None;
+    std::uint8_t contributionMask = 0u;
 };
 
 struct SourcePixel final {
@@ -65,8 +84,21 @@ struct ChannelSupportSummary final {
     double reconstructedWeight = 0.0;
     double censoredWeight = 0.0;
     double unknownWeight = 0.0;
+
+    double sourceMeasuredCfaWeight = 0.0;
+    double scientificReconstructionWeight = 0.0;
+    double denseProjectionWeight = 0.0;
+    double restorationDerivativeWeight = 0.0;
+    double unknownRoleWeight = 0.0;
+
     bool uncertaintyKnown = false;
     double p95Uncertainty = 0.0;
+
+    bool boundKnown = false;
+    double lowerBound = 0.0;
+    BoundDomain boundDomain = BoundDomain::None;
+
+    std::uint8_t contributionMask = 0u;
     ResolvedAuthority authority = ResolvedAuthority::Unknown;
 };
 
@@ -137,7 +169,9 @@ OutputIntentBinding bindOutputIntent(
     const std::string& sceneStateId,
     const ViewDisplayPolicy& policy);
 
+const char* toString(SourceCreationRole role) noexcept;
 const char* toString(SourceAuthority authority) noexcept;
+const char* toString(BoundDomain domain) noexcept;
 const char* toString(ResolvedAuthority authority) noexcept;
 
 }  // namespace truthraw::free_world_pixel_resolve_2d::v0_2

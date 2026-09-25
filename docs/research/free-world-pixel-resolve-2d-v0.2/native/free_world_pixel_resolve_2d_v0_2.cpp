@@ -47,6 +47,29 @@ void accumulateAuthority(
     }
 }
 
+void accumulateRole(
+    ChannelSupportSummary& summary,
+    SourceCreationRole role,
+    double weight) noexcept {
+    switch (role) {
+        case SourceCreationRole::SourceMeasuredCfa:
+            summary.sourceMeasuredCfaWeight += weight;
+            break;
+        case SourceCreationRole::ScientificReconstruction:
+            summary.scientificReconstructionWeight += weight;
+            break;
+        case SourceCreationRole::DenseProjection:
+            summary.denseProjectionWeight += weight;
+            break;
+        case SourceCreationRole::RestorationDerivative:
+            summary.restorationDerivativeWeight += weight;
+            break;
+        case SourceCreationRole::Unknown:
+            summary.unknownRoleWeight += weight;
+            break;
+    }
+}
+
 }  // namespace
 
 std::vector<AxisContribution> axisAreaWeights(
@@ -177,6 +200,8 @@ bool Resolver::resolvePixel(
 
         out.footprint.reserve(xWeights.size() * yWeights.size());
         std::array<bool, 3u> uncertaintyKnown = {true, true, true};
+        std::array<bool, 3u> allSceneLinearCensored = {true, true, true};
+        std::array<double, 3u> sceneLinearBound = {0.0, 0.0, 0.0};
         double footprintSum = 0.0;
 
         for (const auto& yw : yWeights) {
@@ -195,8 +220,20 @@ bool Resolver::resolvePixel(
                 for (std::size_t c = 0u; c < 3u; ++c) {
                     const auto& src = sourcePixel.channel[c];
                     if (!std::isfinite(src.value)) return false;
+                    if (src.boundKnown) {
+                        if (!std::isfinite(src.lowerBound) ||
+                            src.boundDomain == BoundDomain::None) {
+                            return false;
+                        }
+                    } else if (src.boundDomain != BoundDomain::None) {
+                        return false;
+                    }
+
                     out.sceneLinear[c] += src.value * w;
                     accumulateAuthority(out.support[c], src.authority, w);
+                    accumulateRole(out.support[c], src.role, w);
+                    out.support[c].contributionMask = static_cast<std::uint8_t>(
+                        out.support[c].contributionMask | src.contributionMask);
 
                     if (!src.uncertaintyKnown) {
                         uncertaintyKnown[c] = false;
@@ -204,6 +241,14 @@ bool Resolver::resolvePixel(
                         if (!finiteNonNegative(src.p95Uncertainty)) return false;
                         out.support[c].p95Uncertainty +=
                             src.p95Uncertainty * w;
+                    }
+
+                    if (src.authority == SourceAuthority::Censored &&
+                        src.boundKnown &&
+                        src.boundDomain == BoundDomain::SceneLinear) {
+                        sceneLinearBound[c] += src.lowerBound * w;
+                    } else {
+                        allSceneLinearCensored[c] = false;
                     }
                 }
             }
@@ -219,8 +264,25 @@ bool Resolver::resolvePixel(
                 support.censoredWeight +
                 support.unknownWeight;
             if (std::abs(authorityWeight - 1.0) > 1e-12) return false;
+
+            const double roleWeight =
+                support.sourceMeasuredCfaWeight +
+                support.scientificReconstructionWeight +
+                support.denseProjectionWeight +
+                support.restorationDerivativeWeight +
+                support.unknownRoleWeight;
+            if (std::abs(roleWeight - 1.0) > 1e-12) return false;
+
             support.uncertaintyKnown = uncertaintyKnown[c];
             if (!uncertaintyKnown[c]) support.p95Uncertainty = 0.0;
+
+            if (allSceneLinearCensored[c] &&
+                std::abs(support.censoredWeight - 1.0) <= 1e-12) {
+                support.boundKnown = true;
+                support.lowerBound = sceneLinearBound[c];
+                support.boundDomain = BoundDomain::SceneLinear;
+            }
+
             support.authority = resolveAuthority(support);
         }
 
@@ -277,6 +339,19 @@ OutputIntentBinding bindOutputIntent(
     return out;
 }
 
+const char* toString(SourceCreationRole role) noexcept {
+    switch (role) {
+        case SourceCreationRole::Unknown: return "UNKNOWN";
+        case SourceCreationRole::SourceMeasuredCfa: return "SOURCE_MEASURED_CFA";
+        case SourceCreationRole::ScientificReconstruction:
+            return "SCIENTIFIC_RECONSTRUCTION";
+        case SourceCreationRole::DenseProjection: return "DENSE_PROJECTION";
+        case SourceCreationRole::RestorationDerivative:
+            return "RESTORATION_DERIVATIVE";
+    }
+    return "UNKNOWN";
+}
+
 const char* toString(SourceAuthority authority) noexcept {
     switch (authority) {
         case SourceAuthority::CalibratedEstimate: return "CALIBRATED_ESTIMATE";
@@ -285,6 +360,15 @@ const char* toString(SourceAuthority authority) noexcept {
         case SourceAuthority::Unknown: return "UNKNOWN";
     }
     return "UNKNOWN";
+}
+
+const char* toString(BoundDomain domain) noexcept {
+    switch (domain) {
+        case BoundDomain::None: return "NONE";
+        case BoundDomain::SourceRawCode: return "SOURCE_RAW_CODE";
+        case BoundDomain::SceneLinear: return "SCENE_LINEAR";
+    }
+    return "NONE";
 }
 
 const char* toString(ResolvedAuthority authority) noexcept {
