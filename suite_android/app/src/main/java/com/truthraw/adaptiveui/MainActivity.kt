@@ -585,8 +585,17 @@ class MainActivity : Activity() {
                 operationKey,
                 result is TruthNegativeContinuousPreviewResult.Ready,
                 when (result) {
-                    is TruthNegativeContinuousPreviewResult.Ready ->
-                        "TruthNegative Continuous v0.5 preview gereed."
+                    is TruthNegativeContinuousPreviewResult.Ready -> {
+                        val m = result.metrics
+                        "TruthNegative Continuous v0.5 preview gereed · " +
+                            "N2 audit-only sampled=${m.n2Sampled}, " +
+                            "candidate=${m.n2CorrectedCandidates}, " +
+                            "preserved=${m.n2Preserved}, structure=" +
+                            "${m.n2StructureProtected}, censored/boundary=" +
+                            "${m.n2CensoredProtected}/${m.n2CensorBoundaryProtected}, " +
+                            "noiseProfile=${m.n2NoiseProfileAvailable}, " +
+                            "candidate-applied=false."
+                    }
                     is TruthNegativeContinuousPreviewResult.Failed ->
                         result.reason
                 },
@@ -2987,15 +2996,23 @@ class MainActivity : Activity() {
                             launchTruthNegativeContinuousPreview(active)
                         })
                         truthNegativeContinuousStatus?.let { status ->
-                            backgroundOperationStatusView(
+                            val operationView = backgroundOperationStatusView(
                                 backgroundOperationKey(
                                     "truthnegative-continuous-preview",
                                     active.id,
                                 ),
                                 status,
-                            )?.let(::addView) ?: addView(
-                                label(status, 10f, muted = true),
                             )
+                            if (operationView != null) {
+                                addView(operationView)
+                                if (status.startsWith("TN Continuous v0.5 ·") &&
+                                    status.contains("N2 audit-only:")
+                                ) {
+                                    addView(label(status, 9.5f, muted = true))
+                                }
+                            } else {
+                                addView(label(status, 10f, muted = true))
+                            }
                         }
                         addView(label(
                             "Raster-onafhankelijke Scientific Negative: bron + Scientific Master + " +
