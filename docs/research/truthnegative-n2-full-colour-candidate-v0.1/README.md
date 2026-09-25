@@ -28,3 +28,17 @@ Permanent invariants:
   reconstructed candidate RGB.
 
 This module is a validation bridge. It does not authorize production denoise.
+
+
+## Host validation
+
+GitHub Actions run `36196540781` completed successfully:
+
+- GCC reference: PASS;
+- Clang reference: PASS;
+- ASan/UBSan: PASS;
+- CTest: 100% passed.
+
+The unit test verifies that the input Stage-2 buffer remains byte-for-byte
+unchanged while an admitted local CFA correction propagates into multiple
+full-colour reconstructed RGB channels.
