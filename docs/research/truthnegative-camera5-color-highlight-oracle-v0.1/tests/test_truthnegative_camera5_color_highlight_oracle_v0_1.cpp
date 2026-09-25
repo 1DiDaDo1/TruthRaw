@@ -58,6 +58,7 @@ o::Sample candidate(
         clipped ? fw::ResolvedAuthority::Censored
                 : fw::ResolvedAuthority::Reconstructed,
         fw::ResolvedAuthority::Unknown};
+    if (clipped) s.censoredWeight[1] = 1.0;
     return s;
 }
 
