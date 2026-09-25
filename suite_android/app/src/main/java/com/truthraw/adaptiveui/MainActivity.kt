@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -31,6 +32,9 @@ class MainActivity : Activity() {
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
     private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
+    private var n2AppearanceCandidateBitmap: Bitmap? = null
+    private var n2AppearanceCandidateJobId: String? = null
+    private var n2AppearanceCandidateMetrics: TruthNegativeContinuousPreviewMetrics? = null
     private var restorationUnifiedPreviewKey: String? = null
     private var previewGeneration: Long = 0
     private var loadingStartedAtElapsedMs: Long? = null
@@ -109,6 +113,13 @@ class MainActivity : Activity() {
             accent = DrawVisualTheme.BLUE,
         )
 
+    private fun clearN2AppearanceCandidate() {
+        n2AppearanceCandidateBitmap?.recycle()
+        n2AppearanceCandidateBitmap = null
+        n2AppearanceCandidateJobId = null
+        n2AppearanceCandidateMetrics = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
@@ -181,6 +192,9 @@ class MainActivity : Activity() {
 
     private fun installInternalCameraJob(cameraJob: RawJob) {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        unifiedOutputPreviewState?.bitmap?.recycle()
+        unifiedOutputPreviewState = null
+        clearN2AppearanceCandidate()
         ++previewGeneration
         session = session.withJobs(listOf(cameraJob))
         activeJobId = cameraJob.id
@@ -235,6 +249,7 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        clearN2AppearanceCandidate()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
     }
@@ -602,7 +617,8 @@ class MainActivity : Activity() {
                             "${m.n2StructureProtected}, censored/boundary=" +
                             "${m.n2CensoredProtected}/${m.n2CensorBoundaryProtected}, " +
                             "noiseProfile=${m.n2NoiseProfileAvailable}, " +
-                            "candidate-applied=false."
+                            "primary-candidate-applied=false · " +
+                            "A/B-B=${m.n2AppearanceChangedPixels} changed px."
                     }
                     is TruthNegativeContinuousPreviewResult.Failed ->
                         result.reason
@@ -612,8 +628,10 @@ class MainActivity : Activity() {
             runOnUiThread {
                 if (activeJobId != job.id) {
                     (result as? TruthNegativeContinuousPreviewResult.Ready)
-                        ?.bitmap
-                        ?.recycle()
+                        ?.let { ready ->
+                            ready.bitmap.recycle()
+                            ready.n2CandidateBitmap.recycle()
+                        }
                     return@runOnUiThread
                 }
 
@@ -631,6 +649,10 @@ class MainActivity : Activity() {
                                     job.source,
                                 ),
                             )
+                        clearN2AppearanceCandidate()
+                        n2AppearanceCandidateBitmap = result.n2CandidateBitmap
+                        n2AppearanceCandidateJobId = job.id
+                        n2AppearanceCandidateMetrics = result.metrics
                         val m = result.metrics
                         truthNegativeContinuousStatus =
                             "TN Continuous v0.5 · ${m.width}×${m.height} uit " +
@@ -658,7 +680,12 @@ class MainActivity : Activity() {
                                 ", max|Δ|stage2=" +
                                 "%.8f".format(m.n2MaxAbsCorrectionStage2) +
                                 ", audit=${m.n2AuditSha256.take(16)}… · " +
-                                "candidate-applied=false."
+                                "primary-candidate-applied=false · " +
+                                "A/B candidate=${m.n2AppearanceChangedPixels} px/" +
+                                "${m.n2AppearanceAdjustedChannels} ch, clamp=" +
+                                "${m.n2AppearanceDisplayClampPixels} px, grid=" +
+                                "${m.n2AppearanceGridSha256.take(16)}… · " +
+                                "appearance-only=true."
                     }
                 }
                 render()
@@ -2152,6 +2179,7 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        clearN2AppearanceCandidate()
         restorationUnifiedPreviewKey = null
         ++previewGeneration
         activeJobId = job.id
@@ -2407,6 +2435,7 @@ class MainActivity : Activity() {
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        clearN2AppearanceCandidate()
         activeJobId = job.id
         jpegStatus = null
         pureFloatDngStatus = null
@@ -2947,6 +2976,90 @@ class MainActivity : Activity() {
                         9.5f,
                         muted = true,
                     ))
+
+                    val candidateBitmap = n2AppearanceCandidateBitmap
+                    val candidateMetrics = n2AppearanceCandidateMetrics
+                    if (
+                        preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_PRO &&
+                        n2AppearanceCandidateJobId == active.id &&
+                        candidateBitmap != null &&
+                        candidateMetrics != null &&
+                        outputPreview.outputLabel.contains("TruthNegative Continuous")
+                    ) {
+                        addView(space(8))
+                        addView(label(
+                            "N2 A/B · appearance-only kandidaat",
+                            12f,
+                            bold = true,
+                        ))
+                        addView(label(
+                            "A = ongewijzigde TruthNegative/Appearance. B = sampled-CFA N2-correcties " +
+                                "alleen voor deze display-proef area-gemiddeld naar het previewraster. " +
+                                "Geen kandidaat-reconstructie, geen wijziging van Scientific Master/TruthNegative, " +
+                                "geen nieuwe evidence en geen export-writeback.",
+                            9.5f,
+                            muted = true,
+                        ))
+                        val turns = outputPreview.metrics.displayQuarterTurns
+                        fun abImage(bitmap: Bitmap, description: String): ImageView =
+                            ImageView(this@MainActivity).apply {
+                                setImageBitmap(bitmap)
+                                adjustViewBounds = true
+                                scaleType = ImageView.ScaleType.FIT_CENTER
+                                rotation = turns * 90f
+                                if (
+                                    turns % 2 != 0 &&
+                                    bitmap.width > 0 &&
+                                    bitmap.height > 0
+                                ) {
+                                    val ratio = minOf(
+                                        bitmap.width.toFloat() / bitmap.height.toFloat(),
+                                        bitmap.height.toFloat() / bitmap.width.toFloat(),
+                                    )
+                                    scaleX = ratio
+                                    scaleY = ratio
+                                }
+                                contentDescription = description
+                                minimumHeight = dp(120)
+                                maxHeight = dp(240)
+                            }
+                        addView(horizontal().apply {
+                            gravity = Gravity.TOP
+                            addView(vertical().apply {
+                                addView(label("A · huidig", 10.5f, bold = true))
+                                addView(abImage(
+                                    outputPreview.bitmap,
+                                    "A: ongewijzigde TruthNegative Appearance",
+                                ))
+                            }, LinearLayout.LayoutParams(
+                                0,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                1f,
+                            ).apply { marginEnd = dp(4) })
+                            addView(vertical().apply {
+                                addView(label("B · N2 kandidaat", 10.5f, bold = true))
+                                addView(abImage(
+                                    candidateBitmap,
+                                    "B: N2 appearance-only kandidaat",
+                                ))
+                            }, LinearLayout.LayoutParams(
+                                0,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                1f,
+                            ).apply { marginStart = dp(4) })
+                        })
+                        addView(label(
+                            "B changed=${candidateMetrics.n2AppearanceChangedPixels}/" +
+                                "${candidateMetrics.targetPixels} px · adjusted-ch=" +
+                                "${candidateMetrics.n2AppearanceAdjustedChannels} · grid=" +
+                                "${candidateMetrics.n2AppearanceGridWidth}×" +
+                                "${candidateMetrics.n2AppearanceGridHeight} · grid SHA=" +
+                                candidateMetrics.n2AppearanceGridSha256.take(16) +
+                                "… · primary candidate-applied=false.",
+                            9f,
+                            muted = true,
+                        ))
+                    }
                 }
 
                 addView(space(8))
