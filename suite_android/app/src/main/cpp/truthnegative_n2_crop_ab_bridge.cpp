@@ -5,6 +5,7 @@
 #include "full_frame_streaming_v0_1_internal.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_full_colour_candidate_v0_1.h"
+#include "truthnegative_n2_risk_quality_audit_v0_1.h"
 #include "truthnegative_pipeline_bridge_common.h"
 #include "truthraw_sha256_v0_69.h"
 
@@ -28,12 +29,13 @@ namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
 namespace n2 = truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace n2fc = truthraw::truthnegative_n2_full_colour_candidate::v0_1;
+namespace n2qa = truthraw::truthnegative_n2_risk_quality_audit::v0_1;
 namespace stream_detail = truthraw::streaming_v0_1::detail;
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x31424132; // "2AB1" little-endian view.
 constexpr std::size_t kCropCount = 3u;
-constexpr std::size_t kCropMetaInts = 32u;
+constexpr std::size_t kCropMetaInts = 88u;
 constexpr std::size_t kHeaderInts = 48u + kCropCount * kCropMetaInts;
 constexpr std::uint32_t kCropEdge = 192u;
 constexpr double kDeltaGain = 32.0;
@@ -47,6 +49,21 @@ jint scaled_metric(double value,double scale) noexcept {
     if(!std::isfinite(value)||value<=0.0||!std::isfinite(scale)||scale<=0.0)return 0;
     const double cap=static_cast<double>(std::numeric_limits<jint>::max());
     return static_cast<jint>(std::llround(std::min(value*scale,cap)));
+}
+
+jint distance_metric(double value) noexcept {
+    if(!std::isfinite(value)||value<0.0)return -1;
+    return scaled_metric(value,1000.0);
+}
+
+void write_quantiles(
+    const n2qa::Quantiles& q,
+    jint* out) noexcept {
+    out[0]=scaled_metric(q.mean,1000000000.0);
+    out[1]=scaled_metric(q.p50,1000000000.0);
+    out[2]=scaled_metric(q.p95,1000000000.0);
+    out[3]=scaled_metric(q.p99,1000000000.0);
+    out[4]=scaled_metric(q.max,1000000000.0);
 }
 
 jintArray status_packet(JNIEnv* env,jint status) {
@@ -561,6 +578,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
         CropMetrics metrics{};
         metrics.adjustedChannels=fullColour.changedRgbChannels;
         metrics.candidateStage2Sites=fullColour.correctedStage2Sites;
+        std::vector<double> qaA(cropPixels*3u,0.0);
+        std::vector<double> qaB(cropPixels*3u,0.0);
+        std::vector<std::uint32_t> qaReasonMask(cropPixels,0u);
         const std::size_t aBase=
             rasterBase+(cropIndex*3u+0u)*cropPixels;
         const std::size_t bBase=
@@ -646,6 +666,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 }
                 if(bVisible.gamutOrDisplayClampApplied)++metrics.clampB;
 
+                for(std::size_t cc=0u;cc<3u;++cc){
+                    qaA[rgbBase+cc]=aVisible.encodedRgb[cc];
+                    qaB[rgbBase+cc]=bVisible.encodedRgb[cc];
+                }
+                qaReasonMask[local]=
+                    audit.appearanceGrid[local].preserveReasonMask;
+
                 const auto aArgb=argb(aVisible.encodedRgb);
                 const auto bArgb=argb(bVisible.encodedRgb);
                 packet[aBase+local]=static_cast<jint>(aArgb);
@@ -667,6 +694,23 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 if(displayChanged)++metrics.changedPixels;
                 packet[dBase+local]=static_cast<jint>(argb(delta));
             }
+        }
+
+        n2qa::Input qaInput{};
+        qaInput.aEncodedRgb=qaA.data();
+        qaInput.bEncodedRgb=qaB.data();
+        qaInput.preserveReasonMask=qaReasonMask.data();
+        qaInput.width=crop.width;
+        qaInput.height=crop.height;
+        qaInput.sourceX=crop.x;
+        qaInput.sourceY=crop.y;
+        qaInput.candidateIdentitySha256=
+            fullColour.candidateIdentitySha256;
+        n2qa::Result quality{};
+        if(!n2qa::evaluate(qaInput,quality)||
+           quality.createsNewEvidence||
+           quality.scientificWritebackAllowed){
+            return status_packet(env,-19);
         }
 
         const std::size_t m=48u+cropIndex*kCropMetaInts;
@@ -705,6 +749,30 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
             packet.data()+m+22u);
         packet[m+30u]=clamp_metric(metrics.candidateStage2Sites);
         packet[m+31u]=1; // full-colour measured-preserving reconstruction
+
+        write_quantiles(quality.pixelMaxAbsDelta,packet.data()+m+32u);
+        write_quantiles(quality.channelAbsDelta[0],packet.data()+m+37u);
+        write_quantiles(quality.channelAbsDelta[1],packet.data()+m+42u);
+        write_quantiles(quality.channelAbsDelta[2],packet.data()+m+47u);
+        write_quantiles(quality.lumaAbsDelta,packet.data()+m+52u);
+        write_quantiles(quality.chromaDelta,packet.data()+m+57u);
+        packet[m+62u]=static_cast<jint>(quality.maxSourceX);
+        packet[m+63u]=static_cast<jint>(quality.maxSourceY);
+        packet[m+64u]=static_cast<jint>(quality.maxPreserveReasonMask);
+        packet[m+65u]=distance_metric(quality.distanceToStructurePx);
+        packet[m+66u]=distance_metric(
+            quality.distanceToCensorOrBoundaryPx);
+        packet[m+67u]=scaled_metric(quality.edgeEnergyA,10000.0);
+        packet[m+68u]=scaled_metric(quality.edgeEnergyB,10000.0);
+        packet[m+69u]=scaled_metric(quality.edgeEnergyRatio,1000000.0);
+        packet[m+70u]=scaled_metric(
+            quality.meanAbsGradientDelta,1000000000.0);
+        packet[m+71u]=clamp_metric(quality.structureMaskPixels);
+        packet[m+72u]=clamp_metric(quality.censorMaskPixels);
+        packet[m+73u]=clamp_metric(quality.changedPixels);
+        digest_to_words(quality.qualitySha256,packet.data()+m+74u);
+        packet[m+82u]=0; // quality createsNewEvidence
+        packet[m+83u]=0; // quality scientificWritebackAllowed
     }
 
     const auto report=scene.report();
