@@ -206,7 +206,7 @@ bool write(
                             ++out.authorityCalibratedEstimate; break;
                         case field::Authority::Reconstructed:
                             ++out.authorityReconstructed; break;
-                        case field::Authority::Censored:
+                        case field::Authority::Censored: {
                             ++out.authorityCensored;
                             tileHasCensored=true;
                             const std::size_t recordIndex=
@@ -237,6 +237,7 @@ bool write(
                             else
                                 ++out.censoredValueAtOrBelowOneCount;
                             break;
+                        }
                         case field::Authority::Unknown:
                             ++out.authorityUnknown; break;
                     }
