@@ -4,7 +4,7 @@
 namespace truthraw::truthnegative_authority_aware_neighborhood::v0_1 {
 bool estimate(const Input&i,Result&o) noexcept{o={};if(!std::isfinite(i.center)||!i.centerVarianceKnown||!std::isfinite(i.centerVariance)||i.centerVariance<=0)return false;
  double sw=0,swx=0;for(const auto&s:i.neighbors){if(!std::isfinite(s.value)||!std::isfinite(s.spatialDistance)||s.spatialDistance<0)continue;
-  if(!s.sameChannel||!s.sameObject||s.censorBoundary||s.authority==SampleAuthority::Unknown||s.authority==SampleAuthority::Censored||!s.varianceKnown||!std::isfinite(s.variance)||s.variance<=0)continue;
+  if(!s.sameChannel||(s.objectIdentityKnown&&!s.sameObject)||s.censorBoundary||s.authority==SampleAuthority::Unknown||s.authority==SampleAuthority::Censored||!s.varianceKnown||!std::isfinite(s.variance)||s.variance<=0)continue;
   const double combined=i.centerVariance+s.variance;const double delta=s.value-i.center;
   const double z2=delta*delta/combined;
   // Bilateral-like statistical compatibility: radiometric similarity is
