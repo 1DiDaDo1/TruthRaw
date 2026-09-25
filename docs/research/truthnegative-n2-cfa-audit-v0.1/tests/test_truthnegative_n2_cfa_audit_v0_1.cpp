@@ -47,5 +47,13 @@ int main(){
  R(r.appearanceGridDerived);R(r.appearanceGridWidth==8u);R(r.appearanceGridHeight==8u);R(r.appearanceGrid.size()==64u);
  R(std::any_of(r.appearanceGridSha256.begin(),r.appearanceGridSha256.end(),[](auto v){return v!=0;}));
  std::uint64_t gridSamples=0;bool sawCorrection=false;for(const auto& bin:r.appearanceGrid){for(std::size_t cc=0;cc<3u;++cc){R(bin.corrected[cc]+bin.protectedCount[cc]==bin.sampled[cc]);gridSamples+=bin.sampled[cc];sawCorrection=sawCorrection||bin.correctionSum[cc]!=0.0;}}R(gridSamples==r.sampled);R(sawCorrection);
- std::cout<<"TruthNegativeN2CfaAudit/0.1 PASS corrected="<<r.audit.corrected<<" preserved="<<r.audit.preserved<<"\n";
+ a::Options crop{};crop.tileEdge=8;crop.samplingPeriod=2;
+ crop.regionX=8;crop.regionY=8;crop.regionWidth=16;crop.regionHeight=16;
+ crop.appearanceGridWidth=16;crop.appearanceGridHeight=16;
+ a::Result cr{};R(a::run(src,b,crop,cr));R(cr.sampled==256u);
+ R(cr.regionX==8u&&cr.regionY==8u&&cr.regionWidth==16u&&cr.regionHeight==16u);
+ R(cr.appearanceGridDerived);R(cr.appearanceGrid.size()==256u);
+ std::uint64_t cropGridSamples=0;for(const auto& bin:cr.appearanceGrid){for(std::size_t cc=0;cc<3u;++cc)cropGridSamples+=bin.sampled[cc];}
+ R(cropGridSamples==cr.sampled);
+ std::cout<<"TruthNegativeN2CfaAudit/0.1 PASS corrected="<<r.audit.corrected<<" preserved="<<r.audit.preserved<<" crop="<<cr.sampled<<"\n";
 }
