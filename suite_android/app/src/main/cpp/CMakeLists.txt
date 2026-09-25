@@ -43,11 +43,13 @@ set(FREE_WORLD_V04 "${RESEARCH_ROOT}/free-world-deep-scene-contribution-v0.4/nat
 set(FREE_WORLD_V05 "${RESEARCH_ROOT}/free-world-deep-scene-binding-v0.5/native")
 set(FREE_WORLD_V06 "${RESEARCH_ROOT}/free-world-light-transport-state-v0.6/native")
 set(FREE_WORLD_V07 "${RESEARCH_ROOT}/free-world-appearance-resolve-v0.7/native")
+set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     advanced_preview_bridge.cpp
+    truthnegative_continuous_preview_bridge.cpp
     photo_export_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
@@ -119,7 +121,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V04}/free_world_deep_scene_contribution_v0_4.cpp
     ${FREE_WORLD_V05}/free_world_deep_scene_binding_v0_5.cpp
     ${FREE_WORLD_V06}/free_world_light_transport_state_v0_6.cpp
-    ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp)
+    ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp
+    ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -155,7 +158,8 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FREE_WORLD_V04}
     ${FREE_WORLD_V05}
     ${FREE_WORLD_V06}
-    ${FREE_WORLD_V07})
+    ${FREE_WORLD_V07}
+    ${TRUTHNEGATIVE_CONTINUOUS_V05})
 
 if(ANDROID)
     file(GLOB TRUTHRAW_GLSLC_CANDIDATES
