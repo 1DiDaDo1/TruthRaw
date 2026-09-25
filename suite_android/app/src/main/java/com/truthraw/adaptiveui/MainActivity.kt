@@ -3127,6 +3127,35 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(5))
+                        addView(actionButton(
+                            "Export N2 Spatial Audit · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchN2SpatialSidecarExport(active)
+                        })
+                        n2SpatialSidecarStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-spatial-sidecar",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Audit-only spatial sidecar: per 64×64 source-tile candidate/preserve/" +
+                                "structure/censor-statistiek, cryptografisch gebonden aan bron, " +
+                                "Scientific Master, authority field en TruthNegative-state. " +
+                                "candidate-applied=false.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
