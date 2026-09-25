@@ -53,12 +53,19 @@ The original Stage-2 source is not modified.
 ## Scientific-Master equivalence gate
 
 Before B can be displayed, every baseline reconstructed camera-native RGB
-component is compared with the corresponding 1:1 TruthNegative ScientificView
-component.
+component is compared with the corresponding **exact Scientific Master source
+pixel** from the canonical Open Scene binding.
 
-The route fails closed if the reconstruction baseline differs beyond the
-configured floating-point tolerance. This prevents an unrelated tile-boundary
-or reconstruction-path difference from being misrepresented as an N2 effect.
+The earlier v0.2 prototype compared against a same-size TruthNegative
+Continuous raster query. That was the wrong equivalence domain: the continuous
+resolver intentionally performs area/bilinear footprint integration even when
+target dimensions equal source dimensions. It is therefore not an identity
+read of the Scientific Master sample.
+
+The corrected gate compares the baseline Float32 value bit-for-bit with the
+exact canonical Scientific Master Float32 value. Any mismatch fails closed.
+This prevents continuous projection behavior, tile-boundary behavior or a
+different reconstruction path from being misrepresented as an N2 effect.
 
 ## A / B / Delta
 
@@ -91,7 +98,7 @@ Master.
 - `sourceStage2Modified=false`
 - `createsNewEvidence=false`
 - `scientificWritebackAllowed=false`
-- baseline must match Scientific Master / TruthNegative ScientificView
+- baseline must be Float32-bit-identical to the exact Scientific Master source pixel
 - A remains the primary scientific reference
 - B and Delta remain transient diagnostic UI rasters
 - no candidate is written into any export primary
