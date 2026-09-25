@@ -220,7 +220,10 @@
             android:exported="false"
             android:foregroundServiceType="mediaProcessing" />
 
-        <activity android:name=".MainActivity" android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize"
+            android:exported="false" />
         <activity android:name="io.truthraw.debug.MainActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FotoGraafPermissionGateActivity" android:exported="false" />
         <activity android:name=".FotoGraafDiagnosticBootstrapActivity" android:screenOrientation="portrait" android:launchMode="singleTop" android:exported="false" />
