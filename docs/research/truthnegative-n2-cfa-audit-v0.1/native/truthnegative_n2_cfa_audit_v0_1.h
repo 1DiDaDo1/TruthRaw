@@ -28,6 +28,12 @@ struct Options final {
     // disables it. This never changes source, Scientific Master or TN state.
     std::uint32_t appearanceGridWidth = 0u;
     std::uint32_t appearanceGridHeight = 0u;
+    // Optional bounded source-domain audit region. regionWidth/Height=0
+    // means the full admitted source. Coordinates remain source-native.
+    std::uint32_t regionX = 0u;
+    std::uint32_t regionY = 0u;
+    std::uint32_t regionWidth = 0u;
+    std::uint32_t regionHeight = 0u;
 };
 
 struct TileAudit final {
@@ -62,6 +68,10 @@ struct Result final {
     std::vector<TileAudit> tiles{};
     std::uint32_t appearanceGridWidth = 0u;
     std::uint32_t appearanceGridHeight = 0u;
+    std::uint32_t regionX = 0u;
+    std::uint32_t regionY = 0u;
+    std::uint32_t regionWidth = 0u;
+    std::uint32_t regionHeight = 0u;
     std::vector<AppearanceCorrectionBin> appearanceGrid{};
     bool appearanceGridDerived = false;
     bool noiseProfileAvailable = false;
