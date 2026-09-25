@@ -38,6 +38,11 @@ data class TruthNegativeNativeContainerMetrics(
     val authorityReconstructed: Long,
     val authorityCensored: Long,
     val authorityUnknown: Long,
+    val censoredR: Long,
+    val censoredG: Long,
+    val censoredB: Long,
+    val censoredValueAboveOne: Long,
+    val censoredValueAtOrBelowOne: Long,
     val uncertaintyKnownCount: Long,
     val supportKnownCount: Long,
     val boundKnownCount: Long,
@@ -127,6 +132,11 @@ object TruthNegativeNativeContainerExporter {
             authorityReconstructed = json.optLong("authorityReconstructed"),
             authorityCensored = json.optLong("authorityCensored"),
             authorityUnknown = json.optLong("authorityUnknown"),
+            censoredR = json.optLong("censoredR"),
+            censoredG = json.optLong("censoredG"),
+            censoredB = json.optLong("censoredB"),
+            censoredValueAboveOne = json.optLong("censoredValueAboveOne"),
+            censoredValueAtOrBelowOne = json.optLong("censoredValueAtOrBelowOne"),
             uncertaintyKnownCount = json.optLong("uncertaintyKnownCount"),
             supportKnownCount = json.optLong("supportKnownCount"),
             boundKnownCount = json.optLong("boundKnownCount"),
@@ -175,6 +185,10 @@ object TruthNegativeNativeContainerExporter {
                 metrics.authorityReconstructed +
                 metrics.authorityCensored +
                 metrics.authorityUnknown != metrics.recordCount ||
+            metrics.censoredR + metrics.censoredG + metrics.censoredB !=
+                metrics.authorityCensored ||
+            metrics.censoredValueAboveOne +
+                metrics.censoredValueAtOrBelowOne != metrics.authorityCensored ||
             metrics.valueNonFiniteCount != 0L ||
             identityDigests.any {
                 it.length != 64 ||
