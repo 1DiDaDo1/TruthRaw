@@ -81,6 +81,13 @@ struct Summary final {
     float censoredRawCodeBoundMin = 0.0f;
     float censoredRawCodeBoundMax = 0.0f;
     std::uint64_t censoredRawCodeBoundMismatchCount = 0u;
+    std::array<std::uint64_t,4u> censoredByCfaParity{};
+    std::array<std::uint64_t,4u> censoredRaw10MaxByCfaParity{};
+    std::array<std::uint32_t,4u> censoredParityMinX{};
+    std::array<std::uint32_t,4u> censoredParityMinY{};
+    std::array<std::uint32_t,4u> censoredParityMaxX{};
+    std::array<std::uint32_t,4u> censoredParityMaxY{};
+    std::uint64_t censoredRaw10MaxCount = 0u;
     std::uint64_t uncertaintyKnownCount = 0u;
     std::uint64_t supportKnownCount = 0u;
     std::uint64_t boundKnownCount = 0u;
