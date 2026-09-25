@@ -27,6 +27,7 @@ on:
       - 'docs/research/truthnegative-n2-candidate-pipeline-v0.1/**'
       - 'docs/research/truthnegative-n2-cfa-audit-v0.1/**'
       - 'docs/research/truthnegative-n2-spatial-sidecar-v0.1/**'
+      - 'docs/research/truthnegative-n2-full-colour-candidate-v0.1/**'
       - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
   workflow_dispatch:
 
