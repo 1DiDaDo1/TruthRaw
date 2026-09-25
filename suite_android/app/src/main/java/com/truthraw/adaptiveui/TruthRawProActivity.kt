@@ -80,6 +80,16 @@ class TruthRawProActivity : Activity() {
         })
 
         root.addView(space(12))
+        root.addView(card("Free-World scene pipeline").apply {
+            addView(body(
+                "v0.2 Continuous Pixel Resolve → v0.3 Scientific Master/Open Scene binding → v0.4 Deep Scene → " +
+                    "v0.5 object/geometry/radiometry authority → v0.6 Light Transport → v0.7 Appearance/Display Resolve. " +
+                    "Deze lagen zijn nu onderdeel van de hoofd-native build; bestaande gevalideerde exports worden pas omgeleid wanneer hun eigen bridge dat expliciet activeert.",
+                11.5f,
+            ))
+        })
+
+        root.addView(space(12))
         root.addView(card("RAW / DNG ingress").apply {
             addView(body(
                 "DNG gebruikt de volledige admitted tile-native Scientific-Master-route. Nikon NEF heeft een beperkte measurement-only uncompressed-16 CFA decoder. " +
@@ -112,12 +122,12 @@ class TruthRawProActivity : Activity() {
         })
 
         root.addView(space(12))
-        root.addView(action("Advanced scene-instellingen openen") {
+        root.addView(action("Appearance / Restoration instellingen") {
             startActivity(Intent(this, TruthRawAdvancedActivity::class.java))
         })
 
         root.addView(space(10))
-        root.addView(action("Gebruik D.RAW PRO") {
+        root.addView(action("Gebruik PRO · Open Scene / Light Transport") {
             getSharedPreferences(TruthRawSuiteLauncherActivity.PREFS, MODE_PRIVATE)
                 .edit()
                 .putString(

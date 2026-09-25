@@ -101,14 +101,15 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(header())
         root.addView(space(if (compactHeight) 12 else 20))
         root.addView(title("Kies route", if (compactHeight) 24f else 27f))
-        root.addView(body("Alle routes vertrekken uit dezelfde verzegelde bron en Scientific Master.", if (compactHeight) 12.5f else 14f))
+        root.addView(body("Kies welke view je uit dezelfde verzegelde bron wilt opbouwen. Evidence-authority blijft upstream vast.", if (compactHeight) 12.5f else 14f))
         root.addView(space(10))
 
         val selected = preferredOutput()
+        val routeUi = DrawRouteLogic.forMode(selected)
         root.addView(routeCard(
             titleText = "D.RAW PURE",
-            subtitleText = "Direct · wetenschappelijk",
-            detail = "Kortste route naar de self-binding 32-bit Float scientific projectie. Geen appearance.",
+            subtitleText = "Scientific View · evidence-constrained",
+            detail = "Sealed source → Scientific Master → Scientific View. Geen inferred scene, restoration of display-appearance in de scientific route.",
             accent = cyan,
             fill = DrawVisualTheme.PAPER_MINT,
             selected = selected == OUTPUT_PURE,
@@ -116,8 +117,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(9))
         root.addView(routeCard(
             titleText = "D.RAW ADVANCED",
-            subtitleText = "Fotografische ontwikkeling",
-            detail = "Light · authority-aware HDR · Detail · Restoration. Scientific Master blijft onaangeraakt.",
+            subtitleText = "Appearance / Restoration View",
+            detail = "Light · display-HDR · colourfulness · detail · restoration hypothesis. Alles downstream van dezelfde Scientific/Open Scene.",
             accent = amber,
             fill = DrawVisualTheme.PAPER_ORANGE,
             selected = selected == OUTPUT_ADVANCED,
@@ -125,18 +126,19 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(9))
         root.addView(routeCard(
             titleText = "D.RAW PRO",
-            subtitleText = "Professionele werkbank",
-            detail = "Color · illumination · precision · projecties · provenance en uitgebreide exports.",
+            subtitleText = "Open Scene / Light Transport",
+            detail = "Continuous Field · Deep Scene · geometry/radiometry authority · light transport · provenance · display resolve.",
             accent = purple,
             fill = DrawVisualTheme.PAPER_PURPLE,
             selected = selected == OUTPUT_PRO,
         ) { setPreferredOutput(OUTPUT_PRO) })
 
+        root.addView(space(10))
+        root.addView(infoStrip(selected))
+
         if (selected == OUTPUT_ADVANCED || selected == OUTPUT_PRO) {
             root.addView(space(8))
-            root.addView(action(
-                if (selected == OUTPUT_ADVANCED) "Advanced instellingen" else "Open professionele werkbank",
-            ) {
+            root.addView(action(routeUi.settingsActionLabel) {
                 startActivity(
                     Intent(
                         this,
@@ -156,7 +158,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 inputCard(
                     iconRes = R.drawable.ic_folder_truthraw,
                     titleText = "Bestand",
-                    subtitleText = "Open RAW / DNG",
+                    subtitleText = routeUi.fileInputSubtitle,
                     accent = blue,
                     fill = DrawVisualTheme.PAPER_BLUE,
                 ) {
@@ -171,7 +173,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 inputCard(
                     iconRes = R.drawable.ic_camera_truthraw,
                     titleText = "Camera",
-                    subtitleText = "Maak één fysieke RAW",
+                    subtitleText = routeUi.cameraInputSubtitle,
                     accent = cyan,
                     fill = DrawVisualTheme.PAPER_MINT,
                 ) {
@@ -316,19 +318,12 @@ class TruthRawSuiteLauncherActivity : Activity() {
     private fun infoStrip(selected: String): View = vertical().apply {
         setPadding(dp(14), dp(if (compactHeight) 10 else 13), dp(14), dp(if (compactHeight) 10 else 13))
         background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
-        val heading = when (selected) {
-            OUTPUT_ADVANCED -> "ADVANCED bouwt vrij bovenop dezelfde master"
-            OUTPUT_PRO -> "PRO toont de bouwtekeningen"
-            else -> "PURE blijft de rechte meetbare route"
-        }
-        val detail = when (selected) {
-            OUTPUT_ADVANCED -> "Appearance, HDR, Light, Detail en Restoration schrijven nooit terug naar de sealed source of Scientific Master."
-            OUTPUT_PRO -> "F64 branch-sensitive compute, Open Scene/local authority en exports veranderen representatie en precisie, nooit de evidence-herkomst."
-            else -> "Sealed source → Scientific Master → PURE-projectie. Geen tone, relight of appearance in de route."
-        }
-        addView(title(heading, 14f))
+        val route = DrawRouteLogic.forMode(selected)
+        addView(title(route.displayLabel, 14f).apply { setTextColor(Color.WHITE) })
         addView(space(4))
-        addView(body(detail, if (compactHeight) 10.8f else 11.5f))
+        addView(body(route.viewClass + " · " + route.explanation, if (compactHeight) 10.8f else 11.5f).apply {
+            setTextColor(Color.rgb(210, 222, 235))
+        })
     }
 
     private fun action(label: String, onClick: () -> Unit): View = TextView(this).apply {

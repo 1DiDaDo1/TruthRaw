@@ -57,10 +57,10 @@ class TruthRawAdvancedActivity : Activity() {
 
         root.addView(space(18))
         root.addView(card().apply {
-            addView(title("Authority-bound scene processing", 18f))
+            addView(title("Appearance & restoration · downstream", 18f))
             addView(space(8))
             addView(toggle(
-                "Natural Light / lichtbalans",
+                "Appearance · lichtbalans",
                 "Ontwikkelt de bestaande single-frame scène zonder fysieke relight te verzinnen. Bij aantoonbaar te donkere renders mag een begrensde automatische exposure-correctie worden toegepast; lichtaanpassing blijft APPEARANCE_ONLY en schrijft nooit terug naar PURE.",
                 options.naturalLight,
             ) { checked ->
@@ -69,7 +69,7 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Natural HDR / Dynamic Authority",
+                "Display HDR · Dynamic Authority",
                 "Presentation-HDR gebruikt alleen bestaande gebonden gain. Scientific HDR blijft fail-closed zolang UNKNOWN output-channel authority bestaat; CENSORED of UNKNOWN support krijgt geen verzonnen recoverable gain en schrijft nooit terug naar PURE.",
                 options.naturalHdr,
             ) { checked ->
@@ -153,7 +153,7 @@ class TruthRawAdvancedActivity : Activity() {
             })
             addView(space(8))
             addView(toggle(
-                "Restoration / Dynamic Authority",
+                "Restoration hypothesis / Dynamic Authority",
                 "Conservation-regel: geldig gemeten support wordt niet overgeschilderd. Open Scene Field v0.85 + local policy v0.86 behandelen gemeten, RECONSTRUCTED, CENSORED en UNKNOWN support lokaal en fail-closed. Alleen expliciet CENSORED verlies kan presentation-compensatie krijgen; onvoldoende steun blijft unresolved. De v0.72 projectielaag blijft lifecycle-safe voor lange DNG/TIFF/EXR-projecties.",
                 options.restoration,
             ) { checked ->
@@ -167,16 +167,16 @@ class TruthRawAdvancedActivity : Activity() {
             addView(title("Scientific separation", 16f))
             addView(space(6))
             addView(body(
-                "Advanced consumeert dezelfde F64 branch-sensitive Scientific-Master-route, Dynamic Authority en Open Scene Field v0.85 als TruthNegative TN-4. Full-res Restoration werkt 1:1 op de bronrasterpositie en blijft een aparte derivative. " +
-                    "CALIBRATED_ESTIMATE, RECONSTRUCTED, CENSORED en UNKNOWN blijven onderscheiden. " +
-                    "Open-World, HDR en Restoration zijn downstream; Scientific Master, Zero-Line, scene-scale en Backplane worden niet teruggeschreven.",
+                "ADVANCED staat nu expliciet ná Scientific Master, Open Scene Field en de Free-World v0.2-v0.7 scheiding. " +
+                    "Continuous Field en authority blijven upstream; Appearance, display-HDR, Detail en Restoration zijn downstream views. " +
+                    "CALIBRATED_ESTIMATE, RECONSTRUCTED, CENSORED en UNKNOWN blijven onderscheiden en geen appearance-control mag Scientific Master, Zero-Line, scene-scale of Backplane terugschrijven.",
                 12f,
             ))
         })
 
         root.addView(space(18))
         root.addView(Button(this).apply {
-            text = "Gebruik D.RAW ADVANCED"
+            text = "Gebruik ADVANCED · Appearance View"
             isAllCaps = false
             textSize = 16f
             setTextColor(textColor)

@@ -37,6 +37,12 @@ set(ROOM_CAPSULE_V01 "${RESEARCH_ROOT}/local-illumination-room-capsule-v0.1/nati
 set(V47I_NATIVE "${REPO_ROOT}/canonical/reconstruction/v4.7i/native")
 set(F64_RECON_NATIVE "${RESEARCH_ROOT}/scientific-master-f64-reconstruction-v0.1/native")
 set(V47K_NATIVE "${REPO_ROOT}/canonical/output-acutance/v4.7k/native")
+set(FREE_WORLD_V02 "${RESEARCH_ROOT}/free-world-pixel-resolve-2d-v0.2/native")
+set(FREE_WORLD_V03 "${RESEARCH_ROOT}/free-world-scientific-open-scene-binding-v0.3/native")
+set(FREE_WORLD_V04 "${RESEARCH_ROOT}/free-world-deep-scene-contribution-v0.4/native")
+set(FREE_WORLD_V05 "${RESEARCH_ROOT}/free-world-deep-scene-binding-v0.5/native")
+set(FREE_WORLD_V06 "${RESEARCH_ROOT}/free-world-light-transport-state-v0.6/native")
+set(FREE_WORLD_V07 "${RESEARCH_ROOT}/free-world-appearance-resolve-v0.7/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
@@ -107,9 +113,16 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${ROOM_CAPSULE_V01}/room_capsule_v0_1.cpp
     ${V47I_NATIVE}/src/core.cpp
     ${F64_RECON_NATIVE}/scientific_master_f64_reconstruction_v0_1.cpp
-    ${V47K_NATIVE}/output_acutance.cpp)
+    ${V47K_NATIVE}/output_acutance.cpp
+    ${FREE_WORLD_V02}/free_world_pixel_resolve_2d_v0_2.cpp
+    ${FREE_WORLD_V03}/free_world_scientific_open_scene_binding_v0_3.cpp
+    ${FREE_WORLD_V04}/free_world_deep_scene_contribution_v0_4.cpp
+    ${FREE_WORLD_V05}/free_world_deep_scene_binding_v0_5.cpp
+    ${FREE_WORLD_V06}/free_world_light_transport_state_v0_6.cpp
+    ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
     ${TILE_DNG}
     ${STREAMING}
     ${PREVIEW_SURFACE}
@@ -136,7 +149,13 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${ROOM_CAPSULE_V01}
     ${V47I_NATIVE}/include
     ${F64_RECON_NATIVE}
-    ${V47K_NATIVE})
+    ${V47K_NATIVE}
+    ${FREE_WORLD_V02}
+    ${FREE_WORLD_V03}
+    ${FREE_WORLD_V04}
+    ${FREE_WORLD_V05}
+    ${FREE_WORLD_V06}
+    ${FREE_WORLD_V07})
 
 if(ANDROID)
     file(GLOB TRUTHRAW_GLSLC_CANDIDATES

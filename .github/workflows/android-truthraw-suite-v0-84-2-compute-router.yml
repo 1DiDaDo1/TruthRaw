@@ -6,11 +6,18 @@ on:
       - integration/truthraw-suite-v0-84-2-adaptive-compute-router
       - integration/truthraw-suite-v0-84-2-advanced-appearance-controls
       - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+      - research/free-world-output-pixel-v0-1
     paths:
       - 'suite_android/**'
       - 'docs/research/android-acceleration-v0.1/**'
       - 'docs/research/truthnegative-dense-projection-v0.3/**'
       - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/research/free-world-pixel-resolve-2d-v0.2/**'
+      - 'docs/research/free-world-scientific-open-scene-binding-v0.3/**'
+      - 'docs/research/free-world-deep-scene-contribution-v0.4/**'
+      - 'docs/research/free-world-deep-scene-binding-v0.5/**'
+      - 'docs/research/free-world-light-transport-state-v0.6/**'
+      - 'docs/research/free-world-appearance-resolve-v0.7/**'
       - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
   workflow_dispatch:
 
