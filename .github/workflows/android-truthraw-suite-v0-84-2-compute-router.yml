@@ -11,6 +11,7 @@ on:
       - 'suite_android/**'
       - 'docs/research/android-acceleration-v0.1/**'
       - 'docs/research/truthnegative-dense-projection-v0.3/**'
+      - 'docs/research/truthnegative-native-container-v0.1/**'
       - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
       - 'docs/research/free-world-pixel-resolve-2d-v0.2/**'
       - 'docs/research/free-world-scientific-open-scene-binding-v0.3/**'
