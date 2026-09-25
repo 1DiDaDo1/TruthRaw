@@ -173,7 +173,6 @@ Digest appearanceStateDigest(
 }
 
 Digest outputDigest(
-    const AppearanceInput& input,
     const AppearanceResolvedPixel& out) noexcept {
     truthraw::sha256_v0_69::Hasher h;
     constexpr char domain[] =
@@ -392,7 +391,7 @@ bool resolveAppearance(
         out.createsNewEvidence = false;
         out.scientificWritebackAllowed = false;
         out.outputSha256 =
-            outputDigest(input, out);
+            outputDigest(out);
 
         return nonzero(out.appearanceStateSha256) &&
                nonzero(out.outputSha256);
