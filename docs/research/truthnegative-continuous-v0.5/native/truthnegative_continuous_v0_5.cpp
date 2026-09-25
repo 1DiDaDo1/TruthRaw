@@ -152,12 +152,14 @@ bool summarizeAuthorityField(
 
                     const auto role =
                         static_cast<std::size_t>(r.role);
-                    const auto authority =
-                        static_cast<std::size_t>(r.authority);
+                    const auto authorityRaw =
+                        static_cast<std::uint8_t>(r.authority);
                     if (role >= out.creationRoleCounts.size() ||
-                        authority >= out.authorityCounts.size()) {
+                        authorityRaw < 1u || authorityRaw > 4u) {
                         return false;
                     }
+                    const std::size_t authority =
+                        static_cast<std::size_t>(authorityRaw - 1u);
 
                     ++out.creationRoleCounts[role];
                     ++out.authorityCounts[authority];
