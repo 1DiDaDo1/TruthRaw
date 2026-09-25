@@ -60,9 +60,11 @@ struct Summary final {
     std::uint64_t recordCount = 0u;
     std::uint64_t bodyBytes = 0u;
     std::uint64_t fileBytes = 0u;
+    std::uint64_t roleUnknown = 0u;
     std::uint64_t roleSourceMeasuredCfa = 0u;
     std::uint64_t roleScientificReconstruction = 0u;
     std::uint64_t roleDenseProjection = 0u;
+    std::uint64_t roleRestorationDerivative = 0u;
     std::uint64_t authorityCalibratedEstimate = 0u;
     std::uint64_t authorityReconstructed = 0u;
     std::uint64_t authorityCensored = 0u;
