@@ -50,7 +50,10 @@ data class TruthNegativeN2CropMetrics(
     val maxAbsCorrectionStage2: Double,
     val displayClampA: Int,
     val displayClampB: Int,
-    val correctionGridSha256: String,
+    val baselineRgbMismatches: Int,
+    val candidateStage2Sites: Int,
+    val fullColourCandidate: Boolean,
+    val candidateIdentitySha256: String,
 )
 
 data class TruthNegativeN2CropPanel(
@@ -65,6 +68,7 @@ data class TruthNegativeN2CropAbReport(
     val sourceHeight: Int,
     val sourceOrientation: Int,
     val deltaGain: Int,
+    val fullColourCandidate: Boolean,
     val truthNegativeStateSha256: String,
     val authorityFieldSha256: String,
     val coarseAuditSha256: String,
@@ -133,6 +137,7 @@ object TruthNegativeN2CropAbLoader {
         val scientificWriteback = packet[10] != 0
         val sourceSceneMutated = packet[11] != 0
         val deltaGain = packet[12]
+        val fullColourCandidate = packet[13] != 0
 
         if (cropCount != N2_CROP_AB_COUNT ||
             edge <= 0 ||
@@ -143,7 +148,8 @@ object TruthNegativeN2CropAbLoader {
             createsNewEvidence ||
             scientificWriteback ||
             sourceSceneMutated ||
-            deltaGain <= 0
+            deltaGain <= 0 ||
+            !fullColourCandidate
         ) {
             return TruthNegativeN2CropAbResult.Failed(
                 "Fail-closed: N2 1:1 cropdiagnose schond evidence/writebackcontract.",
@@ -260,7 +266,10 @@ object TruthNegativeN2CropAbLoader {
                             packet[m + 18].toDouble() / 1_000_000_000.0,
                         displayClampA = packet[m + 19],
                         displayClampB = packet[m + 20],
-                        correctionGridSha256 = digestWords(packet, m + 22),
+                        baselineRgbMismatches = packet[m + 21],
+                        candidateIdentitySha256 = digestWords(packet, m + 22),
+                        candidateStage2Sites = packet[m + 30],
+                        fullColourCandidate = packet[m + 31] != 0,
                     ),
                 )
             }
@@ -300,6 +309,7 @@ object TruthNegativeN2CropAbLoader {
                 sourceHeight = sourceHeight,
                 sourceOrientation = orientation,
                 deltaGain = deltaGain,
+                fullColourCandidate = fullColourCandidate,
                 truthNegativeStateSha256 = state,
                 authorityFieldSha256 = authority,
                 coarseAuditSha256 = audit,
@@ -346,6 +356,10 @@ object TruthNegativeN2CropAbLoader {
         -12 -> "N2 1:1 cropdiagnose: B appearance resolve faalde."
         -13 -> "N2 1:1 cropdiagnose: Δ-meting ongeldig."
         -14 -> "N2 1:1 cropdiagnose: post-run lineage/source verificatie faalde."
+        -15 -> "N2 1:1 cropdiagnose: kandidaat Stage-2 reconstructietile kon niet worden opgebouwd."
+        -16 -> "N2 1:1 cropdiagnose: full-lattice audit van de reconstructiehalo faalde."
+        -17 -> "N2 1:1 cropdiagnose: full-colour measured-preserving kandidaat-reconstructie faalde."
+        -18 -> "N2 1:1 cropdiagnose: baseline-reconstructie week af van de Scientific Master."
         in 2000..9999 -> "N2 1:1 cropdiagnose: upstream pipeline status $status."
         else -> "N2 1:1 cropdiagnose: native status $status."
     }
