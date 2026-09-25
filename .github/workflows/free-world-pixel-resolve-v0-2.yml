@@ -1,4 +1,4 @@
-name: D.RAW Free-World Pixel Resolve v0.2-v0.3
+name: D.RAW Free-World Scene Research v0.2-v0.5
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
       - 'docs/research/free-world-pixel-resolve-2d-v0.2/**'
       - 'docs/research/free-world-scientific-open-scene-binding-v0.3/**'
       - 'docs/research/free-world-deep-scene-contribution-v0.4/**'
+      - 'docs/research/free-world-deep-scene-binding-v0.5/**'
       - '.github/workflows/free-world-pixel-resolve-v0-2.yml'
   workflow_dispatch:
 
@@ -64,6 +65,21 @@ jobs:
       - name: Test v0.4 deep scene
         run: ctest --test-dir /tmp/free-world-deep-v04 --output-on-failure
 
+      - name: Configure v0.5 deep binding
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/free-world-deep-scene-binding-v0.5 \
+                -B /tmp/free-world-deep-v05 \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER="$CXX"
+
+      - name: Build v0.5 deep binding
+        run: cmake --build /tmp/free-world-deep-v05 --parallel 2
+
+      - name: Test v0.5 deep binding
+        run: ctest --test-dir /tmp/free-world-deep-v05 --output-on-failure
+
   sanitizer:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -93,3 +109,15 @@ jobs:
                 -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
           cmake --build /tmp/free-world-deep-v04-sanitize --parallel 2
           ctest --test-dir /tmp/free-world-deep-v04-sanitize --output-on-failure
+
+      - name: Configure and run v0.5 ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/free-world-deep-scene-binding-v0.5 \
+                -B /tmp/free-world-deep-v05-sanitize \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
+                -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/free-world-deep-v05-sanitize --parallel 2
+          ctest --test-dir /tmp/free-world-deep-v05-sanitize --output-on-failure
