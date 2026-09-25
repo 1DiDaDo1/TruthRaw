@@ -76,6 +76,10 @@ public:
                         c == 1u
                             ? field::Authority::CalibratedEstimate
                             : field::Authority::Unknown;
+                    if (c == 1u) {
+                        r.supportKnown = true;
+                        r.support = 1.0f;
+                    }
                     r.uncertainty =
                         field::UncertaintyKnowledge::Unresolved;
                     r.contributionMask =
@@ -178,10 +182,12 @@ void test_authority_field_digest_is_deterministic_and_sensitive() {
     REQUIRE(sa.contentSha256 != sc.contentSha256);
     REQUIRE(sa.recordCount == 9u * 7u * 3u);
     REQUIRE(sa.authorityCounts[
-        static_cast<std::size_t>(field::Authority::CalibratedEstimate)]
+        static_cast<std::size_t>(
+            static_cast<std::uint8_t>(field::Authority::CalibratedEstimate) - 1u)]
         == 9u * 7u);
     REQUIRE(sa.authorityCounts[
-        static_cast<std::size_t>(field::Authority::Unknown)]
+        static_cast<std::size_t>(
+            static_cast<std::uint8_t>(field::Authority::Unknown) - 1u)]
         == 9u * 7u * 2u);
     REQUIRE(!sa.createsNewEvidence);
     REQUIRE(!sa.scientificWritebackAllowed);
