@@ -2299,6 +2299,19 @@ class MainActivity : Activity() {
                     previewState = state
                     empiricalAudit = null
                     render()
+
+                    // PRO is a scene/output route, not the source-bound diagnostic
+                    // Scientific Preview. Once the immutable Scientific Master gate
+                    // has completed, continue automatically through the raster-
+                    // independent TruthNegative Continuous -> Open Scene -> Free-
+                    // World area resolve -> Appearance/Display path. The diagnostic
+                    // preview remains visible and unchanged for scientific inspection.
+                    if (
+                        preferredOutput == TruthRawSuiteLauncherActivity.OUTPUT_PRO &&
+                        state is TilePreviewUiState.Ready
+                    ) {
+                        launchTruthNegativeContinuousPreview(job)
+                    }
                 }
             } else {
                 val result = EmpiricalPreviewRunner.run(applicationContext, contentResolver, job)
@@ -2601,7 +2614,8 @@ class MainActivity : Activity() {
                         scaleY = ratio
                     }
                     contentDescription =
-                        "Finalized D.RAW Scientific Preview voor ${active.source.displayName}, " +
+                        "Diagnostische finalized D.RAW Scientific Preview voor ${active.source.displayName}; " +
+                            "niet de PRO TruthNegative/Free-World eindweergave; " +
                             "user rotation +${userQuarterTurns * 90} graden"
                     if (currentLayoutTier() == LayoutTier.COMPACT) {
                         minimumHeight = dp(180)
@@ -2642,6 +2656,15 @@ class MainActivity : Activity() {
                 ))
                 addView(space(6))
                 val m = state.metrics
+                if (preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO) {
+                    addView(label(
+                        "Diagnostische Scientific Preview · source-bound controlebeeld; " +
+                            "PRO bouwt automatisch daaronder de raster-onafhankelijke " +
+                            "TruthNegative Continuous / Free-World Appearance-weergave.",
+                        10f,
+                        muted = true,
+                    ))
+                }
                 addView(label(
                     "${m.previewAuthority.name} · scientific release=${m.scientificPreviewReleaseAllowed} · stronger physical-color claim=${m.scientificClaimAllowed}",
                     10f,
