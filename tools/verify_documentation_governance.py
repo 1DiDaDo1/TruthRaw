@@ -38,6 +38,8 @@ v073_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-20.json")
 v084_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-21.json")
 current_2026_09_24_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-24.json")
 current_2026_09_24_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md")
+current_2026_09_25_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-25.json")
+current_2026_09_25_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -213,6 +215,81 @@ for key, expected in {
 
 if "Representation can exceed the source. Knowledge claims cannot exceed the evidence." not in current_2026_09_24_handoff:
     errors.append("current_2026_09_24_handoff_permanent_law_missing")
+
+
+# Current 2026-09-25 Free-World main integration overlay.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-09-25.json",
+    "docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md",
+    "docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_09_25_pointer:{required}")
+
+try:
+    current_2026_09_25 = json.loads(current_2026_09_25_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_09_25_project_state_invalid_json:{exc}")
+    current_2026_09_25 = {}
+
+if current_2026_09_25.get("schema") != "DRAW_CURRENT_PROJECT_STATE/2026-09-25":
+    errors.append("current_2026_09_25_project_state_schema_mismatch")
+if current_2026_09_25.get("product_name") != "D.RAW":
+    errors.append("current_2026_09_25_product_name_mismatch")
+if current_2026_09_25.get("active_integration_branch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
+    errors.append("current_2026_09_25_active_branch_mismatch")
+if current_2026_09_25.get("code_checkpoint_sha") != "e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0":
+    errors.append("current_2026_09_25_code_checkpoint_mismatch")
+if current_2026_09_25.get("permanent_rule") != "Representation can exceed the source. Knowledge claims cannot exceed the evidence.":
+    errors.append("current_2026_09_25_permanent_rule_mismatch")
+
+fw25 = current_2026_09_25.get("free_world_main_integration") or {}
+if fw25.get("compiled_into_android_main") is not True:
+    errors.append("current_2026_09_25_free_world_must_be_compiled_into_android_main")
+if fw25.get("existing_validated_exports_automatically_rerouted") is not False:
+    errors.append("current_2026_09_25_exports_must_not_be_silently_rerouted")
+if fw25.get("production_bridge_required") is not True:
+    errors.append("current_2026_09_25_production_bridge_gate_missing")
+
+laws25 = current_2026_09_25.get("scientific_invariants") or {}
+for key, expected in {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "createsNewEvidence": False,
+    "scientificWritebackAllowed": False,
+    "sealed_source_immutable": True,
+    "appearance_never_upgrades_authority": True,
+    "display_target_never_changes_scene_identity": True,
+}.items():
+    if laws25.get(key) != expected:
+        errors.append(f"current_2026_09_25_law_mismatch:{key}")
+
+validation25 = current_2026_09_25.get("validation") or {}
+for key in (
+    "android_signed_arm64",
+    "scientific_master_f64_color_audit",
+    "open_scene_local_authority",
+    "unified_output_preview",
+):
+    if (validation25.get(key) or {}).get("result") != "SUCCESS":
+        errors.append(f"current_2026_09_25_validation_not_green:{key}")
+if validation25.get("free_world_gcc") != "PASS":
+    errors.append("current_2026_09_25_free_world_gcc_not_green")
+if validation25.get("free_world_clang") != "PASS":
+    errors.append("current_2026_09_25_free_world_clang_not_green")
+if validation25.get("asan_ubsan") != "PASS":
+    errors.append("current_2026_09_25_sanitizers_not_green")
+
+apk25 = current_2026_09_25.get("apk") or {}
+if apk25.get("artifact_id") != 10841122875:
+    errors.append("current_2026_09_25_apk_artifact_mismatch")
+if apk25.get("apk_sha256") != "23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448":
+    errors.append("current_2026_09_25_apk_sha_mismatch")
+if apk25.get("stable_dev_cert_sha256") != "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44":
+    errors.append("current_2026_09_25_signing_cert_mismatch")
+
+if "Representation can exceed the source. Knowledge claims cannot exceed the evidence." not in current_2026_09_25_handoff:
+    errors.append("current_2026_09_25_handoff_permanent_law_missing")
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
@@ -701,6 +778,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-20.json",
             "state/CURRENT_PROJECT_STATE_2026-09-21.json",
             "state/CURRENT_PROJECT_STATE_2026-09-24.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-25.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
