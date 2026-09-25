@@ -52,6 +52,9 @@ struct AppearanceCorrectionBin final {
     std::array<std::uint32_t,3u> sampled{};
     std::array<std::uint32_t,3u> corrected{};
     std::array<std::uint32_t,3u> protectedCount{};
+    // Bit N records that at least one source sample in this bin was preserved
+    // for PreserveReason N. Bit 0 therefore represents PreserveReason::None.
+    std::uint32_t preserveReasonMask = 0u;
 };
 
 struct Result final {
