@@ -1,0 +1,50 @@
+name: D.RAW Camera5 Oracle and TN Native Container
+
+on:
+ push:
+  branches:
+   - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+  paths:
+   - 'docs/research/truthnegative-camera5-color-highlight-oracle-v0.1/**'
+   - 'docs/research/truthnegative-native-container-v0.1/**'
+   - '.github/workflows/truthnegative-camera5-container.yml'
+ workflow_dispatch:
+
+permissions:
+ contents: read
+
+jobs:
+ host:
+  runs-on: ubuntu-24.04
+  strategy:
+   matrix:
+    compiler: [gcc, clang]
+  steps:
+   - uses: actions/checkout@v4
+   - name: Camera5 oracle
+     run: |
+      if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+      cmake -S docs/research/truthnegative-camera5-color-highlight-oracle-v0.1 -B /tmp/c5 -DCMAKE_CXX_COMPILER="$CXX"
+      cmake --build /tmp/c5 --parallel 2
+      ctest --test-dir /tmp/c5 --output-on-failure
+   - name: Native container
+     run: |
+      if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+      cmake -S docs/research/truthnegative-native-container-v0.1 -B /tmp/tnc -DCMAKE_CXX_COMPILER="$CXX"
+      cmake --build /tmp/tnc --parallel 2
+      ctest --test-dir /tmp/tnc --output-on-failure
+ sanitizer:
+  runs-on: ubuntu-24.04
+  steps:
+   - uses: actions/checkout@v4
+   - name: ASan UBSan
+     run: |
+      export CXX=clang++
+      export CXXFLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"
+      export LDFLAGS="-fsanitize=address,undefined"
+      cmake -S docs/research/truthnegative-camera5-color-highlight-oracle-v0.1 -B /tmp/c5s
+      cmake --build /tmp/c5s --parallel 2
+      ctest --test-dir /tmp/c5s --output-on-failure
+      cmake -S docs/research/truthnegative-native-container-v0.1 -B /tmp/tncs
+      cmake --build /tmp/tncs --parallel 2
+      ctest --test-dir /tmp/tncs --output-on-failure
