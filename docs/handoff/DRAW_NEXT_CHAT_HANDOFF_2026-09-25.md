@@ -10,7 +10,7 @@ Active integration:
 
 Current code-bearing integration checkpoint:
 
-`58e3b6332c828d9b8ea955b0c79b0c5f69342761`
+`420bc1df259ef4db80448c2088bc5c4bf77a4599`
 
 Read first:
 
@@ -57,19 +57,21 @@ The new layers are compiled into main. TruthNegative Continuous v0.5 now defines
 
 ## Current green main validation
 
-- Android ARM64 signed build + TN Continuous PRO bridge: run `36108523949` — SUCCESS.
-- Scientific Master F64 + Color Audit: run `36079724798` — SUCCESS.
-- Open Scene Field/local authority: run `36079724888` — SUCCESS.
-- Unified Output Preview + Android integration: run `36108523910` — SUCCESS.
+- Android ARM64 signed build + TN Continuous PRO bridge: run `36112964452` — SUCCESS.
+- Scientific Master F64 + Color Audit: run `36112964482` — SUCCESS.
+- Open Scene Field/local authority: run `36112964500` — SUCCESS.
+- Unified Output Preview + Android integration: run `36112964468` — SUCCESS.
 - TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan: run `36107899950` — SUCCESS.
+- TruthNegative Round-Trip + Optics gates: run `36111981454` — SUCCESS.
+- TruthNegative Deep Scene Bridge v0.8: run `36112847260` — SUCCESS.
 
 ## Current installable APK
 
-Artifact ID: `10851937980`
+Artifact ID: `10854211375`
 
 APK SHA-256:
 
-`a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b`
+`8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
 
 Development certificate SHA-256:
 
