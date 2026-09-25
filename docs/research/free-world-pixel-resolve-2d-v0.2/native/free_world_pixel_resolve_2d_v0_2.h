@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -164,6 +165,12 @@ std::vector<AxisContribution> axisAreaWeights(
     std::uint32_t sourceCount,
     std::uint32_t targetIndex,
     std::uint32_t targetCount);
+
+bool resolvePixelFromAxisWeights(
+    const IScenePlaneSource& source,
+    std::span<const AxisContribution> xWeights,
+    std::span<const AxisContribution> yWeights,
+    ResolvedPixel& out) noexcept;
 
 OutputIntentBinding bindOutputIntent(
     const std::string& sceneStateId,

@@ -251,6 +251,34 @@ void test_queries_keep_one_state_across_multiple_rasters() {
     REQUIRE(small.querySha256 != sourceSized.querySha256);
 }
 
+void test_cached_raster_resolver_matches_direct_queries() {
+    SyntheticField fieldSource(8u, 6u, false);
+    tn::AuthorityFieldSummary summary{};
+    REQUIRE(tn::summarizeAuthorityField(fieldSource, summary));
+    const auto state = stateFor(8u, 6u, summary.contentSha256);
+    SyntheticScene scene(8u, 6u);
+
+    tn::RasterResolver cached(scene, state, 16u, 12u);
+    REQUIRE(cached.valid());
+    REQUIRE(cached.targetWidth() == 16u);
+    REQUIRE(cached.targetHeight() == 12u);
+
+    for (const auto point : {
+            std::array<std::uint32_t,2u>{0u,0u},
+            std::array<std::uint32_t,2u>{7u,5u},
+            std::array<std::uint32_t,2u>{15u,11u}}) {
+        tn::QueryResult direct{};
+        tn::QueryResult fast{};
+        REQUIRE(tn::resolvePixel(
+            scene, state, 16u, 12u, point[0], point[1], direct));
+        REQUIRE(cached.resolvePixel(point[0], point[1], fast));
+        REQUIRE(direct.stateSha256 == fast.stateSha256);
+        REQUIRE(direct.querySha256 == fast.querySha256);
+        REQUIRE(direct.pixel.sceneLinear == fast.pixel.sceneLinear);
+        REQUIRE(direct.pixel.footprint.size() == fast.pixel.footprint.size());
+    }
+}
+
 void test_extended_scene_values_survive_until_display_boundary() {
     SyntheticField fieldSource(5u, 4u, false);
     tn::AuthorityFieldSummary summary{};
@@ -288,6 +316,7 @@ int main() {
     test_authority_field_digest_is_deterministic_and_sensitive();
     test_state_binds_source_master_authority_but_not_output_raster();
     test_queries_keep_one_state_across_multiple_rasters();
+    test_cached_raster_resolver_matches_direct_queries();
     test_extended_scene_values_survive_until_display_boundary();
     test_geometry_or_state_mismatch_fails_closed();
 

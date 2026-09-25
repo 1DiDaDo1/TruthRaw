@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace truthraw::truthnegative_continuous::v0_5 {
 
@@ -87,6 +88,35 @@ bool resolvePixel(
     std::uint32_t targetX,
     std::uint32_t targetY,
     QueryResult& out) noexcept;
+
+class RasterResolver final {
+public:
+    RasterResolver(
+        const free_world::IScenePlaneSource& scene,
+        const State& state,
+        std::uint32_t targetWidth,
+        std::uint32_t targetHeight) noexcept;
+
+    bool valid() const noexcept;
+    const std::string& error() const noexcept;
+    std::uint32_t targetWidth() const noexcept;
+    std::uint32_t targetHeight() const noexcept;
+
+    bool resolvePixel(
+        std::uint32_t targetX,
+        std::uint32_t targetY,
+        QueryResult& out) const noexcept;
+
+private:
+    const free_world::IScenePlaneSource& scene_;
+    const State& state_;
+    std::uint32_t targetWidth_ = 0u;
+    std::uint32_t targetHeight_ = 0u;
+    std::vector<std::vector<free_world::AxisContribution>> xWeights_;
+    std::vector<std::vector<free_world::AxisContribution>> yWeights_;
+    bool valid_ = false;
+    std::string error_;
+};
 
 const char* schema_name() noexcept;
 

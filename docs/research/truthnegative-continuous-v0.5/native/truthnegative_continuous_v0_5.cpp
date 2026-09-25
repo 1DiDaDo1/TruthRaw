@@ -237,34 +237,18 @@ bool finalizeState(
     }
 }
 
-bool resolvePixel(
-    const free_world::IScenePlaneSource& scene,
+namespace {
+
+bool finalize_query(
     const State& state,
     std::uint32_t targetWidth,
     std::uint32_t targetHeight,
     std::uint32_t targetX,
     std::uint32_t targetY,
+    free_world::ResolvedPixel pixel,
     QueryResult& out) noexcept {
     out = QueryResult{};
     try {
-        if (!state.finalized ||
-            !nonzero(state.stateSha256) ||
-            state.createsNewEvidence ||
-            state.scientificWritebackAllowed ||
-            scene.width() != state.input.width ||
-            scene.height() != state.input.height ||
-            targetWidth == 0u ||
-            targetHeight == 0u ||
-            targetX >= targetWidth ||
-            targetY >= targetHeight) {
-            return false;
-        }
-
-        free_world::Resolver resolver(scene, targetWidth, targetHeight);
-        if (!resolver.valid()) return false;
-
-        free_world::ResolvedPixel pixel{};
-        if (!resolver.resolvePixel(targetX, targetY, pixel)) return false;
         if (pixel.createsNewEvidence ||
             pixel.measuredTargetClaimCount != 0u ||
             pixel.physicalFrameCount != 1u ||
@@ -327,6 +311,150 @@ bool resolvePixel(
         out = QueryResult{};
         return false;
     }
+}
+
+bool valid_query_state(
+    const free_world::IScenePlaneSource& scene,
+    const State& state,
+    std::uint32_t targetWidth,
+    std::uint32_t targetHeight) noexcept {
+    return state.finalized &&
+           nonzero(state.stateSha256) &&
+           !state.createsNewEvidence &&
+           !state.scientificWritebackAllowed &&
+           scene.width() == state.input.width &&
+           scene.height() == state.input.height &&
+           targetWidth > 0u &&
+           targetHeight > 0u;
+}
+
+}  // namespace
+
+bool resolvePixel(
+    const free_world::IScenePlaneSource& scene,
+    const State& state,
+    std::uint32_t targetWidth,
+    std::uint32_t targetHeight,
+    std::uint32_t targetX,
+    std::uint32_t targetY,
+    QueryResult& out) noexcept {
+    out = QueryResult{};
+    try {
+        if (!valid_query_state(scene, state, targetWidth, targetHeight) ||
+            targetX >= targetWidth ||
+            targetY >= targetHeight) {
+            return false;
+        }
+
+        free_world::Resolver resolver(scene, targetWidth, targetHeight);
+        if (!resolver.valid()) return false;
+
+        free_world::ResolvedPixel pixel{};
+        if (!resolver.resolvePixel(targetX, targetY, pixel)) return false;
+        return finalize_query(
+            state,
+            targetWidth,
+            targetHeight,
+            targetX,
+            targetY,
+            std::move(pixel),
+            out);
+    } catch (...) {
+        out = QueryResult{};
+        return false;
+    }
+}
+
+RasterResolver::RasterResolver(
+    const free_world::IScenePlaneSource& scene,
+    const State& state,
+    std::uint32_t targetWidth,
+    std::uint32_t targetHeight) noexcept
+    : scene_(scene),
+      state_(state),
+      targetWidth_(targetWidth),
+      targetHeight_(targetHeight) {
+    try {
+        if (!valid_query_state(scene_, state_, targetWidth_, targetHeight_)) {
+            error_ = "TruthNegative continuous raster geometry/state mismatch";
+            return;
+        }
+
+        xWeights_.resize(targetWidth_);
+        for (std::uint32_t x = 0u; x < targetWidth_; ++x) {
+            xWeights_[x] = free_world::axisAreaWeights(
+                scene_.width(), x, targetWidth_);
+            if (xWeights_[x].empty()) {
+                error_ = "TruthNegative continuous X footprint precompute failed";
+                xWeights_.clear();
+                return;
+            }
+        }
+
+        yWeights_.resize(targetHeight_);
+        for (std::uint32_t y = 0u; y < targetHeight_; ++y) {
+            yWeights_[y] = free_world::axisAreaWeights(
+                scene_.height(), y, targetHeight_);
+            if (yWeights_[y].empty()) {
+                error_ = "TruthNegative continuous Y footprint precompute failed";
+                xWeights_.clear();
+                yWeights_.clear();
+                return;
+            }
+        }
+
+        valid_ = true;
+    } catch (...) {
+        xWeights_.clear();
+        yWeights_.clear();
+        error_ = "TruthNegative continuous raster precompute allocation failed";
+    }
+}
+
+bool RasterResolver::valid() const noexcept {
+    return valid_;
+}
+
+const std::string& RasterResolver::error() const noexcept {
+    return error_;
+}
+
+std::uint32_t RasterResolver::targetWidth() const noexcept {
+    return targetWidth_;
+}
+
+std::uint32_t RasterResolver::targetHeight() const noexcept {
+    return targetHeight_;
+}
+
+bool RasterResolver::resolvePixel(
+    std::uint32_t targetX,
+    std::uint32_t targetY,
+    QueryResult& out) const noexcept {
+    out = QueryResult{};
+    if (!valid_ ||
+        targetX >= targetWidth_ ||
+        targetY >= targetHeight_) {
+        return false;
+    }
+
+    free_world::ResolvedPixel pixel{};
+    if (!free_world::resolvePixelFromAxisWeights(
+            scene_,
+            xWeights_[targetX],
+            yWeights_[targetY],
+            pixel)) {
+        return false;
+    }
+
+    return finalize_query(
+        state_,
+        targetWidth_,
+        targetHeight_,
+        targetX,
+        targetY,
+        std::move(pixel),
+        out);
 }
 
 const char* schema_name() noexcept {

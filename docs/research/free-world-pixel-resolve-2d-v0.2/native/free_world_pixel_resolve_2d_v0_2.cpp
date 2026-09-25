@@ -181,22 +181,17 @@ Geometry Resolver::geometry() const noexcept {
     return geometry_;
 }
 
-bool Resolver::resolvePixel(
-    std::uint32_t targetX,
-    std::uint32_t targetY,
-    ResolvedPixel& out) const noexcept {
+bool resolvePixelFromAxisWeights(
+    const IScenePlaneSource& source,
+    std::span<const AxisContribution> xWeights,
+    std::span<const AxisContribution> yWeights,
+    ResolvedPixel& out) noexcept {
     try {
         out = ResolvedPixel{};
-        if (!valid_ || targetX >= geometry_.targetWidth ||
-            targetY >= geometry_.targetHeight) {
+        if (xWeights.empty() || yWeights.empty() ||
+            source.width() == 0u || source.height() == 0u) {
             return false;
         }
-
-        const auto xWeights = axisAreaWeights(
-            geometry_.sourceWidth, targetX, geometry_.targetWidth);
-        const auto yWeights = axisAreaWeights(
-            geometry_.sourceHeight, targetY, geometry_.targetHeight);
-        if (xWeights.empty() || yWeights.empty()) return false;
 
         out.footprint.reserve(xWeights.size() * yWeights.size());
         std::array<bool, 3u> uncertaintyKnown = {true, true, true};
@@ -205,12 +200,23 @@ bool Resolver::resolvePixel(
         double footprintSum = 0.0;
 
         for (const auto& yw : yWeights) {
+            if (yw.index >= source.height() ||
+                !(yw.weight > 0.0) ||
+                !std::isfinite(yw.weight)) {
+                return false;
+            }
             for (const auto& xw : xWeights) {
+                if (xw.index >= source.width() ||
+                    !(xw.weight > 0.0) ||
+                    !std::isfinite(xw.weight)) {
+                    return false;
+                }
+
                 const double w = xw.weight * yw.weight;
                 if (!(w > 0.0) || !std::isfinite(w)) return false;
 
                 SourcePixel sourcePixel{};
-                if (!source_.readPixel(xw.index, yw.index, sourcePixel)) {
+                if (!source.readPixel(xw.index, yw.index, sourcePixel)) {
                     return false;
                 }
 
@@ -291,6 +297,23 @@ bool Resolver::resolvePixel(
         out = ResolvedPixel{};
         return false;
     }
+}
+
+bool Resolver::resolvePixel(
+    std::uint32_t targetX,
+    std::uint32_t targetY,
+    ResolvedPixel& out) const noexcept {
+    out = ResolvedPixel{};
+    if (!valid_ || targetX >= geometry_.targetWidth ||
+        targetY >= geometry_.targetHeight) {
+        return false;
+    }
+
+    const auto xWeights = axisAreaWeights(
+        geometry_.sourceWidth, targetX, geometry_.targetWidth);
+    const auto yWeights = axisAreaWeights(
+        geometry_.sourceHeight, targetY, geometry_.targetHeight);
+    return resolvePixelFromAxisWeights(source_, xWeights, yWeights, out);
 }
 
 bool Resolver::resolveRaster(
