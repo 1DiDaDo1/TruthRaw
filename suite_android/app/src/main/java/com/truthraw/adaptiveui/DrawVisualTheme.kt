@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.view.WindowInsetsController
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -21,7 +22,7 @@ object DrawVisualTheme {
     val PAPER_ORANGE: Int = Color.rgb(255, 248, 236)
     val PAPER_PURPLE: Int = Color.rgb(252, 244, 255)
     val INK: Int = Color.rgb(5, 20, 43)
-    val MUTED: Int = Color.rgb(78, 88, 108)
+    val MUTED: Int = Color.rgb(36, 43, 56)
     val BORDER: Int = Color.rgb(218, 205, 160)
     val BLUE: Int = Color.rgb(38, 153, 232)
     val TEAL: Int = Color.rgb(11, 181, 169)
@@ -32,6 +33,12 @@ object DrawVisualTheme {
     fun applyWindow(activity: Activity) {
         activity.window.statusBarColor = PAPER_YELLOW
         activity.window.navigationBarColor = PAPER_WHITE
+        // The D.RAW paper surfaces are light. Keep system-bar glyphs dark too,
+        // so the complete interface uses the same high-contrast ink language.
+        val mask =
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+        activity.window.insetsController?.setSystemBarsAppearance(mask, mask)
     }
 
     fun rounded(activity: Activity, fill: Int, stroke: Int, radiusDp: Float = 18f, strokeDp: Int = 1) =
