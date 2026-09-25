@@ -62,6 +62,9 @@ class MainActivity : Activity() {
     private var truthNegativeNativeContainerStatus: String? = null
     private var pendingN2SpatialSidecarJobId: String? = null
     private var n2SpatialSidecarStatus: String? = null
+    private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
+    private var n2CropAbJobId: String? = null
+    private var n2CropAbStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
@@ -118,6 +121,13 @@ class MainActivity : Activity() {
         n2AppearanceCandidateBitmap = null
         n2AppearanceCandidateJobId = null
         n2AppearanceCandidateMetrics = null
+    }
+
+    private fun clearN2CropAb() {
+        TruthNegativeN2CropAbLoader.recycle(n2CropAbResult)
+        n2CropAbResult = null
+        n2CropAbJobId = null
+        n2CropAbStatus = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,6 +205,7 @@ class MainActivity : Activity() {
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
         clearN2AppearanceCandidate()
+        clearN2CropAb()
         ++previewGeneration
         session = session.withJobs(listOf(cameraJob))
         activeJobId = cameraJob.id
@@ -250,6 +261,7 @@ class MainActivity : Activity() {
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
         clearN2AppearanceCandidate()
+        clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
         super.onDestroy()
     }
@@ -273,6 +285,9 @@ class MainActivity : Activity() {
         recover("truthnegative")?.let { truthNegativeStatus = it.message }
         recover("truthnegative-n2-spatial-sidecar")?.let {
             n2SpatialSidecarStatus = it.message
+        }
+        recover("truthnegative-n2-crop-ab")?.let {
+            n2CropAbStatus = it.message
         }
         recover("linear-dng")?.let { linearDngStatus = it.message }
 
@@ -553,6 +568,7 @@ class MainActivity : Activity() {
             "camera5-color-highlight-oracle",
             "truthnegative-native-container",
             "truthnegative-n2-spatial-sidecar",
+            "truthnegative-n2-crop-ab",
         )
         return kinds
             .map { backgroundOperationKey(it, jobId) }
@@ -686,6 +702,98 @@ class MainActivity : Activity() {
                                 "${m.n2AppearanceDisplayClampPixels} px, grid=" +
                                 "${m.n2AppearanceGridSha256.take(16)}… · " +
                                 "appearance-only=true."
+                    }
+                }
+                render()
+            }
+        }
+    }
+
+
+    private fun launchN2CropAbDiagnostic(job: RawJob) {
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2CropAbStatus =
+                "N2 1:1 cropdiagnose vereist de admitted DNG-route."
+            render()
+            return
+        }
+
+        val operationKey =
+            backgroundOperationKey("truthnegative-n2-crop-ab", job.id)
+        if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
+            n2CropAbStatus =
+                "Wacht op de andere TruthNegative/N2 analysetaak. " +
+                    "De 1:1 cropdiagnose draait bewust niet parallel."
+            render()
+            return
+        }
+        if (!startBackgroundOperation(
+                operationKey,
+                "N2 1:1 A/B/Δ cropdiagnose",
+            )
+        ) {
+            n2CropAbStatus =
+                "N2 1:1 cropdiagnose kon niet veilig starten."
+            render()
+            return
+        }
+
+        clearN2CropAb()
+        n2CropAbJobId = job.id
+        n2CropAbStatus =
+            "N2 1:1 cropdiagnose selecteert automatisch rustige/noise-, " +
+                "structuur- en censorzones en bouwt full-lattice A/B/Δ-crops…"
+        render()
+
+        startGuardedBackgroundThread(
+            name = "draw-n2-crop-ab-" + job.id.take(8),
+            operationKey = operationKey,
+            onUnexpected = { message ->
+                n2CropAbStatus = message
+            },
+        ) {
+            val result =
+                TruthNegativeN2CropAbLoader.load(contentResolver, job)
+            finishBackgroundOperation(
+                operationKey,
+                result is TruthNegativeN2CropAbResult.Ready,
+                when (result) {
+                    is TruthNegativeN2CropAbResult.Ready ->
+                        "N2 1:1 A/B/Δ cropdiagnose gereed."
+                    is TruthNegativeN2CropAbResult.Failed ->
+                        result.reason
+                },
+            )
+            runOnUiThread {
+                if (activeJobId != job.id) {
+                    TruthNegativeN2CropAbLoader.recycle(
+                        result as? TruthNegativeN2CropAbResult.Ready,
+                    )
+                    return@runOnUiThread
+                }
+                when (result) {
+                    is TruthNegativeN2CropAbResult.Failed -> {
+                        n2CropAbStatus = result.reason
+                    }
+                    is TruthNegativeN2CropAbResult.Ready -> {
+                        TruthNegativeN2CropAbLoader.recycle(n2CropAbResult)
+                        n2CropAbResult = result
+                        n2CropAbJobId = job.id
+                        val r = result.report
+                        n2CropAbStatus =
+                            "N2 1:1 cropdiagnose gereed · " +
+                                r.crops.joinToString(" · ") { panel ->
+                                    val m = panel.metrics
+                                    m.kind.name + "=" +
+                                        m.changedPixels + "/" +
+                                        (m.width * m.height) +
+                                        " Δmean=" +
+                                        "%.6f".format(m.meanAbsEncodedDelta)
+                                } +
+                                " · Δ×" + r.deltaGain +
+                                " · writeback=false."
                     }
                 }
                 render()
@@ -2180,6 +2288,7 @@ class MainActivity : Activity() {
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
         clearN2AppearanceCandidate()
+        clearN2CropAb()
         restorationUnifiedPreviewKey = null
         ++previewGeneration
         activeJobId = job.id
@@ -2436,6 +2545,7 @@ class MainActivity : Activity() {
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
         clearN2AppearanceCandidate()
+        clearN2CropAb()
         activeJobId = job.id
         jpegStatus = null
         pureFloatDngStatus = null
