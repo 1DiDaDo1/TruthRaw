@@ -73,6 +73,14 @@ struct Summary final {
     std::array<std::uint64_t,3u> censoredByRgb{};
     std::uint64_t censoredValueAboveOneCount = 0u;
     std::uint64_t censoredValueAtOrBelowOneCount = 0u;
+    std::uint64_t censoredTileCount = 0u;
+    std::uint32_t censoredMinX = 0u;
+    std::uint32_t censoredMinY = 0u;
+    std::uint32_t censoredMaxX = 0u;
+    std::uint32_t censoredMaxY = 0u;
+    float censoredRawCodeBoundMin = 0.0f;
+    float censoredRawCodeBoundMax = 0.0f;
+    std::uint64_t censoredRawCodeBoundMismatchCount = 0u;
     std::uint64_t uncertaintyKnownCount = 0u;
     std::uint64_t supportKnownCount = 0u;
     std::uint64_t boundKnownCount = 0u;
