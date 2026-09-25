@@ -9,9 +9,11 @@ bool close(double a,double b) noexcept{
  return std::abs(a-b)<=1e-9*s;
 }
 PreserveReason classifyPreserve(const gate::Input& i,const gate::Result& g) noexcept{
- if(!i.sigmaKnown||!std::isfinite(i.sigma)||i.sigma<=0.0) return PreserveReason::InvalidOrUnknownNoise;
+ // Evidence state outranks the availability of a point-noise model. A censored
+ // sample remains CENSORED even though Gaussian sigma is intentionally absent.
  if(i.censored) return PreserveReason::Censored;
  if(i.boundaryCensored) return PreserveReason::CensorBoundary;
+ if(!i.sigmaKnown||!std::isfinite(i.sigma)||i.sigma<=0.0) return PreserveReason::InvalidOrUnknownNoise;
  if(!i.measuredSupport) return PreserveReason::NonMeasuredSupport;
  if(i.registrationConfidence<0.9||i.visibilityConfidence<0.9) return PreserveReason::WeakRegistrationOrVisibility;
  if(g.structureProtected) return PreserveReason::Structure;
