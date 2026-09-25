@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 
 private const val TN_CONTINUOUS_MAGIC = 0x35434e54
-private const val TN_CONTINUOUS_HEADER_INTS = 92
+private const val TN_CONTINUOUS_HEADER_INTS = 112
 private const val TN_CONTINUOUS_MAX_EDGE = 192
 private const val TN_CONTINUOUS_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val TN_CONTINUOUS_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -81,11 +81,24 @@ data class TruthNegativeContinuousPreviewMetrics(
     val n2CandidateAppliedToAppearance: Boolean,
     val n2AuditOnly: Boolean,
     val n2MeasuredCfaDomain: Boolean,
+    val n2AppearanceCandidateAvailable: Boolean,
+    val n2AppearanceOnly: Boolean,
+    val n2AppearanceCandidateRendered: Boolean,
+    val n2AppearanceCreatesNewEvidence: Boolean,
+    val n2AppearanceScientificWritebackAllowed: Boolean,
+    val n2AppearanceSourceSceneMutated: Boolean,
+    val n2AppearanceGridWidth: Int,
+    val n2AppearanceGridHeight: Int,
+    val n2AppearanceChangedPixels: Int,
+    val n2AppearanceAdjustedChannels: Int,
+    val n2AppearanceDisplayClampPixels: Int,
+    val n2AppearanceGridSha256: String,
 )
 
 sealed interface TruthNegativeContinuousPreviewResult {
     data class Ready(
         val bitmap: Bitmap,
+        val n2CandidateBitmap: Bitmap,
         val metrics: TruthNegativeContinuousPreviewMetrics,
     ) : TruthNegativeContinuousPreviewResult
 
@@ -165,15 +178,28 @@ object TruthNegativeContinuousPreviewLoader {
                 "TruthNegative Continuous preview-afmetingen overflowden.",
             )
         }
-        if (packet.size != TN_CONTINUOUS_HEADER_INTS + pixels) {
+        val expectedPacketSize = try {
+            Math.addExact(
+                TN_CONTINUOUS_HEADER_INTS,
+                Math.multiplyExact(pixels, 2),
+            )
+        } catch (_: ArithmeticException) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous preview-payload heeft een ongeldige lengte.",
+                "TruthNegative Continuous A/B-payloadgrootte overflowde.",
+            )
+        }
+        if (packet.size != expectedPacketSize) {
+            return TruthNegativeContinuousPreviewResult.Failed(
+                "TruthNegative Continuous A/B-preview-payload heeft een ongeldige lengte.",
             )
         }
 
         val bitmap = try {
             Bitmap.createBitmap(
-                packet.copyOfRange(TN_CONTINUOUS_HEADER_INTS, packet.size),
+                packet.copyOfRange(
+                    TN_CONTINUOUS_HEADER_INTS,
+                    TN_CONTINUOUS_HEADER_INTS + pixels,
+                ),
                 width,
                 height,
                 Bitmap.Config.ARGB_8888,
@@ -181,6 +207,24 @@ object TruthNegativeContinuousPreviewLoader {
         } catch (error: Exception) {
             return TruthNegativeContinuousPreviewResult.Failed(
                 "TruthNegative Continuous bitmap kon niet worden opgebouwd: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+
+        val n2CandidateBitmap = try {
+            Bitmap.createBitmap(
+                packet.copyOfRange(
+                    TN_CONTINUOUS_HEADER_INTS + pixels,
+                    TN_CONTINUOUS_HEADER_INTS + pixels + pixels,
+                ),
+                width,
+                height,
+                Bitmap.Config.ARGB_8888,
+            )
+        } catch (error: Exception) {
+            bitmap.recycle()
+            return TruthNegativeContinuousPreviewResult.Failed(
+                "N2 appearance-only candidatebitmap kon niet worden opgebouwd: " +
                     (error.message ?: error.javaClass.simpleName),
             )
         }
@@ -244,6 +288,18 @@ object TruthNegativeContinuousPreviewLoader {
             n2CandidateAppliedToAppearance = packet[88] != 0,
             n2AuditOnly = packet[89] != 0,
             n2MeasuredCfaDomain = packet[90] != 0,
+            n2AppearanceCandidateAvailable = packet[92] != 0,
+            n2AppearanceOnly = packet[93] != 0,
+            n2AppearanceCandidateRendered = packet[94] != 0,
+            n2AppearanceCreatesNewEvidence = packet[95] != 0,
+            n2AppearanceScientificWritebackAllowed = packet[96] != 0,
+            n2AppearanceSourceSceneMutated = packet[97] != 0,
+            n2AppearanceGridWidth = packet[98],
+            n2AppearanceGridHeight = packet[99],
+            n2AppearanceChangedPixels = packet[100],
+            n2AppearanceAdjustedChannels = packet[101],
+            n2AppearanceDisplayClampPixels = packet[102],
+            n2AppearanceGridSha256 = digestWords(packet, 104),
         )
 
         val contractViolation =
@@ -269,16 +325,34 @@ object TruthNegativeContinuousPreviewLoader {
                 metrics.n2ScientificWritebackAllowed ||
                 metrics.n2CandidateAppliedToAppearance ||
                 !metrics.n2AuditOnly ||
-                !metrics.n2MeasuredCfaDomain
+                !metrics.n2MeasuredCfaDomain ||
+                !metrics.n2AppearanceCandidateAvailable ||
+                !metrics.n2AppearanceOnly ||
+                !metrics.n2AppearanceCandidateRendered ||
+                metrics.n2AppearanceCreatesNewEvidence ||
+                metrics.n2AppearanceScientificWritebackAllowed ||
+                metrics.n2AppearanceSourceSceneMutated ||
+                metrics.n2AppearanceGridWidth != width ||
+                metrics.n2AppearanceGridHeight != height ||
+                metrics.n2AppearanceChangedPixels < 0 ||
+                metrics.n2AppearanceChangedPixels > pixels ||
+                metrics.n2AppearanceAdjustedChannels < 0 ||
+                metrics.n2AppearanceAdjustedChannels > pixels * 3 ||
+                metrics.n2AppearanceGridSha256.all { it == '0' }
 
         if (contractViolation) {
             bitmap.recycle()
+            n2CandidateBitmap.recycle()
             return TruthNegativeContinuousPreviewResult.Failed(
                 "Fail-closed: TruthNegative Continuous schond scene-, authority-, evidence- of writebackcontract.",
             )
         }
 
-        return TruthNegativeContinuousPreviewResult.Ready(bitmap, metrics)
+        return TruthNegativeContinuousPreviewResult.Ready(
+            bitmap,
+            n2CandidateBitmap,
+            metrics,
+        )
     }
 
     fun toUnifiedPreview(
@@ -344,6 +418,7 @@ object TruthNegativeContinuousPreviewLoader {
         -15 -> "TruthNegative Continuous: Deep Scene scientific resolve faalde."
         -16 -> "TruthNegative Continuous: Deep Scene veranderde radiometrische authority/uncertainty."
         -17 -> "TruthNegative Continuous: N2 CFA audit-only side-car faalde fail-closed."
+        -18 -> "TruthNegative Continuous: N2 appearance-only A/B candidate faalde fail-closed."
         in 2000..2099 -> "TruthNegative Continuous source-binding faalde (status $status)."
         in 2100..2199 -> "TruthNegative Continuous color-binding faalde (status $status)."
         in 7000..7099 -> "TruthNegative Continuous RAW-adapter faalde (status $status)."
