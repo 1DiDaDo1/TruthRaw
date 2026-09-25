@@ -26,6 +26,7 @@ set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/nat
 set(SCIENTIFIC_MASTER_FLOAT_DNG "${RESEARCH_ROOT}/scientific-master-linear-dng-projection-v0.1/native")
 set(TRUTHNEGATIVE_DENSE_V03 "${RESEARCH_ROOT}/truthnegative-dense-projection-v0.3/native")
 set(TRUTHRANGE_LATENT "${RESEARCH_ROOT}/truthrange-latent-binding-v0.2/native")
+set(TRUTHRANGE_DENSE_UNCERTAINTY_V03 "${RESEARCH_ROOT}/truthrange-dense-uncertainty-v0.3/native")
 set(FINALIZED_RELEASE_V01 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.1/native")
 set(FINALIZED_RELEASE_V02 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.2/native")
 set(FINALIZED_RELEASE_V03 "${RESEARCH_ROOT}/finalized-scientific-preview-release-v0.3/native")
@@ -114,6 +115,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${SCIENTIFIC_MASTER_FLOAT_DNG}/streaming_scientific_master_tile_source_v0_1.cpp
     ${TRUTHNEGATIVE_DENSE_V03}/truthnegative_dense_projection_v0_3.cpp
     ${TRUTHRANGE_LATENT}/truthrange_latent_v0_2.cpp
+    ${TRUTHRANGE_DENSE_UNCERTAINTY_V03}/truthrange_dense_uncertainty_v0_3.cpp
     ${FINALIZED_RELEASE_V01}/finalized_scientific_preview_release_v0_1.cpp
     ${FINALIZED_RELEASE_V02}/finalized_scientific_preview_release_v0_2.cpp
     ${FINALIZED_RELEASE_V03}/finalized_scientific_preview_release_v0_3.cpp
@@ -135,6 +137,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_NOISE_FUSION_V01}/free_world_observation_noise_fusion_v0_1.cpp
     ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_noise_state_v0_1.cpp
+    ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_dense_uncertainty_adapter_v0_1.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
     ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
     ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp
@@ -159,6 +162,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${SCIENTIFIC_MASTER_FLOAT_DNG}
     ${TRUTHNEGATIVE_DENSE_V03}
     ${TRUTHRANGE_LATENT}
+    ${TRUTHRANGE_DENSE_UNCERTAINTY_V03}
     ${FINALIZED_RELEASE_V01}
     ${FINALIZED_RELEASE_V02}
     ${FINALIZED_RELEASE_V03}
