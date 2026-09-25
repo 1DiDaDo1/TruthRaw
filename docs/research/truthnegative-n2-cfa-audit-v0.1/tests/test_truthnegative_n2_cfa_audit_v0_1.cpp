@@ -37,12 +37,15 @@ public:
 
 int main(){
  FakeSource src;a::Binding b{};b.sourceEvidenceSha256[0]=1;b.truthNegativeStateSha256[0]=2;
- a::Options o{};o.tileEdge=16;o.samplingPeriod=2;
+ a::Options o{};o.tileEdge=16;o.samplingPeriod=2;o.appearanceGridWidth=8;o.appearanceGridHeight=8;
  a::Result r{};R(a::run(src,b,o,r));R(r.noiseProfileAvailable);R(r.sampled==1024);R(r.audit.total==r.sampled);
  R(r.audit.corrected>0);R(r.audit.censoredProtected>0||r.audit.censorBoundaryProtected>0);
  R(!r.sourceValuesModified&&!r.truthNegativeModified&&!r.createsNewEvidence&&!r.scientificWritebackAllowed);
  R(std::any_of(r.auditSha256.begin(),r.auditSha256.end(),[](auto v){return v!=0;}));
  R(std::any_of(r.spatialSha256.begin(),r.spatialSha256.end(),[](auto v){return v!=0;}));
  R(r.tileEdge==16u);R(r.tiles.size()==4u);std::uint64_t tileSamples=0;for(const auto&t:r.tiles){R(t.sampled>0);R(t.audit.total==t.sampled);tileSamples+=t.sampled;}R(tileSamples==r.sampled);
+ R(r.appearanceGridDerived);R(r.appearanceGridWidth==8u);R(r.appearanceGridHeight==8u);R(r.appearanceGrid.size()==64u);
+ R(std::any_of(r.appearanceGridSha256.begin(),r.appearanceGridSha256.end(),[](auto v){return v!=0;}));
+ std::uint64_t gridSamples=0;bool sawCorrection=false;for(const auto& bin:r.appearanceGrid){for(std::size_t cc=0;cc<3u;++cc){R(bin.corrected[cc]+bin.protectedCount[cc]==bin.sampled[cc]);gridSamples+=bin.sampled[cc];sawCorrection=sawCorrection||bin.correctionSum[cc]!=0.0;}}R(gridSamples==r.sampled);R(sawCorrection);
  std::cout<<"TruthNegativeN2CfaAudit/0.1 PASS corrected="<<r.audit.corrected<<" preserved="<<r.audit.preserved<<"\n";
 }
