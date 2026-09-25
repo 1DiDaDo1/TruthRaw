@@ -72,12 +72,25 @@ void test_write_read_roundtrip(){
  c::Summary written{}; REQUIRE(c::write(in,f,mem,written));
  REQUIRE(written.fileBytes==mem.sizeBytes());
  REQUIRE(!written.createsNewEvidence);
+ REQUIRE(written.recordCount==9u*7u*3u);
+ REQUIRE(written.roleSourceMeasuredCfa==9u*7u);
+ REQUIRE(written.roleScientificReconstruction==9u*7u*2u);
+ REQUIRE(written.authorityCalibratedEstimate==9u*7u);
+ REQUIRE(written.authorityUnknown==9u*7u*2u);
+ REQUIRE(written.authorityReconstructed==0u);
+ REQUIRE(written.authorityCensored==0u);
+ REQUIRE(written.valueNonFiniteCount==0u);
 
  c::Reader reader; REQUIRE(reader.open(mem)); REQUIRE(reader.valid());
  REQUIRE(reader.summary().sourceEvidenceSha256==written.sourceEvidenceSha256);
  REQUIRE(reader.summary().scientificMasterSha256==written.scientificMasterSha256);
  REQUIRE(reader.summary().truthNegativeStateSha256==written.truthNegativeStateSha256);
  REQUIRE(reader.summary().bodySha256==written.bodySha256);
+ REQUIRE(reader.summary().roleSourceMeasuredCfa==written.roleSourceMeasuredCfa);
+ REQUIRE(reader.summary().roleScientificReconstruction==written.roleScientificReconstruction);
+ REQUIRE(reader.summary().authorityCalibratedEstimate==written.authorityCalibratedEstimate);
+ REQUIRE(reader.summary().authorityUnknown==written.authorityUnknown);
+ REQUIRE(reader.summary().valueNonFiniteCount==0u);
 
  std::vector<field::ChannelRecord> a(9u*7u*3u), b(a.size());
  REQUIRE(f.readSourceTile(0,0,9,7,a.data(),a.size()));
