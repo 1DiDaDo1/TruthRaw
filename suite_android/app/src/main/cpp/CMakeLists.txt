@@ -47,12 +47,17 @@ set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
 set(TRUTHNEGATIVE_OPTICS_V07 "${RESEARCH_ROOT}/truthnegative-optics-support-v0.7/native")
 set(TRUTHNEGATIVE_DEEP_V08 "${RESEARCH_ROOT}/truthnegative-deep-scene-bridge-v0.8/native")
+set(TRUTHNEGATIVE_CAMERA5_ORACLE_V01 "${RESEARCH_ROOT}/truthnegative-camera5-color-highlight-oracle-v0.1/native")
+set(TRUTHNEGATIVE_NATIVE_CONTAINER_V01 "${RESEARCH_ROOT}/truthnegative-native-container-v0.1/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
     source_bound_color_preview_bridge.cpp
     advanced_preview_bridge.cpp
     truthnegative_continuous_preview_bridge.cpp
+    truthnegative_pipeline_bridge_common.cpp
+    camera5_color_highlight_oracle_bridge.cpp
+    truthnegative_native_container_bridge.cpp
     photo_export_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
@@ -128,7 +133,9 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
     ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
-    ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp)
+    ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp
+    ${TRUTHNEGATIVE_CAMERA5_ORACLE_V01}/truthnegative_camera5_color_highlight_oracle_v0_1.cpp
+    ${TRUTHNEGATIVE_NATIVE_CONTAINER_V01}/truthnegative_native_container_v0_1.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -168,7 +175,9 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_CONTINUOUS_V05}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
     ${TRUTHNEGATIVE_OPTICS_V07}
-    ${TRUTHNEGATIVE_DEEP_V08})
+    ${TRUTHNEGATIVE_DEEP_V08}
+    ${TRUTHNEGATIVE_CAMERA5_ORACLE_V01}
+    ${TRUTHNEGATIVE_NATIVE_CONTAINER_V01})
 
 if(ANDROID)
     file(GLOB TRUTHRAW_GLSLC_CANDIDATES
