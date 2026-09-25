@@ -2251,11 +2251,7 @@ class MainActivity : Activity() {
                 addView(space(6))
                 val preferredOutput = preferredRoute()
                 addView(label(
-                    "Route: " + when (preferredOutput) {
-                        TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED"
-                        TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO"
-                        else -> "D.RAW PURE"
-                    },
+                    "Route: " + DrawRouteLogic.forMode(preferredOutput).displayLabel,
                     11f,
                     bold = true,
                 ))
