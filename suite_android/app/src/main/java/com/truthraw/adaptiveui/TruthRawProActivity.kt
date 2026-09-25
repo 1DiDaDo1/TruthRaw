@@ -95,7 +95,8 @@ class TruthRawProActivity : Activity() {
                 "Round-trip Oracle v0.6 controleert nu dat verschillende rasterprojecties dezelfde TruthNegative-state behouden, " +
                     "globale scene-area conserveren, genormaliseerde bron-footprints houden en nooit nieuwe measured target-pixels claimen. " +
                     "Optics Support v0.7 kan een gemeten/gekalibreerde PSF/MTF aan het effectieve bron-support binden zonder RGB-waarden of authority te veranderen. " +
-                    "Inferred optics faalt wetenschappelijk gesloten; deconvolutie blijft geblokkeerd totdat echte lens/sensor-calibratie beschikbaar is.",
+                    "Deep Scene Bridge v0.8 bindt een TruthNegative-query rechtstreeks aan object/region/provenance en houdt radiometrische authority apart van inferred 3D-geometrie en light transport. " +
+                    "Inferred optics en inferred licht blijven hypothesen; deconvolutie blijft geblokkeerd totdat echte lens/sensor-calibratie beschikbaar is.",
                 11.5f,
             ))
         })

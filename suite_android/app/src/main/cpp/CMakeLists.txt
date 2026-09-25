@@ -46,6 +46,7 @@ set(FREE_WORLD_V07 "${RESEARCH_ROOT}/free-world-appearance-resolve-v0.7/native")
 set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5/native")
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
 set(TRUTHNEGATIVE_OPTICS_V07 "${RESEARCH_ROOT}/truthnegative-optics-support-v0.7/native")
+set(TRUTHNEGATIVE_DEEP_V08 "${RESEARCH_ROOT}/truthnegative-deep-scene-bridge-v0.8/native")
 
 add_library(truthraw_ui_preview_bridge SHARED
     native_tile_preview_bridge.cpp
@@ -126,7 +127,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp
     ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
-    ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp)
+    ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
+    ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -165,7 +167,8 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FREE_WORLD_V07}
     ${TRUTHNEGATIVE_CONTINUOUS_V05}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
-    ${TRUTHNEGATIVE_OPTICS_V07})
+    ${TRUTHNEGATIVE_OPTICS_V07}
+    ${TRUTHNEGATIVE_DEEP_V08})
 
 if(ANDROID)
     file(GLOB TRUTHRAW_GLSLC_CANDIDATES

@@ -178,6 +178,23 @@ Inferred optics may be retained for research but fail closed for scientific supp
 
 Both v0.6 and v0.7 are compiled into the Android main native library after green GCC/Clang/ASan/UBSan validation.
 
+## TruthNegative Deep Scene Bridge v0.8
+
+TruthNegative Continuous now has a direct authority-preserving bridge into the Free-World Deep Scene.
+
+The bridge binds one finite TruthNegative query into:
+
+- evidence-constrained deep radiometry;
+- object / region / provenance identity;
+- separate geometry authority;
+- deterministic deep-scene ancestry.
+
+A TruthNegative radiometric result can remain evidence-bound while its assigned depth is only INFERRED.
+
+The bridge also creates an explicitly **INFERRED** Lambertian light-transport seed for physically based research. Hidden material, illumination, surface normal and spectral hypotheses remain inferred and do not inherit scientific measurement authority merely because the camera-plane radiometry is bound to TruthNegative.
+
+v0.8 GCC/Clang/ASan/UBSan validation is green.
+
 ## Next implementation boundary
 
-Validate the PRO TruthNegative Continuous preview on-device with real admitted DNGs. For inverse-optics reconstruction, first acquire/derive independently admitted lens/sensor PSF/MTF calibration; do not enable deconvolution before that evidence exists. The next software-only step can be the Camera-5 colour/highlight oracle and a native TruthNegative scientific-negative container/export contract.
+Validate the PRO TruthNegative Continuous preview on-device with real admitted DNGs. For inverse-optics reconstruction, first acquire/derive independently admitted lens/sensor PSF/MTF calibration; do not enable deconvolution before that evidence exists. The next software-only step can be the Camera-5 colour/highlight oracle and a native TruthNegative scientific-negative container/export contract. The deep-scene bridge is now available as the boundary for later PRO object/light-transport diagnostics.
