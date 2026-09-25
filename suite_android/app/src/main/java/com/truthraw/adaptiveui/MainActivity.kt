@@ -53,6 +53,9 @@ class MainActivity : Activity() {
     private var pendingTruthNegativeJobId: String? = null
     private var truthNegativeStatus: String? = null
     private var truthNegativeContinuousStatus: String? = null
+    private var camera5ColorHighlightStatus: String? = null
+    private var pendingTruthNegativeNativeContainerJobId: String? = null
+    private var truthNegativeNativeContainerStatus: String? = null
     private var pendingFullResRestorationJobId: String? = null
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
@@ -192,6 +195,10 @@ class MainActivity : Activity() {
         pendingRenderEditQuarterTurns = 0
         pureFloatDngStatus = null
         truthNegativeStatus = null
+        truthNegativeContinuousStatus = null
+        camera5ColorHighlightStatus = null
+        pendingTruthNegativeNativeContainerJobId = null
+        truthNegativeNativeContainerStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -607,6 +614,142 @@ class MainActivity : Activity() {
                 render()
             }
         }
+    }
+
+
+    private fun launchCamera5ColorHighlightOracle(job: RawJob) {
+        if (!job.source.verifiedCamera5TruthNegative200MpEnvelope) {
+            camera5ColorHighlightStatus =
+                "Camera-5 Oracle geblokkeerd: exact physical-5 acquisition/envelope bewijs ontbreekt."
+            render()
+            return
+        }
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            camera5ColorHighlightStatus =
+                "Camera-5 Oracle vereist de admitted Camera-5 DNG-route."
+            render()
+            return
+        }
+
+        val operationKey =
+            backgroundOperationKey("camera5-color-highlight-oracle", job.id)
+        if (!startBackgroundOperation(
+                operationKey,
+                "Camera-5 Color/Highlight Oracle v0.1",
+            )
+        ) {
+            camera5ColorHighlightStatus =
+                "Camera-5 Oracle kon niet veilig starten."
+            render()
+            return
+        }
+
+        camera5ColorHighlightStatus =
+            "Camera-5 Oracle analyseert Scientific Master, lokale censoring, " +
+                "AsShotNeutral en EV 0/-0.5/-1/-2/-3 display-resolves…"
+        render()
+
+        startGuardedBackgroundThread(
+            name = "draw-camera5-color-oracle-" + job.id.take(8),
+            operationKey = operationKey,
+            onUnexpected = { camera5ColorHighlightStatus = it },
+        ) {
+            val result =
+                Camera5ColorHighlightOracleLoader.run(contentResolver, job)
+            finishBackgroundOperation(
+                operationKey,
+                result is Camera5ColorHighlightResult.Ready,
+                when (result) {
+                    is Camera5ColorHighlightResult.Ready ->
+                        "Camera-5 Color/Highlight Oracle gereed."
+                    is Camera5ColorHighlightResult.Failed ->
+                        result.reason
+                },
+            )
+            runOnUiThread {
+                if (activeJobId != job.id) return@runOnUiThread
+                camera5ColorHighlightStatus = when (result) {
+                    is Camera5ColorHighlightResult.Failed ->
+                        result.reason
+                    is Camera5ColorHighlightResult.Ready -> {
+                        val m = result.report
+                        val asShot =
+                            if (m.asShotNeutralKnown) {
+                                "%.3f/%.3f/%.3f".format(
+                                    m.asShotNeutral.first,
+                                    m.asShotNeutral.second,
+                                    m.asShotNeutral.third,
+                                )
+                            } else "UNKNOWN"
+                        val empirical =
+                            if (m.empiricalNeutralKnown) {
+                                "%.3f/%.3f/%.3f".format(
+                                    m.empiricalNeutral.first,
+                                    m.empiricalNeutral.second,
+                                    m.empiricalNeutral.third,
+                                )
+                            } else "UNRESOLVED"
+                        "Camera-5 Oracle v0.1 · eerste afwijkingslaag=" +
+                            m.firstFailureStage +
+                            " · highlight candidates=" + m.candidates +
+                            "/" + m.sampleCount +
+                            " · censored=" +
+                            "%.2f%%".format(m.censoredFraction * 100.0) +
+                            " · AsShotNeutral=" + asShot +
+                            " · empirical R/G-G-B/G=" + empirical +
+                            " · neutral log-error=" +
+                            "%.4f".format(m.metadataNeutralLogError) +
+                            " · low-EV green bias=" +
+                            "%.4f".format(m.lowExposureGreenBias) +
+                            " · green drift=" +
+                            "%.4f".format(m.exposureGreenDrift) +
+                            " · remosaic=" + m.remosaicState +
+                            " (DNG-only unresolved) · oracle=" +
+                            m.oracleSha256.take(16) +
+                            "… · writeback=false."
+                    }
+                }
+                render()
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchTruthNegativeNativeContainerExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            truthNegativeNativeContainerStatus =
+                "Native TruthNegative container vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingTruthNegativeNativeContainerJobId = job.id
+        truthNegativeNativeContainerStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_truthnegative_native_v0_1.tnc",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER,
+        )
     }
 
     @Suppress("DEPRECATION")
@@ -1338,6 +1481,107 @@ class MainActivity : Activity() {
             return
         }
 
+
+        if (requestCode == REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER) {
+            val expectedJob = pendingTruthNegativeNativeContainerJobId
+            pendingTruthNegativeNativeContainerJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                truthNegativeNativeContainerStatus =
+                    "Native TruthNegative container-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                truthNegativeNativeContainerStatus =
+                    "Native container geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-native-container",
+                    expectedJob,
+                )
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "TruthNegative Native v0.1 export + import verify",
+                )
+            ) {
+                truthNegativeNativeContainerStatus =
+                    "Native container achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            truthNegativeNativeContainerStatus =
+                "TruthNegative Native v0.1 schrijft Float32 Scientific Master-values + " +
+                    "Open Scene authority en opent het resultaat daarna opnieuw voor identity round-trip…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-tn-native-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    truthNegativeNativeContainerStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeNativeContainerExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is TruthNegativeNativeContainerResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeNativeContainerResult.Success ->
+                            "TruthNegative Native v0.1 export/import geverifieerd."
+                        is TruthNegativeNativeContainerResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    truthNegativeNativeContainerStatus =
+                        when (exportResult) {
+                            is TruthNegativeNativeContainerResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeNativeContainerResult.Success -> {
+                                val m = exportResult.metrics
+                                "TruthNegative Native v0.1 opgeslagen + native teruggelezen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · tiles=" + m.tileCount +
+                                    " · records=" + m.recordCount +
+                                    " · import=" + m.nativeImportVerified +
+                                    " · authority-roundtrip=" +
+                                    m.authorityRoundtripVerified +
+                                    " · state-roundtrip=" +
+                                    m.stateRoundtripVerified +
+                                    " · TN=" +
+                                    m.truthNegativeStateSha256.take(16) +
+                                    "… · container=" +
+                                    m.containerSha256.take(16) +
+                                    "… · frame/evidence=1/1 · writeback=false."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_TRUTHNEGATIVE) {
             val expectedJob = pendingTruthNegativeJobId
             pendingTruthNegativeJobId = null
@@ -1640,6 +1884,9 @@ class MainActivity : Activity() {
         pendingRenderEditQuarterTurns = 0
         pureFloatDngStatus = null
         truthNegativeContinuousStatus = null
+        camera5ColorHighlightStatus = null
+        pendingTruthNegativeNativeContainerJobId = null
+        truthNegativeNativeContainerStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
@@ -1674,6 +1921,10 @@ class MainActivity : Activity() {
         truthNegative200MpStatus = null
         renderEditStatus = null
         pureFloatDngStatus = null
+        truthNegativeContinuousStatus = null
+        camera5ColorHighlightStatus = null
+        pendingTruthNegativeNativeContainerJobId = null
+        truthNegativeNativeContainerStatus = null
         linearDngStatus = null
         empiricalStatus = null
         empiricalAudit = null
@@ -2652,6 +2903,67 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "PRO · Camera-5 Color/Highlight Oracle",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    active.source.verifiedCamera5TruthNegative200MpEnvelope,
+                        ) {
+                            launchCamera5ColorHighlightOracle(active)
+                        })
+                        camera5ColorHighlightStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "camera5-color-highlight-oracle",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            if (active.source.verifiedCamera5TruthNegative200MpEnvelope) {
+                                "Physical Camera-5 lineage is sealed. De oracle zoekt de eerste " +
+                                    "verdedigbare afwijkingslaag; remosaic blijft UNKNOWN zolang die status " +
+                                    "niet apart door runtime evidence is verzegeld."
+                            } else {
+                                "Camera-5 Oracle is fail-closed: exact physical-5 acquisition/envelope " +
+                                    "bewijs ontbreekt voor deze bron."
+                            },
+                            10f,
+                            muted = true,
+                        ))
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export TruthNegative Native · .tnc",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchTruthNegativeNativeContainerExport(active)
+                        })
+                        truthNegativeNativeContainerStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-native-container",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Nieuwe scientific-negative container: Float32 Scientific Master-valueplane + " +
+                                "Open Scene Field v0.85 authority. Na schrijven volgt native import, " +
+                                "authority-digest en TruthNegative-state round-trip verificatie.",
+                            10f,
+                            muted = true,
+                        ))
                         addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
@@ -2965,5 +3277,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_FULL_COLOUR_MASTER = 4110
         private const val REQUEST_SAVE_ADVANCED_RENDER_EDIT = 4111
         private const val REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR = 4112
+        private const val REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER = 4113
     }
 }
