@@ -81,6 +81,10 @@ data class TruthNegativeN2CropMetrics(
     val censorMaskPixels: Int,
     val qualityChangedPixels: Int,
     val qualitySha256: String,
+    val supportGuardSuppressedStage2Sites: Int,
+    val protectedCorePixels: Int,
+    val protectedCoreChangedRgbChannels: Int,
+    val reconstructionInfluenceRadius: Int,
 )
 
 data class TruthNegativeN2CropPanel(
@@ -281,6 +285,10 @@ object TruthNegativeN2CropAbLoader {
                 val qualitySha256 = digestWords(packet, m + 74)
                 val qualityCreatesNewEvidence = packet[m + 82] != 0
                 val qualityScientificWriteback = packet[m + 83] != 0
+                val supportGuardSuppressedStage2Sites = packet[m + 84]
+                val protectedCorePixels = packet[m + 85]
+                val protectedCoreChangedRgbChannels = packet[m + 86]
+                val reconstructionInfluenceRadius = packet[m + 87]
                 if (!validQuantiles(pixelDelta) ||
                     !validQuantiles(redDelta) ||
                     !validQuantiles(greenDelta) ||
@@ -306,7 +314,12 @@ object TruthNegativeN2CropAbLoader {
                     qualitySha256.length != 64 ||
                     qualitySha256.all { it == '0' } ||
                     qualityCreatesNewEvidence ||
-                    qualityScientificWriteback
+                    qualityScientificWriteback ||
+                    supportGuardSuppressedStage2Sites < 0 ||
+                    protectedCorePixels < 0 ||
+                    protectedCorePixels > cropPixels ||
+                    protectedCoreChangedRgbChannels != 0 ||
+                    reconstructionInfluenceRadius < 0
                 ) {
                     throw IllegalStateException(
                         "risk/quality audit contract mismatch",
@@ -392,6 +405,13 @@ object TruthNegativeN2CropAbLoader {
                         censorMaskPixels = censorMaskPixels,
                         qualityChangedPixels = qualityChangedPixels,
                         qualitySha256 = qualitySha256,
+                        supportGuardSuppressedStage2Sites =
+                            supportGuardSuppressedStage2Sites,
+                        protectedCorePixels = protectedCorePixels,
+                        protectedCoreChangedRgbChannels =
+                            protectedCoreChangedRgbChannels,
+                        reconstructionInfluenceRadius =
+                            reconstructionInfluenceRadius,
                     ),
                 )
             }
