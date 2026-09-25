@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -56,7 +57,7 @@ namespace n2_cfa =
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x35434e54; // TNC5 in little-endian byte view.
-constexpr std::size_t kHeaderInts = 92u;
+constexpr std::size_t kHeaderInts = 112u;
 constexpr jint kMaxEdgeHardLimit = 256;
 
 jint clamp_metric(std::uint64_t value) noexcept {
@@ -126,6 +127,37 @@ sha::Digest labeled_digest(
         h.update(
             reinterpret_cast<const std::uint8_t*>(text->data()),
             text->size());
+    }
+    return h.finalize();
+}
+
+sha::Digest n2_candidate_scene_digest(
+    const sha::Digest& scientificScene,
+    const sha::Digest& gridSha,
+    std::size_t pixelIndex,
+    const std::array<double,3u>& rgb) noexcept {
+    sha::Hasher h;
+    constexpr char domain[] =
+        "D_RAW_TN_N2_APPEARANCE_CANDIDATE_SCENE_V0_1";
+    h.update(
+        reinterpret_cast<const std::uint8_t*>(domain),
+        sizeof(domain)-1u);
+    h.update(scientificScene);
+    h.update(gridSha);
+    const std::uint64_t index64 =
+        static_cast<std::uint64_t>(pixelIndex);
+    std::array<std::uint8_t,8u> indexBytes{};
+    for(std::size_t i=0u;i<8u;++i){
+        indexBytes[i]=static_cast<std::uint8_t>(index64>>(8u*i));
+    }
+    h.update(indexBytes);
+    for(double v:rgb){
+        const auto bits=std::bit_cast<std::uint64_t>(v);
+        std::array<std::uint8_t,8u> b{};
+        for(std::size_t i=0u;i<8u;++i){
+            b[i]=static_cast<std::uint8_t>(bits>>(8u*i));
+        }
+        h.update(b);
     }
     return h.finalize();
 }
@@ -358,29 +390,6 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
         return status_packet(env, -6);
     }
 
-    // N2 remains a side-car validation path. It reads the same admitted RAW
-    // source and computes candidate corrections on a balanced CFA sample set,
-    // but its values are never supplied to Scientific Master, TruthNegative,
-    // Deep Scene, Appearance or the visible preview below.
-    n2_cfa::Binding n2Binding{};
-    n2Binding.sourceEvidenceSha256 = sourceSeal.sha256;
-    n2Binding.truthNegativeStateSha256 = tnState.stateSha256;
-    n2_cfa::Options n2Options{};
-    n2Options.tileEdge = 64u;
-    n2Options.samplingPeriod = 8u;
-    n2_cfa::Result n2Audit{};
-    if (!n2_cfa::run(*source, n2Binding, n2Options, n2Audit) ||
-        n2Audit.sourceValuesModified ||
-        n2Audit.truthNegativeModified ||
-        n2Audit.createsNewEvidence ||
-        n2Audit.scientificWritebackAllowed) {
-        return status_packet(env, -17);
-    }
-
-    binding::BoundScenePlane scene(
-        masterSource, fieldSource, sourceWidth, sourceHeight);
-    if (!scene.valid()) return status_packet(env, -7);
-
     std::uint32_t targetWidth = 0u;
     std::uint32_t targetHeight = 0u;
     if (!target_geometry(
@@ -391,6 +400,36 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
             targetHeight)) {
         return status_packet(env, -8);
     }
+
+    // N2 remains a side-car validation path. It reads the same admitted RAW
+    // source and computes candidate corrections on a balanced CFA sample set,
+    // but its values are never supplied to Scientific Master, TruthNegative,
+    // Deep Scene, Appearance or the visible preview below.
+    n2_cfa::Binding n2Binding{};
+    n2Binding.sourceEvidenceSha256 = sourceSeal.sha256;
+    n2Binding.truthNegativeStateSha256 = tnState.stateSha256;
+    n2_cfa::Options n2Options{};
+    n2Options.tileEdge = 64u;
+    n2Options.samplingPeriod = 8u;
+    n2Options.appearanceGridWidth = targetWidth;
+    n2Options.appearanceGridHeight = targetHeight;
+    n2_cfa::Result n2Audit{};
+    if (!n2_cfa::run(*source, n2Binding, n2Options, n2Audit) ||
+        n2Audit.sourceValuesModified ||
+        n2Audit.truthNegativeModified ||
+        n2Audit.createsNewEvidence ||
+        n2Audit.scientificWritebackAllowed ||
+        !n2Audit.appearanceGridDerived ||
+        n2Audit.appearanceGridWidth != targetWidth ||
+        n2Audit.appearanceGridHeight != targetHeight ||
+        n2Audit.appearanceGrid.size() !=
+            static_cast<std::size_t>(targetWidth) * targetHeight) {
+        return status_packet(env, -17);
+    }
+
+    binding::BoundScenePlane scene(
+        masterSource, fieldSource, sourceWidth, sourceHeight);
+    if (!scene.valid()) return status_packet(env, -7);
 
     tn::RasterResolver resolver(
         scene, tnState, targetWidth, targetHeight);
@@ -442,7 +481,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     const std::size_t pixelCount =
         static_cast<std::size_t>(pixelCount64);
 
-    std::vector<jint> packet(kHeaderInts + pixelCount, 0);
+    std::vector<jint> packet(
+        kHeaderInts + pixelCount + pixelCount, 0);
     packet[0] = kMagic;
     packet[1] = 0;
     packet[2] = static_cast<jint>(targetWidth);
@@ -474,6 +514,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     std::uint64_t boundKnownChannels = 0u;
     std::uint64_t footprintLinks = 0u;
     std::uint64_t displayClampPixels = 0u;
+    std::uint64_t n2CandidateChangedPixels = 0u;
+    std::uint64_t n2CandidateAdjustedChannels = 0u;
+    std::uint64_t n2CandidateDisplayClampPixels = 0u;
 
     for (std::uint32_t y = 0u; y < targetHeight; ++y) {
         for (std::uint32_t x = 0u; x < targetWidth; ++x) {
@@ -586,6 +629,82 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 static_cast<std::size_t>(y) * targetWidth + x;
             packet[kHeaderInts + index] =
                 static_cast<jint>(argb);
+
+            // Separate appearance-only N2 A/B candidate. The Scientific
+            // Master, TruthNegative state, Deep Scene packet and baseline
+            // Appearance input above remain untouched. We only copy the
+            // resolved scene into an explicitly non-scientific candidate and
+            // add the area-averaged sampled-CFA correction for this target
+            // footprint.
+            const auto& correctionBin =
+                n2Audit.appearanceGrid[index];
+            auto candidateScene = scientificView;
+            bool candidateChanged = false;
+            for(std::size_t cc=0u;cc<3u;++cc){
+                if(correctionBin.sampled[cc]==0u)continue;
+                const double correction =
+                    correctionBin.correctionSum[cc] /
+                    static_cast<double>(correctionBin.sampled[cc]);
+                if(!std::isfinite(correction)) {
+                    return status_packet(env, -18);
+                }
+                if(correction!=0.0){
+                    candidateScene.sceneLinearRgb[cc] += correction;
+                    candidateChanged = true;
+                    ++n2CandidateAdjustedChannels;
+                }
+            }
+            if(candidateChanged)++n2CandidateChangedPixels;
+
+            // This alternate display hypothesis must never inherit measured
+            // authority merely because it started from the scientific view.
+            candidateScene.channelAuthority.fill(
+                free_world::ResolvedAuthority::Unknown);
+            candidateScene.uncertaintyKnown.fill(false);
+            candidateScene.p95Uncertainty.fill(0.0);
+            candidateScene.visibility.scientificObservation = false;
+            candidateScene.appearanceApplied = false;
+            candidateScene.displayEncoded = false;
+            candidateScene.sourcePacketSha256 =
+                n2_candidate_scene_digest(
+                    scientificView.sourcePacketSha256,
+                    n2Audit.appearanceGridSha256,
+                    index,
+                    candidateScene.sceneLinearRgb);
+            candidateScene.createsNewEvidence = false;
+            candidateScene.scientificWritebackAllowed = false;
+
+            appearance::AppearanceInput candidateInput{};
+            candidateInput.scene = candidateScene;
+            candidateInput.sceneColorimetry = sceneColor;
+            candidateInput.viewing = viewing;
+            candidateInput.display = display;
+            candidateInput.policy = policy;
+
+            appearance::AppearanceResolvedPixel candidateVisible{};
+            if(!appearance::resolveAppearance(
+                    candidateInput,candidateVisible) ||
+               candidateVisible.sourceSceneMutated ||
+               candidateVisible.createsNewEvidence ||
+               candidateVisible.scientificWritebackAllowed ||
+               !candidateVisible.appearanceApplied ||
+               !candidateVisible.displayEncoded){
+                return status_packet(env, -18);
+            }
+            if(candidateVisible.gamutOrDisplayClampApplied){
+                ++n2CandidateDisplayClampPixels;
+            }
+
+            const std::uint32_t cr =
+                quantize_u8(candidateVisible.encodedRgb[0]);
+            const std::uint32_t cg =
+                quantize_u8(candidateVisible.encodedRgb[1]);
+            const std::uint32_t cb =
+                quantize_u8(candidateVisible.encodedRgb[2]);
+            const std::uint32_t candidateArgb =
+                0xff000000u | (cr << 16u) | (cg << 8u) | cb;
+            packet[kHeaderInts + pixelCount + index] =
+                static_cast<jint>(candidateArgb);
         }
     }
 
@@ -655,10 +774,24 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     packet[85] = n2Audit.truthNegativeModified ? 1 : 0;
     packet[86] = n2Audit.createsNewEvidence ? 1 : 0;
     packet[87] = n2Audit.scientificWritebackAllowed ? 1 : 0;
-    packet[88] = 0; // candidateAppliedToAppearance = false
-    packet[89] = 1; // auditOnly = true
+    packet[88] = 0; // baseline candidateAppliedToAppearance = false
+    packet[89] = 1; // scientific audit-only = true
     packet[90] = 1; // measuredCfaDomain = true
     packet[91] = 0; // reserved
+    packet[92] = 1; // N2 appearance A/B candidate available
+    packet[93] = 1; // appearance-only candidate
+    packet[94] = 1; // candidate rendered in separate B bitmap
+    packet[95] = 0; // candidate createsNewEvidence
+    packet[96] = 0; // candidate scientificWritebackAllowed
+    packet[97] = 0; // baseline/source scene mutated
+    packet[98] = static_cast<jint>(n2Audit.appearanceGridWidth);
+    packet[99] = static_cast<jint>(n2Audit.appearanceGridHeight);
+    packet[100] = clamp_metric(n2CandidateChangedPixels);
+    packet[101] = clamp_metric(n2CandidateAdjustedChannels);
+    packet[102] = clamp_metric(n2CandidateDisplayClampPixels);
+    packet[103] = 0; // reserved
+    digest_to_words(
+        n2Audit.appearanceGridSha256, packet.data() + 104u);
 
     jintArray out =
         env->NewIntArray(static_cast<jsize>(packet.size()));
