@@ -68,6 +68,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     camera5_color_highlight_oracle_bridge.cpp
     truthnegative_native_container_bridge.cpp
     truthnegative_n2_spatial_sidecar_bridge.cpp
+    truthnegative_n2_crop_ab_bridge.cpp
     photo_export_bridge.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
