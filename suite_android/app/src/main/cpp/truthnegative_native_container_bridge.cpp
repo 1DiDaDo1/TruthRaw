@@ -182,6 +182,11 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
     o << ",\"authorityReconstructed\":" << written.authorityReconstructed;
     o << ",\"authorityCensored\":" << written.authorityCensored;
     o << ",\"authorityUnknown\":" << written.authorityUnknown;
+    o << ",\"censoredR\":" << written.censoredByRgb[0];
+    o << ",\"censoredG\":" << written.censoredByRgb[1];
+    o << ",\"censoredB\":" << written.censoredByRgb[2];
+    o << ",\"censoredValueAboveOne\":" << written.censoredValueAboveOneCount;
+    o << ",\"censoredValueAtOrBelowOne\":" << written.censoredValueAtOrBelowOneCount;
     o << ",\"uncertaintyKnownCount\":" << written.uncertaintyKnownCount;
     o << ",\"supportKnownCount\":" << written.supportKnownCount;
     o << ",\"boundKnownCount\":" << written.boundKnownCount;
