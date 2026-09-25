@@ -97,6 +97,17 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"censored_raw_code_bound_min="<<s.censoredRawCodeBoundMin<<"\n";
     o<<"censored_raw_code_bound_max="<<s.censoredRawCodeBoundMax<<"\n";
     o<<"censored_raw_code_bound_mismatch_count="<<s.censoredRawCodeBoundMismatchCount<<"\n";
+    o<<"censored_parity_00="<<s.censoredByCfaParity[0]<<"\n";
+    o<<"censored_parity_10="<<s.censoredByCfaParity[1]<<"\n";
+    o<<"censored_parity_01="<<s.censoredByCfaParity[2]<<"\n";
+    o<<"censored_parity_11="<<s.censoredByCfaParity[3]<<"\n";
+    o<<"censored_raw10_1023_count="<<s.censoredRaw10MaxCount<<"\n";
+    for(std::size_t p=0;p<4u;++p){
+        o<<"censored_parity_"<<p<<"_raw10_1023="<<s.censoredRaw10MaxByCfaParity[p]<<"\n";
+        o<<"censored_parity_"<<p<<"_bbox="
+         <<s.censoredParityMinX[p]<<","<<s.censoredParityMinY[p]<<","
+         <<s.censoredParityMaxX[p]<<","<<s.censoredParityMaxY[p]<<"\n";
+    }
     o<<"uncertainty_known_count="<<s.uncertaintyKnownCount<<"\n";
     o<<"support_known_count="<<s.supportKnownCount<<"\n";
     o<<"bound_known_count="<<s.boundKnownCount<<"\n";
@@ -230,6 +241,25 @@ bool write(
                             if(!record.boundKnown ||
                                record.boundDomain!=field::BoundDomain::SourceRawCode)
                                 ++out.censoredRawCodeBoundMismatchCount;
+                            const std::size_t parity=
+                                static_cast<std::size_t>(px&1u) |
+                                (static_cast<std::size_t>(py&1u)<<1u);
+                            if(out.censoredByCfaParity[parity]==0u){
+                                out.censoredParityMinX[parity]=out.censoredParityMaxX[parity]=px;
+                                out.censoredParityMinY[parity]=out.censoredParityMaxY[parity]=py;
+                            }else{
+                                out.censoredParityMinX[parity]=std::min(out.censoredParityMinX[parity],px);
+                                out.censoredParityMinY[parity]=std::min(out.censoredParityMinY[parity],py);
+                                out.censoredParityMaxX[parity]=std::max(out.censoredParityMaxX[parity],px);
+                                out.censoredParityMaxY[parity]=std::max(out.censoredParityMaxY[parity],py);
+                            }
+                            ++out.censoredByCfaParity[parity];
+                            if(record.boundKnown &&
+                               record.boundDomain==field::BoundDomain::SourceRawCode &&
+                               record.bound==1023.0f){
+                                ++out.censoredRaw10MaxCount;
+                                ++out.censoredRaw10MaxByCfaParity[parity];
+                            }
                             ++out.censoredByRgb[
                                 static_cast<std::size_t>(&record - records.data()) % 3u];
                             if(std::isfinite(record.value) && record.value > 1.0f)
