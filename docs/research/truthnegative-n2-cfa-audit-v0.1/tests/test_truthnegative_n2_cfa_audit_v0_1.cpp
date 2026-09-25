@@ -42,5 +42,7 @@ int main(){
  R(r.audit.corrected>0);R(r.audit.censoredProtected>0||r.audit.censorBoundaryProtected>0);
  R(!r.sourceValuesModified&&!r.truthNegativeModified&&!r.createsNewEvidence&&!r.scientificWritebackAllowed);
  R(std::any_of(r.auditSha256.begin(),r.auditSha256.end(),[](auto v){return v!=0;}));
+ R(std::any_of(r.spatialSha256.begin(),r.spatialSha256.end(),[](auto v){return v!=0;}));
+ R(r.tileEdge==16u);R(r.tiles.size()==4u);std::uint64_t tileSamples=0;for(const auto&t:r.tiles){R(t.sampled>0);R(t.audit.total==t.sampled);tileSamples+=t.sampled;}R(tileSamples==r.sampled);
  std::cout<<"TruthNegativeN2CfaAudit/0.1 PASS corrected="<<r.audit.corrected<<" preserved="<<r.audit.preserved<<"\n";
 }
