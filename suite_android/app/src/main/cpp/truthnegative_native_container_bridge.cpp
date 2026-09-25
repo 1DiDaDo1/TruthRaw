@@ -173,9 +173,11 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
     o << ",\"recordCount\":" << written.recordCount;
     o << ",\"bodyBytes\":" << written.bodyBytes;
     o << ",\"fileBytes\":" << written.fileBytes;
+    o << ",\"roleUnknown\":" << written.roleUnknown;
     o << ",\"roleSourceMeasuredCfa\":" << written.roleSourceMeasuredCfa;
     o << ",\"roleScientificReconstruction\":" << written.roleScientificReconstruction;
     o << ",\"roleDenseProjection\":" << written.roleDenseProjection;
+    o << ",\"roleRestorationDerivative\":" << written.roleRestorationDerivative;
     o << ",\"authorityCalibratedEstimate\":" << written.authorityCalibratedEstimate;
     o << ",\"authorityReconstructed\":" << written.authorityReconstructed;
     o << ",\"authorityCensored\":" << written.authorityCensored;
