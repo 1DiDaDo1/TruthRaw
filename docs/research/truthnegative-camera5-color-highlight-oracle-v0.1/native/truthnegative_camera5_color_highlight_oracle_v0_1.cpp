@@ -112,8 +112,13 @@ bool run(const Input& input, Report& out) noexcept {
             for (const auto& rgb : s.encodedRgbByExposure) {
                 if (!finite3(rgb)) return false;
             }
-            for (auto a : s.authority) {
-                if (a == fw::ResolvedAuthority::Censored) {
+            for (std::size_t channel = 0u; channel < 3u; ++channel) {
+                const double cw = s.censoredWeight[channel];
+                if (!std::isfinite(cw) || cw < 0.0 || cw > 1.0) {
+                    return false;
+                }
+                if (cw > 1.0e-12 ||
+                    s.authority[channel] == fw::ResolvedAuthority::Censored) {
                     ++out.censoredChannelCount;
                 }
             }
