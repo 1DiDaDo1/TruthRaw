@@ -108,3 +108,90 @@ Permanent invariants remain unchanged:
 - candidate display only;
 - createsNewEvidence=false;
 - scientificWritebackAllowed=false.
+
+
+## Risk / Quality device result
+
+A subsequent Camera-5 admitted DNG completed the Risk / Quality v0.1
+diagnostic with `baseline-mismatch=0` in all three automatically selected
+crops.
+
+### Quiet / noise-candidate crop
+
+Source x=3328, y=2112, 192x192.
+
+- candidate: 35103 / 36864
+- preserved / structure-protected: 1761 / 1761
+- changed display pixels: 32291 / 36864
+- display delta p50 / p95 / p99 / max:
+  0.0037831 / 0.0118110 / 0.0203161 / 0.0660779
+- RGB p99: 0.0086956 / 0.0056419 / 0.0201859
+- display-luma p99: 0.0047001
+- chroma p99: 0.0112065
+- max delta source coordinate: x=3415, y=2203
+- distance to Structure protection: 1.41 px
+- edge-energy B/A: 0.842389
+- mean absolute gradient-magnitude delta: 0.0015954
+
+The edge-energy drop is large, but this crop was selected as a quiet/noise
+candidate region, so the metric cannot by itself distinguish useful
+high-frequency noise removal from detail loss.
+
+### Structure crop
+
+Source x=2688, y=1728, 192x192.
+
+- candidate: 15471 / 36864
+- preserved: 21393
+- structure-protected: 21028
+- censored / boundary: 145 / 205
+- changed display pixels: 15373 / 36864
+- display delta p50 / p95 / p99 / max:
+  0.0008280 / 0.0073301 / 0.0155366 / 0.0666121
+- RGB p99: 0.0057230 / 0.0034107 / 0.0154263
+- display-luma p99: 0.0029554
+- chroma p99: 0.0086190
+- max delta source coordinate: x=2835, y=1763
+- distance to Structure protection: **0.00 px**
+- distance to censor/boundary: 67.23 px
+- edge-energy B/A: 0.983860
+- mean absolute gradient-magnitude delta: 0.0005713
+
+The 0.00 px structure distance is the decisive finding. It does not imply that
+the protected CFA centre itself was corrected. It shows that admitted
+neighboring CFA corrections can propagate through full-colour reconstruction
+and change reconstructed channels at a Structure-protected output pixel.
+Source-site gating alone is therefore insufficient for output-space structure
+protection.
+
+### Censor / highlight crop
+
+Source x=2048, y=768, 192x192.
+
+- candidate: 5094 / 36864
+- preserved: 31770
+- structure-protected: 4211
+- censored / boundary: 26901 / 656
+- changed display pixels: 4643 / 36864
+- display delta p50 / p95 / p99 / max:
+  0.0000000 / 0.0040492 / 0.0080879 / 0.0378958
+- RGB p99: 0.0034679 / 0.0021755 / 0.0077469
+- display-luma p99: 0.0019433
+- chroma p99: 0.0046949
+- max delta source coordinate: x=2231, y=775
+- distance to Structure protection: 1.41 px
+- distance to censor/boundary: 13.00 px
+- edge-energy B/A: 0.985534
+- mean absolute gradient-magnitude delta: 0.0001785
+
+The highlight protection remains strongly conservative.
+
+## Consequence
+
+Do not enable production N2 appearance denoise.
+
+The next diagnostic candidate closes N2 protection over the reconstruction
+support. An otherwise-admitted CFA correction is suppressed when it falls
+within `requiredHalo()` of any protected core output pixel. After
+reconstruction every protected core RGB output must be Float32 bit-identical
+to baseline; otherwise the route fails closed.
