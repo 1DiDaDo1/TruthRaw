@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 
 private const val N2_CROP_AB_MAGIC = 0x31424132
 private const val N2_CROP_AB_COUNT = 3
-private const val N2_CROP_AB_META_INTS = 32
+private const val N2_CROP_AB_META_INTS = 88
 private const val N2_CROP_AB_HEADER_INTS = 48 + N2_CROP_AB_COUNT * N2_CROP_AB_META_INTS
 private const val N2_CROP_AB_MAX_SOURCE_BYTES = 8 * 1024 * 1024
 private const val N2_CROP_AB_MAX_LOGICAL_BYTES = 64 * 1024 * 1024
@@ -27,6 +27,14 @@ enum class TruthNegativeN2CropKind {
     STRUCTURE,
     CENSOR,
 }
+
+data class TruthNegativeN2Quantiles(
+    val mean: Double,
+    val p50: Double,
+    val p95: Double,
+    val p99: Double,
+    val max: Double,
+)
 
 data class TruthNegativeN2CropMetrics(
     val kind: TruthNegativeN2CropKind,
@@ -54,6 +62,25 @@ data class TruthNegativeN2CropMetrics(
     val candidateStage2Sites: Int,
     val fullColourCandidate: Boolean,
     val candidateIdentitySha256: String,
+    val pixelDelta: TruthNegativeN2Quantiles,
+    val redDelta: TruthNegativeN2Quantiles,
+    val greenDelta: TruthNegativeN2Quantiles,
+    val blueDelta: TruthNegativeN2Quantiles,
+    val lumaDelta: TruthNegativeN2Quantiles,
+    val chromaDelta: TruthNegativeN2Quantiles,
+    val maxDeltaSourceX: Int,
+    val maxDeltaSourceY: Int,
+    val maxDeltaPreserveReasonMask: Int,
+    val distanceToStructurePx: Double,
+    val distanceToCensorBoundaryPx: Double,
+    val edgeEnergyA: Double,
+    val edgeEnergyB: Double,
+    val edgeEnergyRatio: Double,
+    val meanAbsGradientDelta: Double,
+    val structureMaskPixels: Int,
+    val censorMaskPixels: Int,
+    val qualityChangedPixels: Int,
+    val qualitySha256: String,
 )
 
 data class TruthNegativeN2CropPanel(
@@ -226,6 +253,59 @@ object TruthNegativeN2CropAbLoader {
                     )
                 }
 
+                val pixelDelta = readQuantiles(packet, m + 32)
+                val redDelta = readQuantiles(packet, m + 37)
+                val greenDelta = readQuantiles(packet, m + 42)
+                val blueDelta = readQuantiles(packet, m + 47)
+                val lumaDelta = readQuantiles(packet, m + 52)
+                val chromaDelta = readQuantiles(packet, m + 57)
+                val maxDeltaSourceX = packet[m + 62]
+                val maxDeltaSourceY = packet[m + 63]
+                val maxDeltaPreserveReasonMask = packet[m + 64]
+                val distanceToStructureRaw = packet[m + 65]
+                val distanceToCensorRaw = packet[m + 66]
+                val distanceToStructurePx =
+                    if (distanceToStructureRaw < 0) -1.0
+                    else distanceToStructureRaw.toDouble() / 1_000.0
+                val distanceToCensorBoundaryPx =
+                    if (distanceToCensorRaw < 0) -1.0
+                    else distanceToCensorRaw.toDouble() / 1_000.0
+                val edgeEnergyA = packet[m + 67].toDouble() / 10_000.0
+                val edgeEnergyB = packet[m + 68].toDouble() / 10_000.0
+                val edgeEnergyRatio = packet[m + 69].toDouble() / 1_000_000.0
+                val meanAbsGradientDelta =
+                    packet[m + 70].toDouble() / 1_000_000_000.0
+                val structureMaskPixels = packet[m + 71]
+                val censorMaskPixels = packet[m + 72]
+                val qualityChangedPixels = packet[m + 73]
+                val qualitySha256 = digestWords(packet, m + 74)
+                val qualityCreatesNewEvidence = packet[m + 82] != 0
+                val qualityScientificWriteback = packet[m + 83] != 0
+                if (maxDeltaSourceX !in x until (x + width) ||
+                    maxDeltaSourceY !in y until (y + height) ||
+                    distanceToStructurePx < -1.0 ||
+                    distanceToCensorBoundaryPx < -1.0 ||
+                    edgeEnergyA < 0.0 ||
+                    edgeEnergyB < 0.0 ||
+                    edgeEnergyRatio < 0.0 ||
+                    meanAbsGradientDelta < 0.0 ||
+                    structureMaskPixels < 0 ||
+                    structureMaskPixels > cropPixels ||
+                    censorMaskPixels < 0 ||
+                    censorMaskPixels > cropPixels ||
+                    qualityChangedPixels < 0 ||
+                    qualityChangedPixels > cropPixels ||
+                    qualityChangedPixels < packet[m + 13] ||
+                    qualitySha256.length != 64 ||
+                    qualitySha256.all { it == '0' } ||
+                    qualityCreatesNewEvidence ||
+                    qualityScientificWriteback
+                ) {
+                    throw IllegalStateException(
+                        "risk/quality audit contract mismatch",
+                    )
+                }
+
                 val base = N2_CROP_AB_HEADER_INTS + index * 3 * cropPixels
                 val a = Bitmap.createBitmap(
                     packet.copyOfRange(base, base + cropPixels),
@@ -286,6 +366,25 @@ object TruthNegativeN2CropAbLoader {
                         candidateIdentitySha256 = candidateIdentitySha256,
                         candidateStage2Sites = candidateStage2Sites,
                         fullColourCandidate = cropFullColourCandidate,
+                        pixelDelta = pixelDelta,
+                        redDelta = redDelta,
+                        greenDelta = greenDelta,
+                        blueDelta = blueDelta,
+                        lumaDelta = lumaDelta,
+                        chromaDelta = chromaDelta,
+                        maxDeltaSourceX = maxDeltaSourceX,
+                        maxDeltaSourceY = maxDeltaSourceY,
+                        maxDeltaPreserveReasonMask = maxDeltaPreserveReasonMask,
+                        distanceToStructurePx = distanceToStructurePx,
+                        distanceToCensorBoundaryPx = distanceToCensorBoundaryPx,
+                        edgeEnergyA = edgeEnergyA,
+                        edgeEnergyB = edgeEnergyB,
+                        edgeEnergyRatio = edgeEnergyRatio,
+                        meanAbsGradientDelta = meanAbsGradientDelta,
+                        structureMaskPixels = structureMaskPixels,
+                        censorMaskPixels = censorMaskPixels,
+                        qualityChangedPixels = qualityChangedPixels,
+                        qualitySha256 = qualitySha256,
                     ),
                 )
             }
@@ -343,6 +442,18 @@ object TruthNegativeN2CropAbLoader {
         }
     }
 
+    private fun readQuantiles(
+        packet: IntArray,
+        start: Int,
+    ): TruthNegativeN2Quantiles =
+        TruthNegativeN2Quantiles(
+            mean = packet[start].toDouble() / 1_000_000_000.0,
+            p50 = packet[start + 1].toDouble() / 1_000_000_000.0,
+            p95 = packet[start + 2].toDouble() / 1_000_000_000.0,
+            p99 = packet[start + 3].toDouble() / 1_000_000_000.0,
+            max = packet[start + 4].toDouble() / 1_000_000_000.0,
+        )
+
     private fun digestWords(packet: IntArray, start: Int): String {
         val hex = "0123456789abcdef"
         val out = StringBuilder(64)
@@ -376,6 +487,7 @@ object TruthNegativeN2CropAbLoader {
         -16 -> "N2 1:1 cropdiagnose: full-lattice audit van de reconstructiehalo faalde."
         -17 -> "N2 1:1 cropdiagnose: full-colour measured-preserving kandidaat-reconstructie faalde."
         -18 -> "N2 1:1 cropdiagnose: baseline-reconstructie was niet bit-identiek aan de exacte Scientific Master bronpixel."
+        -19 -> "N2 1:1 cropdiagnose: N2 Risk/Quality Audit faalde fail-closed."
         in 2000..9999 -> "N2 1:1 cropdiagnose: upstream pipeline status $status."
         else -> "N2 1:1 cropdiagnose: native status $status."
     }
