@@ -744,7 +744,8 @@ class MainActivity : Activity() {
         n2CropAbJobId = job.id
         n2CropAbStatus =
             "N2 1:1 cropdiagnose selecteert automatisch rustige/noise-, " +
-                "structuur- en censorzones en bouwt full-lattice A/B/Δ-crops…"
+                "structuur- en censorzones, audit het volledige CFA-raster en " +
+                "propagereert alleen toegelaten correcties door dezelfde full-colour reconstructie…"
         render()
 
         startGuardedBackgroundThread(
@@ -761,7 +762,7 @@ class MainActivity : Activity() {
                 result is TruthNegativeN2CropAbResult.Ready,
                 when (result) {
                     is TruthNegativeN2CropAbResult.Ready ->
-                        "N2 1:1 A/B/Δ cropdiagnose gereed."
+                        "N2 1:1 full-colour A/B/Δ cropdiagnose gereed."
                     is TruthNegativeN2CropAbResult.Failed ->
                         result.reason
                 },
@@ -783,7 +784,7 @@ class MainActivity : Activity() {
                         n2CropAbJobId = job.id
                         val r = result.report
                         n2CropAbStatus =
-                            "N2 1:1 cropdiagnose gereed · " +
+                            "N2 1:1 full-colour cropdiagnose gereed · " +
                                 r.crops.joinToString(" · ") { panel ->
                                     val m = panel.metrics
                                     m.kind.name + "=" +
@@ -3170,7 +3171,7 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
                         addView(space(7))
-                        addView(actionButton("N2 · 1:1 A/B/Δ cropdiagnose") {
+                        addView(actionButton("N2 · 1:1 Full-colour A/B/Δ") {
                             launchN2CropAbDiagnostic(active)
                         })
                         n2CropAbStatus?.let { status ->
@@ -3207,16 +3208,18 @@ class MainActivity : Activity() {
 
                             addView(space(8))
                             addView(label(
-                                "N2 1:1 broncrops · full-lattice diagnose",
+                                "N2 1:1 broncrops · full-colour candidate-reconstructie",
                                 11.5f,
                                 bold = true,
                             ))
                             addView(label(
                                 "Iedere crop is 1 bronpixel → 1 previewpixel. A blijft de " +
-                                    "ongewijzigde TruthNegative/Appearance. B wijzigt alleen de " +
-                                    "gemeten CFA-kandidaatcomponent in een tijdelijke displaykopie. " +
-                                    "Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
-                                    "Dit is géén kandidaat-RAW-reconstructie.",
+                                    "ongewijzigde TruthNegative/Appearance. Voor B worden uitsluitend " +
+                                    "N2-toegelaten CFA-correcties in een private Stage-2-kopie gezet en daarna " +
+                                    "door exact dezelfde measured-preserving Float64 full-colour reconstructie " +
+                                    "geleid als de Scientific Master. Daarna wordt alleen de tijdelijke B-displaykopie " +
+                                    "getoond. Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
+                                    "Bron, Scientific Master en TruthNegative blijven ongewijzigd.",
                                 9.2f,
                                 muted = true,
                             ))
@@ -3305,14 +3308,19 @@ class MainActivity : Activity() {
                                         "Δmax=${"%.7f".format(m.maxAbsEncodedDelta)} · " +
                                         "removed-energy=${"%.3f".format(m.removedResidualEnergyFraction * 100.0)}% · " +
                                         "max|Δ|stage2=${"%.8f".format(m.maxAbsCorrectionStage2)} · " +
-                                        "grid=${m.correctionGridSha256.take(12)}…",
+                                        "candidate-stage2=${m.candidateStage2Sites} · " +
+                                        "rgb-changed=${m.adjustedChannels} · baseline-mismatch=" +
+                                        "${m.baselineRgbMismatches} · candidate=" +
+                                        "${m.candidateIdentitySha256.take(12)}…",
                                     8.7f,
                                     muted = true,
                                 ))
                             }
 
                             addView(label(
-                                "1:1 diagnose: source/Scientific Master/TruthNegative blijven immutable · " +
+                                "1:1 full-colour diagnose: baseline-reconstructie moet exact binnen tolerance " +
+                                    "op de Scientific Master aansluiten; anders faalt de route gesloten. " +
+                                    "source/Scientific Master/TruthNegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
                                 9f,
                                 muted = true,
