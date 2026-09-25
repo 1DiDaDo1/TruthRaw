@@ -3,7 +3,6 @@
 #include "free_world_appearance_resolve_v0_7.h"
 #include "free_world_scientific_open_scene_binding_v0_3.h"
 #include "full_frame_streaming_v0_1_internal.h"
-#include "truthnegative_deep_scene_bridge_v0_8.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_full_colour_candidate_v0_1.h"
 #include "truthnegative_pipeline_bridge_common.h"
@@ -27,7 +26,6 @@ namespace binding = truthraw::free_world_scientific_open_scene_binding::v0_3;
 namespace deep = truthraw::free_world_deep_scene_contribution::v0_4;
 namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
-namespace tn_deep = truthraw::truthnegative_deep_scene_bridge::v0_8;
 namespace n2 = truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace n2fc = truthraw::truthnegative_n2_full_colour_candidate::v0_1;
 namespace stream_detail = truthraw::streaming_v0_1::detail;
@@ -205,30 +203,118 @@ struct CropMetrics final {
     std::uint64_t candidateStage2Sites=0u;
     double absDeltaSum=0.0;
     double maxAbsDelta=0.0;
-    double maxBaselineRgbDelta=0.0;
 };
 
-bool make_scientific_view(
+free_world::ResolvedAuthority map_exact_authority(
+    free_world::SourceAuthority authority) noexcept {
+    switch(authority){
+        case free_world::SourceAuthority::Censored:
+            return free_world::ResolvedAuthority::Censored;
+        case free_world::SourceAuthority::Unknown:
+            return free_world::ResolvedAuthority::Unknown;
+        case free_world::SourceAuthority::CalibratedEstimate:
+        case free_world::SourceAuthority::Reconstructed:
+            return free_world::ResolvedAuthority::Reconstructed;
+    }
+    return free_world::ResolvedAuthority::Unknown;
+}
+
+sha::Digest exact_master_scene_digest(
     const tn::State& state,
-    const tn::QueryResult& query,
-    std::uint64_t provenance,
-    deep::DeepResolvedPixel& out) noexcept {
-    tn_deep::CameraPlaneObjectInput cameraPlane{};
-    cameraPlane.provenanceId=provenance;
-    cameraPlane.regionId=1u;
-    cameraPlane.objectId=1u;
-    cameraPlane.depth=0.0;
-    cameraPlane.geometryAuthority=
-        truthraw::free_world_deep_scene_binding::v0_5::
-            GeometryAuthority::ImagePlaneBound;
-    cameraPlane.parentAncestrySha256=query.querySha256;
-    tn_deep::ScenePacket packet{};
-    if(!tn_deep::buildCameraPlaneObject(state,query,cameraPlane,packet)||
-       packet.createsNewEvidence||packet.scientificWritebackAllowed)return false;
-    if(!deep::resolve(packet.deepPacket,deep::ResolveView::ScientificView,out)||
-       out.createsNewEvidence||out.scientificWritebackAllowed||
-       out.physicalFrameCount!=1u||out.independentEvidenceCount!=1u)return false;
-    return true;
+    const sha::Digest& authorityFieldSha,
+    std::uint32_t x,
+    std::uint32_t y,
+    const free_world::SourcePixel& pixel) noexcept {
+    sha::Hasher h;
+    constexpr char domain[] =
+        "D_RAW_TN_N2_EXACT_SCIENTIFIC_MASTER_PIXEL_V0_2";
+    h.update(
+        reinterpret_cast<const std::uint8_t*>(domain),
+        sizeof(domain)-1u);
+    h.update(state.stateSha256);
+    h.update(authorityFieldSha);
+    const std::array<std::uint32_t,2u> xy{x,y};
+    for(auto v:xy){
+        std::array<std::uint8_t,4u> b{
+            static_cast<std::uint8_t>(v),
+            static_cast<std::uint8_t>(v>>8u),
+            static_cast<std::uint8_t>(v>>16u),
+            static_cast<std::uint8_t>(v>>24u)};
+        h.update(b);
+    }
+    for(const auto& ch:pixel.channel){
+        const auto bits=std::bit_cast<std::uint64_t>(ch.value);
+        std::array<std::uint8_t,8u> b{};
+        for(std::size_t i=0u;i<8u;++i){
+            b[i]=static_cast<std::uint8_t>(bits>>(8u*i));
+        }
+        h.update(b);
+        const std::array<std::uint8_t,2u> tags{
+            static_cast<std::uint8_t>(ch.role),
+            static_cast<std::uint8_t>(ch.authority)};
+        h.update(tags);
+    }
+    return h.finalize();
+}
+
+bool make_exact_scientific_master_view(
+    const tn::State& state,
+    const sha::Digest& authorityFieldSha,
+    const free_world::SourcePixel& sourcePixel,
+    std::uint32_t x,
+    std::uint32_t y,
+    const float* expectedBaselineRgb,
+    deep::DeepResolvedPixel& out,
+    std::uint64_t& mismatchCount) noexcept {
+    out={};
+    if(expectedBaselineRgb==nullptr)return false;
+    for(std::size_t cc=0u;cc<3u;++cc){
+        const double sourceValue=sourcePixel.channel[cc].value;
+        if(!std::isfinite(sourceValue))return false;
+        const float sourceF32=static_cast<float>(sourceValue);
+        if(std::bit_cast<std::uint32_t>(sourceF32)!=
+           std::bit_cast<std::uint32_t>(expectedBaselineRgb[cc])){
+            ++mismatchCount;
+            return false;
+        }
+        out.sceneLinearRgb[cc]=sourceValue;
+        out.channelAuthority[cc]=
+            map_exact_authority(sourcePixel.channel[cc].authority);
+        out.uncertaintyKnown[cc]=
+            sourcePixel.channel[cc].uncertaintyKnown;
+        out.p95Uncertainty[cc]=
+            sourcePixel.channel[cc].uncertaintyKnown
+                ? sourcePixel.channel[cc].p95Uncertainty
+                : 0.0;
+    }
+
+    out.visibility.evidenceWeight=1.0;
+    out.visibility.inferredWeight=0.0;
+    out.visibility.restorationWeight=0.0;
+    out.visibility.counterfactualWeight=0.0;
+    out.visibility.residualTransmittance=0.0;
+    out.visibility.containsInferred=false;
+    out.visibility.containsRestorationHypothesis=false;
+    out.visibility.containsCounterfactual=false;
+    out.visibility.scientificObservation=true;
+    out.visibility.createsNewEvidence=false;
+    out.visibility.scientificWritebackAllowed=false;
+
+    out.sourcePacketSha256=exact_master_scene_digest(
+        state,authorityFieldSha,x,y,sourcePixel);
+    out.resolveMethodId=
+        "EXACT_SCIENTIFIC_MASTER_SOURCE_PIXEL_V0_2";
+    out.view=deep::ResolveView::ScientificView;
+    out.appearanceApplied=false;
+    out.displayEncoded=false;
+    out.createsNewEvidence=false;
+    out.scientificWritebackAllowed=false;
+    out.physicalFrameCount=1u;
+    out.independentEvidenceCount=1u;
+    return std::any_of(
+        out.sourcePacketSha256.begin(),
+        out.sourcePacketSha256.end(),
+        [](std::uint8_t v){return v!=0u;});
 }
 
 } // namespace
@@ -281,10 +367,6 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
         crops[i]=crop_around(
             coarse.tiles[selected[i]],types[i],ctx.width,ctx.height);
     }
-
-    tn::RasterResolver fullResolver(
-        scene,ctx.truthNegativeState,ctx.width,ctx.height);
-    if(!fullResolver.valid())return status_packet(env,-5);
 
     appearance::SceneColorimetry sceneColor{};
     sceneColor.rgbToXyz=matrix_from_f32(ctx.produced.color.cameraToXyzD50);
@@ -493,20 +575,23 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                 const std::size_t local=
                     static_cast<std::size_t>(ly)*crop.width+lx;
 
-                tn::QueryResult query{};
-                if(!fullResolver.resolvePixel(gx,gy,query)||
-                   query.stateSha256!=ctx.truthNegativeState.stateSha256||
-                   query.stateIdentityChangedByTargetRaster||
-                   query.createsNewEvidence||query.scientificWritebackAllowed){
+                free_world::SourcePixel exactSourcePixel{};
+                if(!scene.readPixel(gx,gy,exactSourcePixel)){
                     return status_packet(env,-8);
                 }
 
+                const std::size_t rgbBase=local*3u;
                 deep::DeepResolvedPixel scientificView{};
-                const std::uint64_t provenance=
-                    1u+static_cast<std::uint64_t>(gy)*ctx.width+gx;
-                if(!make_scientific_view(
-                        ctx.truthNegativeState,query,provenance,scientificView)){
-                    return status_packet(env,-9);
+                if(!make_exact_scientific_master_view(
+                        ctx.truthNegativeState,
+                        ctx.authorityField.contentSha256,
+                        exactSourcePixel,
+                        gx,
+                        gy,
+                        fullColour.baselineCameraRgb.data()+rgbBase,
+                        scientificView,
+                        metrics.baselineRgbMismatches)){
+                    return status_packet(env,-18);
                 }
 
                 appearance::AppearanceInput aInput{};
@@ -523,30 +608,6 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
                     return status_packet(env,-10);
                 }
                 if(aVisible.gamutOrDisplayClampApplied)++metrics.clampA;
-
-                const std::size_t rgbBase=local*3u;
-                for(std::size_t cc=0u;cc<3u;++cc){
-                    const double baseline=
-                        static_cast<double>(
-                            fullColour.baselineCameraRgb[rgbBase+cc]);
-                    const double scientific=
-                        scientificView.sceneLinearRgb[cc];
-                    if(!std::isfinite(baseline)||
-                       !std::isfinite(scientific)){
-                        return status_packet(env,-18);
-                    }
-                    const double delta=std::abs(baseline-scientific);
-                    metrics.maxBaselineRgbDelta=
-                        std::max(metrics.maxBaselineRgbDelta,delta);
-                    const double scale=std::max(
-                        {1.0,std::abs(baseline),std::abs(scientific)});
-                    if(delta>1.0e-6*scale){
-                        ++metrics.baselineRgbMismatches;
-                    }
-                }
-                if(metrics.baselineRgbMismatches!=0u){
-                    return status_packet(env,-18);
-                }
 
                 auto candidateScene=scientificView;
                 candidateScene.sceneLinearRgb={
