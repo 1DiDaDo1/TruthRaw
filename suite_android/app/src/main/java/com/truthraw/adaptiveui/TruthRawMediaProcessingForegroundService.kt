@@ -27,6 +27,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
     override fun onDestroy() {
         releaseWakeLock()
         if (instance === this) instance = null
+        activeKeys.clear()
         isRunning = false
         super.onDestroy()
     }
@@ -47,6 +48,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
             return START_NOT_STICKY
         }
         labels[key] = label
+        activeKeys.add(key)
         val started = snapshot?.startedAtWallMs ?: System.currentTimeMillis()
         oldestStartedAtWallMs =
             if (oldestStartedAtWallMs == 0L) started else minOf(oldestStartedAtWallMs, started)
@@ -65,6 +67,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
             "Android media-processing achtergrondlimiet bereikt; verwerking is veilig gestopt."
         labels.keys.toList().forEach { key ->
             TruthRawOperationStore.update(this, key, TruthRawOperationPhase.ERROR, message)
+            activeKeys.remove(key)
         }
         labels.clear()
         finishNotification("TruthRaw verwerking gestopt", message)
@@ -74,6 +77,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
 
     private fun completeKey(key: String) {
         labels.remove(key)
+        activeKeys.remove(key)
         if (labels.isEmpty()) {
             finishNotification(
                 "TruthRaw verwerking gereed",
@@ -175,8 +179,13 @@ class TruthRawMediaProcessingForegroundService : Service() {
         var isRunning: Boolean = false
             private set
 
+        private val activeKeys = ConcurrentHashMap.newKeySet<String>()
+
+        fun isActive(key: String): Boolean = activeKeys.contains(key)
+
         fun start(context: Context, key: String, label: String): Boolean {
             val app = context.applicationContext
+            if (!activeKeys.add(key)) return false
             TruthRawOperationStore.begin(app, key, label)
             val intent = Intent(app, TruthRawMediaProcessingForegroundService::class.java)
                 .putExtra(EXTRA_KEY, key)
@@ -185,6 +194,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
                 app.startForegroundService(intent)
                 true
             } catch (error: Throwable) {
+                activeKeys.remove(key)
                 TruthRawOperationStore.update(
                     app,
                     key,
