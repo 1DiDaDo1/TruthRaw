@@ -75,9 +75,11 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"tile_count="<<s.tileCount<<"\n";
     o<<"record_count="<<s.recordCount<<"\n";
     o<<"body_bytes="<<s.bodyBytes<<"\n";
+    o<<"role_unknown="<<s.roleUnknown<<"\n";
     o<<"role_source_measured_cfa="<<s.roleSourceMeasuredCfa<<"\n";
     o<<"role_scientific_reconstruction="<<s.roleScientificReconstruction<<"\n";
     o<<"role_dense_projection="<<s.roleDenseProjection<<"\n";
+    o<<"role_restoration_derivative="<<s.roleRestorationDerivative<<"\n";
     o<<"authority_calibrated_estimate="<<s.authorityCalibratedEstimate<<"\n";
     o<<"authority_reconstructed="<<s.authorityReconstructed<<"\n";
     o<<"authority_censored="<<s.authorityCensored<<"\n";
@@ -174,12 +176,16 @@ bool write(
 
                 for(const auto& record : records){
                     switch(record.role){
+                        case field::CreationRole::Unknown:
+                            ++out.roleUnknown; break;
                         case field::CreationRole::SourceMeasuredCfa:
                             ++out.roleSourceMeasuredCfa; break;
                         case field::CreationRole::ScientificReconstruction:
                             ++out.roleScientificReconstruction; break;
                         case field::CreationRole::DenseProjection:
                             ++out.roleDenseProjection; break;
+                        case field::CreationRole::RestorationDerivative:
+                            ++out.roleRestorationDerivative; break;
                     }
                     switch(record.authority){
                         case field::Authority::CalibratedEstimate:
@@ -280,15 +286,17 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
             error_="header contract mismatch"; return false;
         }
         std::uint64_t w=0,h=0,tc=0,rc=0,bb=0;
-        std::uint64_t rMeasured=0,rRecon=0,rDense=0;
+        std::uint64_t rUnknown=0,rMeasured=0,rRecon=0,rDense=0,rRestoration=0;
         std::uint64_t aCal=0,aRecon=0,aCens=0,aUnknown=0;
         std::uint64_t uKnown=0,sKnown=0,bKnown=0,vNeg=0,vAbove=0,vNonFinite=0;
         if(!parseUnsigned(header,"width",w)||!parseUnsigned(header,"height",h)||
            !parseUnsigned(header,"tile_count",tc)||!parseUnsigned(header,"record_count",rc)||
            !parseUnsigned(header,"body_bytes",bb)||
+           !parseUnsigned(header,"role_unknown",rUnknown)||
            !parseUnsigned(header,"role_source_measured_cfa",rMeasured)||
            !parseUnsigned(header,"role_scientific_reconstruction",rRecon)||
            !parseUnsigned(header,"role_dense_projection",rDense)||
+           !parseUnsigned(header,"role_restoration_derivative",rRestoration)||
            !parseUnsigned(header,"authority_calibrated_estimate",aCal)||
            !parseUnsigned(header,"authority_reconstructed",aRecon)||
            !parseUnsigned(header,"authority_censored",aCens)||
@@ -308,9 +316,11 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         summary_.height=static_cast<std::uint32_t>(h);
         summary_.tileCount=tc; summary_.recordCount=rc; summary_.bodyBytes=bb;
         summary_.fileBytes=source.sizeBytes();
+        summary_.roleUnknown=rUnknown;
         summary_.roleSourceMeasuredCfa=rMeasured;
         summary_.roleScientificReconstruction=rRecon;
         summary_.roleDenseProjection=rDense;
+        summary_.roleRestorationDerivative=rRestoration;
         summary_.authorityCalibratedEstimate=aCal;
         summary_.authorityReconstructed=aRecon;
         summary_.authorityCensored=aCens;
@@ -321,7 +331,7 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         summary_.valueNegativeCount=vNeg;
         summary_.valueAboveOneCount=vAbove;
         summary_.valueNonFiniteCount=vNonFinite;
-        if(rMeasured+rRecon+rDense!=rc ||
+        if(rUnknown+rMeasured+rRecon+rDense+rRestoration!=rc ||
            aCal+aRecon+aCens+aUnknown!=rc ||
            vNonFinite!=0u){
             error_="header authority/value census invalid"; return false;
