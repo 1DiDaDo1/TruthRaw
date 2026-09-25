@@ -84,6 +84,11 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"authority_reconstructed="<<s.authorityReconstructed<<"\n";
     o<<"authority_censored="<<s.authorityCensored<<"\n";
     o<<"authority_unknown="<<s.authorityUnknown<<"\n";
+    o<<"censored_r="<<s.censoredByRgb[0]<<"\n";
+    o<<"censored_g="<<s.censoredByRgb[1]<<"\n";
+    o<<"censored_b="<<s.censoredByRgb[2]<<"\n";
+    o<<"censored_value_above_one="<<s.censoredValueAboveOneCount<<"\n";
+    o<<"censored_value_at_or_below_one="<<s.censoredValueAtOrBelowOneCount<<"\n";
     o<<"uncertainty_known_count="<<s.uncertaintyKnownCount<<"\n";
     o<<"support_known_count="<<s.supportKnownCount<<"\n";
     o<<"bound_known_count="<<s.boundKnownCount<<"\n";
@@ -193,7 +198,14 @@ bool write(
                         case field::Authority::Reconstructed:
                             ++out.authorityReconstructed; break;
                         case field::Authority::Censored:
-                            ++out.authorityCensored; break;
+                            ++out.authorityCensored;
+                            ++out.censoredByRgb[
+                                static_cast<std::size_t>(&record - records.data()) % 3u];
+                            if(std::isfinite(record.value) && record.value > 1.0f)
+                                ++out.censoredValueAboveOneCount;
+                            else
+                                ++out.censoredValueAtOrBelowOneCount;
+                            break;
                         case field::Authority::Unknown:
                             ++out.authorityUnknown; break;
                     }
@@ -288,6 +300,7 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         std::uint64_t w=0,h=0,tc=0,rc=0,bb=0;
         std::uint64_t rUnknown=0,rMeasured=0,rRecon=0,rDense=0,rRestoration=0;
         std::uint64_t aCal=0,aRecon=0,aCens=0,aUnknown=0;
+        std::uint64_t censR=0,censG=0,censB=0,censAbove=0,censAtOrBelow=0;
         std::uint64_t uKnown=0,sKnown=0,bKnown=0,vNeg=0,vAbove=0,vNonFinite=0;
         if(!parseUnsigned(header,"width",w)||!parseUnsigned(header,"height",h)||
            !parseUnsigned(header,"tile_count",tc)||!parseUnsigned(header,"record_count",rc)||
@@ -301,6 +314,11 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
            !parseUnsigned(header,"authority_reconstructed",aRecon)||
            !parseUnsigned(header,"authority_censored",aCens)||
            !parseUnsigned(header,"authority_unknown",aUnknown)||
+           !parseUnsigned(header,"censored_r",censR)||
+           !parseUnsigned(header,"censored_g",censG)||
+           !parseUnsigned(header,"censored_b",censB)||
+           !parseUnsigned(header,"censored_value_above_one",censAbove)||
+           !parseUnsigned(header,"censored_value_at_or_below_one",censAtOrBelow)||
            !parseUnsigned(header,"uncertainty_known_count",uKnown)||
            !parseUnsigned(header,"support_known_count",sKnown)||
            !parseUnsigned(header,"bound_known_count",bKnown)||
@@ -325,6 +343,9 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         summary_.authorityReconstructed=aRecon;
         summary_.authorityCensored=aCens;
         summary_.authorityUnknown=aUnknown;
+        summary_.censoredByRgb={censR,censG,censB};
+        summary_.censoredValueAboveOneCount=censAbove;
+        summary_.censoredValueAtOrBelowOneCount=censAtOrBelow;
         summary_.uncertaintyKnownCount=uKnown;
         summary_.supportKnownCount=sKnown;
         summary_.boundKnownCount=bKnown;
@@ -333,6 +354,8 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         summary_.valueNonFiniteCount=vNonFinite;
         if(rUnknown+rMeasured+rRecon+rDense+rRestoration!=rc ||
            aCal+aRecon+aCens+aUnknown!=rc ||
+           censR+censG+censB!=aCens ||
+           censAbove+censAtOrBelow!=aCens ||
            vNonFinite!=0u){
             error_="header authority/value census invalid"; return false;
         }
