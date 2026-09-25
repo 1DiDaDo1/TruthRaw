@@ -8,7 +8,7 @@ Active integration branch:
 
 Current code-bearing integration checkpoint:
 
-`c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
+`55a4e61dc4888b7e05da1de1808ecce8466404c9`
 
 Initial Free-World v0.2-v0.7 promotion checkpoint:
 
@@ -120,7 +120,7 @@ The v0.2-v0.7 and TruthNegative Continuous v0.5 native modules are part of the A
 
 ## Green validation
 
-Current A-D integration checkpoint `c7d7cef05502aca6f22f0d049987aad3a9f37b0a`:
+Current A-D integration checkpoint `55a4e61dc4888b7e05da1de1808ecce8466404c9`:
 
 - Android signed ARM64 build + Camera-5/container/UI bridges run `36115128965`: **SUCCESS**
 - Scientific Master F64 + Color Audit run `36112964482`: **SUCCESS**
