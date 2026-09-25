@@ -263,10 +263,21 @@ class TruthRawSuiteLauncherActivity : Activity() {
             text = if (selected) "✓" else "○"
             textSize = 25f
             gravity = Gravity.CENTER
-            setTextColor(if (selected) Color.WHITE else accent)
+            setTextColor(textPrimary)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(if (selected) accent else Color.TRANSPARENT)
+                setColor(
+                    if (selected) {
+                        Color.argb(
+                            34,
+                            Color.red(accent),
+                            Color.green(accent),
+                            Color.blue(accent),
+                        )
+                    } else {
+                        Color.TRANSPARENT
+                    },
+                )
                 setStroke(dp(2), accent)
             }
         }, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginEnd = dp(10) })
@@ -276,7 +287,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             addView(TextView(this@TruthRawSuiteLauncherActivity).apply {
                 text = subtitleText
                 textSize = if (compactHeight) 12f else 13f
-                setTextColor(accent)
+                setTextColor(textPrimary)
                 setTypeface(typeface, Typeface.BOLD)
             })
             addView(space(4))
@@ -317,13 +328,20 @@ class TruthRawSuiteLauncherActivity : Activity() {
 
     private fun infoStrip(selected: String): View = vertical().apply {
         setPadding(dp(14), dp(if (compactHeight) 10 else 13), dp(14), dp(if (compactHeight) 10 else 13))
-        background = cardBackground(Color.rgb(8, 21, 35), Color.rgb(39, 73, 105), false)
+        background = cardBackground(
+            DrawVisualTheme.PAPER_BLUE,
+            Color.rgb(39, 73, 105),
+            false,
+        )
         val route = DrawRouteLogic.forMode(selected)
-        addView(title(route.displayLabel, 14f).apply { setTextColor(Color.WHITE) })
+        addView(title(route.displayLabel, 14f))
         addView(space(4))
-        addView(body(route.viewClass + " · " + route.explanation, if (compactHeight) 10.8f else 11.5f).apply {
-            setTextColor(Color.rgb(210, 222, 235))
-        })
+        addView(
+            body(
+                route.viewClass + " · " + route.explanation,
+                if (compactHeight) 10.8f else 11.5f,
+            ),
+        )
     }
 
     private fun action(label: String, onClick: () -> Unit): View = TextView(this).apply {
