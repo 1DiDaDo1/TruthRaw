@@ -810,6 +810,42 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchN2SpatialSidecarExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2SpatialSidecarStatus =
+                "N2 Spatial Audit vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingN2SpatialSidecarJobId = job.id
+        n2SpatialSidecarStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_spatial_audit_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_SPATIAL_SIDECAR,
+        )
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchTruthNegativeExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
