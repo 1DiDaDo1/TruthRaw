@@ -42,3 +42,33 @@ GitHub Actions run `36196540781` completed successfully:
 The unit test verifies that the input Stage-2 buffer remains byte-for-byte
 unchanged while an admitted local CFA correction propagates into multiple
 full-colour reconstructed RGB channels.
+
+
+## Reconstruction-support protection closure
+
+Real-device Risk/Quality validation showed that a source CFA site can remain
+explicitly Structure-protected while its reconstructed RGB output pixel still
+changes because admitted neighboring CFA corrections participate in the
+measured-preserving reconstruction support.
+
+The Android diagnostic therefore now enables a conservative support-closure
+gate.
+
+For every protected core output pixel, the gate suppresses otherwise-admitted
+N2 Stage-2 corrections within the reconstruction backend's exact
+`requiredHalo()` Chebyshev radius. All N2 preserve reasons other than
+`None` are treated as protected for this closure.
+
+After full-colour reconstruction the candidate RGB of every protected core
+pixel must be Float32 bit-identical to its baseline RGB. Any changed protected
+RGB channel fails the diagnostic closed.
+
+The report exposes:
+
+- support-guard suppressed Stage-2 sites;
+- protected core pixel count;
+- protected core changed RGB channels (must be 0);
+- reconstruction influence radius.
+
+This remains diagnostic-only. It does not authorize production denoise and
+does not modify sealed CFA, Scientific Master or TruthNegative.
