@@ -1,0 +1,56 @@
+name: D.RAW TruthNegative Deep Scene Bridge v0.8
+
+on:
+  push:
+    branches:
+      - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
+    paths:
+      - 'docs/research/truthnegative-deep-scene-bridge-v0.8/**'
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/free-world-deep-scene-contribution-v0.4/**'
+      - 'docs/research/free-world-deep-scene-binding-v0.5/**'
+      - 'docs/research/free-world-light-transport-state-v0.6/**'
+      - '.github/workflows/truthnegative-deep-scene-v0-8.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then CXX=clang++; else CXX=g++; fi
+          cmake -S docs/research/truthnegative-deep-scene-bridge-v0.8 \
+                -B /tmp/tn-deep-v08 \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CXX_COMPILER="$CXX"
+      - name: Build
+        run: cmake --build /tmp/tn-deep-v08 --parallel 2
+      - name: Test
+        run: ctest --test-dir /tmp/tn-deep-v08 --output-on-failure
+
+  sanitizer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: ASan/UBSan
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-deep-scene-bridge-v0.8 \
+                -B /tmp/tn-deep-v08-san \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_CXX_FLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
+                -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          cmake --build /tmp/tn-deep-v08-san --parallel 2
+          ctest --test-dir /tmp/tn-deep-v08-san --output-on-failure
