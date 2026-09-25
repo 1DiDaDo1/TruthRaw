@@ -149,3 +149,19 @@ This build no longer treats a same-size TruthNegative Continuous raster query
 as an identity Scientific Master sample. The baseline candidate reconstruction
 is checked directly against the exact canonical Scientific Master source
 pixel, Float32 bit-for-bit, before any B/Delta diagnostic output is admitted.
+
+
+## Risk / Quality gate
+
+The next diagnostic layer is implemented in
+`docs/research/truthnegative-n2-risk-quality-audit-v0.1`.
+
+It consumes the already-isolated A/B display-encoded crop together with the
+full-lattice preserve-reason mask. It measures p50/p95/p99/max delta,
+per-display-channel delta, display-luma/chroma separation, the exact maximum
+delta source coordinate, distance to Structure and CENSORED/boundary
+protection, and A/B display-luma gradient energy.
+
+These metrics are diagnostic only. In particular, the gradient-energy
+comparison is not an optical MTF measurement and does not authorize production
+denoise.
