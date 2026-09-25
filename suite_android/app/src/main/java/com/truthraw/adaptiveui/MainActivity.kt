@@ -3318,8 +3318,8 @@ class MainActivity : Activity() {
                             }
 
                             addView(label(
-                                "1:1 full-colour diagnose: baseline-reconstructie moet exact binnen tolerance " +
-                                    "op de Scientific Master aansluiten; anders faalt de route gesloten. " +
+                                "1:1 full-colour diagnose: baseline-reconstructie moet Float32-bit-identiek " +
+                                    "zijn aan de exacte Scientific Master bronpixel; anders faalt de route gesloten. " +
                                     "source/Scientific Master/TruthNegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
                                 9f,
