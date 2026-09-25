@@ -4,7 +4,7 @@
 
 Current code-bearing integration checkpoint:
 
-`420bc1df259ef4db80448c2088bc5c4bf77a4599`
+`c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
 
 Active integration:
 
@@ -21,6 +21,8 @@ Active integration:
 7. `docs/research/truthnegative-roundtrip-oracle-v0.6/README.md`
 8. `docs/research/truthnegative-optics-support-v0.7/README.md`
 9. `docs/research/truthnegative-deep-scene-bridge-v0.8/README.md`
+10. `docs/research/truthnegative-camera5-color-highlight-oracle-v0.1/README.md`
+11. `docs/research/truthnegative-native-container-v0.1/README.md`
 
 Current main architecture:
 
@@ -43,22 +45,23 @@ D.RAW ADVANCED = Appearance / Restoration View
 D.RAW PRO      = Open Scene / Light Transport
 ```
 
-The v0.2-v0.7 modules, TruthNegative Continuous v0.5, Round-Trip Oracle v0.6, Optics Support v0.7 and Deep Scene Bridge v0.8 are compiled into the Android main native library. The explicit production preview remains PRO-only: admitted DNG -> Scientific Master/Open Scene authority -> raster-independent TruthNegative -> v0.7 display preview. PURE and existing validated exports are not rerouted.
+The v0.2-v0.7 modules, TruthNegative Continuous v0.5, Round-Trip Oracle v0.6, Optics Support v0.7, Deep Scene Bridge v0.8, Camera-5 Color/Highlight Oracle v0.1 and TruthNegative Native Container v0.1 are integrated into the Android main line. PRO now has the continuous preview, Camera-5 diagnostic oracle and .tnc export/import round-trip bridge. PURE and existing validated exports are not rerouted.
 
 Current green main validation:
 
-- Android signed ARM64 + current TN/Deep integration: `36112964452` — SUCCESS
+- Android signed ARM64 + current A-D integration: `36115128965` — SUCCESS
 - Scientific Master F64 + Color Audit: `36112964482` — SUCCESS
 - Open Scene Field/local authority: `36112964500` — SUCCESS
-- Unified Output Preview + Android main integration: `36112964468` — SUCCESS
+- Unified Output Preview + Android main integration: `36115129004` — SUCCESS
 - TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan: `36107899950` — SUCCESS
 - TruthNegative Round-Trip + Optics gates: `36111981454` — SUCCESS
 - TruthNegative Deep Scene Bridge v0.8: `36112847260` — SUCCESS
+- Camera-5 Oracle + Native Container: `36114391772` — SUCCESS
 
 Current installable APK:
 
-- artifact ID `10854211375`
-- APK SHA-256 `8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
+- artifact ID `10855057536`
+- APK SHA-256 `dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273`
 - stable development certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
 
 Permanent rule: **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**

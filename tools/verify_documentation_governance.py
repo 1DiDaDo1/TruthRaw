@@ -238,7 +238,7 @@ if current_2026_09_25.get("product_name") != "D.RAW":
     errors.append("current_2026_09_25_product_name_mismatch")
 if current_2026_09_25.get("active_integration_branch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
     errors.append("current_2026_09_25_active_branch_mismatch")
-if current_2026_09_25.get("code_checkpoint_sha") != "420bc1df259ef4db80448c2088bc5c4bf77a4599":
+if current_2026_09_25.get("code_checkpoint_sha") != "c7d7cef05502aca6f22f0d049987aad3a9f37b0a":
     errors.append("current_2026_09_25_code_checkpoint_mismatch")
 if current_2026_09_25.get("permanent_rule") != "Representation can exceed the source. Knowledge claims cannot exceed the evidence.":
     errors.append("current_2026_09_25_permanent_rule_mismatch")
@@ -298,6 +298,33 @@ if deep25.get("inferred_light_transport_remains_hypothesis") is not True:
 if deep25.get("inherited_scientific_radiometry_as_hidden_scene_measurement") is not False:
     errors.append("current_2026_09_25_tn_deep_hidden_scene_measurement_promotion")
 
+
+camera5_oracle25 = current_2026_09_25.get("camera5_color_highlight_oracle_v0_1") or {}
+if camera5_oracle25.get("status") != "MAIN_INTEGRATED_PRO_DIAGNOSTIC":
+    errors.append("current_2026_09_25_camera5_oracle_status_mismatch")
+if camera5_oracle25.get("physical_camera_5_envelope_required") is not True:
+    errors.append("current_2026_09_25_camera5_oracle_must_require_physical5_lineage")
+if camera5_oracle25.get("diagnostic_neutral_promoted_to_calibration") is not False:
+    errors.append("current_2026_09_25_camera5_diagnostic_neutral_must_not_be_calibration")
+if camera5_oracle25.get("dng_may_prove_remosaic_state") is not False:
+    errors.append("current_2026_09_25_camera5_dng_must_not_prove_remosaic")
+if camera5_oracle25.get("creates_new_evidence") is not False or camera5_oracle25.get("scientific_writeback_allowed") is not False:
+    errors.append("current_2026_09_25_camera5_oracle_authority_violation")
+
+tnc25 = current_2026_09_25.get("truthnegative_native_container_v0_1") or {}
+if tnc25.get("status") != "MAIN_INTEGRATED_EXPORT_IMPORT_CONTRACT":
+    errors.append("current_2026_09_25_tnc_status_mismatch")
+if tnc25.get("float32_scientific_value_plane_embedded") is not True:
+    errors.append("current_2026_09_25_tnc_value_plane_missing")
+if tnc25.get("open_scene_field_v0_85_metadata_embedded") is not True:
+    errors.append("current_2026_09_25_tnc_authority_metadata_missing")
+if tnc25.get("host_export_import_bit_identity_verified") is not True:
+    errors.append("current_2026_09_25_tnc_roundtrip_not_verified")
+if tnc25.get("corruption_fails_closed") is not True:
+    errors.append("current_2026_09_25_tnc_corruption_gate_missing")
+if tnc25.get("creates_new_evidence") is not False or tnc25.get("scientific_writeback_allowed") is not False:
+    errors.append("current_2026_09_25_tnc_authority_violation")
+
 bridges25 = current_2026_09_25.get("production_bridges") or {}
 pro_tn25 = bridges25.get("pro_truthnegative_continuous_preview") or {}
 if pro_tn25.get("implemented") is not True:
@@ -337,9 +364,9 @@ if validation25.get("asan_ubsan") != "PASS":
     errors.append("current_2026_09_25_sanitizers_not_green")
 
 apk25 = current_2026_09_25.get("apk") or {}
-if apk25.get("artifact_id") != 10854211375:
+if apk25.get("artifact_id") != 10855057536:
     errors.append("current_2026_09_25_apk_artifact_mismatch")
-if apk25.get("apk_sha256") != "8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5":
+if apk25.get("apk_sha256") != "dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273":
     errors.append("current_2026_09_25_apk_sha_mismatch")
 if apk25.get("stable_dev_cert_sha256") != "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44":
     errors.append("current_2026_09_25_signing_cert_mismatch")

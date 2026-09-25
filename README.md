@@ -14,11 +14,11 @@
 >
 > Active integration: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 >
-> Free-World v0.2-v0.7, TruthNegative Continuous v0.5, Round-Trip Oracle v0.6, calibration-bound Optics Support v0.7 and the TruthNegative Deep Scene Bridge v0.8 are now compiled into the Android main native library. UI routes remain PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. PRO keeps the explicit production preview bridge: Scientific Master + Open Scene authority -> raster-independent TruthNegative -> area resolve -> v0.7 display view. PURE and existing validated exports remain unchanged.
+> Free-World v0.2-v0.7, TruthNegative Continuous v0.5, Round-Trip Oracle v0.6, calibration-bound Optics Support v0.7, Deep Scene Bridge v0.8, Camera-5 Color/Highlight Oracle v0.1 and TruthNegative Native Container v0.1 are now integrated into the Android main line. UI routes remain PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. PRO now exposes the continuous preview, the verified-Camera-5 diagnostic oracle and .tnc export/import round-trip. PURE and existing validated exports remain unchanged.
 >
-> Code checkpoint: `420bc1df259ef4db80448c2088bc5c4bf77a4599`
+> Code checkpoint: `c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
 >
-> Current signed ARM64 APK SHA-256: `8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
+> Current signed ARM64 APK SHA-256: `dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273`
 >
 > D.RAW preserves the permanent rule: **representation can exceed the source; knowledge claims cannot exceed the evidence.**
 

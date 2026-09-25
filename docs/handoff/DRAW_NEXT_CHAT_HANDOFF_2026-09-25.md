@@ -10,7 +10,7 @@ Active integration:
 
 Current code-bearing integration checkpoint:
 
-`420bc1df259ef4db80448c2088bc5c4bf77a4599`
+`c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
 
 Read first:
 
@@ -27,6 +27,8 @@ Read first:
 11. `docs/research/truthnegative-roundtrip-oracle-v0.6/README.md`
 12. `docs/research/truthnegative-optics-support-v0.7/README.md`
 13. `docs/research/truthnegative-deep-scene-bridge-v0.8/README.md`
+14. `docs/research/truthnegative-camera5-color-highlight-oracle-v0.1/README.md`
+15. `docs/research/truthnegative-native-container-v0.1/README.md`
 
 ## What just changed
 
@@ -40,7 +42,7 @@ ADVANCED = Appearance / Restoration View
 PRO      = Open Scene / Light Transport
 ```
 
-The new layers are compiled into main. TruthNegative Continuous v0.5 now defines a raster-independent scientific-negative state and the first admitted bridge is a PRO-only DNG diagnostic preview through v0.7. TruthNegative Round-Trip Oracle v0.6, calibration-bound Optics Support v0.7 and the authority-preserving TruthNegative Deep Scene Bridge v0.8 are also green and compiled into main. Existing exports and PURE remain unchanged.
+The new layers are compiled into main. TruthNegative Continuous v0.5 now defines a raster-independent scientific-negative state and the first admitted bridge is a PRO-only DNG diagnostic preview through v0.7. TruthNegative Round-Trip Oracle v0.6, calibration-bound Optics Support v0.7 and the authority-preserving TruthNegative Deep Scene Bridge v0.8 are green. Camera-5 Color/Highlight Oracle v0.1 and TruthNegative Native Container v0.1 are now also integrated into PRO. Existing exports and PURE remain unchanged.
 
 ## Permanent scientific boundaries
 
@@ -57,21 +59,22 @@ The new layers are compiled into main. TruthNegative Continuous v0.5 now defines
 
 ## Current green main validation
 
-- Android ARM64 signed build + TN Continuous PRO bridge: run `36112964452` — SUCCESS.
+- Android ARM64 signed build + current A-D bridges/UI: run `36115128965` — SUCCESS.
 - Scientific Master F64 + Color Audit: run `36112964482` — SUCCESS.
 - Open Scene Field/local authority: run `36112964500` — SUCCESS.
-- Unified Output Preview + Android integration: run `36112964468` — SUCCESS.
+- Unified Output Preview + Android integration: run `36115129004` — SUCCESS.
 - TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan: run `36107899950` — SUCCESS.
 - TruthNegative Round-Trip + Optics gates: run `36111981454` — SUCCESS.
 - TruthNegative Deep Scene Bridge v0.8: run `36112847260` — SUCCESS.
+- Camera-5 Color/Highlight Oracle + TruthNegative Native Container: run `36114391772` — GCC/Clang/ASan/UBSan SUCCESS.
 
 ## Current installable APK
 
-Artifact ID: `10854211375`
+Artifact ID: `10855057536`
 
 APK SHA-256:
 
-`8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
+`dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273`
 
 Development certificate SHA-256:
 
@@ -79,4 +82,4 @@ Development certificate SHA-256:
 
 ## Recommended continuation
 
-Continue from the current main branch. First run the PRO · TruthNegative Continuous v0.5 preview on real admitted DNGs and retain any failure/status output. The round-trip oracle, optics calibration gate and TruthNegative-to-Deep-Scene bridge are now implemented. Do not enable inverse-optics/deconvolution until independently admitted PSF/MTF calibration exists. The next software-only gates are the Camera-5 colour/highlight oracle and a native TruthNegative container/export contract. Do not reroute PURE or existing exports without their own validation.
+Steps A-D are now implemented in code and CI. The next useful evidence comes from the physical device: run the PRO Camera-5 Color/Highlight Oracle on an exactly verified physical-5 DNG/evidence pair, then export **TruthNegative Native · .tnc** and retain the success/status text. Remosaic remains UNKNOWN unless separately sealed runtime evidence is supplied. Do not enable inverse-optics/deconvolution until independently admitted PSF/MTF calibration exists. Do not reroute PURE or existing exports without their own validation.

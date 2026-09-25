@@ -8,7 +8,7 @@ Active integration branch:
 
 Current code-bearing integration checkpoint:
 
-`420bc1df259ef4db80448c2088bc5c4bf77a4599`
+`c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
 
 Initial Free-World v0.2-v0.7 promotion checkpoint:
 
@@ -120,12 +120,12 @@ The v0.2-v0.7 and TruthNegative Continuous v0.5 native modules are part of the A
 
 ## Green validation
 
-Current bridge checkpoint `420bc1df259ef4db80448c2088bc5c4bf77a4599`:
+Current A-D integration checkpoint `c7d7cef05502aca6f22f0d049987aad3a9f37b0a`:
 
-- Android signed ARM64 build + PRO bridge run `36112964452`: **SUCCESS**
+- Android signed ARM64 build + Camera-5/container/UI bridges run `36115128965`: **SUCCESS**
 - Scientific Master F64 + Color Audit run `36112964482`: **SUCCESS**
 - Open Scene Field/local authority run `36112964500`: **SUCCESS**
-- Unified Output Preview + Android integration run `36112964468`: **SUCCESS**
+- Unified Output Preview + Android integration run `36115129004`: **SUCCESS**
 - TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan run `36107899950`: **SUCCESS**
 - TruthNegative Round-Trip + Optics gates run `36111981454`: **SUCCESS**
 - TruthNegative Deep Scene Bridge v0.8 run `36112847260`: **SUCCESS**
@@ -140,11 +140,11 @@ Research validation before promotion:
 
 GitHub Actions artifact:
 
-- artifact ID: `10854211375`
+- artifact ID: `10855057536`
 - artifact name: `truthraw-v0-84-2-compute-router-debug-arm64`
-- artifact ZIP digest: `sha256:4f41ffd716a1ec61776a0f4721169ec14195f9864f3b80129a74f019f7029686`
-- APK size: `6375691` bytes
-- extracted APK SHA-256: `8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5`
+- artifact ZIP digest: `sha256:8fc4b769ab8b6fcd8c98924e0a1187a50fee65d1a8f6ec349d8766e32e637865`
+- APK size: `6457579` bytes
+- extracted APK SHA-256: `dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273`
 
 Stable development signing certificate SHA-256:
 
@@ -197,6 +197,56 @@ The bridge also creates an explicitly **INFERRED** Lambertian light-transport se
 
 v0.8 GCC/Clang/ASan/UBSan validation is green.
 
-## Next implementation boundary
+## Camera-5 Color / Highlight Oracle v0.1
 
-Validate the PRO TruthNegative Continuous preview on-device with real admitted DNGs. For inverse-optics reconstruction, first acquire/derive independently admitted lens/sensor PSF/MTF calibration; do not enable deconvolution before that evidence exists. The next software-only step can be the Camera-5 colour/highlight oracle and a native TruthNegative scientific-negative container/export contract. The deep-scene bridge is now available as the boundary for later PRO object/light-transport diagnostics.
+Step A/B is now implemented and integrated into PRO.
+
+The oracle is available only when the app has the exact verified physical-Camera-5 acquisition/envelope lineage. It evaluates the same TruthNegative/Scientific-Master scene through EV 0, -0.5, -1, -2 and -3 appearance resolves and can localize the first defensible problem stage as:
+
+- SOURCE_CENSORING;
+- METADATA_NEUTRAL_MISMATCH;
+- COLOR_BINDING;
+- APPEARANCE_DISPLAY;
+- NONE;
+- UNRESOLVED.
+
+The known diagnostic Camera-5 neutral near [0.59,1,0.55] is **not** calibration and is never written into the scientific pipeline. DNG metadata alone is not allowed to prove remosaic state; remosaic remains UNKNOWN until separately sealed runtime evidence is supplied.
+
+The PRO UI now exposes **Camera-5 Color/Highlight Oracle** and shows candidate count, censor fraction, AsShotNeutral versus empirical neutral, low-exposure green bias/drift, first failure stage and oracle identity.
+
+## TruthNegative Native Container v0.1
+
+Step C/D is now implemented through the export/import contract and Android bridge.
+
+The new .tnc format binds:
+
+- source-evidence SHA-256;
+- Scientific-Master SHA-256;
+- Open Scene authority-field SHA-256;
+- raster-independent TruthNegative-state SHA-256;
+- exact Float32 scientific value plane;
+- Open Scene Field v0.85 role/authority/uncertainty/support/bounds;
+- per-tile payload SHA-256;
+- whole-body SHA-256.
+
+The Open Scene metadata encoding alone is deliberately insufficient because v0.85 does not duplicate numeric Scientific-Master values. The .tnc payload therefore stores the Float32 value plane alongside the canonical Open Scene encoding.
+
+The host test now performs write -> native import -> record-by-record Float32 bit-identity verification and rejects payload corruption. The Android export bridge writes the container, immediately opens it again natively, recomputes the imported authority-field digest and rebuilds the TruthNegative state; both identities must match before success is reported. A Kotlin post-write header verification is an additional gate.
+
+The PRO UI exposes **Export TruthNegative Native · .tnc**.
+
+Host GCC/Clang/ASan/UBSan validation for Camera-5 Oracle + Native Container: run `36114391772` — **SUCCESS**.
+
+Android signed ARM64 build with all A-D bridges/UI: run `36115128965` — **SUCCESS**.
+Unified Output Preview Android integration: run `36115129004` — **SUCCESS**.
+
+## Remaining real-device gate
+
+A-D are implemented as far as software/CI can verify them without a new physical run. Still pending:
+
+1. run Camera-5 Oracle on a real verified physical-5 DNG/evidence pair and retain its diagnostic result;
+2. export a real .tnc on-device and confirm native + Kotlin post-write round-trip success;
+3. feed that imported container into subsequent PRO diagnostics;
+4. keep inverse-optics/deconvolution blocked until independently admitted PSF/MTF calibration exists.
+
+PURE and existing validated exports remain unchanged.

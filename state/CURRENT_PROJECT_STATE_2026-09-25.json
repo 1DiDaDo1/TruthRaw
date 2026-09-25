@@ -4,7 +4,7 @@
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
   "active_integration_branch": "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master",
-  "code_checkpoint_sha": "420bc1df259ef4db80448c2088bc5c4bf77a4599",
+  "code_checkpoint_sha": "c7d7cef05502aca6f22f0d049987aad3a9f37b0a",
   "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
   "free_world_main_integration": {
     "compiled_into_android_main": true,
@@ -37,7 +37,7 @@
   },
   "validation": {
     "android_signed_arm64": {
-      "run_id": 36112964452,
+      "run_id": 36115128965,
       "result": "SUCCESS"
     },
     "scientific_master_f64_color_audit": {
@@ -49,7 +49,7 @@
       "result": "SUCCESS"
     },
     "unified_output_preview": {
-      "run_id": 36112964468,
+      "run_id": 36115129004,
       "result": "SUCCESS"
     },
     "free_world_gcc": "PASS",
@@ -66,14 +66,18 @@
     "truthnegative_deep_scene_v0_8": {
       "run_id": 36112847260,
       "result": "SUCCESS"
+    },
+    "camera5_oracle_native_container": {
+      "run_id": 36114391772,
+      "result": "SUCCESS"
     }
   },
   "apk": {
-    "artifact_id": 10854211375,
+    "artifact_id": 10855057536,
     "artifact_name": "truthraw-v0-84-2-compute-router-debug-arm64",
-    "artifact_zip_sha256": "4f41ffd716a1ec61776a0f4721169ec14195f9864f3b80129a74f019f7029686",
-    "apk_size_bytes": 6375691,
-    "apk_sha256": "8d318ecbb2cc2f3ec758559273b0cfa36eea69f2704997e39492ef4973b4a6e5",
+    "artifact_zip_sha256": "8fc4b769ab8b6fcd8c98924e0a1187a50fee65d1a8f6ec349d8766e32e637865",
+    "apk_size_bytes": 6457579,
+    "apk_sha256": "dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273",
     "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
   },
   "truthnegative_continuous_v0_5": {
@@ -101,6 +105,24 @@
       "source_scene_mutated": false,
       "existing_exports_changed": false,
       "pure_route_changed": false
+    },
+    "pro_camera5_color_highlight_oracle": {
+      "implemented": true,
+      "verified_camera5_envelope_required": true,
+      "dng_only": true,
+      "remosaic_unresolved_without_separate_runtime_evidence": true,
+      "pure_route_changed": false,
+      "existing_exports_changed": false
+    },
+    "truthnegative_native_container_export": {
+      "implemented": true,
+      "dng_only": true,
+      "extension": ".tnc",
+      "native_post_write_import_verify": true,
+      "authority_roundtrip_verify": true,
+      "state_roundtrip_verify": true,
+      "pure_route_changed": false,
+      "existing_exports_changed": false
     }
   },
   "truthnegative_roundtrip_oracle_v0_6": {
@@ -134,6 +156,56 @@
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false,
     "validation_run_id": 36112847260,
+    "result": "SUCCESS"
+  },
+  "camera5_color_highlight_oracle_v0_1": {
+    "status": "MAIN_INTEGRATED_PRO_DIAGNOSTIC",
+    "physical_camera_5_envelope_required": true,
+    "ev_sweep": [
+      0,
+      -0.5,
+      -1,
+      -2,
+      -3
+    ],
+    "first_failure_stages": [
+      "SOURCE_CENSORING",
+      "METADATA_NEUTRAL_MISMATCH",
+      "COLOR_BINDING",
+      "APPEARANCE_DISPLAY",
+      "NONE",
+      "UNRESOLVED"
+    ],
+    "diagnostic_neutral_promoted_to_calibration": false,
+    "dng_may_prove_remosaic_state": false,
+    "remosaic_default": "UNKNOWN",
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "host_validation_run_id": 36114391772,
+    "result": "SUCCESS",
+    "real_device_oracle_run_pending": true
+  },
+  "truthnegative_native_container_v0_1": {
+    "status": "MAIN_INTEGRATED_EXPORT_IMPORT_CONTRACT",
+    "header_bytes": 4096,
+    "float32_scientific_value_plane_embedded": true,
+    "open_scene_field_v0_85_metadata_embedded": true,
+    "source_sha256_bound": true,
+    "scientific_master_sha256_bound": true,
+    "authority_field_sha256_bound": true,
+    "truthnegative_state_sha256_bound": true,
+    "per_tile_payload_sha256": true,
+    "full_body_sha256": true,
+    "native_import_roundtrip_implemented": true,
+    "authority_digest_roundtrip_required": true,
+    "truthnegative_state_roundtrip_required": true,
+    "corruption_fails_closed": true,
+    "host_export_import_bit_identity_verified": true,
+    "android_bridge_compiled": true,
+    "real_device_export_import_pending": true,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "host_validation_run_id": 36114391772,
     "result": "SUCCESS"
   }
 }
