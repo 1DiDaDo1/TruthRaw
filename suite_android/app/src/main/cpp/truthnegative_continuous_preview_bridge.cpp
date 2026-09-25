@@ -13,6 +13,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthnegative_continuous_v0_5.h"
+#include "truthnegative_deep_scene_bridge_v0_8.h"
 #include "truthnegative_dense_local_field_adapter_v0_4.h"
 #include "truthraw/core.h"
 #include "truthraw_sha256_v0_69.h"
@@ -46,6 +47,7 @@ namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace master_projection =
     truthraw::scientific_master_linear_dng_projection::v0_1;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
+namespace tn_deep = truthraw::truthnegative_deep_scene_bridge::v0_8;
 namespace tn_field =
     truthraw::truthnegative_dense_local_field_adapter::v0_4;
 namespace sha = truthraw::sha256_v0_69;
@@ -451,29 +453,53 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 return status_packet(env, -11);
             }
 
+            // Bind every resolved TruthNegative footprint through the
+            // authority-preserving Deep Scene bridge before Appearance. This
+            // turns the camera-plane observation into a first-class Free-World
+            // contribution without promoting image-plane geometry, inferred
+            // material, lighting, or future temporal/multi-view hypotheses to
+            // measured sensor evidence.
+            tn_deep::CameraPlaneObjectInput cameraPlane{};
+            cameraPlane.provenanceId =
+                1u + static_cast<std::uint64_t>(y) * targetWidth + x;
+            cameraPlane.regionId = 1u;
+            cameraPlane.objectId = 1u;
+            cameraPlane.depth = 0.0;
+            cameraPlane.geometryAuthority =
+                truthraw::free_world_deep_scene_binding::v0_5::
+                    GeometryAuthority::ImagePlaneBound;
+            cameraPlane.parentAncestrySha256 = query.querySha256;
+
+            tn_deep::ScenePacket scenePacket{};
+            if (!tn_deep::buildCameraPlaneObject(
+                    tnState, query, cameraPlane, scenePacket) ||
+                !scenePacket.radiometryBoundToTruthNegative ||
+                !scenePacket.geometryAuthoritySeparate ||
+                scenePacket.createsNewEvidence ||
+                scenePacket.scientificWritebackAllowed) {
+                return status_packet(env, -14);
+            }
+
             deep::DeepResolvedPixel scientificView{};
-            scientificView.sceneLinearRgb =
-                query.pixel.sceneLinear;
-            scientificView.sourcePacketSha256 =
-                tnState.stateSha256;
-            scientificView.view = deep::ResolveView::ScientificView;
-            scientificView.appearanceApplied = false;
-            scientificView.displayEncoded = false;
-            scientificView.createsNewEvidence = false;
-            scientificView.scientificWritebackAllowed = false;
-            scientificView.physicalFrameCount = 1u;
-            scientificView.independentEvidenceCount = 1u;
+            if (!deep::resolve(
+                    scenePacket.deepPacket,
+                    deep::ResolveView::ScientificView,
+                    scientificView) ||
+                scientificView.createsNewEvidence ||
+                scientificView.scientificWritebackAllowed ||
+                scientificView.physicalFrameCount != 1u ||
+                scientificView.independentEvidenceCount != 1u) {
+                return status_packet(env, -15);
+            }
 
             for (std::size_t c = 0u; c < 3u; ++c) {
                 const auto& support = query.pixel.support[c];
-                scientificView.channelAuthority[c] =
-                    support.authority;
-                scientificView.uncertaintyKnown[c] =
-                    support.uncertaintyKnown;
-                scientificView.p95Uncertainty[c] =
-                    support.uncertaintyKnown
-                        ? support.p95Uncertainty
-                        : 0.0;
+                if (scientificView.channelAuthority[c] !=
+                        support.authority ||
+                    scientificView.uncertaintyKnown[c] !=
+                        support.uncertaintyKnown) {
+                    return status_packet(env, -16);
+                }
 
                 switch (support.authority) {
                     case free_world::ResolvedAuthority::Reconstructed:
@@ -503,7 +529,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
 
             appearance::AppearanceResolvedPixel visible{};
             if (!appearance::resolveAppearance(input, visible) ||
-                visible.sourceSceneSha256 != tnState.stateSha256 ||
+                visible.sourceSceneSha256 != scientificView.sourcePacketSha256 ||
                 visible.sourceSceneMutated ||
                 visible.createsNewEvidence ||
                 visible.scientificWritebackAllowed ||
