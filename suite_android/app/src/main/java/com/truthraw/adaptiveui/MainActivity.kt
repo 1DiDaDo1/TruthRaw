@@ -1600,6 +1600,14 @@ class MainActivity : Activity() {
                                     " · " + formatBytes(m.fileBytes) +
                                     " · tiles=" + m.tileCount +
                                     " · records=" + m.recordCount +
+                                    " · authority C/R/X/U=" +
+                                    m.authorityCalibratedEstimate + "/" +
+                                    m.authorityReconstructed + "/" +
+                                    m.authorityCensored + "/" +
+                                    m.authorityUnknown +
+                                    " · values <0/>1=" +
+                                    m.valueNegativeCount + "/" +
+                                    m.valueAboveOneCount +
                                     " · import=" + m.nativeImportVerified +
                                     " · authority-roundtrip=" +
                                     m.authorityRoundtripVerified +
