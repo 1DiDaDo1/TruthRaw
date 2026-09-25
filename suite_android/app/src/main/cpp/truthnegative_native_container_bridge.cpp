@@ -195,6 +195,15 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
     o << ",\"censoredRawCodeBoundMin\":" << written.censoredRawCodeBoundMin;
     o << ",\"censoredRawCodeBoundMax\":" << written.censoredRawCodeBoundMax;
     o << ",\"censoredRawCodeBoundMismatchCount\":" << written.censoredRawCodeBoundMismatchCount;
+    o << ",\"censoredParity00\":" << written.censoredByCfaParity[0];
+    o << ",\"censoredParity10\":" << written.censoredByCfaParity[1];
+    o << ",\"censoredParity01\":" << written.censoredByCfaParity[2];
+    o << ",\"censoredParity11\":" << written.censoredByCfaParity[3];
+    o << ",\"censoredRaw10MaxCount\":" << written.censoredRaw10MaxCount;
+    o << ",\"censoredRaw10Parity00\":" << written.censoredRaw10MaxByCfaParity[0];
+    o << ",\"censoredRaw10Parity10\":" << written.censoredRaw10MaxByCfaParity[1];
+    o << ",\"censoredRaw10Parity01\":" << written.censoredRaw10MaxByCfaParity[2];
+    o << ",\"censoredRaw10Parity11\":" << written.censoredRaw10MaxByCfaParity[3];
     o << ",\"uncertaintyKnownCount\":" << written.uncertaintyKnownCount;
     o << ",\"supportKnownCount\":" << written.supportKnownCount;
     o << ",\"boundKnownCount\":" << written.boundKnownCount;
