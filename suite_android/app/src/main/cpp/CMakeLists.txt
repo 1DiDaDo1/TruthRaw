@@ -48,6 +48,7 @@ set(FREE_WORLD_NOISE_FUSION_V01 "${RESEARCH_ROOT}/free-world-observation-noise-f
 set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5/native")
 set(TRUTHNEGATIVE_NOISE_V01 "${RESEARCH_ROOT}/truthnegative-noise-state-v0.1/native")
 set(TRUTHNEGATIVE_STRUCTURE_GATE_V01 "${RESEARCH_ROOT}/truthnegative-structure-preservation-gate-v0.1/native")
+set(TRUTHNEGATIVE_RESIDUAL_V01 "${RESEARCH_ROOT}/truthnegative-bounded-residual-estimator-v0.1/native")
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
 set(TRUTHNEGATIVE_OPTICS_V07 "${RESEARCH_ROOT}/truthnegative-optics-support-v0.7/native")
 set(TRUTHNEGATIVE_DEEP_V08 "${RESEARCH_ROOT}/truthnegative-deep-scene-bridge-v0.8/native")
@@ -140,6 +141,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_noise_state_v0_1.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_dense_uncertainty_adapter_v0_1.cpp
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}/truthnegative_structure_preservation_gate_v0_1.cpp
+    ${TRUTHNEGATIVE_RESIDUAL_V01}/truthnegative_bounded_residual_estimator_v0_1.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
     ${TRUTHNEGATIVE_OPTICS_V07}/truthnegative_optics_support_v0_7.cpp
     ${TRUTHNEGATIVE_DEEP_V08}/truthnegative_deep_scene_bridge_v0_8.cpp
@@ -186,6 +188,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_CONTINUOUS_V05}
     ${TRUTHNEGATIVE_NOISE_V01}
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}
+    ${TRUTHNEGATIVE_RESIDUAL_V01}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
     ${TRUTHNEGATIVE_OPTICS_V07}
     ${TRUTHNEGATIVE_DEEP_V08}
