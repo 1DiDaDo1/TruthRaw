@@ -17,6 +17,8 @@ add_executable(test_truthnegative_roundtrip_oracle_v0_6
     native/truthnegative_roundtrip_oracle_v0_6.cpp
     "${TN_V05}/truthnegative_continuous_v0_5.cpp"
     "${FREE_WORLD_V02}/free_world_pixel_resolve_2d_v0_2.cpp"
+    "${APP_CPP}/open_scene_channel_authority_v0_78.cpp"
+    "${APP_CPP}/open_scene_field_v0_85.cpp"
     "${APP_CPP}/truthraw_sha256_v0_69.cpp"
 )
 
