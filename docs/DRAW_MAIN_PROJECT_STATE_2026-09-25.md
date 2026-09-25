@@ -6,7 +6,11 @@ Active integration branch:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 
-Code-bearing checkpoint promoted from the Free-World research line:
+Current code-bearing integration checkpoint:
+
+`58e3b6332c828d9b8ea955b0c79b0c5f69342761`
+
+Initial Free-World v0.2-v0.7 promotion checkpoint:
 
 `e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`
 
@@ -71,22 +75,58 @@ The main processing screen shows the same route semantics.
 
 ADVANCED is explicitly downstream appearance/restoration. PRO exposes the Open Scene / Deep Scene / light-transport architecture.
 
+## TruthNegative Continuous v0.5
+
+TruthNegative now has a raster-independent scientific-negative state in addition to the existing TN-4 materialized container and historical fixed 4x dense projection.
+
+The v0.5 state binds:
+
+- sealed source SHA-256;
+- Scientific Master SHA-256;
+- canonical Open Scene Field v0.85 authority-field SHA-256;
+- reconstruction backend and colour-binding identity;
+- one physical frame and one independent evidence item.
+
+The target raster is deliberately **not** part of this state identity. A 12 MP, 50 MP, 200 MP or preview lattice is a finite query of the same TruthNegative state. Every target site remains derived and creates zero measured target claims.
+
+The raster resolver precomputes X/Y area footprints once per finite target raster. Cached and direct queries are regression-tested to produce the same query SHA, values and source footprint.
+
+## First production bridge
+
+PRO now exposes **TruthNegative Continuous v0.5** as a bounded DNG-only diagnostic preview:
+
+```text
+admitted DNG
+ -> sealed source + source-bound colour
+ -> F64 Scientific Master
+ -> Technical Backplane phase 2
+ -> Open Scene Field v0.85
+ -> canonical TruthNegative authority-field digest
+ -> raster-independent TN v0.5 state
+ -> Free-World area-integrated query
+ -> v0.7 neutral Appearance/Display resolve
+ -> sRGB preview
+```
+
+The bridge requires Scientific Master/Open Scene numeric bit-identity on every loaded field tile, re-verifies source identity, preserves one-frame/one-evidence, and rejects any scientific writeback.
+
+The preview is capped at 192 pixels on its longest edge for this first production diagnostic. It displays source/target authority counts, footprint-link count and shortened state identity in the PRO UI.
+
+**PURE is unchanged. Existing scientific/export routes are unchanged.** This bridge opts in only the new PRO diagnostic preview.
+
 ## Important integration boundary
 
-The v0.2-v0.7 native modules are now part of the Android main build, but existing validated scientific/export paths are **not silently rerouted through v0.7**.
-
-A production pixel/export route must opt into the new resolver through a dedicated validated bridge.
-
-This preserves previously validated Scientific Master, TruthNegative, Restoration and Unified Output Preview behavior while allowing the new architecture to become the shared downstream framework.
+The v0.2-v0.7 and TruthNegative Continuous v0.5 native modules are part of the Android main build. New routes opt in explicitly. Existing validated scientific/export paths are **not silently rerouted**.
 
 ## Green validation
 
-Main merge checkpoint `e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`:
+Current bridge checkpoint `58e3b6332c828d9b8ea955b0c79b0c5f69342761`:
 
-- Android signed ARM64 build run `36079724937`: **SUCCESS**
+- Android signed ARM64 build + PRO bridge run `36108523949`: **SUCCESS**
 - Scientific Master F64 + Color Audit run `36079724798`: **SUCCESS**
 - Open Scene Field/local authority run `36079724888`: **SUCCESS**
-- Unified Output Preview run `36079725063`: **SUCCESS**
+- Unified Output Preview + Android integration run `36108523910`: **SUCCESS**
+- TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan run `36107899950`: **SUCCESS**
 
 Research validation before promotion:
 
@@ -98,11 +138,11 @@ Research validation before promotion:
 
 GitHub Actions artifact:
 
-- artifact ID: `10841122875`
+- artifact ID: `10851937980`
 - artifact name: `truthraw-v0-84-2-compute-router-debug-arm64`
-- artifact ZIP digest: `sha256:d3a8fcda7f412540773cd1f89fe81ff12132e5b4d16a59e4214747277e3b913b`
-- APK size: `6297315` bytes
-- extracted APK SHA-256: `23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448`
+- artifact ZIP digest: `sha256:c5a3e3ccb11be25c7b33530295bb4ffbe7abc429cc94705503c8b7f04b5f3004`
+- APK size: `6355587` bytes
+- extracted APK SHA-256: `a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b`
 
 Stable development signing certificate SHA-256:
 
@@ -112,4 +152,4 @@ The stable signing identity remains development/test-only and unchanged.
 
 ## Next implementation boundary
 
-The next safe production step is not to invent a new Scientific Master. It is to create explicit bridges that consume the already-bound Open Scene/light-transport/appearance state for selected ADVANCED/PRO preview/export paths while preserving route authority and exact source lineage.
+The first bridge now exists. Next: validate the PRO preview on-device with real admitted DNGs, then build the TruthNegative round-trip/explainability oracle and an optics-aware successor gated by measured PSF/MTF/calibration. No optics prior may be promoted to measurement merely because it improves appearance.

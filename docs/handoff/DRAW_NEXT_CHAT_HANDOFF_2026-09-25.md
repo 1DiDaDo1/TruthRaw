@@ -8,9 +8,9 @@ Active integration:
 
 `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 
-Current code-bearing Free-World promotion checkpoint:
+Current code-bearing integration checkpoint:
 
-`e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`
+`58e3b6332c828d9b8ea955b0c79b0c5f69342761`
 
 Read first:
 
@@ -23,6 +23,7 @@ Read first:
 7. `docs/research/free-world-deep-scene-binding-v0.5/README.md`
 8. `docs/research/free-world-light-transport-state-v0.6/README.md`
 9. `docs/research/free-world-appearance-resolve-v0.7/README.md`
+10. `docs/research/truthnegative-continuous-v0.5/README.md`
 
 ## What just changed
 
@@ -36,7 +37,7 @@ ADVANCED = Appearance / Restoration View
 PRO      = Open Scene / Light Transport
 ```
 
-The new layers are compiled into main. Existing validated output/export routes are deliberately not automatically redirected through v0.7; each production bridge must be separately admitted.
+The new layers are compiled into main. TruthNegative Continuous v0.5 now defines a raster-independent scientific-negative state and the first admitted bridge is a PRO-only DNG diagnostic preview through v0.7. Existing exports and PURE remain unchanged.
 
 ## Permanent scientific boundaries
 
@@ -53,18 +54,19 @@ The new layers are compiled into main. Existing validated output/export routes a
 
 ## Current green main validation
 
-- Android ARM64 signed build: run `36079724937` — SUCCESS.
+- Android ARM64 signed build + TN Continuous PRO bridge: run `36108523949` — SUCCESS.
 - Scientific Master F64 + Color Audit: run `36079724798` — SUCCESS.
 - Open Scene Field/local authority: run `36079724888` — SUCCESS.
-- Unified Output Preview: run `36079725063` — SUCCESS.
+- Unified Output Preview + Android integration: run `36108523910` — SUCCESS.
+- TruthNegative Continuous v0.5 GCC/Clang/ASan/UBSan: run `36107899950` — SUCCESS.
 
 ## Current installable APK
 
-Artifact ID: `10841122875`
+Artifact ID: `10851937980`
 
 APK SHA-256:
 
-`23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448`
+`a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b`
 
 Development certificate SHA-256:
 
@@ -72,4 +74,4 @@ Development certificate SHA-256:
 
 ## Recommended continuation
 
-Continue from the current main branch. Build dedicated authority-preserving bridges from the existing Open Scene / light-transport / appearance state into selected ADVANCED/PRO preview or export paths. Do not replace sealed source evidence, the Scientific Master, or already validated scientific paths merely to force the new framework into every output.
+Continue from the current main branch. First run the new PRO · TruthNegative Continuous v0.5 preview on real admitted DNGs and retain any failure/status output. Then build the round-trip/explainability oracle and only after that research optics-aware reconstruction with independently measured PSF/MTF/calibration. Do not reroute PURE or existing exports without their own validation.

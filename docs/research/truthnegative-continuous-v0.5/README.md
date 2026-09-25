@@ -1,6 +1,6 @@
 # TruthNegative Continuous Scientific Negative v0.5
 
-Status: **EXECUTABLE RESEARCH + MAIN-INTEGRATION CANDIDATE**
+Status: **MAIN-INTEGRATED SCIENTIFIC STATE + PRO-ONLY PRODUCTION PREVIEW BRIDGE**
 
 v0.5 changes the role of the dense scientific negative from a fixed target raster into a **raster-independent scientific-negative state**.
 
@@ -101,11 +101,9 @@ Instead, every query is explainable by:
 
 This is the first round-trip oracle: a target result can always be traced back to the exact scientific-negative state and source footprint that produced it.
 
-## Next production bridge
+## Main-integrated production bridge
 
-The first Android bridge should be PRO-only and bounded.
-
-It should render a diagnostic Free-World preview from:
+The first Android bridge is now implemented, PRO-only and bounded. It renders a diagnostic Free-World preview from:
 
 ```text
 DNG source
@@ -117,3 +115,11 @@ DNG source
 ```
 
 PURE remains untouched. Existing validated exports remain untouched until separately admitted.
+
+The bridge is DNG-only, capped at 192 pixels on the longest preview edge, requires Scientific Master/Open Scene bit-identity for loaded tiles, re-verifies sealed source identity, and exposes authority/footprint/state diagnostics in the PRO UI.
+
+Validation:
+
+- v0.5 GCC/Clang/ASan/UBSan: run `36107899950` — SUCCESS;
+- Android stable-signed ARM64 bridge build: run `36108523949` — SUCCESS;
+- Unified Output Preview Android integration: run `36108523910` — SUCCESS.

@@ -238,7 +238,7 @@ if current_2026_09_25.get("product_name") != "D.RAW":
     errors.append("current_2026_09_25_product_name_mismatch")
 if current_2026_09_25.get("active_integration_branch") != "integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master":
     errors.append("current_2026_09_25_active_branch_mismatch")
-if current_2026_09_25.get("code_checkpoint_sha") != "e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0":
+if current_2026_09_25.get("code_checkpoint_sha") != "58e3b6332c828d9b8ea955b0c79b0c5f69342761":
     errors.append("current_2026_09_25_code_checkpoint_mismatch")
 if current_2026_09_25.get("permanent_rule") != "Representation can exceed the source. Knowledge claims cannot exceed the evidence.":
     errors.append("current_2026_09_25_permanent_rule_mismatch")
@@ -250,6 +250,27 @@ if fw25.get("existing_validated_exports_automatically_rerouted") is not False:
     errors.append("current_2026_09_25_exports_must_not_be_silently_rerouted")
 if fw25.get("production_bridge_required") is not True:
     errors.append("current_2026_09_25_production_bridge_gate_missing")
+
+tn25 = current_2026_09_25.get("truthnegative_continuous_v0_5") or {}
+if tn25.get("status") != "MAIN_INTEGRATED_PRO_PREVIEW_BRIDGE":
+    errors.append("current_2026_09_25_tn_continuous_status_mismatch")
+if tn25.get("target_raster_part_of_state_identity") is not False:
+    errors.append("current_2026_09_25_tn_target_raster_must_not_define_state")
+if tn25.get("measured_target_claim_count") != 0:
+    errors.append("current_2026_09_25_tn_measured_target_claim_must_be_zero")
+if tn25.get("creates_new_evidence") is not False:
+    errors.append("current_2026_09_25_tn_must_not_create_evidence")
+if tn25.get("scientific_writeback_allowed") is not False:
+    errors.append("current_2026_09_25_tn_writeback_forbidden")
+
+bridges25 = current_2026_09_25.get("production_bridges") or {}
+pro_tn25 = bridges25.get("pro_truthnegative_continuous_preview") or {}
+if pro_tn25.get("implemented") is not True:
+    errors.append("current_2026_09_25_pro_tn_bridge_missing")
+if pro_tn25.get("pure_route_changed") is not False:
+    errors.append("current_2026_09_25_pro_tn_bridge_must_not_change_pure")
+if pro_tn25.get("existing_exports_changed") is not False:
+    errors.append("current_2026_09_25_pro_tn_bridge_must_not_change_exports")
 
 laws25 = current_2026_09_25.get("scientific_invariants") or {}
 for key, expected in {
@@ -281,9 +302,9 @@ if validation25.get("asan_ubsan") != "PASS":
     errors.append("current_2026_09_25_sanitizers_not_green")
 
 apk25 = current_2026_09_25.get("apk") or {}
-if apk25.get("artifact_id") != 10841122875:
+if apk25.get("artifact_id") != 10851937980:
     errors.append("current_2026_09_25_apk_artifact_mismatch")
-if apk25.get("apk_sha256") != "23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448":
+if apk25.get("apk_sha256") != "a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b":
     errors.append("current_2026_09_25_apk_sha_mismatch")
 if apk25.get("stable_dev_cert_sha256") != "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44":
     errors.append("current_2026_09_25_signing_cert_mismatch")

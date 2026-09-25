@@ -14,11 +14,11 @@
 >
 > Active integration: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
 >
-> Free-World v0.2-v0.7 is now compiled into the Android main native library. UI routes are aligned as PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. Existing validated exports remain unchanged until an explicit bridge opts into the new downstream resolver.
+> Free-World v0.2-v0.7 and TruthNegative Continuous v0.5 are now compiled into the Android main native library. UI routes are aligned as PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. PRO now has the first explicit production preview bridge: Scientific Master + Open Scene authority -> raster-independent TruthNegative -> area resolve -> v0.7 display view. PURE and existing validated exports remain unchanged.
 >
-> Code checkpoint: `e1fde59a9edf097fe2ce3fdf996fe181a94ac5e0`
+> Code checkpoint: `58e3b6332c828d9b8ea955b0c79b0c5f69342761`
 >
-> Current signed ARM64 APK SHA-256: `23c3c3fcf0c119f517ab102a30d8eb896da1156bcb9d0ab3273934367ac87448`
+> Current signed ARM64 APK SHA-256: `a22b0316914563ba45d7caad357cc03009f740f09e3a589451c41b8beeacdc1b`
 >
 > D.RAW preserves the permanent rule: **representation can exceed the source; knowledge claims cannot exceed the evidence.**
 
