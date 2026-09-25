@@ -210,6 +210,22 @@ object TruthNegativeN2CropAbLoader {
                     throw IllegalStateException("crop contract mismatch")
                 }
 
+                val baselineRgbMismatches = packet[m + 21]
+                val candidateIdentitySha256 = digestWords(packet, m + 22)
+                val candidateStage2Sites = packet[m + 30]
+                val cropFullColourCandidate = packet[m + 31] != 0
+                if (baselineRgbMismatches != 0 ||
+                    candidateStage2Sites < 0 ||
+                    candidateStage2Sites > (width + 6) * (height + 6) ||
+                    !cropFullColourCandidate ||
+                    candidateIdentitySha256.length != 64 ||
+                    candidateIdentitySha256.all { it == '0' }
+                ) {
+                    throw IllegalStateException(
+                        "full-colour candidate provenance mismatch",
+                    )
+                }
+
                 val base = N2_CROP_AB_HEADER_INTS + index * 3 * cropPixels
                 val a = Bitmap.createBitmap(
                     packet.copyOfRange(base, base + cropPixels),
@@ -266,10 +282,10 @@ object TruthNegativeN2CropAbLoader {
                             packet[m + 18].toDouble() / 1_000_000_000.0,
                         displayClampA = packet[m + 19],
                         displayClampB = packet[m + 20],
-                        baselineRgbMismatches = packet[m + 21],
-                        candidateIdentitySha256 = digestWords(packet, m + 22),
-                        candidateStage2Sites = packet[m + 30],
-                        fullColourCandidate = packet[m + 31] != 0,
+                        baselineRgbMismatches = baselineRgbMismatches,
+                        candidateIdentitySha256 = candidateIdentitySha256,
+                        candidateStage2Sites = candidateStage2Sites,
+                        fullColourCandidate = cropFullColourCandidate,
                     ),
                 )
             }
