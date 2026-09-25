@@ -187,6 +187,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
     o << ",\"censoredB\":" << written.censoredByRgb[2];
     o << ",\"censoredValueAboveOne\":" << written.censoredValueAboveOneCount;
     o << ",\"censoredValueAtOrBelowOne\":" << written.censoredValueAtOrBelowOneCount;
+    o << ",\"censoredTileCount\":" << written.censoredTileCount;
+    o << ",\"censoredMinX\":" << written.censoredMinX;
+    o << ",\"censoredMinY\":" << written.censoredMinY;
+    o << ",\"censoredMaxX\":" << written.censoredMaxX;
+    o << ",\"censoredMaxY\":" << written.censoredMaxY;
+    o << ",\"censoredRawCodeBoundMin\":" << written.censoredRawCodeBoundMin;
+    o << ",\"censoredRawCodeBoundMax\":" << written.censoredRawCodeBoundMax;
+    o << ",\"censoredRawCodeBoundMismatchCount\":" << written.censoredRawCodeBoundMismatchCount;
     o << ",\"uncertaintyKnownCount\":" << written.uncertaintyKnownCount;
     o << ",\"supportKnownCount\":" << written.supportKnownCount;
     o << ",\"boundKnownCount\":" << written.boundKnownCount;
