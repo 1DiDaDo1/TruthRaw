@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -54,9 +55,23 @@ public:
     BindingReport report() const noexcept;
 
 private:
-    bool loadCanonicalTile(
+    struct CachedTile final {
+        bool valid = false;
+        std::uint32_t x = 0u;
+        std::uint32_t y = 0u;
+        std::uint32_t width = 0u;
+        std::uint32_t height = 0u;
+        std::uint64_t lastUse = 0u;
+        std::vector<free_world::SourcePixel> pixels;
+    };
+
+    const CachedTile* findOrLoadCanonicalTile(
         std::uint32_t tileX,
         std::uint32_t tileY) const noexcept;
+    bool loadCanonicalTile(
+        std::uint32_t tileX,
+        std::uint32_t tileY,
+        CachedTile& destination) const noexcept;
 
     master::IScientificMasterTileSource& master_;
     local::IFieldTileSource& field_;
@@ -65,14 +80,11 @@ private:
     bool valid_ = false;
     mutable std::string error_;
 
-    mutable bool cacheValid_ = false;
-    mutable std::uint32_t cacheX_ = 0u;
-    mutable std::uint32_t cacheY_ = 0u;
-    mutable std::uint32_t cacheWidth_ = 0u;
-    mutable std::uint32_t cacheHeight_ = 0u;
+    static constexpr std::size_t kCacheSlots = 8u;
+    mutable std::array<CachedTile, kCacheSlots> cache_{};
+    mutable std::uint64_t cacheClock_ = 0u;
     mutable std::vector<float> masterRgb_;
     mutable std::vector<field::ChannelRecord> fieldRecords_;
-    mutable std::vector<free_world::SourcePixel> mappedPixels_;
     mutable BindingReport report_{};
 };
 
