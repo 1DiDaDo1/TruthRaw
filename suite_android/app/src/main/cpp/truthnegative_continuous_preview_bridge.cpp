@@ -662,7 +662,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 free_world::ResolvedAuthority::Unknown);
             candidateScene.uncertaintyKnown.fill(false);
             candidateScene.p95Uncertainty.fill(0.0);
-            candidateScene.visibility.scientificObservation = false;
+            candidateScene.visibility = {};
             candidateScene.appearanceApplied = false;
             candidateScene.displayEncoded = false;
             candidateScene.sourcePacketSha256 =
