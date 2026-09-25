@@ -7,6 +7,7 @@ on:
       - integration/truthraw-suite-v0-84-2-advanced-appearance-controls
       - integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master
       - research/free-world-output-pixel-v0-1
+      - integration/pro-truthnegative-continuous-primary-route-v075
     paths:
       - 'suite_android/**'
       - 'docs/research/android-acceleration-v0.1/**'
@@ -19,6 +20,12 @@ on:
       - 'docs/research/free-world-deep-scene-binding-v0.5/**'
       - 'docs/research/free-world-light-transport-state-v0.6/**'
       - 'docs/research/free-world-appearance-resolve-v0.7/**'
+      - 'docs/research/truthnegative-noise-state-v0.1/**'
+      - 'docs/research/truthnegative-structure-preservation-gate-v0.1/**'
+      - 'docs/research/truthnegative-bounded-residual-estimator-v0.1/**'
+      - 'docs/research/truthnegative-authority-aware-neighborhood-v0.1/**'
+      - 'docs/research/truthnegative-n2-candidate-pipeline-v0.1/**'
+      - 'docs/research/truthnegative-n2-cfa-audit-v0.1/**'
       - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
   workflow_dispatch:
 
