@@ -5,6 +5,7 @@
 #include <bit>
 #include <charconv>
 #include <cstring>
+#include <cmath>
 #include <limits>
 #include <sstream>
 
@@ -74,6 +75,19 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"tile_count="<<s.tileCount<<"\n";
     o<<"record_count="<<s.recordCount<<"\n";
     o<<"body_bytes="<<s.bodyBytes<<"\n";
+    o<<"role_source_measured_cfa="<<s.roleSourceMeasuredCfa<<"\n";
+    o<<"role_scientific_reconstruction="<<s.roleScientificReconstruction<<"\n";
+    o<<"role_dense_projection="<<s.roleDenseProjection<<"\n";
+    o<<"authority_calibrated_estimate="<<s.authorityCalibratedEstimate<<"\n";
+    o<<"authority_reconstructed="<<s.authorityReconstructed<<"\n";
+    o<<"authority_censored="<<s.authorityCensored<<"\n";
+    o<<"authority_unknown="<<s.authorityUnknown<<"\n";
+    o<<"uncertainty_known_count="<<s.uncertaintyKnownCount<<"\n";
+    o<<"support_known_count="<<s.supportKnownCount<<"\n";
+    o<<"bound_known_count="<<s.boundKnownCount<<"\n";
+    o<<"value_negative_count="<<s.valueNegativeCount<<"\n";
+    o<<"value_above_one_count="<<s.valueAboveOneCount<<"\n";
+    o<<"value_nonfinite_count="<<s.valueNonFiniteCount<<"\n";
     o<<"source_sha256="<<hex(s.sourceEvidenceSha256)<<"\n";
     o<<"scientific_master_sha256="<<hex(s.scientificMasterSha256)<<"\n";
     o<<"authority_field_sha256="<<hex(s.authorityFieldSha256)<<"\n";
@@ -158,6 +172,35 @@ bool write(
                 field::EncodedTile enc{};
                 if(!field::encode_tile(x,y,w,h,records,enc)) return false;
 
+                for(const auto& record : records){
+                    switch(record.role){
+                        case field::CreationRole::SourceMeasuredCfa:
+                            ++out.roleSourceMeasuredCfa; break;
+                        case field::CreationRole::ScientificReconstruction:
+                            ++out.roleScientificReconstruction; break;
+                        case field::CreationRole::DenseProjection:
+                            ++out.roleDenseProjection; break;
+                    }
+                    switch(record.authority){
+                        case field::Authority::CalibratedEstimate:
+                            ++out.authorityCalibratedEstimate; break;
+                        case field::Authority::Reconstructed:
+                            ++out.authorityReconstructed; break;
+                        case field::Authority::Censored:
+                            ++out.authorityCensored; break;
+                        case field::Authority::Unknown:
+                            ++out.authorityUnknown; break;
+                    }
+                    if(record.p95Known) ++out.uncertaintyKnownCount;
+                    if(record.supportKnown) ++out.supportKnownCount;
+                    if(record.boundKnown) ++out.boundKnownCount;
+                    if(!std::isfinite(record.value)) ++out.valueNonFiniteCount;
+                    else {
+                        if(record.value < 0.0f) ++out.valueNegativeCount;
+                        if(record.value > 1.0f) ++out.valueAboveOneCount;
+                    }
+                }
+
                 const std::uint64_t valueBytes64=
                     static_cast<std::uint64_t>(records.size())*4u;
                 const std::uint64_t payloadBytes64=
@@ -237,9 +280,25 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
             error_="header contract mismatch"; return false;
         }
         std::uint64_t w=0,h=0,tc=0,rc=0,bb=0;
+        std::uint64_t rMeasured=0,rRecon=0,rDense=0;
+        std::uint64_t aCal=0,aRecon=0,aCens=0,aUnknown=0;
+        std::uint64_t uKnown=0,sKnown=0,bKnown=0,vNeg=0,vAbove=0,vNonFinite=0;
         if(!parseUnsigned(header,"width",w)||!parseUnsigned(header,"height",h)||
            !parseUnsigned(header,"tile_count",tc)||!parseUnsigned(header,"record_count",rc)||
            !parseUnsigned(header,"body_bytes",bb)||
+           !parseUnsigned(header,"role_source_measured_cfa",rMeasured)||
+           !parseUnsigned(header,"role_scientific_reconstruction",rRecon)||
+           !parseUnsigned(header,"role_dense_projection",rDense)||
+           !parseUnsigned(header,"authority_calibrated_estimate",aCal)||
+           !parseUnsigned(header,"authority_reconstructed",aRecon)||
+           !parseUnsigned(header,"authority_censored",aCens)||
+           !parseUnsigned(header,"authority_unknown",aUnknown)||
+           !parseUnsigned(header,"uncertainty_known_count",uKnown)||
+           !parseUnsigned(header,"support_known_count",sKnown)||
+           !parseUnsigned(header,"bound_known_count",bKnown)||
+           !parseUnsigned(header,"value_negative_count",vNeg)||
+           !parseUnsigned(header,"value_above_one_count",vAbove)||
+           !parseUnsigned(header,"value_nonfinite_count",vNonFinite)||
            w==0||h==0||w>std::numeric_limits<std::uint32_t>::max()||
            h>std::numeric_limits<std::uint32_t>::max()||
            kHeaderBytes+bb!=source.sizeBytes()){
@@ -249,6 +308,24 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
         summary_.height=static_cast<std::uint32_t>(h);
         summary_.tileCount=tc; summary_.recordCount=rc; summary_.bodyBytes=bb;
         summary_.fileBytes=source.sizeBytes();
+        summary_.roleSourceMeasuredCfa=rMeasured;
+        summary_.roleScientificReconstruction=rRecon;
+        summary_.roleDenseProjection=rDense;
+        summary_.authorityCalibratedEstimate=aCal;
+        summary_.authorityReconstructed=aRecon;
+        summary_.authorityCensored=aCens;
+        summary_.authorityUnknown=aUnknown;
+        summary_.uncertaintyKnownCount=uKnown;
+        summary_.supportKnownCount=sKnown;
+        summary_.boundKnownCount=bKnown;
+        summary_.valueNegativeCount=vNeg;
+        summary_.valueAboveOneCount=vAbove;
+        summary_.valueNonFiniteCount=vNonFinite;
+        if(rMeasured+rRecon+rDense!=rc ||
+           aCal+aRecon+aCens+aUnknown!=rc ||
+           vNonFinite!=0u){
+            error_="header authority/value census invalid"; return false;
+        }
         if(!parseDigest(header,"source_sha256",summary_.sourceEvidenceSha256)||
            !parseDigest(header,"scientific_master_sha256",summary_.scientificMasterSha256)||
            !parseDigest(header,"authority_field_sha256",summary_.authorityFieldSha256)||
