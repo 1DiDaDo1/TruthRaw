@@ -51,6 +51,15 @@ data class TruthNegativeNativeContainerMetrics(
     val censoredRawCodeBoundMin: Double,
     val censoredRawCodeBoundMax: Double,
     val censoredRawCodeBoundMismatchCount: Long,
+    val censoredParity00: Long,
+    val censoredParity10: Long,
+    val censoredParity01: Long,
+    val censoredParity11: Long,
+    val censoredRaw10MaxCount: Long,
+    val censoredRaw10Parity00: Long,
+    val censoredRaw10Parity10: Long,
+    val censoredRaw10Parity01: Long,
+    val censoredRaw10Parity11: Long,
     val uncertaintyKnownCount: Long,
     val supportKnownCount: Long,
     val boundKnownCount: Long,
@@ -154,6 +163,15 @@ object TruthNegativeNativeContainerExporter {
             censoredRawCodeBoundMax = json.optDouble("censoredRawCodeBoundMax"),
             censoredRawCodeBoundMismatchCount =
                 json.optLong("censoredRawCodeBoundMismatchCount"),
+            censoredParity00 = json.optLong("censoredParity00"),
+            censoredParity10 = json.optLong("censoredParity10"),
+            censoredParity01 = json.optLong("censoredParity01"),
+            censoredParity11 = json.optLong("censoredParity11"),
+            censoredRaw10MaxCount = json.optLong("censoredRaw10MaxCount"),
+            censoredRaw10Parity00 = json.optLong("censoredRaw10Parity00"),
+            censoredRaw10Parity10 = json.optLong("censoredRaw10Parity10"),
+            censoredRaw10Parity01 = json.optLong("censoredRaw10Parity01"),
+            censoredRaw10Parity11 = json.optLong("censoredRaw10Parity11"),
             uncertaintyKnownCount = json.optLong("uncertaintyKnownCount"),
             supportKnownCount = json.optLong("supportKnownCount"),
             boundKnownCount = json.optLong("boundKnownCount"),
@@ -207,6 +225,13 @@ object TruthNegativeNativeContainerExporter {
             metrics.censoredValueAboveOne +
                 metrics.censoredValueAtOrBelowOne != metrics.authorityCensored ||
             metrics.censoredRawCodeBoundMismatchCount != 0L ||
+            metrics.censoredParity00 + metrics.censoredParity10 +
+                metrics.censoredParity01 + metrics.censoredParity11 !=
+                metrics.authorityCensored ||
+            metrics.censoredRaw10Parity00 + metrics.censoredRaw10Parity10 +
+                metrics.censoredRaw10Parity01 + metrics.censoredRaw10Parity11 !=
+                metrics.censoredRaw10MaxCount ||
+            metrics.censoredRaw10MaxCount > metrics.authorityCensored ||
             metrics.valueNonFiniteCount != 0L ||
             identityDigests.any {
                 it.length != 64 ||
