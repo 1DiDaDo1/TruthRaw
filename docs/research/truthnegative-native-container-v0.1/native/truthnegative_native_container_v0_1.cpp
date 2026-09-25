@@ -84,7 +84,7 @@ std::string makeHeader(const WriteInput& input, const Summary& s) {
     o<<"independent_evidence_count=1\n";
     o<<"creates_new_evidence=0\n";
     o<<"scientific_writeback_allowed=0\n";
-    o<<"payload=OPEN_SCENE_FIELD_V085_ENCODED_CANONICAL_TILES\n";
+    o<<"payload=FLOAT32_VALUE_PLANE_PLUS_OPEN_SCENE_FIELD_V085_CANONICAL_TILES\n";
     o<<"END_HEADER\n";
     return o.str();
 }
@@ -158,23 +158,38 @@ bool write(
                 field::EncodedTile enc{};
                 if(!field::encode_tile(x,y,w,h,records,enc)) return false;
 
-                const Digest payloadSha=
-                    digestBytes(enc.bytes);
+                const std::uint64_t valueBytes64=
+                    static_cast<std::uint64_t>(records.size())*4u;
+                const std::uint64_t payloadBytes64=
+                    valueBytes64+enc.bytes.size();
+                if(payloadBytes64>std::numeric_limits<std::uint32_t>::max()) return false;
+                std::vector<std::uint8_t> payload(
+                    static_cast<std::size_t>(payloadBytes64));
+                for(std::size_t i=0u;i<records.size();++i){
+                    const auto bits=std::bit_cast<std::uint32_t>(records[i].value);
+                    put32(payload.data()+4u*i,bits);
+                }
+                std::copy(
+                    enc.bytes.begin(),enc.bytes.end(),
+                    payload.begin()+static_cast<std::ptrdiff_t>(valueBytes64));
+                const Digest payloadSha=digestBytes(payload);
+
                 std::array<std::uint8_t,kTileHeaderBytes> th{};
                 put32(th.data()+0,x); put32(th.data()+4,y);
                 put32(th.data()+8,w); put32(th.data()+12,h);
                 put32(th.data()+16,static_cast<std::uint32_t>(enc.mode));
                 put32(th.data()+20,enc.recordCount);
-                put32(th.data()+24,static_cast<std::uint32_t>(enc.bytes.size()));
+                put32(th.data()+24,static_cast<std::uint32_t>(payload.size()));
+                put32(th.data()+28,static_cast<std::uint32_t>(enc.bytes.size()));
                 std::memcpy(th.data()+32,payloadSha.data(),payloadSha.size());
 
                 if(!sink.writeAt(offset,th.data(),th.size())) return false;
                 bodyHasher.update(th);
                 offset+=th.size();
-                if(!enc.bytes.empty()){
-                    if(!sink.writeAt(offset,enc.bytes.data(),enc.bytes.size())) return false;
-                    bodyHasher.update(enc.bytes);
-                    offset+=enc.bytes.size();
+                if(!payload.empty()){
+                    if(!sink.writeAt(offset,payload.data(),payload.size())) return false;
+                    bodyHasher.update(payload);
+                    offset+=payload.size();
                 }
                 ++out.tileCount;
                 out.recordCount+=enc.recordCount;
@@ -254,10 +269,14 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
             idx.width=get32(th.data()+8); idx.height=get32(th.data()+12);
             const auto recordCount=get32(th.data()+20);
             idx.payloadBytes=get32(th.data()+24);
+            const auto encodedBytes=get32(th.data()+28);
             std::memcpy(idx.payloadSha256.data(),th.data()+32,32u);
             idx.payloadOffset=off+kTileHeaderBytes;
+            const std::uint64_t valueBytes=
+                static_cast<std::uint64_t>(recordCount)*4u;
             if(idx.width==0u||idx.height==0u||
                recordCount!=static_cast<std::uint64_t>(idx.width)*idx.height*3u||
+               valueBytes+encodedBytes!=idx.payloadBytes||
                idx.payloadOffset+idx.payloadBytes>source.sizeBytes()){
                 error_="tile metadata invalid";return false;
             }
@@ -270,13 +289,23 @@ bool Reader::open(const IRandomAccessSource& source) noexcept {
             if(digestBytes(payload)!=idx.payloadSha256){
                 error_="tile payload sha mismatch";return false;
             }
+            const std::span<const std::uint8_t> encoded(
+                payload.data()+static_cast<std::size_t>(valueBytes),
+                encodedBytes);
             field::EncodedTile meta{};
             std::vector<field::ChannelRecord> decoded;
-            if(!field::decode_tile(payload,meta,decoded)||
+            if(!field::decode_tile(encoded,meta,decoded)||
                meta.x!=idx.x||meta.y!=idx.y||
                meta.width!=idx.width||meta.height!=idx.height||
                decoded.size()!=recordCount){
                 error_="tile decode mismatch";return false;
+            }
+            for(std::size_t i=0u;i<decoded.size();++i){
+                const auto bits=get32(payload.data()+4u*i);
+                decoded[i].value=std::bit_cast<float>(bits);
+                if(!field::validate_record(decoded[i])){
+                    error_="rebound numeric value invalid";return false;
+                }
             }
             tiles_.push_back(idx);
             off=idx.payloadOffset+idx.payloadBytes;
@@ -314,9 +343,18 @@ bool Reader::readSourceTile(
         std::vector<std::uint8_t> payload(it->payloadBytes);
         if(it->payloadBytes>0u &&
            !source_->readAt(it->payloadOffset,payload.data(),payload.size())) return false;
+        if(payload.size()<recordCount*4u) return false;
+        const std::size_t valueBytes=recordCount*4u;
+        const std::span<const std::uint8_t> encoded(
+            payload.data()+valueBytes,payload.size()-valueBytes);
         field::EncodedTile meta{};
         std::vector<field::ChannelRecord> decoded;
-        if(!field::decode_tile(payload,meta,decoded)||decoded.size()!=recordCount) return false;
+        if(!field::decode_tile(encoded,meta,decoded)||decoded.size()!=recordCount) return false;
+        for(std::size_t i=0u;i<decoded.size();++i){
+            decoded[i].value=std::bit_cast<float>(
+                get32(payload.data()+4u*i));
+            if(!field::validate_record(decoded[i])) return false;
+        }
         std::copy(decoded.begin(),decoded.end(),out);
         return true;
     }catch(...){ return false; }
