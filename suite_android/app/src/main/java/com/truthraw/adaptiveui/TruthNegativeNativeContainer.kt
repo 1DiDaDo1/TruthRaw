@@ -29,6 +29,18 @@ data class TruthNegativeNativeContainerMetrics(
     val recordCount: Long,
     val bodyBytes: Long,
     val fileBytes: Long,
+    val roleSourceMeasuredCfa: Long,
+    val roleScientificReconstruction: Long,
+    val authorityCalibratedEstimate: Long,
+    val authorityReconstructed: Long,
+    val authorityCensored: Long,
+    val authorityUnknown: Long,
+    val uncertaintyKnownCount: Long,
+    val supportKnownCount: Long,
+    val boundKnownCount: Long,
+    val valueNegativeCount: Long,
+    val valueAboveOneCount: Long,
+    val valueNonFiniteCount: Long,
     val sourceSha256: String,
     val scientificMasterSha256: String,
     val authorityFieldSha256: String,
@@ -103,6 +115,18 @@ object TruthNegativeNativeContainerExporter {
             recordCount = json.optLong("recordCount"),
             bodyBytes = json.optLong("bodyBytes"),
             fileBytes = json.optLong("fileBytes"),
+            roleSourceMeasuredCfa = json.optLong("roleSourceMeasuredCfa"),
+            roleScientificReconstruction = json.optLong("roleScientificReconstruction"),
+            authorityCalibratedEstimate = json.optLong("authorityCalibratedEstimate"),
+            authorityReconstructed = json.optLong("authorityReconstructed"),
+            authorityCensored = json.optLong("authorityCensored"),
+            authorityUnknown = json.optLong("authorityUnknown"),
+            uncertaintyKnownCount = json.optLong("uncertaintyKnownCount"),
+            supportKnownCount = json.optLong("supportKnownCount"),
+            boundKnownCount = json.optLong("boundKnownCount"),
+            valueNegativeCount = json.optLong("valueNegativeCount"),
+            valueAboveOneCount = json.optLong("valueAboveOneCount"),
+            valueNonFiniteCount = json.optLong("valueNonFiniteCount"),
             sourceSha256 = json.optString("sourceSha256"),
             scientificMasterSha256 =
                 json.optString("scientificMasterSha256"),
@@ -136,6 +160,13 @@ object TruthNegativeNativeContainerExporter {
             metrics.recordCount !=
                 metrics.width.toLong() *
                 metrics.height.toLong() * 3L ||
+            metrics.roleSourceMeasuredCfa +
+                metrics.roleScientificReconstruction != metrics.recordCount ||
+            metrics.authorityCalibratedEstimate +
+                metrics.authorityReconstructed +
+                metrics.authorityCensored +
+                metrics.authorityUnknown != metrics.recordCount ||
+            metrics.valueNonFiniteCount != 0L ||
             identityDigests.any {
                 it.length != 64 ||
                     it.any { ch -> ch !in "0123456789abcdef" }
