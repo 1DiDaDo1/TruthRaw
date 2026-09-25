@@ -784,14 +784,16 @@ class MainActivity : Activity() {
                         n2CropAbJobId = job.id
                         val r = result.report
                         n2CropAbStatus =
-                            "N2 1:1 full-colour cropdiagnose gereed · " +
+                            "N2 1:1 full-colour + Risk/Quality gereed · " +
                                 r.crops.joinToString(" · ") { panel ->
                                     val m = panel.metrics
                                     m.kind.name + "=" +
                                         m.changedPixels + "/" +
                                         (m.width * m.height) +
-                                        " Δmean=" +
-                                        "%.6f".format(m.meanAbsEncodedDelta)
+                                        " Δp99=" +
+                                        "%.6f".format(m.pixelDelta.p99) +
+                                        " edge=" +
+                                        "%.4f".format(m.edgeEnergyRatio)
                                 } +
                                 " · Δ×" + r.deltaGain +
                                 " · writeback=false."
@@ -3315,12 +3317,39 @@ class MainActivity : Activity() {
                                     8.7f,
                                     muted = true,
                                 ))
+                                addView(label(
+                                    "Risk/Quality · pixel Δ p50/p95/p99/max=" +
+                                        "${"%.7f".format(m.pixelDelta.p50)}/" +
+                                        "${"%.7f".format(m.pixelDelta.p95)}/" +
+                                        "${"%.7f".format(m.pixelDelta.p99)}/" +
+                                        "${"%.7f".format(m.pixelDelta.max)} · " +
+                                        "RGB p99=" +
+                                        "${"%.7f".format(m.redDelta.p99)}/" +
+                                        "${"%.7f".format(m.greenDelta.p99)}/" +
+                                        "${"%.7f".format(m.blueDelta.p99)} · " +
+                                        "Y′ p99=${"%.7f".format(m.lumaDelta.p99)} · " +
+                                        "chroma p99=${"%.7f".format(m.chromaDelta.p99)}",
+                                    8.7f,
+                                    muted = true,
+                                ))
+                                addView(label(
+                                    "max Δ @ bron x=${m.maxDeltaSourceX}, y=${m.maxDeltaSourceY} · " +
+                                        "afstand structure=${if (m.distanceToStructurePx < 0.0) "n.v.t." else "%.2f px".format(m.distanceToStructurePx)} · " +
+                                        "afstand censor/boundary=${if (m.distanceToCensorBoundaryPx < 0.0) "n.v.t." else "%.2f px".format(m.distanceToCensorBoundaryPx)} · " +
+                                        "edge A/B=${"%.5f".format(m.edgeEnergyA)}/${"%.5f".format(m.edgeEnergyB)} · " +
+                                        "B/A=${"%.6f".format(m.edgeEnergyRatio)} · " +
+                                        "mean |Δgrad|=${"%.7f".format(m.meanAbsGradientDelta)} · " +
+                                        "QA=${m.qualitySha256.take(12)}…",
+                                    8.7f,
+                                    muted = true,
+                                ))
                             }
 
                             addView(label(
                                 "1:1 full-colour diagnose: baseline-reconstructie moet Float32-bit-identiek " +
                                     "zijn aan de exacte Scientific Master bronpixel; anders faalt de route gesloten. " +
-                                    "source/Scientific Master/TruthNegative blijven immutable · " +
+                                    "Risk/Quality meet encoded-display Δ en gradientenergie alleen als diagnose " +
+                                    "(geen MTF-claim). source/Scientific Master/TruthNegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
                                 9f,
                                 muted = true,
