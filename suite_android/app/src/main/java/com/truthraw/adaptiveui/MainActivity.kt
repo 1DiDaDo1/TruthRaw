@@ -3169,6 +3169,155 @@ class MainActivity : Activity() {
                             9f,
                             muted = true,
                         ))
+                        addView(space(7))
+                        addView(actionButton("N2 · 1:1 A/B/Δ cropdiagnose") {
+                            launchN2CropAbDiagnostic(active)
+                        })
+                        n2CropAbStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-crop-ab",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 9.5f, muted = true),
+                            )
+                        }
+
+                        val cropReady =
+                            n2CropAbResult?.takeIf {
+                                n2CropAbJobId == active.id
+                            }
+                        cropReady?.let { ready ->
+                            val cropTurns = outputPreview.metrics.displayQuarterTurns
+                            fun cropImage(
+                                bitmap: Bitmap,
+                                description: String,
+                            ): ImageView =
+                                ImageView(this@MainActivity).apply {
+                                    setImageBitmap(bitmap)
+                                    adjustViewBounds = true
+                                    scaleType = ImageView.ScaleType.FIT_CENTER
+                                    rotation = cropTurns * 90f
+                                    contentDescription = description
+                                    minimumHeight = dp(82)
+                                    maxHeight = dp(180)
+                                }
+
+                            addView(space(8))
+                            addView(label(
+                                "N2 1:1 broncrops · full-lattice diagnose",
+                                11.5f,
+                                bold = true,
+                            ))
+                            addView(label(
+                                "Iedere crop is 1 bronpixel → 1 previewpixel. A blijft de " +
+                                    "ongewijzigde TruthNegative/Appearance. B wijzigt alleen de " +
+                                    "gemeten CFA-kandidaatcomponent in een tijdelijke displaykopie. " +
+                                    "Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
+                                    "Dit is géén kandidaat-RAW-reconstructie.",
+                                9.2f,
+                                muted = true,
+                            ))
+
+                            ready.report.crops.forEach { panel ->
+                                val m = panel.metrics
+                                val title = when (m.kind) {
+                                    TruthNegativeN2CropKind.QUIET_CANDIDATE ->
+                                        "Rustige/noise-kandidaatzone"
+                                    TruthNegativeN2CropKind.STRUCTURE ->
+                                        "Structuurzone"
+                                    TruthNegativeN2CropKind.CENSOR ->
+                                        "Censor/highlight-zone"
+                                }
+                                addView(space(7))
+                                addView(label(
+                                    "$title · bron x=${m.sourceX}, y=${m.sourceY} · " +
+                                        "${m.width}×${m.height}",
+                                    10.5f,
+                                    bold = true,
+                                ))
+                                addView(horizontal().apply {
+                                    gravity = Gravity.TOP
+                                    fun column(
+                                        titleText: String,
+                                        bitmap: Bitmap,
+                                        description: String,
+                                    ): LinearLayout =
+                                        vertical().apply {
+                                            addView(label(
+                                                titleText,
+                                                9.5f,
+                                                bold = true,
+                                            ))
+                                            addView(cropImage(
+                                                bitmap,
+                                                description,
+                                            ))
+                                        }
+                                    addView(
+                                        column(
+                                            "A",
+                                            panel.aBitmap,
+                                            "$title A referentie",
+                                        ),
+                                        LinearLayout.LayoutParams(
+                                            0,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                            1f,
+                                        ).apply { marginEnd = dp(3) },
+                                    )
+                                    addView(
+                                        column(
+                                            "B",
+                                            panel.bBitmap,
+                                            "$title B N2-kandidaat",
+                                        ),
+                                        LinearLayout.LayoutParams(
+                                            0,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                            1f,
+                                        ).apply {
+                                            marginStart = dp(2)
+                                            marginEnd = dp(2)
+                                        },
+                                    )
+                                    addView(
+                                        column(
+                                            "Δ",
+                                            panel.deltaBitmap,
+                                            "$title absolute delta",
+                                        ),
+                                        LinearLayout.LayoutParams(
+                                            0,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                                            1f,
+                                        ).apply { marginStart = dp(3) },
+                                    )
+                                })
+                                addView(label(
+                                    "sampled=${m.sampled} · candidate=${m.corrected} · " +
+                                        "preserved=${m.preserved} · structure=${m.structureProtected} · " +
+                                        "censored/boundary=${m.censoredProtected}/${m.censorBoundaryProtected} · " +
+                                        "changed=${m.changedPixels}/${m.width * m.height} px · " +
+                                        "Δmean=${"%.7f".format(m.meanAbsEncodedDelta)} · " +
+                                        "Δmax=${"%.7f".format(m.maxAbsEncodedDelta)} · " +
+                                        "removed-energy=${"%.3f".format(m.removedResidualEnergyFraction * 100.0)}% · " +
+                                        "max|Δ|stage2=${"%.8f".format(m.maxAbsCorrectionStage2)} · " +
+                                        "grid=${m.correctionGridSha256.take(12)}…",
+                                    8.7f,
+                                    muted = true,
+                                ))
+                            }
+
+                            addView(label(
+                                "1:1 diagnose: source/Scientific Master/TruthNegative blijven immutable · " +
+                                    "creates-new-evidence=false · scientific-writeback=false.",
+                                9f,
+                                muted = true,
+                            ))
+                        }
                     }
                 }
 
