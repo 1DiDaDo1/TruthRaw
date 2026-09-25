@@ -122,6 +122,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp)
 
 target_include_directories(truthraw_ui_preview_bridge PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
     ${TILE_DNG}
     ${STREAMING}
     ${PREVIEW_SURFACE}
