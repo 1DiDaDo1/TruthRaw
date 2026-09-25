@@ -522,6 +522,21 @@ class MainActivity : Activity() {
         startActivityForResult(intent, REQUEST_SAVE_PURE_FLOAT_DNG)
     }
 
+    private fun truthNegativeHeavyOperationActive(
+        jobId: String,
+        exceptKey: String,
+    ): Boolean {
+        val kinds = listOf(
+            "truthnegative-continuous-preview",
+            "camera5-color-highlight-oracle",
+            "truthnegative-native-container",
+        )
+        return kinds
+            .map { backgroundOperationKey(it, jobId) }
+            .any { it != exceptKey &&
+                TruthRawMediaProcessingForegroundService.isActive(it) }
+    }
+
     private fun launchTruthNegativeContinuousPreview(job: RawJob) {
         if (!job.source.format.nativeProcessingReady ||
             job.source.format.id != "DNG"
@@ -534,6 +549,13 @@ class MainActivity : Activity() {
 
         val operationKey =
             backgroundOperationKey("truthnegative-continuous-preview", job.id)
+        if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
+            truthNegativeContinuousStatus =
+                "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Deze zware Scientific Master-routes draaien bewust niet meer tegelijk."
+            render()
+            return
+        }
         if (!startBackgroundOperation(
                 operationKey,
                 "TruthNegative Continuous v0.5 · Scientific Negative → Free-World preview",
@@ -635,6 +657,13 @@ class MainActivity : Activity() {
 
         val operationKey =
             backgroundOperationKey("camera5-color-highlight-oracle", job.id)
+        if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
+            camera5ColorHighlightStatus =
+                "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Parallelle volledige Scientific Master-scans zijn uitgeschakeld."
+            render()
+            return
+        }
         if (!startBackgroundOperation(
                 operationKey,
                 "Camera-5 Color/Highlight Oracle v0.1",
@@ -1512,6 +1541,13 @@ class MainActivity : Activity() {
                     "truthnegative-native-container",
                     expectedJob,
                 )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                truthNegativeNativeContainerStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "Native export start daarna opnieuw handmatig."
+                render()
+                return
+            }
             if (!startBackgroundOperation(
                     operationKey,
                     "TruthNegative Native v0.1 export + import verify",
@@ -2055,7 +2091,11 @@ class MainActivity : Activity() {
         key: String,
         fallbackMessage: String,
     ): View? {
-        val state = TruthRawOperationStore.read(this, key) ?: return null
+        val state = TruthRawOperationStore.recoverInterruptedIfNeeded(
+            this,
+            key,
+            TruthRawMediaProcessingForegroundService.isActive(key),
+        ) ?: return null
         return operationStatusVisual(
             message = state.message.ifBlank { fallbackMessage },
             phase = state.phase,
