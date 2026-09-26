@@ -64,6 +64,8 @@ class MainActivity : Activity() {
     private var n2SpatialSidecarStatus: String? = null
     private var pendingN2CenterExcludedSpatialJobId: String? = null
     private var n2CenterExcludedSpatialStatus: String? = null
+    private var pendingN2ConfidenceFieldJobId: String? = null
+    private var n2ConfidenceFieldStatus: String? = null
     private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
     private var n2CropAbJobId: String? = null
     private var n2CropAbStatus: String? = null
@@ -232,6 +234,8 @@ class MainActivity : Activity() {
         n2SpatialSidecarStatus = null
         pendingN2CenterExcludedSpatialJobId = null
         n2CenterExcludedSpatialStatus = null
+        pendingN2ConfidenceFieldJobId = null
+        n2ConfidenceFieldStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -1020,6 +1024,42 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchN2ConfidenceFieldExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2ConfidenceFieldStatus =
+                "N2 Confidence Field v0.3 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingN2ConfidenceFieldJobId = job.id
+        n2ConfidenceFieldStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_confidence_field_v0_3.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_CONFIDENCE_FIELD,
         )
     }
 
@@ -1993,6 +2033,121 @@ class MainActivity : Activity() {
                                     "… · JSON=" +
                                     m.jsonSha256.take(16) +
                                     "… · audit-only."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_N2_CONFIDENCE_FIELD) {
+            val expectedJob = pendingN2ConfidenceFieldJobId
+            pendingN2ConfidenceFieldJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2ConfidenceFieldStatus =
+                    "N2 Confidence Field v0.3-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                n2ConfidenceFieldStatus =
+                    "N2 Confidence Field v0.3 geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-confidence-field",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2ConfidenceFieldStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "N2 Confidence Field v0.3 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Confidence Field v0.3",
+                )
+            ) {
+                n2ConfidenceFieldStatus =
+                    "N2 Confidence Field v0.3 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2ConfidenceFieldStatus =
+                "N2 Confidence Field v0.3 · vector-valued audit uit v0.1 + v0.2.1; " +
+                    "geen scalar probability, geen correctie en geen writeback…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-confidence-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2ConfidenceFieldStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeN2ConfidenceFieldExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is
+                        TruthNegativeN2ConfidenceFieldResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeN2ConfidenceFieldResult.Success ->
+                            "N2 Confidence Field v0.3 opgeslagen + SHA geverifieerd."
+                        is TruthNegativeN2ConfidenceFieldResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2ConfidenceFieldStatus =
+                        when (exportResult) {
+                            is TruthNegativeN2ConfidenceFieldResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeN2ConfidenceFieldResult.Success -> {
+                                val m = exportResult.metrics
+                                "N2 Confidence Field v0.3 opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · tiles=" + m.tileCount +
+                                    " · candidate=" +
+                                    "%.2f%%".format(100.0 * m.candidateFraction) +
+                                    " · predictor=" +
+                                    "%.2f%%".format(100.0 * m.predictorCoverage) +
+                                    " · pair=" +
+                                    "%.2f%%".format(100.0 * m.pairAcceptance) +
+                                    " · scale=" +
+                                    "%.2f%%".format(100.0 * m.scaleAcceptance) +
+                                    " · center >2σ=" +
+                                    "%.2f%%".format(100.0 * m.centerZGt2Fraction) +
+                                    " · classes N/U/M/F=" +
+                                    m.noCandidateTiles + "/" +
+                                    m.unresolvedTiles + "/" +
+                                    m.mixedTiles + "/" +
+                                    m.fullyCoherentTiles +
+                                    " · CF=" +
+                                    m.confidenceFieldSha256.take(16) +
+                                    "… · promotion=false."
                             }
                         }
                     render()
@@ -3908,6 +4063,35 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
+                        addView(actionButton(
+                            "Export N2 v0.3 Confidence Field · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchN2ConfidenceFieldExport(active)
+                        })
+                        n2ConfidenceFieldStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-confidence-field",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Vector-valued audit-only field boven v0.1 + v0.2.1: candidate-dichtheid, " +
+                                "predictor coverage, pair/scale-coherentie, center-z, protection load, " +
+                                "variance-ratio en CFA-fase blijven afzonderlijke assen. Geen gewogen " +
+                                "probability, support-distance nog niet admitted en promotion=false.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
@@ -4228,5 +4412,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER = 4113
         private const val REQUEST_SAVE_N2_SPATIAL_SIDECAR = 4114
         private const val REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL = 4115
+        private const val REQUEST_SAVE_N2_CONFIDENCE_FIELD = 4116
     }
 }
