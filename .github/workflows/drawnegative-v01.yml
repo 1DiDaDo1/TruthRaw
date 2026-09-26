@@ -1,0 +1,37 @@
+name: D.RAWnegative v0.1
+
+on:
+  push:
+    branches:
+      - architecture/drawnegative-v01-2026-09-26
+    paths:
+      - 'docs/research/drawnegative-v0.1/**'
+      - '.github/workflows/drawnegative-v01.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/drawnegative-v0.1 -B build/drawnegative-gcc -DCMAKE_CXX_COMPILER=g++
+      - run: cmake --build build/drawnegative-gcc --parallel
+      - run: ctest --test-dir build/drawnegative-gcc --output-on-failure
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/drawnegative-v0.1 -B build/drawnegative-clang -DCMAKE_CXX_COMPILER=clang++
+      - run: cmake --build build/drawnegative-clang --parallel
+      - run: ctest --test-dir build/drawnegative-clang --output-on-failure
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: >
+          cmake -S docs/research/drawnegative-v0.1
+          -B build/drawnegative-san
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - run: cmake --build build/drawnegative-san --parallel
+      - run: ASAN_OPTIONS=detect_leaks=1 ctest --test-dir build/drawnegative-san --output-on-failure
