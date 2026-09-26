@@ -2,20 +2,24 @@
 
 **Official current product name: `D.RAW`.**
 
-Current active architecture branch:
+Current active architecture/code branch:
 
-`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+`architecture/drawnegative-v01-2026-09-26`
 
-Latest Android-code branch:
+Current public scientific-negative identity:
 
-`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+**D.RAWnegative v0.1**
 
-Latest fully Android-validated code checkpoint:
+Historical `TruthNegative` remains only as computational/compatibility
+ancestry where its existing bytes, schemas, symbols or hashes must stay stable.
 
-`402c72d6804f6cc393a5eab93c9d94d0687be111`
+Latest host-validated branch checkpoint:
 
-The architecture branch adds sealed contracts/documentation only and does not
-change the validated pixel route or current APK.
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
+
+A full Android branch-head rebuild is in progress at run `36260305613`.
+The immediately preceding D.RAWnegative Android checkpoint
+`ca3253b42397fe01f7644b32c9d989998a29f9fb` is already fully green.
 
 Default GitHub `main` is **not current** and remains at:
 
@@ -27,15 +31,17 @@ Default GitHub `main` is **not current** and remains at:
 2. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
 3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
-5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
-6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
-7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
-8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
-9. `docs/research/draw-observation-record-v0.1/README.md`
-10. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
-11. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
-12. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
-13. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
+5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
+6. `docs/research/drawnegative-v0.1/README.md`
+7. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+8. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+9. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
+10. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
+11. `docs/research/draw-observation-record-v0.1/README.md`
+12. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+13. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+14. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
+15. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
 Current architecture:
 
@@ -46,7 +52,8 @@ sealed physical observation / Source Evidence
  -> Float64 measurement/calibration/reconstruction
  -> Scientific Master
  -> validated Float32 scientific storage where admitted
- -> TruthNegative Continuous per observation
+ -> legacy TruthNegative Continuous parent
+ -> D.RAWnegative per observation
  -> Free World Observation Graph
  -> Deep Scene / Light Transport
  -> View Contract / Appearance
@@ -75,6 +82,30 @@ World Observation Graph, not by silently merging TruthNegative identities.
 
 The v0.1 canonical files are SHA-256 byte-sealed. Any semantic change requires
 a versioned successor.
+
+## Current D.RAWnegative identity
+
+D.RAWnegative v0.1 is now a real runtime state, not only a naming decision.
+
+The Android pipeline constructs:
+
+```text
+TruthNegative Continuous v0.5 parent
+ + D.RAW Observation ID
+ + source-local Zero-Line gauge ID
+ + precision/storage contract
+ -> D.RAWnegative v0.1 state SHA-256
+```
+
+The runtime defaults to a source-local gauge and therefore keeps
+cross-observation radiometric equality/fusion disabled. A shared gauge must be
+separately admitted.
+
+The PRO UI now exposes `PRO · D.RAWnegative v0.1`. The preview packet carries
+the D.RAWnegative state SHA-256 in addition to the legacy parent SHA.
+
+The old `.tnc` container remains a legacy TruthNegative container because its
+bytes do not contain the new D.RAWnegative state. It is not being mislabeled.
 
 ## First executable observation record
 
