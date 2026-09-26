@@ -1,0 +1,37 @@
+name: D.RAW Appearance Highlight Headroom Sweep v0.2
+
+on:
+  push:
+    branches:
+      - research/appearance-highlight-headroom-sweep-v02-2026-09-26
+    paths:
+      - 'docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/**'
+      - '.github/workflows/appearance-highlight-headroom-sweep-v02.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2 -B build/ahs-gcc -DCMAKE_CXX_COMPILER=g++
+      - run: cmake --build build/ahs-gcc --parallel
+      - run: ctest --test-dir build/ahs-gcc --output-on-failure
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2 -B build/ahs-clang -DCMAKE_CXX_COMPILER=clang++
+      - run: cmake --build build/ahs-clang --parallel
+      - run: ctest --test-dir build/ahs-clang --output-on-failure
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: >
+          cmake -S docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2
+          -B build/ahs-san
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - run: cmake --build build/ahs-san --parallel
+      - run: ASAN_OPTIONS=detect_leaks=1 ctest --test-dir build/ahs-san --output-on-failure
