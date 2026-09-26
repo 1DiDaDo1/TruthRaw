@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/DRAWObservationRecord/0.2",
+  "title": "D.RAW Observation Record v0.2 — D.RAWnegative",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "observation_id",
+    "source_evidence",
+    "procedure",
+    "source_topology",
+    "capability_envelope",
+    "gauge",
+    "precision",
+    "scientific_master",
+    "authority_field",
+    "legacy_truthnegative_parent",
+    "drawnegative",
+    "evidence_counts",
+    "authority_axes",
+    "invariants"
+  ],
+  "properties": {
+    "schema": {
+      "const": "D.RAW/DRAWObservationRecord/0.2"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "sealed"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sealed": {
+          "const": true
+        }
+      }
+    },
+    "procedure": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "lens_role"
+      ],
+      "properties": {
+        "lens_role": {
+          "enum": [
+            "MAIN",
+            "ULTRA_WIDE",
+            "TELEPHOTO",
+            "FRONT",
+            "EXTERNAL",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
+    "source_topology": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "capability_envelope": {
+      "type": "object"
+    },
+    "gauge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "truthrange_formula",
+        "scale_gauge_id",
+        "gauge_relation",
+        "shared_free_world_gauge_id",
+        "cross_observation_radiometric_equality_allowed",
+        "cross_observation_radiometric_fusion_allowed"
+      ],
+      "properties": {
+        "truthrange_formula": {
+          "const": "T=log2(L/L0)"
+        },
+        "scale_gauge_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gauge_relation": {
+          "enum": [
+            "SOURCE_LOCAL_ONLY",
+            "SHARED_RELATIVE",
+            "SHARED_ABSOLUTE"
+          ]
+        },
+        "shared_free_world_gauge_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cross_observation_radiometric_equality_allowed": {
+          "type": "boolean"
+        },
+        "cross_observation_radiometric_fusion_allowed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "precision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "branch_sensitive_compute",
+        "canonical_storage",
+        "precision_upgrades_authority"
+      ],
+      "properties": {
+        "branch_sensitive_compute": {
+          "const": "FLOAT64"
+        },
+        "canonical_storage": {
+          "enum": [
+            "FLOAT32_VALIDATED",
+            "FLOAT64"
+          ]
+        },
+        "precision_upgrades_authority": {
+          "const": false
+        }
+      }
+    },
+    "scientific_master": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "authority_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "legacy_truthnegative_parent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_sha256",
+        "schema_role",
+        "raster_independent"
+      ],
+      "properties": {
+        "state_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "schema_role": {
+          "const": "LEGACY_VALIDATED_COMPUTATIONAL_PARENT"
+        },
+        "raster_independent": {
+          "const": true
+        }
+      }
+    },
+    "drawnegative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "state_sha256",
+        "parent_truthnegative_state_sha256",
+        "observation_id",
+        "per_observation_lineage",
+        "raster_independent",
+        "truthrange_coordinate_family_declared",
+        "per_sample_truthrange_materialized",
+        "creates_new_evidence",
+        "scientific_writeback_allowed"
+      ],
+      "properties": {
+        "schema": {
+          "const": "D.RAW/D.RAWnegative/0.1"
+        },
+        "state_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "parent_truthnegative_state_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "observation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "per_observation_lineage": {
+          "const": true
+        },
+        "raster_independent": {
+          "const": true
+        },
+        "truthrange_coordinate_family_declared": {
+          "const": true
+        },
+        "per_sample_truthrange_materialized": {
+          "type": "boolean"
+        },
+        "creates_new_evidence": {
+          "const": false
+        },
+        "scientific_writeback_allowed": {
+          "const": false
+        }
+      }
+    },
+    "evidence_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "physical_frame_count",
+        "independent_evidence_count"
+      ],
+      "properties": {
+        "physical_frame_count": {
+          "const": 1
+        },
+        "independent_evidence_count": {
+          "const": 1
+        }
+      }
+    },
+    "authority_axes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "geometry_authority",
+        "radiometric_authority",
+        "axes_are_separate"
+      ],
+      "properties": {
+        "geometry_authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "radiometric_authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axes_are_separate": {
+          "const": true
+        }
+      }
+    },
+    "invariants": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lens_identity_upgrades_authority",
+        "file_format_upgrades_authority",
+        "appearance_writeback_allowed"
+      ],
+      "properties": {
+        "lens_identity_upgrades_authority": {
+          "const": false
+        },
+        "file_format_upgrades_authority": {
+          "const": false
+        },
+        "appearance_writeback_allowed": {
+          "const": false
+        }
+      }
+    }
+  }
+}
