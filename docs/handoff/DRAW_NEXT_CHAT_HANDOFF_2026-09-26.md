@@ -61,6 +61,16 @@ Read first:
 
 ## D.RAWnegative current identity
 
+D.RAWnegative v0.1 is now sealed.
+
+- seal enforcement run `36260886983`: SUCCESS;
+- canonical semantic changes require a versioned successor;
+- Observation Record v0.2 validation run `36260712364`: SUCCESS;
+- Camera-5 lamp-scene D.RAWnegative SHA:
+  `7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5`.
+
+
+
 TruthNegative Continuous v0.5 is now the legacy validated computational parent.
 
 D.RAWnegative v0.1 is the current scientific-negative identity and binds the
