@@ -1,0 +1,105 @@
+{
+  "schema": "D.RAW/LensIndependentFreeWorldObservationContract/0.1",
+  "status": "SEALED_ARCHITECTURE_CONTRACT",
+  "parent_checkpoint_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "short_law": "One Free World. Many sealed observations. One evidence law.",
+  "zero_line": {
+    "formula": "T=log2(L/L0)",
+    "zero_is_sensor_black": false,
+    "zero_is_display_black": false,
+    "zero_is_clipping": false,
+    "zero_is_zero_photons": false,
+    "address_space": "UNBOUNDED_COORDINATE_FAMILY",
+    "evidence_support": "FINITE_OBSERVATION_DEPENDENT",
+    "common_numeric_coordinate_implies_common_gauge": false,
+    "cross_observation_comparison_requires_admitted_gauge_relation": true
+  },
+  "precision": {
+    "source_evidence": "EXACT_PACKED_OR_INTEGER",
+    "branch_sensitive_compute": "FLOAT64",
+    "canonical_storage": "FLOAT32_WHERE_VALIDATED",
+    "float64_increases_authority": false,
+    "float32_to_float64_restores_prior_branch_loss": false
+  },
+  "observation": {
+    "one_observation_is_one_source_lineage": true,
+    "required_identity_fields": [
+      "source_evidence_id",
+      "physical_frame_id",
+      "procedure_id",
+      "source_topology_id",
+      "scientific_master_id",
+      "truthnegative_state_id",
+      "scale_gauge_id",
+      "capability_envelope_id",
+      "provenance_root"
+    ],
+    "capability_domains": [
+      "sampling_geometry",
+      "radiometry",
+      "color",
+      "noise_uncertainty",
+      "optics",
+      "geometry_projection",
+      "dynamic_range_bounds",
+      "temporal_state",
+      "calibration_scope",
+      "metadata_completeness"
+    ],
+    "missing_semantics": "FAIL_CLOSED_UNKNOWN_OR_UNPROVEN"
+  },
+  "truthnegative": {
+    "role": "RASTER_INDEPENDENT_EVIDENCE_AWARE_SCIENTIFIC_NEGATIVE_PER_OBSERVATION",
+    "fuses_multiple_observations_by_definition": false,
+    "target_raster_part_of_state_identity": false,
+    "resampling_creates_measured_target_claims": false,
+    "preserves_source_lineage": true
+  },
+  "free_world": {
+    "role": "OBSERVATION_GRAPH_AND_OPEN_REPRESENTATION_SPACE",
+    "lens_independent": true,
+    "camera_independent": true,
+    "may_contain_multiple_sealed_observations": true,
+    "geometry_authority_separate_from_radiometric_authority": true,
+    "representational_dimensions_may_exceed_measured_dimensions": true,
+    "finite_pixel_is_projection_not_primitive": true
+  },
+  "scientific_raw_state": {
+    "is_original_sensor_raw": false,
+    "may_store": [
+      "signed_scene_linear_value",
+      "truthrange_estimate",
+      "truthrange_lower_bound",
+      "truthrange_upper_bound",
+      "uncertainty",
+      "authority",
+      "creation_role",
+      "censor_state",
+      "source_footprint",
+      "source_observation_id",
+      "calibration_id",
+      "scale_gauge_id",
+      "geometry_authority",
+      "radiometric_authority",
+      "provenance"
+    ]
+  },
+  "view_contracts": {
+    "PURE": "SCIENTIFIC_VIEW",
+    "ADVANCED": "APPEARANCE_AND_RESTORATION_VIEW",
+    "PRO": "OPEN_SCENE_AND_LIGHT_TRANSPORT_VIEW"
+  },
+  "invariants": {
+    "sealed_source_immutable": true,
+    "scientific_master_appearance_writeback": false,
+    "truthnegative_appearance_writeback": false,
+    "virtual_view_creates_physical_evidence": false,
+    "resampling_creates_physical_evidence": false,
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false,
+    "geometry_authority_upgrades_radiometry": false,
+    "radiometric_authority_upgrades_geometry": false,
+    "cross_source_calibration_transfer_implicit": false
+  }
+}
