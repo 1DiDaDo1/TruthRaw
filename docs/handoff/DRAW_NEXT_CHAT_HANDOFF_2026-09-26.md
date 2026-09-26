@@ -36,12 +36,13 @@ Read first:
 8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
 9. this handoff
 10. `docs/research/truthnegative-n2-full-colour-candidate-v0.1/README.md`
-7. `docs/research/truthnegative-center-excluded-neighborhood-v0.2/README.md`
-8. `docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/README.md`
-9. `docs/research/truthnegative-n2-confidence-field-v0.3/README.md`
-10. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
-11. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
-12. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+11. `docs/research/truthnegative-center-excluded-neighborhood-v0.2/README.md`
+12. `docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/README.md`
+13. `docs/research/truthnegative-n2-confidence-field-v0.3/README.md`
+14. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+15. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
+16. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+17. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
 ## Sealed lens-independent architecture
 
