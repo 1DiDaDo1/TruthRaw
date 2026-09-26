@@ -646,7 +646,8 @@ class MainActivity : Activity() {
                 when (result) {
                     is TruthNegativeContinuousPreviewResult.Ready -> {
                         val m = result.metrics
-                        "D.RAWnegative v0.1 preview gereed · " +
+                        "D.RAWnegative v0.1 preview gereed · DN=" +
+                            m.drawNegativeStateSha256.take(16) + "… · " +
                             "N2 audit-only sampled=${m.n2Sampled}, " +
                             "candidate=${m.n2CorrectedCandidates}, " +
                             "preserved=${m.n2Preserved}, structure=" +
