@@ -1,0 +1,48 @@
+name: D.RAW N2 Factored Confidence State v0.3.1
+
+on:
+  push:
+    branches:
+      - research/n2-factored-confidence-state-v031-2026-09-26
+    paths:
+      - 'docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/**'
+      - '.github/workflows/truthnegative-n2-factored-confidence-state-v031.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC
+        run: cmake -S docs/research/truthnegative-n2-factored-confidence-state-v0.3.1 -B build/n2-fs-gcc -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC
+        run: cmake --build build/n2-fs-gcc --parallel
+      - name: Test GCC
+        run: ctest --test-dir build/n2-fs-gcc --output-on-failure
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang
+        run: cmake -S docs/research/truthnegative-n2-factored-confidence-state-v0.3.1 -B build/n2-fs-clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang
+        run: cmake --build build/n2-fs-clang --parallel
+      - name: Test Clang
+        run: ctest --test-dir build/n2-fs-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure ASan UBSan
+        run: >
+          cmake -S docs/research/truthnegative-n2-factored-confidence-state-v0.3.1
+          -B build/n2-fs-san
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - name: Build ASan UBSan
+        run: cmake --build build/n2-fs-san --parallel
+      - name: Test ASan UBSan
+        run: ASAN_OPTIONS=detect_leaks=1 ctest --test-dir build/n2-fs-san --output-on-failure
