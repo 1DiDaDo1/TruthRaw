@@ -13,13 +13,17 @@ Current public scientific-negative identity:
 Historical `TruthNegative` remains only as computational/compatibility
 ancestry where its existing bytes, schemas, symbols or hashes must stay stable.
 
-Latest host-validated branch checkpoint:
+Latest fully host + Android validated D.RAWnegative code checkpoint:
 
 `3e150afeb36cbb68fd318b0143a315e64d5a637f`
 
-A full Android branch-head rebuild is in progress at run `36260305613`.
-The immediately preceding D.RAWnegative Android checkpoint
-`ca3253b42397fe01f7644b32c9d989998a29f9fb` is already fully green.
+Validation:
+
+- host GCC/Clang/ASan/UBSan run `36260305512`: SUCCESS;
+- signed Android/NDK/JNI run `36260305613`: SUCCESS;
+- APK SHA-256:
+  `b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317`;
+- artifact ID: `10911843774`.
 
 Default GitHub `main` is **not current** and remains at:
 
