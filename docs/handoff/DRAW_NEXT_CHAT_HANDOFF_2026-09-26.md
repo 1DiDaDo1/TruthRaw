@@ -34,15 +34,17 @@ Read first:
 6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
 7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
 8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
-9. this handoff
-10. `docs/research/truthnegative-n2-full-colour-candidate-v0.1/README.md`
-11. `docs/research/truthnegative-center-excluded-neighborhood-v0.2/README.md`
-12. `docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/README.md`
-13. `docs/research/truthnegative-n2-confidence-field-v0.3/README.md`
-14. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
-15. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
-16. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
-17. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
+9. `docs/research/draw-observation-record-v0.1/README.md`
+10. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+11. this handoff
+12. `docs/research/truthnegative-n2-full-colour-candidate-v0.1/README.md`
+13. `docs/research/truthnegative-center-excluded-neighborhood-v0.2/README.md`
+14. `docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/README.md`
+15. `docs/research/truthnegative-n2-confidence-field-v0.3/README.md`
+16. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+17. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
+18. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+19. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
 ## Sealed lens-independent architecture
 
@@ -69,6 +71,19 @@ The v0.1 architecture bytes are SHA-256 sealed. Do not edit them in place.
 Create a versioned successor for semantic change.
 
 This architecture branch changes no validated pixel route or APK.
+
+## First executable derivative
+
+`DRAWObservationRecord v0.1` is host-validated at run `36258955138`.
+
+The Camera-5 lamp-scene example is intentionally source-local and proves the
+new architecture without granting shared calibration to another lens.
+
+The CI negative test mutates the record to request cross-observation
+radiometric fusion while the shared gauge is absent. The validator rejects it.
+
+Next source instances should be separate main and ultra-wide admitted RAW/DNG
+records. Do not clone tele calibration into them.
 
 ## Permanent scientific laws
 
