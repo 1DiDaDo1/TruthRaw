@@ -1,0 +1,41 @@
+{
+  "schema": "D.RAW/LensIndependentFreeWorldSealManifest/0.1",
+  "status": "SEALED",
+  "seal_date": "2026-09-26",
+  "branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+  "parent_checkpoint_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
+  "measured_by_ci_run": 36258416385,
+  "immutable_successor_rule": "SEALED_V0_1_BYTES_MAY_NOT_CHANGE; CREATE_VERSIONED_SUCCESSOR",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "short_law": "One Free World. Many sealed observations. One evidence law.",
+  "files": [
+    {
+      "path": "docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md",
+      "sha256": "a6dff18fd8c43224163df9a438655be1625458596194b853698862bd4ac6da88"
+    },
+    {
+      "path": "docs/research/lens-independent-free-world-observation-contract-v0.1/README.md",
+      "sha256": "c943bea678e6b9c2045363ac725aebe57f8b86a290cf303c7138ffc7549a6c6e"
+    },
+    {
+      "path": "docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json",
+      "sha256": "7edf5eb211ae66347586ce4ff375b4bc62f451fe578fa83e336b19818205b522"
+    },
+    {
+      "path": "state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json",
+      "sha256": "dbd5c6ce3f835657182ea302d9d49bd1d9b2dfa0f8fb6dd3fcf11d3dcf1ec1f3"
+    }
+  ],
+  "semantic_seal": {
+    "lens_is_observation_instrument_not_world_boundary": true,
+    "free_world_lens_independent": true,
+    "truthnegative_is_per_observation_lineage": true,
+    "zero_line_formula": "T=log2(L/L0)",
+    "common_coordinate_implies_common_gauge": false,
+    "cross_observation_radiometric_equality_requires_admitted_gauge": true,
+    "float64_compute_increases_authority": false,
+    "float32_storage_increases_authority": false,
+    "finite_output_pixel_is_projection_not_primitive": true,
+    "appearance_scientific_writeback_allowed": false
+  }
+}
