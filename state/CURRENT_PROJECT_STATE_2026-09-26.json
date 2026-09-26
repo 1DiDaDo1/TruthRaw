@@ -5,7 +5,7 @@
   "repository": "1DiDaDo1/TruthRaw",
   "active_development_branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
   "validated_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
-  "real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3",
+  "real_device_evidence_checkpoint_sha": "73a6f4911801b00a4af7f58301c7ece62c185dc1",
   "default_main": {
     "sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
     "contains_current_active_work": false,
@@ -297,5 +297,6 @@
       "ULTRA_WIDE_ADMITTED_RAW_OR_DNG"
     ],
     "implicit_cross_source_calibration_transfer_allowed": false
-  }
+  },
+  "previous_real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3"
 }
