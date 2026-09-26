@@ -1,3 +1,98 @@
+# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-26
+
+**Official current product name: `D.RAW`.**
+
+Current active code-bearing branch:
+
+`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+
+Latest fully Android-validated code checkpoint:
+
+`402c72d6804f6cc393a5eab93c9d94d0687be111`
+
+Default GitHub `main` is **not current** and remains at:
+
+`514f2f4bde6aba5a6709e176c03b22c3b9aea912`
+
+**Read first:**
+
+1. `state/CURRENT_PROJECT_STATE_2026-09-26.json`
+2. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
+3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
+4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
+5. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+6. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
+7. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+
+Current architecture:
+
+```text
+sealed Source Evidence / Direct CFA
+ -> Stage-2 calibrated measurement
+ -> measured-preserving F64 full-colour reconstruction
+ -> Scientific Master
+ -> Open Scene Field / Dynamic Authority
+ -> TruthNegative Continuous
+ -> Deep Scene / Light Transport
+ -> Appearance / Viewing / Display Resolve
+ -> finite output
+```
+
+Current route semantics remain:
+
+```text
+D.RAW PURE     = Scientific View
+D.RAW ADVANCED = Appearance / Restoration View
+D.RAW PRO      = Open Scene / Light Transport
+```
+
+## 2026-09-26 N2 status
+
+N2 remains diagnostic/appearance research only.
+
+The current SAFE full-colour path requires:
+
+- exact Scientific-Master source-pixel baseline identity;
+- `baseline-mismatch=0`;
+- reconstruction-support closure over backend `requiredHalo()`;
+- `protected-changed=0`;
+- no Direct-CFA, Scientific-Master or TruthNegative writeback.
+
+Center-excluded v0.2, whole-frame v0.2.1, vector Confidence Field v0.3 and
+Factored Confidence State v0.3.1 are integrated as audit layers. No scalar
+confidence probability and no automatic denoise promotion exist.
+
+## 2026-09-26 Appearance finding
+
+Real-device Appearance Highlight Detail v0.1 proved a many-to-one property in
+the existing PRO 100-nit-reference / 100-nit-peak display mapping:
+
+- 502 source samples above reference white;
+- all 502 mapped exactly to display peak;
+- source CENSORED count = 0;
+- 851 distinct neighboring source-luminance pairs collapsed to the same peak.
+
+The Honor camera-app comparison image is `VISUAL_REFERENCE_ONLY`; it is not
+D.RAW evidence or calibration.
+
+Appearance Highlight Headroom Sweep v0.2 is now Android-green. It keeps the
+physical SDR peak at 100 nit and compares shoulders at 100, 90, 80 and 70 nit
+through the same v0.7 Appearance resolver. The normal PRO preview is unchanged
+and v0.2 chooses no winner.
+
+Current v0.2 validation:
+
+- standalone GCC/Clang/ASan/UBSan run `36254075689`: SUCCESS;
+- signed Android run `36254294042`: SUCCESS;
+- APK SHA-256:
+  `d46b40c7650ad0b1102438bc1a31b1c4f8ee7c4c14050af633c435c5b0405e8b`.
+
+Permanent rule:
+
+**Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+---
+
 # D.RAW — CURRENT PROJECT IDENTITY — 2026-09-25
 
 **Official current product name: `D.RAW`.**
