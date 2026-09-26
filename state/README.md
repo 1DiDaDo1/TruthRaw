@@ -31,6 +31,10 @@ fail-closed across sources, and Float64-compute / validated-Float32-storage
 precision separation. The Android pixel route remains the previously validated
 Appearance-v0.2 code line.
 
+The first executable derivative is `DRAWObservationRecord v0.1`, host-validated
+in run `36258955138`. The Camera-5 example remains source-local and refuses
+cross-observation radiometric fusion while the common gauge is unproven.
+
 The state also retains the N2 support-closure / center-excluded /
 factored-confidence research line and both real-device Appearance highlight
 scenes.
