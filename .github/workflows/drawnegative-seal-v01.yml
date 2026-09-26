@@ -1,0 +1,23 @@
+name: D.RAWnegative v0.1 Seal
+
+on:
+  push:
+    branches:
+      - architecture/drawnegative-v01-2026-09-26
+    paths:
+      - 'docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md'
+      - 'docs/research/lens-independent-free-world-observation-contract-v0.2/**'
+      - 'docs/research/drawnegative-v0.1/**'
+      - '.github/workflows/drawnegative-seal-v01.yml'
+      - 'tools/verify_drawnegative_v01_seal.py'
+  workflow_dispatch:
+
+jobs:
+  seal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Measure D.RAWnegative v0.1 canonical bytes
+        run: |
+          set -euo pipefail
+          sha256sum             docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md             docs/research/lens-independent-free-world-observation-contract-v0.2/README.md             docs/research/lens-independent-free-world-observation-contract-v0.2/DRAW_OBSERVATION_CONTRACT_v0_2.json             docs/research/drawnegative-v0.1/README.md             docs/research/drawnegative-v0.1/native/drawnegative_v0_1.h             docs/research/drawnegative-v0.1/native/drawnegative_v0_1.cpp
