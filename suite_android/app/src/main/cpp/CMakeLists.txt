@@ -157,8 +157,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V06}/free_world_light_transport_state_v0_6.cpp
     ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp
     ${FREE_WORLD_NOISE_FUSION_V01}/free_world_observation_noise_fusion_v0_1.cpp
-    ${TRUTHNEGATIVE_CONTINUOUS_V05}
-    ${DRAWNEGATIVE_V01}/truthnegative_continuous_v0_5.cpp
+    ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
     ${DRAWNEGATIVE_V01}/drawnegative_v0_1.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_noise_state_v0_1.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_dense_uncertainty_adapter_v0_1.cpp
@@ -220,6 +219,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${FREE_WORLD_V07}
     ${FREE_WORLD_NOISE_FUSION_V01}
     ${TRUTHNEGATIVE_CONTINUOUS_V05}
+    ${DRAWNEGATIVE_V01}
     ${TRUTHNEGATIVE_NOISE_V01}
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}
     ${TRUTHNEGATIVE_RESIDUAL_V01}
