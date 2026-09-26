@@ -363,6 +363,48 @@
       "apk_size_bytes": 6959343,
       "apk_sha256": "b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317",
       "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+    },
+    "seal": {
+      "status": "SEALED",
+      "enforcement_run_id": 36260886983,
+      "enforcement_checkpoint_sha": "23b18e630e7927ec648eb1e356348553e86f615a",
+      "measurement_run_id": 36260823937,
+      "manifest": "docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json",
+      "verifier": "tools/verify_drawnegative_v01_seal.py",
+      "successor_required_for_semantic_change": true,
+      "sealed_file_sha256": {
+        "canonical_vision": "05486aa27fb8839271e39e58f698e2c41d3ef5ac82660418111c4dfd563892f3",
+        "successor_contract_readme": "4d620db58ba3e516d38fbaa5a7a65539953cc4337f1badb4e482ec02d97e8ab8",
+        "successor_machine_contract": "1761d67aee46a11074685bb33eeb29e5842a95e3ef9ac71e5a62b7324229e8d4",
+        "drawnegative_readme": "4a262a67e7262e90dd8dc1c26d54fa1562f76bba91ef79c3d4bae0c21cb00dcb",
+        "drawnegative_header": "0cbfe5442750e575cbe52cba056645d1d41ef208fa1aefef20e70ae6a246fd24",
+        "drawnegative_cpp": "a337c710701e768adb3c22577b71136775e286922ceae2422a0c7167c638cfe5"
+      }
+    }
+  },
+  "draw_observation_record_v0_2": {
+    "status": "HOST_VALIDATED_CURRENT_SUCCESSOR",
+    "role": "OBSERVATION_RECORD_WITH_EXPLICIT_DRAWNEGATIVE_AND_LEGACY_PARENT",
+    "readme": "docs/research/draw-observation-record-v0.2/README.md",
+    "schema": "docs/research/draw-observation-record-v0.2/DRAW_OBSERVATION_RECORD_SCHEMA_v0_2.json",
+    "validator": "tools/validate_draw_observation_record_v02.py",
+    "camera5_lamp_scene_example": "docs/research/draw-observation-record-v0.2/examples/CAMERA5_LAMP_SCENE_DRAWNEGATIVE_OBSERVATION_v0_2.json",
+    "validation": {
+      "run_id": 36260712364,
+      "result": "SUCCESS",
+      "checkpoint_sha": "0d3e06b9f006258ce39ad4c971a46541263d9a39",
+      "drawnegative_digest_recomputed": true,
+      "bad_digest_rejected": true,
+      "unproven_common_gauge_fusion_rejected": true
+    },
+    "camera5_lamp_scene": {
+      "source_evidence_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "legacy_truthnegative_parent_sha256": "73c908b06d42b57d07461c8d3d6aa84f7496e041ac87c8ce7170479ca3c002c5",
+      "drawnegative_state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5",
+      "gauge_relation": "SOURCE_LOCAL_ONLY",
+      "cross_observation_radiometric_equality_allowed": false,
+      "cross_observation_radiometric_fusion_allowed": false,
+      "creates_new_evidence": false
     }
   }
 }
