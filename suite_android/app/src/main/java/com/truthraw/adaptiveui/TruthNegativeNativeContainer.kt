@@ -70,6 +70,11 @@ data class TruthNegativeNativeContainerMetrics(
     val scientificMasterSha256: String,
     val authorityFieldSha256: String,
     val truthNegativeStateSha256: String,
+    val drawNegativeStateSha256: String,
+    val drawNegativeParentTruthNegativeStateSha256: String,
+    val drawNegativeCommonGaugeAdmitted: Boolean,
+    val drawNegativeCrossObservationFusionAllowed: Boolean,
+    val drawNegativeStoredInLegacyTnc: Boolean,
     val bodySha256: String,
     val containerSha256: String,
     val nativeImportVerified: Boolean,
@@ -97,7 +102,7 @@ object TruthNegativeNativeContainerExporter {
             job.source.format.id != "DNG"
         ) {
             return TruthNegativeNativeContainerResult.Failed(
-                "Native TruthNegative container vereist de admitted DNG-route.",
+                "D.RAWnegative legacy .tnc-compatibility vereist de admitted DNG-route.",
             )
         }
 
@@ -115,12 +120,12 @@ object TruthNegativeNativeContainerExporter {
         } catch (error: Throwable) {
             null
         } ?: return TruthNegativeNativeContainerResult.Failed(
-            "Native TruthNegative container kon niet worden geschreven.",
+            "D.RAWnegative legacy .tnc-compatibility kon niet worden geschreven.",
         )
 
         val json = runCatching { JSONObject(jsonText) }.getOrNull()
             ?: return TruthNegativeNativeContainerResult.Failed(
-                "Native TruthNegative container gaf geen geldig statuspakket.",
+                "D.RAWnegative legacy .tnc-compatibility gaf geen geldig statuspakket.",
             )
         val status = json.optInt("status", -999)
         if (status != 0) {
@@ -128,7 +133,7 @@ object TruthNegativeNativeContainerExporter {
             return TruthNegativeNativeContainerResult.Failed(
                 json.optString(
                     "message",
-                    "Native TruthNegative container status " + status,
+                    "D.RAWnegative legacy .tnc-compatibility status " + status,
                 ),
             )
         }
@@ -185,6 +190,16 @@ object TruthNegativeNativeContainerExporter {
                 json.optString("authorityFieldSha256"),
             truthNegativeStateSha256 =
                 json.optString("truthNegativeStateSha256"),
+            drawNegativeStateSha256 =
+                json.optString("drawNegativeStateSha256"),
+            drawNegativeParentTruthNegativeStateSha256 =
+                json.optString("drawNegativeParentTruthNegativeStateSha256"),
+            drawNegativeCommonGaugeAdmitted =
+                json.optBoolean("drawNegativeCommonGaugeAdmitted"),
+            drawNegativeCrossObservationFusionAllowed =
+                json.optBoolean("drawNegativeCrossObservationFusionAllowed"),
+            drawNegativeStoredInLegacyTnc =
+                json.optBoolean("drawNegativeStoredInLegacyTnc"),
             bodySha256 = json.optString("bodySha256"),
             containerSha256 = json.optString("containerSha256"),
             nativeImportVerified =
@@ -200,12 +215,19 @@ object TruthNegativeNativeContainerExporter {
             metrics.scientificMasterSha256,
             metrics.authorityFieldSha256,
             metrics.truthNegativeStateSha256,
+            metrics.drawNegativeStateSha256,
+            metrics.drawNegativeParentTruthNegativeStateSha256,
             metrics.bodySha256,
             metrics.containerSha256,
         )
         if (!metrics.nativeImportVerified ||
             !metrics.authorityRoundtripVerified ||
             !metrics.stateRoundtripVerified ||
+            metrics.drawNegativeParentTruthNegativeStateSha256 !=
+                metrics.truthNegativeStateSha256 ||
+            metrics.drawNegativeCommonGaugeAdmitted ||
+            metrics.drawNegativeCrossObservationFusionAllowed ||
+            metrics.drawNegativeStoredInLegacyTnc ||
             metrics.width <= 0 ||
             metrics.height <= 0 ||
             metrics.recordCount !=
@@ -240,7 +262,7 @@ object TruthNegativeNativeContainerExporter {
         ) {
             runCatching { resolver.delete(destination, null, null) }
             return TruthNegativeNativeContainerResult.Failed(
-                "Fail-closed: native container round-trip contract mismatch.",
+                "Fail-closed: D.RAWnegative/legacy .tnc round-tripcontract mismatch.",
             )
         }
 
@@ -279,7 +301,7 @@ object TruthNegativeNativeContainerExporter {
         if (!headerOk) {
             runCatching { resolver.delete(destination, null, null) }
             return TruthNegativeNativeContainerResult.Failed(
-                "Post-write container header verification faalde.",
+                "Post-write legacy .tnc-headerverificatie faalde.",
             )
         }
 
