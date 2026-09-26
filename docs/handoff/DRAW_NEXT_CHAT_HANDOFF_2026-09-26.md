@@ -16,15 +16,20 @@ Current public scientific-negative identity:
 
 **D.RAWnegative v0.1**
 
-Host-green checkpoint:
+Fully host + Android validated D.RAWnegative code checkpoint:
 
 `3e150afeb36cbb68fd318b0143a315e64d5a637f`
 
-Immediately preceding full Android-green D.RAWnegative checkpoint:
+Validation:
 
-`ca3253b42397fe01f7644b32c9d989998a29f9fb`
-
-Current branch-head Android rebuild: run `36260305613`.
+- host run `36260305512`: SUCCESS;
+- signed Android run `36260305613`: SUCCESS;
+- artifact ID `10911843774`;
+- APK bytes `6959343`;
+- APK SHA-256
+  `b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317`;
+- stable development certificate SHA-256
+  `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
 
 Default GitHub `main` is **not current**. It still points to:
 
