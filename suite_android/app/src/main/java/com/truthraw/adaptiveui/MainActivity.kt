@@ -601,7 +601,7 @@ class MainActivity : Activity() {
             job.source.format.id != "DNG"
         ) {
             truthNegativeContinuousStatus =
-                "TruthNegative Continuous v0.5 vereist de volledig admitted DNG-route."
+                "D.RAWnegative v0.1 vereist de volledig admitted DNG-route."
             render()
             return
         }
@@ -610,24 +610,24 @@ class MainActivity : Activity() {
             backgroundOperationKey("truthnegative-continuous-preview", job.id)
         if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
             truthNegativeContinuousStatus =
-                "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                     "Deze zware Scientific Master-routes draaien bewust niet meer tegelijk."
             render()
             return
         }
         if (!startBackgroundOperation(
                 operationKey,
-                "TruthNegative Continuous v0.5 · Scientific Negative → Free-World preview",
+                "D.RAWnegative v0.1 · Scientific Negative → Free-World preview",
             )
         ) {
             truthNegativeContinuousStatus =
-                "TruthNegative Continuous preview kon niet veilig starten."
+                "D.RAWnegative preview kon niet veilig starten."
             render()
             return
         }
 
         truthNegativeContinuousStatus =
-            "TruthNegative Continuous v0.5 bouwt de raster-onafhankelijke scientific-negative state, " +
+            "D.RAWnegative v0.1 bindt de raster-onafhankelijke scientific-negative state aan Observation + source-local Zero-Line gauge, " +
                 "lokale authority en area-integrated PRO preview…"
         render()
 
@@ -646,7 +646,7 @@ class MainActivity : Activity() {
                 when (result) {
                     is TruthNegativeContinuousPreviewResult.Ready -> {
                         val m = result.metrics
-                        "TruthNegative Continuous v0.5 preview gereed · " +
+                        "D.RAWnegative v0.1 preview gereed · " +
                             "N2 audit-only sampled=${m.n2Sampled}, " +
                             "candidate=${m.n2CorrectedCandidates}, " +
                             "preserved=${m.n2Preserved}, structure=" +
@@ -845,7 +845,7 @@ class MainActivity : Activity() {
             backgroundOperationKey("camera5-color-highlight-oracle", job.id)
         if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
             camera5ColorHighlightStatus =
-                "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                     "Parallelle volledige Scientific Master-scans zijn uitgeschakeld."
             render()
             return
@@ -939,7 +939,7 @@ class MainActivity : Activity() {
             job.source.format.id != "DNG"
         ) {
             truthNegativeNativeContainerStatus =
-                "Native TruthNegative container vereist de admitted DNG-route."
+                "D.RAWnegative legacy .tnc-compatibility vereist de admitted DNG-route."
             render()
             return
         }
@@ -955,7 +955,7 @@ class MainActivity : Activity() {
             type = "application/octet-stream"
             putExtra(
                 Intent.EXTRA_TITLE,
-                stem + "_draw_truthnegative_native_v0_1.tnc",
+                stem + "_drawnegative_legacy_tnc_v0_1.tnc",
             )
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -1945,7 +1945,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 n2SpatialSidecarStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "N2 Spatial Audit start daarna opnieuw handmatig."
                 render()
                 return
@@ -2059,7 +2059,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 n2CenterExcludedSpatialStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "N2 v0.2.1 Spatial Audit start daarna opnieuw handmatig."
                 render()
                 return
@@ -2193,7 +2193,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 n2ConfidenceFieldStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "N2 Confidence Field v0.3 start daarna opnieuw handmatig."
                 render()
                 return
@@ -2308,7 +2308,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 n2FactoredConfidenceStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "N2 Factored Confidence v0.3.1 start daarna opnieuw handmatig."
                 render()
                 return
@@ -2421,7 +2421,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 appearanceHighlightDetailStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "Appearance Highlight Detail v0.1 start daarna opnieuw handmatig."
                 render()
                 return
@@ -2532,7 +2532,7 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 appearanceHeadroomSweepStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "Appearance Headroom Sweep v0.2 start daarna opnieuw handmatig."
                 render()
                 return
@@ -2640,14 +2640,14 @@ class MainActivity : Activity() {
                 )
             if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
                 truthNegativeNativeContainerStatus =
-                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
                         "Native export start daarna opnieuw handmatig."
                 render()
                 return
             }
             if (!startBackgroundOperation(
                     operationKey,
-                    "TruthNegative Native v0.1 export + import verify",
+                    "D.RAWnegative · legacy .tnc export + import verify",
                 )
             ) {
                 truthNegativeNativeContainerStatus =
@@ -2657,7 +2657,7 @@ class MainActivity : Activity() {
             }
 
             truthNegativeNativeContainerStatus =
-                "TruthNegative Native v0.1 schrijft Float32 Scientific Master-values + " +
+                "D.RAWnegative bindt de nieuwe state; de legacy .tnc schrijft Float32 Scientific Master-values + " +
                     "Open Scene authority en opent het resultaat daarna opnieuw voor identity round-trip…"
             render()
 
@@ -2679,7 +2679,7 @@ class MainActivity : Activity() {
                     exportResult is TruthNegativeNativeContainerResult.Success,
                     when (exportResult) {
                         is TruthNegativeNativeContainerResult.Success ->
-                            "TruthNegative Native v0.1 export/import geverifieerd."
+                            "D.RAWnegative legacy .tnc export/import geverifieerd."
                         is TruthNegativeNativeContainerResult.Failed ->
                             exportResult.reason
                     },
@@ -2692,11 +2692,13 @@ class MainActivity : Activity() {
                                 exportResult.reason
                             is TruthNegativeNativeContainerResult.Success -> {
                                 val m = exportResult.metrics
-                                "TruthNegative Native v0.1 opgeslagen + native teruggelezen · " +
+                                "D.RAWnegative legacy .tnc opgeslagen + teruggelezen · " +
                                     m.width + "×" + m.height +
                                     " · " + formatBytes(m.fileBytes) +
                                     " · tiles=" + m.tileCount +
                                     " · records=" + m.recordCount +
+                                    " · D.RAWnegative=" +
+                                    m.drawNegativeStateSha256.take(16) + "…" +
                                     " · authority C/R/X/U=" +
                                     m.authorityCalibratedEstimate + "/" +
                                     m.authorityReconstructed + "/" +
@@ -4362,7 +4364,7 @@ class MainActivity : Activity() {
                         }
                         addView(space(5))
                         addView(actionButton(
-                            "PRO · TruthNegative Continuous v0.5",
+                            "PRO · D.RAWnegative v0.1",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
                                     active.source.format.id == "DNG",
@@ -4389,9 +4391,9 @@ class MainActivity : Activity() {
                             }
                         }
                         addView(label(
-                            "Raster-onafhankelijke Scientific Negative: bron + Scientific Master + " +
-                                "Open Scene authority → continue area-resolve → neutrale v0.7 display-view. " +
-                                "PURE en bestaande exports blijven ongewijzigd.",
+                            "D.RAWnegative: één admitted observation → Scientific Master + Open Scene authority + " +
+                                "legacy TruthNegative Continuous parent → observation-bound D.RAWnegative state → " +
+                                "continue area-resolve. Source-local gauge; cross-lens radiometrische fusie blijft geblokkeerd.",
                             10f,
                             muted = true,
                         ))
@@ -4431,7 +4433,7 @@ class MainActivity : Activity() {
                         ))
                         addView(space(5))
                         addView(actionButton(
-                            "Export TruthNegative Native · .tnc",
+                            "D.RAWnegative · legacy parent .tnc",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
                                     active.source.format.id == "DNG",
@@ -4450,9 +4452,8 @@ class MainActivity : Activity() {
                             )
                         }
                         addView(label(
-                            "Nieuwe scientific-negative container: Float32 Scientific Master-valueplane + " +
-                                "Open Scene Field v0.85 authority. Na schrijven volgt native import, " +
-                                "authority-digest en TruthNegative-state round-trip verificatie.",
+                            "Legacy .tnc blijft byte-/schema-compatibiliteitsparent: Float32 Scientific Master + Open Scene authority. " +
+                                "D.RAWnegative heeft een aparte state-SHA bovenop die parent; de v0.1 D.RAWnegative-state wordt niet stilletjes in .tnc geschreven.",
                             10f,
                             muted = true,
                         ))
@@ -4631,7 +4632,7 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
-                        addView(actionButton("Scientific Negative · TN-4") {
+                        addView(actionButton("Legacy Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
                         truthNegativeStatus?.let { status ->
