@@ -19,13 +19,13 @@ Read in this order:
 
 ## Current branches
 
-Active architecture branch:
+Active architecture/code branch:
 
-`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+`architecture/drawnegative-v01-2026-09-26`
 
-Latest Android-code branch:
+Current scientific-negative identity:
 
-`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+`D.RAWnegative v0.1`
 
 Latest fully Android-validated code checkpoint:
 
@@ -38,6 +38,16 @@ Default GitHub `main` remains historical/lagging at:
 Default `main` must not be used as a shortcut for current project state.
 
 ## Current scientific architecture references
+
+Current successor layer:
+
+- `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
+- `docs/research/drawnegative-v0.1/README.md`
+- `docs/research/drawnegative-v0.1/native/drawnegative_v0_1.h`
+- `docs/research/drawnegative-v0.1/native/drawnegative_v0_1.cpp`
+
+This is the current D.RAWnegative identity layer. The older sealed v0.1
+lens-independent files below remain immutable ancestry.
 
 Canonical sealed lens-independent layer:
 
