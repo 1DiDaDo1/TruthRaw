@@ -164,6 +164,32 @@ This architecture-only branch does not alter the current Scientific Master,
 TruthNegative implementation, N2, Appearance route, or validated APK pixel
 code.
 
+# First executable lens-independent observation record
+
+`DRAWObservationRecord v0.1` now turns the sealed architecture into a
+machine-validated source record.
+
+Current real example:
+
+`docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+
+It records the lamp-scene Camera-5 source as one TELEPHOTO observation while
+keeping:
+
+- the source gauge local;
+- `shared_free_world_gauge_id=null`;
+- cross-observation radiometric equality/fusion disabled;
+- optics scientific use disabled while optics support is UNKNOWN;
+- TruthNegative bound to exactly this observation lineage.
+
+Validation run `36258955138`: **SUCCESS**.
+
+The workflow accepts the valid record and deliberately rejects a mutated record
+that tries to enable cross-observation fusion without a common admitted gauge.
+
+This is the first concrete step toward plugging main and ultra-wide into the
+same Free World without creating camera-specific worlds.
+
 # N2 — current validated research line
 
 N2 remains **appearance/audit research only**. It is not production-promoted
