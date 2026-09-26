@@ -1,0 +1,49 @@
+{
+  "schema": "DRAW_LENS_INDEPENDENT_FREE_WORLD_STATE/2026-09-26/v0.1",
+  "status": "SEALED_ARCHITECTURE_OVERLAY",
+  "product_name": "D.RAW",
+  "repository": "1DiDaDo1/TruthRaw",
+  "parent_checkpoint_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
+  "branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+  "canonical_vision": "docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md",
+  "machine_contract": "docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "short_law": "One Free World. Many sealed observations. One evidence law.",
+  "architecture": [
+    "sealed physical observation / Source Evidence",
+    "D.RAW Observation Contract",
+    "Source Capability Envelope",
+    "Float64 measurement/calibration/reconstruction",
+    "Scientific Master",
+    "validated Float32 scientific storage where admitted",
+    "TruthNegative Continuous per observation",
+    "Free World Observation Graph",
+    "View Contract",
+    "finite projection"
+  ],
+  "zero_line": {
+    "common_coordinate_family": true,
+    "common_gauge_automatic": false,
+    "relation_required_for_cross_observation_radiometric_equality": true
+  },
+  "lens_independence": {
+    "main_supported_architecturally": true,
+    "ultra_wide_supported_architecturally": true,
+    "tele_supported_architecturally": true,
+    "other_cameras_supported_architecturally": true,
+    "source_specific_admission_still_required": true,
+    "calibration_transfer_implicit": false
+  },
+  "truthnegative": {
+    "per_observation_lineage": true,
+    "raster_independent": true,
+    "multi_observation_composition_location": "FREE_WORLD_OBSERVATION_GRAPH"
+  },
+  "code_effect": {
+    "existing_pixel_route_changed": false,
+    "existing_scientific_master_changed": false,
+    "existing_truthnegative_changed": false,
+    "existing_n2_changed": false,
+    "existing_appearance_changed": false
+  }
+}
