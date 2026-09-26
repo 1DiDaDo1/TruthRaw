@@ -11,7 +11,11 @@ Repository:
 
 `1DiDaDo1/TruthRaw`
 
-Current active branch:
+Current active architecture branch:
+
+`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+
+Latest Android-code branch:
 
 `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 
@@ -42,16 +46,18 @@ Companion rule:
 ## Current architecture
 
 ```text
-sealed Source Evidence / Direct CFA
- -> calibrated measurement / Stage-2
- -> measured-preserving F64 full-colour reconstruction
+sealed physical observation / Source Evidence
+ -> D.RAW Observation Contract
+ -> Source Capability Envelope
+ -> Float64 measurement/calibration/reconstruction
  -> Scientific Master
- -> Open Scene Field / Dynamic Authority
- -> TruthNegative Continuous
+ -> validated Float32 scientific storage where admitted
+ -> TruthNegative Continuous per observation
+ -> Free World Observation Graph
  -> Deep Scene / geometry-radiometry separation
  -> Light Transport
- -> Appearance / Viewing / Display Resolve
- -> finite output
+ -> View Contract / Appearance
+ -> finite projection
 ```
 
 The Free World is not bounded by RAW code range, WhiteLevel, source raster,
@@ -70,6 +76,93 @@ Permanent current invariants include:
 - UNKNOWN does not gain scientific authority from appearance;
 - display/appearance never upgrades scene authority;
 - Honor/GCam/computational rendering is never D.RAW scientific evidence.
+
+# Lens-independent Free World Observation Architecture v0.1
+
+Status: **SEALED CANONICAL ARCHITECTURE OVERLAY**
+
+The Free World is no longer allowed to be interpreted as a Camera-5/telephoto
+world. A lens, sensor, CFA/readout and capture pipeline define the procedure of
+one observation; they do not define the world boundary.
+
+Canonical law:
+
+> **One Free World. Many sealed observations. One evidence law.**
+
+Read:
+
+- `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`;
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`;
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`;
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`;
+- `state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json`.
+
+## Observation contract
+
+Every admitted RAW/DNG becomes one explicit observation lineage binding Source
+Evidence, acquisition procedure, source topology, calibration/capability scope,
+gauge, authority/uncertainty, Scientific Master, TruthNegative and provenance.
+
+Main, ultra-wide, telephoto and future cameras use the same architecture.
+Source-specific facts stay in the Source Capability Envelope.
+
+No calibration is transferred merely because two sources share a phone,
+manufacturer, nominal ISO, lens family, raster size or file format.
+
+## Zero-Line across observations
+
+The positive-light companion coordinate remains:
+
+`T = log2(L/L0)`
+
+The coordinate family may be shared, but equal numeric T values from two
+observations are not automatically equal radiometry. Cross-observation
+comparison/fusion requires an admitted gauge relation.
+
+This preserves both ideas at once:
+
+- the Free World coordinate has no source-defined bright/dark ceiling;
+- every real observation still has finite evidence and a bounded calibration
+  claim.
+
+## Float64 / Float32 scientific RAW state
+
+The sealed contract formalizes:
+
+```text
+exact packed/integer Source Evidence
+ -> Float64 branch-sensitive measurement/reconstruction/calibration
+ -> validated Float32 canonical scientific storage where admitted
+ -> later Float64 compute again when required
+```
+
+Precision never upgrades authority.
+
+The D.RAW scientific RAW/state may store signed scene-linear values,
+TruthRange estimate/bounds, uncertainty, authority, censor state, source
+footprint, Observation ID, calibration/gauge identities and separate geometry
+and radiometry authority. It is a derived scientific state and may never
+impersonate the original sensor RAW.
+
+## TruthNegative and multi-lens composition
+
+TruthNegative is now explicitly the raster-independent evidence-aware
+scientific negative of **one admitted observation lineage**.
+
+It does not implicitly fuse lenses.
+
+Multiple main/ultra-wide/tele or external-camera observations compose one
+level higher in the Free World Observation Graph, retaining separate source
+identities, frame counts, correlation assumptions, authority and provenance.
+
+## Byte seal
+
+The v0.1 canonical files are byte-sealed by SHA-256. Silent edits fail the
+dedicated verifier. Semantic changes require a versioned successor.
+
+This architecture-only branch does not alter the current Scientific Master,
+TruthNegative implementation, N2, Appearance route, or validated APK pixel
+code.
 
 # N2 — current validated research line
 
@@ -327,31 +420,39 @@ Artifact:
 - signing certificate SHA-256:
   `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
 
-# Immediate next device gate
+# Immediate next gates
 
-Use the same admitted DNG that produced the v0.1 collapse evidence when
-possible.
+## Appearance
 
-Export:
+The real lamp-scene v0.2 sweep is now recorded at:
 
-`Appearance Headroom Sweep v0.2 · JSON`
+`docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
-The baseline variant should reproduce the existing 100/100 behavior for the
-same source/state. Then compare the 90/100, 80/100 and 70/100 variants.
+The 100/100 baseline produced 941 exact collapsed distinct neighbor pairs with
+`source_censored=0`; 90/100 reduced that exact collapse count to zero while
+leaving below-knee mapped luminance unchanged.
 
-Do not promote a variant merely because it minimizes peak collapse.
+No default PRO promotion has occurred. A later appearance-only A/B/Delta may
+compare 100/100 and 90/100. The unchanged 1058 gamut/display clamps are a
+separate remaining issue.
 
-The next decision must jointly inspect:
+## Lens-independent Free World
 
-- peak-collapse reduction;
-- mapped-gradient retention;
-- gamut/display-clamp behavior;
-- lower-range preservation;
-- source CENSORED separation;
-- visual naturalness in a later appearance-only preview.
+The next implementation step should instantiate the sealed Observation
+Contract for additional real source routes, beginning with existing main,
+ultra-wide and tele RAW/DNG admissions.
 
-Only after that should a candidate be shown as a parallel A/B appearance
-preview. The default PRO route remains unchanged until explicitly promoted.
+Each route must:
+
+- retain separate sealed Source Evidence;
+- build its own Source Capability Envelope;
+- bind its own TruthNegative lineage;
+- report gauge relation authority;
+- refuse cross-observation radiometric fusion while common gauge is UNPROVEN.
+
+No additional camera is required to validate the architecture itself; real
+captures are required only to promote source-specific capability/calibration
+claims.
 
 # Default-main promotion boundary
 
