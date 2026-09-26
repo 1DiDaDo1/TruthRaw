@@ -3347,12 +3347,33 @@ class MainActivity : Activity() {
                                     8.7f,
                                     muted = true,
                                 ))
+                                addView(label(
+                                    "N2 v0.2 center-excluded audit · v0.1-candidates=" +
+                                        "${m.centerExcludedV01CandidateCenters} · predictor valid/invalid=" +
+                                        "${m.centerExcludedPredictorValid}/${m.centerExcludedPredictorInvalid} · " +
+                                        "pairs considered/accepted/rejected=" +
+                                        "${m.centerExcludedPairsConsidered}/${m.centerExcludedPairsAccepted}/" +
+                                        "${m.centerExcludedPairsRejected} · scales considered/accepted/rejected=" +
+                                        "${m.centerExcludedScalesConsidered}/${m.centerExcludedScalesAccepted}/" +
+                                        "${m.centerExcludedScalesRejected} · residual ≤1σ / 1–2σ / >2σ=" +
+                                        "${m.centerExcludedResidualWithin1Sigma}/" +
+                                        "${m.centerExcludedResidualBetween1And2Sigma}/" +
+                                        "${m.centerExcludedResidualAbove2Sigma} · |r| mean/max=" +
+                                        "${"%.8f".format(m.centerExcludedMeanAbsResidual)}/" +
+                                        "${"%.8f".format(m.centerExcludedMaxAbsResidual)} · max dir/cross=" +
+                                        "${"%.3f".format(m.centerExcludedMaxDirectionalSigma)}σ/" +
+                                        "${"%.3f".format(m.centerExcludedMaxCrossScaleSigma)}σ · " +
+                                        "audit-only=true · candidate-applied=false",
+                                    8.7f,
+                                    muted = true,
+                                ))
                             }
 
                             addView(label(
                                 "1:1 full-colour diagnose: baseline-reconstructie moet Float32-bit-identiek " +
                                     "zijn aan de exacte Scientific Master bronpixel; anders faalt de route gesloten. " +
                                     "Reconstruction-support closure vereist protected-core-changed=0. " +
+                                    "Center-excluded v0.2 blijft parallel audit-only en wijzigt B niet. " +
                                     "Risk/Quality meet encoded-display Δ en gradientenergie alleen als diagnose " +
                                     "(geen MTF-claim). source/Scientific Master/TruthNegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
