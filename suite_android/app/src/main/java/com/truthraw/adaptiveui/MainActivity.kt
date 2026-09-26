@@ -70,6 +70,8 @@ class MainActivity : Activity() {
     private var n2FactoredConfidenceStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
+    private var pendingAppearanceHeadroomSweepJobId: String? = null
+    private var appearanceHeadroomSweepStatus: String? = null
     private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
     private var n2CropAbJobId: String? = null
     private var n2CropAbStatus: String? = null
@@ -244,6 +246,8 @@ class MainActivity : Activity() {
         n2FactoredConfidenceStatus = null
         pendingAppearanceHighlightDetailJobId = null
         appearanceHighlightDetailStatus = null
+        pendingAppearanceHeadroomSweepJobId = null
+        appearanceHeadroomSweepStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -1140,6 +1144,42 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchAppearanceHeadroomSweepExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            appearanceHeadroomSweepStatus =
+                "Appearance Headroom Sweep v0.2 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingAppearanceHeadroomSweepJobId = job.id
+        appearanceHeadroomSweepStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_appearance_highlight_headroom_sweep_v0_2.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP,
         )
     }
 
@@ -2452,6 +2492,114 @@ class MainActivity : Activity() {
                                     (if (m.noHighlightHeadroom) "0 nit" else "aanwezig") +
                                     " · AH=" +
                                     m.auditSha256.take(16) + "…"
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP) {
+            val expectedJob = pendingAppearanceHeadroomSweepJobId
+            pendingAppearanceHeadroomSweepJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                appearanceHeadroomSweepStatus =
+                    "Appearance Headroom Sweep v0.2-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                appearanceHeadroomSweepStatus =
+                    "Appearance Headroom Sweep v0.2 geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-appearance-headroom-sweep",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                appearanceHeadroomSweepStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "Appearance Headroom Sweep v0.2 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Appearance Headroom Sweep v0.2",
+                )
+            ) {
+                appearanceHeadroomSweepStatus =
+                    "Appearance Headroom Sweep v0.2 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            appearanceHeadroomSweepStatus =
+                "Appearance Headroom Sweep v0.2 · 100/100, 90/100, 80/100 en 70/100 " +
+                    "door exact dezelfde PRO Appearance v0.7-route; geen writeback…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-appearance-headroom-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    appearanceHeadroomSweepStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeAppearanceHeadroomSweepExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is
+                        TruthNegativeAppearanceHeadroomSweepResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeAppearanceHeadroomSweepResult.Success ->
+                            "Appearance Headroom Sweep v0.2 opgeslagen + SHA geverifieerd."
+                        is TruthNegativeAppearanceHeadroomSweepResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    appearanceHeadroomSweepStatus =
+                        when (exportResult) {
+                            is TruthNegativeAppearanceHeadroomSweepResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeAppearanceHeadroomSweepResult.Success -> {
+                                val m = exportResult.metrics
+                                val summary = m.variants.joinToString(" · ") { v ->
+                                    v.id.removePrefix("baseline_")
+                                        .removePrefix("shoulder_") +
+                                        ": collapse=" + v.collapsedPairs +
+                                        ", grad=" +
+                                        String.format("%.4f", v.gradientRetention) +
+                                        ", below-knee-changed=" +
+                                        v.belowKneeChanged
+                                }
+                                "Appearance Headroom Sweep v0.2 opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · " + summary +
+                                    " · winner=geen · HS=" +
+                                    m.sweepSha256.take(16) + "…"
                             }
                         }
                     render()
@@ -4454,6 +4602,35 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
+                        addView(actionButton(
+                            "Export Appearance Headroom Sweep v0.2 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchAppearanceHeadroomSweepExport(active)
+                        })
+                        appearanceHeadroomSweepStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-appearance-headroom-sweep",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Parallel appearance-only sweep op dezelfde 100-nit SDR-peak. De shoulder begint " +
+                                "bij 100, 90, 80 of 70 nit; de route meet peak-collapse, gradientbehoud, " +
+                                "gamut-clamp en lower-range verandering. Er wordt geen winnaar gekozen en " +
+                                "de normale PRO-preview blijft ongewijzigd.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
@@ -4777,5 +4954,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_CONFIDENCE_FIELD = 4116
         private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
         private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
+        private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
     }
 }
