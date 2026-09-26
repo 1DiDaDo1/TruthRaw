@@ -46,6 +46,7 @@ set(FREE_WORLD_V06 "${RESEARCH_ROOT}/free-world-light-transport-state-v0.6/nativ
 set(FREE_WORLD_V07 "${RESEARCH_ROOT}/free-world-appearance-resolve-v0.7/native")
 set(FREE_WORLD_NOISE_FUSION_V01 "${RESEARCH_ROOT}/free-world-observation-noise-fusion-v0.1/native")
 set(TRUTHNEGATIVE_CONTINUOUS_V05 "${RESEARCH_ROOT}/truthnegative-continuous-v0.5/native")
+set(DRAWNEGATIVE_V01 "${RESEARCH_ROOT}/drawnegative-v0.1/native")
 set(TRUTHNEGATIVE_NOISE_V01 "${RESEARCH_ROOT}/truthnegative-noise-state-v0.1/native")
 set(TRUTHNEGATIVE_STRUCTURE_GATE_V01 "${RESEARCH_ROOT}/truthnegative-structure-preservation-gate-v0.1/native")
 set(TRUTHNEGATIVE_RESIDUAL_V01 "${RESEARCH_ROOT}/truthnegative-bounded-residual-estimator-v0.1/native")
@@ -156,7 +157,9 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${FREE_WORLD_V06}/free_world_light_transport_state_v0_6.cpp
     ${FREE_WORLD_V07}/free_world_appearance_resolve_v0_7.cpp
     ${FREE_WORLD_NOISE_FUSION_V01}/free_world_observation_noise_fusion_v0_1.cpp
-    ${TRUTHNEGATIVE_CONTINUOUS_V05}/truthnegative_continuous_v0_5.cpp
+    ${TRUTHNEGATIVE_CONTINUOUS_V05}
+    ${DRAWNEGATIVE_V01}/truthnegative_continuous_v0_5.cpp
+    ${DRAWNEGATIVE_V01}/drawnegative_v0_1.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_noise_state_v0_1.cpp
     ${TRUTHNEGATIVE_NOISE_V01}/truthnegative_dense_uncertainty_adapter_v0_1.cpp
     ${TRUTHNEGATIVE_STRUCTURE_GATE_V01}/truthnegative_structure_preservation_gate_v0_1.cpp
