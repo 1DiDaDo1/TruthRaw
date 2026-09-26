@@ -17,7 +17,13 @@ Read in this order:
 4. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
 5. this index
 
-## Current code-bearing branch
+## Current branches
+
+Active architecture branch:
+
+`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+
+Latest Android-code branch:
 
 `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 
@@ -33,8 +39,21 @@ Default `main` must not be used as a shortcut for current project state.
 
 ## Current scientific architecture references
 
-Still current and compatible with the 2026-09-26 line:
+Canonical sealed lens-independent layer:
 
+- `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
+- `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
+- `state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json`
+- `tools/verify_lens_independent_free_world_v01.py`
+
+These v0.1 contract bytes are sealed. Change by versioned successor only.
+
+Still current and compatible foundations:
+
+- `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
+- `docs/CORE_VISION_TRUTHNEGATIVE_SCIENTIFIC_NEGATIVE.md`
 - `docs/research/free-world-pixel-resolve-2d-v0.2/README.md`
 - `docs/research/free-world-scientific-open-scene-binding-v0.3/README.md`
 - `docs/research/free-world-deep-scene-contribution-v0.4/README.md`
@@ -74,11 +93,15 @@ Current:
 - `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
 - `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
 - `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+- `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
 The v0.1 device result proves a many-to-one highlight-collapse property of the
 tested 100-nit-reference / 100-nit-peak PRO Appearance configuration.
 
 v0.2 is a parallel diagnostic only. It does not change the normal PRO preview.
+A second real lamp scene confirms 100/100 exact peak-collapse with
+source_censored=0; 90/100 removes that exact peak-collapse in the audit without
+changing the below-knee mapped luminance. No default promotion has occurred.
 
 ## Camera-5 / source route references
 
