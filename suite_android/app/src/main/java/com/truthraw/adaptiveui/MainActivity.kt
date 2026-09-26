@@ -502,13 +502,13 @@ class MainActivity : Activity() {
         if (ready.jobId != job.id) return
         if (!job.source.verifiedCamera5TruthNegative200MpEnvelope) {
             truthNegative200MpStatus =
-                "TruthNegative 200MP geblokkeerd: physical Camera-5 envelope/admission-lineage is niet exact geverifieerd."
+                "D.RAWnegative 200MP geblokkeerd: physical Camera-5 envelope/admission-lineage is niet exact geverifieerd."
             render()
             return
         }
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             truthNegative200MpStatus =
-                "TruthNegative 200MP vereist de volledig admitted DNG/Camera-5-route."
+                "D.RAWnegative 200MP vereist de volledig admitted DNG/Camera-5-route."
             render()
             return
         }
@@ -744,7 +744,7 @@ class MainActivity : Activity() {
             backgroundOperationKey("truthnegative-n2-crop-ab", job.id)
         if (truthNegativeHeavyOperationActive(job.id, operationKey)) {
             n2CropAbStatus =
-                "Wacht op de andere TruthNegative/N2 analysetaak. " +
+                "Wacht op de andere D.RAWnegative/N2 analysetaak. " +
                     "De 1:1 cropdiagnose draait bewust niet parallel."
             render()
             return
@@ -1189,7 +1189,7 @@ class MainActivity : Activity() {
         if (ready.jobId != job.id) return
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             truthNegativeStatus =
-                "TRUTHNEGATIVE is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
+                "Legacy TruthNegative TN-4 is momenteel alleen beschikbaar voor de volledig admitted DNG-route."
             render()
             return
         }
@@ -1581,7 +1581,7 @@ class MainActivity : Activity() {
             pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
-                truthNegative200MpStatus = "TruthNegative 200MP-export geannuleerd."
+                truthNegative200MpStatus = "D.RAWnegative 200MP-export geannuleerd."
                 render()
                 return
             }
@@ -1591,7 +1591,7 @@ class MainActivity : Activity() {
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
                 truthNegative200MpStatus =
-                    "TruthNegative 200MP geblokkeerd: actieve D.RAW-route veranderde."
+                    "D.RAWnegative 200MP geblokkeerd: actieve D.RAW-route veranderde."
                 render()
                 return
             }
@@ -1600,16 +1600,16 @@ class MainActivity : Activity() {
                 backgroundOperationKey("truthnegative-200mp-full-colour", expectedJob)
             if (!startBackgroundOperation(
                     operationKey,
-                    "TruthNegative 200MP Full Colour Float32 DNG opbouwen",
+                    "D.RAWnegative 200MP Full Colour Float32 DNG opbouwen",
                 )
             ) {
                 truthNegative200MpStatus =
-                    "TruthNegative 200MP kon niet veilig in de achtergrond starten."
+                    "D.RAWnegative 200MP kon niet veilig in de achtergrond starten."
                 render()
                 return
             }
             truthNegative200MpStatus =
-                "TruthNegative 200MP · 16320×12288 camera-native Float32 wordt opgebouwd… " +
+                "D.RAWnegative 200MP · 16320×12288 camera-native Float32 wordt opgebouwd… " +
                     "targetpixels zijn RECONSTRUCTED_DENSE_SUPPORT; gemeten-targetclaims=0."
             render()
 
@@ -1632,7 +1632,7 @@ class MainActivity : Activity() {
                 val exportResult = when (previewResult) {
                     is FullResJpegResult.Failed ->
                         PureFloat32DngExportResult.Failed(
-                            "TruthNegative 200MP preview faalde: ${previewResult.reason}",
+                            "D.RAWnegative 200MP preview faalde: ${previewResult.reason}",
                         )
                     is FullResJpegResult.Success -> {
                         try {
@@ -1660,7 +1660,7 @@ class MainActivity : Activity() {
                     exportResult is PureFloat32DngExportResult.Success,
                     when (exportResult) {
                         is PureFloat32DngExportResult.Success ->
-                            "TruthNegative 200MP Full Colour gereed."
+                            "D.RAWnegative 200MP Full Colour gereed."
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                     },
                 )
@@ -1674,7 +1674,7 @@ class MainActivity : Activity() {
                         is PureFloat32DngExportResult.Failed -> exportResult.reason
                         is PureFloat32DngExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TruthNegative 200MP v0.1 gereed · ${m.width}×${m.height} · " +
+                            "D.RAWnegative 200MP v0.1 gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · IEEE Float32 LinearRaw · " +
                                 "negatief/>1=${m.negativeComponentCount}/${m.overOneComponentCount} · " +
                                 "projected identity=verified · source Scientific Master ongewijzigd · " +
@@ -2614,7 +2614,7 @@ class MainActivity : Activity() {
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 truthNegativeNativeContainerStatus =
-                    "Native TruthNegative container-export geannuleerd."
+                    "D.RAWnegative legacy .tnc-export geannuleerd."
                 render()
                 return
             }
@@ -2749,7 +2749,7 @@ class MainActivity : Activity() {
             pendingTruthNegativeJobId = null
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
-                truthNegativeStatus = "TRUTHNEGATIVE-export geannuleerd."
+                truthNegativeStatus = "Legacy TruthNegative TN-4-export geannuleerd."
                 render()
                 return
             }
@@ -2759,19 +2759,19 @@ class MainActivity : Activity() {
                 ready.jobId != expectedJob || activeJobId != expectedJob
             ) {
                 truthNegativeStatus =
-                    "TRUTHNEGATIVE-export geblokkeerd: actieve Scientific Master-route veranderde."
+                    "Legacy TruthNegative TN-4-export geblokkeerd: actieve Scientific Master-route veranderde."
                 render()
                 return
             }
 
             val operationKey = backgroundOperationKey("truthnegative", expectedJob)
-            if (!startBackgroundOperation(operationKey, "TRUTHNEGATIVE TN-4 opbouwen")) {
-                truthNegativeStatus = "TRUTHNEGATIVE achtergrondverwerking kon niet veilig starten."
+            if (!startBackgroundOperation(operationKey, "Legacy TruthNegative TN-4 opbouwen")) {
+                truthNegativeStatus = "Legacy TruthNegative TN-4 achtergrondverwerking kon niet veilig starten."
                 render()
                 return
             }
             truthNegativeStatus =
-                "TRUTHNEGATIVE TN-4 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
+                "Legacy TruthNegative TN-4 wordt opgebouwd… exact Master replay + Dynamic Authority + canonical Open Scene v0.70."
             render()
 
             startGuardedBackgroundThread(
@@ -2795,7 +2795,7 @@ class MainActivity : Activity() {
                     operationKey,
                     exportResult is TruthNegativeExportResult.Success,
                     when (exportResult) {
-                        is TruthNegativeExportResult.Success -> "TRUTHNEGATIVE TN-4 gereed."
+                        is TruthNegativeExportResult.Success -> "Legacy TruthNegative TN-4 gereed."
                         is TruthNegativeExportResult.Failed -> exportResult.reason
                     },
                 )
@@ -2809,7 +2809,7 @@ class MainActivity : Activity() {
                         is TruthNegativeExportResult.Failed -> exportResult.reason
                         is TruthNegativeExportResult.Success -> {
                             val m = exportResult.metrics
-                            "TRUTHNEGATIVE TN-4 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
+                            "Legacy TruthNegative TN-4 opgeslagen + teruggelezen · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.outputBytes)} · camera-native Float32 · " +
                                 "authority CAL/REC/CENS/UNK=${m.calibratedEstimateSamples}/" +
                                 "${m.reconstructedSamples}/${m.censoredSamples}/${m.unknownSamples} · " +
@@ -3718,7 +3718,7 @@ class MainActivity : Activity() {
                     }
                     contentDescription =
                         "Diagnostische finalized D.RAW Scientific Preview voor ${active.source.displayName}; " +
-                            "niet de PRO TruthNegative/Free-World eindweergave; " +
+                            "niet de PRO D.RAWnegative/Free-World eindweergave; " +
                             "user rotation +${userQuarterTurns * 90} graden"
                     if (currentLayoutTier() == LayoutTier.COMPACT) {
                         minimumHeight = dp(180)
@@ -3763,7 +3763,7 @@ class MainActivity : Activity() {
                     addView(label(
                         "Diagnostische Scientific Preview · source-bound controlebeeld; " +
                             "PRO bouwt automatisch daaronder de raster-onafhankelijke " +
-                            "TruthNegative Continuous / Free-World Appearance-weergave.",
+                            "D.RAWnegative / Free-World Appearance-weergave.",
                         10f,
                         muted = true,
                     ))
@@ -3817,7 +3817,7 @@ class MainActivity : Activity() {
                     ))
                     addView(label(
                         if (outputPreview.metrics.appearanceAddedByPreview) {
-                            "TruthNegative/Free-World derivative · area-integrated scene resolve + " +
+                            "D.RAWnegative/Free-World derivative · area-integrated scene resolve + " +
                                 "expliciete Appearance/Display-laag · source scene en authority blijven immutable."
                         } else {
                             "Zelfde primary tile-source als het opgeslagen resultaat · " +
@@ -3880,7 +3880,10 @@ class MainActivity : Activity() {
                         n2AppearanceCandidateJobId == active.id &&
                         candidateBitmap != null &&
                         candidateMetrics != null &&
-                        outputPreview.outputLabel.contains("TruthNegative Continuous")
+                        (
+                            outputPreview.outputLabel.contains("D.RAWnegative") ||
+                                outputPreview.outputLabel.contains("TruthNegative Continuous")
+                            )
                     ) {
                         addView(space(8))
                         addView(label(
@@ -3889,9 +3892,9 @@ class MainActivity : Activity() {
                             bold = true,
                         ))
                         addView(label(
-                            "A = ongewijzigde TruthNegative/Appearance. B = sampled-CFA N2-correcties " +
+                            "A = ongewijzigde D.RAWnegative/Appearance. B = sampled-CFA N2-correcties " +
                                 "alleen voor deze display-proef area-gemiddeld naar het previewraster. " +
-                                "Geen kandidaat-reconstructie, geen wijziging van Scientific Master/TruthNegative, " +
+                                "Geen kandidaat-reconstructie, geen wijziging van Scientific Master/D.RAWnegative, " +
                                 "geen nieuwe evidence en geen export-writeback.",
                             9.5f,
                             muted = true,
@@ -3925,7 +3928,7 @@ class MainActivity : Activity() {
                                 addView(label("A · huidig", 10.5f, bold = true))
                                 addView(abImage(
                                     outputPreview.bitmap,
-                                    "A: ongewijzigde TruthNegative Appearance",
+                                    "A: ongewijzigde D.RAWnegative Appearance",
                                 ))
                             }, LinearLayout.LayoutParams(
                                 0,
@@ -3999,13 +4002,13 @@ class MainActivity : Activity() {
                             ))
                             addView(label(
                                 "Iedere crop is 1 bronpixel → 1 previewpixel. A blijft de " +
-                                    "ongewijzigde TruthNegative/Appearance. Voor B worden uitsluitend " +
+                                    "ongewijzigde D.RAWnegative/Appearance. Voor B worden uitsluitend " +
                                     "N2-toegelaten CFA-correcties gebruikt. Correcties binnen de reconstructie-support " +
                                     "van een beschermd outputpixel worden eerst conservatief onderdrukt; daarna gaat de " +
                                     "private Stage-2-kopie door exact dezelfde measured-preserving Float64 full-colour " +
                                     "reconstructie als de Scientific Master. Beschermde core-pixels moeten daardoor " +
                                     "bit-identiek blijven. Δ toont |B−A| ×${ready.report.deltaGain}; zwart = geen zichtbaar verschil. " +
-                                    "Bron, Scientific Master en TruthNegative blijven ongewijzigd.",
+                                    "Bron, Scientific Master en D.RAWnegative blijven ongewijzigd.",
                                 9.2f,
                                 muted = true,
                             ))
@@ -4158,7 +4161,7 @@ class MainActivity : Activity() {
                                     "Reconstruction-support closure vereist protected-core-changed=0. " +
                                     "Center-excluded v0.2 blijft parallel audit-only en wijzigt B niet. " +
                                     "Risk/Quality meet encoded-display Δ en gradientenergie alleen als diagnose " +
-                                    "(geen MTF-claim). source/Scientific Master/TruthNegative blijven immutable · " +
+                                    "(geen MTF-claim). source/Scientific Master/D.RAWnegative blijven immutable · " +
                                     "creates-new-evidence=false · scientific-writeback=false.",
                                 9f,
                                 muted = true,
@@ -4225,7 +4228,7 @@ class MainActivity : Activity() {
                         ))
                         addView(space(5))
                         addView(actionButton(
-                            "TruthNegative 200MP · Float32 Full Colour · DNG",
+                            "D.RAWnegative 200MP · Float32 Full Colour · DNG",
                             enabled = active.source.verifiedCamera5TruthNegative200MpEnvelope,
                         ) {
                             launchTruthNegative200MpFullColourExport(active)
@@ -4318,7 +4321,7 @@ class MainActivity : Activity() {
                         }
                         addView(space(5))
                         addView(actionButton(
-                            "TruthNegative 200MP · Float32 Full Colour · DNG",
+                            "D.RAWnegative 200MP · Float32 Full Colour · DNG",
                             enabled = active.source.verifiedCamera5TruthNegative200MpEnvelope,
                         ) {
                             launchTruthNegative200MpFullColourExport(active)
@@ -4480,7 +4483,7 @@ class MainActivity : Activity() {
                         addView(label(
                             "Audit-only spatial sidecar: per 64×64 source-tile candidate/preserve/" +
                                 "structure/censor-statistiek, cryptografisch gebonden aan bron, " +
-                                "Scientific Master, authority field en TruthNegative-state. " +
+                                "Scientific Master, authority field en D.RAWnegative-state. " +
                                 "candidate-applied=false.",
                             10f,
                             muted = true,
@@ -4597,7 +4600,7 @@ class MainActivity : Activity() {
                             "Display-diagnose boven dezelfde PRO Appearance v0.7: vergelijkt scene-luminantie " +
                                 "met mapped luminance vóór sRGB-encoding en telt naburige bronverschillen die " +
                                 "op exact dezelfde display-peak eindigen. Geen Honor-reference als evidence, " +
-                                "geen MTF-claim en geen wijziging van Scientific Master/TruthNegative.",
+                                "geen MTF-claim en geen wijziging van Scientific Master/D.RAWnegative.",
                             10f,
                             muted = true,
                         ))
