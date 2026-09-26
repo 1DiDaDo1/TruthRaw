@@ -1,0 +1,171 @@
+{
+  "schema": "DRAW_CURRENT_PROJECT_STATE/2026-09-26",
+  "date": "2026-09-26",
+  "product_name": "D.RAW",
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_development_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
+  "validated_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
+  "real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3",
+  "default_main": {
+    "sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+    "contains_current_active_work": false,
+    "promotion_performed": false
+  },
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "companion_rule": "Measured where measured. Reconstructed where necessary. Never invented.",
+  "scientific_invariants": {
+    "physicalFrameCount": 1,
+    "independentEvidenceCount": 1,
+    "sealed_source_immutable": true,
+    "direct_cfa_immutable": true,
+    "appearance_mutates_scientific_master": false,
+    "n2_mutates_scientific_master": false,
+    "appearance_mutates_truthnegative": false,
+    "n2_mutates_truthnegative": false,
+    "createsNewEvidence": false,
+    "scientificWritebackAllowed": false,
+    "censored_is_bound_not_exact_latent_value": true,
+    "appearance_never_upgrades_authority": true,
+    "external_honor_render_is_scientific_evidence": false
+  },
+  "current_architecture": [
+    "sealed Source Evidence / Direct CFA",
+    "calibrated measurement / Stage-2",
+    "measured-preserving Float64 full-colour reconstruction",
+    "Scientific Master",
+    "Open Scene Field / Dynamic Authority",
+    "TruthNegative Continuous",
+    "Deep Scene / separate geometry and radiometry authority",
+    "Light Transport",
+    "Appearance / Viewing / Display Resolve",
+    "finite output"
+  ],
+  "n2": {
+    "status": "AUDIT_AND_APPEARANCE_RESEARCH_ONLY",
+    "production_promoted": false,
+    "bounded_residual_estimator": "truthnegative-bounded-residual-estimator-v0.1",
+    "center_excluded_predictor": "truthnegative-center-excluded-neighborhood-v0.2",
+    "center_excluded_spatial_audit": "truthnegative-center-excluded-spatial-audit-v0.2.1",
+    "confidence_field": "truthnegative-n2-confidence-field-v0.3",
+    "factored_confidence_state": "truthnegative-n2-factored-confidence-state-v0.3.1",
+    "full_colour_candidate": "truthnegative-n2-full-colour-candidate-v0.1",
+    "risk_quality_audit": "truthnegative-n2-risk-quality-audit-v0.1",
+    "baseline_gate": {
+      "comparison_target": "EXACT_SCIENTIFIC_MASTER_SOURCE_PIXEL",
+      "required_identity": "FLOAT32_BIT_IDENTICAL",
+      "real_device_baseline_mismatch_zero_observed": true
+    },
+    "reconstruction_support_closure": {
+      "enabled_in_safe_diagnostic": true,
+      "protected_output_must_remain_bit_identical": true,
+      "current_backend_required_halo_px": 3,
+      "real_device_protected_changed_zero_observed": true,
+      "support_guard_suppression_observed": true
+    },
+    "center_excluded_noise_independence_admitted": false,
+    "confidence_scalar_probability": false,
+    "support_distance_admitted": false,
+    "promotion_eligible": false,
+    "candidate_applied_to_primary": false
+  },
+  "appearance_highlight_detail_v0_1": {
+    "status": "REAL_DEVICE_VERIFIED_DIAGNOSTIC",
+    "schema": "D.RAW/TruthNegative/AppearanceHighlightDetailAudit/0.1",
+    "evidence_summary": "docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md",
+    "uploaded_json_sha256": "ff9ec10c6012cc75578b21c9c8df694817086552a0474022d512ccb19e95e6df",
+    "uploaded_json_bytes": 61661,
+    "preview_width": 192,
+    "preview_height": 145,
+    "tile_edge": 16,
+    "display_reference_white_nits": 100.0,
+    "display_peak_nits": 100.0,
+    "no_highlight_headroom": true,
+    "mapped_peak_collapse_observed": true,
+    "global": {
+      "sample_count": 27840,
+      "source_above_reference_white": 502,
+      "mapped_at_peak": 502,
+      "source_censored": 0,
+      "gamut_or_display_clamp": 768,
+      "source_distinct_adjacent_pairs": 55343,
+      "peak_collapsed_distinct_adjacent_pairs": 851,
+      "bright_peak_collapsed_distinct_adjacent_pairs": 851,
+      "collapse_fraction": 0.01537683103770738,
+      "source_abs_gradient_sum": 136222.2447561528,
+      "mapped_abs_gradient_sum": 131815.22272878798,
+      "mapped_gradient_retention": 0.9676482938946301,
+      "max_collapsed_source_abs_gradient_nits": 18.955463394113
+    },
+    "strongest_tile": {
+      "x": 80,
+      "y": 48,
+      "width": 16,
+      "height": 16,
+      "source_above_reference_white": 206,
+      "mapped_at_peak": 206,
+      "source_censored": 0,
+      "source_distinct_adjacent_pairs": 480,
+      "peak_collapsed_distinct_adjacent_pairs": 383,
+      "source_abs_gradient_sum": 1868.532245895969,
+      "mapped_abs_gradient_sum": 1202.02596685479,
+      "max_collapsed_source_abs_gradient_nits": 8.114692339262
+    },
+    "honor_reference_classification": "VISUAL_REFERENCE_ONLY",
+    "source_scene_mutated": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "appearance_highlight_headroom_sweep_v0_2": {
+    "status": "IMPLEMENTED_ANDROID_GREEN_DEVICE_TEST_PENDING",
+    "normal_pro_preview_changed": false,
+    "physical_display_peak_nits": 100.0,
+    "variants": [
+      {"id": "baseline_100_100", "reference_white_nits": 100.0, "peak_nits": 100.0},
+      {"id": "shoulder_90_100", "reference_white_nits": 90.0, "peak_nits": 100.0},
+      {"id": "shoulder_80_100", "reference_white_nits": 80.0, "peak_nits": 100.0},
+      {"id": "shoulder_70_100", "reference_white_nits": 70.0, "peak_nits": 100.0}
+    ],
+    "uses_existing_free_world_appearance_resolve_v0_7": true,
+    "automatic_winner_selected": false,
+    "scientific_master_changed": false,
+    "truthnegative_changed": false,
+    "n2_changed": false,
+    "source_scene_mutated": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "standalone_validation": {
+      "run_id": 36254075689,
+      "gcc": "SUCCESS",
+      "clang": "SUCCESS",
+      "asan_ubsan": "SUCCESS"
+    },
+    "android_validation": {
+      "run_id": 36254294042,
+      "result": "SUCCESS",
+      "validated_code_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111"
+    },
+    "device_sweep_pending": true
+  },
+  "apk": {
+    "artifact_id": 10910177012,
+    "artifact_name": "draw-appearance-highlight-headroom-v02-debug-arm64",
+    "artifact_zip_sha256": "d3a7fcebdf726790151ce27ee129473e3ec37ed855a958c1ba276720692f1255",
+    "apk_size_bytes": 6951735,
+    "apk_sha256": "d46b40c7650ad0b1102438bc1a31b1c4f8ee7c4c14050af633c435c5b0405e8b",
+    "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+  },
+  "immediate_next_device_gate": {
+    "export": "Appearance Headroom Sweep v0.2 JSON",
+    "prefer_same_source_as_v0_1": true,
+    "compare": [
+      "baseline reproduction",
+      "peak collapse reduction",
+      "mapped gradient retention",
+      "gamut/display clamp behavior",
+      "below-knee preservation",
+      "source CENSORED separation"
+    ],
+    "automatic_promotion_allowed": false,
+    "future_visual_ab_preview_only_after_metrics": true
+  }
+}
