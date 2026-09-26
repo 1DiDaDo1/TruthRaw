@@ -218,6 +218,16 @@ Java_com_truthraw_adaptiveui_TruthNegativeNativeContainerBridge_exportAndVerify(
       << sha::hex(written.authorityFieldSha256) << "\"";
     o << ",\"truthNegativeStateSha256\":\""
       << sha::hex(written.truthNegativeStateSha256) << "\"";
+    o << ",\"drawNegativeStateSha256\":\""
+      << sha::hex(ctx.drawNegativeState.stateSha256) << "\"";
+    o << ",\"drawNegativeParentTruthNegativeStateSha256\":\""
+      << sha::hex(ctx.drawNegativeState.parentTruthNegativeStateSha256) << "\"";
+    o << ",\"drawNegativeCommonGaugeAdmitted\":"
+      << (ctx.drawNegativeState.commonGaugeAdmitted ? "true" : "false");
+    o << ",\"drawNegativeCrossObservationFusionAllowed\":"
+      << (ctx.drawNegativeState.crossObservationRadiometricFusionAllowed
+              ? "true" : "false");
+    o << ",\"drawNegativeStoredInLegacyTnc\":false";
     o << ",\"bodySha256\":\""
       << sha::hex(written.bodySha256) << "\"";
     o << ",\"containerSha256\":\""
