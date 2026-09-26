@@ -3,7 +3,7 @@
   "date": "2026-09-26",
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
-  "active_development_branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+  "active_development_branch": "architecture/drawnegative-v01-2026-09-26",
   "validated_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
   "real_device_evidence_checkpoint_sha": "73a6f4911801b00a4af7f58301c7ece62c185dc1",
   "default_main": {
@@ -35,7 +35,8 @@
     "Float64 measurement/calibration/reconstruction",
     "Scientific Master",
     "validated Float32 scientific storage where admitted",
-    "TruthNegative Continuous per observation",
+    "legacy TruthNegative Continuous parent",
+    "D.RAWnegative per observation",
     "Free World Observation Graph",
     "Deep Scene / separate geometry and radiometry authority",
     "Light Transport",
@@ -221,8 +222,8 @@
     "multi_lens": "Future main/ultra-wide/tele work should instantiate separate D.RAW Observations and prove any shared gauge/calibration relation before radiometric fusion.",
     "automatic_promotion_allowed": false
   },
-  "previous_active_development_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
-  "latest_android_code_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
+  "previous_active_development_branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+  "latest_android_code_branch": "architecture/drawnegative-v01-2026-09-26",
   "latest_android_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
   "current_architecture_checkpoint_parent_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
   "lens_independent_free_world_v0_1": {
@@ -296,7 +297,62 @@
       "MAIN_ADMITTED_RAW_OR_DNG",
       "ULTRA_WIDE_ADMITTED_RAW_OR_DNG"
     ],
-    "implicit_cross_source_calibration_transfer_allowed": false
+    "implicit_cross_source_calibration_transfer_allowed": false,
+    "current_negative_binding": "D.RAWnegative v0.1",
+    "legacy_parent_binding": "TruthNegative Continuous v0.5",
+    "successor_record_required_for_public_schema_rename": true
   },
-  "previous_real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3"
+  "previous_real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3",
+  "current_scientific_negative_name": "D.RAWnegative",
+  "legacy_scientific_negative_parent": "TruthNegative Continuous v0.5",
+  "drawnegative_v0_1": {
+    "status": "HOST_GREEN_ANDROID_GREEN_BRANCH_HEAD_REBUILD_PENDING",
+    "public_name": "D.RAWnegative",
+    "schema": "D.RAW/D.RAWnegative/0.1",
+    "branch": "architecture/drawnegative-v01-2026-09-26",
+    "canonical_successor": "docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md",
+    "module_readme": "docs/research/drawnegative-v0.1/README.md",
+    "parent_state": "TruthNegative Continuous v0.5",
+    "parent_is_legacy_compatibility_ancestry": true,
+    "replaces_parent_bytes": false,
+    "raster_independent": true,
+    "per_observation_lineage": true,
+    "zero_line_formula": "T=log2(L/L0)",
+    "source_local_gauge_default": true,
+    "shared_free_world_gauge_default": false,
+    "cross_observation_radiometric_equality_default": false,
+    "cross_observation_radiometric_fusion_default": false,
+    "per_sample_truthrange_materialized": false,
+    "branch_sensitive_compute": "FLOAT64",
+    "canonical_storage": "FLOAT32_VALIDATED",
+    "precision_upgrades_authority": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "host_validation": {
+      "run_id": 36260305512,
+      "result": "SUCCESS",
+      "checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
+      "gcc": "SUCCESS",
+      "clang": "SUCCESS",
+      "asan_ubsan": "SUCCESS"
+    },
+    "android_validation_prior_green": {
+      "run_id": 36260234364,
+      "result": "SUCCESS",
+      "checkpoint_sha": "ca3253b42397fe01f7644b32c9d989998a29f9fb",
+      "artifact_id": 10911823880,
+      "artifact_name": "drawnegative-v01-debug-arm64",
+      "artifact_zip_sha256": "a7b59b330ecd6e17d7d5cb636da2cd0d87658c9a74d07b1a1464e654ff4c7d8c",
+      "apk_size_bytes": 6959343,
+      "apk_sha256": "b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317",
+      "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+    },
+    "android_branch_head_rebuild_run_id": 36260305613,
+    "ui_public_label": "PRO · D.RAWnegative v0.1",
+    "runtime_context_contains_drawnegative_state": true,
+    "runtime_observation_id_derivation": "DRAW_OBS_<SOURCE_SHA256>",
+    "runtime_scale_gauge_derivation": "DRAW_SOURCE_LOCAL_GAUGE_<SOURCE_SHA256>",
+    "historical_truthnegative_symbols_may_remain": true,
+    "legacy_tnc_remains_truthnegative_container": true
+  }
 }
