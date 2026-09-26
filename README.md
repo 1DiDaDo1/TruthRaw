@@ -4,21 +4,25 @@
 
 # D.RAW
 
-> **CURRENT PROJECT IDENTITY — 2026-09-25**
+> **CURRENT PROJECT IDENTITY — 2026-09-26**
 >
 > D.RAW is the current project/product name. Historical `TruthRaw` identifiers remain where required for provenance, sealed evidence, schemas, Android compatibility and reproducibility.
 >
 > Current bootstrap: `START_HERE_NEW_CHAT.md`
 >
-> Current state: `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md` and `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+> Current state: `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md` and `state/CURRENT_PROJECT_STATE_2026-09-26.json`
 >
-> Active integration: `integration/truthraw-suite-v0-84-3-float32-full-colour-scientific-master`
+> Current active code-bearing branch: `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 >
-> Free-World v0.2-v0.7, TruthNegative Continuous v0.5, Round-Trip Oracle v0.6, calibration-bound Optics Support v0.7, Deep Scene Bridge v0.8, Camera-5 Color/Highlight Oracle v0.1 and TruthNegative Native Container v0.1 are now integrated into the Android main line. UI routes remain PURE = Scientific View, ADVANCED = Appearance/Restoration View, PRO = Open Scene/Light Transport. PRO now exposes the continuous preview, the verified-Camera-5 diagnostic oracle and .tnc export/import round-trip. PURE and existing validated exports remain unchanged.
+> Default GitHub `main` is intentionally **not** the current development line; it still points to `514f2f4bde6aba5a6709e176c03b22c3b9aea912`.
 >
-> Code checkpoint: `c7d7cef05502aca6f22f0d049987aad3a9f37b0a`
+> Current validated code checkpoint: `402c72d6804f6cc393a5eab93c9d94d0687be111`
 >
-> Current signed ARM64 APK SHA-256: `dd2ca57e0de292dbc06617d9efce39cff7d6b242a1b20de1ebf74808b1ed5273`
+> Recent current additions include the N2 reconstruction-support closure, center-excluded predictor/spatial audit v0.2/v0.2.1, vector Confidence Field v0.3, Factored Confidence State v0.3.1, real-device Appearance Highlight Detail v0.1 evidence, and the Android-green Appearance Highlight Headroom Sweep v0.2. N2 and appearance diagnostics remain downstream and cannot write Scientific Master or TruthNegative.
+>
+> The real-device v0.1 Appearance audit proved that the current PRO 100/100-nit display configuration can collapse distinct bright scene luminances at the display peak even when the tested audit reports `source_censored=0`. v0.2 now compares 100/100, 90/100, 80/100 and 70/100 shoulders without changing the normal PRO preview or choosing a winner.
+>
+> Current signed ARM64 APK SHA-256: `d46b40c7650ad0b1102438bc1a31b1c4f8ee7c4c14050af633c435c5b0405e8b`
 >
 > D.RAW preserves the permanent rule: **representation can exceed the source; knowledge claims cannot exceed the evidence.**
 
