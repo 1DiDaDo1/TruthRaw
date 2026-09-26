@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 
 private const val N2_CROP_AB_MAGIC = 0x31424132
 private const val N2_CROP_AB_COUNT = 3
-private const val N2_CROP_AB_META_INTS = 88
+private const val N2_CROP_AB_META_INTS = 107
 private const val N2_CROP_AB_HEADER_INTS = 48 + N2_CROP_AB_COUNT * N2_CROP_AB_META_INTS
 private const val N2_CROP_AB_MAX_SOURCE_BYTES = 8 * 1024 * 1024
 private const val N2_CROP_AB_MAX_LOGICAL_BYTES = 64 * 1024 * 1024
@@ -85,6 +85,22 @@ data class TruthNegativeN2CropMetrics(
     val protectedCorePixels: Int,
     val protectedCoreChangedRgbChannels: Int,
     val reconstructionInfluenceRadius: Int,
+    val centerExcludedV01CandidateCenters: Int,
+    val centerExcludedPredictorValid: Int,
+    val centerExcludedPredictorInvalid: Int,
+    val centerExcludedPairsConsidered: Int,
+    val centerExcludedPairsAccepted: Int,
+    val centerExcludedPairsRejected: Int,
+    val centerExcludedScalesConsidered: Int,
+    val centerExcludedScalesAccepted: Int,
+    val centerExcludedScalesRejected: Int,
+    val centerExcludedResidualWithin1Sigma: Int,
+    val centerExcludedResidualBetween1And2Sigma: Int,
+    val centerExcludedResidualAbove2Sigma: Int,
+    val centerExcludedMeanAbsResidual: Double,
+    val centerExcludedMaxAbsResidual: Double,
+    val centerExcludedMaxDirectionalSigma: Double,
+    val centerExcludedMaxCrossScaleSigma: Double,
 )
 
 data class TruthNegativeN2CropPanel(
@@ -289,6 +305,29 @@ object TruthNegativeN2CropAbLoader {
                 val protectedCorePixels = packet[m + 85]
                 val protectedCoreChangedRgbChannels = packet[m + 86]
                 val reconstructionInfluenceRadius = packet[m + 87]
+                val centerExcludedV01CandidateCenters = packet[m + 88]
+                val centerExcludedPredictorValid = packet[m + 89]
+                val centerExcludedPredictorInvalid = packet[m + 90]
+                val centerExcludedPairsConsidered = packet[m + 91]
+                val centerExcludedPairsAccepted = packet[m + 92]
+                val centerExcludedPairsRejected = packet[m + 93]
+                val centerExcludedScalesConsidered = packet[m + 94]
+                val centerExcludedScalesAccepted = packet[m + 95]
+                val centerExcludedScalesRejected = packet[m + 96]
+                val centerExcludedResidualWithin1Sigma = packet[m + 97]
+                val centerExcludedResidualBetween1And2Sigma = packet[m + 98]
+                val centerExcludedResidualAbove2Sigma = packet[m + 99]
+                val centerExcludedMeanAbsResidual =
+                    packet[m + 100].toDouble() / 1_000_000_000.0
+                val centerExcludedMaxAbsResidual =
+                    packet[m + 101].toDouble() / 1_000_000_000.0
+                val centerExcluded = packet[m + 102] != 0
+                val centerExcludedCreatesNewEvidence = packet[m + 103] != 0
+                val centerExcludedScientificWriteback = packet[m + 104] != 0
+                val centerExcludedMaxDirectionalSigma =
+                    packet[m + 105].toDouble() / 1_000_000.0
+                val centerExcludedMaxCrossScaleSigma =
+                    packet[m + 106].toDouble() / 1_000_000.0
                 if (!validQuantiles(pixelDelta) ||
                     !validQuantiles(redDelta) ||
                     !validQuantiles(greenDelta) ||
@@ -319,7 +358,39 @@ object TruthNegativeN2CropAbLoader {
                     protectedCorePixels < 0 ||
                     protectedCorePixels > cropPixels ||
                     protectedCoreChangedRgbChannels != 0 ||
-                    reconstructionInfluenceRadius < 0
+                    reconstructionInfluenceRadius < 0 ||
+                    centerExcludedV01CandidateCenters != corrected ||
+                    centerExcludedPredictorValid < 0 ||
+                    centerExcludedPredictorInvalid < 0 ||
+                    centerExcludedPredictorValid +
+                        centerExcludedPredictorInvalid !=
+                        centerExcludedV01CandidateCenters ||
+                    centerExcludedPairsConsidered < 0 ||
+                    centerExcludedPairsAccepted < 0 ||
+                    centerExcludedPairsRejected < 0 ||
+                    centerExcludedPairsAccepted +
+                        centerExcludedPairsRejected >
+                        centerExcludedPairsConsidered ||
+                    centerExcludedScalesConsidered < 0 ||
+                    centerExcludedScalesAccepted < 0 ||
+                    centerExcludedScalesRejected < 0 ||
+                    centerExcludedScalesAccepted +
+                        centerExcludedScalesRejected !=
+                        centerExcludedScalesConsidered ||
+                    centerExcludedResidualWithin1Sigma < 0 ||
+                    centerExcludedResidualBetween1And2Sigma < 0 ||
+                    centerExcludedResidualAbove2Sigma < 0 ||
+                    centerExcludedResidualWithin1Sigma +
+                        centerExcludedResidualBetween1And2Sigma +
+                        centerExcludedResidualAbove2Sigma !=
+                        centerExcludedPredictorValid ||
+                    centerExcludedMeanAbsResidual < 0.0 ||
+                    centerExcludedMaxAbsResidual < centerExcludedMeanAbsResidual ||
+                    centerExcludedMaxDirectionalSigma < 0.0 ||
+                    centerExcludedMaxCrossScaleSigma < 0.0 ||
+                    !centerExcluded ||
+                    centerExcludedCreatesNewEvidence ||
+                    centerExcludedScientificWriteback
                 ) {
                     throw IllegalStateException(
                         "risk/quality audit contract mismatch",
@@ -412,6 +483,38 @@ object TruthNegativeN2CropAbLoader {
                             protectedCoreChangedRgbChannels,
                         reconstructionInfluenceRadius =
                             reconstructionInfluenceRadius,
+                        centerExcludedV01CandidateCenters =
+                            centerExcludedV01CandidateCenters,
+                        centerExcludedPredictorValid =
+                            centerExcludedPredictorValid,
+                        centerExcludedPredictorInvalid =
+                            centerExcludedPredictorInvalid,
+                        centerExcludedPairsConsidered =
+                            centerExcludedPairsConsidered,
+                        centerExcludedPairsAccepted =
+                            centerExcludedPairsAccepted,
+                        centerExcludedPairsRejected =
+                            centerExcludedPairsRejected,
+                        centerExcludedScalesConsidered =
+                            centerExcludedScalesConsidered,
+                        centerExcludedScalesAccepted =
+                            centerExcludedScalesAccepted,
+                        centerExcludedScalesRejected =
+                            centerExcludedScalesRejected,
+                        centerExcludedResidualWithin1Sigma =
+                            centerExcludedResidualWithin1Sigma,
+                        centerExcludedResidualBetween1And2Sigma =
+                            centerExcludedResidualBetween1And2Sigma,
+                        centerExcludedResidualAbove2Sigma =
+                            centerExcludedResidualAbove2Sigma,
+                        centerExcludedMeanAbsResidual =
+                            centerExcludedMeanAbsResidual,
+                        centerExcludedMaxAbsResidual =
+                            centerExcludedMaxAbsResidual,
+                        centerExcludedMaxDirectionalSigma =
+                            centerExcludedMaxDirectionalSigma,
+                        centerExcludedMaxCrossScaleSigma =
+                            centerExcludedMaxCrossScaleSigma,
                     ),
                 )
             }
@@ -524,6 +627,7 @@ object TruthNegativeN2CropAbLoader {
         -17 -> "N2 1:1 cropdiagnose: full-colour measured-preserving kandidaat-reconstructie faalde."
         -18 -> "N2 1:1 cropdiagnose: baseline-reconstructie was niet bit-identiek aan de exacte Scientific Master bronpixel."
         -19 -> "N2 1:1 cropdiagnose: N2 Risk/Quality Audit faalde fail-closed."
+        -20 -> "N2 1:1 cropdiagnose: center-excluded v0.2 predictor-audit faalde fail-closed."
         in 2000..9999 -> "N2 1:1 cropdiagnose: upstream pipeline status $status."
         else -> "N2 1:1 cropdiagnose: native status $status."
     }
