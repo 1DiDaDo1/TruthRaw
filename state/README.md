@@ -1,3 +1,35 @@
+# D.RAW state directory
+
+## Current active state — 2026-09-26
+
+Read first:
+
+- `CURRENT_PROJECT_STATE_2026-09-26.json`
+- `../docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
+- `../docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
+- `../docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
+
+Current active code-bearing branch:
+
+`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+
+Latest fully Android-validated code checkpoint:
+
+`402c72d6804f6cc393a5eab93c9d94d0687be111`
+
+Default GitHub `main` is historical/lagging and must not be treated as the
+current state shortcut.
+
+The 2026-09-26 machine state includes the current N2 support-closure /
+center-excluded / factored-confidence research line and the new real-device
+Appearance Highlight Detail v0.1 evidence plus the Android-green v0.2 headroom
+sweep.
+
+Dated state snapshots below remain provenance and must not be rewritten to
+pretend they knew later results.
+
+---
+
 # TruthRaw state directory
 
 ## Current active integration — 2026-09-19
