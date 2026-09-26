@@ -66,6 +66,8 @@ class MainActivity : Activity() {
     private var n2CenterExcludedSpatialStatus: String? = null
     private var pendingN2ConfidenceFieldJobId: String? = null
     private var n2ConfidenceFieldStatus: String? = null
+    private var pendingN2FactoredConfidenceJobId: String? = null
+    private var n2FactoredConfidenceStatus: String? = null
     private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
     private var n2CropAbJobId: String? = null
     private var n2CropAbStatus: String? = null
@@ -236,6 +238,8 @@ class MainActivity : Activity() {
         n2CenterExcludedSpatialStatus = null
         pendingN2ConfidenceFieldJobId = null
         n2ConfidenceFieldStatus = null
+        pendingN2FactoredConfidenceJobId = null
+        n2FactoredConfidenceStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -1060,6 +1064,42 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_CONFIDENCE_FIELD,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchN2FactoredConfidenceExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2FactoredConfidenceStatus =
+                "N2 Factored Confidence v0.3.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingN2FactoredConfidenceJobId = job.id
+        n2FactoredConfidenceStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_factored_confidence_state_v0_3_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_FACTORED_CONFIDENCE,
         )
     }
 
@@ -2147,6 +2187,119 @@ class MainActivity : Activity() {
                                     m.fullyCoherentTiles +
                                     " · CF=" +
                                     m.confidenceFieldSha256.take(16) +
+                                    "… · promotion=false."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_N2_FACTORED_CONFIDENCE) {
+            val expectedJob = pendingN2FactoredConfidenceJobId
+            pendingN2FactoredConfidenceJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2FactoredConfidenceStatus =
+                    "N2 Factored Confidence v0.3.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                n2FactoredConfidenceStatus =
+                    "N2 Factored Confidence v0.3.1 geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-factored-confidence",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2FactoredConfidenceStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "N2 Factored Confidence v0.3.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Factored Confidence v0.3.1",
+                )
+            ) {
+                n2FactoredConfidenceStatus =
+                    "N2 Factored Confidence v0.3.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2FactoredConfidenceStatus =
+                "N2 v0.3.1 · afzonderlijke confidence-feiten uit exact gebonden v0.3; " +
+                    "geen gewichten, geen scalar probability en promotion=false…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-factored-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2FactoredConfidenceStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeN2FactoredConfidenceExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is
+                        TruthNegativeN2FactoredConfidenceResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeN2FactoredConfidenceResult.Success ->
+                            "N2 Factored Confidence v0.3.1 opgeslagen + SHA geverifieerd."
+                        is TruthNegativeN2FactoredConfidenceResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2FactoredConfidenceStatus =
+                        when (exportResult) {
+                            is TruthNegativeN2FactoredConfidenceResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeN2FactoredConfidenceResult.Success -> {
+                                val m = exportResult.metrics
+                                "N2 Factored Confidence v0.3.1 opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · tiles=" + m.tileCount +
+                                    " · candidates=" + m.hasCandidateTiles +
+                                    " · all-predictable=" +
+                                    m.allCandidatesPredictableTiles +
+                                    " · outlier-free=" +
+                                    m.centerOutlierFreeTiles +
+                                    " · both=" +
+                                    m.predictableAndCenterOutlierFreeTiles +
+                                    " · pair-free=" +
+                                    m.pairRejectionFreeTiles +
+                                    " · scale-free=" +
+                                    m.scaleRejectionFreeTiles +
+                                    " · variance≤center=" +
+                                    m.maxPredictorVarianceLeCenterVarianceTiles +
+                                    " · FS=" +
+                                    m.factoredStateSha256.take(16) +
                                     "… · promotion=false."
                             }
                         }
@@ -4092,6 +4245,35 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
+                        addView(actionButton(
+                            "Export N2 v0.3.1 Factored Confidence · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchN2FactoredConfidenceExport(active)
+                        })
+                        n2FactoredConfidenceStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-factored-confidence",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Audit-only feitenlaag boven exact dezelfde v0.3 Confidence Field: " +
+                                "all-candidates-predictable, center-outlier-free, pair/scale rejection, " +
+                                "structure/censor/boundary en variance-relatie blijven apart. " +
+                                "De oude support-class blijft alleen legacy; geen nieuwe drempels en promotion=false.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
@@ -4413,5 +4595,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_SPATIAL_SIDECAR = 4114
         private const val REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL = 4115
         private const val REQUEST_SAVE_N2_CONFIDENCE_FIELD = 4116
+        private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
     }
 }
