@@ -12,15 +12,21 @@
 >
 > Current state: `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md` and `state/CURRENT_PROJECT_STATE_2026-09-26.json`
 >
-> Current active code-bearing branch: `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+> Current active architecture branch: `architecture/lens-independent-free-world-observation-v01-2026-09-26`
+>
+> Latest Android-code branch: `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+>
+> The architecture branch is contract/documentation-only and does not alter the validated pixel route or APK.
 >
 > Default GitHub `main` is intentionally **not** the current development line; it still points to `514f2f4bde6aba5a6709e176c03b22c3b9aea912`.
 >
 > Current validated code checkpoint: `402c72d6804f6cc393a5eab93c9d94d0687be111`
 >
-> Recent current additions include the N2 reconstruction-support closure, center-excluded predictor/spatial audit v0.2/v0.2.1, vector Confidence Field v0.3, Factored Confidence State v0.3.1, real-device Appearance Highlight Detail v0.1 evidence, and the Android-green Appearance Highlight Headroom Sweep v0.2. N2 and appearance diagnostics remain downstream and cannot write Scientific Master or TruthNegative.
+> Current architecture now includes the SHA-256-sealed Lens-Independent Free World Observation Contract v0.1: **one Free World, many sealed observations, one evidence law**. Main, ultra-wide, tele and future sources enter through the same Observation Contract and source-specific Capability Envelope; TruthNegative stays per observation lineage; cross-source Zero-Line equality requires an admitted gauge relation; Float64 compute and validated Float32 storage remain authority-neutral.
 >
-> The real-device v0.1 Appearance audit proved that the current PRO 100/100-nit display configuration can collapse distinct bright scene luminances at the display peak even when the tested audit reports `source_censored=0`. v0.2 now compares 100/100, 90/100, 80/100 and 70/100 shoulders without changing the normal PRO preview or choosing a winner.
+> Recent code/evidence additions also include the N2 reconstruction-support closure, center-excluded predictor/spatial audit v0.2/v0.2.1, vector Confidence Field v0.3, Factored Confidence State v0.3.1, and two real Appearance highlight scenes. N2 and appearance diagnostics remain downstream and cannot write Scientific Master or TruthNegative.
+>
+> The real-device v0.1 white-exterior scene and the v0.2 lamp scene both show 100/100-nit exact peak-collapse with `source_censored=0`. In the lamp-scene sweep, 90/100 reduced the audit's exact collapsed-pair count from 941 to 0 while leaving below-knee mapped luminance unchanged. No default appearance winner has been promoted; the invariant 1058 gamut/display clamps remain a separate issue.
 >
 > Current signed ARM64 APK SHA-256: `d46b40c7650ad0b1102438bc1a31b1c4f8ee7c4c14050af633c435c5b0405e8b`
 >
