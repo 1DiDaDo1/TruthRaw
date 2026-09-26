@@ -1,0 +1,52 @@
+{
+  "schema": "D.RAW/LensIndependentFreeWorldObservationContract/0.2",
+  "status": "CURRENT_CANONICAL_SUCCESSOR",
+  "parent_contract": "D.RAW/LensIndependentFreeWorldObservationContract/0.1",
+  "parent_bytes_mutated": false,
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "short_law": "One Free World. Many sealed observations. One evidence law.",
+  "current_scientific_negative_name": "D.RAWnegative",
+  "legacy_scientific_negative_name": "TruthNegative",
+  "compatibility": {
+    "legacy_truthnegative_identifiers_may_remain": true,
+    "mass_rename_required": false,
+    "legacy_truthnegative_is_second_world": false,
+    "legacy_tnc_is_native_drawnegative_container": false
+  },
+  "chain": [
+    "SEALED_SOURCE_EVIDENCE",
+    "SCIENTIFIC_MASTER",
+    "LOCAL_AUTHORITY_FIELD",
+    "LEGACY_TRUTHNEGATIVE_CONTINUOUS_PARENT",
+    "DRAWNEGATIVE_PER_OBSERVATION",
+    "FREE_WORLD_OBSERVATION_GRAPH"
+  ],
+  "drawnegative": {
+    "schema": "D.RAW/D.RAWnegative/0.1",
+    "one_observation_lineage": true,
+    "raster_independent": true,
+    "parent_truthnegative_state_required": true,
+    "target_raster_part_of_identity": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false,
+    "per_sample_truthrange_materialized_by_v0_1": false
+  },
+  "zero_line": {
+    "formula": "T=log2(L/L0)",
+    "scale_gauge_required": true,
+    "source_local_gauge_allows_cross_observation_equality": false,
+    "source_local_gauge_allows_cross_observation_fusion": false,
+    "shared_gauge_relation_must_be_admitted": true
+  },
+  "precision": {
+    "branch_sensitive_compute": "FLOAT64",
+    "canonical_storage": "FLOAT32_WHERE_VALIDATED_OR_FLOAT64",
+    "precision_upgrades_authority": false
+  },
+  "multi_lens": {
+    "one_negative_per_admitted_observation": true,
+    "relations_live_in": "FREE_WORLD_OBSERVATION_GRAPH",
+    "implicit_calibration_transfer": false
+  }
+}
