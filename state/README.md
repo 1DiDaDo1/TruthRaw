@@ -9,7 +9,11 @@ Read first:
 - `../docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
 - `../docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
 
-Current active code-bearing branch:
+Current active architecture branch:
+
+`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+
+Latest Android-code branch:
 
 `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 
@@ -20,10 +24,16 @@ Latest fully Android-validated code checkpoint:
 Default GitHub `main` is historical/lagging and must not be treated as the
 current state shortcut.
 
-The 2026-09-26 machine state includes the current N2 support-closure /
-center-excluded / factored-confidence research line and the new real-device
-Appearance Highlight Detail v0.1 evidence plus the Android-green v0.2 headroom
-sweep.
+The 2026-09-26 machine state now also binds the sealed lens-independent Free
+World Observation Contract v0.1: one Free World, many separately sealed
+observations, TruthNegative per observation lineage, Zero-Line gauge relations
+fail-closed across sources, and Float64-compute / validated-Float32-storage
+precision separation. The Android pixel route remains the previously validated
+Appearance-v0.2 code line.
+
+The state also retains the N2 support-closure / center-excluded /
+factored-confidence research line and both real-device Appearance highlight
+scenes.
 
 Dated state snapshots below remain provenance and must not be rewritten to
 pretend they knew later results.
