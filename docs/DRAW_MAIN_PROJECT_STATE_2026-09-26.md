@@ -167,6 +167,17 @@ code.
 
 # D.RAWnegative v0.1
 
+Validation checkpoint:
+
+- code SHA `3e150afeb36cbb68fd318b0143a315e64d5a637f`;
+- host GCC/Clang/ASan/UBSan run `36260305512`: SUCCESS;
+- Android signed ARM64/NDK/JNI run `36260305613`: SUCCESS;
+- artifact `10911843774`;
+- APK SHA-256
+  `b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317`.
+
+
+
 D.RAWnegative is now the current scientific-negative identity.
 
 It is implemented as an explicit runtime binding above the existing validated
