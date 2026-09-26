@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Measure v0.1 sealed files
+      - name: Verify sealed v0.1 bytes and semantics
         run: |
           set -euo pipefail
-          sha256sum             docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md             docs/research/lens-independent-free-world-observation-contract-v0.1/README.md             docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json             state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json
-          python3 -m json.tool             docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json >/dev/null
-          python3 -m json.tool             state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json >/dev/null
+          python3 tools/verify_lens_independent_free_world_v01.py
