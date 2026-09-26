@@ -8,7 +8,11 @@ Repository:
 
 `1DiDaDo1/TruthRaw`
 
-Current active code-bearing branch:
+Current active architecture branch:
+
+`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+
+Latest Android-code branch:
 
 `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 
@@ -26,14 +30,44 @@ Read first:
 2. `state/CURRENT_PROJECT_STATE_2026-09-26.json`
 3. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
-5. this handoff
-6. `docs/research/truthnegative-n2-full-colour-candidate-v0.1/README.md`
+5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
+8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
+9. this handoff
+10. `docs/research/truthnegative-n2-full-colour-candidate-v0.1/README.md`
 7. `docs/research/truthnegative-center-excluded-neighborhood-v0.2/README.md`
 8. `docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/README.md`
 9. `docs/research/truthnegative-n2-confidence-field-v0.3/README.md`
 10. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
 11. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
 12. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+
+## Sealed lens-independent architecture
+
+Canonical short law:
+
+> **One Free World. Many sealed observations. One evidence law.**
+
+The Free World is lens-independent. Main, ultra-wide, telephoto and future
+sources enter as separately sealed D.RAW Observations with their own Source
+Capability Envelope.
+
+TruthNegative is per observation lineage and remains raster-independent.
+Multiple observations compose in the Free World Observation Graph rather than
+being silently merged.
+
+Zero-Line / TruthRange remains `T=log2(L/L0)`. Sharing the coordinate family
+does not prove a shared radiometric gauge. A cross-observation gauge relation
+must be explicitly admitted before radiometric equality/fusion is claimed.
+
+Branch-sensitive scientific calculation remains Float64; canonical Float32
+storage is allowed only where validated. Precision never creates evidence.
+
+The v0.1 architecture bytes are SHA-256 sealed. Do not edit them in place.
+Create a versioned successor for semantic change.
+
+This architecture branch changes no validated pixel route or APK.
 
 ## Permanent scientific laws
 
@@ -106,6 +140,21 @@ v0.3.1:
 - legacy FULLY_COHERENT class retained only for comparison.
 
 N2 remains diagnostic / appearance-only research.
+
+## Latest Appearance device evidence
+
+A second real lamp scene is now recorded at:
+
+`docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
+
+For that scene:
+
+- baseline 100/100: 941 exact collapsed distinct pairs, source CENSORED = 0;
+- shoulder 90/100: 0 exact collapsed pairs, below-knee mapped changes = 0;
+- gamut/display clamp remains 1058 for every tested shoulder.
+
+This does not promote 90/100. It sharpens the next appearance-only A/B test
+and separates luminance peak-collapse from the remaining gamut/display clamp.
 
 ## New device-proven Appearance finding
 
