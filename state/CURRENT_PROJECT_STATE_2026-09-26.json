@@ -4,7 +4,7 @@
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
   "active_development_branch": "architecture/drawnegative-v01-2026-09-26",
-  "validated_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
+  "validated_code_checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
   "real_device_evidence_checkpoint_sha": "73a6f4911801b00a4af7f58301c7ece62c185dc1",
   "default_main": {
     "sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
@@ -209,11 +209,11 @@
     }
   },
   "apk": {
-    "artifact_id": 10910177012,
-    "artifact_name": "draw-appearance-highlight-headroom-v02-debug-arm64",
-    "artifact_zip_sha256": "d3a7fcebdf726790151ce27ee129473e3ec37ed855a958c1ba276720692f1255",
-    "apk_size_bytes": 6951735,
-    "apk_sha256": "d46b40c7650ad0b1102438bc1a31b1c4f8ee7c4c14050af633c435c5b0405e8b",
+    "artifact_id": 10911843774,
+    "artifact_name": "drawnegative-v01-debug-arm64",
+    "artifact_zip_sha256": "18c7f19784f98b0480ebd085a3d0b7c8465dac9697d38ae2077790720755ef2a",
+    "apk_size_bytes": 6959343,
+    "apk_sha256": "b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317",
     "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
   },
   "immediate_next_device_gate": {
@@ -224,7 +224,7 @@
   },
   "previous_active_development_branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
   "latest_android_code_branch": "architecture/drawnegative-v01-2026-09-26",
-  "latest_android_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
+  "latest_android_code_checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
   "current_architecture_checkpoint_parent_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
   "lens_independent_free_world_v0_1": {
     "status": "SEALED_CANONICAL_ARCHITECTURE_OVERLAY",
@@ -306,7 +306,7 @@
   "current_scientific_negative_name": "D.RAWnegative",
   "legacy_scientific_negative_parent": "TruthNegative Continuous v0.5",
   "drawnegative_v0_1": {
-    "status": "HOST_GREEN_ANDROID_GREEN_BRANCH_HEAD_REBUILD_PENDING",
+    "status": "HOST_GREEN_ANDROID_GREEN",
     "public_name": "D.RAWnegative",
     "schema": "D.RAW/D.RAWnegative/0.1",
     "branch": "architecture/drawnegative-v01-2026-09-26",
@@ -347,12 +347,22 @@
       "apk_sha256": "b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317",
       "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
     },
-    "android_branch_head_rebuild_run_id": 36260305613,
     "ui_public_label": "PRO · D.RAWnegative v0.1",
     "runtime_context_contains_drawnegative_state": true,
     "runtime_observation_id_derivation": "DRAW_OBS_<SOURCE_SHA256>",
     "runtime_scale_gauge_derivation": "DRAW_SOURCE_LOCAL_GAUGE_<SOURCE_SHA256>",
     "historical_truthnegative_symbols_may_remain": true,
-    "legacy_tnc_remains_truthnegative_container": true
+    "legacy_tnc_remains_truthnegative_container": true,
+    "android_validation": {
+      "run_id": 36260305613,
+      "result": "SUCCESS",
+      "checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
+      "artifact_id": 10911843774,
+      "artifact_name": "drawnegative-v01-debug-arm64",
+      "artifact_zip_sha256": "18c7f19784f98b0480ebd085a3d0b7c8465dac9697d38ae2077790720755ef2a",
+      "apk_size_bytes": 6959343,
+      "apk_sha256": "b116339ffc4c65a571b533a7103a9560043852cd239380420c877f0001e92317",
+      "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+    }
   }
 }
