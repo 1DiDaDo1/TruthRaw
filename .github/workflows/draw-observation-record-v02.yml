@@ -1,0 +1,43 @@
+name: D.RAW Observation Record v0.2
+
+on:
+  push:
+    branches:
+      - architecture/drawnegative-v01-2026-09-26
+    paths:
+      - 'docs/research/draw-observation-record-v0.2/**'
+      - 'tools/validate_draw_observation_record_v02.py'
+      - '.github/workflows/draw-observation-record-v02.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate migrated lamp-scene D.RAWnegative record
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_observation_record_v02.py             docs/research/draw-observation-record-v0.2/examples/CAMERA5_LAMP_SCENE_DRAWNEGATIVE_OBSERVATION_v0_2.json
+      - name: Prove state digest and gauge fail closed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/draw-observation-record-v0.2/examples/CAMERA5_LAMP_SCENE_DRAWNEGATIVE_OBSERVATION_v0_2.json')
+          j=json.loads(p.read_text())
+          j['drawnegative']['state_sha256']='0'*64
+          Path('/tmp/bad-digest.json').write_text(json.dumps(j))
+          j=json.loads(p.read_text())
+          j['gauge']['cross_observation_radiometric_fusion_allowed']=True
+          Path('/tmp/bad-gauge.json').write_text(json.dumps(j))
+          PY
+          if python3 tools/validate_draw_observation_record_v02.py /tmp/bad-digest.json; then
+            echo "::error::bad D.RAWnegative digest accepted"
+            exit 1
+          fi
+          if python3 tools/validate_draw_observation_record_v02.py /tmp/bad-gauge.json; then
+            echo "::error::unproven common-gauge fusion accepted"
+            exit 1
+          fi
