@@ -862,6 +862,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-21.json",
             "state/CURRENT_PROJECT_STATE_2026-09-24.json",
             "state/CURRENT_PROJECT_STATE_2026-09-25.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-26.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
