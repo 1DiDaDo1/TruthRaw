@@ -11,13 +11,13 @@ Repository:
 
 `1DiDaDo1/TruthRaw`
 
-Current active architecture branch:
+Current active architecture/code branch:
 
-`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+`architecture/drawnegative-v01-2026-09-26`
 
-Latest Android-code branch:
+Current public scientific-negative identity:
 
-`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+**D.RAWnegative v0.1**
 
 Latest fully Android-validated code checkpoint:
 
@@ -52,7 +52,8 @@ sealed physical observation / Source Evidence
  -> Float64 measurement/calibration/reconstruction
  -> Scientific Master
  -> validated Float32 scientific storage where admitted
- -> TruthNegative Continuous per observation
+ -> legacy TruthNegative Continuous parent
+ -> D.RAWnegative per observation
  -> Free World Observation Graph
  -> Deep Scene / geometry-radiometry separation
  -> Light Transport
@@ -163,6 +164,35 @@ dedicated verifier. Semantic changes require a versioned successor.
 This architecture-only branch does not alter the current Scientific Master,
 TruthNegative implementation, N2, Appearance route, or validated APK pixel
 code.
+
+# D.RAWnegative v0.1
+
+D.RAWnegative is now the current scientific-negative identity.
+
+It is implemented as an explicit runtime binding above the existing validated
+TruthNegative Continuous v0.5 parent, so historical state hashes remain
+reproducible.
+
+D.RAWnegative binds:
+
+- parent scientific-negative SHA-256;
+- D.RAW Observation ID;
+- scale-gauge ID;
+- optional shared Free-World gauge ID;
+- gauge relation;
+- precision/storage policy;
+- TruthRange coordinate-family declaration;
+- evidence/writeback invariants.
+
+The Android runtime currently derives the Observation ID and source-local
+gauge from the sealed Source Evidence SHA-256. This is deterministic and
+source-specific.
+
+The default state has no common gauge and therefore forbids cross-observation
+radiometric equality/fusion.
+
+The PRO UI now says `D.RAWnegative`; legacy TruthNegative names remain where
+changing them would alter historical ABI/wire/container identity.
 
 # First executable lens-independent observation record
 
