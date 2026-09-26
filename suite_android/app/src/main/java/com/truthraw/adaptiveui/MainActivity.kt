@@ -2449,7 +2449,7 @@ class MainActivity : Activity() {
                                     " · source-censored=" +
                                     m.sourceCensored +
                                     " · headroom=" +
-                                    if (m.noHighlightHeadroom) "0 nit" else "aanwezig" +
+                                    (if (m.noHighlightHeadroom) "0 nit" else "aanwezig") +
                                     " · AH=" +
                                     m.auditSha256.take(16) + "…"
                             }
