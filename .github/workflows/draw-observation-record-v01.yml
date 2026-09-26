@@ -1,0 +1,36 @@
+name: D.RAW Observation Record v0.1
+
+on:
+  push:
+    branches:
+      - architecture/lens-independent-free-world-observation-v01-2026-09-26
+    paths:
+      - 'docs/research/draw-observation-record-v0.1/**'
+      - 'tools/validate_draw_observation_record_v01.py'
+      - '.github/workflows/draw-observation-record-v01.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Camera-5 observation example
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_observation_record_v01.py             docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json
+      - name: Prove fail-closed common-gauge gate
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json')
+          j=json.loads(p.read_text())
+          j['gauge']['cross_observation_radiometric_fusion_allowed']=True
+          Path('/tmp/invalid-observation.json').write_text(json.dumps(j))
+          PY
+          if python3 tools/validate_draw_observation_record_v01.py /tmp/invalid-observation.json; then
+            echo "::error::invalid common-gauge fusion record was accepted"
+            exit 1
+          fi
