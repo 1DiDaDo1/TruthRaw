@@ -27,6 +27,7 @@ on:
       - 'docs/research/truthnegative-n2-full-colour-candidate-v0.1/**'
       - 'docs/research/truthnegative-n2-risk-quality-audit-v0.1/**'
       - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
+      - '.github/workflows/android-n2-center-excluded-v02-research.yml'
   workflow_dispatch:
 
 permissions:
