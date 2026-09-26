@@ -53,6 +53,7 @@ set(TRUTHNEGATIVE_NEIGHBORHOOD_V01 "${RESEARCH_ROOT}/truthnegative-authority-awa
 set(TRUTHNEGATIVE_CENTER_EXCLUDED_NEIGHBORHOOD_V02 "${RESEARCH_ROOT}/truthnegative-center-excluded-neighborhood-v0.2/native")
 set(TRUTHNEGATIVE_CENTER_EXCLUDED_SPATIAL_V021 "${RESEARCH_ROOT}/truthnegative-center-excluded-spatial-audit-v0.2.1/native")
 set(TRUTHNEGATIVE_N2_CONFIDENCE_FIELD_V03 "${RESEARCH_ROOT}/truthnegative-n2-confidence-field-v0.3/native")
+set(TRUTHNEGATIVE_N2_FACTORED_CONFIDENCE_V031 "${RESEARCH_ROOT}/truthnegative-n2-factored-confidence-state-v0.3.1/native")
 set(TRUTHNEGATIVE_N2_PIPELINE_V01 "${RESEARCH_ROOT}/truthnegative-n2-candidate-pipeline-v0.1/native")
 set(TRUTHNEGATIVE_N2_CFA_AUDIT_V01 "${RESEARCH_ROOT}/truthnegative-n2-cfa-audit-v0.1/native")
 set(TRUTHNEGATIVE_N2_SPATIAL_V01 "${RESEARCH_ROOT}/truthnegative-n2-spatial-sidecar-v0.1/native")
@@ -75,6 +76,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     truthnegative_n2_spatial_sidecar_bridge.cpp
     truthnegative_center_excluded_spatial_bridge.cpp
     truthnegative_n2_confidence_field_bridge.cpp
+    truthnegative_n2_factored_confidence_bridge.cpp
     truthnegative_n2_crop_ab_bridge.cpp
     photo_export_bridge.cpp
     empirical_source_probe.cpp
@@ -159,6 +161,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_CENTER_EXCLUDED_NEIGHBORHOOD_V02}/truthnegative_center_excluded_neighborhood_v0_2.cpp
     ${TRUTHNEGATIVE_CENTER_EXCLUDED_SPATIAL_V021}/truthnegative_center_excluded_spatial_audit_v0_2_1.cpp
     ${TRUTHNEGATIVE_N2_CONFIDENCE_FIELD_V03}/truthnegative_n2_confidence_field_v0_3.cpp
+    ${TRUTHNEGATIVE_N2_FACTORED_CONFIDENCE_V031}/truthnegative_n2_factored_confidence_state_v0_3_1.cpp
     ${TRUTHNEGATIVE_N2_PIPELINE_V01}/truthnegative_n2_candidate_pipeline_v0_1.cpp
     ${TRUTHNEGATIVE_N2_CFA_AUDIT_V01}/truthnegative_n2_cfa_audit_v0_1.cpp
     ${TRUTHNEGATIVE_N2_SPATIAL_V01}/truthnegative_n2_spatial_sidecar_v0_1.cpp
@@ -215,6 +218,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_CENTER_EXCLUDED_NEIGHBORHOOD_V02}
     ${TRUTHNEGATIVE_CENTER_EXCLUDED_SPATIAL_V021}
     ${TRUTHNEGATIVE_N2_CONFIDENCE_FIELD_V03}
+    ${TRUTHNEGATIVE_N2_FACTORED_CONFIDENCE_V031}
     ${TRUTHNEGATIVE_N2_PIPELINE_V01}
     ${TRUTHNEGATIVE_N2_CFA_AUDIT_V01}
     ${TRUTHNEGATIVE_N2_SPATIAL_V01}
