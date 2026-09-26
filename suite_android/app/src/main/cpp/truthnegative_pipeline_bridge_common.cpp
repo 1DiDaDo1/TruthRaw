@@ -189,7 +189,37 @@ Status prepare(
             !out.truthNegativeState.isRasterIndependent ||
             out.truthNegativeState.createsNewEvidence ||
             out.truthNegativeState.scientificWritebackAllowed) {
-            return fail(-6, "TruthNegative continuous state failed");
+            return fail(-6, "TruthNegative continuous parent state failed");
+        }
+
+        const std::string sourceHex =
+            sha256_v0_69::hex(out.sourceSeal.sha256);
+        drawnegative::v0_1::Input drawNegativeInput{};
+        drawNegativeInput.truthNegativeState =
+            out.truthNegativeState;
+        drawNegativeInput.observationId =
+            std::string("DRAW_OBS_") + sourceHex;
+        drawNegativeInput.scaleGaugeId =
+            std::string("DRAW_SOURCE_LOCAL_GAUGE_") + sourceHex;
+        drawNegativeInput.sharedFreeWorldGaugeId.clear();
+        drawNegativeInput.gaugeRelation =
+            drawnegative::v0_1::GaugeRelation::SourceLocalOnly;
+        drawNegativeInput.canonicalStorage =
+            drawnegative::v0_1::CanonicalStorage::Float32Validated;
+        drawNegativeInput.truthRangeCoordinateFamilyDeclared = true;
+        drawNegativeInput.perSampleTruthRangeMaterialized = false;
+
+        if (!drawnegative::v0_1::finalize(
+                drawNegativeInput, out.drawNegativeState) ||
+            !out.drawNegativeState.isRasterIndependent ||
+            !out.drawNegativeState.isPerObservationLineage ||
+            out.drawNegativeState.commonGaugeAdmitted ||
+            out.drawNegativeState.crossObservationRadiometricFusionAllowed ||
+            out.drawNegativeState.createsNewEvidence ||
+            out.drawNegativeState.scientificWritebackAllowed ||
+            out.drawNegativeState.parentTruthNegativeStateSha256 !=
+                out.truthNegativeState.stateSha256) {
+            return fail(-7, "D.RAWnegative v0.1 state failed");
         }
 
         return {};
