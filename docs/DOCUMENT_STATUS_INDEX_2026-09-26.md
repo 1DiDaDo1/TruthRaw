@@ -41,6 +41,15 @@ Default `main` must not be used as a shortcut for current project state.
 
 Current successor layer:
 
+- `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+- `tools/verify_drawnegative_v01_seal.py`
+- seal enforcement run `36260886983`: SUCCESS;
+- `docs/research/draw-observation-record-v0.2/README.md`
+- `docs/research/draw-observation-record-v0.2/DRAW_OBSERVATION_RECORD_SCHEMA_v0_2.json`
+- Observation Record v0.2 run `36260712364`: SUCCESS.
+
+
+
 - `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
 - `docs/research/drawnegative-v0.1/README.md`
 - `docs/research/drawnegative-v0.1/native/drawnegative_v0_1.h`
