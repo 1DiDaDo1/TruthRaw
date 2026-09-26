@@ -13,6 +13,7 @@
 #include "technical_backplane_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 #include "truthnegative_continuous_v0_5.h"
+#include "drawnegative_v0_1.h"
 #include "truthnegative_deep_scene_bridge_v0_8.h"
 #include "truthnegative_dense_local_field_adapter_v0_4.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
@@ -49,6 +50,7 @@ namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace master_projection =
     truthraw::scientific_master_linear_dng_projection::v0_1;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
+namespace drawnegative = truthraw::drawnegative::v0_1;
 namespace tn_deep = truthraw::truthnegative_deep_scene_bridge::v0_8;
 namespace tn_field =
     truthraw::truthnegative_dense_local_field_adapter::v0_4;
@@ -57,7 +59,7 @@ namespace n2_cfa =
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x35434e54; // TNC5 in little-endian byte view.
-constexpr std::size_t kHeaderInts = 112u;
+constexpr std::size_t kHeaderInts = 120u;
 constexpr jint kMaxEdgeHardLimit = 256;
 
 jint clamp_metric(std::uint64_t value) noexcept {
@@ -388,6 +390,36 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
         tnState.createsNewEvidence ||
         tnState.scientificWritebackAllowed) {
         return status_packet(env, -6);
+    }
+
+    const std::string sourceHex = sha::hex(sourceSeal.sha256);
+    drawnegative::Input drawNegativeInput{};
+    drawNegativeInput.truthNegativeState = tnState;
+    drawNegativeInput.observationId =
+        std::string("DRAW_OBS_") + sourceHex;
+    drawNegativeInput.scaleGaugeId =
+        std::string("DRAW_SOURCE_LOCAL_GAUGE_") + sourceHex;
+    drawNegativeInput.gaugeRelation =
+        drawnegative::GaugeRelation::SourceLocalOnly;
+    drawNegativeInput.canonicalStorage =
+        drawnegative::CanonicalStorage::Float32Validated;
+    drawNegativeInput.truthRangeCoordinateFamilyDeclared = true;
+    drawNegativeInput.perSampleTruthRangeMaterialized = false;
+
+    drawnegative::State drawNegativeState{};
+    if (!drawnegative::finalize(
+            drawNegativeInput, drawNegativeState) ||
+        !drawNegativeState.finalized ||
+        !drawNegativeState.isRasterIndependent ||
+        !drawNegativeState.isPerObservationLineage ||
+        drawNegativeState.commonGaugeAdmitted ||
+        drawNegativeState.crossObservationRadiometricEqualityAllowed ||
+        drawNegativeState.crossObservationRadiometricFusionAllowed ||
+        drawNegativeState.createsNewEvidence ||
+        drawNegativeState.scientificWritebackAllowed ||
+        drawNegativeState.parentTruthNegativeStateSha256 !=
+            tnState.stateSha256) {
+        return status_packet(env, -19);
     }
 
     std::uint32_t targetWidth = 0u;
@@ -792,6 +824,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     packet[103] = 0; // reserved
     digest_to_words(
         n2Audit.appearanceGridSha256, packet.data() + 104u);
+    digest_to_words(
+        drawNegativeState.stateSha256, packet.data() + 112u);
 
     jintArray out =
         env->NewIntArray(static_cast<jsize>(packet.size()));
