@@ -68,6 +68,8 @@ class MainActivity : Activity() {
     private var n2ConfidenceFieldStatus: String? = null
     private var pendingN2FactoredConfidenceJobId: String? = null
     private var n2FactoredConfidenceStatus: String? = null
+    private var pendingAppearanceHighlightDetailJobId: String? = null
+    private var appearanceHighlightDetailStatus: String? = null
     private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
     private var n2CropAbJobId: String? = null
     private var n2CropAbStatus: String? = null
@@ -240,6 +242,8 @@ class MainActivity : Activity() {
         n2ConfidenceFieldStatus = null
         pendingN2FactoredConfidenceJobId = null
         n2FactoredConfidenceStatus = null
+        pendingAppearanceHighlightDetailJobId = null
+        appearanceHighlightDetailStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -1100,6 +1104,42 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_FACTORED_CONFIDENCE,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchAppearanceHighlightDetailExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            appearanceHighlightDetailStatus =
+                "Appearance Highlight Detail v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingAppearanceHighlightDetailJobId = job.id
+        appearanceHighlightDetailStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_appearance_highlight_detail_audit_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL,
         )
     }
 
@@ -2301,6 +2341,117 @@ class MainActivity : Activity() {
                                     " · FS=" +
                                     m.factoredStateSha256.take(16) +
                                     "… · promotion=false."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL) {
+            val expectedJob = pendingAppearanceHighlightDetailJobId
+            pendingAppearanceHighlightDetailJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                appearanceHighlightDetailStatus =
+                    "Appearance Highlight Detail v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                appearanceHighlightDetailStatus =
+                    "Appearance Highlight Detail v0.1 geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-appearance-highlight-detail",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                appearanceHighlightDetailStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "Appearance Highlight Detail v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Appearance Highlight Detail v0.1",
+                )
+            ) {
+                appearanceHighlightDetailStatus =
+                    "Appearance Highlight Detail v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            appearanceHighlightDetailStatus =
+                "Appearance Highlight Detail v0.1 · meet scene→display peak-collapse " +
+                    "op exact dezelfde PRO Appearance v0.7-route; geen writeback…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-appearance-highlight-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    appearanceHighlightDetailStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeAppearanceHighlightDetailExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is
+                        TruthNegativeAppearanceHighlightDetailResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeAppearanceHighlightDetailResult.Success ->
+                            "Appearance Highlight Detail v0.1 opgeslagen + SHA geverifieerd."
+                        is TruthNegativeAppearanceHighlightDetailResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    appearanceHighlightDetailStatus =
+                        when (exportResult) {
+                            is TruthNegativeAppearanceHighlightDetailResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeAppearanceHighlightDetailResult.Success -> {
+                                val m = exportResult.metrics
+                                "Appearance Highlight Detail v0.1 opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · >refWhite=" +
+                                    m.sourceAboveReferenceWhite + "/" +
+                                    m.sampleCount +
+                                    " · atPeak=" + m.mappedAtPeak +
+                                    " · collapsed-pairs=" +
+                                    m.peakCollapsedDistinctAdjacentPairs +
+                                    "/" + m.sourceDistinctAdjacentPairs +
+                                    " · bright-collapsed=" +
+                                    m.brightPeakCollapsedDistinctAdjacentPairs +
+                                    " · source-censored=" +
+                                    m.sourceCensored +
+                                    " · headroom=" +
+                                    if (m.noHighlightHeadroom) "0 nit" else "aanwezig" +
+                                    " · AH=" +
+                                    m.auditSha256.take(16) + "…"
                             }
                         }
                     render()
@@ -4274,6 +4425,35 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
+                        addView(actionButton(
+                            "Export Appearance Highlight Detail v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchAppearanceHighlightDetailExport(active)
+                        })
+                        appearanceHighlightDetailStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-appearance-highlight-detail",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Display-diagnose boven dezelfde PRO Appearance v0.7: vergelijkt scene-luminantie " +
+                                "met mapped luminance vóór sRGB-encoding en telt naburige bronverschillen die " +
+                                "op exact dezelfde display-peak eindigen. Geen Honor-reference als evidence, " +
+                                "geen MTF-claim en geen wijziging van Scientific Master/TruthNegative.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
@@ -4596,5 +4776,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL = 4115
         private const val REQUEST_SAVE_N2_CONFIDENCE_FIELD = 4116
         private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
+        private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
     }
 }
