@@ -8,17 +8,23 @@ Repository:
 
 `1DiDaDo1/TruthRaw`
 
-Current active architecture branch:
+Current active architecture/code branch:
 
-`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+`architecture/drawnegative-v01-2026-09-26`
 
-Latest Android-code branch:
+Current public scientific-negative identity:
 
-`research/appearance-highlight-headroom-sweep-v02-2026-09-26`
+**D.RAWnegative v0.1**
 
-Latest fully Android-validated code checkpoint:
+Host-green checkpoint:
 
-`402c72d6804f6cc393a5eab93c9d94d0687be111`
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
+
+Immediately preceding full Android-green D.RAWnegative checkpoint:
+
+`ca3253b42397fe01f7644b32c9d989998a29f9fb`
+
+Current branch-head Android rebuild: run `36260305613`.
 
 Default GitHub `main` is **not current**. It still points to:
 
@@ -30,8 +36,10 @@ Read first:
 2. `state/CURRENT_PROJECT_STATE_2026-09-26.json`
 3. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
-5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
-6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
+6. `docs/research/drawnegative-v0.1/README.md`
+7. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+8. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
 7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
 8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
 9. `docs/research/draw-observation-record-v0.1/README.md`
@@ -45,6 +53,31 @@ Read first:
 17. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/README.md`
 18. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
 19. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
+
+## D.RAWnegative current identity
+
+TruthNegative Continuous v0.5 is now the legacy validated computational parent.
+
+D.RAWnegative v0.1 is the current scientific-negative identity and binds the
+parent state to one D.RAW Observation ID and one explicit Zero-Line/gauge
+identity.
+
+Runtime defaults are deliberately fail-closed:
+
+- one physical frame;
+- one independent evidence item;
+- raster-independent;
+- source-local gauge;
+- no shared Free-World gauge;
+- no cross-observation radiometric equality/fusion;
+- Float64 branch-sensitive compute;
+- validated Float32 canonical storage;
+- per-sample TruthRange not yet materialized;
+- no new evidence;
+- no scientific writeback.
+
+Historical TruthNegative schemas/JNI/classes/container identities remain
+unchanged where compatibility requires them.
 
 ## Sealed lens-independent architecture
 
