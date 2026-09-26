@@ -300,9 +300,7 @@ bool derive(
                a.audit.corrected!=c.metrics.v01CandidateCenters||
                c.metrics.predictorValid+
                    c.metrics.predictorInvalid!=
-                   c.metrics.v01CandidateCenters||
-               c.metrics.v01CandidateCfaPhase!=
-                   c.metrics.v01CandidateCfaPhase){
+                   c.metrics.v01CandidateCenters){
                 return false;
             }
 
