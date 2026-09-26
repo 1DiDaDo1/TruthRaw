@@ -3,6 +3,7 @@
 #include "free_world_appearance_resolve_v0_7.h"
 #include "free_world_scientific_open_scene_binding_v0_3.h"
 #include "full_frame_streaming_v0_1_internal.h"
+#include "truthnegative_center_excluded_neighborhood_v0_2.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_full_colour_candidate_v0_1.h"
 #include "truthnegative_n2_risk_quality_audit_v0_1.h"
@@ -28,6 +29,7 @@ namespace deep = truthraw::free_world_deep_scene_contribution::v0_4;
 namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
 namespace n2 = truthraw::truthnegative_n2_cfa_audit::v0_1;
+namespace n2ce = truthraw::truthnegative_center_excluded_neighborhood::v0_2;
 namespace n2fc = truthraw::truthnegative_n2_full_colour_candidate::v0_1;
 namespace n2qa = truthraw::truthnegative_n2_risk_quality_audit::v0_1;
 namespace stream_detail = truthraw::streaming_v0_1::detail;
@@ -35,7 +37,7 @@ namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x31424132; // "2AB1" little-endian view.
 constexpr std::size_t kCropCount = 3u;
-constexpr std::size_t kCropMetaInts = 88u;
+constexpr std::size_t kCropMetaInts = 107u;
 constexpr std::size_t kHeaderInts = 48u + kCropCount * kCropMetaInts;
 constexpr std::uint32_t kCropEdge = 192u;
 constexpr double kDeltaGain = 32.0;
@@ -221,6 +223,275 @@ struct CropMetrics final {
     double absDeltaSum=0.0;
     double maxAbsDelta=0.0;
 };
+
+struct CenterExcludedAuditMetrics final {
+    std::uint64_t v01CandidateCenters=0u;
+    std::uint64_t predictorValid=0u;
+    std::uint64_t predictorInvalid=0u;
+    std::uint64_t symmetricPairsConsidered=0u;
+    std::uint64_t symmetricPairsAccepted=0u;
+    std::uint64_t symmetricPairsRejected=0u;
+    std::uint64_t scalesConsidered=0u;
+    std::uint64_t scalesAccepted=0u;
+    std::uint64_t scalesRejected=0u;
+    std::uint64_t residualWithin1Sigma=0u;
+    std::uint64_t residualBetween1And2Sigma=0u;
+    std::uint64_t residualAbove2Sigma=0u;
+    double absResidualSum=0.0;
+    double maxAbsResidual=0.0;
+    double maxDirectionalDisagreementSigma=0.0;
+    double maxCrossScaleDisagreementSigma=0.0;
+};
+
+int n2_v02_measured_channel(
+    truthraw::CfaPattern cfa,
+    int x,
+    int y) noexcept {
+    const int phase=(y&1)*2+(x&1);
+    static constexpr int bggr[4]={2,1,1,0};
+    static constexpr int rggb[4]={0,1,1,2};
+    static constexpr int grbg[4]={1,0,2,1};
+    static constexpr int gbrg[4]={1,2,0,1};
+    const int* map=bggr;
+    switch(cfa){
+        case truthraw::CfaPattern::RGGB:map=rggb;break;
+        case truthraw::CfaPattern::GRBG:map=grbg;break;
+        case truthraw::CfaPattern::GBRG:map=gbrg;break;
+        case truthraw::CfaPattern::BGGR:map=bggr;break;
+    }
+    return map[phase];
+}
+
+bool n2_v02_variance_for(
+    const truthraw::DngMetadata& md,
+    const stream_detail::Workspace& workspace,
+    std::size_t i,
+    int channel,
+    double mu,
+    double& variance) noexcept {
+    variance=0.0;
+    if(!md.hasNoiseProfile||channel<0||channel>2||
+       i>=workspace.stage2.size()||!std::isfinite(mu)){
+        return false;
+    }
+    const double gain=md.hasGainField
+        ? (i<workspace.gain.size()
+            ? static_cast<double>(workspace.gain[i])
+            : std::numeric_limits<double>::quiet_NaN())
+        : 1.0;
+    if(!std::isfinite(gain)||!(gain>0.0))return false;
+    const double shot=static_cast<double>(md.noiseProfile[2*channel]);
+    const double read=static_cast<double>(md.noiseProfile[2*channel+1]);
+    if(!std::isfinite(shot)||!std::isfinite(read)||shot<0.0||read<0.0){
+        return false;
+    }
+    variance=gain*shot*std::max(mu,0.0)+gain*gain*read;
+    return std::isfinite(variance)&&variance>0.0;
+}
+
+bool run_center_excluded_audit(
+    const truthraw::DngMetadata& md,
+    const truthraw::TileRect& tile,
+    const stream_detail::Workspace& workspace,
+    const CropRect& crop,
+    const n2::Result& v01Audit,
+    CenterExcludedAuditMetrics& out) noexcept {
+    out={};
+    try{
+        if(!v01Audit.appearanceGridDerived||
+           v01Audit.appearanceGridWidth!=crop.width||
+           v01Audit.appearanceGridHeight!=crop.height||
+           v01Audit.appearanceGrid.size()!=
+               static_cast<std::size_t>(crop.width)*crop.height){
+            return false;
+        }
+        if(!md.hasNoiseProfile){
+            return v01Audit.audit.corrected==0u;
+        }
+        const int tileWidth=tile.hx1-tile.hx0;
+        const int tileHeight=tile.hy1-tile.hy0;
+        if(tileWidth<=0||tileHeight<=0)return false;
+        const std::size_t tilePixels=
+            static_cast<std::size_t>(tileWidth)*tileHeight;
+        if(workspace.stage2.size()!=tilePixels||
+           workspace.raw.size()!=tilePixels||
+           (md.hasGainField&&workspace.gain.size()!=tilePixels)){
+            return false;
+        }
+
+        const auto indexOf=[&](int gx,int gy,std::size_t& index) noexcept {
+            if(gx<tile.hx0||gy<tile.hy0||gx>=tile.hx1||gy>=tile.hy1){
+                return false;
+            }
+            index=
+                static_cast<std::size_t>(gy-tile.hy0)*
+                    static_cast<std::size_t>(tileWidth)+
+                static_cast<std::size_t>(gx-tile.hx0);
+            return index<tilePixels;
+        };
+
+        const auto pathTouchesCensor=
+            [&](int gx,int gy,int dx,int dy) noexcept {
+                const int radius=std::max(std::abs(dx),std::abs(dy));
+                if(radius<=0||(radius%2)!=0)return true;
+                const int steps=radius/2;
+                const int stepX=dx/steps;
+                const int stepY=dy/steps;
+                for(int step=1;step<=steps;++step){
+                    std::size_t i=0u;
+                    if(!indexOf(
+                            gx+step*stepX,
+                            gy+step*stepY,
+                            i)){
+                        return true;
+                    }
+                    if(static_cast<float>(workspace.raw[i])>=md.whiteLevel){
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+        constexpr std::array<int,3u> radii{2,4,8};
+        constexpr std::array<std::array<int,2u>,4u> directions{{
+            {{1,0}},{{0,1}},{{1,1}},{{1,-1}}
+        }};
+
+        for(std::uint32_t ly=0u;ly<crop.height;++ly){
+            for(std::uint32_t lx=0u;lx<crop.width;++lx){
+                const std::uint32_t gxRaw=crop.x+lx;
+                const std::uint32_t gyRaw=crop.y+ly;
+                const int gx=static_cast<int>(gxRaw);
+                const int gy=static_cast<int>(gyRaw);
+                const std::size_t local=
+                    static_cast<std::size_t>(ly)*crop.width+lx;
+                const int channel=n2_v02_measured_channel(md.cfa,gx,gy);
+                if(channel<0||channel>2)return false;
+                const auto cc=static_cast<std::size_t>(channel);
+                const auto& bin=v01Audit.appearanceGrid[local];
+                if(bin.sampled[cc]!=1u)return false;
+                if(bin.corrected[cc]==0u)continue;
+                if(bin.corrected[cc]!=1u)return false;
+                ++out.v01CandidateCenters;
+
+                std::size_t centerIndex=0u;
+                if(!indexOf(gx,gy,centerIndex))return false;
+                if(static_cast<float>(workspace.raw[centerIndex])>=md.whiteLevel){
+                    return false;
+                }
+                const double center=workspace.stage2[centerIndex];
+                double centerVariance=0.0;
+                if(!std::isfinite(center)||
+                   !n2_v02_variance_for(
+                       md,workspace,centerIndex,channel,center,centerVariance)){
+                    return false;
+                }
+
+                n2ce::Input input{};
+                input.neighbors.reserve(radii.size()*directions.size()*2u);
+                for(const int radius:radii){
+                    for(const auto& direction:directions){
+                        for(const int side:{-1,1}){
+                            const int dx=side*radius*direction[0];
+                            const int dy=side*radius*direction[1];
+                            const int nx=gx+dx;
+                            const int ny=gy+dy;
+                            std::size_t ni=0u;
+                            if(!indexOf(nx,ny,ni))continue;
+                            if(n2_v02_measured_channel(md.cfa,nx,ny)!=channel){
+                                return false;
+                            }
+                            const double value=workspace.stage2[ni];
+                            const bool censored=
+                                static_cast<float>(workspace.raw[ni])>=
+                                md.whiteLevel;
+                            double variance=0.0;
+                            const bool varianceKnown=
+                                !censored&&
+                                n2_v02_variance_for(
+                                    md,workspace,ni,channel,value,variance);
+                            n2ce::Sample sample{};
+                            sample.value=value;
+                            sample.variance=variance;
+                            sample.dx=dx;
+                            sample.dy=dy;
+                            sample.authority=censored
+                                ? n2ce::SampleAuthority::Censored
+                                : n2ce::SampleAuthority::Measured;
+                            sample.varianceKnown=varianceKnown;
+                            sample.sameChannel=true;
+                            sample.sameObject=true;
+                            sample.objectIdentityKnown=false;
+                            sample.censorBoundary=
+                                pathTouchesCensor(gx,gy,dx,dy);
+                            input.neighbors.push_back(sample);
+                        }
+                    }
+                }
+
+                n2ce::Result result{};
+                if(!n2ce::estimate(input,result)||
+                   !result.centerExcluded||
+                   result.createsNewEvidence||
+                   result.scientificWritebackAllowed){
+                    return false;
+                }
+                out.symmetricPairsConsidered+=
+                    result.symmetricPairsConsidered;
+                out.symmetricPairsAccepted+=
+                    result.symmetricPairsAccepted;
+                out.symmetricPairsRejected+=
+                    result.symmetricPairsRejected;
+                out.scalesConsidered+=result.scalesConsidered;
+                out.scalesAccepted+=result.scalesAccepted;
+                out.scalesRejected+=result.scalesRejected;
+                out.maxDirectionalDisagreementSigma=std::max(
+                    out.maxDirectionalDisagreementSigma,
+                    result.maxDirectionalDisagreementSigma);
+                out.maxCrossScaleDisagreementSigma=std::max(
+                    out.maxCrossScaleDisagreementSigma,
+                    result.maxCrossScaleDisagreementSigma);
+
+                if(!result.valid){
+                    ++out.predictorInvalid;
+                    continue;
+                }
+                ++out.predictorValid;
+                const double absResidual=std::abs(center-result.estimate);
+                if(!std::isfinite(absResidual))return false;
+                out.absResidualSum+=absResidual;
+                out.maxAbsResidual=std::max(
+                    out.maxAbsResidual,absResidual);
+                const double sigma=std::sqrt(centerVariance);
+                if(!std::isfinite(sigma)||!(sigma>0.0))return false;
+                const double z=absResidual/sigma;
+                if(!std::isfinite(z))return false;
+                if(z<=1.0){
+                    ++out.residualWithin1Sigma;
+                }else if(z<=2.0){
+                    ++out.residualBetween1And2Sigma;
+                }else{
+                    ++out.residualAbove2Sigma;
+                }
+            }
+        }
+
+        return out.v01CandidateCenters==v01Audit.audit.corrected&&
+               out.predictorValid+out.predictorInvalid==
+                   out.v01CandidateCenters&&
+               out.residualWithin1Sigma+
+                   out.residualBetween1And2Sigma+
+                   out.residualAbove2Sigma==
+                   out.predictorValid&&
+               std::isfinite(out.absResidualSum)&&
+               std::isfinite(out.maxAbsResidual)&&
+               std::isfinite(out.maxDirectionalDisagreementSigma)&&
+               std::isfinite(out.maxCrossScaleDisagreementSigma);
+    }catch(...){
+        out={};
+        return false;
+    }
+}
 
 free_world::ResolvedAuthority map_exact_authority(
     free_world::SourceAuthority authority) noexcept {
@@ -474,6 +745,44 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
            audit.createsNewEvidence||
            audit.scientificWritebackAllowed){
             return status_packet(env,-7);
+        }
+
+        // Parallel v0.2 research audit. This never changes the current v0.1
+        // candidate: it only asks whether a center-excluded H/V/diagonal,
+        // multiscale predictor can explain the same v0.1 candidate centers.
+        constexpr int centerExcludedHalo=8;
+        truthraw::TileRect centerExcludedTile{};
+        centerExcludedTile.x0=static_cast<int>(crop.x);
+        centerExcludedTile.y0=static_cast<int>(crop.y);
+        centerExcludedTile.x1=static_cast<int>(crop.x+crop.width);
+        centerExcludedTile.y1=static_cast<int>(crop.y+crop.height);
+        centerExcludedTile.hx0=std::max(
+            0,centerExcludedTile.x0-centerExcludedHalo);
+        centerExcludedTile.hy0=std::max(
+            0,centerExcludedTile.y0-centerExcludedHalo);
+        centerExcludedTile.hx1=std::min(
+            static_cast<int>(ctx.width),
+            centerExcludedTile.x1+centerExcludedHalo);
+        centerExcludedTile.hy1=std::min(
+            static_cast<int>(ctx.height),
+            centerExcludedTile.y1+centerExcludedHalo);
+
+        stream_detail::Workspace centerExcludedWorkspace{};
+        const auto centerExcludedStatus=stream_detail::fill_stage2(
+            *ctx.openedSource.source,
+            centerExcludedTile,
+            centerExcludedWorkspace);
+        if(!centerExcludedStatus)return status_packet(env,-20);
+
+        CenterExcludedAuditMetrics centerExcludedAudit{};
+        if(!run_center_excluded_audit(
+                ctx.openedSource.source->metadata(),
+                centerExcludedTile,
+                centerExcludedWorkspace,
+                crop,
+                audit,
+                centerExcludedAudit)){
+            return status_packet(env,-20);
         }
 
         // Build a private Stage-2 tile with the exact halo required by the
@@ -784,6 +1093,49 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2CropAbNativeBridge_buildDiagnosticCr
         packet[m+86u]=clamp_metric(
             fullColour.protectedCoreChangedRgbChannels);
         packet[m+87u]=static_cast<jint>(reconstructionHalo);
+        packet[m+88u]=clamp_metric(
+            centerExcludedAudit.v01CandidateCenters);
+        packet[m+89u]=clamp_metric(
+            centerExcludedAudit.predictorValid);
+        packet[m+90u]=clamp_metric(
+            centerExcludedAudit.predictorInvalid);
+        packet[m+91u]=clamp_metric(
+            centerExcludedAudit.symmetricPairsConsidered);
+        packet[m+92u]=clamp_metric(
+            centerExcludedAudit.symmetricPairsAccepted);
+        packet[m+93u]=clamp_metric(
+            centerExcludedAudit.symmetricPairsRejected);
+        packet[m+94u]=clamp_metric(
+            centerExcludedAudit.scalesConsidered);
+        packet[m+95u]=clamp_metric(
+            centerExcludedAudit.scalesAccepted);
+        packet[m+96u]=clamp_metric(
+            centerExcludedAudit.scalesRejected);
+        packet[m+97u]=clamp_metric(
+            centerExcludedAudit.residualWithin1Sigma);
+        packet[m+98u]=clamp_metric(
+            centerExcludedAudit.residualBetween1And2Sigma);
+        packet[m+99u]=clamp_metric(
+            centerExcludedAudit.residualAbove2Sigma);
+        const double centerExcludedMeanResidual=
+            centerExcludedAudit.predictorValid>0u
+                ? centerExcludedAudit.absResidualSum/
+                    static_cast<double>(
+                        centerExcludedAudit.predictorValid)
+                : 0.0;
+        packet[m+100u]=scaled_metric(
+            centerExcludedMeanResidual,1000000000.0);
+        packet[m+101u]=scaled_metric(
+            centerExcludedAudit.maxAbsResidual,1000000000.0);
+        packet[m+102u]=1; // predictor centerExcluded
+        packet[m+103u]=0; // createsNewEvidence
+        packet[m+104u]=0; // scientificWritebackAllowed
+        packet[m+105u]=scaled_metric(
+            centerExcludedAudit.maxDirectionalDisagreementSigma,
+            1000000.0);
+        packet[m+106u]=scaled_metric(
+            centerExcludedAudit.maxCrossScaleDisagreementSigma,
+            1000000.0);
     }
 
     const auto report=scene.report();
