@@ -50,6 +50,17 @@ Canonical sealed lens-independent layer:
 
 These v0.1 contract bytes are sealed. Change by versioned successor only.
 
+First executable derivative:
+
+- `docs/research/draw-observation-record-v0.1/README.md`
+- `docs/research/draw-observation-record-v0.1/DRAW_OBSERVATION_RECORD_SCHEMA_v0_1.json`
+- `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+- `tools/validate_draw_observation_record_v01.py`
+
+Host validation run `36258955138`: SUCCESS. The negative test proves that a
+source-local/unproven gauge cannot silently enable cross-observation
+radiometric fusion.
+
 Still current and compatible foundations:
 
 - `docs/CORE_VISION_ZERO_LINE_TRUTHRANGE_ARCHITECTURE.md`
