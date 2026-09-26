@@ -31,7 +31,9 @@ Default GitHub `main` is **not current** and remains at:
 6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
 7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
 8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
-9. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+9. `docs/research/draw-observation-record-v0.1/README.md`
+10. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+11. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
 10. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
 11. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
@@ -73,6 +75,30 @@ World Observation Graph, not by silently merging TruthNegative identities.
 
 The v0.1 canonical files are SHA-256 byte-sealed. Any semantic change requires
 a versioned successor.
+
+## First executable observation record
+
+`DRAWObservationRecord v0.1` is now the first machine-level implementation of
+the sealed architecture.
+
+It binds one real Camera-5 lamp-scene source to:
+
+- sealed Source Evidence;
+- acquisition/lens provenance;
+- source topology;
+- Source Capability Envelope;
+- source-local Zero-Line gauge;
+- Scientific Master identity;
+- TruthNegative identity;
+- one-frame/one-evidence counts;
+- separate geometry/radiometry authority.
+
+CI run `36258955138` is green and also proves fail-closed rejection when
+cross-observation radiometric fusion is enabled without an admitted common
+gauge.
+
+Main and ultra-wide should receive separate records next. No calibration is
+borrowed from telephoto.
 
 Current route semantics remain:
 
