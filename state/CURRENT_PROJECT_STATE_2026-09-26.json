@@ -3,7 +3,7 @@
   "date": "2026-09-26",
   "product_name": "D.RAW",
   "repository": "1DiDaDo1/TruthRaw",
-  "active_development_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
+  "active_development_branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
   "validated_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
   "real_device_evidence_checkpoint_sha": "b9e613832d8736d436fd2b25776ea27fafe58be3",
   "default_main": {
@@ -29,16 +29,18 @@
     "external_honor_render_is_scientific_evidence": false
   },
   "current_architecture": [
-    "sealed Source Evidence / Direct CFA",
-    "calibrated measurement / Stage-2",
-    "measured-preserving Float64 full-colour reconstruction",
+    "sealed physical observation / Source Evidence",
+    "D.RAW Observation Contract",
+    "Source Capability Envelope",
+    "Float64 measurement/calibration/reconstruction",
     "Scientific Master",
-    "Open Scene Field / Dynamic Authority",
-    "TruthNegative Continuous",
+    "validated Float32 scientific storage where admitted",
+    "TruthNegative Continuous per observation",
+    "Free World Observation Graph",
     "Deep Scene / separate geometry and radiometry authority",
     "Light Transport",
-    "Appearance / Viewing / Display Resolve",
-    "finite output"
+    "View Contract / Appearance",
+    "finite projection"
   ],
   "n2": {
     "status": "AUDIT_AND_APPEARANCE_RESEARCH_ONLY",
@@ -77,8 +79,8 @@
     "preview_width": 192,
     "preview_height": 145,
     "tile_edge": 16,
-    "display_reference_white_nits": 100.0,
-    "display_peak_nits": 100.0,
+    "display_reference_white_nits": 100,
+    "display_peak_nits": 100,
     "no_highlight_headroom": true,
     "mapped_peak_collapse_observed": true,
     "global": {
@@ -116,14 +118,30 @@
     "scientific_writeback_allowed": false
   },
   "appearance_highlight_headroom_sweep_v0_2": {
-    "status": "IMPLEMENTED_ANDROID_GREEN_DEVICE_TEST_PENDING",
+    "status": "ANDROID_GREEN_REAL_DEVICE_SWEEP_OBSERVED",
     "normal_pro_preview_changed": false,
-    "physical_display_peak_nits": 100.0,
+    "physical_display_peak_nits": 100,
     "variants": [
-      {"id": "baseline_100_100", "reference_white_nits": 100.0, "peak_nits": 100.0},
-      {"id": "shoulder_90_100", "reference_white_nits": 90.0, "peak_nits": 100.0},
-      {"id": "shoulder_80_100", "reference_white_nits": 80.0, "peak_nits": 100.0},
-      {"id": "shoulder_70_100", "reference_white_nits": 70.0, "peak_nits": 100.0}
+      {
+        "id": "baseline_100_100",
+        "reference_white_nits": 100,
+        "peak_nits": 100
+      },
+      {
+        "id": "shoulder_90_100",
+        "reference_white_nits": 90,
+        "peak_nits": 100
+      },
+      {
+        "id": "shoulder_80_100",
+        "reference_white_nits": 80,
+        "peak_nits": 100
+      },
+      {
+        "id": "shoulder_70_100",
+        "reference_white_nits": 70,
+        "peak_nits": 100
+      }
     ],
     "uses_existing_free_world_appearance_resolve_v0_7": true,
     "automatic_winner_selected": false,
@@ -144,7 +162,50 @@
       "result": "SUCCESS",
       "validated_code_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111"
     },
-    "device_sweep_pending": true
+    "device_sweep_pending": false,
+    "device_result_lamp_scene": {
+      "evidence_summary": "docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md",
+      "uploaded_json_sha256": "54f24894c6fdf5c17c9dbeb675604ecad9a80c1d9315117de85f01b64c61f0dd",
+      "uploaded_json_bytes": 4391,
+      "source_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "scientific_master_sha256": "01f22f57e7ae43f7d944adb7660fa96ab7242f3a387e3bd6fd34cbd63f528fd8",
+      "authority_field_sha256": "5ad5f49782a7ae71f4685178b92b9a2fb06be95dc9f0bfc1bd80292324251f38",
+      "truthnegative_state_sha256": "73c908b06d42b57d07461c8d3d6aa84f7496e041ac87c8ce7170479ca3c002c5",
+      "sweep_sha256": "1da86458ec1df716fb9102e660fb11d02d419d269709a249edee265f30167b24",
+      "baseline_100_100": {
+        "mapped_at_peak": 500,
+        "source_censored": 0,
+        "gamut_or_display_clamp": 1058,
+        "peak_collapsed_distinct_adjacent_pairs": 941,
+        "collapse_fraction": 0.017003053683,
+        "mapped_gradient_retention": 0.80669382807
+      },
+      "shoulder_90_100": {
+        "mapped_at_peak": 0,
+        "source_censored": 0,
+        "gamut_or_display_clamp": 1058,
+        "peak_collapsed_distinct_adjacent_pairs": 0,
+        "collapse_reduction_vs_baseline": 1,
+        "mapped_gradient_retention": 0.80521498781,
+        "below_knee_mapped_luminance_changed": 0
+      },
+      "shoulder_80_100": {
+        "mapped_at_peak": 0,
+        "peak_collapsed_distinct_adjacent_pairs": 0,
+        "collapse_reduction_vs_baseline": 1,
+        "mapped_gradient_retention": 0.798226819538,
+        "below_knee_mapped_luminance_changed": 0
+      },
+      "shoulder_70_100": {
+        "mapped_at_peak": 0,
+        "peak_collapsed_distinct_adjacent_pairs": 0,
+        "collapse_reduction_vs_baseline": 1,
+        "mapped_gradient_retention": 0.785890051535,
+        "below_knee_mapped_luminance_changed": 0
+      },
+      "automatic_promotion_allowed": false,
+      "remaining_separate_issue": "gamut_or_display_clamp remained 1058 for all four variants"
+    }
   },
   "apk": {
     "artifact_id": 10910177012,
@@ -155,17 +216,48 @@
     "stable_dev_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
   },
   "immediate_next_device_gate": {
-    "export": "Appearance Headroom Sweep v0.2 JSON",
-    "prefer_same_source_as_v0_1": true,
-    "compare": [
-      "baseline reproduction",
-      "peak collapse reduction",
-      "mapped gradient retention",
-      "gamut/display clamp behavior",
-      "below-knee preservation",
-      "source CENSORED separation"
-    ],
-    "automatic_promotion_allowed": false,
-    "future_visual_ab_preview_only_after_metrics": true
+    "architecture": "No new device evidence required to keep lens-independent v0.1 architecture valid; per-source admission/calibration remains fail-closed.",
+    "appearance": "Future appearance-only A/B/Delta may compare 100/100 versus 90/100 on both real scenes.",
+    "multi_lens": "Future main/ultra-wide/tele work should instantiate separate D.RAW Observations and prove any shared gauge/calibration relation before radiometric fusion.",
+    "automatic_promotion_allowed": false
+  },
+  "previous_active_development_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
+  "latest_android_code_branch": "research/appearance-highlight-headroom-sweep-v02-2026-09-26",
+  "latest_android_code_checkpoint_sha": "402c72d6804f6cc393a5eab93c9d94d0687be111",
+  "current_architecture_checkpoint_parent_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
+  "lens_independent_free_world_v0_1": {
+    "status": "SEALED_CANONICAL_ARCHITECTURE_OVERLAY",
+    "branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+    "parent_checkpoint_sha": "eb3858747f8fe115ac9fd7c75de6c90d8153a021",
+    "canonical_vision": "docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md",
+    "contract_readme": "docs/research/lens-independent-free-world-observation-contract-v0.1/README.md",
+    "machine_contract": "docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json",
+    "seal_manifest": "docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json",
+    "state_overlay": "state/LENS_INDEPENDENT_FREE_WORLD_V01_STATE_2026-09-26.json",
+    "verifier": "tools/verify_lens_independent_free_world_v01.py",
+    "short_law": "One Free World. Many sealed observations. One evidence law.",
+    "lens_is_observation_instrument_not_world_boundary": true,
+    "source_capability_envelope_required": true,
+    "truthnegative_per_observation_lineage": true,
+    "free_world_composes_multiple_sealed_observations": true,
+    "zero_line_formula": "T=log2(L/L0)",
+    "common_coordinate_implies_common_gauge": false,
+    "cross_observation_radiometric_equality_requires_admitted_gauge": true,
+    "float64_branch_sensitive_compute": true,
+    "float32_canonical_storage_where_validated": true,
+    "precision_increases_authority": false,
+    "finite_output_pixel_is_projection_not_primitive": true,
+    "existing_pixel_route_changed": false,
+    "existing_scientific_master_changed": false,
+    "existing_truthnegative_changed": false,
+    "existing_n2_changed": false,
+    "existing_appearance_changed": false,
+    "sealed_file_sha256": {
+      "canonical_vision": "a6dff18fd8c43224163df9a438655be1625458596194b853698862bd4ac6da88",
+      "contract_readme": "c943bea678e6b9c2045363ac725aebe57f8b86a290cf303c7138ffc7549a6c6e",
+      "machine_contract": "7edf5eb211ae66347586ce4ff375b4bc62f451fe578fa83e336b19818205b522",
+      "state_overlay": "dbd5c6ce3f835657182ea302d9d49bd1d9b2dfa0f8fb6dd3fcf11d3dcf1ec1f3"
+    },
+    "initial_sha_measurement_run_id": 36258416385
   }
 }
