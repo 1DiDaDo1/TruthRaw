@@ -1,0 +1,48 @@
+name: D.RAW N2 Center-Excluded Spatial Audit v0.2.1
+
+on:
+  push:
+    branches:
+      - research/n2-center-excluded-spatial-v021-2026-09-26
+    paths:
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/**'
+      - '.github/workflows/truthnegative-center-excluded-spatial-v021.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC
+        run: cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1 -B build/ce-spatial-gcc -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC
+        run: cmake --build build/ce-spatial-gcc --parallel
+      - name: Test GCC
+        run: ctest --test-dir build/ce-spatial-gcc --output-on-failure
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang
+        run: cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1 -B build/ce-spatial-clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang
+        run: cmake --build build/ce-spatial-clang --parallel
+      - name: Test Clang
+        run: ctest --test-dir build/ce-spatial-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure ASan UBSan
+        run: >
+          cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1
+          -B build/ce-spatial-san
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - name: Build ASan UBSan
+        run: cmake --build build/ce-spatial-san --parallel
+      - name: Test ASan UBSan
+        run: ASAN_OPTIONS=detect_leaks=1 ctest --test-dir build/ce-spatial-san --output-on-failure
