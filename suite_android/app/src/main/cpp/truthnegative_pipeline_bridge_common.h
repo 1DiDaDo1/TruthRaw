@@ -9,6 +9,7 @@
 #include "streaming_scientific_master_tile_source_v0_1.h"
 #include "technical_backplane_phase2_v0_1.h"
 #include "truthnegative_continuous_v0_5.h"
+#include "drawnegative_v0_1.h"
 #include "truthnegative_dense_local_field_adapter_v0_4.h"
 
 #include <cstddef>
@@ -48,6 +49,7 @@ struct Context final {
 
     truthnegative_continuous::v0_5::AuthorityFieldSummary authorityField{};
     truthnegative_continuous::v0_5::State truthNegativeState{};
+    drawnegative::v0_1::State drawNegativeState{};
 
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;
