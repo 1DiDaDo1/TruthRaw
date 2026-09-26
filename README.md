@@ -24,6 +24,8 @@
 >
 > Current architecture now includes the SHA-256-sealed Lens-Independent Free World Observation Contract v0.1: **one Free World, many sealed observations, one evidence law**. Main, ultra-wide, tele and future sources enter through the same Observation Contract and source-specific Capability Envelope; TruthNegative stays per observation lineage; cross-source Zero-Line equality requires an admitted gauge relation; Float64 compute and validated Float32 storage remain authority-neutral.
 >
+> `DRAWObservationRecord v0.1` is the first executable derivative. CI run `36258955138` validates a real Camera-5 lamp-scene record and proves fail-closed rejection of cross-observation radiometric fusion when no common gauge is admitted.
+>
 > Recent code/evidence additions also include the N2 reconstruction-support closure, center-excluded predictor/spatial audit v0.2/v0.2.1, vector Confidence Field v0.3, Factored Confidence State v0.3.1, and two real Appearance highlight scenes. N2 and appearance diagnostics remain downstream and cannot write Scientific Master or TruthNegative.
 >
 > The real-device v0.1 white-exterior scene and the v0.2 lamp scene both show 100/100-nit exact peak-collapse with `source_censored=0`. In the lamp-scene sweep, 90/100 reduced the audit's exact collapsed-pair count from 941 to 0 while leaving below-knee mapped luminance unchanged. No default appearance winner has been promoted; the invariant 1058 gamut/display clamps remain a separate issue.
