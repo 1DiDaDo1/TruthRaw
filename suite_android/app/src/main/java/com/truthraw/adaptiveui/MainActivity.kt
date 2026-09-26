@@ -62,6 +62,8 @@ class MainActivity : Activity() {
     private var truthNegativeNativeContainerStatus: String? = null
     private var pendingN2SpatialSidecarJobId: String? = null
     private var n2SpatialSidecarStatus: String? = null
+    private var pendingN2CenterExcludedSpatialJobId: String? = null
+    private var n2CenterExcludedSpatialStatus: String? = null
     private var n2CropAbResult: TruthNegativeN2CropAbResult.Ready? = null
     private var n2CropAbJobId: String? = null
     private var n2CropAbStatus: String? = null
@@ -228,6 +230,8 @@ class MainActivity : Activity() {
         truthNegativeNativeContainerStatus = null
         pendingN2SpatialSidecarJobId = null
         n2SpatialSidecarStatus = null
+        pendingN2CenterExcludedSpatialJobId = null
+        n2CenterExcludedSpatialStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
     }
@@ -980,6 +984,42 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_SPATIAL_SIDECAR,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchN2CenterExcludedSpatialExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2CenterExcludedSpatialStatus =
+                "N2 v0.2.1 Spatial Audit vereist de admitted DNG-route."
+            render()
+            return
+        }
+        pendingN2CenterExcludedSpatialJobId = job.id
+        n2CenterExcludedSpatialStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_center_excluded_spatial_audit_v0_2_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL,
         )
     }
 
@@ -1819,6 +1859,140 @@ class MainActivity : Activity() {
                                     "… · JSON=" +
                                     m.jsonSha256.take(16) +
                                     "… · candidate-applied=false."
+                            }
+                        }
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL) {
+            val expectedJob = pendingN2CenterExcludedSpatialJobId
+            pendingN2CenterExcludedSpatialJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2CenterExcludedSpatialStatus =
+                    "N2 v0.2.1 Spatial Audit-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                n2CenterExcludedSpatialStatus =
+                    "N2 v0.2.1 Spatial Audit geblokkeerd: actieve Scientific Master-route veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-center-excluded-spatial",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2CenterExcludedSpatialStatus =
+                    "Wacht op de andere TruthNegative/Camera-5 analysetaak. " +
+                        "N2 v0.2.1 Spatial Audit start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 v0.2.1 center-excluded spatial audit",
+                )
+            ) {
+                n2CenterExcludedSpatialStatus =
+                    "N2 v0.2.1 Spatial Audit achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2CenterExcludedSpatialStatus =
+                "N2 v0.2.1 · v0.1 tile-parity + center-excluded predictorstatistiek " +
+                    "per 64×64 source-tile; B en Scientific Master blijven ongewijzigd…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-ce-spatial-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2CenterExcludedSpatialStatus = it
+                },
+            ) {
+                val exportResult =
+                    TruthNegativeN2CenterExcludedSpatialExporter.export(
+                        contentResolver,
+                        job,
+                        destination,
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult is
+                        TruthNegativeN2CenterExcludedSpatialResult.Success,
+                    when (exportResult) {
+                        is TruthNegativeN2CenterExcludedSpatialResult.Success ->
+                            "N2 v0.2.1 Spatial Audit opgeslagen + SHA geverifieerd."
+                        is TruthNegativeN2CenterExcludedSpatialResult.Failed ->
+                            exportResult.reason
+                    },
+                )
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2CenterExcludedSpatialStatus =
+                        when (exportResult) {
+                            is TruthNegativeN2CenterExcludedSpatialResult.Failed ->
+                                exportResult.reason
+                            is TruthNegativeN2CenterExcludedSpatialResult.Success -> {
+                                val m = exportResult.metrics
+                                val validPct =
+                                    if (m.v01CandidateCenters > 0L) {
+                                        100.0 * m.predictorValid.toDouble() /
+                                            m.v01CandidateCenters.toDouble()
+                                    } else 0.0
+                                val pairPct =
+                                    if (m.pairsConsidered > 0L) {
+                                        100.0 * m.pairsAccepted.toDouble() /
+                                            m.pairsConsidered.toDouble()
+                                    } else 0.0
+                                val scalePct =
+                                    if (m.scalesConsidered > 0L) {
+                                        100.0 * m.scalesAccepted.toDouble() /
+                                            m.scalesConsidered.toDouble()
+                                    } else 0.0
+                                val centerGt2Pct =
+                                    if (m.predictorValid > 0L) {
+                                        100.0 * m.centerZGt2.toDouble() /
+                                            m.predictorValid.toDouble()
+                                    } else 0.0
+                                "N2 v0.2.1 Spatial Audit opgeslagen · " +
+                                    m.width + "×" + m.height +
+                                    " · " + formatBytes(m.fileBytes) +
+                                    " · tiles=" + m.tileCount +
+                                    " · v0.1 candidates=" + m.v01CandidateCenters +
+                                    " · predictor-valid=" +
+                                    "%.2f%%".format(validPct) +
+                                    " · pair-accept=" +
+                                    "%.2f%%".format(pairPct) +
+                                    " · scale-accept=" +
+                                    "%.2f%%".format(scalePct) +
+                                    " · center >2σ=" +
+                                    "%.2f%%".format(centerGt2Pct) +
+                                    " · mean|max |r|=" +
+                                    "%.8f".format(m.meanAbsResidual) + "/" +
+                                    "%.8f".format(m.maxAbsResidual) +
+                                    " · CE=" +
+                                    m.centerExcludedAuditSha256.take(16) +
+                                    "… · JSON=" +
+                                    m.jsonSha256.take(16) +
+                                    "… · audit-only."
                             }
                         }
                     render()
@@ -3705,6 +3879,35 @@ class MainActivity : Activity() {
                         ))
 
                         addView(space(5))
+                        addView(actionButton(
+                            "Export N2 v0.2.1 Center-Excluded Spatial · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG",
+                        ) {
+                            launchN2CenterExcludedSpatialExport(active)
+                        })
+                        n2CenterExcludedSpatialStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-center-excluded-spatial",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Parallel audit-only laag: verifieert eerst exacte v0.1 tile-parity en " +
+                                "meet daarna per 64×64 tile center-excluded H/V/diagonaal multiscale " +
+                                "predictor-support. center-only σ is primair; gecombineerde σ blijft " +
+                                "diagnostisch omdat noise-independence niet is bewezen. B blijft ongewijzigd.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
                         addView(actionButton("Scientific Negative · TN-4") {
                             launchTruthNegativeExport(active)
                         })
@@ -4024,5 +4227,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_TRUTHNEGATIVE_200MP_FULL_COLOUR = 4112
         private const val REQUEST_SAVE_TRUTHNEGATIVE_NATIVE_CONTAINER = 4113
         private const val REQUEST_SAVE_N2_SPATIAL_SIDECAR = 4114
+        private const val REQUEST_SAVE_N2_CENTER_EXCLUDED_SPATIAL = 4115
     }
 }
