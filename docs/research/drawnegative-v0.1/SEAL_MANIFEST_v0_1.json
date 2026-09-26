@@ -1,0 +1,57 @@
+{
+  "schema": "D.RAW/D.RAWnegativeSealManifest/0.1",
+  "status": "SEALED",
+  "seal_date": "2026-09-26",
+  "branch": "architecture/drawnegative-v01-2026-09-26",
+  "validated_code_checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
+  "host_validation_run_id": 36260305512,
+  "android_validation_run_id": 36260305613,
+  "byte_measurement_run_id": 36260823937,
+  "immutable_successor_rule": "SEALED_DRAWNEGATIVE_V0_1_BYTES_MAY_NOT_CHANGE; CREATE_VERSIONED_SUCCESSOR",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "current_scientific_negative_name": "D.RAWnegative",
+  "legacy_parent_name": "TruthNegative Continuous v0.5",
+  "files": [
+    {
+      "path": "docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md",
+      "sha256": "05486aa27fb8839271e39e58f698e2c41d3ef5ac82660418111c4dfd563892f3"
+    },
+    {
+      "path": "docs/research/lens-independent-free-world-observation-contract-v0.2/README.md",
+      "sha256": "4d620db58ba3e516d38fbaa5a7a65539953cc4337f1badb4e482ec02d97e8ab8"
+    },
+    {
+      "path": "docs/research/lens-independent-free-world-observation-contract-v0.2/DRAW_OBSERVATION_CONTRACT_v0_2.json",
+      "sha256": "1761d67aee46a11074685bb33eeb29e5842a95e3ef9ac71e5a62b7324229e8d4"
+    },
+    {
+      "path": "docs/research/drawnegative-v0.1/README.md",
+      "sha256": "4a262a67e7262e90dd8dc1c26d54fa1562f76bba91ef79c3d4bae0c21cb00dcb"
+    },
+    {
+      "path": "docs/research/drawnegative-v0.1/native/drawnegative_v0_1.h",
+      "sha256": "0cbfe5442750e575cbe52cba056645d1d41ef208fa1aefef20e70ae6a246fd24"
+    },
+    {
+      "path": "docs/research/drawnegative-v0.1/native/drawnegative_v0_1.cpp",
+      "sha256": "a337c710701e768adb3c22577b71136775e286922ceae2422a0c7167c638cfe5"
+    }
+  ],
+  "semantics": {
+    "truthnegative_parent_required": true,
+    "parent_bytes_rewritten": false,
+    "per_observation_lineage": true,
+    "raster_independent": true,
+    "truthrange_formula": "T=log2(L/L0)",
+    "source_local_gauge_allows_cross_observation_equality": false,
+    "source_local_gauge_allows_cross_observation_fusion": false,
+    "shared_gauge_must_be_admitted": true,
+    "branch_sensitive_compute": "FLOAT64",
+    "validated_float32_storage_allowed": true,
+    "precision_upgrades_authority": false,
+    "per_sample_truthrange_materialized_by_v0_1": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "legacy_tnc_is_native_drawnegative_container": false
+  }
+}
