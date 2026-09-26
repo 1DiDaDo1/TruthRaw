@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 
 private const val TN_CONTINUOUS_MAGIC = 0x35434e54
-private const val TN_CONTINUOUS_HEADER_INTS = 112
+private const val TN_CONTINUOUS_HEADER_INTS = 120
 private const val TN_CONTINUOUS_MAX_EDGE = 192
 private const val TN_CONTINUOUS_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val TN_CONTINUOUS_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -55,6 +55,7 @@ data class TruthNegativeContinuousPreviewMetrics(
     val sourceTileLoads: Int,
     val stateSha256: String,
     val authorityFieldSha256: String,
+    val drawNegativeStateSha256: String,
     val n2AuditExecuted: Boolean,
     val n2NoiseProfileAvailable: Boolean,
     val n2Sampled: Int,
@@ -116,7 +117,7 @@ object TruthNegativeContinuousPreviewLoader {
             job.source.format.id != "DNG"
         ) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous v0.5 vereist de volledig admitted DNG-route.",
+                "D.RAWnegative v0.1 vereist de volledig admitted DNG-route.",
             )
         }
 
@@ -124,11 +125,11 @@ object TruthNegativeContinuousPreviewLoader {
             resolver.openFileDescriptor(job.source.uri, "r")
         } catch (error: Exception) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "Bron kon niet voor TruthNegative Continuous worden geopend: " +
+                "Bron kon niet voor D.RAWnegative worden geopend: " +
                     (error.message ?: error.javaClass.simpleName),
             )
         } ?: return TruthNegativeContinuousPreviewResult.Failed(
-            "Documentprovider gaf geen file descriptor voor TruthNegative Continuous.",
+            "Documentprovider gaf geen file descriptor voor D.RAWnegative.",
         )
 
         val packet = try {
@@ -142,7 +143,7 @@ object TruthNegativeContinuousPreviewLoader {
             }
         } catch (error: Throwable) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "Native TruthNegative Continuous bridge faalde: " +
+                "Native D.RAWnegative bridge faalde: " +
                     (error.message ?: error.javaClass.simpleName),
             )
         }
@@ -151,7 +152,7 @@ object TruthNegativeContinuousPreviewLoader {
             packet[0] != TN_CONTINUOUS_MAGIC
         ) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "Ongeldig TruthNegative Continuous v0.5 pakket.",
+                "Ongeldig D.RAWnegative v0.1 pakket.",
             )
         }
         if (packet[1] != 0) {
@@ -167,7 +168,7 @@ object TruthNegativeContinuousPreviewLoader {
             height > TN_CONTINUOUS_MAX_EDGE
         ) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous preview-afmetingen zijn buiten contract.",
+                "D.RAWnegative preview-afmetingen zijn buiten contract.",
             )
         }
 
@@ -175,7 +176,7 @@ object TruthNegativeContinuousPreviewLoader {
             Math.multiplyExact(width, height)
         } catch (_: ArithmeticException) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous preview-afmetingen overflowden.",
+                "D.RAWnegative preview-afmetingen overflowden.",
             )
         }
         val expectedPacketSize = try {
@@ -185,12 +186,12 @@ object TruthNegativeContinuousPreviewLoader {
             )
         } catch (_: ArithmeticException) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous A/B-payloadgrootte overflowde.",
+                "D.RAWnegative A/B-payloadgrootte overflowde.",
             )
         }
         if (packet.size != expectedPacketSize) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous A/B-preview-payload heeft een ongeldige lengte.",
+                "D.RAWnegative A/B-preview-payload heeft een ongeldige lengte.",
             )
         }
 
@@ -206,7 +207,7 @@ object TruthNegativeContinuousPreviewLoader {
             )
         } catch (error: Exception) {
             return TruthNegativeContinuousPreviewResult.Failed(
-                "TruthNegative Continuous bitmap kon niet worden opgebouwd: " +
+                "D.RAWnegative bitmap kon niet worden opgebouwd: " +
                     (error.message ?: error.javaClass.simpleName),
             )
         }
@@ -262,6 +263,7 @@ object TruthNegativeContinuousPreviewLoader {
             sourceTileLoads = packet[31],
             stateSha256 = digestWords(packet, 32),
             authorityFieldSha256 = digestWords(packet, 40),
+            drawNegativeStateSha256 = digestWords(packet, 112),
             n2AuditExecuted = packet[48] != 0,
             n2NoiseProfileAvailable = packet[49] != 0,
             n2Sampled = packet[50],
@@ -315,6 +317,7 @@ object TruthNegativeContinuousPreviewLoader {
                 metrics.authorityFieldRecords <= 0 ||
                 metrics.stateSha256.all { it == '0' } ||
                 metrics.authorityFieldSha256.all { it == '0' } ||
+                metrics.drawNegativeStateSha256.all { it == '0' } ||
                 !metrics.n2AuditExecuted ||
                 metrics.n2Sampled <= 0 ||
                 metrics.n2CandidateSha256.all { it == '0' } ||
@@ -344,7 +347,7 @@ object TruthNegativeContinuousPreviewLoader {
             bitmap.recycle()
             n2CandidateBitmap.recycle()
             return TruthNegativeContinuousPreviewResult.Failed(
-                "Fail-closed: TruthNegative Continuous schond scene-, authority-, evidence- of writebackcontract.",
+                "Fail-closed: D.RAWnegative schond scene-, authority-, evidence- of writebackcontract.",
             )
         }
 
@@ -382,7 +385,7 @@ object TruthNegativeContinuousPreviewLoader {
                 appearanceAddedByPreview = true,
                 scientificWritebackAllowed = false,
             ),
-            outputLabel = "PRO · TruthNegative Continuous v0.5 · Appearance View",
+            outputLabel = "PRO · D.RAWnegative v0.1 · Appearance View",
         )
     }
 
@@ -401,29 +404,30 @@ object TruthNegativeContinuousPreviewLoader {
     }
 
     private fun nativeStatus(status: Int): String = when (status) {
-        -1 -> "TruthNegative Continuous: ongeldige bridge-parameters."
-        -2 -> "TruthNegative Continuous: pre-master authority/evidence-contract geweigerd."
-        -3 -> "TruthNegative Continuous: Technical Backplane/Scientific Master-lineage geweigerd."
-        -4 -> "TruthNegative Continuous: ongeldige brongeometrie."
-        -5 -> "TruthNegative Continuous: Open Scene authority-field kon niet canoniek worden gebonden."
-        -6 -> "TruthNegative Continuous: raster-onafhankelijke state kon niet worden gefinaliseerd."
-        -7 -> "TruthNegative Continuous: Scientific Master/Open Scene bit-identity binding faalde."
-        -8 -> "TruthNegative Continuous: previewdoelgeometrie faalde."
-        -9 -> "TruthNegative Continuous: area-footprint resolver kon niet starten."
-        -10 -> "TruthNegative Continuous: previewraster is te groot."
-        -11 -> "TruthNegative Continuous: target query/authority resolve faalde."
-        -12 -> "TruthNegative Continuous: Appearance/Display resolve faalde."
-        -13 -> "TruthNegative Continuous: Scientific Master/Open Scene query-binding was niet exact."
-        -14 -> "TruthNegative Continuous: camera-plane bijdrage kon niet authority-preserving aan Deep Scene worden gebonden."
-        -15 -> "TruthNegative Continuous: Deep Scene scientific resolve faalde."
-        -16 -> "TruthNegative Continuous: Deep Scene veranderde radiometrische authority/uncertainty."
-        -17 -> "TruthNegative Continuous: N2 CFA audit-only side-car faalde fail-closed."
-        -18 -> "TruthNegative Continuous: N2 appearance-only A/B candidate faalde fail-closed."
-        in 2000..2099 -> "TruthNegative Continuous source-binding faalde (status $status)."
-        in 2100..2199 -> "TruthNegative Continuous color-binding faalde (status $status)."
-        in 7000..7099 -> "TruthNegative Continuous RAW-adapter faalde (status $status)."
-        in 8000..8099 -> "TruthNegative Continuous Scientific Master-binding faalde (status $status)."
-        in 9000..9099 -> "TruthNegative Continuous Backplane phase-2 faalde (status $status)."
-        else -> "TruthNegative Continuous native status $status."
+        -1 -> "D.RAWnegative: ongeldige bridge-parameters."
+        -2 -> "D.RAWnegative: pre-master authority/evidence-contract geweigerd."
+        -3 -> "D.RAWnegative: Technical Backplane/Scientific Master-lineage geweigerd."
+        -4 -> "D.RAWnegative: ongeldige brongeometrie."
+        -5 -> "D.RAWnegative: Open Scene authority-field kon niet canoniek worden gebonden."
+        -6 -> "D.RAWnegative: raster-onafhankelijke state kon niet worden gefinaliseerd."
+        -7 -> "D.RAWnegative: Scientific Master/Open Scene bit-identity binding faalde."
+        -8 -> "D.RAWnegative: previewdoelgeometrie faalde."
+        -9 -> "D.RAWnegative: area-footprint resolver kon niet starten."
+        -10 -> "D.RAWnegative: previewraster is te groot."
+        -11 -> "D.RAWnegative: target query/authority resolve faalde."
+        -12 -> "D.RAWnegative: Appearance/Display resolve faalde."
+        -13 -> "D.RAWnegative: Scientific Master/Open Scene query-binding was niet exact."
+        -14 -> "D.RAWnegative: camera-plane bijdrage kon niet authority-preserving aan Deep Scene worden gebonden."
+        -15 -> "D.RAWnegative: Deep Scene scientific resolve faalde."
+        -16 -> "D.RAWnegative: Deep Scene veranderde radiometrische authority/uncertainty."
+        -17 -> "D.RAWnegative: N2 CFA audit-only side-car faalde fail-closed."
+        -18 -> "D.RAWnegative: N2 appearance-only A/B candidate faalde fail-closed."
+        -19 -> "D.RAWnegative: observation/gauge/state-binding faalde fail-closed."
+        in 2000..2099 -> "D.RAWnegative source-binding faalde (status $status)."
+        in 2100..2199 -> "D.RAWnegative color-binding faalde (status $status)."
+        in 7000..7099 -> "D.RAWnegative RAW-adapter faalde (status $status)."
+        in 8000..8099 -> "D.RAWnegative Scientific Master-binding faalde (status $status)."
+        in 9000..9099 -> "D.RAWnegative Backplane phase-2 faalde (status $status)."
+        else -> "D.RAWnegative native status $status."
     }
 }
