@@ -1,0 +1,84 @@
+{
+  "schema": "D.RAW/DRAWObservationRecord/0.1",
+  "observation_id": "DRAW_OBS_CAM5_LAMP_SCENE_1790439828626",
+  "source_evidence": {
+    "sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+    "role": "SEALED_SOURCE_EVIDENCE",
+    "sealed": true,
+    "physical_frame_id": "CAM5_1790439828626"
+  },
+  "procedure": {
+    "device_id": "HONOR_BKQ-N49",
+    "camera_id": "PHYSICAL_CAMERA_5",
+    "lens_role": "TELEPHOTO",
+    "sensor_id": null,
+    "readout_id": "ADMITTED_4080x3072_SOURCE_DOMAIN",
+    "capture_pipeline_id": "DNG_ADMITTED_SOURCE_ROUTE"
+  },
+  "source_topology": {
+    "width": 4080,
+    "height": 3072,
+    "sample_domain": "ADMITTED_DNG_SOURCE",
+    "cfa_topology": "BAYER_LIKE_SOURCE_BOUND",
+    "topology_authority": "MEASURED"
+  },
+  "capture": {
+    "timestamp_status": "BOUND",
+    "exposure_status": "BOUND",
+    "gain_iso_status": "BOUND"
+  },
+  "capability_envelope": {
+    "sampling_geometry": "SOURCE_BOUND_4080x3072",
+    "radiometry": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+    "color": "SOURCE_METADATA_BOUND",
+    "noise_uncertainty": "PARTIAL_FAIL_CLOSED",
+    "optics": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+    "geometry_projection": "IMAGE_PLANE_BOUND",
+    "dynamic_range_bounds": "CENSOR_AWARE_SOURCE_BOUND",
+    "temporal_state": "SINGLE_CAPTURE_BOUND",
+    "calibration_scope": "SOURCE_LOCAL_ONLY",
+    "metadata_completeness": "PARTIAL"
+  },
+  "gauge": {
+    "truthrange_formula": "T=log2(L/L0)",
+    "scale_gauge_id": "DRAW_LOCAL_GAUGE_45d44d6dc2942674",
+    "gauge_binding_authority": "SOURCE_LOCAL_ONLY",
+    "shared_free_world_gauge_id": null,
+    "cross_observation_radiometric_equality_allowed": false,
+    "cross_observation_radiometric_fusion_allowed": false
+  },
+  "precision": {
+    "branch_sensitive_compute": "FLOAT64",
+    "canonical_storage": "FLOAT32_VALIDATED",
+    "precision_upgrades_authority": false
+  },
+  "scientific_master": {
+    "sha256": "01f22f57e7ae43f7d944adb7660fa96ab7242f3a387e3bd6fd34cbd63f528fd8",
+    "role": "SCIENTIFIC_MASTER"
+  },
+  "truthnegative": {
+    "state_sha256": "73c908b06d42b57d07461c8d3d6aa84f7496e041ac87c8ce7170479ca3c002c5",
+    "role": "TRUTHNEGATIVE_CONTINUOUS_PER_OBSERVATION",
+    "source_observation_id": "DRAW_OBS_CAM5_LAMP_SCENE_1790439828626",
+    "raster_independent": true,
+    "target_raster_part_of_state_identity": false,
+    "measured_target_claim_count": 0
+  },
+  "evidence_counts": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "authority_axes": {
+    "geometry_authority": "IMAGE_PLANE_BOUND",
+    "radiometric_authority": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+    "axes_are_separate": true
+  },
+  "invariants": {
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false,
+    "optics_scientific_use_allowed": false,
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false
+  }
+}
