@@ -37,13 +37,16 @@ Default GitHub `main` is **not current** and remains at:
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
 5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
 6. `docs/research/drawnegative-v0.1/README.md`
-7. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
-8. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
-9. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
-10. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
-11. `docs/research/draw-observation-record-v0.1/README.md`
-12. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
-13. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+7. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+8. `docs/research/draw-observation-record-v0.2/README.md`
+9. `docs/research/draw-observation-record-v0.2/examples/CAMERA5_LAMP_SCENE_DRAWNEGATIVE_OBSERVATION_v0_2.json`
+10. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+11. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+12. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
+13. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
+14. `docs/research/draw-observation-record-v0.1/README.md`
+15. `docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json`
+16. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
 14. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
 15. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
@@ -110,6 +113,25 @@ the D.RAWnegative state SHA-256 in addition to the legacy parent SHA.
 
 The old `.tnc` container remains a legacy TruthNegative container because its
 bytes do not contain the new D.RAWnegative state. It is not being mislabeled.
+
+## D.RAWnegative v0.1 seal
+
+D.RAWnegative v0.1 is now byte- and semantics-sealed.
+
+Seal enforcement run `36260886983`: **SUCCESS**.
+
+Changing the v0.1 canonical core requires a versioned successor.
+
+The current Observation Record successor is v0.2. It explicitly stores both:
+
+- `legacy_truthnegative_parent`;
+- `drawnegative`.
+
+The Camera-5 lamp-scene migration deterministically binds parent
+`73c908…002c5` to D.RAWnegative state
+`7fabfd…3e9a5` without creating new evidence.
+
+Observation Record v0.2 validation run `36260712364`: **SUCCESS**.
 
 ## First executable observation record
 
