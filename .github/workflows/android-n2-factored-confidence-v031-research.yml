@@ -1,0 +1,324 @@
+name: D.RAW N2 Factored Confidence State v0.3.1 Android Research
+
+on:
+  push:
+    branches:
+      - research/n2-factored-confidence-state-v031-2026-09-26
+    paths:
+      - 'suite_android/**'
+      - 'docs/research/android-acceleration-v0.1/**'
+      - 'docs/research/truthnegative-dense-projection-v0.3/**'
+      - 'docs/research/truthnegative-native-container-v0.1/**'
+      - 'docs/research/scientific-master-linear-dng-projection-v0.1/**'
+      - 'docs/research/free-world-pixel-resolve-2d-v0.2/**'
+      - 'docs/research/free-world-scientific-open-scene-binding-v0.3/**'
+      - 'docs/research/free-world-deep-scene-contribution-v0.4/**'
+      - 'docs/research/free-world-deep-scene-binding-v0.5/**'
+      - 'docs/research/free-world-light-transport-state-v0.6/**'
+      - 'docs/research/free-world-appearance-resolve-v0.7/**'
+      - 'docs/research/truthnegative-noise-state-v0.1/**'
+      - 'docs/research/truthnegative-structure-preservation-gate-v0.1/**'
+      - 'docs/research/truthnegative-bounded-residual-estimator-v0.1/**'
+      - 'docs/research/truthnegative-authority-aware-neighborhood-v0.1/**'
+      - 'docs/research/truthnegative-center-excluded-neighborhood-v0.2/**'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/**'
+      - 'docs/research/truthnegative-n2-confidence-field-v0.3/**'
+      - 'docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/**'
+      - 'docs/research/truthnegative-n2-candidate-pipeline-v0.1/**'
+      - 'docs/research/truthnegative-n2-cfa-audit-v0.1/**'
+      - 'docs/research/truthnegative-n2-spatial-sidecar-v0.1/**'
+      - 'docs/research/truthnegative-n2-full-colour-candidate-v0.1/**'
+      - 'docs/research/truthnegative-n2-risk-quality-audit-v0.1/**'
+      - '.github/workflows/android-truthraw-suite-v0-84-2-compute-router.yml'
+      - '.github/workflows/android-n2-factored-confidence-v031-research.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify acceleration discovery contracts
+        run: |
+          set -euo pipefail
+          JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
+          CPP='suite_android/app/src/main/cpp'
+
+          grep -F 'TruthRawComputeCapabilities/0.1' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'dlopen("libvulkan.so"' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'VK_QUEUE_COMPUTE_BIT' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'VK_PHYSICAL_DEVICE_TYPE_CPU' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'kArm64HwcapSha2' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'accelerator_selected\":false' "$CPP/truthraw_compute_capabilities_v0_1.cpp"
+          grep -F 'CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'selected = TruthRawComputeBackend.CPU_REFERENCE' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'authorityChanged = false' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'Hardware acceleration · research' "$JAVA/TruthRawProActivity.kt"
+
+          # ADVANCED Render/Edit Float32 must stay extended-linear and fail-closed.
+          grep -F 'ADVANCED_RENDER_EDIT(2)' "$JAVA/PureFloat32DngExport.kt"
+          grep -F 'TRUTHRAW_ADVANCED_RENDER_EDIT_FLOAT32_XYZ_D50_LINEAR_DNG_V0_1'             "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'negative_components_preserved=1' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'over_one_components_preserved=1' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'natural_hdr_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'output_acutance_baked_into_primary=0' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'projectedRasterSha256' "$CPP/pure_float32_dng_export_bridge.cpp"
+          grep -F 'compute_projected_raster_sha256'             "$CPP/advanced_render_edit_tile_source_v0_1.cpp"
+          grep -F 'linear_srgb_to_xyz_d50_matrix'             "$CPP/advanced_render_edit_tile_source_v0_1.cpp"
+          grep -F 'Render/Edit · Float32 DNG · Lightroom' "$JAVA/MainActivity.kt"
+          grep -F 'video/apv' "$JAVA/TruthRawApvCapabilities.kt"
+          grep -F 'androidSdk >= 37' "$JAVA/TruthRawApvCapabilities.kt"
+          grep -F 'hardwareAccelerated' "$JAVA/TruthRawApvCapabilities.kt"
+          grep -F 'vendorHardwareEncoder' "$JAVA/TruthRawApvCapabilities.kt"
+          grep -F 'Scientific Master replacement=false' "$JAVA/TruthRawApvCapabilities.kt"
+          grep -F 'APV professional video:' "$JAVA/TruthRawProActivity.kt"
+          grep -F 'ASystemHealth_getCpuHeadroom' "$CPP/truthraw_system_headroom_v0_1.cpp"
+          grep -F 'ASystemHealth_getGpuHeadroom' "$CPP/truthraw_system_headroom_v0_1.cpp"
+          grep -F 'TruthRawSystemHeadroom/0.1' "$CPP/truthraw_system_headroom_v0_1.cpp"
+          grep -F 'cpuResourceHeadroom' "$JAVA/TruthRawCpuSchedulingPolicy.kt"
+          grep -F 'gpuResourceHeadroom' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'Vulkan candidate temporarily suppressed below 20%' "$JAVA/TruthRawComputeRouter.kt"
+          grep -F 'ADPF resource headroom' "$JAVA/TruthRawProActivity.kt"
+          grep -F 'APerformanceHint_createSession' "$CPP/truthraw_performance_hint_v0_1.cpp"
+          grep -F 'APerformanceHint_reportActualWorkDuration' "$CPP/truthraw_performance_hint_v0_1.cpp"
+          grep -F 'performanceHintWorkerCount' "$JAVA/FullResRestorationExport.kt"
+          grep -F 'ADPF=' "$JAVA/FullResRestorationForegroundService.kt"
+          grep -F '$<$<CONFIG:Debug>:-O2>' "$CPP/CMakeLists.txt"
+          grep -F '$<$<CONFIG:Debug>:-fno-fast-math>' "$CPP/CMakeLists.txt"
+          grep -F '$<$<CONFIG:Debug>:-ffp-contract=off>' "$CPP/CMakeLists.txt"
+
+          # Acceleration research must not edit the byte-frozen streaming module.
+          git diff --exit-code             origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD             -- docs/research/full-frame-streaming-v0.1/native
+
+          # The original compute-router branch must keep Camera-5 acquisition byte-untouched.
+          # The dedicated appearance-controls branch may add observation-only calibration
+          # telemetry, but must never grant calibration authority or scientific writeback.
+          if [ "$GITHUB_REF_NAME" = "integration/truthraw-suite-v0-84-2-adaptive-compute-router" ]; then
+            git diff --exit-code \
+              origin/integration/truthraw-suite-v0-84-1-focus-operation-status...HEAD \
+              -- "$JAVA/FotoGraaf200MpStagedActivity.kt"
+          else
+            grep -F 'CameraCalibrationTelemetry.requestLensShadingMap' "$JAVA/FotoGraaf200MpStagedActivity.kt"
+            grep -F 'CameraCalibrationTelemetry.toJson' "$JAVA/FotoGraaf200MpStagedActivity.kt"
+            grep -F 'scientificWritebackAllowed' "$JAVA/CameraCalibrationTelemetry.kt"
+            grep -F 'calibrationAuthorityGranted' "$JAVA/CameraCalibrationTelemetry.kt"
+            grep -F 'detailStrength' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'colorFullness' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'exposureStep' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'shadowRecoveryLevel' "$JAVA/TruthRawAdvanced.kt"
+            grep -F 'auto_dark_exposure_ev' "$CPP/advanced_appearance_controls_v0_1.h"
+            grep -F 'APPEARANCE_ONLY_NO_BLACKLEVEL_WRITEBACK' "$CPP/pure_float32_dng_export_bridge.cpp"
+          fi
+
+      - name: Verify ordered multicore executor
+        run: |
+          set -euo pipefail
+          g++ -std=c++20 -O2 -pthread -Wall -Wextra -Werror \
+            suite_android/app/src/main/cpp/tests/ordered_parallel_executor_v0_1_test.cpp \
+            -o /tmp/truthraw_ordered_executor_test
+          /tmp/truthraw_ordered_executor_test
+
+      - name: Verify sealed tile-native streaming reference
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/tile-native-dng-source-v0.1 \
+            -B /tmp/truthraw-tile-reference \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/truthraw-tile-reference --parallel 2
+          /tmp/truthraw-tile-reference/test_tile_native_dng_source_v0_1
+          /tmp/truthraw-tile-reference/test_tile_native_dng_streaming_integration_v0_1
+
+      - name: Verify v4.7i compiler optimization bit identity
+        run: |
+          set -euo pipefail
+          TEST='docs/research/android-acceleration-v0.1/tests/compiler_optimization_equivalence_v0_1.cpp'
+          CORE='canonical/reconstruction/v4.7i/native/src/core.cpp'
+          INC='canonical/reconstruction/v4.7i/native/include'
+
+          clang++ -std=c++20 -O0 -fno-fast-math -ffp-contract=off \
+            -I"$INC" "$TEST" "$CORE" -pthread \
+            -Wno-error=misleading-indentation \
+            -o /tmp/truthraw-v47i-o0
+
+          clang++ -std=c++20 -O2 -fno-fast-math -ffp-contract=off \
+            -I"$INC" "$TEST" "$CORE" -pthread \
+            -Wno-error=misleading-indentation \
+            -o /tmp/truthraw-v47i-o2
+
+          O0=$(/tmp/truthraw-v47i-o0)
+          O2=$(/tmp/truthraw-v47i-o2)
+          echo "v47i_o0_signature=$O0"
+          echo "v47i_o2_signature=$O2"
+          test "$O0" = "$O2"
+
+      - name: Verify TruthNegative 4x dense CPU reference
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-dense-projection-v0.3 \
+            -B /tmp/truthnegative-dense-v03 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/truthnegative-dense-v03 --parallel 2
+          /tmp/truthnegative-dense-v03/test_truthnegative_dense_projection_v0_3
+
+      - name: Verify Render Edit partition invariance
+        run: |
+          set -euo pipefail
+          g++ -std=c++20 -O2 -fno-fast-math -ffp-contract=off \
+            -Wall -Wextra -Werror -Wno-error=misleading-indentation \
+            -Isuite_android/app/src/main/cpp \
+            -Icanonical/reconstruction/v4.7i/native/include \
+            -Idocs/research/full-frame-streaming-v0.1/native \
+            -Idocs/research/scientific-master-linear-dng-projection-v0.1/native \
+            -Idocs/research/scientific-master-digest-v0.1/native \
+            -Idocs/research/technical-backplane-v0.1/native \
+            -Idocs/research/truthrange-latent-binding-v0.2/native \
+            docs/research/android-acceleration-v0.1/tests/advanced_render_edit_partition_v0_1.cpp \
+            suite_android/app/src/main/cpp/advanced_render_edit_tile_source_v0_1.cpp \
+            suite_android/app/src/main/cpp/adaptive_detail_v47j_adapter.cpp \
+            canonical/reconstruction/v4.7i/native/src/core.cpp \
+            docs/research/scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.cpp \
+            -pthread -o /tmp/truthraw-render-edit-partition
+          /tmp/truthraw-render-edit-partition
+
+      - name: Verify center-excluded N2 v0.2 host predictor
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-center-excluded-neighborhood-v0.2 \
+            -B /tmp/draw-n2-center-excluded-v02 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/draw-n2-center-excluded-v02 --parallel 2
+          ctest --test-dir /tmp/draw-n2-center-excluded-v02 --output-on-failure
+
+      - name: Verify center-excluded spatial audit v0.2.1
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1 \
+            -B /tmp/draw-n2-center-excluded-spatial-v021 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/draw-n2-center-excluded-spatial-v021 --parallel 2
+          ctest --test-dir /tmp/draw-n2-center-excluded-spatial-v021 --output-on-failure
+
+      - name: Verify N2 confidence field v0.3
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-n2-confidence-field-v0.3 \
+            -B /tmp/draw-n2-confidence-v03 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/draw-n2-confidence-v03 --parallel 2
+          ctest --test-dir /tmp/draw-n2-confidence-v03 --output-on-failure
+
+      - name: Verify N2 factored confidence state v0.3.1
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/truthnegative-n2-factored-confidence-state-v0.3.1 \
+            -B /tmp/draw-n2-factored-confidence-v031 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/draw-n2-factored-confidence-v031 --parallel 2
+          ctest --test-dir /tmp/draw-n2-factored-confidence-v031 --output-on-failure
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Materialize stable D.RAW development signing identity
+        env:
+          DRAW_DEBUG_KEYSTORE_B64: ${{ secrets.DRAW_DEBUG_KEYSTORE_B64 }}
+          DRAW_DEBUG_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_DEBUG_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_DEBUG_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::D.RAW signing slot A missing: keystore Base64 payload"; exit 1; }
+          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::D.RAW signing slot B missing: keystore password"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::D.RAW signing slot C missing: key alias"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::D.RAW signing slot D missing: key password"; exit 1; }
+          if ! printf '%s' "$DRAW_DEBUG_KEYSTORE_B64" | tr -d '\r\n\t ' | base64 --decode > "$RUNNER_TEMP/draw-debug.jks"; then
+            echo "::error::D.RAW signing slot A invalid: Base64 payload could not be decoded"
+            exit 1
+          fi
+          test -s "$RUNNER_TEMP/draw-debug.jks"
+          ACTUAL_KEYSTORE_SHA256=$(sha256sum "$RUNNER_TEMP/draw-debug.jks" | awk '{print $1}')
+          if [ "$ACTUAL_KEYSTORE_SHA256" != "eaddcb4abdab1353a5cd15d71d52ea373abbabc46459ed7f2c8c08acf15d1137" ]; then
+            echo "::error::D.RAW signing slot A mismatch: keystore payload is not the pinned D.RAW development keystore"
+            exit 1
+          fi
+          if ! keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error::D.RAW signing slot B mismatch: keystore password is not the pinned value"
+            exit 1
+          fi
+          if ! keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null 2>&1; then
+            echo "::error::D.RAW signing slot C mismatch: key alias is not the pinned value"
+            exit 1
+          fi
+          if ! keytool -importkeystore -noprompt -srckeystore "$RUNNER_TEMP/draw-debug.jks" -srcstorepass "$DRAW_DEBUG_STORE_PASSWORD" -srcalias "$DRAW_DEBUG_KEY_ALIAS" -srckeypass "$DRAW_DEBUG_KEY_PASSWORD" -destkeystore "$RUNNER_TEMP/draw-signing-probe.p12" -deststoretype PKCS12 -deststorepass "D.RAW-ephemeral-probe-only-2026" -destkeypass "D.RAW-ephemeral-probe-only-2026" >/dev/null 2>&1; then
+            echo "::error::D.RAW signing slot D mismatch: private-key password is not the pinned value"
+            exit 1
+          fi
+
+      - name: Assemble arm64 debug APK
+        working-directory: suite_android
+        env:
+          DRAW_SIGNING_STORE_FILE: ${{ runner.temp }}/draw-debug.jks
+          DRAW_SIGNING_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_SIGNING_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_SIGNING_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify compute probe symbol and APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw.so
+          readelf -Ws /tmp/libtruthraw.so |             grep -F 'Java_com_truthraw_adaptiveui_TruthRawComputeProbeNativeBridge_probeJson'
+          readelf -Ws /tmp/libtruthraw.so | \
+            grep -F 'Java_com_truthraw_adaptiveui_TruthNegativeN2CenterExcludedSpatialBridge_exportAndVerify'
+          grep -F 'Export N2 v0.2.1 Center-Excluded Spatial · JSON' \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          readelf -Ws /tmp/libtruthraw.so | \
+            grep -F 'Java_com_truthraw_adaptiveui_TruthNegativeN2ConfidenceFieldBridge_exportAndVerify'
+          grep -F 'Export N2 v0.3 Confidence Field · JSON' \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          readelf -Ws /tmp/libtruthraw.so | \
+            grep -F 'Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVerify'
+          grep -F 'Export N2 v0.3.1 Factored Confidence · JSON' \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          unzip -l "$APK" | grep -F 'classes.dex'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)
+          echo "apk_signing_cert_sha256=$CERT_SHA256"
+          test "$CERT_SHA256" = "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: draw-n2-factored-confidence-v031-debug-arm64
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
