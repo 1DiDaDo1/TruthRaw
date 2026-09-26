@@ -258,6 +258,44 @@
       "machine_contract": "7edf5eb211ae66347586ce4ff375b4bc62f451fe578fa83e336b19818205b522",
       "state_overlay": "dbd5c6ce3f835657182ea302d9d49bd1d9b2dfa0f8fb6dd3fcf11d3dcf1ec1f3"
     },
-    "initial_sha_measurement_run_id": 36258416385
+    "initial_sha_measurement_run_id": 36258416385,
+    "seal_enforcement": {
+      "run_id": 36258818429,
+      "result": "SUCCESS",
+      "workflow_checkpoint_sha": "87f1d38ef58c0d5fc7f8031ea27ac72a7a3c5263",
+      "byte_hashes_enforced": true,
+      "semantic_invariants_enforced": true,
+      "successor_required_for_semantic_change": true
+    }
+  },
+  "draw_observation_record_v0_1": {
+    "status": "FIRST_EXECUTABLE_DERIVATIVE_HOST_VALIDATED",
+    "role": "ONE_MACHINE_READABLE_RECORD_PER_ADMITTED_PHYSICAL_OBSERVATION_LINEAGE",
+    "readme": "docs/research/draw-observation-record-v0.1/README.md",
+    "schema": "docs/research/draw-observation-record-v0.1/DRAW_OBSERVATION_RECORD_SCHEMA_v0_1.json",
+    "validator": "tools/validate_draw_observation_record_v01.py",
+    "camera5_example": "docs/research/draw-observation-record-v0.1/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_1.json",
+    "validation": {
+      "run_id": 36258955138,
+      "result": "SUCCESS",
+      "checkpoint_sha": "1ff5326f98c8a9ce90f81ec9ceb647090f570904",
+      "valid_record_accepted": true,
+      "unproven_common_gauge_fusion_rejected": true
+    },
+    "camera5_example_semantics": {
+      "source_evidence_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "lens_role": "TELEPHOTO",
+      "source_raster": "4080x3072",
+      "shared_free_world_gauge_id": null,
+      "cross_observation_radiometric_equality_allowed": false,
+      "cross_observation_radiometric_fusion_allowed": false,
+      "optics_scientific_use_allowed": false,
+      "truthnegative_per_observation": true
+    },
+    "next_instances": [
+      "MAIN_ADMITTED_RAW_OR_DNG",
+      "ULTRA_WIDE_ADMITTED_RAW_OR_DNG"
+    ],
+    "implicit_cross_source_calibration_transfer_allowed": false
   }
 }
