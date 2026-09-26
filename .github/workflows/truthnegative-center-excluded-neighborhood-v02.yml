@@ -1,0 +1,48 @@
+name: D.RAW N2 Center-Excluded Neighborhood v0.2
+
+on:
+  push:
+    branches:
+      - research/n2-center-excluded-neighborhood-v02-2026-09-26
+    paths:
+      - 'docs/research/truthnegative-center-excluded-neighborhood-v0.2/**'
+      - '.github/workflows/truthnegative-center-excluded-neighborhood-v02.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GCC
+        run: cmake -S docs/research/truthnegative-center-excluded-neighborhood-v0.2 -B build/n2-v02-gcc -DCMAKE_CXX_COMPILER=g++
+      - name: Build GCC
+        run: cmake --build build/n2-v02-gcc --parallel
+      - name: Test GCC
+        run: ctest --test-dir build/n2-v02-gcc --output-on-failure
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Clang
+        run: cmake -S docs/research/truthnegative-center-excluded-neighborhood-v0.2 -B build/n2-v02-clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Build Clang
+        run: cmake --build build/n2-v02-clang --parallel
+      - name: Test Clang
+        run: ctest --test-dir build/n2-v02-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ASan UBSan
+        run: |
+          c++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -fno-fast-math \
+            -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Idocs/research/truthnegative-center-excluded-neighborhood-v0.2/native \
+            docs/research/truthnegative-center-excluded-neighborhood-v0.2/native/truthnegative_center_excluded_neighborhood_v0_2.cpp \
+            docs/research/truthnegative-center-excluded-neighborhood-v0.2/tests/test_truthnegative_center_excluded_neighborhood_v0_2.cpp \
+            -o /tmp/test_n2_v02
+      - name: Run ASan UBSan
+        run: ASAN_OPTIONS=detect_leaks=1 /tmp/test_n2_v02
