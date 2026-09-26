@@ -1,0 +1,80 @@
+{
+  "schema": "D.RAW/DRAWObservationRecord/0.2",
+  "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+  "source_evidence": {
+    "sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+    "sealed": true
+  },
+  "procedure": {
+    "device_id": "HONOR_BKQ-N49",
+    "camera_id": "PHYSICAL_CAMERA_5",
+    "lens_role": "TELEPHOTO",
+    "capture_pipeline_id": "DNG_ADMITTED_SOURCE_ROUTE"
+  },
+  "source_topology": {
+    "width": 4080,
+    "height": 3072,
+    "sample_domain": "ADMITTED_DNG_SOURCE",
+    "cfa_topology": "BAYER_LIKE_SOURCE_BOUND"
+  },
+  "capability_envelope": {
+    "sampling_geometry": "SOURCE_BOUND_4080x3072",
+    "radiometry": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+    "color": "SOURCE_METADATA_BOUND",
+    "noise_uncertainty": "PARTIAL_FAIL_CLOSED",
+    "optics": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+    "geometry_projection": "IMAGE_PLANE_BOUND",
+    "dynamic_range_bounds": "CENSOR_AWARE_SOURCE_BOUND",
+    "calibration_scope": "SOURCE_LOCAL_ONLY"
+  },
+  "gauge": {
+    "truthrange_formula": "T=log2(L/L0)",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+    "gauge_relation": "SOURCE_LOCAL_ONLY",
+    "shared_free_world_gauge_id": null,
+    "cross_observation_radiometric_equality_allowed": false,
+    "cross_observation_radiometric_fusion_allowed": false
+  },
+  "precision": {
+    "branch_sensitive_compute": "FLOAT64",
+    "canonical_storage": "FLOAT32_VALIDATED",
+    "precision_upgrades_authority": false
+  },
+  "scientific_master": {
+    "sha256": "01f22f57e7ae43f7d944adb7660fa96ab7242f3a387e3bd6fd34cbd63f528fd8"
+  },
+  "authority_field": {
+    "sha256": "5ad5f49782a7ae71f4685178b92b9a2fb06be95dc9f0bfc1bd80292324251f38"
+  },
+  "legacy_truthnegative_parent": {
+    "state_sha256": "73c908b06d42b57d07461c8d3d6aa84f7496e041ac87c8ce7170479ca3c002c5",
+    "schema_role": "LEGACY_VALIDATED_COMPUTATIONAL_PARENT",
+    "raster_independent": true
+  },
+  "drawnegative": {
+    "schema": "D.RAW/D.RAWnegative/0.1",
+    "state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5",
+    "parent_truthnegative_state_sha256": "73c908b06d42b57d07461c8d3d6aa84f7496e041ac87c8ce7170479ca3c002c5",
+    "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+    "per_observation_lineage": true,
+    "raster_independent": true,
+    "truthrange_coordinate_family_declared": true,
+    "per_sample_truthrange_materialized": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "evidence_counts": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "authority_axes": {
+    "geometry_authority": "IMAGE_PLANE_BOUND",
+    "radiometric_authority": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+    "axes_are_separate": true
+  },
+  "invariants": {
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false,
+    "appearance_writeback_allowed": false
+  }
+}
