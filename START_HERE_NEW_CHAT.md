@@ -2,13 +2,20 @@
 
 **Official current product name: `D.RAW`.**
 
-Current active code-bearing branch:
+Current active architecture branch:
+
+`architecture/lens-independent-free-world-observation-v01-2026-09-26`
+
+Latest Android-code branch:
 
 `research/appearance-highlight-headroom-sweep-v02-2026-09-26`
 
 Latest fully Android-validated code checkpoint:
 
 `402c72d6804f6cc393a5eab93c9d94d0687be111`
+
+The architecture branch adds sealed contracts/documentation only and does not
+change the validated pixel route or current APK.
 
 Default GitHub `main` is **not current** and remains at:
 
@@ -20,23 +27,52 @@ Default GitHub `main` is **not current** and remains at:
 2. `docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md`
 3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-26.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-26.md`
-5. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
-6. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
-7. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/README.md`
+5. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
+6. `docs/research/lens-independent-free-world-observation-contract-v0.1/README.md`
+7. `docs/research/lens-independent-free-world-observation-contract-v0.1/DRAW_OBSERVATION_CONTRACT_v0_1.json`
+8. `docs/research/lens-independent-free-world-observation-contract-v0.1/SEAL_MANIFEST_v0_1.json`
+9. `docs/research/truthnegative-n2-factored-confidence-state-v0.3.1/README.md`
+10. `docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/evidence/DEVICE_RESULT_2026-09-26.md`
+11. `docs/research/truthnegative-appearance-highlight-headroom-sweep-v0.2/evidence/DEVICE_RESULT_LAMP_SCENE_2026-09-26.md`
 
 Current architecture:
 
 ```text
-sealed Source Evidence / Direct CFA
- -> Stage-2 calibrated measurement
- -> measured-preserving F64 full-colour reconstruction
+sealed physical observation / Source Evidence
+ -> D.RAW Observation Contract
+ -> Source Capability Envelope
+ -> Float64 measurement/calibration/reconstruction
  -> Scientific Master
- -> Open Scene Field / Dynamic Authority
- -> TruthNegative Continuous
+ -> validated Float32 scientific storage where admitted
+ -> TruthNegative Continuous per observation
+ -> Free World Observation Graph
  -> Deep Scene / Light Transport
- -> Appearance / Viewing / Display Resolve
- -> finite output
+ -> View Contract / Appearance
+ -> finite projection
 ```
+
+## 2026-09-26 sealed lens-independent Free World v0.1
+
+The Free World is now formally lens-independent.
+
+Canonical law:
+
+**One Free World. Many sealed observations. One evidence law.**
+
+Main, ultra-wide, telephoto and future admitted cameras use the same world
+architecture. Lens/sensor/readout specifics belong to the Observation Contract
+and Source Capability Envelope.
+
+The Zero-Line remains `T=log2(L/L0)`. A shared coordinate family does not
+automatically prove a shared radiometric gauge. Cross-observation radiometric
+equality/fusion requires an admitted gauge relation.
+
+TruthNegative is explicitly one raster-independent scientific-negative state
+per admitted observation lineage. Multiple observations compose in the Free
+World Observation Graph, not by silently merging TruthNegative identities.
+
+The v0.1 canonical files are SHA-256 byte-sealed. Any semantic change requires
+a versioned successor.
 
 Current route semantics remain:
 
@@ -75,10 +111,13 @@ the existing PRO 100-nit-reference / 100-nit-peak display mapping:
 The Honor camera-app comparison image is `VISUAL_REFERENCE_ONLY`; it is not
 D.RAW evidence or calibration.
 
-Appearance Highlight Headroom Sweep v0.2 is now Android-green. It keeps the
-physical SDR peak at 100 nit and compares shoulders at 100, 90, 80 and 70 nit
-through the same v0.7 Appearance resolver. The normal PRO preview is unchanged
-and v0.2 chooses no winner.
+Appearance Highlight Headroom Sweep v0.2 is Android-green and now has a real
+lamp-scene device result in addition to the earlier white-exterior scene.
+For the lamp scene the 100/100 baseline produced 941 collapsed distinct pairs
+with source_censored=0; 90/100 reduced the audit's exact peak-collapse to zero
+while leaving all samples at/below the 90-nit knee unchanged. This does not
+promote 90/100 automatically. The unchanged 1058 gamut/display clamps remain a
+separate issue.
 
 Current v0.2 validation:
 
