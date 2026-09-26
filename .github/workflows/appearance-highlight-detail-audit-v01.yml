@@ -1,0 +1,39 @@
+name: D.RAW Appearance Highlight Detail Audit v0.1
+
+on:
+  push:
+    branches:
+      - research/appearance-highlight-detail-audit-v01-2026-09-26
+    paths:
+      - 'docs/research/truthnegative-appearance-highlight-detail-audit-v0.1/**'
+      - '.github/workflows/appearance-highlight-detail-audit-v01.yml'
+  workflow_dispatch:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/truthnegative-appearance-highlight-detail-audit-v0.1 -B build/ahd-gcc -DCMAKE_CXX_COMPILER=g++
+      - run: cmake --build build/ahd-gcc --parallel
+      - run: ctest --test-dir build/ahd-gcc --output-on-failure
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S docs/research/truthnegative-appearance-highlight-detail-audit-v0.1 -B build/ahd-clang -DCMAKE_CXX_COMPILER=clang++
+      - run: cmake --build build/ahd-clang --parallel
+      - run: ctest --test-dir build/ahd-clang --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: >
+          cmake -S docs/research/truthnegative-appearance-highlight-detail-audit-v0.1
+          -B build/ahd-san
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+      - run: cmake --build build/ahd-san --parallel
+      - run: ASAN_OPTIONS=detect_leaks=1 ctest --test-dir build/ahd-san --output-on-failure
