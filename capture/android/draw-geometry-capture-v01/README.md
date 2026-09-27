@@ -1,4 +1,4 @@
-# D.RAW Geometry Capture APK v0.1
+# D.RAW Geometry Capture APK v0.1.1
 
 Status: **CAPTURE-ASSISTANT CANDIDATE**
 
@@ -40,3 +40,7 @@ The manifest is capture provenance, not a geometry certificate.
 ## Open-world law
 
 **Seal the evidence, not the thinking.**
+
+## v0.1.1 UX fix
+
+After confirming a pose pair, the app now scrolls to the top, shows an explicit saved→next-pose banner and a toast. Manual Previous/Next navigation also scrolls to the pose header. This changes no source-evidence or scientific authority semantics.
