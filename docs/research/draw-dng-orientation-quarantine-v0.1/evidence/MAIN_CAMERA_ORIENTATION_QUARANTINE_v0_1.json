@@ -1,0 +1,52 @@
+{
+  "schema": "D.RAW/DngOrientationQuarantine/0.1",
+  "status": "DERIVED_INGRESS_CONTAINER_NO_NEW_EVIDENCE",
+  "parent_source": {
+    "sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+    "byte_length": 25195932,
+    "immutable": true
+  },
+  "source_issue": {
+    "tag": "Orientation",
+    "tag_code": 274,
+    "source_value": 9,
+    "tiff_defined_values_min": 1,
+    "tiff_defined_values_max": 8,
+    "source_value_standard_defined": false,
+    "cfa_ifd_offset": 8,
+    "orientation_value_field_offset": 138
+  },
+  "normalization": {
+    "method_id": "D_RAW_DNG_INVALID_ORIENTATION_9_TO_STORAGE_COORDINATE_1_V0_1",
+    "derived_value": 1,
+    "meaning": "STORAGE_COORDINATE_NORMAL_ONLY",
+    "presentation_orientation_authority": "UNKNOWN",
+    "world_orientation_claimed": false,
+    "changed_byte_count": 1,
+    "changed_byte_offsets": [138],
+    "source_byte_hex": "09",
+    "derived_byte_hex": "01"
+  },
+  "serialized_cfa_payload": {
+    "parent_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c",
+    "derived_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c",
+    "byte_length": 25165824,
+    "byte_identical": true
+  },
+  "derived_ingress": {
+    "sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "byte_length": 25195932,
+    "container_role": "SCIENTIFIC_STORAGE_COORDINATE_INGRESS_ONLY"
+  },
+  "lineage": {
+    "same_physical_observation": true,
+    "parent_source_mutated": false,
+    "cfa_payload_mutated": false,
+    "physical_frame_count_increment": 0,
+    "independent_evidence_count_increment": 0,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_orientation_claim_allowed": false
+  },
+  "manifest_sha256": "a0f7abda03b7877f3c8709ba0dad9f24c28ed64be8bde5818a63a9fc17cb8361"
+}
