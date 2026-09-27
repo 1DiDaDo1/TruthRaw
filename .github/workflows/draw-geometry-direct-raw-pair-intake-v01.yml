@@ -1,0 +1,106 @@
+name: D.RAW Geometry Direct RAW Pair Intake v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-geometry-direct-raw-pair-intake-v0.1/**'
+      - 'docs/research/open-world-evolution-law-v0.1/**'
+      - 'tools/draw_geometry_direct_raw_pair_intake_v01.py'
+      - 'tools/validate_draw_geometry_direct_raw_pair_v01.py'
+      - '.github/workflows/draw-geometry-direct-raw-pair-intake-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-geometry-direct-raw-pair-intake-v0.1/**'
+      - 'docs/research/open-world-evolution-law-v0.1/**'
+      - 'tools/draw_geometry_direct_raw_pair_intake_v01.py'
+      - 'tools/validate_draw_geometry_direct_raw_pair_v01.py'
+      - '.github/workflows/draw-geometry-direct-raw-pair-intake-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build synthetic sealed RAW pair
+        run: |
+          set -euo pipefail
+          printf 'synthetic-main-source-v01\n' >/tmp/main.raw
+          printf 'synthetic-ultrawide-source-v01\n' >/tmp/wide.raw
+          TARGET_SHA=$(printf 'synthetic-target-geometry-v01\n' | sha256sum | cut -d' ' -f1)
+          python3 tools/draw_geometry_direct_raw_pair_intake_v01.py seal \
+            --pose-id TRAIN_001 \
+            --subset TRAINING \
+            --main-file /tmp/main.raw \
+            --ultrawide-file /tmp/wide.raw \
+            --target-geometry-sha256 "$TARGET_SHA" \
+            --target-family SYNTHETIC_INDEXED_TARGET \
+            --metric-spacing-m 0.02 \
+            --attest-camera-system-rigid \
+            --attest-target-static-between-pair \
+            --output /tmp/sealed-pair.json
+          python3 tools/validate_draw_geometry_direct_raw_pair_v01.py /tmp/sealed-pair.json
+
+      - name: Build semantic future-version source admissions and bind pair
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          pair=json.load(open('/tmp/sealed-pair.json'))
+          for key,out in [('main','/tmp/main-adm.json'),('ultra_wide','/tmp/wide-adm.json')]:
+              sha=pair['sources'][key]['sha256']
+              obs='DRAW_PHYSICAL_OBS_'+sha
+              d={
+                'schema':'D.RAW/SourceAdmissionPackage/9.99-FUTURE-SEMANTIC-FIXTURE',
+                'status':'ADMITTED_SOURCE_LOCAL',
+                'physical_observation_id':obs,
+                'physical_source_evidence_sha256':sha,
+                'evidence_counts':{'physical_frame_count':1,'independent_evidence_count':1},
+                'graph_relations':[],
+                'fusion_admissions':[],
+                'invariants':{
+                  'scientific_writeback_allowed':False,
+                  'cross_observation_relation_granted':False,
+                  'cross_observation_fusion_granted':False
+                },
+                'state_sha256':'0'*64
+              }
+              x=dict(d); x.pop('state_sha256')
+              d['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(d,open(out,'w'))
+          PY
+          python3 tools/draw_geometry_direct_raw_pair_intake_v01.py bind \
+            --pair /tmp/sealed-pair.json \
+            --main-admission /tmp/main-adm.json \
+            --ultrawide-admission /tmp/wide-adm.json \
+            --output /tmp/bound-pair.json
+          python3 tools/validate_draw_geometry_direct_raw_pair_v01.py /tmp/bound-pair.json
+
+      - name: Prove pair intake cannot manufacture geometry authority
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          base=json.load(open('/tmp/bound-pair.json'))
+          def save(name, mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('pair_state_sha256',None)
+              j['pair_state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-fit.json',lambda j:j['geometry_readiness'].__setitem__('geometry_fit_allowed',True))
+          save('bad-rel.json',lambda j:j['geometry_readiness'].__setitem__('relation_status','ADMITTED'))
+          save('bad-transform.json',lambda j:j['geometry_readiness'].__setitem__('coordinate_transform_allowed',True))
+          save('bad-fusion.json',lambda j:j['geometry_readiness'].__setitem__('fusion_allowed',True))
+          save('bad-thinking.json',lambda j:j['open_world_evolution'].__setitem__('interpretation_model_mutable_via_versioned_successor',False))
+          PY
+          for f in /tmp/bad-fit.json /tmp/bad-rel.json /tmp/bad-transform.json /tmp/bad-fusion.json /tmp/bad-thinking.json; do
+            if python3 tools/validate_draw_geometry_direct_raw_pair_v01.py "$f"; then
+              echo "::error::invalid pair accepted: $f"
+              exit 1
+            fi
+          done
