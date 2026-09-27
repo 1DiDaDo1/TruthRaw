@@ -36,6 +36,7 @@ class MainActivity : Activity() {
         private const val REQ_IMPORT_MAIN = 1001
         private const val REQ_IMPORT_WIDE = 1002
         private const val REQ_EXPORT_MANIFEST = 1003
+        private const val REQ_RECOVER_BATCH = 1004
         private const val TOTAL_POSES = 16
         private const val TRAINING_POSES = 12
         private const val PREFS = "draw_geometry_capture_v01"
@@ -250,6 +251,16 @@ class MainActivity : Activity() {
 
         root.addView(sectionTitle("Sessie"))
         root.addView(Button(this).apply {
+            text = "Bestaande 32 RAW/DNG's automatisch herstellen"
+            setOnClickListener { launchBatchRecovery() }
+        })
+        root.addView(TextView(this).apply {
+            text = "Voor een gewiste vorige app: selecteer alle 32 originele opnames tegelijk. " +
+                "D.RAW leest capturetijd, focal length, bronmetadata en voorkant en bouwt de 16 paren opnieuw op."
+            textSize = 13f
+            setPadding(0, dp(4), 0, dp(12))
+        })
+        root.addView(Button(this).apply {
             text = "Exporteer session-manifest JSON"
             setOnClickListener { exportManifest() }
         })
@@ -300,6 +311,7 @@ class MainActivity : Activity() {
     private fun completeKey(index: Int): String = "pose_" + index + "_complete"
     private fun rigidKey(index: Int): String = "pose_" + index + "_camera_rigid"
     private fun targetStaticKey(index: Int): String = "pose_" + index + "_target_static"
+    private fun recoveryKey(index: Int): String = "pose_" + index + "_recovery_assignment"
 
     private fun renderPose() {
         val subset = subsetFor(currentPoseIndex)
@@ -401,6 +413,28 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun launchBatchRecovery() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(
+                Intent.EXTRA_MIME_TYPES,
+                arrayOf(
+                    "image/x-adobe-dng",
+                    "image/dng",
+                    "application/octet-stream",
+                    "image/*"
+                )
+            )
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
+        }
+        startActivityForResult(intent, REQ_RECOVER_BATCH)
+    }
+
     private fun importDng(requestCode: Int) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -429,6 +463,22 @@ class MainActivity : Activity() {
         if (requestCode == REQ_EXPORT_MANIFEST && resultCode == RESULT_OK) {
             val uri = data?.data ?: return
             writeManifestToUri(uri)
+            return
+        }
+
+        if (requestCode == REQ_RECOVER_BATCH && resultCode == RESULT_OK) {
+            val uris = mutableListOf<Uri>()
+            val clip = data?.clipData
+            if (clip != null) {
+                for (i in 0 until clip.itemCount) {
+                    uris += clip.getItemAt(i).uri
+                }
+            } else {
+                data?.data?.let { uris += it }
+            }
+            if (uris.isNotEmpty()) {
+                recoverExistingShoot(uris)
+            }
             return
         }
 
@@ -464,6 +514,443 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             toast("Import mislukt: " + (e.message ?: e.javaClass.simpleName))
         }
+    }
+
+    private data class RecoveryCandidate(
+        val source: ImportedSource,
+        val captureEpochMs: Long?,
+        val timeAuthority: String,
+        val focalLengthMm: Double?,
+        val originalSelectionIndex: Int
+    )
+
+    private fun recoverExistingShoot(uris: List<Uri>) {
+        if (uris.size != 32) {
+            AlertDialog.Builder(this)
+                .setTitle("Selecteer precies 32 bestanden")
+                .setMessage(
+                    "Voor herstel van de eerdere 16-pose sessie verwacht D.RAW 32 originele RAW/DNG-bestanden. " +
+                        "Geselecteerd: " + uris.size + "."
+                )
+                .setPositiveButton("OK", null)
+                .show()
+            return
+        }
+
+        transitionBanner.text = "32 bronnen worden gelezen, gehasht en visueel geïnspecteerd…"
+        transitionBanner.visibility = View.VISIBLE
+
+        Thread {
+            try {
+                val recoveryId = SimpleDateFormat(
+                    "yyyyMMdd_HHmmss",
+                    Locale.US
+                ).format(Date())
+                val candidates = mutableListOf<RecoveryCandidate>()
+
+                uris.forEachIndexed { index, uri ->
+                    try {
+                        contentResolver.takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    } catch (_: Exception) {
+                    }
+
+                    val src = copyAndVerifyRecovery(
+                        uri = uri,
+                        recoveryId = recoveryId,
+                        recoveryIndex = index
+                    )
+                    val timing = preferredCaptureEpochMs(src)
+                    val focal = src.universalSourceProfile
+                        .optJSONObject("optics")
+                        ?.optDouble("focal_length_mm", Double.NaN)
+                        ?.takeIf { it.isFinite() && it > 0.0 }
+
+                    candidates += RecoveryCandidate(
+                        source = src,
+                        captureEpochMs = timing.first,
+                        timeAuthority = timing.second,
+                        focalLengthMm = focal,
+                        originalSelectionIndex = index
+                    )
+
+                    runOnUiThread {
+                        transitionBanner.text =
+                            "Herstel: " + (index + 1) + " / 32 bronnen geanalyseerd…"
+                    }
+                }
+
+                if (candidates.map { it.source.sha256 }.toSet().size != 32) {
+                    throw IllegalStateException(
+                        "De selectie bevat dubbele bronbestanden/hashes"
+                    )
+                }
+
+                val sorted = candidates.sortedWith(
+                    compareBy<RecoveryCandidate>(
+                        { it.captureEpochMs ?: Long.MAX_VALUE },
+                        { it.originalSelectionIndex }
+                    )
+                )
+
+                val allHaveMeasuredTime = sorted.all { it.captureEpochMs != null }
+                val pairs = sorted.chunked(2)
+                if (pairs.size != TOTAL_POSES || pairs.any { it.size != 2 }) {
+                    throw IllegalStateException("Kon geen 16 bronparen vormen")
+                }
+
+                val editor = prefs.edit().clear()
+                    .putString("sessionId", recoveryId)
+                    .putLong("sessionCreatedAtEpochMs", System.currentTimeMillis())
+                    .putString(
+                        "sessionOrigin",
+                        "RECOVERED_EXISTING_SOURCES_AUTO_PAIRED"
+                    )
+                    .putString(
+                        "recoveryOrderingAuthority",
+                        if (allHaveMeasuredTime) {
+                            "SOURCE_METADATA_CAPTURE_TIME"
+                        } else {
+                            "MIXED_CAPTURE_TIME_WITH_SELECTION_ORDER_FALLBACK"
+                        }
+                    )
+
+                pairs.forEachIndexed { poseIndex, pair ->
+                    val first = pair[0]
+                    val second = pair[1]
+                    val roleAssigned = assignWorkflowRoles(first, second)
+                    val main = roleAssigned.first
+                    val wide = roleAssigned.second
+                    val assignmentAuthority = roleAssigned.third
+
+                    editor.putString(
+                        sourceKey(poseIndex, "MAIN"),
+                        main.source.copy(role = "MAIN").toJson().toString()
+                    )
+                    editor.putString(
+                        sourceKey(poseIndex, "ULTRA_WIDE"),
+                        wide.source.copy(role = "ULTRA_WIDE").toJson().toString()
+                    )
+                    editor.putBoolean(completeKey(poseIndex), true)
+                    editor.putBoolean(rigidKey(poseIndex), false)
+                    editor.putBoolean(targetStaticKey(poseIndex), false)
+
+                    val deltaMs = if (
+                        first.captureEpochMs != null &&
+                        second.captureEpochMs != null
+                    ) {
+                        kotlin.math.abs(
+                            first.captureEpochMs - second.captureEpochMs
+                        )
+                    } else {
+                        null
+                    }
+
+                    val recoveryInfo = JSONObject()
+                        .put(
+                            "schema",
+                            "D.RAW/RecoveredPairAssignment/0.1"
+                        )
+                        .put(
+                            "pairing_method",
+                            if (
+                                first.captureEpochMs != null &&
+                                second.captureEpochMs != null
+                            ) {
+                                "CHRONOLOGICAL_ADJACENT_SOURCE_METADATA"
+                            } else {
+                                "CHRONOLOGICAL_WITH_SELECTION_ORDER_FALLBACK"
+                            }
+                        )
+                        .put(
+                            "pairing_authority",
+                            "RECOVERY_INFERENCE_NOT_GEOMETRY_EVIDENCE"
+                        )
+                        .put(
+                            "workflow_role_assignment",
+                            assignmentAuthority
+                        )
+                        .put(
+                            "capture_delta_ms",
+                            deltaMs ?: JSONObject.NULL
+                        )
+                        .put(
+                            "first_time_authority",
+                            first.timeAuthority
+                        )
+                        .put(
+                            "second_time_authority",
+                            second.timeAuthority
+                        )
+                        .put(
+                            "first_reported_focal_length_mm",
+                            first.focalLengthMm ?: JSONObject.NULL
+                        )
+                        .put(
+                            "second_reported_focal_length_mm",
+                            second.focalLengthMm ?: JSONObject.NULL
+                        )
+                        .put(
+                            "workflow_labels_are_scientific_authority",
+                            false
+                        )
+                        .put(
+                            "geometry_relation_granted",
+                            false
+                        )
+
+                    editor.putString(
+                        recoveryKey(poseIndex),
+                        recoveryInfo.toString()
+                    )
+                }
+
+                editor.putInt("currentPoseIndex", 0)
+                    .putString(
+                        "lastActionMessage",
+                        "✓ 32 bestaande bronnen automatisch hersteld tot 16 kandidaatparen. Controleer het manifest; er is nog geen geometry-relation admitted."
+                    )
+                    .apply()
+
+                runOnUiThread {
+                    currentPoseIndex = 0
+                    loadTargetFields()
+                    renderPose()
+                    scrollView.post { scrollView.smoothScrollTo(0, 0) }
+                    AlertDialog.Builder(this)
+                        .setTitle("Herstel voltooid")
+                        .setMessage(
+                            "32 bronnen zijn automatisch gelezen en opnieuw als 16 pose-paren ingedeeld. " +
+                                "De koppeling is als recovery-inference opgeslagen, niet als geometry-evidence. " +
+                                "Exporteer nu het session-manifest JSON."
+                        )
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    transitionBanner.text =
+                        "Herstel mislukt: " +
+                            (e.message ?: e.javaClass.simpleName)
+                    transitionBanner.visibility = View.VISIBLE
+                    toast(
+                        "Herstel mislukt: " +
+                            (e.message ?: e.javaClass.simpleName)
+                    )
+                }
+            }
+        }.start()
+    }
+
+    private fun assignWorkflowRoles(
+        first: RecoveryCandidate,
+        second: RecoveryCandidate
+    ): Triple<RecoveryCandidate, RecoveryCandidate, String> {
+        val fa = first.focalLengthMm
+        val fb = second.focalLengthMm
+        if (
+            fa != null &&
+            fb != null &&
+            fa > 0.0 &&
+            fb > 0.0 &&
+            kotlin.math.abs(fa - fb) /
+                kotlin.math.max(fa, fb) >= 0.05
+        ) {
+            return if (fa > fb) {
+                Triple(
+                    first,
+                    second,
+                    "SOURCE_METADATA_FOCAL_ORDERING_WORKFLOW_HINT"
+                )
+            } else {
+                Triple(
+                    second,
+                    first,
+                    "SOURCE_METADATA_FOCAL_ORDERING_WORKFLOW_HINT"
+                )
+            }
+        }
+
+        return Triple(
+            first,
+            second,
+            "CAPTURE_ORDER_WORKFLOW_FALLBACK"
+        )
+    }
+
+    private fun preferredCaptureEpochMs(
+        source: ImportedSource
+    ): Pair<Long?, String> {
+        val metadata = source.universalSourceProfile
+            .optJSONObject("source_metadata")
+            ?: JSONObject()
+
+        val text = metadata
+            .optString("capture_time_preferred_text", "")
+            .trim()
+        val subsec = metadata
+            .optString("capture_subsec_preferred_text", "")
+            .trim()
+
+        parseExifTime(text, subsec)?.let {
+            return it to "SOURCE_METADATA_CAPTURE_TIME"
+        }
+
+        parseFilenameTime(source.displayName)?.let {
+            return it to "FILENAME_TIME_FALLBACK"
+        }
+
+        return null to "SELECTION_ORDER_FALLBACK"
+    }
+
+    private fun parseExifTime(
+        text: String,
+        subsec: String
+    ): Long? {
+        if (text.isBlank() || text == "null") return null
+        return try {
+            val parser = SimpleDateFormat(
+                "yyyy:MM:dd HH:mm:ss",
+                Locale.US
+            )
+            parser.isLenient = false
+            val base = parser.parse(text)?.time ?: return null
+            val digits = subsec.filter { it.isDigit() }
+            val ms = when {
+                digits.isEmpty() -> 0L
+                digits.length == 1 -> digits.toLong() * 100L
+                digits.length == 2 -> digits.toLong() * 10L
+                else -> digits.take(3).toLong()
+            }
+            base + ms
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun parseFilenameTime(name: String): Long? {
+        val candidates = listOf(
+            Regex("(20\\d{2})(\\d{2})(\\d{2})[_-]?(\\d{2})(\\d{2})(\\d{2})"),
+            Regex("(20\\d{2})[-_](\\d{2})[-_](\\d{2})[ T_-](\\d{2})[:_-]?(\\d{2})[:_-]?(\\d{2})")
+        )
+        for (regex in candidates) {
+            val match = regex.find(name) ?: continue
+            val values = match.groupValues
+            if (values.size < 7) continue
+            val normalized = values.drop(1).take(6).joinToString("")
+            try {
+                val parser = SimpleDateFormat(
+                    "yyyyMMddHHmmss",
+                    Locale.US
+                )
+                parser.isLenient = false
+                return parser.parse(normalized)?.time
+            } catch (_: Exception) {
+            }
+        }
+        return null
+    }
+
+    private fun copyAndVerifyRecovery(
+        uri: Uri,
+        recoveryId: String,
+        recoveryIndex: Int
+    ): ImportedSource {
+        val display = queryDisplayName(uri)
+            ?: ("source_" + recoveryIndex + ".dng")
+        val lower = display.lowercase(Locale.US)
+        val allowed = listOf(
+            ".dng", ".raw", ".nef", ".arw",
+            ".cr2", ".cr3", ".rw2", ".orf"
+        )
+        if (allowed.none { lower.endsWith(it) }) {
+            throw IllegalArgumentException(
+                "Geen ondersteund RAW/DNG-bestand: " + display
+            )
+        }
+
+        val base = getExternalFilesDir(
+            Environment.DIRECTORY_DOCUMENTS
+        ) ?: throw IllegalStateException(
+            "Geen externe app-documentmap beschikbaar"
+        )
+        val dir = File(
+            base,
+            "D_RAW_Recovery_" + recoveryId + "/RECOVERY"
+        )
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw IllegalStateException(
+                "Kan recovery-map niet maken"
+            )
+        }
+
+        val safe = display.replace(
+            Regex("[^A-Za-z0-9._-]"),
+            "_"
+        )
+        val outFile = File(
+            dir,
+            "%02d_%s".format(
+                Locale.US,
+                recoveryIndex + 1,
+                safe
+            )
+        )
+
+        val digest = MessageDigest.getInstance("SHA-256")
+        var count = 0L
+        contentResolver.openInputStream(uri).use { input ->
+            requireNotNull(input) {
+                "Bronbestand kan niet worden geopend"
+            }
+            FileOutputStream(outFile, false).use { output ->
+                val buffer = ByteArray(1024 * 1024)
+                while (true) {
+                    val n = input.read(buffer)
+                    if (n < 0) break
+                    if (n == 0) continue
+                    output.write(buffer, 0, n)
+                    digest.update(buffer, 0, n)
+                    count += n
+                }
+                output.fd.sync()
+            }
+        }
+
+        if (count <= 0L) {
+            outFile.delete()
+            throw IllegalStateException("Leeg bronbestand")
+        }
+
+        val sourceHash = digest.digest().toHex()
+        val copyHash = sha256(outFile)
+        if (sourceHash != copyHash) {
+            outFile.delete()
+            throw IllegalStateException(
+                "Byte-identieke recovery-kopiecontrole mislukt"
+            )
+        }
+
+        val profile = UniversalSourceProfiler.profile(
+            outFile,
+            display,
+            sourceHash
+        )
+
+        return ImportedSource(
+            role = "UNASSIGNED_RECOVERY_SOURCE",
+            displayName = display,
+            sourceUri = uri.toString(),
+            localCopyPath = outFile.absolutePath,
+            byteLength = count,
+            sha256 = sourceHash,
+            copiedSha256 = copyHash,
+            copyVerified = true,
+            importedAtEpochMs = System.currentTimeMillis(),
+            universalSourceProfile = profile
+        )
     }
 
     private fun copyAndVerify(uri: Uri, role: String): ImportedSource {
@@ -764,6 +1251,16 @@ class MainActivity : Activity() {
                         JSONObject.NULL
                     }
                 )
+                .put(
+                    "recovery_assignment",
+                    prefs.getString(recoveryKey(i), null)?.let {
+                        try {
+                            JSONObject(it)
+                        } catch (_: Exception) {
+                            JSONObject.NULL
+                        }
+                    } ?: JSONObject.NULL
+                )
 
             val pairIdentity = if (main != null && wide != null) {
                 sha256Text(
@@ -834,6 +1331,32 @@ class MainActivity : Activity() {
             .put("training_pose_count_required", 12)
             .put("holdout_pose_count_required", 4)
             .put("completed_pair_count", countCompleted())
+            .put(
+                "session_recovery",
+                JSONObject()
+                    .put(
+                        "origin",
+                        prefs.getString(
+                            "sessionOrigin",
+                            "LIVE_OR_MANUAL_IMPORT"
+                        )
+                    )
+                    .put(
+                        "ordering_authority",
+                        prefs.getString(
+                            "recoveryOrderingAuthority",
+                            "NOT_APPLICABLE"
+                        )
+                    )
+                    .put(
+                        "auto_pairing_is_geometry_evidence",
+                        false
+                    )
+                    .put(
+                        "workflow_role_labels_are_scientific_authority",
+                        false
+                    )
+            )
             .put(
                 "universal_routing",
                 JSONObject()

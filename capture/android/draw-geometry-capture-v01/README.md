@@ -1,4 +1,4 @@
-# D.RAW Universal Capture / Intake v0.2.0
+# D.RAW Universal Capture / Intake v0.2.1
 
 Status: **UNIVERSAL SOURCE + FRONTSIDE INSPECTION CANDIDATE**
 
@@ -85,3 +85,24 @@ Camera2 remains optional.
 - fusion: not granted.
 
 **Seal the evidence, not the thinking.**
+
+
+## v0.2.1 — recovery after app deletion
+
+If an earlier app installation was deleted but the original camera RAW/DNG files still exist, the user does not need to repeat the shoot.
+
+The app now offers **Bestaande 32 RAW/DNG's automatisch herstellen**.
+
+Recovery:
+
+- accepts exactly 32 original sources for the earlier 16-pose campaign;
+- makes byte-identical verified copies and SHA-256 profiles;
+- reads DNG/EXIF capture time including DateTimeOriginal/SubSecTimeOriginal when present;
+- falls back to timestamp encoded in a filename, then only as a last resort to selection order;
+- auto-pairs chronologically adjacent sources into 16 pose candidates;
+- uses reported focal-length ordering only as a workflow-role hint;
+- preserves the pairing method and authority in the exported manifest;
+- rejects duplicate source hashes;
+- never upgrades automatic recovery pairing to geometry evidence.
+
+This is recovery inference, not a relation certificate.
