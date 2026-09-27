@@ -1,0 +1,33 @@
+{
+  "schema": "D.RAW/GeometryHoldoutEvaluation/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": null,
+  "capture_set_state_sha256": null,
+  "freeze_state_sha256": null,
+  "holdout_set_sha256": null,
+  "selected_candidate_id": null,
+  "holdout_scoring_policy_sha256": null,
+  "holdout_acceptance_thresholds_sha256": null,
+  "evaluated_holdout_pair_state_sha256": [],
+  "holdout_metrics_bundle_sha256": null,
+  "holdout_residual_report_sha256": null,
+  "decision": "PASS_OR_FAIL",
+  "decision_basis_sha256": null,
+  "holdout_execution": {
+    "model_refit_performed": false,
+    "model_family_changed": false,
+    "hyperparameters_changed": false,
+    "selected_candidate_changed": false,
+    "acceptance_thresholds_changed": false
+  },
+  "extensions": {},
+  "invariants": {
+    "source_evidence_mutated": false,
+    "capture_set_membership_rewritten": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false
+  },
+  "evaluation_state_sha256": null
+}
