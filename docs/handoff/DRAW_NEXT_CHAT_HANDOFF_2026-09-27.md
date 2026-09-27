@@ -206,6 +206,44 @@ An admitted calibration binding still:
 No real Camera-5 calibration was promoted by this module; its validation uses
 synthetic calibration fixtures.
 
+## Source Capability Envelope v0.1
+
+Status: **main-integrated, host validated**.
+
+- merge: `56464d3b683dcc347dd340f14e1451ed696c56ce`
+- run: `36282899524` — **SUCCESS**
+
+This is now the machine-strict knowledge map for one source. Every admitted
+source must place sampling geometry, geometry/pose, radiometry, colorimetry,
+spectral, optical support, noise/uncertainty, temporal and provenance.
+
+`UNKNOWN` is a valid explicit state. Missing placement is not.
+
+The current Camera-5 envelope deliberately keeps sensor pixel mode,
+readout-domain identity, spectral support, scientific optical support and
+temporal support unknown where no evidence establishes them.
+
+## Source Admission Package v0.1
+
+Status: **main-integrated generic source gate, host validated**.
+
+- merge: `2ae5f42428137e5b870622fbd90417f0eb87a97c`
+- run: `36283458445` — **SUCCESS**
+
+The admission gate has two phases:
+
+1. `CANDIDATE_NOT_SCIENTIFICALLY_ADMITTED` — a pre-admission manifest built
+   only from sealed source evidence and real source facts; all unproven
+   scientific capabilities remain UNKNOWN.
+2. `ADMITTED_SOURCE_LOCAL` — only after Observation Record v0.3 and Source
+   Capability Envelope v0.1 both validate and bind to the same source.
+
+Initial admission forbids shared Free World gauge, graph relations and fusion.
+
+The generic gate is ready for main and ultra-wide, but neither source is
+scientifically admitted yet. Their real sealed source evidence still has to be
+supplied and passed through this gate.
+
 ## Meaning of knowledge growth
 
 New information never becomes "more measured" merely because it fits the
