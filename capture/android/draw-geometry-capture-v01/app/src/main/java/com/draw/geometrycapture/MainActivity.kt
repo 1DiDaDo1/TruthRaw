@@ -582,6 +582,12 @@ class MainActivity : Activity() {
                     }
                 }
 
+                if (candidates.map { it.source.sha256 }.toSet().size != 32) {
+                    throw IllegalStateException(
+                        "De selectie bevat dubbele bronbestanden/hashes"
+                    )
+                }
+
                 val sorted = candidates.sortedWith(
                     compareBy<RecoveryCandidate>(
                         { it.captureEpochMs ?: Long.MAX_VALUE },
