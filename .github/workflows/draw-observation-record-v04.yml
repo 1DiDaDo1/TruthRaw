@@ -1,0 +1,60 @@
+name: D.RAW Observation Record v0.4
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-observation-record-v0.4/**'
+      - 'tools/validate_draw_observation_record_v04.py'
+      - '.github/workflows/draw-observation-record-v04.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-observation-record-v0.4/**'
+      - 'tools/validate_draw_observation_record_v04.py'
+      - '.github/workflows/draw-observation-record-v04.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate lineage parent
+        run: |
+          python3 tools/validate_draw_scientific_ingress_lineage_v01.py \
+            docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json \
+            docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_ORIENTATION_QUARANTINE_v0_1.json \
+            docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_HOST_SCIENTIFIC_ROUTE_v0_1.json \
+            docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json
+      - name: Validate real main Observation Record v0.4
+        run: |
+          python3 tools/validate_draw_observation_record_v04.py \
+            docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json \
+            docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json
+      - name: Prove physical identity cannot collapse into pipeline identity
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json'
+          base=json.load(open(p))
+          def save(name,mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('record_state_sha256',None)
+              j['record_state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-collapse.json',lambda j:j.__setitem__('physical_observation_id',j['pipeline_record_v0_3']['observation_id']))
+          save('bad-graph.json',lambda j:j['physical_graph_node'].__setitem__('state_sha256',j['pipeline_record_v0_3']['graph_node']['state_sha256']))
+          save('bad-new-observation.json',lambda j:j['identity_policy'].__setitem__('derived_ingress_is_new_physical_observation',True))
+          save('bad-evidence.json',lambda j:j['invariants'].__setitem__('independent_evidence_count_increment',1))
+          save('bad-source.json',lambda j:j['physical_source_evidence'].__setitem__('sha256',j['pipeline_record_v0_3']['source_evidence']['sha256']))
+          PY
+          for f in /tmp/bad-collapse.json /tmp/bad-graph.json /tmp/bad-new-observation.json /tmp/bad-evidence.json /tmp/bad-source.json; do
+            if python3 tools/validate_draw_observation_record_v04.py "$f" \
+                docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json; then
+              echo "::error::invalid v0.4 record accepted: $f"
+              exit 1
+            fi
+          done

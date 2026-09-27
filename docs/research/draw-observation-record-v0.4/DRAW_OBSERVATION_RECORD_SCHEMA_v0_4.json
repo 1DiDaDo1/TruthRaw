@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/DRAWObservationRecord/0.4",
+  "title": "D.RAW Observation Record v0.4 — physical identity plus pipeline lineage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "physical_observation_id",
+    "physical_source_evidence",
+    "physical_provenance",
+    "scientific_ingress_lineage",
+    "pipeline_record_v0_3",
+    "physical_graph_node",
+    "evidence_counts",
+    "identity_policy",
+    "invariants",
+    "record_state_sha256"
+  ]
+}
