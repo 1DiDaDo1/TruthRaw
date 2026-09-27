@@ -14,7 +14,7 @@
 >
 > Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
 >
-> **Main / physical Camera 2 is now `ADMITTED_SOURCE_LOCAL`.**
+> **Main / physical Camera 2 and the user-captured ultra-wide are now `ADMITTED_SOURCE_LOCAL`.**
 >
 > Stable physical Observation ID:
 > `DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
@@ -37,8 +37,16 @@
 > provenance. Calibration bindings, graph relations and fusion admissions
 > remain zero.
 >
-> Next empirical source: ultra-wide / physical Camera 4. It must enter
-> independently; no main or tele calibration transfers to it.
+> Ultra-wide direct-source admission:
+> - physical Observation ID: `DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133`;
+> - Scientific Master: `949777edb5541064e190d148775ce27d303ce1e0d35f57d7a837fc092ad9f6d9`;
+> - D.RAWnegative v0.1: `b0ee1322ff6260eb30072533c2b3e294be46375778ac4622b908d6c746e172e0`;
+> - final admission: `629edde9697387e87c39c66846f21457954d258d831464140eda42ed912b655a`;
+> - validation `36302484185`: SUCCESS.
+>
+> The user's self-capture attestation establishes the ultra-wide lens role. Project Camera 4 remains map-bound rather than runtime-result-proven for this exact DNG. Sample/readout/pixel-mode remain UNKNOWN.
+>
+> Next frontier: independently measured main↔ultra-wide↔tele relation certificates. No relation or calibration transfers automatically, and fusion stays disabled until its complete relation set is admitted.
 >
 > **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 >

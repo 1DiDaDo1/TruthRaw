@@ -59,6 +59,27 @@ Status: **CURRENT NAVIGATION AUTHORITY**
   - state:
     `c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a`
 
+### Ultra-wide — ADMITTED_SOURCE_LOCAL
+
+Direct physical-source family:
+
+`docs/research/draw-direct-physical-source-admission-v0.1/**`
+
+- user-attested self-captured ultra-wide RAW;
+- physical source SHA: `14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133`;
+- original DNG is direct scientific ingress; no compatibility container;
+- Scientific Master: `949777edb5541064e190d148775ce27d303ce1e0d35f57d7a837fc092ad9f6d9`;
+- D.RAWnegative v0.1: `b0ee1322ff6260eb30072533c2b3e294be46375778ac4622b908d6c746e172e0`;
+- physical graph node: `85d8ef0b9b3e769f30c4d62a114e70c94369fc3250ae5c4f664c04223980a64e`;
+- final source-local admission: `629edde9697387e87c39c66846f21457954d258d831464140eda42ed912b655a`;
+- validation run `36302484185`: SUCCESS;
+- runtime active physical Camera2 result 4: not proven for this exact file;
+- project Camera 4 mapping: retained as project-map authority only;
+- capture sample/readout/pixel-mode: UNKNOWN;
+- calibration bindings = 0;
+- graph relations = 0;
+- fusion admissions = 0.
+
 ## Main physical vs pipeline identity
 
 Physical Free World Observation ID:
@@ -126,10 +147,13 @@ Latest fully host + Android validated D.RAWnegative checkpoint remains:
 
 Android run `36260305613`: SUCCESS.
 
-## Next source
+## Next frontier
 
-Ultra-wide / physical Camera 4 is the next empirical admission target. It must
-enter independently; no main/tele calibration or authority transfers to it.
+Main, ultra-wide and telephoto are now separate source-local anchors. The next scientific work is cross-observation relation admission using physical Observation IDs.
+
+Relation axes remain independent: geometry, radiometric gauge, colorimetric, spectral, optical support, uncertainty/correlation, temporal and provenance. No axis transfers authority to another, and composite fusion remains forbidden until its complete required relation set is separately ADMITTED.
+
+Optional device work: runtime Camera2 route proof for the ultra-wide Camera-4 mapping may be collected with the preserved FotoGraaf probe; that does not itself create calibration or fusion authority.
 
 ## Governance
 
