@@ -95,6 +95,24 @@ Generic new-source gate is main-integrated and host validated.
 Main and ultra-wide are **READY FOR PRE-ADMISSION** but are not admitted until
 real sealed source evidence is supplied.
 
+### Real main-camera Pre-Admission v0.2
+
+Main now has a real sealed source candidate in the current project state.
+
+- source SHA-256: `a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
+- serialized CFA payload SHA-256: `4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c`
+- manifest state: `cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38`
+- physical result camera: `2`
+- storage: 4096×3072 BGGR RAW_SENSOR, uncompressed 16-bit CFA
+- validation run: `36284174427` — **SUCCESS**
+
+Pre-Admission v0.2 was required because serialized storage is known while
+capture sample domain, readout domain and sensor pixel mode remain UNKNOWN.
+
+Main is not yet source-local scientifically admitted. The next step is to run
+this exact source through the current scientific route and produce Record v0.3
++ Capability Envelope before Final Admission can exist.
+
 ## Validation boundary
 
 The 2026-09-27 Graph/Record/Calibration modules are host/control-plane
