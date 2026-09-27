@@ -298,6 +298,28 @@ Even after binding:
 Camera2 remains optional acquisition/runtime provenance. It is not required to
 create D.RAWnegative or to enter a direct RAW geometry-pair campaign.
 
+## Geometry Capture-Set Gate v0.1
+
+Status: **main-integrated, host validated**.
+
+- merge: `ad24587eca1f018cffaac86ac4e4273cac10e9ef`
+- dedicated validation run: `36312992699` — **SUCCESS**
+- initial workflow-registration run `36312895715` failed only because of YAML heredoc indentation before any job started; scientific semantics were unchanged.
+
+The validated matrix builds 12 TRAINING + 4 HOLDOUT admission-bound pairs and proves:
+
+- deterministic capture-set identity independent of CLI input order;
+- insufficient holdout fails closed;
+- HOLDOUT cannot participate in model selection;
+- final holdout scoring remains closed until a later model/threshold freeze artifact exists;
+- geometry relation remains UNKNOWN;
+- coordinate transform, fusion and calibration transfer remain false;
+- the capture-set gate does **not** select or seal a projection/distortion model.
+
+Open-world law at this layer:
+
+**Seal the evidence split, not the model hypothesis.**
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on
