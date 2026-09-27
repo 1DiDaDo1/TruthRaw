@@ -185,6 +185,20 @@ Optional device work: runtime Camera2 route proof for the ultra-wide Camera-4 ma
   - accepts future admission successors by required semantics, not one frozen schema version;
   - no geometry relation, transform, fusion or calibration transfer is granted by pair intake.
 
+## Geometry Capture-Set Gate v0.1
+
+- `docs/research/draw-geometry-capture-set-gate-v0.1/README.md`
+- `tools/draw_geometry_capture_set_gate_v01.py`
+- `tools/validate_draw_geometry_capture_set_v01.py`
+- `tests/test_draw_geometry_capture_set_gate_v01.py`
+- merge `ad24587eca1f018cffaac86ac4e4273cac10e9ef`
+- validation `36312992699`: SUCCESS
+- proves deterministic 12+4 capture-set construction and strict TRAINING/HOLDOUT separation
+- HOLDOUT model selection = false
+- final holdout scoring before model freeze = false
+- geometry relation remains UNKNOWN
+- evidence membership may be sealed; model hypothesis remains open
+
 ## Governance
 
 Branch integration never promotes scientific authority. Sealed objects are not

@@ -14,11 +14,12 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "ddcce0f8490bcbba2030548230f18bfb62c485d2",
+    "latest_substantive_integration_sha": "ad24587eca1f018cffaac86ac4e4273cac10e9ef",
     "current_main_includes_knowledge_growth_modules": true,
     "current_main_includes_real_main_final_admission": true,
     "current_main_includes_real_ultrawide_final_admission": true,
-    "current_main_includes_geometry_relation_campaign_v0_1": true
+    "current_main_includes_geometry_relation_campaign_v0_1": true,
+    "current_main_includes_geometry_capture_set_gate_v0_1": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
@@ -367,6 +368,39 @@
       "coordinate_transform_allowed_after_pair_binding": false,
       "fusion_allowed_after_pair_binding": false,
       "future_source_admission_versions_semantically_bindable": true
+    },
+    "geometry_capture_set_gate_v0_1": {
+      "status": "MAIN_INTEGRATED_HOST_VALIDATED",
+      "readme": "docs/research/draw-geometry-capture-set-gate-v0.1/README.md",
+      "contract": "docs/research/draw-geometry-capture-set-gate-v0.1/DRAW_GEOMETRY_CAPTURE_SET_GATE_CONTRACT_v0_1.json",
+      "template": "docs/research/draw-geometry-capture-set-gate-v0.1/CAPTURE_SET_TEMPLATE_v0_2.json",
+      "implementation": "tools/draw_geometry_capture_set_gate_v01.py",
+      "validator": "tools/validate_draw_geometry_capture_set_v01.py",
+      "integration_test": "tests/test_draw_geometry_capture_set_gate_v01.py",
+      "merge_commit_sha": "ad24587eca1f018cffaac86ac4e4273cac10e9ef",
+      "validation_run_id": 36312992699,
+      "validation_result": "SUCCESS",
+      "initial_workflow_registration_run_id": 36312895715,
+      "initial_workflow_registration_result": "FAILURE",
+      "initial_failure_class": "WORKFLOW_YAML_HEREDOC_INDENTATION_ONLY",
+      "initial_failure_changed_scientific_semantics": false,
+      "training_pose_minimum": 12,
+      "holdout_pose_minimum": 4,
+      "input_order_invariant_proven": true,
+      "insufficient_holdout_rejected": true,
+      "training_model_selection_allowed_after_complete_set": true,
+      "holdout_model_selection_allowed": false,
+      "final_holdout_scoring_allowed_before_model_freeze": false,
+      "geometry_relation_status_after_capture_set": "UNKNOWN",
+      "coordinate_transform_allowed": false,
+      "relation_fusion_allowed": false,
+      "calibration_transfer_allowed": false,
+      "membership_identity_sealed": true,
+      "projection_model_selected": false,
+      "distortion_model_selected": false,
+      "feature_detector_selected": false,
+      "future_model_successors_allowed": true,
+      "open_world_law": "SEAL_EVIDENCE_SPLIT_NOT_MODEL_HYPOTHESIS"
     }
   },
   "graph_model": {
@@ -401,7 +435,12 @@
       "status": "UNKNOWN",
       "certificate_sha256": null,
       "coordinate_transform_allowed": false,
-      "fusion_allowed": false
+      "fusion_allowed": false,
+      "direct_raw_pair_intake_ready": true,
+      "capture_set_gate_ready": true,
+      "training_pose_minimum": 12,
+      "holdout_pose_minimum": 4,
+      "holdout_model_selection_allowed": false
     }
   },
   "scientific_invariants": {
@@ -419,11 +458,12 @@
     "Create or print one indexed planar metric target with measured physical spacing and immutable target geometry identity.",
     "For each pose, capture one MAIN RAW/DNG and one ULTRA_WIDE RAW/DNG without moving the phone or target between the two exposures; Camera2 is optional.",
     "Seal each pose-pair with Geometry Direct RAW Pair Intake v0.1 as TRAINING or HOLDOUT.",
-    "Run each individual RAW/DNG through its valid D.RAW ingress and obtain ADMITTED_SOURCE_LOCAL before binding the pair.",
-    "Bind each sealed pair to the two source-local admissions; pair binding may allow feature extraction but still does not allow geometry fitting or relation authority.",
-    "Collect at least 12 training pairs and 4 disjoint holdout pairs.",
-    "Fit per-lens intrinsics/distortion and MAIN-to-ULTRA_WIDE extrinsics on training data only; model families remain revisable through versioned successors and are not sealed thoughts.",
-    "Freeze the selected model/thresholds for the specific certificate before final holdout scoring; preserve alternative/superseded models as provenance.",
+    "Run each individual RAW/DNG through its valid D.RAW ingress and obtain ADMITTED_SOURCE_LOCAL, then bind each pair to those admissions.",
+    "Collect at least 12 admission-bound TRAINING pairs and 4 disjoint admission-bound HOLDOUT pairs.",
+    "Run Geometry Capture-Set Gate v0.1 to seal training/holdout evidence membership; do not select a projection/distortion model before this gate.",
+    "Use TRAINING only for feature extraction and model selection. HOLDOUT may not influence model family, optimizer choices or thresholds.",
+    "Create a later model-freeze artifact that records the selected model/thresholds for one reproducible certificate candidate without declaring that model the final possible scientific theory.",
+    "Only after model freeze may final HOLDOUT scoring begin.",
     "Create a GEOMETRY relation certificate only after held-out validation and exact endpoint applicability pass.",
     "Do not infer radiometric, colorimetric, spectral, optical-support, uncertainty/correlation, temporal or provenance relations from geometry success.",
     "Do not create composite fusion admission until the additional required axes are independently ADMITTED."
@@ -453,7 +493,11 @@
     "geometry_direct_raw_pair_intake_android_device_validated": false,
     "geometry_direct_raw_pair_intake_validation_class": "HOST_CONTROL_PLANE_PAIR_INTAKE",
     "camera2_is_required_scientific_ingress": false,
-    "open_world_evolution_law_changes_sealed_evidence": false
+    "open_world_evolution_law_changes_sealed_evidence": false,
+    "geometry_capture_set_gate_changes_pixel_route": false,
+    "geometry_capture_set_gate_android_device_validated": false,
+    "geometry_capture_set_gate_validation_class": "HOST_CONTROL_PLANE_CAPTURE_SET_GATE",
+    "geometry_capture_set_gate_relation_authority_granted": false
   },
   "source_admission_frontier": {
     "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",
