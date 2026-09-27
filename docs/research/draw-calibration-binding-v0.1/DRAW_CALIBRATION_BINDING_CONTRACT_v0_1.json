@@ -1,0 +1,44 @@
+{
+  "schema": "D.RAW/CalibrationObservationBindingContract/0.1",
+  "status": "RESEARCH_INTEGRATION_CANDIDATE",
+  "parent_foundation": "tools/open_world_foundations_v01.py",
+  "permanent_rule": "Calibration applicability is observation- and domain-bound; metadata similarity never transfers authority.",
+  "identity": {
+    "canonical_encoding": "UTF8_JSON_SORTED_KEYS_COMPACT",
+    "optional_float_encoding": "PYTHON_FLOAT_HEX_EXACT_BINARY64_VALUE",
+    "hashes": "SHA-256",
+    "calibration_source_evidence_order": "SORTED_UNIQUE_SET"
+  },
+  "validity_domain_requires": [
+    "device",
+    "physical_camera_id",
+    "sensor_pixel_mode",
+    "width",
+    "height",
+    "cfa",
+    "source_route_id",
+    "sample_domain_id",
+    "readout_domain_id"
+  ],
+  "bounded_conditions": [
+    "iso",
+    "exposure_s",
+    "temperature_c",
+    "focus_distance_diopters"
+  ],
+  "admission_requires": {
+    "foundation_record_valid": true,
+    "holdout_status": "PASS",
+    "hashed_holdout_report": true,
+    "exact_identity_domain_match": true,
+    "bounded_conditions_present_and_in_range": true
+  },
+  "invariants": {
+    "source_evidence_mutated": false,
+    "physical_frame_count_increment": 0,
+    "independent_evidence_count_increment": 0,
+    "cross_observation_relation_granted": false,
+    "calibration_transfer_implied": false,
+    "fusion_granted": false
+  }
+}
