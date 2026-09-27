@@ -1,0 +1,99 @@
+{
+  "schema": "DRAW_CURRENT_PROJECT_STATE/2026-09-27",
+  "date": "2026-09-27",
+  "product_name": "D.RAW",
+  "repository": "1DiDaDo1/TruthRaw",
+  "parent_state": "state/CURRENT_PROJECT_STATE_2026-09-26.json",
+  "integration_branch": "integration/draw-knowledge-growth-v0-1-2026-09-27",
+  "primary_branch_target": "main",
+  "main_promotion": {
+    "stale_main_sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+    "current_draw_line_promoted_to_main": true,
+    "draw_line_promotion_sha": "772fa50d5010448f20379abb32430ba50f7b93c5",
+    "knowledge_growth_integration_final_fast_forward_pending_at_state_creation": true
+  },
+  "current_scientific_negative": {
+    "name": "D.RAWnegative v0.1",
+    "sealed": true,
+    "semantics_changed_by_this_integration": false,
+    "validated_code_checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
+    "source_local_camera5_state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5"
+  },
+  "permanent_rules": [
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "Measured where measured. Reconstructed where necessary. Never invented.",
+    "One Free World. Many sealed observations. One evidence law.",
+    "Evidence stays what it was. Knowledge can grow through admitted relations."
+  ],
+  "knowledge_growth_integration": {
+    "virtual_observation_manifold": {
+      "integrated": true,
+      "merge_commit_sha": "7dd3229cc8a447e4b81e858fe35dc269cc7b6aef",
+      "invariant": "virtual views add zero independent evidence"
+    },
+    "fotograaf_acquisition_domain": {
+      "integrated": true,
+      "merge_commit_sha": "729d515c74c672b5209ced71366444fcd8207917",
+      "invariant": "sample-domain and geometry observations do not imply untouched sensor truth"
+    },
+    "professional_raw_gatehouse": {
+      "integrated_unique_modules": true,
+      "integration_commit_sha": "7b672a9ce12f926fbaa68129446e4d96fc902ce6",
+      "historical_branch_head": "8d417d2c8bda7eb011b68c5acadac0dc01405cfe",
+      "conflicting_obsolete_global_docs_restored": false,
+      "invariant": "external decode cannot create zero-line, Scientific Master or extra evidence"
+    },
+    "free_world_observation_graph_v0_1": {
+      "status": "RESEARCH_INTEGRATION_CANDIDATE",
+      "readme": "docs/research/free-world-observation-graph-v0.1/README.md",
+      "contract": "docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json",
+      "example": "docs/research/free-world-observation-graph-v0.1/examples/CAMERA5_SOURCE_LOCAL_GRAPH_v0_1.json",
+      "validator": "tools/validate_free_world_observation_graph_v01.py",
+      "workflow": ".github/workflows/free-world-observation-graph-v01.yml",
+      "local_fixture_validation": "PASS",
+      "repository_ci_status": "PENDING_OR_NOT_YET_RECORDED"
+    }
+  },
+  "graph_model": {
+    "information_floors": [
+      "EVIDENCE",
+      "SCIENTIFIC_DERIVED",
+      "RELATION",
+      "SCENE_MODEL",
+      "APPEARANCE"
+    ],
+    "relation_axes": [
+      "GEOMETRY",
+      "RADIOMETRIC_GAUGE",
+      "COLORIMETRIC",
+      "SPECTRAL",
+      "OPTICAL_SUPPORT",
+      "UNCERTAINTY_CORRELATION",
+      "TEMPORAL",
+      "PROVENANCE"
+    ],
+    "relation_axis_independence": true,
+    "admitted_relation_requires_certificate": true,
+    "direct_single_relation_fusion_allowed": false,
+    "composite_fusion_admission_required": true,
+    "lens_identity_is_world_boundary": false
+  },
+  "scientific_invariants": {
+    "sealed_source_immutable": true,
+    "direct_cfa_immutable": true,
+    "scientific_master_writeback_from_graph": false,
+    "drawnegative_v0_1_mutated": false,
+    "appearance_writeback_allowed": false,
+    "virtual_view_creates_new_evidence": false,
+    "precision_upgrades_authority": false,
+    "calibration_transfer_by_device_or_lens_identity": false,
+    "rejected_relations_are_preserved_knowledge": true
+  },
+  "next_empirical_growth": [
+    "Create a separate admitted main-camera D.RAW Observation Record and Source Capability Envelope.",
+    "Create a separate admitted ultra-wide D.RAW Observation Record and Source Capability Envelope.",
+    "Keep both source-local by default.",
+    "Measure geometry, radiometric, colorimetric/spectral, optical, uncertainty/correlation and temporal relations independently.",
+    "Admit fusion only through a composite certificate containing all required relation axes."
+  ]
+}
