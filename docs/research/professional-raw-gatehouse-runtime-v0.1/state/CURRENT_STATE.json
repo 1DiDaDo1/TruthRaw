@@ -1,0 +1,60 @@
+{
+  "module": "Professional RAW Gatehouse Runtime v0.1",
+  "status": "RESEARCH_CANDIDATE_CI_PASS",
+  "implementation_head": "7943973aeddf2e0c08fec5dd61a12b53b4cd8f8e",
+  "validated_run_id": 34598421730,
+  "validated_run_conclusion": "success",
+  "base_branch": "research/libraw-fd-datastream-v0.1",
+  "base_sha_at_pr_open": "f428394dcb6a6ee2ff2e683927a9d1dd632377c0",
+  "pr": 13,
+  "routing": {
+    "native_certified_tile_dng": "MAIN_HOUSE_DIRECT",
+    "external_lossless_decoded_certified_bayer": "GATEHOUSE_REQUIRED_THEN_MAIN_HOUSE_AFTER_DETACH",
+    "research_or_derived": "RESEARCH_ONLY",
+    "unsupported_or_invalid": "FAIL_CLOSED"
+  },
+  "isolation": {
+    "allow_main_house_heavy_overlap_v0_1": false,
+    "decoder_context_must_be_dead_before_main_house": true,
+    "mutable_decoder_state_shared_with_main_house": false,
+    "gatehouse_may_create_zero_line": false,
+    "gatehouse_may_create_scientific_master": false
+  },
+  "scientific_invariants": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "resource_tier_changes_truth_authority": false
+  },
+  "resource_fixtures": {
+    "low": {
+      "app_memory_class_mib": 256,
+      "available_mib": 160,
+      "budget_mib": 32,
+      "workers": 1,
+      "heavy_room_concurrency": 1,
+      "io_chunk_kib": 64
+    },
+    "high": {
+      "app_memory_class_mib": 4096,
+      "available_mib": 3072,
+      "budget_mib": 512,
+      "workers": 8,
+      "heavy_room_concurrency": 4,
+      "io_chunk_kib": 1024
+    },
+    "external_decoder_fixture": {
+      "resident_mib": 416,
+      "scratch_mib": 32,
+      "peak_mib": 448,
+      "low_admitted": false,
+      "high_admitted": true,
+      "evidence_class_both_tiers": "LosslessDecodedCertified"
+    }
+  },
+  "not_proven": [
+    "real CR3/NEF/ARW/RAF/IIQ pixel decoding",
+    "physical Android RSS/thermal behavior",
+    "real-device end-to-end Gatehouse detach and Main House handoff",
+    "production persisted decoded-measurement transport"
+  ]
+}

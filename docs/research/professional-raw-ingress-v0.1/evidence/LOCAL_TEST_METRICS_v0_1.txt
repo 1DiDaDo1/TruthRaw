@@ -1,0 +1,10 @@
+PROFESSIONAL_RAW_INGRESS_V0_1_TEST_PASS
+compiler_gcc_release=PASS
+compiler_clang_release=PASS
+compiler_clang_asan_ubsan=PASS
+extensionAloneCertifies=0
+nativeDngDirectCfa=1
+certifiedExternalLossless=1
+xtransWithoutDownstreamTopology=research_only
+computationalRawDirectCfa=0
+multiShotDirectCfa=0

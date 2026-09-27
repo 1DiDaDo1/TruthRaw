@@ -1,0 +1,26 @@
+{
+  "schema": "truthraw.professional_raw_ingress.format_family_policy.v0.1",
+  "status": "research_target_registry_not_supported_camera_list",
+  "rules": {
+    "extension_alone_certifies": false,
+    "original_container_remains_sealed": true,
+    "decoder_success_equals_scientific_admission": false,
+    "resource_tier_may_change_evidence_class": false,
+    "unknown_variant_policy": "fail_closed"
+  },
+  "families": [
+    {"family": "DNG", "route": "native_strict_subset_plus_future_adapters", "implementation": "partial_current_elsewhere", "topology_notes": "must_classify_actual_measurement"},
+    {"family": "Canon_CR2_CR3", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Nikon_NEF_NRW", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Sony_ARW_SRF_SR2", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Fujifilm_RAF", "route": "certified_adapter", "implementation": "target_not_implemented_here", "topology_notes": "Bayer_and_XTrans_must_remain_distinct"},
+    {"family": "Panasonic_RW2", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Olympus_OM_ORF_ORI", "route": "certified_adapter", "implementation": "target_not_implemented_here", "topology_notes": "single_frame_and_composite_modes_must_remain_distinct"},
+    {"family": "Pentax_PEF", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Hasselblad_3FR_FFF", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "PhaseOne_IIQ", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Leaf_MOS_MEF", "route": "certified_adapter", "implementation": "target_not_implemented_here"},
+    {"family": "Sigma_X3F", "route": "certified_adapter_plus_layered_topology", "implementation": "target_not_implemented_here"},
+    {"family": "Cinema_RAW", "route": "separate_future_architecture", "implementation": "out_of_scope_v0_1"}
+  ]
+}
