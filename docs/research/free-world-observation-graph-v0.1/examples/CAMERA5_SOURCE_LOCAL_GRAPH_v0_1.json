@@ -1,0 +1,91 @@
+{
+  "schema": "D.RAW/FreeWorldObservationGraph/0.1",
+  "graph_id": "DRAW_FREE_WORLD_GRAPH_CAMERA5_SOURCE_LOCAL_V0_1",
+  "observations": [
+    {
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "drawnegative_state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5",
+      "source_evidence_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "lens_role": "TELEPHOTO",
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "source_local_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "temporal_footprint": {
+        "model": "CAPTURE_TIMESTAMP_ONLY",
+        "exposure_interval_known": false,
+        "rolling_shutter_model_known": false
+      }
+    }
+  ],
+  "information": [
+    {
+      "information_id": "cam5-source",
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "domain": "SOURCE_EVIDENCE",
+      "floor": "EVIDENCE",
+      "authority": "SEALED",
+      "identity_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "creates_new_evidence": false
+    },
+    {
+      "information_id": "cam5-radiometry",
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "domain": "RADIOMETRY",
+      "floor": "SCIENTIFIC_DERIVED",
+      "authority": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+      "identity_sha256": "01f22f57e7ae43f7d944adb7660fa96ab7242f3a387e3bd6fd34cbd63f528fd8",
+      "creates_new_evidence": false
+    },
+    {
+      "information_id": "cam5-color",
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "domain": "COLORIMETRY",
+      "floor": "SCIENTIFIC_DERIVED",
+      "authority": "SOURCE_METADATA_BOUND",
+      "identity_sha256": "5ad5f49782a7ae71f4685178b92b9a2fb06be95dc9f0bfc1bd80292324251f38",
+      "creates_new_evidence": false
+    },
+    {
+      "information_id": "cam5-optics",
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "domain": "OPTICAL_SUPPORT",
+      "floor": "SCIENTIFIC_DERIVED",
+      "authority": "UNKNOWN",
+      "identity_sha256": null,
+      "creates_new_evidence": false
+    },
+    {
+      "information_id": "cam5-temporal",
+      "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "domain": "TEMPORAL",
+      "floor": "SCIENTIFIC_DERIVED",
+      "authority": "SOURCE_TIMESTAMP_BOUND",
+      "identity_sha256": null,
+      "creates_new_evidence": false
+    }
+  ],
+  "relations": [],
+  "fusion_admissions": [],
+  "virtual_views": [
+    {
+      "view_id": "CAM5_VIRTUAL_EV_PLUS_2",
+      "parent_observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "kind": "VIRTUAL_EV",
+      "parameter": 2,
+      "independent_evidence_increment": 0,
+      "creates_new_evidence": false
+    }
+  ],
+  "knowledge_growth": {
+    "source_evidence_mutated": false,
+    "new_information_adds_context_only": true,
+    "new_relations_require_certificate_for_admission": true
+  },
+  "invariants": {
+    "lens_identity_upgrades_authority": false,
+    "relation_promotes_source_evidence": false,
+    "appearance_writeback_allowed": false,
+    "representation_can_exceed_source": true,
+    "knowledge_claims_may_exceed_evidence": false
+  }
+}
