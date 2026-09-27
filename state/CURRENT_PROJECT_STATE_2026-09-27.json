@@ -14,7 +14,7 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "2ae5f42428137e5b870622fbd90417f0eb87a97c",
+    "latest_substantive_integration_sha": "59f354b822d64cbc7179bb3c75388472e5ca51ee",
     "current_main_includes_knowledge_growth_modules": true
   },
   "current_scientific_negative": {
@@ -141,6 +141,33 @@
       "shared_gauge_on_initial_admission_allowed": false,
       "graph_relations_on_initial_admission_allowed": false,
       "fusion_on_initial_admission_allowed": false
+    },
+    "source_pre_admission_v0_2": {
+      "status": "MAIN_INTEGRATED_REAL_MAIN_CAMERA_PRE_ADMISSION",
+      "readme": "docs/research/draw-source-pre-admission-v0.2/README.md",
+      "manifest": "docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json",
+      "verification_report": "docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_SOURCE_VERIFICATION_2026-09-27.md",
+      "validator": "tools/validate_draw_source_pre_admission_v02.py",
+      "generator": "tools/create_draw_source_pre_admission_v02.py",
+      "merge_commit_sha": "59f354b822d64cbc7179bb3c75388472e5ca51ee",
+      "validation_run_id": 36284174427,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36284174391,
+      "documentation_governance_result": "SUCCESS",
+      "source_sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+      "serialized_cfa_payload_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c",
+      "manifest_state_sha256": "cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38",
+      "logical_camera_id": "0",
+      "active_physical_camera_id": "2",
+      "lens_role": "MAIN",
+      "width": 4096,
+      "height": 3072,
+      "cfa": "BGGR",
+      "source_format": "RAW_SENSOR",
+      "capture_sample_domain": "UNKNOWN",
+      "readout_domain": "UNKNOWN",
+      "sensor_pixel_mode": "UNKNOWN",
+      "final_source_local_admission": false
     }
   },
   "graph_model": {
@@ -179,12 +206,12 @@
     "rejected_relations_are_preserved_knowledge": true
   },
   "next_empirical_growth": [
-    "Seal one real main-camera source and run SourcePreAdmissionManifest v0.1 with only proven source facts.",
-    "Run that main source through the existing scientific route to create Observation Record v0.3 and Source Capability Envelope v0.1.",
-    "Create and validate its Final Source Admission Package v0.1 as ADMITTED_SOURCE_LOCAL.",
+    "Run the real main-camera source a85cac...dcea79 through the current scientific route without changing its sealed source bytes.",
+    "Produce a main-camera Observation Record v0.3 and source-local D.RAWnegative lineage for that exact source if the existing scientific route admits it.",
+    "Produce the matching Source Capability Envelope from the new main Observation Record without inventing capture-sample/readout identities.",
+    "Create Final Source Admission Package v0.1 only if Record v0.3 + Capability Envelope both validate against the same source.",
     "Repeat independently for ultra-wide.",
-    "Run source/readout-specific calibration campaigns with held-out validation; never borrow tele calibration by device/lens identity.",
-    "Measure graph relation axes independently and admit composite fusion only after all required relation certificates exist."
+    "Only after separate final admissions begin relation campaigns; no tele calibration transfer."
   ],
   "active_development_branch": "main",
   "validation_boundary": {
@@ -199,10 +226,19 @@
   },
   "source_admission_frontier": {
     "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",
-    "main_camera": "READY_FOR_PRE_ADMISSION_WHEN_REAL_SEALED_SOURCE_IS_SUPPLIED",
+    "main_camera": "REAL_SOURCE_PRE_ADMITTED_V0_2_AWAITING_SCIENTIFIC_ROUTE",
     "ultra_wide_camera": "READY_FOR_PRE_ADMISSION_WHEN_REAL_SEALED_SOURCE_IS_SUPPLIED",
     "main_camera_admitted": false,
     "ultra_wide_camera_admitted": false,
-    "tele_calibration_transfer_to_other_lenses_allowed": false
+    "tele_calibration_transfer_to_other_lenses_allowed": false,
+    "main_camera_pre_admission_manifest_state_sha256": "cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38",
+    "main_camera_blockers": [
+      "captureSampleDomainId",
+      "gainReadoutStateId",
+      "sensorPixelModeIdentityNotRecorded",
+      "Observation Record v0.3 not yet produced for this source",
+      "Source Capability Envelope not yet produced for this source",
+      "Final Source Admission Package not yet produced"
+    ]
   }
 }
