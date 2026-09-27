@@ -1,0 +1,24 @@
+{
+  "schema": "D.RAW/GeometryHoldoutValidationGateContract/0.1",
+  "status": "OPEN_WORLD_HOLDOUT_VALIDATION_GATE",
+  "required_capture_set_schema": "D.RAW/GeometryRelationCaptureSet/0.2",
+  "required_capture_set_status": "CAPTURE_SET_COMPLETE_TRAINING_MODEL_SELECTION_OPEN",
+  "required_freeze_schema": "D.RAW/GeometryModelFreeze/0.1",
+  "required_freeze_status": "MODEL_CANDIDATE_FROZEN_HOLDOUT_SCORING_OPEN",
+  "required_evaluation_schema": "D.RAW/GeometryHoldoutEvaluation/0.1",
+  "required_evaluation_status": "HOLDOUT_EVALUATION_COMPLETE",
+  "exact_holdout_member_coverage_required": true,
+  "model_or_threshold_changes_during_holdout_allowed": false,
+  "output_status_on_pass": "HOLDOUT_VALIDATED_CANDIDATE_AWAITING_ENDPOINT_APPLICABILITY",
+  "output_status_on_fail": "HOLDOUT_REJECTED_CANDIDATE",
+  "pass_grants_graph_relation": false,
+  "pass_grants_coordinate_transform_authority": false,
+  "pass_grants_fusion": false,
+  "pass_grants_calibration_transfer": false,
+  "rejected_candidate_preserved_as_knowledge": true,
+  "open_world": {
+    "outcome_scope": "ONE_FROZEN_CANDIDATE_ON_ONE_SEALED_HOLDOUT_SET",
+    "outcome_is_final_scientific_model_truth": false,
+    "future_successor_candidates_allowed": true
+  }
+}
