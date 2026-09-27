@@ -1,6 +1,6 @@
 # D.RAW Source Capability Envelope v0.1
 
-Status: **RESEARCH INTEGRATION CANDIDATE**
+Status: **MAIN-INTEGRATED HOST-VALIDATED SOURCE KNOWLEDGE MAP**
 
 The Source Capability Envelope is the machine-readable knowledge map attached
 to one admitted D.RAW Observation.
