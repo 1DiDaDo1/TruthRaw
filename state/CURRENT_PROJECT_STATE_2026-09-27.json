@@ -14,7 +14,7 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "753a8048e5fbb97cd6bbaca95403664aeb756d31",
+    "latest_substantive_integration_sha": "ddcce0f8490bcbba2030548230f18bfb62c485d2",
     "current_main_includes_knowledge_growth_modules": true,
     "current_main_includes_real_main_final_admission": true,
     "current_main_includes_real_ultrawide_final_admission": true,
@@ -39,7 +39,8 @@
     "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
     "Measured where measured. Reconstructed where necessary. Never invented.",
     "One Free World. Many sealed observations. One evidence law.",
-    "Evidence stays what it was. Knowledge can grow through admitted relations."
+    "Evidence stays what it was. Knowledge can grow through admitted relations.",
+    "Seal the evidence, not the thinking."
   ],
   "knowledge_growth_integration": {
     "virtual_observation_manifold": {
@@ -333,6 +334,39 @@
       "other_relation_axes_unchanged": true,
       "creates_new_evidence": false,
       "scientific_writeback_allowed": false
+    },
+    "open_world_evolution_law_v0_1": {
+      "status": "MAIN_INTEGRATED_PROJECT_LAW",
+      "readme": "docs/research/open-world-evolution-law-v0.1/README.md",
+      "core_law": "SEAL_EVIDENCE_NOT_THINKING",
+      "source_bytes_may_be_immutable": true,
+      "interpretation_is_final": false,
+      "model_families_are_final": false,
+      "versioned_successors_allowed": true,
+      "future_extensions_allowed": true,
+      "historical_evidence_rewritten": false,
+      "historical_certificates_preserved": true
+    },
+    "geometry_direct_raw_pair_intake_v0_1": {
+      "status": "MAIN_INTEGRATED_CAMERA2_OPTIONAL_PAIR_INTAKE",
+      "readme": "docs/research/draw-geometry-direct-raw-pair-intake-v0.1/README.md",
+      "contract": "docs/research/draw-geometry-direct-raw-pair-intake-v0.1/DRAW_GEOMETRY_DIRECT_RAW_PAIR_INTAKE_CONTRACT_v0_1.json",
+      "template": "docs/research/draw-geometry-direct-raw-pair-intake-v0.1/PAIR_TEMPLATE_v0_1.json",
+      "tool": "tools/draw_geometry_direct_raw_pair_intake_v01.py",
+      "validator": "tools/validate_draw_geometry_direct_raw_pair_v01.py",
+      "merge_commit_sha": "ddcce0f8490bcbba2030548230f18bfb62c485d2",
+      "validation_run_id": 36312425248,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36312425129,
+      "documentation_governance_result": "SUCCESS",
+      "camera2_required": false,
+      "pair_phase_a": "SEALED_PAIR_AWAITING_SOURCE_LOCAL_ADMISSION",
+      "pair_phase_b": "ADMISSION_BOUND_PAIR_READY_FOR_FEATURE_EXTRACTION",
+      "geometry_relation_after_pair_binding": "UNKNOWN",
+      "geometry_fit_allowed_after_pair_binding": false,
+      "coordinate_transform_allowed_after_pair_binding": false,
+      "fusion_allowed_after_pair_binding": false,
+      "future_source_admission_versions_semantically_bindable": true
     }
   },
   "graph_model": {
@@ -383,12 +417,14 @@
   },
   "next_empirical_growth": [
     "Create or print one indexed planar metric target with measured physical spacing and immutable target geometry identity.",
-    "Rigidly mount the phone/camera system; move the calibration target, not the phone.",
-    "Capture at least 12 MAIN + ULTRA_WIDE paired training poses without moving phone or target between each lens pair.",
-    "Capture at least 4 additional disjoint MAIN + ULTRA_WIDE holdout poses that are never used for model selection.",
-    "Admit every capture independently source-local before geometry fitting.",
-    "Fit per-lens intrinsics/distortion and MAIN-to-ULTRA_WIDE extrinsics using training data only; freeze model family and thresholds before final holdout scoring.",
-    "Create a GEOMETRY relation certificate only after held-out validation and exact endpoint applicability both pass.",
+    "For each pose, capture one MAIN RAW/DNG and one ULTRA_WIDE RAW/DNG without moving the phone or target between the two exposures; Camera2 is optional.",
+    "Seal each pose-pair with Geometry Direct RAW Pair Intake v0.1 as TRAINING or HOLDOUT.",
+    "Run each individual RAW/DNG through its valid D.RAW ingress and obtain ADMITTED_SOURCE_LOCAL before binding the pair.",
+    "Bind each sealed pair to the two source-local admissions; pair binding may allow feature extraction but still does not allow geometry fitting or relation authority.",
+    "Collect at least 12 training pairs and 4 disjoint holdout pairs.",
+    "Fit per-lens intrinsics/distortion and MAIN-to-ULTRA_WIDE extrinsics on training data only; model families remain revisable through versioned successors and are not sealed thoughts.",
+    "Freeze the selected model/thresholds for the specific certificate before final holdout scoring; preserve alternative/superseded models as provenance.",
+    "Create a GEOMETRY relation certificate only after held-out validation and exact endpoint applicability pass.",
     "Do not infer radiometric, colorimetric, spectral, optical-support, uncertainty/correlation, temporal or provenance relations from geometry success.",
     "Do not create composite fusion admission until the additional required axes are independently ADMITTED."
   ],
@@ -412,7 +448,12 @@
     "geometry_relation_campaign_changes_pixel_route": false,
     "geometry_relation_campaign_android_device_validated": false,
     "geometry_relation_campaign_validation_class": "HOST_CONTROL_PLANE_CAPTURE_PROTOCOL",
-    "geometry_relation_current_transform_admitted": false
+    "geometry_relation_current_transform_admitted": false,
+    "geometry_direct_raw_pair_intake_changes_pixel_route": false,
+    "geometry_direct_raw_pair_intake_android_device_validated": false,
+    "geometry_direct_raw_pair_intake_validation_class": "HOST_CONTROL_PLANE_PAIR_INTAKE",
+    "camera2_is_required_scientific_ingress": false,
+    "open_world_evolution_law_changes_sealed_evidence": false
   },
   "source_admission_frontier": {
     "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",
@@ -437,5 +478,12 @@
     "ultra_wide_runtime_camera2_route_proven": false,
     "ultra_wide_project_physical_camera_id": "4",
     "ultra_wide_lens_role_authority": "USER_ATTESTED_CAPTURE"
+  },
+  "capture_interface_policy": {
+    "camera2_required_for_drawnegative": false,
+    "camera2_required_for_direct_raw_geometry_pair": false,
+    "camera2_role": "OPTIONAL_ACQUISITION_PROVENANCE_AND_RUNTIME_MEASUREMENT",
+    "direct_raw_or_dng_ingress_allowed": true,
+    "source_local_admission_required_before_geometry_feature_extraction": true
   }
 }

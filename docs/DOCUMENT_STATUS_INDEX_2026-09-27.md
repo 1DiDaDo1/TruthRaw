@@ -168,6 +168,23 @@ Relation axes remain independent: geometry, radiometric gauge, colorimetric, spe
 
 Optional device work: runtime Camera2 route proof for the ultra-wide Camera-4 mapping may be collected with the preserved FotoGraaf probe; that does not itself create calibration or fusion authority.
 
+## Open-world evolution and direct RAW pair intake
+
+- `docs/research/open-world-evolution-law-v0.1/README.md`
+  - project law: **Seal the evidence, not the thinking**;
+  - immutable source evidence does not freeze scientific interpretation;
+  - versioned successors remain allowed.
+
+- `docs/research/draw-geometry-direct-raw-pair-intake-v0.1/README.md`
+- `docs/research/draw-geometry-direct-raw-pair-intake-v0.1/DRAW_GEOMETRY_DIRECT_RAW_PAIR_INTAKE_CONTRACT_v0_1.json`
+- `tools/draw_geometry_direct_raw_pair_intake_v01.py`
+- `tools/validate_draw_geometry_direct_raw_pair_v01.py`
+  - merge `ddcce0f8490bcbba2030548230f18bfb62c485d2`;
+  - validation `36312425248`: SUCCESS;
+  - Camera2 optional;
+  - accepts future admission successors by required semantics, not one frozen schema version;
+  - no geometry relation, transform, fusion or calibration transfer is granted by pair intake.
+
 ## Governance
 
 Branch integration never promotes scientific authority. Sealed objects are not

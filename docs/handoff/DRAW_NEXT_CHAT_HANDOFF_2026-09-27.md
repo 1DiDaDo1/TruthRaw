@@ -245,6 +245,59 @@ certificate may become ADMITTED.
 A geometry success changes no other relation axis and cannot directly grant
 fusion.
 
+## Open-World Evolution Law v0.1
+
+Current permanent law:
+
+**Seal the evidence, not the thinking.**
+
+Immutable evidence may include original source bytes, SHA-256 identities,
+evidence counts and historical provenance/certificates. Scientific
+interpretation is not frozen by that seal.
+
+Projection models, distortion models, relation hypotheses, calibration
+strategies, thresholds, feature detectors, target families, relation axes and
+future source types may receive versioned successors without rewriting the
+historical evidence they were built from.
+
+The current schema is therefore a minimum semantic contract, not a claim that
+the scientific universe is closed.
+
+## Geometry Direct RAW Pair Intake v0.1
+
+Status: **main-integrated; Camera2 optional**.
+
+- merge: `ddcce0f8490bcbba2030548230f18bfb62c485d2`
+- validation run: `36312425248` — **SUCCESS**
+- documentation governance: `36312425129` — **SUCCESS**
+
+A MAIN + ULTRA_WIDE geometry pair can now begin directly from two original
+RAW/DNG files.
+
+Phase A:
+
+`SEALED_PAIR_AWAITING_SOURCE_LOCAL_ADMISSION`
+
+Phase B:
+
+`ADMISSION_BOUND_PAIR_READY_FOR_FEATURE_EXTRACTION`
+
+The bind step deliberately accepts future
+`D.RAW/SourceAdmissionPackage/*` successors when the required semantic
+invariants still hold. It is not hard-coded to only the current source
+admission schema versions.
+
+Even after binding:
+
+- geometry relation remains UNKNOWN;
+- geometry fit is not yet authorized by the intake layer;
+- coordinate transform remains false;
+- fusion remains false;
+- calibration transfer remains false.
+
+Camera2 remains optional acquisition/runtime provenance. It is not required to
+create D.RAWnegative or to enter a direct RAW geometry-pair campaign.
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on
