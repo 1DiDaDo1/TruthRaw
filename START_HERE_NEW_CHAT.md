@@ -2,19 +2,25 @@
 
 **Official product name: `D.RAW`.**
 
-Primary repository line: `main`.
+Primary current repository line: `main`.
 
-Current integration provenance branch:
+Latest substantive integrated code/control-plane checkpoint before this
+documentation refresh:
 
-`integration/draw-knowledge-growth-v0-1-2026-09-27`
+`b0e88971a6fe3ed84ec6913865e50073d16512cf`
 
-The previously stale `main` has already been promoted to the current
-D.RAW code-bearing ancestry. The 2026-09-27 knowledge-growth integration adds
-the preserved Virtual Observation Manifold, FotoGraaf acquisition-domain
-history, unique Professional RAW Gatehouse modules, and the new
-Free World Observation Graph v0.1.
+D.RAWnegative v0.1 remains the sealed current scientific-negative identity.
+Its validated Android/device route has not been changed by the new graph,
+Observation Record or calibration-binding modules.
 
-**Read first:**
+Current permanent laws:
+
+- **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+- **Measured where measured. Reconstructed where necessary. Never invented.**
+- **One Free World. Many sealed observations. One evidence law.**
+- **Evidence stays what it was. Knowledge can grow through admitted relations.**
+
+## Mandatory current reading order
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
 2. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
@@ -22,43 +28,87 @@ Free World Observation Graph v0.1.
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
 5. `docs/research/free-world-observation-graph-v0.1/README.md`
 6. `docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json`
-7. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-8. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
+7. `docs/research/draw-observation-record-v0.3/README.md`
+8. `docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json`
+9. `docs/research/draw-calibration-binding-v0.1/README.md`
+10. `docs/research/draw-calibration-binding-v0.1/DRAW_CALIBRATION_BINDING_CONTRACT_v0_1.json`
+11. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+12. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
 
-Current laws:
+## Current executable knowledge-growth layer
 
-- **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
-- **One Free World. Many sealed observations. One evidence law.**
-- **Evidence stays what it was. Knowledge can grow through admitted relations.**
+### Free World Observation Graph v0.1
 
-Current architecture:
+Main-integrated and host/native validated.
+
+- merge: `ee4c426e403ac87f8db86dc760aa1b2c975ff3f5`
+- run: `36282087425` — **SUCCESS**
+- one relation axis cannot grant another;
+- one relation cannot directly grant fusion;
+- composite fusion admission is separately certificate-gated;
+- graph cannot write Scientific Master or Source Evidence.
+
+### D.RAW Observation Record v0.3
+
+Current Observation Record successor.
+
+- merge: `472194decc1418906c9f99e70b37098fb6276912`
+- run: `36282295104` — **SUCCESS**
+- complete v0.2 parent gate remains mandatory;
+- explicit sampling/geometry/radiometry/colorimetry/spectral/optics/
+  uncertainty/temporal/provenance placement;
+- Camera-5 unknown spectral/optical/temporal claims stay UNKNOWN;
+- no cross-observation relation or fusion permission lives in this record.
+
+### Calibration Observation Binding v0.1
+
+Main-integrated host-validated research foundation.
+
+- merge: `b0e88971a6fe3ed84ec6913865e50073d16512cf`
+- run: `36282461281` — **SUCCESS**
+- exact source route, sample domain and readout domain are part of applicability;
+- held-out validation is required;
+- no calibration transfer is implied;
+- no real Camera-5 calibration was promoted by this module.
+
+## Validation boundary
+
+The 2026-09-27 Graph/Record/Calibration modules are host/control-plane
+contracts and do not change the scientific pixel route.
+
+Latest fully host + Android validated D.RAWnegative code checkpoint remains:
+
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
+
+Android/NDK/JNI validation run:
+
+`36260305613` — **SUCCESS**
+
+Do not call the new host modules new device evidence.
+
+## Current architecture
 
 ```text
 sealed physical observation / Source Evidence
- -> D.RAW Observation Contract
+ -> D.RAW Observation Contract / Record v0.3
  -> Source Capability Envelope
+ -> calibration applicability bindings
  -> Float64 measurement/calibration/reconstruction
  -> Scientific Master
  -> validated scientific storage
  -> legacy TruthNegative Continuous parent
  -> D.RAWnegative per observation
  -> Free World Observation Graph
+ -> independently admitted cross-observation relations
+ -> optional composite fusion admission
  -> Deep Scene / Light Transport
  -> View / Appearance
  -> finite projection
 ```
 
-D.RAWnegative v0.1 remains byte/semantics sealed and unchanged.
-
-Free World Observation Graph v0.1 now factors cross-observation knowledge into
-independent geometry, radiometric-gauge, colorimetric, spectral,
-optical-support, uncertainty/correlation, temporal and provenance relations.
-A single admitted relation cannot directly grant fusion; composite fusion
-admission is separately gated.
-
 Camera-5/tele remains the first real observation anchor. Main and ultra-wide
-must enter as separate sealed observations with source-local authority before
-any relation or fusion claim is admitted.
+must become separate source-local Observations before cross-lens relations can
+be admitted. Tele calibration is never borrowed by device/lens identity alone.
 
 ---
 
