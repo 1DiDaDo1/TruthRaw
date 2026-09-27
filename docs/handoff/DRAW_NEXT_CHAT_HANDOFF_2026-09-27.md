@@ -10,11 +10,9 @@ Primary current repository line: `main`.
 
 Latest substantive scientific/control-plane integration:
 
-`1d6785b501f86f129dc81359ac205d6f734af9fd`
+`faea14c3fd9109907e4941156de020978b9bfd86`
 
-The real main camera is now **ADMITTED_SOURCE_LOCAL** as one physical
-Observation. A new chat should not repeat the earlier “main awaits scientific
-route” work.
+The real main camera and the user-captured ultra-wide are now both **ADMITTED_SOURCE_LOCAL** as separate physical Observations. Camera-5/tele remains the existing source-local anchor. A new chat should not repeat main or ultra-wide source admission.
 
 ## Mandatory reading order
 
@@ -22,12 +20,13 @@ route” work.
 2. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
 3. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-5. `docs/research/draw-observation-record-v0.4/README.md`
-6. `docs/research/draw-source-capability-envelope-v0.2/README.md`
-7. `docs/research/draw-source-admission-package-v0.2/README.md`
-8. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
-9. `docs/research/free-world-observation-graph-v0.1/README.md`
-10. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+5. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
+6. `docs/research/draw-observation-record-v0.4/README.md`
+7. `docs/research/draw-source-capability-envelope-v0.2/README.md`
+8. `docs/research/draw-source-admission-package-v0.2/README.md`
+9. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
+10. `docs/research/free-world-observation-graph-v0.1/README.md`
+11. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
 
 ## Permanent laws
 
@@ -184,6 +183,41 @@ Fusion admissions = 0.
 
 No tele calibration transfers to main.
 
+## Current ultra-wide physical Observation
+
+Private physical source:
+
+`IMG_20260927_084938.dng`
+
+The user explicitly attests that this is a self-captured **ultra-wide RAW**. That attestation establishes self-capture and lens role only; it does not certify runtime Camera2 active physical result, readout semantics, sensor-pixel mode or calibration.
+
+Physical source SHA-256:
+
+`14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133`
+
+Serialized CFA payload SHA-256:
+
+`87e56296cd51a076d921c5a529dfd64784dfc8b9789869b64644b672767a89a5`
+
+Physical Observation ID:
+
+`DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133`
+
+The original DNG enters the common scientific pipeline directly; no orientation quarantine or compatibility container is needed.
+
+Scientific identities:
+
+- Scientific Master: `949777edb5541064e190d148775ce27d303ce1e0d35f57d7a837fc092ad9f6d9`;
+- D.RAWnegative v0.1: `b0ee1322ff6260eb30072533c2b3e294be46375778ac4622b908d6c746e172e0`;
+- physical graph node: `85d8ef0b9b3e769f30c4d62a114e70c94369fc3250ae5c4f664c04223980a64e`;
+- final admission: `629edde9697387e87c39c66846f21457954d258d831464140eda42ed912b655a`.
+
+Direct-source validation run `36302484185`: **SUCCESS**.
+
+Status: **ADMITTED_SOURCE_LOCAL**.
+
+Project mapping associates ultra-wide with physical camera 4, but runtime active physical Camera2 result 4 is not claimed for this exact DNG. Capture-sample domain, readout domain and sensor-pixel mode remain UNKNOWN. Calibration bindings = 0, graph relations = 0, fusion admissions = 0.
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on
@@ -199,16 +233,24 @@ Android/NDK/JNI run `36260305613`: **SUCCESS**.
 
 ## Current frontier
 
-Do **not** redo main admission.
+Do **not** redo main or ultra-wide source admission.
 
-Next:
+Current source-local physical anchors are:
 
-1. locate/seal a real ultra-wide physical-camera-4 source;
-2. pre-admit it using only proven source facts;
-3. run the unchanged common scientific route;
-4. create physical identity + capability map;
-5. admit it source-local only after all its own gates pass;
-6. only then start independent main↔tele↔ultra-wide relation campaigns.
+- Camera-5 / telephoto;
+- physical Camera-2 / main;
+- user-captured ultra-wide / project Camera-4 lens route.
 
-Cross-observation geometry, gauge, color/spectral, optics,
-uncertainty/correlation, temporal and provenance remain independently gated.
+The next scientific frontier is independent relation admission between these physical Observations:
+
+1. geometry / pose;
+2. radiometric gauge;
+3. colorimetric and spectral;
+4. optical support;
+5. uncertainty / correlation;
+6. temporal compatibility;
+7. provenance.
+
+Each axis must be measured and certified independently. No relation on one axis grants authority on another. Composite fusion remains forbidden until every relation required for that fusion kind is separately ADMITTED.
+
+Optional device work: the preserved FotoGraaf ultra-wide probe may be used later to upgrade project-map Camera 4 into a runtime active-physical-result proof for a future capture. That would strengthen route provenance only; it would not grant calibration or fusion authority.
