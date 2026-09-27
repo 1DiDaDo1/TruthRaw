@@ -191,6 +191,22 @@ Main-integrated and host validated.
 A changed model, parameterization or threshold policy becomes a new versioned
 candidate rather than a rewrite of the old candidate.
 
+### Geometry HOLDOUT Validation Gate v0.1
+
+Main-integrated and host validated.
+
+- `docs/research/draw-geometry-holdout-validation-gate-v0.1/**`
+- dedicated run `36313705179`: SUCCESS
+- exact HOLDOUT member coverage: required
+- partial HOLDOUT: rejected
+- refit/model/threshold changes during HOLDOUT: rejected
+- PASS -> validated candidate awaiting endpoint applicability
+- FAIL -> rejected candidate preserved as knowledge
+- PASS grants graph relation: no
+- PASS grants coordinate-transform authority: no
+- endpoint applicability before relation admission: required
+- real MAIN ↔ ULTRA_WIDE HOLDOUT evaluation: none yet
+
 ## Validation boundary
 
 Main has executed the unchanged common scientific C++ route on host. This does
