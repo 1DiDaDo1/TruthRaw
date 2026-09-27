@@ -5,7 +5,7 @@
   "physical_observation": {
     "physical_observation_id": "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
     "parent_source_sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
-    "pre_admission_manifest_state_sha256": "7113c6755aa1ff858adaf80ff69f96dda7f5bd1bed9d81ead4aef5f92bce7c95",
+    "pre_admission_manifest_state_sha256": "e31a1ec1c2f6a6872867d2760660a8574a4c796ca92b0d568cdc53e9d0527252",
     "physical_frame_count": 1,
     "independent_evidence_count": 1
   },
@@ -53,5 +53,5 @@
     "cross_observation_relation_granted": false,
     "cross_observation_fusion_granted": false
   },
-  "binding_state_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77"
+  "binding_state_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51"
 }
