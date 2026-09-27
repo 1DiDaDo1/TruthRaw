@@ -59,6 +59,18 @@ Status: **CURRENT NAVIGATION AUTHORITY**
 - pre-admission cannot claim reconstructed/calibrated science;
 - final admission is source-local only and cannot contain relations/fusion.
 
+### Source Pre-Admission v0.2 — real main camera
+
+- `docs/research/draw-source-pre-admission-v0.2/README.md`
+- `docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json`
+- `docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_SOURCE_VERIFICATION_2026-09-27.md`
+- main-integrated;
+- validation run `36284174427`: SUCCESS;
+- source bytes privately re-hashed and matched historical acquisition record;
+- serialized storage SOURCE_BOUND;
+- capture sample/readout/pixel-mode identity remains UNKNOWN;
+- final source-local admission not yet granted.
+
 ## Current sealed authorities preserved unchanged
 
 - `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
