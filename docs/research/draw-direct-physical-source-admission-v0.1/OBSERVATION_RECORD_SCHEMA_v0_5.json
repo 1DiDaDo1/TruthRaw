@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/DRAWObservationRecord/0.5",
+  "title": "D.RAW Observation Record v0.5",
+  "type": "object"
+}

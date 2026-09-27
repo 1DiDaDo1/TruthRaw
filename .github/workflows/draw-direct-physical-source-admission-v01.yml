@@ -1,0 +1,88 @@
+name: D.RAW Direct Physical Source Admission v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-direct-physical-source-admission-v0.1/**'
+      - 'tools/validate_draw_direct_physical_source_admission_v01.py'
+      - '.github/workflows/draw-direct-physical-source-admission-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-direct-physical-source-admission-v0.1/**'
+      - 'tools/validate_draw_direct_physical_source_admission_v01.py'
+      - '.github/workflows/draw-direct-physical-source-admission-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate ultra-wide direct source chain
+        run: |
+          set -euo pipefail
+          D=docs/research/draw-direct-physical-source-admission-v0.1/evidence
+          V=tools/validate_draw_direct_physical_source_admission_v01.py
+          python3 "$V" pre "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json"
+          python3 "$V" lineage "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_HOST_SCIENTIFIC_ROUTE_v0_1.json" "$D/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json"
+          python3 "$V" record "$D/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json" "$D/ULTRAWIDE_OBSERVATION_v0_5.json"
+          python3 "$V" envelope "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json" "$D/ULTRAWIDE_OBSERVATION_v0_5.json" "$D/ULTRAWIDE_CAPABILITY_ENVELOPE_v0_3.json"
+          python3 "$V" admission "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json" "$D/ULTRAWIDE_OBSERVATION_v0_5.json" "$D/ULTRAWIDE_CAPABILITY_ENVELOPE_v0_3.json" "$D/ULTRAWIDE_SOURCE_ADMISSION_v0_3.json"
+
+      - name: Prove user attestation cannot promote runtime or sensor authority
+        run: |
+          set -euo pipefail
+          D=docs/research/draw-direct-physical-source-admission-v0.1/evidence
+          python3 - <<'PY'
+          import hashlib,json
+          p='$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json'.replace('$D','docs/research/draw-direct-physical-source-admission-v0.1/evidence')
+          base=json.load(open(p))
+          def save(name,mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-runtime.json',lambda j:j['instrument'].__setitem__('runtime_active_physical_camera_id','4'))
+          save('bad-attestation.json',lambda j:j['capture_attestation'].__setitem__('runtime_camera2_result_claimed',True))
+          save('bad-readout.json',lambda j:j['readout_domain'].update({'authority':'SOURCE_BOUND','value':'GUESSED'}))
+          save('bad-radiometry.json',lambda j:j['initial_capability_placement'].__setitem__('radiometry','CALIBRATED'))
+          PY
+          for f in /tmp/bad-runtime.json /tmp/bad-attestation.json /tmp/bad-readout.json /tmp/bad-radiometry.json; do
+            if python3 tools/validate_draw_direct_physical_source_admission_v01.py pre "$f"; then
+              echo "::error::invalid pre-admission accepted: $f"
+              exit 1
+            fi
+          done
+
+      - name: Prove direct lineage and admission remain source-local
+        run: |
+          set -euo pipefail
+          D=docs/research/draw-direct-physical-source-admission-v0.1/evidence
+          python3 - <<'PY'
+          import hashlib,json
+          d='docs/research/draw-direct-physical-source-admission-v0.1/evidence'
+          lin=json.load(open(d+'/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json'))
+          pkg=json.load(open(d+'/ULTRAWIDE_SOURCE_ADMISSION_v0_3.json'))
+          def save(obj,name,key,mutate):
+              j=json.loads(json.dumps(obj)); mutate(j)
+              x=dict(j); x.pop(key,None)
+              j[key]=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save(lin,'bad-derived.json','binding_state_sha256',lambda j:j['scientific_ingress'].__setitem__('derived_ingress_sha256','0'*64))
+          save(lin,'bad-sensel.json','binding_state_sha256',lambda j:j['pipeline_lineage'].__setitem__('stored_sample_sensel_semantics_certified',True))
+          save(pkg,'bad-relation.json','state_sha256',lambda j:j['graph_relations'].append('REL'))
+          save(pkg,'bad-fusion.json','state_sha256',lambda j:j['fusion_admissions'].append('FUSION'))
+          save(pkg,'bad-runtime-admit.json','state_sha256',lambda j:j['admission_scope'].__setitem__('runtime_camera2_route_admitted',True))
+          PY
+          if python3 tools/validate_draw_direct_physical_source_admission_v01.py lineage "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_HOST_SCIENTIFIC_ROUTE_v0_1.json" /tmp/bad-derived.json; then exit 1; fi
+          if python3 tools/validate_draw_direct_physical_source_admission_v01.py lineage "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_HOST_SCIENTIFIC_ROUTE_v0_1.json" /tmp/bad-sensel.json; then exit 1; fi
+          for f in /tmp/bad-relation.json /tmp/bad-fusion.json /tmp/bad-runtime-admit.json; do
+            if python3 tools/validate_draw_direct_physical_source_admission_v01.py admission "$D/ULTRAWIDE_PRE_ADMISSION_v0_3.json" "$D/ULTRAWIDE_SCIENTIFIC_INGRESS_LINEAGE_v0_2.json" "$D/ULTRAWIDE_OBSERVATION_v0_5.json" "$D/ULTRAWIDE_CAPABILITY_ENVELOPE_v0_3.json" "$f"; then
+              echo "::error::invalid admission accepted: $f"
+              exit 1
+            fi
+          done

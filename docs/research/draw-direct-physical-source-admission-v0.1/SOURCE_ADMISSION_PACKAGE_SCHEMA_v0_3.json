@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceAdmissionPackage/0.3",
+  "title": "D.RAW Source Admission Package v0.3",
+  "type": "object"
+}
