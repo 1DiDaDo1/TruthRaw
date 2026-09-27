@@ -215,6 +215,22 @@ Optional device work: runtime Camera2 route proof for the ultra-wide Camera-4 ma
 - GEOMETRY remains UNKNOWN and no transform/fusion/calibration authority is granted
 - no real MAIN ↔ ULTRA_WIDE model frozen yet
 
+## Geometry HOLDOUT Validation Gate v0.1
+
+- `docs/research/draw-geometry-holdout-validation-gate-v0.1/README.md`
+- `tools/draw_geometry_holdout_validation_gate_v01.py`
+- `tools/validate_draw_geometry_holdout_validation_result_v01.py`
+- `tests/test_draw_geometry_holdout_validation_gate_v01.py`
+- merge `5e49a8d0a449d7d9e7cb6ac41aeaf3fc548fb127`
+- validation `36313705179`: SUCCESS
+- PASS and FAIL paths both validated
+- exact sealed HOLDOUT coverage required
+- no refit or threshold mutation during HOLDOUT
+- PASS does not admit GEOMETRY or coordinate-transform authority
+- endpoint applicability remains a separate gate
+- rejected candidate remains knowledge
+- no real MAIN ↔ ULTRA_WIDE HOLDOUT result yet
+
 ## Governance
 
 Branch integration never promotes scientific authority. Sealed objects are not
