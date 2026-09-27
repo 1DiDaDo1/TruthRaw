@@ -363,6 +363,36 @@ Even after freeze:
 No real MAIN ↔ ULTRA_WIDE model is currently frozen because the real 12+4
 matched capture set does not yet exist.
 
+## Geometry HOLDOUT Validation Gate v0.1
+
+Status: **main-integrated, host validated; no real MAIN ↔ ULTRA_WIDE candidate evaluated**.
+
+- merge: `5e49a8d0a449d7d9e7cb6ac41aeaf3fc548fb127`
+- dedicated validation run: `36313705179` — **SUCCESS**
+- documentation governance: `36313705180` — **SUCCESS**
+
+The gate evaluates one frozen candidate against every sealed HOLDOUT member
+using the scoring policy and thresholds fixed before HOLDOUT opened.
+
+Both outcomes are scientific knowledge:
+
+- PASS -> `HOLDOUT_VALIDATED_CANDIDATE_AWAITING_ENDPOINT_APPLICABILITY`
+- FAIL -> `HOLDOUT_REJECTED_CANDIDATE`
+
+The integration matrix proves:
+
+- complete HOLDOUT coverage is required;
+- partial HOLDOUT is rejected;
+- model refit during HOLDOUT is rejected;
+- threshold changes during HOLDOUT are rejected;
+- PASS still leaves GEOMETRY relation UNKNOWN;
+- PASS still grants no coordinate-transform authority;
+- endpoint applicability remains a separate required proof;
+- rejected candidates remain preserved provenance.
+
+A PASS is therefore not a graph relation. It only says that one exact frozen
+candidate passed one exact sealed HOLDOUT test under its predeclared policy.
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on
