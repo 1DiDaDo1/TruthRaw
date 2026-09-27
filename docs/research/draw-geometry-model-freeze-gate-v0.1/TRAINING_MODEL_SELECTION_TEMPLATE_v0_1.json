@@ -1,0 +1,37 @@
+{
+  "schema": "D.RAW/GeometryTrainingModelSelection/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": null,
+  "capture_set_state_sha256": null,
+  "training_set_sha256": null,
+  "holdout_set_sha256": null,
+  "training_feature_bundle_sha256": null,
+  "selection_policy_sha256": null,
+  "holdout_scoring_policy_sha256": null,
+  "holdout_acceptance_thresholds_sha256": null,
+  "holdout_used_in_model_selection": false,
+  "holdout_metrics_accessed": false,
+  "candidates": [
+    {
+      "candidate_id": "EXTENSIBLE_STRING",
+      "model_family": "EXTENSIBLE_STRING_NOT_CLOSED_ENUM",
+      "model_spec_sha256": null,
+      "fitted_parameters_sha256": null,
+      "training_result_sha256": null,
+      "training_metric_summary_sha256": null,
+      "validity_domain_sha256": null,
+      "selected": false,
+      "extensions": {}
+    }
+  ],
+  "selected_candidate_id": null,
+  "extensions": {},
+  "invariants": {
+    "selection_uses_training_only": true,
+    "source_evidence_mutated": false,
+    "capture_set_membership_rewritten": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false
+  },
+  "selection_state_sha256": null
+}
