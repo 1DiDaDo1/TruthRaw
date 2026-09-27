@@ -1,0 +1,33 @@
+{
+  "schema": "D.RAW/GeometryCaptureSetGateContract/0.1",
+  "status": "OPEN_WORLD_CAPTURE_SET_GATE",
+  "parent_pair_schema": "D.RAW/GeometryDirectRawPair/0.1",
+  "input_pair_status": "ADMISSION_BOUND_PAIR_READY_FOR_FEATURE_EXTRACTION",
+  "set_completion_status": "CAPTURE_SET_COMPLETE_TRAINING_MODEL_SELECTION_OPEN",
+  "open_world_law": "SEAL_EVIDENCE_SPLIT_NOT_MODEL_HYPOTHESIS",
+  "membership_invariants": {
+    "one_campaign": true,
+    "one_target_geometry_identity": true,
+    "unique_pose_ids": true,
+    "unique_main_source_hashes": true,
+    "unique_ultrawide_source_hashes": true,
+    "training_holdout_disjoint": true
+  },
+  "authority_after_completion": {
+    "training_feature_extraction_allowed": true,
+    "training_model_selection_allowed": true,
+    "holdout_model_selection_allowed": false,
+    "final_holdout_scoring_allowed": false,
+    "geometry_relation_status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "extensibility": {
+    "projection_model_selected_by_this_gate": false,
+    "distortion_model_selected_by_this_gate": false,
+    "feature_detector_selected_by_this_gate": false,
+    "future_model_successors_allowed": true,
+    "future_pair_schema_successor_support_requires_versioned_gate_successor": true
+  }
+}

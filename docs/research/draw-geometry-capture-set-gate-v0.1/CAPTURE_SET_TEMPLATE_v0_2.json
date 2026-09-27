@@ -1,0 +1,58 @@
+{
+  "schema": "D.RAW/GeometryRelationCaptureSet/0.2",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": "DRAW_GEOMETRY_MAIN_ULTRAWIDE_2026_09_27_V0_1",
+  "target": {
+    "target_geometry_sha256": null,
+    "target_family": "EXTENSIBLE_STRING",
+    "metric_spacing_m": null
+  },
+  "requirements": {
+    "training_pose_minimum": 12,
+    "holdout_pose_minimum": 4
+  },
+  "training": {
+    "pair_count": 0,
+    "pairs": [],
+    "set_sha256": null
+  },
+  "holdout": {
+    "pair_count": 0,
+    "pairs": [],
+    "set_sha256": null
+  },
+  "model_selection_gate": {
+    "training_feature_extraction_allowed": false,
+    "training_model_selection_allowed": false,
+    "holdout_feature_extraction_may_be_prepared": false,
+    "holdout_model_selection_allowed": false,
+    "final_holdout_scoring_allowed": false
+  },
+  "relation_authority": {
+    "axis": "GEOMETRY",
+    "status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "equality_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "open_world_evolution": {
+    "law": "SEAL_EVIDENCE_SPLIT_NOT_MODEL_HYPOTHESIS",
+    "membership_is_sealed": false,
+    "projection_model_selected": false,
+    "distortion_model_selected": false,
+    "feature_detector_selected": false,
+    "future_model_successors_allowed": true
+  },
+  "extensions": {},
+  "invariants": {
+    "source_evidence_mutated": false,
+    "pair_membership_rewritten": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false,
+    "calibration_transfer_granted": false
+  },
+  "capture_set_state_sha256": null
+}

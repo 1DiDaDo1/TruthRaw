@@ -1,0 +1,111 @@
+name: D.RAW Geometry Capture-Set Gate v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-geometry-capture-set-gate-v0.1/**'
+      - 'tools/draw_geometry_capture_set_gate_v01.py'
+      - 'tools/validate_draw_geometry_capture_set_v01.py'
+      - '.github/workflows/draw-geometry-capture-set-gate-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-geometry-capture-set-gate-v0.1/**'
+      - 'tools/draw_geometry_capture_set_gate_v01.py'
+      - 'tools/validate_draw_geometry_capture_set_v01.py'
+      - '.github/workflows/draw-geometry-capture-set-gate-v01.yml'
+  workflow_dispatch:
+
+# This workflow is intentionally self-contained so the capture-set gate is
+# validated independently from generic project integrity workflows.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate 12 training and 4 holdout admission-bound pairs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pairs
+          TARGET_SHA=$(printf 'geometry-target-v01\n' | sha256sum | cut -d' ' -f1)
+          for N in $(seq -w 1 16); do
+            if [ "$N" -le 12 ]; then SUBSET=TRAINING; POSE="TRAIN_$N"; else SUBSET=HOLDOUT; POSE="HOLD_$N"; fi
+            printf 'main-%s\n' "$POSE" >"/tmp/main-$N.raw"
+            printf 'wide-%s\n' "$POSE" >"/tmp/wide-$N.raw"
+            python3 tools/draw_geometry_direct_raw_pair_intake_v01.py seal \
+              --pose-id "$POSE" --subset "$SUBSET" \
+              --main-file "/tmp/main-$N.raw" --ultrawide-file "/tmp/wide-$N.raw" \
+              --target-geometry-sha256 "$TARGET_SHA" \
+              --target-family SYNTHETIC_INDEXED_METRIC_TARGET \
+              --metric-spacing-m 0.02 \
+              --attest-camera-system-rigid --attest-target-static-between-pair \
+              --output "/tmp/pairs/sealed-$N.json"
+            python3 - "$N" <<'PY'
+import hashlib,json,sys
+n=sys.argv[1]
+pair=json.load(open(f'/tmp/pairs/sealed-{n}.json'))
+for key,out in [('main',f'/tmp/pairs/main-adm-{n}.json'),('ultra_wide',f'/tmp/pairs/wide-adm-{n}.json')]:
+    sha=pair['sources'][key]['sha256']
+    d={
+      'schema':'D.RAW/SourceAdmissionPackage/9.99-FUTURE-SEMANTIC-FIXTURE',
+      'status':'ADMITTED_SOURCE_LOCAL',
+      'physical_observation_id':'DRAW_PHYSICAL_OBS_'+sha,
+      'physical_source_evidence_sha256':sha,
+      'evidence_counts':{'physical_frame_count':1,'independent_evidence_count':1},
+      'graph_relations':[],'fusion_admissions':[],
+      'invariants':{
+        'scientific_writeback_allowed':False,
+        'cross_observation_relation_granted':False,
+        'cross_observation_fusion_granted':False
+      },
+      'state_sha256':'0'*64
+    }
+    x=dict(d); x.pop('state_sha256')
+    d['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    json.dump(d,open(out,'w'))
+PY
+            python3 tools/draw_geometry_direct_raw_pair_intake_v01.py bind \
+              --pair "/tmp/pairs/sealed-$N.json" \
+              --main-admission "/tmp/pairs/main-adm-$N.json" \
+              --ultrawide-admission "/tmp/pairs/wide-adm-$N.json" \
+              --output "/tmp/pairs/bound-$N.json"
+          done
+
+      - name: Build complete capture set
+        run: |
+          set -euo pipefail
+          ARGS=""
+          for N in $(seq -w 1 16); do ARGS="$ARGS --pair /tmp/pairs/bound-$N.json"; done
+          # shellcheck disable=SC2086
+          python3 tools/draw_geometry_capture_set_gate_v01.py \
+            --campaign docs/research/draw-geometry-relation-campaign-v0.1/MAIN_ULTRAWIDE_GEOMETRY_CAMPAIGN_v0_1.json \
+            $ARGS --output /tmp/capture-set.json
+          python3 tools/validate_draw_geometry_capture_set_v01.py /tmp/capture-set.json
+
+      - name: Prove holdout cannot leak into model selection
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+import hashlib,json
+base=json.load(open('/tmp/capture-set.json'))
+def save(name,mutate):
+    j=json.loads(json.dumps(base)); mutate(j)
+    x=dict(j); x.pop('capture_set_state_sha256',None)
+    j['capture_set_state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    json.dump(j,open('/tmp/'+name,'w'))
+save('bad-holdout-model.json',lambda j:j['model_selection_gate'].__setitem__('holdout_model_selection_allowed',True))
+save('bad-final-score.json',lambda j:j['model_selection_gate'].__setitem__('final_holdout_scoring_allowed',True))
+save('bad-relation.json',lambda j:j['relation_authority'].__setitem__('status','ADMITTED'))
+save('bad-transform.json',lambda j:j['relation_authority'].__setitem__('coordinate_transform_allowed',True))
+save('bad-model-seal.json',lambda j:j['open_world_evolution'].__setitem__('projection_model_selected',True))
+PY
+          for f in /tmp/bad-holdout-model.json /tmp/bad-final-score.json /tmp/bad-relation.json /tmp/bad-transform.json /tmp/bad-model-seal.json; do
+            if python3 tools/validate_draw_geometry_capture_set_v01.py "$f"; then
+              echo "::error::invalid capture set accepted: $f"
+              exit 1
+            fi
+          done
