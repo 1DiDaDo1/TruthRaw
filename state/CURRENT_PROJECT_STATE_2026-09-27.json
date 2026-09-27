@@ -14,14 +14,15 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "5e49a8d0a449d7d9e7cb6ac41aeaf3fc548fb127",
+    "latest_substantive_integration_sha": "9c51586b8d86f7e0d3a55453269e1788d99f3c66",
     "current_main_includes_knowledge_growth_modules": true,
     "current_main_includes_real_main_final_admission": true,
     "current_main_includes_real_ultrawide_final_admission": true,
     "current_main_includes_geometry_relation_campaign_v0_1": true,
     "current_main_includes_geometry_capture_set_gate_v0_1": true,
     "current_main_includes_geometry_model_freeze_gate_v0_1": true,
-    "current_main_includes_geometry_holdout_validation_gate_v0_1": true
+    "current_main_includes_geometry_holdout_validation_gate_v0_1": true,
+    "current_main_includes_universal_source_frontside_intake_v0_2": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
@@ -43,7 +44,9 @@
     "Measured where measured. Reconstructed where necessary. Never invented.",
     "One Free World. Many sealed observations. One evidence law.",
     "Evidence stays what it was. Knowledge can grow through admitted relations.",
-    "Seal the evidence, not the thinking."
+    "Seal the evidence, not the thinking.",
+    "Frontside scene interpretation may guide routing but never upgrades source/sensor evidence.",
+    "Universal input: source facts first, scene inspection second, device-specific maps optional."
   ],
   "knowledge_growth_integration": {
     "virtual_observation_manifold": {
@@ -466,6 +469,26 @@
       "rejected_candidate_preserved_as_knowledge": true,
       "outcome_is_final_scientific_model_truth": false,
       "future_successor_candidates_allowed": true
+    },
+    "universal_source_frontside_intake_v0_2": {
+      "status": "MAIN_INTEGRATED_ANDROID_BUILD_VALIDATED",
+      "merge_commit_sha": "9c51586b8d86f7e0d3a55453269e1788d99f3c66",
+      "validation_run_id": 36319237913,
+      "validation_result": "SUCCESS",
+      "apk_sha256": "e6192b3db2459f02c32b229a7a213c35a11e56ffaf16e3cd653a55e2eed86030",
+      "source_metadata_auto_profiled": true,
+      "device_specific_mapping_required": false,
+      "frontside_scene_inspection_enabled": true,
+      "frontside_authority": "APPEARANCE_DERIVED_ONLY",
+      "manual_target_required": false,
+      "indexed_target_required_for_relative_geometry": false,
+      "absolute_metric_scale_requires_scale_evidence": true,
+      "unknown_fields_remain_unknown": true,
+      "workflow_role_labels_are_scientific_authority": false,
+      "higher_level_scene_model_successors_allowed": true,
+      "source_evidence_upgraded_by_frontside_inspection": false,
+      "relation_authority_granted": false,
+      "fusion_authority_granted": false
     }
   },
   "graph_model": {
@@ -613,6 +636,13 @@
     "camera2_required_for_direct_raw_geometry_pair": false,
     "camera2_role": "OPTIONAL_ACQUISITION_PROVENANCE_AND_RUNTIME_MEASUREMENT",
     "direct_raw_or_dng_ingress_allowed": true,
-    "source_local_admission_required_before_geometry_feature_extraction": true
+    "source_local_admission_required_before_geometry_feature_extraction": true,
+    "universal_input_preferred": true,
+    "device_specific_mapping_required": false,
+    "source_self_description_preferred": true,
+    "frontside_scene_inspection_enabled": true,
+    "manual_target_profile_required": false,
+    "indexed_target_required_for_relative_geometry": false,
+    "absolute_metric_scale_requires_scale_evidence": true
   }
 }
