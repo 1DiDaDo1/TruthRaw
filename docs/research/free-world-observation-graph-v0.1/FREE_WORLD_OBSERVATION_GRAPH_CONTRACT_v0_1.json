@@ -1,0 +1,91 @@
+{
+  "schema": "D.RAW/FreeWorldObservationGraphContract/0.1",
+  "status": "RESEARCH_INTEGRATION_CANDIDATE",
+  "permanent_rule": "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+  "short_law": "One Free World. Many sealed observations. One evidence law.",
+  "node_identity": "D.RAWnegative per admitted physical observation",
+  "knowledge_floors": [
+    "EVIDENCE",
+    "SCIENTIFIC_DERIVED",
+    "RELATION",
+    "SCENE_MODEL",
+    "APPEARANCE"
+  ],
+  "information_domains": [
+    "SOURCE_EVIDENCE",
+    "SAMPLING_GEOMETRY",
+    "GEOMETRY_POSE",
+    "RADIOMETRY",
+    "COLORIMETRY",
+    "SPECTRAL",
+    "OPTICAL_SUPPORT",
+    "NOISE_UNCERTAINTY",
+    "TEMPORAL",
+    "MATERIAL",
+    "ILLUMINATION",
+    "PROVENANCE",
+    "RESTORATION",
+    "APPEARANCE"
+  ],
+  "relation_axes": [
+    "GEOMETRY",
+    "RADIOMETRIC_GAUGE",
+    "COLORIMETRIC",
+    "SPECTRAL",
+    "OPTICAL_SUPPORT",
+    "UNCERTAINTY_CORRELATION",
+    "TEMPORAL",
+    "PROVENANCE"
+  ],
+  "relation_status": [
+    "UNKNOWN",
+    "HYPOTHESIS",
+    "SOURCE_BOUND",
+    "CALIBRATED",
+    "ADMITTED",
+    "REJECTED"
+  ],
+  "fusion": {
+    "relation_record_may_directly_grant_fusion": false,
+    "composite_admission_required": true,
+    "radiometric_requires": [
+      "RADIOMETRIC_GAUGE",
+      "UNCERTAINTY_CORRELATION",
+      "TEMPORAL"
+    ],
+    "color_requires": [
+      "RADIOMETRIC_GAUGE",
+      "COLORIMETRIC",
+      "UNCERTAINTY_CORRELATION",
+      "TEMPORAL"
+    ],
+    "spatial_detail_requires": [
+      "GEOMETRY",
+      "OPTICAL_SUPPORT",
+      "UNCERTAINTY_CORRELATION",
+      "TEMPORAL"
+    ]
+  },
+  "temporal": {
+    "physical_observation_may_have_exposure_footprint": true,
+    "unknown_timing_must_remain_unknown": true,
+    "virtual_view_independent_evidence_increment": 0,
+    "virtual_view_creates_new_evidence": false
+  },
+  "knowledge_growth": {
+    "source_evidence_mutable": false,
+    "observation_identity_mutable": false,
+    "new_information_adds_context_only": true,
+    "admitted_relation_requires_certificate": true,
+    "relation_axis_independence": true,
+    "rejected_relations_retained_as_knowledge": true
+  },
+  "invariants": {
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false,
+    "relation_promotes_source_evidence": false,
+    "appearance_writeback_allowed": false,
+    "scientific_writeback_from_graph_allowed": false,
+    "precision_upgrades_authority": false
+  }
+}
