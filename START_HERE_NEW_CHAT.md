@@ -158,6 +158,21 @@ Main-integrated:
 The pair tool is intentionally semantically forward-compatible with future
 `D.RAW/SourceAdmissionPackage/*` successors.
 
+### Geometry Capture-Set Gate v0.1
+
+Main-integrated and host validated.
+
+- `docs/research/draw-geometry-capture-set-gate-v0.1/**`
+- dedicated run `36312992699`: SUCCESS
+- 12 TRAINING + 4 HOLDOUT matrix: proven
+- training model selection after complete set: allowed
+- HOLDOUT model selection: forbidden
+- final holdout scoring before model freeze: forbidden
+- relation/transform/fusion authority: not granted
+- projection/distortion model selected by this gate: no
+
+The evidence membership can be sealed while scientific model hypotheses remain open to versioned successors.
+
 ## Validation boundary
 
 Main has executed the unchanged common scientific C++ route on host. This does
