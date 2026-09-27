@@ -6,23 +6,33 @@ Official product name: **D.RAW**
 
 Repository: `1DiDaDo1/TruthRaw`
 
-The previously stale default `main` has now been promoted to the current
-D.RAW code-bearing lineage. The 2026-09-27 knowledge-growth work is developed
-on:
+Primary current repository line: `main`.
 
-`integration/draw-knowledge-growth-v0-1-2026-09-27`
+The stale-main gap is closed. The latest substantive 2026-09-27 integration
+checkpoint before this documentation refresh is:
 
-and is intended to be fast-forwarded into `main` after this handoff refresh.
+`b0e88971a6fe3ed84ec6913865e50073d16512cf`
 
-Read first:
+The current integration-provenance branch for this documentation refresh is:
+
+`integration/draw-knowledge-growth-state-refresh-2026-09-27`
+
+A new chat should normally start on `main`; it does not need to reconstruct
+the old branch ladder first.
+
+## Mandatory current reading order
 
 1. `START_HERE_NEW_CHAT.md`
 2. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
 3. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
-4. `docs/research/free-world-observation-graph-v0.1/README.md`
-5. `docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json`
-6. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-7. the sealed D.RAWnegative / lens-independent v0.1 documents.
+4. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+5. `docs/research/free-world-observation-graph-v0.1/README.md`
+6. `docs/research/draw-observation-record-v0.3/README.md`
+7. `docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json`
+8. `docs/research/draw-calibration-binding-v0.1/README.md`
+9. `docs/research/draw-calibration-binding-v0.1/DRAW_CALIBRATION_BINDING_CONTRACT_v0_1.json`
+10. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+11. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
 
 ## Permanent laws
 
@@ -48,15 +58,36 @@ sealed physical observation / Source Evidence
  -> finite projection
 ```
 
-D.RAWnegative v0.1 remains sealed and unchanged.
+D.RAWnegative v0.1 remains byte/semantics sealed and unchanged.
 
-## New Free World Observation Graph v0.1
+## Current scientific-negative / Android boundary
 
-The graph is now a real machine-validated research integration layer rather
-than only an architecture phrase.
+D.RAWnegative v0.1 remains the current scientific-negative identity.
 
-Every information record has an explicit domain and epistemic floor.
-Cross-observation relations are factored into independent axes:
+Latest fully host + Android validated D.RAWnegative checkpoint remains:
+
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
+
+Android/NDK/JNI run `36260305613`: **SUCCESS**.
+
+The three 2026-09-27 knowledge-growth modules below are host/control-plane
+contracts. They do not change the validated image/pixel route and are not being
+misrepresented as new Android/device validation.
+
+## Free World Observation Graph v0.1
+
+Status: **main-integrated, host/native validated**.
+
+Merge commit:
+
+`ee4c426e403ac87f8db86dc760aa1b2c975ff3f5`
+
+Native GCC/Clang/ASan/UBSan workflow run:
+
+`36282087425` — **SUCCESS**
+
+The graph gives every information item an explicit domain/floor and factors
+cross-observation relations into independent axes:
 
 - geometry;
 - radiometric / Zero-Line gauge;
@@ -69,80 +100,168 @@ Cross-observation relations are factored into independent axes:
 
 A relation on one axis grants nothing on another axis.
 
-A single relation cannot directly grant fusion. Fusion requires a separate
-composite admission. The first fail-closed requirements are:
+A single relation may not directly grant fusion. Composite fusion admission is
+separate and certificate-bound.
 
-- radiometric fusion: radiometric gauge + uncertainty/correlation + temporal;
-- colour fusion: the above + colorimetric;
-- spatial-detail fusion: geometry + optical support + uncertainty/correlation
-  + temporal.
+Current minimum relation sets are:
 
-This is deliberately stricter downstream policy and does not rewrite sealed
-D.RAWnegative v0.1 semantics.
+- radiometric fusion = radiometric gauge + uncertainty/correlation + temporal;
+- colour fusion = radiometric gauge + colorimetric + uncertainty/correlation + temporal;
+- spatial-detail fusion = geometry + optical support + uncertainty/correlation + temporal.
+
+This stricter downstream rule does not rewrite sealed D.RAWnegative v0.1.
+
+## Observation Record v0.3
+
+Status: **current Observation Record successor, host validated**.
+
+Merge commit:
+
+`472194decc1418906c9f99e70b37098fb6276912`
+
+Validation run:
+
+`36282295104` — **SUCCESS**
+
+v0.3 is a strict successor to v0.2. Its validator reconstructs the parent v0.2
+record and runs the complete v0.2 gate before accepting any v0.3 additions.
+
+It adds explicit knowledge placement and independent authority dimensions for:
+
+- sampling geometry;
+- geometry/pose;
+- radiometry;
+- colorimetry;
+- spectral;
+- optical support;
+- noise/uncertainty;
+- temporal;
+- provenance.
+
+It also adds a temporal footprint, optical-support state and calibration
+bindings.
+
+The Camera-5 migration keeps the same source, Scientific Master, authority
+field, legacy TruthNegative parent and D.RAWnegative v0.1 identities.
+
+Camera-5 currently remains explicitly:
+
+- spectral: `UNKNOWN`;
+- optical support: `UNKNOWN_FOR_SCIENTIFIC_SUPPORT`;
+- temporal: `UNKNOWN`;
+- calibration bindings: none.
+
+Its graph-node SHA-256 is:
+
+`901e5b8e853792fccee50ec6501fd22981593b7f9a3e5d8fb82a19be3f9bed62`
+
+No cross-observation relation or fusion permission lives in an Observation
+Record.
+
+## Calibration Observation Binding v0.1
+
+Status: **main-integrated host-validated research foundation**.
+
+Merge commit:
+
+`b0e88971a6fe3ed84ec6913865e50073d16512cf`
+
+Validation run:
+
+`36282461281` — **SUCCESS**
+
+Documentation governance for the same PR:
+
+`36282461248` — **SUCCESS**
+
+This module does not create calibration values. It reuses the existing
+Open-World Calibration Registry and gives calibration applicability
+deterministic identities for:
+
+- validity domain;
+- calibration record + calibration-payload hash;
+- held-out validation report;
+- target Observation capture context;
+- final binding/admission decision.
+
+D.RAW adds explicit:
+
+- `source_route_id`;
+- `sample_domain_id`;
+- `readout_domain_id`.
+
+This prevents a calibration from moving between superficially similar source
+domains, lens routes or readout modes merely because dimensions/CFA/metadata
+look alike.
+
+An admitted calibration binding still:
+
+- creates no target-observation sensor evidence;
+- adds no physical frame;
+- adds no independent target-observation evidence count;
+- grants no cross-observation relation;
+- implies no calibration transfer;
+- grants no fusion.
+
+No real Camera-5 calibration was promoted by this module; its validation uses
+synthetic calibration fixtures.
 
 ## Meaning of knowledge growth
 
-New information does not become "more measured". It gains useful context,
-calibration and relationships while its original authority/provenance remains
-intact.
+New information never becomes "more measured" merely because it fits the
+world model better.
 
-Relation states are:
+The positive-growth rule is:
+
+```text
+immutable evidence
+ + admitted calibration/context
+ + admitted independent relations
+ = richer usable knowledge
+```
+
+while original provenance and authority remain intact.
+
+Relation knowledge can progress through:
 
 `UNKNOWN -> HYPOTHESIS -> SOURCE_BOUND -> CALIBRATED -> ADMITTED`
 
-with `REJECTED` retained as valid negative knowledge. Admission requires a
-certificate identity. No scalar confidence probability is introduced.
+and `REJECTED` remains preserved negative knowledge.
 
-## Temporal knowledge
+## Historical research recovered into main
 
-A physical exposure may eventually carry an exposure interval, shutter
-weighting and rolling/global readout model. Unknown timing remains UNKNOWN.
+The current main ancestry now preserves/reuses:
 
-Virtual EV/ISO/view projections add zero physical frames and zero independent
-evidence. A genuinely separately captured frame is a new sealed Observation.
+- Virtual Observation Manifold v0.9;
+- FotoGraaf Acquisition Domain v0.8;
+- Professional RAW Gatehouse / LibRaw / decoder / ingress unique modules;
+- Open World foundations;
+- camera-RGB covariance and XYZ uncertainty;
+- Bound Uncertainty Admission;
+- Free World output-pixel work;
+- TruthNegative / D.RAWnegative;
+- current Android/JNI scientific route.
 
-## Recovered historical branches
+Historical branch names remain useful provenance, but are no longer required
+as the first navigation step.
 
-The following useful historical work has now been brought into the integration
-line instead of remaining easy to miss:
+## Current empirical frontier
 
-- Virtual Observation Manifold v0.9 — merged with history;
-- FotoGraaf Acquisition Domain v0.8 — merged with history;
-- Professional RAW Gatehouse / LibRaw / decoder / ingress — unique modules
-  integrated without restoring conflicting obsolete global documentation.
+Camera-5/tele remains the first real D.RAW Observation anchor.
 
-Open World, covariance/XYZ uncertainty, Bound Uncertainty Admission,
-Free-World output-pixel work and TruthNegative/D.RAWnegative were already
-ancestors of the current D.RAW line.
+Do **not** borrow its calibration to main or ultra-wide.
 
-## Important science carried forward
+The next scientifically useful growth is physical, not another generic
+architecture rewrite:
 
-- lens-independent does not mean lens information is discarded;
-- pixel count is not optical detail authority;
-- optics should eventually be field/frequency/focus/channel aware where
-  evidence supports it;
-- calibration has a validity domain and does not transfer by metadata
-  similarity;
-- human viewing conditions belong to Appearance;
-- material/illumination/light transport remain model layers;
-- restoration can be visually seamless but must remain provenance-visible;
-- correlated uncertainty must not be replaced by an independence assumption.
+1. create a real main-camera Observation Record v0.3 + Source Capability Envelope;
+2. create a real ultra-wide Observation Record v0.3 + Source Capability Envelope;
+3. keep both source-local;
+4. run source/readout-specific calibration campaigns with held-out validation;
+5. measure geometry, radiometric, colorimetric/spectral, optical,
+   uncertainty/correlation and temporal relations independently;
+6. admit only passed relations;
+7. allow composite fusion only when every required relation certificate exists.
 
-## Current source anchor
-
-Camera-5/tele remains the first proven D.RAW Observation anchor.
-
-Do **not** borrow tele calibration for main or ultra-wide.
-
-## Next empirical work
-
-1. admit a main-camera Observation Record + Source Capability Envelope;
-2. admit an ultra-wide Observation Record + Source Capability Envelope;
-3. keep each source-local initially;
-4. measure relation axes independently;
-5. let admitted relations grow the graph;
-6. create composite fusion admission only after all required relation gates
-   are independently satisfied.
-
-No code or evidence from an Honor/GCam/computational render may determine
-D.RAW scientific truth or calibration.
+No Honor/GCam/computational render may determine D.RAW scientific truth or
+calibration.
