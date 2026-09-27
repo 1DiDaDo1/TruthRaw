@@ -1,0 +1,25 @@
+{
+  "schema": "D.RAW/DngOrientationQuarantineContract/0.1",
+  "status": "REAL_MAIN_EVIDENCE_CANDIDATE",
+  "scope": {
+    "container": "CLASSIC_TIFF_DNG",
+    "raw_ifd": "EXACTLY_ONE_CFA_IFD",
+    "storage": "STRIPS_ONLY",
+    "source_orientation_value": 9,
+    "source_orientation_standard_defined": false,
+    "derived_orientation_value": 1,
+    "derived_orientation_meaning": "STORAGE_COORDINATE_NORMAL_ONLY",
+    "presentation_orientation_authority": "UNKNOWN"
+  },
+  "invariants": {
+    "parent_source_immutable": true,
+    "same_physical_observation": true,
+    "cfa_payload_byte_identical": true,
+    "physical_frame_count_increment": 0,
+    "independent_evidence_count_increment": 0,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_orientation_claim_allowed": false,
+    "valid_standard_orientation_rewritten": false
+  }
+}

@@ -1,0 +1,131 @@
+name: D.RAW DNG Orientation Quarantine v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/draw_dng_orientation_quarantine_v01.py'
+      - 'docs/research/draw-dng-orientation-quarantine-v0.1/**'
+      - '.github/workflows/draw-dng-orientation-quarantine-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/draw_dng_orientation_quarantine_v01.py'
+      - 'docs/research/draw-dng-orientation-quarantine-v0.1/**'
+      - '.github/workflows/draw-dng-orientation-quarantine-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate checked-in real-main metadata manifest
+        run: |
+          set -euo pipefail
+          python3 tools/draw_dng_orientation_quarantine_v01.py validate-manifest \
+            docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_ORIENTATION_QUARANTINE_v0_1.json
+
+      - name: Build tiny synthetic CFA TIFF with invalid Orientation 9
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import struct
+          from pathlib import Path
+
+          def make(path, orientation):
+              # Classic little-endian TIFF, one IFD, one 2x2 CFA strip.
+              # Tags: Photometric, Orientation, StripOffsets, StripByteCounts.
+              ifd_off=8
+              n=4
+              ifd_bytes=2+n*12+4
+              payload_off=ifd_off+ifd_bytes
+              entries=[
+                  (262,3,1,32803),
+                  (274,3,1,orientation),
+                  (273,4,1,payload_off),
+                  (279,4,1,8),
+              ]
+              out=bytearray()
+              out += b'II' + struct.pack('<H',42) + struct.pack('<I',ifd_off)
+              out += struct.pack('<H',n)
+              for tag,typ,count,value in entries:
+                  out += struct.pack('<HHI',tag,typ,count)
+                  if typ==3 and count==1:
+                      out += struct.pack('<H',value)+b'\x00\x00'
+                  else:
+                      out += struct.pack('<I',value)
+              out += struct.pack('<I',0)
+              out += struct.pack('<4H',64,65,66,67)
+              Path(path).write_bytes(out)
+
+          make('/tmp/orient9.tiff',9)
+          make('/tmp/orient2.tiff',2)
+          PY
+
+      - name: Normalize and validate exact quarantine
+        run: |
+          set -euo pipefail
+          cp /tmp/orient9.tiff /tmp/orient9-parent-before.tiff
+          python3 tools/draw_dng_orientation_quarantine_v01.py normalize \
+            /tmp/orient9.tiff /tmp/orient9-derived.tiff /tmp/orient9.json
+          python3 tools/draw_dng_orientation_quarantine_v01.py validate \
+            /tmp/orient9.tiff /tmp/orient9-derived.tiff /tmp/orient9.json
+          cmp -s /tmp/orient9.tiff /tmp/orient9-parent-before.tiff
+          python3 - <<'PY'
+          import hashlib,json
+          p=json.load(open('/tmp/orient9.json'))
+          assert p['normalization']['changed_byte_count']==1
+          assert p['serialized_cfa_payload']['byte_identical'] is True
+          assert p['lineage']['same_physical_observation'] is True
+          assert p['lineage']['independent_evidence_count_increment']==0
+          PY
+
+      - name: Prove valid Orientation 2 is not rewritten
+        run: |
+          set -euo pipefail
+          if python3 tools/draw_dng_orientation_quarantine_v01.py normalize \
+              /tmp/orient2.tiff /tmp/orient2-derived.tiff /tmp/orient2.json; then
+            echo "::error::valid standard Orientation 2 was incorrectly normalized"
+            exit 1
+          fi
+
+      - name: Prove manifest cannot claim presentation orientation
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_ORIENTATION_QUARANTINE_v0_1.json'
+          j=json.load(open(p))
+          j['normalization']['presentation_orientation_authority']='SOURCE_BOUND'
+          x=dict(j); x.pop('manifest_sha256',None)
+          j['manifest_sha256']=hashlib.sha256(
+              json.dumps(x,sort_keys=True,separators=(',',':')).encode()
+          ).hexdigest()
+          json.dump(j,open('/tmp/bad-manifest.json','w'))
+          PY
+          if python3 tools/draw_dng_orientation_quarantine_v01.py validate-manifest \
+              /tmp/bad-manifest.json; then
+            echo "::error::presentation-orientation authority was incorrectly admitted"
+            exit 1
+          fi
+
+      - name: Prove changed CFA payload fails validation
+        run: |
+          set -euo pipefail
+          cp /tmp/orient9-derived.tiff /tmp/orient9-derived-corrupt.tiff
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/orient9-derived-corrupt.tiff')
+          b=bytearray(p.read_bytes())
+          b[-1] ^= 1
+          p.write_bytes(b)
+          PY
+          if python3 tools/draw_dng_orientation_quarantine_v01.py validate \
+              /tmp/orient9.tiff /tmp/orient9-derived-corrupt.tiff /tmp/orient9.json; then
+            echo "::error::changed CFA payload was incorrectly accepted"
+            exit 1
+          fi
