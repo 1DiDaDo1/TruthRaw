@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourcePreAdmissionManifest/0.2",
+  "title": "D.RAW Source Pre-Admission Manifest v0.2",
+  "type": "object",
+  "required": [
+    "schema",
+    "parent_schema",
+    "status",
+    "source_evidence",
+    "acquisition_record",
+    "instrument",
+    "source_route",
+    "serialized_storage_domain",
+    "serialized_cfa_payload",
+    "capture_sample_domain",
+    "readout_domain",
+    "sensor_pixel_mode",
+    "timing",
+    "evidence_counts",
+    "initial_capability_placement",
+    "invariants",
+    "state_sha256"
+  ]
+}

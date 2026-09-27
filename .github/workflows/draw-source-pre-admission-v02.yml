@@ -1,0 +1,54 @@
+name: D.RAW Source Pre-Admission v0.2
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-source-pre-admission-v0.2/**'
+      - 'tools/create_draw_source_pre_admission_v02.py'
+      - 'tools/validate_draw_source_pre_admission_v02.py'
+      - '.github/workflows/draw-source-pre-admission-v02.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-source-pre-admission-v0.2/**'
+      - 'tools/create_draw_source_pre_admission_v02.py'
+      - 'tools/validate_draw_source_pre_admission_v02.py'
+      - '.github/workflows/draw-source-pre-admission-v02.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate real main-camera metadata-only pre-admission manifest
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_source_pre_admission_v02.py \
+            docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json
+      - name: Prove UNKNOWN identities cannot be faked
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json'
+          base=json.load(open(p))
+          def save(name, mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-sample.json',lambda j:j['capture_sample_domain'].__setitem__('value','GUESSED'))
+          save('bad-readout.json',lambda j:j['readout_domain'].__setitem__('value','GUESSED'))
+          save('bad-pixel-mode.json',lambda j:j['sensor_pixel_mode'].__setitem__('value','MAXIMUM_RESOLUTION'))
+          save('bad-radiometry.json',lambda j:j['initial_capability_placement'].__setitem__('radiometry','CALIBRATED'))
+          PY
+          for f in /tmp/bad-sample.json /tmp/bad-readout.json /tmp/bad-pixel-mode.json /tmp/bad-radiometry.json; do
+            if python3 tools/validate_draw_source_pre_admission_v02.py "$f"; then
+              echo "::error::invalid v0.2 pre-admission accepted: $f"
+              exit 1
+            fi
+          done
