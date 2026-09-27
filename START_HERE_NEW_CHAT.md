@@ -1,4 +1,68 @@
-# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-26
+# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-27
+
+**Official product name: `D.RAW`.**
+
+Primary repository line: `main`.
+
+Current integration provenance branch:
+
+`integration/draw-knowledge-growth-v0-1-2026-09-27`
+
+The previously stale `main` has already been promoted to the current
+D.RAW code-bearing ancestry. The 2026-09-27 knowledge-growth integration adds
+the preserved Virtual Observation Manifold, FotoGraaf acquisition-domain
+history, unique Professional RAW Gatehouse modules, and the new
+Free World Observation Graph v0.1.
+
+**Read first:**
+
+1. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+2. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+4. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+5. `docs/research/free-world-observation-graph-v0.1/README.md`
+6. `docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json`
+7. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+8. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
+
+Current laws:
+
+- **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+- **One Free World. Many sealed observations. One evidence law.**
+- **Evidence stays what it was. Knowledge can grow through admitted relations.**
+
+Current architecture:
+
+```text
+sealed physical observation / Source Evidence
+ -> D.RAW Observation Contract
+ -> Source Capability Envelope
+ -> Float64 measurement/calibration/reconstruction
+ -> Scientific Master
+ -> validated scientific storage
+ -> legacy TruthNegative Continuous parent
+ -> D.RAWnegative per observation
+ -> Free World Observation Graph
+ -> Deep Scene / Light Transport
+ -> View / Appearance
+ -> finite projection
+```
+
+D.RAWnegative v0.1 remains byte/semantics sealed and unchanged.
+
+Free World Observation Graph v0.1 now factors cross-observation knowledge into
+independent geometry, radiometric-gauge, colorimetric, spectral,
+optical-support, uncertainty/correlation, temporal and provenance relations.
+A single admitted relation cannot directly grant fusion; composite fusion
+admission is separately gated.
+
+Camera-5/tele remains the first real observation anchor. Main and ultra-wide
+must enter as separate sealed observations with source-local authority before
+any relation or fusion claim is admitted.
+
+---
+
+# D.RAW — HISTORICAL PROJECT IDENTITY — 2026-09-26
 
 **Official current product name: `D.RAW`.**
 
