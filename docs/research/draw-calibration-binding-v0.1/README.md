@@ -1,6 +1,6 @@
 # D.RAW Calibration Observation Binding v0.1
 
-Status: **RESEARCH INTEGRATION CANDIDATE**
+Status: **MAIN-INTEGRATED RESEARCH FOUNDATION — HOST VALIDATED; NO REAL CAMERA CALIBRATION PROMOTED**
 
 This module gives the existing Open-World Calibration Registry deterministic
 identities and an explicit admission binding to one D.RAW Observation.
