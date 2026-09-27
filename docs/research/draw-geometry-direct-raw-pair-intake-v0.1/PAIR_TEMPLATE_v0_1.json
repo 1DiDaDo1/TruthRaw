@@ -1,0 +1,66 @@
+{
+  "schema": "D.RAW/GeometryDirectRawPair/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": "DRAW_GEOMETRY_MAIN_ULTRAWIDE_2026_09_27_V0_1",
+  "pose_id": "POSE_001",
+  "subset": "TRAINING",
+  "target": {
+    "target_geometry_sha256": null,
+    "target_family": "EXTENSIBLE_STRING",
+    "metric_spacing_m": null
+  },
+  "sources": {
+    "main": {
+      "role": "MAIN",
+      "display_name": null,
+      "sha256": null,
+      "byte_length": null,
+      "sealed": false
+    },
+    "ultra_wide": {
+      "role": "ULTRA_WIDE",
+      "display_name": null,
+      "sha256": null,
+      "byte_length": null,
+      "sealed": false
+    }
+  },
+  "capture_pair_attestation": {
+    "authority": "OPERATOR_ATTESTATION_ONLY",
+    "camera_system_rigid_between_pair": true,
+    "target_static_between_pair": true,
+    "device_pose_changed_between_pair": false,
+    "target_pose_changed_between_pair": false,
+    "attestation_creates_measured_geometry": false
+  },
+  "source_local_admissions": {
+    "main": null,
+    "ultra_wide": null
+  },
+  "geometry_readiness": {
+    "pair_source_bytes_sealed": false,
+    "both_sources_admitted_source_local": false,
+    "feature_extraction_allowed": false,
+    "geometry_fit_allowed": false,
+    "relation_status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "fusion_allowed": false
+  },
+  "open_world_evolution": {
+    "law": "SEAL_EVIDENCE_NOT_THINKING",
+    "source_bytes_immutable": true,
+    "interpretation_model_mutable_via_versioned_successor": true,
+    "future_extensions_allowed": true
+  },
+  "extensions": {},
+  "invariants": {
+    "source_bytes_mutated": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false,
+    "calibration_transfer_granted": false,
+    "appearance_writeback_allowed": false
+  },
+  "pair_state_sha256": null
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "D.RAW/GeometryDirectRawPairIntakeContract/0.1",
+  "status": "OPEN_WORLD_PAIR_INTAKE",
+  "evolution_law": "SEAL_EVIDENCE_NOT_THINKING",
+  "camera2_required": false,
+  "input_sources": [
+    "MAIN_RAW_OR_DNG",
+    "ULTRA_WIDE_RAW_OR_DNG"
+  ],
+  "phases": [
+    "SEALED_PAIR_AWAITING_SOURCE_LOCAL_ADMISSION",
+    "ADMISSION_BOUND_PAIR_READY_FOR_FEATURE_EXTRACTION"
+  ],
+  "operator_attestation_authority": "OPERATOR_ATTESTATION_ONLY",
+  "source_admission_semantics_required": [
+    "ADMITTED_SOURCE_LOCAL",
+    "physical_source_sha256_match",
+    "physical_observation_id_present",
+    "one_physical_frame",
+    "one_independent_evidence_item",
+    "no_source_admission_relation_grant",
+    "no_source_admission_fusion_grant",
+    "no_scientific_writeback"
+  ],
+  "relation_authority_after_pair_binding": {
+    "geometry_relation_status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "equality_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "extensibility": {
+    "current_schema_is_minimum_semantic_contract": true,
+    "future_source_admission_versions_may_bind_if_semantics_hold": true,
+    "model_family_closed_by_this_contract": false,
+    "target_family_closed_by_this_contract": false,
+    "future_extensions_allowed": true
+  },
+  "invariants": {
+    "source_bytes_mutated": false,
+    "pair_intake_creates_new_evidence": false,
+    "pair_intake_creates_geometry_relation": false,
+    "pair_intake_grants_fusion": false,
+    "pair_intake_grants_calibration_transfer": false,
+    "appearance_writeback_allowed": false
+  }
+}
