@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="18dp">
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="D.RAW FotoGraaf · Ultra-Wide Source v0.1" android:textSize="18sp" android:paddingBottom="10dp" />
+    <Button android:id="@+id/standard_inventory" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Stap 1 — standaard Camera2 inventaris" />
+    <Button android:id="@+id/honor_inventory" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Stap 2 — HONOR inventaris" />
+    <Button android:id="@+id/capture_regular" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Stap 3 — physical 4 ultra-wide RAW 4032×3024" />
+    <Button android:id="@+id/share" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Deel laatste evidence files" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <TextView android:id="@+id/log" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textIsSelectable="true" android:typeface="monospace" android:textSize="11sp" />
+    </ScrollView>
+</LinearLayout>
