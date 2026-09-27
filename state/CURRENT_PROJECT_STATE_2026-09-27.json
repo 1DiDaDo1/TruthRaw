@@ -13,7 +13,9 @@
     "knowledge_growth_integration_final_fast_forward_pending_at_state_creation": false,
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
-    "primary_branch_now_current": true
+    "primary_branch_now_current": true,
+    "latest_substantive_integration_sha": "b0e88971a6fe3ed84ec6913865e50073d16512cf",
+    "current_main_includes_knowledge_growth_modules": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
@@ -47,14 +49,64 @@
       "invariant": "external decode cannot create zero-line, Scientific Master or extra evidence"
     },
     "free_world_observation_graph_v0_1": {
-      "status": "RESEARCH_INTEGRATION_CANDIDATE",
+      "status": "HOST_NATIVE_VALIDATED_MAIN_INTEGRATED",
       "readme": "docs/research/free-world-observation-graph-v0.1/README.md",
       "contract": "docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json",
-      "example": "docs/research/free-world-observation-graph-v0.1/examples/CAMERA5_SOURCE_LOCAL_GRAPH_v0_1.json",
+      "native_header": "docs/research/free-world-observation-graph-v0.1/native/free_world_observation_graph_v0_1.h",
+      "native_implementation": "docs/research/free-world-observation-graph-v0.1/native/free_world_observation_graph_v0_1.cpp",
       "validator": "tools/validate_free_world_observation_graph_v01.py",
-      "workflow": ".github/workflows/free-world-observation-graph-v01.yml",
-      "local_fixture_validation": "PASS",
-      "repository_ci_status": "PENDING_OR_NOT_YET_RECORDED"
+      "merge_commit_sha": "ee4c426e403ac87f8db86dc760aa1b2c975ff3f5",
+      "native_validation_run_id": 36282087425,
+      "native_validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36282087402,
+      "documentation_governance_result": "SUCCESS",
+      "relation_axis_independence": true,
+      "single_relation_direct_fusion_allowed": false,
+      "composite_fusion_admission_required": true,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "observation_record_v0_3": {
+      "status": "CURRENT_OBSERVATION_RECORD_SUCCESSOR",
+      "parent_schema": "D.RAW/DRAWObservationRecord/0.2",
+      "schema": "D.RAW/DRAWObservationRecord/0.3",
+      "readme": "docs/research/draw-observation-record-v0.3/README.md",
+      "example": "docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json",
+      "validator": "tools/validate_draw_observation_record_v03.py",
+      "merge_commit_sha": "472194decc1418906c9f99e70b37098fb6276912",
+      "validation_run_id": 36282295104,
+      "validation_result": "SUCCESS",
+      "parent_v0_2_gate_required": true,
+      "camera5_graph_node_sha256": "901e5b8e853792fccee50ec6501fd22981593b7f9a3e5d8fb82a19be3f9bed62",
+      "camera5_spectral_authority": "UNKNOWN",
+      "camera5_optical_support_authority": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+      "camera5_temporal_authority": "UNKNOWN",
+      "camera5_calibration_bindings": 0,
+      "source_evidence_changed": false,
+      "scientific_master_changed": false,
+      "drawnegative_v0_1_changed": false
+    },
+    "calibration_observation_binding_v0_1": {
+      "status": "INTEGRATED_RESEARCH_FOUNDATION_NO_REAL_CAMERA_CALIBRATION_PROMOTED",
+      "readme": "docs/research/draw-calibration-binding-v0.1/README.md",
+      "contract": "docs/research/draw-calibration-binding-v0.1/DRAW_CALIBRATION_BINDING_CONTRACT_v0_1.json",
+      "implementation": "tools/draw_calibration_binding_v01.py",
+      "tests": "tests/test_draw_calibration_binding_v01.py",
+      "merge_commit_sha": "b0e88971a6fe3ed84ec6913865e50073d16512cf",
+      "validation_run_id": 36282461281,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36282461248,
+      "documentation_governance_result": "SUCCESS",
+      "source_route_identity_required": true,
+      "sample_domain_identity_required": true,
+      "readout_domain_identity_required": true,
+      "holdout_pass_required": true,
+      "deterministic_domain_record_context_binding": true,
+      "source_evidence_mutated": false,
+      "cross_observation_relation_granted": false,
+      "calibration_transfer_implied": false,
+      "physical_frame_count_increment": 0,
+      "independent_evidence_count_increment": 0
     }
   },
   "graph_model": {
@@ -93,11 +145,20 @@
     "rejected_relations_are_preserved_knowledge": true
   },
   "next_empirical_growth": [
-    "Create a separate admitted main-camera D.RAW Observation Record and Source Capability Envelope.",
-    "Create a separate admitted ultra-wide D.RAW Observation Record and Source Capability Envelope.",
-    "Keep both source-local by default.",
+    "Create a separate admitted main-camera D.RAW Observation Record v0.3 and Source Capability Envelope from real source evidence.",
+    "Create a separate admitted ultra-wide D.RAW Observation Record v0.3 and Source Capability Envelope from real source evidence.",
+    "Keep every new observation source-local by default.",
+    "Build calibration campaigns with explicit source-route, sample-domain, readout-domain, validity-domain and held-out validation identities.",
     "Measure geometry, radiometric, colorimetric/spectral, optical, uncertainty/correlation and temporal relations independently.",
     "Admit fusion only through a composite certificate containing all required relation axes."
   ],
-  "active_development_branch": "main"
+  "active_development_branch": "main",
+  "validation_boundary": {
+    "latest_android_device_scientific_negative_checkpoint": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
+    "latest_android_device_validation_run_id": 36260305613,
+    "new_2026_09_27_graph_record_calibration_modules_change_pixel_route": false,
+    "new_2026_09_27_modules_android_device_validated": false,
+    "new_2026_09_27_modules_validation_class": "HOST_CONTROL_PLANE_CONTRACTS",
+    "statement": "Host/control-plane validation of graph, observation-record and calibration-binding contracts does not replace or upgrade Android/device validation of the scientific pixel route."
+  }
 }
