@@ -71,6 +71,30 @@ Main-integrated host-validated research foundation.
 - no calibration transfer is implied;
 - no real Camera-5 calibration was promoted by this module.
 
+### Source Capability Envelope v0.1
+
+Main-integrated and host validated.
+
+- merge: `56464d3b683dcc347dd340f14e1451ed696c56ce`
+- run: `36282899524` — **SUCCESS**
+- all nine source capability positions are mandatory;
+- UNKNOWN is valid and explicit;
+- missing placement or invented readout/spectral authority fails closed.
+
+### Source Admission Package v0.1
+
+Generic new-source gate is main-integrated and host validated.
+
+- merge: `2ae5f42428137e5b870622fbd90417f0eb87a97c`
+- run: `36283458445` — **SUCCESS**
+- Phase A: source-only pre-admission with unproven science forced to UNKNOWN;
+- Phase B: final `ADMITTED_SOURCE_LOCAL` only after Record v0.3 + Capability
+  Envelope v0.1 both pass;
+- initial shared gauge, graph relation and fusion claims are forbidden.
+
+Main and ultra-wide are **READY FOR PRE-ADMISSION** but are not admitted until
+real sealed source evidence is supplied.
+
 ## Validation boundary
 
 The 2026-09-27 Graph/Record/Calibration modules are host/control-plane
