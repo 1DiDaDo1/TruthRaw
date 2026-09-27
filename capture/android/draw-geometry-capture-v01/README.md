@@ -1,46 +1,87 @@
-# D.RAW Geometry Capture APK v0.1.1
+# D.RAW Universal Capture / Intake v0.2.0
 
-Status: **CAPTURE-ASSISTANT CANDIDATE**
+Status: **UNIVERSAL SOURCE + FRONTSIDE INSPECTION CANDIDATE**
 
-This standalone Android APK guides the real MAIN + ULTRA_WIDE geometry capture campaign.
+The app no longer requires a device-specific scientific map or a hand-entered
+target to understand an input.
 
-It deliberately does not make Camera2 a scientific ingress requirement.
+## One universal entrance
 
-## Flow
+```text
+unknown RAW/DNG/image source
+        |
+        +--> immutable bytes + SHA-256
+        |
+        +--> source/container facts
+        |    maker/model when present
+        |    raster/CFA/storage
+        |    exposure/ISO/f-number/focal length
+        |    black/white level
+        |    DNG color/noise metadata
+        |
+        +--> frontside scene inspection
+             visible proportions
+             structural content bounds
+             luminance structure
+             edges / dominant orientations
+             natural-feature readiness
+        |
+        v
+capability + scene route
+```
 
-For each of 16 poses:
+Unknown facts remain UNKNOWN.
 
-1. keep phone and target fixed;
-2. open the normal RAW-capable camera;
-3. capture MAIN / 1× RAW or DNG;
-4. without moving phone or target, capture ULTRA_WIDE / 0.6× RAW or DNG;
-5. return to the APK and import both original files;
-6. the APK copies each file byte-for-byte into its session folder and verifies SHA-256;
-7. confirm the two operator attestations;
-8. mark the pair complete.
+## Frontside inspection
 
-Poses 1–12 are TRAINING. Poses 13–16 are HOLDOUT.
+D.RAW now tries to decode a visible representation directly from the source or
+from an embedded DNG JPEG preview. This is analogous to looking at the front of
+a photograph rather than only reading its container metadata.
 
-## Authority boundary
+The v0.2.0 structural vision layer measures:
 
-The APK is workflow/provenance assistance only. It does not create sensor evidence, alter source bytes, admit D.RAWnegative, create a geometry relation, grant a coordinate transform, fusion, or calibration transfer.
+- visible aspect ratio and proportions;
+- structural-content bounding box and centroid;
+- luminance distribution and entropy;
+- edge density and gradient strength;
+- dominant edge orientations;
+- a deterministic structural appearance signature;
+- whether enough visible structure exists for later natural-feature matching.
 
-The original RAW/DNG remains the evidence source.
+This layer is `APPEARANCE_DERIVED_ONLY`. It can guide reconstruction,
+orientation and geometry routing, but it cannot upgrade sensor/source evidence.
 
-## Camera2
+Higher-level semantic vision models may be added as versioned successors
+without rewriting the original source or this historical result.
 
-Camera2 is not required. The APK opens the user's normal camera application and then uses Android's document picker to import the resulting original RAW/DNG.
+## No mandatory calibration target
 
-## Session manifest
+An indexed target is not required for relative scene geometry.
 
-The APK exports `D.RAW/GeometryCaptureSession/0.1` containing the 16 pose slots, source byte lengths, source SHA-256, verified copy SHA-256, operator attestations, optional target geometry identity, and fail-closed relation authority.
+If the scene itself contains enough natural structure, D.RAW may route the
+source pair toward natural-feature geometry.
 
-The manifest is capture provenance, not a geometry certificate.
+Absolute metric scale still requires actual scale evidence somewhere in the
+source or scene. It is never invented.
 
-## Open-world law
+## Device independence
+
+MAIN, ULTRA_WIDE and similar names in the capture UI are workflow labels only.
+They are not scientific authority.
+
+Focal length is read from the source where present, but focal length alone does
+not prove lens role or field of view across different sensor formats.
+
+Camera2 remains optional.
+
+## Authority law
+
+- source bytes / SHA-256: measured;
+- DNG/TIFF metadata: source-metadata-bound;
+- frontside scene inspection: appearance-derived;
+- lens role: UNKNOWN unless independently established;
+- relative geometry: not admitted until later validation;
+- absolute metric scale: UNKNOWN without scale evidence;
+- fusion: not granted.
 
 **Seal the evidence, not the thinking.**
-
-## v0.1.1 UX fix
-
-After confirming a pose pair, the app now scrolls to the top, shows an explicit saved→next-pose banner and a toast. Manual Previous/Next navigation also scrolls to the pose header. This changes no source-evidence or scientific authority semantics.
