@@ -40,6 +40,10 @@ current_2026_09_24_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-24.jso
 current_2026_09_24_handoff = need("docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md")
 current_2026_09_25_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-25.json")
 current_2026_09_25_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md")
+current_2026_09_27_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-27.json")
+current_2026_09_27_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md")
+current_2026_09_27_index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-27.md")
+current_2026_09_27_graph = need("docs/research/free-world-observation-graph-v0.1/README.md")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -373,6 +377,65 @@ if apk25.get("stable_dev_cert_sha256") != "a6288a4b7e9d18e908eeba37540cd962b687f
 
 if "Representation can exceed the source. Knowledge claims cannot exceed the evidence." not in current_2026_09_25_handoff:
     errors.append("current_2026_09_25_handoff_permanent_law_missing")
+
+# Current 2026-09-27 knowledge-growth / main promotion validation.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-09-27.json",
+    "docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md",
+    "docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-09-27.md",
+    "docs/research/free-world-observation-graph-v0.1/README.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_09_27_pointer:{required}")
+
+try:
+    current_2026_09_27 = json.loads(current_2026_09_27_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_09_27_project_state_invalid_json:{exc}")
+    current_2026_09_27 = {}
+
+if current_2026_09_27.get("schema") != "DRAW_CURRENT_PROJECT_STATE/2026-09-27":
+    errors.append("current_2026_09_27_project_state_schema_mismatch")
+if current_2026_09_27.get("product_name") != "D.RAW":
+    errors.append("current_2026_09_27_product_name_mismatch")
+if current_2026_09_27.get("active_development_branch") != "main":
+    errors.append("current_2026_09_27_main_not_current")
+promotion27 = current_2026_09_27.get("main_promotion") or {}
+if promotion27.get("primary_branch_now_current") is not True:
+    errors.append("current_2026_09_27_main_promotion_not_complete")
+graph27 = current_2026_09_27.get("graph_model") or {}
+required_axes27 = {
+    "GEOMETRY", "RADIOMETRIC_GAUGE", "COLORIMETRIC", "SPECTRAL",
+    "OPTICAL_SUPPORT", "UNCERTAINTY_CORRELATION", "TEMPORAL", "PROVENANCE",
+}
+if set(graph27.get("relation_axes") or []) != required_axes27:
+    errors.append("current_2026_09_27_relation_axes_mismatch")
+if graph27.get("relation_axis_independence") is not True:
+    errors.append("current_2026_09_27_relation_axes_not_independent")
+if graph27.get("direct_single_relation_fusion_allowed") is not False:
+    errors.append("current_2026_09_27_single_relation_fusion_must_be_forbidden")
+if graph27.get("composite_fusion_admission_required") is not True:
+    errors.append("current_2026_09_27_composite_fusion_gate_missing")
+laws27 = current_2026_09_27.get("scientific_invariants") or {}
+for key, expected in {
+    "sealed_source_immutable": True,
+    "direct_cfa_immutable": True,
+    "scientific_master_writeback_from_graph": False,
+    "drawnegative_v0_1_mutated": False,
+    "appearance_writeback_allowed": False,
+    "virtual_view_creates_new_evidence": False,
+    "precision_upgrades_authority": False,
+    "calibration_transfer_by_device_or_lens_identity": False,
+}.items():
+    if laws27.get(key) != expected:
+        errors.append(f"current_2026_09_27_law_mismatch:{key}")
+if "Evidence stays what it was. Knowledge can grow through admitted relations." not in current_2026_09_27_handoff:
+    errors.append("current_2026_09_27_knowledge_growth_law_missing")
+if "Free World Observation Graph v0.1" not in current_2026_09_27_graph:
+    errors.append("current_2026_09_27_graph_readme_identity_missing")
+if "state/CURRENT_PROJECT_STATE_2026-09-27.json" not in current_2026_09_27_index:
+    errors.append("current_2026_09_27_index_missing_state_pointer")
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
@@ -863,6 +926,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-24.json",
             "state/CURRENT_PROJECT_STATE_2026-09-25.json",
             "state/CURRENT_PROJECT_STATE_2026-09-26.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-27.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
@@ -888,7 +952,7 @@ if errors:
     sys.exit(1)
 
 print("DOCUMENTATION_GOVERNANCE_PASS")
-print("current_navigation=2026-09-19_multivendor")
+print("current_navigation=2026-09-27_draw_knowledge_growth")
 print("historical_snapshots_preserved=7")
 print("source_evidence=IMMUTABLE")
 print("free_scientific_space=OPEN_WORLD_EVIDENCE_BOUNDED")
