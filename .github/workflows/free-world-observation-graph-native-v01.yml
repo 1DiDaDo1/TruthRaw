@@ -1,0 +1,58 @@
+name: D.RAW Free World Observation Graph native v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/free-world-observation-graph-v0.1/**'
+      - '.github/workflows/free-world-observation-graph-native-v01.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/research/free-world-observation-graph-v0.1/**'
+      - '.github/workflows/free-world-observation-graph-native-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = gcc ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Configure
+        run: cmake -S docs/research/free-world-observation-graph-v0.1 -B /tmp/draw-graph-build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build /tmp/draw-graph-build --parallel 2
+      - name: Test
+        run: ctest --test-dir /tmp/draw-graph-build --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure ASan/UBSan
+        env:
+          CXXFLAGS: -fsanitize=address,undefined -fno-omit-frame-pointer
+          LDFLAGS: -fsanitize=address,undefined
+        run: cmake -S docs/research/free-world-observation-graph-v0.1 -B /tmp/draw-graph-san -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build /tmp/draw-graph-san --parallel 2
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir /tmp/draw-graph-san --output-on-failure
