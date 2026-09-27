@@ -134,6 +134,30 @@ transform on training data only, then freeze model/thresholds before holdout.
 No geometry result may automatically grant radiometric, colour, optical,
 uncertainty, temporal, provenance or fusion authority.
 
+### Open-world evolution
+
+Permanent rule:
+
+**Seal the evidence, not the thinking.**
+
+Sealed source/evidence objects remain immutable. Models and interpretations do
+not become final merely because the source is sealed. New scientific models
+must be added through versioned successors while preserving parent evidence.
+
+### Direct RAW geometry-pair intake
+
+Main-integrated:
+
+- `docs/research/draw-geometry-direct-raw-pair-intake-v0.1/**`
+- validation `36312425248`: SUCCESS
+- Camera2 required: **false**
+- direct original RAW/DNG pair intake: **true**
+- source-local admission required before feature extraction: **true**
+- relation/transform/fusion granted by pair intake: **false**
+
+The pair tool is intentionally semantically forward-compatible with future
+`D.RAW/SourceAdmissionPackage/*` successors.
+
 ## Validation boundary
 
 Main has executed the unchanged common scientific C++ route on host. This does
