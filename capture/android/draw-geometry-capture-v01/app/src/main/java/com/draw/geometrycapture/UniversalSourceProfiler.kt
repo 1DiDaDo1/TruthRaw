@@ -34,7 +34,7 @@ object UniversalSourceProfiler {
                 .put("metadata_parse_status", "NOT_CLASSIC_TIFF")
                 .put("source_metadata", JSONObject())
                 .put("route_hints", JSONArray().put("REQUIRE_FORMAT_ADAPTER_OR_GENERIC_DECODER_QUARANTINE"))
-                .put("scene_analysis", sceneAnalysisPlaceholder())
+                .put("scene_analysis", FrontsideSceneInspector.inspect(file, null, sourceSha256))
                 .put("authority", authorityBlock())
         }
 
@@ -49,7 +49,7 @@ object UniversalSourceProfiler {
                 .put("metadata_error", e.message ?: e.javaClass.simpleName)
                 .put("source_metadata", JSONObject())
                 .put("route_hints", JSONArray().put("FAIL_CLOSED_OR_VERSIONED_COMPATIBILITY_ADAPTER"))
-                .put("scene_analysis", sceneAnalysisPlaceholder())
+                .put("scene_analysis", FrontsideSceneInspector.inspect(file, null, sourceSha256))
                 .put("authority", authorityBlock())
         }
 
@@ -145,6 +145,12 @@ object UniversalSourceProfiler {
             .put("optical_support", "UNKNOWN")
             .put("note", "Focal length alone does not prove lens role or field of view across different sensor formats.")
 
+        val frontside = FrontsideSceneInspector.inspect(
+            file,
+            parsed,
+            sourceSha256
+        )
+
         return base
             .put("scientific_source_class", sourceClass)
             .put("metadata_parse_status", "PASS_READ_ONLY")
@@ -154,7 +160,7 @@ object UniversalSourceProfiler {
             .put("source_identity_hint", sourceIdentityHint)
             .put("optics", optics)
             .put("route_hints", routeHints)
-            .put("scene_analysis", sceneAnalysisPlaceholder())
+            .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
             .put(
                 "open_world",
@@ -187,14 +193,49 @@ object UniversalSourceProfiler {
             else -> "UNKNOWN"
         }
 
+        val aScene = a.optJSONObject("scene_analysis") ?: JSONObject()
+        val bScene = b.optJSONObject("scene_analysis") ?: JSONObject()
+        val aReady = aScene.optJSONObject("geometry_readiness")
+            ?.optBoolean("natural_feature_geometry_candidate", false) ?: false
+        val bReady = bScene.optJSONObject("geometry_readiness")
+            ?.optBoolean("natural_feature_geometry_candidate", false) ?: false
+
+        val aAspect = aScene.optJSONObject("proportions")
+            ?.optDouble("aspect_ratio_width_over_height", Double.NaN)
+            ?: Double.NaN
+        val bAspect = bScene.optJSONObject("proportions")
+            ?.optDouble("aspect_ratio_width_over_height", Double.NaN)
+            ?: Double.NaN
+
+        val aspectAgreement = if (aAspect.isFinite() && bAspect.isFinite()) {
+            kotlin.math.abs(aAspect - bAspect) /
+                kotlin.math.max(aAspect, bAspect) <= 0.03
+        } else {
+            false
+        }
+
+        val geometryRoute = when {
+            aReady && bReady ->
+                "NATURAL_FEATURE_PAIR_MATCHING_CANDIDATE"
+            else ->
+                "SCIENTIFIC_RECONSTRUCTION_THEN_SCENE_INSPECTION"
+        }
+
         return JSONObject()
             .put("schema", "D.RAW/UniversalSourcePairProfile/0.1")
             .put("same_device_metadata_hint", sameDeviceHint)
             .put("same_device_hint_authority", "SOURCE_METADATA_HINT_ONLY")
             .put("reported_focal_length_ordering", focalOrdering)
             .put("focal_ordering_is_field_of_view_authority", false)
+            .put("frontside_a_available", aScene.optBoolean("decoded_preview_used", false))
+            .put("frontside_b_available", bScene.optBoolean("decoded_preview_used", false))
+            .put("frontside_natural_feature_candidate_a", aReady)
+            .put("frontside_natural_feature_candidate_b", bReady)
+            .put("frontside_aspect_ratio_compatible_hint", aspectAgreement)
+            .put("frontside_hint_authority", "APPEARANCE_DERIVED_ONLY")
             .put("role_assignment", "DEFER_TO_SCENE_AND_SOURCE_EVIDENCE")
-            .put("geometry_route", "AUTO_SCENE_MATCH_AFTER_SCIENTIFIC_SOURCE_DEVELOPMENT")
+            .put("geometry_route", geometryRoute)
+            .put("indexed_target_required", false)
             .put("metric_scale", "UNKNOWN_UNLESS_SOURCE_OR_SCENE_SUPPLIES_SCALE")
             .put("device_specific_mapping_used", false)
             .put("extensions", JSONObject())
