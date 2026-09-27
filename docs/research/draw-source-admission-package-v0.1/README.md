@@ -1,6 +1,6 @@
 # D.RAW Source Admission Package v0.1
 
-Status: **RESEARCH INTEGRATION CANDIDATE**
+Status: **MAIN-INTEGRATED HOST-VALIDATED GENERIC SOURCE ADMISSION GATE**
 
 This module defines the lens-independent entrance for a genuinely new physical
 source into the current D.RAW Free World.
