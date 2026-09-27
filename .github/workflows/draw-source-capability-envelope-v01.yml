@@ -1,0 +1,54 @@
+name: D.RAW Source Capability Envelope v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-source-capability-envelope-v0.1/**'
+      - 'tools/validate_draw_source_capability_envelope_v01.py'
+      - '.github/workflows/draw-source-capability-envelope-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-source-capability-envelope-v0.1/**'
+      - 'tools/validate_draw_source_capability_envelope_v01.py'
+      - '.github/workflows/draw-source-capability-envelope-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Camera-5 envelope against Observation Record v0.3
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_source_capability_envelope_v01.py \
+            docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json \
+            docs/research/draw-source-capability-envelope-v0.1/examples/CAMERA5_LAMP_SCENE_SOURCE_CAPABILITY_ENVELOPE_v0_1.json
+      - name: Prove unknown/source-domain/fusion claims fail closed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          p=Path('docs/research/draw-source-capability-envelope-v0.1/examples/CAMERA5_LAMP_SCENE_SOURCE_CAPABILITY_ENVELOPE_v0_1.json')
+          base=json.loads(p.read_text())
+          def write(name,j):
+              x=dict(j); x.pop('state_sha256',None)
+              x['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+              Path('/tmp/'+name).write_text(json.dumps(x))
+          j=json.loads(p.read_text()); j['capabilities']['spectral']['identity_sha256']='1'*64; write('bad-spectral.json',j)
+          j=json.loads(p.read_text()); j['source_domain']['readout_domain_id']='CAM5_GUESSED'; write('bad-readout.json',j)
+          j=json.loads(p.read_text()); j['invariants']['cross_observation_fusion_granted']=True; write('bad-fusion.json',j)
+          j=json.loads(p.read_text()); del j['capabilities']['temporal']; write('bad-missing.json',j)
+          PY
+          for f in /tmp/bad-spectral.json /tmp/bad-readout.json /tmp/bad-fusion.json /tmp/bad-missing.json; do
+            if python3 tools/validate_draw_source_capability_envelope_v01.py \
+                docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json "$f"; then
+              echo "::error::invalid capability envelope accepted: $f"
+              exit 1
+            fi
+          done

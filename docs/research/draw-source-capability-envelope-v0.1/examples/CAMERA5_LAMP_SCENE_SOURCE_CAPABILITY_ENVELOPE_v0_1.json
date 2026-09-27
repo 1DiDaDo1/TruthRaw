@@ -1,0 +1,115 @@
+{
+  "schema": "D.RAW/SourceCapabilityEnvelope/0.1",
+  "observation_record_schema": "D.RAW/DRAWObservationRecord/0.3",
+  "observation_id": "DRAW_OBS_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+  "source_evidence_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+  "instrument": {
+    "device_id": "HONOR_BKQ-N49",
+    "camera_id": "PHYSICAL_CAMERA_5",
+    "lens_role": "TELEPHOTO",
+    "capture_pipeline_id": "DNG_ADMITTED_SOURCE_ROUTE"
+  },
+  "source_domain": {
+    "source_route_id": "DNG_ADMITTED_SOURCE_ROUTE",
+    "sample_domain_id": "ADMITTED_DNG_SOURCE",
+    "readout_domain_id": null,
+    "readout_domain_authority": "UNKNOWN",
+    "sensor_pixel_mode": null,
+    "sensor_pixel_mode_authority": "UNKNOWN"
+  },
+  "sampling": {
+    "width": 4080,
+    "height": 3072,
+    "cfa_topology": "BAYER_LIKE_SOURCE_BOUND"
+  },
+  "capabilities": {
+    "sampling_geometry": {
+      "authority": "SOURCE_BOUND_4080x3072",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "geometry_pose": {
+      "authority": "IMAGE_PLANE_BOUND",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "radiometry": {
+      "authority": "CALIBRATED_ESTIMATE_SOURCE_BOUND",
+      "identity_sha256": "01f22f57e7ae43f7d944adb7660fa96ab7242f3a387e3bd6fd34cbd63f528fd8",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "colorimetry": {
+      "authority": "SOURCE_METADATA_BOUND",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "spectral": {
+      "authority": "UNKNOWN",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "optical_support": {
+      "authority": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "noise_uncertainty": {
+      "authority": "PARTIAL_FAIL_CLOSED",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "temporal": {
+      "authority": "UNKNOWN",
+      "identity_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    },
+    "provenance": {
+      "authority": "SOURCE_BOUND",
+      "identity_sha256": "45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null
+    }
+  },
+  "dynamic_range_bounds": {
+    "authority": "CENSOR_AWARE_SOURCE_BOUND",
+    "identity_sha256": null
+  },
+  "gauge": {
+    "truthrange_formula": "T=log2(L/L0)",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba",
+    "relation": "SOURCE_LOCAL_ONLY",
+    "shared_free_world_gauge_id": null
+  },
+  "temporal_footprint": {
+    "model": "UNKNOWN",
+    "capture_timestamp_identity_sha256": null,
+    "exposure_interval_known": false,
+    "rolling_shutter_model_known": false
+  },
+  "optical_support": {
+    "authority": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+    "model_kind": "NONE",
+    "support_identity_sha256": null
+  },
+  "calibration_bindings": [],
+  "invariants": {
+    "unknown_is_valid_state": true,
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false,
+    "implicit_calibration_transfer_allowed": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false
+  },
+  "state_sha256": "37dbb4e85ffad6b0eccf89c294ae5fbc0c153b56cce2db967e16990d17323c26"
+}
