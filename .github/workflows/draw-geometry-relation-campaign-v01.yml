@@ -1,0 +1,53 @@
+name: D.RAW Geometry Relation Campaign v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-geometry-relation-campaign-v0.1/**'
+      - 'tools/validate_draw_geometry_relation_campaign_v01.py'
+      - '.github/workflows/draw-geometry-relation-campaign-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-geometry-relation-campaign-v0.1/**'
+      - 'tools/validate_draw_geometry_relation_campaign_v01.py'
+      - '.github/workflows/draw-geometry-relation-campaign-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate pending main-ultra-wide geometry campaign
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_geometry_relation_campaign_v01.py             docs/research/draw-source-admission-package-v0.2/examples/MAIN_CAMERA_SOURCE_ADMISSION_v0_2.json             docs/research/draw-direct-physical-source-admission-v0.1/evidence/ULTRAWIDE_SOURCE_ADMISSION_v0_3.json             docs/research/draw-geometry-relation-campaign-v0.1/MAIN_ULTRAWIDE_GEOMETRY_CAMPAIGN_v0_1.json
+      - name: Prove pending campaign cannot manufacture relation authority
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-geometry-relation-campaign-v0.1/MAIN_ULTRAWIDE_GEOMETRY_CAMPAIGN_v0_1.json'
+          base=json.load(open(p))
+          def save(name, mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-transform.json',lambda j:j['current_relation_record']['capabilities'].__setitem__('coordinate_transform_allowed',True))
+          save('bad-cert.json',lambda j:j['current_relation_record'].__setitem__('certificate_sha256','0'*64))
+          save('bad-reuse.json',lambda j:j['current_evidence_assessment'].__setitem__('reuse_existing_reference_images_for_geometry_fit_allowed',True))
+          save('bad-fusion.json',lambda j:j['current_relation_record']['capabilities'].__setitem__('fusion_allowed',True))
+          save('bad-transfer.json',lambda j:j['current_relation_record']['capabilities'].__setitem__('calibration_transfer_allowed',True))
+          save('bad-holdout.json',lambda j:j['capture_protocol'].__setitem__('holdout_pose_minimum',0))
+          PY
+          for f in /tmp/bad-transform.json /tmp/bad-cert.json /tmp/bad-reuse.json /tmp/bad-fusion.json /tmp/bad-transfer.json /tmp/bad-holdout.json; do
+            if python3 tools/validate_draw_geometry_relation_campaign_v01.py                 docs/research/draw-source-admission-package-v0.2/examples/MAIN_CAMERA_SOURCE_ADMISSION_v0_2.json                 docs/research/draw-direct-physical-source-admission-v0.1/evidence/ULTRAWIDE_SOURCE_ADMISSION_v0_3.json "$f"; then
+              echo "::error::invalid geometry campaign accepted: $f"
+              exit 1
+            fi
+          done

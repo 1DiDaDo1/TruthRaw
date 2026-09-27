@@ -1,0 +1,149 @@
+{
+  "schema": "D.RAW/GeometryRelationCampaign/0.1",
+  "status": "PENDING_MATCHED_SCENE_CAPTURE",
+  "campaign_id": "DRAW_GEOMETRY_MAIN_ULTRAWIDE_2026_09_27_V0_1",
+  "relation_axis": "GEOMETRY",
+  "reference_observations": {
+    "main": {
+      "physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+      "lens_role": "MAIN",
+      "source_local_admission_state_sha256": "c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a"
+    },
+    "ultra_wide": {
+      "physical_observation_id": "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+      "lens_role": "ULTRA_WIDE",
+      "source_local_admission_state_sha256": "629edde9697387e87c39c66846f21457954d258d831464140eda42ed912b655a"
+    }
+  },
+  "current_relation_record": {
+    "relation_id": "DRAW_REL_GEOMETRY_MAIN_ULTRAWIDE_V0_1",
+    "observation_a": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+    "observation_b": "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+    "axis": "GEOMETRY",
+    "status": "UNKNOWN",
+    "certificate_sha256": null,
+    "capabilities": {
+      "coordinate_transform_allowed": false,
+      "equality_allowed": false,
+      "fusion_allowed": false,
+      "calibration_transfer_allowed": false
+    }
+  },
+  "current_evidence_assessment": {
+    "existing_reference_observations_same_scene": false,
+    "existing_reference_observations_are_geometry_measurement_pair": false,
+    "reuse_existing_reference_images_for_geometry_fit_allowed": false,
+    "reason": "MAIN_2026_09_14_AND_ULTRAWIDE_2026_09_27_ARE_DIFFERENT_CAPTURE_SESSIONS_AND_SCENES",
+    "matched_scene_capture_required": true
+  },
+  "capture_protocol": {
+    "camera_system_rigidly_mounted": true,
+    "move_calibration_target_not_camera_system": true,
+    "static_target_between_main_ultrawide_pair": true,
+    "camera_system_motion_between_pair_forbidden": true,
+    "target_motion_between_pair_forbidden": true,
+    "source_local_admission_required_for_every_capture": true,
+    "geometry_altering_crop_rotate_rescale_before_measurement_forbidden": true,
+    "source_raster_coordinates_required": true,
+    "training_pose_minimum": 12,
+    "holdout_pose_minimum": 4,
+    "training_holdout_disjoint": true,
+    "pose_coverage_required": [
+      "CENTER",
+      "LEFT_EDGE",
+      "RIGHT_EDGE",
+      "TOP_EDGE",
+      "BOTTOM_EDGE",
+      "CORNERS",
+      "NEAR",
+      "MID",
+      "FAR",
+      "TILTED"
+    ],
+    "focus_policy": {
+      "focus_state_must_be_recorded_or_explicit_unknown": true,
+      "silent_focus_transfer_allowed": false,
+      "certificate_validity_domain_must_cover_focus_state": true
+    },
+    "exposure_policy": {
+      "radiometric_matching_required_for_geometry": false,
+      "target_features_must_be_detectable_without_clipping": true,
+      "appearance_processing_may_not_define_geometry": true
+    }
+  },
+  "metric_target": {
+    "kind": "INDEXED_PLANAR_METRIC_TARGET",
+    "accepted_families": [
+      "CHARUCO",
+      "APRILGRID",
+      "UNIQUELY_INDEXED_CHECKERBOARD"
+    ],
+    "physical_spacing_measurement_required": true,
+    "target_geometry_identity_sha256_required": true,
+    "target_must_overlap_both_fovs_per_pair": true,
+    "feature_ids_must_be_unambiguous": true
+  },
+  "model_policy": {
+    "intrinsics_are_per_lens": true,
+    "distortion_is_per_lens": true,
+    "extrinsic_transform_is_between_lens_coordinate_frames": true,
+    "transform_direction": "MAIN_TO_ULTRA_WIDE",
+    "metric_translation_requires_metric_target": true,
+    "candidate_projection_models": [
+      "PINHOLE_BROWN_CONRADY",
+      "FISHEYE_KANNALA_BRANDT",
+      "OMNIDIRECTIONAL_MEI"
+    ],
+    "projection_model_frozen_before_final_holdout_scoring": true,
+    "model_selection_uses_training_only": true,
+    "final_admission_uses_disjoint_holdout": true,
+    "single_model_family_for_both_lenses_required": false,
+    "model_complexity_may_not_be_increased_after_holdout": true
+  },
+  "certificate_requirements": {
+    "target_geometry_sha256": null,
+    "training_capture_set_sha256": null,
+    "holdout_capture_set_sha256": null,
+    "intrinsics_main_sha256": null,
+    "intrinsics_ultrawide_sha256": null,
+    "distortion_main_sha256": null,
+    "distortion_ultrawide_sha256": null,
+    "extrinsics_main_to_ultrawide_sha256": null,
+    "residual_report_sha256": null,
+    "validity_domain_sha256": null,
+    "certificate_sha256": null,
+    "thresholds_frozen_before_final_holdout": false,
+    "all_required_hashes_must_be_known_before_admission": true
+  },
+  "admission_gate": {
+    "calibration_capture_success_alone_admits_relation": false,
+    "exact_endpoint_applicability_required": true,
+    "held_out_validation_pass_required": true,
+    "geometry_relation_status_after_success": "ADMITTED",
+    "coordinate_transform_allowed_after_admission": true,
+    "equality_allowed_after_admission": false,
+    "fusion_allowed_by_relation": false,
+    "calibration_transfer_allowed_by_relation": false,
+    "other_relation_axes_unchanged": true
+  },
+  "separate_axes_preserved": {
+    "radiometric_gauge_relation_admitted": false,
+    "colorimetric_relation_admitted": false,
+    "spectral_relation_admitted": false,
+    "optical_support_relation_admitted": false,
+    "uncertainty_correlation_relation_admitted": false,
+    "temporal_relation_admitted": false,
+    "provenance_relation_admitted": false
+  },
+  "invariants": {
+    "source_evidence_mutated": false,
+    "observation_identity_mutated": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false,
+    "relation_promotes_source_evidence": false,
+    "geometry_relation_implies_other_axes": false,
+    "direct_fusion_granted": false
+  },
+  "state_sha256": "77d490b0d190b39736aa124add6f1fae9548c132c26d11d1da6b3e8c5aaccd5b"
+}

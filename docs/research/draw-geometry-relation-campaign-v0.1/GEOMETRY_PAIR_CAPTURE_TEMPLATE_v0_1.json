@@ -1,0 +1,37 @@
+{
+  "schema": "D.RAW/GeometryRelationCaptureSet/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": "DRAW_GEOMETRY_MAIN_ULTRAWIDE_2026_09_27_V0_1",
+  "target": {
+    "target_geometry_sha256": null,
+    "family": null,
+    "metric_spacing_m": null
+  },
+  "training_pairs": [],
+  "holdout_pairs": [],
+  "pair_entry_contract": {
+    "pose_id": "UNIQUE_STRING",
+    "subset": "TRAINING_OR_HOLDOUT",
+    "main_source_sha256": null,
+    "ultrawide_source_sha256": null,
+    "main_physical_observation_id": null,
+    "ultrawide_physical_observation_id": null,
+    "main_source_local_admission_sha256": null,
+    "ultrawide_source_local_admission_sha256": null,
+    "camera_system_rigid": true,
+    "target_static_between_pair": true,
+    "device_pose_changed_between_pair": false,
+    "target_pose_changed_between_pair": false,
+    "main_source_raster_feature_set_sha256": null,
+    "ultrawide_source_raster_feature_set_sha256": null,
+    "focus_main": null,
+    "focus_ultrawide": null,
+    "focus_authority": "RECORDED_OR_UNKNOWN"
+  },
+  "invariants": {
+    "source_pixels_modified_for_geometry": false,
+    "geometry_altering_resample_before_feature_measurement": false,
+    "training_holdout_overlap_allowed": false,
+    "appearance_output_used_as_geometry_authority": false
+  }
+}
