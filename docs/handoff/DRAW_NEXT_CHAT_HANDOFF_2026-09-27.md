@@ -320,6 +320,49 @@ Open-world law at this layer:
 
 **Seal the evidence split, not the model hypothesis.**
 
+## Geometry Model Freeze Gate v0.1
+
+Status: **main-integrated, host validated; no real geometry model promoted**.
+
+- merge: `0bca835d58deda5c6a3c6f378d55c352f9f0e8ba`
+- dedicated validation run: `36313383767` — **SUCCESS**
+- documentation governance: `36313383748` — **SUCCESS**
+
+Core rule:
+
+**Freeze one test candidate, not scientific thought.**
+
+The gate consumes a complete capture set plus a TRAINING-only model-selection
+record. It requires predeclared HOLDOUT scoring and acceptance policies before
+final HOLDOUT scoring may open.
+
+The selected model family is an extensible string rather than a closed enum.
+The integration test explicitly accepts a future unknown model-family name
+when the exact model specification, parameters, training result and validity
+domain are content-addressed.
+
+After freeze, for that candidate only:
+
+- final HOLDOUT scoring = allowed;
+- model refit = forbidden;
+- model-family change = forbidden;
+- hyperparameter change = forbidden;
+- selected-candidate change = forbidden;
+- acceptance-threshold change = forbidden.
+
+Changing the idea creates a new versioned candidate; it does not rewrite the
+old candidate.
+
+Even after freeze:
+
+- GEOMETRY relation = UNKNOWN;
+- coordinate-transform authority = false;
+- fusion = false;
+- calibration transfer = false.
+
+No real MAIN ↔ ULTRA_WIDE model is currently frozen because the real 12+4
+matched capture set does not yet exist.
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on
