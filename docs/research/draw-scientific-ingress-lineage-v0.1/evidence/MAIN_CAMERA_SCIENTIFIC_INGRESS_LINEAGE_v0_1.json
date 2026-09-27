@@ -1,0 +1,55 @@
+{
+  "schema": "D.RAW/ScientificIngressLineageBinding/0.1",
+  "status": "BOUND_ONE_PHYSICAL_OBSERVATION",
+  "physical_observation": {
+    "physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+    "parent_source_sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+    "pre_admission_manifest_state_sha256": "cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38",
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "ingress_derivation": {
+    "schema": "D.RAW/DngOrientationQuarantine/0.1",
+    "manifest_sha256": "a0f7abda03b7877f3c8709ba0dad9f24c28ed64be8bde5818a63a9fc17cb8361",
+    "derived_ingress_sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "derived_container_role": "SCIENTIFIC_STORAGE_COORDINATE_INGRESS_ONLY",
+    "serialized_cfa_payload_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c",
+    "cfa_payload_byte_identical_to_parent": true,
+    "same_physical_observation": true
+  },
+  "pipeline_lineage": {
+    "schema": "D.RAW/HostScientificRouteResult/0.1",
+    "pipeline_input_sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "pipeline_observation_id": "DRAW_OBS_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "scientific_master_sha256": "c26939efe5e58a0d32846e905d156789e35b674bb2d1c03288bbabc53e243202",
+    "authority_field_sha256": "e18f0038b36ccca8502e5ec29108145408223084088ab883176d8390838d6b2a",
+    "truthnegative_state_sha256": "cd3acbd90ce47efc2015f9676e7ef0ed25a16248acdb26bdb278ed1ca332a60c",
+    "drawnegative_state_sha256": "87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7",
+    "source_reverified": true,
+    "common_gauge_admitted": false,
+    "cross_observation_radiometric_equality_allowed": false,
+    "cross_observation_radiometric_fusion_allowed": false,
+    "stored_sample_sensel_semantics_certified": false,
+    "direct_sensor_adc_claim_allowed": false
+  },
+  "identity_policy": {
+    "physical_observation_identity_source": "IMMUTABLE_PARENT_SOURCE_SHA256",
+    "pipeline_identity_role": "COMPUTATIONAL_LINEAGE_ONLY",
+    "pipeline_observation_id_is_physical_observation_id": false,
+    "derived_ingress_is_new_observation": false,
+    "orientation_presentation_authority": "UNKNOWN"
+  },
+  "invariants": {
+    "parent_source_mutated": false,
+    "cfa_payload_mutated": false,
+    "physical_frame_count_increment": 0,
+    "independent_evidence_count_increment": 0,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "calibration_transfer_implied": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false
+  },
+  "binding_state_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6"
+}
