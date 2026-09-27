@@ -1,0 +1,30 @@
+name: D.RAW Calibration Observation Binding v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/draw_calibration_binding_v01.py'
+      - 'tests/test_draw_calibration_binding_v01.py'
+      - 'docs/research/draw-calibration-binding-v0.1/**'
+      - '.github/workflows/draw-calibration-binding-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/draw_calibration_binding_v01.py'
+      - 'tests/test_draw_calibration_binding_v01.py'
+      - 'docs/research/draw-calibration-binding-v0.1/**'
+      - '.github/workflows/draw-calibration-binding-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Existing Open World foundation tests
+        run: python3 -m unittest tests/test_open_world_foundations_v01.py -v
+      - name: Calibration observation-binding tests
+        run: python3 -m unittest tests/test_draw_calibration_binding_v01.py -v
