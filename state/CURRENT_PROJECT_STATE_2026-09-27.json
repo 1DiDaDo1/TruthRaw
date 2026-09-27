@@ -10,7 +10,10 @@
     "stale_main_sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
     "current_draw_line_promoted_to_main": true,
     "draw_line_promotion_sha": "772fa50d5010448f20379abb32430ba50f7b93c5",
-    "knowledge_growth_integration_final_fast_forward_pending_at_state_creation": true
+    "knowledge_growth_integration_final_fast_forward_pending_at_state_creation": false,
+    "knowledge_growth_integration_promoted": true,
+    "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
+    "primary_branch_now_current": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
@@ -95,5 +98,6 @@
     "Keep both source-local by default.",
     "Measure geometry, radiometric, colorimetric/spectral, optical, uncertainty/correlation and temporal relations independently.",
     "Admit fusion only through a composite certificate containing all required relation axes."
-  ]
+  ],
+  "active_development_branch": "main"
 }
