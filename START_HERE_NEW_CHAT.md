@@ -4,153 +4,108 @@
 
 Primary current repository line: `main`.
 
-Latest substantive integrated code/control-plane checkpoint before this
-documentation refresh:
+Latest substantive integration:
 
-`b0e88971a6fe3ed84ec6913865e50073d16512cf`
+`1d6785b501f86f129dc81359ac205d6f734af9fd`
 
-D.RAWnegative v0.1 remains the sealed current scientific-negative identity.
-Its validated Android/device route has not been changed by the new graph,
-Observation Record or calibration-binding modules.
+## Current physical observations
 
-Current permanent laws:
+- Camera-5 / telephoto remains an existing source-local proof anchor.
+- Physical Camera-2 / main is now **ADMITTED_SOURCE_LOCAL**.
+- Physical Camera-4 / ultra-wide is the next empirical admission target.
+
+Main physical Observation ID:
+
+`DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
+
+Main final admission state:
+
+`c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a`
+
+## Mandatory current reading order
+
+1. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+3. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+4. `docs/research/draw-observation-record-v0.4/README.md`
+5. `docs/research/draw-source-capability-envelope-v0.2/README.md`
+6. `docs/research/draw-source-admission-package-v0.2/README.md`
+7. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
+8. `docs/research/free-world-observation-graph-v0.1/README.md`
+9. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+10. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+
+## Current laws
 
 - **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 - **Measured where measured. Reconstructed where necessary. Never invented.**
 - **One Free World. Many sealed observations. One evidence law.**
 - **Evidence stays what it was. Knowledge can grow through admitted relations.**
 
-## Mandatory current reading order
-
-1. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-2. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
-3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-4. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-5. `docs/research/free-world-observation-graph-v0.1/README.md`
-6. `docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json`
-7. `docs/research/draw-observation-record-v0.3/README.md`
-8. `docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json`
-9. `docs/research/draw-calibration-binding-v0.1/README.md`
-10. `docs/research/draw-calibration-binding-v0.1/DRAW_CALIBRATION_BINDING_CONTRACT_v0_1.json`
-11. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-12. `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
-
-## Current executable knowledge-growth layer
-
-### Free World Observation Graph v0.1
-
-Main-integrated and host/native validated.
-
-- merge: `ee4c426e403ac87f8db86dc760aa1b2c975ff3f5`
-- run: `36282087425` — **SUCCESS**
-- one relation axis cannot grant another;
-- one relation cannot directly grant fusion;
-- composite fusion admission is separately certificate-gated;
-- graph cannot write Scientific Master or Source Evidence.
-
-### D.RAW Observation Record v0.3
-
-Current Observation Record successor.
-
-- merge: `472194decc1418906c9f99e70b37098fb6276912`
-- run: `36282295104` — **SUCCESS**
-- complete v0.2 parent gate remains mandatory;
-- explicit sampling/geometry/radiometry/colorimetry/spectral/optics/
-  uncertainty/temporal/provenance placement;
-- Camera-5 unknown spectral/optical/temporal claims stay UNKNOWN;
-- no cross-observation relation or fusion permission lives in this record.
-
-### Calibration Observation Binding v0.1
-
-Main-integrated host-validated research foundation.
-
-- merge: `b0e88971a6fe3ed84ec6913865e50073d16512cf`
-- run: `36282461281` — **SUCCESS**
-- exact source route, sample domain and readout domain are part of applicability;
-- held-out validation is required;
-- no calibration transfer is implied;
-- no real Camera-5 calibration was promoted by this module.
-
-### Source Capability Envelope v0.1
-
-Main-integrated and host validated.
-
-- merge: `56464d3b683dcc347dd340f14e1451ed696c56ce`
-- run: `36282899524` — **SUCCESS**
-- all nine source capability positions are mandatory;
-- UNKNOWN is valid and explicit;
-- missing placement or invented readout/spectral authority fails closed.
-
-### Source Admission Package v0.1
-
-Generic new-source gate is main-integrated and host validated.
-
-- merge: `2ae5f42428137e5b870622fbd90417f0eb87a97c`
-- run: `36283458445` — **SUCCESS**
-- Phase A: source-only pre-admission with unproven science forced to UNKNOWN;
-- Phase B: final `ADMITTED_SOURCE_LOCAL` only after Record v0.3 + Capability
-  Envelope v0.1 both pass;
-- initial shared gauge, graph relation and fusion claims are forbidden.
-
-Main and ultra-wide are **READY FOR PRE-ADMISSION** but are not admitted until
-real sealed source evidence is supplied.
-
-### Real main-camera Pre-Admission v0.2
-
-Main now has a real sealed source candidate in the current project state.
-
-- source SHA-256: `a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
-- serialized CFA payload SHA-256: `4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c`
-- manifest state: `cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38`
-- physical result camera: `2`
-- storage: 4096×3072 BGGR RAW_SENSOR, uncompressed 16-bit CFA
-- validation run: `36284174427` — **SUCCESS**
-
-Pre-Admission v0.2 was required because serialized storage is known while
-capture sample domain, readout domain and sensor pixel mode remain UNKNOWN.
-
-Main is not yet source-local scientifically admitted. The next step is to run
-this exact source through the current scientific route and produce Record v0.3
-+ Capability Envelope before Final Admission can exist.
-
-## Validation boundary
-
-The 2026-09-27 Graph/Record/Calibration modules are host/control-plane
-contracts and do not change the scientific pixel route.
-
-Latest fully host + Android validated D.RAWnegative code checkpoint remains:
-
-`3e150afeb36cbb68fd318b0143a315e64d5a637f`
-
-Android/NDK/JNI validation run:
-
-`36260305613` — **SUCCESS**
-
-Do not call the new host modules new device evidence.
-
-## Current architecture
+## Current identity architecture
 
 ```text
-sealed physical observation / Source Evidence
- -> D.RAW Observation Contract / Record v0.3
- -> Source Capability Envelope
- -> calibration applicability bindings
- -> Float64 measurement/calibration/reconstruction
+immutable physical source
+ -> optional compatibility-ingress lineage
+ -> unchanged common scientific route
  -> Scientific Master
- -> validated scientific storage
- -> legacy TruthNegative Continuous parent
- -> D.RAWnegative per observation
- -> Free World Observation Graph
- -> independently admitted cross-observation relations
- -> optional composite fusion admission
+ -> D.RAWnegative v0.1 computational lineage
+ -> physical-identity Observation Record v0.4
+ -> physical Source Capability Envelope v0.2
+ -> Source Admission Package v0.2
+ -> physical Free World Observation node
+ -> independently admitted relations
+ -> optional composite fusion
  -> Deep Scene / Light Transport
- -> View / Appearance
+ -> Appearance
  -> finite projection
 ```
 
-Camera-5/tele remains the first real observation anchor. Main and ultra-wide
-must become separate source-local Observations before cross-lens relations can
-be admitted. Tele calibration is never borrowed by device/lens identity alone.
+Compatibility representation may change pipeline identity. It may **not**
+create a new physical Observation.
+
+D.RAWnegative v0.1 remains sealed and unchanged.
+
+## Main-camera current identities
+
+- immutable physical source:
+  `a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
+- compatibility ingress:
+  `7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08`
+- Scientific Master:
+  `c26939efe5e58a0d32846e905d156789e35b674bb2d1c03288bbabc53e243202`
+- D.RAWnegative v0.1:
+  `87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7`
+- physical graph node:
+  `029b845daf0bb20ebed4e7ce6d66eb61a172dd89e9977f996d20d604c2703353`
+- Observation Record v0.4:
+  `aaf2dcf0b81ebe5debcc2fa6a0b40057e5f1cf20e0d6e2df67a54fd825853fc5`
+- Capability Envelope v0.2:
+  `057c627bf172521d9336386d4f74ae1e26664c70c4a24ed7993b6c16c33a3986`
+- Final Admission v0.2:
+  `c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a`
+
+Capture sample domain, readout domain and sensor pixel mode remain UNKNOWN.
+Stored-sample sensel semantics are not certified; direct sensor ADC claims are
+not allowed. Main has zero cross-observation relations and zero fusion
+admissions.
+
+## Validation boundary
+
+Main has executed the unchanged common scientific C++ route on host. This does
+not replace Android/device validation or upgrade sensor provenance.
+
+Latest fully host + Android validated D.RAWnegative code checkpoint:
+
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
+
+Android/NDK/JNI run `36260305613`: **SUCCESS**.
+
+## Next empirical step
+
+Find the real ultra-wide / physical-camera-4 source and run the same
+source-local admission sequence. No calibration or relation is borrowed from
+main or telephoto.
 
 ---
 
