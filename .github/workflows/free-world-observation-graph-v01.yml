@@ -1,0 +1,75 @@
+name: D.RAW Free World Observation Graph v0.1
+
+on:
+  push:
+    branches:
+      - main
+      - integration/draw-knowledge-growth-v0-1-2026-09-27
+    paths:
+      - 'docs/research/free-world-observation-graph-v0.1/**'
+      - 'tools/validate_free_world_observation_graph_v01.py'
+      - '.github/workflows/free-world-observation-graph-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source-local Camera-5 graph
+        run: |
+          set -euo pipefail
+          python3 tools/validate_free_world_observation_graph_v01.py \
+            docs/research/free-world-observation-graph-v0.1/examples/CAMERA5_SOURCE_LOCAL_GRAPH_v0_1.json
+      - name: Prove virtual views cannot create evidence
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/free-world-observation-graph-v0.1/examples/CAMERA5_SOURCE_LOCAL_GRAPH_v0_1.json')
+          j=json.loads(p.read_text())
+          j['virtual_views'][0]['independent_evidence_increment']=1
+          Path('/tmp/bad-virtual.json').write_text(json.dumps(j))
+          PY
+          if python3 tools/validate_free_world_observation_graph_v01.py /tmp/bad-virtual.json; then
+            echo "::error::virtual view incorrectly created evidence"
+            exit 1
+          fi
+      - name: Prove one relation cannot silently grant fusion
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/free-world-observation-graph-v0.1/examples/CAMERA5_SOURCE_LOCAL_GRAPH_v0_1.json')
+          j=json.loads(p.read_text())
+          obs=dict(j['observations'][0])
+          obs['observation_id']='SECOND_OBS'
+          obs['drawnegative_state_sha256']='1'*64
+          obs['source_evidence_sha256']='2'*64
+          obs['source_local_gauge_id']='SECOND_GAUGE'
+          j['observations'].append(obs)
+          j['relations'].append({
+            'relation_id':'bad-direct-fusion',
+            'observation_a':j['observations'][0]['observation_id'],
+            'observation_b':'SECOND_OBS',
+            'axis':'RADIOMETRIC_GAUGE',
+            'status':'ADMITTED',
+            'certificate_sha256':'3'*64,
+            'capabilities':{
+              'coordinate_transform_allowed':True,
+              'equality_allowed':True,
+              'fusion_allowed':True,
+              'calibration_transfer_allowed':False
+            }
+          })
+          Path('/tmp/bad-fusion.json').write_text(json.dumps(j))
+          PY
+          if python3 tools/validate_free_world_observation_graph_v01.py /tmp/bad-fusion.json; then
+            echo "::error::single relation incorrectly granted fusion"
+            exit 1
+          fi
