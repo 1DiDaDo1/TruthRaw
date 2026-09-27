@@ -128,7 +128,7 @@ class MainActivity : Activity() {
 
         targetFamily = EditText(this).apply {
             hint = "Target family / naam (bv. CHARUCO_8x11)"
-            singleLine = true
+            setSingleLine(true)
         }
         root.addView(targetFamily)
 
@@ -136,13 +136,13 @@ class MainActivity : Activity() {
             hint = "Fysieke spacing in mm (bv. 20.0)"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or
                 android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-            singleLine = true
+            setSingleLine(true)
         }
         root.addView(targetSpacingMm)
 
         targetSha256 = EditText(this).apply {
             hint = "Target geometry SHA-256 (mag tijdens capture nog leeg zijn)"
-            singleLine = true
+            setSingleLine(true)
         }
         root.addView(targetSha256)
 
