@@ -173,6 +173,24 @@ Main-integrated and host validated.
 
 The evidence membership can be sealed while scientific model hypotheses remain open to versioned successors.
 
+### Geometry Model Freeze Gate v0.1
+
+Main-integrated and host validated.
+
+- `docs/research/draw-geometry-model-freeze-gate-v0.1/**`
+- dedicated run `36313383767`: SUCCESS
+- TRAINING-only model selection required
+- HOLDOUT access during model selection: forbidden
+- model vocabulary: extensible, not closed
+- freeze scope: one reproducible certificate candidate
+- frozen candidate = final scientific truth: false
+- final HOLDOUT scoring after freeze: allowed
+- relation/transform/fusion authority after freeze: not granted
+- real MAIN ↔ ULTRA_WIDE frozen model: none yet
+
+A changed model, parameterization or threshold policy becomes a new versioned
+candidate rather than a rewrite of the old candidate.
+
 ## Validation boundary
 
 Main has executed the unchanged common scientific C++ route on host. This does
