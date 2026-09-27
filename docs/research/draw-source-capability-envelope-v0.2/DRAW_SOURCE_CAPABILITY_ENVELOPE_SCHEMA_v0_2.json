@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceCapabilityEnvelope/0.2",
+  "title": "D.RAW Source Capability Envelope v0.2 — physical knowledge map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "observation_record_schema",
+    "observation_record_state_sha256",
+    "physical_observation_id",
+    "physical_source_evidence_sha256",
+    "physical_graph_node_sha256",
+    "scientific_ingress_lineage_binding_state_sha256",
+    "pipeline_lineage",
+    "instrument",
+    "source_domains",
+    "capabilities",
+    "dynamic_range_bounds",
+    "gauge",
+    "temporal_footprint",
+    "optical_support",
+    "calibration_bindings",
+    "invariants",
+    "state_sha256"
+  ]
+}
