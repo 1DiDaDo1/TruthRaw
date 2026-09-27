@@ -6,32 +6,39 @@
 
 > **CURRENT PROJECT IDENTITY — 2026-09-27**
 >
-> `main` is the primary current D.RAW line. The old stale-main gap is closed.
+> `main` is the primary current D.RAW line.
 >
 > Current bootstrap: `START_HERE_NEW_CHAT.md`
 >
-> Current machine state: `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+> Current state: `state/CURRENT_PROJECT_STATE_2026-09-27.json`
 >
 > Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
 >
-> Current executable knowledge layer:
-> - Free World Observation Graph v0.1 — native host validation `36282087425` SUCCESS;
-> - D.RAW Observation Record v0.3 — validation `36282295104` SUCCESS;
-> - Calibration Observation Binding v0.1 — validation `36282461281` SUCCESS.
+> **Main / physical Camera 2 is now `ADMITTED_SOURCE_LOCAL`.**
 >
-> The current model gives every information item an explicit observation,
-> knowledge domain, epistemic floor, authority and provenance. Relations between
-> observations are independent by axis, and fusion requires a separate composite
-> admission rather than being implied by one matching property.
+> Stable physical Observation ID:
+> `DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
 >
-> Calibration applicability now binds device/camera/mode/raster/CFA plus
-> source-route, sample-domain, readout-domain, bounded capture conditions and a
-> held-out validation identity. No real Camera-5 calibration was promoted by
-> adding this contract.
+> Current physical-identity layers:
+> - Observation Record v0.4 — validation `36298333714` SUCCESS;
+> - Source Capability Envelope v0.2 — validation `36298514477` SUCCESS;
+> - Source Admission Package v0.2 — validation `36298639318` SUCCESS;
+> - Scientific Ingress Lineage v0.1 — validation `36298041195` SUCCESS.
 >
-> D.RAWnegative v0.1 and all sealed v0.1 architecture bytes remain unchanged.
-> The new graph/record/calibration work is host/control-plane work and does not
-> replace the existing Android/device validation of the scientific pixel route.
+> The immutable main source remains distinct from its orientation-quarantined
+> compatibility ingress. Compatibility representation may change pipeline
+> identity, but it cannot create a new physical Observation.
+>
+> D.RAWnegative v0.1 remains sealed. The real main pipeline lineage is
+> `87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7`.
+>
+> Main admission does **not** resolve capture-sample domain, readout domain,
+> sensor pixel mode, stored-sample sensel semantics or direct sensor ADC
+> provenance. Calibration bindings, graph relations and fusion admissions
+> remain zero.
+>
+> Next empirical source: ultra-wide / physical Camera 4. It must enter
+> independently; no main or tele calibration transfers to it.
 >
 > **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 >

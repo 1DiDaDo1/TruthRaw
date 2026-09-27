@@ -1,6 +1,6 @@
 # D.RAW Source Capability Envelope v0.2 — Physical Knowledge Map
 
-Status: **REAL-MAIN SUCCESSOR CANDIDATE**
+Status: **CURRENT PHYSICAL SOURCE CAPABILITY ENVELOPE — HOST VALIDATED**
 
 v0.2 binds capabilities to the stable physical Observation Record v0.4 rather
 than to a compatibility ingress container.

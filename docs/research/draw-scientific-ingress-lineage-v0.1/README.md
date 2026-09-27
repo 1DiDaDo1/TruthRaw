@@ -1,6 +1,6 @@
 # D.RAW Scientific Ingress Lineage Binding v0.1
 
-Status: **REAL-MAIN LINEAGE CANDIDATE**
+Status: **MAIN-INTEGRATED REAL-MAIN LINEAGE BINDING — HOST VALIDATED**
 
 This layer binds an immutable physical source to a derived compatibility
 ingress and the scientific identities produced from that ingress.

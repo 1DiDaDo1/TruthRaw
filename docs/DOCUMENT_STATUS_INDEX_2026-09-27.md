@@ -2,122 +2,136 @@
 
 Status: **CURRENT NAVIGATION AUTHORITY**
 
-## Current global bootstrap
+## Current bootstrap
 
-1. `START_HERE_NEW_CHAT.md` — living entry point.
-2. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — current machine-readable state.
-3. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md` — current project-wide synthesis.
-4. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — current next-chat handoff.
-5. `docs/research/free-world-observation-graph-v0.1/README.md` — current graph foundation.
-6. `docs/research/free-world-observation-graph-v0.1/FREE_WORLD_OBSERVATION_GRAPH_CONTRACT_v0_1.json` — graph contract.
-7. `docs/research/draw-observation-record-v0.3/README.md` — current Observation Record successor.
-8. `docs/research/draw-observation-record-v0.3/DRAW_OBSERVATION_RECORD_SCHEMA_v0_3.json` — v0.3 schema.
-9. `docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json` — current Camera-5 migration.
-10. `docs/research/draw-calibration-binding-v0.1/README.md` — calibration-to-observation binding foundation.
-11. `docs/research/draw-calibration-binding-v0.1/DRAW_CALIBRATION_BINDING_CONTRACT_v0_1.json` — calibration binding contract.
+1. `START_HERE_NEW_CHAT.md`
+2. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+4. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
 
-## Current validated integration layers
+## Current physical-identity source path
 
-### Free World Observation Graph v0.1
+### Main / physical Camera 2 — ADMITTED_SOURCE_LOCAL
 
-- main-integrated;
-- native host validation run `36282087425`: SUCCESS;
-- relation axes remain independent;
-- one relation cannot grant fusion;
-- composite fusion admission is required;
-- no Scientific Master/source writeback.
+- Pre-Admission v0.2:
+  `docs/research/draw-source-pre-admission-v0.2/**`
+  - validation `36284174427`: SUCCESS
+  - physical source SHA:
+    `a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
 
-### D.RAW Observation Record v0.3
+- Orientation Quarantine v0.1:
+  `docs/research/draw-dng-orientation-quarantine-v0.1/**`
+  - parent source immutable;
+  - derived ingress is not a new physical observation;
+  - parent/derived CFA payload byte-identical;
+  - presentation/world orientation remains UNKNOWN.
 
-- **current Observation Record successor**;
-- parent v0.2 remains valid provenance/parent gate;
-- validation run `36282295104`: SUCCESS;
-- explicit temporal/optical/uncertainty/spectral/provenance placement;
-- no new Camera-5 calibration or fusion authority introduced.
+- Host Scientific Route v0.1:
+  `docs/research/draw-host-scientific-route-v0.1/**`
+  - build run `36284768148`: SUCCESS
+  - unchanged common C++ pipeline;
+  - real main derived-ingress runs were bit-identical.
 
-### Calibration Observation Binding v0.1
+- Scientific Ingress Lineage v0.1:
+  `docs/research/draw-scientific-ingress-lineage-v0.1/**`
+  - validation `36298041195`: SUCCESS
+  - stable physical Observation identity separated from pipeline identity.
 
-- main-integrated research foundation;
-- validation run `36282461281`: SUCCESS;
-- documentation governance run `36282461248`: SUCCESS;
-- exact source-route/sample-domain/readout-domain identity required;
-- held-out validation required for admission;
-- no real Camera-5 calibration promoted.
+- Observation Record v0.4:
+  `docs/research/draw-observation-record-v0.4/**`
+  - **current physical-identity Observation Record successor**
+  - validation `36298333714`: SUCCESS
+  - record state:
+    `aaf2dcf0b81ebe5debcc2fa6a0b40057e5f1cf20e0d6e2df67a54fd825853fc5`
 
-### Source Capability Envelope v0.1
+- Source Capability Envelope v0.2:
+  `docs/research/draw-source-capability-envelope-v0.2/**`
+  - **current physical source capability successor**
+  - validation `36298514477`: SUCCESS
+  - state:
+    `057c627bf172521d9336386d4f74ae1e26664c70c4a24ed7993b6c16c33a3986`
 
-- `docs/research/draw-source-capability-envelope-v0.1/README.md`
-- main-integrated;
-- validation run `36282899524`: SUCCESS;
-- UNKNOWN is explicit scientific placement, not a missing-field workaround.
+- Source Admission Package v0.2:
+  `docs/research/draw-source-admission-package-v0.2/**`
+  - **current physical source-local admission successor**
+  - validation `36298639318`: SUCCESS
+  - status: `ADMITTED_SOURCE_LOCAL`
+  - state:
+    `c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a`
 
-### Source Admission Package v0.1
+## Main physical vs pipeline identity
 
-- `docs/research/draw-source-admission-package-v0.1/README.md`
-- main-integrated generic source gate;
-- validation run `36283458445`: SUCCESS;
-- pre-admission cannot claim reconstructed/calibrated science;
-- final admission is source-local only and cannot contain relations/fusion.
+Physical Free World Observation ID:
 
-### Source Pre-Admission v0.2 — real main camera
+`DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
 
-- `docs/research/draw-source-pre-admission-v0.2/README.md`
-- `docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json`
-- `docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_SOURCE_VERIFICATION_2026-09-27.md`
-- main-integrated;
-- validation run `36284174427`: SUCCESS;
-- source bytes privately re-hashed and matched historical acquisition record;
-- serialized storage SOURCE_BOUND;
-- capture sample/readout/pixel-mode identity remains UNKNOWN;
-- final source-local admission not yet granted.
+Pipeline/D.RAWnegative v0.1 lineage ID:
 
-## Current sealed authorities preserved unchanged
+`DRAW_OBS_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08`
 
-- `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
-  — sealed lens-independent v0.1 architecture.
-- `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE_v0_2_DRAWNEGATIVE.md`
-  — D.RAWnegative successor naming/placement.
-- `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-  — D.RAWnegative v0.1 byte/semantic seal.
-- `docs/research/draw-observation-record-v0.2/**`
-  — preserved v0.2 parent record family; superseded for new records by v0.3,
-  but never rewritten.
+Future cross-observation relations use the **physical** ID.
+
+## Current shared foundations
+
+- Free World Observation Graph v0.1:
+  `docs/research/free-world-observation-graph-v0.1/**`
+  - native validation `36282087425`: SUCCESS
+  - independent relation axes; composite fusion admission.
+
+- Calibration Observation Binding v0.1:
+  `docs/research/draw-calibration-binding-v0.1/**`
+  - validation `36282461281`: SUCCESS
+  - no real main/tele/ultra-wide calibration transfer is implied.
+
+- D.RAWnegative v0.1:
+  `docs/research/drawnegative-v0.1/**`
+  - sealed; semantic changes require versioned successor.
+
+## Preserved parent versions
+
+These remain authoritative provenance and validation parents, not the newest
+physical-identity contracts:
+
+- Observation Record v0.3 — embedded validated pipeline-record parent of v0.4;
+- Source Capability Envelope v0.1 — predecessor of physical v0.2;
+- Source Admission Package v0.1 — generic predecessor of physical v0.2;
+- Observation Record v0.2 and older — preserved historical parent contracts.
+
+## Main unresolved knowledge
+
+Main is source-local admitted, but the following remain UNKNOWN/unproven:
+
+- capture sample domain;
+- gain/readout-state identity;
+- sensor pixel mode;
+- stored-sample sensel semantics;
+- direct sensor ADC provenance;
+- independent physical color calibration;
+- spectral response;
+- scientific optical support;
+- cross-observation relation certificates;
+- fusion permission.
+
+Admission never resolves these by itself.
 
 ## Validation boundary
 
-The 2026-09-27 graph/record/calibration modules are host/control-plane contract
-work. They do not alter the current scientific pixel route.
+Main's real source executed the unchanged common scientific route on host.
+This is not a new Android/device validation and does not certify physical
+sensor/readout semantics.
 
-Latest fully host + Android validated D.RAWnegative checkpoint remains
-`3e150afeb36cbb68fd318b0143a315e64d5a637f`, with Android run
-`36260305613` SUCCESS.
+Latest fully host + Android validated D.RAWnegative checkpoint remains:
 
-Do not confuse successful host contract validation with new device evidence.
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`
 
-## Preserved project state
+Android run `36260305613`: SUCCESS.
 
-`state/CURRENT_PROJECT_STATE_2026-09-26.json` and
-`docs/DRAW_MAIN_PROJECT_STATE_2026-09-26.md` remain authoritative for the
-exact pre-knowledge-growth state and are historical provenance.
+## Next source
 
-Older handoffs, state files, research reports and failed/rejected experiments
-remain auditable provenance and must not be deleted merely because their role
-is no longer current.
-
-## Re-integrated research families
-
-The current main ancestry includes Virtual Observation Manifold v0.9 and
-FotoGraaf Acquisition Domain v0.8 history. Unique Professional RAW Gatehouse,
-LibRaw compatibility, decoder-adapter and ingress modules were integrated
-without restoring obsolete conflicting global documentation.
+Ultra-wide / physical Camera 4 is the next empirical admission target. It must
+enter independently; no main/tele calibration or authority transfers to it.
 
 ## Governance
 
-Branch promotion never promotes scientific authority.
-
-Sealed v0.1 objects are never silently edited. Semantic changes require
-versioned successors.
-
-Calibration, relation and fusion authority are evidence/validation gated, not
-inferred from device identity, lens role, branch name, raster size or file
-format.
+Branch integration never promotes scientific authority. Sealed objects are not
+silently edited. Failed/rejected/superseded experiments remain provenance.

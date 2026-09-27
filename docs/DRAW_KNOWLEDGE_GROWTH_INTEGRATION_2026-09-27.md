@@ -185,16 +185,64 @@ Latest fully host + Android validated D.RAWnegative checkpoint remains
 `3e150afeb36cbb68fd318b0143a315e64d5a637f`, Android run
 `36260305613` — **SUCCESS**.
 
-## Next empirical growth
+## Real main-camera physical admission completed
 
-The next scientifically useful world growth remains:
+The project has now exercised the lens-independent architecture against a real
+physical Camera-2/main source rather than only a generic contract fixture.
 
-1. admit a real main-camera Observation Record and Source Capability Envelope;
-2. admit a real ultra-wide Observation Record and Source Capability Envelope;
-3. leave both source-local by default;
-4. measure relation axes independently;
-5. admit only relations whose own evidence/certificates pass;
-6. form fusion admissions only from the required set of admitted relations.
+The immutable source is anchored by SHA-256
+`a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`.
 
-No telephoto calibration is borrowed merely because the sources share a
-device.
+A malformed TIFF Orientation value 9 blocked strict DNG ingress. The source was
+not changed. Orientation Quarantine v0.1 created a one-byte compatibility
+container (`09 -> 01`) with byte-identical serialized CFA payload and no
+presentation/world orientation claim.
+
+The unchanged common scientific C++ pipeline then produced:
+
+- Scientific Master `c26939ef…43202`;
+- authority field `e18f0038…d6b2a`;
+- TruthNegative Continuous `cd3acbd9…2a60c`;
+- D.RAWnegative v0.1 `87955cae…0ccf7`.
+
+The compatibility ingress exposed an important identity distinction. The
+physical observation is now anchored to the immutable parent source, while the
+D.RAWnegative v0.1 Observation ID remains a computational pipeline-lineage ID.
+
+Observation Record v0.4 formalizes that distinction and Free World relations
+must use the stable physical Observation ID.
+
+Source Capability Envelope v0.2 then binds knowledge to the physical source
+while keeping compatibility ingress, capture-sample domain, readout domain and
+sensor pixel mode separate.
+
+Source Admission Package v0.2 finally admits main as:
+
+`ADMITTED_SOURCE_LOCAL`
+
+with zero calibration bindings, zero graph relations and zero fusion
+admissions.
+
+This is a direct implementation of the project rule:
+
+> **Evidence stays what it was. Knowledge can grow through admitted relations.**
+
+The source is more useful now because its lineage and scientific state are
+better connected. Its historical authority was not rewritten.
+
+## Current empirical growth
+
+Main admission is complete; do not repeat it.
+
+Next:
+
+1. locate and seal a real ultra-wide / physical-Camera-4 source;
+2. pre-admit only proven source facts;
+3. run the unchanged common scientific route;
+4. preserve any compatibility ingress as lineage, not new evidence;
+5. create the ultra-wide physical Observation Record and Capability Envelope;
+6. admit ultra-wide source-local only after its own gates pass;
+7. then measure cross-observation relation axes independently.
+
+No main↔tele↔ultra-wide calibration, gauge, color, optical support or
+uncertainty relationship is inferred merely from sharing one handset.

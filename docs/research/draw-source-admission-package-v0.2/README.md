@@ -1,6 +1,6 @@
 # D.RAW Source Admission Package v0.2 — Physical Source-Local Admission
 
-Status: **REAL-MAIN FINAL-ADMISSION CANDIDATE**
+Status: **MAIN-CAMERA ADMITTED_SOURCE_LOCAL — HOST VALIDATED**
 
 v0.2 is the physical-identity successor to Source Admission Package v0.1.
 

@@ -1,6 +1,6 @@
 # D.RAW Observation Record v0.4 — Physical Identity + Pipeline Lineage
 
-Status: **REAL-MAIN SUCCESSOR CANDIDATE**
+Status: **CURRENT PHYSICAL-IDENTITY OBSERVATION RECORD SUCCESSOR — HOST VALIDATED**
 
 v0.4 explicitly separates one immutable physical observation identity from the
 current D.RAWnegative v0.1 computational pipeline identity.
