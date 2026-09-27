@@ -24,6 +24,7 @@ object DngContainerMetadataParser {
         273 to "StripOffsets", 274 to "Orientation", 277 to "SamplesPerPixel",
         278 to "RowsPerStrip", 279 to "StripByteCounts", 284 to "PlanarConfiguration",
         305 to "Software", 306 to "DateTime", 324 to "TileOffsets", 325 to "TileByteCounts",
+        513 to "JPEGInterchangeFormat", 514 to "JPEGInterchangeFormatLength",
         330 to "SubIFDs", 33421 to "CFARepeatPatternDim", 33422 to "CFAPattern",
         34665 to "ExifIFD", 34853 to "GPSIFD",
         33434 to "ExposureTime", 33437 to "FNumber", 34855 to "ISOSpeedRatings",
@@ -178,6 +179,8 @@ object DngContainerMetadataParser {
                 279 -> ifdJson.put("stripByteCounts", decoded)
                 324 -> ifdJson.put("tileOffsets", decoded)
                 325 -> ifdJson.put("tileByteCounts", decoded)
+                513 -> ifdJson.put("jpegInterchangeFormat", decoded)
+                514 -> ifdJson.put("jpegInterchangeFormatLength", decoded)
                 33421 -> ifdJson.put("cfaRepeatPatternDim", decoded)
                 33422 -> ifdJson.put("cfaPattern", decoded)
                 50706 -> ifdJson.put("dngVersion", decoded)
