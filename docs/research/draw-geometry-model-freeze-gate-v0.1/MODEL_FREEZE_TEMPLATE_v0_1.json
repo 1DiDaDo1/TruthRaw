@@ -1,0 +1,49 @@
+{
+  "schema": "D.RAW/GeometryModelFreeze/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "campaign_id": null,
+  "capture_set_state_sha256": null,
+  "training_set_sha256": null,
+  "holdout_set_sha256": null,
+  "training_selection_state_sha256": null,
+  "selected_candidate": null,
+  "predeclared_holdout_policy": {
+    "holdout_scoring_policy_sha256": null,
+    "holdout_acceptance_thresholds_sha256": null
+  },
+  "holdout_gate": {
+    "final_holdout_scoring_allowed": false,
+    "model_refit_allowed": false,
+    "model_family_change_allowed": false,
+    "hyperparameter_change_allowed": false,
+    "selected_candidate_change_allowed": false,
+    "acceptance_threshold_change_allowed": false
+  },
+  "relation_authority": {
+    "axis": "GEOMETRY",
+    "status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "equality_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "open_world_evolution": {
+    "frozen_scope": "ONE_REPRODUCIBLE_CERTIFICATE_CANDIDATE",
+    "frozen_candidate_is_final_scientific_truth": false,
+    "future_candidate_successors_allowed": true,
+    "future_model_families_allowed": true,
+    "competing_models_may_be_preserved": true
+  },
+  "extensions": {},
+  "invariants": {
+    "source_evidence_mutated": false,
+    "capture_set_membership_rewritten": false,
+    "holdout_used_for_model_selection": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false,
+    "calibration_transfer_granted": false
+  },
+  "freeze_state_sha256": null
+}

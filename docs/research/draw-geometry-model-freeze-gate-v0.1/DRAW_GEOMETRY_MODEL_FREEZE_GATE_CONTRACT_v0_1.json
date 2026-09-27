@@ -1,0 +1,44 @@
+{
+  "schema": "D.RAW/GeometryModelFreezeGateContract/0.1",
+  "status": "OPEN_WORLD_MODEL_FREEZE_GATE",
+  "parent_capture_set_schema": "D.RAW/GeometryRelationCaptureSet/0.2",
+  "required_capture_set_status": "CAPTURE_SET_COMPLETE_TRAINING_MODEL_SELECTION_OPEN",
+  "required_selection_schema": "D.RAW/GeometryTrainingModelSelection/0.1",
+  "required_selection_status": "TRAINING_ONLY_SELECTION_COMPLETE",
+  "training_only_selection_required": true,
+  "holdout_access_during_selection_allowed": false,
+  "frozen_scope": "ONE_REPRODUCIBLE_CERTIFICATE_CANDIDATE",
+  "output_status": "MODEL_CANDIDATE_FROZEN_HOLDOUT_SCORING_OPEN",
+  "holdout_after_freeze": {
+    "final_holdout_scoring_allowed": true,
+    "model_refit_allowed": false,
+    "model_family_change_allowed": false,
+    "hyperparameter_change_allowed": false,
+    "selected_candidate_change_allowed": false,
+    "acceptance_threshold_change_allowed": false
+  },
+  "relation_authority_after_freeze": {
+    "geometry_relation_status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "equality_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "extensibility": {
+    "model_family_is_closed_enum": false,
+    "future_model_families_allowed": true,
+    "future_candidate_successors_allowed": true,
+    "competing_models_may_be_preserved": true,
+    "frozen_candidate_is_final_scientific_truth": false
+  },
+  "invariants": {
+    "source_evidence_mutated": false,
+    "capture_set_membership_rewritten": false,
+    "holdout_used_for_model_selection": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false,
+    "calibration_transfer_granted": false
+  }
+}
