@@ -6,21 +6,32 @@
 
 > **CURRENT PROJECT IDENTITY — 2026-09-27**
 >
-> D.RAW now uses `main` as the primary current repository line. The prior stale-main gap has been closed.
+> `main` is the primary current D.RAW line. The old stale-main gap is closed.
 >
 > Current bootstrap: `START_HERE_NEW_CHAT.md`
 >
 > Current machine state: `state/CURRENT_PROJECT_STATE_2026-09-27.json`
 >
-> Current synthesis: `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+> Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
 >
-> Current graph layer: `docs/research/free-world-observation-graph-v0.1/README.md`
+> Current executable knowledge layer:
+> - Free World Observation Graph v0.1 — native host validation `36282087425` SUCCESS;
+> - D.RAW Observation Record v0.3 — validation `36282295104` SUCCESS;
+> - Calibration Observation Binding v0.1 — validation `36282461281` SUCCESS.
 >
-> The lens-independent principle is now operationalized as: every admitted piece of information keeps its observation, domain, epistemic floor, authority and provenance; knowledge grows through separately admitted relations rather than by relabelling source evidence.
+> The current model gives every information item an explicit observation,
+> knowledge domain, epistemic floor, authority and provenance. Relations between
+> observations are independent by axis, and fusion requires a separate composite
+> admission rather than being implied by one matching property.
 >
-> Relation axes are factored into geometry, radiometric gauge, colorimetric, spectral, optical support, uncertainty/correlation, temporal and provenance. One relation never silently grants another. Fusion requires a separate composite admission.
+> Calibration applicability now binds device/camera/mode/raster/CFA plus
+> source-route, sample-domain, readout-domain, bounded capture conditions and a
+> held-out validation identity. No real Camera-5 calibration was promoted by
+> adding this contract.
 >
 > D.RAWnegative v0.1 and all sealed v0.1 architecture bytes remain unchanged.
+> The new graph/record/calibration work is host/control-plane work and does not
+> replace the existing Android/device validation of the scientific pixel route.
 >
 > **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
 >
