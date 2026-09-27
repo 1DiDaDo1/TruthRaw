@@ -1,0 +1,56 @@
+name: D.RAW Observation Record v0.3
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-observation-record-v0.3/**'
+      - 'tools/validate_draw_observation_record_v03.py'
+      - '.github/workflows/draw-observation-record-v03.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-observation-record-v0.3/**'
+      - 'tools/validate_draw_observation_record_v03.py'
+      - '.github/workflows/draw-observation-record-v03.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Camera-5 v0.3 migration
+        run: |
+          set -euo pipefail
+          python3 tools/validate_draw_observation_record_v03.py \
+            docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json
+      - name: Prove unknown temporal and optical claims fail closed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json')
+          j=json.loads(p.read_text())
+          j['temporal_footprint']['exposure_interval_known']=True
+          Path('/tmp/bad-time.json').write_text(json.dumps(j))
+          j=json.loads(p.read_text())
+          j['optical_support']['model_kind']='MTF'
+          j['optical_support']['spatial_frequency_dependent']=True
+          Path('/tmp/bad-optics.json').write_text(json.dumps(j))
+          j=json.loads(p.read_text())
+          j['authority_dimensions']['radiometry']['cross_observation_relation_admitted']=True
+          Path('/tmp/bad-relation.json').write_text(json.dumps(j))
+          j=json.loads(p.read_text())
+          j['graph_node']['state_sha256']='0'*64
+          Path('/tmp/bad-node.json').write_text(json.dumps(j))
+          PY
+          for f in /tmp/bad-time.json /tmp/bad-optics.json /tmp/bad-relation.json /tmp/bad-node.json; do
+            if python3 tools/validate_draw_observation_record_v03.py "$f"; then
+              echo "::error::invalid v0.3 record accepted: $f"
+              exit 1
+            fi
+          done
