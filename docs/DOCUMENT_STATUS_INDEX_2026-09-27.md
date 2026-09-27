@@ -44,6 +44,21 @@ Status: **CURRENT NAVIGATION AUTHORITY**
 - held-out validation required for admission;
 - no real Camera-5 calibration promoted.
 
+### Source Capability Envelope v0.1
+
+- `docs/research/draw-source-capability-envelope-v0.1/README.md`
+- main-integrated;
+- validation run `36282899524`: SUCCESS;
+- UNKNOWN is explicit scientific placement, not a missing-field workaround.
+
+### Source Admission Package v0.1
+
+- `docs/research/draw-source-admission-package-v0.1/README.md`
+- main-integrated generic source gate;
+- validation run `36283458445`: SUCCESS;
+- pre-admission cannot claim reconstructed/calibrated science;
+- final admission is source-local only and cannot contain relations/fusion.
+
 ## Current sealed authorities preserved unchanged
 
 - `docs/CORE_VISION_LENS_INDEPENDENT_FREE_WORLD_OBSERVATION_ARCHITECTURE.md`
