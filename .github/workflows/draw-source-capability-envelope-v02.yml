@@ -1,0 +1,56 @@
+name: D.RAW Source Capability Envelope v0.2
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-source-capability-envelope-v0.2/**'
+      - 'tools/validate_draw_source_capability_envelope_v02.py'
+      - '.github/workflows/draw-source-capability-envelope-v02.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-source-capability-envelope-v0.2/**'
+      - 'tools/validate_draw_source_capability_envelope_v02.py'
+      - '.github/workflows/draw-source-capability-envelope-v02.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate physical main capability envelope
+        run: |
+          python3 tools/validate_draw_source_capability_envelope_v02.py \
+            docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json \
+            docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json \
+            docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json \
+            docs/research/draw-source-capability-envelope-v0.2/examples/MAIN_CAMERA_SOURCE_CAPABILITY_ENVELOPE_v0_2.json
+      - name: Prove physical and pipeline domains stay separate
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-source-capability-envelope-v0.2/examples/MAIN_CAMERA_SOURCE_CAPABILITY_ENVELOPE_v0_2.json'
+          base=json.load(open(p))
+          def save(name,mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-physical-id.json',lambda j:j.__setitem__('physical_observation_id',j['pipeline_lineage']['pipeline_observation_id']))
+          save('bad-sample.json',lambda j:j['source_domains']['capture_sample_domain'].__setitem__('value','GUESSED'))
+          save('bad-spectral.json',lambda j:j['capabilities']['spectral'].__setitem__('identity_sha256','1'*64))
+          save('bad-ingress-observation.json',lambda j:j['invariants'].__setitem__('compatibility_ingress_is_new_observation',True))
+          save('bad-fusion.json',lambda j:j['invariants'].__setitem__('cross_observation_fusion_granted',True))
+          PY
+          for f in /tmp/bad-physical-id.json /tmp/bad-sample.json /tmp/bad-spectral.json /tmp/bad-ingress-observation.json /tmp/bad-fusion.json; do
+            if python3 tools/validate_draw_source_capability_envelope_v02.py \
+              docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json \
+              docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json \
+              docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json "$f"; then
+              echo "::error::invalid envelope accepted: $f"; exit 1
+            fi
+          done
