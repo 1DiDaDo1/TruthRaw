@@ -1,0 +1,50 @@
+{
+  "schema": "D.RAW/GeometryHoldoutValidationResult/0.1",
+  "status": "TEMPLATE_NOT_EVIDENCE",
+  "decision": "PASS_OR_FAIL",
+  "campaign_id": null,
+  "capture_set_state_sha256": null,
+  "freeze_state_sha256": null,
+  "evaluation_state_sha256": null,
+  "holdout_set_sha256": null,
+  "selected_candidate_id": null,
+  "holdout_pair_count": null,
+  "holdout_metrics_bundle_sha256": null,
+  "holdout_residual_report_sha256": null,
+  "decision_basis_sha256": null,
+  "frozen_policy": {
+    "holdout_scoring_policy_sha256": null,
+    "holdout_acceptance_thresholds_sha256": null
+  },
+  "relation_authority": {
+    "axis": "GEOMETRY",
+    "status": "UNKNOWN",
+    "coordinate_transform_allowed": false,
+    "equality_allowed": false,
+    "fusion_allowed": false,
+    "calibration_transfer_allowed": false
+  },
+  "endpoint_applicability": {
+    "required_before_relation_admission": true,
+    "proven_by_this_gate": false
+  },
+  "open_world_evolution": {
+    "outcome_scope": "ONE_FROZEN_CANDIDATE_ON_ONE_SEALED_HOLDOUT_SET",
+    "candidate_test_outcome_immutable": true,
+    "outcome_is_final_scientific_model_truth": false,
+    "future_successor_candidates_allowed": true,
+    "rejected_candidate_preserved_as_knowledge": true
+  },
+  "extensions": {},
+  "invariants": {
+    "source_evidence_mutated": false,
+    "capture_set_membership_rewritten": false,
+    "candidate_mutated_during_holdout": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "geometry_relation_granted": false,
+    "fusion_granted": false,
+    "calibration_transfer_granted": false
+  },
+  "result_state_sha256": null
+}
