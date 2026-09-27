@@ -1,0 +1,36 @@
+{
+  "schema": "D.RAW/GeometryRelationCampaignContract/0.1",
+  "axis": "GEOMETRY",
+  "current_status": "PENDING_MATCHED_SCENE_CAPTURE",
+  "relation_status_before_measurement": "UNKNOWN",
+  "current_reference_observations_are_geometry_measurement_pair": false,
+  "matched_scene_capture_required": true,
+  "coordinate_transform_allowed_before_admission": false,
+  "relation_equality_allowed": false,
+  "relation_fusion_allowed": false,
+  "calibration_transfer_allowed": false,
+  "capture_protocol": {
+    "rigid_camera_system": true,
+    "move_target_not_camera_system": true,
+    "target_static_between_lens_pair": true,
+    "training_pose_minimum": 12,
+    "holdout_pose_minimum": 4,
+    "training_holdout_disjoint": true,
+    "each_capture_must_be_source_local_admitted": true
+  },
+  "certificate": {
+    "model_must_be_frozen_before_final_holdout": true,
+    "exact_endpoint_applicability_required": true,
+    "held_out_validation_pass_required": true,
+    "relation_status_after_success": "ADMITTED",
+    "coordinate_transform_allowed_after_success": true
+  },
+  "invariants": {
+    "source_evidence_mutable": false,
+    "observation_identity_mutable": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "relation_promotes_source_evidence": false,
+    "geometry_relation_implies_other_axes": false
+  }
+}
