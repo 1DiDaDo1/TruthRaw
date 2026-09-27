@@ -147,6 +147,19 @@ Latest fully host + Android validated D.RAWnegative checkpoint remains:
 
 Android run `36260305613`: SUCCESS.
 
+## Main ↔ Ultra-Wide Geometry Relation Campaign
+
+- `docs/research/draw-geometry-relation-campaign-v0.1/README.md`
+- `docs/research/draw-geometry-relation-campaign-v0.1/MAIN_ULTRAWIDE_GEOMETRY_CAMPAIGN_v0_1.json`
+- `docs/research/draw-geometry-relation-campaign-v0.1/GEOMETRY_PAIR_CAPTURE_TEMPLATE_v0_1.json`
+- main-integrated;
+- validation run `36304289379`: SUCCESS;
+- axis = GEOMETRY;
+- current status = UNKNOWN;
+- current main/ultra-wide observations are not a fit pair;
+- 12+ training paired poses and 4+ disjoint holdouts required;
+- no transform, calibration transfer, other-axis authority or fusion admitted.
+
 ## Next frontier
 
 Main, ultra-wide and telephoto are now separate source-local anchors. The next scientific work is cross-observation relation admission using physical Observation IDs.

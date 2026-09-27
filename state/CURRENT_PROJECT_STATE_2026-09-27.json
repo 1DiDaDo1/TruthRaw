@@ -14,10 +14,11 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "faea14c3fd9109907e4941156de020978b9bfd86",
+    "latest_substantive_integration_sha": "753a8048e5fbb97cd6bbaca95403664aeb756d31",
     "current_main_includes_knowledge_growth_modules": true,
     "current_main_includes_real_main_final_admission": true,
-    "current_main_includes_real_ultrawide_final_admission": true
+    "current_main_includes_real_ultrawide_final_admission": true,
+    "current_main_includes_geometry_relation_campaign_v0_1": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
@@ -303,6 +304,35 @@
       "calibration_binding_count": 0,
       "graph_relation_count": 0,
       "fusion_admission_count": 0
+    },
+    "geometry_relation_campaign_v0_1": {
+      "status": "MAIN_INTEGRATED_PENDING_MATCHED_SCENE_CAPTURE",
+      "readme": "docs/research/draw-geometry-relation-campaign-v0.1/README.md",
+      "contract": "docs/research/draw-geometry-relation-campaign-v0.1/DRAW_GEOMETRY_RELATION_CAMPAIGN_CONTRACT_v0_1.json",
+      "campaign": "docs/research/draw-geometry-relation-campaign-v0.1/MAIN_ULTRAWIDE_GEOMETRY_CAMPAIGN_v0_1.json",
+      "capture_template": "docs/research/draw-geometry-relation-campaign-v0.1/GEOMETRY_PAIR_CAPTURE_TEMPLATE_v0_1.json",
+      "validator": "tools/validate_draw_geometry_relation_campaign_v01.py",
+      "merge_commit_sha": "753a8048e5fbb97cd6bbaca95403664aeb756d31",
+      "validation_run_id": 36304289379,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36304289344,
+      "documentation_governance_result": "SUCCESS",
+      "campaign_state_sha256": "77d490b0d190b39736aa124add6f1fae9548c132c26d11d1da6b3e8c5aaccd5b",
+      "axis": "GEOMETRY",
+      "relation_status": "UNKNOWN",
+      "current_main_ultrawide_reference_observations_are_fit_pair": false,
+      "reason": "MAIN_2026_09_14_AND_ULTRAWIDE_2026_09_27_ARE_DIFFERENT_CAPTURE_SESSIONS_AND_SCENES",
+      "training_pose_minimum": 12,
+      "holdout_pose_minimum": 4,
+      "held_out_validation_required": true,
+      "exact_endpoint_applicability_required": true,
+      "coordinate_transform_allowed": false,
+      "equality_allowed": false,
+      "calibration_transfer_allowed": false,
+      "relation_level_fusion_allowed": false,
+      "other_relation_axes_unchanged": true,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
     }
   },
   "graph_model": {
@@ -327,7 +357,18 @@
     "admitted_relation_requires_certificate": true,
     "direct_single_relation_fusion_allowed": false,
     "composite_fusion_admission_required": true,
-    "lens_identity_is_world_boundary": false
+    "lens_identity_is_world_boundary": false,
+    "first_inter_lens_campaign": {
+      "endpoints": [
+        "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+        "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133"
+      ],
+      "axis": "GEOMETRY",
+      "status": "UNKNOWN",
+      "certificate_sha256": null,
+      "coordinate_transform_allowed": false,
+      "fusion_allowed": false
+    }
   },
   "scientific_invariants": {
     "sealed_source_immutable": true,
@@ -341,13 +382,15 @@
     "rejected_relations_are_preserved_knowledge": true
   },
   "next_empirical_growth": [
-    "Optionally run the existing FotoGraaf ultra-wide Camera2 probe to upgrade project-map camera 4 into a runtime active-physical-result proof for a future capture; this is not required for the current user-attested lens-role admission.",
-    "Treat main, ultra-wide and telephoto as separate physical observations; never transfer calibration by device/lens identity.",
-    "Measure geometry relations independently between main, ultra-wide and telephoto using physical observation IDs.",
-    "Measure radiometric-gauge relations independently; source-local Zero-Lines are not a common gauge.",
-    "Measure colorimetric/spectral, optical-support, uncertainty/correlation, temporal and provenance relations independently.",
-    "Admit each relation only with its own certificate and validity domain.",
-    "Create composite fusion admission only when every relation required for that fusion kind is separately ADMITTED."
+    "Create or print one indexed planar metric target with measured physical spacing and immutable target geometry identity.",
+    "Rigidly mount the phone/camera system; move the calibration target, not the phone.",
+    "Capture at least 12 MAIN + ULTRA_WIDE paired training poses without moving phone or target between each lens pair.",
+    "Capture at least 4 additional disjoint MAIN + ULTRA_WIDE holdout poses that are never used for model selection.",
+    "Admit every capture independently source-local before geometry fitting.",
+    "Fit per-lens intrinsics/distortion and MAIN-to-ULTRA_WIDE extrinsics using training data only; freeze model family and thresholds before final holdout scoring.",
+    "Create a GEOMETRY relation certificate only after held-out validation and exact endpoint applicability both pass.",
+    "Do not infer radiometric, colorimetric, spectral, optical-support, uncertainty/correlation, temporal or provenance relations from geometry success.",
+    "Do not create composite fusion admission until the additional required axes are independently ADMITTED."
   ],
   "active_development_branch": "main",
   "validation_boundary": {
@@ -365,7 +408,11 @@
     "ultrawide_common_pipeline_host_executed": true,
     "ultrawide_common_pipeline_host_result_is_device_validation": false,
     "ultrawide_source_local_admission_is_host_contract_admission": true,
-    "ultrawide_runtime_physical_camera_result_proven": false
+    "ultrawide_runtime_physical_camera_result_proven": false,
+    "geometry_relation_campaign_changes_pixel_route": false,
+    "geometry_relation_campaign_android_device_validated": false,
+    "geometry_relation_campaign_validation_class": "HOST_CONTROL_PLANE_CAPTURE_PROTOCOL",
+    "geometry_relation_current_transform_admitted": false
   },
   "source_admission_frontier": {
     "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",

@@ -218,6 +218,33 @@ Status: **ADMITTED_SOURCE_LOCAL**.
 
 Project mapping associates ultra-wide with physical camera 4, but runtime active physical Camera2 result 4 is not claimed for this exact DNG. Capture-sample domain, readout domain and sensor-pixel mode remain UNKNOWN. Calibration bindings = 0, graph relations = 0, fusion admissions = 0.
 
+## Main ↔ Ultra-Wide Geometry Relation Campaign v0.1
+
+Status: **main-integrated; PENDING_MATCHED_SCENE_CAPTURE**.
+
+- merge: `753a8048e5fbb97cd6bbaca95403664aeb756d31`
+- campaign validation: `36304289379` — **SUCCESS**
+- documentation governance: `36304289344` — **SUCCESS**
+- campaign state SHA-256: `77d490b0d190b39736aa124add6f1fae9548c132c26d11d1da6b3e8c5aaccd5b`
+
+Current relation is GEOMETRY / UNKNOWN. There is no certificate, no coordinate
+transform, no equality, no calibration transfer and no fusion.
+
+The existing MAIN observation (2026-09-14) and ULTRA_WIDE observation
+(2026-09-27) are different scenes and are explicitly forbidden as a geometry
+fit pair.
+
+The frozen promotion route is a rigid-camera metric-target campaign: at least
+12 paired training poses plus 4 disjoint holdout poses. The phone remains
+fixed; the indexed metric target moves between poses and remains static between
+the MAIN and ULTRA_WIDE exposure of each pair. Every capture must be admitted
+source-local before fitting. Model family and thresholds freeze before final
+holdout scoring. Exact endpoint applicability is required before a GEOMETRY
+certificate may become ADMITTED.
+
+A geometry success changes no other relation axis and cannot directly grant
+fusion.
+
 ## Validation boundary
 
 The real main source ran through the unchanged common scientific C++ route on

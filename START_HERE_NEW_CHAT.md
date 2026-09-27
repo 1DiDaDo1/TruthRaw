@@ -113,6 +113,27 @@ The private source `IMG_20260927_084938.dng` is user-attested as a self-captured
 
 Project mapping associates the ultra-wide route with Camera 4, but this file does not carry a runtime Camera2 active-physical-result proof. That distinction stays explicit. Capture-sample domain, readout domain and sensor pixel mode remain UNKNOWN. Calibration bindings, graph relations and fusion admissions remain zero.
 
+## Main ↔ Ultra-Wide Geometry Relation Campaign v0.1
+
+The first inter-lens relation campaign is now main-integrated.
+
+- merge: `753a8048e5fbb97cd6bbaca95403664aeb756d31`
+- validation run: `36304289379` — **SUCCESS**
+- state: `77d490b0d190b39736aa124add6f1fae9548c132c26d11d1da6b3e8c5aaccd5b`
+
+Current graph state is GEOMETRY = UNKNOWN. The existing admitted MAIN and
+ULTRA_WIDE observations are not a geometry measurement pair because they are
+different capture sessions/scenes.
+
+Promotion requires a new matched metric-target campaign with at least 12
+training lens-pairs plus 4 disjoint holdout lens-pairs. Keep the phone rigid,
+keep the target static between each MAIN/ULTRA_WIDE pair, admit every source
+independently, fit per-lens projection/distortion plus the rigid inter-lens
+transform on training data only, then freeze model/thresholds before holdout.
+
+No geometry result may automatically grant radiometric, colour, optical,
+uncertainty, temporal, provenance or fusion authority.
+
 ## Validation boundary
 
 Main has executed the unchanged common scientific C++ route on host. This does
