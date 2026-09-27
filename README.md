@@ -4,7 +4,29 @@
 
 # D.RAW
 
-> **CURRENT PROJECT IDENTITY — 2026-09-26**
+> **CURRENT PROJECT IDENTITY — 2026-09-27**
+>
+> D.RAW now uses `main` as the primary current repository line. The prior stale-main gap has been closed.
+>
+> Current bootstrap: `START_HERE_NEW_CHAT.md`
+>
+> Current machine state: `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+>
+> Current synthesis: `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+>
+> Current graph layer: `docs/research/free-world-observation-graph-v0.1/README.md`
+>
+> The lens-independent principle is now operationalized as: every admitted piece of information keeps its observation, domain, epistemic floor, authority and provenance; knowledge grows through separately admitted relations rather than by relabelling source evidence.
+>
+> Relation axes are factored into geometry, radiometric gauge, colorimetric, spectral, optical support, uncertainty/correlation, temporal and provenance. One relation never silently grants another. Fusion requires a separate composite admission.
+>
+> D.RAWnegative v0.1 and all sealed v0.1 architecture bytes remain unchanged.
+>
+> **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+>
+> **Evidence stays what it was. Knowledge can grow through admitted relations.**
+>
+> **HISTORICAL PROJECT IDENTITY — 2026-09-26**
 >
 > D.RAW is the current project/product name. Historical `TruthRaw` identifiers remain where required for provenance, sealed evidence, schemas, Android compatibility and reproducibility.
 >
