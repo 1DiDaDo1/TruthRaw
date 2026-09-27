@@ -244,6 +244,60 @@ The generic gate is ready for main and ultra-wide, but neither source is
 scientifically admitted yet. Their real sealed source evidence still has to be
 supplied and passed through this gate.
 
+## Real main-camera Pre-Admission v0.2
+
+The first real main-camera source has now entered Phase A.
+
+Source:
+
+`C2OBS_20260914_174825_895_4096x3072.dng`
+
+Verified source SHA-256:
+
+`a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79`
+
+Serialized CFA payload SHA-256:
+
+`4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c`
+
+Pre-Admission manifest state:
+
+`cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38`
+
+Integration merge:
+
+`59f354b822d64cbc7179bb3c75388472e5ca51ee`
+
+Validation run:
+
+`36284174427` — **SUCCESS**
+
+Measured source facts:
+
+- logical Camera 0;
+- measured active physical result Camera 2;
+- requested physical camera = null;
+- lens role = MAIN from the canonical device map;
+- RAW_SENSOR;
+- 4096×3072;
+- BGGR;
+- uncompressed 16-bit CFA storage;
+- exact sensor/image timestamp match;
+- 6.55 mm focal-length metadata;
+- one physical frame / one independent evidence item.
+
+The old acquisition record explicitly lacked `captureSampleDomainId` and
+`gainReadoutStateId`. v0.2 therefore separates the proven serialized storage
+domain from the still-UNKNOWN capture sample/readout domain.
+
+Main is now:
+
+`REAL_SOURCE_PRE_ADMITTED_V0_2_AWAITING_SCIENTIFIC_ROUTE`
+
+It is **not** yet `ADMITTED_SOURCE_LOCAL`. No Scientific Master,
+D.RAWnegative, calibration, shared gauge, graph relation or fusion has been
+created for this main source.
+
 ## Meaning of knowledge growth
 
 New information never becomes "more measured" merely because it fits the
