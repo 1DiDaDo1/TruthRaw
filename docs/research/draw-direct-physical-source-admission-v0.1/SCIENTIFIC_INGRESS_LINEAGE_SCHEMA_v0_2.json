@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/ScientificIngressLineageBinding/0.2",
+  "title": "D.RAW Scientific Ingress Lineage Binding v0.2",
+  "type": "object"
+}

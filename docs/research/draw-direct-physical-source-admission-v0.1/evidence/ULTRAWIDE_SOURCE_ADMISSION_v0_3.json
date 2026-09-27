@@ -1,0 +1,80 @@
+{
+  "schema": "D.RAW/SourceAdmissionPackage/0.3",
+  "status": "ADMITTED_SOURCE_LOCAL",
+  "physical_observation_id": "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+  "physical_source_evidence_sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+  "observation_record": {
+    "schema": "D.RAW/DRAWObservationRecord/0.5",
+    "record_state_sha256": "016ab87e57d5ae878f2dade2dd81948bd87e08336894edfef0916e184a892fb6",
+    "physical_graph_node_sha256": "85d8ef0b9b3e769f30c4d62a114e70c94369fc3250ae5c4f664c04223980a64e"
+  },
+  "capability_envelope": {
+    "schema": "D.RAW/SourceCapabilityEnvelope/0.3",
+    "state_sha256": "85d622ecae11156bd6179761399aaf8bf4bd6eb3b88acccda4226ee3cd58f8c4"
+  },
+  "scientific_ingress_lineage": {
+    "schema": "D.RAW/ScientificIngressLineageBinding/0.2",
+    "binding_state_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+    "lineage_mode": "DIRECT_PHYSICAL_SOURCE_INGRESS"
+  },
+  "pipeline_lineage": {
+    "pipeline_observation_id": "DRAW_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+    "pipeline_source_sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+    "drawnegative_state_sha256": "b0ee1322ff6260eb30072533c2b3e294be46375778ac4622b908d6c746e172e0"
+  },
+  "gauge": {
+    "relation": "SOURCE_LOCAL_ONLY",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+    "shared_free_world_gauge_id": null
+  },
+  "evidence_counts": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "capture_identity_scope": {
+    "lens_role": "ULTRA_WIDE",
+    "lens_role_authority": "USER_ATTESTED_CAPTURE",
+    "project_physical_camera_id": "4",
+    "physical_camera_id_authority": "PROJECT_CANONICAL_DEVICE_MAP_NOT_RUNTIME_RESULT",
+    "runtime_active_physical_camera_result_proven": false
+  },
+  "source_domain_status": {
+    "capture_sample_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "readout_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "sensor_pixel_mode": {
+      "value": null,
+      "authority": "UNKNOWN"
+    }
+  },
+  "calibration_binding_count": 0,
+  "graph_relations": [],
+  "fusion_admissions": [],
+  "admission_scope": {
+    "physical_source_admitted": true,
+    "scientific_pipeline_lineage_admitted": true,
+    "free_world_physical_node_admitted": true,
+    "lens_role_admitted": true,
+    "runtime_camera2_route_admitted": false,
+    "cross_observation_authority_admitted": false
+  },
+  "invariants": {
+    "physical_source_mutated": false,
+    "direct_ingress_is_new_observation": false,
+    "unknown_source_domains_resolved_by_admission": false,
+    "user_attestation_upgrades_sensor_semantics": false,
+    "drawnegative_v0_1_mutated": false,
+    "calibration_transfer_implied": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false
+  },
+  "state_sha256": "fa66277fa3f854708c68eb38192be1f8461545bb08a8fc12c61c0528e8500265"
+}

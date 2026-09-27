@@ -1,0 +1,106 @@
+{
+  "schema": "D.RAW/SourcePreAdmissionManifest/0.3",
+  "parent_schema": "D.RAW/SourcePreAdmissionManifest/0.2",
+  "status": "CANDIDATE_NOT_SCIENTIFICALLY_ADMITTED",
+  "source_evidence": {
+    "display_name": "IMG_20260927_084938.dng",
+    "sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
+    "byte_length": 24415168,
+    "sealed": true,
+    "hash_verified_from_source_bytes": true
+  },
+  "capture_attestation": {
+    "authority": "USER_ATTESTED_CAPTURE",
+    "self_captured": true,
+    "lens_role": "ULTRA_WIDE",
+    "attestation_scope": "SELF_CAPTURE_AND_LENS_ROLE_ONLY",
+    "runtime_camera2_result_claimed": false
+  },
+  "instrument": {
+    "device_id": "BKQ-N49",
+    "lens_role": "ULTRA_WIDE",
+    "lens_role_authority": "USER_ATTESTED_CAPTURE",
+    "project_physical_camera_id": "4",
+    "physical_camera_id_authority": "PROJECT_CANONICAL_DEVICE_MAP_NOT_RUNTIME_RESULT",
+    "runtime_active_physical_camera_id": null
+  },
+  "source_route": {
+    "route_id": "HONOR_DNG_DIRECT_USER_CAPTURE_ULTRA_WIDE",
+    "authority": "SOURCE_FILE_AND_USER_ATTESTATION_BOUND",
+    "runtime_camera2_route_proven": false
+  },
+  "serialized_storage_domain": {
+    "authority": "SOURCE_BOUND",
+    "container": "DNG",
+    "source_format": "DNG_CFA",
+    "width": 4032,
+    "height": 3024,
+    "bits_per_sample": 16,
+    "compression": "NONE",
+    "photometric": "CFA",
+    "cfa_pattern": "BGGR",
+    "orientation": 1,
+    "dynamic_white_level": 1023,
+    "dynamic_black_level": [
+      64.6,
+      64.51,
+      63.96,
+      64
+    ],
+    "f_number": 2,
+    "focal_length_mm": 1.82,
+    "iso": 9796,
+    "exposure_s": 0.06,
+    "make": "HONOR",
+    "model": "BKQ-N49",
+    "unique_camera_model": "BKQ-N49-HONOR-HONOR",
+    "date_time_original": "2026:09:27 08:49:38"
+  },
+  "serialized_cfa_payload": {
+    "authority": "SOURCE_BOUND",
+    "sha256": "87e56296cd51a076d921c5a529dfd64784dfc8b9789869b64644b672767a89a5",
+    "byte_length": 24385536,
+    "exact_serialized_strip_bytes": true,
+    "decoded_uint16_hash_matches_serialized_strips": true
+  },
+  "capture_sample_domain": {
+    "value": null,
+    "authority": "UNKNOWN"
+  },
+  "readout_domain": {
+    "value": null,
+    "authority": "UNKNOWN"
+  },
+  "sensor_pixel_mode": {
+    "value": null,
+    "authority": "UNKNOWN"
+  },
+  "evidence_counts": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "initial_capability_placement": {
+    "sampling_geometry": "SOURCE_BOUND_4032x3024",
+    "geometry_pose": "UNKNOWN",
+    "radiometry": "UNKNOWN",
+    "colorimetry": "UNKNOWN",
+    "spectral": "UNKNOWN",
+    "optical_support": "UNKNOWN",
+    "noise_uncertainty": "UNKNOWN",
+    "temporal": "UNKNOWN",
+    "provenance": "SOURCE_BOUND"
+  },
+  "invariants": {
+    "user_attestation_upgrades_sensor_semantics": false,
+    "project_camera_map_is_runtime_result": false,
+    "creates_new_evidence": false,
+    "scientific_master_created": false,
+    "drawnegative_created": false,
+    "calibration_admitted": false,
+    "shared_gauge_admitted": false,
+    "cross_observation_relation_granted": false,
+    "fusion_granted": false,
+    "appearance_writeback_allowed": false
+  },
+  "state_sha256": "7113c6755aa1ff858adaf80ff69f96dda7f5bd1bed9d81ead4aef5f92bce7c95"
+}

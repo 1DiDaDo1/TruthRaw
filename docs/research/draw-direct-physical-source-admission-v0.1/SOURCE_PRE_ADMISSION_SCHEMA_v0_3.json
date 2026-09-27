@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourcePreAdmissionManifest/0.3",
+  "title": "D.RAW Source Pre-Admission Manifest v0.3",
+  "type": "object"
+}

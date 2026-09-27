@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceCapabilityEnvelope/0.3",
+  "title": "D.RAW Source Capability Envelope v0.3",
+  "type": "object"
+}
