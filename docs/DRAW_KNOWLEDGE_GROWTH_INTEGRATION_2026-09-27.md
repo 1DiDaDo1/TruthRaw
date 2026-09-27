@@ -126,6 +126,65 @@ Free World Observation Graph v0.1 is a new downstream integration layer.
 Future semantic changes to sealed objects require explicit versioned
 successors.
 
+## Executable knowledge-growth foundations now integrated
+
+The 2026-09-27 architecture is no longer documentation-only.
+
+### Free World Observation Graph v0.1
+
+A native C++ graph core now provides deterministic identities and fail-closed
+guards for Observation nodes, information placement, independent relation axes
+and composite fusion admission.
+
+Merge commit: `ee4c426e403ac87f8db86dc760aa1b2c975ff3f5`
+
+Native validation run: `36282087425` — **SUCCESS** on GCC, Clang and
+ASan/UBSan.
+
+The graph performs no image processing and has no scientific writeback path.
+
+### D.RAW Observation Record v0.3
+
+v0.3 is now the current Observation Record successor.
+
+Merge commit: `472194decc1418906c9f99e70b37098fb6276912`
+
+Validation run: `36282295104` — **SUCCESS**.
+
+It retains the complete v0.2 parent gate while adding explicit knowledge
+placement, independent authority dimensions, temporal footprint, optical
+support state and calibration-binding slots.
+
+The migrated Camera-5 observation intentionally leaves spectral, optical and
+temporal claims unknown where no new evidence was admitted.
+
+### Calibration Observation Binding v0.1
+
+The existing Open-World Calibration Registry now has a deterministic
+observation-binding layer.
+
+Merge commit: `b0e88971a6fe3ed84ec6913865e50073d16512cf`
+
+Validation run: `36282461281` — **SUCCESS**.
+
+The binding identity covers the validity domain, calibration payload, held-out
+validation report and exact target capture context. D.RAW additionally binds
+source-route, sample-domain and readout-domain identities so superficially
+similar rasters cannot silently share calibration.
+
+This layer creates no calibration values and no real Camera-5 calibration has
+been promoted by it.
+
+### Validation-class separation
+
+These three additions are host/control-plane contracts and do not change the
+scientific pixel route. Their successful host validation does not replace or
+upgrade the existing Android/device proof for D.RAWnegative.
+
+Latest fully host + Android validated D.RAWnegative checkpoint remains
+`3e150afeb36cbb68fd318b0143a315e64d5a637f`, Android run
+`36260305613` — **SUCCESS**.
+
 ## Next empirical growth
 
 The next scientifically useful world growth remains:
