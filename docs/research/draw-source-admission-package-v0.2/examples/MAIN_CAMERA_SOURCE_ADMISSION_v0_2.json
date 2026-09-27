@@ -1,0 +1,69 @@
+{
+  "schema": "D.RAW/SourceAdmissionPackage/0.2",
+  "status": "ADMITTED_SOURCE_LOCAL",
+  "physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+  "physical_source_evidence_sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+  "observation_record": {
+    "schema": "D.RAW/DRAWObservationRecord/0.4",
+    "record_state_sha256": "aaf2dcf0b81ebe5debcc2fa6a0b40057e5f1cf20e0d6e2df67a54fd825853fc5",
+    "physical_graph_node_sha256": "029b845daf0bb20ebed4e7ce6d66eb61a172dd89e9977f996d20d604c2703353"
+  },
+  "capability_envelope": {
+    "schema": "D.RAW/SourceCapabilityEnvelope/0.2",
+    "state_sha256": "057c627bf172521d9336386d4f74ae1e26664c70c4a24ed7993b6c16c33a3986"
+  },
+  "scientific_ingress_lineage": {
+    "schema": "D.RAW/ScientificIngressLineageBinding/0.1",
+    "binding_state_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6"
+  },
+  "pipeline_lineage": {
+    "pipeline_observation_id": "DRAW_OBS_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "pipeline_source_sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "drawnegative_state_sha256": "87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7"
+  },
+  "gauge": {
+    "relation": "SOURCE_LOCAL_ONLY",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "shared_free_world_gauge_id": null
+  },
+  "evidence_counts": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1
+  },
+  "source_domain_status": {
+    "capture_sample_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "readout_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "sensor_pixel_mode": {
+      "value": null,
+      "authority": "UNKNOWN"
+    }
+  },
+  "calibration_binding_count": 0,
+  "graph_relations": [],
+  "fusion_admissions": [],
+  "admission_scope": {
+    "physical_source_admitted": true,
+    "scientific_pipeline_lineage_admitted": true,
+    "free_world_physical_node_admitted": true,
+    "cross_observation_authority_admitted": false
+  },
+  "invariants": {
+    "physical_source_mutated": false,
+    "compatibility_ingress_is_new_observation": false,
+    "unknown_source_domains_resolved_by_admission": false,
+    "drawnegative_v0_1_mutated": false,
+    "calibration_transfer_implied": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false
+  },
+  "state_sha256": "c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a"
+}

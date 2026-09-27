@@ -1,0 +1,58 @@
+name: D.RAW Source Admission Package v0.2
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-source-admission-package-v0.2/**'
+      - 'tools/validate_draw_source_admission_package_v02.py'
+      - '.github/workflows/draw-source-admission-package-v02.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-source-admission-package-v0.2/**'
+      - 'tools/validate_draw_source_admission_package_v02.py'
+      - '.github/workflows/draw-source-admission-package-v02.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate real main final source-local admission
+        run: |
+          python3 tools/validate_draw_source_admission_package_v02.py \
+            docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json \
+            docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json \
+            docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json \
+            docs/research/draw-source-capability-envelope-v0.2/examples/MAIN_CAMERA_SOURCE_CAPABILITY_ENVELOPE_v0_2.json \
+            docs/research/draw-source-admission-package-v0.2/examples/MAIN_CAMERA_SOURCE_ADMISSION_v0_2.json
+      - name: Prove local admission cannot resolve unknowns or grant fusion
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          p='docs/research/draw-source-admission-package-v0.2/examples/MAIN_CAMERA_SOURCE_ADMISSION_v0_2.json'
+          base=json.load(open(p))
+          def save(name,mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-readout.json',lambda j:j['source_domain_status']['readout_domain'].update({'value':'GUESSED','authority':'SOURCE_BOUND'}))
+          save('bad-cross-authority.json',lambda j:j['admission_scope'].__setitem__('cross_observation_authority_admitted',True))
+          save('bad-relation.json',lambda j:j['graph_relations'].append('REL'))
+          save('bad-fusion.json',lambda j:j['fusion_admissions'].append('FUSION'))
+          save('bad-extra-evidence.json',lambda j:j['evidence_counts'].__setitem__('independent_evidence_count',2))
+          PY
+          for f in /tmp/bad-readout.json /tmp/bad-cross-authority.json /tmp/bad-relation.json /tmp/bad-fusion.json /tmp/bad-extra-evidence.json; do
+            if python3 tools/validate_draw_source_admission_package_v02.py \
+              docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json \
+              docs/research/draw-source-pre-admission-v0.2/evidence/MAIN_CAMERA_C2OBS_20260914_174825_895_PRE_ADMISSION_v0_2.json \
+              docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json \
+              docs/research/draw-source-capability-envelope-v0.2/examples/MAIN_CAMERA_SOURCE_CAPABILITY_ENVELOPE_v0_2.json "$f"; then
+              echo "::error::invalid admission accepted: $f"; exit 1
+            fi
+          done

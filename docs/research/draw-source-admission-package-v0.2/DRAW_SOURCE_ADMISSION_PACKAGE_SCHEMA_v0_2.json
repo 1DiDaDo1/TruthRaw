@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceAdmissionPackage/0.2",
+  "title": "D.RAW Source Admission Package v0.2 — physical source-local admission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "physical_observation_id",
+    "physical_source_evidence_sha256",
+    "observation_record",
+    "capability_envelope",
+    "scientific_ingress_lineage",
+    "pipeline_lineage",
+    "gauge",
+    "evidence_counts",
+    "source_domain_status",
+    "calibration_binding_count",
+    "graph_relations",
+    "fusion_admissions",
+    "admission_scope",
+    "invariants",
+    "state_sha256"
+  ]
+}
