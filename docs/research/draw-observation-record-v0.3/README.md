@@ -1,6 +1,6 @@
 # D.RAW Observation Record v0.3 — Knowledge Placement
 
-Status: **CURRENT SUCCESSOR CANDIDATE**
+Status: **CURRENT OBSERVATION-RECORD SUCCESSOR — HOST VALIDATED**
 
 v0.2 remains valid historical/executable provenance. v0.3 is a strict
 knowledge-placement successor: it preserves the exact source, Scientific
