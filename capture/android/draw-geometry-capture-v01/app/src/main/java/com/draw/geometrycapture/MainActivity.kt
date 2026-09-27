@@ -132,9 +132,11 @@ class MainActivity : Activity() {
                 "De APK meet geen geometrie en kent geen relation-authority toe."
         ))
 
-        root.addView(sectionTitle("Target / sessie"))
+        root.addView(sectionTitle("Universele bron / sessie"))
         root.addView(TextView(this).apply {
-            text = "Session ID: " + sessionId()
+            text = "Session ID: " + sessionId() + "\n" +
+                "D.RAW leest bronmetadata en de zichtbare voorkant automatisch. " +
+                "Handmatige target- of toestelprofielen zijn niet vereist."
             textSize = 13f
         })
 
@@ -142,7 +144,7 @@ class MainActivity : Activity() {
             hint = "Target family / naam (bv. CHARUCO_8x11)"
             setSingleLine(true)
         }
-        root.addView(targetFamily)
+        targetFamily.visibility = View.GONE
 
         targetSpacingMm = EditText(this).apply {
             hint = "Fysieke spacing in mm (bv. 20.0)"
@@ -150,13 +152,13 @@ class MainActivity : Activity() {
                 android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
             setSingleLine(true)
         }
-        root.addView(targetSpacingMm)
+        targetSpacingMm.visibility = View.GONE
 
         targetSha256 = EditText(this).apply {
             hint = "Target geometry SHA-256 (mag tijdens capture nog leeg zijn)"
             setSingleLine(true)
         }
-        root.addView(targetSha256)
+        targetSha256.visibility = View.GONE
 
         val watcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -169,7 +171,7 @@ class MainActivity : Activity() {
         targetSpacingMm.addTextChangedListener(watcher)
         targetSha256.addTextChangedListener(watcher)
 
-        root.addView(sectionTitle("MAIN • 1×"))
+        root.addView(sectionTitle("Bron A • workflowlabel MAIN/1×"))
         root.addView(Button(this).apply {
             text = "1. Open camera voor MAIN"
             setOnClickListener {
@@ -187,7 +189,7 @@ class MainActivity : Activity() {
         }
         root.addView(mainStatus)
 
-        root.addView(sectionTitle("ULTRA-WIDE • 0,6×"))
+        root.addView(sectionTitle("Bron B • workflowlabel ULTRA-WIDE/0,6×"))
         root.addView(Button(this).apply {
             text = "3. Open camera voor ULTRA-WIDE"
             setOnClickListener {
@@ -207,13 +209,13 @@ class MainActivity : Activity() {
 
         root.addView(sectionTitle("Pair-attestatie"))
         cameraRigid = CheckBox(this).apply {
-            text = "Telefoon/camerasysteem is tussen MAIN en ULTRA-WIDE niet bewogen"
+            text = "Optioneel: telefoon/camerasysteem is tussen de twee bronnen niet bewogen"
             setOnCheckedChangeListener { _, _ -> persistAttestation() }
         }
         root.addView(cameraRigid)
 
         targetStatic = CheckBox(this).apply {
-            text = "Target is tussen MAIN en ULTRA-WIDE niet bewogen"
+            text = "Optioneel: scène/target is tussen de twee bronnen niet bewogen"
             setOnCheckedChangeListener { _, _ -> persistAttestation() }
         }
         root.addView(targetStatic)
@@ -330,7 +332,7 @@ class MainActivity : Activity() {
         pairStatus.text = if (isComplete) {
             "✓ Pose-paar bevestigd. Dit is capture-provenance, nog géén geometry-relation."
         } else {
-            "Nog niet bevestigd. Beide originele bestanden + attestaties zijn vereist."
+            "Nog niet bevestigd. Beide originele bestanden zijn vereist; attestaties zijn extra provenance."
         }
 
         prevButton.isEnabled = currentPoseIndex > 0
@@ -341,10 +343,46 @@ class MainActivity : Activity() {
 
     private fun sourceStatus(src: ImportedSource?): String {
         if (src == null) return "Nog geen RAW/DNG geïmporteerd."
+        val profile = src.universalSourceProfile
+        val metadata = profile.optJSONObject("source_metadata") ?: JSONObject()
+        val raster = profile.optJSONObject("primary_raw_raster") ?: JSONObject()
+        val optics = profile.optJSONObject("optics") ?: JSONObject()
+        val scene = profile.optJSONObject("scene_analysis") ?: JSONObject()
+
+        val make = metadata.optString("make", "")
+            .takeIf { it.isNotBlank() && it != "null" }
+        val model = metadata.optString("model", "")
+            .takeIf { it.isNotBlank() && it != "null" }
+        val focal = optics.optDouble("focal_length_mm", Double.NaN)
+        val width = raster.optLong("width", -1L)
+        val height = raster.optLong("height", -1L)
+        val frontside = scene.optString("status", "UNKNOWN")
+
+        val auto = buildString {
+            append("\nauto: ")
+            append(profile.optString("scientific_source_class", "UNKNOWN"))
+            if (make != null || model != null) {
+                append(" • ")
+                append(listOfNotNull(make, model).joinToString(" "))
+            }
+            if (focal.isFinite()) {
+                append(" • ")
+                append("%.3f mm".format(Locale.US, focal))
+            }
+            if (width > 0 && height > 0) {
+                append(" • ")
+                append(width)
+                append("×")
+                append(height)
+            }
+            append("\nvoorkant: ")
+            append(frontside)
+        }
+
         return "✓ " + src.displayName + "\n" +
             "bytes: " + src.byteLength + "\n" +
             "SHA-256: " + src.sha256 + "\n" +
-            "kopie-hash gelijk: " + src.copyVerified
+            "kopie-hash gelijk: " + src.copyVerified + auto
     }
 
     private fun persistAttestation() {
@@ -480,6 +518,12 @@ class MainActivity : Activity() {
             throw IllegalStateException("Byte-identieke kopiecontrole mislukt")
         }
 
+        val universalProfile = UniversalSourceProfiler.profile(
+            outFile,
+            display,
+            sourceHash
+        )
+
         return ImportedSource(
             role = role,
             displayName = display,
@@ -489,7 +533,8 @@ class MainActivity : Activity() {
             sha256 = sourceHash,
             copiedSha256 = copyHash,
             copyVerified = true,
-            importedAtEpochMs = System.currentTimeMillis()
+            importedAtEpochMs = System.currentTimeMillis(),
+            universalSourceProfile = universalProfile
         )
     }
 
@@ -565,11 +610,6 @@ class MainActivity : Activity() {
             toast("MAIN en ULTRA-WIDE mogen niet hetzelfde bronbestand zijn.")
             return
         }
-        if (!cameraRigid.isChecked || !targetStatic.isChecked) {
-            toast("Bevestig beide pair-attestaties.")
-            return
-        }
-
         val completedPoseId = poseId(currentPoseIndex)
         val completedPoseIndex = currentPoseIndex
 
@@ -713,6 +753,17 @@ class MainActivity : Activity() {
                 )
                 .put("main", main?.toJson() ?: JSONObject.NULL)
                 .put("ultra_wide", wide?.toJson() ?: JSONObject.NULL)
+                .put(
+                    "universal_pair_profile",
+                    if (main != null && wide != null) {
+                        UniversalSourceProfiler.pairProfile(
+                            main.universalSourceProfile,
+                            wide.universalSourceProfile
+                        )
+                    } else {
+                        JSONObject.NULL
+                    }
+                )
 
             val pairIdentity = if (main != null && wide != null) {
                 sha256Text(
@@ -737,20 +788,14 @@ class MainActivity : Activity() {
             pairs.put(pair)
         }
 
-        val status = when {
-            allPairsComplete() &&
-                targetShaValid &&
-                spacingMm != null &&
-                spacingMm > 0.0 ->
-                "COMPLETE_16_POSE_CAPTURE_SESSION_TARGET_BOUND_NOT_SOURCE_LOCAL_ADMITTED"
-            allPairsComplete() ->
-                "COMPLETE_16_POSE_CAPTURE_SESSION_TARGET_BINDING_INCOMPLETE"
-            else ->
-                "IN_PROGRESS_CAPTURE_SESSION"
+        val status = if (allPairsComplete()) {
+            "COMPLETE_16_POSE_CAPTURE_SESSION_AUTO_PROFILED"
+        } else {
+            "IN_PROGRESS_CAPTURE_SESSION"
         }
 
         val body = JSONObject()
-            .put("schema", "D.RAW/GeometryCaptureSession/0.1")
+            .put("schema", "D.RAW/GeometryCaptureSession/0.2")
             .put("status", status)
             .put("session_id", sessionId())
             .put(
@@ -761,13 +806,15 @@ class MainActivity : Activity() {
             .put(
                 "capture_interface",
                 JSONObject()
-                    .put("mode", "EXTERNAL_RAW_CAMERA_APP_PLUS_SAF_IMPORT")
+                    .put("mode", "UNIVERSAL_SOURCE_PROFILED_EXTERNAL_RAW_IMPORT")
                     .put("camera2_required", false)
                     .put("apk_creates_sensor_evidence", false)
                     .put("original_raw_or_dng_is_evidence", true)
+                    .put("device_specific_mapping_required", false)
+                    .put("workflow_role_labels_are_scientific_authority", false)
             )
             .put(
-                "target",
+                "optional_scale_evidence",
                 JSONObject()
                     .put(
                         "family",
@@ -781,10 +828,23 @@ class MainActivity : Activity() {
                         "target_geometry_sha256",
                         if (targetShaValid) targetSha else JSONObject.NULL
                     )
+                    .put("required_for_relative_scene_geometry", false)
+                    .put("required_for_absolute_metric_scale", true)
             )
             .put("training_pose_count_required", 12)
             .put("holdout_pose_count_required", 4)
             .put("completed_pair_count", countCompleted())
+            .put(
+                "universal_routing",
+                JSONObject()
+                    .put("source_metadata_drives_initial_capabilities", true)
+                    .put("frontside_scene_inspection_enabled", true)
+                    .put("device_specific_mapping_required", false)
+                    .put("scene_geometry_route", "AUTO_FROM_VISIBLE_IMAGE_CONTENT")
+                    .put("indexed_target_required", false)
+                    .put("absolute_metric_scale_requires_scale_evidence", true)
+                    .put("unknown_fields_remain_unknown", true)
+            )
             .put("pairs", pairs)
             .put(
                 "relation_authority",
@@ -860,7 +920,8 @@ class MainActivity : Activity() {
         val sha256: String,
         val copiedSha256: String,
         val copyVerified: Boolean,
-        val importedAtEpochMs: Long
+        val importedAtEpochMs: Long,
+        val universalSourceProfile: JSONObject
     ) {
         fun toJson(): JSONObject = JSONObject()
             .put("role", role)
@@ -872,6 +933,7 @@ class MainActivity : Activity() {
             .put("copied_sha256", copiedSha256)
             .put("copy_verified", copyVerified)
             .put("imported_at_epoch_ms", importedAtEpochMs)
+            .put("universal_source_profile", universalSourceProfile)
 
         companion object {
             fun fromJson(j: JSONObject): ImportedSource = ImportedSource(
@@ -883,7 +945,10 @@ class MainActivity : Activity() {
                 sha256 = j.getString("sha256"),
                 copiedSha256 = j.getString("copied_sha256"),
                 copyVerified = j.getBoolean("copy_verified"),
-                importedAtEpochMs = j.getLong("imported_at_epoch_ms")
+                importedAtEpochMs = j.getLong("imported_at_epoch_ms"),
+                universalSourceProfile = j.optJSONObject(
+                    "universal_source_profile"
+                ) ?: JSONObject()
             )
         }
     }
