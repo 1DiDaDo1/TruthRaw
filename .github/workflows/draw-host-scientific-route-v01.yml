@@ -1,0 +1,50 @@
+name: D.RAW Host Scientific Route v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-host-scientific-route-v0.1/**'
+      - '.github/workflows/draw-host-scientific-route-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-host-scientific-route-v0.1/**'
+      - '.github/workflows/draw-host-scientific-route-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/draw-host-scientific-route-v0.1 \
+            -B /tmp/draw-host-route \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++
+      - name: Build
+        run: cmake --build /tmp/draw-host-route --parallel 2
+      - name: Verify wrapper identity and usage gate
+        run: |
+          set -euo pipefail
+          test -x /tmp/draw-host-route/draw_host_scientific_route_v0_1
+          set +e
+          /tmp/draw-host-route/draw_host_scientific_route_v0_1 >/tmp/out 2>/tmp/err
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          grep -F 'usage: draw_host_scientific_route_v0_1' /tmp/err
+          sha256sum /tmp/draw-host-route/draw_host_scientific_route_v0_1 |
+            tee /tmp/draw-host-scientific-route-v0-1.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: draw-host-scientific-route-v0-1-linux-x86_64
+          path: |
+            /tmp/draw-host-route/draw_host_scientific_route_v0_1
+            /tmp/draw-host-scientific-route-v0-1.sha256
+          if-no-files-found: error
