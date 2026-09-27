@@ -1,0 +1,32 @@
+{
+  "schema": "D.RAW/ScientificIngressLineageBindingContract/0.1",
+  "status": "REAL_MAIN_LINEAGE_CANDIDATE",
+  "identity_law": "Compatibility representation may change pipeline identity. It may not create a new physical observation.",
+  "identities": {
+    "physical_observation_id_source": "IMMUTABLE_PARENT_SOURCE_SHA256",
+    "pipeline_observation_id_source": "ACTUAL_SCIENTIFIC_INGRESS_BYTES",
+    "identities_must_be_equal": false
+  },
+  "requires": [
+    "pre_admission_v0_2_parent_binding",
+    "quarantine_parent_binding",
+    "cfa_payload_byte_identity",
+    "derived_ingress_pipeline_input_binding",
+    "pipeline_source_reverification",
+    "source_local_gauge",
+    "one_physical_frame",
+    "one_independent_evidence_item"
+  ],
+  "invariants": {
+    "derived_ingress_is_new_observation": false,
+    "parent_source_mutated": false,
+    "cfa_payload_mutated": false,
+    "physical_frame_count_increment": 0,
+    "independent_evidence_count_increment": 0,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "calibration_transfer_implied": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false
+  }
+}
