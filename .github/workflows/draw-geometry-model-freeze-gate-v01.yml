@@ -1,0 +1,45 @@
+name: D.RAW Geometry Model Freeze Gate v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-geometry-model-freeze-gate-v0.1/**'
+      - 'tools/draw_geometry_model_freeze_gate_v01.py'
+      - 'tools/validate_draw_geometry_model_freeze_v01.py'
+      - 'tests/test_draw_geometry_model_freeze_gate_v01.py'
+      - '.github/workflows/draw-geometry-model-freeze-gate-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-geometry-model-freeze-gate-v0.1/**'
+      - 'tools/draw_geometry_model_freeze_gate_v01.py'
+      - 'tools/validate_draw_geometry_model_freeze_v01.py'
+      - 'tests/test_draw_geometry_model_freeze_gate_v01.py'
+      - '.github/workflows/draw-geometry-model-freeze-gate-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Python syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            tools/draw_geometry_model_freeze_gate_v01.py \
+            tools/validate_draw_geometry_model_freeze_v01.py \
+            tests/test_draw_geometry_model_freeze_gate_v01.py
+
+      - name: Run model-freeze integration matrix
+        run: |
+          set -euo pipefail
+          python3 tests/test_draw_geometry_model_freeze_gate_v01.py
