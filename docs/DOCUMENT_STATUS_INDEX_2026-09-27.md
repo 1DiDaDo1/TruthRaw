@@ -199,6 +199,22 @@ Optional device work: runtime Camera2 route proof for the ultra-wide Camera-4 ma
 - geometry relation remains UNKNOWN
 - evidence membership may be sealed; model hypothesis remains open
 
+## Geometry Model Freeze Gate v0.1
+
+- `docs/research/draw-geometry-model-freeze-gate-v0.1/README.md`
+- `tools/draw_geometry_model_freeze_gate_v01.py`
+- `tools/validate_draw_geometry_model_freeze_v01.py`
+- `tests/test_draw_geometry_model_freeze_gate_v01.py`
+- merge `0bca835d58deda5c6a3c6f378d55c352f9f0e8ba`
+- validation `36313383767`: SUCCESS
+- freezes one TRAINING-selected, predeclared-HOLDOUT certificate candidate
+- accepts future model-family strings; model vocabulary is not closed
+- HOLDOUT may not participate in selection
+- no refit/model/threshold change is allowed inside the frozen candidate
+- future versioned candidates remain allowed
+- GEOMETRY remains UNKNOWN and no transform/fusion/calibration authority is granted
+- no real MAIN ↔ ULTRA_WIDE model frozen yet
+
 ## Governance
 
 Branch integration never promotes scientific authority. Sealed objects are not
