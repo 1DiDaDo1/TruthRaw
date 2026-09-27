@@ -1,0 +1,188 @@
+{
+  "schema": "D.RAW/SourceCapabilityEnvelope/0.2",
+  "status": "PHYSICAL_SOURCE_KNOWLEDGE_MAP",
+  "observation_record_schema": "D.RAW/DRAWObservationRecord/0.4",
+  "observation_record_state_sha256": "aaf2dcf0b81ebe5debcc2fa6a0b40057e5f1cf20e0d6e2df67a54fd825853fc5",
+  "physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+  "physical_source_evidence_sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+  "physical_graph_node_sha256": "029b845daf0bb20ebed4e7ce6d66eb61a172dd89e9977f996d20d604c2703353",
+  "scientific_ingress_lineage_binding_state_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+  "pipeline_lineage": {
+    "pipeline_observation_id": "DRAW_OBS_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "pipeline_source_sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "drawnegative_state_sha256": "87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7",
+    "scientific_master_sha256": "c26939efe5e58a0d32846e905d156789e35b674bb2d1c03288bbabc53e243202"
+  },
+  "instrument": {
+    "device_id": "HONOR_BKQ-N49",
+    "camera_id": "PHYSICAL_CAMERA_2",
+    "lens_role": "MAIN"
+  },
+  "source_domains": {
+    "physical_capture_route": {
+      "route_id": "CAMERA2_LOGICAL_0_ACTIVE_PHYSICAL_2_RAW_SENSOR_UNFORCED",
+      "authority": "SOURCE_OBSERVATION_BOUND",
+      "logical_camera_id": "0",
+      "active_physical_camera_id": "2",
+      "requested_physical_camera_id": null
+    },
+    "serialized_storage_domain": {
+      "authority": "SOURCE_BOUND",
+      "container": "DNG",
+      "source_format": "RAW_SENSOR",
+      "width": 4096,
+      "height": 3072,
+      "bits_per_sample": 16,
+      "compression": "NONE",
+      "cfa_pattern": "BGGR",
+      "serialized_cfa_payload_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c"
+    },
+    "compatibility_ingress": {
+      "authority": "DERIVED_LINEAGE_BOUND",
+      "sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+      "container_role": "SCIENTIFIC_STORAGE_COORDINATE_INGRESS_ONLY",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6"
+    },
+    "capture_sample_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "readout_domain": {
+      "value": null,
+      "authority": "UNKNOWN"
+    },
+    "sensor_pixel_mode": {
+      "value": null,
+      "authority": "UNKNOWN"
+    }
+  },
+  "capabilities": {
+    "sampling_geometry": {
+      "authority": "SOURCE_BOUND_4096x3072",
+      "identity_sha256": null,
+      "knowledge_origin": "PHYSICAL_SOURCE",
+      "lineage_binding_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "geometry_pose": {
+      "authority": "IMAGE_PLANE_BOUND",
+      "identity_sha256": null,
+      "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "radiometry": {
+      "authority": "SOURCE_LOCAL_SELF_GAUGE_ESTIMATE",
+      "identity_sha256": "c26939efe5e58a0d32846e905d156789e35b674bb2d1c03288bbabc53e243202",
+      "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "colorimetry": {
+      "authority": "SOURCE_METADATA_BOUND",
+      "identity_sha256": null,
+      "knowledge_origin": "SOURCE_METADATA_LINEAGE_BOUND",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "spectral": {
+      "authority": "UNKNOWN",
+      "identity_sha256": null,
+      "knowledge_origin": "UNKNOWN",
+      "lineage_binding_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "optical_support": {
+      "authority": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+      "identity_sha256": null,
+      "knowledge_origin": "UNKNOWN",
+      "lineage_binding_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "noise_uncertainty": {
+      "authority": "PARTIAL_FAIL_CLOSED_SOURCE_METADATA_NO_P95",
+      "identity_sha256": null,
+      "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "temporal": {
+      "authority": "UNKNOWN",
+      "identity_sha256": null,
+      "knowledge_origin": "UNKNOWN",
+      "lineage_binding_sha256": null,
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    },
+    "provenance": {
+      "authority": "PHYSICAL_SOURCE_AND_INGRESS_LINEAGE_BOUND",
+      "identity_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "knowledge_origin": "PHYSICAL_SOURCE_AND_PIPELINE_LINEAGE",
+      "lineage_binding_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "calibration_binding_sha256": null,
+      "validity_domain_sha256": null,
+      "cross_observation_relation_admitted": false,
+      "implicit_transfer_allowed": false
+    }
+  },
+  "dynamic_range_bounds": {
+    "authority": "CENSOR_AWARE_SOURCE_BOUND",
+    "identity_sha256": null
+  },
+  "gauge": {
+    "truthrange_formula": "T=log2(L/L0)",
+    "scale_gauge_id": "DRAW_SOURCE_LOCAL_GAUGE_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+    "relation": "SOURCE_LOCAL_ONLY",
+    "shared_free_world_gauge_id": null
+  },
+  "temporal_footprint": {
+    "model": "UNKNOWN",
+    "capture_timestamp_identity_sha256": null,
+    "exposure_interval_known": false,
+    "rolling_shutter_model_known": false
+  },
+  "optical_support": {
+    "authority": "UNKNOWN_FOR_SCIENTIFIC_SUPPORT",
+    "model_kind": "NONE",
+    "support_identity_sha256": null
+  },
+  "calibration_bindings": [],
+  "invariants": {
+    "unknown_is_valid_state": true,
+    "missing_capability_placement_allowed": false,
+    "physical_source_identity_replaced_by_pipeline_identity": false,
+    "compatibility_ingress_is_new_observation": false,
+    "lens_identity_upgrades_authority": false,
+    "file_format_upgrades_authority": false,
+    "implicit_calibration_transfer_allowed": false,
+    "cross_observation_relation_granted": false,
+    "cross_observation_fusion_granted": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "appearance_writeback_allowed": false
+  },
+  "state_sha256": "057c627bf172521d9336386d4f74ae1e26664c70c4a24ed7993b6c16c33a3986"
+}
