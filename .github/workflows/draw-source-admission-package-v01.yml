@@ -1,0 +1,102 @@
+name: D.RAW Source Admission Package v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/draw-source-admission-package-v0.1/**'
+      - 'tools/create_draw_source_pre_admission_v01.py'
+      - 'tools/create_draw_source_final_admission_v01.py'
+      - 'tools/validate_draw_source_admission_package_v01.py'
+      - '.github/workflows/draw-source-admission-package-v01.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/research/draw-source-admission-package-v0.1/**'
+      - 'tools/create_draw_source_pre_admission_v01.py'
+      - 'tools/create_draw_source_final_admission_v01.py'
+      - 'tools/validate_draw_source_admission_package_v01.py'
+      - '.github/workflows/draw-source-admission-package-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate and validate Camera-5 pre-admission placement
+        run: |
+          set -euo pipefail
+          python3 tools/create_draw_source_pre_admission_v01.py \
+            --source-sha256 45d44d6dc294267456d17248d117bda1375432e8c08d870e67b5e512cabdc2ba \
+            --device-id HONOR_BKQ-N49 \
+            --camera-id PHYSICAL_CAMERA_5 \
+            --lens-role TELEPHOTO \
+            --capture-pipeline-id DNG_ADMITTED_SOURCE_ROUTE \
+            --sample-domain-id ADMITTED_DNG_SOURCE \
+            --width 4080 --height 3072 \
+            --cfa-topology BAYER_LIKE_SOURCE_BOUND \
+            --output /tmp/cam5-pre.json
+          python3 tools/validate_draw_source_admission_package_v01.py pre /tmp/cam5-pre.json
+
+      - name: Generate and validate Camera-5 final source-local admission
+        run: |
+          set -euo pipefail
+          OBS=docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json
+          ENV=docs/research/draw-source-capability-envelope-v0.1/examples/CAMERA5_LAMP_SCENE_SOURCE_CAPABILITY_ENVELOPE_v0_1.json
+          python3 tools/create_draw_source_final_admission_v01.py \
+            --observation "$OBS" --envelope "$ENV" --output /tmp/cam5-final.json
+          python3 tools/validate_draw_source_admission_package_v01.py \
+            final "$OBS" "$ENV" /tmp/cam5-final.json
+
+      - name: Prove pre-admission cannot invent readout or scientific authority
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          base=json.load(open('/tmp/cam5-pre.json'))
+          def save(name, mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-readout.json',lambda j:j['source_domain'].__setitem__('readout_domain_id','GUESSED_READOUT'))
+          save('bad-radiometry.json',lambda j:j['initial_capability_placement'].__setitem__('radiometry','CALIBRATED'))
+          PY
+          for f in /tmp/bad-readout.json /tmp/bad-radiometry.json; do
+            if python3 tools/validate_draw_source_admission_package_v01.py pre "$f"; then
+              echo "::error::invalid pre-admission accepted: $f"
+              exit 1
+            fi
+          done
+
+      - name: Prove final admission cannot grant relation, fusion or shared gauge
+        run: |
+          set -euo pipefail
+          OBS=docs/research/draw-observation-record-v0.3/examples/CAMERA5_LAMP_SCENE_OBSERVATION_v0_3.json
+          ENV=docs/research/draw-source-capability-envelope-v0.1/examples/CAMERA5_LAMP_SCENE_SOURCE_CAPABILITY_ENVELOPE_v0_1.json
+          python3 - <<'PY'
+          import hashlib,json
+          base=json.load(open('/tmp/cam5-final.json'))
+          def save(name, mutate):
+              j=json.loads(json.dumps(base)); mutate(j)
+              x=dict(j); x.pop('state_sha256',None)
+              j['state_sha256']=hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              json.dump(j,open('/tmp/'+name,'w'))
+          save('bad-relation.json',lambda j:j['graph_relations'].append('REL'))
+          save('bad-fusion.json',lambda j:j['fusion_admissions'].append('FUSION'))
+          def shared(j):
+              j['gauge']['relation']='SHARED_RELATIVE'
+              j['gauge']['shared_free_world_gauge_id']='GUESSED'
+          save('bad-shared.json',shared)
+          save('bad-envelope.json',lambda j:j['capability_envelope'].__setitem__('state_sha256','0'*64))
+          PY
+          for f in /tmp/bad-relation.json /tmp/bad-fusion.json /tmp/bad-shared.json /tmp/bad-envelope.json; do
+            if python3 tools/validate_draw_source_admission_package_v01.py final "$OBS" "$ENV" "$f"; then
+              echo "::error::invalid final admission accepted: $f"
+              exit 1
+            fi
+          done

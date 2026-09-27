@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourcePreAdmissionManifest/0.1",
+  "title": "D.RAW Source Pre-Admission Manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","status","source_evidence","instrument","source_domain","sampling","initial_capability_placement","invariants","state_sha256"]
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceAdmissionPackage/0.1",
+  "title": "D.RAW Final Source-Local Admission Package v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","status","observation_id","source_evidence_sha256","observation_record","capability_envelope","gauge","evidence_counts","calibration_binding_count","graph_relations","fusion_admissions","invariants","state_sha256"]
+}
