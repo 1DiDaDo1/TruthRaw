@@ -14,15 +14,20 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "59f354b822d64cbc7179bb3c75388472e5ca51ee",
-    "current_main_includes_knowledge_growth_modules": true
+    "latest_substantive_integration_sha": "1d6785b501f86f129dc81359ac205d6f734af9fd",
+    "current_main_includes_knowledge_growth_modules": true,
+    "current_main_includes_real_main_final_admission": true
   },
   "current_scientific_negative": {
     "name": "D.RAWnegative v0.1",
     "sealed": true,
     "semantics_changed_by_this_integration": false,
     "validated_code_checkpoint_sha": "3e150afeb36cbb68fd318b0143a315e64d5a637f",
-    "source_local_camera5_state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5"
+    "source_local_camera5_state_sha256": "7fabfd66dd9c2dd334ffe7798e34fd63e01e49d344b67ff455ad919bac13e9a5",
+    "main_camera_pipeline_lineage_state_sha256": "87955cae86a3c9318b24990018208a4982379366d4bb4ae78e830c8d1cf0ccf7",
+    "main_camera_scientific_master_sha256": "c26939efe5e58a0d32846e905d156789e35b674bb2d1c03288bbabc53e243202",
+    "main_camera_physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+    "main_camera_physical_identity_is_separate_from_pipeline_identity": true
   },
   "permanent_rules": [
     "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
@@ -67,7 +72,7 @@
       "scientific_writeback_allowed": false
     },
     "observation_record_v0_3": {
-      "status": "CURRENT_OBSERVATION_RECORD_SUCCESSOR",
+      "status": "VALIDATED_PIPELINE_RECORD_PARENT_FOR_V0_4",
       "parent_schema": "D.RAW/DRAWObservationRecord/0.2",
       "schema": "D.RAW/DRAWObservationRecord/0.3",
       "readme": "docs/research/draw-observation-record-v0.3/README.md",
@@ -168,6 +173,93 @@
       "readout_domain": "UNKNOWN",
       "sensor_pixel_mode": "UNKNOWN",
       "final_source_local_admission": false
+    },
+    "dng_orientation_quarantine_v0_1": {
+      "status": "MAIN_INTEGRATED_REAL_MAIN_DERIVED_INGRESS_PROVEN",
+      "readme": "docs/research/draw-dng-orientation-quarantine-v0.1/README.md",
+      "manifest": "docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_ORIENTATION_QUARANTINE_v0_1.json",
+      "host_result": "docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_HOST_SCIENTIFIC_ROUTE_v0_1.json",
+      "merge_commit_sha": "0620922f6932bb8fa01d8d63d3d98d69c7e3f430",
+      "parent_source_sha256": "a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+      "derived_ingress_sha256": "7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+      "serialized_cfa_payload_sha256": "4818fd406cc528984ff57e036db49ac394ce0bb6b6d0830e2f9f1ad95ecc8c3c",
+      "parent_and_derived_cfa_payload_byte_identical": true,
+      "parent_source_mutated": false,
+      "derived_ingress_is_new_observation": false,
+      "presentation_orientation_authority": "UNKNOWN"
+    },
+    "host_scientific_route_v0_1": {
+      "status": "MAIN_INTEGRATED_COMMON_PIPELINE_HOST_WRAPPER",
+      "readme": "docs/research/draw-host-scientific-route-v0.1/README.md",
+      "build_validation_run_id": 36284768148,
+      "build_validation_result": "SUCCESS",
+      "real_main_result": "docs/research/draw-dng-orientation-quarantine-v0.1/evidence/MAIN_CAMERA_HOST_SCIENTIFIC_ROUTE_v0_1.json",
+      "real_main_result_json_sha256": "a24df150c8a2db4b4a124c896bcd5044dc3673e45de9f512842650166383c018",
+      "real_main_pipeline_runs_bit_identical": true,
+      "changes_scientific_algorithm": false
+    },
+    "scientific_ingress_lineage_v0_1": {
+      "status": "MAIN_INTEGRATED_REAL_MAIN_LINEAGE_BOUND",
+      "readme": "docs/research/draw-scientific-ingress-lineage-v0.1/README.md",
+      "binding": "docs/research/draw-scientific-ingress-lineage-v0.1/evidence/MAIN_CAMERA_SCIENTIFIC_INGRESS_LINEAGE_v0_1.json",
+      "validator": "tools/validate_draw_scientific_ingress_lineage_v01.py",
+      "merge_commit_sha": "f99afc4786c060afb75ebf83a2090b69b42c7749",
+      "validation_run_id": 36298041195,
+      "validation_result": "SUCCESS",
+      "binding_state_sha256": "ec33ec51a10e0c592fa63045f26b9a519698880a3c9d6000db409b3dd9d15ef6",
+      "physical_observation_id": "DRAW_PHYSICAL_OBS_a85cac58601d6cc8138bf8f9372e5161b85ab1e89afa70372f97c46461dcea79",
+      "pipeline_observation_id": "DRAW_OBS_7c8eb85c568f6bc0ec3ae007de1658ec86d38b1144059d0fe0bc294a3e17bf08",
+      "identities_are_intentionally_distinct": true,
+      "derived_ingress_creates_new_observation": false
+    },
+    "observation_record_v0_4": {
+      "status": "CURRENT_PHYSICAL_IDENTITY_OBSERVATION_RECORD_SUCCESSOR",
+      "parent_pipeline_schema": "D.RAW/DRAWObservationRecord/0.3",
+      "schema": "D.RAW/DRAWObservationRecord/0.4",
+      "readme": "docs/research/draw-observation-record-v0.4/README.md",
+      "example": "docs/research/draw-observation-record-v0.4/examples/MAIN_CAMERA_OBSERVATION_v0_4.json",
+      "validator": "tools/validate_draw_observation_record_v04.py",
+      "merge_commit_sha": "d18dfa23c023642b1d4055ee35c4c0aaaab7c7d8",
+      "validation_run_id": 36298333714,
+      "validation_result": "SUCCESS",
+      "record_state_sha256": "aaf2dcf0b81ebe5debcc2fa6a0b40057e5f1cf20e0d6e2df67a54fd825853fc5",
+      "physical_graph_node_sha256": "029b845daf0bb20ebed4e7ce6d66eb61a172dd89e9977f996d20d604c2703353",
+      "pipeline_graph_node_sha256": "ab4c4f23c526975f0afbf24d4bdcb0e1a062a73af5c1c8f3db84d9a2a78c382c",
+      "graph_relations_must_use_physical_observation_id": true,
+      "embedded_v0_3_pipeline_gate_required": true
+    },
+    "source_capability_envelope_v0_2": {
+      "status": "CURRENT_PHYSICAL_SOURCE_CAPABILITY_ENVELOPE",
+      "readme": "docs/research/draw-source-capability-envelope-v0.2/README.md",
+      "example": "docs/research/draw-source-capability-envelope-v0.2/examples/MAIN_CAMERA_SOURCE_CAPABILITY_ENVELOPE_v0_2.json",
+      "validator": "tools/validate_draw_source_capability_envelope_v02.py",
+      "merge_commit_sha": "fe6275c3dd5f1f4b8f429950768378b44ab1a2c5",
+      "validation_run_id": 36298514477,
+      "validation_result": "SUCCESS",
+      "state_sha256": "057c627bf172521d9336386d4f74ae1e26664c70c4a24ed7993b6c16c33a3986",
+      "capture_sample_domain": "UNKNOWN",
+      "readout_domain": "UNKNOWN",
+      "sensor_pixel_mode": "UNKNOWN",
+      "calibration_bindings": 0,
+      "cross_observation_relation_granted": false,
+      "cross_observation_fusion_granted": false
+    },
+    "source_admission_package_v0_2": {
+      "status": "REAL_MAIN_ADMITTED_SOURCE_LOCAL",
+      "readme": "docs/research/draw-source-admission-package-v0.2/README.md",
+      "example": "docs/research/draw-source-admission-package-v0.2/examples/MAIN_CAMERA_SOURCE_ADMISSION_v0_2.json",
+      "validator": "tools/validate_draw_source_admission_package_v02.py",
+      "merge_commit_sha": "1d6785b501f86f129dc81359ac205d6f734af9fd",
+      "validation_run_id": 36298639318,
+      "validation_result": "SUCCESS",
+      "state_sha256": "c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a",
+      "status_value": "ADMITTED_SOURCE_LOCAL",
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "calibration_binding_count": 0,
+      "graph_relation_count": 0,
+      "fusion_admission_count": 0,
+      "unknown_source_domains_resolved_by_admission": false
     }
   },
   "graph_model": {
@@ -206,12 +298,13 @@
     "rejected_relations_are_preserved_knowledge": true
   },
   "next_empirical_growth": [
-    "Run the real main-camera source a85cac...dcea79 through the current scientific route without changing its sealed source bytes.",
-    "Produce a main-camera Observation Record v0.3 and source-local D.RAWnegative lineage for that exact source if the existing scientific route admits it.",
-    "Produce the matching Source Capability Envelope from the new main Observation Record without inventing capture-sample/readout identities.",
-    "Create Final Source Admission Package v0.1 only if Record v0.3 + Capability Envelope both validate against the same source.",
-    "Repeat independently for ultra-wide.",
-    "Only after separate final admissions begin relation campaigns; no tele calibration transfer."
+    "Find and seal one real ultra-wide physical-camera-4 source and run Source Pre-Admission using only proven source facts.",
+    "Run that ultra-wide source through the unchanged common scientific route; use a compatibility-ingress lineage only if a specific container defect is independently proven.",
+    "Produce an ultra-wide physical Observation Record and Source Capability Envelope with UNKNOWN fields preserved.",
+    "Admit ultra-wide source-local only after its own complete gates pass.",
+    "Run source/readout-specific calibration campaigns with held-out validation; main, tele and ultra-wide calibration never transfer by device identity.",
+    "Measure geometry, radiometric gauge, colorimetric/spectral, optical, uncertainty/correlation, temporal and provenance relations independently.",
+    "Create composite fusion admission only when every relation required for that fusion kind is separately ADMITTED."
   ],
   "active_development_branch": "main",
   "validation_boundary": {
@@ -220,25 +313,31 @@
     "new_2026_09_27_graph_record_calibration_modules_change_pixel_route": false,
     "new_2026_09_27_modules_android_device_validated": false,
     "new_2026_09_27_modules_validation_class": "HOST_CONTROL_PLANE_CONTRACTS",
-    "statement": "Host/control-plane validation of graph, observation-record, calibration-binding, capability-envelope and source-admission contracts does not replace or upgrade Android/device validation of the scientific pixel route.",
+    "statement": "The real main source has a host-validated physical-identity/source-local admission through the unchanged common scientific C++ pipeline. This does not replace Android/device validation, certify sensor/readout semantics, or grant cross-observation authority.",
     "new_2026_09_27_source_envelope_and_admission_gate_change_pixel_route": false,
-    "new_2026_09_27_source_envelope_and_admission_gate_android_device_validated": false
+    "new_2026_09_27_source_envelope_and_admission_gate_android_device_validated": false,
+    "main_camera_common_pipeline_host_executed": true,
+    "main_camera_common_pipeline_host_result_is_device_validation": false,
+    "main_camera_source_local_admission_is_host_contract_admission": true
   },
   "source_admission_frontier": {
     "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",
-    "main_camera": "REAL_SOURCE_PRE_ADMITTED_V0_2_AWAITING_SCIENTIFIC_ROUTE",
+    "main_camera": "ADMITTED_SOURCE_LOCAL_V0_2_PHYSICAL_IDENTITY",
     "ultra_wide_camera": "READY_FOR_PRE_ADMISSION_WHEN_REAL_SEALED_SOURCE_IS_SUPPLIED",
-    "main_camera_admitted": false,
+    "main_camera_admitted": true,
     "ultra_wide_camera_admitted": false,
     "tele_calibration_transfer_to_other_lenses_allowed": false,
     "main_camera_pre_admission_manifest_state_sha256": "cc85275fe542271bbc6c5406903d9277b03f859aa248aa89d16732c1aab07f38",
     "main_camera_blockers": [
-      "captureSampleDomainId",
-      "gainReadoutStateId",
-      "sensorPixelModeIdentityNotRecorded",
-      "Observation Record v0.3 not yet produced for this source",
-      "Source Capability Envelope not yet produced for this source",
-      "Final Source Admission Package not yet produced"
-    ]
+      "captureSampleDomainId remains UNKNOWN for stronger sample-domain/calibration claims",
+      "gainReadoutStateId remains UNKNOWN for stronger readout/noise calibration claims",
+      "sensorPixelModeIdentity remains UNKNOWN",
+      "stored-sample sensel semantics are not certified",
+      "direct sensor ADC claim remains disallowed",
+      "no cross-observation relation certificate exists",
+      "no fusion admission exists"
+    ],
+    "main_camera_final_admission_state_sha256": "c20104981a0373f0d2f7c03216272213ff614f0dc732b13247cf2a0c0c6a9b7a",
+    "main_camera_physical_graph_node_sha256": "029b845daf0bb20ebed4e7ce6d66eb61a172dd89e9977f996d20d604c2703353"
   }
 }
