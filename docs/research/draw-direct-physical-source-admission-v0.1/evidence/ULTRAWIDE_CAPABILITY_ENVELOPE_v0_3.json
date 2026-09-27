@@ -2,11 +2,11 @@
   "schema": "D.RAW/SourceCapabilityEnvelope/0.3",
   "status": "PHYSICAL_SOURCE_KNOWLEDGE_MAP",
   "observation_record_schema": "D.RAW/DRAWObservationRecord/0.5",
-  "observation_record_state_sha256": "016ab87e57d5ae878f2dade2dd81948bd87e08336894edfef0916e184a892fb6",
+  "observation_record_state_sha256": "d171a8d625cc58208ed02690915239b3a4a98199a0210c8a7649263cb8e68aea",
   "physical_observation_id": "DRAW_PHYSICAL_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
   "physical_source_evidence_sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
   "physical_graph_node_sha256": "85d8ef0b9b3e769f30c4d62a114e70c94369fc3250ae5c4f664c04223980a64e",
-  "scientific_ingress_lineage_binding_state_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+  "scientific_ingress_lineage_binding_state_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
   "pipeline_lineage": {
     "pipeline_observation_id": "DRAW_OBS_14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
     "pipeline_source_sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
@@ -43,7 +43,7 @@
       "mode": "DIRECT_PHYSICAL_SOURCE_INGRESS",
       "sha256": "14757aaac784b17421598121a232c22e044f217531571697a73e4c90bff28133",
       "authority": "PHYSICAL_SOURCE_DIRECT",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77"
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51"
     },
     "capture_sample_domain": {
       "value": null,
@@ -73,7 +73,7 @@
       "authority": "IMAGE_PLANE_BOUND",
       "identity_sha256": null,
       "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "calibration_binding_sha256": null,
       "validity_domain_sha256": null,
       "cross_observation_relation_admitted": false,
@@ -83,7 +83,7 @@
       "authority": "SOURCE_LOCAL_SELF_GAUGE_ESTIMATE",
       "identity_sha256": "949777edb5541064e190d148775ce27d303ce1e0d35f57d7a837fc092ad9f6d9",
       "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "calibration_binding_sha256": null,
       "validity_domain_sha256": null,
       "cross_observation_relation_admitted": false,
@@ -93,7 +93,7 @@
       "authority": "SOURCE_METADATA_BOUND",
       "identity_sha256": null,
       "knowledge_origin": "SOURCE_METADATA_LINEAGE_BOUND",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "calibration_binding_sha256": null,
       "validity_domain_sha256": null,
       "cross_observation_relation_admitted": false,
@@ -123,7 +123,7 @@
       "authority": "PARTIAL_FAIL_CLOSED_SOURCE_METADATA_NO_P95",
       "identity_sha256": null,
       "knowledge_origin": "PIPELINE_SCIENTIFIC_DERIVED",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "calibration_binding_sha256": null,
       "validity_domain_sha256": null,
       "cross_observation_relation_admitted": false,
@@ -141,9 +141,9 @@
     },
     "provenance": {
       "authority": "PHYSICAL_SOURCE_DIRECT_INGRESS_BOUND",
-      "identity_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "identity_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "knowledge_origin": "PHYSICAL_SOURCE_AND_PIPELINE_LINEAGE",
-      "lineage_binding_sha256": "7fcc6ffc421cf6896a39f65fffad03c7b6cca36669b7a9b2922e348623eacc77",
+      "lineage_binding_sha256": "06bd62175b67947977854da6014494433b5dfcceec79083b567648d2c2cc3c51",
       "calibration_binding_sha256": null,
       "validity_domain_sha256": null,
       "cross_observation_relation_admitted": false,
@@ -187,5 +187,5 @@
     "scientific_writeback_allowed": false,
     "appearance_writeback_allowed": false
   },
-  "state_sha256": "85d622ecae11156bd6179761399aaf8bf4bd6eb3b88acccda4226ee3cd58f8c4"
+  "state_sha256": "46e01336384cd2279e35d31e197b5f26f8e5061a5f247561dae67511dd104faa"
 }
