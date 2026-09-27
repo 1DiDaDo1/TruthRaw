@@ -43,6 +43,8 @@ class MainActivity : Activity() {
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
+    private lateinit var scrollView: ScrollView
+    private lateinit var transitionBanner: TextView
     private lateinit var poseLabel: TextView
     private lateinit var progressLabel: TextView
     private lateinit var mainStatus: TextView
@@ -79,7 +81,8 @@ class MainActivity : Activity() {
     }
 
     private fun buildUi(): View {
-        val scroll = ScrollView(this)
+        scrollView = ScrollView(this)
+        val scroll = scrollView
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(18), dp(18), dp(32))
@@ -109,6 +112,15 @@ class MainActivity : Activity() {
             setPadding(0, dp(8), 0, dp(8))
         }
         root.addView(poseLabel)
+
+        transitionBanner = TextView(this).apply {
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            setBackgroundColor(0xFFE2F4E8.toInt())
+            visibility = View.GONE
+        }
+        root.addView(transitionBanner)
 
         root.addView(infoBox(
             "Per pose:\n" +
@@ -293,6 +305,14 @@ class MainActivity : Activity() {
         progressLabel.text = "Voortgang: " + completed + " / " + TOTAL_POSES + " pose-paren compleet"
         poseLabel.text = "Pose " + (currentPoseIndex + 1) + " / " + TOTAL_POSES +
             " • " + subset + " • " + poseId(currentPoseIndex)
+
+        val transitionMessage = prefs.getString("lastActionMessage", "") ?: ""
+        if (transitionMessage.isBlank()) {
+            transitionBanner.visibility = View.GONE
+        } else {
+            transitionBanner.text = transitionMessage
+            transitionBanner.visibility = View.VISIBLE
+        }
 
         val main = loadSource(currentPoseIndex, "MAIN")
         val wide = loadSource(currentPoseIndex, "ULTRA_WIDE")
@@ -550,19 +570,37 @@ class MainActivity : Activity() {
             return
         }
 
+        val completedPoseId = poseId(currentPoseIndex)
+        val completedPoseIndex = currentPoseIndex
+
         persistAttestation()
         prefs.edit()
-            .putBoolean(completeKey(currentPoseIndex), true)
+            .putBoolean(completeKey(completedPoseIndex), true)
             .putLong(
-                "pose_" + currentPoseIndex + "_completedAtEpochMs",
+                "pose_" + completedPoseIndex + "_completedAtEpochMs",
                 System.currentTimeMillis()
             )
             .apply()
 
+        val completionMessage: String
         if (currentPoseIndex < TOTAL_POSES - 1) {
             currentPoseIndex += 1
+            completionMessage = "✓ " + completedPoseId + " opgeslagen. Nu: " +
+                poseId(currentPoseIndex) + " (" + subsetFor(currentPoseIndex) + ")."
+        } else {
+            completionMessage = "✓ " + completedPoseId +
+                " opgeslagen. Alle 16 pose-paren zijn compleet."
         }
+
+        prefs.edit()
+            .putString("lastActionMessage", completionMessage)
+            .apply()
+
         renderPose()
+        scrollView.post {
+            scrollView.smoothScrollTo(0, 0)
+        }
+        toast(completionMessage)
 
         if (allPairsComplete()) {
             AlertDialog.Builder(this)
@@ -585,7 +623,16 @@ class MainActivity : Activity() {
 
     private fun movePose(delta: Int) {
         currentPoseIndex = (currentPoseIndex + delta).coerceIn(0, TOTAL_POSES - 1)
+        prefs.edit()
+            .putString(
+                "lastActionMessage",
+                "Geopend: " + poseId(currentPoseIndex) + " (" + subsetFor(currentPoseIndex) + ")."
+            )
+            .apply()
         renderPose()
+        scrollView.post {
+            scrollView.smoothScrollTo(0, 0)
+        }
     }
 
     private fun loadTargetFields() {
