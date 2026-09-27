@@ -1,0 +1,357 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "D.RAW/SourceCapabilityEnvelope/0.1",
+  "title": "D.RAW Source Capability Envelope v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "observation_record_schema",
+    "observation_id",
+    "source_evidence_sha256",
+    "instrument",
+    "source_domain",
+    "sampling",
+    "capabilities",
+    "dynamic_range_bounds",
+    "gauge",
+    "temporal_footprint",
+    "optical_support",
+    "calibration_bindings",
+    "invariants",
+    "state_sha256"
+  ],
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableSha": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority",
+        "identity_sha256",
+        "calibration_binding_sha256",
+        "validity_domain_sha256"
+      ],
+      "properties": {
+        "authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_sha256": {
+          "$ref": "#/$defs/nullableSha"
+        },
+        "calibration_binding_sha256": {
+          "$ref": "#/$defs/nullableSha"
+        },
+        "validity_domain_sha256": {
+          "$ref": "#/$defs/nullableSha"
+        }
+      }
+    }
+  },
+  "properties": {
+    "schema": {
+      "const": "D.RAW/SourceCapabilityEnvelope/0.1"
+    },
+    "observation_record_schema": {
+      "const": "D.RAW/DRAWObservationRecord/0.3"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_evidence_sha256": {
+      "$ref": "#/$defs/sha"
+    },
+    "instrument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device_id",
+        "camera_id",
+        "lens_role",
+        "capture_pipeline_id"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "camera_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lens_role": {
+          "enum": [
+            "MAIN",
+            "ULTRA_WIDE",
+            "TELEPHOTO",
+            "FRONT",
+            "EXTERNAL",
+            "UNKNOWN"
+          ]
+        },
+        "capture_pipeline_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source_domain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_route_id",
+        "sample_domain_id",
+        "readout_domain_id",
+        "readout_domain_authority",
+        "sensor_pixel_mode",
+        "sensor_pixel_mode_authority"
+      ],
+      "properties": {
+        "source_route_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sample_domain_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "readout_domain_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "readout_domain_authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sensor_pixel_mode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sensor_pixel_mode_authority": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sampling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height",
+        "cfa_topology"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cfa_topology": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sampling_geometry",
+        "geometry_pose",
+        "radiometry",
+        "colorimetry",
+        "spectral",
+        "optical_support",
+        "noise_uncertainty",
+        "temporal",
+        "provenance"
+      ],
+      "properties": {
+        "sampling_geometry": {
+          "$ref": "#/$defs/capability"
+        },
+        "geometry_pose": {
+          "$ref": "#/$defs/capability"
+        },
+        "radiometry": {
+          "$ref": "#/$defs/capability"
+        },
+        "colorimetry": {
+          "$ref": "#/$defs/capability"
+        },
+        "spectral": {
+          "$ref": "#/$defs/capability"
+        },
+        "optical_support": {
+          "$ref": "#/$defs/capability"
+        },
+        "noise_uncertainty": {
+          "$ref": "#/$defs/capability"
+        },
+        "temporal": {
+          "$ref": "#/$defs/capability"
+        },
+        "provenance": {
+          "$ref": "#/$defs/capability"
+        }
+      }
+    },
+    "dynamic_range_bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority",
+        "identity_sha256"
+      ],
+      "properties": {
+        "authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_sha256": {
+          "$ref": "#/$defs/nullableSha"
+        }
+      }
+    },
+    "gauge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "truthrange_formula",
+        "scale_gauge_id",
+        "relation",
+        "shared_free_world_gauge_id"
+      ],
+      "properties": {
+        "truthrange_formula": {
+          "const": "T=log2(L/L0)"
+        },
+        "scale_gauge_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relation": {
+          "enum": [
+            "SOURCE_LOCAL_ONLY",
+            "SHARED_RELATIVE",
+            "SHARED_ABSOLUTE"
+          ]
+        },
+        "shared_free_world_gauge_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "temporal_footprint": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "model",
+        "capture_timestamp_identity_sha256",
+        "exposure_interval_known",
+        "rolling_shutter_model_known"
+      ]
+    },
+    "optical_support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority",
+        "model_kind",
+        "support_identity_sha256"
+      ],
+      "properties": {
+        "authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_kind": {
+          "enum": [
+            "NONE",
+            "PSF",
+            "OTF",
+            "MTF",
+            "SFR",
+            "COMPOSITE"
+          ]
+        },
+        "support_identity_sha256": {
+          "$ref": "#/$defs/nullableSha"
+        }
+      }
+    },
+    "calibration_bindings": {
+      "type": "array"
+    },
+    "invariants": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_is_valid_state",
+        "lens_identity_upgrades_authority",
+        "file_format_upgrades_authority",
+        "implicit_calibration_transfer_allowed",
+        "cross_observation_relation_granted",
+        "cross_observation_fusion_granted",
+        "creates_new_evidence",
+        "scientific_writeback_allowed",
+        "appearance_writeback_allowed"
+      ],
+      "properties": {
+        "unknown_is_valid_state": {
+          "const": true
+        },
+        "lens_identity_upgrades_authority": {
+          "const": false
+        },
+        "file_format_upgrades_authority": {
+          "const": false
+        },
+        "implicit_calibration_transfer_allowed": {
+          "const": false
+        },
+        "cross_observation_relation_granted": {
+          "const": false
+        },
+        "cross_observation_fusion_granted": {
+          "const": false
+        },
+        "creates_new_evidence": {
+          "const": false
+        },
+        "scientific_writeback_allowed": {
+          "const": false
+        },
+        "appearance_writeback_allowed": {
+          "const": false
+        }
+      }
+    },
+    "state_sha256": {
+      "$ref": "#/$defs/sha"
+    }
+  }
+}
