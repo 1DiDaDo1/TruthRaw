@@ -16,6 +16,8 @@ on:
       - '.github/workflows/draw-geometry-capture-set-gate-v01.yml'
   workflow_dispatch:
 
+# This workflow is intentionally self-contained so the capture-set gate is
+# validated independently from generic project integrity workflows.
 permissions:
   contents: read
 
