@@ -14,7 +14,7 @@
     "knowledge_growth_integration_promoted": true,
     "promoted_content_checkpoint_sha": "46d08030af4a6cbf04e1dcda90d2bc2a699a3f9d",
     "primary_branch_now_current": true,
-    "latest_substantive_integration_sha": "b0e88971a6fe3ed84ec6913865e50073d16512cf",
+    "latest_substantive_integration_sha": "2ae5f42428137e5b870622fbd90417f0eb87a97c",
     "current_main_includes_knowledge_growth_modules": true
   },
   "current_scientific_negative": {
@@ -107,6 +107,40 @@
       "calibration_transfer_implied": false,
       "physical_frame_count_increment": 0,
       "independent_evidence_count_increment": 0
+    },
+    "source_capability_envelope_v0_1": {
+      "status": "MAIN_INTEGRATED_HOST_VALIDATED",
+      "readme": "docs/research/draw-source-capability-envelope-v0.1/README.md",
+      "schema": "docs/research/draw-source-capability-envelope-v0.1/DRAW_SOURCE_CAPABILITY_ENVELOPE_SCHEMA_v0_1.json",
+      "validator": "tools/validate_draw_source_capability_envelope_v01.py",
+      "merge_commit_sha": "56464d3b683dcc347dd340f14e1451ed696c56ce",
+      "validation_run_id": 36282899524,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36282899299,
+      "documentation_governance_result": "SUCCESS",
+      "unknown_is_valid_state": true,
+      "missing_capability_placement_allowed": false,
+      "cross_observation_relation_granted": false,
+      "cross_observation_fusion_granted": false,
+      "creates_new_evidence": false
+    },
+    "source_admission_package_v0_1": {
+      "status": "MAIN_INTEGRATED_HOST_VALIDATED_GENERIC_SOURCE_GATE",
+      "readme": "docs/research/draw-source-admission-package-v0.1/README.md",
+      "pre_admission_generator": "tools/create_draw_source_pre_admission_v01.py",
+      "final_admission_generator": "tools/create_draw_source_final_admission_v01.py",
+      "validator": "tools/validate_draw_source_admission_package_v01.py",
+      "merge_commit_sha": "2ae5f42428137e5b870622fbd90417f0eb87a97c",
+      "validation_run_id": 36283458445,
+      "validation_result": "SUCCESS",
+      "documentation_governance_run_id": 36283458394,
+      "documentation_governance_result": "SUCCESS",
+      "phase_a_status": "CANDIDATE_NOT_SCIENTIFICALLY_ADMITTED",
+      "phase_b_status": "ADMITTED_SOURCE_LOCAL",
+      "pre_admission_scientific_authority_allowed": false,
+      "shared_gauge_on_initial_admission_allowed": false,
+      "graph_relations_on_initial_admission_allowed": false,
+      "fusion_on_initial_admission_allowed": false
     }
   },
   "graph_model": {
@@ -145,12 +179,12 @@
     "rejected_relations_are_preserved_knowledge": true
   },
   "next_empirical_growth": [
-    "Create a separate admitted main-camera D.RAW Observation Record v0.3 and Source Capability Envelope from real source evidence.",
-    "Create a separate admitted ultra-wide D.RAW Observation Record v0.3 and Source Capability Envelope from real source evidence.",
-    "Keep every new observation source-local by default.",
-    "Build calibration campaigns with explicit source-route, sample-domain, readout-domain, validity-domain and held-out validation identities.",
-    "Measure geometry, radiometric, colorimetric/spectral, optical, uncertainty/correlation and temporal relations independently.",
-    "Admit fusion only through a composite certificate containing all required relation axes."
+    "Seal one real main-camera source and run SourcePreAdmissionManifest v0.1 with only proven source facts.",
+    "Run that main source through the existing scientific route to create Observation Record v0.3 and Source Capability Envelope v0.1.",
+    "Create and validate its Final Source Admission Package v0.1 as ADMITTED_SOURCE_LOCAL.",
+    "Repeat independently for ultra-wide.",
+    "Run source/readout-specific calibration campaigns with held-out validation; never borrow tele calibration by device/lens identity.",
+    "Measure graph relation axes independently and admit composite fusion only after all required relation certificates exist."
   ],
   "active_development_branch": "main",
   "validation_boundary": {
@@ -159,6 +193,16 @@
     "new_2026_09_27_graph_record_calibration_modules_change_pixel_route": false,
     "new_2026_09_27_modules_android_device_validated": false,
     "new_2026_09_27_modules_validation_class": "HOST_CONTROL_PLANE_CONTRACTS",
-    "statement": "Host/control-plane validation of graph, observation-record and calibration-binding contracts does not replace or upgrade Android/device validation of the scientific pixel route."
+    "statement": "Host/control-plane validation of graph, observation-record, calibration-binding, capability-envelope and source-admission contracts does not replace or upgrade Android/device validation of the scientific pixel route.",
+    "new_2026_09_27_source_envelope_and_admission_gate_change_pixel_route": false,
+    "new_2026_09_27_source_envelope_and_admission_gate_android_device_validated": false
+  },
+  "source_admission_frontier": {
+    "camera5_telephoto": "EXISTING_PROOF_FIXTURE_AND_SOURCE_LOCAL_ANCHOR",
+    "main_camera": "READY_FOR_PRE_ADMISSION_WHEN_REAL_SEALED_SOURCE_IS_SUPPLIED",
+    "ultra_wide_camera": "READY_FOR_PRE_ADMISSION_WHEN_REAL_SEALED_SOURCE_IS_SUPPLIED",
+    "main_camera_admitted": false,
+    "ultra_wide_camera_admitted": false,
+    "tele_calibration_transfer_to_other_lenses_allowed": false
   }
 }
