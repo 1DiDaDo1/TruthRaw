@@ -3197,6 +3197,12 @@ class MainActivity : Activity() {
                     darkChroma.optJSONObject("global") ?: JSONObject()
                 val singleObservation =
                     darkChroma.optJSONObject("single_observation_contract") ?: JSONObject()
+                val darkChromaV02 =
+                    scene.optJSONObject("dark_chroma_stability_v0_2") ?: JSONObject()
+                val darkChromaV02Global =
+                    darkChromaV02.optJSONObject("global") ?: JSONObject()
+                val darkChromaV02Backside =
+                    darkChromaV02.optJSONObject("backside_support") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3298,6 +3304,58 @@ class MainActivity : Activity() {
                         "Frontside mag alleen structuur beschermen en chroma-instabiliteit aanwijzen. " +
                             "Geen vervangkleur, geen sensor-noise claim en geen Scientific-Master-writeback; " +
                             "backside/noise-evidence blijft vereist voor iedere latere correctie.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (darkChromaV02.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val infoState =
+                        darkChromaV02.optString("global_information_state", "UNKNOWN")
+                    val visible =
+                        darkChromaV02Global.optLong("visible_chroma_instability_tiles", 0L)
+                    val uninformative =
+                        darkChromaV02Global.optLong("dark_uninformative_tiles", 0L)
+                    val pending =
+                        darkChromaV02Global.optLong(
+                            "backside_confirmation_pending_tiles",
+                            0L,
+                        )
+                    val supported =
+                        darkChromaV02Global.optLong(
+                            "chroma_correction_supported_tiles",
+                            0L,
+                        )
+                    val v02Audit = darkChromaV02.optString("audit_sha256", "")
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.2 · INFORMATION GATE · state=" +
+                            infoState +
+                            " · visible-instability=" + visible +
+                            " · dark-uninformative=" + uninformative +
+                            " · backside-pending=" + pending +
+                            " · correction-supported=" + supported +
+                            " · audit=" +
+                            (if (v02Audit.length >= 16) v02Audit.take(16) + "…" else v02Audit),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Backside hint · NoiseProfile=" +
+                            darkChromaV02Backside.optBoolean("noise_profile_present", false) +
+                            " · localNoiseBound=" +
+                            darkChromaV02Backside.optBoolean(
+                                "local_noise_confirmation_available",
+                                false,
+                            ) +
+                            ". Metadata alleen promoveert geen correctie.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.2 wet: DARK_UNINFORMATIVE = geen verborgen kleur reconstrueren. " +
+                            "CHROMA_CORRECTION_SUPPORTED blijft onmogelijk totdat dezelfde observation " +
+                            "lokale backside/N2-support heeft; candidateApplied=false.",
                         10f,
                         muted = true,
                     ))
