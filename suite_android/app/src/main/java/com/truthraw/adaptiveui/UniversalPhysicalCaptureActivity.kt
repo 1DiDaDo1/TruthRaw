@@ -634,6 +634,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         focusLocked = false
         currentAfRegion = null
+        if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
         previewFrames = 0
         lastPreviewResult = null
         setMacroLoupeScale(1f)
@@ -1273,6 +1274,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
         focusLocked = false
         currentAfRegion = null
+        focusMarker.visibility = View.INVISIBLE
         focusLockButton.text = "AF vergrendelen"
         startPreviewRepeating(camera, session, candidate)
         status("AF ontgrendeld · continuous autofocus hervat.")
