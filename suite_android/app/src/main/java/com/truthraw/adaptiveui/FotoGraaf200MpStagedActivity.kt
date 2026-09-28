@@ -370,6 +370,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                         addView(telemetry)
                         addView(space(3))
                         addView(status)
+                        addView(space(5))
+                        addView(camera5AssistPanel())
                         addView(View(this@FotoGraaf200MpStagedActivity), LinearLayout.LayoutParams(1, 0, 1f))
                         addView(shutter)
                         addView(space(5))
@@ -396,6 +398,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             root.addView(telemetry)
             root.addView(space(2))
             root.addView(status)
+            root.addView(space(5))
+            root.addView(camera5AssistPanel())
             root.addView(space(5))
             root.addView(shutter)
             root.addView(space(4))
@@ -433,6 +437,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         root.addView(telemetry)
         root.addView(space(4))
         root.addView(status)
+        root.addView(space(6))
+        root.addView(camera5AssistPanel())
         root.addView(space(6))
         root.addView(capabilityButton)
         root.addView(previewButton)
@@ -1357,6 +1363,35 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             gravity = Gravity.CENTER
         })
     }
+
+    private fun camera5AssistPanel(): View =
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(focusButton)
+            val row = LinearLayout(this@FotoGraaf200MpStagedActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
+            }
+            macroLoupeButtons.forEach { (_, button) ->
+                row.addView(
+                    button,
+                    LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f,
+                    ),
+                )
+            }
+            addView(row)
+            addView(
+                label(
+                    "1×/2×/4×/8× = alleen schermloep; routezoom blijft 3.7×.",
+                    8.5f,
+                    false,
+                    Color.rgb(145, 153, 165),
+                ),
+            )
+        }
 
     private fun configurePreviewTransform(viewWidth: Int, viewHeight: Int) {
         val size = previewBufferSize ?: return
