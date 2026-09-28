@@ -1619,7 +1619,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
             }
 
         return JSONObject()
-            .put("schema", "D.RAW/UniversalPhysicalCapture/0.2")
+            .put("schema", "D.RAW/UniversalPhysicalCapture/0.3")
             .put("created_at_utc", Instant.now().toString())
             .put("authority", "ACQUISITION_PROVENANCE_ONLY")
             .put("transport_backend", "ANDROID_CAMERA2")
