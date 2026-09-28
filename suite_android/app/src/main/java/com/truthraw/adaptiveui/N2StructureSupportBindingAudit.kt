@@ -333,7 +333,6 @@ object N2StructureSupportBindingAudit {
                             )
                     }
                 }
-                }
 
                 val bindingVerified =
                     overlapTiles == expectedTiles && expectedTiles > 0
