@@ -211,14 +211,76 @@ class UniversalPhysicalCaptureActivity : Activity() {
         )
         root.addView(space(12))
 
+        previewView = AutoFitTextureView(this).apply {
+            surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                override fun onSurfaceTextureAvailable(
+                    surface: SurfaceTexture,
+                    width: Int,
+                    height: Int,
+                ) {
+                    configurePreviewTransform(width, height)
+                    val role = pendingPreviewRole
+                    if (role != null) {
+                        pendingPreviewRole = null
+                        post { openPreviewRole(role) }
+                    }
+                }
+
+                override fun onSurfaceTextureSizeChanged(
+                    surface: SurfaceTexture,
+                    width: Int,
+                    height: Int,
+                ) {
+                    configurePreviewTransform(width, height)
+                }
+
+                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                    closeCaptureResources()
+                    return true
+                }
+
+                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) = Unit
+            }
+            setOnTouchListener { _, event -> handlePreviewTouch(event) }
+        }
+        val previewPane = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
+            addView(
+                previewView,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER,
+                ),
+            )
+        }
+        root.addView(
+            previewPane,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(360),
+            ),
+        )
+        root.addView(space(6))
+        previewTelemetry = text(
+            "Live view nog niet gestart · tik een lens om te richten.",
+            10.5f,
+            false,
+            DrawVisualTheme.MUTED,
+        )
+        root.addView(previewTelemetry)
+        root.addView(space(8))
+
         ultraButton = button("Ultra-wide · zoeken…") {
-            captureRole(LensRole.ULTRA_WIDE)
+            openPreviewRole(LensRole.ULTRA_WIDE)
         }.apply { isEnabled = false }
         wideButton = button("Wide / main · zoeken…") {
-            captureRole(LensRole.WIDE_MAIN)
+            openPreviewRole(LensRole.WIDE_MAIN)
         }.apply { isEnabled = false }
         teleButton = button("Tele · zoeken…") {
-            captureRole(LensRole.TELE)
+            openPreviewRole(LensRole.TELE)
         }.apply { isEnabled = false }
 
         root.addView(ultraButton)
@@ -226,10 +288,45 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(wideButton)
         root.addView(space(7))
         root.addView(teleButton)
+        root.addView(space(8))
+
+        val assistRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        focusLockButton = button("AF vergrendelen") { toggleFocusLock() }.apply {
+            isEnabled = false
+        }
+        loupeButton = button("Macro-loep · 1×") { cycleMacroLoupe() }.apply {
+            isEnabled = false
+        }
+        assistRow.addView(
+            focusLockButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        assistRow.addView(
+            loupeButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        root.addView(assistRow)
+        root.addView(space(7))
+
+        captureButton = button("Maak volledige RAW_SENSOR-opname") {
+            captureFromLivePreview()
+        }.apply { isEnabled = false }
+        root.addView(captureButton)
+        root.addView(
+            text(
+                "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
+                10f,
+                false,
+                DrawVisualTheme.MUTED,
+            ),
+        )
         root.addView(space(14))
 
         root.addView(
             button("Speciale 4K → 200MP RAW-route") {
+                closeCaptureResources()
                 startActivity(
                     Intent(this, FotoGraaf200MpStagedActivity::class.java).apply {
                         putExtra(
