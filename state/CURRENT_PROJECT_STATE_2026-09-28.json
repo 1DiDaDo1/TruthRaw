@@ -158,7 +158,7 @@
       "private_chroma_ab_delta_allowed": false,
       "device_evidence": {
         "near_black_tele": "432/432 Dark Chroma candidates remain DARK_UNINFORMATIVE; local N2 binding succeeds; correction-supported=0",
-        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind locally; visible Dark Chroma candidates=0; v0.3 FRONTISDE_INFORMATION_PRESENT/non-degenerate; correction-supported=0"
+        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind locally; visible Dark Chroma candidates=0; v0.3 FRONTSIDE_INFORMATION_PRESENT/non-degenerate; correction-supported=0"
       }
     }
   }
