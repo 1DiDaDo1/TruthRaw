@@ -64,26 +64,53 @@ object FrontsideSceneInspector {
         val histogram = IntArray(32)
         var sum = 0.0
         var sum2 = 0.0
+        var redSum = 0.0
+        var greenSum = 0.0
+        var blueSum = 0.0
+        var chromaSpanSum = 0.0
+        var darkPreviewPixels = 0L
+        var brightPreviewPixels = 0L
+        var channelLowClipCount = 0L
+        var channelHighClipCount = 0L
 
         var idx = 0
         for (y in 0 until height) {
             for (x in 0 until width) {
                 val c = bitmap.getPixel(x, y)
+                val red = Color.red(c)
+                val green = Color.green(c)
+                val blue = Color.blue(c)
                 val yy = (
-                    77 * Color.red(c) +
-                        150 * Color.green(c) +
-                        29 * Color.blue(c)
+                    77 * red +
+                        150 * green +
+                        29 * blue
                     ) shr 8
                 luma[idx++] = yy
                 histogram[min(31, yy / 8)]++
                 sum += yy
                 sum2 += yy.toDouble() * yy.toDouble()
+                redSum += red
+                greenSum += green
+                blueSum += blue
+                chromaSpanSum +=
+                    (max(red, max(green, blue)) - min(red, min(green, blue))).toDouble()
+                if (yy <= 8) darkPreviewPixels++
+                if (yy >= 247) brightPreviewPixels++
+                if (red <= 1) channelLowClipCount++
+                if (green <= 1) channelLowClipCount++
+                if (blue <= 1) channelLowClipCount++
+                if (red >= 254) channelHighClipCount++
+                if (green >= 254) channelHighClipCount++
+                if (blue >= 254) channelHighClipCount++
             }
         }
 
         val mean = if (n > 0) sum / n else 0.0
         val variance = if (n > 0) max(0.0, sum2 / n - mean * mean) else 0.0
         val stddev = sqrt(variance)
+        val lumaP01 = histogramPercentile(histogram, n, 0.01)
+        val lumaP50 = histogramPercentile(histogram, n, 0.50)
+        val lumaP99 = histogramPercentile(histogram, n, 0.99)
 
         var entropy = 0.0
         if (n > 0) {
@@ -209,9 +236,48 @@ object FrontsideSceneInspector {
                 JSONObject()
                     .put("mean_luma_0_255", mean)
                     .put("luma_stddev", stddev)
+                    .put("luma_p01_approx_0_255", lumaP01)
+                    .put("luma_p50_approx_0_255", lumaP50)
+                    .put("luma_p99_approx_0_255", lumaP99)
                     .put("luma_entropy_bits_32_bin", entropy)
                     .put("mean_gradient", meanGradient)
-                    .put("edge_density", edgeDensity),
+                    .put("edge_density", edgeDensity)
+                    .put(
+                        "preview_dark_fraction_luma_le_8",
+                        if (n > 0) darkPreviewPixels.toDouble() / n.toDouble() else 0.0,
+                    )
+                    .put(
+                        "preview_bright_fraction_luma_ge_247",
+                        if (n > 0) brightPreviewPixels.toDouble() / n.toDouble() else 0.0,
+                    ),
+            )
+            .put(
+                "visible_colour_statistics",
+                JSONObject()
+                    .put(
+                        "mean_rgb_0_255",
+                        JSONArray()
+                            .put(if (n > 0) redSum / n.toDouble() else 0.0)
+                            .put(if (n > 0) greenSum / n.toDouble() else 0.0)
+                            .put(if (n > 0) blueSum / n.toDouble() else 0.0),
+                    )
+                    .put(
+                        "mean_rgb_chroma_span_0_255",
+                        if (n > 0) chromaSpanSum / n.toDouble() else 0.0,
+                    )
+                    .put(
+                        "preview_channel_low_clip_fraction",
+                        if (n > 0) channelLowClipCount.toDouble() / (3.0 * n.toDouble()) else 0.0,
+                    )
+                    .put(
+                        "preview_channel_high_clip_fraction",
+                        if (n > 0) channelHighClipCount.toDouble() / (3.0 * n.toDouble()) else 0.0,
+                    )
+                    .put("colourimetric_authority", false)
+                    .put(
+                        "note",
+                        "Visible preview statistics describe the rendered/frontside image only; they are not sensor saturation, scene radiance or Scientific-Master headroom.",
+                    ),
             )
             .put("dominant_edge_orientation_degrees", dominantAngleDeg)
             .put("edge_orientation_histogram", edgeOrientationJson)
@@ -241,8 +307,26 @@ object FrontsideSceneInspector {
                     )
                     .put("future_classical_vision_extension_allowed", true),
             )
+            .put("uses_ai_or_learned_model", false)
             .put("creates_sensor_evidence", false)
             .put("scientific_writeback_allowed", false)
+    }
+
+    private fun histogramPercentile(
+        histogram: IntArray,
+        sampleCount: Int,
+        quantile: Double,
+    ): Double {
+        if (sampleCount <= 0) return 0.0
+        val target = (quantile.coerceIn(0.0, 1.0) * (sampleCount - 1)).toInt()
+        var cumulative = 0
+        for (bin in histogram.indices) {
+            cumulative += histogram[bin]
+            if (cumulative > target) {
+                return bin * 8.0 + 3.5
+            }
+        }
+        return 255.0
     }
 
     private data class Decoded(
