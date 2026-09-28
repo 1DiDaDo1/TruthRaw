@@ -47,8 +47,9 @@ object DarkChromaStabilityV05Audit {
         val fineStatus = fineStructure?.optString("status", "UNKNOWN")
             ?: "UNKNOWN"
         val fineAvailable =
-            fineStatus == "AUDIT_ONLY_FINE_BINDING_AVAILABLE" &&
-                fineStructure?.optString("source_sha256") == sourceSha256 &&
+            fineStructure != null &&
+                fineStatus == "AUDIT_ONLY_FINE_BINDING_AVAILABLE" &&
+                fineStructure.optString("source_sha256") == sourceSha256 &&
                 fineStructure.optBoolean(
                     "fine_structure_binding_available",
                     false,
