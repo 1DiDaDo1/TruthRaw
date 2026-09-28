@@ -146,7 +146,7 @@
     },
     "dark_chroma_v0_4": {
       "branch": "research/dark-chroma-stability-v04-2026-09-29",
-      "pull_request": null,
+      "pull_request": 86,
       "status": "BUILD_AND_DEVICE_VALIDATION",
       "additions": [
         "N2 Local Spatial Binding v0.1 computes existing N2 Factored Confidence v0.3.1 from the exact same source observation",
