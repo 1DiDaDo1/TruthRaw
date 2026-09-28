@@ -47,9 +47,14 @@ import kotlin.math.sqrt
  * properties are acquisition provenance and UI hints; they never become
  * scientific truth by themselves.
  *
- * Every successful capture becomes one sealed DNG source and is immediately
- * handed to the exact same MainActivity / Universal Intake route as an
- * imported RAW/DNG.
+ * Every normal capture first seals the exact app-visible RAW_SENSOR plane as
+ * the primary byte-evidence source. A DNG is created only afterwards as a
+ * derived compatibility container for the existing MainActivity / Universal
+ * Intake route.
+ *
+ * Normal capture uses only the standard SCALER_STREAM_CONFIGURATION_MAP RAW
+ * sizes. Specialized maximum-resolution / 200MP acquisition stays in the
+ * separate FotoGraaf200MpStagedActivity route.
  *
  * No AI/ML/learned model is used.
  */
@@ -68,6 +73,21 @@ class UniversalPhysicalCaptureActivity : Activity() {
         val focalLengthMm: Float?,
         val effectiveCameraId: String,
         val discovery: String,
+    )
+
+    private data class RawSensorSeal(
+        val file: File,
+        val sha256: String,
+        val bytes: Long,
+        val imageWidth: Int,
+        val imageHeight: Int,
+        val imageFormat: Int,
+        val planeCount: Int,
+        val rowStride: Int,
+        val pixelStride: Int,
+        val bufferBytes: Long,
+        val expectedContiguousBytes: Long,
+        val canonicalContiguousRawSensor: Boolean,
     )
 
     private lateinit var cameraManager: CameraManager
@@ -124,7 +144,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(space(5))
         root.addView(
             text(
-                "Nieuwe fysieke opname → verzegelde RAW/DNG → dezelfde Universele Ingang als ieder bestaand RAW-bestand.",
+                "Nieuwe fysieke opname → RAW_SENSOR eerst verzegelen → afgeleide DNG → dezelfde Universele Ingang als ieder bestaand RAW-bestand.",
                 13f,
                 false,
                 DrawVisualTheme.MUTED,
@@ -172,7 +192,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         )
         root.addView(
             text(
-                "Deze bestaande Camera-5 route blijft apart en ongewijzigd: 4K-admission → speciale 200MP full-colour reconstructie/projectie.",
+                "Deze Camera-5 route blijft apart: maximum-resolution/200MP-logica wordt nooit op ultra-wide, main of normale tele toegepast.",
                 10.5f,
                 false,
                 DrawVisualTheme.MUTED,
@@ -377,10 +397,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         detailView.text = buildString {
             appendLine(
-                "Lensrollen zijn UI_FOCAL_ORDER_HINT_ONLY; de resulterende DNG wordt opnieuw universeel gelezen.",
+                "Lensrollen zijn UI_FOCAL_ORDER_HINT_ONLY; normale capture kiest per fysieke camera de hoogste standaard RAW_SENSOR-resolutie.",
             )
             appendLine(
                 "Geen toestelmap, geen vaste Camera-ID en geen vendor-key is nodig.",
+            )
+            appendLine(
+                "Resolutiedomein=STANDARD_SCALER_STREAM_CONFIGURATION_MAP; MAXIMUM_RESOLUTION is gereserveerd voor aparte gespecialiseerde routes.",
             )
             appendLine()
             all.forEach { c ->
@@ -427,7 +450,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
         setButtonsEnabled(false)
         status(
-            "${role.title} wordt technisch geopend; daarna wordt alleen de gemaakte DNG de D.RAW-bron.",
+            "${role.title} wordt technisch geopend; RAW_SENSOR wordt eerst byte-exact verzegeld, DNG volgt alleen als afgeleide container.",
         )
 
         val reader = ImageReader.newInstance(
@@ -730,44 +753,78 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     candidate.effectiveCameraId,
                 )
 
+            require(image.format == ImageFormat.RAW_SENSOR) {
+                "Verwacht RAW_SENSOR maar kreeg format=${image.format}."
+            }
+            require(image.planes.size == 1) {
+                "RAW_SENSOR moet exact één app-zichtbaar plane hebben; observed=${image.planes.size}."
+            }
+
             val captureDir =
                 File(filesDir, "draw-captures").apply { mkdirs() }
             val stamp = System.currentTimeMillis()
             val roleStem = role.name.lowercase()
+
+            val rawSensorFile =
+                File(
+                    captureDir,
+                    "DRAW_CAPTURE_${stamp}_${roleStem}_" +
+                        "${image.width}x${image.height}.rawsensor",
+                )
+            val rawSeal = sealRawSensorPlane(image, rawSensorFile)
+
             val dngFile =
                 File(
                     captureDir,
                     "DRAW_CAPTURE_${stamp}_${roleStem}_" +
-                        "${candidate.rawSize.width}x${candidate.rawSize.height}.dng",
+                        "${image.width}x${image.height}.dng",
                 )
 
-            FileOutputStream(dngFile).use { out ->
-                DngCreator(characteristics, effectiveResult).use { creator ->
-                    creator.writeImage(out, image)
+            var dngSha: String? = null
+            var dngError: String? = null
+            runCatching {
+                FileOutputStream(dngFile).use { out ->
+                    DngCreator(characteristics, effectiveResult).use { creator ->
+                        creator.writeImage(out, image)
+                    }
                 }
+                dngSha = sha256(dngFile)
+            }.onFailure { error ->
+                dngError = error.message ?: error.javaClass.simpleName
+                runCatching { dngFile.delete() }
             }
             image.close()
 
-            val dngSha = sha256(dngFile)
             val evidenceFile =
                 File(
                     captureDir,
-                    "DRAW_CAPTURE_${stamp}_${roleStem}_acquisition_v0_1.json",
+                    "DRAW_CAPTURE_${stamp}_${roleStem}_acquisition_v0_2.json",
                 )
             evidenceFile.writeText(
                 buildAcquisitionEvidence(
-                    role,
-                    candidate,
-                    result,
-                    effectiveResult,
-                    dngFile,
-                    dngSha,
+                    role = role,
+                    candidate = candidate,
+                    result = result,
+                    effectiveResult = effectiveResult,
+                    rawSeal = rawSeal,
+                    dngFile = dngFile.takeIf { dngSha != null },
+                    dngSha = dngSha,
+                    dngError = dngError,
                 ).toString(2),
             )
 
+            if (dngSha == null) {
+                statusFromAnyThread(
+                    "${role.title} RAW_SENSOR is wél verzegeld · SHA-256=${rawSeal.sha256.take(16)}… · " +
+                        "DNG-afleiding faalde: ${dngError ?: "UNKNOWN"}.",
+                )
+                runOnUiThread { restoreRoleButtons() }
+                return
+            }
+
             statusFromAnyThread(
-                "${role.title} DNG verzegeld · SHA-256=${dngSha.take(16)}… · " +
-                    "overdracht naar dezelfde D.RAW Universele Ingang.",
+                "${role.title} RAW_SENSOR verzegeld · SHA-256=${rawSeal.sha256.take(16)}… · " +
+                    "DNG afgeleid · overdracht naar D.RAW Universele Ingang.",
             )
 
             runOnUiThread {
@@ -795,7 +852,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         } catch (error: Exception) {
             runCatching { image.close() }
             statusFromAnyThread(
-                "DNG-finalisatie faalde gesloten: " +
+                "RAW_SENSOR/DNG-finalisatie faalde gesloten: " +
                     (error.message ?: error.javaClass.simpleName),
             )
             runOnUiThread { restoreRoleButtons() }
@@ -804,13 +861,59 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
+    private fun sealRawSensorPlane(
+        image: Image,
+        output: File,
+    ): RawSensorSeal {
+        val plane = image.planes.single()
+        val source = plane.buffer.duplicate().apply { position(0) }
+        val bufferBytes = source.remaining().toLong()
+        val expectedContiguousBytes =
+            image.width.toLong() * image.height.toLong() * 2L
+
+        FileOutputStream(output).use { out ->
+            val chunk = ByteArray(1024 * 1024)
+            while (source.hasRemaining()) {
+                val n = minOf(source.remaining(), chunk.size)
+                source.get(chunk, 0, n)
+                out.write(chunk, 0, n)
+            }
+            out.fd.sync()
+        }
+
+        val writtenBytes = output.length()
+        require(writtenBytes == bufferBytes) {
+            "RAW_SENSOR seal write mismatch: buffer=$bufferBytes file=$writtenBytes."
+        }
+
+        return RawSensorSeal(
+            file = output,
+            sha256 = sha256(output),
+            bytes = writtenBytes,
+            imageWidth = image.width,
+            imageHeight = image.height,
+            imageFormat = image.format,
+            planeCount = image.planes.size,
+            rowStride = plane.rowStride,
+            pixelStride = plane.pixelStride,
+            bufferBytes = bufferBytes,
+            expectedContiguousBytes = expectedContiguousBytes,
+            canonicalContiguousRawSensor =
+                plane.pixelStride == 2 &&
+                    plane.rowStride == image.width * 2 &&
+                    writtenBytes == expectedContiguousBytes,
+        )
+    }
+
     private fun buildAcquisitionEvidence(
         role: LensRole,
         candidate: Candidate,
         result: TotalCaptureResult,
         effectiveResult: CaptureResult,
-        dngFile: File,
-        dngSha: String,
+        rawSeal: RawSensorSeal,
+        dngFile: File?,
+        dngSha: String?,
+        dngError: String?,
     ): JSONObject {
         val physicalResults =
             JSONArray().also { out ->
@@ -818,7 +921,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
             }
 
         return JSONObject()
-            .put("schema", "D.RAW/UniversalPhysicalCapture/0.1")
+            .put("schema", "D.RAW/UniversalPhysicalCapture/0.2")
             .put("created_at_utc", Instant.now().toString())
             .put("authority", "ACQUISITION_PROVENANCE_ONLY")
             .put("transport_backend", "ANDROID_CAMERA2")
@@ -828,6 +931,25 @@ class UniversalPhysicalCaptureActivity : Activity() {
             .put("uses_ai_or_learned_model", false)
             .put("physical_frame_count", 1)
             .put("independent_evidence_count", 1)
+            .put(
+                "normal_resolution_policy",
+                JSONObject()
+                    .put(
+                        "source",
+                        "SCALER_STREAM_CONFIGURATION_MAP_RAW_SENSOR",
+                    )
+                    .put("highest_standard_raw_resolution_selected", true)
+                    .put("maximum_resolution_map_used", false)
+                    .put("special_200mp_route_used", false)
+                    .put(
+                        "open_world_output_resolution_may_differ",
+                        true,
+                    )
+                    .put(
+                        "open_world_output_resolution_upgrades_source_authority",
+                        false,
+                    ),
+            )
             .put(
                 "lens_role_ui_hint",
                 JSONObject()
@@ -895,18 +1017,58 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     ),
             )
             .put(
-                "sealed_source",
+                "sealed_primary_rawsensor",
                 JSONObject()
+                    .put("file", rawSeal.file.name)
+                    .put("path_role", "PRIMARY_APP_VISIBLE_RAW_SENSOR_BYTE_EVIDENCE")
+                    .put("sha256", rawSeal.sha256)
+                    .put("bytes", rawSeal.bytes)
+                    .put("image_width", rawSeal.imageWidth)
+                    .put("image_height", rawSeal.imageHeight)
+                    .put("image_format", rawSeal.imageFormat)
+                    .put("plane_count", rawSeal.planeCount)
+                    .put("row_stride", rawSeal.rowStride)
+                    .put("pixel_stride", rawSeal.pixelStride)
+                    .put("accessible_buffer_bytes", rawSeal.bufferBytes)
                     .put(
-                        "path_role",
-                        "NEW_PHYSICAL_CAPTURE_SOURCE",
+                        "expected_contiguous_raw16_bytes",
+                        rawSeal.expectedContiguousBytes,
                     )
-                    .put("sha256", dngSha)
-                    .put("bytes", dngFile.length())
                     .put(
-                        "handoff",
-                        "SEALED_DNG_TO_SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW",
+                        "canonical_contiguous_raw_sensor",
+                        rawSeal.canonicalContiguousRawSensor,
+                    )
+                    .put("source_modified", false)
+                    .put(
+                        "authority_boundary",
+                        "APP_VISIBLE_CAMERA_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF",
                     ),
+            )
+            .put(
+                "derived_dng",
+                JSONObject()
+                    .put("attempted", true)
+                    .put("file", dngFile?.name ?: JSONObject.NULL)
+                    .put("sha256", dngSha ?: JSONObject.NULL)
+                    .put("bytes", dngFile?.length() ?: JSONObject.NULL)
+                    .put("error", dngError ?: JSONObject.NULL)
+                    .put(
+                        "role",
+                        "DERIVED_COMPATIBILITY_CONTAINER_FOR_CURRENT_MAIN_HOUSE_INGRESS",
+                    )
+                    .put("replaces_primary_rawsensor", false),
+            )
+            .put(
+                "source_first_ordering",
+                "RAW_SENSOR_IMAGE -> EXACT_PLANE_SEAL_SHA256 -> ACQUISITION_METADATA -> DERIVED_DNG",
+            )
+            .put(
+                "current_main_house_handoff",
+                "DERIVED_DNG_TO_SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW",
+            )
+            .put(
+                "future_native_rawsensor_ingress_allowed",
+                true,
             )
             .put(
                 "scientific_master_created_by_capture_adapter",
