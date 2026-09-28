@@ -3191,6 +3191,12 @@ class MainActivity : Activity() {
                 val scene = profile.optJSONObject("scene_analysis") ?: JSONObject()
                 val stats = scene.optJSONObject("appearance_statistics") ?: JSONObject()
                 val readiness = scene.optJSONObject("geometry_readiness") ?: JSONObject()
+                val darkChroma =
+                    scene.optJSONObject("dark_chroma_stability_v0_1") ?: JSONObject()
+                val darkChromaGlobal =
+                    darkChroma.optJSONObject("global") ?: JSONObject()
+                val singleObservation =
+                    darkChroma.optJSONObject("single_observation_contract") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3249,6 +3255,50 @@ class MainActivity : Activity() {
                     addView(label(
                         "Voorkant · preview niet direct beschikbaar; bron blijft geldig en UNKNOWN is toegestaan.",
                         10.5f,
+                        muted = true,
+                    ))
+                }
+
+                if (darkChroma.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val tileCount = darkChromaGlobal.optLong("tile_count", 0L)
+                    val darkTiles = darkChromaGlobal.optLong("dark_tile_count", 0L)
+                    val flatDark = darkChromaGlobal.optLong("flat_dark_tile_count", 0L)
+                    val candidates =
+                        darkChromaGlobal.optLong(
+                            "frontside_chroma_instability_candidate_tiles",
+                            0L,
+                        )
+                    val structure =
+                        darkChromaGlobal.optLong("structure_protected_tiles", 0L)
+                    val auditSha = darkChroma.optString("audit_sha256", "")
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.1 · AUDIT ONLY · tiles=" + tileCount +
+                            " · dark=" + darkTiles +
+                            " · flat-dark=" + flatDark +
+                            " · chroma-candidates=" + candidates +
+                            " · structure-veto=" + structure +
+                            " · audit=" +
+                            (if (auditSha.length >= 16) auditSha.take(16) + "…" else auditSha),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Single observation · sourceCount=" +
+                            singleObservation.optInt("source_observation_count", 0) +
+                            " · otherLenses=" +
+                            singleObservation.optBoolean("other_physical_lenses_used", true) +
+                            " · temporalFrames=" +
+                            singleObservation.optBoolean("temporal_frames_used", true) +
+                            " · one D.RAWnegative diagnostic binding · candidateApplied=false.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Frontside mag alleen structuur beschermen en chroma-instabiliteit aanwijzen. " +
+                            "Geen vervangkleur, geen sensor-noise claim en geen Scientific-Master-writeback; " +
+                            "backside/noise-evidence blijft vereist voor iedere latere correctie.",
+                        10f,
                         muted = true,
                     ))
                 }
