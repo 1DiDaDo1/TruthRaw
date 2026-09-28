@@ -6,144 +6,31 @@
 namespace truthraw::tile_dng_v0_1 {
 using namespace detail;
 DngSourceStatus TileNativeDngSource::parseGainMaps(const TagRef&tag,const OpenOptions&options){
-    constexpr std::uint32_t kOpcodeFixBadPixelsList = 5u;
-    constexpr std::uint32_t kOpcodeGainMap = 9u;
-    constexpr std::uint32_t kOpcodeFlagOptional = 0x1u;
-
     if (tag.type != TIFF_UNDEFINED) return DngSourceStatus::error(DngSourceCode::InvalidTag, "OpcodeList2 must be UNDEFINED");
     if (tag.dataBytes > options.maxOpcodeListBytes) return DngSourceStatus::error(DngSourceCode::BudgetExceeded, "OpcodeList2 exceeds configured cap");
-
-    std::vector<std::uint8_t> b(static_cast<std::size_t>(tag.dataBytes));
-    if (!readTagBytes(tag, 0, b.data(), b.size())) return DngSourceStatus::error(DngSourceCode::IoError, "cannot read OpcodeList2");
-    if (b.size() < 4) return DngSourceStatus::error(DngSourceCode::InvalidTag, "OpcodeList2 too short");
-
-    std::size_t p = 4;
-    const auto count = be32(b.data());
-    if (count > (b.size() - 4) / 16) return DngSourceStatus::error(DngSourceCode::InvalidTag, "invalid opcode count");
-
-    audit_.opcodeList2Count = count;
-    audit_.gainMapOpcodeCount = 0;
-    audit_.optionalOpcodeList2Skipped = 0;
-    audit_.fixBadPixelsListOpcodesSkipped = 0;
-    audit_.unknownOptionalOpcodeList2Skipped = 0;
-    audit_.mandatoryUnsupportedOpcodeList2Seen = false;
-
-    gainMaps_.clear();
-    gainMaps_.reserve(count);
-
-    for (std::uint32_t i = 0; i < count; ++i) {
-        if (p + 16 > b.size()) return DngSourceStatus::error(DngSourceCode::InvalidTag, "truncated opcode header");
-
-        const auto id = be32(b.data() + p);
-        const auto minVersion = be32(b.data() + p + 4);
-        const auto flags = be32(b.data() + p + 8);
-        const auto sz = be32(b.data() + p + 12);
-        (void)minVersion;
-        p += 16;
-
-        if (sz > b.size() - p) return DngSourceStatus::error(DngSourceCode::InvalidTag, "opcode payload out of range");
-        const auto end = p + static_cast<std::size_t>(sz);
-
-        if (id != kOpcodeGainMap) {
-            if ((flags & kOpcodeFlagOptional) == 0u) {
-                audit_.mandatoryUnsupportedOpcodeList2Seen = true;
-                return DngSourceStatus::error(
-                    DngSourceCode::UnsupportedTopology,
-                    "unsupported mandatory OpcodeList2 entry id=" + std::to_string(id));
-            }
-
-            ++audit_.optionalOpcodeList2Skipped;
-            if (id == kOpcodeFixBadPixelsList) {
-                ++audit_.fixBadPixelsListOpcodesSkipped;
-            } else {
-                ++audit_.unknownOptionalOpcodeList2Skipped;
-            }
-
-            // DNG marks this opcode optional. D.RAW preserves the sealed CFA
-            // payload and does not silently synthesize replacement samples here.
-            // The skipped operation remains explicit in SourceAudit.
-            p = end;
-            continue;
-        }
-
-        ++audit_.gainMapOpcodeCount;
-        if (sz < 76) return DngSourceStatus::error(DngSourceCode::InvalidTag, "truncated GainMap");
-
-        GainMap g;
-        g.area = {
-            bei32(b.data() + p),
-            bei32(b.data() + p + 4),
-            bei32(b.data() + p + 8),
-            bei32(b.data() + p + 12)
-        };
-        g.plane = be32(b.data() + p + 16);
-        g.planes = be32(b.data() + p + 20);
-        g.rowPitch = be32(b.data() + p + 24);
-        g.colPitch = be32(b.data() + p + 28);
-        p += 32;
-
-        g.pointsV = be32(b.data() + p);
-        g.pointsH = be32(b.data() + p + 4);
-        p += 8;
-
-        g.spacingV = bedouble(b.data() + p);
-        g.spacingH = bedouble(b.data() + p + 8);
-        p += 16;
-
-        g.originV = bedouble(b.data() + p);
-        g.originH = bedouble(b.data() + p + 8);
-        p += 16;
-
-        g.mapPlanes = be32(b.data() + p);
-        p += 4;
-
-        if (g.area[2] <= g.area[0] || g.area[3] <= g.area[1] ||
-            g.planes < 1 || g.rowPitch < 1 || g.colPitch < 1 ||
-            g.pointsV < 1 || g.pointsH < 1 || g.mapPlanes != 1 ||
-            !std::isfinite(g.spacingV) || !std::isfinite(g.spacingH) ||
+    std::vector<std::uint8_t>b(static_cast<std::size_t>(tag.dataBytes));if(!readTagBytes(tag,0,b.data(),b.size()))return DngSourceStatus::error(DngSourceCode::IoError,"cannot read OpcodeList2");if(b.size()<4)return DngSourceStatus::error(DngSourceCode::InvalidTag,"OpcodeList2 too short");
+    std::size_t p=0;auto count=be32(b.data());p=4;if(count>(b.size()-4)/16)return DngSourceStatus::error(DngSourceCode::InvalidTag,"invalid opcode count");gainMaps_.clear();gainMaps_.reserve(count);
+    for(std::uint32_t i=0;i<count;++i){if(p+16>b.size())return DngSourceStatus::error(DngSourceCode::InvalidTag,"truncated opcode header");auto id=be32(b.data()+p),sz=be32(b.data()+p+12);p+=16;if(sz>b.size()-p)return DngSourceStatus::error(DngSourceCode::InvalidTag,"opcode payload out of range");auto end=p+sz;if(id!=9)return DngSourceStatus::error(DngSourceCode::InvalidTag,"v0.1 rejects non-GainMap OpcodeList2 entries");if(sz<76)return DngSourceStatus::error(DngSourceCode::InvalidTag,"truncated GainMap");GainMap g;g.area={bei32(b.data()+p),bei32(b.data()+p+4),bei32(b.data()+p+8),bei32(b.data()+p+12)};g.plane=be32(b.data()+p+16);g.planes=be32(b.data()+p+20);g.rowPitch=be32(b.data()+p+24);g.colPitch=be32(b.data()+p+28);p+=32;g.pointsV=be32(b.data()+p);g.pointsH=be32(b.data()+p+4);p+=8;g.spacingV=bedouble(b.data()+p);g.spacingH=bedouble(b.data()+p+8);p+=16;g.originV=bedouble(b.data()+p);g.originH=bedouble(b.data()+p+8);p+=16;g.mapPlanes=be32(b.data()+p);p+=4;
+        if (g.area[2] <= g.area[0] || g.area[3] <= g.area[1] || g.planes < 1 || g.rowPitch < 1 || g.colPitch < 1 ||
+            g.pointsV < 1 || g.pointsH < 1 || g.mapPlanes != 1 || !std::isfinite(g.spacingV) || !std::isfinite(g.spacingH) ||
             g.spacingV <= 0 || g.spacingH <= 0) {
             return DngSourceStatus::error(DngSourceCode::InvalidTag, "unsupported GainMap geometry");
         }
-
         std::uint64_t n64 = 0;
-        if (!mul_ok(g.pointsV, g.pointsH, n64) ||
-            !mul_ok(n64, g.mapPlanes, n64) ||
-            n64 > (end - p) / 4 ||
-            p + n64 * 4 != end) {
+        if (!mul_ok(g.pointsV, g.pointsH, n64) || !mul_ok(n64, g.mapPlanes, n64) || n64 > (end-p)/4 || p+n64*4 != end) {
             return DngSourceStatus::error(DngSourceCode::InvalidTag, "GainMap payload mismatch");
         }
-
         g.values.resize(static_cast<std::size_t>(n64));
-        for (std::size_t j = 0; j < g.values.size(); ++j) {
-            g.values[j] = befloat(b.data() + p + 4 * j);
-            if (!std::isfinite(g.values[j]) || g.values[j] <= 0) {
-                return DngSourceStatus::error(DngSourceCode::InvalidTag, "invalid GainMap value");
-            }
+        for (std::size_t j=0; j<g.values.size(); ++j) {
+            g.values[j]=befloat(b.data()+p+4*j);
+            if (!std::isfinite(g.values[j]) || g.values[j] <= 0) return DngSourceStatus::error(DngSourceCode::InvalidTag, "invalid GainMap value");
         }
-
-        p = end;
+        p=end;
         gainMaps_.push_back(std::move(g));
     }
-
-    if (p != b.size()) return DngSourceStatus::error(DngSourceCode::InvalidTag, "OpcodeList2 trailing bytes");
-
-    if (!gainMaps_.empty()) {
-        for (int py = 0; py < 2; ++py) {
-            for (int px = 0; px < 2; ++px) {
-                int covering = 0;
-                for (const auto& g : gainMaps_) if (g.applies(py, px)) ++covering;
-                if (covering != 1) {
-                    return DngSourceStatus::error(
-                        DngSourceCode::UnsupportedTopology,
-                        "GainMap must cover each CFA phase exactly once");
-                }
-            }
-        }
-    }
-
-    metadata_.hasGainField = !gainMaps_.empty();
-    audit_.gainMapPresent = metadata_.hasGainField;
-    return DngSourceStatus::ok();
+    if(p!=b.size())return DngSourceStatus::error(DngSourceCode::InvalidTag,"OpcodeList2 trailing bytes");
+    for(int py=0;py<2;++py)for(int px=0;px<2;++px){int c=0;for(const auto&g:gainMaps_)if(g.applies(py,px))++c;if(c!=1)return DngSourceStatus::error(DngSourceCode::UnsupportedTopology,"GainMap must cover each CFA phase exactly once");}
+    metadata_.hasGainField=!gainMaps_.empty();audit_.gainMapPresent=metadata_.hasGainField;return DngSourceStatus::ok();
 }
 
 DngSourceStatus TileNativeDngSource::selectAndBindRawIfd(const OpenOptions&options,const std::vector<Ifd>&ifds){
