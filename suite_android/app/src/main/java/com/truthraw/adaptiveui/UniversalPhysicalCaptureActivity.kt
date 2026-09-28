@@ -111,6 +111,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private lateinit var teleButton: Button
     private lateinit var previewView: AutoFitTextureView
     private lateinit var previewTelemetry: TextView
+    private lateinit var focusMarker: TextView
     private lateinit var captureButton: Button
     private lateinit var focusLockButton: Button
     private lateinit var loupeButton: Button
@@ -248,6 +249,12 @@ class UniversalPhysicalCaptureActivity : Activity() {
             }
             setOnTouchListener { _, event -> handlePreviewTouch(event) }
         }
+        focusMarker = text("◎", 32f, true, Color.WHITE).apply {
+            gravity = Gravity.CENTER
+            visibility = View.INVISIBLE
+            isClickable = false
+            isFocusable = false
+        }
         val previewPane = FrameLayout(this).apply {
             setBackgroundColor(Color.BLACK)
             clipChildren = true
@@ -258,6 +265,14 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER,
+                ),
+            )
+            addView(
+                focusMarker,
+                FrameLayout.LayoutParams(
+                    dp(54),
+                    dp(54),
+                    Gravity.TOP or Gravity.START,
                 ),
             )
         }
