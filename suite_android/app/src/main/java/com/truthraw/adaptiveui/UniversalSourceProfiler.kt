@@ -253,6 +253,7 @@ object UniversalSourceProfiler {
 
         val darkChromaBacksideSupport = JSONObject()
             .put("authority", "SOURCE_METADATA_BOUND_HINT_PLUS_MEASURED_SIGNAL_BLOCKER")
+            .put("metadata_hint_authority", "SOURCE_METADATA_BOUND_HINT_ONLY")
             .put("noise_profile_present", noiseProfile != null)
             .put("black_level_present", primaryRaw?.opt("blackLevel") != null)
             .put("white_level_present", primaryRaw?.opt("whiteLevel") != null)
