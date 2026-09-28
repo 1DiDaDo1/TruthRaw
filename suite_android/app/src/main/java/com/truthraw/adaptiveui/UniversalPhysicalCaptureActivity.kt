@@ -106,6 +106,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private lateinit var ultraButton: Button
     private lateinit var wideButton: Button
     private lateinit var teleButton: Button
+    private lateinit var previewTexture: TextureView
+    private lateinit var shutterButton: Button
+    private lateinit var focusLockButton: Button
+    private lateinit var previewTelemetry: TextView
+    private val loupeButtons = linkedMapOf<Float, Button>()
 
     private val roleCandidates = linkedMapOf<LensRole, Candidate>()
 
@@ -116,6 +121,14 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var imageReader: ImageReader? = null
+    private var previewSurface: Surface? = null
+    private var previewRequestBuilder: CaptureRequest.Builder? = null
+    private var lastPreviewResult: TotalCaptureResult? = null
+    private var lastFocusRegion: MeteringRectangle? = null
+    private var focusLocked = false
+    private var loupeZoom = 1f
+    private var previewFrameCount = 0L
+    private var pendingPreviewRole: LensRole? = null
 
     private val pairLock = Any()
     private var pendingImage: Image? = null
