@@ -92,6 +92,33 @@ The existing full suite still contains the mixed F64/F32 Scientific Master recon
 
 Provenance, authority, uncertainty, admission and relation certificates are guardrails around claims. They do not define the maximum size, precision, dimensionality or richness of the reconstructed D.RAW world.
 
+## Universal physical camera
+
+The canonical Camera entry now uses `UniversalPhysicalCaptureActivity`.
+
+Its role is deliberately narrow:
+
+```text
+physical camera
+  -> Android Camera2 transport only
+  -> one RAW_SENSOR capture
+  -> DNG materialization
+  -> SHA-256 sealed source
+  -> the same Universal Source Intake used by imported RAW/DNG
+```
+
+Ultra-wide, wide/main and tele are discovered dynamically from available back-facing RAW routes. Focal-length ordering is only `UI_FOCAL_ORDER_HINT_ONLY`; fixed device maps, fixed Camera IDs and vendor request keys are not required and cannot create scientific authority.
+
+Camera2 acquisition properties are provenance, not scientific truth. The sealed DNG is re-read from scratch by D.RAW.
+
+The existing special Camera-5 4K→200MP route remains separate and unchanged. It is not the universal camera path.
+
+PR #76 merged this architecture into `main`.
+
+Merge commit:
+
+`1fa3850e4ec0c58f7dc294acd011721465041ea9`
+
 ## Canonical Android product
 
 The canonical user-facing Android application is `suite_android`.
