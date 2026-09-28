@@ -75,9 +75,9 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 })
             })
             addView(space(8))
-            addView(action("Camera · Maak één fysieke RAW") {
-                startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraaf200MpStagedActivity::class.java).apply {
-                    putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
+            addView(action("Camera · Universele fysieke RAW") {
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, UniversalPhysicalCaptureActivity::class.java).apply {
+                    
                 })
             })
             addView(space(18))
@@ -180,9 +180,9 @@ class TruthRawSuiteLauncherActivity : Activity() {
                     startActivity(
                         Intent(
                             this@TruthRawSuiteLauncherActivity,
-                            FotoGraaf200MpStagedActivity::class.java,
+                            UniversalPhysicalCaptureActivity::class.java,
                         ).apply {
-                            putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
+                            
                         },
                     )
                 },
