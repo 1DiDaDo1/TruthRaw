@@ -571,18 +571,25 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
-    private fun captureRole(role: LensRole) {
+    private fun openPreviewRole(role: LensRole) {
         val candidate = roleCandidates[role] ?: return
 
         if (
             checkSelfPermission(Manifest.permission.CAMERA) !=
             PackageManager.PERMISSION_GRANTED
         ) {
+            pendingPreviewRole = role
             requestPermissions(
                 arrayOf(Manifest.permission.CAMERA),
                 REQUEST_CAMERA_PERMISSION,
             )
-            status("Camera-permissie gevraagd. Kies daarna opnieuw ${role.title}.")
+            status("Camera-permissie gevraagd. De gekozen lens opent daarna als live view.")
+            return
+        }
+
+        if (!previewView.isAvailable) {
+            pendingPreviewRole = role
+            status("${role.title}: wachten op de live-view surface…")
             return
         }
 
@@ -595,9 +602,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
             activeRole = role
             finalizing = false
         }
+
+        focusLocked = false
+        currentAfRegion = null
+        previewFrames = 0
+        lastPreviewResult = null
+        setMacroLoupeScale(1f)
         setButtonsEnabled(false)
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
         status(
-            "${role.title} wordt technisch geopend; RAW_SENSOR wordt eerst byte-exact verzegeld, DNG volgt alleen als afgeleide container.",
+            "${role.title} wordt geopend voor live richten · capture blijft volledige " +
+                "${candidate.rawSize.width}×${candidate.rawSize.height} RAW_SENSOR.",
         )
 
         val reader = ImageReader.newInstance(
@@ -618,6 +635,46 @@ class UniversalPhysicalCaptureActivity : Activity() {
             tryFinalizePair()
         }, cameraHandler)
 
+        val effectiveCharacteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrElse { error ->
+            status(
+                "Preview-capability kon niet worden gelezen: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            restoreRoleButtons()
+            closeCaptureResources()
+            return
+        }
+        val chosenPreview = choosePreviewSize(effectiveCharacteristics)
+            ?: run {
+                status("${role.title}: geen SurfaceTexture-previewformaat gevonden.")
+                restoreRoleButtons()
+                closeCaptureResources()
+                return
+            }
+
+        previewBufferSize = chosenPreview
+        val landscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        previewView.setAspectRatio(
+            if (landscape) chosenPreview.width else chosenPreview.height,
+            if (landscape) chosenPreview.height else chosenPreview.width,
+        )
+        val texture = previewView.surfaceTexture
+            ?: run {
+                pendingPreviewRole = role
+                status("${role.title}: preview surface verdween; opnieuw proberen zodra hij terug is.")
+                restoreRoleButtons()
+                closeCaptureResources()
+                return
+            }
+        texture.setDefaultBufferSize(chosenPreview.width, chosenPreview.height)
+        previewView.post {
+            configurePreviewTransform(previewView.width, previewView.height)
+        }
+        previewSurface = Surface(texture)
+
         try {
             cameraManager.openCamera(
                 candidate.logicalCameraId,
@@ -630,14 +687,24 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     override fun onDisconnected(camera: CameraDevice) {
                         camera.close()
                         statusFromAnyThread("Camera werd losgekoppeld.")
-                        runOnUiThread { restoreRoleButtons() }
+                        runOnUiThread {
+                            captureButton.isEnabled = false
+                            focusLockButton.isEnabled = false
+                            loupeButton.isEnabled = false
+                            restoreRoleButtons()
+                        }
                         closeCaptureResources()
                     }
 
                     override fun onError(camera: CameraDevice, error: Int) {
                         camera.close()
                         statusFromAnyThread("Camera-open fout=$error.")
-                        runOnUiThread { restoreRoleButtons() }
+                        runOnUiThread {
+                            captureButton.isEnabled = false
+                            focusLockButton.isEnabled = false
+                            loupeButton.isEnabled = false
+                            restoreRoleButtons()
+                        }
                         closeCaptureResources()
                     }
                 },
@@ -651,6 +718,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
             restoreRoleButtons()
             closeCaptureResources()
         }
+    }
+
+    private fun choosePreviewSize(c: CameraCharacteristics): Size? {
+        val sizes = c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            ?.getOutputSizes(SurfaceTexture::class.java)
+            ?.toList()
+            .orEmpty()
+        if (sizes.isEmpty()) return null
+
+        return sizes
+            .filter { it.width <= 1920 && it.height <= 1440 }
+            .maxByOrNull { it.width.toLong() * it.height.toLong() }
+            ?: sizes.maxByOrNull { it.width.toLong() * it.height.toLong() }
     }
 
     private fun createSession(
