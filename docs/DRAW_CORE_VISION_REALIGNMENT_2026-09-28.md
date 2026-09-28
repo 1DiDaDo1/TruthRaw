@@ -149,6 +149,8 @@ The macro loupe is presentation-only. The 1x/2x/4x/8x viewfinder magnification i
 
 Tap-focus and focus-lock are camera-control operations. Their resulting capture-time lens focus state may be recorded as acquisition provenance, but using autofocus does not create additional sensor evidence or scientific authority.
 
+For the special Camera-5 4K→200MP route, the proven logical preview request remains fixed at the existing 3.7x routing zoom. Its additional 1x/2x/4x/8x macro loupe is also viewfinder-only and never changes that routing request. Tap-focus is available on the preview, but the route reconfigures from preview session to the specialized MAX RAW session before exposure; focus-lock continuity across that reconfiguration remains unproven until real-device evidence demonstrates it.
+
 PR #76 merged this architecture into `main`.
 
 Merge commit:
