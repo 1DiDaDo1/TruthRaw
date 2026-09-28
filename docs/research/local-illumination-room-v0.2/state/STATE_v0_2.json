@@ -1,0 +1,63 @@
+{
+  "schema": "TruthRawIlluminationRoomState/0.2",
+  "status": "RESEARCH_CANDIDATE_CI_PASS",
+  "base_main_sha": "514f2f4bde6aba5a6709e176c03b22c3b9aea912",
+  "validated_implementation_sha": "d4afd4ceb6ff69c09bc27551a07ab41c3d6c77b5",
+  "validation": {
+    "github_actions_run_id": 34547369624,
+    "documentation_governance_run_id": 34547369523,
+    "upstream_integrity": "PASS",
+    "gcc_release": "PASS",
+    "clang_release": "PASS",
+    "asan_ubsan": "PASS",
+    "iso_boundary_hardening": "PASS",
+    "note": "Validated implementation SHA is intentionally distinct from later documentation-only branch heads."
+  },
+  "bindings": {
+    "room_capsule": "v0.1",
+    "cicm": "v1",
+    "building_runtime_resource_policy": "v0.1",
+    "room_abi_leases": "v0.1",
+    "technical_backplane": "v0.1",
+    "canonical_reconstruction_mutated": false
+  },
+  "invariants": {
+    "physical_frame_count": 1,
+    "independent_evidence_count": 1,
+    "counterfactual_states_are_evidence": false,
+    "scientific_master_modified": false,
+    "zero_line_modified": false,
+    "physical_snr_on_relative_path": false,
+    "physical_geometry_brdf_spectral_relight_enabled": false,
+    "hidden_full_frame_allocation_introduced": false,
+    "scene_iso_axis": "ABSENT_BY_CONTRACT",
+    "relative_scenario_iso_parameter": "ABSENT_BY_CONTRACT",
+    "relative_ev_uses_iso": false,
+    "capture_iso_provenance": "OUTSIDE_ILLUMINATION_ROOM_SCENE_STATE",
+    "calibrated_sensor_forward_nominal_iso": "CICM_SENSOR_MODE_ONLY",
+    "calibrated_sensor_forward_iso_promotes_to_scene": false,
+    "all_room_binding_must_preserve_iso_free_scene": true,
+    "room_may_promote_capture_iso_to_scene_authority": false
+  },
+  "scenario_semantics": [
+    "RELATIVE_DAYLIGHT_STUDY",
+    "RELATIVE_NIGHT_STUDY",
+    "CUSTOM_RELATIVE"
+  ],
+  "resource_adaptation": {
+    "runtime_owns_budget": true,
+    "runtime_owns_tile_size": true,
+    "room_abi_owns_execution_leases": true,
+    "geometry_resolution_may_adapt": true,
+    "lighting_equations_may_change_by_resource_tier": false,
+    "truth_authority_may_change_by_resource_tier": false,
+    "iso_scene_semantics_may_change_by_resource_tier": false
+  },
+  "open_boundaries": [
+    "on-device Android RSS and thermal validation",
+    "calibrated physical sun/moon/sky spectral illumination",
+    "intrinsic reflectance and material BRDF",
+    "physically exact new-shadow/global-illumination reconstruction",
+    "Room ABI v0.2 all-room generalization"
+  ]
+}
