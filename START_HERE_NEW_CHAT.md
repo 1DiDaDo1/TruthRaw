@@ -6,9 +6,9 @@ Primary current repository line: `main`.
 
 Latest substantive integration:
 
-`434f42888b0b289a064b5972c9f10a82739bbb68`
+`1fa3850e4ec0c58f7dc294acd011721465041ea9`
 
-This integration moves Universal Intake into the full `suite_android` D.RAW app while preserving the standard D.RAW icon/banner, PURE/ADVANCED/PRO routes, mixed F64/F32 Scientific Master reconstruction and Float32 RAW/DNG outputs.
+This integration adds Universal Physical Capture to the full `suite_android` D.RAW app: ultra-wide, wide/main and tele are discovered dynamically as RAW-capable back-facing sources, captured to a sealed DNG, and handed to the same Universal Intake as imported RAW. Camera2 remains transport/provenance only. The existing special 4K→200MP Camera-5 route remains separate and preserved.
 
 ## Current core vision
 
@@ -17,6 +17,8 @@ This integration moves Universal Intake into the full `suite_android` D.RAW app 
 - Frontside inspection is deterministic classical vision only and remains `APPEARANCE_DERIVED_ONLY` unless a separate scientific path proves a stronger fact.
 - **No AI/ML/neural/generative/learned models are allowed in D.RAW.**
 - Device-specific maps are optional hints, never prerequisites for universal source entry or scientific truth.
+- Camera and file sources now converge after source sealing: physical capture → sealed DNG → the same Universal Intake as imported RAW.
+- Ultra-wide / wide-main / tele camera roles are dynamic UI focal-order hints only; Camera2 properties never become scientific truth.
 - Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
 - Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
 - The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
