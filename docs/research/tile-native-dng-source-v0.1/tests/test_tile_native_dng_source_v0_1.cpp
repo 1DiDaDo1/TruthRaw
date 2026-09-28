@@ -57,6 +57,7 @@ std::vector<std::uint8_t> enc_long(const std::vector<std::uint32_t>&xs,bool le){
 std::vector<std::uint8_t> enc_rational4(const std::array<std::uint32_t,4>&xs,bool le){std::vector<std::uint8_t>b(32);for(int i=0;i<4;++i){put32(b,8*i,xs[i],le);put32(b,8*i+4,1,le);}return b;}
 std::vector<std::uint8_t> enc_doubles(const std::array<double,6>&xs,bool le){std::vector<std::uint8_t>b(48);for(int i=0;i<6;++i){std::uint64_t u=0;std::memcpy(&u,&xs[i],8);put64bits(b,8*i,u,le);}return b;}
 void be32w(std::vector<std::uint8_t>&b,std::uint32_t v){std::size_t o=b.size();b.resize(o+4);b[o]=v>>24;b[o+1]=v>>16;b[o+2]=v>>8;b[o+3]=v;}
+void be32set(std::vector<std::uint8_t>&b,std::size_t o,std::uint32_t v){REQUIRE(o+4<=b.size());b[o]=v>>24;b[o+1]=v>>16;b[o+2]=v>>8;b[o+3]=v;}
 void be64dw(std::vector<std::uint8_t>&b,double d){std::uint64_t u=0;std::memcpy(&u,&d,8);for(int i=7;i>=0;--i)b.push_back(std::uint8_t(u>>(8*i)));}
 void befloatw(std::vector<std::uint8_t>&b,float f){std::uint32_t u=0;std::memcpy(&u,&f,4);be32w(b,u);}
 
@@ -72,15 +73,65 @@ std::vector<std::uint8_t> gain_opcode_list(int w,int h){
     return b;
 }
 
+void append_opcode(
+    std::vector<std::uint8_t>& b,
+    std::uint32_t id,
+    std::uint32_t flags,
+    const std::vector<std::uint8_t>& payload){
+    be32w(b,id);
+    be32w(b,0x01030000);
+    be32w(b,flags);
+    be32w(b,std::uint32_t(payload.size()));
+    b.insert(b.end(),payload.begin(),payload.end());
+}
+
+std::vector<std::uint8_t> fix_bad_pixels_list_payload(){
+    std::vector<std::uint8_t> p;
+    be32w(p,0); // Bayer phase.
+    be32w(p,1); // One bad point.
+    be32w(p,0); // No bad rectangles.
+    be32w(p,2); // row
+    be32w(p,3); // col
+    return p;
+}
+
+std::vector<std::uint8_t> android_dngcreator_opcode_list(int w,int h){
+    auto b=gain_opcode_list(w,h);
+    be32set(b,0,5);
+    append_opcode(b,5,1,fix_bad_pixels_list_payload());
+    return b;
+}
+
+std::vector<std::uint8_t> optional_bad_pixel_only_opcode_list(){
+    std::vector<std::uint8_t>b;
+    be32w(b,1);
+    append_opcode(b,5,1,fix_bad_pixels_list_payload());
+    return b;
+}
+
+std::vector<std::uint8_t> unknown_optional_opcode_list(){
+    std::vector<std::uint8_t>b;
+    be32w(b,1);
+    append_opcode(b,12345,1,{0xde,0xad,0xbe,0xef});
+    return b;
+}
+
+std::vector<std::uint8_t> unknown_mandatory_opcode_list(){
+    std::vector<std::uint8_t>b;
+    be32w(b,1);
+    append_opcode(b,12345,0,{0xca,0xfe,0xba,0xbe});
+    return b;
+}
+
 struct Entry {std::uint16_t tag=0,type=0;std::uint32_t count=0;std::vector<std::uint8_t> data;std::size_t entryPos=0;std::size_t payloadPos=0;};
 struct Fixture {std::vector<std::uint8_t> bytes;std::vector<std::uint16_t> raw;std::uint32_t firstDataOffset=0;};
 
-Fixture make_fixture(bool le,bool tiled,bool gain=true,std::uint16_t compression=1,std::uint16_t bits=16){
+Fixture make_fixture(bool le,bool tiled,bool gain=true,std::uint16_t compression=1,std::uint16_t bits=16,const std::vector<std::uint8_t>* opcodeOverride=nullptr){
     const int w=7,h=6;std::vector<std::uint16_t> raw(std::size_t(w)*h);for(int y=0;y<h;++y)for(int x=0;x<w;++x)raw[std::size_t(y)*w+x]=std::uint16_t(64+y*100+x);
     std::vector<Entry> es;
     auto add=[&](std::uint16_t tag,std::uint16_t type,std::uint32_t count,std::vector<std::uint8_t>d){es.push_back({tag,type,count,std::move(d),0,0});};
     add(256,4,1,enc_long({std::uint32_t(w)},le));add(257,4,1,enc_long({std::uint32_t(h)},le));add(258,3,1,enc_short({bits},le));add(259,3,1,enc_short({compression},le));add(262,3,1,enc_short({32803},le));add(274,3,1,enc_short({1},le));add(277,3,1,enc_short({1},le));add(284,3,1,enc_short({1},le));add(339,3,1,enc_short({1},le));
-    add(33421,3,2,enc_short({2,2},le));add(33422,1,4,{2,1,1,0});add(50710,1,3,{0,1,2});add(50713,3,2,enc_short({2,2},le));add(50714,5,4,enc_rational4({64,65,66,67},le));add(50717,4,1,enc_long({1023},le));add(51041,12,6,enc_doubles({1e-5,2e-6,1.1e-5,2.1e-6,1.2e-5,2.2e-6},le));if(gain){auto op=gain_opcode_list(w,h);const auto opCount=std::uint32_t(op.size());add(51009,7,opCount,std::move(op));}
+    add(33421,3,2,enc_short({2,2},le));add(33422,1,4,{2,1,1,0});add(50710,1,3,{0,1,2});add(50713,3,2,enc_short({2,2},le));add(50714,5,4,enc_rational4({64,65,66,67},le));add(50717,4,1,enc_long({1023},le));add(51041,12,6,enc_doubles({1e-5,2e-6,1.1e-5,2.1e-6,1.2e-5,2.2e-6},le));if(opcodeOverride!=nullptr){auto op=*opcodeOverride;const auto opCount=std::uint32_t(op.size());add(51009,7,opCount,std::move(op));}else if(gain){auto op=gain_opcode_list(w,h);const auto opCount=std::uint32_t(op.size());add(51009,7,opCount,std::move(op));}
     int nx=0,ny=0,striles=0;std::uint32_t rowsPer=0,tileW=0,tileH=0;
     if(!tiled){rowsPer=2;striles=(h+int(rowsPer)-1)/int(rowsPer);add(273,4,striles,std::vector<std::uint8_t>(std::size_t(striles)*4));add(278,4,1,enc_long({rowsPer},le));add(279,4,striles,std::vector<std::uint8_t>(std::size_t(striles)*4));}
     else{tileW=4;tileH=3;nx=(w+int(tileW)-1)/int(tileW);ny=(h+int(tileH)-1)/int(tileH);striles=nx*ny;add(322,4,1,enc_long({tileW},le));add(323,4,1,enc_long({tileH},le));add(324,4,striles,std::vector<std::uint8_t>(std::size_t(striles)*4));add(325,4,striles,std::vector<std::uint8_t>(std::size_t(striles)*4));}
@@ -132,6 +183,50 @@ int main(){
     for(bool le:{true,false})for(bool tiled:{false,true}){
         auto f=make_fixture(le,tiled,true);auto mem=std::make_shared<MemSource>(f.bytes);std::unique_ptr<TileNativeDngSource>src;auto st=TileNativeDngSource::open(mem,opts(),src);if(!st){std::cerr<<"OPEN_FAIL code="<<int(st.code)<<" msg="<<st.message<<" le="<<le<<" tiled="<<tiled<<"\n";return 2;}REQUIRE(src);REQUIRE(src->metadata().width==7&&src->metadata().height==6);REQUIRE(src->metadata().cfa==CfaPattern::BGGR);REQUIRE(src->metadata().whiteLevel==1023.f);REQUIRE(src->metadata().blackPhase[0]==64.f&&src->metadata().blackPhase[3]==67.f);REQUIRE(src->metadata().hasNoiseProfile);REQUIRE(src->metadata().hasGainField);REQUIRE(src->colorBindingId()=="explicit-fixture-color");REQUIRE(!src->audit().fullFileMaterialized&&!src->audit().fullRawMaterialized);REQUIRE(!src->audit().stripArraysMaterialized&&!src->audit().tileArraysMaterialized);REQUIRE(src->audit().rawPayloadBytesRead==0);check_rect(*src,f.raw);REQUIRE(src->residentBytesUpperBound()<128u*1024u);maxFixtureResident=std::max(maxFixtureResident,src->residentBytesUpperBound());std::array<float,3> rb{};REQUIRE(src->readRowBias(1,4,rb.data(),rb.size()));REQUIRE(rb[0]==0&&rb[2]==0);std::array<float,4> cb{};REQUIRE(src->readColBias(2,6,cb.data(),cb.size()));REQUIRE(cb[0]==0&&cb[3]==0);
     }
+    {
+        auto op=android_dngcreator_opcode_list(7,6);
+        auto f=make_fixture(true,false,false,1,16,&op);
+        std::unique_ptr<TileNativeDngSource>s;
+        auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);
+        REQUIRE(st&&s);
+        REQUIRE(s->metadata().hasGainField);
+        REQUIRE(s->audit().opcodeList2Count==5);
+        REQUIRE(s->audit().gainMapOpcodeCount==4);
+        REQUIRE(s->audit().optionalOpcodeList2Skipped==1);
+        REQUIRE(s->audit().fixBadPixelsListOpcodesSkipped==1);
+        REQUIRE(s->audit().unknownOptionalOpcodeList2Skipped==0);
+        REQUIRE(!s->audit().mandatoryUnsupportedOpcodeList2Seen);
+        check_rect(*s,f.raw);
+    }
+    {
+        auto op=optional_bad_pixel_only_opcode_list();
+        auto f=make_fixture(true,false,false,1,16,&op);
+        std::unique_ptr<TileNativeDngSource>s;
+        auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);
+        REQUIRE(st&&s);
+        REQUIRE(!s->metadata().hasGainField);
+        REQUIRE(s->audit().opcodeList2Count==1);
+        REQUIRE(s->audit().gainMapOpcodeCount==0);
+        REQUIRE(s->audit().optionalOpcodeList2Skipped==1);
+        REQUIRE(s->audit().fixBadPixelsListOpcodesSkipped==1);
+    }
+    {
+        auto op=unknown_optional_opcode_list();
+        auto f=make_fixture(true,false,false,1,16,&op);
+        std::unique_ptr<TileNativeDngSource>s;
+        auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);
+        REQUIRE(st&&s);
+        REQUIRE(!s->metadata().hasGainField);
+        REQUIRE(s->audit().unknownOptionalOpcodeList2Skipped==1);
+        REQUIRE(!s->audit().mandatoryUnsupportedOpcodeList2Seen);
+    }
+    {
+        auto op=unknown_mandatory_opcode_list();
+        auto f=make_fixture(true,false,false,1,16,&op);
+        std::unique_ptr<TileNativeDngSource>s;
+        auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);
+        REQUIRE(!st&&st.code==DngSourceCode::UnsupportedTopology);
+    }
     {auto f=make_fixture(true,false,false,5,16);std::unique_ptr<TileNativeDngSource>s;auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);REQUIRE(!st&&st.code==DngSourceCode::UnsupportedCompression);}
     {auto f=make_fixture(true,false,false,1,12);std::unique_ptr<TileNativeDngSource>s;auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),opts(),s);REQUIRE(!st&&st.code==DngSourceCode::UnsupportedBitsPerSample);}
     {auto f=make_fixture(true,false,false);auto o=opts();o.color.valid=false;std::unique_ptr<TileNativeDngSource>s;auto st=TileNativeDngSource::open(std::make_shared<MemSource>(f.bytes),o,s);REQUIRE(!st&&st.code==DngSourceCode::BindingMissing);}
@@ -145,7 +240,7 @@ int main(){
     {auto sparse=make_sparse_200mp_source();std::unique_ptr<TileNativeDngSource>s;auto st=TileNativeDngSource::open(sparse,opts(),s);REQUIRE(st);REQUIRE(s->metadata().width==16320&&s->metadata().height==12288);REQUIRE(s->residentBytesUpperBound()<32u*1024u);REQUIRE(s->audit().metadataBytesRead<4096);REQUIRE(s->audit().rawPayloadBytesRead==0);sparseResident=s->residentBytesUpperBound();sparseMetadataRead=s->audit().metadataBytesRead;TileRect r;r.hx0=100;r.hy0=200;r.hx1=164;r.hy1=264;std::vector<std::uint16_t>raw(64*64);auto rs=s->readRawTile(r,raw.data(),raw.size(),nullptr,0);REQUIRE(rs);REQUIRE(s->audit().rawPayloadBytesRead==64u*64u*2u);sparseRawRead=s->audit().rawPayloadBytesRead;REQUIRE(s->residentBytesUpperBound()<32u*1024u);}
     {auto f=make_fixture(true,false,false);char path[]="/tmp/truthraw_dng_v01_XXXXXX";int fd=::mkstemp(path);REQUIRE(fd>=0);std::size_t done=0;while(done<f.bytes.size()){ssize_t n=::write(fd,f.bytes.data()+done,f.bytes.size()-done);REQUIRE(n>0);done+=std::size_t(n);}auto posix=std::make_shared<PosixFdByteSource>(fd);std::unique_ptr<TileNativeDngSource>s;auto st=TileNativeDngSource::open(posix,opts(),s);REQUIRE(st);check_rect(*s,f.raw);::close(fd);::unlink(path);}
     std::cout<<"TILE_NATIVE_DNG_SOURCE_V0_1_PASS\n";
-    std::cout<<"little_big_endian=PASS\nstrips_tiles=PASS\nphase_gainmap=PASS\nnoise_profile=PASS\nfull_file_materialized=false\nfull_raw_materialized=false\nstrile_arrays_materialized=false\nlazy_locator_validation=true\nposix_pread_source=PASS\n";
+    std::cout<<"little_big_endian=PASS\nstrips_tiles=PASS\nphase_gainmap=PASS\nandroid_dngcreator_optional_opcode_compat=PASS\nmandatory_unknown_opcode_fail_closed=PASS\nnoise_profile=PASS\nfull_file_materialized=false\nfull_raw_materialized=false\nstrile_arrays_materialized=false\nlazy_locator_validation=true\nposix_pread_source=PASS\n";
     std::cout<<"max_small_fixture_resident_bytes="<<maxFixtureResident<<"\n";
     std::cout<<"sparse_200mp_resident_bytes="<<sparseResident<<"\n";
     std::cout<<"sparse_200mp_open_metadata_bytes_read="<<sparseMetadataRead<<"\n";
