@@ -372,7 +372,16 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun discoverUniversalRoutes() {
+        closeCaptureResources()
         setButtonsEnabled(false)
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        focusLocked = false
+        currentAfRegion = null
+        setMacroLoupeScale(1f)
+        previewTelemetry.text =
+            "Live view nog niet gestart · tik een lens om te richten."
         status("Universele back-facing RAW-routes worden dynamisch ontdekt…")
         detailView.text = ""
 
