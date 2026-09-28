@@ -938,6 +938,347 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
+    private fun configurePreviewTransform(
+        viewWidth: Int,
+        viewHeight: Int,
+    ) {
+        val size = previewBufferSize ?: return
+        if (viewWidth <= 0 || viewHeight <= 0) return
+
+        val rotation = previewView.display?.rotation ?: Surface.ROTATION_0
+        val matrix = Matrix()
+        val viewRect =
+            RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val bufferRect =
+            RectF(0f, 0f, size.height.toFloat(), size.width.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+
+        if (
+            rotation == Surface.ROTATION_90 ||
+            rotation == Surface.ROTATION_270
+        ) {
+            bufferRect.offset(
+                centerX - bufferRect.centerX(),
+                centerY - bufferRect.centerY(),
+            )
+            matrix.setRectToRect(
+                viewRect,
+                bufferRect,
+                Matrix.ScaleToFit.FILL,
+            )
+            val scale =
+                maxOf(
+                    viewHeight.toFloat() / size.height.toFloat(),
+                    viewWidth.toFloat() / size.width.toFloat(),
+                )
+            matrix.postScale(scale, scale, centerX, centerY)
+            matrix.postRotate(
+                (90 * (rotation - 2)).toFloat(),
+                centerX,
+                centerY,
+            )
+        } else if (rotation == Surface.ROTATION_180) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+        previewView.setTransform(matrix)
+    }
+
+    private fun handlePreviewTouch(event: MotionEvent): Boolean {
+        scaleDetector.onTouchEvent(event)
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                touchDownX = event.x
+                touchDownY = event.y
+                touchMoved = false
+                multiTouchGesture = false
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                multiTouchGesture = true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (
+                    hypot(
+                        (event.x - touchDownX).toDouble(),
+                        (event.y - touchDownY).toDouble(),
+                    ) > dp(12).toDouble()
+                ) {
+                    touchMoved = true
+                }
+            }
+            MotionEvent.ACTION_UP -> {
+                if (!multiTouchGesture && !touchMoved) {
+                    previewView.pivotX = event.x
+                    previewView.pivotY = event.y
+                    tapToFocus(event.x, event.y)
+                }
+                multiTouchGesture = false
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                multiTouchGesture = false
+            }
+        }
+        return true
+    }
+
+    private fun cycleMacroLoupe() {
+        val next =
+            when {
+                macroLoupeScale < 1.5f -> 2f
+                macroLoupeScale < 3f -> 4f
+                macroLoupeScale < 6f -> 8f
+                else -> 1f
+            }
+        if (next == 1f) {
+            previewView.pivotX = previewView.width / 2f
+            previewView.pivotY = previewView.height / 2f
+        }
+        setMacroLoupeScale(next)
+    }
+
+    private fun setMacroLoupeScale(value: Float) {
+        macroLoupeScale = value.coerceIn(1f, 8f)
+        if (::previewView.isInitialized) {
+            previewView.scaleX = macroLoupeScale
+            previewView.scaleY = macroLoupeScale
+        }
+        if (::loupeButton.isInitialized) {
+            loupeButton.text =
+                "Macro-loep · " +
+                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale)
+        }
+        if (::previewTelemetry.isInitialized && lastPreviewResult != null) {
+            previewTelemetry.text =
+                previewTelemetry.text.toString()
+                    .substringBefore(" · loep=") +
+                    " · loep=" +
+                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale) +
+                    " · display-only"
+        }
+    }
+
+    private fun toggleFocusLock() {
+        if (focusLocked) {
+            unlockFocus()
+        } else {
+            tapToFocus(
+                previewView.width / 2f,
+                previewView.height / 2f,
+            )
+        }
+    }
+
+    private fun tapToFocus(x: Float, y: Float) {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val builder = previewRequestBuilder ?: return
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return
+
+        if (!supportsAutoFocus(characteristics)) {
+            status("Deze RAW-camera rapporteert geen bruikbare autofocusmodus.")
+            return
+        }
+
+        val maxRegions =
+            characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0
+        val region =
+            if (maxRegions > 0) {
+                focusRegionForTouch(x, y, characteristics)
+            } else {
+                null
+            }
+        currentAfRegion = region
+
+        try {
+            builder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_AUTO,
+            )
+            if (region != null) {
+                builder.set(
+                    CaptureRequest.CONTROL_AF_REGIONS,
+                    arrayOf(region),
+                )
+            }
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            session.capture(builder.build(), null, cameraHandler)
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_START,
+            )
+            session.capture(
+                builder.build(),
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        val effective =
+                            effectiveCaptureResult(candidate, result) ?: result
+                        val state =
+                            effective.get(CaptureResult.CONTROL_AF_STATE)
+                        val distance =
+                            effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                        focusLocked =
+                            state == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                                state == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                        runOnUiThread {
+                            focusLockButton.text =
+                                if (focusLocked) {
+                                    "AF ontgrendelen"
+                                } else {
+                                    "AF vergrendelen"
+                                }
+                            status(
+                                "Tap-focus · AF=${state ?: "UNKNOWN"} · focus=" +
+                                    (distance?.let {
+                                        String.format(Locale.ROOT, "%.3f D", it)
+                                    } ?: "UNKNOWN"),
+                            )
+                        }
+                    }
+                },
+                cameraHandler,
+            )
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+            )
+            session.setRepeatingRequest(
+                builder.build(),
+                null,
+                cameraHandler,
+            )
+            focusLocked = true
+            focusLockButton.text = "AF ontgrendelen"
+        } catch (error: Exception) {
+            status(
+                "Tap-focus faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
+    private fun unlockFocus() {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val camera = cameraDevice ?: return
+        val builder = previewRequestBuilder ?: return
+
+        runCatching {
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            session.capture(builder.build(), null, cameraHandler)
+        }
+        focusLocked = false
+        currentAfRegion = null
+        focusLockButton.text = "AF vergrendelen"
+        startPreviewRepeating(camera, session, candidate)
+        status("AF ontgrendeld · continuous autofocus hervat.")
+    }
+
+    private fun focusRegionForTouch(
+        x: Float,
+        y: Float,
+        c: CameraCharacteristics,
+    ): MeteringRectangle? {
+        val active =
+            c.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                ?: return null
+        if (previewView.width <= 0 || previewView.height <= 0) return null
+
+        val nx =
+            (x / previewView.width.toFloat()).coerceIn(0f, 1f)
+        val ny =
+            (y / previewView.height.toFloat()).coerceIn(0f, 1f)
+
+        val sensorOrientation =
+            c.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+        val displayDegrees =
+            when (previewView.display?.rotation ?: Surface.ROTATION_0) {
+                Surface.ROTATION_90 -> 90
+                Surface.ROTATION_180 -> 180
+                Surface.ROTATION_270 -> 270
+                else -> 0
+            }
+        val relative =
+            (sensorOrientation - displayDegrees + 360) % 360
+
+        val sensorNorm =
+            when (relative) {
+                90 -> Pair(ny, 1f - nx)
+                180 -> Pair(1f - nx, 1f - ny)
+                270 -> Pair(1f - ny, nx)
+                else -> Pair(nx, ny)
+            }
+
+        val cx =
+            active.left +
+                (sensorNorm.first * active.width()).toInt()
+        val cy =
+            active.top +
+                (sensorNorm.second * active.height()).toInt()
+        val side = maxOf(48, minOf(active.width(), active.height()) / 10)
+        val half = side / 2
+
+        val left =
+            (cx - half).coerceIn(active.left, active.right - side)
+        val top =
+            (cy - half).coerceIn(active.top, active.bottom - side)
+        val rect = Rect(left, top, left + side, top + side)
+        return MeteringRectangle(
+            rect,
+            MeteringRectangle.METERING_WEIGHT_MAX,
+        )
+    }
+
+    private fun captureFromLivePreview() {
+        val camera = cameraDevice
+            ?: run {
+                status("Geen live camera geopend.")
+                return
+            }
+        val session = cameraSession
+            ?: run {
+                status("Geen actieve preview/capture-session.")
+                return
+            }
+        val candidate = activeCandidate
+            ?: run {
+                status("Geen actieve RAW-camera geselecteerd.")
+                return
+            }
+        val reader = imageReader
+            ?: run {
+                status("RAW ImageReader ontbreekt.")
+                return
+            }
+
+        synchronized(pairLock) {
+            pendingImage?.close()
+            pendingImage = null
+            pendingResult = null
+            finalizing = false
+        }
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        setButtonsEnabled(false)
+        submitCapture(camera, session, candidate, reader)
+    }
+
     private fun submitCapture(
         camera: CameraDevice,
         session: CameraCaptureSession,
