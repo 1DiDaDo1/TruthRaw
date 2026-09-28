@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.4",
-  "status": "ACTIVE_UNMERGED_MULTI_CASE_DEVICE_VALIDATION",
+  "status": "ACTIVE_UNMERGED_THREE_CASE_DEVICE_VALIDATION",
   "branch": "research/dark-chroma-stability-v04-2026-09-29",
   "parent_branch": "research/dark-chroma-stability-v03-2026-09-28",
   "project_law": "Seal the evidence, not the thinking.",
@@ -69,6 +69,32 @@
         "v04_local_binding": true,
         "correction_supported_tiles": 0,
         "conclusion": "non-dark structured no-candidate case binds spatially without inventing Dark Chroma candidates or correction support"
+      },
+      "selective_main_wide_1790637640867": {
+        "status": "VALIDATED_BINDING_WITH_NEW_COARSENESS_FINDING",
+        "raster": "4096x3072",
+        "focal_mm": 6.55,
+        "frontside_tiles": 432,
+        "dark_tiles": 74,
+        "visible_chroma_candidate_tiles": 6,
+        "structure_veto_tiles": 136,
+        "backside_signal_state": "MEASURED_SIGNAL_PRESENT_OR_MIXED",
+        "backside_sample_count": 12288,
+        "backside_p50": 0.05002,
+        "backside_p90": 0.11363,
+        "backside_p99": 0.19917,
+        "backside_fraction_le_0_01": 0.112,
+        "v03_state": "FRONTSIDE_INFORMATION_PRESENT",
+        "v03_degenerate": false,
+        "local_binding_frontside_tiles": 432,
+        "local_binding_visible_candidate_tiles": 6,
+        "local_binding_structure_blocked_visible_tiles": 6,
+        "local_binding_strict_vector_tiles": 0,
+        "correction_supported_tiles": 0,
+        "n2_structure_protected_sample_fraction": 0.16560872395833334,
+        "n2_structure_protection_present_tiles": 3072,
+        "n2_tile_count": 3072,
+        "conclusion": "spatial binding succeeds for sparse candidates, but any-structure-present 64x64 tile boolean is non-discriminative because every N2 tile reports structure presence while only ~16.56% of sampled points are structure-protected"
       }
     }
   },
@@ -81,14 +107,16 @@
     "ai_ml_neural_generative_runtime_allowed": false
   },
   "device_validation_required": [
-    "dark main/wide selective source: inspect non-zero visible Dark Chroma candidates against local N2 factor counts without global degeneracy",
-    "confirm correction-supported remains zero until a separately defined private chroma candidate gate exists"
+    "refine local structure-protection resolution without weakening structure preservation",
+    "re-run selective main/wide after refinement and verify that sparse protection support does not become a universal local veto",
+    "keep correction-supported=0 and private chroma A/B/Delta disabled until refined structure support is device-validated"
   ],
   "next_gate": {
-    "name": "SELECTIVE_DARK_MAIN_WIDE_LOCAL_BINDING_REGRESSION",
-    "blocked_until_selective_case_device_validation": true,
-    "then": "PRIVATE_CHROMA_ONLY_AB_DELTA_GATE_DEFINITION",
-    "must_preserve_separate_n2_factors": true,
-    "must_not_override_dark_uninformative": true
+    "name": "LOCAL_STRUCTURE_PROTECTION_RESOLUTION_REFINEMENT",
+    "reason": "current any-protected-sample-per-64x64 N2 tile flag is present in 3072/3072 tiles in the selective main/wide case although only ~16.56% of sampled points are structure-protected",
+    "must_preserve_structure_protection": true,
+    "must_not_override_dark_uninformative": true,
+    "must_keep_n2_factor_axes_separate": true,
+    "private_chroma_ab_delta_still_blocked": true
   }
 }
