@@ -167,31 +167,142 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(space(5))
         root.addView(
             text(
-                "Nieuwe fysieke opname → RAW_SENSOR eerst verzegelen → afgeleide DNG → dezelfde Universele Ingang als ieder bestaand RAW-bestand.",
-                13f,
+                "Live view is bediening/presentatie. De opnamefundering blijft de afzonderlijk verzegelde RAW_SENSOR-bron.",
+                12f,
                 false,
                 DrawVisualTheme.MUTED,
             ),
         )
-        root.addView(space(5))
+        root.addView(space(10))
+
+        val previewFrame = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
+            layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dp(320),
+                )
+        }
+        previewTexture = TextureView(this).apply {
+            isOpaque = true
+            setBackgroundColor(Color.BLACK)
+            surfaceTextureListener =
+                object : TextureView.SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int,
+                    ) {
+                        pendingPreviewRole?.let { role ->
+                            pendingPreviewRole = null
+                            openPreviewRole(role)
+                        }
+                    }
+
+                    override fun onSurfaceTextureSizeChanged(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int,
+                    ) {
+                        activeCandidate?.let(::configurePreviewTransform)
+                    }
+
+                    override fun onSurfaceTextureDestroyed(
+                        surface: SurfaceTexture,
+                    ): Boolean {
+                        closeCaptureResources()
+                        return true
+                    }
+
+                    override fun onSurfaceTextureUpdated(
+                        surface: SurfaceTexture,
+                    ) = Unit
+                }
+            setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    focusAt(event.x, event.y)
+                }
+                true
+            }
+        }
+        previewFrame.addView(
+            previewTexture,
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            ),
+        )
+        root.addView(previewFrame)
+
+        previewTelemetry =
+            text(
+                "LIVE VIEW · kies een RAW-lens. Tik in het beeld om scherp te stellen.",
+                10.5f,
+                false,
+                DrawVisualTheme.MUTED,
+            )
+        root.addView(previewTelemetry)
+        root.addView(space(8))
+
+        val loupeRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        listOf(1f, 2f, 4f, 8f).forEach { zoom ->
+            val b = button(
+                if (zoom == 1f) "1×" else "${zoom.toInt()}×",
+            ) {
+                setLoupeZoom(zoom)
+            }.apply {
+                isEnabled = false
+            }
+            loupeButtons[zoom] = b
+            loupeRow.addView(
+                b,
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+            )
+        }
+        root.addView(loupeRow)
         root.addView(
             text(
-                "Camera2 is alleen de Android transportlaag. Camera-ID, focal length en lensrol zijn acquisitie/UI-hints en bepalen geen wetenschappelijke waarheid.",
-                11f,
+                "Macro-loep vergroot alleen de viewfinder; hij cropt of zoomt de RAW_SENSOR-opname niet.",
+                10f,
                 false,
                 DrawVisualTheme.MUTED,
             ),
         )
+        root.addView(space(8))
+
+        val actionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        focusLockButton = button("Focus lock") { toggleFocusLock() }.apply {
+            isEnabled = false
+        }
+        shutterButton = button("RAW opnemen") { captureCurrentPreview() }.apply {
+            isEnabled = false
+        }
+        actionRow.addView(
+            focusLockButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        actionRow.addView(
+            shutterButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        root.addView(actionRow)
         root.addView(space(12))
 
         ultraButton = button("Ultra-wide · zoeken…") {
-            captureRole(LensRole.ULTRA_WIDE)
+            openPreviewRole(LensRole.ULTRA_WIDE)
         }.apply { isEnabled = false }
         wideButton = button("Wide / main · zoeken…") {
-            captureRole(LensRole.WIDE_MAIN)
+            openPreviewRole(LensRole.WIDE_MAIN)
         }.apply { isEnabled = false }
         teleButton = button("Tele · zoeken…") {
-            captureRole(LensRole.TELE)
+            openPreviewRole(LensRole.TELE)
         }.apply { isEnabled = false }
 
         root.addView(ultraButton)
@@ -215,7 +326,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         )
         root.addView(
             text(
-                "Deze Camera-5 route blijft apart: maximum-resolution/200MP-logica wordt nooit op ultra-wide, main of normale tele toegepast.",
+                "De speciale Camera-5 maximum-resolutionroute blijft apart; deze universele live view verandert die route niet.",
                 10.5f,
                 false,
                 DrawVisualTheme.MUTED,
