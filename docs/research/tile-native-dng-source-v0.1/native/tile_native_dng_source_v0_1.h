@@ -91,12 +91,6 @@ struct SourceAudit {
     bool fullFileMaterialized = false;
     bool fullRawMaterialized = false;
     bool gainMapPresent = false;
-    std::uint32_t opcodeList2Count = 0;
-    std::uint32_t gainMapOpcodeCount = 0;
-    std::uint32_t optionalOpcodeList2Skipped = 0;
-    std::uint32_t fixBadPixelsListOpcodesSkipped = 0;
-    std::uint32_t unknownOptionalOpcodeList2Skipped = 0;
-    bool mandatoryUnsupportedOpcodeList2Seen = false;
     bool strileLocatorsValidatedLazily = true;
 };
 
