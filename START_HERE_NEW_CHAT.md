@@ -32,6 +32,7 @@ The following work is deliberately **draft/unmerged** and must not be confused w
 - **PR #84** · `research/dark-chroma-stability-v02-2026-09-28` — first information-support gate. Real-device near-black tele testing proved the entropy hard-cutoff too brittle, while correction safety still held.
 - **PR #85** · `research/dark-chroma-stability-v03-2026-09-28` — device-validated successor: non-entropy-hinged frontside degeneracy blocker plus sparse measured backside signal-support from the selected DNG CFA payload. Global backside support may **block** hidden-colour reconstruction but may never enable correction.
 - **PR #86** · `research/dark-chroma-stability-v04-2026-09-29` — device-validated in three cases: near-black tele remains `DARK_UNINFORMATIVE`; structured ultra-wide has zero visible candidates; selective main/wide `1790637640867` binds all 6 visible candidates but exposes a new limitation: `structure_protection_present` is true in 3072/3072 N2 tiles although only ~16.56% of sampled points are structure-protected. Therefore v0.4 binding is validated, but the 64x64 any-structure-presence veto is too coarse for candidate promotion. Correction-supported and private chroma A/B/Delta remain false.
+- **v0.5 active branch** · `research/dark-chroma-stability-v05-2026-09-29` — current successor under build/device validation: unchanged N2 structure gate, but 32×32 source reporting tiles expose sampled structure-protection density and fully-contained interior support for selective Dark-Chroma regions. It is measurement-only: no unsampled-pixel inference, no protection reduction, no correction enable and no private chroma A/B/Delta.
 
 Current Dark Chroma law:
 
@@ -48,8 +49,8 @@ NO private chroma A/B/Delta yet
 NO Scientific-Master writeback
 ```
 
-Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29.json` and
-`docs/research/dark-chroma-stability-v0.4/README.md` before continuing this line.
+Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V05.json` and
+`docs/research/dark-chroma-stability-v0.5/README.md` before continuing this line.
 
 Latest v0.4 device evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_ULTRAWIDE_1790636281140.md`.
 Selective main/wide evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790637640867.md`.
@@ -79,8 +80,8 @@ Ultra-wide final admission state:
 ## Mandatory current reading order
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29.json` — active draft/unmerged Dark Chroma line
-3. `docs/research/dark-chroma-stability-v0.4/README.md`
+2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V05.json` — active draft/unmerged Dark Chroma line
+3. `docs/research/dark-chroma-stability-v0.5/README.md`
 4. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
 5. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
 6. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
