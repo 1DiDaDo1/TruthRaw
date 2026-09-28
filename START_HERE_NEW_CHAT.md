@@ -31,7 +31,7 @@ The following work is deliberately **draft/unmerged** and must not be confused w
 - **PR #83** · `research/dark-chroma-stability-v01-2026-09-28` — same-observation frontside dark-chroma instability audit + structure veto; no correction/writeback.
 - **PR #84** · `research/dark-chroma-stability-v02-2026-09-28` — first information-support gate. Real-device near-black tele testing proved the entropy hard-cutoff too brittle, while correction safety still held.
 - **PR #85** · `research/dark-chroma-stability-v03-2026-09-28` — device-validated successor: non-entropy-hinged frontside degeneracy blocker plus sparse measured backside signal-support from the selected DNG CFA payload. Global backside support may **block** hidden-colour reconstruction but may never enable correction.
-- **PR #86** · `research/dark-chroma-stability-v04-2026-09-29` — current active successor: same-observation spatial binding from deterministic frontside tiles to existing N2 Factored Confidence v0.3.1 source tiles. Separate N2 axes remain vector-valued diagnostics; DARK_UNINFORMATIVE cannot be overridden; correction-supported and private chroma A/B/Delta remain false.
+- **PR #86** · `research/dark-chroma-stability-v04-2026-09-29` — current active successor, now device-validated in two contrasting cases: near-black tele remains `DARK_UNINFORMATIVE` despite successful local N2 binding; structured ultra-wide capture `1790636281140` binds all 432 frontside tiles with zero visible Dark-Chroma candidates and remains non-degenerate. Separate N2 axes remain vector-valued diagnostics; correction-supported and private chroma A/B/Delta remain false.
 
 Current Dark Chroma law:
 
@@ -50,6 +50,8 @@ NO Scientific-Master writeback
 
 Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29.json` and
 `docs/research/dark-chroma-stability-v0.4/README.md` before continuing this line.
+
+Latest v0.4 device evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_ULTRAWIDE_1790636281140.md`.
 
 ## Current physical observations
 
