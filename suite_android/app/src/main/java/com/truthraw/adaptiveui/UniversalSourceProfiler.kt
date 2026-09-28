@@ -1,0 +1,453 @@
+package com.truthraw.adaptiveui
+
+import android.content.ContentResolver
+import android.net.Uri
+import android.os.ParcelFileDescriptor
+import org.json.JSONArray
+import org.json.JSONObject
+import java.security.MessageDigest
+
+/**
+ * Universal read-only intake profiler for the full D.RAW suite.
+ *
+ * It looks at two independent sides of the same immutable source:
+ * 1. back side: bytes/container/source metadata;
+ * 2. front side: visible scene structure through FrontsideSceneInspector.
+ *
+ * Device-specific maps are never required to decide scientific truth. Unknown
+ * facts stay UNKNOWN. Frontside interpretation is APPEARANCE_DERIVED_ONLY.
+ */
+object UniversalSourceProfiler {
+
+    fun profile(
+        resolver: ContentResolver,
+        source: RawHandle,
+    ): JSONObject {
+        val sourceSha256 = sha256(resolver, source.uri)
+        val byteLength = source.declaredSizeBytes ?: queryLength(resolver, source.uri)
+
+        val base = JSONObject()
+            .put("schema", "D.RAW/UniversalSourceProfile/0.2")
+            .put("status", "AUTO_PROFILED_IN_FULL_DRAW_SUITE")
+            .put("source_sha256", sourceSha256)
+            .put("display_name", source.displayName)
+            .put("byte_length", byteLength ?: JSONObject.NULL)
+            .put("source_route", source.sourceRoute.name)
+            .put("format_registry_id", source.format.id)
+            .put("format_registry_label", source.format.displayLabel)
+            .put("decoder_backend", source.format.decoderBackend.name)
+            .put("device_specific_mapping_used", false)
+            .put("unknown_is_valid", true)
+            .put("full_draw_suite_integrated", true)
+            .put("extensions", JSONObject())
+
+        val sniff = sniffContainer(resolver, source.uri)
+        base.put("container_sniff", sniff)
+
+        if (sniff.optString("family") != "CLASSIC_TIFF") {
+            return base
+                .put("scientific_source_class", "OPAQUE_RAW_OR_IMAGE_CONTAINER")
+                .put("metadata_parse_status", "NOT_CLASSIC_TIFF")
+                .put("source_metadata", JSONObject())
+                .put(
+                    "route_hints",
+                    JSONArray()
+                        .put("KEEP_ORIGINAL_SOURCE_SEALED")
+                        .put("USE_FORMAT_ADAPTER_POLICY_WITHOUT_DEVICE_MAP")
+                        .put(
+                            if (source.format.decoderBackend == RawDecoderBackend.DECODER_PENDING) {
+                                "FORMAT_ADAPTER_PENDING"
+                            } else {
+                                "USE_EXISTING_FORMAT_ADAPTER"
+                            },
+                        ),
+                )
+                .put(
+                    "scene_analysis",
+                    FrontsideSceneInspector.inspect(
+                        resolver,
+                        source.uri,
+                        null,
+                        sourceSha256,
+                    ),
+                )
+                .put("authority", authorityBlock())
+                .put("open_world", openWorldBlock())
+        }
+
+        val parsed = try {
+            parseClassicTiff(resolver, source.uri)
+        } catch (e: Exception) {
+            return base
+                .put("scientific_source_class", "TIFF_CONTAINER_METADATA_PARSE_FAILED")
+                .put("metadata_parse_status", "FAILED")
+                .put("metadata_error", e.message ?: e.javaClass.simpleName)
+                .put("source_metadata", JSONObject())
+                .put(
+                    "route_hints",
+                    JSONArray()
+                        .put("KEEP_ORIGINAL_SOURCE_SEALED")
+                        .put("FAIL_CLOSED_OR_VERSIONED_COMPATIBILITY_ADAPTER"),
+                )
+                .put(
+                    "scene_analysis",
+                    FrontsideSceneInspector.inspect(
+                        resolver,
+                        source.uri,
+                        null,
+                        sourceSha256,
+                    ),
+                )
+                .put("authority", authorityBlock())
+                .put("open_world", openWorldBlock())
+        }
+
+        val ifds = parsed.optJSONArray("ifds") ?: JSONArray()
+        val rawCandidates = parsed.optJSONArray("rawCfaIfdCandidates") ?: JSONArray()
+
+        val make = findTagValue(ifds, "Make")
+        val model = findTagValue(ifds, "Model")
+        val uniqueCameraModel = findTagValue(ifds, "UniqueCameraModel")
+        val software = findTagValue(ifds, "Software")
+        val dateTime = findTagValue(ifds, "DateTime")
+        val orientation = numberValue(findTagValue(ifds, "Orientation"))?.toInt()
+        val exposureTime = rationalValue(findTagValue(ifds, "ExposureTime"))
+        val fNumber = rationalValue(findTagValue(ifds, "FNumber"))
+        val iso = numberValue(findTagValue(ifds, "ISOSpeedRatings"))
+        val focalLength = rationalValue(findTagValue(ifds, "FocalLength"))
+        val dngVersion = findTagValue(ifds, "DNGVersion")
+        val dngBackward = findTagValue(ifds, "DNGBackwardVersion")
+        val asShotNeutral = findTagValue(ifds, "AsShotNeutral")
+        val colorMatrix1 = findTagValue(ifds, "ColorMatrix1")
+        val colorMatrix2 = findTagValue(ifds, "ColorMatrix2")
+        val forwardMatrix1 = findTagValue(ifds, "ForwardMatrix1")
+        val forwardMatrix2 = findTagValue(ifds, "ForwardMatrix2")
+        val noiseProfile = findTagValue(ifds, "NoiseProfile")
+        val calibration1 = findTagValue(ifds, "CameraCalibration1")
+        val calibration2 = findTagValue(ifds, "CameraCalibration2")
+
+        val primaryRaw = largestRawCandidate(rawCandidates)
+        val width = numberValue(primaryRaw?.opt("imageWidth"))?.toLong()
+        val height = numberValue(primaryRaw?.opt("imageLength"))?.toLong()
+
+        val metadata = JSONObject()
+            .put("make", valueOrNull(make))
+            .put("model", valueOrNull(model))
+            .put("unique_camera_model", valueOrNull(uniqueCameraModel))
+            .put("software", valueOrNull(software))
+            .put("date_time", valueOrNull(dateTime))
+            .put("orientation", orientation ?: JSONObject.NULL)
+            .put("dng_version", valueOrNull(dngVersion))
+            .put("dng_backward_version", valueOrNull(dngBackward))
+            .put("exposure_time_seconds", exposureTime ?: JSONObject.NULL)
+            .put("f_number", fNumber ?: JSONObject.NULL)
+            .put("iso", iso ?: JSONObject.NULL)
+            .put("focal_length_mm", focalLength ?: JSONObject.NULL)
+            .put("as_shot_neutral", valueOrNull(asShotNeutral))
+            .put("color_matrix_1_present", colorMatrix1 != null)
+            .put("color_matrix_2_present", colorMatrix2 != null)
+            .put("camera_calibration_1_present", calibration1 != null)
+            .put("camera_calibration_2_present", calibration2 != null)
+            .put("forward_matrix_1_present", forwardMatrix1 != null)
+            .put("forward_matrix_2_present", forwardMatrix2 != null)
+            .put("noise_profile_present", noiseProfile != null)
+
+        val raster = JSONObject()
+            .put("raw_cfa_candidate_count", rawCandidates.length())
+            .put("width", width ?: JSONObject.NULL)
+            .put("height", height ?: JSONObject.NULL)
+            .put("bits_per_sample", valueOrNull(primaryRaw?.opt("bitsPerSample")))
+            .put("compression", valueOrNull(primaryRaw?.opt("compression")))
+            .put("samples_per_pixel", valueOrNull(primaryRaw?.opt("samplesPerPixel")))
+            .put("cfa_repeat_pattern_dim", valueOrNull(primaryRaw?.opt("cfaRepeatPatternDim")))
+            .put("cfa_pattern", valueOrNull(primaryRaw?.opt("cfaPattern")))
+            .put("black_level", valueOrNull(primaryRaw?.opt("blackLevel")))
+            .put("white_level", valueOrNull(primaryRaw?.opt("whiteLevel")))
+            .put("active_area", valueOrNull(primaryRaw?.opt("activeArea")))
+            .put("default_crop_size", valueOrNull(primaryRaw?.opt("defaultCropSize")))
+
+        val sourceClass = when {
+            rawCandidates.length() > 0 -> "DNG_CFA_RAW"
+            dngVersion != null || uniqueCameraModel != null ->
+                "DNG_NON_CFA_OR_UNSUPPORTED_RAW_LAYOUT"
+            else -> "TIFF_IMAGE_OR_UNKNOWN"
+        }
+
+        val routeHints = JSONArray().put("KEEP_ORIGINAL_SOURCE_SEALED")
+        if (rawCandidates.length() > 0) {
+            routeHints.put("TRY_DIRECT_COMMON_DNG_SCIENTIFIC_INGRESS")
+        }
+        if (orientation != null && orientation !in 1..8) {
+            routeHints.put("ORIENTATION_METADATA_INVALID_CHECK_VERSIONED_COMPATIBILITY_INGRESS")
+        }
+        if (rawCandidates.length() == 0) {
+            routeHints.put("DO_NOT_ASSUME_CFA_SCIENTIFIC_SOURCE")
+        }
+
+        val sourceIdentityHint = JSONObject()
+            .put("make", valueOrNull(make))
+            .put("model", valueOrNull(model))
+            .put("unique_camera_model", valueOrNull(uniqueCameraModel))
+            .put("authority", "SOURCE_METADATA_BOUND_NOT_DEVICE_CALIBRATION")
+
+        val optics = JSONObject()
+            .put("focal_length_mm", focalLength ?: JSONObject.NULL)
+            .put("f_number", fNumber ?: JSONObject.NULL)
+            .put("lens_role", "UNKNOWN")
+            .put("lens_role_authority", "UNKNOWN")
+            .put("field_of_view", "UNKNOWN")
+            .put("optical_support", "UNKNOWN")
+            .put(
+                "note",
+                "Focal length alone does not prove lens role, sensor crop, field of view or optical resolving support.",
+            )
+
+        val frontside = FrontsideSceneInspector.inspect(
+            resolver,
+            source.uri,
+            parsed,
+            sourceSha256,
+        )
+
+        return base
+            .put("scientific_source_class", sourceClass)
+            .put("metadata_parse_status", "PASS_READ_ONLY")
+            .put("container_metadata", parsed)
+            .put("source_metadata", metadata)
+            .put("primary_raw_raster", raster)
+            .put("source_identity_hint", sourceIdentityHint)
+            .put("optics", optics)
+            .put("route_hints", routeHints)
+            .put("scene_analysis", frontside)
+            .put("authority", authorityBlock())
+            .put("open_world", openWorldBlock())
+    }
+
+    fun pairProfile(a: JSONObject, b: JSONObject): JSONObject {
+        val aMeta = a.optJSONObject("source_metadata") ?: JSONObject()
+        val bMeta = b.optJSONObject("source_metadata") ?: JSONObject()
+        val aOptics = a.optJSONObject("optics") ?: JSONObject()
+        val bOptics = b.optJSONObject("optics") ?: JSONObject()
+
+        val aDevice = normalizedDevice(aMeta)
+        val bDevice = normalizedDevice(bMeta)
+        val sameDeviceHint = aDevice != null && bDevice != null && aDevice == bDevice
+
+        val fa = aOptics.optDouble("focal_length_mm", Double.NaN)
+        val fb = bOptics.optDouble("focal_length_mm", Double.NaN)
+        val focalOrdering = when {
+            fa.isFinite() && fb.isFinite() && fa < fb -> "A_SHORTER_FOCAL_LENGTH_THAN_B"
+            fa.isFinite() && fb.isFinite() && fb < fa -> "B_SHORTER_FOCAL_LENGTH_THAN_A"
+            fa.isFinite() && fb.isFinite() -> "EQUAL_REPORTED_FOCAL_LENGTH"
+            else -> "UNKNOWN"
+        }
+
+        val aScene = a.optJSONObject("scene_analysis") ?: JSONObject()
+        val bScene = b.optJSONObject("scene_analysis") ?: JSONObject()
+        val aReady = aScene.optJSONObject("geometry_readiness")
+            ?.optBoolean("natural_feature_geometry_candidate", false) ?: false
+        val bReady = bScene.optJSONObject("geometry_readiness")
+            ?.optBoolean("natural_feature_geometry_candidate", false) ?: false
+
+        val aAspect = aScene.optJSONObject("proportions")
+            ?.optDouble("aspect_ratio_width_over_height", Double.NaN)
+            ?: Double.NaN
+        val bAspect = bScene.optJSONObject("proportions")
+            ?.optDouble("aspect_ratio_width_over_height", Double.NaN)
+            ?: Double.NaN
+
+        val aspectAgreement = if (aAspect.isFinite() && bAspect.isFinite()) {
+            kotlin.math.abs(aAspect - bAspect) /
+                kotlin.math.max(aAspect, bAspect) <= 0.03
+        } else {
+            false
+        }
+
+        return JSONObject()
+            .put("schema", "D.RAW/UniversalSourcePairProfile/0.2")
+            .put("same_device_metadata_hint", sameDeviceHint)
+            .put("same_device_hint_authority", "SOURCE_METADATA_HINT_ONLY")
+            .put("reported_focal_length_ordering", focalOrdering)
+            .put("focal_ordering_is_field_of_view_authority", false)
+            .put("frontside_a_available", aScene.optBoolean("decoded_preview_used", false))
+            .put("frontside_b_available", bScene.optBoolean("decoded_preview_used", false))
+            .put("frontside_natural_feature_candidate_a", aReady)
+            .put("frontside_natural_feature_candidate_b", bReady)
+            .put("frontside_aspect_ratio_compatible_hint", aspectAgreement)
+            .put("frontside_hint_authority", "APPEARANCE_DERIVED_ONLY")
+            .put("role_assignment", "DEFER_TO_SCENE_AND_SOURCE_EVIDENCE")
+            .put(
+                "geometry_route",
+                if (aReady && bReady) {
+                    "NATURAL_FEATURE_PAIR_MATCHING_CANDIDATE"
+                } else {
+                    "SCIENTIFIC_RECONSTRUCTION_THEN_SCENE_INSPECTION"
+                },
+            )
+            .put("indexed_target_required", false)
+            .put("metric_scale", "UNKNOWN_UNLESS_SOURCE_OR_SCENE_SUPPLIES_SCALE")
+            .put("device_specific_mapping_used", false)
+            .put("extensions", JSONObject())
+    }
+
+    private fun parseClassicTiff(
+        resolver: ContentResolver,
+        uri: Uri,
+    ): JSONObject {
+        val pfd = resolver.openFileDescriptor(uri, "r")
+            ?: error("Bron kon niet read-only worden geopend.")
+        val statSize = pfd.statSize
+        ParcelFileDescriptor.AutoCloseInputStream(pfd).use { input ->
+            val channel = input.channel
+            val size = if (statSize >= 0L) statSize else channel.size()
+            require(size >= 8L) { "TIFF/DNG bron is te kort." }
+            return DngContainerMetadataParser.parse(channel, size)
+        }
+    }
+
+    private fun sha256(
+        resolver: ContentResolver,
+        uri: Uri,
+    ): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        resolver.openInputStream(uri)?.use { input ->
+            val buffer = ByteArray(1024 * 1024)
+            while (true) {
+                val n = input.read(buffer)
+                if (n <= 0) break
+                digest.update(buffer, 0, n)
+            }
+        } ?: error("Bron kon niet voor SHA-256 worden gelezen.")
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    private fun queryLength(
+        resolver: ContentResolver,
+        uri: Uri,
+    ): Long? {
+        val pfd = resolver.openFileDescriptor(uri, "r") ?: return null
+        val size = pfd.statSize
+        pfd.close()
+        return size.takeIf { it >= 0L }
+    }
+
+    private fun sniffContainer(
+        resolver: ContentResolver,
+        uri: Uri,
+    ): JSONObject {
+        val pfd = resolver.openFileDescriptor(uri, "r")
+            ?: return JSONObject().put("family", "UNKNOWN").put("reason", "OPEN_FAILED")
+        ParcelFileDescriptor.AutoCloseInputStream(pfd).use { input ->
+            val bytes = ByteArray(4)
+            var used = 0
+            while (used < bytes.size) {
+                val n = input.read(bytes, used, bytes.size - used)
+                if (n <= 0) break
+                used += n
+            }
+            if (used < 4) {
+                return JSONObject().put("family", "UNKNOWN").put("reason", "TOO_SHORT")
+            }
+            val littleTiff =
+                bytes[0] == 'I'.code.toByte() &&
+                    bytes[1] == 'I'.code.toByte() &&
+                    (bytes[2].toInt() and 0xff) == 42 &&
+                    (bytes[3].toInt() and 0xff) == 0
+            val bigTiff =
+                bytes[0] == 'M'.code.toByte() &&
+                    bytes[1] == 'M'.code.toByte() &&
+                    (bytes[2].toInt() and 0xff) == 0 &&
+                    (bytes[3].toInt() and 0xff) == 42
+            return when {
+                littleTiff -> JSONObject()
+                    .put("family", "CLASSIC_TIFF")
+                    .put("byte_order", "LITTLE_ENDIAN")
+                bigTiff -> JSONObject()
+                    .put("family", "CLASSIC_TIFF")
+                    .put("byte_order", "BIG_ENDIAN")
+                else -> JSONObject()
+                    .put("family", "UNKNOWN_OR_VENDOR_RAW")
+                    .put(
+                        "magic_prefix_hex",
+                        bytes.joinToString("") { "%02x".format(it.toInt() and 0xff) },
+                    )
+            }
+        }
+    }
+
+    private fun authorityBlock(): JSONObject =
+        JSONObject()
+            .put("container_fields", "SOURCE_METADATA_BOUND")
+            .put("source_sha256", "MEASURED")
+            .put("frontside_scene", "APPEARANCE_DERIVED_ONLY")
+            .put("lens_role", "UNKNOWN_UNLESS_INDEPENDENTLY_PROVEN")
+            .put("scene_geometry", "NOT_YET_MEASURED")
+            .put("metric_scale", "UNKNOWN_UNLESS_EVIDENCE_EXISTS")
+            .put("creates_new_sensor_evidence", false)
+            .put("scientific_writeback_allowed", false)
+
+    private fun openWorldBlock(): JSONObject =
+        JSONObject()
+            .put("source_self_describes_when_possible", true)
+            .put("frontside_is_intake_knowledge_source", true)
+            .put("unknown_fields_remain_unknown", true)
+            .put("future_format_adapters_allowed", true)
+            .put("future_semantic_scene_models_allowed", true)
+            .put("sealed_source_does_not_seal_interpretation", true)
+            .put("representation_may_exceed_source", true)
+            .put("knowledge_claims_may_not_exceed_evidence", true)
+
+    private fun largestRawCandidate(array: JSONArray): JSONObject? {
+        var best: JSONObject? = null
+        var bestArea = -1.0
+        for (i in 0 until array.length()) {
+            val candidate = array.optJSONObject(i) ?: continue
+            val width = numberValue(candidate.opt("imageWidth")) ?: continue
+            val height = numberValue(candidate.opt("imageLength")) ?: continue
+            val area = width * height
+            if (area > bestArea) {
+                bestArea = area
+                best = candidate
+            }
+        }
+        return best
+    }
+
+    private fun findTagValue(ifds: JSONArray, name: String): Any? {
+        for (i in 0 until ifds.length()) {
+            val entries = ifds.optJSONObject(i)?.optJSONArray("entries") ?: continue
+            for (j in 0 until entries.length()) {
+                val entry = entries.optJSONObject(j) ?: continue
+                if (entry.optString("name") == name) {
+                    val value = entry.opt("value")
+                    if (value != null && value !== JSONObject.NULL) return value
+                }
+            }
+        }
+        return null
+    }
+
+    private fun numberValue(value: Any?): Double? = when (value) {
+        is Number -> value.toDouble()
+        is JSONObject ->
+            if (value.has("value") && !value.isNull("value")) {
+                value.optDouble("value")
+            } else {
+                null
+            }
+        else -> null
+    }
+
+    private fun rationalValue(value: Any?): Double? = numberValue(value)
+
+    private fun normalizedDevice(metadata: JSONObject): String? {
+        val unique = metadata.optString("unique_camera_model", "").trim()
+        if (unique.isNotEmpty() && unique != "null") return unique.lowercase()
+        val make = metadata.optString("make", "").trim()
+        val model = metadata.optString("model", "").trim()
+        if (make.isEmpty() && model.isEmpty()) return null
+        return (make + "|" + model).lowercase()
+    }
+
+    private fun valueOrNull(value: Any?): Any = value ?: JSONObject.NULL
+}
