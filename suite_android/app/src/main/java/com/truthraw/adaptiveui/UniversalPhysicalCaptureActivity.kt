@@ -175,6 +175,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
     override fun onPause() {
         closeCaptureResources()
+        if (::captureButton.isInitialized) captureButton.isEnabled = false
+        if (::focusLockButton.isInitialized) {
+            focusLockButton.isEnabled = false
+            focusLockButton.text = "AF vergrendelen"
+        }
+        if (::loupeButton.isInitialized) loupeButton.isEnabled = false
+        if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
         super.onPause()
     }
 
