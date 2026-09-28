@@ -1,0 +1,12 @@
+{
+  "schema": "TruthRawHistoricalBootstrapBlobProvenance/1.0",
+  "recorded_date": "2026-09-10",
+  "purpose": "Preserve the exact Git-blob identities of the pre-renewed-house global bootstrap documents after they moved out of canonical byte-freeze scope and into documentation-governance scope.",
+  "superseded_by_commit": "ab8c0e6ab078fdfc1daf51996ce30fc23d2b2433",
+  "historical_blobs": {
+    "README.md": "341cdf2903e626ffd7b53d53de5edbb4fced9fc2",
+    "START_HERE_NEW_CHAT.md": "fab115fe4303554ecd1383dcb1aaf1dc10724812"
+  },
+  "scope_rule": "These blob identities remain historical provenance. Current README.md and START_HERE_NEW_CHAT.md are mutable project-navigation documents governed by Documentation Governance, not frozen scientific/canonical evidence.",
+  "scientific_effect": "NONE; no canonical algorithm, evidence payload, scientific master, zero-line semantics, calibration status or claim boundary is changed by this scope migration."
+}
