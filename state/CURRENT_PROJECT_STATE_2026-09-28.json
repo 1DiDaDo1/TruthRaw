@@ -166,7 +166,7 @@
     },
     "dark_chroma_v0_5": {
       "branch": "research/dark-chroma-stability-v05-2026-09-29",
-      "pull_request": null,
+      "pull_request": 87,
       "status": "BUILD_AND_DEVICE_VALIDATION",
       "parent": "dark_chroma_v0_4",
       "purpose": "refine local structure-support resolution after v0.4 selective main/wide proved 64x64 any-structure-presence too coarse",
