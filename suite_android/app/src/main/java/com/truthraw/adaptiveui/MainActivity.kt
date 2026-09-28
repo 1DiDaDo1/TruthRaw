@@ -3203,6 +3203,16 @@ class MainActivity : Activity() {
                     darkChromaV02.optJSONObject("global") ?: JSONObject()
                 val darkChromaV02Backside =
                     darkChromaV02.optJSONObject("backside_support") ?: JSONObject()
+                val backsideSignal =
+                    profile.optJSONObject("backside_signal_support") ?: JSONObject()
+                val backsideSignalGlobal =
+                    backsideSignal.optJSONObject("global") ?: JSONObject()
+                val darkChromaV03 =
+                    scene.optJSONObject("dark_chroma_stability_v0_3") ?: JSONObject()
+                val darkChromaV03Global =
+                    darkChromaV03.optJSONObject("global") ?: JSONObject()
+                val darkChromaV03Factors =
+                    darkChromaV03.optJSONObject("degeneracy_factors") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3309,6 +3319,58 @@ class MainActivity : Activity() {
                     ))
                 }
 
+                if (
+                    backsideSignal.optString("status") ==
+                    "MEASURED_SOURCE_PAYLOAD_SAMPLE_AVAILABLE"
+                ) {
+                    val p50 =
+                        backsideSignalGlobal.optDouble(
+                            "p50_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val p90 =
+                        backsideSignalGlobal.optDouble(
+                            "p90_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val p99 =
+                        backsideSignalGlobal.optDouble(
+                            "p99_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val nearBlack =
+                        backsideSignalGlobal.optDouble("fraction_le_0_01", Double.NaN)
+                    addView(space(4))
+                    addView(label(
+                        "Backside Signal Support v0.1 · SOURCE PAYLOAD · state=" +
+                            backsideSignal.optString("signal_support_state", "UNKNOWN") +
+                            " · samples=" + backsideSignal.optInt("sample_count", 0) +
+                            " · p50/p90/p99=" +
+                            (if (p50.isFinite()) "%.5f".format(p50) else "?") + "/" +
+                            (if (p90.isFinite()) "%.5f".format(p90) else "?") + "/" +
+                            (if (p99.isFinite()) "%.5f".format(p99) else "?") +
+                            " · frac≤0.01=" +
+                            (if (nearBlack.isFinite()) "%.3f".format(nearBlack) else "?"),
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Meet direct uit geselecteerde DNG-CFA payload t.o.v. Black/White. " +
+                            "Geen clamp, geen ADC-claim, geen correctie-enable; alleen een conservatieve blocker.",
+                        10f,
+                        muted = true,
+                    ))
+                } else {
+                    addView(space(4))
+                    addView(label(
+                        "Backside Signal Support v0.1 · UNKNOWN/fail-closed · reason=" +
+                            backsideSignal.optString("reason", "niet beschikbaar") +
+                            ". Geen signaalclaim uit onbekende topology.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
                 if (darkChromaV02.optString("status") == "AUDIT_ONLY_AVAILABLE") {
                     val infoState =
                         darkChromaV02.optString("global_information_state", "UNKNOWN")
@@ -3356,6 +3418,74 @@ class MainActivity : Activity() {
                         "v0.2 wet: DARK_UNINFORMATIVE = geen verborgen kleur reconstrueren. " +
                             "CHROMA_CORRECTION_SUPPORTED blijft onmogelijk totdat dezelfde observation " +
                             "lokale backside/N2-support heeft; candidateApplied=false.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (darkChromaV03.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val state =
+                        darkChromaV03.optString("global_information_state", "UNKNOWN")
+                    val visible =
+                        darkChromaV03Global.optLong("visible_chroma_instability_tiles", 0L)
+                    val uninformative =
+                        darkChromaV03Global.optLong("dark_uninformative_tiles", 0L)
+                    val pending =
+                        darkChromaV03Global.optLong(
+                            "backside_confirmation_pending_tiles",
+                            0L,
+                        )
+                    val supported =
+                        darkChromaV03Global.optLong(
+                            "chroma_correction_supported_tiles",
+                            0L,
+                        )
+                    val darkFraction =
+                        darkChromaV03Factors.optDouble("dark_tile_fraction", Double.NaN)
+                    val candidateFraction =
+                        darkChromaV03Factors.optDouble(
+                            "visible_candidate_fraction",
+                            Double.NaN,
+                        )
+                    val structureFraction =
+                        darkChromaV03Factors.optDouble(
+                            "structure_protected_fraction",
+                            Double.NaN,
+                        )
+                    val edge =
+                        darkChromaV03Factors.optDouble("edge_density", Double.NaN)
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.3 · DEGENERACY + BACKSIDE GATE · state=" +
+                            state +
+                            " · degenerate=" +
+                            darkChromaV03.optBoolean("frontside_degenerate", false) +
+                            " · backsideNearBlack=" +
+                            darkChromaV03.optBoolean("backside_near_black_dominated", false) +
+                            " · visible=" + visible +
+                            " · dark-uninformative=" + uninformative +
+                            " · backside-pending=" + pending +
+                            " · correction-supported=" + supported,
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Degeneracy factors · dark=" +
+                            (if (darkFraction.isFinite()) "%.3f".format(darkFraction) else "?") +
+                            " · candidate=" +
+                            (if (candidateFraction.isFinite()) "%.3f".format(candidateFraction) else "?") +
+                            " · structure=" +
+                            (if (structureFraction.isFinite()) "%.3f".format(structureFraction) else "?") +
+                            " · edgeDensity=" +
+                            (if (edge.isFinite()) "%.4f".format(edge) else "?") +
+                            " · entropy is alleen diagnostiek, geen harde poort.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.3 wet: een gedegenereerde bijna-zwarte frontside of gemeten near-black backside " +
+                            "mag alleen blokkeren. Geen verborgen kleur, geen private A/B/Δ en geen " +
+                            "CHROMA_CORRECTION_SUPPORTED tot lokale N2/backside-binding bestaat.",
                         10f,
                         muted = true,
                     ))

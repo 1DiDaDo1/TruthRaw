@@ -1,0 +1,37 @@
+name: Dark Chroma Stability v0.3 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV03Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/BacksideSignalSupportAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.3/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-28.json'
+      - 'tools/check_dark_chroma_stability_v03.py'
+      - '.github/workflows/dark-chroma-stability-v03.yml'
+  push:
+    branches:
+      - 'research/dark-chroma-stability-v03-2026-09-28'
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV03Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/BacksideSignalSupportAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.3/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-28.json'
+      - 'tools/check_dark_chroma_stability_v03.py'
+      - '.github/workflows/dark-chroma-stability-v03.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_dark_chroma_stability_v03.py

@@ -4,11 +4,11 @@
 
 Primary current repository line: `main`.
 
-Latest substantive integration:
+Latest canonical main integration:
 
-`1fa3850e4ec0c58f7dc294acd011721465041ea9`
+`a46d438145427e09e9c09db8e6cf3e443abe5a51` — PR #81
 
-This integration adds Universal Physical Capture to the full `suite_android` D.RAW app: ultra-wide, wide/main and tele are discovered dynamically as RAW-capable back-facing sources, captured to a sealed DNG, and handed to the same Universal Intake as imported RAW. Camera2 remains transport/provenance only. The existing special 4K→200MP Camera-5 route remains separate and preserved.
+Main includes the RAW_SENSOR-first universal physical-capture foundation plus live preview, tap focus, focus lock and display-only Macro Loupe v0.3. Camera2 remains transport/provenance only. The normal ultra-wide, wide/main and tele routes use separate physical-camera acquisition paths; the existing special 4K→200MP Camera-5 route remains separate and preserved.
 
 ## Current core vision
 
@@ -17,11 +17,38 @@ This integration adds Universal Physical Capture to the full `suite_android` D.R
 - Frontside inspection is deterministic classical vision only and remains `APPEARANCE_DERIVED_ONLY` unless a separate scientific path proves a stronger fact.
 - **No AI/ML/neural/generative/learned models are allowed in D.RAW.**
 - Device-specific maps are optional hints, never prerequisites for universal source entry or scientific truth.
-- Camera and file sources now converge after source sealing: physical capture → sealed DNG → the same Universal Intake as imported RAW.
-- Ultra-wide / wide-main / tele camera roles are dynamic UI focal-order hints only; Camera2 properties never become scientific truth.
+- Camera and file sources converge after source sealing: physical capture → sealed app-visible RAW_SENSOR evidence → derived compatibility DNG → the same Universal Intake as imported RAW.
+- Ultra-wide / wide-main / tele are dynamically discovered physical acquisition routes. Current PR #82 real-device tests prove distinct physical 4/2/5 runtime routes on the tested device, while role names/FoV ordering remain acquisition/UI knowledge rather than universal scientific truth.
 - Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
 - Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
 - The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
+
+## Active unmerged 2026-09-28 device research
+
+The following work is deliberately **draft/unmerged** and must not be confused with canonical `main`:
+
+- **PR #82** · `fix/universal-camera-input-v04-2026-09-28` — real-device validated normal physical routing: ultra-wide route/physical 4 at 1.82 mm, main route/physical 2 at 6.55 mm, tele route/physical 5 at 22.48 mm; derived DNG Orientation compatibility fix validated through the scientific pipeline.
+- **PR #83** · `research/dark-chroma-stability-v01-2026-09-28` — same-observation frontside dark-chroma instability audit + structure veto; no correction/writeback.
+- **PR #84** · `research/dark-chroma-stability-v02-2026-09-28` — first information-support gate. Real-device near-black tele testing proved the entropy hard-cutoff too brittle, while correction safety still held.
+- **PR #85** · `research/dark-chroma-stability-v03-2026-09-28` — current active successor: non-entropy-hinged frontside degeneracy blocker plus sparse measured backside signal-support from the selected DNG CFA payload. Global backside support may **block** hidden-colour reconstruction but may never enable correction.
+
+Current Dark Chroma law:
+
+```text
+one sealed observation
+ -> deterministic frontside structure/chroma diagnostics
+ -> measured selected-DNG backside signal support where topology is provable
+ -> blocking/uncertainty constraints
+ -> one D.RAWnegative diagnostic binding
+
+NO hidden-colour reconstruction from DARK_UNINFORMATIVE
+NO CHROMA_CORRECTION_SUPPORTED without same-observation local N2/backside binding
+NO private chroma A/B/Delta yet
+NO Scientific-Master writeback
+```
+
+Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-28.json` and
+`docs/research/dark-chroma-stability-v0.3/README.md` before continuing this line.
 
 ## Current physical observations
 
@@ -48,18 +75,20 @@ Ultra-wide final admission state:
 ## Mandatory current reading order
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-2. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
-4. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
-5. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-6. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
-7. `docs/research/draw-observation-record-v0.4/README.md`
-8. `docs/research/draw-source-capability-envelope-v0.2/README.md`
-9. `docs/research/draw-source-admission-package-v0.2/README.md`
-10. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
-11. `docs/research/free-world-observation-graph-v0.1/README.md`
-12. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-13. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-28.json` — active draft/unmerged Dark Chroma line
+3. `docs/research/dark-chroma-stability-v0.3/README.md`
+4. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+5. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
+6. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
+7. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+8. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
+9. `docs/research/draw-observation-record-v0.4/README.md`
+10. `docs/research/draw-source-capability-envelope-v0.2/README.md`
+11. `docs/research/draw-source-admission-package-v0.2/README.md`
+12. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
+13. `docs/research/free-world-observation-graph-v0.1/README.md`
+14. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+15. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
 
 ## Current laws
 

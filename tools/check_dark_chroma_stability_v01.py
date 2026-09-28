@@ -30,12 +30,14 @@ for needle in required_audit:
 assert (
     '"D.RAW/FrontsideSceneInspection/0.3"' in front
     or '"D.RAW/FrontsideSceneInspection/0.4"' in front
+    or '"D.RAW/FrontsideSceneInspection/0.5"' in front
 ), "v0.1 must remain wired into a compatible FrontsideSceneInspection successor"
 assert "DarkChromaStabilityAudit.analyze(bitmap, sourceSha256)" in front
 assert '"dark_chroma_stability_v0_1"' in front
 assert (
     '"STRUCTURAL_VISION_V0_3"' in front
     or '"STRUCTURAL_VISION_V0_4"' in front
+    or '"STRUCTURAL_VISION_V0_5"' in front
 ), "v0.1 must remain present under the versioned structural-vision successor"
 
 assert "Dark Chroma Stability v0.1 · AUDIT ONLY" in main
