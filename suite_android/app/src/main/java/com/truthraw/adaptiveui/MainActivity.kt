@@ -26,6 +26,7 @@ import android.widget.Space
 import android.widget.TextView
 import java.io.File
 import java.io.IOException
+import org.json.JSONObject
 
 class MainActivity : Activity() {
     private var session = BatchSession()
@@ -104,6 +105,13 @@ class MainActivity : Activity() {
     private var pendingNefMeasurementJobId: String? = null
     private var pendingNefMeasurementJson: String? = null
     private var nefMeasurementExportStatus: String? = null
+
+    // Universal Intake knowledge lives beside, never inside, source evidence.
+    // The back side (container/source facts) and front side (visible structure)
+    // are inspected from the same immutable source handle.
+    private val universalProfiles = mutableMapOf<String, JSONObject>()
+    private val universalProfileErrors = mutableMapOf<String, String>()
+    private val universalProfileLoading = mutableSetOf<String>()
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -250,6 +258,7 @@ class MainActivity : Activity() {
         appearanceHeadroomSweepStatus = null
         fullResRestorationStatus = null
         projectionStatus = null
+        requestUniversalProfile(cameraJob)
     }
 
     override fun onResume() {
@@ -3111,7 +3120,124 @@ class MainActivity : Activity() {
         pendingNefMeasurementJobId = null
         pendingNefMeasurementJson = null
         nefMeasurementExportStatus = null
+        requestUniversalProfile(job)
         render()
+    }
+
+    private fun requestUniversalProfile(job: RawJob, force: Boolean = false) {
+        val jobId = job.id
+        if (!force && (universalProfiles.containsKey(jobId) || universalProfileLoading.contains(jobId))) {
+            return
+        }
+        universalProfiles.remove(jobId)
+        universalProfileErrors.remove(jobId)
+        universalProfileLoading.add(jobId)
+        render()
+
+        Thread({
+            val result = runCatching {
+                UniversalSourceProfiler.profile(contentResolver, job.source)
+            }
+            runOnUiThread {
+                universalProfileLoading.remove(jobId)
+                result.onSuccess { profile ->
+                    universalProfiles[jobId] = profile
+                    universalProfileErrors.remove(jobId)
+                }.onFailure { error ->
+                    universalProfiles.remove(jobId)
+                    universalProfileErrors[jobId] =
+                        error.message ?: error.javaClass.simpleName
+                }
+                render()
+            }
+        }, "draw-universal-intake-" + jobId.take(8)).start()
+    }
+
+    private fun universalIntakePane(job: RawJob): View = card().apply {
+        addView(label("Universele ingang · achterkant + voorkant", 16f, bold = true))
+        addView(label(
+            "D.RAW leest dezelfde verzegelde bron parallel als technisch bestand en als zichtbaar beeld. " +
+                "De voorkant gebruikt alleen deterministische, inspecteerbare computer vision; geen AI/ML.",
+            11f,
+            muted = true,
+        ))
+        addView(space(6))
+
+        when {
+            universalProfileLoading.contains(job.id) -> {
+                addView(horizontal().apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(
+                        ProgressBar(this@MainActivity).apply { isIndeterminate = true },
+                        LinearLayout.LayoutParams(dp(28), dp(28)).apply { marginEnd = dp(8) },
+                    )
+                    addView(label("Universele bronkennis wordt opgebouwd…", 11f, muted = true))
+                })
+            }
+            universalProfileErrors[job.id] != null -> {
+                addView(label(
+                    "Universele intake kon deze bron nog niet volledig lezen: " +
+                        universalProfileErrors[job.id],
+                    11f,
+                    muted = true,
+                ))
+                addView(space(5))
+                addView(actionButton("Opnieuw analyseren") { requestUniversalProfile(job, force = true) })
+            }
+            universalProfiles[job.id] != null -> {
+                val profile = universalProfiles.getValue(job.id)
+                val meta = profile.optJSONObject("source_metadata") ?: JSONObject()
+                val raster = profile.optJSONObject("primary_raw_raster") ?: JSONObject()
+                val scene = profile.optJSONObject("scene_analysis") ?: JSONObject()
+                val stats = scene.optJSONObject("appearance_statistics") ?: JSONObject()
+                val readiness = scene.optJSONObject("geometry_readiness") ?: JSONObject()
+
+                val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
+                val width = raster.opt("width")?.toString() ?: "?"
+                val height = raster.opt("height")?.toString() ?: "?"
+                val focal = meta.opt("focal_length_mm")?.toString() ?: "?"
+                val iso = meta.opt("iso")?.toString() ?: "?"
+                addView(label(
+                    "Achterkant · class=" + sourceClass + " · raster=" + width + "×" + height +
+                        " · focal=" + focal + "mm · ISO=" + iso,
+                    10.5f,
+                    muted = true,
+                ))
+
+                if (scene.optBoolean("decoded_preview_used", false)) {
+                    val aw = scene.optInt("analysis_width", 0)
+                    val ah = scene.optInt("analysis_height", 0)
+                    val edge = stats.optDouble("edge_density", Double.NaN)
+                    val entropy = stats.optDouble("luma_entropy_bits_32_bin", Double.NaN)
+                    addView(label(
+                        "Voorkant · " + aw + "×" + ah + " inspectie · edgeDensity=" +
+                            (if (edge.isFinite()) "%.4f".format(edge) else "?") +
+                            " · entropy=" +
+                            (if (entropy.isFinite()) "%.2f".format(entropy) else "?") +
+                            " · naturalGeometryCandidate=" +
+                            readiness.optBoolean("natural_feature_geometry_candidate", false),
+                        10.5f,
+                        muted = true,
+                    ))
+                } else {
+                    addView(label(
+                        "Voorkant · preview niet direct beschikbaar; bron blijft geldig en UNKNOWN is toegestaan.",
+                        10.5f,
+                        muted = true,
+                    ))
+                }
+
+                addView(label(
+                    "Authority · bron-SHA=MEASURED · container=SOURCE_METADATA_BOUND · " +
+                        "frontside=APPEARANCE_DERIVED_ONLY · scientificWriteback=false",
+                    10f,
+                    muted = true,
+                ))
+            }
+            else -> {
+                addView(actionButton("Lees bron universeel") { requestUniversalProfile(job) })
+            }
+        }
     }
 
     private fun backgroundOperationKey(kind: String, jobId: String): String =
@@ -3561,6 +3687,8 @@ class MainActivity : Activity() {
             11f,
             muted = true,
         ))
+        addView(space(8))
+        addView(universalIntakePane(active))
         addView(space(8))
 
         when (val state = previewState) {
