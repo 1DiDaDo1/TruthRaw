@@ -1,0 +1,72 @@
+name: D.RAW Suite Universal Intake v0.1
+
+on:
+  push:
+    branches:
+      - integration/draw-suite-universal-intake-frontside-v01-2026-09-28
+    paths:
+      - 'suite_android/**'
+      - '.github/workflows/draw-suite-universal-intake-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify D.RAW vision contract
+        run: |
+          set -euo pipefail
+          JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
+          grep -F 'object UniversalSourceProfiler' "$JAVA/UniversalSourceProfiler.kt"
+          grep -F 'object FrontsideSceneInspector' "$JAVA/FrontsideSceneInspector.kt"
+          grep -F 'ai_or_learned_scene_models_allowed", false' "$JAVA/UniversalSourceProfiler.kt"
+          grep -F 'scientific_writeback_allowed", false' "$JAVA/FrontsideSceneInspector.kt"
+          grep -F 'Universele ingang · achterkant + voorkant' "$JAVA/MainActivity.kt"
+          grep -F 'ResearchEdgeAwareMeasuredPreservingReconstructionF64' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
+          grep -F 'three-channel IEEE Float32 LinearRaw primary' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble full D.RAW arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify D.RAW APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'draw_icon'
+          unzip -l "$APK" | grep -F 'draw_opening_banner'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng'
+          sha256sum "$APK" | tee "$APK.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64
+          path: |
+            suite_android/app/build/outputs/apk/debug/app-debug.apk
+            suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256
+          if-no-files-found: error
