@@ -7,6 +7,10 @@ on:
     paths:
       - 'suite_android/**'
       - '.github/workflows/draw-suite-universal-intake-v01.yml'
+  pull_request:
+    paths:
+      - 'suite_android/**'
+      - '.github/workflows/draw-suite-universal-intake-v01.yml'
   workflow_dispatch:
 
 permissions:
@@ -26,6 +30,11 @@ jobs:
           grep -F 'object UniversalSourceProfiler' "$JAVA/UniversalSourceProfiler.kt"
           grep -F 'object FrontsideSceneInspector' "$JAVA/FrontsideSceneInspector.kt"
           grep -F 'ai_or_learned_scene_models_allowed", false' "$JAVA/UniversalSourceProfiler.kt"
+          grep -F 'deterministische, inspecteerbare computer vision; geen AI/ML' "$JAVA/MainActivity.kt"
+          if grep -R -E 'org.tensorflow|tensorflow-lite|onnxruntime|pytorch|mlkit|com.google.mlkit' "$JAVA"; then
+            echo 'AI/ML runtime dependency or import detected in D.RAW product Java/Kotlin source' >&2
+            exit 1
+          fi
           grep -F 'scientific_writeback_allowed", false' "$JAVA/FrontsideSceneInspector.kt"
           grep -F 'Universele ingang · achterkant + voorkant' "$JAVA/MainActivity.kt"
           grep -F 'ResearchEdgeAwareMeasuredPreservingReconstructionF64' suite_android/app/src/main/cpp/pure_float32_dng_export_bridge.cpp
