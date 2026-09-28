@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
+import java.io.File
 
 /**
  * Universal read-only intake profiler for the full D.RAW suite.
@@ -22,6 +23,7 @@ object UniversalSourceProfiler {
     fun profile(
         resolver: ContentResolver,
         source: RawHandle,
+        cacheDir: File,
     ): JSONObject {
         val sourceSha256 = sha256(resolver, source.uri)
         val byteLength = source.declaredSizeBytes ?: queryLength(resolver, source.uri)
@@ -269,6 +271,34 @@ object UniversalSourceProfiler {
             darkChromaBacksideSupport,
         )
 
+        val n2LocalSpatialBinding =
+            if (source.format.id == "DNG" && source.format.nativeProcessingReady) {
+                N2LocalSpatialBindingAudit.analyze(
+                    resolver = resolver,
+                    sourceUri = source.uri,
+                    sourceSha256 = sourceSha256,
+                    cacheDir = cacheDir,
+                    frontsideV01 =
+                        frontside.optJSONObject("dark_chroma_stability_v0_1"),
+                )
+            } else {
+                N2LocalSpatialBindingAudit.unavailable(
+                    sourceSha256,
+                    "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                )
+            }
+
+        val darkChromaV04 =
+            DarkChromaStabilityV04Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                localN2 = n2LocalSpatialBinding,
+            )
+
+        frontside
+            .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
+            .put("dark_chroma_stability_v0_4", darkChromaV04)
+
         return base
             .put("scientific_source_class", sourceClass)
             .put("metadata_parse_status", "PASS_READ_ONLY")
@@ -279,6 +309,7 @@ object UniversalSourceProfiler {
             .put("optics", optics)
             .put("route_hints", routeHints)
             .put("backside_signal_support", backsideSignalSupport)
+            .put("n2_local_spatial_binding", n2LocalSpatialBinding)
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
             .put("open_world", openWorldBlock())

@@ -3136,7 +3136,7 @@ class MainActivity : Activity() {
 
         Thread({
             val result = runCatching {
-                UniversalSourceProfiler.profile(contentResolver, job.source)
+                UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)
             }
             runOnUiThread {
                 universalProfileLoading.remove(jobId)
@@ -3213,6 +3213,14 @@ class MainActivity : Activity() {
                     darkChromaV03.optJSONObject("global") ?: JSONObject()
                 val darkChromaV03Factors =
                     darkChromaV03.optJSONObject("degeneracy_factors") ?: JSONObject()
+                val n2LocalBinding =
+                    profile.optJSONObject("n2_local_spatial_binding") ?: JSONObject()
+                val n2LocalGlobal =
+                    n2LocalBinding.optJSONObject("global") ?: JSONObject()
+                val darkChromaV04 =
+                    scene.optJSONObject("dark_chroma_stability_v0_4") ?: JSONObject()
+                val darkChromaV04Global =
+                    darkChromaV04.optJSONObject("global") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3486,6 +3494,125 @@ class MainActivity : Activity() {
                         "v0.3 wet: een gedegenereerde bijna-zwarte frontside of gemeten near-black backside " +
                             "mag alleen blokkeren. Geen verborgen kleur, geen private A/B/Δ en geen " +
                             "CHROMA_CORRECTION_SUPPORTED tot lokale N2/backside-binding bestaat.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    n2LocalBinding.optString("status") ==
+                    "AUDIT_ONLY_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Local Spatial Binding v0.1 · SAME OBSERVATION · frontside-bound=" +
+                            n2LocalGlobal.optLong("bound_frontside_tiles", 0L) + "/" +
+                            n2LocalGlobal.optLong("frontside_tile_count", 0L) +
+                            " · visible-bound=" +
+                            n2LocalGlobal.optLong("visible_candidate_bound_tiles", 0L) +
+                            " · structure-blocked=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_structure_blocked_tiles",
+                                0L,
+                            ) +
+                            " · censor-blocked=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_censor_blocked_tiles",
+                                0L,
+                            ) +
+                            " · all-predictable=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_all_predictable_tiles",
+                                0L,
+                            ) +
+                            " · center-outlier-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_center_outlier_free_tiles",
+                                0L,
+                            ) +
+                            " · pair-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_pair_rejection_free_tiles",
+                                0L,
+                            ) +
+                            " · scale-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_scale_rejection_free_tiles",
+                                0L,
+                            ) +
+                            " · strict-vector=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_strict_local_support_vector_tiles",
+                                0L,
+                            ),
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Frontside 16×16 analyse-regio's zijn proportioneel aan de 64×64 N2 Factored " +
+                            "Confidence v0.3.1 bron-tiles gebonden. Dit is alleen lokale provenance/support-binding: " +
+                            "N2 promotion=false, correction-supported=false.",
+                        10f,
+                        muted = true,
+                    ))
+                } else {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Local Spatial Binding v0.1 · UNKNOWN/fail-closed · reason=" +
+                            n2LocalBinding.optString("reason", "niet beschikbaar") +
+                            ". Geen lokale N2-claim zonder exacte source-binding.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    darkChromaV04.optString("status") ==
+                    "AUDIT_ONLY_LOCAL_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.4 · LOCAL N2 BINDING · global-v0.3=" +
+                            darkChromaV04.optString(
+                                "v0_3_global_information_state",
+                                "UNKNOWN",
+                            ) +
+                            " · localBinding=" +
+                            darkChromaV04.optBoolean("local_n2_binding_available", false) +
+                            " · visible=" +
+                            darkChromaV04Global.optLong("visible_candidate_tiles", 0L) +
+                            " · locally-bound=" +
+                            darkChromaV04Global.optLong(
+                                "locally_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · dark-blocked=" +
+                            darkChromaV04Global.optLong(
+                                "dark_uninformative_blocked_tiles",
+                                0L,
+                            ) +
+                            " · protection-blocked=" +
+                            darkChromaV04Global.optLong(
+                                "structure_or_censor_blocked_tiles",
+                                0L,
+                            ) +
+                            " · strict-vector=" +
+                            darkChromaV04Global.optLong(
+                                "local_strict_vector_present_tiles",
+                                0L,
+                            ) +
+                            " · correction-supported=" +
+                            darkChromaV04Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.4 wet: lokale N2-binding mag DARK_UNINFORMATIVE nooit overrulen. " +
+                            "Factored N2-assen blijven vector-valued diagnostiek en zijn geen kansscore. " +
+                            "Private chroma A/B/Δ blijft uit tot deze binding op echte toesteldata is gevalideerd.",
                         10f,
                         muted = true,
                     ))

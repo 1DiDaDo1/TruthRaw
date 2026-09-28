@@ -1,0 +1,122 @@
+{
+  "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.4",
+  "status": "ACTIVE_UNMERGED_THREE_CASE_DEVICE_VALIDATION",
+  "branch": "research/dark-chroma-stability-v04-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v03-2026-09-28",
+  "project_law": "Seal the evidence, not the thinking.",
+  "validated_parent_device_result": {
+    "route": "tele",
+    "raster": "4080x3072",
+    "dark_chroma_v01": {
+      "tiles": 432,
+      "visible_chroma_candidate_tiles": 432,
+      "structure_veto_tiles": 0
+    },
+    "backside_signal_support_v01": {
+      "state": "MEASURED_SIGNAL_PRESENT_OR_MIXED",
+      "sample_count": 12288,
+      "p50": 0.01884,
+      "p90": 0.05311,
+      "p99": 0.08239,
+      "fraction_le_0_01": 0.357
+    },
+    "dark_chroma_v03": {
+      "state": "DARK_UNINFORMATIVE_BY_DEGENERACY",
+      "frontside_degenerate": true,
+      "backside_near_black": false,
+      "dark_uninformative_tiles": 432,
+      "correction_supported_tiles": 0
+    }
+  },
+  "v04": {
+    "new_component": "N2LocalSpatialBindingAudit v0.1",
+    "n2_source": "TruthNegative N2 Factored Confidence v0.3.1",
+    "same_source_sha_required": true,
+    "frontside_tile_size": "16x16 analysis pixels",
+    "n2_tile_size": "64x64 source pixels",
+    "spatial_mapping": "proportional frontside rectangle to exact source raster",
+    "vector_axes_kept_separate": true,
+    "probability_created": false,
+    "dark_uninformative_can_be_overridden": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "device_evidence": {
+      "near_black_tele": {
+        "status": "VALIDATED",
+        "result": "local binding available; DARK_UNINFORMATIVE preserved; correction-supported=0"
+      },
+      "structured_ultra_wide_1790636281140": {
+        "status": "VALIDATED",
+        "raster": "4032x3024",
+        "focal_mm": 1.82,
+        "frontside_tiles": 432,
+        "dark_tiles": 1,
+        "visible_chroma_candidate_tiles": 0,
+        "structure_veto_tiles": 91,
+        "backside_signal_state": "MEASURED_SIGNAL_PRESENT_OR_MIXED",
+        "backside_sample_count": 12096,
+        "backside_p50": 0.08958,
+        "backside_p90": 0.20321,
+        "backside_p99": 0.33783,
+        "backside_fraction_le_0_01": 0.036,
+        "v03_state": "FRONTSIDE_INFORMATION_PRESENT",
+        "v03_degenerate": false,
+        "local_binding_frontside_tiles": 432,
+        "local_binding_frontside_tiles_expected": 432,
+        "v04_local_binding": true,
+        "correction_supported_tiles": 0,
+        "conclusion": "non-dark structured no-candidate case binds spatially without inventing Dark Chroma candidates or correction support"
+      },
+      "selective_main_wide_1790637640867": {
+        "status": "VALIDATED_BINDING_WITH_NEW_COARSENESS_FINDING",
+        "raster": "4096x3072",
+        "focal_mm": 6.55,
+        "frontside_tiles": 432,
+        "dark_tiles": 74,
+        "visible_chroma_candidate_tiles": 6,
+        "structure_veto_tiles": 136,
+        "backside_signal_state": "MEASURED_SIGNAL_PRESENT_OR_MIXED",
+        "backside_sample_count": 12288,
+        "backside_p50": 0.05002,
+        "backside_p90": 0.11363,
+        "backside_p99": 0.19917,
+        "backside_fraction_le_0_01": 0.112,
+        "v03_state": "FRONTSIDE_INFORMATION_PRESENT",
+        "v03_degenerate": false,
+        "local_binding_frontside_tiles": 432,
+        "local_binding_visible_candidate_tiles": 6,
+        "local_binding_structure_blocked_visible_tiles": 6,
+        "local_binding_strict_vector_tiles": 0,
+        "correction_supported_tiles": 0,
+        "n2_structure_protected_sample_fraction": 0.16560872395833334,
+        "n2_structure_protection_present_tiles": 3072,
+        "n2_tile_count": 3072,
+        "conclusion": "spatial binding succeeds for sparse candidates, but any-structure-present 64x64 tile boolean is non-discriminative because every N2 tile reports structure presence while only ~16.56% of sampled points are structure-protected"
+      }
+    }
+  },
+  "single_shot_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "device_validation_required": [
+    "refine local structure-protection resolution without weakening structure preservation",
+    "re-run selective main/wide after refinement and verify that sparse protection support does not become a universal local veto",
+    "keep correction-supported=0 and private chroma A/B/Delta disabled until refined structure support is device-validated"
+  ],
+  "next_gate": {
+    "name": "LOCAL_STRUCTURE_PROTECTION_RESOLUTION_REFINEMENT",
+    "reason": "current any-protected-sample-per-64x64 N2 tile flag is present in 3072/3072 tiles in the selective main/wide case although only ~16.56% of sampled points are structure-protected",
+    "must_preserve_structure_protection": true,
+    "must_not_override_dark_uninformative": true,
+    "must_keep_n2_factor_axes_separate": true,
+    "private_chroma_ab_delta_still_blocked": true
+  }
+}
