@@ -10,7 +10,10 @@ main = (ROOT / "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActi
 
 assert '"D.RAW/Frontside/DarkChromaStability/0.1"' in v01
 assert '"D.RAW/Frontside/DarkChromaStability/0.2"' in v02
-assert '"D.RAW/FrontsideSceneInspection/0.4"' in front
+assert (
+    '"D.RAW/FrontsideSceneInspection/0.4"' in front
+    or '"D.RAW/FrontsideSceneInspection/0.5"' in front
+), "v0.2 must remain wired into a compatible FrontsideSceneInspection successor"
 assert '"dark_chroma_stability_v0_1"' in front
 assert '"dark_chroma_stability_v0_2"' in front
 assert "DarkChromaStabilityV02Audit.analyze" in front
