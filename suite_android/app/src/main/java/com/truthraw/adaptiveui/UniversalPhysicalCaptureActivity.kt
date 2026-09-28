@@ -1090,10 +1090,25 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
+    private fun showFocusMarker(x: Float, y: Float) {
+        if (!::focusMarker.isInitialized) return
+        val markerHalf = dp(27).toFloat()
+        val maxX =
+            maxOf(0f, (previewView.parent as? View)?.width?.toFloat()?.minus(dp(54)) ?: 0f)
+        val maxY =
+            maxOf(0f, (previewView.parent as? View)?.height?.toFloat()?.minus(dp(54)) ?: 0f)
+        focusMarker.x =
+            (previewView.x + x - markerHalf).coerceIn(0f, maxX)
+        focusMarker.y =
+            (previewView.y + y - markerHalf).coerceIn(0f, maxY)
+        focusMarker.visibility = View.VISIBLE
+    }
+
     private fun tapToFocus(x: Float, y: Float) {
         val candidate = activeCandidate ?: return
         val session = cameraSession ?: return
         val builder = previewRequestBuilder ?: return
+        val camera = cameraDevice ?: return
         val characteristics = runCatching {
             cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
         }.getOrNull() ?: return
@@ -1102,6 +1117,8 @@ class UniversalPhysicalCaptureActivity : Activity() {
             status("Deze RAW-camera rapporteert geen bruikbare autofocusmodus.")
             return
         }
+
+        showFocusMarker(x, y)
 
         val maxRegions =
             characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0
@@ -1112,6 +1129,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 null
             }
         currentAfRegion = region
+        focusLocked = false
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        focusLockButton.text = "AF zoekt…"
 
         try {
             builder.set(
@@ -1135,54 +1156,101 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 CaptureRequest.CONTROL_AF_TRIGGER,
                 CameraMetadata.CONTROL_AF_TRIGGER_START,
             )
-            session.capture(
-                builder.build(),
+            session.capture(builder.build(), null, cameraHandler)
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+            )
+            val lockRequest = builder.build()
+            var observedFrames = 0
+            var terminalHandled = false
+
+            session.setRepeatingRequest(
+                lockRequest,
                 object : CameraCaptureSession.CaptureCallback() {
                     override fun onCaptureCompleted(
                         session: CameraCaptureSession,
                         request: CaptureRequest,
                         result: TotalCaptureResult,
                     ) {
+                        if (terminalHandled) return
+                        observedFrames++
+
                         val effective =
                             effectiveCaptureResult(candidate, result) ?: result
                         val state =
                             effective.get(CaptureResult.CONTROL_AF_STATE)
                         val distance =
                             effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
-                        focusLocked =
+                        val locked =
                             state == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
                                 state == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
-                        runOnUiThread {
-                            focusLockButton.text =
-                                if (focusLocked) {
-                                    "AF ontgrendelen"
-                                } else {
-                                    "AF vergrendelen"
-                                }
-                            status(
-                                "Tap-focus · AF=${state ?: "UNKNOWN"} · focus=" +
-                                    (distance?.let {
-                                        String.format(Locale.ROOT, "%.3f D", it)
-                                    } ?: "UNKNOWN"),
-                            )
+
+                        if (locked) {
+                            terminalHandled = true
+                            focusLocked = true
+                            runCatching {
+                                session.setRepeatingRequest(
+                                    lockRequest,
+                                    null,
+                                    cameraHandler,
+                                )
+                            }
+                            runOnUiThread {
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled = true
+                                focusLockButton.text = "AF ontgrendelen"
+                                status(
+                                    "AF vergrendeld · " +
+                                        if (
+                                            state ==
+                                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                                        ) {
+                                            "focus bevestigd"
+                                        } else {
+                                            "lenspositie vast, focus niet bevestigd"
+                                        } +
+                                        " · " +
+                                        (distance?.let {
+                                            String.format(Locale.ROOT, "%.3f D", it)
+                                        } ?: "focusafstand UNKNOWN"),
+                                )
+                            }
+                            return
+                        }
+
+                        if (observedFrames >= 30) {
+                            terminalHandled = true
+                            focusLocked = false
+                            currentAfRegion = null
+                            runCatching {
+                                startPreviewRepeating(
+                                    camera,
+                                    session,
+                                    candidate,
+                                )
+                            }
+                            runOnUiThread {
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled = true
+                                focusLockButton.text = "AF vergrendelen"
+                                status(
+                                    "AF-lock niet bevestigd binnen 30 previewframes · " +
+                                        "continuous autofocus hervat.",
+                                )
+                            }
                         }
                     }
                 },
                 cameraHandler,
             )
-
-            builder.set(
-                CaptureRequest.CONTROL_AF_TRIGGER,
-                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
-            )
-            session.setRepeatingRequest(
-                builder.build(),
-                null,
-                cameraHandler,
-            )
-            focusLocked = true
-            focusLockButton.text = "AF ontgrendelen"
+            status("Tap-focus gestart · wachten op echte AF-lockstatus…")
         } catch (error: Exception) {
+            focusLocked = false
+            captureButton.isEnabled = true
+            focusLockButton.isEnabled = true
+            focusLockButton.text = "AF vergrendelen"
             status(
                 "Tap-focus faalde: " +
                     (error.message ?: error.javaClass.simpleName),
