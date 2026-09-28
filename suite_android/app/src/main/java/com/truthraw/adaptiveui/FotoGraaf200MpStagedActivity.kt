@@ -1349,6 +1349,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("logicalCameraId", LOGICAL_ID)
                 .put("requestedZoomRatio", ZOOM_REQUEST)
                 .put("lastActivePhysicalId", lastActivePhysicalId ?: JSONObject.NULL)
+                .put("visualLoupeZoom", visualLoupeZoom.toDouble())
+                .put("visualLoupeIsCaptureZoom", false)
+                .put("visualLoupeChangesRequestedZoomRatio", false)
+                .put("tapFocusRegionUsed", previewFocusRegion != null)
+                .put("focusLockRequested", previewFocusLocked)
                 .put("previewCreatesEvidence", false))
             .put("requestTopology", JSONObject()
                 .put("openedCameraId", LOGICAL_ID)
@@ -1540,8 +1545,17 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         camera = null
         runCatching { previewSurface?.release() }
         previewSurface = null
+        previewRequestBuilder = null
+        previewRequestedZoomRatio = null
+        previewFocusRegion = null
+        previewFocusLocked = false
         if (!keepOutputs) clearOutputs()
         if (::captureButton.isInitialized) captureButton.isEnabled = false
+        if (::focusButton.isInitialized) {
+            focusButton.isEnabled = false
+            updateCamera5AssistButtons()
+        }
+        macroLoupeButtons.values.forEach { it.isEnabled = false }
         if (::previewButton.isInitialized) previewButton.isEnabled = capabilityReady && ::preview.isInitialized && preview.isAvailable
     }
 
@@ -1729,6 +1743,12 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
         } else if (rotation == Surface.ROTATION_180) {
             matrix.postRotate(180f, centerX, centerY)
         }
+        matrix.postScale(
+            visualLoupeZoom,
+            visualLoupeZoom,
+            centerX,
+            centerY,
+        )
         preview.setTransform(matrix)
     }
 
