@@ -738,13 +738,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
         candidate: Candidate,
         reader: ImageReader,
     ) {
-        val output = OutputConfiguration(reader.surface)
+        val preview = previewSurface
+            ?: run {
+                statusFromAnyThread("Live-view surface ontbreekt.")
+                runOnUiThread { restoreRoleButtons() }
+                closeCaptureResources()
+                return
+            }
+
+        val previewOutput = OutputConfiguration(preview)
+        val rawOutput = OutputConfiguration(reader.surface)
         candidate.physicalCameraId?.let { physicalId ->
             try {
-                output.setPhysicalCameraId(physicalId)
+                previewOutput.setPhysicalCameraId(physicalId)
+                rawOutput.setPhysicalCameraId(physicalId)
             } catch (error: Exception) {
                 statusFromAnyThread(
-                    "Physical RAW-output kon niet worden gebonden: " +
+                    "Physical preview/RAW-output kon niet worden gebonden: " +
                         (error.message ?: error.javaClass.simpleName),
                 )
                 runOnUiThread { restoreRoleButtons() }
@@ -755,17 +765,24 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         val config = SessionConfiguration(
             SessionConfiguration.SESSION_REGULAR,
-            listOf(output),
+            listOf(previewOutput, rawOutput),
             mainExecutor,
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     cameraSession = session
-                    submitCapture(camera, session, candidate, reader)
+                    startPreviewRepeating(camera, session, candidate)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    status("RAW capture-session kon niet worden geconfigureerd.")
-                    restoreRoleButtons()
+                    statusFromAnyThread(
+                        "Preview + RAW capture-session kon niet worden geconfigureerd.",
+                    )
+                    runOnUiThread {
+                        captureButton.isEnabled = false
+                        focusLockButton.isEnabled = false
+                        loupeButton.isEnabled = false
+                        restoreRoleButtons()
+                    }
                     closeCaptureResources()
                 }
             },
@@ -775,11 +792,149 @@ class UniversalPhysicalCaptureActivity : Activity() {
             camera.createCaptureSession(config)
         } catch (error: Exception) {
             statusFromAnyThread(
-                "Capture-session faalde: " +
+                "Preview/capture-session faalde: " +
                     (error.message ?: error.javaClass.simpleName),
             )
-            runOnUiThread { restoreRoleButtons() }
+            runOnUiThread {
+                captureButton.isEnabled = false
+                focusLockButton.isEnabled = false
+                loupeButton.isEnabled = false
+                restoreRoleButtons()
+            }
             closeCaptureResources()
+        }
+    }
+
+    private fun startPreviewRepeating(
+        camera: CameraDevice,
+        session: CameraCaptureSession,
+        candidate: Candidate,
+    ) {
+        val surface = previewSurface ?: return
+        val effectiveCharacteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrElse { error ->
+            statusFromAnyThread(
+                "Preview characteristics ontbreken: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            closeCaptureResources()
+            return
+        }
+
+        try {
+            val builder =
+                camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                    addTarget(surface)
+                    set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                    set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+                    setPreviewAfMode(this, effectiveCharacteristics, continuous = true)
+                }
+            previewRequestBuilder = builder
+
+            session.setRepeatingRequest(
+                builder.build(),
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        previewFrames++
+                        lastPreviewResult = result
+                        if (previewFrames == 1L || previewFrames % 12L == 0L) {
+                            val effective =
+                                effectiveCaptureResult(candidate, result) ?: result
+                            val afState =
+                                effective.get(CaptureResult.CONTROL_AF_STATE)
+                            val focusDistance =
+                                effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                            val iso =
+                                effective.get(CaptureResult.SENSOR_SENSITIVITY)
+                            val exp =
+                                effective.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                            runOnUiThread {
+                                previewTelemetry.text = buildString {
+                                    append("LIVE · ")
+                                    append(activeRole?.title ?: candidate.effectiveCameraId)
+                                    append(" · loep=")
+                                    append(String.format(Locale.ROOT, "%.1f×", macroLoupeScale))
+                                    append(" · AF=")
+                                    append(afState ?: "UNKNOWN")
+                                    append(" · focus=")
+                                    append(
+                                        focusDistance?.let {
+                                            String.format(Locale.ROOT, "%.3f D", it)
+                                        } ?: "UNKNOWN",
+                                    )
+                                    append("\nISO=")
+                                    append(iso ?: "UNKNOWN")
+                                    append(" · t=")
+                                    append(
+                                        exp?.let {
+                                            String.format(Locale.ROOT, "%.3f ms", it / 1_000_000.0)
+                                        } ?: "UNKNOWN",
+                                    )
+                                    append(" · display zoom verandert RAW niet")
+                                }
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled =
+                                    supportsAutoFocus(effectiveCharacteristics)
+                                loupeButton.isEnabled = true
+                                restoreRoleButtons()
+                            }
+                        }
+                    }
+                },
+                cameraHandler,
+            )
+
+            statusFromAnyThread(
+                "${activeRole?.title ?: "Camera"} live · tik voor AF · pinch of Macro-loep voor alleen schermvergroting.",
+            )
+        } catch (error: Exception) {
+            statusFromAnyThread(
+                "Live preview faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            runOnUiThread {
+                captureButton.isEnabled = false
+                focusLockButton.isEnabled = false
+                loupeButton.isEnabled = false
+                restoreRoleButtons()
+            }
+            closeCaptureResources()
+        }
+    }
+
+    private fun supportsAutoFocus(c: CameraCharacteristics): Boolean =
+        (c.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf())
+            .any { it != CameraMetadata.CONTROL_AF_MODE_OFF }
+
+    private fun setPreviewAfMode(
+        builder: CaptureRequest.Builder,
+        c: CameraCharacteristics,
+        continuous: Boolean,
+    ) {
+        val modes =
+            c.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf()
+        when {
+            continuous &&
+                modes.contains(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                )
+            modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
+            else ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_OFF,
+                )
         }
     }
 
