@@ -46,6 +46,7 @@ required_backside = [
     '"(raw_code-black_level)/(white_level-black_level)"',
     '"negative_values_preserved", true',
     '"clamping_applied", false',
+    '"sampled_active_area"',
     '"CONSERVATIVE_BLOCKING_HEURISTIC_ONLY"',
     '"can_block_colour_reconstruction_when_near_black", true',
     '"can_enable_chroma_correction", false',
