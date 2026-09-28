@@ -300,10 +300,17 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     val size = (commonRawSizes.ifEmpty { physicalRawSizes })
                         .maxByOrNull { it.width.toLong() * it.height.toLong() }
                         ?: return@mapNotNull null
+                    val previewSize =
+                        choosePreviewSize(
+                            logical = logical,
+                            effective = physical,
+                            rawSize = size,
+                        ) ?: return@mapNotNull null
                     Candidate(
                         logicalCameraId = logicalId,
                         physicalCameraId = physicalId,
                         rawSize = size,
+                        previewSize = previewSize,
                         focalLengthMm = representativeFocalLength(physical),
                         effectiveCameraId = physicalId,
                         discovery = "PHYSICAL_BOUND_TO_LOGICAL",
@@ -313,10 +320,17 @@ class UniversalPhysicalCaptureActivity : Activity() {
             val directSize = largestRawSize(logical)
             if (physicalCandidates.isEmpty()) {
                 if (directSize != null) {
+                    val previewSize =
+                        choosePreviewSize(
+                            logical = logical,
+                            effective = logical,
+                            rawSize = directSize,
+                        ) ?: continue
                     discovered += Candidate(
                         logicalCameraId = logicalId,
                         physicalCameraId = null,
                         rawSize = directSize,
+                        previewSize = previewSize,
                         focalLengthMm = representativeFocalLength(logical),
                         effectiveCameraId = logicalId,
                         discovery = "DIRECT_LOGICAL_RAW",
@@ -358,6 +372,43 @@ class UniversalPhysicalCaptureActivity : Activity() {
             ?.getOutputSizes(ImageFormat.RAW_SENSOR)
             ?.toList()
             .orEmpty()
+
+    private fun previewSizes(c: CameraCharacteristics): List<Size> =
+        c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            ?.getOutputSizes(SurfaceTexture::class.java)
+            ?.toList()
+            .orEmpty()
+
+    private fun choosePreviewSize(
+        logical: CameraCharacteristics,
+        effective: CameraCharacteristics,
+        rawSize: Size,
+    ): Size? {
+        val logicalSizes = previewSizes(logical)
+        val effectiveSizes = previewSizes(effective)
+        val candidates =
+            if (logical === effective) {
+                logicalSizes
+            } else {
+                effectiveSizes.filter { e ->
+                    logicalSizes.any { l ->
+                        l.width == e.width && l.height == e.height
+                    }
+                }.ifEmpty { logicalSizes }
+            }
+        if (candidates.isEmpty()) return null
+        val rawAspect = rawSize.width.toDouble() / rawSize.height.toDouble()
+        return candidates
+            .filter { it.width <= 1920 && it.height <= 1440 }
+            .ifEmpty { candidates }
+            .sortedWith(
+                compareBy<Size>(
+                    { kotlin.math.abs(it.width.toDouble() / it.height.toDouble() - rawAspect) },
+                    { -it.width.toLong() * it.height.toLong() },
+                ),
+            )
+            .firstOrNull()
+    }
 
     private fun largestRawSize(c: CameraCharacteristics): Size? =
         rawSizes(c).maxByOrNull { it.width.toLong() * it.height.toLong() }
@@ -441,6 +492,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 append(c.rawSize.width)
                 append("×")
                 append(c.rawSize.height)
+                append(" · preview=")
+                append(c.previewSize.width)
+                append("×")
+                append(c.previewSize.height)
                 append(" · ")
                 appendLine(c.discovery)
             }
