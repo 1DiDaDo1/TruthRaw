@@ -10,7 +10,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # path repository-relative; only this integration path changes.
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../.." ABSOLUTE)
 set(RESEARCH_ROOT "${REPO_ROOT}/docs/research")
-set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.1/native")
+# v0.2 is the ABI-compatible DNG container successor. It preserves the
+# sealed v0.1 public C++ interface while accepting DNG-spec optional OpcodeList2
+# entries produced by modern Android DngCreator.
+set(TILE_DNG "${RESEARCH_ROOT}/tile-native-dng-source-v0.2/native")
 set(STREAMING "${RESEARCH_ROOT}/full-frame-streaming-v0.1/native")
 set(PREVIEW_SURFACE "${RESEARCH_ROOT}/reconstructed-color-preview-v0.1/native")
 set(SOURCE_BINDING_V01 "${RESEARCH_ROOT}/scientific-preview-source-binding-v0.1/native")
