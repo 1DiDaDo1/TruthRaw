@@ -1310,28 +1310,27 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         CameraMetadata.CONTROL_AE_MODE_ON,
                     )
 
-                    val afModes =
-                        effectiveCharacteristics.get(
-                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
-                        ) ?: intArrayOf()
-                    when {
-                        afModes.contains(
-                            CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
-                        ) ->
+                    if (focusLocked) {
+                        set(
+                            CaptureRequest.CONTROL_AF_MODE,
+                            CameraMetadata.CONTROL_AF_MODE_AUTO,
+                        )
+                        currentAfRegion?.let { region ->
                             set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                                CaptureRequest.CONTROL_AF_REGIONS,
+                                arrayOf(region),
                             )
-                        afModes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO) ->
-                            set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_AUTO,
-                            )
-                        else ->
-                            set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_OFF,
-                            )
+                        }
+                        set(
+                            CaptureRequest.CONTROL_AF_TRIGGER,
+                            CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+                        )
+                    } else {
+                        setPreviewAfMode(
+                            this,
+                            effectiveCharacteristics,
+                            continuous = true,
+                        )
                     }
 
                     val nrModes =
@@ -1388,7 +1387,9 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 cameraHandler,
             )
             statusFromAnyThread(
-                "RAW capture verstuurd · wachten op één Image + exact capture-resultaat…",
+                "RAW capture verstuurd · volledige bronresolutie · schermloep=" +
+                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale) +
+                    " blijft presentatie-only.",
             )
         } catch (error: Exception) {
             statusFromAnyThread(
