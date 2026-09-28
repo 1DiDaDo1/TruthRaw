@@ -50,7 +50,7 @@ import kotlin.math.ln
 import kotlin.math.sqrt
 
 /**
- * D.RAW Universal Physical Capture Adapter v0.1.
+ * D.RAW Universal Physical Capture Adapter v0.3.
  *
  * Camera2 is transport/plumbing only. Camera IDs, focal lengths and runtime
  * properties are acquisition provenance and UI hints; they never become
@@ -1630,6 +1630,21 @@ class UniversalPhysicalCaptureActivity : Activity() {
             .put("physical_frame_count", 1)
             .put("independent_evidence_count", 1)
             .put(
+                "viewfinder_assist",
+                JSONObject()
+                    .put("live_preview_used", true)
+                    .put("preview_frame_count", previewFrameCount)
+                    .put("preview_creates_evidence", false)
+                    .put("preview_modifies_raw_sensor", false)
+                    .put("tap_focus_region_used", lastFocusRegion != null)
+                    .put("focus_lock_requested", focusLocked)
+                    .put("visual_loupe_zoom", loupeZoom.toDouble())
+                    .put("visual_loupe_is_capture_zoom", false)
+                    .put("visual_loupe_crops_raw_sensor", false)
+                    .put("control_zoom_ratio_written", false)
+                    .put("scaler_crop_region_written", false),
+            )
+            .put(
                 "normal_resolution_policy",
                 JSONObject()
                     .put(
@@ -1787,6 +1802,22 @@ class UniversalPhysicalCaptureActivity : Activity() {
             roleCandidates.containsKey(LensRole.WIDE_MAIN)
         teleButton.isEnabled =
             roleCandidates.containsKey(LensRole.TELE)
+
+        val previewActive = cameraSession != null && cameraDevice != null
+        if (::shutterButton.isInitialized) {
+            shutterButton.isEnabled = previewActive
+        }
+        if (::focusLockButton.isInitialized) {
+            val characteristics = activeCandidate?.let { candidate ->
+                runCatching {
+                    cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+                }.getOrNull()
+            }
+            focusLockButton.isEnabled =
+                previewActive &&
+                    characteristics?.let(::supportsFocusLock) == true
+        }
+        loupeButtons.values.forEach { it.isEnabled = previewActive }
     }
 
     private fun setButtonsEnabled(enabled: Boolean) {
@@ -1799,12 +1830,28 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun closeCaptureResources() {
+        runCatching { cameraSession?.stopRepeating() }
         runCatching { cameraSession?.close() }
         runCatching { cameraDevice?.close() }
         runCatching { imageReader?.close() }
+        runCatching { previewSurface?.release() }
         cameraSession = null
         cameraDevice = null
         imageReader = null
+        previewSurface = null
+        previewRequestBuilder = null
+        lastPreviewResult = null
+        lastFocusRegion = null
+        focusLocked = false
+        previewFrameCount = 0L
+        runOnUiThread {
+            if (::shutterButton.isInitialized) shutterButton.isEnabled = false
+            if (::focusLockButton.isInitialized) {
+                focusLockButton.isEnabled = false
+                updateFocusLockButton()
+            }
+            loupeButtons.values.forEach { it.isEnabled = false }
+        }
     }
 
     private fun sha256(file: File): String {
@@ -1838,7 +1885,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     grantResults.firstOrNull() ==
                     PackageManager.PERMISSION_GRANTED
                 ) {
-                    "Camera-permissie toegestaan. Kies nu opnieuw een lensrol."
+                    pendingPreviewRole?.let { role ->
+                        window.decorView.post {
+                            pendingPreviewRole = null
+                            openPreviewRole(role)
+                        }
+                    }
+                    "Camera-permissie toegestaan."
                 } else {
                     "Camera-permissie geweigerd; fysieke capture blijft geblokkeerd."
                 },
