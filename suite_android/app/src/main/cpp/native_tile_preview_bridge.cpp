@@ -8,6 +8,7 @@
 #include <limits>
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace {
 
@@ -48,6 +49,45 @@ int sample_x(int previewX, int previewWidth, int sourceWidth) {
 }
 
 } // namespace
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_probeDngSourceOpenDetail(
+    JNIEnv* env,
+    jobject,
+    jint fd,
+    jint maxSourceResidentBytes) {
+    if (fd < 0 || maxSourceResidentBytes <= 0) {
+        return env->NewStringUTF("code=-1;message=invalid diagnostic parameters");
+    }
+
+    auto bytes = std::make_shared<PosixFdByteSource>(static_cast<int>(fd));
+    OpenOptions options;
+    options.sourceEvidenceId = "ui-dng-open-diagnostic-not-evidence-v0.2";
+    options.color = ColorBinding{};
+    options.color.valid = true;
+    options.color.bindingId = "ui-dng-open-diagnostic-color-sentinel-v0.2";
+    options.color.cameraToXyzD50 = {1,0,0, 0,1,0, 0,0,1};
+    options.maxResidentBytes = static_cast<std::size_t>(maxSourceResidentBytes);
+
+    std::unique_ptr<TileNativeDngSource> source;
+    const auto opened = TileNativeDngSource::open(bytes, options, source);
+
+    std::string detail =
+        "code=" + std::to_string(static_cast<int>(opened.code)) +
+        ";message=" + opened.message;
+
+    if (opened && source != nullptr) {
+        const auto& audit = source->audit();
+        detail +=
+            ";opcodeList2Count=" + std::to_string(audit.opcodeList2Count) +
+            ";gainMapOpcodeCount=" + std::to_string(audit.gainMapOpcodeCount) +
+            ";optionalOpcodeList2Skipped=" + std::to_string(audit.optionalOpcodeList2Skipped) +
+            ";fixBadPixelsListSkipped=" + std::to_string(audit.fixBadPixelsListOpcodesSkipped) +
+            ";unknownOptionalOpcodeList2Skipped=" + std::to_string(audit.unknownOptionalOpcodeList2Skipped);
+    }
+
+    return env->NewStringUTF(detail.c_str());
+}
 
 extern "C" JNIEXPORT jintArray JNICALL
 Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_buildCfaPreview(

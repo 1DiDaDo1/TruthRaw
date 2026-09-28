@@ -1,0 +1,69 @@
+name: Tile-Native DNG Source v0.2 Android Compatibility
+
+on:
+  push:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - '.github/workflows/tile-native-dng-source-v0-2-integrity.yml'
+  pull_request:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - '.github/workflows/tile-native-dng-source-v0-2-integrity.yml'
+      - 'suite_android/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [gcc-release, clang-release, clang-asan-ubsan]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify sealed v0.1 predecessor remains byte-identical
+        run: python3 docs/research/tile-native-dng-source-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Verify v0.2 compatibility contract
+        run: |
+          set -euo pipefail
+          SRC='docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_bind.cpp'
+          HDR='docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1.h'
+          TEST='docs/research/tile-native-dng-source-v0.2/tests/test_tile_native_dng_source_v0_2.cpp'
+          grep -F 'kOpcodeFixBadPixelsList = 5u' "$SRC"
+          grep -F 'kOpcodeGainMap = 9u' "$SRC"
+          grep -F 'kOpcodeFlagOptional = 0x1u' "$SRC"
+          grep -F 'unsupported mandatory OpcodeList2 entry id=' "$SRC"
+          grep -F 'fixBadPixelsListOpcodesSkipped' "$HDR"
+          grep -F 'android_dngcreator_optional_opcode_compat=PASS' "$TEST"
+
+      - name: GCC Release source + end-to-end
+        if: matrix.mode == 'gcc-release'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.2 -B /tmp/tile-dng-v02-gcc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+          cmake --build /tmp/tile-dng-v02-gcc --parallel 2
+          /tmp/tile-dng-v02-gcc/test_tile_native_dng_source_v0_2
+          /tmp/tile-dng-v02-gcc/test_tile_native_dng_streaming_integration_v0_2
+
+      - name: Clang Release source + end-to-end
+        if: matrix.mode == 'clang-release'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.2 -B /tmp/tile-dng-v02-clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/tile-dng-v02-clang --parallel 2
+          /tmp/tile-dng-v02-clang/test_tile_native_dng_source_v0_2
+          /tmp/tile-dng-v02-clang/test_tile_native_dng_streaming_integration_v0_2
+
+      - name: Clang ASan/UBSan source + end-to-end
+        if: matrix.mode == 'clang-asan-ubsan'
+        run: |
+          cmake -S docs/research/tile-native-dng-source-v0.2 -B /tmp/tile-dng-v02-san \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' \
+            -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=address,undefined'
+          cmake --build /tmp/tile-dng-v02-san --parallel 2
+          /tmp/tile-dng-v02-san/test_tile_native_dng_source_v0_2
+          /tmp/tile-dng-v02-san/test_tile_native_dng_streaming_integration_v0_2

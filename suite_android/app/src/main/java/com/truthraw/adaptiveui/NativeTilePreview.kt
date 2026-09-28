@@ -14,6 +14,12 @@ object NativeTilePreviewBridge {
         System.loadLibrary("truthraw_ui_preview_bridge")
     }
 
+    // Metadata-only DNG open diagnostic. Never releases pixels or scientific claims.
+    external fun probeDngSourceOpenDetail(
+        fd: Int,
+        maxSourceResidentBytes: Int,
+    ): String
+
     // Legacy diagnostic CFA proxy. Retained only as a separate troubleshooting path.
     external fun buildCfaPreview(
         fd: Int,
@@ -187,7 +193,21 @@ object TilePreviewLoader {
         }
         val status = packet[1]
         if (status != 0) {
-            return TilePreviewUiState.Failed(job.id, nativeStatusDescription(status))
+            var reason = nativeStatusDescription(status)
+            if (status == 7005 || status == 7006) {
+                val detail = runCatching {
+                    resolver.openFileDescriptor(job.source.uri, "r")?.use { pfd ->
+                        NativeTilePreviewBridge.probeDngSourceOpenDetail(
+                            pfd.fd,
+                            MAX_SOURCE_RESIDENT_BYTES,
+                        )
+                    }
+                }.getOrNull()
+                if (!detail.isNullOrBlank()) {
+                    reason += "\nNative DNG-detail · " + detail
+                }
+            }
+            return TilePreviewUiState.Failed(job.id, reason)
         }
 
         val width = packet[2]

@@ -1,9 +1,9 @@
-name: D.RAW Universal Physical Capture v0.1
+name: D.RAW Universal Physical Capture v0.2 RAW_SENSOR-first
 
 on:
   push:
     branches:
-      - integration/draw-universal-physical-capture-v01-2026-09-28
+      - integration/draw-universal-rawsensor-foundation-v01-2026-09-28
     paths:
       - 'suite_android/**'
       - '.github/workflows/draw-universal-physical-capture-v01.yml'
@@ -31,7 +31,13 @@ jobs:
           LAUNCHER="$JAVA/TruthRawSuiteLauncherActivity.kt"
 
           grep -F 'class UniversalPhysicalCaptureActivity' "$CAPTURE"
-          grep -F 'SEALED_DNG_TO_SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW' "$CAPTURE"
+          grep -F 'PRIMARY_APP_VISIBLE_RAW_SENSOR_BYTE_EVIDENCE' "$CAPTURE"
+          grep -F 'DERIVED_DNG_TO_SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW' "$CAPTURE"
+          grep -F 'SCALER_STREAM_CONFIGURATION_MAP_RAW_SENSOR' "$CAPTURE"
+          grep -F 'highest_standard_raw_resolution_selected", true' "$CAPTURE"
+          grep -F 'maximum_resolution_map_used", false' "$CAPTURE"
+          grep -F 'APP_VISIBLE_CAMERA_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF' "$CAPTURE"
+          grep -F 'canonical_contiguous_raw_sensor' "$CAPTURE"
           grep -F 'transport_backend_is_scientific_truth", false' "$CAPTURE"
           grep -F 'device_map_required", false' "$CAPTURE"
           grep -F 'uses_ai_or_learned_model", false' "$CAPTURE"
@@ -84,7 +90,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DRAW_Universal_Physical_Capture_v0.1_debug_arm64
+          name: DRAW_Universal_RAW_SENSOR_Foundation_v0.2_debug_arm64
           path: |
             suite_android/app/build/outputs/apk/debug/app-debug.apk
             suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256

@@ -20,10 +20,11 @@ object DngContainerMetadataParser {
     private val tagNames = mapOf(
         254 to "NewSubfileType", 256 to "ImageWidth", 257 to "ImageLength",
         258 to "BitsPerSample", 259 to "Compression", 262 to "PhotometricInterpretation",
-        270 to "ImageDescription", 271 to "Make", 272 to "Model",
+        266 to "FillOrder", 270 to "ImageDescription", 271 to "Make", 272 to "Model",
         273 to "StripOffsets", 274 to "Orientation", 277 to "SamplesPerPixel",
         278 to "RowsPerStrip", 279 to "StripByteCounts", 284 to "PlanarConfiguration",
-        305 to "Software", 306 to "DateTime", 324 to "TileOffsets", 325 to "TileByteCounts",
+        305 to "Software", 306 to "DateTime", 322 to "TileWidth", 323 to "TileLength",
+        324 to "TileOffsets", 325 to "TileByteCounts", 339 to "SampleFormat",
         513 to "JPEGInterchangeFormat", 514 to "JPEGInterchangeFormatLength",
         330 to "SubIFDs", 33421 to "CFARepeatPatternDim", 33422 to "CFAPattern",
         34665 to "ExifIFD", 34853 to "GPSIFD",
@@ -87,14 +88,23 @@ object DngContainerMetadataParser {
                         .put("bitsPerSample", ifd.opt("bitsPerSample"))
                         .put("compression", ifd.opt("compression"))
                         .put("samplesPerPixel", ifd.opt("samplesPerPixel"))
+                        .put("fillOrder", ifd.opt("fillOrder"))
+                        .put("planarConfiguration", ifd.opt("planarConfiguration"))
+                        .put("sampleFormat", ifd.opt("sampleFormat"))
                         .put("cfaRepeatPatternDim", ifd.opt("cfaRepeatPatternDim"))
                         .put("cfaPattern", ifd.opt("cfaPattern"))
                         .put("blackLevel", ifd.opt("blackLevel"))
                         .put("whiteLevel", ifd.opt("whiteLevel"))
                         .put("activeArea", ifd.opt("activeArea"))
                         .put("defaultCropSize", ifd.opt("defaultCropSize"))
+                        .put("stripOffsets", ifd.opt("stripOffsets"))
                         .put("stripByteCounts", ifd.opt("stripByteCounts"))
-                        .put("tileByteCounts", ifd.opt("tileByteCounts")),
+                        .put("rowsPerStrip", ifd.opt("rowsPerStrip"))
+                        .put("tileWidth", ifd.opt("tileWidth"))
+                        .put("tileLength", ifd.opt("tileLength"))
+                        .put("tileOffsets", ifd.opt("tileOffsets"))
+                        .put("tileByteCounts", ifd.opt("tileByteCounts"))
+                        .put("opcodeList2", ifd.opt("opcodeList2")),
                 )
             }
         }
@@ -177,11 +187,17 @@ object DngContainerMetadataParser {
                 258 -> ifdJson.put("bitsPerSample", decoded)
                 259 -> ifdJson.put("compression", decoded)
                 262 -> ifdJson.put("photometricInterpretation", decoded)
+                266 -> ifdJson.put("fillOrder", decoded)
                 277 -> ifdJson.put("samplesPerPixel", decoded)
                 273 -> ifdJson.put("stripOffsets", decoded)
+                278 -> ifdJson.put("rowsPerStrip", decoded)
                 279 -> ifdJson.put("stripByteCounts", decoded)
+                284 -> ifdJson.put("planarConfiguration", decoded)
+                322 -> ifdJson.put("tileWidth", decoded)
+                323 -> ifdJson.put("tileLength", decoded)
                 324 -> ifdJson.put("tileOffsets", decoded)
                 325 -> ifdJson.put("tileByteCounts", decoded)
+                339 -> ifdJson.put("sampleFormat", decoded)
                 513 -> ifdJson.put("jpegInterchangeFormat", decoded)
                 514 -> ifdJson.put("jpegInterchangeFormatLength", decoded)
                 33421 -> ifdJson.put("cfaRepeatPatternDim", decoded)
@@ -195,6 +211,7 @@ object DngContainerMetadataParser {
                 50719 -> ifdJson.put("defaultCropOrigin", decoded)
                 50720 -> ifdJson.put("defaultCropSize", decoded)
                 50829 -> ifdJson.put("activeArea", decoded)
+                51009 -> ifdJson.put("opcodeList2", decoded)
                 330 -> subIfdOffsets = decodeUnsignedLongValues(channel, fileSize, order, entry)
                 34665 -> exifIfdOffset = decodeUnsignedLongValues(channel, fileSize, order, entry).firstOrNull()
             }

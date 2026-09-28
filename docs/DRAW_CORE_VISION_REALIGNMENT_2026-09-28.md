@@ -101,17 +101,33 @@ Its role is deliberately narrow:
 ```text
 physical camera
   -> Android Camera2 transport only
-  -> one RAW_SENSOR capture
-  -> DNG materialization
-  -> SHA-256 sealed source
+  -> one standard RAW_SENSOR capture
+  -> exact app-visible RAW_SENSOR plane seal (.rawsensor + SHA-256)
+  -> acquisition/layout provenance
+  -> derived DNG compatibility container
   -> the same Universal Source Intake used by imported RAW/DNG
 ```
 
-Ultra-wide, wide/main and tele are discovered dynamically from available back-facing RAW routes. Focal-length ordering is only `UI_FOCAL_ORDER_HINT_ONLY`; fixed device maps, fixed Camera IDs and vendor request keys are not required and cannot create scientific authority.
+Ultra-wide, wide/main and normal tele are discovered dynamically from available back-facing RAW routes. Focal-length ordering is only `UI_FOCAL_ORDER_HINT_ONLY`; fixed device maps, fixed Camera IDs and vendor request keys are not required and cannot create scientific authority.
 
-Camera2 acquisition properties are provenance, not scientific truth. The sealed DNG is re-read from scratch by D.RAW.
+For the normal universal route, resolution is selected only from the ordinary `SCALER_STREAM_CONFIGURATION_MAP` RAW_SENSOR sizes. D.RAW chooses the highest standard RAW_SENSOR resolution exposed by that physical camera. It does not silently enter a vendor maximum-resolution mode.
 
-The existing special Camera-5 4K→200MP route remains separate and unchanged. It is not the universal camera path.
+The app-visible `.rawsensor` byte stream is the source-first capture foundation. Camera2 characteristics and capture results remain acquisition/interpretation provenance; they are not promoted to untouched photodiode/ADC proof. The DNG is created afterwards and is explicitly a derived compatibility container for the current main-house scientific ingress.
+
+The existing special Camera-5 4K→200MP route remains separate. Its maximum-resolution/envelope logic is never generalized to ultra-wide, main or the normal tele route.
+
+### Source resolution versus Open-World resolution
+
+The measured source grid, optical resolving support, reconstruction field and chosen output raster are different quantities.
+
+```text
+highest standard measured RAW_SENSOR grid
+  -> Scientific Master
+  -> D.RAWnegative / Open World
+  -> freely selected finite output raster
+```
+
+Open-World output resolution may be lower, equal to or higher than the source sample grid. Choosing a denser output raster does not create additional measured samples and never upgrades source or optical authority.
 
 PR #76 merged this architecture into `main`.
 

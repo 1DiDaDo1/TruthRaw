@@ -80,6 +80,12 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
             "DNG adapter did not return TileNativeDngSource implementation");
     }
 
+    // The research adapter keeps its sealed v0.1 interface, while the Android
+    // integration deliberately selects the v0.2 container implementation.
+    // Record the actual implementation revision in runtime provenance.
+    out.descriptor.decoderId =
+        "truthraw.tile-native-dng-source.v0.2-android-dngcreator-compat";
+
     return adapter::AdapterStatus::ok();
 }
 
