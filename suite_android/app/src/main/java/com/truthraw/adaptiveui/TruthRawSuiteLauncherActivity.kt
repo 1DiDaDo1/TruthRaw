@@ -184,9 +184,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
                         Intent(
                             this@TruthRawSuiteLauncherActivity,
                             UniversalPhysicalCaptureActivity::class.java,
-                        ).apply {
-                            
-                        },
+                        ),
                     )
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
