@@ -171,6 +171,19 @@ object UniversalSourceProfiler {
             .put("forward_matrix_2_present", forwardMatrix2 != null)
             .put("noise_profile_present", noiseProfile != null)
 
+        val hasStripStorage =
+            primaryRaw?.has("stripOffsets") == true &&
+                primaryRaw.has("stripByteCounts")
+        val hasTileStorage =
+            primaryRaw?.has("tileOffsets") == true &&
+                primaryRaw.has("tileByteCounts")
+        val storageKind = when {
+            hasStripStorage && hasTileStorage -> "AMBIGUOUS_STRIPS_AND_TILES"
+            hasStripStorage -> "STRIPS"
+            hasTileStorage -> "TILES"
+            else -> "UNKNOWN"
+        }
+
         val raster = JSONObject()
             .put("raw_cfa_candidate_count", rawCandidates.length())
             .put("width", width ?: JSONObject.NULL)
@@ -178,6 +191,14 @@ object UniversalSourceProfiler {
             .put("bits_per_sample", valueOrNull(primaryRaw?.opt("bitsPerSample")))
             .put("compression", valueOrNull(primaryRaw?.opt("compression")))
             .put("samples_per_pixel", valueOrNull(primaryRaw?.opt("samplesPerPixel")))
+            .put("fill_order", valueOrNull(primaryRaw?.opt("fillOrder")))
+            .put("planar_configuration", valueOrNull(primaryRaw?.opt("planarConfiguration")))
+            .put("sample_format", valueOrNull(primaryRaw?.opt("sampleFormat")))
+            .put("storage_kind", storageKind)
+            .put("rows_per_strip", valueOrNull(primaryRaw?.opt("rowsPerStrip")))
+            .put("tile_width", valueOrNull(primaryRaw?.opt("tileWidth")))
+            .put("tile_length", valueOrNull(primaryRaw?.opt("tileLength")))
+            .put("opcode_list_2_present", primaryRaw?.has("opcodeList2") == true)
             .put("cfa_repeat_pattern_dim", valueOrNull(primaryRaw?.opt("cfaRepeatPatternDim")))
             .put("cfa_pattern", valueOrNull(primaryRaw?.opt("cfaPattern")))
             .put("black_level", valueOrNull(primaryRaw?.opt("blackLevel")))
