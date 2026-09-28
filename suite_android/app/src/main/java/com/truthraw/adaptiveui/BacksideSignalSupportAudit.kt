@@ -114,6 +114,7 @@ object BacksideSignalSupportAudit {
         val blackRepeat = unsignedValues(channel, fileSize, order, entries[50713])
         val blackLevels = numericValues(channel, fileSize, order, entries[50714])
         val whiteLevels = numericValues(channel, fileSize, order, entries[50717])
+        val activeArea = unsignedValues(channel, fileSize, order, entries[50829])
 
         val topology = JSONObject()
             .put("width", width)
@@ -172,11 +173,43 @@ object BacksideSignalSupportAudit {
         val sourceHeight = height.toInt()
         val bytesPerRow = sourceWidth.toLong() * 2L
 
-        var baseY = 0
-        while (baseY < sourceHeight) {
+        val activeTop: Int
+        val activeLeft: Int
+        val activeBottom: Int
+        val activeRight: Int
+        if (
+            activeArea.size >= 4 &&
+            activeArea[0] in 0 until height &&
+            activeArea[1] in 0 until width &&
+            activeArea[2] > activeArea[0] &&
+            activeArea[2] <= height &&
+            activeArea[3] > activeArea[1] &&
+            activeArea[3] <= width
+        ) {
+            activeTop = activeArea[0].toInt()
+            activeLeft = activeArea[1].toInt()
+            activeBottom = activeArea[2].toInt()
+            activeRight = activeArea[3].toInt()
+        } else {
+            activeTop = 0
+            activeLeft = 0
+            activeBottom = sourceHeight
+            activeRight = sourceWidth
+        }
+        topology.put(
+            "sampled_active_area",
+            JSONArray()
+                .put(activeTop)
+                .put(activeLeft)
+                .put(activeBottom)
+                .put(activeRight),
+        )
+
+        var baseY = activeTop
+        while (baseY < activeBottom) {
             for (dy in 0..1) {
                 val y = baseY + dy
-                if (y >= sourceHeight) continue
+                if (y >= activeBottom) continue
 
                 val stripIndex = (y.toLong() / rowsPerStrip).toInt()
                 if (stripIndex !in stripOffsets.indices) continue
@@ -198,11 +231,11 @@ object BacksideSignalSupportAudit {
                 if (row.size != bytesPerRow.toInt()) continue
                 val rb = ByteBuffer.wrap(row).order(order)
 
-                var baseX = 0
-                while (baseX < sourceWidth) {
+                var baseX = activeLeft
+                while (baseX < activeRight) {
                     for (dx in 0..1) {
                         val x = baseX + dx
-                        if (x >= sourceWidth) continue
+                        if (x >= activeRight) continue
                         val sample = u16(rb.getShort(x * 2))
                         val blackIndex =
                             (y % repeatRows) * repeatCols + (x % repeatCols)
