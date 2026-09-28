@@ -177,8 +177,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_APPEARANCE_HEADROOM_SWEEP_V02}/truthnegative_appearance_highlight_headroom_sweep_v0_2.cpp
     ${TRUTHNEGATIVE_N2_PIPELINE_V01}/truthnegative_n2_candidate_pipeline_v0_1.cpp
     ${TRUTHNEGATIVE_N2_CFA_AUDIT_V01}/truthnegative_n2_cfa_audit_v0_1.cpp
-    ${TRUTHNEGATIVE_N2_SPATIAL_V01}
-    ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}/truthnegative_n2_spatial_sidecar_v0_1.cpp
+    ${TRUTHNEGATIVE_N2_SPATIAL_V01}/truthnegative_n2_spatial_sidecar_v0_1.cpp
     ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}/truthnegative_n2_structure_support_field_v0_1.cpp
     ${TRUTHNEGATIVE_N2_FULL_COLOUR_V01}/truthnegative_n2_full_colour_candidate_v0_1.cpp
     ${TRUTHNEGATIVE_N2_RISK_QUALITY_V01}/truthnegative_n2_risk_quality_audit_v0_1.cpp
@@ -240,6 +239,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_N2_PIPELINE_V01}
     ${TRUTHNEGATIVE_N2_CFA_AUDIT_V01}
     ${TRUTHNEGATIVE_N2_SPATIAL_V01}
+    ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}
     ${TRUTHNEGATIVE_N2_FULL_COLOUR_V01}
     ${TRUTHNEGATIVE_N2_RISK_QUALITY_V01}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}
