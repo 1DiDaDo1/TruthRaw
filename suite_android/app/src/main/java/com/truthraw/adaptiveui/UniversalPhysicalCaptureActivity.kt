@@ -23,6 +23,7 @@ import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.ExifInterface
 import android.media.Image
 import android.media.ImageReader
 import android.os.Bundle
@@ -49,6 +50,7 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.ln
 import kotlin.math.sqrt
@@ -131,6 +133,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var previewBufferSize: Size? = null
     private var lastPreviewResult: TotalCaptureResult? = null
     private var previewFrames: Long = 0
+    private var previewPhysicalRouteUnresolved = false
     private var focusLocked = false
     private var currentAfRegion: MeteringRectangle? = null
     private var macroLoupeScale = 1f
@@ -527,30 +530,87 @@ class UniversalPhysicalCaptureActivity : Activity() {
             ?.filter { it.isFinite() && it > 0f }
             ?.minOrNull()
 
+    /**
+     * UI-only field-of-view ordering hint.
+     *
+     * Focal length alone is not comparable across different sensor sizes.  The
+     * diagonal/focal ratio is monotonic with diagonal angle of view and is
+     * therefore a better device-independent lens-role hint when physical sensor
+     * size is reported.  It remains acquisition/UI metadata only and never
+     * upgrades scientific authority.
+     */
+    private fun fieldOfViewScore(candidate: Candidate): Double? {
+        val focal = candidate.focalLengthMm?.toDouble()
+            ?.takeIf { it.isFinite() && it > 0.0 }
+            ?: return null
+        val c = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return null
+        val physical =
+            c.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+                ?: return null
+        val diagonal =
+            hypot(physical.width.toDouble(), physical.height.toDouble())
+        if (!diagonal.isFinite() || diagonal <= 0.0) return null
+        return (diagonal / focal).takeIf { it.isFinite() && it > 0.0 }
+    }
+
+    private fun diagonalFieldOfViewDegrees(candidate: Candidate): Double? =
+        fieldOfViewScore(candidate)?.let { score ->
+            Math.toDegrees(2.0 * atan(score / 2.0))
+        }
+
     private fun assignRoles(candidates: List<Candidate>) {
         roleCandidates.clear()
-        val focal = candidates
-            .filter { it.focalLengthMm != null && it.focalLengthMm > 0f }
-            .sortedBy { it.focalLengthMm }
 
-        if (focal.isEmpty()) return
+        val distinct = candidates.distinctBy { it.effectiveCameraId }
+        val fov = distinct.mapNotNull { candidate ->
+            fieldOfViewScore(candidate)?.let { candidate to it }
+        }
 
-        roleCandidates[LensRole.ULTRA_WIDE] = focal.first()
+        val ordered = if (fov.size == distinct.size && fov.isNotEmpty()) {
+            // widest field of view first, narrowest last
+            fov.sortedByDescending { it.second }.map { it.first }
+        } else {
+            // Compatibility fallback when a vendor does not expose physical
+            // sensor dimensions.  Focal length remains only a UI hint.
+            distinct
+                .filter {
+                    it.focalLengthMm != null &&
+                        it.focalLengthMm > 0f
+                }
+                .sortedBy { it.focalLengthMm }
+        }
 
-        if (focal.size == 1) {
-            roleCandidates[LensRole.WIDE_MAIN] = focal.first()
+        if (ordered.isEmpty()) return
+
+        roleCandidates[LensRole.ULTRA_WIDE] = ordered.first()
+
+        if (ordered.size == 1) {
+            roleCandidates[LensRole.WIDE_MAIN] = ordered.first()
             return
         }
 
-        roleCandidates[LensRole.TELE] = focal.last()
+        roleCandidates[LensRole.TELE] = ordered.last()
 
-        if (focal.size >= 3) {
-            val low = focal.first().focalLengthMm!!.toDouble()
-            val high = focal.last().focalLengthMm!!.toDouble()
-            val geometricMid = sqrt(low * high)
-            val interior = focal.subList(1, focal.size - 1)
-            val main = interior.minByOrNull {
-                abs(ln(it.focalLengthMm!!.toDouble() / geometricMid))
+        if (ordered.size >= 3) {
+            val scored = ordered.mapNotNull { candidate ->
+                fieldOfViewScore(candidate)?.let { candidate to it }
+            }
+            val main = if (scored.size == ordered.size) {
+                val widest = scored.first().second
+                val narrowest = scored.last().second
+                val geometricMid = sqrt(widest * narrowest)
+                scored.subList(1, scored.size - 1).minByOrNull {
+                    abs(ln(it.second / geometricMid))
+                }?.first
+            } else {
+                val low = ordered.first().focalLengthMm!!.toDouble()
+                val high = ordered.last().focalLengthMm!!.toDouble()
+                val geometricMid = sqrt(low * high)
+                ordered.subList(1, ordered.size - 1).minByOrNull {
+                    abs(ln(it.focalLengthMm!!.toDouble() / geometricMid))
+                }
             }
             if (main != null) roleCandidates[LensRole.WIDE_MAIN] = main
         }
@@ -563,7 +623,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
             val focal =
                 c.focalLengthMm?.let { "%.2fmm".format(it) }
                     ?: "focal UNKNOWN"
-            return role.title + " · " + focal + " · " +
+            val fov =
+                diagonalFieldOfViewDegrees(c)?.let {
+                    " · diagFoV=%.1f°".format(Locale.ROOT, it)
+                }.orEmpty()
+            return role.title + " · " + focal + fov + " · " +
                 c.rawSize.width + "×" + c.rawSize.height
         }
 
@@ -597,7 +661,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 append(c.physicalCameraId ?: "none")
                 append(" · focal=")
                 append(c.focalLengthMm ?: "UNKNOWN")
-                append("mm · RAW=")
+                append("mm · diagFoV=")
+                append(
+                    diagonalFieldOfViewDegrees(c)?.let {
+                        "%.1f°".format(Locale.ROOT, it)
+                    } ?: "UNKNOWN",
+                )
+                append(" · RAW=")
                 append(c.rawSize.width)
                 append("×")
                 append(c.rawSize.height)
@@ -644,6 +714,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
         previewFrames = 0
         lastPreviewResult = null
+        previewPhysicalRouteUnresolved = false
         setMacroLoupeScale(1f)
         setButtonsEnabled(false)
         captureButton.isEnabled = false
@@ -881,21 +952,55 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         lastPreviewResult = result
                         if (previewFrames == 1L || previewFrames % 12L == 0L) {
                             val effective =
-                                effectiveCaptureResult(candidate, result) ?: result
-                            val afState =
-                                effective.get(CaptureResult.CONTROL_AF_STATE)
+                            effectiveCaptureResult(candidate, result)
+                        if (
+                            candidate.physicalCameraId != null &&
+                            effective == null
+                        ) {
+                            previewPhysicalRouteUnresolved = true
+                            runOnUiThread {
+                                previewTelemetry.text =
+                                    "LIVE ROUTE NIET BEWEZEN · gekozen physical=" +
+                                        candidate.physicalCameraId +
+                                        " ontbreekt in physicalCameraResults · capture geblokkeerd."
+                                captureButton.isEnabled = false
+                                focusLockButton.isEnabled = false
+                                loupeButton.isEnabled = true
+                                restoreRoleButtons()
+                            }
+                            return
+                        }
+                        val boundResult = effective ?: result
+                        previewPhysicalRouteUnresolved = false
+                        val afState =
+                                boundResult.get(CaptureResult.CONTROL_AF_STATE)
                             val focusDistance =
-                                effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                                boundResult.get(CaptureResult.LENS_FOCUS_DISTANCE)
                             val iso =
-                                effective.get(CaptureResult.SENSOR_SENSITIVITY)
+                                boundResult.get(CaptureResult.SENSOR_SENSITIVITY)
                             val exp =
-                                effective.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                                boundResult.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                            val resultFocal =
+                                boundResult.get(CaptureResult.LENS_FOCAL_LENGTH)
                             runOnUiThread {
                                 previewTelemetry.text = buildString {
                                     append("LIVE · ")
                                     append(activeRole?.title ?: candidate.effectiveCameraId)
                                     append(" · loep=")
                                     append(String.format(Locale.ROOT, "%.1f×", macroLoupeScale))
+                                    append(" · route=")
+                                    append(candidate.effectiveCameraId)
+                                    append(
+                                        candidate.physicalCameraId?.let {
+                                            " physical=$it"
+                                        } ?: " direct",
+                                    )
+                                    append(" · resultFocal=")
+                                    append(
+                                        resultFocal?.let {
+                                            String.format(Locale.ROOT, "%.2fmm", it)
+                                        } ?: "UNKNOWN",
+                                    )
                                     append(" · AF=")
                                     append(afState ?: "UNKNOWN")
                                     append(" · focus=")
@@ -914,7 +1019,8 @@ class UniversalPhysicalCaptureActivity : Activity() {
                                     )
                                     append(" · display zoom verandert RAW niet")
                                 }
-                                captureButton.isEnabled = true
+                                captureButton.isEnabled =
+                                    !previewPhysicalRouteUnresolved
                                 focusLockButton.isEnabled =
                                     supportsAutoFocus(effectiveCharacteristics)
                                 loupeButton.isEnabled = true
@@ -1607,6 +1713,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
             runCatching {
                 FileOutputStream(dngFile).use { out ->
                     DngCreator(characteristics, effectiveResult).use { creator ->
+                        // The DNG is a derived compatibility container, not the
+                        // sealed RAW_SENSOR evidence.  Some vendor DngCreator
+                        // paths on this device have emitted invalid TIFF
+                        // Orientation=9.  Force a standard storage-coordinate
+                        // orientation so the common D.RAW ingress can parse the
+                        // container without changing a single RAW_SENSOR byte.
+                        creator.setOrientation(ExifInterface.ORIENTATION_NORMAL)
                         creator.writeImage(out, image)
                     }
                 }
@@ -1908,6 +2021,20 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         "role",
                         "DERIVED_COMPATIBILITY_CONTAINER_FOR_CURRENT_MAIN_HOUSE_INGRESS",
                     )
+                    .put(
+                        "storage_orientation_written",
+                        ExifInterface.ORIENTATION_NORMAL,
+                    )
+                    .put(
+                        "storage_orientation_semantics",
+                        "STORAGE_COORDINATE_NORMAL_ONLY",
+                    )
+                    .put(
+                        "presentation_orientation_authority",
+                        "UNKNOWN",
+                    )
+                    .put("world_orientation_claimed", false)
+                    .put("rawsensor_orientation_mutated", false)
                     .put("replaces_primary_rawsensor", false),
             )
             .put(
