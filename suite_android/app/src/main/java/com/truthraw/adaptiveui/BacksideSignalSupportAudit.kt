@@ -179,8 +179,10 @@ object BacksideSignalSupportAudit {
         val activeRight: Int
         if (
             activeArea.size >= 4 &&
-            activeArea[0] in 0 until height &&
-            activeArea[1] in 0 until width &&
+            activeArea[0] >= 0L &&
+            activeArea[0] < height &&
+            activeArea[1] >= 0L &&
+            activeArea[1] < width &&
             activeArea[2] > activeArea[0] &&
             activeArea[2] <= height &&
             activeArea[3] > activeArea[1] &&
