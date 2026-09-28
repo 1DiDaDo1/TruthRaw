@@ -129,6 +129,24 @@ highest standard measured RAW_SENSOR grid
 
 Open-World output resolution may be lower, equal to or higher than the source sample grid. Choosing a denser output raster does not create additional measured samples and never upgrades source or optical authority.
 
+### Live preview, focus and macro loupe
+
+The normal universal camera may provide a rich photographer-facing live view without changing the scientific source contract.
+
+```text
+physical RAW-capable camera
+  -> preview surface + standard RAW_SENSOR surface in one acquisition session
+  -> tap-to-focus / AF lock as acquisition assist
+  -> display-only macro loupe / pinch zoom
+  -> full standard RAW_SENSOR capture remains uncropped
+```
+
+The macro loupe is a presentation transform on the preview view. It must not write `CONTROL_ZOOM_RATIO` or `SCALER_CROP_REGION` into the universal RAW capture request. A 2x/4x/8x live-view enlargement therefore does not change source pixels, capture geometry, source resolution or scientific authority.
+
+Tap-to-focus and focus lock may move the physical lens when the selected camera exposes autofocus. AF regions and reported focus distance remain acquisition provenance. They do not create new scene evidence or calibration authority. Fixed-focus cameras remain valid and simply expose no autofocus control.
+
+The preview itself is explicitly `PRESENTATION_AND_ACQUISITION_ASSIST_ONLY`; it creates no source evidence. Only the separately captured and sealed RAW_SENSOR image enters the scientific source lineage.
+
 PR #76 merged this architecture into `main`.
 
 Merge commit:

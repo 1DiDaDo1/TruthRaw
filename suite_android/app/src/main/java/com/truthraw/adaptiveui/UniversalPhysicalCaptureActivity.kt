@@ -4,8 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -15,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.DngCreator
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
@@ -24,9 +30,14 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import android.view.Gravity
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.Surface
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -36,7 +47,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.hypot
 import kotlin.math.ln
 import kotlin.math.sqrt
 
@@ -96,6 +109,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private lateinit var ultraButton: Button
     private lateinit var wideButton: Button
     private lateinit var teleButton: Button
+    private lateinit var previewView: AutoFitTextureView
+    private lateinit var previewTelemetry: TextView
+    private lateinit var focusMarker: TextView
+    private lateinit var captureButton: Button
+    private lateinit var focusLockButton: Button
+    private lateinit var loupeButton: Button
+    private lateinit var scaleDetector: ScaleGestureDetector
 
     private val roleCandidates = linkedMapOf<LensRole, Candidate>()
 
@@ -106,6 +126,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var imageReader: ImageReader? = null
+    private var previewSurface: Surface? = null
+    private var previewRequestBuilder: CaptureRequest.Builder? = null
+    private var previewBufferSize: Size? = null
+    private var lastPreviewResult: TotalCaptureResult? = null
+    private var previewFrames: Long = 0
+    private var focusLocked = false
+    private var currentAfRegion: MeteringRectangle? = null
+    private var macroLoupeScale = 1f
+    private var pendingPreviewRole: LensRole? = null
+    private var touchDownX = 0f
+    private var touchDownY = 0f
+    private var touchMoved = false
+    private var multiTouchGesture = false
 
     private val pairLock = Any()
     private var pendingImage: Image? = null
@@ -118,8 +151,38 @@ class UniversalPhysicalCaptureActivity : Activity() {
         super.onCreate(savedInstanceState)
         DrawVisualTheme.applyWindow(this)
         cameraManager = getSystemService(CameraManager::class.java)
+        scaleDetector = ScaleGestureDetector(
+            this,
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                    multiTouchGesture = true
+                    return true
+                }
+
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    previewView.pivotX = detector.focusX.coerceIn(0f, previewView.width.toFloat())
+                    previewView.pivotY = detector.focusY.coerceIn(0f, previewView.height.toFloat())
+                    setMacroLoupeScale(
+                        (macroLoupeScale * detector.scaleFactor).coerceIn(1f, 8f),
+                    )
+                    return true
+                }
+            },
+        )
         setContentView(buildUi())
         discoverUniversalRoutes()
+    }
+
+    override fun onPause() {
+        closeCaptureResources()
+        if (::captureButton.isInitialized) captureButton.isEnabled = false
+        if (::focusLockButton.isInitialized) {
+            focusLockButton.isEnabled = false
+            focusLockButton.text = "AF vergrendelen"
+        }
+        if (::loupeButton.isInitialized) loupeButton.isEnabled = false
+        if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -161,14 +224,90 @@ class UniversalPhysicalCaptureActivity : Activity() {
         )
         root.addView(space(12))
 
+        previewView = AutoFitTextureView(this).apply {
+            surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                override fun onSurfaceTextureAvailable(
+                    surface: SurfaceTexture,
+                    width: Int,
+                    height: Int,
+                ) {
+                    configurePreviewTransform(width, height)
+                    val role = pendingPreviewRole
+                    if (role != null) {
+                        pendingPreviewRole = null
+                        post { openPreviewRole(role) }
+                    }
+                }
+
+                override fun onSurfaceTextureSizeChanged(
+                    surface: SurfaceTexture,
+                    width: Int,
+                    height: Int,
+                ) {
+                    configurePreviewTransform(width, height)
+                }
+
+                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                    closeCaptureResources()
+                    return true
+                }
+
+                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) = Unit
+            }
+            setOnTouchListener { _, event -> handlePreviewTouch(event) }
+        }
+        focusMarker = text("◎", 32f, true, Color.WHITE).apply {
+            gravity = Gravity.CENTER
+            visibility = View.INVISIBLE
+            isClickable = false
+            isFocusable = false
+        }
+        val previewPane = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            clipToPadding = true
+            addView(
+                previewView,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER,
+                ),
+            )
+            addView(
+                focusMarker,
+                FrameLayout.LayoutParams(
+                    dp(54),
+                    dp(54),
+                    Gravity.TOP or Gravity.START,
+                ),
+            )
+        }
+        root.addView(
+            previewPane,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(360),
+            ),
+        )
+        root.addView(space(6))
+        previewTelemetry = text(
+            "Live view nog niet gestart · tik een lens om te richten.",
+            10.5f,
+            false,
+            DrawVisualTheme.MUTED,
+        )
+        root.addView(previewTelemetry)
+        root.addView(space(8))
+
         ultraButton = button("Ultra-wide · zoeken…") {
-            captureRole(LensRole.ULTRA_WIDE)
+            openPreviewRole(LensRole.ULTRA_WIDE)
         }.apply { isEnabled = false }
         wideButton = button("Wide / main · zoeken…") {
-            captureRole(LensRole.WIDE_MAIN)
+            openPreviewRole(LensRole.WIDE_MAIN)
         }.apply { isEnabled = false }
         teleButton = button("Tele · zoeken…") {
-            captureRole(LensRole.TELE)
+            openPreviewRole(LensRole.TELE)
         }.apply { isEnabled = false }
 
         root.addView(ultraButton)
@@ -176,10 +315,45 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(wideButton)
         root.addView(space(7))
         root.addView(teleButton)
+        root.addView(space(8))
+
+        val assistRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        focusLockButton = button("AF vergrendelen") { toggleFocusLock() }.apply {
+            isEnabled = false
+        }
+        loupeButton = button("Macro-loep · 1×") { cycleMacroLoupe() }.apply {
+            isEnabled = false
+        }
+        assistRow.addView(
+            focusLockButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        assistRow.addView(
+            loupeButton,
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        root.addView(assistRow)
+        root.addView(space(7))
+
+        captureButton = button("Maak volledige RAW_SENSOR-opname") {
+            captureFromLivePreview()
+        }.apply { isEnabled = false }
+        root.addView(captureButton)
+        root.addView(
+            text(
+                "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
+                10f,
+                false,
+                DrawVisualTheme.MUTED,
+            ),
+        )
         root.addView(space(14))
 
         root.addView(
             button("Speciale 4K → 200MP RAW-route") {
+                closeCaptureResources()
                 startActivity(
                     Intent(this, FotoGraaf200MpStagedActivity::class.java).apply {
                         putExtra(
@@ -225,7 +399,16 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun discoverUniversalRoutes() {
+        closeCaptureResources()
         setButtonsEnabled(false)
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        focusLocked = false
+        currentAfRegion = null
+        setMacroLoupeScale(1f)
+        previewTelemetry.text =
+            "Live view nog niet gestart · tik een lens om te richten."
         status("Universele back-facing RAW-routes worden dynamisch ontdekt…")
         detailView.text = ""
 
@@ -424,18 +607,25 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
-    private fun captureRole(role: LensRole) {
+    private fun openPreviewRole(role: LensRole) {
         val candidate = roleCandidates[role] ?: return
 
         if (
             checkSelfPermission(Manifest.permission.CAMERA) !=
             PackageManager.PERMISSION_GRANTED
         ) {
+            pendingPreviewRole = role
             requestPermissions(
                 arrayOf(Manifest.permission.CAMERA),
                 REQUEST_CAMERA_PERMISSION,
             )
-            status("Camera-permissie gevraagd. Kies daarna opnieuw ${role.title}.")
+            status("Camera-permissie gevraagd. De gekozen lens opent daarna als live view.")
+            return
+        }
+
+        if (!previewView.isAvailable) {
+            pendingPreviewRole = role
+            status("${role.title}: wachten op de live-view surface…")
             return
         }
 
@@ -448,9 +638,20 @@ class UniversalPhysicalCaptureActivity : Activity() {
             activeRole = role
             finalizing = false
         }
+
+        focusLocked = false
+        currentAfRegion = null
+        if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
+        previewFrames = 0
+        lastPreviewResult = null
+        setMacroLoupeScale(1f)
         setButtonsEnabled(false)
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
         status(
-            "${role.title} wordt technisch geopend; RAW_SENSOR wordt eerst byte-exact verzegeld, DNG volgt alleen als afgeleide container.",
+            "${role.title} wordt geopend voor live richten · capture blijft volledige " +
+                "${candidate.rawSize.width}×${candidate.rawSize.height} RAW_SENSOR.",
         )
 
         val reader = ImageReader.newInstance(
@@ -471,6 +672,46 @@ class UniversalPhysicalCaptureActivity : Activity() {
             tryFinalizePair()
         }, cameraHandler)
 
+        val effectiveCharacteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrElse { error ->
+            status(
+                "Preview-capability kon niet worden gelezen: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            restoreRoleButtons()
+            closeCaptureResources()
+            return
+        }
+        val chosenPreview = choosePreviewSize(effectiveCharacteristics)
+            ?: run {
+                status("${role.title}: geen SurfaceTexture-previewformaat gevonden.")
+                restoreRoleButtons()
+                closeCaptureResources()
+                return
+            }
+
+        previewBufferSize = chosenPreview
+        val landscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        previewView.setAspectRatio(
+            if (landscape) chosenPreview.width else chosenPreview.height,
+            if (landscape) chosenPreview.height else chosenPreview.width,
+        )
+        val texture = previewView.surfaceTexture
+            ?: run {
+                pendingPreviewRole = role
+                status("${role.title}: preview surface verdween; opnieuw proberen zodra hij terug is.")
+                restoreRoleButtons()
+                closeCaptureResources()
+                return
+            }
+        texture.setDefaultBufferSize(chosenPreview.width, chosenPreview.height)
+        previewView.post {
+            configurePreviewTransform(previewView.width, previewView.height)
+        }
+        previewSurface = Surface(texture)
+
         try {
             cameraManager.openCamera(
                 candidate.logicalCameraId,
@@ -483,14 +724,24 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     override fun onDisconnected(camera: CameraDevice) {
                         camera.close()
                         statusFromAnyThread("Camera werd losgekoppeld.")
-                        runOnUiThread { restoreRoleButtons() }
+                        runOnUiThread {
+                            captureButton.isEnabled = false
+                            focusLockButton.isEnabled = false
+                            loupeButton.isEnabled = false
+                            restoreRoleButtons()
+                        }
                         closeCaptureResources()
                     }
 
                     override fun onError(camera: CameraDevice, error: Int) {
                         camera.close()
                         statusFromAnyThread("Camera-open fout=$error.")
-                        runOnUiThread { restoreRoleButtons() }
+                        runOnUiThread {
+                            captureButton.isEnabled = false
+                            focusLockButton.isEnabled = false
+                            loupeButton.isEnabled = false
+                            restoreRoleButtons()
+                        }
                         closeCaptureResources()
                     }
                 },
@@ -506,18 +757,41 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
+    private fun choosePreviewSize(c: CameraCharacteristics): Size? {
+        val sizes = c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            ?.getOutputSizes(SurfaceTexture::class.java)
+            ?.toList()
+            .orEmpty()
+        if (sizes.isEmpty()) return null
+
+        return sizes
+            .filter { it.width <= 1920 && it.height <= 1440 }
+            .maxByOrNull { it.width.toLong() * it.height.toLong() }
+            ?: sizes.maxByOrNull { it.width.toLong() * it.height.toLong() }
+    }
+
     private fun createSession(
         camera: CameraDevice,
         candidate: Candidate,
         reader: ImageReader,
     ) {
-        val output = OutputConfiguration(reader.surface)
+        val preview = previewSurface
+            ?: run {
+                statusFromAnyThread("Live-view surface ontbreekt.")
+                runOnUiThread { restoreRoleButtons() }
+                closeCaptureResources()
+                return
+            }
+
+        val previewOutput = OutputConfiguration(preview)
+        val rawOutput = OutputConfiguration(reader.surface)
         candidate.physicalCameraId?.let { physicalId ->
             try {
-                output.setPhysicalCameraId(physicalId)
+                previewOutput.setPhysicalCameraId(physicalId)
+                rawOutput.setPhysicalCameraId(physicalId)
             } catch (error: Exception) {
                 statusFromAnyThread(
-                    "Physical RAW-output kon niet worden gebonden: " +
+                    "Physical preview/RAW-output kon niet worden gebonden: " +
                         (error.message ?: error.javaClass.simpleName),
                 )
                 runOnUiThread { restoreRoleButtons() }
@@ -528,17 +802,24 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         val config = SessionConfiguration(
             SessionConfiguration.SESSION_REGULAR,
-            listOf(output),
+            listOf(previewOutput, rawOutput),
             mainExecutor,
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     cameraSession = session
-                    submitCapture(camera, session, candidate, reader)
+                    startPreviewRepeating(camera, session, candidate)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    status("RAW capture-session kon niet worden geconfigureerd.")
-                    restoreRoleButtons()
+                    statusFromAnyThread(
+                        "Preview + RAW capture-session kon niet worden geconfigureerd.",
+                    )
+                    runOnUiThread {
+                        captureButton.isEnabled = false
+                        focusLockButton.isEnabled = false
+                        loupeButton.isEnabled = false
+                        restoreRoleButtons()
+                    }
                     closeCaptureResources()
                 }
             },
@@ -548,12 +829,552 @@ class UniversalPhysicalCaptureActivity : Activity() {
             camera.createCaptureSession(config)
         } catch (error: Exception) {
             statusFromAnyThread(
-                "Capture-session faalde: " +
+                "Preview/capture-session faalde: " +
                     (error.message ?: error.javaClass.simpleName),
             )
-            runOnUiThread { restoreRoleButtons() }
+            runOnUiThread {
+                captureButton.isEnabled = false
+                focusLockButton.isEnabled = false
+                loupeButton.isEnabled = false
+                restoreRoleButtons()
+            }
             closeCaptureResources()
         }
+    }
+
+    private fun startPreviewRepeating(
+        camera: CameraDevice,
+        session: CameraCaptureSession,
+        candidate: Candidate,
+    ) {
+        val surface = previewSurface ?: return
+        val effectiveCharacteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrElse { error ->
+            statusFromAnyThread(
+                "Preview characteristics ontbreken: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            closeCaptureResources()
+            return
+        }
+
+        try {
+            val builder =
+                camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                    addTarget(surface)
+                    set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                    set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+                    setPreviewAfMode(this, effectiveCharacteristics, continuous = true)
+                }
+            previewRequestBuilder = builder
+
+            session.setRepeatingRequest(
+                builder.build(),
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        previewFrames++
+                        lastPreviewResult = result
+                        if (previewFrames == 1L || previewFrames % 12L == 0L) {
+                            val effective =
+                                effectiveCaptureResult(candidate, result) ?: result
+                            val afState =
+                                effective.get(CaptureResult.CONTROL_AF_STATE)
+                            val focusDistance =
+                                effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                            val iso =
+                                effective.get(CaptureResult.SENSOR_SENSITIVITY)
+                            val exp =
+                                effective.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                            runOnUiThread {
+                                previewTelemetry.text = buildString {
+                                    append("LIVE · ")
+                                    append(activeRole?.title ?: candidate.effectiveCameraId)
+                                    append(" · loep=")
+                                    append(String.format(Locale.ROOT, "%.1f×", macroLoupeScale))
+                                    append(" · AF=")
+                                    append(afState ?: "UNKNOWN")
+                                    append(" · focus=")
+                                    append(
+                                        focusDistance?.let {
+                                            String.format(Locale.ROOT, "%.3f D", it)
+                                        } ?: "UNKNOWN",
+                                    )
+                                    append("\nISO=")
+                                    append(iso ?: "UNKNOWN")
+                                    append(" · t=")
+                                    append(
+                                        exp?.let {
+                                            String.format(Locale.ROOT, "%.3f ms", it / 1_000_000.0)
+                                        } ?: "UNKNOWN",
+                                    )
+                                    append(" · display zoom verandert RAW niet")
+                                }
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled =
+                                    supportsAutoFocus(effectiveCharacteristics)
+                                loupeButton.isEnabled = true
+                                restoreRoleButtons()
+                            }
+                        }
+                    }
+                },
+                cameraHandler,
+            )
+
+            statusFromAnyThread(
+                "${activeRole?.title ?: "Camera"} live · tik voor AF · pinch of Macro-loep voor alleen schermvergroting.",
+            )
+        } catch (error: Exception) {
+            statusFromAnyThread(
+                "Live preview faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            runOnUiThread {
+                captureButton.isEnabled = false
+                focusLockButton.isEnabled = false
+                loupeButton.isEnabled = false
+                restoreRoleButtons()
+            }
+            closeCaptureResources()
+        }
+    }
+
+    private fun supportsAutoFocus(c: CameraCharacteristics): Boolean =
+        (c.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf())
+            .any { it != CameraMetadata.CONTROL_AF_MODE_OFF }
+
+    private fun setPreviewAfMode(
+        builder: CaptureRequest.Builder,
+        c: CameraCharacteristics,
+        continuous: Boolean,
+    ) {
+        val modes =
+            c.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf()
+        when {
+            continuous &&
+                modes.contains(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                )
+            modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
+            else ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_OFF,
+                )
+        }
+    }
+
+    private fun configurePreviewTransform(
+        viewWidth: Int,
+        viewHeight: Int,
+    ) {
+        val size = previewBufferSize ?: return
+        if (viewWidth <= 0 || viewHeight <= 0) return
+
+        val rotation = previewView.display?.rotation ?: Surface.ROTATION_0
+        val matrix = Matrix()
+        val viewRect =
+            RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val bufferRect =
+            RectF(0f, 0f, size.height.toFloat(), size.width.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+
+        if (
+            rotation == Surface.ROTATION_90 ||
+            rotation == Surface.ROTATION_270
+        ) {
+            bufferRect.offset(
+                centerX - bufferRect.centerX(),
+                centerY - bufferRect.centerY(),
+            )
+            matrix.setRectToRect(
+                viewRect,
+                bufferRect,
+                Matrix.ScaleToFit.FILL,
+            )
+            val scale =
+                maxOf(
+                    viewHeight.toFloat() / size.height.toFloat(),
+                    viewWidth.toFloat() / size.width.toFloat(),
+                )
+            matrix.postScale(scale, scale, centerX, centerY)
+            matrix.postRotate(
+                (90 * (rotation - 2)).toFloat(),
+                centerX,
+                centerY,
+            )
+        } else if (rotation == Surface.ROTATION_180) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+        previewView.setTransform(matrix)
+    }
+
+    private fun handlePreviewTouch(event: MotionEvent): Boolean {
+        scaleDetector.onTouchEvent(event)
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                touchDownX = event.x
+                touchDownY = event.y
+                touchMoved = false
+                multiTouchGesture = false
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                multiTouchGesture = true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (
+                    hypot(
+                        (event.x - touchDownX).toDouble(),
+                        (event.y - touchDownY).toDouble(),
+                    ) > dp(12).toDouble()
+                ) {
+                    touchMoved = true
+                }
+            }
+            MotionEvent.ACTION_UP -> {
+                if (!multiTouchGesture && !touchMoved) {
+                    previewView.pivotX = event.x
+                    previewView.pivotY = event.y
+                    tapToFocus(event.x, event.y)
+                }
+                multiTouchGesture = false
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                multiTouchGesture = false
+            }
+        }
+        return true
+    }
+
+    private fun cycleMacroLoupe() {
+        val next =
+            when {
+                macroLoupeScale < 1.5f -> 2f
+                macroLoupeScale < 3f -> 4f
+                macroLoupeScale < 6f -> 8f
+                else -> 1f
+            }
+        if (next == 1f) {
+            previewView.pivotX = previewView.width / 2f
+            previewView.pivotY = previewView.height / 2f
+        }
+        setMacroLoupeScale(next)
+    }
+
+    private fun setMacroLoupeScale(value: Float) {
+        macroLoupeScale = value.coerceIn(1f, 8f)
+        if (::previewView.isInitialized) {
+            previewView.scaleX = macroLoupeScale
+            previewView.scaleY = macroLoupeScale
+        }
+        if (::loupeButton.isInitialized) {
+            loupeButton.text =
+                "Macro-loep · " +
+                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale)
+        }
+    }
+
+    private fun toggleFocusLock() {
+        if (focusLocked) {
+            unlockFocus()
+        } else {
+            tapToFocus(
+                previewView.width / 2f,
+                previewView.height / 2f,
+            )
+        }
+    }
+
+    private fun showFocusMarker(x: Float, y: Float) {
+        if (!::focusMarker.isInitialized) return
+        val markerHalf = dp(27).toFloat()
+        val maxX =
+            maxOf(0f, (previewView.parent as? View)?.width?.toFloat()?.minus(dp(54)) ?: 0f)
+        val maxY =
+            maxOf(0f, (previewView.parent as? View)?.height?.toFloat()?.minus(dp(54)) ?: 0f)
+        focusMarker.x =
+            (previewView.x + x - markerHalf).coerceIn(0f, maxX)
+        focusMarker.y =
+            (previewView.y + y - markerHalf).coerceIn(0f, maxY)
+        focusMarker.visibility = View.VISIBLE
+    }
+
+    private fun tapToFocus(x: Float, y: Float) {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val builder = previewRequestBuilder ?: return
+        val camera = cameraDevice ?: return
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return
+
+        if (!supportsAutoFocus(characteristics)) {
+            status("Deze RAW-camera rapporteert geen bruikbare autofocusmodus.")
+            return
+        }
+
+        showFocusMarker(x, y)
+
+        val maxRegions =
+            characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0
+        val region =
+            if (maxRegions > 0) {
+                focusRegionForTouch(x, y, characteristics)
+            } else {
+                null
+            }
+        currentAfRegion = region
+        focusLocked = false
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        focusLockButton.text = "AF zoekt…"
+
+        try {
+            builder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_AUTO,
+            )
+            if (region != null) {
+                builder.set(
+                    CaptureRequest.CONTROL_AF_REGIONS,
+                    arrayOf(region),
+                )
+            }
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            session.capture(builder.build(), null, cameraHandler)
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_START,
+            )
+            session.capture(builder.build(), null, cameraHandler)
+
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+            )
+            val lockRequest = builder.build()
+            var observedFrames = 0
+            var terminalHandled = false
+
+            session.setRepeatingRequest(
+                lockRequest,
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        if (terminalHandled) return
+                        observedFrames++
+
+                        val effective =
+                            effectiveCaptureResult(candidate, result) ?: result
+                        val state =
+                            effective.get(CaptureResult.CONTROL_AF_STATE)
+                        val distance =
+                            effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                        val locked =
+                            state == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                                state == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+
+                        if (locked) {
+                            terminalHandled = true
+                            focusLocked = true
+                            runCatching {
+                                session.setRepeatingRequest(
+                                    lockRequest,
+                                    null,
+                                    cameraHandler,
+                                )
+                            }
+                            runOnUiThread {
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled = true
+                                focusLockButton.text = "AF ontgrendelen"
+                                status(
+                                    "AF vergrendeld · " +
+                                        if (
+                                            state ==
+                                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                                        ) {
+                                            "focus bevestigd"
+                                        } else {
+                                            "lenspositie vast, focus niet bevestigd"
+                                        } +
+                                        " · " +
+                                        (distance?.let {
+                                            String.format(Locale.ROOT, "%.3f D", it)
+                                        } ?: "focusafstand UNKNOWN"),
+                                )
+                            }
+                            return
+                        }
+
+                        if (observedFrames >= 30) {
+                            terminalHandled = true
+                            focusLocked = false
+                            currentAfRegion = null
+                            runCatching {
+                                startPreviewRepeating(
+                                    camera,
+                                    session,
+                                    candidate,
+                                )
+                            }
+                            runOnUiThread {
+                                captureButton.isEnabled = true
+                                focusLockButton.isEnabled = true
+                                focusLockButton.text = "AF vergrendelen"
+                                status(
+                                    "AF-lock niet bevestigd binnen 30 previewframes · " +
+                                        "continuous autofocus hervat.",
+                                )
+                            }
+                        }
+                    }
+                },
+                cameraHandler,
+            )
+            status("Tap-focus gestart · wachten op echte AF-lockstatus…")
+        } catch (error: Exception) {
+            focusLocked = false
+            captureButton.isEnabled = true
+            focusLockButton.isEnabled = true
+            focusLockButton.text = "AF vergrendelen"
+            status(
+                "Tap-focus faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
+    private fun unlockFocus() {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val camera = cameraDevice ?: return
+        val builder = previewRequestBuilder ?: return
+
+        runCatching {
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            session.capture(builder.build(), null, cameraHandler)
+        }
+        focusLocked = false
+        currentAfRegion = null
+        focusMarker.visibility = View.INVISIBLE
+        focusLockButton.text = "AF vergrendelen"
+        startPreviewRepeating(camera, session, candidate)
+        status("AF ontgrendeld · continuous autofocus hervat.")
+    }
+
+    private fun focusRegionForTouch(
+        x: Float,
+        y: Float,
+        c: CameraCharacteristics,
+    ): MeteringRectangle? {
+        val active =
+            c.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                ?: return null
+        if (previewView.width <= 0 || previewView.height <= 0) return null
+
+        val nx =
+            (x / previewView.width.toFloat()).coerceIn(0f, 1f)
+        val ny =
+            (y / previewView.height.toFloat()).coerceIn(0f, 1f)
+
+        val sensorOrientation =
+            c.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+        val displayDegrees =
+            when (previewView.display?.rotation ?: Surface.ROTATION_0) {
+                Surface.ROTATION_90 -> 90
+                Surface.ROTATION_180 -> 180
+                Surface.ROTATION_270 -> 270
+                else -> 0
+            }
+        val relative =
+            (sensorOrientation - displayDegrees + 360) % 360
+
+        val sensorNorm =
+            when (relative) {
+                90 -> Pair(ny, 1f - nx)
+                180 -> Pair(1f - nx, 1f - ny)
+                270 -> Pair(1f - ny, nx)
+                else -> Pair(nx, ny)
+            }
+
+        val cx =
+            active.left +
+                (sensorNorm.first * active.width()).toInt()
+        val cy =
+            active.top +
+                (sensorNorm.second * active.height()).toInt()
+        val side = maxOf(48, minOf(active.width(), active.height()) / 10)
+        val half = side / 2
+
+        val left =
+            (cx - half).coerceIn(active.left, active.right - side)
+        val top =
+            (cy - half).coerceIn(active.top, active.bottom - side)
+        val rect = Rect(left, top, left + side, top + side)
+        return MeteringRectangle(
+            rect,
+            MeteringRectangle.METERING_WEIGHT_MAX,
+        )
+    }
+
+    private fun captureFromLivePreview() {
+        val camera = cameraDevice
+            ?: run {
+                status("Geen live camera geopend.")
+                return
+            }
+        val session = cameraSession
+            ?: run {
+                status("Geen actieve preview/capture-session.")
+                return
+            }
+        val candidate = activeCandidate
+            ?: run {
+                status("Geen actieve RAW-camera geselecteerd.")
+                return
+            }
+        val reader = imageReader
+            ?: run {
+                status("RAW ImageReader ontbreekt.")
+                return
+            }
+
+        synchronized(pairLock) {
+            pendingImage?.close()
+            pendingImage = null
+            pendingResult = null
+            finalizing = false
+        }
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        setButtonsEnabled(false)
+        submitCapture(camera, session, candidate, reader)
     }
 
     private fun submitCapture(
@@ -587,28 +1408,27 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         CameraMetadata.CONTROL_AE_MODE_ON,
                     )
 
-                    val afModes =
-                        effectiveCharacteristics.get(
-                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
-                        ) ?: intArrayOf()
-                    when {
-                        afModes.contains(
-                            CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
-                        ) ->
+                    if (focusLocked) {
+                        set(
+                            CaptureRequest.CONTROL_AF_MODE,
+                            CameraMetadata.CONTROL_AF_MODE_AUTO,
+                        )
+                        currentAfRegion?.let { region ->
                             set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                                CaptureRequest.CONTROL_AF_REGIONS,
+                                arrayOf(region),
                             )
-                        afModes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO) ->
-                            set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_AUTO,
-                            )
-                        else ->
-                            set(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CameraMetadata.CONTROL_AF_MODE_OFF,
-                            )
+                        }
+                        set(
+                            CaptureRequest.CONTROL_AF_TRIGGER,
+                            CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+                        )
+                    } else {
+                        setPreviewAfMode(
+                            this,
+                            effectiveCharacteristics,
+                            continuous = true,
+                        )
                     }
 
                     val nrModes =
@@ -665,7 +1485,9 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 cameraHandler,
             )
             statusFromAnyThread(
-                "RAW capture verstuurd · wachten op één Image + exact capture-resultaat…",
+                "RAW capture verstuurd · volledige bronresolutie · schermloep=" +
+                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale) +
+                    " blijft presentatie-only.",
             )
         } catch (error: Exception) {
             statusFromAnyThread(
@@ -925,7 +1747,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
             }
 
         return JSONObject()
-            .put("schema", "D.RAW/UniversalPhysicalCapture/0.2")
+            .put("schema", "D.RAW/UniversalPhysicalCapture/0.3")
             .put("created_at_utc", Instant.now().toString())
             .put("authority", "ACQUISITION_PROVENANCE_ONLY")
             .put("transport_backend", "ANDROID_CAMERA2")
@@ -985,6 +1807,32 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     .put("requested_format", "RAW_SENSOR")
                     .put("requested_width", candidate.rawSize.width)
                     .put("requested_height", candidate.rawSize.height),
+            )
+            .put(
+                "preview_focus_assist",
+                JSONObject()
+                    .put(
+                        "authority",
+                        "PRESENTATION_AND_ACQUISITION_ASSIST_ONLY",
+                    )
+                    .put("preview_creates_evidence", false)
+                    .put("display_loupe_scale", macroLoupeScale.toDouble())
+                    .put("display_loupe_modifies_raw_capture", false)
+                    .put("capture_zoom_ratio_written", false)
+                    .put("capture_crop_region_written", false)
+                    .put("tap_to_focus_available", true)
+                    .put("focus_lock_requested", focusLocked)
+                    .put(
+                        "af_region",
+                        currentAfRegion?.rect?.let { rect ->
+                            JSONObject()
+                                .put("left", rect.left)
+                                .put("top", rect.top)
+                                .put("right", rect.right)
+                                .put("bottom", rect.bottom)
+                        } ?: JSONObject.NULL,
+                    )
+                    .put("uses_ai_or_learned_model", false),
             )
             .put(
                 "capture_result_provenance",
@@ -1105,12 +1953,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun closeCaptureResources() {
+        runCatching { cameraSession?.stopRepeating() }
         runCatching { cameraSession?.close() }
         runCatching { cameraDevice?.close() }
         runCatching { imageReader?.close() }
+        runCatching { previewSurface?.release() }
         cameraSession = null
         cameraDevice = null
         imageReader = null
+        previewSurface = null
+        previewRequestBuilder = null
+        previewBufferSize = null
+        lastPreviewResult = null
+        previewFrames = 0
+        focusLocked = false
+        currentAfRegion = null
+        activeCandidate = null
+        activeRole = null
     }
 
     private fun sha256(file: File): String {
@@ -1139,16 +1998,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
             grantResults,
         )
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            status(
-                if (
-                    grantResults.firstOrNull() ==
+            val granted =
+                grantResults.firstOrNull() ==
                     PackageManager.PERMISSION_GRANTED
-                ) {
-                    "Camera-permissie toegestaan. Kies nu opnieuw een lensrol."
-                } else {
-                    "Camera-permissie geweigerd; fysieke capture blijft geblokkeerd."
-                },
-            )
+            if (!granted) {
+                pendingPreviewRole = null
+                status("Camera-permissie geweigerd; fysieke capture blijft geblokkeerd.")
+                return
+            }
+
+            val role = pendingPreviewRole
+            pendingPreviewRole = null
+            if (role != null) {
+                status("Camera-permissie toegestaan · ${role.title} live view wordt geopend.")
+                previewView.post { openPreviewRole(role) }
+            } else {
+                status("Camera-permissie toegestaan. Kies een lensrol voor live view.")
+            }
         }
     }
 
