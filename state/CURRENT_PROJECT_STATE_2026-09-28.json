@@ -9,9 +9,9 @@
     "historical_freeze_handoff_preserved": true
   },
   "current_main_milestone": {
-    "merge_commit_sha": "434f42888b0b289a064b5972c9f10a82739bbb68",
-    "pull_request": 74,
-    "meaning": "Universal Intake and deterministic frontside inspection are integrated into the full D.RAW suite"
+    "merge_commit_sha": "1fa3850e4ec0c58f7dc294acd011721465041ea9",
+    "pull_request": 76,
+    "meaning": "Universal Physical Capture v0.1 is integrated into the canonical D.RAW suite; camera capture now converges with imported RAW at the same Universal Intake"
   },
   "canonical_android_app": {
     "path": "suite_android",
@@ -19,7 +19,11 @@
     "branding_preserved": true,
     "draw_icon_preserved": true,
     "draw_opening_banner_preserved": true,
-    "routes": ["D.RAW PURE", "D.RAW ADVANCED", "D.RAW PRO"]
+    "routes": [
+      "D.RAW PURE",
+      "D.RAW ADVANCED",
+      "D.RAW PRO"
+    ]
   },
   "standalone_universal_capture": {
     "path": "capture/android/draw-geometry-capture-v01",
@@ -34,7 +38,9 @@
     "frontside": "visible proportions, luminance, colour/light statistics, edges, structure and later deterministic classical geometry",
     "unknown_is_valid": true,
     "device_specific_map_required": false,
-    "free_world_rule": "representation may exceed the source; knowledge claims may not exceed the evidence"
+    "free_world_rule": "representation may exceed the source; knowledge claims may not exceed the evidence",
+    "camera_and_file_sources_converge_after_seal": true,
+    "camera_transport_not_scientific_truth": true
   },
   "no_ai_rule": {
     "permanent": true,
@@ -67,11 +73,32 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
+    "validate Universal Physical Capture v0.1 on real ultra-wide, wide/main and tele routes",
     "broaden format-neutral RAW decoding through validated adapters without device maps",
     "deepen deterministic frontside understanding with classical colour, optics, geometry and scene-structure analysis",
     "bind frontside and backside knowledge into one universal source-understanding state without authority collapse",
     "preserve and extend F64 compute to controlled F32 scientific RAW/state",
     "keep D.RAWnegative/Open Scene/continuous-field research above the Scientific Master without confusing reconstruction with measurement",
     "keep branding and PURE/ADVANCED/PRO as the canonical user-facing app"
-  ]
+  ],
+  "universal_physical_capture_v0_1": {
+    "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
+    "back_facing_raw_discovery": "DYNAMIC_CAMERA2_TRANSPORT_ONLY",
+    "supported_user_roles": [
+      "ULTRA_WIDE",
+      "WIDE_MAIN",
+      "TELE"
+    ],
+    "role_assignment_authority": "UI_FOCAL_ORDER_HINT_ONLY",
+    "fixed_device_map_required": false,
+    "fixed_camera_ids_required": false,
+    "vendor_requests_written": false,
+    "ai_or_learned_model_used": false,
+    "successful_capture_output": "SEALED_DNG",
+    "handoff": "SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW",
+    "camera_properties_scientific_truth": false,
+    "special_4k_to_200mp_route_preserved": true,
+    "special_4k_to_200mp_route": "FotoGraaf200MpStagedActivity",
+    "validation": "FULL_ANDROID_APK_AND_SCIENTIFIC_INTEGRITY_CHECKS_SUCCESS"
+  }
 }
