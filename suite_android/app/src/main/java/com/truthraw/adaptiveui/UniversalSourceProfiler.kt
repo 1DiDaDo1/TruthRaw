@@ -242,13 +242,23 @@ object UniversalSourceProfiler {
                 "Focal length alone does not prove lens role, sensor crop, field of view or optical resolving support.",
             )
 
+        val backsideSignalSupport =
+            BacksideSignalSupportAudit.analyze(
+                resolver,
+                source.uri,
+                parsed,
+                primaryRaw,
+                sourceSha256,
+            )
+
         val darkChromaBacksideSupport = JSONObject()
-            .put("authority", "SOURCE_METADATA_BOUND_HINT_ONLY")
+            .put("authority", "SOURCE_METADATA_BOUND_HINT_PLUS_MEASURED_SIGNAL_BLOCKER")
             .put("noise_profile_present", noiseProfile != null)
             .put("black_level_present", primaryRaw?.opt("blackLevel") != null)
             .put("white_level_present", primaryRaw?.opt("whiteLevel") != null)
             .put("local_noise_confirmation_available", false)
             .put("n2_local_support_bound", false)
+            .put("signal_support_audit", backsideSignalSupport)
 
         val frontside = FrontsideSceneInspector.inspect(
             resolver,
@@ -267,6 +277,7 @@ object UniversalSourceProfiler {
             .put("source_identity_hint", sourceIdentityHint)
             .put("optics", optics)
             .put("route_hints", routeHints)
+            .put("backside_signal_support", backsideSignalSupport)
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
             .put("open_world", openWorldBlock())
