@@ -73,10 +73,9 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "device-validate Dark Chroma v0.4 same-observation local N2 spatial binding on the validated near-black tele source",
-    "run a second v0.4 regression on the dark main/wide selective-chroma source and compare local N2 factor counts without global degeneracy",
-    "keep correction-supported=0 and private chroma A/B/Delta disabled until v0.4 local binding is device-validated",
-    "only after v0.4 device validation define a private chroma-only A/B/Delta gate that preserves separate N2 factors and cannot override DARK_UNINFORMATIVE",
+    "run the v0.4 selective dark main/wide regression with non-zero but sparse Dark Chroma candidates and inspect local N2 factor overlap",
+    "do not define or enable private chroma A/B/Delta until the selective main/wide binding case is device-validated",
+    "keep correction-supported=0; local N2 factors remain separate diagnostic axes and never override DARK_UNINFORMATIVE",
     "broaden format-neutral RAW decoding through validated adapters without device maps",
     "preserve Scientific Master/D.RAWnegative/TruthRange authority separation and the permanent no-AI rule"
   ],
@@ -147,7 +146,7 @@
     "dark_chroma_v0_4": {
       "branch": "research/dark-chroma-stability-v04-2026-09-29",
       "pull_request": 86,
-      "status": "BUILD_AND_DEVICE_VALIDATION",
+      "status": "DEVICE_VALIDATED_TWO_CASES_DRAFT_UNMERGED",
       "additions": [
         "N2 Local Spatial Binding v0.1 computes existing N2 Factored Confidence v0.3.1 from the exact same source observation",
         "frontside 16x16 analysis regions are proportionally bound to overlapping 64x64 source N2 tiles",
@@ -156,7 +155,11 @@
         "correction-supported remains zero and private chroma A/B/Delta remains disabled"
       ],
       "scientific_writeback_allowed": false,
-      "private_chroma_ab_delta_allowed": false
+      "private_chroma_ab_delta_allowed": false,
+      "device_evidence": {
+        "near_black_tele": "432/432 Dark Chroma candidates remain DARK_UNINFORMATIVE; local N2 binding succeeds; correction-supported=0",
+        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind locally; visible Dark Chroma candidates=0; v0.3 FRONTISDE_INFORMATION_PRESENT/non-degenerate; correction-supported=0"
+      }
     }
   }
 }
