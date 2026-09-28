@@ -17,8 +17,8 @@ Main includes the RAW_SENSOR-first universal physical-capture foundation plus li
 - Frontside inspection is deterministic classical vision only and remains `APPEARANCE_DERIVED_ONLY` unless a separate scientific path proves a stronger fact.
 - **No AI/ML/neural/generative/learned models are allowed in D.RAW.**
 - Device-specific maps are optional hints, never prerequisites for universal source entry or scientific truth.
-- Camera and file sources now converge after source sealing: physical capture → sealed DNG → the same Universal Intake as imported RAW.
-- Ultra-wide / wide-main / tele camera roles are dynamic UI focal-order hints only; Camera2 properties never become scientific truth.
+- Camera and file sources converge after source sealing: physical capture → sealed app-visible RAW_SENSOR evidence → derived compatibility DNG → the same Universal Intake as imported RAW.
+- Ultra-wide / wide-main / tele are dynamically discovered physical acquisition routes. Current PR #82 real-device tests prove distinct physical 4/2/5 runtime routes on the tested device, while role names/FoV ordering remain acquisition/UI knowledge rather than universal scientific truth.
 - Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
 - Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
 - The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
