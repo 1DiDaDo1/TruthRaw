@@ -73,11 +73,12 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "run the v0.4 selective dark main/wide regression with non-zero but sparse Dark Chroma candidates and inspect local N2 factor overlap",
-    "do not define or enable private chroma A/B/Delta until the selective main/wide binding case is device-validated",
-    "keep correction-supported=0; local N2 factors remain separate diagnostic axes and never override DARK_UNINFORMATIVE",
+    "design a versioned audit-only refinement of local structure protection that uses finer support geometry/distance rather than only any-protected-sample-per-64x64-tile",
+    "preserve all existing v0.4 source binding, DARK_UNINFORMATIVE precedence and separate N2 factor axes",
+    "device-validate the refined structure support on the same selective main/wide source before defining private chroma A/B/Delta",
+    "keep correction-supported=0 and Scientific Master/D.RAWnegative immutable",
     "broaden format-neutral RAW decoding through validated adapters without device maps",
-    "preserve Scientific Master/D.RAWnegative/TruthRange authority separation and the permanent no-AI rule"
+    "preserve the permanent no-AI rule"
   ],
   "universal_physical_capture_v0_1": {
     "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
@@ -146,7 +147,7 @@
     "dark_chroma_v0_4": {
       "branch": "research/dark-chroma-stability-v04-2026-09-29",
       "pull_request": 86,
-      "status": "DEVICE_VALIDATED_TWO_CASES_DRAFT_UNMERGED",
+      "status": "DEVICE_VALIDATED_THREE_CASES_REFINEMENT_REQUIRED",
       "additions": [
         "N2 Local Spatial Binding v0.1 computes existing N2 Factored Confidence v0.3.1 from the exact same source observation",
         "frontside 16x16 analysis regions are proportionally bound to overlapping 64x64 source N2 tiles",
@@ -157,9 +158,11 @@
       "scientific_writeback_allowed": false,
       "private_chroma_ab_delta_allowed": false,
       "device_evidence": {
-        "near_black_tele": "432/432 Dark Chroma candidates remain DARK_UNINFORMATIVE; local N2 binding succeeds; correction-supported=0",
-        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind locally; visible Dark Chroma candidates=0; v0.3 FRONTSIDE_INFORMATION_PRESENT/non-degenerate; correction-supported=0"
-      }
+        "near_black_tele": "local binding succeeds; DARK_UNINFORMATIVE preserved; correction-supported=0",
+        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind; visible candidates=0; non-degenerate; correction-supported=0",
+        "selective_main_wide_1790637640867": "432/432 frontside tiles bind; 6/6 visible candidates bind; all 6 are structure-blocked because structure_protection_present is true in 3072/3072 N2 tiles; only ~16.56% of sampled points are actually structure-protected"
+      },
+      "new_finding": "64x64 any-structure-presence is safe but too coarse for selective candidate-level veto; refine protection-support resolution before any private chroma candidate gate"
     }
   }
 }
