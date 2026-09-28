@@ -1,4 +1,4 @@
-# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-27
+# D.RAW — CURRENT PROJECT IDENTITY — 2026-09-28
 
 **Official product name: `D.RAW`.**
 
@@ -6,7 +6,20 @@ Primary current repository line: `main`.
 
 Latest substantive integration:
 
-`faea14c3fd9109907e4941156de020978b9bfd86`
+`434f42888b0b289a064b5972c9f10a82739bbb68`
+
+This integration moves Universal Intake into the full `suite_android` D.RAW app while preserving the standard D.RAW icon/banner, PURE/ADVANCED/PRO routes, mixed F64/F32 Scientific Master reconstruction and Float32 RAW/DNG outputs.
+
+## Current core vision
+
+- The sealed RAW/DNG/source is the immutable evidence foundation, not the boundary of the reconstructed world.
+- Universal intake reads both the technical/source **back side** and the visible photographic **front side** from the beginning.
+- Frontside inspection is deterministic classical vision only and remains `APPEARANCE_DERIVED_ONLY` unless a separate scientific path proves a stronger fact.
+- **No AI/ML/neural/generative/learned models are allowed in D.RAW.**
+- Device-specific maps are optional hints, never prerequisites for universal source entry or scientific truth.
+- Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
+- Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
+- The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
 
 ## Current physical observations
 
@@ -32,17 +45,19 @@ Ultra-wide final admission state:
 
 ## Mandatory current reading order
 
-1. `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-3. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-4. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
-5. `docs/research/draw-observation-record-v0.4/README.md`
-6. `docs/research/draw-source-capability-envelope-v0.2/README.md`
-7. `docs/research/draw-source-admission-package-v0.2/README.md`
-8. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
-9. `docs/research/free-world-observation-graph-v0.1/README.md`
-10. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-11. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+1. `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+2. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
+4. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
+5. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+6. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
+7. `docs/research/draw-observation-record-v0.4/README.md`
+8. `docs/research/draw-source-capability-envelope-v0.2/README.md`
+9. `docs/research/draw-source-admission-package-v0.2/README.md`
+10. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
+11. `docs/research/free-world-observation-graph-v0.1/README.md`
+12. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+13. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
 
 ## Current laws
 

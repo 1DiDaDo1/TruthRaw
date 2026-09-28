@@ -4,7 +4,27 @@
 
 # D.RAW
 
-> **CURRENT PROJECT IDENTITY — 2026-09-27**
+> **CURRENT CORE DIRECTION — 2026-09-28**
+>
+> D.RAW is the canonical project/product. The canonical Android app is `suite_android`; the standalone Universal Capture/Geometry APK remains a test/capture assistant, not the replacement UI.
+>
+> Full-suite Universal Intake was merged in PR #74 at `434f42888b0b289a064b5972c9f10a82739bbb68`.
+>
+> **Input is two-sided from the door:** read the immutable technical/source **back side** and inspect the visible photographic **front side** in parallel. Frontside knowledge is deterministic and `APPEARANCE_DERIVED_ONLY`; it creates no sensor evidence and has no scientific writeback.
+>
+> **Permanent no-AI rule:** D.RAW uses no AI/ML/neural/generative/learned runtime or inference. Classical deterministic image processing, geometry, photogrammetry, calibration, optics, colorimetry and numerical optimization remain allowed.
+>
+> The mixed-precision scientific route remains intact: exact source evidence → F64 where branch-sensitive science requires it → controlled F32 Scientific-Master/RAW storage. Float32 LinearRaw remains a primary scientific-output direction; JPEG remains downstream output.
+>
+> Current state: `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+>
+> Current vision: `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+>
+> **Seal the evidence, not the thinking.**
+>
+> **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+> **PREVIOUS PROJECT SNAPSHOT — 2026-09-27**
 >
 > `main` is the primary current D.RAW line.
 >

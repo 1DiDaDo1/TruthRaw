@@ -43,6 +43,8 @@ current_2026_09_25_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-2
 current_2026_09_27_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-27.json")
 current_2026_09_27_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md")
 current_2026_09_27_index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-27.md")
+current_2026_09_28_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-28.json")
+current_2026_09_28_vision = need("docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md")
 current_2026_09_27_graph = need("docs/research/free-world-observation-graph-v0.1/README.md")
 need("state/README.md")
 
@@ -436,6 +438,73 @@ if "Free World Observation Graph v0.1" not in current_2026_09_27_graph:
     errors.append("current_2026_09_27_graph_readme_identity_missing")
 if "state/CURRENT_PROJECT_STATE_2026-09-27.json" not in current_2026_09_27_index:
     errors.append("current_2026_09_27_index_missing_state_pointer")
+
+# Current 2026-09-28 user-authorized D.RAW vision realignment.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-09-28.json",
+    "docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_09_28_pointer:{required}")
+    if required not in root_readme:
+        errors.append(f"root_readme_missing_current_2026_09_28_pointer:{required}")
+
+try:
+    current_2026_09_28 = json.loads(current_2026_09_28_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_09_28_project_state_invalid_json:{exc}")
+    current_2026_09_28 = {}
+
+if current_2026_09_28.get("schema") != "D.RAW/CurrentProjectState/2026-09-28":
+    errors.append("current_2026_09_28_project_state_schema_mismatch")
+if current_2026_09_28.get("official_project_name") != "D.RAW":
+    errors.append("current_2026_09_28_project_name_mismatch")
+
+canonical_app_28 = current_2026_09_28.get("canonical_android_app") or {}
+if canonical_app_28.get("path") != "suite_android":
+    errors.append("current_2026_09_28_canonical_app_must_be_suite_android")
+if canonical_app_28.get("branding_preserved") is not True:
+    errors.append("current_2026_09_28_branding_must_be_preserved")
+
+vision_28 = current_2026_09_28.get("core_vision") or {}
+if vision_28.get("universal_input") is not True:
+    errors.append("current_2026_09_28_universal_input_required")
+if vision_28.get("backside_and_frontside_at_intake") is not True:
+    errors.append("current_2026_09_28_two_sided_intake_required")
+if vision_28.get("device_specific_map_required") is not False:
+    errors.append("current_2026_09_28_device_map_must_not_be_required")
+
+no_ai_28 = current_2026_09_28.get("no_ai_rule") or {}
+if no_ai_28.get("permanent") is not True:
+    errors.append("current_2026_09_28_no_ai_rule_must_be_permanent")
+if no_ai_28.get("ai_ml_neural_generative_runtime_allowed") is not False:
+    errors.append("current_2026_09_28_ai_runtime_must_be_forbidden")
+if no_ai_28.get("learned_scene_inference_allowed") is not False:
+    errors.append("current_2026_09_28_learned_scene_inference_must_be_forbidden")
+if no_ai_28.get("classical_deterministic_computer_vision_allowed") is not True:
+    errors.append("current_2026_09_28_classical_vision_must_remain_allowed")
+
+precision_28 = current_2026_09_28.get("scientific_precision") or {}
+if precision_28.get("float64_branch_sensitive_compute_preserved") is not True:
+    errors.append("current_2026_09_28_f64_compute_must_be_preserved")
+if precision_28.get("controlled_float32_scientific_storage_preserved") is not True:
+    errors.append("current_2026_09_28_f32_storage_must_be_preserved")
+
+authority_28 = current_2026_09_28.get("authority_boundary") or {}
+if authority_28.get("frontside_authority") != "APPEARANCE_DERIVED_ONLY":
+    errors.append("current_2026_09_28_frontside_authority_mismatch")
+if authority_28.get("frontside_scientific_writeback_allowed") is not False:
+    errors.append("current_2026_09_28_frontside_writeback_must_be_forbidden")
+if authority_28.get("source_evidence_mutation_allowed") is not False:
+    errors.append("current_2026_09_28_source_evidence_mutation_must_be_forbidden")
+
+for phrase in (
+    "Seal the evidence, not the thinking.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "D.RAW does not use AI, machine-learning, neural, generative or learned inference models",
+):
+    if phrase not in current_2026_09_28_vision:
+        errors.append("current_2026_09_28_vision_missing:" + phrase)
 
 # Retain older consolidated pointers as provenance/background discoverability.
 legacy_pointers = (
@@ -927,6 +996,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-25.json",
             "state/CURRENT_PROJECT_STATE_2026-09-26.json",
             "state/CURRENT_PROJECT_STATE_2026-09-27.json",
+            "state/CURRENT_PROJECT_STATE_2026-09-28.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
@@ -952,7 +1022,7 @@ if errors:
     sys.exit(1)
 
 print("DOCUMENTATION_GOVERNANCE_PASS")
-print("current_navigation=2026-09-27_draw_knowledge_growth")
+print("current_navigation=2026-09-28_draw_universal_no_ai_core_vision")
 print("historical_snapshots_preserved=7")
 print("source_evidence=IMMUTABLE")
 print("free_scientific_space=OPEN_WORLD_EVIDENCE_BOUNDED")

@@ -1,0 +1,77 @@
+{
+  "schema": "D.RAW/CurrentProjectState/2026-09-28",
+  "official_project_name": "D.RAW",
+  "repository": "1DiDaDo1/TruthRaw",
+  "parent_state": "state/CURRENT_PROJECT_STATE_2026-09-27.json",
+  "development_status": "ACTIVE",
+  "previous_code_freeze": {
+    "status": "LIFTED_BY_USER_2026-09-28",
+    "historical_freeze_handoff_preserved": true
+  },
+  "current_main_milestone": {
+    "merge_commit_sha": "434f42888b0b289a064b5972c9f10a82739bbb68",
+    "pull_request": 74,
+    "meaning": "Universal Intake and deterministic frontside inspection are integrated into the full D.RAW suite"
+  },
+  "canonical_android_app": {
+    "path": "suite_android",
+    "label": "D.RAW",
+    "branding_preserved": true,
+    "draw_icon_preserved": true,
+    "draw_opening_banner_preserved": true,
+    "routes": ["D.RAW PURE", "D.RAW ADVANCED", "D.RAW PRO"]
+  },
+  "standalone_universal_capture": {
+    "path": "capture/android/draw-geometry-capture-v01",
+    "role": "HISTORICAL_TEST_AND_CAPTURE_ASSISTANT",
+    "canonical_main_app": false
+  },
+  "core_vision": {
+    "sealed_source_role": "immutable evidence foundation, not the boundary of the reconstructed world",
+    "universal_input": true,
+    "backside_and_frontside_at_intake": true,
+    "backside": "bytes, container, metadata, CFA/raster/calibration hints and format-adapter routing",
+    "frontside": "visible proportions, luminance, colour/light statistics, edges, structure and later deterministic classical geometry",
+    "unknown_is_valid": true,
+    "device_specific_map_required": false,
+    "free_world_rule": "representation may exceed the source; knowledge claims may not exceed the evidence"
+  },
+  "no_ai_rule": {
+    "permanent": true,
+    "ai_ml_neural_generative_runtime_allowed": false,
+    "learned_scene_inference_allowed": false,
+    "classical_deterministic_computer_vision_allowed": true,
+    "photogrammetry_optimization_calibration_allowed": true,
+    "historical_docs_may_mention_ai_as_context": true,
+    "historical_mentions_grant_runtime_authority": false
+  },
+  "scientific_precision": {
+    "exact_source_evidence_preserved": true,
+    "float64_branch_sensitive_compute_preserved": true,
+    "float64_calibration_optimization_covariance_preserved": true,
+    "controlled_float32_scientific_storage_preserved": true,
+    "measured_cfa_component_preservation": true
+  },
+  "output_direction": {
+    "full_colour_float32_scientific_master": true,
+    "float32_linearraw_dng_routes_preserved": true,
+    "negative_values_preserved_where_route_allows": true,
+    "values_above_one_preserved_where_route_allows": true,
+    "jpeg_remains_downstream_output": true,
+    "future_container_independent_draw_raw_state_remains_open_goal": true
+  },
+  "authority_boundary": {
+    "frontside_authority": "APPEARANCE_DERIVED_ONLY",
+    "frontside_scientific_writeback_allowed": false,
+    "source_evidence_mutation_allowed": false,
+    "provenance_and_admission_are_guardrails_not_world_boundaries": true
+  },
+  "next_priorities": [
+    "broaden format-neutral RAW decoding through validated adapters without device maps",
+    "deepen deterministic frontside understanding with classical colour, optics, geometry and scene-structure analysis",
+    "bind frontside and backside knowledge into one universal source-understanding state without authority collapse",
+    "preserve and extend F64 compute to controlled F32 scientific RAW/state",
+    "keep D.RAWnegative/Open Scene/continuous-field research above the Scientific Master without confusing reconstruction with measurement",
+    "keep branding and PURE/ADVANCED/PRO as the canonical user-facing app"
+  ]
+}
