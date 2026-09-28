@@ -1,0 +1,92 @@
+name: D.RAW Android DngCreator Compatibility v0.1
+
+on:
+  push:
+    branches:
+      - integration/draw-android-dngcreator-compat-v01-2026-09-28
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - 'suite_android/**'
+      - '.github/workflows/draw-android-dngcreator-compat-v01.yml'
+  pull_request:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - 'suite_android/**'
+      - '.github/workflows/draw-android-dngcreator-compat-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify predecessor and compatibility contract
+        run: |
+          set -euo pipefail
+          python3 docs/research/tile-native-dng-source-v0.1/tools/verify_integrity_v0_1.py
+          grep -F 'tile-native-dng-source-v0.2/native' suite_android/app/src/main/cpp/CMakeLists.txt
+          grep -F 'truthraw.tile-native-dng-source.v0.2-android-dngcreator-compat' suite_android/app/src/main/cpp/raw_source_adapter_bridge_common.h
+          grep -F 'kOpcodeFixBadPixelsList = 5u' docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_bind.cpp
+          grep -F 'kOpcodeFlagOptional = 0x1u' docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_bind.cpp
+          grep -F 'unsupported mandatory OpcodeList2 entry id=' docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_bind.cpp
+          grep -F 'RAW-opslag · bits=' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'Speciale 4K → 200MP RAW-route' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalPhysicalCaptureActivity.kt
+          if grep -R -E 'org.tensorflow|tensorflow-lite|onnxruntime|pytorch|mlkit|com.google.mlkit' suite_android/app/src/main/java/com/truthraw/adaptiveui; then
+            echo 'AI/ML runtime dependency detected' >&2
+            exit 1
+          fi
+
+      - name: Build and test Tile-Native DNG Source v0.2
+        run: |
+          set -euo pipefail
+          cmake -S docs/research/tile-native-dng-source-v0.2 -B /tmp/tile-dng-v02 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+          cmake --build /tmp/tile-dng-v02 --parallel 2
+          /tmp/tile-dng-v02/test_tile_native_dng_source_v0_2 | tee /tmp/tile_v02.log
+          /tmp/tile-dng-v02/test_tile_native_dng_streaming_integration_v0_2
+          grep -F 'android_dngcreator_optional_opcode_compat=PASS' /tmp/tile_v02.log
+          grep -F 'mandatory_unknown_opcode_fail_closed=PASS' /tmp/tile_v02.log
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install pinned Android SDK and NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Assemble full D.RAW arm64 debug APK
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'draw_icon'
+          unzip -l "$APK" | grep -F 'draw_opening_banner'
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng'
+          sha256sum "$APK" | tee "$APK.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DRAW_Android_DngCreator_Compat_v0.1_debug_arm64
+          path: |
+            suite_android/app/build/outputs/apk/debug/app-debug.apk
+            suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256
+          if-no-files-found: error
