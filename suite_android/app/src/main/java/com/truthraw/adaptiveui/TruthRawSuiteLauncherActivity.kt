@@ -75,10 +75,13 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 })
             })
             addView(space(8))
-            addView(action("Camera · Maak één fysieke RAW") {
-                startActivity(Intent(this@TruthRawSuiteLauncherActivity, FotoGraaf200MpStagedActivity::class.java).apply {
-                    putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
-                })
+            addView(action("Camera · Universele fysieke RAW") {
+                startActivity(
+                    Intent(
+                        this@TruthRawSuiteLauncherActivity,
+                        UniversalPhysicalCaptureActivity::class.java,
+                    ),
+                )
             })
             addView(space(18))
             addView(body("Evidence-bound computational photography and open scene reconstruction", 10.5f).apply {
@@ -180,10 +183,8 @@ class TruthRawSuiteLauncherActivity : Activity() {
                     startActivity(
                         Intent(
                             this@TruthRawSuiteLauncherActivity,
-                            FotoGraaf200MpStagedActivity::class.java,
-                        ).apply {
-                            putExtra(FotoGraaf200MpStagedActivity.EXTRA_PRODUCTION_CAMERA_ENTRY, true)
-                        },
+                            UniversalPhysicalCaptureActivity::class.java,
+                        ),
                     )
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
