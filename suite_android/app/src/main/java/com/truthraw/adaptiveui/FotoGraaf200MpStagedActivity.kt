@@ -615,51 +615,361 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
             }
     }
 
-    private fun startPreviewRepeating(device: CameraDevice, s: CameraCaptureSession, logical: CameraCharacteristics) {
+    private fun startPreviewRepeating(
+        device: CameraDevice,
+        s: CameraCaptureSession,
+        logical: CameraCharacteristics,
+    ) {
         val surface = previewSurface ?: return
         try {
             val b = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             b.addTarget(surface)
             b.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
             b.set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
-            val af = logical.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf()
+            val af =
+                logical.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                    ?: intArrayOf()
             if (af.contains(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
-                b.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                b.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                )
+            } else if (af.contains(CameraMetadata.CONTROL_AF_MODE_AUTO)) {
+                b.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
             }
-            val zoomRange = logical.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-            val requestedZoom = zoomRange?.let { ZOOM_REQUEST.coerceIn(it.lower, it.upper) }
-            if (requestedZoom != null) b.set(CaptureRequest.CONTROL_ZOOM_RATIO, requestedZoom)
+            val zoomRange =
+                logical.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+            val requestedZoom =
+                zoomRange?.let { ZOOM_REQUEST.coerceIn(it.lower, it.upper) }
+            if (requestedZoom != null) {
+                b.set(CaptureRequest.CONTROL_ZOOM_RATIO, requestedZoom)
+            }
+            previewRequestedZoomRatio = requestedZoom
+            previewRequestBuilder = b
 
-            s.setRepeatingRequest(b.build(), object : CameraCaptureSession.CaptureCallback() {
-                override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
-                    previewFrames++
-                    lastPreviewResult = result
-                    lastActivePhysicalId = result.get(CaptureResult.LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID)
-                    if (previewFrames == 1L || previewFrames % 15L == 0L) {
-                        val active = lastActivePhysicalId
-                        val iso = result.get(CaptureResult.SENSOR_SENSITIVITY)
-                        val exp = result.get(CaptureResult.SENSOR_EXPOSURE_TIME)
-                        val zoom = result.get(CaptureResult.CONTROL_ZOOM_RATIO)
-                        val afState = result.get(CaptureResult.CONTROL_AF_STATE)
-                        val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-                        runOnUiThread {
-                            telemetry.text = buildString {
-                                append("LIVE IMAGE · frame=$previewFrames · logical=0 · zoom=${zoom ?: requestedZoom ?: "?"}×")
-                                append("\nactivePhysical=${active ?: "not reported"} · ${if (active == PHYSICAL_ID) "TELE 5 CONFIRMED" else "tele 5 nog niet bevestigd"}")
-                                append("\nISO=${iso ?: "?"} · t=${exp?.div(1_000_000.0)?.let { String.format(Locale.ROOT, "%.3f ms", it) } ?: "?"} · AF=$afState · AE=$aeState")
-                            }
-                            captureButton.isEnabled = true
-                            previewButton.isEnabled = true
-                        }
-                    }
-                }
-            }, cameraHandler)
-            setStatusAny("STAGE 2 REQUEST ACTIVE · logical preview-only · zoom request=${requestedZoom ?: "unsupported"}.\nDonker beeld is toegestaan; activePhysical is de route-observatie.")
+            s.setRepeatingRequest(
+                b.build(),
+                camera5PreviewCallback(requestedZoom),
+                cameraHandler,
+            )
+            runOnUiThread {
+                focusButton.isEnabled =
+                    af.any { it != CameraMetadata.CONTROL_AF_MODE_OFF }
+                macroLoupeButtons.values.forEach { it.isEnabled = true }
+                updateCamera5AssistButtons()
+            }
+            setStatusAny(
+                "STAGE 2 REQUEST ACTIVE · logical preview-only · routezoom=" +
+                    "${requestedZoom ?: "unsupported"}× · schermloep=${visualLoupeZoom.toInt()}×.\n" +
+                    "Schermloep wijzigt de 3.7× route en RAW-capture niet.",
+            )
         } catch (e: Throwable) {
-            setStatusAny("STAGE 2 REPEATING FAIL · ${e.javaClass.simpleName}: ${e.message}")
+            setStatusAny(
+                "STAGE 2 REPEATING FAIL · ${e.javaClass.simpleName}: ${e.message}",
+            )
             runOnUiThread { previewButton.isEnabled = true }
         }
     }
+
+    private fun camera5PreviewCallback(
+        requestedZoom: Float?,
+    ): CameraCaptureSession.CaptureCallback =
+        object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult,
+            ) {
+                previewFrames++
+                lastPreviewResult = result
+                lastActivePhysicalId =
+                    result.get(
+                        CaptureResult.LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID,
+                    )
+                if (previewFrames == 1L || previewFrames % 15L == 0L) {
+                    val active = lastActivePhysicalId
+                    val iso = result.get(CaptureResult.SENSOR_SENSITIVITY)
+                    val exp = result.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                    val zoom = result.get(CaptureResult.CONTROL_ZOOM_RATIO)
+                    val afState = result.get(CaptureResult.CONTROL_AF_STATE)
+                    val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+                    val focus = result.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                    runOnUiThread {
+                        telemetry.text = buildString {
+                            append("LIVE IMAGE · frame=$previewFrames")
+                            append(" · routezoom=${zoom ?: requestedZoom ?: "?"}×")
+                            append(" · loep=${visualLoupeZoom.toInt()}×")
+                            append("\nactivePhysical=${active ?: "not reported"} · ")
+                            append(
+                                if (active == PHYSICAL_ID) {
+                                    "TELE 5 CONFIRMED"
+                                } else {
+                                    "tele 5 nog niet bevestigd"
+                                },
+                            )
+                            append("\nISO=${iso ?: "?"}")
+                            append(
+                                " · t=" +
+                                    (
+                                        exp?.div(1_000_000.0)?.let {
+                                            String.format(
+                                                Locale.ROOT,
+                                                "%.3f ms",
+                                                it,
+                                            )
+                                        } ?: "?"
+                                    ),
+                            )
+                            append(" · AF=$afState")
+                            append(if (previewFocusLocked) " LOCK" else "")
+                            append(" · focus=")
+                            append(
+                                focus?.let {
+                                    String.format(Locale.ROOT, "%.3f D", it)
+                                } ?: "?",
+                            )
+                            append(" · AE=$aeState")
+                        }
+                        captureButton.isEnabled = true
+                        previewButton.isEnabled = true
+                    }
+                }
+            }
+        }
+
+    private fun focusCamera5PreviewAt(
+        viewX: Float,
+        viewY: Float,
+    ) {
+        val s = session ?: return
+        val b = previewRequestBuilder ?: return
+        val logical = logicalCharacteristics ?: return
+        if (preview.width <= 0 || preview.height <= 0) return
+
+        val afModes =
+            logical.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+        if (afModes.all { it == CameraMetadata.CONTROL_AF_MODE_OFF }) {
+            setStatus("Camera-5 preview rapporteert geen autofocus.")
+            return
+        }
+
+        val crop =
+            lastPreviewResult?.get(CaptureResult.SCALER_CROP_REGION)
+                ?: logical.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                ?: run {
+                    setStatus("Tap-focus geblokkeerd: crop/active-array ontbreekt.")
+                    return
+                }
+
+        val nx =
+            (
+                0.5f +
+                    (
+                        (viewX / preview.width.toFloat()).coerceIn(0f, 1f) -
+                            0.5f
+                    ) /
+                    visualLoupeZoom
+            ).coerceIn(0f, 1f)
+        val ny =
+            (
+                0.5f +
+                    (
+                        (viewY / preview.height.toFloat()).coerceIn(0f, 1f) -
+                            0.5f
+                    ) /
+                    visualLoupeZoom
+            ).coerceIn(0f, 1f)
+
+        val relativeRotation =
+            (
+                (logical.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0) -
+                    camera5DisplayRotationDegrees() +
+                    360
+            ) % 360
+        val mapped = when (relativeRotation) {
+            90 -> ny to (1f - nx)
+            180 -> (1f - nx) to (1f - ny)
+            270 -> (1f - ny) to nx
+            else -> nx to ny
+        }
+
+        val sensorX = crop.left + (mapped.first * crop.width()).toInt()
+        val sensorY = crop.top + (mapped.second * crop.height()).toInt()
+        val halfW = maxOf(24, crop.width() / 18)
+        val halfH = maxOf(24, crop.height() / 18)
+        val left = (sensorX - halfW).coerceIn(crop.left, crop.right - 2)
+        val top = (sensorY - halfH).coerceIn(crop.top, crop.bottom - 2)
+        val right = (sensorX + halfW).coerceIn(left + 1, crop.right)
+        val bottom = (sensorY + halfH).coerceIn(top + 1, crop.bottom)
+        val region =
+            MeteringRectangle(
+                Rect(left, top, right, bottom),
+                MeteringRectangle.METERING_WEIGHT_MAX,
+            )
+        previewFocusRegion = region
+
+        try {
+            val maxAf =
+                logical.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0
+            val maxAe =
+                logical.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0
+            if (maxAf > 0) {
+                b.set(
+                    CaptureRequest.CONTROL_AF_REGIONS,
+                    arrayOf(region),
+                )
+            }
+            if (maxAe > 0) {
+                b.set(
+                    CaptureRequest.CONTROL_AE_REGIONS,
+                    arrayOf(region),
+                )
+            }
+
+            if (afModes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO)) {
+                b.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
+                b.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+                )
+                s.capture(
+                    b.build(),
+                    camera5PreviewCallback(previewRequestedZoomRatio),
+                    cameraHandler,
+                )
+                b.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_START,
+                )
+                s.capture(
+                    b.build(),
+                    camera5PreviewCallback(previewRequestedZoomRatio),
+                    cameraHandler,
+                )
+                b.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+                )
+                previewFocusLocked = true
+            } else {
+                previewFocusLocked = false
+            }
+
+            s.setRepeatingRequest(
+                b.build(),
+                camera5PreviewCallback(previewRequestedZoomRatio),
+                cameraHandler,
+            )
+            updateCamera5AssistButtons()
+            setStatusAny(
+                if (previewFocusLocked) {
+                    "Camera-5 tap-focus gestart · AF-lock actief · routezoom blijft 3.7×."
+                } else {
+                    "Camera-5 focusregio ingesteld · AUTO-lock niet beschikbaar."
+                },
+            )
+        } catch (e: Throwable) {
+            setStatusAny(
+                "Camera-5 tap-focus FAIL · ${e.javaClass.simpleName}: ${e.message}",
+            )
+        }
+    }
+
+    private fun toggleCamera5FocusLock() {
+        val s = session ?: return
+        val b = previewRequestBuilder ?: return
+        val logical = logicalCharacteristics ?: return
+        val modes =
+            logical.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+
+        if (!modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO)) {
+            setStatus("Camera-5 AUTO focus-lock is niet beschikbaar.")
+            return
+        }
+
+        if (!previewFocusLocked) {
+            focusCamera5PreviewAt(
+                preview.width / 2f,
+                preview.height / 2f,
+            )
+            return
+        }
+
+        try {
+            b.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            s.capture(
+                b.build(),
+                camera5PreviewCallback(previewRequestedZoomRatio),
+                cameraHandler,
+            )
+            b.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+            )
+            if (modes.contains(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
+                b.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                )
+            }
+            previewFocusLocked = false
+            s.setRepeatingRequest(
+                b.build(),
+                camera5PreviewCallback(previewRequestedZoomRatio),
+                cameraHandler,
+            )
+            updateCamera5AssistButtons()
+            setStatus("Camera-5 focus-lock vrijgegeven.")
+        } catch (e: Throwable) {
+            setStatusAny(
+                "Camera-5 focus unlock FAIL · ${e.javaClass.simpleName}: ${e.message}",
+            )
+        }
+    }
+
+    private fun setCamera5VisualLoupe(zoom: Float) {
+        visualLoupeZoom = zoom.coerceIn(1f, 8f)
+        configurePreviewTransform(preview.width, preview.height)
+        updateCamera5AssistButtons()
+        setStatus(
+            "Camera-5 schermloep ${visualLoupeZoom.toInt()}× · routezoom blijft exact 3.7×.",
+        )
+    }
+
+    private fun updateCamera5AssistButtons() {
+        if (::focusButton.isInitialized) {
+            focusButton.text =
+                if (previewFocusLocked) "Focus unlock" else "Focus lock"
+        }
+        macroLoupeButtons.forEach { (zoom, button) ->
+            val label = if (zoom == 1f) "1×" else "${zoom.toInt()}×"
+            button.text =
+                if (kotlin.math.abs(zoom - visualLoupeZoom) < 0.01f) {
+                    "• $label"
+                } else {
+                    label
+                }
+        }
+    }
+
+    private fun camera5DisplayRotationDegrees(): Int =
+        when (preview.display?.rotation ?: Surface.ROTATION_0) {
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> 0
+        }
 
     private fun capture200Mp() {
         if (!capabilityReady) {
