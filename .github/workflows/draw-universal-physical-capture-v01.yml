@@ -1,9 +1,9 @@
-name: D.RAW Universal Physical Capture v0.2 RAW_SENSOR-first
+name: D.RAW Universal Physical Capture v0.3 Live Preview Macro
 
 on:
   push:
     branches:
-      - integration/draw-universal-rawsensor-foundation-v01-2026-09-28
+      - integration/draw-universal-live-preview-macro-v01-2026-09-28
     paths:
       - 'suite_android/**'
       - '.github/workflows/draw-universal-physical-capture-v01.yml'
@@ -45,6 +45,23 @@ jobs:
           grep -F 'UniversalPhysicalCaptureActivity::class.java' "$LAUNCHER"
           grep -F 'FotoGraaf200MpStagedActivity::class.java' "$CAPTURE"
           grep -F 'D.RAWnegative 200MP · Float32 Full Colour · DNG' "$JAVA/MainActivity.kt"
+          grep -F 'CameraDevice.TEMPLATE_PREVIEW' "$CAPTURE"
+          grep -F 'CaptureRequest.CONTROL_AF_REGIONS' "$CAPTURE"
+          grep -F 'ScaleGestureDetector' "$CAPTURE"
+          grep -F 'Macro-loep' "$CAPTURE"
+          grep -F 'display_loupe_modifies_raw_capture", false' "$CAPTURE"
+          grep -F 'capture_zoom_ratio_written", false' "$CAPTURE"
+          grep -F 'capture_crop_region_written", false' "$CAPTURE"
+
+          if grep -F 'CaptureRequest.CONTROL_ZOOM_RATIO' "$CAPTURE"; then
+            echo 'Capture zoom ratio must not be written by universal macro loupe' >&2
+            exit 1
+          fi
+
+          if grep -F 'CaptureRequest.SCALER_CROP_REGION' "$CAPTURE"; then
+            echo 'Capture crop region must not be written by universal macro loupe' >&2
+            exit 1
+          fi
 
           if grep -E 'com\.hihonor\.|professionalTeleRawLogicalCameraID|System ID|cameraId == "[245]"|cameraId = "[245]"' "$CAPTURE"; then
             echo 'Fixed vendor/device lens mapping detected in universal capture adapter' >&2
@@ -90,7 +107,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DRAW_Universal_RAW_SENSOR_Foundation_v0.2_debug_arm64
+          name: DRAW_Universal_Live_Preview_Macro_v0.3_debug_arm64
           path: |
             suite_android/app/build/outputs/apk/debug/app-debug.apk
             suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256
