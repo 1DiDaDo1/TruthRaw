@@ -76,9 +76,12 @@ class TruthRawSuiteLauncherActivity : Activity() {
             })
             addView(space(8))
             addView(action("Camera · Universele fysieke RAW") {
-                startActivity(Intent(this@TruthRawSuiteLauncherActivity, UniversalPhysicalCaptureActivity::class.java).apply {
-                    
-                })
+                startActivity(
+                    Intent(
+                        this@TruthRawSuiteLauncherActivity,
+                        UniversalPhysicalCaptureActivity::class.java,
+                    ),
+                )
             })
             addView(space(18))
             addView(body("Evidence-bound computational photography and open scene reconstruction", 10.5f).apply {
