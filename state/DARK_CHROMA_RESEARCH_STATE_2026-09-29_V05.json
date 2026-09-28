@@ -1,0 +1,70 @@
+{
+  "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.5",
+  "status": "ACTIVE_UNMERGED_FINE_STRUCTURE_DEVICE_VALIDATION",
+  "branch": "research/dark-chroma-stability-v05-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v04-2026-09-29",
+  "project_law": "Seal the evidence, not the thinking.",
+  "validated_parent_cases": {
+    "near_black_tele": {
+      "v04_local_binding": true,
+      "dark_uninformative_preserved": true,
+      "correction_supported_tiles": 0
+    },
+    "structured_ultra_wide_1790636281140": {
+      "v04_local_binding_frontside_tiles": "432/432",
+      "visible_chroma_candidate_tiles": 0,
+      "correction_supported_tiles": 0
+    },
+    "selective_main_wide_1790637640867": {
+      "v04_local_binding_frontside_tiles": "432/432",
+      "visible_chroma_candidate_tiles": 6,
+      "visible_candidate_bound_tiles": 6,
+      "visible_candidate_structure_blocked_tiles": 6,
+      "n2_structure_protected_sample_fraction": 0.16560872395833334,
+      "n2_structure_protection_present_tiles": "3072/3072",
+      "finding": "64x64 any-structure-presence is safe but too coarse for candidate-level discrimination"
+    }
+  },
+  "v05": {
+    "new_native_field": "D.RAW/TruthNegative/N2StructureSupportField/0.1",
+    "reporting_tile_edge": 32,
+    "sampling_period": 8,
+    "underlying_n2_structure_gate_changed": false,
+    "sample_grid_evidence_only": true,
+    "unsampled_pixels_inferred": false,
+    "selective_execution": "native-ready DNG AND visible Dark-Chroma candidates > 0 AND not globally DARK_UNINFORMATIVE",
+    "frontside_binding": {
+      "whole_overlap_context": true,
+      "fully_contained_interior_counts": true,
+      "boundary_tiles_fractionally_assigned": false
+    },
+    "legacy_v04_protection_semantics_reduced": false,
+    "fine_metrics_are_probability": false,
+    "fine_metrics_can_reduce_protection": false,
+    "fine_metrics_can_enable_correction": false,
+    "dark_uninformative_can_be_overridden": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "single_shot_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "device_validation_required": [
+    "rerun selective main/wide 1790637640867 and record fine overlap/interior structure fractions for all six visible candidates",
+    "verify v0.5 correction-supported remains zero",
+    "do not define a distance/support promotion gate until fine structure density is observed on real device data"
+  ],
+  "next_gate": {
+    "name": "DEVICE_VALIDATE_FINE_STRUCTURE_SUPPORT_ON_SELECTIVE_MAIN_WIDE",
+    "private_chroma_ab_delta_still_blocked": true,
+    "must_preserve_all_existing_structure_protection": true
+  }
+}
