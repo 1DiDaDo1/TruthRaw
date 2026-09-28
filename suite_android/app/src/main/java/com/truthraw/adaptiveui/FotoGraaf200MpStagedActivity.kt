@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.graphics.drawable.GradientDrawable
@@ -22,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.DngCreator
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
@@ -31,6 +33,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -84,6 +87,8 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private lateinit var capabilityButton: Button
     private lateinit var previewButton: Button
     private lateinit var captureButton: Button
+    private lateinit var focusButton: Button
+    private val macroLoupeButtons = linkedMapOf<Float, Button>()
     private lateinit var saveRawButton: Button
     private lateinit var saveDngButton: Button
     private lateinit var saveJsonButton: Button
@@ -102,6 +107,11 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private var previewSurface: Surface? = null
     private var previewBufferSize: Size? = null
     private var rawReader: ImageReader? = null
+    private var previewRequestBuilder: CaptureRequest.Builder? = null
+    private var previewRequestedZoomRatio: Float? = null
+    private var visualLoupeZoom = 1f
+    private var previewFocusLocked = false
+    private var previewFocusRegion: MeteringRectangle? = null
 
     @Volatile private var lastPreviewResult: TotalCaptureResult? = null
     @Volatile private var lastActivePhysicalId: String? = null
@@ -224,6 +234,12 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
     private fun buildUi(): View {
         preview = AutoFitTextureView(this).apply {
             surfaceTextureListener = this@FotoGraaf200MpStagedActivity
+            setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    focusCamera5PreviewAt(event.x, event.y)
+                }
+                true
+            }
             // Never set a TextureView background drawable/color: v0.9 fixed that crash.
         }
         telemetry = label("Preview nog niet gestart.", 11f, true, Color.rgb(220, 225, 234)).apply {
@@ -244,6 +260,20 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 isEnabled = false
             }
         }
+        focusButton = button("Focus lock") { toggleCamera5FocusLock() }.apply {
+            isEnabled = false
+        }
+        macroLoupeButtons.clear()
+        listOf(1f, 2f, 4f, 8f).forEach { zoom ->
+            macroLoupeButtons[zoom] =
+                button(if (zoom == 1f) "1×" else "${zoom.toInt()}×") {
+                    setCamera5VisualLoupe(zoom)
+                }.apply { isEnabled = false }
+        }
+        visualLoupeZoom = 1f
+        previewFocusLocked = false
+        previewFocusRegion = null
+        updateCamera5AssistButtons()
         saveRawButton = button("Originele 200MP RAW buffer opslaan") {
             saveFile(capturedRaw, "application/octet-stream", REQUEST_SAVE_RAW)
         }.apply { isEnabled = false }
