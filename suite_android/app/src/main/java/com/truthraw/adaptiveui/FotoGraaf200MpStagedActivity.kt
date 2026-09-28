@@ -1354,6 +1354,7 @@ class FotoGraaf200MpStagedActivity : Activity(), TextureView.SurfaceTextureListe
                 .put("visualLoupeChangesRequestedZoomRatio", false)
                 .put("tapFocusRegionUsed", previewFocusRegion != null)
                 .put("focusLockRequested", previewFocusLocked)
+                .put("focusLockGuaranteedAcross200MpSessionReconfigure", false)
                 .put("previewCreatesEvidence", false))
             .put("requestTopology", JSONObject()
                 .put("openedCameraId", LOGICAL_ID)
