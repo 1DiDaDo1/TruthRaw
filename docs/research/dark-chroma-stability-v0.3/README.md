@@ -73,7 +73,7 @@ A new read-only `BacksideSignalSupportAudit.kt` samples the actual selected DNG 
 
 Unsupported or incomplete topology remains UNKNOWN/fail-closed.
 
-No full RAW materialization is required. The audit reads sparse source rows and samples all four 2x2 parity phases on a deterministic 64-pixel grid.
+No full RAW materialization is required. The audit reads sparse source rows and samples all four 2x2 parity phases on a deterministic 64-pixel grid. When a valid DNG `ActiveArea` is present, sampling is restricted to that area so masked/non-image sensor borders cannot make a frame appear artificially near-black. Invalid or absent ActiveArea falls back to the full proven raw raster.
 
 Each measured code is normalized as:
 
