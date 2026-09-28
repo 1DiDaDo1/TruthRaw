@@ -363,6 +363,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         logicalCameraId = logicalId,
                         physicalCameraId = physicalId,
                         rawSize = size,
+                        previewSize = choosePreviewSize(logical, physical, size),
                         focalLengthMm = representativeFocalLength(physical),
                         effectiveCameraId = physicalId,
                         discovery = "PHYSICAL_BOUND_TO_LOGICAL",
@@ -376,6 +377,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         logicalCameraId = logicalId,
                         physicalCameraId = null,
                         rawSize = directSize,
+                        previewSize = choosePreviewSize(logical, null, directSize),
                         focalLengthMm = representativeFocalLength(logical),
                         effectiveCameraId = logicalId,
                         discovery = "DIRECT_LOGICAL_RAW",
@@ -421,6 +423,45 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private fun largestRawSize(c: CameraCharacteristics): Size? =
         rawSizes(c).maxByOrNull { it.width.toLong() * it.height.toLong() }
 
+    private fun previewSizes(c: CameraCharacteristics): List<Size> =
+        c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            ?.getOutputSizes(SurfaceTexture::class.java)
+            ?.toList()
+            .orEmpty()
+
+    private fun choosePreviewSize(
+        logical: CameraCharacteristics,
+        physical: CameraCharacteristics?,
+        rawSize: Size,
+    ): Size? {
+        val logicalSizes = previewSizes(logical)
+        val usable = if (physical == null) {
+            logicalSizes
+        } else {
+            val physicalSizes = previewSizes(physical)
+            logicalSizes.filter { logicalSize ->
+                physicalSizes.any { physicalSize ->
+                    physicalSize.width == logicalSize.width &&
+                        physicalSize.height == logicalSize.height
+                }
+            }
+        }
+        if (usable.isEmpty()) return null
+
+        val targetAspect = rawSize.width.toDouble() / rawSize.height.toDouble()
+        val bounded = usable.filter {
+            it.width <= 1920 && it.height <= 1080
+        }.ifEmpty { usable }
+
+        return bounded.sortedWith(
+            compareBy<Size> {
+                abs(it.width.toDouble() / it.height.toDouble() - targetAspect)
+            }.thenByDescending {
+                it.width.toLong() * it.height.toLong()
+            },
+        ).firstOrNull()
+    }
+
     private fun representativeFocalLength(c: CameraCharacteristics): Float? =
         c.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
             ?.filter { it.isFinite() && it > 0f }
@@ -462,8 +503,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
             val focal =
                 c.focalLengthMm?.let { "%.2fmm".format(it) }
                     ?: "focal UNKNOWN"
-            return role.title + " · " + focal + " · " +
-                c.rawSize.width + "×" + c.rawSize.height
+            val preview = c.previewSize?.let {
+                " · live=${it.width}×${it.height}"
+            } ?: " · live=UNKNOWN"
+            return role.title + " · " + focal + " · RAW=" +
+                c.rawSize.width + "×" + c.rawSize.height + preview
         }
 
         ultraButton.text = label(LensRole.ULTRA_WIDE)
@@ -500,6 +544,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 append(c.rawSize.width)
                 append("×")
                 append(c.rawSize.height)
+                append(" · preview=")
+                append(
+                    c.previewSize?.let { "${it.width}×${it.height}" }
+                        ?: "UNKNOWN",
+                )
                 append(" · ")
                 appendLine(c.discovery)
             }
