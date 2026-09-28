@@ -269,20 +269,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     )
                 }
             } else {
+                // When a logical multi-camera exposes individual RAW-capable
+                // physical members, classify those members only. The aggregate
+                // logical route can advertise multiple focal lengths and must
+                // not become a fictitious extra lens in focal-order UI.
                 discovered += physicalCandidates
-                if (
-                    directSize != null &&
-                    logicalId !in physicalCandidates.map { it.effectiveCameraId }
-                ) {
-                    discovered += Candidate(
-                        logicalCameraId = logicalId,
-                        physicalCameraId = null,
-                        rawSize = directSize,
-                        focalLengthMm = representativeFocalLength(logical),
-                        effectiveCameraId = logicalId,
-                        discovery = "LOGICAL_RAW_FALLBACK",
-                    )
-                }
             }
         }
 
