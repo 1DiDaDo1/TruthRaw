@@ -49,7 +49,7 @@ object FrontsideSceneInspector {
                     "semantic_scene_understanding",
                     JSONObject()
                         .put("level", "FRONTSIDE_UNAVAILABLE")
-                        .put("future_scene_model_extension_allowed", true),
+                        .put("future_classical_vision_extension_allowed", true),
                 )
                 .put("creates_sensor_evidence", false)
                 .put("scientific_writeback_allowed", false)
@@ -237,9 +237,9 @@ object FrontsideSceneInspector {
                     .put("level", "STRUCTURAL_VISION_V0_2")
                     .put(
                         "description",
-                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Higher-level object/material/geometry/scene models remain versioned successors.",
+                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Higher-level deterministic object/material/geometry/scene analysis may be added only through inspectable non-AI algorithms.",
                     )
-                    .put("future_scene_model_extension_allowed", true),
+                    .put("future_classical_vision_extension_allowed", true),
             )
             .put("creates_sensor_evidence", false)
             .put("scientific_writeback_allowed", false)
