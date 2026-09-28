@@ -1,0 +1,57 @@
+{
+  "schema": "D.RAW/DarkChromaResearchState/2026-09-28/v0.3",
+  "status": "ACTIVE_UNMERGED_DEVICE_VALIDATION",
+  "branch": "research/dark-chroma-stability-v03-2026-09-28",
+  "parent_branch": "research/dark-chroma-stability-v02-2026-09-28",
+  "project_law": "Seal the evidence, not the thinking.",
+  "single_shot_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "real_device_evidence_that_motivated_v03": {
+    "near_black_tele_frontside": {
+      "tiles": 432,
+      "dark_tiles": 432,
+      "flat_dark_tiles": 432,
+      "visible_chroma_candidate_tiles": 432,
+      "structure_veto_tiles": 0,
+      "edge_density_observed": 0.0040,
+      "entropy_bits_observed": 1.54,
+      "v02_state_observed": "FRONTSIDE_INFORMATION_PRESENT",
+      "v02_correction_supported_tiles": 0,
+      "interpretation": "v0.2 classification was too sensitive to one entropy cutoff; safety still held"
+    },
+    "dark_main_wide_contrast_case": {
+      "tiles": 432,
+      "dark_tiles": 414,
+      "visible_chroma_candidate_tiles": 22,
+      "structure_veto_tiles": 40,
+      "edge_density_observed": 0.0499,
+      "entropy_bits_observed": 2.33,
+      "interpretation": "frontside remains discriminative and must not be globally labeled degenerate"
+    }
+  },
+  "v03": {
+    "frontside_degeneracy_gate": true,
+    "entropy_hard_gate": false,
+    "measured_backside_signal_support": true,
+    "backside_signal_source": "SELECTED_DNG_CFA_PAYLOAD",
+    "backside_signal_can_block": true,
+    "backside_signal_can_enable_correction": false,
+    "local_n2_backside_binding_available": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "replacement_colour_estimated": false
+  },
+  "next_gate": {
+    "name": "LOCAL_BACKSIDE_N2_SPATIAL_BINDING",
+    "requirement": "bind frontside regions to same-observation local N2/backside support without authority collapse",
+    "must_precede_private_chroma_candidate": true
+  }
+}
