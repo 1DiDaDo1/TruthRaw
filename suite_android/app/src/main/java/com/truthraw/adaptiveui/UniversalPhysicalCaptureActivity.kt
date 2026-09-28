@@ -842,6 +842,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
                             evidenceFile.absolutePath,
                         )
                         putExtra(
+                            MainActivity.EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256,
+                            rawSeal.sha256,
+                        )
+                        putExtra(
                             MainActivity.EXTRA_AUTO_START_TRUTHRAW,
                             true,
                         )
