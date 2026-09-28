@@ -109,6 +109,12 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private lateinit var ultraButton: Button
     private lateinit var wideButton: Button
     private lateinit var teleButton: Button
+    private lateinit var previewView: AutoFitTextureView
+    private lateinit var previewTelemetry: TextView
+    private lateinit var captureButton: Button
+    private lateinit var focusLockButton: Button
+    private lateinit var loupeButton: Button
+    private lateinit var scaleDetector: ScaleGestureDetector
 
     private val roleCandidates = linkedMapOf<LensRole, Candidate>()
 
@@ -119,6 +125,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var imageReader: ImageReader? = null
+    private var previewSurface: Surface? = null
+    private var previewRequestBuilder: CaptureRequest.Builder? = null
+    private var previewBufferSize: Size? = null
+    private var lastPreviewResult: TotalCaptureResult? = null
+    private var previewFrames: Long = 0
+    private var focusLocked = false
+    private var currentAfRegion: MeteringRectangle? = null
+    private var macroLoupeScale = 1f
+    private var pendingPreviewRole: LensRole? = null
+    private var touchDownX = 0f
+    private var touchDownY = 0f
+    private var touchMoved = false
+    private var multiTouchGesture = false
 
     private val pairLock = Any()
     private var pendingImage: Image? = null
@@ -131,6 +150,24 @@ class UniversalPhysicalCaptureActivity : Activity() {
         super.onCreate(savedInstanceState)
         DrawVisualTheme.applyWindow(this)
         cameraManager = getSystemService(CameraManager::class.java)
+        scaleDetector = ScaleGestureDetector(
+            this,
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                    multiTouchGesture = true
+                    return true
+                }
+
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    previewView.pivotX = detector.focusX.coerceIn(0f, previewView.width.toFloat())
+                    previewView.pivotY = detector.focusY.coerceIn(0f, previewView.height.toFloat())
+                    setMacroLoupeScale(
+                        (macroLoupeScale * detector.scaleFactor).coerceIn(1f, 8f),
+                    )
+                    return true
+                }
+            },
+        )
         setContentView(buildUi())
         discoverUniversalRoutes()
     }
