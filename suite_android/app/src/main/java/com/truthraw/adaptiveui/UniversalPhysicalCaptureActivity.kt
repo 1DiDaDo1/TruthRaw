@@ -897,6 +897,345 @@ class UniversalPhysicalCaptureActivity : Activity() {
         submitCapture(camera, session, candidate, reader)
     }
 
+    private fun applyDefaultAfMode(
+        builder: CaptureRequest.Builder,
+        characteristics: CameraCharacteristics,
+    ) {
+        val modes =
+            characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+        when {
+            modes.contains(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                )
+            modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO) ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
+            else ->
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_OFF,
+                )
+        }
+    }
+
+    private fun supportsAutoFocus(
+        characteristics: CameraCharacteristics,
+    ): Boolean {
+        val modes =
+            characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+        return modes.any { it != CameraMetadata.CONTROL_AF_MODE_OFF }
+    }
+
+    private fun supportsFocusLock(
+        characteristics: CameraCharacteristics,
+    ): Boolean {
+        val modes =
+            characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+        return modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO)
+    }
+
+    private fun focusAt(viewX: Float, viewY: Float) {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val builder = previewRequestBuilder ?: return
+        if (previewTexture.width <= 0 || previewTexture.height <= 0) return
+
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return
+        val modes =
+            characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+                ?: intArrayOf()
+        if (!supportsAutoFocus(characteristics)) {
+            status("Deze RAW-camera rapporteert geen autofocusmogelijkheid.")
+            return
+        }
+
+        val activeArray =
+            characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                ?: run {
+                    status("Tap-focus geblokkeerd: active-array geometry ontbreekt.")
+                    return
+                }
+
+        val viewNx = (viewX / previewTexture.width.toFloat()).coerceIn(0f, 1f)
+        val viewNy = (viewY / previewTexture.height.toFloat()).coerceIn(0f, 1f)
+        val croppedNx =
+            (0.5f + (viewNx - 0.5f) / loupeZoom).coerceIn(0f, 1f)
+        val croppedNy =
+            (0.5f + (viewNy - 0.5f) / loupeZoom).coerceIn(0f, 1f)
+
+        val relativeRotation =
+            (
+                (characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0) -
+                    displayRotationDegrees() +
+                    360
+            ) % 360
+
+        val sensorNormalized = when (relativeRotation) {
+            90 -> croppedNy to (1f - croppedNx)
+            180 -> (1f - croppedNx) to (1f - croppedNy)
+            270 -> (1f - croppedNy) to croppedNx
+            else -> croppedNx to croppedNy
+        }
+
+        val sensorX =
+            activeArray.left +
+                (sensorNormalized.first * activeArray.width()).toInt()
+        val sensorY =
+            activeArray.top +
+                (sensorNormalized.second * activeArray.height()).toInt()
+        val halfW = maxOf(32, activeArray.width() / 20)
+        val halfH = maxOf(32, activeArray.height() / 20)
+        val left =
+            (sensorX - halfW).coerceIn(
+                activeArray.left,
+                activeArray.right - 2,
+            )
+        val top =
+            (sensorY - halfH).coerceIn(
+                activeArray.top,
+                activeArray.bottom - 2,
+            )
+        val right =
+            (sensorX + halfW).coerceIn(left + 1, activeArray.right)
+        val bottom =
+            (sensorY + halfH).coerceIn(top + 1, activeArray.bottom)
+        val region =
+            MeteringRectangle(
+                Rect(left, top, right, bottom),
+                MeteringRectangle.METERING_WEIGHT_MAX,
+            )
+        lastFocusRegion = region
+
+        try {
+            val maxAfRegions =
+                characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0
+            val maxAeRegions =
+                characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0
+            if (maxAfRegions > 0) {
+                builder.set(
+                    CaptureRequest.CONTROL_AF_REGIONS,
+                    arrayOf(region),
+                )
+            }
+            if (maxAeRegions > 0) {
+                builder.set(
+                    CaptureRequest.CONTROL_AE_REGIONS,
+                    arrayOf(region),
+                )
+            }
+
+            if (modes.contains(CameraMetadata.CONTROL_AF_MODE_AUTO)) {
+                builder.set(
+                    CaptureRequest.CONTROL_AF_MODE,
+                    CameraMetadata.CONTROL_AF_MODE_AUTO,
+                )
+                builder.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+                )
+                session.capture(
+                    builder.build(),
+                    previewCaptureCallback(candidate),
+                    cameraHandler,
+                )
+                builder.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_START,
+                )
+                session.capture(
+                    builder.build(),
+                    previewCaptureCallback(candidate),
+                    cameraHandler,
+                )
+                builder.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+                )
+                focusLocked = true
+            } else {
+                applyDefaultAfMode(builder, characteristics)
+                focusLocked = false
+            }
+
+            session.setRepeatingRequest(
+                builder.build(),
+                previewCaptureCallback(candidate),
+                cameraHandler,
+            )
+            updateFocusLockButton()
+            statusFromAnyThread(
+                if (focusLocked) {
+                    "Tap-focus gestart en AF-lock behouden voor de opname."
+                } else {
+                    "Focusregio ingesteld; deze camera biedt geen AUTO-lockmodus."
+                },
+            )
+        } catch (error: Exception) {
+            statusFromAnyThread(
+                "Tap-focus faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
+    private fun toggleFocusLock() {
+        val candidate = activeCandidate ?: return
+        val session = cameraSession ?: return
+        val builder = previewRequestBuilder ?: return
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return
+
+        if (!supportsFocusLock(characteristics)) {
+            status("Focus-lock wordt door deze camera niet als AUTO-AF aangeboden.")
+            return
+        }
+
+        if (!focusLocked) {
+            focusAt(
+                previewTexture.width / 2f,
+                previewTexture.height / 2f,
+            )
+            return
+        }
+
+        try {
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
+            )
+            session.capture(
+                builder.build(),
+                previewCaptureCallback(candidate),
+                cameraHandler,
+            )
+            builder.set(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
+            )
+            applyDefaultAfMode(builder, characteristics)
+            focusLocked = false
+            session.setRepeatingRequest(
+                builder.build(),
+                previewCaptureCallback(candidate),
+                cameraHandler,
+            )
+            updateFocusLockButton()
+            status("Focus-lock vrijgegeven; continue/default AF is weer actief.")
+        } catch (error: Exception) {
+            statusFromAnyThread(
+                "Focus unlock faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+        }
+    }
+
+    private fun updateFocusLockButton() {
+        if (::focusLockButton.isInitialized) {
+            focusLockButton.text =
+                if (focusLocked) "Focus unlock" else "Focus lock"
+        }
+    }
+
+    private fun setLoupeZoom(zoom: Float) {
+        loupeZoom = zoom.coerceIn(1f, 8f)
+        activeCandidate?.let(::configurePreviewTransform)
+        updateLoupeButtons()
+        status(
+            "Macro-loep ${loupeZoom.toInt()}× · alleen viewfinder; RAW_SENSOR capture blijft ongecropt.",
+        )
+    }
+
+    private fun updateLoupeButtons() {
+        loupeButtons.forEach { (zoom, button) ->
+            val label = if (zoom == 1f) "1×" else "${zoom.toInt()}×"
+            button.text =
+                if (kotlin.math.abs(zoom - loupeZoom) < 0.01f) {
+                    "• $label"
+                } else {
+                    label
+                }
+        }
+    }
+
+    private fun configurePreviewTransform(candidate: Candidate) {
+        if (!::previewTexture.isInitialized) return
+        val viewWidth = previewTexture.width
+        val viewHeight = previewTexture.height
+        if (viewWidth <= 0 || viewHeight <= 0) return
+
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull()
+        val sensorOrientation =
+            characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+        val relativeRotation =
+            (sensorOrientation - displayRotationDegrees() + 360) % 360
+
+        val matrix = Matrix()
+        val viewRect =
+            RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+        val centerX = viewRect.centerX()
+        val centerY = viewRect.centerY()
+
+        if (relativeRotation == 90 || relativeRotation == 270) {
+            val bufferRect =
+                RectF(
+                    0f,
+                    0f,
+                    candidate.previewSize.height.toFloat(),
+                    candidate.previewSize.width.toFloat(),
+                )
+            bufferRect.offset(
+                centerX - bufferRect.centerX(),
+                centerY - bufferRect.centerY(),
+            )
+            matrix.setRectToRect(
+                viewRect,
+                bufferRect,
+                Matrix.ScaleToFit.FILL,
+            )
+            val scale =
+                maxOf(
+                    viewHeight.toFloat() / candidate.previewSize.height,
+                    viewWidth.toFloat() / candidate.previewSize.width,
+                )
+            matrix.postScale(scale, scale, centerX, centerY)
+            matrix.postRotate(
+                if (relativeRotation == 90) 90f else -90f,
+                centerX,
+                centerY,
+            )
+        } else if (relativeRotation == 180) {
+            matrix.postRotate(180f, centerX, centerY)
+        }
+
+        matrix.postScale(
+            loupeZoom,
+            loupeZoom,
+            centerX,
+            centerY,
+        )
+        previewTexture.setTransform(matrix)
+    }
+
+    private fun displayRotationDegrees(): Int =
+        when (display?.rotation ?: Surface.ROTATION_0) {
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> 0
+        }
+
     private fun submitCapture(
         camera: CameraDevice,
         session: CameraCaptureSession,
