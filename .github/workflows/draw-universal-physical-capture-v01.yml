@@ -28,6 +28,7 @@ jobs:
           set -euo pipefail
           JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
           CAPTURE="$JAVA/UniversalPhysicalCaptureActivity.kt"
+          SPECIAL="$JAVA/FotoGraaf200MpStagedActivity.kt"
           LAUNCHER="$JAVA/TruthRawSuiteLauncherActivity.kt"
 
           grep -F 'class UniversalPhysicalCaptureActivity' "$CAPTURE"
@@ -53,6 +54,12 @@ jobs:
           grep -F 'control_zoom_ratio_written", false' "$CAPTURE"
           grep -F 'scaler_crop_region_written", false' "$CAPTURE"
           grep -F 'preview_creates_evidence", false' "$CAPTURE"
+          grep -F 'focusCamera5PreviewAt' "$SPECIAL"
+          grep -F 'visualLoupeZoom' "$SPECIAL"
+          grep -F 'visualLoupeIsCaptureZoom", false' "$SPECIAL"
+          grep -F 'visualLoupeChangesRequestedZoomRatio", false' "$SPECIAL"
+          grep -F 'focusLockGuaranteedAcross200MpSessionReconfigure", false' "$SPECIAL"
+          grep -F 'ZOOM_REQUEST.coerceIn' "$SPECIAL"
 
           if grep -F 'set(CaptureRequest.CONTROL_ZOOM_RATIO' "$CAPTURE"; then
             echo 'Universal macro loupe must not write capture zoom ratio' >&2
