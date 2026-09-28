@@ -129,6 +129,28 @@ highest standard measured RAW_SENSOR grid
 
 Open-World output resolution may be lower, equal to or higher than the source sample grid. Choosing a denser output raster does not create additional measured samples and never upgrades source or optical authority.
 
+### Live view, focus and macro loupe
+
+The normal universal camera may use a continuous preview stream for composition and camera control while the scientific source remains one separately captured and sealed RAW_SENSOR frame.
+
+```text
+preview stream
+  -> composition / tap-focus / focus-lock / visual macro loupe
+  -> creates no source evidence
+  -> never writes Scientific Master
+
+RAW shutter
+  -> one RAW_SENSOR frame
+  -> exact plane seal
+  -> scientific ingress
+```
+
+The macro loupe is presentation-only. The 1x/2x/4x/8x viewfinder magnification is implemented as a view transform and must not write `CONTROL_ZOOM_RATIO` or `SCALER_CROP_REGION` into the normal RAW capture request. It therefore does not crop or digitally zoom the recorded RAW_SENSOR frame.
+
+Tap-focus and focus-lock are camera-control operations. Their resulting capture-time lens focus state may be recorded as acquisition provenance, but using autofocus does not create additional sensor evidence or scientific authority.
+
+For the special Camera-5 4K→200MP route, the proven logical preview request remains fixed at the existing 3.7x routing zoom. Its additional 1x/2x/4x/8x macro loupe is also viewfinder-only and never changes that routing request. Tap-focus is available on the preview, but the route reconfigures from preview session to the specialized MAX RAW session before exposure; focus-lock continuity across that reconfiguration remains unproven until real-device evidence demonstrates it.
+
 PR #76 merged this architecture into `main`.
 
 Merge commit:

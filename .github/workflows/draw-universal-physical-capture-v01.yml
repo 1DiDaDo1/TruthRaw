@@ -1,9 +1,9 @@
-name: D.RAW Universal Physical Capture v0.2 RAW_SENSOR-first
+name: D.RAW Universal Physical Capture v0.3 Live View Macro
 
 on:
   push:
     branches:
-      - integration/draw-universal-rawsensor-foundation-v01-2026-09-28
+      - integration/draw-universal-live-view-macro-v01-2026-09-28
     paths:
       - 'suite_android/**'
       - '.github/workflows/draw-universal-physical-capture-v01.yml'
@@ -28,6 +28,7 @@ jobs:
           set -euo pipefail
           JAVA='suite_android/app/src/main/java/com/truthraw/adaptiveui'
           CAPTURE="$JAVA/UniversalPhysicalCaptureActivity.kt"
+          SPECIAL="$JAVA/FotoGraaf200MpStagedActivity.kt"
           LAUNCHER="$JAVA/TruthRawSuiteLauncherActivity.kt"
 
           grep -F 'class UniversalPhysicalCaptureActivity' "$CAPTURE"
@@ -45,6 +46,30 @@ jobs:
           grep -F 'UniversalPhysicalCaptureActivity::class.java' "$LAUNCHER"
           grep -F 'FotoGraaf200MpStagedActivity::class.java' "$CAPTURE"
           grep -F 'D.RAWnegative 200MP · Float32 Full Colour · DNG' "$JAVA/MainActivity.kt"
+          grep -F 'TextureView' "$CAPTURE"
+          grep -F 'CONTROL_AF_REGIONS' "$CAPTURE"
+          grep -F 'CONTROL_AF_TRIGGER_START' "$CAPTURE"
+          grep -F 'visual_loupe_is_capture_zoom", false' "$CAPTURE"
+          grep -F 'visual_loupe_crops_raw_sensor", false' "$CAPTURE"
+          grep -F 'control_zoom_ratio_written", false' "$CAPTURE"
+          grep -F 'scaler_crop_region_written", false' "$CAPTURE"
+          grep -F 'preview_creates_evidence", false' "$CAPTURE"
+          grep -F 'focusCamera5PreviewAt' "$SPECIAL"
+          grep -F 'visualLoupeZoom' "$SPECIAL"
+          grep -F 'visualLoupeIsCaptureZoom", false' "$SPECIAL"
+          grep -F 'visualLoupeChangesRequestedZoomRatio", false' "$SPECIAL"
+          grep -F 'focusLockGuaranteedAcross200MpSessionReconfigure", false' "$SPECIAL"
+          grep -F 'ZOOM_REQUEST.coerceIn' "$SPECIAL"
+
+          if grep -F 'set(CaptureRequest.CONTROL_ZOOM_RATIO' "$CAPTURE"; then
+            echo 'Universal macro loupe must not write capture zoom ratio' >&2
+            exit 1
+          fi
+
+          if grep -F 'set(CaptureRequest.SCALER_CROP_REGION' "$CAPTURE"; then
+            echo 'Universal macro loupe must not crop RAW capture request' >&2
+            exit 1
+          fi
 
           if grep -E 'com\.hihonor\.|professionalTeleRawLogicalCameraID|System ID|cameraId == "[245]"|cameraId = "[245]"' "$CAPTURE"; then
             echo 'Fixed vendor/device lens mapping detected in universal capture adapter' >&2
@@ -90,7 +115,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DRAW_Universal_RAW_SENSOR_Foundation_v0.2_debug_arm64
+          name: DRAW_Universal_Live_View_Macro_v0.3_debug_arm64
           path: |
             suite_android/app/build/outputs/apk/debug/app-debug.apk
             suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256
