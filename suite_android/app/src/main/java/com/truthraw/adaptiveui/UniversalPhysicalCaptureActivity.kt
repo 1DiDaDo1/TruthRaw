@@ -240,12 +240,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         for (logicalId in topLevelBack) {
             val logical = cameraManager.getCameraCharacteristics(logicalId)
+            val logicalRawSizes = rawSizes(logical)
             val physicalCandidates = logical.physicalCameraIds
                 .mapNotNull { physicalId ->
                     val physical = runCatching {
                         cameraManager.getCameraCharacteristics(physicalId)
                     }.getOrNull() ?: return@mapNotNull null
-                    val size = largestRawSize(physical) ?: return@mapNotNull null
+                    val physicalRawSizes = rawSizes(physical)
+                    if (physicalRawSizes.isEmpty()) return@mapNotNull null
+                    val commonRawSizes = physicalRawSizes.filter { physicalSize ->
+                        logicalRawSizes.any { logicalSize ->
+                            logicalSize.width == physicalSize.width &&
+                                logicalSize.height == physicalSize.height
+                        }
+                    }
+                    val size = (commonRawSizes.ifEmpty { physicalRawSizes })
+                        .maxByOrNull { it.width.toLong() * it.height.toLong() }
+                        ?: return@mapNotNull null
                     Candidate(
                         logicalCameraId = logicalId,
                         physicalCameraId = physicalId,
@@ -299,10 +310,14 @@ class UniversalPhysicalCaptureActivity : Activity() {
             )
     }
 
-    private fun largestRawSize(c: CameraCharacteristics): Size? =
+    private fun rawSizes(c: CameraCharacteristics): List<Size> =
         c.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
             ?.getOutputSizes(ImageFormat.RAW_SENSOR)
-            ?.maxByOrNull { it.width.toLong() * it.height.toLong() }
+            ?.toList()
+            .orEmpty()
+
+    private fun largestRawSize(c: CameraCharacteristics): Size? =
+        rawSizes(c).maxByOrNull { it.width.toLong() * it.height.toLong() }
 
     private fun representativeFocalLength(c: CameraCharacteristics): Float? =
         c.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
