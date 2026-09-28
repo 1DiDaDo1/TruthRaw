@@ -613,7 +613,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
-    private fun captureRole(role: LensRole) {
+    private fun openPreviewRole(role: LensRole) {
         val candidate = roleCandidates[role] ?: return
 
         if (
@@ -624,7 +624,14 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 arrayOf(Manifest.permission.CAMERA),
                 REQUEST_CAMERA_PERMISSION,
             )
-            status("Camera-permissie gevraagd. Kies daarna opnieuw ${role.title}.")
+            pendingPreviewRole = role
+            status("Camera-permissie gevraagd. Live view opent daarna voor ${role.title}.")
+            return
+        }
+
+        if (!previewTexture.isAvailable) {
+            pendingPreviewRole = role
+            status("Live-view surface wordt voorbereid voor ${role.title}…")
             return
         }
 
@@ -637,10 +644,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
             activeRole = role
             finalizing = false
         }
+        lastPreviewResult = null
+        lastFocusRegion = null
+        focusLocked = false
+        previewFrameCount = 0L
+        loupeZoom = 1f
+        updateLoupeButtons()
+        updateFocusLockButton()
         setButtonsEnabled(false)
-        status(
-            "${role.title} wordt technisch geopend; RAW_SENSOR wordt eerst byte-exact verzegeld, DNG volgt alleen als afgeleide container.",
-        )
+        shutterButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButtons.values.forEach { it.isEnabled = false }
+        previewTelemetry.text =
+            "LIVE VIEW · ${role.title} wordt geopend · RAW blijft ${candidate.rawSize.width}×${candidate.rawSize.height}."
 
         val reader = ImageReader.newInstance(
             candidate.rawSize.width,
@@ -666,7 +682,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 object : CameraDevice.StateCallback() {
                     override fun onOpened(camera: CameraDevice) {
                         cameraDevice = camera
-                        createSession(camera, candidate, reader)
+                        createPreviewSession(camera, candidate, reader)
                     }
 
                     override fun onDisconnected(camera: CameraDevice) {
@@ -695,18 +711,35 @@ class UniversalPhysicalCaptureActivity : Activity() {
         }
     }
 
-    private fun createSession(
+    private fun createPreviewSession(
         camera: CameraDevice,
         candidate: Candidate,
         reader: ImageReader,
     ) {
-        val output = OutputConfiguration(reader.surface)
+        val texture = previewTexture.surfaceTexture
+            ?: run {
+                statusFromAnyThread("Live-view surface ontbreekt.")
+                runOnUiThread { restoreRoleButtons() }
+                closeCaptureResources()
+                return
+            }
+
+        texture.setDefaultBufferSize(
+            candidate.previewSize.width,
+            candidate.previewSize.height,
+        )
+        val surface = Surface(texture)
+        previewSurface = surface
+
+        val previewOutput = OutputConfiguration(surface)
+        val rawOutput = OutputConfiguration(reader.surface)
         candidate.physicalCameraId?.let { physicalId ->
             try {
-                output.setPhysicalCameraId(physicalId)
+                previewOutput.setPhysicalCameraId(physicalId)
+                rawOutput.setPhysicalCameraId(physicalId)
             } catch (error: Exception) {
                 statusFromAnyThread(
-                    "Physical RAW-output kon niet worden gebonden: " +
+                    "Physical preview/RAW-output kon niet worden gebonden: " +
                         (error.message ?: error.javaClass.simpleName),
                 )
                 runOnUiThread { restoreRoleButtons() }
@@ -717,17 +750,19 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
         val config = SessionConfiguration(
             SessionConfiguration.SESSION_REGULAR,
-            listOf(output),
+            listOf(previewOutput, rawOutput),
             mainExecutor,
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     cameraSession = session
-                    submitCapture(camera, session, candidate, reader)
+                    startPreviewRepeating(camera, session, candidate, surface)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    status("RAW capture-session kon niet worden geconfigureerd.")
-                    restoreRoleButtons()
+                    statusFromAnyThread(
+                        "Preview + RAW session kon niet worden geconfigureerd.",
+                    )
+                    runOnUiThread { restoreRoleButtons() }
                     closeCaptureResources()
                 }
             },
@@ -737,12 +772,129 @@ class UniversalPhysicalCaptureActivity : Activity() {
             camera.createCaptureSession(config)
         } catch (error: Exception) {
             statusFromAnyThread(
-                "Capture-session faalde: " +
+                "Preview-session faalde: " +
                     (error.message ?: error.javaClass.simpleName),
             )
             runOnUiThread { restoreRoleButtons() }
             closeCaptureResources()
         }
+    }
+
+    private fun startPreviewRepeating(
+        camera: CameraDevice,
+        session: CameraCaptureSession,
+        candidate: Candidate,
+        surface: Surface,
+    ) {
+        val characteristics = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrElse {
+            statusFromAnyThread("Preview characteristics konden niet worden gelezen.")
+            closeCaptureResources()
+            return
+        }
+
+        try {
+            val builder =
+                camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                    addTarget(surface)
+                    set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                    set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+                    applyDefaultAfMode(this, characteristics)
+                }
+            previewRequestBuilder = builder
+            session.setRepeatingRequest(
+                builder.build(),
+                previewCaptureCallback(candidate),
+                cameraHandler,
+            )
+            runOnUiThread {
+                configurePreviewTransform(candidate)
+                restoreRoleButtons()
+                shutterButton.isEnabled = true
+                focusLockButton.isEnabled = supportsAutoFocus(characteristics)
+                loupeButtons.values.forEach { it.isEnabled = true }
+                status(
+                    "${activeRole?.title ?: "RAW"} live view actief · tik om te focussen · " +
+                        "macro-loep verandert alleen de viewfinder.",
+                )
+            }
+        } catch (error: Exception) {
+            statusFromAnyThread(
+                "Repeating preview faalde: " +
+                    (error.message ?: error.javaClass.simpleName),
+            )
+            runOnUiThread { restoreRoleButtons() }
+            closeCaptureResources()
+        }
+    }
+
+    private fun previewCaptureCallback(
+        candidate: Candidate,
+    ): CameraCaptureSession.CaptureCallback =
+        object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult,
+            ) {
+                lastPreviewResult = result
+                previewFrameCount += 1
+                if (previewFrameCount == 1L || previewFrameCount % 10L == 0L) {
+                    val effective = effectiveCaptureResult(candidate, result) ?: result
+                    val afState = effective.get(CaptureResult.CONTROL_AF_STATE)
+                    val aeState = effective.get(CaptureResult.CONTROL_AE_STATE)
+                    val focus = effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                    val iso = effective.get(CaptureResult.SENSOR_SENSITIVITY)
+                    val exposure = effective.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                    runOnUiThread {
+                        previewTelemetry.text = buildString {
+                            append("LIVE · ")
+                            append(activeRole?.title ?: "RAW")
+                            append(" · loep=")
+                            append(loupeZoom.toInt())
+                            append("× · AF=")
+                            append(afState ?: "?")
+                            append(if (focusLocked) " LOCK" else "")
+                            append("\nfocus=")
+                            append(focus?.let { String.format("%.3f D", it) } ?: "?")
+                            append(" · ISO=")
+                            append(iso ?: "?")
+                            append(" · t=")
+                            append(
+                                exposure?.let {
+                                    String.format("%.3f ms", it / 1_000_000.0)
+                                } ?: "?",
+                            )
+                            append(" · AE=")
+                            append(aeState ?: "?")
+                        }
+                    }
+                }
+            }
+        }
+
+    private fun captureCurrentPreview() {
+        val camera = cameraDevice ?: run {
+            status("Geen live camera actief.")
+            return
+        }
+        val session = cameraSession ?: run {
+            status("Geen preview-session actief.")
+            return
+        }
+        val candidate = activeCandidate ?: return
+        val reader = imageReader ?: return
+
+        synchronized(pairLock) {
+            pendingImage?.close()
+            pendingImage = null
+            pendingResult = null
+            finalizing = false
+        }
+        shutterButton.isEnabled = false
+        setButtonsEnabled(false)
+        submitCapture(camera, session, candidate, reader)
     }
 
     private fun submitCapture(
