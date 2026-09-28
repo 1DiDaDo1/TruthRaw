@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.ImageFormat
+import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -15,6 +17,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.DngCreator
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
@@ -24,9 +27,12 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import android.view.Gravity
+import android.view.Surface
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -70,6 +76,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         val logicalCameraId: String,
         val physicalCameraId: String?,
         val rawSize: Size,
+        val previewSize: Size?,
         val focalLengthMm: Float?,
         val effectiveCameraId: String,
         val discovery: String,
@@ -93,6 +100,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private lateinit var cameraManager: CameraManager
     private lateinit var statusView: TextView
     private lateinit var detailView: TextView
+    private lateinit var previewView: TextureView
+    private lateinit var previewStatusView: TextView
+    private lateinit var captureButton: Button
+    private lateinit var focusButton: Button
     private lateinit var ultraButton: Button
     private lateinit var wideButton: Button
     private lateinit var teleButton: Button
@@ -106,6 +117,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var imageReader: ImageReader? = null
+    private var previewSurface: Surface? = null
+    private var previewRequestBuilder: CaptureRequest.Builder? = null
+    private var previewFrames: Long = 0
+    private var loupeFactor = 1f
 
     private val pairLock = Any()
     private var pendingImage: Image? = null
@@ -161,14 +176,81 @@ class UniversalPhysicalCaptureActivity : Activity() {
         )
         root.addView(space(12))
 
+        previewView = TextureView(this).apply {
+            setBackgroundColor(Color.BLACK)
+        }
+        val previewFrame = FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            clipChildren = true
+            addView(
+                previewView,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                ),
+            )
+        }
+        root.addView(
+            previewFrame,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(340),
+            ),
+        )
+        root.addView(space(6))
+        previewStatusView = text(
+            "Live view · kies eerst een RAW-camera.",
+            10.5f,
+            false,
+            DrawVisualTheme.MUTED,
+        )
+        root.addView(previewStatusView)
+        root.addView(space(6))
+
+        val loupeRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            listOf(1, 2, 4, 8).forEach { factor ->
+                addView(
+                    button("${factor}×") { setPreviewLoupe(factor.toFloat()) },
+                    LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f,
+                    ),
+                )
+            }
+        }
+        root.addView(loupeRow)
+        root.addView(
+            text(
+                "Macro-loep is PRESENTATION_ONLY: vergroot alleen live view; RAW_SENSOR-crop, resolutie en bewijs blijven ongewijzigd.",
+                9.5f,
+                false,
+                DrawVisualTheme.MUTED,
+            ),
+        )
+        root.addView(space(7))
+
+        focusButton = button("AF midden · scherpstellen") {
+            triggerCenterAutofocus()
+        }.apply { isEnabled = false }
+        captureButton = button("Maak RAW_SENSOR") {
+            captureSelectedRole()
+        }.apply { isEnabled = false }
+        root.addView(focusButton)
+        root.addView(space(7))
+        root.addView(captureButton)
+        root.addView(space(12))
+
         ultraButton = button("Ultra-wide · zoeken…") {
-            captureRole(LensRole.ULTRA_WIDE)
+            openRolePreview(LensRole.ULTRA_WIDE)
         }.apply { isEnabled = false }
         wideButton = button("Wide / main · zoeken…") {
-            captureRole(LensRole.WIDE_MAIN)
+            openRolePreview(LensRole.WIDE_MAIN)
         }.apply { isEnabled = false }
         teleButton = button("Tele · zoeken…") {
-            captureRole(LensRole.TELE)
+            openRolePreview(LensRole.TELE)
         }.apply { isEnabled = false }
 
         root.addView(ultraButton)
