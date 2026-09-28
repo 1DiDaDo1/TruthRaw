@@ -27,10 +27,16 @@ required_audit = [
 for needle in required_audit:
     assert needle in audit, f"missing Dark Chroma invariant: {needle}"
 
-assert '"D.RAW/FrontsideSceneInspection/0.3"' in front
+assert (
+    '"D.RAW/FrontsideSceneInspection/0.3"' in front
+    or '"D.RAW/FrontsideSceneInspection/0.4"' in front
+), "v0.1 must remain wired into a compatible FrontsideSceneInspection successor"
 assert "DarkChromaStabilityAudit.analyze(bitmap, sourceSha256)" in front
 assert '"dark_chroma_stability_v0_1"' in front
-assert '"STRUCTURAL_VISION_V0_3"' in front
+assert (
+    '"STRUCTURAL_VISION_V0_3"' in front
+    or '"STRUCTURAL_VISION_V0_4"' in front
+), "v0.1 must remain present under the versioned structural-vision successor"
 
 assert "Dark Chroma Stability v0.1 · AUDIT ONLY" in main
 assert "otherLenses=" in main
