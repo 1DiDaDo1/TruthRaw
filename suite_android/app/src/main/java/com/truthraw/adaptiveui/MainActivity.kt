@@ -3204,6 +3204,32 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
+                val bits = raster.opt("bits_per_sample")?.toString() ?: "?"
+                val compression = raster.opt("compression")?.toString() ?: "?"
+                val sampleFormat = raster.opt("sample_format")?.toString() ?: "?"
+                val spp = raster.opt("samples_per_pixel")?.toString() ?: "?"
+                val storageKind = raster.optString("storage_kind", "UNKNOWN")
+                val cfa = raster.opt("cfa_pattern")?.toString() ?: "?"
+                val opcodeList2 = raster.optBoolean("opcode_list_2_present", false)
+                val black = raster.opt("black_level")?.toString() ?: "?"
+                val white = raster.opt("white_level")?.toString() ?: "?"
+                addView(label(
+                    "RAW-opslag · bits=" + bits +
+                        " · compression=" + compression +
+                        " · sampleFormat=" + sampleFormat +
+                        " · spp=" + spp +
+                        " · storage=" + storageKind +
+                        " · CFA=" + cfa +
+                        " · OpcodeList2=" + opcodeList2,
+                    10f,
+                    muted = true,
+                ))
+                addView(label(
+                    "RAW-niveaus · black=" + black + " · white=" + white,
+                    10f,
+                    muted = true,
+                ))
+
                 if (scene.optBoolean("decoded_preview_used", false)) {
                     val aw = scene.optInt("analysis_width", 0)
                     val ah = scene.optInt("analysis_height", 0)
