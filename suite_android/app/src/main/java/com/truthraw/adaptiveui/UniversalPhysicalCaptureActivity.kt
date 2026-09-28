@@ -1048,14 +1048,6 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 "Macro-loep · " +
                     String.format(Locale.ROOT, "%.1f×", macroLoupeScale)
         }
-        if (::previewTelemetry.isInitialized && lastPreviewResult != null) {
-            previewTelemetry.text =
-                previewTelemetry.text.toString()
-                    .substringBefore(" · loep=") +
-                    " · loep=" +
-                    String.format(Locale.ROOT, "%.1f×", macroLoupeScale) +
-                    " · display-only"
-        }
     }
 
     private fun toggleFocusLock() {
@@ -1649,7 +1641,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
             }
 
         return JSONObject()
-            .put("schema", "D.RAW/UniversalPhysicalCapture/0.2")
+            .put("schema", "D.RAW/UniversalPhysicalCapture/0.3")
             .put("created_at_utc", Instant.now().toString())
             .put("authority", "ACQUISITION_PROVENANCE_ONLY")
             .put("transport_backend", "ANDROID_CAMERA2")
@@ -1709,6 +1701,32 @@ class UniversalPhysicalCaptureActivity : Activity() {
                     .put("requested_format", "RAW_SENSOR")
                     .put("requested_width", candidate.rawSize.width)
                     .put("requested_height", candidate.rawSize.height),
+            )
+            .put(
+                "preview_focus_assist",
+                JSONObject()
+                    .put(
+                        "authority",
+                        "PRESENTATION_AND_ACQUISITION_ASSIST_ONLY",
+                    )
+                    .put("preview_creates_evidence", false)
+                    .put("display_loupe_scale", macroLoupeScale.toDouble())
+                    .put("display_loupe_modifies_raw_capture", false)
+                    .put("capture_zoom_ratio_written", false)
+                    .put("capture_crop_region_written", false)
+                    .put("tap_to_focus_available", true)
+                    .put("focus_lock_requested", focusLocked)
+                    .put(
+                        "af_region",
+                        currentAfRegion?.rect?.let { rect ->
+                            JSONObject()
+                                .put("left", rect.left)
+                                .put("top", rect.top)
+                                .put("right", rect.right)
+                                .put("bottom", rect.bottom)
+                        } ?: JSONObject.NULL,
+                    )
+                    .put("uses_ai_or_learned_model", false),
             )
             .put(
                 "capture_result_provenance",
