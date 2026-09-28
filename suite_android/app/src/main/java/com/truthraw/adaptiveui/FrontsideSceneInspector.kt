@@ -39,12 +39,16 @@ object FrontsideSceneInspector {
 
         if (decoded == null) {
             return JSONObject()
-                .put("schema", "D.RAW/FrontsideSceneInspection/0.2")
+                .put("schema", "D.RAW/FrontsideSceneInspection/0.3")
                 .put("status", "FRONTSIDE_PREVIEW_UNAVAILABLE")
                 .put("source_sha256", sourceSha256)
                 .put("authority", "APPEARANCE_DERIVED_ONLY")
                 .put("decoded_preview_used", false)
                 .put("natural_feature_geometry_candidate", false)
+                .put(
+                    "dark_chroma_stability_v0_1",
+                    DarkChromaStabilityAudit.unavailable(sourceSha256),
+                )
                 .put(
                     "semantic_scene_understanding",
                     JSONObject()
@@ -56,6 +60,8 @@ object FrontsideSceneInspector {
         }
 
         val bitmap = scaleForAnalysis(decoded.bitmap)
+        val darkChromaStability =
+            DarkChromaStabilityAudit.analyze(bitmap, sourceSha256)
         val width = bitmap.width
         val height = bitmap.height
         val n = width * height
@@ -222,7 +228,7 @@ object FrontsideSceneInspector {
         }
 
         return JSONObject()
-            .put("schema", "D.RAW/FrontsideSceneInspection/0.2")
+            .put("schema", "D.RAW/FrontsideSceneInspection/0.3")
             .put("status", "FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE")
             .put("source_sha256", sourceSha256)
             .put("authority", "APPEARANCE_DERIVED_ONLY")
@@ -282,6 +288,12 @@ object FrontsideSceneInspector {
             .put("dominant_edge_orientation_degrees", dominantAngleDeg)
             .put("edge_orientation_histogram", edgeOrientationJson)
             .put("structural_feature_signature_sha256", signature)
+            .put("dark_chroma_stability_v0_1", darkChromaStability)
+            .put(
+                "single_observation_frontside_contract",
+                darkChromaStability.optJSONObject("single_observation_contract")
+                    ?: JSONObject(),
+            )
             .put(
                 "geometry_readiness",
                 JSONObject()
@@ -300,10 +312,10 @@ object FrontsideSceneInspector {
             .put(
                 "semantic_scene_understanding",
                 JSONObject()
-                    .put("level", "STRUCTURAL_VISION_V0_2")
+                    .put("level", "STRUCTURAL_VISION_V0_3")
                     .put(
                         "description",
-                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Higher-level deterministic object/material/geometry/scene analysis may be added only through inspectable non-AI algorithms.",
+                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Dark Chroma Stability v0.1 adds audit-only same-observation structure/chroma/noise-like constraints. Higher-level deterministic analysis may be added only through inspectable non-AI algorithms.",
                     )
                     .put("future_classical_vision_extension_allowed", true),
             )
