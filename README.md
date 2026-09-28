@@ -10,6 +10,10 @@
 >
 > Full-suite Universal Intake was merged in PR #74 at `434f42888b0b289a064b5972c9f10a82739bbb68`.
 >
+> Universal Physical Capture was merged in PR #76 at `1fa3850e4ec0c58f7dc294acd011721465041ea9`: the normal Camera entry dynamically discovers ultra-wide, wide/main and tele RAW routes, seals one DNG and hands it to the same Universal Intake as an imported RAW. Camera2 remains transport/provenance only; fixed device maps/vendor requests are not scientific truth.
+>
+> The existing special Camera-5 4K→200MP route remains separate and preserved.
+>
 > **Input is two-sided from the door:** read the immutable technical/source **back side** and inspect the visible photographic **front side** in parallel. Frontside knowledge is deterministic and `APPEARANCE_DERIVED_ONLY`; it creates no sensor evidence and has no scientific writeback.
 >
 > **Permanent no-AI rule:** D.RAW uses no AI/ML/neural/generative/learned runtime or inference. Classical deterministic image processing, geometry, photogrammetry, calibration, optics, colorimetry and numerical optimization remain allowed.
