@@ -3221,6 +3221,14 @@ class MainActivity : Activity() {
                     scene.optJSONObject("dark_chroma_stability_v0_4") ?: JSONObject()
                 val darkChromaV04Global =
                     darkChromaV04.optJSONObject("global") ?: JSONObject()
+                val n2StructureSupport =
+                    profile.optJSONObject("n2_structure_support_binding") ?: JSONObject()
+                val n2StructureGlobal =
+                    n2StructureSupport.optJSONObject("global") ?: JSONObject()
+                val darkChromaV05 =
+                    scene.optJSONObject("dark_chroma_stability_v0_5") ?: JSONObject()
+                val darkChromaV05Global =
+                    darkChromaV05.optJSONObject("global") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3613,6 +3621,154 @@ class MainActivity : Activity() {
                         "v0.4 wet: lokale N2-binding mag DARK_UNINFORMATIVE nooit overrulen. " +
                             "Factored N2-assen blijven vector-valued diagnostiek en zijn geen kansscore. " +
                             "Private chroma A/B/Δ blijft uit tot deze binding op echte toesteldata is gevalideerd.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (n2StructureSupport.optString("status")) {
+                    "AUDIT_ONLY_FINE_BINDING_AVAILABLE" -> {
+                        val overlapFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_overlap_structure_fraction",
+                                Double.NaN,
+                            )
+                        val interiorFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_interior_structure_fraction",
+                                Double.NaN,
+                            )
+                        val maxFineFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_max_fine_tile_structure_fraction",
+                                Double.NaN,
+                            )
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · FINE 32×32 SOURCE GRID · visible=" +
+                                n2StructureGlobal.optLong("visible_candidate_tiles", 0L) +
+                                " · fine-bound=" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_bound_tiles",
+                                    0L,
+                                ) +
+                                " · overlap-structure=" +
+                                (if (overlapFraction.isFinite()) {
+                                    "%.4f".format(overlapFraction)
+                                } else {
+                                    "?"
+                                }) +
+                                " · interior-structure=" +
+                                (if (interiorFraction.isFinite()) {
+                                    "%.4f".format(interiorFraction)
+                                } else {
+                                    "?"
+                                }) +
+                                " · fine tiles structure/free=" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_fine_tiles_with_structure",
+                                    0L,
+                                ) + "/" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_fine_tiles_without_structure",
+                                    0L,
+                                ) +
+                                " · max-fine=" +
+                                (if (maxFineFraction.isFinite()) {
+                                    "%.4f".format(maxFineFraction)
+                                } else {
+                                    "?"
+                                }),
+                            10f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Zelfde N2 structure-preservation gate en period=8 sample-grid, " +
+                                "maar gerapporteerd op 32×32 bron-tiles. Alleen gemeten sample-support: " +
+                                "onbemeten pixels worden niet ingevuld. Deze laag mag bescherming niet verminderen " +
+                                "en kan geen correctie inschakelen.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · niet nodig voor deze bronstate · reason=" +
+                                n2StructureSupport.optString("reason", "UNKNOWN") +
+                                ". Geen extra fine audit uitgevoerd.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · UNKNOWN/fail-closed · reason=" +
+                                n2StructureSupport.optString("reason", "niet beschikbaar") +
+                                ". Geen fijnere structure-claim zonder bewezen source-binding.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                if (
+                    darkChromaV05.optString("status") ==
+                    "AUDIT_ONLY_STRUCTURE_REFINEMENT_AVAILABLE"
+                ) {
+                    val overlapFraction =
+                        darkChromaV05Global.optDouble(
+                            "visible_candidate_overlap_structure_fraction",
+                            Double.NaN,
+                        )
+                    val interiorFraction =
+                        darkChromaV05Global.optDouble(
+                            "visible_candidate_interior_structure_fraction",
+                            Double.NaN,
+                        )
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.5 · STRUCTURE RESOLUTION REFINEMENT · visible=" +
+                            darkChromaV05Global.optLong("visible_candidate_tiles", 0L) +
+                            " · fine-bound=" +
+                            darkChromaV05Global.optLong(
+                                "fine_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · legacy-v0.4-blocked=" +
+                            darkChromaV05Global.optLong(
+                                "legacy_coarse_protection_blocked_visible_tiles",
+                                0L,
+                            ) +
+                            " · zero-interior-structure=" +
+                            darkChromaV05Global.optLong(
+                                "fine_zero_interior_structure_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · overlap/interior=" +
+                            (if (overlapFraction.isFinite()) {
+                                "%.4f".format(overlapFraction)
+                            } else {
+                                "?"
+                            }) + "/" +
+                            (if (interiorFraction.isFinite()) {
+                                "%.4f".format(interiorFraction)
+                            } else {
+                                "?"
+                            }) +
+                            " · correction-supported=" +
+                            darkChromaV05Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.5 verandert het v0.4-veto nog niet. Het meet alleen hoe dicht structure-protection " +
+                            "werkelijk binnen/om de selectieve frontside-regio ligt. Geen kansscore, geen verborgen " +
+                            "kleur, geen private A/B/Δ en geen Scientific-Master-writeback.",
                         10f,
                         muted = true,
                     ))
