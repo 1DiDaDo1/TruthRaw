@@ -172,6 +172,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
         discoverUniversalRoutes()
     }
 
+    override fun onPause() {
+        closeCaptureResources()
+        super.onPause()
+    }
+
     override fun onDestroy() {
         closeCaptureResources()
         synchronized(pairLock) {
@@ -1856,12 +1861,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun closeCaptureResources() {
+        runCatching { cameraSession?.stopRepeating() }
         runCatching { cameraSession?.close() }
         runCatching { cameraDevice?.close() }
         runCatching { imageReader?.close() }
+        runCatching { previewSurface?.release() }
         cameraSession = null
         cameraDevice = null
         imageReader = null
+        previewSurface = null
+        previewRequestBuilder = null
+        previewBufferSize = null
+        lastPreviewResult = null
+        previewFrames = 0
+        focusLocked = false
+        currentAfRegion = null
+        activeCandidate = null
+        activeRole = null
     }
 
     private fun sha256(file: File): String {
@@ -1890,16 +1906,23 @@ class UniversalPhysicalCaptureActivity : Activity() {
             grantResults,
         )
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            status(
-                if (
-                    grantResults.firstOrNull() ==
+            val granted =
+                grantResults.firstOrNull() ==
                     PackageManager.PERMISSION_GRANTED
-                ) {
-                    "Camera-permissie toegestaan. Kies nu opnieuw een lensrol."
-                } else {
-                    "Camera-permissie geweigerd; fysieke capture blijft geblokkeerd."
-                },
-            )
+            if (!granted) {
+                pendingPreviewRole = null
+                status("Camera-permissie geweigerd; fysieke capture blijft geblokkeerd.")
+                return
+            }
+
+            val role = pendingPreviewRole
+            pendingPreviewRole = null
+            if (role != null) {
+                status("Camera-permissie toegestaan · ${role.title} live view wordt geopend.")
+                previewView.post { openPreviewRole(role) }
+            } else {
+                status("Camera-permissie toegestaan. Kies een lensrol voor live view.")
+            }
         }
     }
 
