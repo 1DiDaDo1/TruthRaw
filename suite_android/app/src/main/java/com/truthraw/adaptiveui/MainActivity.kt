@@ -3136,7 +3136,7 @@ class MainActivity : Activity() {
 
         Thread({
             val result = runCatching {
-                UniversalSourceProfiler.profile(contentResolver, job.source)
+                UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)
             }
             runOnUiThread {
                 universalProfileLoading.remove(jobId)
