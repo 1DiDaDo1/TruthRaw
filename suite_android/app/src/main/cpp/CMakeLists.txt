@@ -66,6 +66,7 @@ set(TRUTHNEGATIVE_N2_SPATIAL_V01 "${RESEARCH_ROOT}/truthnegative-n2-spatial-side
 set(TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01 "${RESEARCH_ROOT}/truthnegative-n2-structure-support-field-v0.1/native")
 set(TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01 "${RESEARCH_ROOT}/truthnegative-n2-sample-support-distance-v0.1/native")
 set(ANCHOR_CONSTRAINED_LOCAL_RECON_V01 "${RESEARCH_ROOT}/anchor-constrained-local-reconstruction-v0.1/native")
+set(UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V01 "${RESEARCH_ROOT}/universal-local-model-bank-holdout-v0.1/native")
 set(TRUTHNEGATIVE_N2_FULL_COLOUR_V01 "${RESEARCH_ROOT}/truthnegative-n2-full-colour-candidate-v0.1/native")
 set(TRUTHNEGATIVE_N2_RISK_QUALITY_V01 "${RESEARCH_ROOT}/truthnegative-n2-risk-quality-audit-v0.1/native")
 set(TRUTHNEGATIVE_ROUNDTRIP_V06 "${RESEARCH_ROOT}/truthnegative-roundtrip-oracle-v0.6/native")
@@ -86,6 +87,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     truthnegative_n2_structure_support_bridge.cpp
     truthnegative_n2_support_distance_bridge.cpp
     anchor_constrained_local_reconstruction_bridge.cpp
+    universal_local_model_bank_holdout_bridge.cpp
     truthnegative_center_excluded_spatial_bridge.cpp
     truthnegative_n2_confidence_field_bridge.cpp
     truthnegative_n2_factored_confidence_bridge.cpp
@@ -185,6 +187,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}/truthnegative_n2_structure_support_field_v0_1.cpp
     ${TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01}/truthnegative_n2_support_distance_v0_1.cpp
     ${ANCHOR_CONSTRAINED_LOCAL_RECON_V01}/anchor_constrained_local_reconstruction_v0_1.cpp
+    ${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V01}/universal_local_model_bank_holdout_v0_1.cpp
     ${TRUTHNEGATIVE_N2_FULL_COLOUR_V01}/truthnegative_n2_full_colour_candidate_v0_1.cpp
     ${TRUTHNEGATIVE_N2_RISK_QUALITY_V01}/truthnegative_n2_risk_quality_audit_v0_1.cpp
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}/truthnegative_roundtrip_oracle_v0_6.cpp
@@ -248,6 +251,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}
     ${TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01}
     ${ANCHOR_CONSTRAINED_LOCAL_RECON_V01}
+    ${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V01}
     ${TRUTHNEGATIVE_N2_FULL_COLOUR_V01}
     ${TRUTHNEGATIVE_N2_RISK_QUALITY_V01}
     ${TRUTHNEGATIVE_ROUNDTRIP_V06}

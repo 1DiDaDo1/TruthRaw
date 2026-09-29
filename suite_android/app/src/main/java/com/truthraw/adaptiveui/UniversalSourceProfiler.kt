@@ -424,6 +424,14 @@ object UniversalSourceProfiler {
                 latticeGeometry = n2SampleLatticeGeometry,
             )
 
+        val universalLocalModelBankHoldout =
+            UniversalLocalModelBankHoldoutV01.describe(
+                sourceSha256 = sourceSha256,
+                nativeDngReady = nativeDngReady,
+                sampleLattice = sampleLattice,
+                prospectivePolicy = universalObservationModelSelection,
+            )
+
         val anchorConstrainedReconstruction =
             when {
                 fineStructureNeeded &&
@@ -519,6 +527,10 @@ object UniversalSourceProfiler {
             .put(
                 "universal_observation_model_selection",
                 universalObservationModelSelection,
+            )
+            .put(
+                "universal_local_model_bank_holdout",
+                universalLocalModelBankHoldout,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())

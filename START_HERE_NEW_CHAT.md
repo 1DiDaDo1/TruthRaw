@@ -1,3 +1,61 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v01-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json`
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+6. `docs/research/universal-observation-model-selection-v0.1/README.md`
+7. PR #90 real-device result remains negative evidence for universal affine promotion.
+
+
+PR #92 first independent device result is now available on capture
+`DRAW_CAPTURE_1790703829897_tele_4080x3072`:
+
+- 11,844 full-resolution real CFA hold-outs, exactly 2,961 per CFA phase;
+- selected model valid on 11,844/11,844; baseline valid on 11,667/11,844;
+- directly comparable MAE: selected ≈ 0.02082264 vs baseline ≈ 0.02143966;
+- directly comparable RMSE: selected ≈ 0.02706725 vs baseline ≈ 0.02784103;
+- wins selected/baseline = 6,227 / 5,440;
+- selected bias ≈ -0.00032525 vs baseline ≈ -0.00315449;
+- post-reveal oracle MAE ≈ 0.01833255; mean selector regret ≈ 0.00247127;
+- directional-line and affine-plane center estimates were exactly identical on all 11,844 hold-outs under the current symmetric 80-sample support, revealing a model-bank redundancy;
+- all target-leakage/lens/camera/vendor/writeback safety flags stayed false;
+- no promotion/writeback is allowed from this result.
+
+Review-package limitation: all JSON sidecars share the same source/scientific/TruthNegative hashes, but the original sealed source RAW/DNG bytes were not included in the uploaded ZIP, so external byte-level source-SHA reverification remains pending.
+
+New in this successor:
+
+- original source resolution is used as full-resolution MEASURED support for CFA values, phase, detail/structure, geometry, censor paths and hold-out validation — not only noise;
+- audit scope is a deterministic stratified set of real CFA anchors across the full source raster, not only Dark-Chroma regions;
+- Dark-Chroma/N2 candidate state and the PR #91 query-policy are optional context, **not admission gates** for this full-resolution audit;
+- the existing 20-bit fixed-point sample lattice remains the free scientific coordinate domain;
+- model bank: robust median constant, directional line, affine plane, quadratic surface, NO_RECONSTRUCTION;
+- model selection is frozen before target reveal;
+- target value, target error and post-reveal oracle are forbidden selector inputs;
+- the post-reveal oracle exists only to measure selector regret;
+- model selection does not require NoiseProfile; the legacy baseline is simply unavailable where its own variance contract cannot be satisfied;
+- no lens calibration, camera model, physical Camera2 ID or vendor map is a model-selection dependency;
+- no model output is applied to Scientific Master/D.RAWnegative;
+- new independent real-device RAW is required for scientific validation.
+
+APK test export:
+
+`Export Universal Local Model Bank Holdout v0.1 · JSON`
+
+Permanent laws remain:
+
+> The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
+
+> A new raster may refine the measurement space without replacing the measurement history.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — 2026-09-29
 
 **Current stacked research successor:** `research/universal-observation-model-selection-v01-2026-09-29`

@@ -1,0 +1,136 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutRealDeviceResult/0.1",
+  "date": "2026-09-29",
+  "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+  "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+  "code_checkpoint": "bb8d5c5500a4b25ddde4c3eb52deebfdfdbc5954",
+  "source_sha256": "e3355b97c37f588fa6ab47a5dd358bf7b4fc43a14078dea9bc4230f8338b2567",
+  "scientific_master_sha256": "7a9236d9622d2df5446f67c3175f1f4505d23e7e50547c356693421f192688fd",
+  "truthnegative_state_sha256": "503d3bb03bee29ad4d43e60870bc12eaff4972d00482d6d74f734b6f096481e1",
+  "input_package": {
+    "filename": "DRAWtelePR92_Universal_ Local_M_B_H dout_v0.1.zip",
+    "original_sealed_source_in_package": false,
+    "universal_observation_model_selection_sidecar_in_package": false,
+    "model_bank_holdout_sidecar_in_package": true,
+    "source_binding_consistent_across_all_json_sidecars": true,
+    "note": "Numeric device result is analyzable; external source-SHA byte reverification remains pending until the original sealed RAW/DNG is supplied."
+  },
+  "audit": {
+    "source_width": 4080,
+    "source_height": 3072,
+    "holdout_scope": "STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS",
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "holdouts": 11844,
+    "target_censored_skipped": 0,
+    "selected_valid": 11844,
+    "baseline_valid": 11667,
+    "directly_comparable": 11667,
+    "no_model_selected": 0,
+    "holdout_cfa_phase": [
+      2961,
+      2961,
+      2961,
+      2961
+    ],
+    "selected_cfa_phase": [
+      2961,
+      2961,
+      2961,
+      2961
+    ],
+    "support_samples_per_holdout": {
+      "min": 80,
+      "max": 80,
+      "mean": 80
+    }
+  },
+  "directly_comparable_metrics": {
+    "selected_mae": 0.020822638090543244,
+    "baseline_mae": 0.02143966413691943,
+    "mae_relative_reduction": 0.028779650764848456,
+    "selected_rmse": 0.027067246840533448,
+    "baseline_rmse": 0.027841030278610793,
+    "rmse_relative_reduction": 0.027792916797041586,
+    "selected_bias": -0.0003252465789983713,
+    "baseline_bias": -0.0031544929816214105,
+    "selected_lower_abs_error": 6227,
+    "baseline_lower_abs_error": 5440,
+    "ties": 0,
+    "selected_win_fraction": 0.5337276077826347,
+    "mean_paired_abs_error_delta_selected_minus_baseline": -0.0006170260463761892
+  },
+  "spatial_robustness": {
+    "block_definition": "512x512 source-coordinate macro blocks over directly comparable holdouts",
+    "blocks": 48,
+    "blocks_with_lower_selected_mean_abs_error": 41,
+    "fraction_blocks_improved": 0.8541666666666666,
+    "block_bootstrap_95pct_mean_delta_abs_error": [
+      -0.00077483,
+      -0.00047107
+    ],
+    "caution": "Spatial holdouts are correlated; this block bootstrap is descriptive, not a promotion criterion."
+  },
+  "selector": {
+    "selected_distribution": {
+      "ROBUST_MEDIAN_CONSTANT": 8254,
+      "DIRECTIONAL_LINE": 3056,
+      "AFFINE_PLANE": 82,
+      "QUADRATIC_SURFACE": 452
+    },
+    "oracle_distribution": {
+      "ROBUST_MEDIAN_CONSTANT": 3721,
+      "DIRECTIONAL_LINE": 3222,
+      "QUADRATIC_SURFACE": 4901,
+      "AFFINE_PLANE": 0
+    },
+    "selected_matches_post_reveal_oracle_fraction": 0.31458966565349544,
+    "selected_mae_all": 0.02080381624308747,
+    "oracle_mae_all": 0.018332546166425698,
+    "mean_selector_regret_abs_error": 0.002471270076658392,
+    "median_selector_regret_abs_error": 0.0012671753285,
+    "p95_selector_regret_abs_error": 0.009005384158100002,
+    "max_selector_regret_abs_error": 0.0438344348,
+    "interpretation": "The candidate bank has meaningful capacity beyond the current selector; selector quality is now the main research bottleneck."
+  },
+  "structural_finding": {
+    "directional_and_affine_estimates_bit_identical_for_all_holdouts": true,
+    "affected_holdouts": 11844,
+    "reason": "With the current symmetric 80-sample same-phase support and unweighted least squares evaluated at the exact center, the directional-line and affine-plane intercepts both collapse to the same sample mean. Their residual/selection scores differ, but their center prediction does not.",
+    "implication": "Current directional candidate is not yet a distinct directional predictor for source-anchor center reconstruction. A successor should use direction-conditioned support/weights or asymmetric evidence geometry while remaining target-blind."
+  },
+  "safety": {
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "lens_calibration_used": false,
+    "camera_model_used": false,
+    "vendor_mapping_used": false,
+    "noise_profile_required_for_selection": false,
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "conclusion": {
+    "result": "POSITIVE_PREDICTIVE_SIGNAL_NO_PROMOTION",
+    "selected_model_bank_beats_reference_on_this_independent_capture": true,
+    "latent_scene_truth_proven": false,
+    "denoising_proven": false,
+    "optical_resolution_gain_proven": false,
+    "writeback_allowed": false,
+    "next_direction": "OBSERVATION_CONDITIONED_DIRECTIONAL_SUPPORT_AND_SELECTOR_V0_2"
+  },
+  "capture_context": {
+    "physical_lens_context_reported_by_user": "TELE",
+    "lens_context_authority": "TEST_PROVENANCE_ONLY",
+    "lens_identity_used_by_model_selection": false,
+    "lens_specific_calibration_used": false,
+    "result_should_not_be_interpreted_as_tele_specific_model": true
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.1",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+  "status": "REAL_DEVICE_RESULT_AVAILABLE_NO_PROMOTION",
+  "parent": {
+    "pr": 91,
+    "branch": "research/universal-observation-model-selection-v01-2026-09-29",
+    "law": "SOURCE_RASTER_IS_FULL_RESOLUTION_MEASURED_SUPPORT_NOT_WORLD_RESOLUTION_AUTHORITY"
+  },
+  "predecessor_evidence": {
+    "pr": 90,
+    "capture": "DRAW_CAPTURE_1790686814757_tele_4080x3072",
+    "use_for_this_successor": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION",
+    "affine_promoted": false
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "holdout_scope": "STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS",
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "noise_profile_required_for_selection": false,
+    "dark_chroma_dependency_required": false,
+    "prospective_query_policy_required": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_RESIDUAL_BIC_LIKE_COMPLEXITY_SCORE",
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "post_reveal_oracle_is_diagnostic_only": true,
+    "selector_regret_reported": true,
+    "target_value_read_before_selection": false,
+    "target_value_read_after_selector_and_reference_freeze": true,
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false
+  },
+  "reference": {
+    "name": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+    "optional_when_variance_contract_unavailable": true
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "apk": {
+    "export_label": "Export Universal Local Model Bank Holdout v0.1 · JSON",
+    "post_write_sha_verification_required": true,
+    "source_reverification_required": true,
+    "post_export_json_parse_verification_required": true
+  },
+  "next_gate": "DESIGN_VERSIONED_OBSERVATION_CONDITIONED_DIRECTIONAL_SUPPORT_SELECTOR_V0_2_THEN_VALIDATE_ON_NEW_CAPTURE",
+  "validation": {
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "prior_pr90_capture_independent_validation": false,
+    "new_independent_real_device_raw_required": true,
+    "post_result_selector_or_threshold_changes_allowed": false
+  },
+  "real_device_result": {
+    "result_path": "state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json",
+    "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+    "holdouts": 11844,
+    "directly_comparable": 11667,
+    "selected_mae_directly_comparable": 0.020822638090543244,
+    "baseline_mae_directly_comparable": 0.02143966413691943,
+    "selected_rmse_directly_comparable": 0.027067246840533448,
+    "baseline_rmse_directly_comparable": 0.027841030278610793,
+    "selected_wins": 6227,
+    "baseline_wins": 5440,
+    "mean_selector_regret_abs_error": 0.002471270076658392,
+    "directional_affine_predictions_identical": true,
+    "original_source_bytes_in_review_package": false,
+    "external_source_sha_reverification_pending": true,
+    "promotion_allowed": false,
+    "physical_lens_context_reported_by_user": "TELE",
+    "lens_context_authority": "TEST_PROVENANCE_ONLY",
+    "lens_identity_used_by_model_selection": false,
+    "lens_specific_calibration_used": false
+  }
+}
