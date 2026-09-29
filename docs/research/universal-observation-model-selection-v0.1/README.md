@@ -92,6 +92,35 @@ The existing 2026-09-29 tele hold-out was already observed before this policy wa
 
 A new independent capture is required before any conclusion about selector quality.
 
+## Runtime ordering and machine-readable freeze
+
+The Universal Intake computes this policy **before** invoking
+`AnchorConstrainedLocalReconstructionAudit.analyze`.
+
+Therefore the runtime order is:
+
+```text
+sealed observation
+ -> exact source/lattice/support geometry
+ -> Universal Observation Model Selection v0.1
+ -> freeze/export prospective selector sidecar
+ -> anchor hold-out prediction
+ -> reveal measured target
+ -> score hold-out result
+```
+
+The APK exposes:
+
+`Export Universal Observation Model Selection v0.1 · JSON`
+
+That sidecar contains the local evidence regime and eligible model bank, but no
+held-out target value, target variance, solver/baseline residual, MAE/RMSE,
+winner count or z score.
+
+For a future validation capture, preserve/export this selector sidecar before
+interpreting the hold-out outcome. The separately exported hold-out sidecar may
+only be joined to it afterwards by source/query identity.
+
 ## Current deterministic local regimes
 
 The policy classifies each existing lattice/support query into one of:
