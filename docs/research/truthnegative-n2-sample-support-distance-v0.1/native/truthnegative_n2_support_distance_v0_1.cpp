@@ -634,8 +634,6 @@ bool run(
         hash_u64(auditHasher, out.audit.censorBoundaryProtected);
         hash_u64(auditHasher, out.audit.structureProtected);
         hash_u64(auditHasher, out.audit.unknownNoiseProtected);
-        hash_u64(auditHasher, out.audit.nonMeasuredProtected);
-        hash_u64(auditHasher, out.audit.weakRegistrationProtected);
         hash_u64(auditHasher, out.audit.noNeighborhoodProtected);
         hash_u64(auditHasher, out.audit.residualOutlierProtected);
         hash_u64(auditHasher, out.borderProtected);
