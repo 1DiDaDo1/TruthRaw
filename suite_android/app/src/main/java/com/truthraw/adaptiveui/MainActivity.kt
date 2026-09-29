@@ -86,6 +86,9 @@ class MainActivity : Activity() {
     private var pendingObservationOpticalFieldJobId: String? = null
     private var pendingObservationOpticalFieldJson: String? = null
     private var observationOpticalFieldStatus: String? = null
+    private var pendingUniversalCalibrationAtlasJobId: String? = null
+    private var pendingUniversalCalibrationAtlasJson: String? = null
+    private var universalCalibrationAtlasStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1507,6 +1510,69 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalCalibrationAtlasExport(job: RawJob) {
+        if (job.id != activeJobId) return
+
+        val atlas =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_observation_calibration_atlas",
+            )
+        if (atlas?.optString("status") != "OBSERVATION_ATLAS_AVAILABLE") {
+            universalCalibrationAtlasStatus =
+                "Universal Observation & Calibration Atlas v0.1 vereist eerst een Universele Ingang-analyse van de sealed observation."
+            render()
+            return
+        }
+
+        val identity = atlas.optJSONObject("universal_identity_policy")
+        val colour = atlas.optJSONObject("colour_state")
+        val illumination = atlas.optJSONObject("illumination_state")
+        val optical = atlas.optJSONObject("optical_support")
+        if (
+            identity?.optBoolean("camera_identity_required", true) != false ||
+            identity.optBoolean("lens_identity_required", true) ||
+            identity.optBoolean("prior_user_calibration_required", true) ||
+            colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
+            illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
+            optical?.optBoolean("deconvolution_authorized", true) != false ||
+            atlas.optBoolean("source_sample_values_modified", true) ||
+            atlas.optBoolean("source_sample_positions_modified", true) ||
+            atlas.optBoolean("new_measured_samples_created", true) ||
+            atlas.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            universalCalibrationAtlasStatus =
+                "Universal Observation & Calibration Atlas v0.1 export geblokkeerd: universal/read-only safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingUniversalCalibrationAtlasJobId = job.id
+        pendingUniversalCalibrationAtlasJson = atlas.toString(2) + "\n"
+        universalCalibrationAtlasStatus = null
+
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_observation_calibration_atlas_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS,
         )
     }
 
@@ -3206,6 +3272,85 @@ class MainActivity : Activity() {
                     " · correction=false · writeback=false."
             } catch (error: Exception) {
                 "Observation Optical Field Chart v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS) {
+            val expectedJob = pendingUniversalCalibrationAtlasJobId
+            val report = pendingUniversalCalibrationAtlasJson
+            pendingUniversalCalibrationAtlasJobId = null
+            pendingUniversalCalibrationAtlasJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val atlas =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject("universal_observation_calibration_atlas")
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                atlas == null
+            ) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val identity = atlas.optJSONObject("universal_identity_policy")
+            val colour = atlas.optJSONObject("colour_state")
+            val illumination = atlas.optJSONObject("illumination_state")
+            val optical = atlas.optJSONObject("optical_support")
+            if (
+                atlas.optString("status") != "OBSERVATION_ATLAS_AVAILABLE" ||
+                identity?.optBoolean("camera_identity_required", true) != false ||
+                identity.optBoolean("lens_identity_required", true) ||
+                identity.optBoolean("prior_user_calibration_required", true) ||
+                colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
+                illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
+                optical?.optBoolean("deconvolution_authorized", true) != false ||
+                atlas.optBoolean("source_sample_values_modified", true) ||
+                atlas.optBoolean("source_sample_positions_modified", true) ||
+                atlas.optBoolean("new_measured_samples_created", true) ||
+                atlas.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1 geblokkeerd: universal/read-only safety-contract mismatch."
+                render()
+                return
+            }
+
+            universalCalibrationAtlasStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                val front = atlas.optJSONObject("frontside")
+                val back = atlas.optJSONObject("backside")
+                val field = atlas.optJSONObject("field_response")
+                "Universal Observation & Calibration Atlas v0.1 JSON opgeslagen · front=" +
+                    (front?.optString("status") ?: "UNKNOWN") +
+                    " · backside-measured=" +
+                    (back?.optBoolean("measured_signal_available", false) ?: false) +
+                    " · field=" +
+                    (field?.optString("coordinate_chart_status") ?: "UNKNOWN") +
+                    " · camera/lens-identiteit vereist=false · correctie=false · writeback=false."
+            } catch (error: Exception) {
+                "Universal Observation & Calibration Atlas v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -7050,6 +7195,30 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export Universal Observation & Calibration Atlas v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "universal_observation_calibration_atlas",
+                                    )
+                                    ?.optString("status") ==
+                                "OBSERVATION_ATLAS_AVAILABLE",
+                        ) {
+                            launchUniversalCalibrationAtlasExport(active)
+                        })
+                        universalCalibrationAtlasStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Universele observatiekaart van dezelfde sealed bron: voor- en achterkant gekoppeld, " +
+                                "kleur/lichtval/optiek/tijd/restauratie als losse authority-assen. Geen camera- of " +
+                                "lensprofiel vereist; optionele kalibratie is extra evidence en nooit een ingangseis.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -7438,5 +7607,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02 = 4124
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
+        private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
     }
 }
