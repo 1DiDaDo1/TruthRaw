@@ -1534,8 +1534,8 @@ class MainActivity : Activity() {
         val optical = atlas.optJSONObject("optical_support")
         if (
             identity?.optBoolean("camera_identity_required", true) != false ||
-            identity.optBoolean("lens_identity_required", true) ||
-            identity.optBoolean("prior_user_calibration_required", true) ||
+            identity?.optBoolean("lens_identity_required", true) ?: true ||
+            identity?.optBoolean("prior_user_calibration_required", true) ?: true ||
             colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
             illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
             optical?.optBoolean("deconvolution_authorized", true) != false ||
@@ -3314,8 +3314,8 @@ class MainActivity : Activity() {
             if (
                 atlas.optString("status") != "OBSERVATION_ATLAS_AVAILABLE" ||
                 identity?.optBoolean("camera_identity_required", true) != false ||
-                identity.optBoolean("lens_identity_required", true) ||
-                identity.optBoolean("prior_user_calibration_required", true) ||
+                identity?.optBoolean("lens_identity_required", true) ?: true ||
+                identity?.optBoolean("prior_user_calibration_required", true) ?: true ||
                 colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
                 illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
                 optical?.optBoolean("deconvolution_authorized", true) != false ||
