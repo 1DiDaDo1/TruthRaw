@@ -286,6 +286,8 @@ object UniversalLocalModelBankHoldoutV01 {
         JSONObject()
             .put("schema", SCHEMA)
             .put("source_sha256", sourceSha256)
+            .put("target_censor_state_used_for_holdout_admission", true)
+            .put("target_numeric_stage2_value_read_before_selection", false)
             .put("target_value_used_by_models", false)
             .put("target_value_used_by_selector", false)
             .put("holdout_error_used_by_selector", false)
