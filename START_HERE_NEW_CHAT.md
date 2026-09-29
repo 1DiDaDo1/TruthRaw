@@ -1,3 +1,41 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v01-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json`
+2. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
+3. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+4. `docs/research/universal-observation-model-selection-v0.1/README.md`
+5. PR #90 real-device result remains negative evidence for universal affine promotion.
+
+New in this successor:
+
+- original source resolution is used as full-resolution MEASURED support for CFA values, phase, detail/structure, geometry, censor paths and hold-out validation — not only noise;
+- audit scope is a deterministic stratified set of real CFA anchors across the full source raster, not only Dark-Chroma regions;
+- the existing 20-bit fixed-point sample lattice remains the free scientific coordinate domain;
+- model bank: robust median constant, directional line, affine plane, quadratic surface, NO_RECONSTRUCTION;
+- model selection is frozen before target reveal;
+- target value, target error and post-reveal oracle are forbidden selector inputs;
+- the post-reveal oracle exists only to measure selector regret;
+- model selection does not require NoiseProfile; the legacy baseline is simply unavailable where its own variance contract cannot be satisfied;
+- no lens calibration, camera model, physical Camera2 ID or vendor map is a model-selection dependency;
+- no model output is applied to Scientific Master/D.RAWnegative;
+- new independent real-device RAW is required for scientific validation.
+
+APK test export:
+
+`Export Universal Local Model Bank Holdout v0.1 · JSON`
+
+Permanent laws remain:
+
+> The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
+
+> A new raster may refine the measurement space without replacing the measurement history.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — 2026-09-29
 
 **Current stacked research successor:** `research/universal-observation-model-selection-v01-2026-09-29`
