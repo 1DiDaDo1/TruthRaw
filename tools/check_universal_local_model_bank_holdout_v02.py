@@ -18,6 +18,12 @@ readme = (ROOT / 'docs/research/universal-local-model-bank-holdout-v0.2/README.m
 protocol = (ROOT / 'docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md').read_text()
 state = json.loads((ROOT / 'state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V02.json').read_text())
 
+assert 'full_frame_streaming_v0_1.h' in h
+assert 'namespace stream = truthraw::streaming_v0_1;' in h
+assert 'full_frame_streaming_v0_1_internal.h' in cxx
+assert 'truthraw::streaming_v0_1::detail' in cxx
+assert 'full_frame_streaming_v0_2' not in h + cxx
+
 for needle in [
     'D.RAW/UniversalLocalModelBankHoldoutAudit/0.2',
     'kLatticeFractionBits = 20u',
