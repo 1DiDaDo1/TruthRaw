@@ -32,7 +32,7 @@ The following work is deliberately **draft/unmerged** and must not be confused w
 - **PR #84** · `research/dark-chroma-stability-v02-2026-09-28` — first information-support gate. Real-device near-black tele testing proved the entropy hard-cutoff too brittle, while correction safety still held.
 - **PR #85** · `research/dark-chroma-stability-v03-2026-09-28` — device-validated successor: non-entropy-hinged frontside degeneracy blocker plus sparse measured backside signal-support from the selected DNG CFA payload. Global backside support may **block** hidden-colour reconstruction but may never enable correction.
 - **PR #86** · `research/dark-chroma-stability-v04-2026-09-29` — device-validated in three cases: near-black tele remains `DARK_UNINFORMATIVE`; structured ultra-wide has zero visible candidates; selective main/wide `1790637640867` binds all 6 visible candidates but exposes a new limitation: `structure_protection_present` is true in 3072/3072 N2 tiles although only ~16.56% of sampled points are structure-protected. Therefore v0.4 binding is validated, but the 64x64 any-structure-presence veto is too coarse for candidate promotion. Correction-supported and private chroma A/B/Delta remain false.
-- **PR #87** · `research/dark-chroma-stability-v05-2026-09-29` — current successor; code checkpoint `eec3a2d75ecf0333858b218bbe3a84b6c2395e5c` is fully green and awaiting selective main/wide device validation: unchanged N2 structure gate, but 32×32 source reporting tiles expose sampled structure-protection density and fully-contained interior support for selective Dark-Chroma regions. It is measurement-only: no unsampled-pixel inference, no protection reduction, no correction enable and no private chroma A/B/Delta.
+- **PR #87** · `research/dark-chroma-stability-v05-2026-09-29` — device-validated on selective main/wide `1790662450477`: 15/15 visible candidates fine-bound, overlap/interior structure fraction ≈0.1677/0.1678, fine tiles structure/free=558/0, zero-interior-structure=0, correction-supported=0. The 32×32 refinement therefore does not separate candidates; next gate is exact sampled structure-support distance/density, still audit-only: unchanged N2 structure gate, but 32×32 source reporting tiles expose sampled structure-protection density and fully-contained interior support for selective Dark-Chroma regions. It is measurement-only: no unsampled-pixel inference, no protection reduction, no correction enable and no private chroma A/B/Delta.
 
 Current Dark Chroma law:
 
@@ -56,6 +56,8 @@ Latest v0.4 device evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EV
 Selective main/wide evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790637640867.md`.
 
 v0.5 green test APK checkpoint: artifact `11005636260`, APK SHA-256 `615e75323005d079a2a5650dba035128e6d6a40153a1f7bd45ba927d6173e46e`. The v0.5 device target remains the selective main/wide case; correction-supported stays false.
+
+v0.5 device evidence: `docs/research/dark-chroma-stability-v0.5/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790662450477.md`. Important caveat: the uploaded package contains predecessor N2 JSON sidecars, but not the new fine-field JSON; the 32×32 aggregate values are grounded in the device UI screenshot.
 
 ## Current physical observations
 
