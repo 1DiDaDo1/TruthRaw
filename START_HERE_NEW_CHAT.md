@@ -1,3 +1,25 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL MULTI-OBSERVATION RELATION v0.1 — 2026-09-30
+
+**Current branch:** `research/universal-multi-observation-relation-v01-2026-09-30`
+
+Parent PR #97 completed the first two-source physical gate:
+- admitted DNG path: PASS;
+- opaque/unsupported CR3 path: PASS.
+
+Read first:
+1. `state/UNIVERSAL_MULTI_OBSERVATION_RELATION_PROTOCOL_STATE_2026-09-30.json`
+2. `docs/research/universal-multi-observation-relation-v0.1/README.md`
+3. PR97 Atlas state and both device-result JSONs.
+
+New frozen law:
+**RELATE_OBSERVATIONS_WITH_EXPLICIT_EVIDENCE_NEVER_BY_CAMERA_OR_LENS_NAME**
+
+A relation is a separate scientific edge between immutable source-SHA observation roots. It may not merge evidence, inflate independentEvidenceCount, promote calibration, authorize correction/deconvolution, or write back to Scientific Master.
+
+Next gate: green integrity + Android build, then first read-only field-response repeatability experiment across multiple independent observations.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL OBSERVATION & CALIBRATION ATLAS v0.1 — 2026-09-30
 
 The first two-source physical gate is COMPLETE: admitted DNG and opaque/unsupported CR3 both validated.
