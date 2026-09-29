@@ -1,6 +1,6 @@
 #include "universal_local_model_bank_holdout_v0_2.h"
 
-#include "full_frame_streaming_v0_2_internal.h"
+#include "full_frame_streaming_v0_1_internal.h"
 #include "truthnegative_center_excluded_neighborhood_v0_2.h"
 
 #include <algorithm>
@@ -20,7 +20,7 @@
 namespace truthraw::universal_local_model_bank_holdout::v0_2 {
 namespace {
 
-namespace detail = truthraw::streaming_v0_2::detail;
+namespace detail = truthraw::streaming_v0_1::detail;
 namespace ce = truthraw::truthnegative_center_excluded_neighborhood::v0_2;
 
 constexpr std::array<int,3u> kBaselineRadii{{2,4,8}};
