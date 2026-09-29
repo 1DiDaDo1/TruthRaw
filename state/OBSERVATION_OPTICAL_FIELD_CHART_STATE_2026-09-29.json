@@ -1,0 +1,136 @@
+{
+  "schema": "D.RAW/ObservationOpticalFieldChartState/0.1",
+  "date": "2026-09-29",
+  "branch": "research/observation-optical-field-chart-v01-2026-09-29",
+  "status": "IMPLEMENTED_GEOMETRY_AND_MEASURED_COMPOSITE_FIELD_SIGNAL_NOT_DEVICE_VALIDATED",
+  "parent": {
+    "pr": 95,
+    "branch": "research/universal-local-model-bank-holdout-v03-2026-09-29",
+    "selector_state": "FROZEN_AFTER_FIRST_INDEPENDENT_VALIDATION_NO_SELECTOR_CHANGES"
+  },
+  "purpose": "UNFOLD_SEALED_SOURCE_OBSERVATION_INTO_FLAT_RADIAL_TANGENTIAL_FIELD_COORDINATES",
+  "geometry": {
+    "source": "SOURCE_OR_ACTIVE_AREA_GEOMETRY",
+    "preferred_origin": "ACTIVE_AREA_GEOMETRIC_CENTER",
+    "fallback_origin": "FULL_SOURCE_RASTER_GEOMETRIC_CENTER",
+    "origin_is_physical_optical_axis": false,
+    "rho_definition": "SOURCE_RADIUS_DIVIDED_BY_MAX_ACTIVE_CORNER_RADIUS",
+    "azimuth_definition": "ATAN2_DY_DX",
+    "radial_tangential_basis_available": true,
+    "field_angle_degrees_proven": false,
+    "coordinate_fraction_bits": 20,
+    "source_to_lattice_mapping_preserved": true
+  },
+  "measured_signal": {
+    "implementation": "BacksideSignalSupportAudit extension",
+    "supported_topology": "CLASSIC_TIFF_DNG_UNCOMPRESSED_UINT16_SINGLE_SAMPLE_STRIPS",
+    "sample_grid_step_source_px": 64,
+    "radial_bins": 12,
+    "azimuth_bins": 12,
+    "cfa_phases": 4,
+    "statistics": [
+      "ANNULUS_P10_P50_P90",
+      "CFA_PHASE_P50_PER_ANNULUS",
+      "AZIMUTH_SECTOR_P50",
+      "AZIMUTH_SECTOR_MEDIAN_MAD",
+      "OBSERVED_OUTER_TO_INNER_P50_RATIO",
+      "RADIAL_P50_NON_INCREASING_TRANSITION_FRACTION"
+    ],
+    "authority": "MEASURED_SOURCE_SAMPLES_SCENE_LENS_SENSOR_COMPOSITE"
+  },
+  "interpretation": {
+    "lens_only_vignetting_proven": false,
+    "relative_illumination_candidate_observable": true,
+    "scene_illumination_separated": false,
+    "sensor_angular_response_separated": false,
+    "optical_axis_proven": false,
+    "cos4_model_assumed": false,
+    "lens_profile_lookup_used": false,
+    "focal_length_used_to_define_coordinates": false,
+    "correction_gain_allowed": false
+  },
+  "invariants": {
+    "v03_selector_modified": false,
+    "measured_anchors_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "dense_lattice_materialized": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "ai_or_learned_models_used": false,
+    "camera_model_routing_used": false,
+    "vendor_mapping_used": false
+  },
+  "validation": {
+    "current_uploaded_source_can_be_used_as_development_evidence": true,
+    "independent_optical_field_validation_not_yet_defined": true,
+    "no_correction_or_promotion_allowed": true,
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "development_runtime_verification_source": "IMG_20260403_182145.dng",
+    "minimum_new_same_route_scenes_before_repeatability_candidate": 3,
+    "single_scene_lens_vignetting_inference_allowed": false,
+    "gain_map_agreement_can_promote_truth": false
+  },
+  "next_gate": "GREEN_ANDROID_BUILD_WITH_EXPLICIT_EXPORT_THEN_NATIVE_APP_EXPORT_ON_DEVELOPMENT_SOURCE_THEN_THREE_NEW_SCENES",
+  "source_metadata_hints": {
+    "opcode_list_2_header_parse_allowed": true,
+    "opcode_ids_and_header_sizes_only": false,
+    "gain_map_opcode_presence_may_be_reported": true,
+    "gain_map_payload_interpreted": false,
+    "gain_map_applied": false,
+    "authority": "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+    "used_as_scientific_calibration": false,
+    "used_to_define_field_coordinates": false,
+    "used_to_modify_source_samples": false,
+    "gain_map_payload_summary_decoded": true,
+    "gain_map_full_grid_exported": false,
+    "gain_map_summary_fields": [
+      "AFFECTED_AREA",
+      "PLANE_AND_PLANES",
+      "ROW_COL_PITCH",
+      "MAP_POINTS",
+      "MAP_SPACING",
+      "MAP_ORIGIN",
+      "GAIN_MIN_MEDIAN_MEAN_MAX",
+      "CENTER_NEAREST_GAIN",
+      "CORNER_GAINS"
+    ],
+    "gain_map_payload_interpreted_for_correction": false
+  },
+  "development_observation": {
+    "source_filename": "IMG_20260403_182145.dng",
+    "source_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
+    "observed_opcode_list_2_gain_map_count_external_review": 4,
+    "note": "Development observation indicates four DNG OpcodeList2 GainMap opcodes. This is metadata context only and is not promoted to optical truth.",
+    "gain_map_shape": "4 x (13x17x1)",
+    "row_col_pitch": "2x2 CFA phase-selective",
+    "observed_gain_min": 1.0009765625,
+    "observed_gain_max": 2.4404296875,
+    "center_gain_range": [
+      1.0107421875,
+      1.03125
+    ],
+    "corner_gain_range": [
+      1.7978515625,
+      2.4404296875
+    ],
+    "metadata_interpretation": "STRONG_SPATIAL_SHADING_CORRECTION_INTENT_HINT_ONLY_NOT_TRUTH"
+  },
+  "export": {
+    "explicit_json_export_added": true,
+    "ui_label": "Export Observation Optical Field Chart v0.1 · JSON",
+    "filename_suffix": "_draw_observation_optical_field_chart_v0_1.json",
+    "heavy_native_reconstruction_required": false,
+    "correction_gain_allowed": false,
+    "scientific_writeback_allowed": false
+  },
+  "development_result": {
+    "path": "state/OBSERVATION_OPTICAL_FIELD_CHART_DEVELOPMENT_RESULT_2026-09-29.json",
+    "runtime_equivalent_sample_count": 12288,
+    "observed_outer_to_inner_p50_ratio": 12.28125,
+    "outer_half_median_azimuth_relative_mad": 0.9015927093891954,
+    "conclusion": "SCENE_CONTENT_DOMINATES_SINGLE_OBSERVATION_RADIAL_BRIGHTNESS_PATTERN",
+    "single_scene_lens_only_vignetting_identifiable": false
+  }
+}
