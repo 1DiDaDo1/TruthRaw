@@ -59,7 +59,9 @@ v0.5 green test APK checkpoint: artifact `11005636260`, APK SHA-256 `615e7532300
 
 v0.5 device evidence: `docs/research/dark-chroma-stability-v0.5/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790662450477.md`. Important caveat: the uploaded package contains predecessor N2 JSON sidecars, but not the new fine-field JSON; the 32×32 aggregate values are grounded in the device UI screenshot.
 
-- **PR #88** · `research/dark-chroma-stability-v06-2026-09-29` — current active successor: exact deterministic N2 sampled Structure/Censored/CensorBoundary coordinates + center/radius and rectangle-margin support geometry. No distance threshold, no probability, no protection reduction, correction-supported=false.
+- **PR #88** · `research/dark-chroma-stability-v06-2026-09-29` — current active successor; code checkpoint `ae93117bf492e5ebd81a2411bf9f6bf592738cff` is fully green. It records exact deterministic N2 sampled Structure/Censored/CensorBoundary coordinates + center/radius and rectangle-margin support geometry and now exposes a machine-readable `Export N2 Sample Support Distance v0.1 · JSON` sidecar. No distance threshold, no probability, no protection reduction, correction-supported=false.
+
+v0.6 green APK checkpoint: artifact `11020341011`, APK SHA-256 `b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd`, bytes `7311423`. Device validation must include the exported support-distance JSON sidecar so exact sampled support can be independently recomputed.
 
 ## Current physical observations
 
@@ -86,8 +88,8 @@ Ultra-wide final admission state:
 ## Mandatory current reading order
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V05.json` — active draft/unmerged Dark Chroma line
-3. `docs/research/dark-chroma-stability-v0.5/README.md`
+2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V06.json` — active draft/unmerged Dark Chroma line
+3. `docs/research/dark-chroma-stability-v0.6/README.md`
 4. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
 5. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
 6. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
