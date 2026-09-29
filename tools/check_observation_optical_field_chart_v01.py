@@ -8,6 +8,7 @@ java = ROOT / 'suite_android/app/src/main/java/com/truthraw/adaptiveui'
 chart = (java / 'ObservationOpticalFieldChartV01.kt').read_text()
 signal = (java / 'BacksideSignalSupportAudit.kt').read_text()
 profiler = (java / 'UniversalSourceProfiler.kt').read_text()
+metadata = (java / 'DngContainerMetadataParser.kt').read_text()
 readme = (ROOT / 'docs/research/observation-optical-field-chart-v0.1/README.md').read_text()
 state = json.loads((ROOT / 'state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json').read_text())
 
@@ -45,6 +46,21 @@ for needle in [
 assert 'ObservationOpticalFieldChartV01.describe' in profiler
 assert 'observation_optical_field_chart' in profiler
 assert 'observation_optical_field_signal_v0_1' in profiler
+assert 'opcode_list_2_metadata' in profiler
+
+for needle in [
+    'decodeDngOpcodeListHint',
+    'GainMap',
+    'gain_map_opcode_count',
+    'SOURCE_METADATA_PROVENANCE_HINT_ONLY',
+    'used_as_scientific_calibration',
+    'gain_map_applied',
+]:
+    assert needle in metadata, f'missing DNG opcode provenance invariant: {needle}'
+
+assert 'source_opcode_provenance_hint' in chart
+assert 'used_as_scientific_calibration' in chart
+assert 'used_to_define_field_coordinates' in chart
 
 for banned in [
     'lens correction applied',
@@ -65,7 +81,7 @@ assert state['invariants']['measured_anchors_modified'] is False
 assert state['invariants']['new_measured_samples_created'] is False
 assert state['invariants']['scientific_writeback_allowed'] is False
 
-lower = (chart + '\n' + signal).lower()
+lower = (chart + '\n' + signal + '\n' + metadata).lower()
 for banned in ['tensorflow', 'pytorch', 'onnxruntime', 'neural network', 'generative model']:
     assert banned not in lower, f'banned runtime/model token: {banned}'
 
