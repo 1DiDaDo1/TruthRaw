@@ -695,10 +695,9 @@ bool run(
                         const auto phase =
                             static_cast<std::uint32_t>(
                                 (gy & 1) * 2 + (gx & 1));
-                        const double actual =
-                            workspace.stage2[centerIndex];
-                        if (!std::isfinite(actual)) return false;
-
+                        // Do not even read the held-out Stage-2 value yet.
+                        // Model fitting and selection below see only other
+                        // same-phase measured anchors.
                         std::vector<Sample> samples;
                         samples.reserve(80u);
                         for (int dy = -kSupportRadius;
@@ -747,7 +746,6 @@ bool run(
                         record.cfaPhase = phase;
                         record.channel =
                             static_cast<std::uint32_t>(channel);
-                        record.actual = actual;
                         record.supportSamples =
                             static_cast<std::uint32_t>(samples.size());
 
@@ -774,9 +772,9 @@ bool run(
                             return false;
                         }
 
-                        // IMPORTANT: target-blind selection happens here,
-                        // before the actual held-out value is used for any
-                        // error metric or post-reveal oracle diagnostic.
+                        // IMPORTANT: target-blind selection happens here
+                        // while the held-out Stage-2 value has not even been
+                        // read from the workspace.
                         record.selected =
                             choose_target_blind(
                                 record.robustConstant,
@@ -856,9 +854,19 @@ bool run(
                             record.baselineValid = true;
                             record.baselineEstimate =
                                 baseline.estimate;
+                        }
+
+                        // Target reveal occurs only after both the research
+                        // selector and the independent reference predictor
+                        // have been fully frozen.
+                        const double actual =
+                            workspace.stage2[centerIndex];
+                        if (!std::isfinite(actual)) return false;
+                        record.actual = actual;
+                        if (record.baselineValid) {
                             record.baselineAbsError =
                                 std::abs(
-                                    baseline.estimate - actual);
+                                    record.baselineEstimate - actual);
                         }
 
                         ++out.global.holdouts;
