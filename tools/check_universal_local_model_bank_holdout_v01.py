@@ -57,6 +57,8 @@ for needle in [
     'STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS',
     'TARGET_BLIND_RESIDUAL_BIC_LIKE_COMPLEXITY_SCORE',
     'noise_profile_required_for_selection',
+    'target_censor_state_used_for_holdout_admission',
+    'target_numeric_stage2_value_read_before_selection',
     'target_value_used_by_models',
     'target_value_used_by_selector',
     'holdout_error_used_by_selector',
