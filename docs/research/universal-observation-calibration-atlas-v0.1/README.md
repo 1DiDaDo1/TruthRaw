@@ -234,3 +234,20 @@ The next implementation gates are intentionally separate:
 5. only then test optional flat-field, colour-reference, optical-support, dark/noise and temporal calibration observations.
 
 No correction path should be added before an independent relation/promotion protocol is frozen.
+
+
+## Android build validation
+
+The full D.RAW ARM64 Android build is green for this branch.
+
+- workflow: `D.RAW Suite Universal Intake v0.1`;
+- run: `36641226959`;
+- artifact: `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`;
+- artifact id: `11066632486`;
+- artifact ZIP SHA-256: `8a75ae20b3755ecf0638d6a0b2f8170cd8895f2be117f80e7d2b6cbeefa3b722`;
+- APK bytes: `7582479`;
+- APK SHA-256: `12c95e8c4d6501cf5ff8c7d8d3ca9076b5e1d02c6ebf96469b2245dc7f2dc32d`.
+
+The built APK was inspected and contains the v0.1 schema and safety markers, including the universal identity law, no-user-calibration requirement, source-metadata colour state, composite scene/lens/sensor field authority, Zero-Line separation and explicit Android export label.
+
+This closes the software/build gate only. It does not replace the next physical/device validation gate.
