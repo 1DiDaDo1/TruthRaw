@@ -48,7 +48,9 @@
     "post_reveal_oracle_is_diagnostic_only": true,
     "selector_regret_reported": true,
     "target_value_read_before_selection": false,
-    "target_value_read_after_selector_and_reference_freeze": true
+    "target_value_read_after_selector_and_reference_freeze": true,
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false
   },
   "reference": {
     "name": "CENTER_EXCLUDED_MULTISCALE_V0_2",
