@@ -73,6 +73,16 @@ It also reports purely descriptive quantities such as observed outer/inner p50 r
 
 Those values are COMPOSITE_SCENE_LENS_SENSOR_OBSERVATION_ONLY. They are not a lens shading profile.
 
+## DNG opcode provenance hints
+
+`OpcodeList2` is inspected only at the compact opcode-header level.
+
+v0.1 may report that the source carries opcodes such as `GainMap`, together with opcode ID, minimum DNG version, flags and payload byte size.
+
+The gain-map payload itself is not interpreted or applied. Its presence is `SOURCE_METADATA_PROVENANCE_HINT_ONLY`: it can later be compared against the observation-derived field profile, but it cannot calibrate D.RAW truth, define the optical axis, alter measured samples or authorize correction.
+
+For the current development observation `IMG_20260403_182145.dng`, external review found four OpcodeList2 GainMap opcodes. That fact motivated this provenance comparison but is not an optical-truth claim.
+
 ## Why this is useful
 
 A lens/sensor system can produce position-dependent relative illumination and off-axis behaviour. A flat field coordinate chart allows those patterns to be described in a common radial/tangential frame rather than only as arbitrary raster positions.
