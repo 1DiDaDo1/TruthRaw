@@ -254,6 +254,22 @@ object UniversalLocalModelBankHoldoutV02 {
         require(sidecar.optBoolean("selector_uses_support_crossfit", false)) {
             "Sidecar mist support-crossfit selectorcontract."
         }
+        require(
+            sidecar.optBoolean(
+                "direction_internal_validation_and_cross_family_validation_separated",
+                false,
+            ),
+        ) {
+            "Sidecar mist scheiding tussen direction-internal en cross-family validatie."
+        }
+        require(
+            sidecar.optBoolean(
+                "cross_family_models_share_common_validation_anchors",
+                false,
+            ),
+        ) {
+            "Sidecar vergelijkt model families niet op dezelfde validation-anchors."
+        }
         require(sidecar.optBoolean("directional_support_conditioned", false)) {
             "Sidecar mist direction-conditioned supportcontract."
         }
