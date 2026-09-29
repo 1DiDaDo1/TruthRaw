@@ -1,0 +1,26 @@
+name: Universal Observation Model Selection v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/universal-observation-model-selection-v0.1/**'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationModelSelectionV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RasterIndependentSampleLatticeV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json'
+      - 'tools/check_universal_observation_model_selection_v01.py'
+      - '.github/workflows/universal-observation-model-selection-v01.yml'
+  push:
+    branches:
+      - 'research/universal-observation-model-selection-v01-2026-09-29'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_universal_observation_model_selection_v01.py
