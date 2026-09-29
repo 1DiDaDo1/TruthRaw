@@ -284,6 +284,7 @@ object DarkChromaStabilityV06Audit {
             .put("scientific_writeback_allowed", false)
             .put("replacement_colour_estimated", false)
             .put("pixel_value_replacement_proposed", false)
+    }
 
     private fun unavailable(
         sourceSha256: String,
