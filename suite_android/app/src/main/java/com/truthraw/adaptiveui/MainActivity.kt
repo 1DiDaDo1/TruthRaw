@@ -6007,6 +6007,41 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export Anchor-Constrained Reconstruction v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "anchor_constrained_local_reconstruction",
+                                        )
+                                        ?.optString("status") ==
+                                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE",
+                        ) {
+                            launchAnchorConstrainedReconstructionExport(active)
+                        })
+                        anchorReconstructionStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "anchor-constrained-local-reconstruction",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Holdout-audit: echte CFA-ankers blijven verzegeld en worden alleen tijdelijk voor de " +
+                                "predictor verborgen. De private lattice-solver voorspelt ze uit andere gemeten " +
+                                "ankers; daarna wordt pas met de echte waarde vergeleken. RECONSTRUCTED authority, " +
+                                "onzekerheid diagnostisch, geen correction-enable en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
