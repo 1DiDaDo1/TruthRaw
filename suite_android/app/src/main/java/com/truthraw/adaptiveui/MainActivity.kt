@@ -1317,7 +1317,7 @@ class MainActivity : Activity() {
             "READY_FOR_EXPLICIT_EXPORT_AUDIT"
         ) {
             universalModelBankHoldoutStatus =
-                "Universal Local Model Bank Holdout v0.1 vereist eerst een succesvolle Universele Ingang-analyse met vrije sample-lattice en prospective selector-policy."
+                "Universal Local Model Bank Holdout v0.1 vereist eerst een succesvolle Universele Ingang-analyse met een geldige raster-onafhankelijke sample-lattice; Dark-Chroma/prospective query-policy is hiervoor niet vereist."
             render()
             return
         }
