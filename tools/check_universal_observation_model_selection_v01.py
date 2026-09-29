@@ -79,6 +79,12 @@ assert state["architecture"]["source_raster_used_only_for_noise"] is False
 assert state["selector"]["heldout_target_used_for_selection"] is False
 assert state["selector"]["holdout_error_used_for_selection"] is False
 assert state["selector"]["affine_plane_promoted"] is False
+assert state["selector"]["computed_before_anchor_holdout_target_reveal"] is True
+assert state["selector"]["anchor_holdout_runtime_dependency"] is False
+assert state["selector"]["export_contains_holdout_outcomes"] is False
+assert state["selector"]["machine_readable_export"] == (
+    "Export Universal Observation Model Selection v0.1 · JSON"
+)
 assert state["selector"]["independent_new_capture_required_for_selector_validation"] is True
 assert state["safety"]["measured_anchors_modified"] is False
 assert state["safety"]["unanchored_values_promoted_to_measured"] is False
