@@ -11,7 +11,8 @@
     "units_per_source_pixel": 1048576,
     "dense_lattice_materialized": false,
     "source_anchor_mapping": "u=x*1048576; v=y*1048576",
-    "unanchored_positions_authority": "UNKNOWN"
+    "unanchored_positions_authority": "UNKNOWN",
+    "source_samples_remain_exact_measured_anchors": true
   },
   "evidence_contract": {
     "sealed_source_replaced": false,
