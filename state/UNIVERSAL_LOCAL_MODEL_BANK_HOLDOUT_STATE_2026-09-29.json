@@ -2,7 +2,7 @@
   "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.1",
   "date": "2026-09-29",
   "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
-  "status": "IMPLEMENTED_AUDIT_ONLY_NOT_DEVICE_VALIDATED",
+  "status": "REAL_DEVICE_RESULT_AVAILABLE_NO_PROMOTION",
   "parent": {
     "pr": 91,
     "branch": "research/universal-observation-model-selection-v01-2026-09-29",
@@ -70,12 +70,29 @@
     "source_reverification_required": true,
     "post_export_json_parse_verification_required": true
   },
-  "next_gate": "EXECUTE_FROZEN_DEVICE_VALIDATION_PROTOCOL_ON_NEW_INDEPENDENT_RAW",
+  "next_gate": "DESIGN_VERSIONED_OBSERVATION_CONDITIONED_DIRECTIONAL_SUPPORT_SELECTOR_V0_2_THEN_VALIDATE_ON_NEW_CAPTURE",
   "validation": {
     "protocol_frozen": true,
     "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
     "prior_pr90_capture_independent_validation": false,
     "new_independent_real_device_raw_required": true,
     "post_result_selector_or_threshold_changes_allowed": false
+  },
+  "real_device_result": {
+    "result_path": "state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json",
+    "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+    "holdouts": 11844,
+    "directly_comparable": 11667,
+    "selected_mae_directly_comparable": 0.020822638090543244,
+    "baseline_mae_directly_comparable": 0.02143966413691943,
+    "selected_rmse_directly_comparable": 0.027067246840533448,
+    "baseline_rmse_directly_comparable": 0.027841030278610793,
+    "selected_wins": 6227,
+    "baseline_wins": 5440,
+    "mean_selector_regret_abs_error": 0.002471270076658392,
+    "directional_affine_predictions_identical": true,
+    "original_source_bytes_in_review_package": false,
+    "external_source_sha_reverification_pending": true,
+    "promotion_allowed": false
   }
 }
