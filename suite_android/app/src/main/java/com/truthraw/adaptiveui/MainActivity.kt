@@ -69,6 +69,8 @@ class MainActivity : Activity() {
     private var n2ConfidenceFieldStatus: String? = null
     private var pendingN2FactoredConfidenceJobId: String? = null
     private var n2FactoredConfidenceStatus: String? = null
+    private var pendingN2SupportDistanceJobId: String? = null
+    private var n2SupportDistanceStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -252,6 +254,8 @@ class MainActivity : Activity() {
         n2ConfidenceFieldStatus = null
         pendingN2FactoredConfidenceJobId = null
         n2FactoredConfidenceStatus = null
+        pendingN2SupportDistanceJobId = null
+        n2SupportDistanceStatus = null
         pendingAppearanceHighlightDetailJobId = null
         appearanceHighlightDetailStatus = null
         pendingAppearanceHeadroomSweepJobId = null
