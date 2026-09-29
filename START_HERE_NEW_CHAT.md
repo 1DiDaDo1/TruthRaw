@@ -1,6 +1,6 @@
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.2 — 2026-09-29
 
-**Current stacked successor:** `research/universal-local-model-bank-holdout-v02-2026-09-29`
+**Current build-validated successor:** `research/universal-local-model-bank-holdout-v02-buildfix-2026-09-29` (PR #94)
 
 Read first:
 
@@ -26,6 +26,19 @@ Why v0.2 exists:
 New APK test export:
 
 `Export Universal Local Model Bank Holdout v0.2 · JSON`
+
+Green code-bearing checkpoint: `a91c3f794a91c2fa1aedc1c0dfe263768ee86bef`
+
+- Universal Intake run `36612537275` — SUCCESS
+- Android DngCreator run `36612537382` — SUCCESS
+- Canonical Integrity run `36612537460` — SUCCESS
+- v0.2 Integrity run `36612537431` — SUCCESS
+- artifact `11054171359`
+- artifact digest `sha256:7e06981c3c0b6a9d19335e06f6ef62072b261423a1dc8a8aa4f44b3792a6fd84`
+- APK SHA-256 `035104d7f05da805911d6f662596ade441487bf41182ae61ba1d1ec7d3588743`
+- v0.1 and v0.2 JNI exports both verified present
+
+PR #93 is closed/superseded only because its GitHub PR snapshot stopped synchronizing to later commits; PR #94 preserves the same v0.2 science and contains the green build checkpoint.
 
 Validation law: use one NEW sealed RAW/DNG and export both v0.1 and v0.2 on the same source. Their hold-out coordinates should match exactly; compare v0.2 directly against v0.1 and the same baseline.
 
