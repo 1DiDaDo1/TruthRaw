@@ -1,5 +1,8 @@
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL OBSERVATION & CALIBRATION ATLAS v0.1 — 2026-09-30
 
+The first two-source physical gate is COMPLETE: admitted DNG and opaque/unsupported CR3 both validated.
+
+
 **Current branch:** `research/universal-observation-calibration-atlas-v01-2026-09-30`
 
 Read first:
