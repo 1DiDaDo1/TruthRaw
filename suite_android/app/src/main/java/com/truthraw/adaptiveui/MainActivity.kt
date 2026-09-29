@@ -2647,6 +2647,156 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_ANCHOR_RECONSTRUCTION) {
+            val expectedJob = pendingAnchorReconstructionJobId
+            pendingAnchorReconstructionJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val profile =
+                expectedJob?.let { universalProfiles[it] }
+            val audit =
+                profile?.optJSONObject(
+                    "anchor_constrained_local_reconstruction",
+                )
+            val sampleLattice =
+                profile?.optJSONObject(
+                    "raster_independent_sample_lattice",
+                )
+            val support =
+                profile?.optJSONObject("n2_sample_support_distance")
+            val frontsideV01 =
+                profile?.optJSONObject("scene_analysis")
+                    ?.optJSONObject("dark_chroma_stability_v0_1")
+            val expectedSourceSha =
+                audit?.optString("source_sha256", "") ?: ""
+
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob ||
+                audit?.optString("status") !=
+                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE" ||
+                frontsideV01 == null ||
+                sampleLattice == null ||
+                support == null ||
+                expectedSourceSha.isBlank()
+            ) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1 geblokkeerd: actieve bron/lattice/support-binding veranderde of de holdout-audit is niet beschikbaar."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "anchor-constrained-local-reconstruction",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                anchorReconstructionStatus =
+                    "Wacht op de andere D.RAWnegative analysetaak. Anchor-Constrained Local Reconstruction v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Anchor-Constrained Local Reconstruction v0.1",
+                )
+            ) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            anchorReconstructionStatus =
+                "Anchor holdout-sidecar · echte CFA-ankers tijdelijk verborgen voor predictor · " +
+                    "private RECONSTRUCTED schatting + onzekerheid · geen writeback…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-anchor-holdout-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    anchorReconstructionStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    AnchorConstrainedLocalReconstructionAudit.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 = expectedSourceSha,
+                        frontsideV01 = frontsideV01,
+                        sampleLattice = sampleLattice,
+                        supportDistance = support,
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Anchor-Constrained Local Reconstruction v0.1 opgeslagen + SHA geverifieerd."
+                        },
+                        onFailure = {
+                            "Anchor-Constrained Local Reconstruction v0.1 export faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    anchorReconstructionStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Anchor-Constrained Local Reconstruction v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · queries=" +
+                                    status.optInt("queryCount", 0) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · valid solver/baseline=" +
+                                    status.optLong("solverValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| solver/baseline=" +
+                                    status.optLong("solverLowerAbsError", 0L) + "/" +
+                                    status.optLong("baselineLowerAbsError", 0L) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString("jsonSha256", "").take(16) +
+                                    "… · writeback=false."
+                            },
+                            onFailure = {
+                                "Anchor-Constrained Local Reconstruction v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL) {
             val expectedJob = pendingAppearanceHighlightDetailJobId
             pendingAppearanceHighlightDetailJobId = null
@@ -6239,5 +6389,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
         private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
         private const val REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120
+        private const val REQUEST_SAVE_ANCHOR_RECONSTRUCTION = 4121
     }
 }
