@@ -93,6 +93,10 @@
     "directional_affine_predictions_identical": true,
     "original_source_bytes_in_review_package": false,
     "external_source_sha_reverification_pending": true,
-    "promotion_allowed": false
+    "promotion_allowed": false,
+    "physical_lens_context_reported_by_user": "TELE",
+    "lens_context_authority": "TEST_PROVENANCE_ONLY",
+    "lens_identity_used_by_model_selection": false,
+    "lens_specific_calibration_used": false
   }
 }
