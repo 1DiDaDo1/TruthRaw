@@ -201,6 +201,10 @@ object UniversalSourceProfiler {
             .put("tile_width", valueOrNull(primaryRaw?.opt("tileWidth")))
             .put("tile_length", valueOrNull(primaryRaw?.opt("tileLength")))
             .put("opcode_list_2_present", primaryRaw?.has("opcodeList2") == true)
+            .put(
+                "opcode_list_2_metadata",
+                valueOrNull(primaryRaw?.opt("opcodeList2")),
+            )
             .put("cfa_repeat_pattern_dim", valueOrNull(primaryRaw?.opt("cfaRepeatPatternDim")))
             .put("cfa_pattern", valueOrNull(primaryRaw?.opt("cfaPattern")))
             .put("black_level", valueOrNull(primaryRaw?.opt("blackLevel")))
