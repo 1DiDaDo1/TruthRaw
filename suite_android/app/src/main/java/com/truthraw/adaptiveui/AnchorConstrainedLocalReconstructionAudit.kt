@@ -626,12 +626,16 @@ object AnchorConstrainedLocalReconstructionAudit {
         ) {
             return "ANCHOR_HOLDOUT_FILE_CONTRACT_MISMATCH"
         }
-        val global = sidecar.optJSONObject("global") ?: return
-            "ANCHOR_HOLDOUT_GLOBAL_MISSING"
+        val global = sidecar.optJSONObject("global")
+            ?: return "ANCHOR_HOLDOUT_GLOBAL_MISSING"
+        val queryCount =
+            sidecar.optJSONArray("queries")?.length() ?: 0
+        val holdoutRecordCount =
+            sidecar.optJSONArray("holdout_records")?.length() ?: 0
         if (
             global.optLong("holdouts", 0L) <= 0L ||
-            sidecar.optJSONArray("queries")?.length() ?: 0 <= 0 ||
-            sidecar.optJSONArray("holdout_records")?.length() ?: 0 <= 0
+            queryCount <= 0 ||
+            holdoutRecordCount <= 0
         ) {
             return "ANCHOR_HOLDOUT_EMPTY"
         }
