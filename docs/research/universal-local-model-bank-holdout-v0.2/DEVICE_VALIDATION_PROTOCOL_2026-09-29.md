@@ -53,9 +53,11 @@ Compare v0.2 against v0.1 and the historical reference on identical held-out anc
 - no-model-selected rate;
 - target-leakage and writeback safety flags.
 
-Specific v0.2 design question:
+Specific v0.2 design questions:
 
-Does DIRECTIONAL_STRIP_LINE produce center estimates that are no longer identically equal to AFFINE_PLANE, and does the support-crossfit selector use that distinction productively?
+- Does DIRECTIONAL_STRIP_LINE produce center estimates that are no longer identically equal to AFFINE_PLANE?
+- Does strip-internal validation choose a useful direction?
+- When all model families are then compared on the same common validation anchors, does v0.2 reduce selector regret and/or held-out CFA error versus v0.1?
 
 ## Target blindness
 
