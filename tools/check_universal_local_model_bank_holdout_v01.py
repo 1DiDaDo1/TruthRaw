@@ -45,6 +45,12 @@ for needle in [
 assert 'o << "}},\\n";' in cxx, "model-bank JSON global/models nesting must close with exactly two braces"
 assert 'o << "}}},\\n";' not in cxx, "model-bank JSON has an extra global/models closing brace"
 
+selection_pos = cxx.index("record.selected =")
+target_read_pos = cxx.index("const double actual =\n                            workspace.stage2[centerIndex];")
+assert selection_pos < target_read_pos, "held-out target must not be read before selector freeze"
+assert "while the held-out Stage-2 value has not even been" in cxx
+assert "Target reveal occurs only after both the research" in cxx
+
 for needle in [
     'source_raster_used_only_for_noise',
     'source_raster_is_world_resolution_authority',
