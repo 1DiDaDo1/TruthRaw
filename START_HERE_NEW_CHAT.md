@@ -28,6 +28,15 @@ New APK test export:
 
 `Export Universal Local Model Bank Holdout v0.3 · JSON`
 
+Green v0.3 Android build checkpoint:
+
+- code SHA: `57754bf573bf964d042964843f080282d23d9cab`;
+- D.RAW Android DngCreator Compatibility run: `36620946032` — SUCCESS;
+- artifact: `11058269102`;
+- artifact digest: `sha256:9e599ffa625f92a3c5443ce7714cbe529f8cf5673eff13725503ed3ccf81fa5b`;
+- APK SHA-256: `fb08d089b71cf367106fae798703e36ba108a947a759d68f1fbeb31ef05a7752`;
+- an earlier Universal Intake retry failed only because the Android SDK CMake 3.22.1 download arrived as an invalid archive; this was external to the code.
+
 Validation law: use one NEW, previously unscored sealed RAW/DNG and export v0.1, v0.2 and v0.3 on that exact source. Holdout coordinates must match. v0.2/v0.3 per-model estimates must be bit-identical; only selected_model may differ.
 
 ---
