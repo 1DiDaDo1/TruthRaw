@@ -63,7 +63,8 @@
   "apk": {
     "export_label": "Export Universal Local Model Bank Holdout v0.1 · JSON",
     "post_write_sha_verification_required": true,
-    "source_reverification_required": true
+    "source_reverification_required": true,
+    "post_export_json_parse_verification_required": true
   },
   "next_gate": "NEW_INDEPENDENT_REAL_DEVICE_RAW_EXPORT_MODEL_BANK_HOLDOUT_JSON"
 }
