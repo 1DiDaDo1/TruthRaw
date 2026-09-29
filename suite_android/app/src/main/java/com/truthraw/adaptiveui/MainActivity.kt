@@ -5575,6 +5575,38 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export N2 Sample Support Distance v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject("n2_sample_support_distance")
+                                        ?.optString("status") ==
+                                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE",
+                        ) {
+                            launchN2SupportDistanceExport(active)
+                        })
+                        n2SupportDistanceStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-support-distance",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.6 audit-sidecar: exact sampled Structure/Censored/CensorBoundary broncoördinaten " +
+                                "+ center/radius en rect-margin afstanden. Geen interpolatie van onbemeten pixels, " +
+                                "geen afstandsdrempel, geen promotion en geen Scientific-Master-writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -5956,5 +5988,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
         private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
         private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
+        private const val REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120
     }
 }
