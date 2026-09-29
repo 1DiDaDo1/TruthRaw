@@ -1,0 +1,27 @@
+name: Anchor-Constrained Local Reconstruction v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/anchor-constrained-local-reconstruction-v0.1/**'
+      - 'suite_android/app/src/main/cpp/anchor_constrained_local_reconstruction_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/AnchorConstrainedLocalReconstructionAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'state/ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_STATE_2026-09-29.json'
+      - 'tools/check_anchor_constrained_local_reconstruction_v01.py'
+      - '.github/workflows/anchor-constrained-local-reconstruction-v01.yml'
+  push:
+    branches:
+      - 'research/anchor-constrained-local-reconstruction-v01-2026-09-29'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_anchor_constrained_local_reconstruction_v01.py
