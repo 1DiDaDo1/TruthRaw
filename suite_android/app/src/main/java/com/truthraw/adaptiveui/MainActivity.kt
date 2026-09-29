@@ -72,6 +72,8 @@ class MainActivity : Activity() {
     private var n2FactoredConfidenceStatus: String? = null
     private var pendingN2SupportDistanceJobId: String? = null
     private var n2SupportDistanceStatus: String? = null
+    private var pendingAnchorReconstructionJobId: String? = null
+    private var anchorReconstructionStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -257,6 +259,8 @@ class MainActivity : Activity() {
         n2FactoredConfidenceStatus = null
         pendingN2SupportDistanceJobId = null
         n2SupportDistanceStatus = null
+        pendingAnchorReconstructionJobId = null
+        anchorReconstructionStatus = null
         pendingAppearanceHighlightDetailJobId = null
         appearanceHighlightDetailStatus = null
         pendingAppearanceHeadroomSweepJobId = null
@@ -603,6 +607,7 @@ class MainActivity : Activity() {
             "truthnegative-native-container",
             "truthnegative-n2-spatial-sidecar",
             "truthnegative-n2-support-distance",
+            "anchor-constrained-local-reconstruction",
             "truthnegative-n2-crop-ab",
         )
         return kinds
@@ -3434,6 +3439,12 @@ class MainActivity : Activity() {
                     profile.optJSONObject("n2_raster_independent_sample_geometry") ?: JSONObject()
                 val darkChromaV07 =
                     scene.optJSONObject("dark_chroma_stability_v0_7") ?: JSONObject()
+                val anchorReconstruction =
+                    profile.optJSONObject(
+                        "anchor_constrained_local_reconstruction",
+                    ) ?: JSONObject()
+                val anchorReconstructionGlobal =
+                    anchorReconstruction.optJSONObject("global") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -4169,6 +4180,117 @@ class MainActivity : Activity() {
                         10f,
                         muted = true,
                     ))
+                }
+
+                when (anchorReconstruction.optString("status")) {
+                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE" -> {
+                        val holdouts =
+                            anchorReconstructionGlobal.optLong(
+                                "holdouts",
+                                0L,
+                            )
+                        val solverValid =
+                            anchorReconstructionGlobal.optLong(
+                                "solver_valid",
+                                0L,
+                            )
+                        val baselineValid =
+                            anchorReconstructionGlobal.optLong(
+                                "baseline_valid",
+                                0L,
+                            )
+                        val bothValid =
+                            anchorReconstructionGlobal.optLong(
+                                "both_valid",
+                                0L,
+                            )
+                        val solverWins =
+                            anchorReconstructionGlobal.optLong(
+                                "solver_lower_abs_error",
+                                0L,
+                            )
+                        val baselineWins =
+                            anchorReconstructionGlobal.optLong(
+                                "baseline_lower_abs_error",
+                                0L,
+                            )
+                        val solverMae =
+                            anchorReconstructionGlobal.optDouble(
+                                "solver_mae",
+                                Double.NaN,
+                            )
+                        val baselineMae =
+                            anchorReconstructionGlobal.optDouble(
+                                "baseline_mae",
+                                Double.NaN,
+                            )
+                        val cov2 =
+                            anchorReconstructionGlobal.optDouble(
+                                "solver_coverage_2sigma",
+                                Double.NaN,
+                            )
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · HOLDOUT AUDIT · holdouts=" +
+                                holdouts +
+                                " · solver/baseline valid=" +
+                                solverValid + "/" + baselineValid +
+                                " · both=" + bothValid +
+                                " · lower-|error| solver/baseline=" +
+                                solverWins + "/" + baselineWins +
+                                " · MAE solver/baseline=" +
+                                (if (solverMae.isFinite()) {
+                                    "%.7f".format(solverMae)
+                                } else {
+                                    "?"
+                                }) + "/" +
+                                (if (baselineMae.isFinite()) {
+                                    "%.7f".format(baselineMae)
+                                } else {
+                                    "?"
+                                }) +
+                                " · 2σ coverage=" +
+                                (if (cov2.isFinite()) {
+                                    "%.3f".format(cov2)
+                                } else {
+                                    "?"
+                                }),
+                            10.5f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Echte CFA-ankers worden tijdelijk alleen voor de predictor verborgen; hun waarde wordt " +
+                                "pas daarna als holdout-truth gelezen. De nieuwe lokale affine lattice-solver gebruikt " +
+                                "alleen andere MEASURED ankers. Uitvoer blijft RECONSTRUCTED/audit-only. Een lagere " +
+                                "holdoutfout voorspelt de noisy meting beter, maar bewijst nog geen scene-truth of denoise-winst.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · niet nodig voor deze bronstate · reason=" +
+                                anchorReconstruction.optString(
+                                    "reason",
+                                    "UNKNOWN",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · UNKNOWN/fail-closed · reason=" +
+                                anchorReconstruction.optString(
+                                    "reason",
+                                    "niet beschikbaar",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
                 }
 
                 addView(label(
