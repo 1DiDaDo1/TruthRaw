@@ -3647,6 +3647,10 @@ class MainActivity : Activity() {
                     ) ?: JSONObject()
                 val anchorReconstructionGlobal =
                     anchorReconstruction.optJSONObject("global") ?: JSONObject()
+                val observationModelSelection =
+                    profile.optJSONObject(
+                        "universal_observation_model_selection",
+                    ) ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3708,6 +3712,13 @@ class MainActivity : Activity() {
                             "De fijnere lattice is alleen een vrije wetenschappelijke coördinatenwereld: " +
                             "tussenposities starten UNKNOWN, krijgen geen verzonnen pixelwaarde en verhogen " +
                             "de optische bronresolutie niet. Het bronraster bepaalt waar gemeten is, niet waar D.RAW mag rekenen.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Originele resolutie is NIET alleen een noise-raster: zij blijft de full-resolution " +
+                            "MEASURED steun voor CFA-waarden, detail, structuur, geometrie en authority. " +
+                            "De oplossingsruimte en uiteindelijke projectieresolutie mogen daarvan losstaan.",
                         10f,
                         muted = true,
                     ))
@@ -4486,6 +4497,39 @@ class MainActivity : Activity() {
                         addView(label(
                             "Anchor-Constrained Local Reconstruction v0.1 · UNKNOWN/fail-closed · reason=" +
                                 anchorReconstruction.optString(
+                                    "reason",
+                                    "niet beschikbaar",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                when (observationModelSelection.optString("status")) {
+                    "PROSPECTIVE_AUDIT_POLICY_AVAILABLE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "Universal Observation Model Selection v0.1 · PROSPECTIVE · queries=" +
+                                observationModelSelection.optInt("query_count", 0) +
+                                " · lensCalibration=false · cameraModel=false · vendorMap=false",
+                            10.5f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Modelbank wordt alleen uit deze verzegelde observation begrensd: exacte CFA-ankers, " +
+                                "vrije lattice, Structure/Censored/CensorBoundary-support en frontside-geometrie. " +
+                                "Geen held-out target/error wordt gebruikt voor selectie. De bestaande 29-09 tele-holdout " +
+                                "is development evidence; een nieuwe onafhankelijke capture is vereist voor validatie.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "Universal Observation Model Selection v0.1 · UNKNOWN/fail-closed · reason=" +
+                                observationModelSelection.optString(
                                     "reason",
                                     "niet beschikbaar",
                                 ),
