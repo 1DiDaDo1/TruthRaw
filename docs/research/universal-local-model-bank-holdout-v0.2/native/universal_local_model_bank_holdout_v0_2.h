@@ -43,11 +43,14 @@ struct ModelPrediction final {
     double estimate = 0.0;
     double residualRms = 0.0;
     double selectionScore = 0.0;
+    double internalSelectionScore = 0.0;
     double predictionVariance = 0.0;
     std::uint32_t supportSamples = 0u;
     std::uint32_t trainSamples = 0u;
     std::uint32_t validationSamples = 0u;
     double validationRms = 0.0;
+    std::uint32_t internalValidationSamples = 0u;
+    double internalValidationRms = 0.0;
     std::int32_t directionDx = 0;
     std::int32_t directionDy = 0;
 };
