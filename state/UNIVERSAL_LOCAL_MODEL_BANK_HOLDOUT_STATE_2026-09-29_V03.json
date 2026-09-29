@@ -2,7 +2,7 @@
   "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.3",
   "date": "2026-09-29",
   "branch": "research/universal-local-model-bank-holdout-v03-2026-09-29",
-  "status": "GREEN_BUILD_READY_FOR_INDEPENDENT_DEVICE_VALIDATION",
+  "status": "FIRST_INDEPENDENT_DEVICE_VALIDATION_COMPLETE_NO_PROMOTION",
   "parent": {
     "pr": 93,
     "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
@@ -95,14 +95,17 @@
     "scientific_writeback_allowed": false
   },
   "validation": {
-    "new_independent_real_device_raw_required": true,
+    "new_independent_real_device_raw_required": false,
     "paired_v01_v02_v03_same_source_required": true,
     "identical_holdout_coordinates_expected": true,
     "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
     "post_result_selector_changes_allowed": false,
-    "ready_for_new_independent_device_raw": true
+    "ready_for_new_independent_device_raw": true,
+    "first_independent_validation_complete": true,
+    "additional_independent_observations_required": true,
+    "selector_changes_after_first_independent_result_allowed": false
   },
-  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_V03_HOLDOUT_EXPORT",
+  "next_gate": "ADDITIONAL_FROZEN_INDEPENDENT_OBSERVATIONS_NO_SELECTOR_CHANGES",
   "build_checkpoint": {
     "code_sha": "57754bf573bf964d042964843f080282d23d9cab",
     "workflow": "D.RAW Android DngCreator Compatibility v0.1",
@@ -113,5 +116,22 @@
     "artifact_digest": "sha256:9e599ffa625f92a3c5443ce7714cbe529f8cf5673eff13725503ed3ccf81fa5b",
     "apk_sha256": "fb08d089b71cf367106fae798703e36ba108a947a759d68f1fbeb31ef05a7752",
     "prior_universal_intake_failure_reason": "EXTERNAL_ANDROID_SDK_CMAKE_3_22_1_ARCHIVE_DOWNLOAD_ERROR_NOT_CODE_FAILURE"
+  },
+  "independent_result": {
+    "result_path": "state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03_INDEPENDENT_RESULT_2026-09-29.json",
+    "source_filename": "IMG_20260403_182145.dng",
+    "source_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
+    "original_source_byte_reverified": true,
+    "holdouts": 11844,
+    "v01_mae": 0.0055470636134495105,
+    "v02_mae": 0.005701953665487504,
+    "v03_mae": 0.00552648468254289,
+    "v03_mae_reduction_vs_v02": 0.03077348453507844,
+    "v03_mae_reduction_vs_v01": 0.0037098782960996216,
+    "v03_vs_v02_spatially_robust": true,
+    "v03_vs_v01_spatial_superiority_established": false,
+    "v03_mean_selector_regret": 0.0012407493790761567,
+    "v01_mean_selector_regret": 0.0009239518565886526,
+    "promotion_allowed": false
   }
 }
