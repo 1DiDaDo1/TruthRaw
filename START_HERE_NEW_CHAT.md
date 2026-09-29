@@ -5,11 +5,29 @@
 Read first:
 
 1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json`
-2. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
-3. `docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
-4. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
-5. `docs/research/universal-observation-model-selection-v0.1/README.md`
-6. PR #90 real-device result remains negative evidence for universal affine promotion.
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+6. `docs/research/universal-observation-model-selection-v0.1/README.md`
+7. PR #90 real-device result remains negative evidence for universal affine promotion.
+
+
+PR #92 first independent device result is now available on capture
+`DRAW_CAPTURE_1790703829897_tele_4080x3072`:
+
+- 11,844 full-resolution real CFA hold-outs, exactly 2,961 per CFA phase;
+- selected model valid on 11,844/11,844; baseline valid on 11,667/11,844;
+- directly comparable MAE: selected ≈ 0.02082264 vs baseline ≈ 0.02143966;
+- directly comparable RMSE: selected ≈ 0.02706725 vs baseline ≈ 0.02784103;
+- wins selected/baseline = 6,227 / 5,440;
+- selected bias ≈ -0.00032525 vs baseline ≈ -0.00315449;
+- post-reveal oracle MAE ≈ 0.01833255; mean selector regret ≈ 0.00247127;
+- directional-line and affine-plane center estimates were exactly identical on all 11,844 hold-outs under the current symmetric 80-sample support, revealing a model-bank redundancy;
+- all target-leakage/lens/camera/vendor/writeback safety flags stayed false;
+- no promotion/writeback is allowed from this result.
+
+Review-package limitation: all JSON sidecars share the same source/scientific/TruthNegative hashes, but the original sealed source RAW/DNG bytes were not included in the uploaded ZIP, so external byte-level source-SHA reverification remains pending.
 
 New in this successor:
 
