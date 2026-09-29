@@ -28,7 +28,9 @@
     "holdout_scope": "STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS",
     "holdout_period": 64,
     "support_radius_source_px": 8,
-    "noise_profile_required_for_selection": false
+    "noise_profile_required_for_selection": false,
+    "dark_chroma_dependency_required": false,
+    "prospective_query_policy_required": false
   },
   "model_bank": [
     "ROBUST_MEDIAN_CONSTANT",
