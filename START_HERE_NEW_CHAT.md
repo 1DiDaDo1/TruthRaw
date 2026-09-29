@@ -1,3 +1,30 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION OPTICAL FIELD CHART v0.1 — 2026-09-29
+
+**Current optical-field branch:** `research/observation-optical-field-chart-v01-2026-09-29`
+
+Read first:
+
+1. `state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json`
+2. `docs/research/observation-optical-field-chart-v0.1/README.md`
+3. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
+
+Purpose:
+
+- implement the user's "flat lens" idea as a deterministic flat field-coordinate chart;
+- source/active-area positions are mapped to rho + azimuth + radial/tangential basis;
+- geometric center is a declared coordinate origin only, not a proven physical optical axis;
+- existing measured CFA samples are grouped into 12 radial annuli and 12 azimuth sectors;
+- per-annulus CFA-phase medians and azimuthal dispersion are recorded;
+- observed outer/inner signal falloff is descriptive scene+lens+sensor evidence, not automatically lens vignetting;
+- no cos^4 model, lens profile, camera model or vendor map is assumed;
+- no correction gain, measured-sample mutation or Scientific Master writeback is allowed.
+
+Current measured topology is inherited from BacksideSignalSupportAudit: classic TIFF/DNG, uncompressed unsigned 16-bit, single sample/pixel, strips. Unsupported layouts fail closed for the measured field signal while the geometry chart can still exist when raster geometry is known.
+
+Next gate: green Android build, then inspect a real-device radial/azimuthal field profile without applying any correction.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.3 — 2026-09-29
 
 **Current stacked successor:** `research/universal-local-model-bank-holdout-v03-2026-09-29`
