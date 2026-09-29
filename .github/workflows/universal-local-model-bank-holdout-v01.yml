@@ -1,0 +1,27 @@
+name: Universal Local Model Bank Holdout v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/universal-local-model-bank-holdout-v0.1/**'
+      - 'suite_android/app/src/main/cpp/universal_local_model_bank_holdout_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalLocalModelBankHoldoutV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json'
+      - 'tools/check_universal_local_model_bank_holdout_v01.py'
+      - '.github/workflows/universal-local-model-bank-holdout-v01.yml'
+  push:
+    branches:
+      - 'research/universal-local-model-bank-holdout-v01-2026-09-29'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_universal_local_model_bank_holdout_v01.py
