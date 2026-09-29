@@ -33,7 +33,8 @@
     "noise_correction_enabled": false,
     "chroma_correction_supported": false,
     "private_chroma_ab_delta_allowed": false,
-    "scientific_writeback_allowed": false
+    "scientific_writeback_allowed": false,
+    "correction_supported": false
   },
   "single_observation_contract": {
     "source_observation_count": 1,
