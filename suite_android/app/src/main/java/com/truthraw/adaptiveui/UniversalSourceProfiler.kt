@@ -636,6 +636,10 @@ object UniversalSourceProfiler {
             .put("sealed_source_does_not_seal_interpretation", true)
             .put("representation_may_exceed_source", true)
             .put("knowledge_claims_may_not_exceed_evidence", true)
+            .put("scientific_coordinate_domain_can_be_raster_independent", true)
+            .put("source_raster_defines_measurement_sampling_not_world_resolution", true)
+            .put("unmeasured_coordinate_positions_remain_unknown", true)
+            .put("coordinate_precision_does_not_create_evidence", true)
 
     private fun largestRawCandidate(array: JSONArray): JSONObject? {
         var best: JSONObject? = null
