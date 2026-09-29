@@ -45,6 +45,10 @@ assert 'support_crossfit_partition' in cxx
 assert 'directional_affine_both_valid' in cxx
 assert 'directional_affine_bit_identical_estimate' in cxx
 assert 'selector_uses_support_crossfit' in cxx
+assert 'direction_internal_validation_and_cross_family_validation_separated' in cxx
+assert 'cross_family_models_share_common_validation_anchors' in cxx
+assert 'internalSelectionScore' in h + cxx
+assert 'internal_validation_samples' in cxx
 assert 'directional_support_conditioned' in cxx
 assert 'directional_strip_half_width_source_px' in cxx
 
