@@ -64,9 +64,15 @@
   "validation": {
     "current_uploaded_source_can_be_used_as_development_evidence": true,
     "independent_optical_field_validation_not_yet_defined": true,
-    "no_correction_or_promotion_allowed": true
+    "no_correction_or_promotion_allowed": true,
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "development_runtime_verification_source": "IMG_20260403_182145.dng",
+    "minimum_new_same_route_scenes_before_repeatability_candidate": 3,
+    "single_scene_lens_vignetting_inference_allowed": false,
+    "gain_map_agreement_can_promote_truth": false
   },
-  "next_gate": "BUILD_AND_EXPORT_FIELD_CHART_THEN_INSPECT_REAL_DEVICE_RADIAL_AZIMUTHAL_PROFILE",
+  "next_gate": "GREEN_ANDROID_BUILD_THEN_DEVELOPMENT_RUNTIME_PROFILE_EXPORT",
   "source_metadata_hints": {
     "opcode_list_2_header_parse_allowed": true,
     "opcode_ids_and_header_sizes_only": false,
