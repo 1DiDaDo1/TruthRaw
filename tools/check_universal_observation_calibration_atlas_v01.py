@@ -7,6 +7,7 @@ JAVA = ROOT / "suite_android/app/src/main/java/com/truthraw/adaptiveui"
 
 atlas = (JAVA / "UniversalObservationCalibrationAtlasV01.kt").read_text()
 profiler = (JAVA / "UniversalSourceProfiler.kt").read_text()
+main = (JAVA / "MainActivity.kt").read_text()
 readme = (ROOT / "docs/research/universal-observation-calibration-atlas-v0.1/README.md").read_text()
 state = json.loads(
     (ROOT / "state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_STATE_2026-09-30.json").read_text()
@@ -49,6 +50,14 @@ for needle in [
 
 assert profiler.count("UniversalObservationCalibrationAtlasV01.describe") >= 3
 
+for needle in [
+    "Export Universal Observation & Calibration Atlas v0.1 · JSON",
+    "launchUniversalCalibrationAtlasExport",
+    "REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127",
+    "_draw_universal_observation_calibration_atlas_v0_1.json",
+]:
+    assert needle in main, f"missing Android export binding: {needle}"
+
 for banned in [
     '.put("camera_identity_required", true)',
     '.put("lens_identity_required", true)',
@@ -84,6 +93,7 @@ assert state["precision"]["controlled_float32_scientific_storage_preserved"] is 
 assert state["zero_line_truthrange"]["black_level_is_zero_line"] is False
 assert state["restoration"]["measured_support_overpaint_allowed"] is False
 assert state["invariants"]["scientific_writeback_allowed"] is False
+assert state["integration"]["json_export_added"] is True
 
 for phrase in [
     "Calibration is extra evidence, not an entrance requirement.",
