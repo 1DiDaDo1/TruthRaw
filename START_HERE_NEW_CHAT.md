@@ -20,7 +20,7 @@ Purpose:
 
 The atlas is attached even when the RAW/container cannot yet be scientifically decoded. Unsupported axes remain UNKNOWN.
 
-Explicit Android JSON export is implemented and the full ARM64 Android build is green (run 36641226959; APK SHA-256 12c95e8c4d6501cf5ff8c7d8d3ca9076b5e1d02c6ebf96469b2245dc7f2dc32d). Next gate: real-device export from one admitted DNG and one opaque/unsupported RAW path; do not promote calibration/correction before that.
+Explicit Android JSON export is implemented and the full ARM64 Android build is green. The first real-device admitted-DNG atlas export is also validated: source SHA 578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e; frontside + measured backside + sample lattice + PR96 field chart available; F64 reconstruction policy / F32 Scientific Master / Zero-Line bindings verified; no user calibration, auto colour/light correction or writeback. The opaque/unsupported-RAW half of the physical gate is still pending.
 
 ---
 
