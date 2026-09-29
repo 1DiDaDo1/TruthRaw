@@ -371,6 +371,7 @@ bool fit_least_squares(
     out.residualRms =
         std::sqrt(std::max(0.0, sse / static_cast<double>(n)));
     out.selectionScore = score;
+    out.internalSelectionScore = score;
     out.predictionVariance = predictionVariance;
     out.supportSamples = static_cast<std::uint32_t>(n);
     out.directionDx = directionDx;
@@ -636,13 +637,19 @@ bool fit_least_squares_crossfit(
     out.model = model;
 
     std::vector<Sample> train;
-    std::vector<Sample> validation;
+    std::vector<Sample> internalValidation;
+    std::vector<Sample> commonValidation;
     std::vector<Sample> admitted;
     train.reserve(samples.size());
-    validation.reserve(samples.size());
+    internalValidation.reserve(samples.size());
+    commonValidation.reserve(samples.size());
     admitted.reserve(samples.size());
 
     for (const auto& s : samples) {
+        if (s.validation) {
+            commonValidation.push_back(s);
+        }
+
         if (directionConditioned &&
             !within_direction_strip(
                 s,
@@ -650,13 +657,15 @@ bool fit_least_squares_crossfit(
                 directionDy)) {
             continue;
         }
+
         admitted.push_back(s);
-        if (s.validation) validation.push_back(s);
+        if (s.validation) internalValidation.push_back(s);
         else train.push_back(s);
     }
 
     if (train.size() < minTrain ||
-        validation.size() < minValidation) {
+        internalValidation.size() < minValidation ||
+        commonValidation.size() < kMinCrossfitValidation) {
         return true;
     }
 
@@ -672,36 +681,61 @@ bool fit_least_squares_crossfit(
     }
     if (!trainFit.valid) return true;
 
-    long double validationSseLd = 0.0L;
-    for (const auto& s : validation) {
-        double predicted = 0.0;
-        if (!predict_linear(
-                trainFit,
-                model,
-                directionDx,
-                directionDy,
-                s,
-                predicted)) {
-            return false;
-        }
-        const double residual = s.value - predicted;
-        validationSseLd +=
-            static_cast<long double>(residual) *
-            static_cast<long double>(residual);
+    const auto validation_sse =
+        [&](const std::vector<Sample>& set, long double& sse) noexcept {
+            sse = 0.0L;
+            for (const auto& s : set) {
+                double predicted = 0.0;
+                if (!predict_linear(
+                        trainFit,
+                        model,
+                        directionDx,
+                        directionDy,
+                        s,
+                        predicted)) {
+                    return false;
+                }
+                const double residual = s.value - predicted;
+                sse +=
+                    static_cast<long double>(residual) *
+                    static_cast<long double>(residual);
+            }
+            return true;
+        };
+
+    long double internalSseLd = 0.0L;
+    long double commonSseLd = 0.0L;
+    if (!validation_sse(internalValidation, internalSseLd) ||
+        !validation_sse(commonValidation, commonSseLd)) {
+        return false;
     }
-    const double validationSse =
-        static_cast<double>(validationSseLd);
-    const double score =
+
+    const double internalSse =
+        static_cast<double>(internalSseLd);
+    const double commonSse =
+        static_cast<double>(commonSseLd);
+
+    const double internalScore =
         crossfit_predictive_score(
-            validationSse,
-            validation.size(),
+            internalSse,
+            internalValidation.size(),
             train.size(),
             trainFit.parameters);
-    if (!std::isfinite(score)) return true;
+    const double commonScore =
+        crossfit_predictive_score(
+            commonSse,
+            commonValidation.size(),
+            train.size(),
+            trainFit.parameters);
+    if (!std::isfinite(internalScore) ||
+        !std::isfinite(commonScore)) {
+        return true;
+    }
 
-    // After the selection score is frozen from train->validation prediction,
-    // refit the same candidate on all surrounding admitted anchors. This still
-    // happens before the held-out target is read and does not create evidence.
+    // The internal score can choose a direction within the directional family.
+    // Cross-family selection uses the common validation score so constant,
+    // directional, affine and quadratic candidates are compared on the same
+    // target-blind validation anchors.
     LinearFit finalFit{};
     if (!solve_linear_fit(
             admitted,
@@ -717,24 +751,35 @@ bool fit_least_squares_crossfit(
     out.valid = true;
     out.estimate = finalFit.beta[0];
     out.residualRms = finalFit.residualRms;
-    out.selectionScore = score;
+    out.selectionScore = commonScore;
+    out.internalSelectionScore = internalScore;
     out.predictionVariance = finalFit.predictionVariance;
     out.supportSamples =
         static_cast<std::uint32_t>(admitted.size());
     out.trainSamples =
         static_cast<std::uint32_t>(train.size());
     out.validationSamples =
-        static_cast<std::uint32_t>(validation.size());
+        static_cast<std::uint32_t>(commonValidation.size());
     out.validationRms =
         std::sqrt(
             std::max(
                 0.0,
-                validationSse /
-                    static_cast<double>(validation.size())));
+                commonSse /
+                    static_cast<double>(commonValidation.size())));
+    out.internalValidationSamples =
+        static_cast<std::uint32_t>(internalValidation.size());
+    out.internalValidationRms =
+        std::sqrt(
+            std::max(
+                0.0,
+                internalSse /
+                    static_cast<double>(
+                        internalValidation.size())));
     out.directionDx = directionDx;
     out.directionDy = directionDy;
     return std::isfinite(out.estimate) &&
-           std::isfinite(out.validationRms);
+           std::isfinite(out.validationRms) &&
+           std::isfinite(out.internalValidationRms);
 }
 
 bool fit_robust_constant_crossfit(
@@ -840,6 +885,10 @@ bool fit_robust_constant_crossfit(
                 0.0,
                 validationSse /
                     static_cast<double>(validation.size())));
+    out.internalValidationSamples =
+        out.validationSamples;
+    out.internalValidationRms =
+        out.validationRms;
     return true;
 }
 
@@ -865,11 +914,11 @@ bool fit_directional_crossfit(
         }
         if (!candidate.valid) continue;
         if (!have ||
-            candidate.selectionScore + 1.0e-12 <
-                out.selectionScore ||
+            candidate.internalSelectionScore + 1.0e-12 <
+                out.internalSelectionScore ||
             (std::abs(
-                 candidate.selectionScore -
-                 out.selectionScore) <= 1.0e-12 &&
+                 candidate.internalSelectionScore -
+                 out.internalSelectionScore) <= 1.0e-12 &&
              std::pair<int,int>(
                  candidate.directionDx,
                  candidate.directionDy) <
@@ -974,6 +1023,8 @@ void write_prediction(
     o << ",\"" << prefix << "_estimate\":" << p.estimate;
     o << ",\"" << prefix << "_residual_rms\":" << p.residualRms;
     o << ",\"" << prefix << "_selection_score\":" << p.selectionScore;
+    o << ",\"" << prefix << "_internal_selection_score\":"
+      << p.internalSelectionScore;
     o << ",\"" << prefix << "_prediction_variance\":"
       << p.predictionVariance;
     o << ",\"" << prefix << "_support_samples\":"
@@ -984,6 +1035,10 @@ void write_prediction(
       << p.validationSamples;
     o << ",\"" << prefix << "_validation_rms\":"
       << p.validationRms;
+    o << ",\"" << prefix << "_internal_validation_samples\":"
+      << p.internalValidationSamples;
+    o << ",\"" << prefix << "_internal_validation_rms\":"
+      << p.internalValidationRms;
     if (p.model == ModelId::DirectionalStripLine) {
         o << ",\"" << prefix << "_direction\":["
           << p.directionDx << "," << p.directionDy << "]";
@@ -1507,6 +1562,8 @@ bool run(
         o << "  \"support_crossfit_partition\":"
              "\"VALIDATION_WHEN_OFFSET_LATTICE_INDEX_SUM_MOD_3_EQUALS_0\",\n";
         o << "  \"selector_uses_support_crossfit\":true,\n";
+        o << "  \"direction_internal_validation_and_cross_family_validation_separated\":true,\n";
+        o << "  \"cross_family_models_share_common_validation_anchors\":true,\n";
         o << "  \"crossfit_partition_uses_target\":false,\n";
         o << "  \"final_candidate_refit_uses_all_admitted_neighbor_support\":true,\n";
         o << "  \"final_candidate_refit_occurs_before_target_reveal\":true,\n";
