@@ -20,7 +20,7 @@ Purpose:
 
 The atlas is attached even when the RAW/container cannot yet be scientifically decoded. Unsupported axes remain UNKNOWN.
 
-Next gate: explicit Android JSON export, green Android build, then validate one admitted DNG and one opaque/unsupported RAW path.
+Explicit Android JSON export is now implemented. Next gate: green Android build, then validate one admitted DNG and one opaque/unsupported RAW path.
 
 ---
 
