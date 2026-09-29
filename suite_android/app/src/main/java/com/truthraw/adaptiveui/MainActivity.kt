@@ -3229,6 +3229,14 @@ class MainActivity : Activity() {
                     scene.optJSONObject("dark_chroma_stability_v0_5") ?: JSONObject()
                 val darkChromaV05Global =
                     darkChromaV05.optJSONObject("global") ?: JSONObject()
+                val n2SupportDistance =
+                    profile.optJSONObject("n2_sample_support_distance") ?: JSONObject()
+                val n2SupportDistanceGlobal =
+                    n2SupportDistance.optJSONObject("global") ?: JSONObject()
+                val darkChromaV06 =
+                    scene.optJSONObject("dark_chroma_stability_v0_6") ?: JSONObject()
+                val darkChromaV06Global =
+                    darkChromaV06.optJSONObject("global") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3769,6 +3777,129 @@ class MainActivity : Activity() {
                         "v0.5 verandert het v0.4-veto nog niet. Het meet alleen hoe dicht structure-protection " +
                             "werkelijk binnen/om de selectieve frontside-regio ligt. Geen kansscore, geen verborgen " +
                             "kleur, geen private A/B/Δ en geen Scientific-Master-writeback.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (n2SupportDistance.optString("status")) {
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" -> {
+                        val zero =
+                            n2SupportDistanceGlobal.optJSONArray(
+                                "center_zero_structure_candidates_r8_r16_r32_r64",
+                            ) ?: JSONArray()
+                        val nearestCenter =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_center_structure_distance_px",
+                            ) ?: JSONObject()
+                        val nearestRect =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_rect_structure_distance_px",
+                            ) ?: JSONObject()
+                        fun fmtDistance(o: JSONObject, key: String): String {
+                            val v = o.optDouble(key, Double.NaN)
+                            return if (v.isFinite()) "%.2f".format(v) else "?"
+                        }
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · EXACT SAMPLED GEOMETRY · queries=" +
+                                n2SupportDistanceGlobal.optLong("query_count", 0L) +
+                                " · structure-inside=" +
+                                n2SupportDistanceGlobal.optLong(
+                                    "structure_inside_rect_candidates",
+                                    0L,
+                                ) +
+                                " · center-zero r8/16/32/64=" +
+                                zero.optLong(0, 0L) + "/" +
+                                zero.optLong(1, 0L) + "/" +
+                                zero.optLong(2, 0L) + "/" +
+                                zero.optLong(3, 0L) +
+                                " · nearest-center min/med/max=" +
+                                fmtDistance(nearestCenter, "min") + "/" +
+                                fmtDistance(nearestCenter, "median") + "/" +
+                                fmtDistance(nearestCenter, "max") +
+                                " px · nearest-rect min/med/max=" +
+                                fmtDistance(nearestRect, "min") + "/" +
+                                fmtDistance(nearestRect, "median") + "/" +
+                                fmtDistance(nearestRect, "max") + " px",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Exacte N2 sample-coördinaten voor structure/censor/boundary zijn in de sidecar " +
+                                "opgenomen en gehasht. Afstanden en radius-dichtheden zijn alleen diagnostiek: " +
+                                "geen interpolatie van onbemeten pixels, geen kansscore en geen correctie-enable. " +
+                                "v0.5 aggregate parity=" +
+                                n2SupportDistance.optBoolean(
+                                    "v0_5_aggregate_parity_verified",
+                                    false,
+                                ) +
+                                ".",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · niet nodig voor deze bronstate · reason=" +
+                                n2SupportDistance.optString("reason", "UNKNOWN") +
+                                ". Geen extra afstandsaudit uitgevoerd.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · UNKNOWN/fail-closed · reason=" +
+                                n2SupportDistance.optString("reason", "niet beschikbaar") +
+                                ". Geen afstandsclaim zonder exact sampled support.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                if (
+                    darkChromaV06.optString("status") ==
+                    "AUDIT_ONLY_SAMPLE_SUPPORT_DISTANCE_AVAILABLE"
+                ) {
+                    val zero =
+                        darkChromaV06Global.optJSONArray(
+                            "center_zero_structure_candidates_r8_r16_r32_r64",
+                        ) ?: JSONArray()
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.6 · SAMPLE-LEVEL SUPPORT DISTANCE · visible=" +
+                            darkChromaV06Global.optLong("visible_candidate_tiles", 0L) +
+                            " · distance-bound=" +
+                            darkChromaV06Global.optLong(
+                                "distance_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · structure-inside=" +
+                            darkChromaV06Global.optLong(
+                                "structure_inside_rect_candidates",
+                                0L,
+                            ) +
+                            " · center-zero r8/16/32/64=" +
+                            zero.optLong(0, 0L) + "/" +
+                            zero.optLong(1, 0L) + "/" +
+                            zero.optLong(2, 0L) + "/" +
+                            zero.optLong(3, 0L) +
+                            " · correction-supported=" +
+                            darkChromaV06Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.6 voert nog geen afstandsdrempel in. Exact sampled structure/censor-support blijft " +
+                            "een vector van meetfeiten; het mag bestaande bescherming niet verminderen en " +
+                            "private chroma A/B/Δ blijft uit.",
                         10f,
                         muted = true,
                     ))
