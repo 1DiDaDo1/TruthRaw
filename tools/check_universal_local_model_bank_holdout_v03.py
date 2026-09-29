@@ -87,9 +87,13 @@ assert 'universal_local_model_bank_holdout_v0_3' in profiler
 for needle in [
     'UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03',
     'universal_local_model_bank_holdout_v03_bridge.cpp',
-    'universal_local_model_bank_holdout_v0_3.cpp',
+    '${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02}/universal_local_model_bank_holdout_v0_2.cpp',
+    '${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03}/universal_local_model_bank_holdout_v0_3.cpp',
+    '${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03}',
 ]:
     assert needle in cmake, f'missing v0.3 CMake integration: {needle}'
+
+assert '${UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03}/universal_local_model_bank_holdout_v0_2.cpp' not in cmake
 
 for needle in [
     'Export Universal Local Model Bank Holdout v0.3 · JSON',
