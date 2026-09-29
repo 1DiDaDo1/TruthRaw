@@ -1,0 +1,211 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutV03PairedIndependentResult/0.1",
+  "date": "2026-09-29",
+  "source": {
+    "filename": "IMG_20260403_182145.dng",
+    "byte_size": 25097544,
+    "computed_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
+    "original_package": "IMG_20260403_182145.zip",
+    "original_package_sha256": "f1fd776f9088b21bbb929883d88149af6ca5cb46f53cfc5726c36a83779e3abc",
+    "source_sha_matches_v01_v02_v03_sidecars": true,
+    "repository_filename_or_sha_found_before_result": false,
+    "classification": "NEW_PREVIOUSLY_UNSCORED_FOR_V03_VALIDATION"
+  },
+  "result_package": {
+    "filename": "DRAWtest3.zip",
+    "sha256": "1617c26a53a94a319c5fa8118817187d63db27fc991c5e741dace9cd3a739876",
+    "scientific_master_projection_filename": "IMG_20260403_182145_draw_full_colour_scientific_master_float32_v0_1.dng",
+    "scientific_master_projection_sha256": "16c218cc75afb030ed8d1130a9823a15731cd12e2e4770235fb9b914de1002bd"
+  },
+  "bindings": {
+    "source_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
+    "scientific_master_sha256": "6ee9e4e7eb66764681165b13272103e8dac8d2a78cb77f94d357194e28baff6b",
+    "authority_field_sha256": "3bf7ab9bfa4a094b6506410845768c03c1865fea90b3069d4d77cdc110fd735f",
+    "truthnegative_state_sha256": "f63b9e4d27012fb329b7c201a77a9b69104b5fe612af861fe129d64a4463a203",
+    "identical_across_v01_v02_v03": true
+  },
+  "paired_protocol": {
+    "source_width": 4080,
+    "source_height": 3072,
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "holdouts": 11844,
+    "holdout_coordinates_exact_match_v01_v02_v03": true,
+    "targets_exact_match_v01_v02_v03": true,
+    "baseline_validity_exact_match": true,
+    "baseline_estimates_exact_match": true,
+    "baseline_valid": 11012,
+    "cfa_phase_holdouts": [
+      2961,
+      2961,
+      2961,
+      2961
+    ],
+    "no_model_selected_v01_v02_v03": [
+      0,
+      0,
+      0
+    ],
+    "v02_v03_candidate_estimates_exact_match": true,
+    "v02_v03_candidate_validation_rms_exact_match": true,
+    "v02_v03_candidate_support_geometry_exact_match": true,
+    "only_cross_family_selector_score_and_selected_model_may_differ": true
+  },
+  "all_holdouts": {
+    "v01_mae": 0.0055470636134495105,
+    "v02_mae": 0.005701953665487504,
+    "v03_mae": 0.00552648468254289,
+    "v01_rmse": 0.010087825252012503,
+    "v02_rmse": 0.010394504028323936,
+    "v03_rmse": 0.009954112242883839,
+    "v01_bias": 0.00017392379642874032,
+    "v02_bias": 0.00011266458276950341,
+    "v03_bias": 0.00018069255331661592,
+    "v03_mae_reduction_vs_v02": 0.03077348453507844,
+    "v03_rmse_reduction_vs_v02": 0.042367753597485285,
+    "v03_mae_reduction_vs_v01": 0.0037098782960996216,
+    "v03_rmse_reduction_vs_v01": 0.013254889511690161,
+    "v03_vs_v02_abs_error_wins": [
+      3715,
+      3445,
+      4684
+    ],
+    "v03_vs_v01_abs_error_wins": [
+      3178,
+      3191,
+      5475
+    ]
+  },
+  "reference_comparable": {
+    "holdouts": 11012,
+    "reference_mae": 0.004946190191285415,
+    "reference_rmse": 0.008438526144301357,
+    "reference_bias": -0.00015185882669260827,
+    "v01_mae": 0.0048725273209798406,
+    "v02_mae": 0.004986334974118507,
+    "v03_mae": 0.004878683629695332,
+    "v01_rmse": 0.008055782688617943,
+    "v02_rmse": 0.008247056144152791,
+    "v03_rmse": 0.008081660329642616,
+    "v03_mae_reduction_vs_reference": 0.013654269122477754,
+    "v03_rmse_reduction_vs_reference": 0.0422899971916837,
+    "v01_selected_vs_reference_wins": [
+      5756,
+      5256
+    ],
+    "v02_selected_vs_reference_wins": [
+      5664,
+      5348
+    ],
+    "v03_selected_vs_reference_wins": [
+      5705,
+      5307
+    ],
+    "interpretation": "v0.3 beats the historical reference on this common-valid subset, while v0.1 remains slightly lower in MAE than v0.3 on the same subset."
+  },
+  "selector": {
+    "v01_selected_distribution": {
+      "DIRECTIONAL_LINE": 6600,
+      "ROBUST_MEDIAN_CONSTANT": 2659,
+      "QUADRATIC_SURFACE": 1944,
+      "AFFINE_PLANE": 641
+    },
+    "v02_selected_distribution": {
+      "ROBUST_MEDIAN_CONSTANT": 5679,
+      "DIRECTIONAL_STRIP_LINE": 3522,
+      "AFFINE_PLANE": 2023,
+      "QUADRATIC_SURFACE": 620
+    },
+    "v03_selected_distribution": {
+      "QUADRATIC_SURFACE": 4860,
+      "AFFINE_PLANE": 3126,
+      "DIRECTIONAL_STRIP_LINE": 2107,
+      "ROBUST_MEDIAN_CONSTANT": 1751
+    },
+    "v01_oracle_match_fraction": 0.3193177980412023,
+    "v02_oracle_match_fraction": 0.26165146909827763,
+    "v03_oracle_match_fraction": 0.26688618709895306,
+    "v01_mean_selector_regret": 0.0009239518565886526,
+    "v02_mean_selector_regret": 0.0014162183620183215,
+    "v03_mean_selector_regret": 0.0012407493790761567,
+    "v01_median_selector_regret": 0.00028209788699999996,
+    "v02_median_selector_regret": 0.0004769823455,
+    "v03_median_selector_regret": 0.00041349678449999997,
+    "v01_p95_selector_regret": 0.004010083016,
+    "v02_p95_selector_regret": 0.005665830158,
+    "v03_p95_selector_regret": 0.005052289052,
+    "conclusion": "v0.3 materially recovers the v0.2 selector regression but does not yet surpass v0.1 selector regret."
+  },
+  "cfa_phase": {
+    "v03_minus_v01_mae_delta": [
+      -0.0000013389133221886258,
+      -0.000049381988523471575,
+      -0.00002002768099864853,
+      -0.000011567140782168142
+    ],
+    "v03_minus_v02_mae_delta": [
+      -0.00010717661358561283,
+      -0.00024054574953090118,
+      -0.00021304135346403183,
+      -0.00014111221519790617
+    ],
+    "v03_lower_mae_than_v01_in_all_four_phases": true,
+    "v03_lower_mae_than_v02_in_all_four_phases": true
+  },
+  "spatial_robustness": {
+    "block_definition": "512x512 source-coordinate blocks",
+    "blocks": 48,
+    "v03_vs_v02_blocks_better_worse_tie": [
+      34,
+      14,
+      0
+    ],
+    "v03_vs_v01_blocks_better_worse_tie": [
+      25,
+      23,
+      0
+    ],
+    "v03_minus_v02_block_bootstrap_95pct_mean_abs_error_delta": [
+      -0.00026651822774843354,
+      -0.00009044385607640757
+    ],
+    "v03_minus_v01_block_bootstrap_95pct_mean_abs_error_delta": [
+      -0.00006074493943126515,
+      0.000011617608502330156
+    ],
+    "interpretation": "The recovery versus v0.2 is spatially robust on this source. The small numerical edge versus v0.1 is not spatially decisive because the block-bootstrap interval crosses zero."
+  },
+  "v03_margin_diagnostic": {
+    "mean_selection_margin_rms": 0.0005842079880040527,
+    "median_selection_margin_rms": 0.00012156969449999999,
+    "mean_selection_margin_relative": 0.07187063064533257,
+    "median_selection_margin_relative": 0.0300030163955,
+    "caution": "Larger common-validation RMS margins did not monotonically imply lower post-reveal selector regret on this source; margin must not be treated as calibrated confidence."
+  },
+  "safety": {
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "lens_calibration_used": false,
+    "camera_model_used": false,
+    "vendor_mapping_used": false,
+    "noise_profile_required_for_selection": false,
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "conclusion": {
+    "result": "V03_RECOVERS_V02_REGRESSION_V01_SUPERIORITY_NOT_ESTABLISHED_NO_PROMOTION",
+    "independent_validation_protocol_executed": true,
+    "v03_selector_fix_validated_against_v02_on_this_source": true,
+    "v03_superiority_over_v01_established": false,
+    "scientific_writeback_allowed": false,
+    "next_gate": "ADDITIONAL_FROZEN_INDEPENDENT_OBSERVATIONS_NO_SELECTOR_CHANGES"
+  }
+}

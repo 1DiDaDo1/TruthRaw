@@ -1,3 +1,61 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.3 — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v03-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V03.json`
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03_INDEPENDENT_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.3/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+6. v0.2 remains the frozen candidate-geometry predecessor.
+
+
+First independent v0.3 paired device result is now available on `IMG_20260403_182145.dng`:
+
+- original DNG byte SHA-256 `999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef` exactly matches v0.1/v0.2/v0.3 `source_sha256`;
+- all three versions used the exact same 11,844 holdout coordinates, targets and baseline predictions;
+- v0.2/v0.3 candidate estimates, support geometry and validation RMS values are identical; this is a selector-only comparison;
+- all-holdout MAE: v0.1 ≈ 0.00554706, v0.2 ≈ 0.00570195, v0.3 ≈ 0.00552648;
+- all-holdout RMSE: v0.1 ≈ 0.01008783, v0.2 ≈ 0.01039450, v0.3 ≈ 0.00995411;
+- v0.3 improves MAE ≈ 3.08% and RMSE ≈ 4.24% versus v0.2;
+- v0.3 is numerically ≈ 0.37% lower MAE than v0.1 over all holdouts, but the 512x512 block-bootstrap interval for v0.3-v0.1 crosses zero;
+- on the 11,012 reference-comparable holdouts, v0.1 MAE ≈ 0.00487253, v0.3 ≈ 0.00487868, reference ≈ 0.00494619;
+- v0.3 selector regret improves materially versus v0.2 but remains worse than v0.1;
+- conclusion: v0.3 selector fix successfully recovers the v0.2 regression, but superiority over v0.1 is not established; no promotion/writeback.
+
+Why v0.3 exists:
+
+- v0.2 improved candidate-bank capacity but its selector regressed;
+- v0.3 freezes every v0.2 candidate fit and direction choice;
+- cross-family selection now uses only common target-blind validation RMS;
+- no second BIC/AIC/parameter-count penalty is applied;
+- model complexity is only a deterministic numerical tie-break;
+- each holdout reports second-best validation RMS and selection margin;
+- source raster remains full-resolution MEASURED support, never world-resolution authority;
+- 20-bit raster-independent lattice remains the scientific solution domain;
+- no lens/camera/vendor routing, no AI/ML, no writeback.
+
+Retrospective development replay on the already-observed paired source predicts v0.3 MAE ≈ 0.00442126 vs v0.1 ≈ 0.00446583 and v0.2 ≈ 0.00460044. This is development evidence only, not validation.
+
+New APK test export:
+
+`Export Universal Local Model Bank Holdout v0.3 · JSON`
+
+Green v0.3 Android build checkpoint:
+
+- code SHA: `57754bf573bf964d042964843f080282d23d9cab`;
+- D.RAW Android DngCreator Compatibility run: `36620946032` — SUCCESS;
+- artifact: `11058269102`;
+- artifact digest: `sha256:9e599ffa625f92a3c5443ce7714cbe529f8cf5673eff13725503ed3ccf81fa5b`;
+- APK SHA-256: `fb08d089b71cf367106fae798703e36ba108a947a759d68f1fbeb31ef05a7752`;
+- an earlier Universal Intake retry failed only because the Android SDK CMake 3.22.1 download arrived as an invalid archive; this was external to the code.
+
+Validation law: use one NEW, previously unscored sealed RAW/DNG and export v0.1, v0.2 and v0.3 on that exact source. Holdout coordinates must match. v0.2/v0.3 per-model estimates must be bit-identical; only selected_model may differ.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.2 — 2026-09-29
 
 **Current stacked successor:** `research/universal-local-model-bank-holdout-v02-2026-09-29`
