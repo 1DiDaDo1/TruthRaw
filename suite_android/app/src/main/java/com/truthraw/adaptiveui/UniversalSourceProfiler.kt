@@ -414,6 +414,16 @@ object UniversalSourceProfiler {
                 latticeGeometry = n2SampleLatticeGeometry,
             )
 
+        // Prospective model-bank policy MUST be frozen from observation
+        // geometry before the hold-out solver is allowed to reveal/score any
+        // hidden CFA target. It has no runtime dependency on hold-out results.
+        val universalObservationModelSelection =
+            UniversalObservationModelSelectionV01.analyze(
+                sourceSha256 = sourceSha256,
+                sampleLattice = sampleLattice,
+                latticeGeometry = n2SampleLatticeGeometry,
+            )
+
         val anchorConstrainedReconstruction =
             when {
                 fineStructureNeeded &&
@@ -473,6 +483,10 @@ object UniversalSourceProfiler {
                 "anchor_constrained_local_reconstruction_v0_1",
                 anchorConstrainedReconstruction,
             )
+            .put(
+                "universal_observation_model_selection_v0_1",
+                universalObservationModelSelection,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -501,6 +515,10 @@ object UniversalSourceProfiler {
             .put(
                 "anchor_constrained_local_reconstruction",
                 anchorConstrainedReconstruction,
+            )
+            .put(
+                "universal_observation_model_selection",
+                universalObservationModelSelection,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
