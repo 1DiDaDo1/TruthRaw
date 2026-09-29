@@ -189,6 +189,14 @@ object ObservationOpticalFieldChartV01 {
                     )
             }
 
+        val opcodeList2Hint =
+            primaryRawRaster
+                ?.optJSONObject("opcode_list_2_metadata")
+                ?: JSONObject()
+                    .put("opcode_header_parse_status", "UNAVAILABLE")
+                    .put("gain_map_present", false)
+                    .put("gain_map_applied", false)
+
         return JSONObject()
             .put("schema", SCHEMA)
             .put("status", "FIELD_CHART_AVAILABLE")
@@ -276,6 +284,18 @@ object ObservationOpticalFieldChartV01 {
                     .put("authority", "APPEARANCE_DERIVED_ONLY"),
             )
             .put("measured_composite_field_signal", signal)
+            .put(
+                "source_opcode_provenance_hint",
+                JSONObject()
+                    .put("opcode_list_2", opcodeList2Hint)
+                    .put(
+                        "authority",
+                        "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+                    )
+                    .put("used_as_scientific_calibration", false)
+                    .put("used_to_define_field_coordinates", false)
+                    .put("used_to_modify_source_samples", false),
+            )
             .put(
                 "vignetting_interpretation",
                 JSONObject()
