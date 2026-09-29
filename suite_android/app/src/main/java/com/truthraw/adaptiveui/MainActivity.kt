@@ -601,6 +601,7 @@ class MainActivity : Activity() {
             "camera5-color-highlight-oracle",
             "truthnegative-native-container",
             "truthnegative-n2-spatial-sidecar",
+            "truthnegative-n2-support-distance",
             "truthnegative-n2-crop-ab",
         )
         return kinds
