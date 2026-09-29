@@ -111,7 +111,7 @@
     "attached_to_parsed_dng_tiff": true,
     "attached_to_opaque_non_tiff_source": true,
     "attached_to_tiff_parse_failure": true,
-    "json_export_added": false
+    "json_export_added": true
   },
-  "next_gate": "ADD_EXPLICIT_ANDROID_JSON_EXPORT_THEN_BUILD_AND_VALIDATE_ONE_PARSED_DNG_AND_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE"
+  "next_gate": "GREEN_ANDROID_BUILD_THEN_VALIDATE_ONE_PARSED_DNG_AND_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE"
 }
