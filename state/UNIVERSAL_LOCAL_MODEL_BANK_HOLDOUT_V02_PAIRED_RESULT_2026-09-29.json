@@ -28,13 +28,19 @@
     "baseline_estimates_exact_match": true
   },
   "provenance_limit": {
-    "original_sealed_source_bytes_in_package": false,
+    "original_sealed_source_bytes_initially_in_paired_package": false,
+    "original_source_followup_package": "Originalraw.zip",
+    "original_source_followup_package_sha256": "265e025d64894fc21e5ce646b30e535e44ad8231d939ba22449e241379ead38b",
+    "original_source_filename": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+    "original_source_bytes": 25106108,
+    "original_source_computed_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "original_source_matches_sidecar_source_sha256": true,
+    "source_byte_level_reverification_complete": true,
     "included_full_colour_dng_filename": "IMG_BNC_TRUTHRAW20260907_094414_423_draw_full_colour_scientific_master_float32_v0_1 (1).dng",
     "included_full_colour_dng_sha256": "72488f6ca3d6bccdf000142849f96af06545e39d22995baddeaee2019eb31a35",
-    "included_dng_matches_source_sha256": false,
-    "included_dng_matches_scientific_master_sha256": false,
-    "external_source_byte_sha_reverification_possible_from_package": false,
-    "independence_note": "Paired v0.1/v0.2 comparison is mechanically valid. Strict classification as a previously-unscored independent source is not provable from the package alone."
+    "included_full_colour_dng_matches_source_sha256": false,
+    "included_full_colour_dng_matches_scientific_master_sha256": false,
+    "independence_note": "Source identity and byte-level SHA binding are now externally reverified. Whether this source was previously unscored before v0.2 design is a separate historical-independence question and is not proven by the file bytes alone."
   },
   "all_holdouts": {
     "v01_selected_mae": 0.004465832922537994,
@@ -166,6 +172,7 @@
     "v02_directional_design_question_passed": true,
     "v02_selector_improvement_question_passed": false,
     "scientific_master_writeback_allowed": false,
-    "recommended_next_direction": "KEEP_V02_CANDIDATE_GEOMETRY_REDESIGN_SELECTOR_WITH_OBSERVATION_REGIME_AND_CALIBRATED_GATING"
+    "recommended_next_direction": "KEEP_V02_CANDIDATE_GEOMETRY_REDESIGN_SELECTOR_WITH_OBSERVATION_REGIME_AND_CALIBRATED_GATING",
+    "source_byte_provenance_closed": true
   }
 }
