@@ -47,6 +47,25 @@ object UniversalSourceProfiler {
         base.put("container_sniff", sniff)
 
         if (sniff.optString("family") != "CLASSIC_TIFF") {
+            val frontside =
+                FrontsideSceneInspector.inspect(
+                    resolver,
+                    source.uri,
+                    null,
+                    sourceSha256,
+                )
+            val atlas =
+                UniversalObservationCalibrationAtlasV01.describe(
+                    sourceSha256 = sourceSha256,
+                    sourceClass = "OPAQUE_RAW_OR_IMAGE_CONTAINER",
+                    sourceRoute = source.sourceRoute.name,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    sampleLattice = JSONObject().put("status", "UNAVAILABLE"),
+                    frontside = frontside,
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
             return base
                 .put("scientific_source_class", "OPAQUE_RAW_OR_IMAGE_CONTAINER")
                 .put("metadata_parse_status", "NOT_CLASSIC_TIFF")
@@ -64,15 +83,8 @@ object UniversalSourceProfiler {
                             },
                         ),
                 )
-                .put(
-                    "scene_analysis",
-                    FrontsideSceneInspector.inspect(
-                        resolver,
-                        source.uri,
-                        null,
-                        sourceSha256,
-                    ),
-                )
+                .put("scene_analysis", frontside)
+                .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
         }
@@ -80,6 +92,25 @@ object UniversalSourceProfiler {
         val parsed = try {
             parseClassicTiff(resolver, source.uri)
         } catch (e: Exception) {
+            val frontside =
+                FrontsideSceneInspector.inspect(
+                    resolver,
+                    source.uri,
+                    null,
+                    sourceSha256,
+                )
+            val atlas =
+                UniversalObservationCalibrationAtlasV01.describe(
+                    sourceSha256 = sourceSha256,
+                    sourceClass = "TIFF_CONTAINER_METADATA_PARSE_FAILED",
+                    sourceRoute = source.sourceRoute.name,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    sampleLattice = JSONObject().put("status", "UNAVAILABLE"),
+                    frontside = frontside,
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
             return base
                 .put("scientific_source_class", "TIFF_CONTAINER_METADATA_PARSE_FAILED")
                 .put("metadata_parse_status", "FAILED")
@@ -91,15 +122,8 @@ object UniversalSourceProfiler {
                         .put("KEEP_ORIGINAL_SOURCE_SEALED")
                         .put("FAIL_CLOSED_OR_VERSIONED_COMPATIBILITY_ADAPTER"),
                 )
-                .put(
-                    "scene_analysis",
-                    FrontsideSceneInspector.inspect(
-                        resolver,
-                        source.uri,
-                        null,
-                        sourceSha256,
-                    ),
-                )
+                .put("scene_analysis", frontside)
+                .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
         }
@@ -299,6 +323,19 @@ object UniversalSourceProfiler {
                     backsideSignalSupport.optJSONObject(
                         "observation_optical_field_signal_v0_1",
                     ),
+            )
+
+        val universalObservationCalibrationAtlas =
+            UniversalObservationCalibrationAtlasV01.describe(
+                sourceSha256 = sourceSha256,
+                sourceClass = sourceClass,
+                sourceRoute = source.sourceRoute.name,
+                metadata = metadata,
+                raster = raster,
+                sampleLattice = sampleLattice,
+                frontside = frontside,
+                backsideSignalSupport = backsideSignalSupport,
+                opticalFieldChart = observationOpticalFieldChart,
             )
 
         val n2LocalSpatialBinding =
@@ -540,6 +577,10 @@ object UniversalSourceProfiler {
                 "observation_optical_field_chart_v0_1",
                 observationOpticalFieldChart,
             )
+            .put(
+                "universal_observation_calibration_atlas_v0_1",
+                universalObservationCalibrationAtlas,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -553,6 +594,10 @@ object UniversalSourceProfiler {
             .put(
                 "observation_optical_field_chart",
                 observationOpticalFieldChart,
+            )
+            .put(
+                "universal_observation_calibration_atlas",
+                universalObservationCalibrationAtlas,
             )
             .put("route_hints", routeHints)
             .put("backside_signal_support", backsideSignalSupport)
