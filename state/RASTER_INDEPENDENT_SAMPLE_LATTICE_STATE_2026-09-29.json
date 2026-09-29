@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/RasterIndependentSampleLatticeState/2026-09-29/v0.1",
-  "status": "ACTIVE_UNMERGED_BUILD_VALIDATION",
+  "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
   "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
   "parent_branch": "research/dark-chroma-stability-v06-2026-09-29",
   "project_law": "The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.",
@@ -51,5 +51,30 @@
     "uncertainty_required": true,
     "structure_censor_support_required": true,
     "promotion_blocked_until_device_evidence": true
-  }
+  },
+  "pull_request": 89,
+  "build_validation": {
+    "code_checkpoint": "f75025e0d2bbb3345653e1e6365becf28cb8f7d4",
+    "universal_intake_run": 36544333888,
+    "integrity_run": 36544333896,
+    "artifact_id": 11022051681,
+    "artifact_digest": "sha256:1f73db6876ca755b2e6a3e402e8c5bba3b95a23f55247d953bfe7e0ba731dcfa",
+    "apk_sha256": "615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3",
+    "apk_bytes": 7327807,
+    "all_relevant_ci_green": true,
+    "canonical_integrity": "SUCCESS",
+    "truthrange_v04_v05": "SUCCESS",
+    "dark_chroma_v01_v02_v03_v04_v05_v06": "SUCCESS",
+    "tile_native_dng_android": "SUCCESS",
+    "dngcreator_android": "SUCCESS",
+    "universal_physical_capture": "SUCCESS",
+    "universal_intake_android": "SUCCESS",
+    "sample_lattice_integrity": "SUCCESS"
+  },
+  "device_validation_required": [
+    "load a normal admitted DNG in Universal Intake and confirm D.RAW Sample Lattice v0.1 reports the exact source raster dimensions and measured CFA anchor count",
+    "confirm dense=false, upscaling=false and unanchored positions remain UNKNOWN",
+    "on a selective wide/main Dark-Chroma source confirm N2 Raster-Independent Geometry v0.1 and Dark Chroma v0.7 bind the existing v0.6 exact support geometry without changing source/N2 lineage",
+    "do not assign values to unanchored coordinates in this version"
+  ]
 }
