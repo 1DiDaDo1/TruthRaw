@@ -4,7 +4,7 @@
   "branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
   "parent_branch": "research/observation-optical-field-chart-v01-2026-09-29",
   "parent_code_sha": "61e758e78faa643c15dc45bf96aa1b7587784f46",
-  "status": "IMPLEMENTED_READ_ONLY_UNIVERSAL_ATLAS_ANDROID_BUILD_GREEN_AWAITING_REAL_DEVICE_VALIDATION",
+  "status": "FIRST_ADMITTED_DNG_DEVICE_EXPORT_VALIDATED_OPAQUE_RAW_GATE_PENDING",
   "purpose": "UNIFY_FRONTSIDE_AND_BACKSIDE_OBSERVATION_CONTEXT_WITH_SEPARATE_COLOUR_ILLUMINATION_OPTICS_TEMPORAL_RESTORATION_AUTHORITY_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
   "universal_input": {
     "camera_identity_required": false,
@@ -124,5 +124,19 @@
       "apk_verified_contains_atlas_markers": true
     }
   },
-  "next_gate": "REAL_DEVICE_EXPORT_ON_ONE_ADMITTED_DNG_AND_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE_THEN_FREEZE_MULTI_OBSERVATION_RELATION_PROTOCOL"
+  "next_gate": "RUN_ATLAS_EXPORT_ON_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE_AND_VERIFY_FAIL_CLOSED_UNKNOWN_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
+  "device_validation": {
+    "result_path": "state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_DEVICE_RESULT_2026-09-30.json",
+    "admitted_dng_result": "PASS",
+    "opaque_or_unsupported_raw_result": "PENDING",
+    "source_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "frontside_status": "FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE",
+    "backside_measured_signal_available": true,
+    "float32_scientific_master_primary_verified": true,
+    "float64_reconstruction_policy_bound": true,
+    "zero_line_binding_verified": true,
+    "no_user_calibration_required_verified": true,
+    "no_auto_colour_or_light_correction_verified": true,
+    "no_scientific_writeback_verified": true
+  }
 }
