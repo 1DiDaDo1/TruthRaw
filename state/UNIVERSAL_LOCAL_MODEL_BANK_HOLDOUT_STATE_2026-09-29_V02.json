@@ -95,7 +95,13 @@
     "v02_selector_regressed": true,
     "v02_candidate_bank_capacity_improved": true,
     "original_sealed_source_bytes_in_package": false,
-    "external_source_sha_reverification_pending": true,
-    "promotion_allowed": false
+    "external_source_sha_reverification_pending": false,
+    "promotion_allowed": false,
+    "original_sealed_source_bytes_supplied_in_followup": true,
+    "original_source_filename": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+    "original_source_byte_size": 25106108,
+    "original_source_computed_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "original_source_matches_sidecar_source_sha256": true,
+    "source_byte_level_reverification_complete": true
   }
 }
