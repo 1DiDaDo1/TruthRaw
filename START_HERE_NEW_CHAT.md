@@ -69,7 +69,7 @@ v0.5 device evidence: `docs/research/dark-chroma-stability-v0.5/DEVICE_EVIDENCE_
 
 v0.6 green APK checkpoint: artifact `11020341011`, APK SHA-256 `b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd`, bytes `7311423`. Device validation must include the exported support-distance JSON sidecar so exact sampled support can be independently recomputed.
 
-- **Raster-Independent Sample Lattice v0.1** · `research/raster-independent-sample-lattice-v01-2026-09-29` — current active successor above v0.6: exact source CFA samples become measured anchors in a sparse fixed-point coordinate world with 2^20 coordinate units per source pixel. No dense replacement raster, no interpolation, no upscaling and no new measurement. The current v0.6 exact support geometry is projected into this world as `D.RAW/N2RasterIndependentSampleGeometry/0.1`; Dark Chroma v0.7 binds to it audit-only.
+- **PR #89 · Raster-Independent Sample Lattice v0.1** · `research/raster-independent-sample-lattice-v01-2026-09-29` — current active successor above v0.6: exact source CFA samples become measured anchors in a sparse fixed-point coordinate world with 2^20 coordinate units per source pixel. No dense replacement raster, no interpolation, no upscaling and no new measurement. The current v0.6 exact support geometry is projected into this world as `D.RAW/N2RasterIndependentSampleGeometry/0.1`; Dark Chroma v0.7 binds to it audit-only.
 
 ## Current physical observations
 
