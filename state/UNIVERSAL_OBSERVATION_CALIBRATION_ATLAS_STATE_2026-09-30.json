@@ -4,7 +4,7 @@
   "branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
   "parent_branch": "research/observation-optical-field-chart-v01-2026-09-29",
   "parent_code_sha": "61e758e78faa643c15dc45bf96aa1b7587784f46",
-  "status": "IMPLEMENTED_READ_ONLY_UNIVERSAL_ATLAS_AWAITING_ANDROID_EXPORT_AND_DEVICE_VALIDATION",
+  "status": "IMPLEMENTED_READ_ONLY_UNIVERSAL_ATLAS_ANDROID_BUILD_GREEN_AWAITING_REAL_DEVICE_VALIDATION",
   "purpose": "UNIFY_FRONTSIDE_AND_BACKSIDE_OBSERVATION_CONTEXT_WITH_SEPARATE_COLOUR_ILLUMINATION_OPTICS_TEMPORAL_RESTORATION_AUTHORITY_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
   "universal_input": {
     "camera_identity_required": false,
@@ -111,7 +111,18 @@
     "attached_to_parsed_dng_tiff": true,
     "attached_to_opaque_non_tiff_source": true,
     "attached_to_tiff_parse_failure": true,
-    "json_export_added": true
+    "json_export_added": true,
+    "android_build_validation": {
+      "workflow": "D.RAW Suite Universal Intake v0.1",
+      "run_id": 36641226959,
+      "conclusion": "SUCCESS",
+      "artifact_id": 11066632486,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+      "artifact_zip_sha256": "8a75ae20b3755ecf0638d6a0b2f8170cd8895f2be117f80e7d2b6cbeefa3b722",
+      "apk_bytes": 7582479,
+      "apk_sha256": "12c95e8c4d6501cf5ff8c7d8d3ca9076b5e1d02c6ebf96469b2245dc7f2dc32d",
+      "apk_verified_contains_atlas_markers": true
+    }
   },
-  "next_gate": "GREEN_ANDROID_BUILD_THEN_VALIDATE_ONE_PARSED_DNG_AND_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE"
+  "next_gate": "REAL_DEVICE_EXPORT_ON_ONE_ADMITTED_DNG_AND_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE_THEN_FREEZE_MULTI_OBSERVATION_RELATION_PROTOCOL"
 }
