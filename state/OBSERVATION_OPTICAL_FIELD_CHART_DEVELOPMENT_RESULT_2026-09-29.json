@@ -1,0 +1,202 @@
+{
+  "schema": "D.RAW/ObservationOpticalFieldChartDevelopmentResult/0.1",
+  "date": "2026-09-29",
+  "source": {
+    "filename": "IMG_20260403_182145.dng",
+    "source_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
+    "dimensions": [
+      4080,
+      3072
+    ],
+    "active_area": [
+      0,
+      0,
+      3072,
+      4080
+    ],
+    "classification": "DEVELOPMENT_EVIDENCE_ALREADY_INSPECTED_DURING_V0_1_DESIGN"
+  },
+  "runtime_equivalent_sampling": {
+    "implementation_equivalent_to": "BacksideSignalSupportAudit + ObservationOpticalFieldChartV01",
+    "sample_grid_step_source_px": 64,
+    "samples": 12288,
+    "normalization": "(raw_code-64)/(1023-64)",
+    "radial_bins": 12,
+    "azimuth_bins": 12,
+    "annulus_sample_count": [
+      148,
+      412,
+      674,
+      991,
+      1252,
+      1506,
+      1837,
+      1756,
+      1523,
+      1326,
+      659,
+      204
+    ],
+    "annulus_p50": [
+      0.016684045881126174,
+      0.023983315954118872,
+      0.022940563086548488,
+      0.020855057351407715,
+      0.01824817518248175,
+      0.01981230448383733,
+      0.03858185610010428,
+      0.14337851929092804,
+      0.19290928050052136,
+      0.20385818561001043,
+      0.20229405630865485,
+      0.2049009384775808
+    ],
+    "annulus_azimuth_sector_relative_mad": [
+      0.27419354838709664,
+      0.12499999999999999,
+      0.1022727272727273,
+      0.2875,
+      0.23333333333333342,
+      0.3333333333333333,
+      0.8737864077669902,
+      0.962962962962963,
+      0.6289248334919125,
+      0.9012820512820513,
+      0.9525801952580196,
+      0.9019033674963396
+    ],
+    "observed_outer_to_inner_p50_ratio": 12.28125,
+    "radial_p50_non_increasing_transition_fraction": 0.36363636363636365,
+    "inner_half_median_azimuth_relative_mad": 0.253763440860215,
+    "outer_half_median_azimuth_relative_mad": 0.9015927093891954,
+    "phase_outer_to_inner_p50_ratio": [
+      17.076923076923077,
+      17.5,
+      18.15,
+      11.0625
+    ],
+    "interpretation": "SCENE_CONTENT_DOMINATES_SINGLE_OBSERVATION_RADIAL_BRIGHTNESS_PATTERN"
+  },
+  "opcode_list_2": {
+    "declared_opcode_count": 4,
+    "parsed_gain_map_count": 4,
+    "gain_maps": [
+      {
+        "phase_index": 3,
+        "affected_area": [
+          1,
+          1,
+          3072,
+          4080
+        ],
+        "row_pitch": 2,
+        "col_pitch": 2,
+        "map_points": [
+          13,
+          17
+        ],
+        "gain_min": 1.0009765625,
+        "gain_median": 1.267578125,
+        "gain_mean": 1.3250583286199096,
+        "gain_max": 2.4404296875,
+        "center_nearest_gain": 1.0107421875,
+        "corner_gains": [
+          2.3935546875,
+          2.4404296875,
+          1.9326171875,
+          2.0712890625
+        ]
+      },
+      {
+        "phase_index": 1,
+        "affected_area": [
+          0,
+          1,
+          3072,
+          4080
+        ],
+        "row_pitch": 2,
+        "col_pitch": 2,
+        "map_points": [
+          13,
+          17
+        ],
+        "gain_min": 1.0283203125,
+        "gain_median": 1.2470703125,
+        "gain_mean": 1.2924429086538463,
+        "gain_max": 2.3310546875,
+        "center_nearest_gain": 1.03125,
+        "corner_gains": [
+          2.234375,
+          2.3310546875,
+          1.8125,
+          1.9599609375
+        ]
+      },
+      {
+        "phase_index": 2,
+        "affected_area": [
+          1,
+          0,
+          3072,
+          4080
+        ],
+        "row_pitch": 2,
+        "col_pitch": 2,
+        "map_points": [
+          13,
+          17
+        ],
+        "gain_min": 1.0283203125,
+        "gain_median": 1.2470703125,
+        "gain_mean": 1.2941176470588236,
+        "gain_max": 2.3349609375,
+        "center_nearest_gain": 1.0302734375,
+        "corner_gains": [
+          2.234375,
+          2.3349609375,
+          1.8134765625,
+          1.953125
+        ]
+      },
+      {
+        "phase_index": 0,
+        "affected_area": [
+          0,
+          0,
+          3072,
+          4080
+        ],
+        "row_pitch": 2,
+        "col_pitch": 2,
+        "map_points": [
+          13,
+          17
+        ],
+        "gain_min": 1.013671875,
+        "gain_median": 1.2490234375,
+        "gain_mean": 1.2853330033936652,
+        "gain_max": 2.310546875,
+        "center_nearest_gain": 1.013671875,
+        "corner_gains": [
+          2.28515625,
+          2.310546875,
+          1.7978515625,
+          1.9072265625
+        ]
+      }
+    ],
+    "authority": "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+    "gain_map_applied": false,
+    "used_as_scientific_calibration": false
+  },
+  "conclusion": {
+    "flat_field_coordinate_chart_runtime_math_reproduced": true,
+    "gain_map_metadata_has_strong_spatial_shading_compensation_intent": true,
+    "single_scene_lens_only_vignetting_identifiable": false,
+    "reason": "Outer-field source signal is highly scene-asymmetric and brighter than center while metadata GainMaps request larger edge gains; scene content prevents direct inversion to lens-only shading.",
+    "correction_gain_allowed": false,
+    "scientific_writeback_allowed": false,
+    "next_gate": "EXPORT_NATIVE_APP_FIELD_CHART_ON_DEVELOPMENT_SOURCE_THEN_VALIDATE_THREE_NEW_SCENES"
+  }
+}
