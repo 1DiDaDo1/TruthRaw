@@ -26,6 +26,7 @@ import android.widget.Space
 import android.widget.TextView
 import java.io.File
 import java.io.IOException
+import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : Activity() {
@@ -69,6 +70,8 @@ class MainActivity : Activity() {
     private var n2ConfidenceFieldStatus: String? = null
     private var pendingN2FactoredConfidenceJobId: String? = null
     private var n2FactoredConfidenceStatus: String? = null
+    private var pendingN2SupportDistanceJobId: String? = null
+    private var n2SupportDistanceStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -252,6 +255,8 @@ class MainActivity : Activity() {
         n2ConfidenceFieldStatus = null
         pendingN2FactoredConfidenceJobId = null
         n2FactoredConfidenceStatus = null
+        pendingN2SupportDistanceJobId = null
+        n2SupportDistanceStatus = null
         pendingAppearanceHighlightDetailJobId = null
         appearanceHighlightDetailStatus = null
         pendingAppearanceHeadroomSweepJobId = null
@@ -597,6 +602,7 @@ class MainActivity : Activity() {
             "camera5-color-highlight-oracle",
             "truthnegative-native-container",
             "truthnegative-n2-spatial-sidecar",
+            "truthnegative-n2-support-distance",
             "truthnegative-n2-crop-ab",
         )
         return kinds
@@ -1118,6 +1124,55 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_FACTORED_CONFIDENCE,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchN2SupportDistanceExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        val profile = universalProfiles[job.id]
+        val support =
+            profile?.optJSONObject("n2_sample_support_distance")
+        if (
+            support?.optString("status") !=
+            "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met zichtbare Dark-Chroma-kandidaten."
+            render()
+            return
+        }
+
+        pendingN2SupportDistanceJobId = job.id
+        n2SupportDistanceStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_sample_support_distance_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_SUPPORT_DISTANCE,
         )
     }
 
@@ -2399,6 +2454,142 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_N2_SUPPORT_DISTANCE) {
+            val expectedJob = pendingN2SupportDistanceJobId
+            pendingN2SupportDistanceJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val profile =
+                expectedJob?.let { universalProfiles[it] }
+            val support =
+                profile?.optJSONObject("n2_sample_support_distance")
+            val frontsideV01 =
+                profile?.optJSONObject("scene_analysis")
+                    ?.optJSONObject("dark_chroma_stability_v0_1")
+            val expectedSourceSha =
+                support?.optString("source_sha256", "") ?: ""
+
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob ||
+                support?.optString("status") !=
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" ||
+                frontsideV01 == null ||
+                expectedSourceSha.isBlank()
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 geblokkeerd: actieve bron/binding veranderde of de v0.6-audit is niet beschikbaar."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-support-distance",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2SupportDistanceStatus =
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
+                        "N2 Sample Support Distance v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Sample Support Distance v0.1",
+                )
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2SupportDistanceStatus =
+                "N2 v0.6 support-distance sidecar · exacte sampled structure/censor-coördinaten " +
+                    "+ SHA-binding · geen drempel, geen correction-enable…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-support-distance-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2SupportDistanceStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    N2SampleSupportDistanceAudit.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 = expectedSourceSha,
+                        frontsideV01 = frontsideV01,
+                    )
+                }
+
+                val success = exportResult.isSuccess
+                val finishMessage =
+                    exportResult.fold(
+                        onSuccess = {
+                            "N2 Sample Support Distance v0.1 opgeslagen + SHA geverifieerd."
+                        },
+                        onFailure = {
+                            "N2 Sample Support Distance v0.1 export faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    success,
+                    finishMessage,
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2SupportDistanceStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "N2 Sample Support Distance v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · queries=" +
+                                    status.optInt("queryCount", 0) +
+                                    " · structure=" +
+                                    status.optLong("structureProtected", 0L) +
+                                    " · support=" +
+                                    status.optString(
+                                        "supportPointStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString("jsonSha256", "").take(16) +
+                                    "… · correction=false."
+                            },
+                            onFailure = {
+                                "N2 Sample Support Distance v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL) {
             val expectedJob = pendingAppearanceHighlightDetailJobId
             pendingAppearanceHighlightDetailJobId = null
@@ -3229,6 +3420,14 @@ class MainActivity : Activity() {
                     scene.optJSONObject("dark_chroma_stability_v0_5") ?: JSONObject()
                 val darkChromaV05Global =
                     darkChromaV05.optJSONObject("global") ?: JSONObject()
+                val n2SupportDistance =
+                    profile.optJSONObject("n2_sample_support_distance") ?: JSONObject()
+                val n2SupportDistanceGlobal =
+                    n2SupportDistance.optJSONObject("global") ?: JSONObject()
+                val darkChromaV06 =
+                    scene.optJSONObject("dark_chroma_stability_v0_6") ?: JSONObject()
+                val darkChromaV06Global =
+                    darkChromaV06.optJSONObject("global") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3769,6 +3968,129 @@ class MainActivity : Activity() {
                         "v0.5 verandert het v0.4-veto nog niet. Het meet alleen hoe dicht structure-protection " +
                             "werkelijk binnen/om de selectieve frontside-regio ligt. Geen kansscore, geen verborgen " +
                             "kleur, geen private A/B/Δ en geen Scientific-Master-writeback.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (n2SupportDistance.optString("status")) {
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" -> {
+                        val zero =
+                            n2SupportDistanceGlobal.optJSONArray(
+                                "center_zero_structure_candidates_r8_r16_r32_r64",
+                            ) ?: JSONArray()
+                        val nearestCenter =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_center_structure_distance_px",
+                            ) ?: JSONObject()
+                        val nearestRect =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_rect_structure_distance_px",
+                            ) ?: JSONObject()
+                        fun fmtDistance(o: JSONObject, key: String): String {
+                            val v = o.optDouble(key, Double.NaN)
+                            return if (v.isFinite()) "%.2f".format(v) else "?"
+                        }
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · EXACT SAMPLED GEOMETRY · queries=" +
+                                n2SupportDistanceGlobal.optLong("query_count", 0L) +
+                                " · structure-inside=" +
+                                n2SupportDistanceGlobal.optLong(
+                                    "structure_inside_rect_candidates",
+                                    0L,
+                                ) +
+                                " · center-zero r8/16/32/64=" +
+                                zero.optLong(0, 0L) + "/" +
+                                zero.optLong(1, 0L) + "/" +
+                                zero.optLong(2, 0L) + "/" +
+                                zero.optLong(3, 0L) +
+                                " · nearest-center min/med/max=" +
+                                fmtDistance(nearestCenter, "min") + "/" +
+                                fmtDistance(nearestCenter, "median") + "/" +
+                                fmtDistance(nearestCenter, "max") +
+                                " px · nearest-rect min/med/max=" +
+                                fmtDistance(nearestRect, "min") + "/" +
+                                fmtDistance(nearestRect, "median") + "/" +
+                                fmtDistance(nearestRect, "max") + " px",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Exacte N2 sample-coördinaten voor structure/censor/boundary zijn in de sidecar " +
+                                "opgenomen en gehasht. Afstanden en radius-dichtheden zijn alleen diagnostiek: " +
+                                "geen interpolatie van onbemeten pixels, geen kansscore en geen correctie-enable. " +
+                                "v0.5 aggregate parity=" +
+                                n2SupportDistance.optBoolean(
+                                    "v0_5_aggregate_parity_verified",
+                                    false,
+                                ) +
+                                ".",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · niet nodig voor deze bronstate · reason=" +
+                                n2SupportDistance.optString("reason", "UNKNOWN") +
+                                ". Geen extra afstandsaudit uitgevoerd.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · UNKNOWN/fail-closed · reason=" +
+                                n2SupportDistance.optString("reason", "niet beschikbaar") +
+                                ". Geen afstandsclaim zonder exact sampled support.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                if (
+                    darkChromaV06.optString("status") ==
+                    "AUDIT_ONLY_SAMPLE_SUPPORT_DISTANCE_AVAILABLE"
+                ) {
+                    val zero =
+                        darkChromaV06Global.optJSONArray(
+                            "center_zero_structure_candidates_r8_r16_r32_r64",
+                        ) ?: JSONArray()
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.6 · SAMPLE-LEVEL SUPPORT DISTANCE · visible=" +
+                            darkChromaV06Global.optLong("visible_candidate_tiles", 0L) +
+                            " · distance-bound=" +
+                            darkChromaV06Global.optLong(
+                                "distance_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · structure-inside=" +
+                            darkChromaV06Global.optLong(
+                                "structure_inside_rect_candidates",
+                                0L,
+                            ) +
+                            " · center-zero r8/16/32/64=" +
+                            zero.optLong(0, 0L) + "/" +
+                            zero.optLong(1, 0L) + "/" +
+                            zero.optLong(2, 0L) + "/" +
+                            zero.optLong(3, 0L) +
+                            " · correction-supported=" +
+                            darkChromaV06Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.6 voert nog geen afstandsdrempel in. Exact sampled structure/censor-support blijft " +
+                            "een vector van meetfeiten; het mag bestaande bescherming niet verminderen en " +
+                            "private chroma A/B/Δ blijft uit.",
                         10f,
                         muted = true,
                     ))
@@ -5254,6 +5576,38 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export N2 Sample Support Distance v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject("n2_sample_support_distance")
+                                        ?.optString("status") ==
+                                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE",
+                        ) {
+                            launchN2SupportDistanceExport(active)
+                        })
+                        n2SupportDistanceStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-support-distance",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.6 audit-sidecar: exact sampled Structure/Censored/CensorBoundary broncoördinaten " +
+                                "+ center/radius en rect-margin afstanden. Geen interpolatie van onbemeten pixels, " +
+                                "geen afstandsdrempel, geen promotion en geen Scientific-Master-writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -5635,5 +5989,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
         private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
         private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
+        private const val REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120
     }
 }

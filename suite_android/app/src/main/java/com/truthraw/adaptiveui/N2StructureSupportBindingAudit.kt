@@ -474,6 +474,18 @@ object N2StructureSupportBindingAudit {
                     status.optString("jsonSha256"),
                 )
                 .put(
+                    "candidate_sha256",
+                    field.optString("candidate_sha256"),
+                )
+                .put(
+                    "n2_audit_sha256",
+                    field.optString("audit_sha256"),
+                )
+                .put(
+                    "n2_spatial_sha256",
+                    field.optString("spatial_sha256"),
+                )
+                .put(
                     "truthnegative_state_sha256",
                     field.optString("truthnegative_state_sha256"),
                 )
