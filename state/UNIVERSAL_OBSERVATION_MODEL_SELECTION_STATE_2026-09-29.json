@@ -52,7 +52,11 @@
       "AFFINE_PLANE_V0_1_RESEARCH_CANDIDATE",
       "LOW_ORDER_CURVATURE_RESEARCH_CANDIDATE",
       "NO_RECONSTRUCTION_CANDIDATE"
-    ]
+    ],
+    "computed_before_anchor_holdout_target_reveal": true,
+    "anchor_holdout_runtime_dependency": false,
+    "machine_readable_export": "Export Universal Observation Model Selection v0.1 · JSON",
+    "export_contains_holdout_outcomes": false
   },
   "safety": {
     "source_bytes_modified": false,
@@ -63,5 +67,5 @@
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false
   },
-  "next_gate": "NEW_INDEPENDENT_CAPTURE_THEN_NATIVE_TARGET_BLIND_MODEL_BANK_HOLDOUT_AUDIT"
+  "next_gate": "NEW_INDEPENDENT_CAPTURE_EXPORT_SELECTOR_BEFORE_INTERPRETING_HOLDOUT_THEN_NATIVE_TARGET_BLIND_MODEL_BANK_HOLDOUT_AUDIT"
 }
