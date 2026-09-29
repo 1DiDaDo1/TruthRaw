@@ -77,7 +77,7 @@ for needle in [
     assert needle in bridge, f"missing bridge invariant: {needle}"
 
 for needle in [
-    '"D.RAW/Frontside/UniversalLocalModelBankHoldout/0.1"',
+    '"D.RAW/UniversalLocalModelBankHoldout/0.1"',
     '"READY_FOR_EXPLICIT_EXPORT_AUDIT"',
     '"source_raster_used_only_for_noise", false',
     '"prospective_query_policy_required_for_full_resolution_audit",\n                false',
@@ -97,7 +97,7 @@ for needle in [
 
 assert 'UniversalLocalModelBankHoldoutV01.describe' in profiler
 assert '"universal_local_model_bank_holdout"' in profiler
-assert '"universal_local_model_bank_holdout_v0_1"' in profiler
+assert '"universal_local_model_bank_holdout_v0_1"' not in profiler
 
 for needle in [
     'UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V01',
