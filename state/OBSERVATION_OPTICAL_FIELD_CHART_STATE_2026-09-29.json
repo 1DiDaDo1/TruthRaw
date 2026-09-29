@@ -69,19 +69,46 @@
   "next_gate": "BUILD_AND_EXPORT_FIELD_CHART_THEN_INSPECT_REAL_DEVICE_RADIAL_AZIMUTHAL_PROFILE",
   "source_metadata_hints": {
     "opcode_list_2_header_parse_allowed": true,
-    "opcode_ids_and_header_sizes_only": true,
+    "opcode_ids_and_header_sizes_only": false,
     "gain_map_opcode_presence_may_be_reported": true,
     "gain_map_payload_interpreted": false,
     "gain_map_applied": false,
     "authority": "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
     "used_as_scientific_calibration": false,
     "used_to_define_field_coordinates": false,
-    "used_to_modify_source_samples": false
+    "used_to_modify_source_samples": false,
+    "gain_map_payload_summary_decoded": true,
+    "gain_map_full_grid_exported": false,
+    "gain_map_summary_fields": [
+      "AFFECTED_AREA",
+      "PLANE_AND_PLANES",
+      "ROW_COL_PITCH",
+      "MAP_POINTS",
+      "MAP_SPACING",
+      "MAP_ORIGIN",
+      "GAIN_MIN_MEDIAN_MEAN_MAX",
+      "CENTER_NEAREST_GAIN",
+      "CORNER_GAINS"
+    ],
+    "gain_map_payload_interpreted_for_correction": false
   },
   "development_observation": {
     "source_filename": "IMG_20260403_182145.dng",
     "source_sha256": "999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef",
     "observed_opcode_list_2_gain_map_count_external_review": 4,
-    "note": "Development observation indicates four DNG OpcodeList2 GainMap opcodes. This is metadata context only and is not promoted to optical truth."
+    "note": "Development observation indicates four DNG OpcodeList2 GainMap opcodes. This is metadata context only and is not promoted to optical truth.",
+    "gain_map_shape": "4 x (13x17x1)",
+    "row_col_pitch": "2x2 CFA phase-selective",
+    "observed_gain_min": 1.0009765625,
+    "observed_gain_max": 2.4404296875,
+    "center_gain_range": [
+      1.0107421875,
+      1.03125
+    ],
+    "corner_gain_range": [
+      1.7978515625,
+      2.4404296875
+    ],
+    "metadata_interpretation": "STRONG_SPATIAL_SHADING_CORRECTION_INTENT_HINT_ONLY_NOT_TRUTH"
   }
 }
