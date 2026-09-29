@@ -6,9 +6,10 @@ Read first:
 
 1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json`
 2. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
-3. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
-4. `docs/research/universal-observation-model-selection-v0.1/README.md`
-5. PR #90 real-device result remains negative evidence for universal affine promotion.
+3. `docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+4. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+5. `docs/research/universal-observation-model-selection-v0.1/README.md`
+6. PR #90 real-device result remains negative evidence for universal affine promotion.
 
 New in this successor:
 
