@@ -215,6 +215,19 @@ object UniversalSourceProfiler {
             else -> "TIFF_IMAGE_OR_UNKNOWN"
         }
 
+        val latticeWidth =
+            width?.takeIf { it in 1..Int.MAX_VALUE.toLong() }?.toInt()
+        val latticeHeight =
+            height?.takeIf { it in 1..Int.MAX_VALUE.toLong() }?.toInt()
+        val sampleLattice =
+            RasterIndependentSampleLatticeV01.describe(
+                sourceSha256 = sourceSha256,
+                sourceWidth = latticeWidth,
+                sourceHeight = latticeHeight,
+                sourceClass = sourceClass,
+                cfaPattern = primaryRaw?.opt("cfaPattern"),
+            )
+
         val routeHints = JSONArray().put("KEEP_ORIGINAL_SOURCE_SEALED")
         if (rawCandidates.length() > 0) {
             routeHints.put("TRY_DIRECT_COMMON_DNG_SCIENTIFIC_INGRESS")
@@ -386,6 +399,21 @@ object UniversalSourceProfiler {
                 supportDistance = n2SampleSupportDistance,
             )
 
+        val n2SampleLatticeGeometry =
+            RasterIndependentSampleLatticeV01.bindSupportGeometry(
+                sourceSha256 = sourceSha256,
+                lattice = sampleLattice,
+                supportDistance = n2SampleSupportDistance,
+            )
+
+        val darkChromaV07 =
+            DarkChromaStabilityV07Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v06 = darkChromaV06,
+                lattice = sampleLattice,
+                latticeGeometry = n2SampleLatticeGeometry,
+            )
+
         frontside
             .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
             .put("dark_chroma_stability_v0_4", darkChromaV04)
@@ -399,6 +427,11 @@ object UniversalSourceProfiler {
                 n2SampleSupportDistance,
             )
             .put("dark_chroma_stability_v0_6", darkChromaV06)
+            .put(
+                "n2_raster_independent_sample_geometry_v0_1",
+                n2SampleLatticeGeometry,
+            )
+            .put("dark_chroma_stability_v0_7", darkChromaV07)
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -406,6 +439,7 @@ object UniversalSourceProfiler {
             .put("container_metadata", parsed)
             .put("source_metadata", metadata)
             .put("primary_raw_raster", raster)
+            .put("raster_independent_sample_lattice", sampleLattice)
             .put("source_identity_hint", sourceIdentityHint)
             .put("optics", optics)
             .put("route_hints", routeHints)
@@ -418,6 +452,10 @@ object UniversalSourceProfiler {
             .put(
                 "n2_sample_support_distance",
                 n2SampleSupportDistance,
+            )
+            .put(
+                "n2_raster_independent_sample_geometry",
+                n2SampleLatticeGeometry,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
