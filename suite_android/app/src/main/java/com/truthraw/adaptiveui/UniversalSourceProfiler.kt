@@ -284,6 +284,19 @@ object UniversalSourceProfiler {
             darkChromaBacksideSupport,
         )
 
+        val observationOpticalFieldChart =
+            ObservationOpticalFieldChartV01.describe(
+                sourceSha256 = sourceSha256,
+                sampleLattice = sampleLattice,
+                primaryRawRaster = raster,
+                frontside = frontside,
+                optics = optics,
+                measuredSignalProfile =
+                    backsideSignalSupport.optJSONObject(
+                        "observation_optical_field_signal_v0_1",
+                    ),
+            )
+
         val n2LocalSpatialBinding =
             if (source.format.id == "DNG" && source.format.nativeProcessingReady) {
                 N2LocalSpatialBindingAudit.analyze(
@@ -519,6 +532,10 @@ object UniversalSourceProfiler {
                 "universal_local_model_bank_holdout_v0_3",
                 universalLocalModelBankHoldoutV03,
             )
+            .put(
+                "observation_optical_field_chart_v0_1",
+                observationOpticalFieldChart,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -529,6 +546,10 @@ object UniversalSourceProfiler {
             .put("raster_independent_sample_lattice", sampleLattice)
             .put("source_identity_hint", sourceIdentityHint)
             .put("optics", optics)
+            .put(
+                "observation_optical_field_chart",
+                observationOpticalFieldChart,
+            )
             .put("route_hints", routeHints)
             .put("backside_signal_support", backsideSignalSupport)
             .put("n2_local_spatial_binding", n2LocalSpatialBinding)
