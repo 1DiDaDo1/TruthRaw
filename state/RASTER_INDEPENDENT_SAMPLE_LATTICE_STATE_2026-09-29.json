@@ -1,0 +1,53 @@
+{
+  "schema": "D.RAW/RasterIndependentSampleLatticeState/2026-09-29/v0.1",
+  "status": "ACTIVE_UNMERGED_BUILD_VALIDATION",
+  "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v06-2026-09-29",
+  "project_law": "The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.",
+  "coordinate_model": {
+    "schema": "D.RAW/RasterIndependentSampleLattice/0.1",
+    "representation": "SPARSE_IMPLICIT_FIXED_POINT_SAMPLE_LATTICE",
+    "fraction_bits": 20,
+    "units_per_source_pixel": 1048576,
+    "dense_lattice_materialized": false,
+    "source_anchor_mapping": "u=x*1048576; v=y*1048576",
+    "unanchored_positions_authority": "UNKNOWN"
+  },
+  "evidence_contract": {
+    "sealed_source_replaced": false,
+    "source_bytes_modified": false,
+    "source_values_modified": false,
+    "source_values_resampled": false,
+    "source_values_interpolated": false,
+    "source_sample_positions_modified": false,
+    "new_sensor_measurements_created": false,
+    "optical_resolution_increased": false,
+    "upscaling_performed": false,
+    "coordinate_precision_is_sensor_resolution_claim": false
+  },
+  "current_integration": {
+    "universal_intake": true,
+    "n2_v06_exact_support_geometry_projected_to_lattice": true,
+    "dark_chroma_v07_audit_binding": true,
+    "noise_correction_enabled": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "scientific_writeback_allowed": false
+  },
+  "single_observation_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "next_gate": {
+    "name": "ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_AUDIT",
+    "must_keep_all_source_anchors_unchanged": true,
+    "unanchored_values_if_any_must_be_reconstructed_not_measured": true,
+    "uncertainty_required": true,
+    "structure_censor_support_required": true,
+    "promotion_blocked_until_device_evidence": true
+  }
+}
