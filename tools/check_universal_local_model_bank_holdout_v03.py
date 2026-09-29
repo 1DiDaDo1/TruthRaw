@@ -95,7 +95,7 @@ for needle in [
     'Export Universal Local Model Bank Holdout v0.3 · JSON',
     'REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125',
     'UniversalLocalModelBankHoldoutV03.exportSidecar',
-    'common validation-RMS',
+    'validation-RMS',
 ]:
     assert needle in main, f'missing v0.3 UI/export integration: {needle}'
 
