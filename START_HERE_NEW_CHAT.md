@@ -6,7 +6,8 @@ Read first:
 
 1. `state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json`
 2. `docs/research/observation-optical-field-chart-v0.1/README.md`
-3. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
+3. `docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+4. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
 
 Purpose:
 
