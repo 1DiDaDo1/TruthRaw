@@ -1054,6 +1054,8 @@ bool run(
              "\"NO_RECONSTRUCTION\"],\n";
         o << "  \"baseline_name\":"
              "\"CENTER_EXCLUDED_MULTISCALE_V0_2\",\n";
+        o << "  \"target_censor_state_used_for_holdout_admission\":true,\n";
+        o << "  \"target_numeric_stage2_value_read_before_selection\":false,\n";
         o << "  \"target_value_used_by_models\":false,\n";
         o << "  \"target_value_used_by_selector\":false,\n";
         o << "  \"holdout_error_used_by_selector\":false,\n";
