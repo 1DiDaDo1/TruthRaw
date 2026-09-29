@@ -8,6 +8,7 @@ java = ROOT / 'suite_android/app/src/main/java/com/truthraw/adaptiveui'
 chart = (java / 'ObservationOpticalFieldChartV01.kt').read_text()
 signal = (java / 'BacksideSignalSupportAudit.kt').read_text()
 profiler = (java / 'UniversalSourceProfiler.kt').read_text()
+main = (java / 'MainActivity.kt').read_text()
 metadata = (java / 'DngContainerMetadataParser.kt').read_text()
 readme = (ROOT / 'docs/research/observation-optical-field-chart-v0.1/README.md').read_text()
 state = json.loads((ROOT / 'state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json').read_text())
@@ -65,6 +66,16 @@ assert 'source_opcode_provenance_hint' in chart
 assert 'used_as_scientific_calibration' in chart
 assert 'used_to_define_field_coordinates' in chart
 assert 'used_to_modify_source_samples' in chart
+
+for needle in [
+    'Export Observation Optical Field Chart v0.1 · JSON',
+    'launchObservationOpticalFieldExport',
+    'REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126',
+    '_draw_observation_optical_field_chart_v0_1.json',
+    'correction_gain_allowed',
+    'scientific_writeback_allowed',
+]:
+    assert needle in main, f'missing optical-field export invariant: {needle}'
 
 for banned in [
     'lens correction applied',
