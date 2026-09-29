@@ -350,6 +350,42 @@ object UniversalSourceProfiler {
                 fineStructure = n2StructureSupportBinding,
             )
 
+        val n2SampleSupportDistance =
+            when {
+                fineStructureNeeded ->
+                    N2SampleSupportDistanceAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                        fineStructure = n2StructureSupportBinding,
+                    )
+                !nativeDngReady ->
+                    N2SampleSupportDistanceAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    N2SampleSupportDistanceAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                else ->
+                    N2SampleSupportDistanceAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_CORRECTION",
+                    )
+            }
+
+        val darkChromaV06 =
+            DarkChromaStabilityV06Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                v05 = darkChromaV05,
+                supportDistance = n2SampleSupportDistance,
+            )
+
         frontside
             .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
             .put("dark_chroma_stability_v0_4", darkChromaV04)
@@ -358,6 +394,11 @@ object UniversalSourceProfiler {
                 n2StructureSupportBinding,
             )
             .put("dark_chroma_stability_v0_5", darkChromaV05)
+            .put(
+                "n2_sample_support_distance_v0_1",
+                n2SampleSupportDistance,
+            )
+            .put("dark_chroma_stability_v0_6", darkChromaV06)
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -373,6 +414,10 @@ object UniversalSourceProfiler {
             .put(
                 "n2_structure_support_binding",
                 n2StructureSupportBinding,
+            )
+            .put(
+                "n2_sample_support_distance",
+                n2SampleSupportDistance,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
