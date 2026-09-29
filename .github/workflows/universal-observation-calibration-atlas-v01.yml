@@ -1,0 +1,25 @@
+name: Universal Observation Calibration Atlas v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationCalibrationAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/universal-observation-calibration-atlas-v0.1/**'
+      - 'state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_STATE_2026-09-30.json'
+      - 'tools/check_universal_observation_calibration_atlas_v01.py'
+      - '.github/workflows/universal-observation-calibration-atlas-v01.yml'
+  push:
+    branches:
+      - 'research/universal-observation-calibration-atlas-v01-2026-09-30'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_universal_observation_calibration_atlas_v01.py
