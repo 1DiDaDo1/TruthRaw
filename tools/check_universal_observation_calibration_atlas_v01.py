@@ -58,6 +58,13 @@ for needle in [
 ]:
     assert needle in main, f"missing Android export binding: {needle}"
 
+intake_start = main.index("private fun universalIntakePane")
+intake_end = main.index("private fun backgroundOperationKey", intake_start)
+intake = main[intake_start:intake_end]
+assert "Export Universal Observation & Calibration Atlas v0.1 · JSON" in intake
+assert "wetenschappelijke RAW-decoder fail-closed stopt" in intake
+assert "Geen Scientific Preview, DNG-route" in intake
+
 for banned in [
     '.put("camera_identity_required", true)',
     '.put("lens_identity_required", true)',
