@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/AnchorConstrainedLocalReconstructionState/2026-09-29/v0.1",
-  "status": "ACTIVE_UNMERGED_BUILD_VALIDATION",
+  "status": "BUILD_VALIDATION",
   "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
   "parent_branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
   "project_law": "Measured source anchors remain immutable; private lattice estimates may only be RECONSTRUCTED.",
@@ -47,5 +47,6 @@
     "name": "DEVICE_VALIDATE_ANCHOR_HOLDOUT_RECONSTRUCTION",
     "machine_readable_sidecar_required": true,
     "promotion_rule_predeclared": false
-  }
+  },
+  "pull_request": 90
 }
