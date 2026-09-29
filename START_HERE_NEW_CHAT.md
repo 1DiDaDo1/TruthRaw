@@ -5,10 +5,25 @@
 Read first:
 
 1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V03.json`
-2. `docs/research/universal-local-model-bank-holdout-v0.3/README.md`
-3. `docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
-4. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
-5. v0.2 remains the frozen candidate-geometry predecessor.
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03_INDEPENDENT_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.3/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+6. v0.2 remains the frozen candidate-geometry predecessor.
+
+
+First independent v0.3 paired device result is now available on `IMG_20260403_182145.dng`:
+
+- original DNG byte SHA-256 `999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef` exactly matches v0.1/v0.2/v0.3 `source_sha256`;
+- all three versions used the exact same 11,844 holdout coordinates, targets and baseline predictions;
+- v0.2/v0.3 candidate estimates, support geometry and validation RMS values are identical; this is a selector-only comparison;
+- all-holdout MAE: v0.1 ≈ 0.00554706, v0.2 ≈ 0.00570195, v0.3 ≈ 0.00552648;
+- all-holdout RMSE: v0.1 ≈ 0.01008783, v0.2 ≈ 0.01039450, v0.3 ≈ 0.00995411;
+- v0.3 improves MAE ≈ 3.08% and RMSE ≈ 4.24% versus v0.2;
+- v0.3 is numerically ≈ 0.37% lower MAE than v0.1 over all holdouts, but the 512x512 block-bootstrap interval for v0.3-v0.1 crosses zero;
+- on the 11,012 reference-comparable holdouts, v0.1 MAE ≈ 0.00487253, v0.3 ≈ 0.00487868, reference ≈ 0.00494619;
+- v0.3 selector regret improves materially versus v0.2 but remains worse than v0.1;
+- conclusion: v0.3 selector fix successfully recovers the v0.2 regression, but superiority over v0.1 is not established; no promotion/writeback.
 
 Why v0.3 exists:
 
