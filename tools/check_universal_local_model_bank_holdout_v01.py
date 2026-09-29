@@ -80,6 +80,14 @@ for needle in [
     assert needle in bridge, f"missing bridge invariant: {needle}"
 
 for needle in [
+    'resolver.openInputStream(destinationUri)',
+    '"D.RAW/UniversalLocalModelBankHoldoutAudit/0.1"',
+    'sidecar.optJSONArray("holdout_records")',
+    'global.optLong("holdouts", 0L) > 0L',
+]:
+    assert needle in audit, f"missing post-export JSON verification: {needle}"
+
+for needle in [
     '"D.RAW/UniversalLocalModelBankHoldout/0.1"',
     '"READY_FOR_EXPLICIT_EXPORT_AUDIT"',
     '"source_raster_used_only_for_noise", false',
