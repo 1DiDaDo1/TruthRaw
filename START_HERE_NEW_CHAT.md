@@ -1,3 +1,49 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — 2026-09-29
+
+**Current stacked research successor:** `research/universal-observation-model-selection-v01-2026-09-29`
+
+Read first for this branch:
+
+1. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+2. `docs/research/universal-observation-model-selection-v0.1/README.md`
+3. `state/ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_STATE_2026-09-29.json`
+4. `docs/research/anchor-constrained-local-reconstruction-v0.1/README.md`
+5. `state/RASTER_INDEPENDENT_SAMPLE_LATTICE_STATE_2026-09-29.json`
+
+Latest proven PR #90 real-device evidence is no longer "pending": tele capture
+`DRAW_CAPTURE_1790686814757_tele_4080x3072` produced 21,760 real CFA hold-outs.
+The affine solver had complete coverage but was worse than the existing baseline on
+the 19,560 directly comparable hold-outs (MAE ≈ 0.00154976 vs 0.00147486;
+RMSE ≈ 0.00205484 vs 0.00190590). Affine is therefore **not promoted**.
+Diagnostic uncertainty was too optimistic. Safety/writeback invariants remained intact.
+
+The active successor is intentionally universal and observation-conditioned:
+
+- no lens-specific noise calibration;
+- no camera-model/device routing;
+- no vendor lookup table;
+- no AI/ML/neural/generative runtime;
+- exact source CFA samples remain immutable MEASURED anchors;
+- the original source resolution is full-resolution evidence support for values,
+  structure, geometry, CFA phase, censoring and provenance — **not only noise**;
+- the source raster is measurement sampling, not world-resolution authority;
+- the existing 20-bit fixed-point sample lattice is the free scientific solution domain;
+- every unanchored coordinate begins UNKNOWN;
+- model-bank selection uses only pre-target observation geometry/support;
+- held-out target values and hold-out errors are forbidden selector inputs;
+- the already-seen 2026-09-29 tele hold-out is development evidence only;
+- a new independent capture is required to validate the selector.
+
+Permanent law for this line:
+
+> The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
+
+And:
+
+> A new raster may refine the measurement space without replacing the measurement history.
+
+---
+
 # D.RAW — CURRENT PROJECT IDENTITY — 2026-09-28
 
 **Official product name: `D.RAW`.**
