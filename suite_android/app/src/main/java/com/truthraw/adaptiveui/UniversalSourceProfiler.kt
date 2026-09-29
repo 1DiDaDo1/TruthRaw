@@ -440,6 +440,14 @@ object UniversalSourceProfiler {
                 prospectivePolicy = universalObservationModelSelection,
             )
 
+        val universalLocalModelBankHoldoutV03 =
+            UniversalLocalModelBankHoldoutV03.describe(
+                sourceSha256 = sourceSha256,
+                nativeDngReady = nativeDngReady,
+                sampleLattice = sampleLattice,
+                prospectivePolicy = universalObservationModelSelection,
+            )
+
         val anchorConstrainedReconstruction =
             when {
                 fineStructureNeeded &&
@@ -507,6 +515,10 @@ object UniversalSourceProfiler {
                 "universal_local_model_bank_holdout_v0_2",
                 universalLocalModelBankHoldoutV02,
             )
+            .put(
+                "universal_local_model_bank_holdout_v0_3",
+                universalLocalModelBankHoldoutV03,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -547,6 +559,10 @@ object UniversalSourceProfiler {
             .put(
                 "universal_local_model_bank_holdout_v0_2",
                 universalLocalModelBankHoldoutV02,
+            )
+            .put(
+                "universal_local_model_bank_holdout_v0_3",
+                universalLocalModelBankHoldoutV03,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
