@@ -1,3 +1,36 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.2 — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v02-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V02.json`
+2. `docs/research/universal-local-model-bank-holdout-v0.2/README.md`
+3. `docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+4. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+5. PR #92 remains the frozen v0.1 real-device predecessor.
+
+Why v0.2 exists:
+
+- PR #92 v0.1 beat the historical reference on its first independent tele test, but no promotion/writeback was allowed;
+- selector regret remained material;
+- v0.1 DIRECTIONAL_LINE and AFFINE_PLANE center predictions were identical on all 11,844 hold-outs;
+- v0.2 therefore uses target-blind support cross-fit for model selection;
+- v0.2 replaces DIRECTIONAL_LINE with DIRECTIONAL_STRIP_LINE using observation-derived directional support only;
+- tele identity remains provenance only and is not a selector/calibration input;
+- the source raster remains exact full-resolution MEASURED support, not world-resolution authority;
+- the 20-bit sparse lattice remains the free scientific solution domain;
+- target numeric Stage-2 value remains unread until selector and reference predictions are frozen;
+- candidate_applied=false and scientific_writeback_allowed=false.
+
+New APK test export:
+
+`Export Universal Local Model Bank Holdout v0.2 · JSON`
+
+Validation law: use one NEW sealed RAW/DNG and export both v0.1 and v0.2 on the same source. Their hold-out coordinates should match exactly; compare v0.2 directly against v0.1 and the same baseline.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK — 2026-09-29
 
 **Current stacked successor:** `research/universal-local-model-bank-holdout-v01-2026-09-29`
