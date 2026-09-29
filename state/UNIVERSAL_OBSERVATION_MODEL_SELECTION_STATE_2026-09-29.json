@@ -67,5 +67,14 @@
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false
   },
-  "next_gate": "NEW_INDEPENDENT_CAPTURE_EXPORT_SELECTOR_BEFORE_INTERPRETING_HOLDOUT_THEN_NATIVE_TARGET_BLIND_MODEL_BANK_HOLDOUT_AUDIT"
+  "next_gate": "NEW_INDEPENDENT_CAPTURE_EXPORT_SELECTOR_BEFORE_INTERPRETING_HOLDOUT_THEN_NATIVE_TARGET_BLIND_MODEL_BANK_HOLDOUT_AUDIT",
+  "green_code_checkpoint": {
+    "sha": "4f1b5c1e99a115fa4b63d49b02d1913908d5a8ec",
+    "universal_intake_run": 36593498025,
+    "result": "SUCCESS",
+    "artifact_id": 11044977856,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "artifact_digest": "sha256:c76bff4277b64914fdc2760af17fead6ebbcda2bba1b365e946a5fb4ded1a5e4",
+    "apk_sha256": "bb303089805dc271da238d8a6ee41b1ed124f16e036deacb99976d6ce325c90d"
+  }
 }
