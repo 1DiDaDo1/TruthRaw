@@ -90,6 +90,8 @@ for needle in [
 for needle in [
     'resolver.openInputStream(destinationUri)',
     '"D.RAW/UniversalLocalModelBankHoldoutAudit/0.1"',
+    '"target_censor_state_used_for_holdout_admission"',
+    '"target_numeric_stage2_value_read_before_selection"',
     'sidecar.optJSONArray("holdout_records")',
     'global.optLong("holdouts", 0L) > 0L',
 ]:
