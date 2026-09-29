@@ -120,6 +120,43 @@ int measured_channel(CfaPattern cfa, int x, int y) noexcept {
     return map[phase];
 }
 
+bool valid_noise_profile(const DngMetadata& md) noexcept {
+    if (!md.hasNoiseProfile) return false;
+    for (float v : md.noiseProfile) {
+        if (!std::isfinite(v) || v < 0.0f) return false;
+    }
+    return true;
+}
+
+bool variance_for(
+    const DngMetadata& md,
+    const detail::Workspace& w,
+    std::size_t i,
+    int channel,
+    double mu,
+    double& variance) noexcept {
+    variance = 0.0;
+    if (!valid_noise_profile(md) ||
+        channel < 0 || channel > 2 ||
+        i >= w.stage2.size()) {
+        return false;
+    }
+    const double g = md.hasGainField
+        ? (i < w.gain.size()
+               ? static_cast<double>(w.gain[i])
+               : std::numeric_limits<double>::quiet_NaN())
+        : 1.0;
+    if (!std::isfinite(g) || !(g > 0.0) || !std::isfinite(mu)) {
+        return false;
+    }
+    const double s = md.noiseProfile[2 * channel];
+    const double offset = md.noiseProfile[2 * channel + 1];
+    variance =
+        g * s * std::max(mu, 0.0) +
+        g * g * offset;
+    return std::isfinite(variance) && variance > 0.0;
+}
+
 double score_from_sse(
     double sse,
     std::size_t n,
@@ -775,15 +812,27 @@ bool run(
                                             workspace.raw[ni]) >=
                                         md.whiteLevel;
 
+                                    double variance = 0.0;
+                                    const bool varianceKnown =
+                                        !censored &&
+                                        std::isfinite(value) &&
+                                        variance_for(
+                                            md,
+                                            workspace,
+                                            ni,
+                                            channel,
+                                            value,
+                                            variance);
+
                                     ce::Sample sample{};
                                     sample.value = value;
-                                    sample.variance = 0.0;
+                                    sample.variance = variance;
                                     sample.dx = dx;
                                     sample.dy = dy;
                                     sample.authority = censored
                                         ? ce::SampleAuthority::Censored
                                         : ce::SampleAuthority::Measured;
-                                    sample.varianceKnown = false;
+                                    sample.varianceKnown = varianceKnown;
                                     sample.sameChannel = true;
                                     sample.sameObject = true;
                                     sample.objectIdentityKnown = false;
