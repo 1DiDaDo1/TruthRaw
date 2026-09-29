@@ -46,6 +46,11 @@ for needle in [
     assert needle in h + cxx, f'missing native v0.2 invariant: {needle}'
 
 assert 'DIRECTIONAL_LINE' not in cxx, 'v0.2 must not silently reuse v0.1 directional model name'
+assert 'fit_robust_constant(' not in cxx, 'v0.2 must not retain unused v0.1 fit helper'
+assert 'fit_directional(' not in cxx, 'v0.2 must not retain unused v0.1 directional helper'
+assert 'score_from_sse(' not in cxx, 'v0.2 must not retain in-sample v0.1 selector score'
+assert 'kMinAffineSamples' not in cxx
+assert 'kMinQuadraticSamples' not in cxx
 assert 'DIRECTIONAL_STRIP_LINE' in cxx
 assert 'support_crossfit_partition' in cxx
 assert 'directional_affine_both_valid' in cxx
