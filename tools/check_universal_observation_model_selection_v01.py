@@ -57,6 +57,10 @@ for needle in [
     'Universal Observation Model Selection v0.1 · PROSPECTIVE',
     'lensCalibration=false · cameraModel=false · vendorMap=false',
     'een nieuwe onafhankelijke capture is vereist voor validatie',
+    'Export Universal Observation Model Selection v0.1 · JSON',
+    'REQUEST_SAVE_OBSERVATION_MODEL_SELECTION = 4122',
+    'heldout_target_used_for_selection',
+    'holdout_error_used_for_selection',
 ]:
     assert needle in main, f"missing UI contract: {needle}"
 
@@ -80,6 +84,30 @@ assert state["safety"]["measured_anchors_modified"] is False
 assert state["safety"]["unanchored_values_promoted_to_measured"] is False
 assert state["safety"]["candidate_applied"] is False
 assert state["safety"]["scientific_writeback_allowed"] is False
+
+for banned_result_key in [
+    "solver_mae",
+    "baseline_mae",
+    "solver_rmse",
+    "baseline_rmse",
+    "solver_lower_abs_error",
+    "baseline_lower_abs_error",
+    "solver_combined_z",
+    "actual",
+    "target_variance",
+]:
+    assert banned_result_key not in selector, (
+        f"holdout-result leakage into selector source: {banned_result_key}"
+    )
+
+selector_call = profiler.index("UniversalObservationModelSelectionV01.analyze")
+holdout_call = profiler.index("AnchorConstrainedLocalReconstructionAudit.analyze")
+assert selector_call < holdout_call, (
+    "prospective selector must be computed before holdout target reveal/scoring"
+)
+assert "anchorAudit =" not in profiler[selector_call:holdout_call]
+assert '"computed_before_anchor_holdout_target_reveal"' in selector
+assert '"anchor_holdout_runtime_dependency",\n                false' in selector
 
 lower = (selector + "\n" + lattice + "\n" + profiler).lower()
 for banned in [
