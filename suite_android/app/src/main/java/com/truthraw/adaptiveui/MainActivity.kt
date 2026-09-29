@@ -2878,7 +2878,15 @@ class MainActivity : Activity() {
                 expectedJob == null ||
                 expectedJob != activeJobId ||
                 report == null ||
-                policy?.optString("status") !=
+                policy == null
+            ) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1 geblokkeerd: actieve bron/policy veranderde."
+                render()
+                return
+            }
+            if (
+                policy.optString("status") !=
                     "PROSPECTIVE_AUDIT_POLICY_AVAILABLE" ||
                 policy.optBoolean("heldout_target_used_for_selection", true) ||
                 policy.optBoolean("holdout_error_used_for_selection", true) ||
@@ -2888,7 +2896,7 @@ class MainActivity : Activity() {
                 policy.optBoolean("scientific_writeback_allowed", true)
             ) {
                 observationModelSelectionStatus =
-                    "Universal Observation Model Selection v0.1 geblokkeerd: actieve bron/policy veranderde of target-blind/universele contract faalde."
+                    "Universal Observation Model Selection v0.1 geblokkeerd: target-blind/universele safety-contract mismatch."
                 render()
                 return
             }
