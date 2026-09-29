@@ -68,5 +68,12 @@
     "source_reverification_required": true,
     "post_export_json_parse_verification_required": true
   },
-  "next_gate": "NEW_INDEPENDENT_REAL_DEVICE_RAW_EXPORT_MODEL_BANK_HOLDOUT_JSON"
+  "next_gate": "EXECUTE_FROZEN_DEVICE_VALIDATION_PROTOCOL_ON_NEW_INDEPENDENT_RAW",
+  "validation": {
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "prior_pr90_capture_independent_validation": false,
+    "new_independent_real_device_raw_required": true,
+    "post_result_selector_or_threshold_changes_allowed": false
+  }
 }
