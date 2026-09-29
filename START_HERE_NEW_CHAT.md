@@ -34,6 +34,19 @@ The active successor is intentionally universal and observation-conditioned:
 - the already-seen 2026-09-29 tele hold-out is development evidence only;
 - a new independent capture is required to validate the selector.
 
+Green code-bearing PR #91 checkpoint:
+
+- code SHA: `4f1b5c1e99a115fa4b63d49b02d1913908d5a8ec`
+- D.RAW Suite Universal Intake run: `36593498025` — SUCCESS
+- artifact: `11044977856`
+- artifact digest: `sha256:c76bff4277b64914fdc2760af17fead6ebbcda2bba1b365e946a5fb4ded1a5e4`
+- APK SHA-256: `bb303089805dc271da238d8a6ee41b1ed124f16e036deacb99976d6ce325c90d`
+
+The APK exposes `Export Universal Observation Model Selection v0.1 · JSON`.
+This selector sidecar is computed before the anchor hold-out audit and contains no
+held-out target/error metrics. Export/freeze it before interpreting a new
+independent hold-out result.
+
 Permanent law for this line:
 
 > The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
