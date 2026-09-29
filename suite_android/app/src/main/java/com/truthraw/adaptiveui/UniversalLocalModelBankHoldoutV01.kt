@@ -32,7 +32,7 @@ object UniversalLocalModelBankHoldoutBridge {
  */
 object UniversalLocalModelBankHoldoutV01 {
     const val SCHEMA =
-        "D.RAW/Frontside/UniversalLocalModelBankHoldout/0.1"
+        "D.RAW/UniversalLocalModelBankHoldout/0.1"
 
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
