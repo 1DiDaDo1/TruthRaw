@@ -1182,6 +1182,58 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchAnchorConstrainedReconstructionExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            anchorReconstructionStatus =
+                "Anchor-Constrained Local Reconstruction v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+
+        val profile = universalProfiles[job.id]
+        val audit =
+            profile?.optJSONObject(
+                "anchor_constrained_local_reconstruction",
+            )
+        if (
+            audit?.optString("status") !=
+            "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE"
+        ) {
+            anchorReconstructionStatus =
+                "Anchor-Constrained Local Reconstruction v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met zichtbare Dark-Chroma-kandidaten en exacte support-geometrie."
+            render()
+            return
+        }
+
+        pendingAnchorReconstructionJobId = job.id
+        anchorReconstructionStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_anchor_constrained_local_reconstruction_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_ANCHOR_RECONSTRUCTION,
+        )
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchAppearanceHighlightDetailExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
