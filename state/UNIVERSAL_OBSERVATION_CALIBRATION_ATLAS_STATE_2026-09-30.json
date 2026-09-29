@@ -4,7 +4,7 @@
   "branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
   "parent_branch": "research/observation-optical-field-chart-v01-2026-09-29",
   "parent_code_sha": "61e758e78faa643c15dc45bf96aa1b7587784f46",
-  "status": "FIRST_ADMITTED_DNG_DEVICE_EXPORT_VALIDATED_OPAQUE_RAW_GATE_PENDING",
+  "status": "FIRST_ADMITTED_DNG_DEVICE_EXPORT_VALIDATED_CR3_FAIL_CLOSED_EXPORT_UI_FIXED_AWAITING_REBUILD",
   "purpose": "UNIFY_FRONTSIDE_AND_BACKSIDE_OBSERVATION_CONTEXT_WITH_SEPARATE_COLOUR_ILLUMINATION_OPTICS_TEMPORAL_RESTORATION_AUTHORITY_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
   "universal_input": {
     "camera_identity_required": false,
@@ -122,9 +122,17 @@
       "apk_bytes": 7582479,
       "apk_sha256": "12c95e8c4d6501cf5ff8c7d8d3ca9076b5e1d02c6ebf96469b2245dc7f2dc32d",
       "apk_verified_contains_atlas_markers": true
+    },
+    "fail_closed_intake_export_ui": {
+      "implemented": true,
+      "reason": "DEVICE_FEEDBACK_CR3_DECODER_PENDING_COULD_NOT_REACH_PRO_ONLY_EXPORT",
+      "export_available_from_universal_intake_after_profile": true,
+      "scientific_preview_required": false,
+      "native_dng_processing_required": false,
+      "camera_or_lens_identity_required": false
     }
   },
-  "next_gate": "RUN_ATLAS_EXPORT_ON_ONE_OPAQUE_OR_UNSUPPORTED_RAW_SOURCE_AND_VERIFY_FAIL_CLOSED_UNKNOWN_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
+  "next_gate": "GREEN_REBUILD_WITH_FAIL_CLOSED_INTAKE_EXPORT_THEN_EXPORT_ATLAS_FROM_CR3_OR_OTHER_OPAQUE_UNSUPPORTED_RAW",
   "device_validation": {
     "result_path": "state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_DEVICE_RESULT_2026-09-30.json",
     "admitted_dng_result": "PASS",
