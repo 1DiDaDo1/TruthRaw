@@ -1,0 +1,67 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.1",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+  "status": "IMPLEMENTED_AUDIT_ONLY_NOT_DEVICE_VALIDATED",
+  "parent": {
+    "pr": 91,
+    "branch": "research/universal-observation-model-selection-v01-2026-09-29",
+    "law": "SOURCE_RASTER_IS_FULL_RESOLUTION_MEASURED_SUPPORT_NOT_WORLD_RESOLUTION_AUTHORITY"
+  },
+  "predecessor_evidence": {
+    "pr": 90,
+    "capture": "DRAW_CAPTURE_1790686814757_tele_4080x3072",
+    "use_for_this_successor": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION",
+    "affine_promoted": false
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "holdout_scope": "STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS",
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "noise_profile_required_for_selection": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_RESIDUAL_BIC_LIKE_COMPLEXITY_SCORE",
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "post_reveal_oracle_is_diagnostic_only": true,
+    "selector_regret_reported": true
+  },
+  "reference": {
+    "name": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+    "optional_when_variance_contract_unavailable": true
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "apk": {
+    "export_label": "Export Universal Local Model Bank Holdout v0.1 · JSON",
+    "post_write_sha_verification_required": true,
+    "source_reverification_required": true
+  },
+  "next_gate": "NEW_INDEPENDENT_REAL_DEVICE_RAW_EXPORT_MODEL_BANK_HOLDOUT_JSON"
+}
