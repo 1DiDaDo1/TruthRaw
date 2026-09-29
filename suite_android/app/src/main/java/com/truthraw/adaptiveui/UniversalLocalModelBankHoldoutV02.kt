@@ -125,6 +125,14 @@ object UniversalLocalModelBankHoldoutV02 {
                 false,
             )
             .put("selector_uses_support_crossfit", true)
+            .put(
+                "direction_internal_validation_and_cross_family_validation_separated",
+                true,
+            )
+            .put(
+                "cross_family_models_share_common_validation_anchors",
+                true,
+            )
             .put("crossfit_partition_uses_target", false)
             .put(
                 "final_candidate_refit_uses_all_admitted_neighbor_support",
