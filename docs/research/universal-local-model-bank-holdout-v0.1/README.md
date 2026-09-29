@@ -95,6 +95,10 @@ The native audit now enforces a stricter boundary than mere data-flow separation
 the held-out Stage-2 value is not read from the workspace at all until the
 research selector and the independent reference predictor are both frozen.
 
+The target's censor/saturation state may still be inspected before that point
+only to decide whether the anchor is admissible as a hold-out. That admission
+bit is reported explicitly and is not a numeric predictor input.
+
 Model selection is frozen before the target is revealed.
 
 Current research selection score:
