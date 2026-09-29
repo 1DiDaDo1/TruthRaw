@@ -73,11 +73,12 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "device-test Dark Chroma v0.5 on selective main/wide 1790637640867 and capture the new N2 Structure Support v0.1 + v0.5 UI metrics",
-    "measure 32x32 overlap/interior structure-support density for the six visible Dark-Chroma candidates; do not infer unsampled pixels",
-    "keep legacy v0.4 protection intact, correction-supported=0 and private chroma A/B/Delta disabled during v0.5",
-    "only after device evidence decide whether a versioned distance/support geometry audit is justified",
-    "preserve Scientific Master/D.RAWnegative/TruthRange authority separation and the permanent no-AI rule"
+    "design a versioned audit-only sample-level structure-support distance field from exact N2 sampled preserve coordinates",
+    "measure nearest structure-protected sample distance and explicit-radius density per visible Dark-Chroma candidate, with censor/boundary support kept separate",
+    "do not infer unsampled pixels and do not collapse vector support into a scalar probability",
+    "keep v0.4/v0.5 protection semantics, correction-supported=0 and private chroma A/B/Delta disabled",
+    "export the future fine/distance sidecar as machine-readable evidence for device validation",
+    "preserve Scientific Master/D.RAWnegative immutability and the permanent no-AI rule"
   ],
   "universal_physical_capture_v0_1": {
     "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
@@ -166,7 +167,7 @@
     "dark_chroma_v0_5": {
       "branch": "research/dark-chroma-stability-v05-2026-09-29",
       "pull_request": 87,
-      "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
+      "status": "DEVICE_VALIDATED_FINE_STRUCTURE_DID_NOT_SEPARATE",
       "parent": "dark_chroma_v0_4",
       "purpose": "refine local structure-support resolution after v0.4 selective main/wide proved 64x64 any-structure-presence too coarse",
       "additions": [
@@ -188,7 +189,20 @@
         "artifact_id": 11005636260,
         "apk_sha256": "615e75323005d079a2a5650dba035128e6d6a40153a1f7bd45ba927d6173e46e",
         "all_relevant_ci_green": true
-      }
+      },
+      "device_evidence": {
+        "capture": "1790662450477 wide/main 4096x3072",
+        "visible_candidates": 15,
+        "fine_bound": 15,
+        "legacy_v04_blocked": 15,
+        "overlap_structure_fraction": 0.1677,
+        "interior_structure_fraction": 0.1678,
+        "fine_tiles_structure_free": "558/0",
+        "zero_interior_structure_candidates": 0,
+        "correction_supported": 0,
+        "caveat": "fine-field aggregates are screenshot-grounded because exported ZIP omitted the v0.5 fine-field JSON sidecar"
+      },
+      "new_finding": "32x32 any-structure-presence remains saturated; exact sampled support distance/density is the next justified audit, not a protection reduction"
     }
   }
 }
