@@ -2,7 +2,7 @@
   "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.2",
   "date": "2026-09-29",
   "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
-  "status": "IMPLEMENTED_AUDIT_ONLY_NOT_DEVICE_VALIDATED",
+  "status": "GREEN_BUILD_READY_FOR_PAIRED_DEVICE_VALIDATION",
   "parent": {
     "pr": 92,
     "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
@@ -81,5 +81,21 @@
     "accidental_streaming_v0_2_dependency_forbidden": true,
     "superseded_v01_fit_helpers_removed": true,
     "compile_fix_checkpoint_before_device_validation": true
+  },
+  "active_build_branch": "research/universal-local-model-bank-holdout-v02-buildfix-2026-09-29",
+  "active_pr": 94,
+  "superseded_pr": 93,
+  "green_build": {
+    "code_checkpoint": "a91c3f794a91c2fa1aedc1c0dfe263768ee86bef",
+    "universal_intake_run": 36612537275,
+    "android_dngcreator_run": 36612537382,
+    "canonical_integrity_run": 36612537460,
+    "v02_integrity_run": 36612537431,
+    "artifact_id": 11054171359,
+    "artifact_digest": "sha256:7e06981c3c0b6a9d19335e06f6ef62072b261423a1dc8a8aa4f44b3792a6fd84",
+    "apk_sha256": "035104d7f05da805911d6f662596ade441487bf41182ae61ba1d1ec7d3588743",
+    "v01_jni_present": true,
+    "v02_jni_present": true,
+    "v02_ui_export_present": true
   }
 }
