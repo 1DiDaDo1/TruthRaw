@@ -4620,6 +4620,32 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
+                val universalCalibrationAtlas =
+                    profile.optJSONObject(
+                        "universal_observation_calibration_atlas",
+                    )
+                if (
+                    universalCalibrationAtlas?.optString("status") ==
+                    "OBSERVATION_ATLAS_AVAILABLE"
+                ) {
+                    addView(space(5))
+                    addView(actionButton(
+                        "Export Universal Observation & Calibration Atlas v0.1 · JSON",
+                    ) {
+                        launchUniversalCalibrationAtlasExport(job)
+                    })
+                    universalCalibrationAtlasStatus?.let { status ->
+                        addView(label(status, 10f, muted = true))
+                    }
+                    addView(label(
+                        "Deze atlas-export hoort bij de Universele Ingang zelf en blijft beschikbaar als de " +
+                            "wetenschappelijke RAW-decoder fail-closed stopt. Geen Scientific Preview, DNG-route, " +
+                            "camera-/lensidentiteit of voorafgaande gebruikerskalibratie is vereist.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
                 val bits = raster.opt("bits_per_sample")?.toString() ?: "?"
                 val compression = raster.opt("compression")?.toString() ?: "?"
                 val sampleFormat = raster.opt("sample_format")?.toString() ?: "?"
