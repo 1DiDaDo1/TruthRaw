@@ -336,16 +336,20 @@ object N2SampleSupportDistanceAudit {
                         "censor_boundary_protected",
                         -2L,
                     )
+            val expectedCandidateSha =
+                fineStructure?.optString("candidate_sha256", "") ?: ""
+            val expectedAuditSha =
+                fineStructure?.optString("n2_audit_sha256", "") ?: ""
             val candidateHashParity =
                 parityAvailable &&
-                    fineStructure?.optString("candidate_sha256", "") ==
-                    sidecar.optString("candidate_sha256", "") &&
-                    fineStructure.optString("candidate_sha256", "").isNotBlank()
+                    expectedCandidateSha.isNotBlank() &&
+                    expectedCandidateSha ==
+                    sidecar.optString("candidate_sha256", "")
             val auditHashParity =
                 parityAvailable &&
-                    fineStructure?.optString("n2_audit_sha256", "") ==
-                    sidecar.optString("audit_sha256", "") &&
-                    fineStructure.optString("n2_audit_sha256", "").isNotBlank()
+                    expectedAuditSha.isNotBlank() &&
+                    expectedAuditSha ==
+                    sidecar.optString("audit_sha256", "")
 
             nearestCenterStructure.sort()
             nearestRectStructure.sort()
