@@ -31,7 +31,7 @@ for needle in [
     assert needle in h + cxx, f"missing native distance invariant: {needle}"
 
 for needle in [
-    '"BASE64_LE_U32_XY_PAIRS_SOURCE_NATIVE"',
+    'BASE64_LE_U32_XY_PAIRS_SOURCE_NATIVE',
     '"exact_sample_coordinates_recorded":true',
     '"unsampled_pixels_inferred":false',
     '"scalar_probability_created":false',
@@ -99,6 +99,10 @@ assert 'TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01' in cmake
 assert 'truthnegative_n2_support_distance_v0_1.cpp' in cmake
 assert 'N2 Sample Support Distance v0.1 · EXACT SAMPLED GEOMETRY' in main
 assert 'Dark Chroma Stability v0.6 · SAMPLE-LEVEL SUPPORT DISTANCE' in main
+assert 'Export N2 Sample Support Distance v0.1 · JSON' in main
+assert 'REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120' in main
+assert 'N2SampleSupportDistanceAudit.exportSidecar' in main
+assert 'fun exportSidecar(' in audit
 
 lower = (cxx + "\n" + bridge + "\n" + audit + "\n" + v06).lower()
 for banned in ["tensorflow", "pytorch", "onnx", "neural network", "generative model"]:
