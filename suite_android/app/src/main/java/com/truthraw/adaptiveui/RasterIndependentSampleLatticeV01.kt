@@ -116,6 +116,27 @@ object RasterIndependentSampleLatticeV01 {
                 true,
             )
             .put(
+                "source_raster_role",
+                "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+            )
+            .put("source_raster_used_only_for_noise", false)
+            .put(
+                "source_raster_preserves_full_resolution_structure_geometry_and_authority",
+                true,
+            )
+            .put(
+                "scientific_solution_space_resolution_decoupled_from_source_sampling",
+                true,
+            )
+            .put(
+                "output_projection_resolution_decoupled_from_source_sampling",
+                true,
+            )
+            .put(
+                "new_raster_may_refine_measurement_space_without_replacing_measurement_history",
+                true,
+            )
+            .put(
                 "scientific_role",
                 "RASTER_INDEPENDENT_COORDINATE_DOMAIN_FOR_MEASURED_ANCHORS_AND_VERSIONED_RECONSTRUCTION",
             )
