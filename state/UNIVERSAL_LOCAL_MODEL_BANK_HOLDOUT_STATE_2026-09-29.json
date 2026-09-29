@@ -46,7 +46,9 @@
     "holdout_error_used_by_selector": false,
     "post_reveal_oracle_used_by_selector": false,
     "post_reveal_oracle_is_diagnostic_only": true,
-    "selector_regret_reported": true
+    "selector_regret_reported": true,
+    "target_value_read_before_selection": false,
+    "target_value_read_after_selector_and_reference_freeze": true
   },
   "reference": {
     "name": "CENTER_EXCLUDED_MULTISCALE_V0_2",
