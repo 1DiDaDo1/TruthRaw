@@ -72,7 +72,7 @@
     "single_scene_lens_vignetting_inference_allowed": false,
     "gain_map_agreement_can_promote_truth": false
   },
-  "next_gate": "GREEN_ANDROID_BUILD_THEN_DEVELOPMENT_RUNTIME_PROFILE_EXPORT",
+  "next_gate": "GREEN_ANDROID_BUILD_WITH_EXPLICIT_EXPORT_THEN_DEVELOPMENT_RUNTIME_PROFILE_EXPORT",
   "source_metadata_hints": {
     "opcode_list_2_header_parse_allowed": true,
     "opcode_ids_and_header_sizes_only": false,
@@ -116,5 +116,13 @@
       2.4404296875
     ],
     "metadata_interpretation": "STRONG_SPATIAL_SHADING_CORRECTION_INTENT_HINT_ONLY_NOT_TRUTH"
+  },
+  "export": {
+    "explicit_json_export_added": true,
+    "ui_label": "Export Observation Optical Field Chart v0.1 · JSON",
+    "filename_suffix": "_draw_observation_optical_field_chart_v0_1.json",
+    "heavy_native_reconstruction_required": false,
+    "correction_gain_allowed": false,
+    "scientific_writeback_allowed": false
   }
 }
