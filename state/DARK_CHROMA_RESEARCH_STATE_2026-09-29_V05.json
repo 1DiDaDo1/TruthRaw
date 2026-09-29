@@ -1,0 +1,110 @@
+{
+  "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.5",
+  "status": "DEVICE_VALIDATED_SELECTIVE_MAIN_WIDE_FINE_STRUCTURE_DID_NOT_SEPARATE",
+  "branch": "research/dark-chroma-stability-v05-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v04-2026-09-29",
+  "project_law": "Seal the evidence, not the thinking.",
+  "validated_parent_cases": {
+    "near_black_tele": {
+      "v04_local_binding": true,
+      "dark_uninformative_preserved": true,
+      "correction_supported_tiles": 0
+    },
+    "structured_ultra_wide_1790636281140": {
+      "v04_local_binding_frontside_tiles": "432/432",
+      "visible_chroma_candidate_tiles": 0,
+      "correction_supported_tiles": 0
+    },
+    "selective_main_wide_1790637640867": {
+      "v04_local_binding_frontside_tiles": "432/432",
+      "visible_chroma_candidate_tiles": 6,
+      "visible_candidate_bound_tiles": 6,
+      "visible_candidate_structure_blocked_tiles": 6,
+      "n2_structure_protected_sample_fraction": 0.16560872395833334,
+      "n2_structure_protection_present_tiles": "3072/3072",
+      "finding": "64x64 any-structure-presence is safe but too coarse for candidate-level discrimination"
+    }
+  },
+  "v05": {
+    "new_native_field": "D.RAW/TruthNegative/N2StructureSupportField/0.1",
+    "reporting_tile_edge": 32,
+    "sampling_period": 8,
+    "underlying_n2_structure_gate_changed": false,
+    "sample_grid_evidence_only": true,
+    "unsampled_pixels_inferred": false,
+    "selective_execution": "native-ready DNG AND visible Dark-Chroma candidates > 0 AND not globally DARK_UNINFORMATIVE",
+    "frontside_binding": {
+      "whole_overlap_context": true,
+      "fully_contained_interior_counts": true,
+      "boundary_tiles_fractionally_assigned": false
+    },
+    "legacy_v04_protection_semantics_reduced": false,
+    "fine_metrics_are_probability": false,
+    "fine_metrics_can_reduce_protection": false,
+    "fine_metrics_can_enable_correction": false,
+    "dark_uninformative_can_be_overridden": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "single_shot_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "device_validation_required": [
+    "install APK from code checkpoint eec3a2d75ecf0333858b218bbe3a84b6c2395e5c",
+    "rerun selective main/wide source/capture class 1790637640867 and record fine overlap/interior structure fractions for all six visible candidates",
+    "verify correction-supported remains zero and no protection semantics are reduced",
+    "do not define a distance/support promotion gate until fine structure density is observed on real device data"
+  ],
+  "next_gate": {
+    "name": "SAMPLE_LEVEL_STRUCTURE_SUPPORT_DISTANCE_AUDIT",
+    "purpose": "measure exact sampled structure-protected coordinate distance/density around each frontside candidate without reducing protection",
+    "exact_protected_sample_coordinates_required": true,
+    "unsampled_pixels_inferred": false,
+    "scalar_probability_allowed": false,
+    "correction_enable_allowed": false,
+    "private_chroma_ab_delta_still_blocked": true,
+    "scientific_writeback_allowed": false
+  },
+  "build_validation": {
+    "code_checkpoint": "eec3a2d75ecf0333858b218bbe3a84b6c2395e5c",
+    "universal_capture_run": 36500676739,
+    "universal_intake_run": 36500676738,
+    "dngcreator_run": 36500676754,
+    "artifact_id": 11005636260,
+    "artifact_digest": "sha256:ad830d0c1f4044dc316075f580c1c2a2f5914e0a6a3fcfd135fcd2ca9b51b2ef",
+    "apk_sha256": "615e75323005d079a2a5650dba035128e6d6a40153a1f7bd45ba927d6173e46e",
+    "all_relevant_ci_green": true,
+    "dark_chroma_v01_v02_v03_v04_v05_integrity": "SUCCESS",
+    "canonical_integrity": "SUCCESS",
+    "truthrange_v04_v05": "SUCCESS",
+    "tile_native_dng_android": "SUCCESS",
+    "android_full_suite_build": "SUCCESS"
+  },
+  "device_validation": {
+    "capture": "DRAW_CAPTURE_1790662450477_wide_main_4096x3072.dng",
+    "source_sha256": "7a580822af061f290f92dc42082141023d64b6b2596c8c8cc64a591f19702a0e",
+    "global_v03_state": "FRONTSIDE_INFORMATION_PRESENT",
+    "visible_candidates": 15,
+    "v04_visible_bound": 15,
+    "v04_structure_blocked": 15,
+    "v05_fine_bound": 15,
+    "v05_overlap_structure_fraction": 0.1677,
+    "v05_interior_structure_fraction": 0.1678,
+    "v05_fine_tiles_structure": 558,
+    "v05_fine_tiles_free": 0,
+    "v05_max_fine_tile_structure_fraction": 0.375,
+    "v05_zero_interior_structure_candidates": 0,
+    "n2_global_structure_sample_fraction": 0.16974258422851562,
+    "correction_supported_tiles": 0,
+    "evidence_note": "v0.5 fine-field aggregate values are UI screenshot evidence; supplied ZIP contains predecessor N2 JSON sidecars but not the new fine-field JSON sidecar"
+  },
+  "finding": "32x32 reporting resolution still has structure protection everywhere around all visible candidates; candidate density is approximately the same as whole-observation structure density, so any-presence tile veto remains too coarse"
+}

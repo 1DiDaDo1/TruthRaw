@@ -295,9 +295,69 @@ object UniversalSourceProfiler {
                 localN2 = n2LocalSpatialBinding,
             )
 
+        val frontsideV01 =
+            frontside.optJSONObject("dark_chroma_stability_v0_1")
+        val frontsideV01Global =
+            frontsideV01?.optJSONObject("global") ?: JSONObject()
+        val visibleDarkChromaCandidates =
+            frontsideV01Global.optLong(
+                "frontside_chroma_instability_candidate_tiles",
+                0L,
+            )
+        val v03State =
+            frontside.optJSONObject("dark_chroma_stability_v0_3")
+                ?.optString("global_information_state", "UNKNOWN")
+                ?: "UNKNOWN"
+        val nativeDngReady =
+            source.format.id == "DNG" && source.format.nativeProcessingReady
+        val fineStructureNeeded =
+            nativeDngReady &&
+                visibleDarkChromaCandidates > 0L &&
+                !v03State.startsWith("DARK_UNINFORMATIVE")
+
+        val n2StructureSupportBinding =
+            when {
+                fineStructureNeeded ->
+                    N2StructureSupportBindingAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                    )
+                !nativeDngReady ->
+                    N2StructureSupportBindingAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    N2StructureSupportBindingAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                else ->
+                    N2StructureSupportBindingAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_CORRECTION",
+                    )
+            }
+
+        val darkChromaV05 =
+            DarkChromaStabilityV05Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                v04 = darkChromaV04,
+                fineStructure = n2StructureSupportBinding,
+            )
+
         frontside
             .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
             .put("dark_chroma_stability_v0_4", darkChromaV04)
+            .put(
+                "n2_structure_support_binding_v0_1",
+                n2StructureSupportBinding,
+            )
+            .put("dark_chroma_stability_v0_5", darkChromaV05)
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -310,6 +370,10 @@ object UniversalSourceProfiler {
             .put("route_hints", routeHints)
             .put("backside_signal_support", backsideSignalSupport)
             .put("n2_local_spatial_binding", n2LocalSpatialBinding)
+            .put(
+                "n2_structure_support_binding",
+                n2StructureSupportBinding,
+            )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
             .put("open_world", openWorldBlock())
