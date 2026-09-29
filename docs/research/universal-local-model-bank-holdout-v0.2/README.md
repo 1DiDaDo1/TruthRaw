@@ -84,8 +84,15 @@ This means the directional predictor sees different observation support from
 the affine plane and therefore can form a genuinely different center
 prediction.
 
-Direction choice is itself target-blind and based on cross-fit validation
-score.
+Direction choice is itself target-blind and based on validation inside the
+candidate direction strip.
+
+That strip-specific score chooses only H/V/diagonal orientation inside the
+directional family. For the later competition between model families,
+ROBUST_MEDIAN_CONSTANT, DIRECTIONAL_STRIP_LINE, AFFINE_PLANE and
+QUADRATIC_SURFACE are all scored on the same common target-blind validation
+anchors. This avoids giving the directional family a selection advantage merely
+because its strip is an easier subset.
 
 ## Candidate bank
 
