@@ -244,7 +244,7 @@
     },
     "raster_independent_sample_lattice_v0_1": {
       "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
-      "pull_request": null,
+      "pull_request": 89,
       "status": "BUILD_AND_DEVICE_VALIDATION",
       "parent": "dark_chroma_v0_6",
       "schema": "D.RAW/RasterIndependentSampleLattice/0.1",
