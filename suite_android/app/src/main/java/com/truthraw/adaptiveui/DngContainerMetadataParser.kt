@@ -449,15 +449,24 @@ object DngContainerMetadataParser {
         val originH = b.double
         val mapPlanes = u32(b.int)
 
-        val expectedLong =
-            pointsV * pointsH * mapPlanes
         if (
             pointsV <= 0L ||
             pointsH <= 0L ||
             mapPlanes <= 0L ||
             pointsV > 4096L ||
             pointsH > 4096L ||
-            mapPlanes > 16L ||
+            mapPlanes > 16L
+        ) {
+            return out
+                .put("status", "GAIN_MAP_DIMENSIONS_INVALID")
+                .put("map_points_v", pointsV)
+                .put("map_points_h", pointsH)
+                .put("map_planes", mapPlanes)
+        }
+
+        val expectedLong =
+            pointsV * pointsH * mapPlanes
+        if (
             expectedLong <= 0L ||
             expectedLong > 1_000_000L
         ) {
