@@ -42,6 +42,8 @@ for needle in [
 assert 'DIRECTIONAL_LINE' not in cxx, 'v0.2 must not silently reuse v0.1 directional model name'
 assert 'DIRECTIONAL_STRIP_LINE' in cxx
 assert 'support_crossfit_partition' in cxx
+assert 'directional_affine_both_valid' in cxx
+assert 'directional_affine_bit_identical_estimate' in cxx
 assert 'selector_uses_support_crossfit' in cxx
 assert 'directional_support_conditioned' in cxx
 assert 'directional_strip_half_width_source_px' in cxx
