@@ -1,0 +1,105 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.3",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v03-2026-09-29",
+  "status": "IMPLEMENTED_SELECTOR_ONLY_NOT_DEVICE_VALIDATED",
+  "parent": {
+    "pr": 93,
+    "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
+    "result": "MODEL_BANK_IMPROVED_SELECTOR_REGRESSED_NO_PROMOTION"
+  },
+  "source_provenance": {
+    "development_source_filename": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+    "development_source_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "byte_level_reverified": true,
+    "use_for_v03": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION"
+  },
+  "architecture": {
+    "candidate_fits_frozen_from_v02": true,
+    "directional_geometry_frozen_from_v02": true,
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "coordinate_fraction_bits": 20,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_STRIP_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_COMMON_VALIDATION_RMS_V0_3",
+    "selector_uses_support_crossfit": true,
+    "selection_uses_common_validation_rms": true,
+    "cross_family_complexity_penalty_applied": false,
+    "complexity_used_only_as_tie_break": true,
+    "direction_internal_selection_inherited_from_v02": true,
+    "cross_family_models_share_common_validation_anchors": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "diagnostics": [
+      "SECOND_BEST_VALIDATION_RMS",
+      "SELECTION_MARGIN_RMS",
+      "SELECTION_MARGIN_RELATIVE"
+    ]
+  },
+  "retrospective_development_replay": {
+    "source_already_observed_before_v03_design": true,
+    "independent_validation": false,
+    "holdouts": 11844,
+    "v03_selected_mae": 0.004421255870668693,
+    "v03_selected_rmse": 0.009327471672198981,
+    "v01_selected_mae": 0.004465832922535545,
+    "v02_selected_mae": 0.004600440746879939,
+    "v03_vs_v01_relative_mae_reduction": 0.009981800179291593,
+    "v03_vs_v01_relative_rmse_reduction": 0.0037741813179185666,
+    "v03_vs_v01_lower_abs_error": [
+      3870,
+      3901,
+      4073
+    ],
+    "v03_vs_v02_lower_abs_error": [
+      4473,
+      4181,
+      3190
+    ],
+    "v03_selected_distribution": {
+      "ROBUST_MEDIAN_CONSTANT": 1685,
+      "DIRECTIONAL_STRIP_LINE": 2006,
+      "AFFINE_PLANE": 3009,
+      "QUADRATIC_SURFACE": 5144
+    },
+    "reference_comparable_holdouts": 11031,
+    "v03_reference_comparable_mae": 0.003842850728550539,
+    "v03_reference_comparable_rmse": 0.006799205564897406,
+    "reference_mae": 0.003971537928096364,
+    "note": "Retrospective replay is design evidence only and cannot validate v0.3."
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "model_bank_applied_to_scientific_master": false,
+    "scientific_writeback_allowed": false
+  },
+  "validation": {
+    "new_independent_real_device_raw_required": true,
+    "paired_v01_v02_v03_same_source_required": true,
+    "identical_holdout_coordinates_expected": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "post_result_selector_changes_allowed": false
+  },
+  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_V03_HOLDOUT_EXPORT"
+}
