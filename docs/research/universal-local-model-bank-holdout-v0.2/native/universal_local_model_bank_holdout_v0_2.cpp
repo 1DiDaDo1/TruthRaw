@@ -1218,6 +1218,18 @@ bool run(
                             return false;
                         }
 
+                        if (record.directional.valid &&
+                            record.affine.valid) {
+                            ++out.global.directionalAffineBothValid;
+                            if (std::bit_cast<std::uint64_t>(
+                                    record.directional.estimate) ==
+                                std::bit_cast<std::uint64_t>(
+                                    record.affine.estimate)) {
+                                ++out.global
+                                    .directionalAffineBitIdenticalEstimate;
+                            }
+                        }
+
                         // IMPORTANT: target-blind selection happens here
                         // while the held-out Stage-2 value has not even been
                         // read from the workspace.
@@ -1544,6 +1556,10 @@ bool run(
           << out.global.baselineLowerAbsErrorThanSelected;
         o << ",\"equal_selected_baseline_abs_error\":"
           << out.global.equalSelectedBaselineAbsError;
+        o << ",\"directional_affine_both_valid\":"
+          << out.global.directionalAffineBothValid;
+        o << ",\"directional_affine_bit_identical_estimate\":"
+          << out.global.directionalAffineBitIdenticalEstimate;
         o << ",\"selected_mae\":"
           << mean(
                  out.global.selectedAbsErrorSum,
