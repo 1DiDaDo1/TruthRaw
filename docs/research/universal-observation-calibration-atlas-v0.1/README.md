@@ -289,3 +289,22 @@ The returned Full Colour Scientific Master was also independently inspected:
 This passes the admitted-DNG half of the first physical validation gate.
 
 The opaque/unsupported-RAW half remains pending. No calibration or correction promotion is authorized yet.
+
+
+## Fail-closed proprietary RAW export UI
+
+Real-device CR3 testing exposed a UI reachability error rather than a scientific error: the universal profile correctly stayed fail-closed, but the atlas export button was only reachable in the later PRO/processed tooling area.
+
+That contradicted the universal-input purpose because a decoder-pending source can never reach a Scientific Preview.
+
+The export is now also exposed directly inside `universalIntakePane` as soon as `OBSERVATION_ATLAS_AVAILABLE` exists.
+
+This route explicitly does **not** require:
+
+- a Scientific Preview;
+- native DNG processing;
+- camera identity;
+- lens identity;
+- prior user calibration.
+
+The later PRO export remains as a duplicate convenience for fully admitted sources. The intake-level export is the canonical path for opaque/unsupported/fail-closed RAW observations.
