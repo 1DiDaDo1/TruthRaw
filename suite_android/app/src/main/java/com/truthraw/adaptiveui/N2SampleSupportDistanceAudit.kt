@@ -91,17 +91,7 @@ object N2SampleSupportDistanceAudit {
             return unavailable(sourceSha256, "FRONTSIDE_DIMENSION_CONTRACT_MISMATCH")
         }
 
-        val candidateData = ArrayList<Int>()
-        for (i in 0 until tiles.length()) {
-            val t = tiles.optJSONObject(i) ?: continue
-            if (!t.optBoolean("frontside_chroma_instability_candidate", false)) {
-                continue
-            }
-            candidateData += t.optInt("x")
-            candidateData += t.optInt("y")
-            candidateData += t.optInt("width")
-            candidateData += t.optInt("height")
-        }
+        val candidateData = buildCandidateData(frontsideV01)
         if (candidateData.isEmpty()) {
             return skipped(sourceSha256, "NO_VISIBLE_DARK_CHROMA_CANDIDATES")
         }
@@ -131,7 +121,7 @@ object N2SampleSupportDistanceAudit {
                             MAX_LOGICAL_RESIDENT_BYTES,
                             analysisWidth,
                             analysisHeight,
-                            candidateData.toIntArray(),
+                            candidateData,
                         )
                     }
                 }
@@ -445,6 +435,104 @@ object N2SampleSupportDistanceAudit {
         } finally {
             runCatching { temp.delete() }
         }
+    }
+
+    fun exportSidecar(
+        resolver: ContentResolver,
+        sourceUri: Uri,
+        destinationUri: Uri,
+        expectedSourceSha256: String,
+        frontsideV01: JSONObject?,
+    ): JSONObject {
+        require(frontsideV01 != null) {
+            "Frontside v0.1 ontbreekt."
+        }
+        require(
+            frontsideV01.optString("schema") ==
+                "D.RAW/Frontside/DarkChromaStability/0.1"
+        ) {
+            "Frontside v0.1 schema mismatch."
+        }
+        require(
+            frontsideV01.optString("source_sha256") == expectedSourceSha256
+        ) {
+            "Frontside/source SHA mismatch."
+        }
+
+        val analysisWidth = frontsideV01.optInt("analysis_width", 0)
+        val analysisHeight = frontsideV01.optInt("analysis_height", 0)
+        require(analysisWidth > 0 && analysisHeight > 0) {
+            "Frontside analyse-afmetingen ontbreken."
+        }
+
+        val candidateData = buildCandidateData(frontsideV01)
+        require(candidateData.isNotEmpty()) {
+            "Geen zichtbare Dark-Chroma-kandidaten om te exporteren."
+        }
+
+        val statusText =
+            resolver.openFileDescriptor(sourceUri, "r")?.use { src ->
+                resolver.openFileDescriptor(destinationUri, "rw")?.use { dst ->
+                    TruthNegativeN2SupportDistanceBridge.exportAndVerify(
+                        src.fd,
+                        dst.fd,
+                        MAX_SOURCE_RESIDENT_BYTES,
+                        MAX_LOGICAL_RESIDENT_BYTES,
+                        analysisWidth,
+                        analysisHeight,
+                        candidateData,
+                    )
+                }
+            } ?: error("Bron of bestemming kon niet worden geopend.")
+
+        val status = JSONObject(statusText)
+        require(status.optInt("status", -999) == 0) {
+            "Native support-distance export faalde: " +
+                status.optString("message", "status=" + status.optInt("status"))
+        }
+        require(status.optBoolean("postWriteVerified", false)) {
+            "Support-distance export is niet post-write geverifieerd."
+        }
+        require(status.optString("sourceSha256") == expectedSourceSha256) {
+            "Support-distance export source-SHA mismatch."
+        }
+        require(status.optBoolean("exactSampleCoordinatesRecorded", false)) {
+            "Exacte sampled coördinaten ontbreken in de sidecar."
+        }
+        require(!status.optBoolean("unsampledPixelsInferred", true)) {
+            "Sidecar claimt onbemeten pixels."
+        }
+        require(!status.optBoolean("canReduceProtection", true)) {
+            "Sidecar mag bescherming niet verminderen."
+        }
+        require(!status.optBoolean("canEnableCorrection", true)) {
+            "Sidecar mag correctie niet inschakelen."
+        }
+        require(!status.optBoolean("scientificWritebackAllowed", true)) {
+            "Sidecar mag geen Scientific-Master-writeback toestaan."
+        }
+        return status
+    }
+
+    private fun buildCandidateData(frontsideV01: JSONObject): IntArray {
+        val tiles = frontsideV01.optJSONArray("tiles") ?: JSONArray()
+        val data = ArrayList<Int>()
+        for (i in 0 until tiles.length()) {
+            val t = tiles.optJSONObject(i) ?: continue
+            if (
+                !t.optBoolean(
+                    "frontside_chroma_instability_candidate",
+                    false,
+                )
+            ) {
+                continue
+            }
+            data += t.optInt("x")
+            data += t.optInt("y")
+            data += t.optInt("width")
+            data += t.optInt("height")
+        }
+        return data.toIntArray()
     }
 
     private fun distanceSummary(values: List<Double>): JSONObject {
