@@ -18,7 +18,7 @@ inline constexpr const char* kSchemaName =
 inline constexpr std::uint32_t kLatticeFractionBits = 20u;
 inline constexpr std::uint64_t kLatticeUnitsPerSourcePixel =
     1ull << kLatticeFractionBits;
-inline constexpr std::uint32_t kHoldoutPeriod = 32u;
+inline constexpr std::uint32_t kHoldoutPeriod = 64u;
 inline constexpr int kSupportRadius = 8;
 inline constexpr int kCoreTileExtent = 256;
 
