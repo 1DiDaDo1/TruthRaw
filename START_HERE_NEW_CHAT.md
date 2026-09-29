@@ -5,9 +5,10 @@
 Read first:
 
 1. `state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json`
-2. `docs/research/observation-optical-field-chart-v0.1/README.md`
-3. `docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
-4. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
+2. `state/OBSERVATION_OPTICAL_FIELD_CHART_DEVELOPMENT_RESULT_2026-09-29.json`
+3. `docs/research/observation-optical-field-chart-v0.1/README.md`
+4. `docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
 
 Purpose:
 
@@ -22,6 +23,15 @@ Purpose:
 - no correction gain, measured-sample mutation or Scientific Master writeback is allowed.
 
 Current measured topology is inherited from BacksideSignalSupportAudit: classic TIFF/DNG, uncompressed unsigned 16-bit, single sample/pixel, strips. Unsupported layouts fail closed for the measured field signal while the geometry chart can still exist when raster geometry is known.
+
+Development-source numerical result (`IMG_20260403_182145.dng`):
+
+- 12,288 sparse measured CFA samples using the same 64-pixel grid as runtime;
+- annular p50 rises from ~0.01668 centerward to ~0.20490 at the outer ring;
+- observed outer/inner p50 ratio ~12.28;
+- outer-half median azimuth relative MAD ~0.902, showing very strong scene asymmetry;
+- four 13x17 GainMaps remain provenance-only and are not applied;
+- conclusion: this one scene cannot identify lens-only vignetting.
 
 Next gate: green Android build, then inspect a real-device radial/azimuthal field profile without applying any correction.
 
