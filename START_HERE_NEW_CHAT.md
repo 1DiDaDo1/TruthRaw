@@ -5,10 +5,23 @@
 Read first:
 
 1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V02.json`
-2. `docs/research/universal-local-model-bank-holdout-v0.2/README.md`
-3. `docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
-4. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
-5. PR #92 remains the frozen v0.1 real-device predecessor.
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.2/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+6. PR #92 remains the frozen v0.1 real-device predecessor.
+
+
+Paired v0.1/v0.2 result now available on source `IMG_BNC_TRUTHRAW20260907_094414_423`:
+
+- exact same source/scientific/TruthNegative hashes for v0.1 and v0.2;
+- exact same 11,844 holdout coordinates and targets;
+- v0.2 successfully removed directional/affine redundancy: 0/11,844 bit-identical center estimates;
+- v0.1 selected MAE ≈ 0.00446583; v0.2 ≈ 0.00460044 over all holdouts;
+- on 11,031 reference-comparable holdouts: v0.1 MAE ≈ 0.00386913, v0.2 ≈ 0.00399589, reference ≈ 0.00397154;
+- v0.2 selector regret worsened, but v0.2 oracle MAE improved to ≈ 0.00338673 vs v0.1 oracle ≈ 0.00364386;
+- conclusion: v0.2 candidate geometry improved, selector regressed; no promotion/writeback;
+- original sealed source bytes were not included in the uploaded package, so external source-SHA byte reverification remains pending.
 
 Why v0.2 exists:
 
