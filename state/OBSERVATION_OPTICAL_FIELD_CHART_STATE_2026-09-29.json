@@ -1,0 +1,70 @@
+{
+  "schema": "D.RAW/ObservationOpticalFieldChartState/0.1",
+  "date": "2026-09-29",
+  "branch": "research/observation-optical-field-chart-v01-2026-09-29",
+  "status": "IMPLEMENTED_GEOMETRY_AND_MEASURED_COMPOSITE_FIELD_SIGNAL_NOT_DEVICE_VALIDATED",
+  "parent": {
+    "pr": 95,
+    "branch": "research/universal-local-model-bank-holdout-v03-2026-09-29",
+    "selector_state": "FROZEN_AFTER_FIRST_INDEPENDENT_VALIDATION_NO_SELECTOR_CHANGES"
+  },
+  "purpose": "UNFOLD_SEALED_SOURCE_OBSERVATION_INTO_FLAT_RADIAL_TANGENTIAL_FIELD_COORDINATES",
+  "geometry": {
+    "source": "SOURCE_OR_ACTIVE_AREA_GEOMETRY",
+    "preferred_origin": "ACTIVE_AREA_GEOMETRIC_CENTER",
+    "fallback_origin": "FULL_SOURCE_RASTER_GEOMETRIC_CENTER",
+    "origin_is_physical_optical_axis": false,
+    "rho_definition": "SOURCE_RADIUS_DIVIDED_BY_MAX_ACTIVE_CORNER_RADIUS",
+    "azimuth_definition": "ATAN2_DY_DX",
+    "radial_tangential_basis_available": true,
+    "field_angle_degrees_proven": false,
+    "coordinate_fraction_bits": 20,
+    "source_to_lattice_mapping_preserved": true
+  },
+  "measured_signal": {
+    "implementation": "BacksideSignalSupportAudit extension",
+    "supported_topology": "CLASSIC_TIFF_DNG_UNCOMPRESSED_UINT16_SINGLE_SAMPLE_STRIPS",
+    "sample_grid_step_source_px": 64,
+    "radial_bins": 12,
+    "azimuth_bins": 12,
+    "cfa_phases": 4,
+    "statistics": [
+      "ANNULUS_P10_P50_P90",
+      "CFA_PHASE_P50_PER_ANNULUS",
+      "AZIMUTH_SECTOR_P50",
+      "AZIMUTH_SECTOR_MEDIAN_MAD",
+      "OBSERVED_OUTER_TO_INNER_P50_RATIO",
+      "RADIAL_P50_NON_INCREASING_TRANSITION_FRACTION"
+    ],
+    "authority": "MEASURED_SOURCE_SAMPLES_SCENE_LENS_SENSOR_COMPOSITE"
+  },
+  "interpretation": {
+    "lens_only_vignetting_proven": false,
+    "relative_illumination_candidate_observable": true,
+    "scene_illumination_separated": false,
+    "sensor_angular_response_separated": false,
+    "optical_axis_proven": false,
+    "cos4_model_assumed": false,
+    "lens_profile_lookup_used": false,
+    "focal_length_used_to_define_coordinates": false,
+    "correction_gain_allowed": false
+  },
+  "invariants": {
+    "v03_selector_modified": false,
+    "measured_anchors_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "dense_lattice_materialized": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "ai_or_learned_models_used": false,
+    "camera_model_routing_used": false,
+    "vendor_mapping_used": false
+  },
+  "validation": {
+    "current_uploaded_source_can_be_used_as_development_evidence": true,
+    "independent_optical_field_validation_not_yet_defined": true,
+    "no_correction_or_promotion_allowed": true
+  },
+  "next_gate": "BUILD_AND_EXPORT_FIELD_CHART_THEN_INSPECT_REAL_DEVICE_RADIAL_AZIMUTHAL_PROFILE"
+}
