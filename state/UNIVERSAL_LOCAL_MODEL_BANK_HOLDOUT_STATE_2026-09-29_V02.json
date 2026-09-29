@@ -1,0 +1,101 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.2",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
+  "status": "GREEN_BUILD_READY_FOR_PAIRED_DEVICE_VALIDATION",
+  "parent": {
+    "pr": 92,
+    "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+    "result": "POSITIVE_PREDICTIVE_SIGNAL_NO_PROMOTION"
+  },
+  "development_evidence": {
+    "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+    "lens_context": "TELE_TEST_PROVENANCE_ONLY",
+    "use_for_v02": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION",
+    "v01_holdouts": 11844,
+    "v01_directly_comparable": 11667,
+    "v01_selected_mae": 0.020822638090543244,
+    "v01_baseline_mae": 0.02143966413691943,
+    "v01_mean_selector_regret": 0.002471270076658392,
+    "directional_affine_predictions_identical": true
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "noise_profile_required_for_selection": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_STRIP_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_SUPPORT_CROSSFIT_PREDICTIVE_SCORE_V0_2",
+    "partition": "VALIDATION_WHEN_OFFSET_LATTICE_INDEX_SUM_MOD_3_EQUALS_0",
+    "final_candidate_refit_uses_all_surrounding_admitted_support": true,
+    "final_candidate_refit_occurs_before_target_reveal": true,
+    "directional_support_conditioned": true,
+    "directional_strip_half_width_source_px": 2,
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "direction_internal_validation_and_cross_family_validation_separated": true,
+    "cross_family_models_share_common_validation_anchors": true,
+    "direction_selection_uses_strip_internal_score": true,
+    "cross_family_selection_uses_common_validation_score": true
+  },
+  "validation": {
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "new_independent_real_device_raw_required": true,
+    "paired_v01_v02_same_capture_required": true,
+    "paired_holdout_coordinates_expected_identical": true,
+    "post_result_selector_or_threshold_changes_allowed": false
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_HOLDOUT_EXPORT",
+  "build_integration": {
+    "streaming_dependency": "full_frame_streaming_v0_1",
+    "accidental_streaming_v0_2_dependency_forbidden": true,
+    "superseded_v01_fit_helpers_removed": true,
+    "compile_fix_checkpoint_before_device_validation": true
+  },
+  "active_build_branch": "research/universal-local-model-bank-holdout-v02-buildfix-2026-09-29",
+  "active_pr": 94,
+  "superseded_pr": 93,
+  "green_build": {
+    "code_checkpoint": "a91c3f794a91c2fa1aedc1c0dfe263768ee86bef",
+    "universal_intake_run": 36612537275,
+    "android_dngcreator_run": 36612537382,
+    "canonical_integrity_run": 36612537460,
+    "v02_integrity_run": 36612537431,
+    "artifact_id": 11054171359,
+    "artifact_digest": "sha256:7e06981c3c0b6a9d19335e06f6ef62072b261423a1dc8a8aa4f44b3792a6fd84",
+    "apk_sha256": "035104d7f05da805911d6f662596ade441487bf41182ae61ba1d1ec7d3588743",
+    "v01_jni_present": true,
+    "v02_jni_present": true,
+    "v02_ui_export_present": true
+  }
+}
