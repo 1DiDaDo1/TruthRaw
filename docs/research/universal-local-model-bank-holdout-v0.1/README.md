@@ -91,6 +91,10 @@ is selected when no numeric model is admissible.
 
 For each hold-out, every model is fit without reading the target.
 
+The native audit now enforces a stricter boundary than mere data-flow separation:
+the held-out Stage-2 value is not read from the workspace at all until the
+research selector and the independent reference predictor are both frozen.
+
 Model selection is frozen before the target is revealed.
 
 Current research selection score:
