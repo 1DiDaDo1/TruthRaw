@@ -53,7 +53,11 @@
     "target_value_used_by_models": false,
     "target_value_used_by_selector": false,
     "holdout_error_used_by_selector": false,
-    "post_reveal_oracle_used_by_selector": false
+    "post_reveal_oracle_used_by_selector": false,
+    "direction_internal_validation_and_cross_family_validation_separated": true,
+    "cross_family_models_share_common_validation_anchors": true,
+    "direction_selection_uses_strip_internal_score": true,
+    "cross_family_selection_uses_common_validation_score": true
   },
   "validation": {
     "protocol_frozen": true,
