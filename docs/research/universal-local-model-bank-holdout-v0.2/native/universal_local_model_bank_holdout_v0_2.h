@@ -1,6 +1,6 @@
 #pragma once
 
-#include "full_frame_streaming_v0_2.h"
+#include "full_frame_streaming_v0_1.h"
 #include "truthraw_sha256_v0_69.h"
 
 #include <array>
@@ -10,7 +10,7 @@
 
 namespace truthraw::universal_local_model_bank_holdout::v0_2 {
 
-namespace stream = truthraw::streaming_v0_2;
+namespace stream = truthraw::streaming_v0_1;
 using Digest = truthraw::sha256_v0_69::Digest;
 
 inline constexpr const char* kSchemaName =
