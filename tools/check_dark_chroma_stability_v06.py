@@ -32,16 +32,16 @@ for needle in [
 
 for needle in [
     'BASE64_LE_U32_XY_PAIRS_SOURCE_NATIVE',
-    '"exact_sample_coordinates_recorded":true',
-    '"unsampled_pixels_inferred":false',
-    '"scalar_probability_created":false',
-    '"can_reduce_protection":false',
-    '"can_enable_correction":false',
-    '"promotion_eligible":false',
-    '"scientific_writeback_allowed":false',
-    '"support_point_stream_sha256"',
-    '"nearest_structure_from_center"',
-    '"nearest_structure_to_rect"',
+    'exact_sample_coordinates_recorded',
+    'unsampled_pixels_inferred',
+    'scalar_probability_created',
+    'can_reduce_protection',
+    'can_enable_correction',
+    'promotion_eligible',
+    'scientific_writeback_allowed',
+    'support_point_stream_sha256',
+    'nearest_structure_from_center',
+    'nearest_structure_to_rect',
 ]:
     assert needle in cxx, f"missing sidecar invariant: {needle}"
 
