@@ -81,6 +81,8 @@ class MainActivity : Activity() {
     private var universalModelBankHoldoutStatus: String? = null
     private var pendingUniversalModelBankHoldoutV02JobId: String? = null
     private var universalModelBankHoldoutV02Status: String? = null
+    private var pendingUniversalModelBankHoldoutV03JobId: String? = null
+    private var universalModelBankHoldoutV03Status: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1396,6 +1398,57 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalModelBankHoldoutV03Export(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || job.id != activeJobId) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 vereist momenteel de admitted native DNG-route."
+            render()
+            return
+        }
+
+        val audit =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_local_model_bank_holdout_v0_3",
+            )
+        if (
+            audit?.optString("status") !=
+            "READY_FOR_EXPLICIT_EXPORT_AUDIT"
+        ) {
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 vereist eerst een succesvolle Universele Ingang-analyse met een geldige raster-onafhankelijke sample-lattice; Dark-Chroma/prospective query-policy is hiervoor niet vereist."
+            render()
+            return
+        }
+
+        pendingUniversalModelBankHoldoutV03JobId = job.id
+        universalModelBankHoldoutV03Status = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_local_model_bank_holdout_v0_3.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03,
         )
     }
 
@@ -3283,6 +3336,138 @@ class MainActivity : Activity() {
                             },
                             onFailure = {
                                 "Universal Local Model Bank Holdout v0.2 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03) {
+            val expectedJob = pendingUniversalModelBankHoldoutV03JobId
+            pendingUniversalModelBankHoldoutV03JobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "universal-local-model-bank-holdout-v03",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                universalModelBankHoldoutV03Status =
+                    "Wacht op de andere zware D.RAW-analysetaak; Universal Local Model Bank Holdout v0.3 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Universal Local Model Bank Holdout v0.3",
+                )
+            ) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 · full-resolution CFA holdouts + target-blinde modelselectie worden doorgerekend…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-universal-model-bank-v03-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    universalModelBankHoldoutV03Status = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    UniversalLocalModelBankHoldoutV03.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 =
+                            universalProfiles[expectedJob]
+                                ?.optString("source_sha256", "")
+                                .orEmpty(),
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Universal Local Model Bank Holdout v0.3 gereed."
+                        },
+                        onFailure = {
+                            "Universal Local Model Bank Holdout v0.3 faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    universalModelBankHoldoutV03Status =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Universal Local Model Bank Holdout v0.3 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · selected/baseline valid=" +
+                                    status.optLong("selectedValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| selected/baseline=" +
+                                    status.optLong(
+                                        "selectedLowerAbsErrorThanBaseline",
+                                        0L,
+                                    ) + "/" +
+                                    status.optLong(
+                                        "baselineLowerAbsErrorThanSelected",
+                                        0L,
+                                    ) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString(
+                                        "jsonSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · targetLeak=false · lens/device=false · writeback=false."
+                            },
+                            onFailure = {
+                                "Universal Local Model Bank Holdout v0.3 export faalde: " +
                                     (it.message ?: it.javaClass.simpleName)
                             },
                         )
@@ -6675,6 +6860,41 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export Universal Local Model Bank Holdout v0.3 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "universal_local_model_bank_holdout_v0_3",
+                                        )
+                                        ?.optString("status") ==
+                                    "READY_FOR_EXPLICIT_EXPORT_AUDIT",
+                        ) {
+                            launchUniversalModelBankHoldoutV03Export(active)
+                        })
+                        universalModelBankHoldoutV03Status?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "universal-local-model-bank-holdout-v03",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.3 selector-only successor: gebruikt exact dezelfde v0.2 kandidaatfits en " +
+                                "directionele support, maar vergelijkt model families puur op dezelfde common " +
+                                "validation-RMS. Geen tweede BIC/complexiteitsstraf; modelcomplexiteit is alleen " +
+                                "deterministische tie-break. Geen lens/camera/vendor-profiel en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -7061,5 +7281,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_OBSERVATION_MODEL_SELECTION = 4122
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT = 4123
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02 = 4124
+        private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
     }
 }
