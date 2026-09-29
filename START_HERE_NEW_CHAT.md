@@ -1,3 +1,37 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.3 — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v03-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V03.json`
+2. `docs/research/universal-local-model-bank-holdout-v0.3/README.md`
+3. `docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+4. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+5. v0.2 remains the frozen candidate-geometry predecessor.
+
+Why v0.3 exists:
+
+- v0.2 improved candidate-bank capacity but its selector regressed;
+- v0.3 freezes every v0.2 candidate fit and direction choice;
+- cross-family selection now uses only common target-blind validation RMS;
+- no second BIC/AIC/parameter-count penalty is applied;
+- model complexity is only a deterministic numerical tie-break;
+- each holdout reports second-best validation RMS and selection margin;
+- source raster remains full-resolution MEASURED support, never world-resolution authority;
+- 20-bit raster-independent lattice remains the scientific solution domain;
+- no lens/camera/vendor routing, no AI/ML, no writeback.
+
+Retrospective development replay on the already-observed paired source predicts v0.3 MAE ≈ 0.00442126 vs v0.1 ≈ 0.00446583 and v0.2 ≈ 0.00460044. This is development evidence only, not validation.
+
+New APK test export:
+
+`Export Universal Local Model Bank Holdout v0.3 · JSON`
+
+Validation law: use one NEW, previously unscored sealed RAW/DNG and export v0.1, v0.2 and v0.3 on that exact source. Holdout coordinates must match. v0.2/v0.3 per-model estimates must be bit-identical; only selected_model may differ.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.2 — 2026-09-29
 
 **Current stacked successor:** `research/universal-local-model-bank-holdout-v02-2026-09-29`
