@@ -75,6 +75,12 @@ Sample-lattice green APK checkpoint: artifact `11022051681`, APK SHA-256 `615ea1
 
 First device evidence now exists: tele `1790673150696`, 4080×3072. Universal Intake reports exactly `12,533,760` measured anchors = 4080×3072, `dense=false`, `upscaling=false`, unanchored positions UNKNOWN. Two Dark-Chroma candidates bind into the lattice. Exact support geometry separates them: candidate 0 nearest sampled Structure support = 2.6926 px with 5/12 structure samples inside r8; candidate 1 nearest sampled Structure support = 8.5147 px with 0/12 inside r8 but 7/44 by r16. This does **not** enable correction; it proves exact sample geometry carries useful local information that coarse any-structure tiles lost. Evidence: `docs/research/raster-independent-sample-lattice-v0.1/DEVICE_EVIDENCE_2026-09-29_TELE_1790673150696.md`.
 
+- **PR #90 · Anchor-Constrained Local Reconstruction v0.1** · `research/anchor-constrained-local-reconstruction-v01-2026-09-29` — current active successor above the device-validated sample lattice. It performs deterministic period-8 holdout validation inside selective Dark-Chroma regions: the real CFA target remains immutable MEASURED evidence, is hidden from the solver, and is predicted from other same-phase measured anchors by an inverse-variance local affine plane. The existing center-excluded multiscale v0.2 predictor is retained only as a reference. Output authority is `RECONSTRUCTED_PRIVATE_AUDIT_ONLY`; lower holdout error does not prove denoising or scene truth. No correction, no private A/B/Δ and no Scientific-Master/D.RAWnegative writeback.
+
+Read before continuing this successor:
+- `state/ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_STATE_2026-09-29.json`
+- `docs/research/anchor-constrained-local-reconstruction-v0.1/README.md`
+
 ## Current physical observations
 
 - Camera-5 / telephoto remains an existing source-local proof anchor.
