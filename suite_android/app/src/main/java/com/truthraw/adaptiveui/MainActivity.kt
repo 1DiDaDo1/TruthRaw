@@ -83,6 +83,9 @@ class MainActivity : Activity() {
     private var universalModelBankHoldoutV02Status: String? = null
     private var pendingUniversalModelBankHoldoutV03JobId: String? = null
     private var universalModelBankHoldoutV03Status: String? = null
+    private var pendingObservationOpticalFieldJobId: String? = null
+    private var pendingObservationOpticalFieldJson: String? = null
+    private var observationOpticalFieldStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1449,6 +1452,61 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationOpticalFieldExport(job: RawJob) {
+        if (job.id != activeJobId) return
+
+        val chart =
+            universalProfiles[job.id]?.optJSONObject(
+                "observation_optical_field_chart",
+            )
+        if (chart?.optString("status") != "FIELD_CHART_AVAILABLE") {
+            observationOpticalFieldStatus =
+                "Observation Optical Field Chart v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met geldige bron-/ActiveArea-geometrie."
+            render()
+            return
+        }
+        if (
+            chart.optJSONObject("vignetting_interpretation")
+                ?.optBoolean("correction_gain_allowed", true) != false ||
+            chart.optBoolean("source_sample_values_modified", true) ||
+            chart.optBoolean("source_sample_positions_modified", true) ||
+            chart.optBoolean("new_measured_samples_created", true) ||
+            chart.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationOpticalFieldStatus =
+                "Observation Optical Field Chart v0.1 export geblokkeerd: read-only optical-field safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationOpticalFieldJobId = job.id
+        pendingObservationOpticalFieldJson =
+            chart.toString(2) + "\n"
+        observationOpticalFieldStatus = null
+
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_observation_optical_field_chart_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD,
         )
     }
 
@@ -3075,6 +3133,79 @@ class MainActivity : Activity() {
                     " · lens/device calibration=false · writeback=false."
             } catch (error: Exception) {
                 "Universal Observation Model Selection v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD) {
+            val expectedJob = pendingObservationOpticalFieldJobId
+            val report = pendingObservationOpticalFieldJson
+            pendingObservationOpticalFieldJobId = null
+            pendingObservationOpticalFieldJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val chart =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject("observation_optical_field_chart")
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                chart == null
+            ) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            if (
+                chart.optString("status") != "FIELD_CHART_AVAILABLE" ||
+                chart.optJSONObject("vignetting_interpretation")
+                    ?.optBoolean("correction_gain_allowed", true) != false ||
+                chart.optBoolean("source_sample_values_modified", true) ||
+                chart.optBoolean("source_sample_positions_modified", true) ||
+                chart.optBoolean("new_measured_samples_created", true) ||
+                chart.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1 geblokkeerd: read-only optical-field safety-contract mismatch."
+                render()
+                return
+            }
+
+            observationOpticalFieldStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                val signal =
+                    chart.optJSONObject("measured_composite_field_signal")
+                val opcode =
+                    chart.optJSONObject("source_opcode_provenance_hint")
+                        ?.optJSONObject("opcode_list_2")
+                "Observation Optical Field Chart v0.1 JSON opgeslagen · field=" +
+                    chart.optString("status") +
+                    " · measured-signal=" +
+                    (signal?.optString("status") ?: "UNKNOWN") +
+                    " · GainMaps=" +
+                    (opcode?.optInt("gain_map_opcode_count", 0) ?: 0) +
+                    " · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Observation Optical Field Chart v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -6895,6 +7026,30 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export Observation Optical Field Chart v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "observation_optical_field_chart",
+                                    )
+                                    ?.optString("status") ==
+                                "FIELD_CHART_AVAILABLE",
+                        ) {
+                            launchObservationOpticalFieldExport(active)
+                        })
+                        observationOpticalFieldStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Platte veldkaart van dezelfde sealed observation: bron/ActiveArea → rho + azimut + " +
+                                "radiale/tangentiële basis, plus gemeten CFA-signaal per ring/sector. DNG GainMap is " +
+                                "alleen provenance-hint; geen lensprofiel, geen correctiegain en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -7282,5 +7437,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT = 4123
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02 = 4124
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
+        private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
     }
 }
