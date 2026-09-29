@@ -336,6 +336,16 @@ object N2SampleSupportDistanceAudit {
                         "censor_boundary_protected",
                         -2L,
                     )
+            val candidateHashParity =
+                parityAvailable &&
+                    fineStructure?.optString("candidate_sha256", "") ==
+                    sidecar.optString("candidate_sha256", "") &&
+                    fineStructure.optString("candidate_sha256", "").isNotBlank()
+            val auditHashParity =
+                parityAvailable &&
+                    fineStructure?.optString("n2_audit_sha256", "") ==
+                    sidecar.optString("audit_sha256", "") &&
+                    fineStructure.optString("n2_audit_sha256", "").isNotBlank()
 
             nearestCenterStructure.sort()
             nearestRectStructure.sort()
@@ -386,6 +396,14 @@ object N2SampleSupportDistanceAudit {
                 .put("field_global", sidecarGlobal)
                 .put("v0_5_aggregate_parity_available", parityAvailable)
                 .put("v0_5_aggregate_parity_verified", aggregateParity)
+                .put(
+                    "v0_5_candidate_hash_parity_verified",
+                    candidateHashParity,
+                )
+                .put(
+                    "v0_5_audit_hash_parity_verified",
+                    auditHashParity,
+                )
                 .put(
                     "global",
                     JSONObject()
