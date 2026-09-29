@@ -251,3 +251,41 @@ The full D.RAW ARM64 Android build is green for this branch.
 The built APK was inspected and contains the v0.1 schema and safety markers, including the universal identity law, no-user-calibration requirement, source-metadata colour state, composite scene/lens/sensor field authority, Zero-Line separation and explicit Android export label.
 
 This closes the software/build gate only. It does not replace the next physical/device validation gate.
+
+
+## First real-device admitted-DNG validation
+
+A real-device export bundle was returned and inspected:
+
+- bundle: `DRAWrawdogatlas.zip`;
+- bundle SHA-256: `5b87ef06f783cdd12fc8b8ac270005a39f48dca8350970f442e2287832a81d70`;
+- atlas source SHA-256: `578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e`;
+- source class: `DNG_CFA_RAW`;
+- source route: `IMPORTED_FILE`;
+- front side: `FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE`;
+- back side: `MEASURED_SOURCE_PAYLOAD_SAMPLE_AVAILABLE`;
+- sample lattice: `AVAILABLE`;
+- field chart: `FIELD_CHART_AVAILABLE`;
+- colour base authority: `SOURCE_METADATA_BOUND_COLOUR_AVAILABLE`;
+- lens-only vignetting: not proven;
+- user calibration required: false;
+- automatic colour correction: false;
+- automatic light-falloff correction: false;
+- Scientific Master writeback: false.
+
+The returned Full Colour Scientific Master was also independently inspected:
+
+- 4080x3072;
+- three-channel IEEE Float32;
+- LinearRaw;
+- uncompressed primary;
+- sealed source SHA exactly matches the atlas;
+- F64 reconstruction policy identifier preserved;
+- Zero-Line binding preserved;
+- negative scene-linear components present and retained;
+- two green-channel components above 1.0 were retained;
+- no NaN or infinity values were found.
+
+This passes the admitted-DNG half of the first physical validation gate.
+
+The opaque/unsupported-RAW half remains pending. No calibration or correction promotion is authorized yet.
