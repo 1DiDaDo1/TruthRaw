@@ -92,6 +92,8 @@ struct Metrics final {
     std::uint64_t selectedLowerAbsErrorThanBaseline = 0u;
     std::uint64_t baselineLowerAbsErrorThanSelected = 0u;
     std::uint64_t equalSelectedBaselineAbsError = 0u;
+    std::uint64_t directionalAffineBothValid = 0u;
+    std::uint64_t directionalAffineBitIdenticalEstimate = 0u;
     std::array<std::uint64_t,4u> holdoutCfaPhase{};
     std::array<std::uint64_t,4u> selectedCfaPhase{};
     std::array<ModelAggregate,5u> model{};
