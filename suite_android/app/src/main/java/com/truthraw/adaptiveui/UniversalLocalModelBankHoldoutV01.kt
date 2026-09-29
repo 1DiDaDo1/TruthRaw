@@ -205,6 +205,72 @@ object UniversalLocalModelBankHoldoutV01 {
         require(!status.optBoolean("scientificWritebackAllowed", true)) {
             "Audit staat scientific writeback toe."
         }
+
+        val sidecarText =
+            resolver.openInputStream(destinationUri)?.bufferedReader(
+                Charsets.UTF_8,
+            )?.use { it.readText() }
+                ?: error("Universal model-bank sidecar kon niet worden teruggelezen.")
+        val sidecar = JSONObject(sidecarText)
+        require(
+            sidecar.optString("schema") ==
+                "D.RAW/UniversalLocalModelBankHoldoutAudit/0.1"
+        ) {
+            "Universal model-bank sidecar schema mismatch."
+        }
+        require(sidecar.optString("source_sha256") == expectedSourceSha256) {
+            "Universal model-bank sidecar source-SHA mismatch."
+        }
+        require(!sidecar.optBoolean("target_value_used_by_models", true)) {
+            "Sidecar claimt targetgebruik door model."
+        }
+        require(!sidecar.optBoolean("target_value_used_by_selector", true)) {
+            "Sidecar claimt targetgebruik door selector."
+        }
+        require(!sidecar.optBoolean("holdout_error_used_by_selector", true)) {
+            "Sidecar claimt holdout-errorgebruik door selector."
+        }
+        require(!sidecar.optBoolean("post_reveal_oracle_used_by_selector", true)) {
+            "Sidecar claimt post-reveal oraclegebruik door selector."
+        }
+        require(!sidecar.optBoolean("lens_calibration_used", true)) {
+            "Sidecar claimt lens-calibratiegebruik."
+        }
+        require(!sidecar.optBoolean("camera_model_used", true)) {
+            "Sidecar claimt camera-modelgebruik."
+        }
+        require(!sidecar.optBoolean("vendor_mapping_used", true)) {
+            "Sidecar claimt vendor-mapgebruik."
+        }
+        require(!sidecar.optBoolean("measured_anchors_modified", true)) {
+            "Sidecar claimt gewijzigde measured anchors."
+        }
+        require(!sidecar.optBoolean("unanchored_values_promoted_to_measured", true)) {
+            "Sidecar claimt promotion van unanchored naar MEASURED."
+        }
+        require(!sidecar.optBoolean("model_bank_applied_to_scientific_master", true)) {
+            "Sidecar claimt Scientific-Master toepassing."
+        }
+        require(!sidecar.optBoolean("candidate_applied", true)) {
+            "Sidecar claimt toegepaste researchkandidaat."
+        }
+        require(!sidecar.optBoolean("creates_new_evidence", true)) {
+            "Sidecar claimt nieuwe evidence."
+        }
+        require(!sidecar.optBoolean("scientific_writeback_allowed", true)) {
+            "Sidecar claimt scientific writeback."
+        }
+        val global = sidecar.optJSONObject("global")
+            ?: error("Universal model-bank sidecar global ontbreekt.")
+        require(global.optLong("holdouts", 0L) > 0L) {
+            "Universal model-bank sidecar bevat geen holdouts."
+        }
+        require(
+            sidecar.optJSONArray("holdout_records")?.length()?.toLong() ==
+                global.optLong("holdouts", -1L)
+        ) {
+            "Universal model-bank holdout record-count mismatch."
+        }
         return status
     }
 
