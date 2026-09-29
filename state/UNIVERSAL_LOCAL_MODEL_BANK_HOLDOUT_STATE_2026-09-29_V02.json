@@ -75,5 +75,11 @@
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false
   },
-  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_HOLDOUT_EXPORT"
+  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_HOLDOUT_EXPORT",
+  "build_integration": {
+    "streaming_dependency": "full_frame_streaming_v0_1",
+    "accidental_streaming_v0_2_dependency_forbidden": true,
+    "superseded_v01_fit_helpers_removed": true,
+    "compile_fix_checkpoint_before_device_validation": true
+  }
 }
