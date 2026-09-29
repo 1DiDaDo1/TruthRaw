@@ -1,0 +1,171 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutV02PairedRealDeviceResult/0.1",
+  "date": "2026-09-29",
+  "package": "DRAWrawlocalmodelbanktest.zip",
+  "source_display_stem": "IMG_BNC_TRUTHRAW20260907_094414_423",
+  "source_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+  "scientific_master_sha256": "0c1d9fda491ec0dd7e020b9f96f39802626625176efe583c2a9e3250e0262178",
+  "truthnegative_state_sha256": "fd1bdf2109a234b0ab57471c0a930a59f8a039ef5484680de03424d0e1f81f56",
+  "code_checkpoint": "a91c3f794a91c2fa1aedc1c0dfe263768ee86bef",
+  "paired_protocol": {
+    "v01_schema": "D.RAW/UniversalLocalModelBankHoldoutAudit/0.1",
+    "v02_schema": "D.RAW/UniversalLocalModelBankHoldoutAudit/0.2",
+    "same_source_sha": true,
+    "same_scientific_master_sha": true,
+    "same_truthnegative_state_sha": true,
+    "same_dimensions": true,
+    "source_width": 4080,
+    "source_height": 3072,
+    "same_holdout_period": true,
+    "holdout_period": 64,
+    "same_support_radius": true,
+    "support_radius_source_px": 8,
+    "holdout_coordinates_exact_match": true,
+    "holdouts_v01": 11844,
+    "holdouts_v02": 11844,
+    "heldout_targets_exact_match": true,
+    "baseline_validity_exact_match": true,
+    "baseline_estimates_exact_match": true
+  },
+  "provenance_limit": {
+    "original_sealed_source_bytes_in_package": false,
+    "included_full_colour_dng_filename": "IMG_BNC_TRUTHRAW20260907_094414_423_draw_full_colour_scientific_master_float32_v0_1 (1).dng",
+    "included_full_colour_dng_sha256": "72488f6ca3d6bccdf000142849f96af06545e39d22995baddeaee2019eb31a35",
+    "included_dng_matches_source_sha256": false,
+    "included_dng_matches_scientific_master_sha256": false,
+    "external_source_byte_sha_reverification_possible_from_package": false,
+    "independence_note": "Paired v0.1/v0.2 comparison is mechanically valid. Strict classification as a previously-unscored independent source is not provable from the package alone."
+  },
+  "all_holdouts": {
+    "v01_selected_mae": 0.004465832922537994,
+    "v02_selected_mae": 0.004600440746879263,
+    "v02_minus_v01_mae_delta": 0.00013460782434126996,
+    "v02_relative_mae_change_vs_v01": 0.03014166322182162,
+    "v01_selected_rmse": 0.009362808609538049,
+    "v02_selected_rmse": 0.009757618266836547,
+    "v02_relative_rmse_change_vs_v01": 0.042166590993258,
+    "v02_lower_error_than_v01": 3920,
+    "v01_lower_error_than_v02": 4066,
+    "exact_error_ties": 3858,
+    "spatial_512_blocks": 48,
+    "spatial_blocks_v02_lower_mean_abs_error": 10,
+    "spatial_blocks_v01_lower_or_equal_mean_abs_error": 38,
+    "block_bootstrap_95pct_v02_minus_v01_mean_abs_error": [
+      0.0000898758366,
+      0.000183446324
+    ]
+  },
+  "directly_comparable_to_reference": {
+    "holdouts": 11031,
+    "v01_mae": 0.0038691254200535763,
+    "v02_mae": 0.003995894223718883,
+    "reference_mae": 0.003971537928096364,
+    "v01_mae_reduction_vs_reference": 0.02578661211272288,
+    "v02_mae_reduction_vs_reference": -0.0061327113232915245,
+    "v01_rmse": 0.006863750725915097,
+    "v02_rmse": 0.007373553762939313,
+    "reference_rmse": 0.008025979750241727,
+    "v01_rmse_reduction_vs_reference": 0.14480836738862016,
+    "v02_rmse_reduction_vs_reference": 0.08128926406558207,
+    "v01_bias": -0.000014663451221195058,
+    "v02_bias": -0.00002234663040948251,
+    "reference_bias": -0.00021915069633850068,
+    "v01_selected_vs_reference_wins": [
+      5793,
+      5238
+    ],
+    "v02_selected_vs_reference_wins": [
+      5711,
+      5320
+    ]
+  },
+  "selector": {
+    "v01_selected_distribution": {
+      "DIRECTIONAL_LINE": 6570,
+      "ROBUST_MEDIAN_CONSTANT": 2590,
+      "QUADRATIC_SURFACE": 2061,
+      "AFFINE_PLANE": 623
+    },
+    "v02_selected_distribution": {
+      "ROBUST_MEDIAN_CONSTANT": 5786,
+      "DIRECTIONAL_STRIP_LINE": 3737,
+      "AFFINE_PLANE": 1979,
+      "QUADRATIC_SURFACE": 342
+    },
+    "v01_selected_matches_oracle_fraction": 0.321597433299561,
+    "v02_selected_matches_oracle_fraction": 0.27347180006754473,
+    "v01_mean_selector_regret": 0.000821977655676714,
+    "v02_mean_selector_regret": 0.001213713166420635,
+    "v01_median_selector_regret": 0.000263691384,
+    "v02_median_selector_regret": 0.000430981119,
+    "v01_p95_selector_regret": 0.00348360814085,
+    "v02_p95_selector_regret": 0.00474815781155,
+    "v01_max_selector_regret": 0.07360286105,
+    "v02_max_selector_regret": 0.125409170364,
+    "interpretation": "v0.2 selector regressed relative to v0.1 on this paired source."
+  },
+  "model_bank_capacity": {
+    "v01_oracle_mae": 0.0036438552668583246,
+    "v02_oracle_mae": 0.003386727580456349,
+    "v01_oracle_rmse": 0.008181950711641904,
+    "v02_oracle_rmse": 0.007370083145862398,
+    "v02_oracle_mae_reduction_vs_v01": 0.07056293404606286,
+    "interpretation": "v0.2 candidate bank contains stronger per-holdout possibilities even though the target-blind selector fails to exploit them reliably."
+  },
+  "directional_result": {
+    "directional_affine_both_valid": 11844,
+    "directional_affine_bit_identical_estimate": 0,
+    "v02_direction_counts": {
+      "vertical_0_1": 3213,
+      "horizontal_1_0": 3104,
+      "diagonal_1_1": 2987,
+      "diagonal_1_minus1": 2540
+    },
+    "common_validation_samples_per_direction": 27,
+    "direction_support_samples_horizontal_vertical": 26,
+    "direction_support_samples_diagonal": 24,
+    "conclusion": "v0.2 successfully removed the v0.1 directional/affine algebraic redundancy."
+  },
+  "cfa_balance": {
+    "holdout_cfa_phase": [
+      2961,
+      2961,
+      2961,
+      2961
+    ],
+    "selected_cfa_phase": [
+      2961,
+      2961,
+      2961,
+      2961
+    ],
+    "no_model_selected": 0,
+    "phase_regression_v02_vs_v01": true,
+    "note": "v0.2 mean absolute error is higher than v0.1 in all four CFA phases on this source."
+  },
+  "safety": {
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "lens_calibration_used": false,
+    "camera_model_used": false,
+    "vendor_mapping_used": false,
+    "noise_profile_required_for_selection": false,
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "conclusion": {
+    "result": "MODEL_BANK_IMPROVED_SELECTOR_REGRESSED_NO_PROMOTION",
+    "v02_directional_design_question_passed": true,
+    "v02_selector_improvement_question_passed": false,
+    "scientific_master_writeback_allowed": false,
+    "recommended_next_direction": "KEEP_V02_CANDIDATE_GEOMETRY_REDESIGN_SELECTOR_WITH_OBSERVATION_REGIME_AND_CALIBRATED_GATING"
+  }
+}
