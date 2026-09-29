@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/RasterIndependentSampleLatticeState/2026-09-29/v0.1",
-  "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
+  "status": "DEVICE_VALIDATED_FIRST_TELE_CASE",
   "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
   "parent_branch": "research/dark-chroma-stability-v06-2026-09-29",
   "project_law": "The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.",
@@ -48,8 +48,10 @@
     "name": "ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_AUDIT",
     "must_keep_all_source_anchors_unchanged": true,
     "unanchored_values_if_any_must_be_reconstructed_not_measured": true,
-    "uncertainty_required": true,
-    "structure_censor_support_required": true,
+    "local_uncertainty_required": true,
+    "exact_structure_censor_support_required": true,
+    "absence_of_sampled_structure_is_not_continuous_structure_absence": true,
+    "private_audit_only": true,
     "promotion_blocked_until_device_evidence": true
   },
   "pull_request": 89,
@@ -76,5 +78,42 @@
     "confirm dense=false, upscaling=false and unanchored positions remain UNKNOWN",
     "on a selective wide/main Dark-Chroma source confirm N2 Raster-Independent Geometry v0.1 and Dark Chroma v0.7 bind the existing v0.6 exact support geometry without changing source/N2 lineage",
     "do not assign values to unanchored coordinates in this version"
-  ]
+  ],
+  "device_evidence": {
+    "capture": "DRAW_CAPTURE_1790673150696_tele_4080x3072.dng",
+    "package": "DRAWtelenoiselattice.rar",
+    "package_sha256": "54ac16e2d55bfbf95f0b2fd9b8fc05da9945ba740a1109d775b5641e8d13c33f",
+    "source_raster": "4080x3072",
+    "measured_anchor_count": 12533760,
+    "expected_anchor_count": 12533760,
+    "anchor_count_exact_match": true,
+    "coordinate_units_per_source_pixel": 1048576,
+    "dense_lattice_materialized": false,
+    "upscaling_performed": false,
+    "unanchored_positions_authority": "UNKNOWN",
+    "n2_lattice_queries": 2,
+    "dark_chroma_v07_distance_bound_candidates": 2,
+    "correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "scientific_writeback_allowed": false,
+    "support_geometry": {
+      "candidate_0": {
+        "nearest_structure_center_px": 2.692582403567,
+        "center_r8_structure": "5/12",
+        "center_r16_structure": "22/50",
+        "center_r32_structure": "103/203",
+        "center_r64_structure": "333/804",
+        "rectangle_structure": "699/1764"
+      },
+      "candidate_1": {
+        "nearest_structure_center_px": 8.514693182963,
+        "center_r8_structure": "0/12",
+        "center_r16_structure": "7/44",
+        "center_r32_structure": "25/192",
+        "center_r64_structure": "159/800",
+        "rectangle_structure": "327/1764"
+      }
+    },
+    "conclusion": "exact sampled support geometry distinguishes two visible candidates that coarse any-structure tile/rectangle presence cannot distinguish, without promoting correction"
+  }
 }
