@@ -8,6 +8,8 @@ import org.json.JSONObject
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
+import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -32,6 +34,15 @@ object BacksideSignalSupportAudit {
     private const val LOW_SIGNAL_NORMALIZED = 0.020
     private const val NEAR_BLACK_FRACTION_MIN = 0.70
     private const val LOW_SIGNAL_P90_MAX = 0.020
+    private const val OPTICAL_FIELD_RADIAL_BINS = 12
+    private const val OPTICAL_FIELD_AZIMUTH_BINS = 12
+
+    private data class FieldSample(
+        val x: Int,
+        val y: Int,
+        val phase: Int,
+        val value: Double,
+    )
 
     private data class Entry(
         val tag: Int,
@@ -169,6 +180,7 @@ object BacksideSignalSupportAudit {
 
         val samples = ArrayList<Double>()
         val phaseSamples = Array(4) { ArrayList<Double>() }
+        val fieldSamples = ArrayList<FieldSample>()
         val sourceWidth = width.toInt()
         val sourceHeight = height.toInt()
         val bytesPerRow = sourceWidth.toLong() * 2L
@@ -246,8 +258,15 @@ object BacksideSignalSupportAudit {
                         if (!black.isFinite() || denominator <= 0.0) continue
 
                         val normalized = (sample.toDouble() - black) / denominator
+                        val phase = ((y and 1) shl 1) or (x and 1)
                         samples += normalized
-                        phaseSamples[((y and 1) shl 1) or (x and 1)] += normalized
+                        phaseSamples[phase] += normalized
+                        fieldSamples += FieldSample(
+                            x = x,
+                            y = y,
+                            phase = phase,
+                            value = normalized,
+                        )
                     }
                     baseX += SAMPLE_GRID_STEP
                 }
@@ -293,6 +312,15 @@ object BacksideSignalSupportAudit {
             } else {
                 "MEASURED_SIGNAL_PRESENT_OR_MIXED"
             }
+
+        val opticalFieldSignal =
+            opticalFieldSignalProfile(
+                samples = fieldSamples,
+                activeTop = activeTop,
+                activeLeft = activeLeft,
+                activeBottom = activeBottom,
+                activeRight = activeRight,
+            )
 
         val phaseJson = JSONArray()
         for (phase in phaseSamples.indices) {
@@ -348,6 +376,10 @@ object BacksideSignalSupportAudit {
                     .put("fraction_le_0_02", lowSignalFraction),
             )
             .put("cfa_phase_summary", phaseJson)
+            .put(
+                "observation_optical_field_signal_v0_1",
+                opticalFieldSignal,
+            )
             .put("signal_support_state", state)
             .put(
                 "research_thresholds",
@@ -383,6 +415,303 @@ object BacksideSignalSupportAudit {
             .put("n2_local_support_bound", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+
+    private fun opticalFieldSignalProfile(
+        samples: List<FieldSample>,
+        activeTop: Int,
+        activeLeft: Int,
+        activeBottom: Int,
+        activeRight: Int,
+    ): JSONObject {
+        if (samples.isEmpty()) {
+            return JSONObject()
+                .put(
+                    "schema",
+                    "D.RAW/ObservationOpticalFieldSignal/0.1",
+                )
+                .put("status", "UNKNOWN_FAIL_CLOSED")
+                .put("reason", "NO_MEASURED_FIELD_SAMPLES")
+        }
+
+        val centerX =
+            (activeLeft.toDouble() + activeRight.toDouble() - 1.0) * 0.5
+        val centerY =
+            (activeTop.toDouble() + activeBottom.toDouble() - 1.0) * 0.5
+
+        val corners = arrayOf(
+            doubleArrayOf(activeLeft.toDouble(), activeTop.toDouble()),
+            doubleArrayOf((activeRight - 1).toDouble(), activeTop.toDouble()),
+            doubleArrayOf(activeLeft.toDouble(), (activeBottom - 1).toDouble()),
+            doubleArrayOf(
+                (activeRight - 1).toDouble(),
+                (activeBottom - 1).toDouble(),
+            ),
+        )
+        var maxRadius = 0.0
+        for (corner in corners) {
+            val dx = corner[0] - centerX
+            val dy = corner[1] - centerY
+            maxRadius = max(maxRadius, sqrt(dx * dx + dy * dy))
+        }
+        if (!(maxRadius > 0.0)) {
+            return JSONObject()
+                .put(
+                    "schema",
+                    "D.RAW/ObservationOpticalFieldSignal/0.1",
+                )
+                .put("status", "UNKNOWN_FAIL_CLOSED")
+                .put("reason", "ACTIVE_AREA_RADIUS_INVALID")
+        }
+
+        val radial =
+            Array(OPTICAL_FIELD_RADIAL_BINS) { ArrayList<Double>() }
+        val phaseRadial =
+            Array(4) {
+                Array(OPTICAL_FIELD_RADIAL_BINS) {
+                    ArrayList<Double>()
+                }
+            }
+        val sectorRadial =
+            Array(OPTICAL_FIELD_RADIAL_BINS) {
+                Array(OPTICAL_FIELD_AZIMUTH_BINS) {
+                    ArrayList<Double>()
+                }
+            }
+
+        for (sample in samples) {
+            val dx = sample.x.toDouble() - centerX
+            val dy = sample.y.toDouble() - centerY
+            val r = sqrt(dx * dx + dy * dy)
+            val rho = (r / maxRadius).coerceIn(0.0, 1.0)
+            val radialBin =
+                min(
+                    OPTICAL_FIELD_RADIAL_BINS - 1,
+                    (rho * OPTICAL_FIELD_RADIAL_BINS.toDouble()).toInt(),
+                )
+
+            var angle = atan2(dy, dx)
+            if (angle < 0.0) angle += 2.0 * PI
+            val sector =
+                min(
+                    OPTICAL_FIELD_AZIMUTH_BINS - 1,
+                    (
+                        angle /
+                            (2.0 * PI) *
+                            OPTICAL_FIELD_AZIMUTH_BINS.toDouble()
+                        ).toInt(),
+                )
+
+            radial[radialBin] += sample.value
+            if (sample.phase in 0..3) {
+                phaseRadial[sample.phase][radialBin] += sample.value
+            }
+            sectorRadial[radialBin][sector] += sample.value
+        }
+
+        val annuli = JSONArray()
+        val radialP50 = DoubleArray(OPTICAL_FIELD_RADIAL_BINS) {
+            Double.NaN
+        }
+
+        for (bin in 0 until OPTICAL_FIELD_RADIAL_BINS) {
+            val values = radial[bin]
+            values.sort()
+            val p10 =
+                if (values.isNotEmpty()) percentile(values, 0.10) else Double.NaN
+            val p50 =
+                if (values.isNotEmpty()) percentile(values, 0.50) else Double.NaN
+            val p90 =
+                if (values.isNotEmpty()) percentile(values, 0.90) else Double.NaN
+            radialP50[bin] = p50
+
+            val phaseMedians = JSONArray()
+            for (phase in 0..3) {
+                val pv = phaseRadial[phase][bin]
+                pv.sort()
+                phaseMedians.put(
+                    if (pv.isNotEmpty()) {
+                        percentile(pv, 0.50)
+                    } else {
+                        JSONObject.NULL
+                    },
+                )
+            }
+
+            val sectorMedians = ArrayList<Double>()
+            val sectorJson = JSONArray()
+            for (sector in 0 until OPTICAL_FIELD_AZIMUTH_BINS) {
+                val sv = sectorRadial[bin][sector]
+                sv.sort()
+                val median =
+                    if (sv.isNotEmpty()) {
+                        percentile(sv, 0.50)
+                    } else {
+                        Double.NaN
+                    }
+                if (median.isFinite()) sectorMedians += median
+                sectorJson.put(
+                    JSONObject()
+                        .put("sector", sector)
+                        .put("sample_count", sv.size)
+                        .put(
+                            "p50_normalized_above_black",
+                            if (median.isFinite()) {
+                                median
+                            } else {
+                                JSONObject.NULL
+                            },
+                        ),
+                )
+            }
+
+            sectorMedians.sort()
+            val sectorMedian =
+                if (sectorMedians.isNotEmpty()) {
+                    percentile(sectorMedians, 0.50)
+                } else {
+                    Double.NaN
+                }
+            val sectorAbsDeviation =
+                sectorMedians
+                    .map { kotlin.math.abs(it - sectorMedian) }
+                    .sorted()
+            val sectorMad =
+                if (sectorAbsDeviation.isNotEmpty()) {
+                    percentile(sectorAbsDeviation, 0.50)
+                } else {
+                    Double.NaN
+                }
+            val relativeSectorMad =
+                if (
+                    sectorMad.isFinite() &&
+                    sectorMedian.isFinite() &&
+                    kotlin.math.abs(sectorMedian) > 1.0e-12
+                ) {
+                    sectorMad / kotlin.math.abs(sectorMedian)
+                } else {
+                    Double.NaN
+                }
+
+            annuli.put(
+                JSONObject()
+                    .put("bin", bin)
+                    .put(
+                        "rho_min",
+                        bin.toDouble() /
+                            OPTICAL_FIELD_RADIAL_BINS.toDouble(),
+                    )
+                    .put(
+                        "rho_max",
+                        (bin + 1).toDouble() /
+                            OPTICAL_FIELD_RADIAL_BINS.toDouble(),
+                    )
+                    .put("sample_count", values.size)
+                    .put(
+                        "p10_normalized_above_black",
+                        if (p10.isFinite()) p10 else JSONObject.NULL,
+                    )
+                    .put(
+                        "p50_normalized_above_black",
+                        if (p50.isFinite()) p50 else JSONObject.NULL,
+                    )
+                    .put(
+                        "p90_normalized_above_black",
+                        if (p90.isFinite()) p90 else JSONObject.NULL,
+                    )
+                    .put("cfa_phase_p50", phaseMedians)
+                    .put("azimuth_sectors", sectorJson)
+                    .put(
+                        "azimuth_sector_median_mad",
+                        if (sectorMad.isFinite()) {
+                            sectorMad
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "azimuth_sector_relative_mad",
+                        if (relativeSectorMad.isFinite()) {
+                            relativeSectorMad
+                        } else {
+                            JSONObject.NULL
+                        },
+                    ),
+            )
+        }
+
+        var validTransitions = 0
+        var nonIncreasingTransitions = 0
+        for (i in 0 until radialP50.size - 1) {
+            val a = radialP50[i]
+            val b = radialP50[i + 1]
+            if (!a.isFinite() || !b.isFinite()) continue
+            validTransitions++
+            if (b <= a) nonIncreasingTransitions++
+        }
+
+        val inner =
+            radialP50.firstOrNull { it.isFinite() } ?: Double.NaN
+        val outer =
+            radialP50.lastOrNull { it.isFinite() } ?: Double.NaN
+        val outerToInner =
+            if (
+                inner.isFinite() &&
+                outer.isFinite() &&
+                kotlin.math.abs(inner) > 1.0e-12
+            ) {
+                outer / inner
+            } else {
+                Double.NaN
+            }
+
+        return JSONObject()
+            .put(
+                "schema",
+                "D.RAW/ObservationOpticalFieldSignal/0.1",
+            )
+            .put(
+                "status",
+                "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE",
+            )
+            .put(
+                "authority",
+                "MEASURED_SOURCE_SAMPLES_SCENE_LENS_SENSOR_COMPOSITE",
+            )
+            .put("sample_count", samples.size)
+            .put("radial_bin_count", OPTICAL_FIELD_RADIAL_BINS)
+            .put("azimuth_bin_count", OPTICAL_FIELD_AZIMUTH_BINS)
+            .put(
+                "field_origin_source",
+                JSONArray().put(centerX).put(centerY),
+            )
+            .put("max_active_corner_radius_source_px", maxRadius)
+            .put("annuli", annuli)
+            .put(
+                "observed_outer_to_inner_p50_ratio",
+                if (outerToInner.isFinite()) {
+                    outerToInner
+                } else {
+                    JSONObject.NULL
+                },
+            )
+            .put(
+                "radial_p50_non_increasing_transition_fraction",
+                if (validTransitions > 0) {
+                    nonIncreasingTransitions.toDouble() /
+                        validTransitions.toDouble()
+                } else {
+                    JSONObject.NULL
+                },
+            )
+            .put("lens_only_vignetting_proven", false)
+            .put("scene_illumination_separated", false)
+            .put("sensor_angular_response_separated", false)
+            .put("optical_axis_proven", false)
+            .put("cos4_model_assumed", false)
+            .put("correction_gain_allowed", false)
+            .put("creates_new_evidence", false)
+            .put("scientific_writeback_allowed", false)
+    }
 
     private fun findIfdOffset(
         parsed: JSONObject,
