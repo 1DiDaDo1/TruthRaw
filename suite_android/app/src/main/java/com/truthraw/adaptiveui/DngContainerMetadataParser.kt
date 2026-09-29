@@ -262,6 +262,9 @@ object DngContainerMetadataParser {
         }
 
         if (entry.type == 7 && entry.count > 64L) {
+            if (entry.tag == 51009 || entry.tag == 51022) {
+                return decodeDngOpcodeListHint(bytes, entry.tag)
+            }
             return JSONObject()
                 .put("opaqueMetadataBytes", bytes.size)
                 .put("hexPrefix", bytes.take(16).joinToString("") { "%02x".format(it.toInt() and 0xff) })
@@ -277,6 +280,144 @@ object DngContainerMetadataParser {
             values
         }
     }
+
+    private fun decodeDngOpcodeListHint(
+        bytes: ByteArray,
+        tag: Int,
+    ): JSONObject {
+        val out = JSONObject()
+            .put("opaqueMetadataBytes", bytes.size)
+            .put(
+                "hexPrefix",
+                bytes.take(16).joinToString("") {
+                    "%02x".format(it.toInt() and 0xff)
+                },
+            )
+            .put(
+                "authority",
+                "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+            )
+            .put("used_as_scientific_calibration", false)
+            .put("used_to_modify_source_samples", false)
+
+        if (bytes.size < 4) {
+            return out
+                .put("opcode_header_parse_status", "TOO_SHORT")
+        }
+
+        val declared = u32BigEndian(bytes, 0)
+        if (declared > 4096L) {
+            return out
+                .put("opcode_header_parse_status", "DECLARED_COUNT_IMPLAUSIBLE")
+                .put("declared_opcode_count", declared)
+        }
+
+        val opcodes = JSONArray()
+        var offset = 4
+        var gainMaps = 0
+        var complete = true
+
+        for (index in 0 until declared.toInt()) {
+            if (offset + 16 > bytes.size) {
+                complete = false
+                break
+            }
+
+            val opcodeId = u32BigEndian(bytes, offset)
+            val minVersion = u32BigEndian(bytes, offset + 4)
+            val flags = u32BigEndian(bytes, offset + 8)
+            val payloadBytes = u32BigEndian(bytes, offset + 12)
+            val payloadStart = offset + 16
+            val payloadEndLong =
+                payloadStart.toLong() + payloadBytes
+
+            val payloadValid =
+                payloadBytes <= Int.MAX_VALUE.toLong() &&
+                    payloadEndLong <= bytes.size.toLong()
+
+            val opcodeName = when (opcodeId) {
+                1L -> "WarpRectilinear"
+                2L -> "WarpFisheye"
+                3L -> "FixVignetteRadial"
+                4L -> "FixBadPixelsConstant"
+                5L -> "FixBadPixelsList"
+                6L -> "TrimBounds"
+                7L -> "MapTable"
+                8L -> "MapPolynomial"
+                9L -> "GainMap"
+                10L -> "DeltaPerRow"
+                11L -> "DeltaPerColumn"
+                12L -> "ScalePerRow"
+                13L -> "ScalePerColumn"
+                14L -> "WarpRectilinear2"
+                else -> "OPCODE_" + opcodeId
+            }
+            if (opcodeId == 9L) gainMaps++
+
+            opcodes.put(
+                JSONObject()
+                    .put("index", index)
+                    .put("opcode_id", opcodeId)
+                    .put("opcode_name", opcodeName)
+                    .put(
+                        "minimum_dng_version",
+                        dngVersionString(minVersion),
+                    )
+                    .put("flags", flags)
+                    .put("payload_bytes", payloadBytes)
+                    .put("payload_bounds_valid", payloadValid),
+            )
+
+            if (!payloadValid) {
+                complete = false
+                break
+            }
+            offset = payloadEndLong.toInt()
+        }
+
+        return out
+            .put(
+                "opcode_header_parse_status",
+                if (complete && opcodes.length() == declared.toInt()) {
+                    "HEADERS_PARSED"
+                } else {
+                    "PARTIAL_FAIL_CLOSED"
+                },
+            )
+            .put("opcode_list_tag", tag)
+            .put(
+                "opcode_list_stage",
+                if (tag == 51009) "OpcodeList2" else "OpcodeList3",
+            )
+            .put("declared_opcode_count", declared)
+            .put("parsed_opcode_count", opcodes.length())
+            .put("opcodes", opcodes)
+            .put("gain_map_opcode_count", gainMaps)
+            .put("gain_map_present", gainMaps > 0)
+            .put("gain_map_payload_interpreted", false)
+            .put("gain_map_applied", false)
+    }
+
+    private fun u32BigEndian(
+        bytes: ByteArray,
+        offset: Int,
+    ): Long {
+        if (offset < 0 || offset + 4 > bytes.size) return -1L
+        return (
+            ((bytes[offset].toLong() and 0xffL) shl 24) or
+                ((bytes[offset + 1].toLong() and 0xffL) shl 16) or
+                ((bytes[offset + 2].toLong() and 0xffL) shl 8) or
+                (bytes[offset + 3].toLong() and 0xffL)
+            )
+    }
+
+    private fun dngVersionString(value: Long): String =
+        listOf(
+            (value ushr 24) and 0xffL,
+            (value ushr 16) and 0xffL,
+            (value ushr 8) and 0xffL,
+            value and 0xffL,
+        ).joinToString(".")
 
     private fun decodeUnsignedLongValues(
         channel: FileChannel,
