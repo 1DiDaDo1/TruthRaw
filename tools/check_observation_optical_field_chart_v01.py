@@ -52,8 +52,11 @@ for needle in [
     'decodeDngOpcodeListHint',
     'GainMap',
     'gain_map_opcode_count',
+    'decodeGainMapPayloadSummary',
+    'GAIN_MAP_SUMMARY_AVAILABLE',
     'SOURCE_METADATA_PROVENANCE_HINT_ONLY',
     'used_as_scientific_calibration',
+    'gain_map_used_as_scientific_calibration',
     'gain_map_applied',
 ]:
     assert needle in metadata, f'missing DNG opcode provenance invariant: {needle}'
@@ -61,6 +64,7 @@ for needle in [
 assert 'source_opcode_provenance_hint' in chart
 assert 'used_as_scientific_calibration' in chart
 assert 'used_to_define_field_coordinates' in chart
+assert 'used_to_modify_source_samples' in chart
 
 for banned in [
     'lens correction applied',
