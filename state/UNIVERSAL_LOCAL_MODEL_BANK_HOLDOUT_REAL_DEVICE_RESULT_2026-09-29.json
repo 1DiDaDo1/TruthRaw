@@ -125,5 +125,12 @@
     "optical_resolution_gain_proven": false,
     "writeback_allowed": false,
     "next_direction": "OBSERVATION_CONDITIONED_DIRECTIONAL_SUPPORT_AND_SELECTOR_V0_2"
+  },
+  "capture_context": {
+    "physical_lens_context_reported_by_user": "TELE",
+    "lens_context_authority": "TEST_PROVENANCE_ONLY",
+    "lens_identity_used_by_model_selection": false,
+    "lens_specific_calibration_used": false,
+    "result_should_not_be_interpreted_as_tele_specific_model": true
   }
 }
