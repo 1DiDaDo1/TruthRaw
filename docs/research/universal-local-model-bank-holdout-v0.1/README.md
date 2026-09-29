@@ -29,6 +29,8 @@ This v0.1 implements the next native audit.
 
 This audit is deliberately not limited to Dark-Chroma candidate tiles.
 
+It also does **not** require a Dark-Chroma candidate, N2 Dark-Chroma query, or the PR #91 query-policy to exist before the full-resolution audit can run. Those may be bound as extra context where available, but they are not admission gates for this path.
+
 It selects a deterministic stratified subset of **real measured CFA anchors
 across the original full-resolution source raster**.
 
