@@ -73,6 +73,8 @@ v0.6 green APK checkpoint: artifact `11020341011`, APK SHA-256 `b84093fdb428f724
 
 Sample-lattice green APK checkpoint: artifact `11022051681`, APK SHA-256 `615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3`, bytes `7327807`. The APK is built from the fully green code checkpoint above; later branch commits only record state/documentation.
 
+First device evidence now exists: tele `1790673150696`, 4080×3072. Universal Intake reports exactly `12,533,760` measured anchors = 4080×3072, `dense=false`, `upscaling=false`, unanchored positions UNKNOWN. Two Dark-Chroma candidates bind into the lattice. Exact support geometry separates them: candidate 0 nearest sampled Structure support = 2.6926 px with 5/12 structure samples inside r8; candidate 1 nearest sampled Structure support = 8.5147 px with 0/12 inside r8 but 7/44 by r16. This does **not** enable correction; it proves exact sample geometry carries useful local information that coarse any-structure tiles lost. Evidence: `docs/research/raster-independent-sample-lattice-v0.1/DEVICE_EVIDENCE_2026-09-29_TELE_1790673150696.md`.
+
 ## Current physical observations
 
 - Camera-5 / telephoto remains an existing source-local proof anchor.
