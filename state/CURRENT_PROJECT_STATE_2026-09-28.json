@@ -77,12 +77,12 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "finish Android/CI validation of Anchor-Constrained Local Reconstruction v0.1",
-    "device-test on a selective Dark-Chroma observation and export the machine-readable anchor-constrained holdout JSON",
-    "compare solver/reference holdout MAE/RMSE, CFA-phase coverage and diagnostic uncertainty coverage without treating lower noisy-sample error as scene-truth proof",
-    "bind each query to exact Structure/Censored/CensorBoundary support geometry and inspect whether predictive behavior changes with local support distance",
-    "do not populate unanchored lattice positions or apply any correction until holdout evidence justifies a separate versioned reconstruction experiment",
-    "keep all measured anchors, Scientific Master and D.RAWnegative immutable and preserve the permanent no-AI rule"
+    "device-test Anchor-Constrained Local Reconstruction v0.1 on a selective Dark-Chroma observation",
+    "export the machine-readable anchor-constrained holdout JSON and compare solver/reference MAE, RMSE, bias, CFA-phase coverage and 1/2/3-sigma diagnostic coverage",
+    "bind holdout behavior to exact Structure/Censored/CensorBoundary distance geometry without treating lower noisy-target error as scene-truth or denoise proof",
+    "do not assign values to currently UNKNOWN lattice positions or apply any correction from v0.1 holdout evidence",
+    "keep measured anchors, Scientific Master and D.RAWnegative immutable; correction-supported=0 and private chroma A/B/Delta remain disabled",
+    "preserve the permanent no-AI rule"
   ],
   "universal_physical_capture_v0_1": {
     "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
@@ -292,7 +292,7 @@
     "anchor_constrained_local_reconstruction_v0_1": {
       "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
       "pull_request": 90,
-      "status": "BUILD_VALIDATION",
+      "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
       "parent": "raster_independent_sample_lattice_v0_1",
       "schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
       "purpose": "deterministic holdout validation of local raster-independent reconstruction using only other measured same-CFA-phase anchors",
@@ -313,7 +313,19 @@
       "can_enable_correction": false,
       "correction_supported": false,
       "private_chroma_ab_delta_allowed": false,
-      "scientific_writeback_allowed": false
+      "scientific_writeback_allowed": false,
+      "code_checkpoint": "ae1f322a134a6c7b29fb3f983ceb8985aadba454",
+      "build_validation": {
+        "all_relevant_ci_green": true,
+        "universal_intake_run": 36567410420,
+        "universal_physical_capture_run": 36567410608,
+        "dngcreator_run": 36567411158,
+        "integrity_run": 36567410418,
+        "artifact_id": 11032268027,
+        "apk_sha256": "c6c864e2985a0a916a390beee36794be7ce6cdec7c0ac4532fdbbe34c9ecf5e6",
+        "apk_bytes": 7370911
+      },
+      "machine_readable_sidecar_export": "Export Anchor-Constrained Reconstruction v0.1 · JSON"
     }
   }
 }
