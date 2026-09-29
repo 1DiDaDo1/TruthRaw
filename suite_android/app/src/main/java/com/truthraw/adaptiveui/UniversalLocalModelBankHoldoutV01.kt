@@ -61,22 +61,29 @@ object UniversalLocalModelBankHoldoutV01 {
                 "RASTER_INDEPENDENT_SAMPLE_LATTICE_NOT_AVAILABLE",
             )
         }
-        if (
-            prospectivePolicy == null ||
-            prospectivePolicy.optString("schema") !=
-                UniversalObservationModelSelectionV01.SCHEMA ||
-            prospectivePolicy.optString("source_sha256") != sourceSha256 ||
-            prospectivePolicy.optString("status") !=
-                "PROSPECTIVE_AUDIT_POLICY_AVAILABLE"
-        ) {
-            return unavailable(
-                sourceSha256,
-                "PROSPECTIVE_MODEL_POLICY_NOT_AVAILABLE",
-            )
-        }
+        val prospectivePolicyBound =
+            prospectivePolicy != null &&
+                prospectivePolicy.optString("schema") ==
+                    UniversalObservationModelSelectionV01.SCHEMA &&
+                prospectivePolicy.optString("source_sha256") ==
+                    sourceSha256 &&
+                prospectivePolicy.optString("status") ==
+                    "PROSPECTIVE_AUDIT_POLICY_AVAILABLE"
 
         return base(sourceSha256)
             .put("status", "READY_FOR_EXPLICIT_EXPORT_AUDIT")
+            .put(
+                "prospective_query_policy_binding_available",
+                prospectivePolicyBound,
+            )
+            .put(
+                "prospective_query_policy_required_for_full_resolution_audit",
+                false,
+            )
+            .put(
+                "dark_chroma_dependency_required",
+                false,
+            )
             .put(
                 "authority",
                 "PRIVATE_RECONSTRUCTION_MODEL_SELECTION_AUDIT_ONLY",
