@@ -3428,6 +3428,12 @@ class MainActivity : Activity() {
                     scene.optJSONObject("dark_chroma_stability_v0_6") ?: JSONObject()
                 val darkChromaV06Global =
                     darkChromaV06.optJSONObject("global") ?: JSONObject()
+                val sampleLattice =
+                    profile.optJSONObject("raster_independent_sample_lattice") ?: JSONObject()
+                val n2LatticeGeometry =
+                    profile.optJSONObject("n2_raster_independent_sample_geometry") ?: JSONObject()
+                val darkChromaV07 =
+                    scene.optJSONObject("dark_chroma_stability_v0_7") ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3466,6 +3472,33 @@ class MainActivity : Activity() {
                     10f,
                     muted = true,
                 ))
+
+                if (sampleLattice.optString("status") == "AVAILABLE") {
+                    addView(space(4))
+                    addView(label(
+                        "D.RAW Sample Lattice v0.1 · RASTER-INDEPENDENT · source=" +
+                            sampleLattice.opt("source_width") + "×" +
+                            sampleLattice.opt("source_height") +
+                            " · units/source-pixel=" +
+                            sampleLattice.optLong(
+                                "coordinate_units_per_source_pixel",
+                                0L,
+                            ) +
+                            " · measured anchors=" +
+                            sampleLattice.opt("measured_anchor_count") +
+                            " · dense=false · upscaling=false",
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "De verzegelde bronmetingen blijven exact op hun eigen ankerposities. " +
+                            "De fijnere lattice is alleen een vrije wetenschappelijke coördinatenwereld: " +
+                            "tussenposities starten UNKNOWN, krijgen geen verzonnen pixelwaarde en verhogen " +
+                            "de optische bronresolutie niet. Het bronraster bepaalt waar gemeten is, niet waar D.RAW mag rekenen.",
+                        10f,
+                        muted = true,
+                    ))
+                }
 
                 if (scene.optBoolean("decoded_preview_used", false)) {
                     val aw = scene.optInt("analysis_width", 0)
@@ -4091,6 +4124,48 @@ class MainActivity : Activity() {
                         "v0.6 voert nog geen afstandsdrempel in. Exact sampled structure/censor-support blijft " +
                             "een vector van meetfeiten; het mag bestaande bescherming niet verminderen en " +
                             "private chroma A/B/Δ blijft uit.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    n2LatticeGeometry.optString("status") ==
+                    "AUDIT_ONLY_LATTICE_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Raster-Independent Geometry v0.1 · queries=" +
+                            n2LatticeGeometry.optInt("query_count", 0) +
+                            " · units/source-pixel=" +
+                            n2LatticeGeometry.optLong(
+                                "coordinate_units_per_source_pixel",
+                                0L,
+                            ) +
+                            " · source samples unchanged · unanchored UNKNOWN · correction=false",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    darkChromaV07.optString("status") ==
+                    "AUDIT_ONLY_RASTER_INDEPENDENT_GEOMETRY_AVAILABLE"
+                ) {
+                    addView(label(
+                        "Dark Chroma Stability v0.7 · SAMPLE-LATTICE BINDING · distance-bound=" +
+                            darkChromaV07.optInt(
+                                "distance_bound_candidate_count",
+                                0,
+                            ) +
+                            " · noiseCorrection=false · private A/B/Δ=false · writeback=false",
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.7 gebruikt het fijnere raster niet als nieuwe foto. Het is de oplossingsruimte " +
+                            "waarin gemeten ankers, structure-support en latere reconstructies met eigen provenance " +
+                            "kunnen bestaan zonder het camerarooster tot wereldgrens te maken.",
                         10f,
                         muted = true,
                     ))

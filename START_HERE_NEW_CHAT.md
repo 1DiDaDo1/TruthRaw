@@ -21,6 +21,7 @@ Main includes the RAW_SENSOR-first universal physical-capture foundation plus li
 - Ultra-wide / wide-main / tele are dynamically discovered physical acquisition routes. Current PR #82 real-device tests prove distinct physical 4/2/5 runtime routes on the tested device, while role names/FoV ordering remain acquisition/UI knowledge rather than universal scientific truth.
 - Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
 - Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
+- The source raster is now explicitly **measurement sampling geometry, not the world-resolution boundary**. Active successor work introduces a sparse raster-independent sample lattice: measured source samples remain exact anchors; all positions between them begin `UNKNOWN` and are not upscaled/interpolated pixels.
 - The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
 
 ## Active unmerged 2026-09-28 device research
@@ -52,6 +53,11 @@ NO Scientific-Master writeback
 Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V06.json` and
 `docs/research/dark-chroma-stability-v0.6/README.md` before continuing this line.
 
+For the current coordinate-world successor also read:
+- `state/RASTER_INDEPENDENT_SAMPLE_LATTICE_STATE_2026-09-29.json`
+- `docs/DRAW_RASTER_INDEPENDENT_SAMPLE_WORLD_2026-09-29.md`
+- `docs/research/raster-independent-sample-lattice-v0.1/README.md`
+
 Latest v0.4 device evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_ULTRAWIDE_1790636281140.md`.
 Selective main/wide evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790637640867.md`.
 
@@ -59,9 +65,15 @@ v0.5 green test APK checkpoint: artifact `11005636260`, APK SHA-256 `615e7532300
 
 v0.5 device evidence: `docs/research/dark-chroma-stability-v0.5/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790662450477.md`. Important caveat: the uploaded package contains predecessor N2 JSON sidecars, but not the new fine-field JSON; the 32×32 aggregate values are grounded in the device UI screenshot.
 
-- **PR #88** · `research/dark-chroma-stability-v06-2026-09-29` — current active successor; code checkpoint `ae93117bf492e5ebd81a2411bf9f6bf592738cff` is fully green. It records exact deterministic N2 sampled Structure/Censored/CensorBoundary coordinates + center/radius and rectangle-margin support geometry and now exposes a machine-readable `Export N2 Sample Support Distance v0.1 · JSON` sidecar. No distance threshold, no probability, no protection reduction, correction-supported=false.
+- **PR #88** · `research/dark-chroma-stability-v06-2026-09-29` — parent active support-distance successor; code checkpoint `ae93117bf492e5ebd81a2411bf9f6bf592738cff` is fully green. It records exact deterministic N2 sampled Structure/Censored/CensorBoundary coordinates + center/radius and rectangle-margin support geometry and now exposes a machine-readable `Export N2 Sample Support Distance v0.1 · JSON` sidecar. No distance threshold, no probability, no protection reduction, correction-supported=false.
 
 v0.6 green APK checkpoint: artifact `11020341011`, APK SHA-256 `b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd`, bytes `7311423`. Device validation must include the exported support-distance JSON sidecar so exact sampled support can be independently recomputed.
+
+- **PR #89 · Raster-Independent Sample Lattice v0.1** · `research/raster-independent-sample-lattice-v01-2026-09-29` — current active successor above v0.6; code checkpoint `f75025e0d2bbb3345653e1e6365becf28cb8f7d4` is fully green: exact source CFA samples become measured anchors in a sparse fixed-point coordinate world with 2^20 coordinate units per source pixel. No dense replacement raster, no interpolation, no upscaling and no new measurement. The current v0.6 exact support geometry is projected into this world as `D.RAW/N2RasterIndependentSampleGeometry/0.1`; Dark Chroma v0.7 binds to it audit-only.
+
+Sample-lattice green APK checkpoint: artifact `11022051681`, APK SHA-256 `615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3`, bytes `7327807`. The APK is built from the fully green code checkpoint above; later branch commits only record state/documentation.
+
+First device evidence now exists: tele `1790673150696`, 4080×3072. Universal Intake reports exactly `12,533,760` measured anchors = 4080×3072, `dense=false`, `upscaling=false`, unanchored positions UNKNOWN. Two Dark-Chroma candidates bind into the lattice. Exact support geometry separates them: candidate 0 nearest sampled Structure support = 2.6926 px with 5/12 structure samples inside r8; candidate 1 nearest sampled Structure support = 8.5147 px with 0/12 inside r8 but 7/44 by r16. This does **not** enable correction; it proves exact sample geometry carries useful local information that coarse any-structure tiles lost. Evidence: `docs/research/raster-independent-sample-lattice-v0.1/DEVICE_EVIDENCE_2026-09-29_TELE_1790673150696.md`.
 
 ## Current physical observations
 

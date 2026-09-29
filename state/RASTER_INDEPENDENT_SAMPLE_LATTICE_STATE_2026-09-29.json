@@ -1,0 +1,119 @@
+{
+  "schema": "D.RAW/RasterIndependentSampleLatticeState/2026-09-29/v0.1",
+  "status": "DEVICE_VALIDATED_FIRST_TELE_CASE",
+  "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v06-2026-09-29",
+  "project_law": "The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.",
+  "coordinate_model": {
+    "schema": "D.RAW/RasterIndependentSampleLattice/0.1",
+    "representation": "SPARSE_IMPLICIT_FIXED_POINT_SAMPLE_LATTICE",
+    "fraction_bits": 20,
+    "units_per_source_pixel": 1048576,
+    "dense_lattice_materialized": false,
+    "source_anchor_mapping": "u=x*1048576; v=y*1048576",
+    "unanchored_positions_authority": "UNKNOWN",
+    "source_samples_remain_exact_measured_anchors": true
+  },
+  "evidence_contract": {
+    "sealed_source_replaced": false,
+    "source_bytes_modified": false,
+    "source_values_modified": false,
+    "source_values_resampled": false,
+    "source_values_interpolated": false,
+    "source_sample_positions_modified": false,
+    "new_sensor_measurements_created": false,
+    "optical_resolution_increased": false,
+    "upscaling_performed": false,
+    "coordinate_precision_is_sensor_resolution_claim": false
+  },
+  "current_integration": {
+    "universal_intake": true,
+    "n2_v06_exact_support_geometry_projected_to_lattice": true,
+    "dark_chroma_v07_audit_binding": true,
+    "noise_correction_enabled": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "scientific_writeback_allowed": false,
+    "correction_supported": false
+  },
+  "single_observation_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "next_gate": {
+    "name": "ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_AUDIT",
+    "must_keep_all_source_anchors_unchanged": true,
+    "unanchored_values_if_any_must_be_reconstructed_not_measured": true,
+    "local_uncertainty_required": true,
+    "exact_structure_censor_support_required": true,
+    "absence_of_sampled_structure_is_not_continuous_structure_absence": true,
+    "private_audit_only": true,
+    "promotion_blocked_until_device_evidence": true
+  },
+  "pull_request": 89,
+  "build_validation": {
+    "code_checkpoint": "f75025e0d2bbb3345653e1e6365becf28cb8f7d4",
+    "universal_intake_run": 36544333888,
+    "integrity_run": 36544333896,
+    "artifact_id": 11022051681,
+    "artifact_digest": "sha256:1f73db6876ca755b2e6a3e402e8c5bba3b95a23f55247d953bfe7e0ba731dcfa",
+    "apk_sha256": "615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3",
+    "apk_bytes": 7327807,
+    "all_relevant_ci_green": true,
+    "canonical_integrity": "SUCCESS",
+    "truthrange_v04_v05": "SUCCESS",
+    "dark_chroma_v01_v02_v03_v04_v05_v06": "SUCCESS",
+    "tile_native_dng_android": "SUCCESS",
+    "dngcreator_android": "SUCCESS",
+    "universal_physical_capture": "SUCCESS",
+    "universal_intake_android": "SUCCESS",
+    "sample_lattice_integrity": "SUCCESS"
+  },
+  "device_validation_required": [
+    "load a normal admitted DNG in Universal Intake and confirm D.RAW Sample Lattice v0.1 reports the exact source raster dimensions and measured CFA anchor count",
+    "confirm dense=false, upscaling=false and unanchored positions remain UNKNOWN",
+    "on a selective wide/main Dark-Chroma source confirm N2 Raster-Independent Geometry v0.1 and Dark Chroma v0.7 bind the existing v0.6 exact support geometry without changing source/N2 lineage",
+    "do not assign values to unanchored coordinates in this version"
+  ],
+  "device_evidence": {
+    "capture": "DRAW_CAPTURE_1790673150696_tele_4080x3072.dng",
+    "package": "DRAWtelenoiselattice.rar",
+    "package_sha256": "54ac16e2d55bfbf95f0b2fd9b8fc05da9945ba740a1109d775b5641e8d13c33f",
+    "source_raster": "4080x3072",
+    "measured_anchor_count": 12533760,
+    "expected_anchor_count": 12533760,
+    "anchor_count_exact_match": true,
+    "coordinate_units_per_source_pixel": 1048576,
+    "dense_lattice_materialized": false,
+    "upscaling_performed": false,
+    "unanchored_positions_authority": "UNKNOWN",
+    "n2_lattice_queries": 2,
+    "dark_chroma_v07_distance_bound_candidates": 2,
+    "correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "scientific_writeback_allowed": false,
+    "support_geometry": {
+      "candidate_0": {
+        "nearest_structure_center_px": 2.692582403567,
+        "center_r8_structure": "5/12",
+        "center_r16_structure": "22/50",
+        "center_r32_structure": "103/203",
+        "center_r64_structure": "333/804",
+        "rectangle_structure": "699/1764"
+      },
+      "candidate_1": {
+        "nearest_structure_center_px": 8.514693182963,
+        "center_r8_structure": "0/12",
+        "center_r16_structure": "7/44",
+        "center_r32_structure": "25/192",
+        "center_r64_structure": "159/800",
+        "rectangle_structure": "327/1764"
+      }
+    },
+    "conclusion": "exact sampled support geometry distinguishes two visible candidates that coarse any-structure tile/rectangle presence cannot distinguish, without promoting correction"
+  }
+}

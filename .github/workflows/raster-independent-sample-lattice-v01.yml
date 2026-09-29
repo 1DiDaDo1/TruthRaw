@@ -1,0 +1,27 @@
+name: Raster-Independent Sample Lattice v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RasterIndependentSampleLatticeV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV07Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/raster-independent-sample-lattice-v0.1/**'
+      - 'docs/DRAW_RASTER_INDEPENDENT_SAMPLE_WORLD_2026-09-29.md'
+      - 'state/RASTER_INDEPENDENT_SAMPLE_LATTICE_STATE_2026-09-29.json'
+      - 'tools/check_raster_independent_sample_lattice_v01.py'
+      - '.github/workflows/raster-independent-sample-lattice-v01.yml'
+  push:
+    branches:
+      - 'research/raster-independent-sample-lattice-v01-2026-09-29'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_raster_independent_sample_lattice_v01.py
