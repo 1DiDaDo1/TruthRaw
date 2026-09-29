@@ -1134,7 +1134,7 @@ bool run(
             o,
             out.global.model[
                 model_index(ModelId::QuadraticSurface)]);
-        o << "}}},\n";
+        o << "}},\n";
         o << "  \"holdout_records\":[\n";
 
         for (std::size_t i = 0u; i < out.holdouts.size(); ++i) {
