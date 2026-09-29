@@ -1,0 +1,86 @@
+{
+  "schema": "D.RAW/AnchorConstrainedLocalReconstructionState/2026-09-29/v0.1",
+  "status": "BUILD_GREEN_AWAITING_DEVICE_HOLDOUT_VALIDATION",
+  "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
+  "parent_branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
+  "project_law": "Measured source anchors remain immutable; private lattice estimates may only be RECONSTRUCTED.",
+  "device_basis": {
+    "capture": "DRAW_CAPTURE_1790673150696_tele_4080x3072.dng",
+    "sample_lattice_validated": true,
+    "candidate_0_nearest_structure_center_px": 2.692582403567,
+    "candidate_1_nearest_structure_center_px": 8.514693182963,
+    "candidate_1_center_r8_structure": "0/12",
+    "candidate_1_center_r16_structure": "7/44",
+    "correction_supported": false
+  },
+  "holdout_audit": {
+    "schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+    "holdout_period": 8,
+    "solver": "INVERSE_VARIANCE_LOCAL_AFFINE_PLANE_V0_1",
+    "solver_support_radius_source_px": 8,
+    "minimum_plane_samples": 12,
+    "reference_predictor": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+    "exact_cfa_phase_only": true,
+    "target_value_used_by_solver": false,
+    "target_remains_measured": true,
+    "solver_output_authority": "RECONSTRUCTED_PRIVATE_AUDIT_ONLY",
+    "uncertainty_diagnostic_only": true,
+    "noise_independence_admitted": false,
+    "heldout_target_is_noisy_measurement": true,
+    "lower_holdout_error_proves_denoising": false
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "solver_applied_to_scientific_master": false,
+    "distance_threshold_admitted": false,
+    "can_reduce_protection": false,
+    "can_enable_correction": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "next_gate": {
+    "name": "DEVICE_VALIDATE_ANCHOR_HOLDOUT_RECONSTRUCTION",
+    "required_evidence": [
+      "Universal Intake holdout metrics on a selective Dark-Chroma source",
+      "Export Anchor-Constrained Reconstruction v0.1 JSON",
+      "screenshots showing same selected source and holdout summary"
+    ],
+    "promotion_rule_predeclared": false,
+    "solver_application_to_scientific_master_blocked": true,
+    "private_chroma_ab_delta_still_blocked": true
+  },
+  "pull_request": 90,
+  "build_validation": {
+    "code_checkpoint": "ae1f322a134a6c7b29fb3f983ceb8985aadba454",
+    "universal_intake_run": 36567410420,
+    "universal_physical_capture_run": 36567410608,
+    "dngcreator_run": 36567411158,
+    "integrity_run": 36567410418,
+    "artifact_id": 11032268027,
+    "artifact_digest": "sha256:ab3bd77c84a1654913d0ae58db52500f3624b488a8e11530c597a2084327134e",
+    "apk_sha256": "c6c864e2985a0a916a390beee36794be7ce6cdec7c0ac4532fdbbe34c9ecf5e6",
+    "apk_bytes": 7370911,
+    "all_relevant_ci_green": true,
+    "canonical_integrity": "SUCCESS",
+    "raster_independent_sample_lattice_integrity": "SUCCESS",
+    "dark_chroma_v01_through_v06": "SUCCESS",
+    "truthrange_v04_v05": "SUCCESS",
+    "tile_native_dng_android": "SUCCESS",
+    "dngcreator_android": "SUCCESS",
+    "universal_physical_capture": "SUCCESS",
+    "universal_intake_android": "SUCCESS",
+    "anchor_holdout_integrity": "SUCCESS"
+  },
+  "machine_readable_export": {
+    "available": true,
+    "ui_label": "Export Anchor-Constrained Reconstruction v0.1 · JSON",
+    "sidecar_schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+    "holdout_stream_sha256_included": true,
+    "post_write_sha_verified": true
+  }
+}
