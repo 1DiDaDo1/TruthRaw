@@ -14,6 +14,7 @@ New in this successor:
 
 - original source resolution is used as full-resolution MEASURED support for CFA values, phase, detail/structure, geometry, censor paths and hold-out validation — not only noise;
 - audit scope is a deterministic stratified set of real CFA anchors across the full source raster, not only Dark-Chroma regions;
+- Dark-Chroma/N2 candidate state and the PR #91 query-policy are optional context, **not admission gates** for this full-resolution audit;
 - the existing 20-bit fixed-point sample lattice remains the free scientific coordinate domain;
 - model bank: robust median constant, directional line, affine plane, quadratic surface, NO_RECONSTRUCTION;
 - model selection is frozen before target reveal;
