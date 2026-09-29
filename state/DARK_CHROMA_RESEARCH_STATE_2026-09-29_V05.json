@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.5",
-  "status": "BUILD_GREEN_AWAITING_SELECTIVE_MAIN_WIDE_DEVICE_VALIDATION",
+  "status": "DEVICE_VALIDATED_SELECTIVE_MAIN_WIDE_FINE_STRUCTURE_DID_NOT_SEPARATE",
   "branch": "research/dark-chroma-stability-v05-2026-09-29",
   "parent_branch": "research/dark-chroma-stability-v04-2026-09-29",
   "project_law": "Seal the evidence, not the thinking.",
@@ -64,9 +64,14 @@
     "do not define a distance/support promotion gate until fine structure density is observed on real device data"
   ],
   "next_gate": {
-    "name": "DEVICE_VALIDATE_FINE_STRUCTURE_SUPPORT_ON_SELECTIVE_MAIN_WIDE",
+    "name": "SAMPLE_LEVEL_STRUCTURE_SUPPORT_DISTANCE_AUDIT",
+    "purpose": "measure exact sampled structure-protected coordinate distance/density around each frontside candidate without reducing protection",
+    "exact_protected_sample_coordinates_required": true,
+    "unsampled_pixels_inferred": false,
+    "scalar_probability_allowed": false,
+    "correction_enable_allowed": false,
     "private_chroma_ab_delta_still_blocked": true,
-    "must_preserve_all_existing_structure_protection": true
+    "scientific_writeback_allowed": false
   },
   "build_validation": {
     "code_checkpoint": "eec3a2d75ecf0333858b218bbe3a84b6c2395e5c",
@@ -82,5 +87,24 @@
     "truthrange_v04_v05": "SUCCESS",
     "tile_native_dng_android": "SUCCESS",
     "android_full_suite_build": "SUCCESS"
-  }
+  },
+  "device_validation": {
+    "capture": "DRAW_CAPTURE_1790662450477_wide_main_4096x3072.dng",
+    "source_sha256": "7a580822af061f290f92dc42082141023d64b6b2596c8c8cc64a591f19702a0e",
+    "global_v03_state": "FRONTSIDE_INFORMATION_PRESENT",
+    "visible_candidates": 15,
+    "v04_visible_bound": 15,
+    "v04_structure_blocked": 15,
+    "v05_fine_bound": 15,
+    "v05_overlap_structure_fraction": 0.1677,
+    "v05_interior_structure_fraction": 0.1678,
+    "v05_fine_tiles_structure": 558,
+    "v05_fine_tiles_free": 0,
+    "v05_max_fine_tile_structure_fraction": 0.375,
+    "v05_zero_interior_structure_candidates": 0,
+    "n2_global_structure_sample_fraction": 0.16974258422851562,
+    "correction_supported_tiles": 0,
+    "evidence_note": "v0.5 fine-field aggregate values are UI screenshot evidence; supplied ZIP contains predecessor N2 JSON sidecars but not the new fine-field JSON sidecar"
+  },
+  "finding": "32x32 reporting resolution still has structure protection everywhere around all visible candidates; candidate density is approximately the same as whole-observation structure density, so any-presence tile veto remains too coarse"
 }
