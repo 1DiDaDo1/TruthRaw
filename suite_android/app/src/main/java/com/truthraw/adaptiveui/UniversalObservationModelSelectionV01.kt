@@ -40,7 +40,6 @@ object UniversalObservationModelSelectionV01 {
         sourceSha256: String,
         sampleLattice: JSONObject?,
         latticeGeometry: JSONObject?,
-        anchorAudit: JSONObject?,
     ): JSONObject {
         if (
             sampleLattice == null ||
@@ -66,18 +65,6 @@ object UniversalObservationModelSelectionV01 {
             )
         }
 
-        if (
-            anchorAudit == null ||
-            anchorAudit.optString("schema") !=
-                "D.RAW/Frontside/AnchorConstrainedLocalReconstruction/0.1" ||
-            anchorAudit.optString("source_sha256") != sourceSha256
-        ) {
-            return unavailable(
-                sourceSha256,
-                "ANCHOR_RECONSTRUCTION_AUDIT_BINDING_MISMATCH",
-            )
-        }
-
         val units =
             sampleLattice.optLong(
                 "coordinate_units_per_source_pixel",
@@ -92,10 +79,6 @@ object UniversalObservationModelSelectionV01 {
         if (sourceQueries.length() <= 0) {
             return unavailable(sourceSha256, "NO_LATTICE_QUERIES")
         }
-
-        val anchorStatus = anchorAudit.optString("status")
-        val priorHoldoutAvailable =
-            anchorStatus == "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE"
 
         val outQueries = JSONArray()
         for (i in 0 until sourceQueries.length()) {
@@ -296,8 +279,12 @@ object UniversalObservationModelSelectionV01 {
             .put("heldout_target_used_for_selection", false)
             .put("holdout_error_used_for_selection", false)
             .put(
-                "prior_anchor_holdout_available",
-                priorHoldoutAvailable,
+                "computed_before_anchor_holdout_target_reveal",
+                true,
+            )
+            .put(
+                "anchor_holdout_runtime_dependency",
+                false,
             )
             .put(
                 "existing_2026_09_29_holdout_is_development_evidence_only",
