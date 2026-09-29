@@ -414,6 +414,43 @@ object UniversalSourceProfiler {
                 latticeGeometry = n2SampleLatticeGeometry,
             )
 
+        val anchorConstrainedReconstruction =
+            when {
+                fineStructureNeeded &&
+                    n2SampleSupportDistance.optString("status") ==
+                        "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" &&
+                    sampleLattice.optString("status") == "AVAILABLE" ->
+                    AnchorConstrainedLocalReconstructionAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                        sampleLattice = sampleLattice,
+                        supportDistance = n2SampleSupportDistance,
+                    )
+                !nativeDngReady ->
+                    AnchorConstrainedLocalReconstructionAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    AnchorConstrainedLocalReconstructionAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                v03State.startsWith("DARK_UNINFORMATIVE") ->
+                    AnchorConstrainedLocalReconstructionAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_RECONSTRUCTION_RESEARCH",
+                    )
+                else ->
+                    AnchorConstrainedLocalReconstructionAudit.unavailable(
+                        sourceSha256,
+                        "EXACT_SUPPORT_GEOMETRY_OR_SAMPLE_LATTICE_NOT_AVAILABLE",
+                    )
+            }
+
         frontside
             .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
             .put("dark_chroma_stability_v0_4", darkChromaV04)
@@ -432,6 +469,10 @@ object UniversalSourceProfiler {
                 n2SampleLatticeGeometry,
             )
             .put("dark_chroma_stability_v0_7", darkChromaV07)
+            .put(
+                "anchor_constrained_local_reconstruction_v0_1",
+                anchorConstrainedReconstruction,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -456,6 +497,10 @@ object UniversalSourceProfiler {
             .put(
                 "n2_raster_independent_sample_geometry",
                 n2SampleLatticeGeometry,
+            )
+            .put(
+                "anchor_constrained_local_reconstruction",
+                anchorConstrainedReconstruction,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
