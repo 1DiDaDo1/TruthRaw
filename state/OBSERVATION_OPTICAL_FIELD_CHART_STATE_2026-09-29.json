@@ -72,7 +72,7 @@
     "single_scene_lens_vignetting_inference_allowed": false,
     "gain_map_agreement_can_promote_truth": false
   },
-  "next_gate": "GREEN_ANDROID_BUILD_WITH_EXPLICIT_EXPORT_THEN_DEVELOPMENT_RUNTIME_PROFILE_EXPORT",
+  "next_gate": "GREEN_ANDROID_BUILD_WITH_EXPLICIT_EXPORT_THEN_NATIVE_APP_EXPORT_ON_DEVELOPMENT_SOURCE_THEN_THREE_NEW_SCENES",
   "source_metadata_hints": {
     "opcode_list_2_header_parse_allowed": true,
     "opcode_ids_and_header_sizes_only": false,
@@ -124,5 +124,13 @@
     "heavy_native_reconstruction_required": false,
     "correction_gain_allowed": false,
     "scientific_writeback_allowed": false
+  },
+  "development_result": {
+    "path": "state/OBSERVATION_OPTICAL_FIELD_CHART_DEVELOPMENT_RESULT_2026-09-29.json",
+    "runtime_equivalent_sample_count": 12288,
+    "observed_outer_to_inner_p50_ratio": 12.28125,
+    "outer_half_median_azimuth_relative_mad": 0.9015927093891954,
+    "conclusion": "SCENE_CONTENT_DOMINATES_SINGLE_OBSERVATION_RADIAL_BRIGHTNESS_PATTERN",
+    "single_scene_lens_only_vignetting_identifiable": false
   }
 }
