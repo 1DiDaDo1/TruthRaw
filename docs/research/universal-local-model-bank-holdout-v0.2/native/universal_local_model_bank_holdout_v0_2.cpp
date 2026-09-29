@@ -1495,6 +1495,9 @@ bool run(
         o << "  \"support_crossfit_partition\":"
              "\"VALIDATION_WHEN_OFFSET_LATTICE_INDEX_SUM_MOD_3_EQUALS_0\",\n";
         o << "  \"selector_uses_support_crossfit\":true,\n";
+        o << "  \"crossfit_partition_uses_target\":false,\n";
+        o << "  \"final_candidate_refit_uses_all_admitted_neighbor_support\":true,\n";
+        o << "  \"final_candidate_refit_occurs_before_target_reveal\":true,\n";
         o << "  \"directional_support_conditioned\":true,\n";
         o << "  \"directional_strip_half_width_source_px\":"
           << kDirectionalStripHalfWidthSourcePx << ",\n";
