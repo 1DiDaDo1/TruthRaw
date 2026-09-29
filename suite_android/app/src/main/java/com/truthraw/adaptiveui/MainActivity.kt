@@ -74,6 +74,9 @@ class MainActivity : Activity() {
     private var n2SupportDistanceStatus: String? = null
     private var pendingAnchorReconstructionJobId: String? = null
     private var anchorReconstructionStatus: String? = null
+    private var pendingObservationModelSelectionJobId: String? = null
+    private var pendingObservationModelSelectionJson: String? = null
+    private var observationModelSelectionStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1230,6 +1233,62 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_ANCHOR_RECONSTRUCTION,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationModelSelectionExport(job: RawJob) {
+        if (job.id != activeJobId) return
+        val policy =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_observation_model_selection",
+            )
+        if (
+            policy?.optString("status") !=
+            "PROSPECTIVE_AUDIT_POLICY_AVAILABLE"
+        ) {
+            observationModelSelectionStatus =
+                "Universal Observation Model Selection v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met raster-onafhankelijke support-geometrie."
+            render()
+            return
+        }
+        if (
+            policy.optBoolean("heldout_target_used_for_selection", true) ||
+            policy.optBoolean("holdout_error_used_for_selection", true) ||
+            policy.optBoolean("lens_calibration_used", true) ||
+            policy.optBoolean("camera_model_used", true) ||
+            policy.optBoolean("vendor_mapping_used", true) ||
+            policy.optBoolean("candidate_applied", true) ||
+            policy.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationModelSelectionStatus =
+                "Universal Observation Model Selection v0.1 export geblokkeerd: target-blind/universele safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationModelSelectionJobId = job.id
+        pendingObservationModelSelectionJson = policy.toString(2) + "\n"
+        observationModelSelectionStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_observation_model_selection_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_MODEL_SELECTION,
         )
     }
 
@@ -2794,6 +2853,63 @@ class MainActivity : Activity() {
                     render()
                 }
             }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_MODEL_SELECTION) {
+            val expectedJob = pendingObservationModelSelectionJobId
+            val report = pendingObservationModelSelectionJson
+            pendingObservationModelSelectionJobId = null
+            pendingObservationModelSelectionJson = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val policy =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject(
+                        "universal_observation_model_selection",
+                    )
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                policy?.optString("status") !=
+                    "PROSPECTIVE_AUDIT_POLICY_AVAILABLE" ||
+                policy.optBoolean("heldout_target_used_for_selection", true) ||
+                policy.optBoolean("holdout_error_used_for_selection", true) ||
+                policy.optBoolean("lens_calibration_used", true) ||
+                policy.optBoolean("camera_model_used", true) ||
+                policy.optBoolean("vendor_mapping_used", true) ||
+                policy.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1 geblokkeerd: actieve bron/policy veranderde of target-blind/universele contract faalde."
+                render()
+                return
+            }
+
+            observationModelSelectionStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                "Universal Observation Model Selection v0.1 JSON opgeslagen · target-blind modelbank · queries=" +
+                    policy.optInt("query_count", 0) +
+                    " · lens/device calibration=false · writeback=false."
+            } catch (error: Exception) {
+                "Universal Observation Model Selection v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
             return
         }
 
@@ -6086,6 +6202,30 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export Universal Observation Model Selection v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "universal_observation_model_selection",
+                                    )
+                                    ?.optString("status") ==
+                                "PROSPECTIVE_AUDIT_POLICY_AVAILABLE",
+                        ) {
+                            launchObservationModelSelectionExport(active)
+                        })
+                        observationModelSelectionStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Prospective selector-sidecar: legt alleen observation-derived supportregime en " +
+                                "eligible modelbank vast. Geen held-out target, holdout-error, lensprofiel, " +
+                                "camera-ID of vendor-map. Exporteer deze vóór beoordeling van nieuwe holdoutresultaten.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -6469,5 +6609,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
         private const val REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120
         private const val REQUEST_SAVE_ANCHOR_RECONSTRUCTION = 4121
+        private const val REQUEST_SAVE_OBSERVATION_MODEL_SELECTION = 4122
     }
 }
