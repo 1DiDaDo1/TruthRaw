@@ -1126,6 +1126,55 @@ class MainActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
+    private fun launchN2SupportDistanceExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        val profile = universalProfiles[job.id]
+        val support =
+            profile?.optJSONObject("n2_sample_support_distance")
+        if (
+            support?.optString("status") !=
+            "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met zichtbare Dark-Chroma-kandidaten."
+            render()
+            return
+        }
+
+        pendingN2SupportDistanceJobId = job.id
+        n2SupportDistanceStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_sample_support_distance_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_SUPPORT_DISTANCE,
+        )
+    }
+
+    @Suppress("DEPRECATION")
     private fun launchAppearanceHighlightDetailExport(job: RawJob) {
         val ready = previewState as? TilePreviewUiState.Ready ?: return
         if (ready.jobId != job.id) return
