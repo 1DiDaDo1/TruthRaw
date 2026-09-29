@@ -77,10 +77,10 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "device-test Raster-Independent Sample Lattice v0.1 in Universal Intake and verify exact source anchor count/dimensions",
-    "device-test the selective wide/main v0.6 support-distance case through N2 Raster-Independent Sample Geometry v0.1 / Dark Chroma v0.7",
-    "keep all positions between measured source anchors UNKNOWN; do not populate the lattice merely because coordinate precision is available",
-    "only after device evidence design an anchor-constrained local reconstruction audit with explicit reconstructed authority and uncertainty",
+    "design a versioned anchor-constrained local reconstruction audit in the raster-independent lattice, audit-only",
+    "keep every source CFA sample immutable as a measured anchor and assign any new lattice value RECONSTRUCTED authority with local uncertainty",
+    "use exact Structure/Censored/CensorBoundary support geometry to constrain the private local solver; do not infer continuous structure absence from sparse sample absence",
+    "compare private lattice reconstruction against the unchanged Scientific Master path before any correction research",
     "keep correction-supported=0, private chroma A/B/Delta disabled and Scientific Master/D.RAWnegative immutable",
     "preserve the permanent no-AI rule"
   ],
@@ -245,7 +245,7 @@
     "raster_independent_sample_lattice_v0_1": {
       "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
       "pull_request": 89,
-      "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
+      "status": "DEVICE_VALIDATED_FIRST_TELE_CASE",
       "parent": "dark_chroma_v0_6",
       "schema": "D.RAW/RasterIndependentSampleLattice/0.1",
       "representation": "SPARSE_IMPLICIT_FIXED_POINT_SAMPLE_LATTICE",
@@ -274,6 +274,19 @@
         "artifact_id": 11022051681,
         "apk_sha256": "615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3",
         "apk_bytes": 7327807
+      },
+      "device_evidence": {
+        "capture": "1790673150696 tele 4080x3072",
+        "measured_anchors": 12533760,
+        "expected_anchors": 12533760,
+        "exact_anchor_count_match": true,
+        "n2_lattice_queries": 2,
+        "candidate_0_nearest_structure_center_px": 2.692582403567,
+        "candidate_1_nearest_structure_center_px": 8.514693182963,
+        "candidate_1_center_r8_structure": "0/12",
+        "candidate_1_center_r16_structure": "7/44",
+        "correction_supported": false,
+        "finding": "exact sampled support geometry separates local candidate support conditions that 32x32/rectangle any-structure presence could not separate"
       }
     }
   }
