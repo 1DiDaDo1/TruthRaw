@@ -80,6 +80,8 @@ for needle in [
     '"D.RAW/Frontside/UniversalLocalModelBankHoldout/0.1"',
     '"READY_FOR_EXPLICIT_EXPORT_AUDIT"',
     '"source_raster_used_only_for_noise", false',
+    '"prospective_query_policy_required_for_full_resolution_audit",\n                false',
+    '"dark_chroma_dependency_required",\n                false',
     '"noise_profile_required_for_selection",\n                false',
     '"new_independent_capture_required_for_scientific_conclusion",\n                true',
     '"target_value_used_by_models", false',
@@ -124,6 +126,8 @@ assert state["architecture"]["universal_input_required"] is True
 assert state["architecture"]["lens_specific_calibration_required"] is False
 assert state["architecture"]["source_raster_used_only_for_noise"] is False
 assert state["architecture"]["noise_profile_required_for_selection"] is False
+assert state["architecture"]["dark_chroma_dependency_required"] is False
+assert state["architecture"]["prospective_query_policy_required"] is False
 assert state["selector"]["target_value_used_by_models"] is False
 assert state["selector"]["target_value_used_by_selector"] is False
 assert state["selector"]["holdout_error_used_by_selector"] is False
