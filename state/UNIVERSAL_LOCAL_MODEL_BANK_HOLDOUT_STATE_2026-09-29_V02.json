@@ -1,0 +1,75 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.2",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
+  "status": "IMPLEMENTED_AUDIT_ONLY_NOT_DEVICE_VALIDATED",
+  "parent": {
+    "pr": 92,
+    "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+    "result": "POSITIVE_PREDICTIVE_SIGNAL_NO_PROMOTION"
+  },
+  "development_evidence": {
+    "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+    "lens_context": "TELE_TEST_PROVENANCE_ONLY",
+    "use_for_v02": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION",
+    "v01_holdouts": 11844,
+    "v01_directly_comparable": 11667,
+    "v01_selected_mae": 0.020822638090543244,
+    "v01_baseline_mae": 0.02143966413691943,
+    "v01_mean_selector_regret": 0.002471270076658392,
+    "directional_affine_predictions_identical": true
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "noise_profile_required_for_selection": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_STRIP_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_SUPPORT_CROSSFIT_PREDICTIVE_SCORE_V0_2",
+    "partition": "VALIDATION_WHEN_OFFSET_LATTICE_INDEX_SUM_MOD_3_EQUALS_0",
+    "final_candidate_refit_uses_all_surrounding_admitted_support": true,
+    "final_candidate_refit_occurs_before_target_reveal": true,
+    "directional_support_conditioned": true,
+    "directional_strip_half_width_source_px": 2,
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false
+  },
+  "validation": {
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "new_independent_real_device_raw_required": true,
+    "paired_v01_v02_same_capture_required": true,
+    "paired_holdout_coordinates_expected_identical": true,
+    "post_result_selector_or_threshold_changes_allowed": false
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "next_gate": "NEW_INDEPENDENT_RAW_PAIRED_V01_V02_HOLDOUT_EXPORT"
+}
