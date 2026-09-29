@@ -1,0 +1,156 @@
+{
+  "schema": "D.RAW/UniversalObservationCalibrationAtlasState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
+  "parent_branch": "research/observation-optical-field-chart-v01-2026-09-29",
+  "parent_code_sha": "61e758e78faa643c15dc45bf96aa1b7587784f46",
+  "status": "FIRST_TWO_SOURCE_PHYSICAL_GATE_COMPLETE_DNG_AND_OPAQUE_RAW_VALIDATED",
+  "purpose": "UNIFY_FRONTSIDE_AND_BACKSIDE_OBSERVATION_CONTEXT_WITH_SEPARATE_COLOUR_ILLUMINATION_OPTICS_TEMPORAL_RESTORATION_AUTHORITY_AXES_WITHOUT_CAMERA_OR_LENS_IDENTITY_ROUTING",
+  "universal_input": {
+    "camera_identity_required": false,
+    "lens_identity_required": false,
+    "vendor_identity_required": false,
+    "prior_user_calibration_required": false,
+    "raw_format_identity_may_route_decoder": true,
+    "raw_format_identity_may_define_scientific_truth": false,
+    "device_specific_map_required": false,
+    "unknown_is_valid": true,
+    "law": "OBSERVE_WHAT_IS_PRESENT_BEFORE_ASKING_WHO_PRODUCED_IT"
+  },
+  "frontside_backside": {
+    "same_source_sha_binding_required": true,
+    "frontside_authority": "APPEARANCE_DERIVED_ONLY",
+    "backside_authority": "SOURCE_AND_MEASUREMENT_SIDE_WHEN_DECODABLE",
+    "frontside_may_create_sensor_evidence": false,
+    "frontside_may_block_or_flag_ambiguity": true,
+    "frontside_scientific_writeback_allowed": false
+  },
+  "colour": {
+    "source_metadata_bound_colour_supported": true,
+    "empirical_multi_illuminant_calibration_attached": false,
+    "spectral_calibration_attached": false,
+    "frontside_visible_colour_is_colorimetric_calibration": false,
+    "white_balance_is_spectral_calibration": false,
+    "three_channel_rgb_proves_full_spectrum": false,
+    "automatic_colour_correction_allowed": false
+  },
+  "illumination": {
+    "source_metadata_exposure_context_allowed": true,
+    "scene_light_kind": "UNKNOWN",
+    "spd": "UNKNOWN",
+    "direction": "UNKNOWN",
+    "spatial_extent": "UNKNOWN",
+    "flicker": "UNKNOWN",
+    "pr96_composite_field_signal_preserved": true,
+    "lens_only_vignetting_proven": false,
+    "camera_system_relative_illumination_calibrated": false,
+    "automatic_light_falloff_correction_allowed": false
+  },
+  "optical_support": {
+    "sfr_mtf_psf_calibration_attached": false,
+    "radial_support": "UNKNOWN",
+    "tangential_support": "UNKNOWN",
+    "field_curvature": "UNKNOWN",
+    "chromatic_displacement": "UNKNOWN",
+    "focal_length_metadata_can_prove_support": false,
+    "higher_output_raster_can_create_optical_support": false,
+    "deconvolution_authorized": false
+  },
+  "temporal_footprint": {
+    "exposure_time_may_be_recorded_as_source_metadata_bound_duration": true,
+    "motion_path": "UNKNOWN",
+    "rolling_shutter_temporal_geometry": "UNKNOWN",
+    "physical_motion_blur_separated": false,
+    "synthetic_motion_blur_authority": "APPEARANCE_ONLY",
+    "virtual_exposure_creates_new_evidence": false
+  },
+  "optional_calibration_observation_pack": {
+    "required_for_universal_intake": false,
+    "normal_user_must_calibrate_camera": false,
+    "camera_or_lens_name_used_as_calibration_key": false,
+    "classes": [
+      "FLAT_FIELD_RELATIVE_ILLUMINATION",
+      "COLOUR_REFERENCE_MULTI_ILLUMINANT",
+      "OPTICAL_SFR_MTF_PSF",
+      "DARK_NOISE_OFFSET",
+      "TEMPORAL_MOTION_FOOTPRINT"
+    ],
+    "relation_policy": "OPTIONAL_EXTRA_OBSERVATIONS_MAY_STRENGTHEN_ONLY_THEIR_OWN_AUTHORITY_AXIS_AFTER_EXPLICIT_RELATION_ADMISSION"
+  },
+  "precision": {
+    "exact_source_evidence_preserved": true,
+    "float64_branch_sensitive_compute_preserved": true,
+    "controlled_float32_scientific_storage_preserved": true,
+    "precision_changes_authority": false
+  },
+  "zero_line_truthrange": {
+    "architecture_preserved": true,
+    "black_level_is_zero_line": false,
+    "zero_line_is_reference_gauge": true,
+    "source_white_level_is_truthrange_ceiling": false
+  },
+  "restoration": {
+    "measured_support_overpaint_allowed": false,
+    "loss_compensation_remains_reconstructed": true,
+    "appearance_reintegration_scientific_writeback_allowed": false
+  },
+  "invariants": {
+    "lens_profile_lookup_used": false,
+    "camera_model_routing_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "integration": {
+    "kotlin_module": "suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationCalibrationAtlasV01.kt",
+    "profile_binding": "suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt",
+    "attached_to_parsed_dng_tiff": true,
+    "attached_to_opaque_non_tiff_source": true,
+    "attached_to_tiff_parse_failure": true,
+    "json_export_added": true,
+    "android_build_validation": {
+      "workflow": "D.RAW Suite Universal Intake v0.1",
+      "run_id": 36641226959,
+      "conclusion": "SUCCESS",
+      "artifact_id": 11066632486,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+      "artifact_zip_sha256": "8a75ae20b3755ecf0638d6a0b2f8170cd8895f2be117f80e7d2b6cbeefa3b722",
+      "apk_bytes": 7582479,
+      "apk_sha256": "12c95e8c4d6501cf5ff8c7d8d3ca9076b5e1d02c6ebf96469b2245dc7f2dc32d",
+      "apk_verified_contains_atlas_markers": true
+    },
+    "fail_closed_intake_export_ui": {
+      "implemented": true,
+      "reason": "DEVICE_FEEDBACK_CR3_DECODER_PENDING_COULD_NOT_REACH_PRO_ONLY_EXPORT",
+      "export_available_from_universal_intake_after_profile": true,
+      "scientific_preview_required": false,
+      "native_dng_processing_required": false,
+      "camera_or_lens_identity_required": false
+    }
+  },
+  "next_gate": "FREEZE_UNIVERSAL_MULTI_OBSERVATION_RELATION_PROTOCOL_V0_1_BEFORE_ANY_CALIBRATION_OR_CORRECTION_PROMOTION",
+  "device_validation": {
+    "result_path": "state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_DEVICE_RESULT_2026-09-30.json",
+    "admitted_dng_result": "PASS",
+    "opaque_or_unsupported_raw_result": "PASS",
+    "source_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "frontside_status": "FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE",
+    "backside_measured_signal_available": true,
+    "float32_scientific_master_primary_verified": true,
+    "float64_reconstruction_policy_bound": true,
+    "zero_line_binding_verified": true,
+    "no_user_calibration_required_verified": true,
+    "no_auto_colour_or_light_correction_verified": true,
+    "no_scientific_writeback_verified": true,
+    "opaque_raw_result_path": "state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_OPAQUE_RAW_DEVICE_RESULT_2026-09-30.json",
+    "opaque_raw_source_sha256": "fb6722044c381559a8bcc411b913b1f13cd77332d2bb7eae363a6048506ed875",
+    "fail_closed_unknown_axes_verified": true,
+    "frontside_without_backside_promotion_verified": true,
+    "identity_agnostic_intake_verified": true,
+    "first_two_source_physical_gate": "COMPLETE"
+  }
+}

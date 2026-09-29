@@ -1,3 +1,32 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL OBSERVATION & CALIBRATION ATLAS v0.1 — 2026-09-30
+
+The first two-source physical gate is COMPLETE: admitted DNG and opaque/unsupported CR3 both validated.
+
+
+**Current branch:** `research/universal-observation-calibration-atlas-v01-2026-09-30`
+
+Read first:
+
+1. `state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_STATE_2026-09-30.json`
+2. `docs/research/universal-observation-calibration-atlas-v0.1/README.md`
+3. parent PR #96 Observation Optical Field Chart remains read-only and unmodified in meaning.
+
+Purpose:
+
+- keep universal input independent of camera name, lens name, vendor and prior user calibration;
+- bind the front side and back side of the same sealed observation into one read-only atlas;
+- keep colour, illumination/light falloff, optical support, temporal footprint, restoration and precision as separate authority axes;
+- preserve Float64 branch-sensitive compute + controlled Float32 scientific storage;
+- preserve Zero-Line / TruthRange and explicitly keep BlackLevel != Zero-Line;
+- define calibration as optional extra observation evidence, never an entrance requirement;
+- no lens-profile lookup, no camera-model scientific routing, no automatic correction and no Scientific-Master writeback.
+
+The atlas is attached even when the RAW/container cannot yet be scientifically decoded. Unsupported axes remain UNKNOWN.
+
+Explicit Android JSON export is implemented and the full ARM64 Android build is green. The first real-device admitted-DNG atlas export is also validated: source SHA 578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e; frontside + measured backside + sample lattice + PR96 field chart available; F64 reconstruction policy / F32 Scientific Master / Zero-Line bindings verified; no user calibration, auto colour/light correction or writeback. The opaque/unsupported-RAW half of the physical gate is still pending.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION OPTICAL FIELD CHART v0.1 — 2026-09-29
 
 **Current optical-field branch:** `research/observation-optical-field-chart-v01-2026-09-29`
