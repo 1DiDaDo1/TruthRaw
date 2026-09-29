@@ -92,7 +92,7 @@ object UniversalLocalModelBankHoldoutV01 {
                 "holdout_scope",
                 "STRATIFIED_FULL_RESOLUTION_MEASURED_CFA_ANCHORS",
             )
-            .put("holdout_period", 64)
+            .put("holdout_period", 32)
             .put("support_radius_source_px", 8)
             .put(
                 "source_raster_role",
