@@ -2453,6 +2453,142 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_N2_SUPPORT_DISTANCE) {
+            val expectedJob = pendingN2SupportDistanceJobId
+            pendingN2SupportDistanceJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val profile =
+                expectedJob?.let { universalProfiles[it] }
+            val support =
+                profile?.optJSONObject("n2_sample_support_distance")
+            val frontsideV01 =
+                profile?.optJSONObject("scene_analysis")
+                    ?.optJSONObject("dark_chroma_stability_v0_1")
+            val expectedSourceSha =
+                support?.optString("source_sha256", "") ?: ""
+
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob ||
+                support?.optString("status") !=
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" ||
+                frontsideV01 == null ||
+                expectedSourceSha.isBlank()
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 geblokkeerd: actieve bron/binding veranderde of de v0.6-audit is niet beschikbaar."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-support-distance",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2SupportDistanceStatus =
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
+                        "N2 Sample Support Distance v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Sample Support Distance v0.1",
+                )
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2SupportDistanceStatus =
+                "N2 v0.6 support-distance sidecar · exacte sampled structure/censor-coördinaten " +
+                    "+ SHA-binding · geen drempel, geen correction-enable…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-support-distance-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2SupportDistanceStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    N2SampleSupportDistanceAudit.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 = expectedSourceSha,
+                        frontsideV01 = frontsideV01,
+                    )
+                }
+
+                val success = exportResult.isSuccess
+                val finishMessage =
+                    exportResult.fold(
+                        onSuccess = {
+                            "N2 Sample Support Distance v0.1 opgeslagen + SHA geverifieerd."
+                        },
+                        onFailure = {
+                            "N2 Sample Support Distance v0.1 export faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    success,
+                    finishMessage,
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2SupportDistanceStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "N2 Sample Support Distance v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · queries=" +
+                                    status.optInt("queryCount", 0) +
+                                    " · structure=" +
+                                    status.optLong("structureProtected", 0L) +
+                                    " · support=" +
+                                    status.optString(
+                                        "supportPointStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString("jsonSha256", "").take(16) +
+                                    "… · correction=false."
+                            },
+                            onFailure = {
+                                "N2 Sample Support Distance v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL) {
             val expectedJob = pendingAppearanceHighlightDetailJobId
             pendingAppearanceHighlightDetailJobId = null
