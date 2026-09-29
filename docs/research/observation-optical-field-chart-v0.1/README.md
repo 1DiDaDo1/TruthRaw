@@ -79,9 +79,9 @@ Those values are COMPOSITE_SCENE_LENS_SENSOR_OBSERVATION_ONLY. They are not a le
 
 v0.1 may report that the source carries opcodes such as `GainMap`, together with opcode ID, minimum DNG version, flags and payload byte size.
 
-The gain-map payload itself is not interpreted or applied. Its presence is `SOURCE_METADATA_PROVENANCE_HINT_ONLY`: it can later be compared against the observation-derived field profile, but it cannot calibrate D.RAW truth, define the optical axis, alter measured samples or authorize correction.
+v0.1 decodes only a compact GainMap payload summary: affected area, CFA pitch/plane scope, map dimensions/spacing/origin, gain min/median/mean/max and nearest-center/corner gains. The full grid is not exported or applied. Every decoded value remains `SOURCE_METADATA_PROVENANCE_HINT_ONLY`: it can be compared against the observation-derived field profile, but it cannot calibrate D.RAW truth, define the optical axis, alter measured samples or authorize correction.
 
-For the current development observation `IMG_20260403_182145.dng`, external review found four OpcodeList2 GainMap opcodes. That fact motivated this provenance comparison but is not an optical-truth claim.
+For the current development observation `IMG_20260403_182145.dng`, external review found four 13x17 GainMap opcodes with 2x2 CFA-phase pitch. Center gains are about 1.01-1.03 and corner gains span roughly 1.80-2.44. This strongly indicates intended spatial shading compensation in the DNG metadata, but it is still not an optical-truth claim.
 
 ## Why this is useful
 
