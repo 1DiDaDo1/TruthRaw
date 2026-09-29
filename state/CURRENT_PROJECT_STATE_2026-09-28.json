@@ -77,12 +77,12 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "design a versioned anchor-constrained local reconstruction audit in the raster-independent lattice, audit-only",
-    "keep every source CFA sample immutable as a measured anchor and assign any new lattice value RECONSTRUCTED authority with local uncertainty",
-    "use exact Structure/Censored/CensorBoundary support geometry to constrain the private local solver; do not infer continuous structure absence from sparse sample absence",
-    "compare private lattice reconstruction against the unchanged Scientific Master path before any correction research",
-    "keep correction-supported=0, private chroma A/B/Delta disabled and Scientific Master/D.RAWnegative immutable",
-    "preserve the permanent no-AI rule"
+    "finish Android/CI validation of Anchor-Constrained Local Reconstruction v0.1",
+    "device-test on a selective Dark-Chroma observation and export the machine-readable anchor-constrained holdout JSON",
+    "compare solver/reference holdout MAE/RMSE, CFA-phase coverage and diagnostic uncertainty coverage without treating lower noisy-sample error as scene-truth proof",
+    "bind each query to exact Structure/Censored/CensorBoundary support geometry and inspect whether predictive behavior changes with local support distance",
+    "do not populate unanchored lattice positions or apply any correction until holdout evidence justifies a separate versioned reconstruction experiment",
+    "keep all measured anchors, Scientific Master and D.RAWnegative immutable and preserve the permanent no-AI rule"
   ],
   "universal_physical_capture_v0_1": {
     "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
@@ -288,6 +288,32 @@
         "correction_supported": false,
         "finding": "exact sampled support geometry separates local candidate support conditions that 32x32/rectangle any-structure presence could not separate"
       }
+    },
+    "anchor_constrained_local_reconstruction_v0_1": {
+      "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
+      "pull_request": 90,
+      "status": "BUILD_VALIDATION",
+      "parent": "raster_independent_sample_lattice_v0_1",
+      "schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+      "purpose": "deterministic holdout validation of local raster-independent reconstruction using only other measured same-CFA-phase anchors",
+      "solver": "INVERSE_VARIANCE_LOCAL_AFFINE_PLANE_V0_1",
+      "reference_predictor": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+      "holdout_period": 8,
+      "support_radius_source_px": 8,
+      "target_value_used_by_solver": false,
+      "target_remains_measured": true,
+      "solver_output_authority": "RECONSTRUCTED_PRIVATE_AUDIT_ONLY",
+      "uncertainty_diagnostic_only": true,
+      "heldout_target_is_noisy_measurement": true,
+      "lower_holdout_error_proves_denoising": false,
+      "measured_anchors_modified": false,
+      "unanchored_values_promoted_to_measured": false,
+      "solver_applied_to_scientific_master": false,
+      "can_reduce_protection": false,
+      "can_enable_correction": false,
+      "correction_supported": false,
+      "private_chroma_ab_delta_allowed": false,
+      "scientific_writeback_allowed": false
     }
   }
 }
