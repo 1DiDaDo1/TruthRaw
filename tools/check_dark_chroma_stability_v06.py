@@ -73,11 +73,11 @@ for needle in [
 
 for needle in [
     '"D.RAW/Frontside/DarkChromaStability/0.6"',
-    '"distance_metrics_are_probability", false',
-    '"distance_threshold_admitted", false',
-    '"distance_can_reduce_protection", false',
-    '"distance_can_enable_correction", false',
-    '"dark_uninformative_can_be_overridden", false',
+    '"distance_metrics_are_probability"',
+    '"distance_threshold_admitted"',
+    '"distance_can_reduce_protection"',
+    '"distance_can_enable_correction"',
+    '"dark_uninformative_can_be_overridden"',
     '"chroma_correction_supported", false',
     '"private_ab_delta_allowed", false',
     '"candidate_applied", false',
