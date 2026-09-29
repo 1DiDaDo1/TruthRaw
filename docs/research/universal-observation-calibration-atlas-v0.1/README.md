@@ -308,3 +308,52 @@ This route explicitly does **not** require:
 - prior user calibration.
 
 The later PRO export remains as a duplicate convenience for fully admitted sources. The intake-level export is the canonical path for opaque/unsupported/fail-closed RAW observations.
+
+
+## Opaque CR3 physical validation
+
+The second half of the first physical validation gate is now complete.
+
+Returned bundle:
+
+- `Download.zip`;
+- bundle SHA-256: `e452b5962204af618bce8b54a96995af0aad2ae68d56e29494aca5f2503bd080`;
+- source: `6U3A1966.CR3`;
+- source bytes: `47178912`;
+- source SHA-256: `fb6722044c381559a8bcc411b913b1f13cd77332d2bb7eae363a6048506ed875`.
+
+The atlas reports:
+
+- source class `OPAQUE_RAW_OR_IMAGE_CONTAINER`;
+- source route `IMPORTED_FILE`;
+- camera/lens/vendor identity not required;
+- prior user calibration not required;
+- measured backside signal unavailable and kept UNKNOWN;
+- raster-independent sample lattice unavailable;
+- CFA pattern, BlackLevel, WhiteLevel, NoiseProfile and ActiveArea unavailable;
+- frontside structural inspection available as `APPEARANCE_DERIVED_ONLY`;
+- frontside visible colour available but not promoted to colorimetric authority;
+- colour state remains `UNKNOWN_OR_UNCALIBRATED`;
+- illumination/light kind/SPD/direction/flicker remain UNKNOWN;
+- field response and optical support remain UNKNOWN;
+- no automatic colour correction;
+- no automatic light-falloff correction;
+- no deconvolution;
+- no source/sample mutation;
+- no new measured evidence;
+- no Scientific Master writeback.
+
+The SHA-256 recorded in the atlas exactly matches the CR3 bytes in the returned ZIP.
+
+This validates the intended fail-closed universal-input behaviour: D.RAW can admit and inspect an unknown/unsupported proprietary RAW without camera/lens identity routing and without inventing a scientific backside.
+
+## First physical gate conclusion
+
+Both required source classes have now passed:
+
+1. admitted DNG with measured backside + frontside + sample lattice + field chart;
+2. opaque/unsupported CR3 with frontside inspection but fail-closed UNKNOWN scientific backside.
+
+The next gate is no longer decoder reachability. It is the **Universal Multi-Observation Relation Protocol v0.1**.
+
+No flat-field, colour, optical, dark/noise or temporal calibration may strengthen authority or authorize correction until that relation protocol is frozen and independently validated.
