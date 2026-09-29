@@ -125,6 +125,15 @@ object UniversalLocalModelBankHoldoutV02 {
                 false,
             )
             .put("selector_uses_support_crossfit", true)
+            .put("crossfit_partition_uses_target", false)
+            .put(
+                "final_candidate_refit_uses_all_admitted_neighbor_support",
+                true,
+            )
+            .put(
+                "final_candidate_refit_occurs_before_target_reveal",
+                true,
+            )
             .put("directional_support_conditioned", true)
             .put(
                 "support_crossfit_partition",
