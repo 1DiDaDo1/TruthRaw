@@ -7,6 +7,7 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ObservationOpticalFieldChartV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/BacksideSignalSupportAudit.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json'
       - 'tools/check_observation_optical_field_chart_v01.py'
       - '.github/workflows/observation-optical-field-chart-v01.yml'
