@@ -1,6 +1,6 @@
 {
   "schema": "D.RAW/AnchorConstrainedLocalReconstructionState/2026-09-29/v0.1",
-  "status": "BUILD_VALIDATION",
+  "status": "BUILD_GREEN_AWAITING_DEVICE_HOLDOUT_VALIDATION",
   "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
   "parent_branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
   "project_law": "Measured source anchors remain immutable; private lattice estimates may only be RECONSTRUCTED.",
@@ -45,8 +45,42 @@
   },
   "next_gate": {
     "name": "DEVICE_VALIDATE_ANCHOR_HOLDOUT_RECONSTRUCTION",
-    "machine_readable_sidecar_required": true,
-    "promotion_rule_predeclared": false
+    "required_evidence": [
+      "Universal Intake holdout metrics on a selective Dark-Chroma source",
+      "Export Anchor-Constrained Reconstruction v0.1 JSON",
+      "screenshots showing same selected source and holdout summary"
+    ],
+    "promotion_rule_predeclared": false,
+    "solver_application_to_scientific_master_blocked": true,
+    "private_chroma_ab_delta_still_blocked": true
   },
-  "pull_request": 90
+  "pull_request": 90,
+  "build_validation": {
+    "code_checkpoint": "ae1f322a134a6c7b29fb3f983ceb8985aadba454",
+    "universal_intake_run": 36567410420,
+    "universal_physical_capture_run": 36567410608,
+    "dngcreator_run": 36567411158,
+    "integrity_run": 36567410418,
+    "artifact_id": 11032268027,
+    "artifact_digest": "sha256:ab3bd77c84a1654913d0ae58db52500f3624b488a8e11530c597a2084327134e",
+    "apk_sha256": "c6c864e2985a0a916a390beee36794be7ce6cdec7c0ac4532fdbbe34c9ecf5e6",
+    "apk_bytes": 7370911,
+    "all_relevant_ci_green": true,
+    "canonical_integrity": "SUCCESS",
+    "raster_independent_sample_lattice_integrity": "SUCCESS",
+    "dark_chroma_v01_through_v06": "SUCCESS",
+    "truthrange_v04_v05": "SUCCESS",
+    "tile_native_dng_android": "SUCCESS",
+    "dngcreator_android": "SUCCESS",
+    "universal_physical_capture": "SUCCESS",
+    "universal_intake_android": "SUCCESS",
+    "anchor_holdout_integrity": "SUCCESS"
+  },
+  "machine_readable_export": {
+    "available": true,
+    "ui_label": "Export Anchor-Constrained Reconstruction v0.1 · JSON",
+    "sidecar_schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+    "holdout_stream_sha256_included": true,
+    "post_write_sha_verified": true
+  }
 }
