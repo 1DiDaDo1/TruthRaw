@@ -495,10 +495,6 @@ object UniversalSourceProfiler {
                 "universal_observation_model_selection_v0_1",
                 universalObservationModelSelection,
             )
-            .put(
-                "universal_local_model_bank_holdout_v0_1",
-                universalLocalModelBankHoldout,
-            )
 
         return base
             .put("scientific_source_class", sourceClass)
