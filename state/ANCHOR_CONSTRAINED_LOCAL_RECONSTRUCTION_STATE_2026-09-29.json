@@ -1,0 +1,51 @@
+{
+  "schema": "D.RAW/AnchorConstrainedLocalReconstructionState/2026-09-29/v0.1",
+  "status": "ACTIVE_UNMERGED_BUILD_VALIDATION",
+  "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
+  "parent_branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
+  "project_law": "Measured source anchors remain immutable; private lattice estimates may only be RECONSTRUCTED.",
+  "device_basis": {
+    "capture": "DRAW_CAPTURE_1790673150696_tele_4080x3072.dng",
+    "sample_lattice_validated": true,
+    "candidate_0_nearest_structure_center_px": 2.692582403567,
+    "candidate_1_nearest_structure_center_px": 8.514693182963,
+    "candidate_1_center_r8_structure": "0/12",
+    "candidate_1_center_r16_structure": "7/44",
+    "correction_supported": false
+  },
+  "holdout_audit": {
+    "schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+    "holdout_period": 8,
+    "solver": "INVERSE_VARIANCE_LOCAL_AFFINE_PLANE_V0_1",
+    "solver_support_radius_source_px": 8,
+    "minimum_plane_samples": 12,
+    "reference_predictor": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+    "exact_cfa_phase_only": true,
+    "target_value_used_by_solver": false,
+    "target_remains_measured": true,
+    "solver_output_authority": "RECONSTRUCTED_PRIVATE_AUDIT_ONLY",
+    "uncertainty_diagnostic_only": true,
+    "noise_independence_admitted": false,
+    "heldout_target_is_noisy_measurement": true,
+    "lower_holdout_error_proves_denoising": false
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "solver_applied_to_scientific_master": false,
+    "distance_threshold_admitted": false,
+    "can_reduce_protection": false,
+    "can_enable_correction": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "next_gate": {
+    "name": "DEVICE_VALIDATE_ANCHOR_HOLDOUT_RECONSTRUCTION",
+    "machine_readable_sidecar_required": true,
+    "promotion_rule_predeclared": false
+  }
+}
