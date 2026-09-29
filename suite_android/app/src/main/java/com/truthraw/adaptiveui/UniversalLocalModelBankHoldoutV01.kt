@@ -221,6 +221,22 @@ object UniversalLocalModelBankHoldoutV01 {
         require(sidecar.optString("source_sha256") == expectedSourceSha256) {
             "Universal model-bank sidecar source-SHA mismatch."
         }
+        require(
+            sidecar.optBoolean(
+                "target_censor_state_used_for_holdout_admission",
+                false,
+            ),
+        ) {
+            "Sidecar mist de expliciete target-censor admission boundary."
+        }
+        require(
+            !sidecar.optBoolean(
+                "target_numeric_stage2_value_read_before_selection",
+                true,
+            ),
+        ) {
+            "Sidecar claimt dat de numerieke Stage-2 target vóór selector-freeze is gelezen."
+        }
         require(!sidecar.optBoolean("target_value_used_by_models", true)) {
             "Sidecar claimt targetgebruik door model."
         }
