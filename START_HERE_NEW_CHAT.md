@@ -17,6 +17,7 @@ Purpose:
 - per-annulus CFA-phase medians and azimuthal dispersion are recorded;
 - observed outer/inner signal falloff is descriptive scene+lens+sensor evidence, not automatically lens vignetting;
 - no cos^4 model, lens profile, camera model or vendor map is assumed;
+- DNG OpcodeList2 headers may be reported as provenance hints; GainMap payloads are not interpreted/applied and cannot calibrate truth;
 - no correction gain, measured-sample mutation or Scientific Master writeback is allowed.
 
 Current measured topology is inherited from BacksideSignalSupportAudit: classic TIFF/DNG, uncompressed unsigned 16-bit, single sample/pixel, strips. Unsupported layouts fail closed for the measured field signal while the geometry chart can still exist when raster geometry is known.
