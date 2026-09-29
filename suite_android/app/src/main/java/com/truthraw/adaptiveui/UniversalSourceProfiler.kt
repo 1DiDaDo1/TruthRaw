@@ -451,6 +451,14 @@ object UniversalSourceProfiler {
                     )
             }
 
+        val universalObservationModelSelection =
+            UniversalObservationModelSelectionV01.analyze(
+                sourceSha256 = sourceSha256,
+                sampleLattice = sampleLattice,
+                latticeGeometry = n2SampleLatticeGeometry,
+                anchorAudit = anchorConstrainedReconstruction,
+            )
+
         frontside
             .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
             .put("dark_chroma_stability_v0_4", darkChromaV04)
@@ -472,6 +480,10 @@ object UniversalSourceProfiler {
             .put(
                 "anchor_constrained_local_reconstruction_v0_1",
                 anchorConstrainedReconstruction,
+            )
+            .put(
+                "universal_observation_model_selection_v0_1",
+                universalObservationModelSelection,
             )
 
         return base
@@ -501,6 +513,10 @@ object UniversalSourceProfiler {
             .put(
                 "anchor_constrained_local_reconstruction",
                 anchorConstrainedReconstruction,
+            )
+            .put(
+                "universal_observation_model_selection",
+                universalObservationModelSelection,
             )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
