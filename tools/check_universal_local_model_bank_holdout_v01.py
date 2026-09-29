@@ -42,6 +42,9 @@ for needle in [
 ]:
     assert needle in h + cxx, f"missing native invariant: {needle}"
 
+assert 'o << "}},\\n";' in cxx, "model-bank JSON global/models nesting must close with exactly two braces"
+assert 'o << "}}},\\n";' not in cxx, "model-bank JSON has an extra global/models closing brace"
+
 for needle in [
     'source_raster_used_only_for_noise',
     'source_raster_is_world_resolution_authority',
