@@ -781,3 +781,127 @@ All major ideas identified for the no-phone-test implementation wave either have
 - or a machine-readable future validation gate.
 
 The project must now pass one final full Android compile/artifact gate. A successful compile does **not** promote any scientific candidate; it only proves the integrated implementation builds.
+
+
+### 30. Observation Axis Authority Matrix v0.1
+
+`ObservationAxisAuthorityMatrixV01.kt`
+
+Each sealed observation now gets an explicit axis-by-axis authority summary for:
+
+- sealed source;
+- source sample geometry;
+- backside signal support;
+- frontside structure;
+- field response;
+- colour;
+- optical support;
+- temporal hints;
+- calibration atlas.
+
+The matrix prevents authority leakage between axes.
+
+In particular:
+
+- frontside appearance may not upgrade backside measurement authority;
+- metadata hints may not become measurements;
+- strong evidence on one axis may not promote another axis.
+
+### 31. UNKNOWN Propagation Guard v0.1
+
+`UnknownPropagationGuardV01.kt`
+
+UNKNOWN is now protected by an executable runtime contract.
+
+Forbidden silent substitutions include:
+
+- UNKNOWN → 0;
+- UNKNOWN → 1;
+- UNKNOWN → identity transform;
+- UNKNOWN uncertainty → zero uncertainty;
+- UNKNOWN → MEASURED;
+- UNKNOWN → CALIBRATED;
+- UNKNOWN → unsupported reconstruction.
+
+This closes a subtle but important failure mode in open-world numerical systems: absence of evidence may never become a convenient default that looks physically meaningful.
+
+### 32. Field Response Separation Candidate Set v0.1
+
+`FieldResponseSeparationCandidateSetV01.kt`
+
+The runtime can now identify exactly which observation pairs are structurally eligible for a later world-vs-sensor field separation experiment.
+
+Eligibility currently requires:
+
+- an appearance-derived pair-geometry candidate;
+- measured field charts on both observations;
+- an available deterministic pair-geometry model bank.
+
+The set is identity-independent and does **not** perform decomposition.
+
+It leaves all of these false:
+
+- world-fixed component estimated;
+- sensor-fixed component estimated;
+- scene illumination separated;
+- sensor angular response separated;
+- lens-only vignetting proven;
+- camera-system response proven.
+
+### 33. Free World Continuous Query Planner v0.1
+
+`FreeWorldContinuousQueryPlannerV01.kt`
+
+The query pipeline now has a planning stage before any future solver.
+
+The planner can determine which observation component and source roots are potential context for a query, but it may not:
+
+- choose a camera/lens by product name;
+- invent a cross-component transform;
+- treat candidate appearance geometry as an admitted world→source bridge;
+- return MEASURED without exact source support.
+
+Until the bridge exists, query authority remains UNKNOWN.
+
+### 34. Free World Scientific State Snapshot v0.1
+
+`FreeWorldScientificStateSnapshotV01.kt`
+
+A single read-only snapshot now binds:
+
+- independent source SHA roots;
+- axis authority matrix;
+- capability matrix;
+- scientific promotion-gate registry;
+- UNKNOWN propagation rules;
+- global non-promotion state.
+
+The snapshot makes permanent:
+
+`implementation != validation != measurement != promotion`
+
+and explicitly records that a derived snapshot is not a physical evidence root.
+
+### 35. Prevalidation Candidate Ledger v0.1
+
+`PrevalidationCandidateLedgerV01.kt`
+
+All major preserved research candidates now have a machine-readable queue containing:
+
+- whether machinery is implemented;
+- its present non-promoted status;
+- the future gate required before promotion.
+
+This includes pair geometry, multi-observation tracks, cycle consistency, field separation, world registration, world→source bridge, continuous solver, colour, optics, temporal relations and restoration.
+
+The ledger explicitly records:
+
+`phone_test_required_to_preserve_items=false`
+
+So future chats no longer need to reconstruct these ideas merely because physical testing has not yet happened.
+
+## Architecture-closure rule
+
+At this checkpoint the safe prevalidation architecture is not merely documented: its principal boundaries are represented by executable runtime objects, typed interfaces, fail-closed planners/solvers, machine-readable capability/authority state, and CI gates.
+
+Physical validation is still required for promotion. It is **not** required to keep the architecture intact.
