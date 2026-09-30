@@ -51,6 +51,13 @@ object FreeWorldCapabilityMatrixV01 {
         }
 
         capability(
+            "CALIBRATION_OBSERVATION_RECORD_BUNDLE",
+            "FAIL_CLOSED_JSON_INGEST_IMPLEMENTED",
+            "OPTIONAL_RELATION_EVIDENCE_INPUT_NO_PROMOTION",
+            true,
+            false,
+        )
+        capability(
             "UNIVERSAL_IDENTITY_INDEPENDENCE",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "RAW_LENS_CAMERA_VENDOR_IDENTITY_CANNOT_SELECT_SCIENTIFIC_TRUTH",
