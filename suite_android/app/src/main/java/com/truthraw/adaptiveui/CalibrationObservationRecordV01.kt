@@ -58,7 +58,33 @@ object CalibrationObservationRecordV01 {
                     .put("camera_model_name_is_key", false)
                     .put("lens_model_name_is_key", false)
                     .put("vendor_name_is_key", false)
-                    .put("source_sha256_roots_are_primary", true),
+                    .put("source_sha256_roots_are_primary", true)
+                    .put(
+                        "canonical_record_identity",
+                        "CalibrationObservationRecordIdentityV01",
+                    )
+                    .put(
+                        "object_key_order_changes_identity",
+                        false,
+                    )
+                    .put("sha256_hex_normalized_lowercase", true),
+            )
+            .put(
+                "session_binding_policy",
+                JSONObject()
+                    .put(
+                        "runtime",
+                        "CalibrationObservationSessionBindingV01",
+                    )
+                    .put(
+                        "record_roots_must_belong_to_active_session",
+                        true,
+                    )
+                    .put(
+                        "camera_upstream_rawsensor_alias_supported",
+                        true,
+                    )
+                    .put("cross_session_record_use_allowed", false),
             )
             .put(
                 "bundle_ingest",
@@ -71,7 +97,12 @@ object CalibrationObservationRecordV01 {
                         "foundation_entry_point",
                         "FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle",
                     )
-                    .put("invalid_records_fail_closed", true),
+                    .put("invalid_records_fail_closed", true)
+                    .put("canonical_deduplication_enabled", true)
+                    .put(
+                        "numeric_candidate_validation_status_required",
+                        true,
+                    ),
             )
             .put(
                 "normal_use_policy",
