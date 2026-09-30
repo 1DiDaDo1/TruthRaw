@@ -219,7 +219,30 @@ class UniversalPhysicalCaptureActivity : Activity() {
             setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
 
-        root.addView(text("D.RAW · Universele camera", 26f, true))
+        root.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(
+                    text("‹", 36f, false).apply {
+                        gravity = Gravity.CENTER
+                        contentDescription = "Terug"
+                        setOnClickListener { finish() }
+                    },
+                    LinearLayout.LayoutParams(dp(48), dp(48)).apply {
+                        marginEnd = dp(8)
+                    },
+                )
+                addView(
+                    text("D.RAW · Universele camera", 26f, true),
+                    LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f,
+                    ),
+                )
+            },
+        )
         root.addView(space(5))
         root.addView(
             text(
@@ -234,6 +257,15 @@ class UniversalPhysicalCaptureActivity : Activity() {
             text(
                 "Camera2 is alleen de Android transportlaag. Camera-ID, focal length en lensrol zijn acquisitie/UI-hints en bepalen geen wetenschappelijke waarheid.",
                 11f,
+                false,
+                DrawVisualTheme.MUTED,
+            ),
+        )
+        root.addView(space(5))
+        root.addView(
+            text(
+                "Na een normale opname: sealed RAW_SENSOR → afgeleide DNG → Universal Intake → dezelfde Scientific Master/route als een geïmporteerd bestand. Geen handmatige lenscalibratie is vereist; extra multi-observation/calibration-records zijn alleen optioneel onderzoeksbewijs.",
+                10.5f,
                 false,
                 DrawVisualTheme.MUTED,
             ),
@@ -402,6 +434,28 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(statusView)
         root.addView(space(7))
         root.addView(detailView)
+        root.addView(space(14))
+        root.addView(
+            button("Wat gebeurt er met deze RAW?") {
+                startActivity(
+                    Intent(
+                        this,
+                        TruthRawImplementationGuideActivity::class.java,
+                    ),
+                )
+            },
+        )
+        root.addView(space(7))
+        root.addView(
+            button("Research & JSON") {
+                startActivity(
+                    Intent(
+                        this,
+                        TruthRawResearchHubActivity::class.java,
+                    ),
+                )
+            },
+        )
 
         return ScrollView(this).apply {
             isFillViewport = true
