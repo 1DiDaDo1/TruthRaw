@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "SECOND_SAFE_ARCHITECTURE_WAVE_COMPLETE_AWAITING_GREEN_BUILD",
+  "status": "PREVALIDATION_SAFE_ARCHITECTURE_SET_IMPLEMENTED_AWAITING_GREEN_BUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -32,7 +32,9 @@
     "FreeWorldQuerySupportLedgerV01",
     "SourceLatticeExactAnchorResolverV01",
     "CalibrationObservationRecordValidatorV01",
-    "FreeWorldSourceLatticeBridgeContractV01"
+    "FreeWorldSourceLatticeBridgeContractV01",
+    "FailClosedFreeWorldContinuousQuerySolverV01",
+    "FreeWorldCapabilityMatrixV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -94,7 +96,10 @@
     "measured_anchor_provider_interface": "MeasuredAnchorProviderV01",
     "unanchored_lattice_position_returns_unknown": true,
     "world_to_source_bridge_admitted": false,
-    "appearance_geometry_may_admit_world_to_source_bridge": false
+    "appearance_geometry_may_admit_world_to_source_bridge": false,
+    "fail_closed_world_runtime_implemented": true,
+    "fail_closed_world_solver": "FailClosedFreeWorldContinuousQuerySolverV01",
+    "unadmitted_world_query_returns_unknown": true
   },
   "restoration_authority_roles": [
     "ORIGINAL_MEASURED_SUPPORT",
@@ -134,7 +139,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_SAFE_IMPLEMENTATION_OR_BEGIN_LATER_BUNDLED_DEVICE_VALIDATION",
+  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD; NO_PHONE_PROMOTION_TEST_REQUIRED_BEFORE_THIS_ARCHITECTURE_CHECKPOINT",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -172,5 +177,34 @@
     "same_world_structure_proven": false,
     "relative_world_track_projection_implemented": true,
     "world_point_estimate_promoted": false
+  },
+  "capability_matrix": {
+    "implemented": true,
+    "schema": "D.RAW/FreeWorldCapabilityMatrix/0.1",
+    "law": "IMPLEMENTED_DOES_NOT_MEAN_VALIDATED",
+    "separates_implementation_from_scientific_promotion": true
+  },
+  "prevalidation_safe_architecture_items_from_user_requested_wave": {
+    "local_feature_geometry": true,
+    "pair_geometry": true,
+    "multi_observation_tracks": true,
+    "graph_cycle_consistency": true,
+    "relative_world_hypotheses": true,
+    "multi_lens_and_360_campaigns": true,
+    "natural_self_calibration_atlas": true,
+    "world_sensor_separation_scaffold": true,
+    "optical_support_contract": true,
+    "colour_relation_contract": true,
+    "temporal_multiview_contract": true,
+    "axis_separated_uncertainty": true,
+    "exact_source_lattice_anchor_semantics": true,
+    "continuous_query_typed_abi": true,
+    "fail_closed_world_query_runtime": true,
+    "world_source_bridge_boundary": true,
+    "restoration_authority_runtime": true,
+    "view_appearance_boundary": true,
+    "calibration_record_contract_and_validator": true,
+    "promotion_firewall": true,
+    "capability_matrix": true
   }
 }
