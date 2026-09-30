@@ -48,6 +48,17 @@ object ScientificPromotionGateRegistryV01 {
             ),
         )
         entry(
+            "RADIOMETRIC_RESPONSE_CALIBRATION",
+            listOf(
+                "CONTROLLED_EXPOSURE_RELATION",
+                "EFFECTIVE_GAIN_ESTIMATE",
+                "BLACK_OFFSET_SEPARATED_FROM_ZERO_LINE",
+                "SATURATION_CENSOR_BEHAVIOR",
+                "HELD_OUT_VALIDATION",
+                "UNCERTAINTY",
+            ),
+        )
+        entry(
             "FIELD_RESPONSE_CALIBRATION",
             listOf(
                 "MULTIPLE_MEASURED_FIELD_OBSERVATIONS",
@@ -85,6 +96,40 @@ object ScientificPromotionGateRegistryV01 {
             ),
         )
         entry(
+            "NOISE_COMPONENT_CALIBRATION",
+            listOf(
+                "INDEPENDENT_REPEATED_OBSERVATIONS",
+                "DARK_AND_SIGNAL_CONTEXT_WHERE_APPLICABLE",
+                "TEMPORAL_VS_FIXED_PATTERN_SEPARATION",
+                "CFA_PHASE_AND_SPATIAL_CORRELATION_ACCOUNTED_FOR",
+                "RADIOMETRIC_CONTEXT",
+                "HELD_OUT_VALIDATION",
+                "UNCERTAINTY",
+            ),
+        )
+        entry(
+            "GEOMETRY_DEPTH_VISIBILITY",
+            listOf(
+                "VALIDATED_WORLD_RELATION_GEOMETRY",
+                "PARALLAX_OR_EQUIVALENT_DEPTH_CONSTRAINT",
+                "VISIBILITY_OR_OCCLUSION_UNCERTAINTY",
+                "HELD_OUT_OBSERVATION_VALIDATION",
+                "NO_RADIOMETRIC_AUTHORITY_UPGRADE",
+            ),
+        )
+        entry(
+            "WORLD_SPACE_NOISE_SEPARATION",
+            listOf(
+                "VALIDATED_WORLD_TO_SOURCE_BRIDGE",
+                "NOISE_COMPONENT_CALIBRATION",
+                "MULTIPLE_INDEPENDENT_OBSERVATIONS",
+                "SENSOR_POSITION_DIVERSITY",
+                "TEMPORAL_AND_VIEW_DEPENDENCE_ACCOUNTED_FOR",
+                "UNKNOWN_RESIDUAL_PRESERVED",
+                "HELD_OUT_VALIDATION",
+            ),
+        )
+        entry(
             "TEMPORAL_RELATION",
             listOf(
                 "SOURCE_BOUND_TIMING_EVIDENCE",
@@ -99,6 +144,8 @@ object ScientificPromotionGateRegistryV01 {
                 "VALIDATED_WORLD_TO_SOURCE_BRIDGE",
                 "EXACT_MEASURED_ANCHOR_PRESERVATION",
                 "RECONSTRUCTION_AUTHORITY",
+                "RADIOMETRIC_RESPONSE_CONTEXT",
+                "NOISE_UNCERTAINTY_TRANSPORT",
                 "SPATIAL_FOOTPRINT",
                 "TEMPORAL_FOOTPRINT",
                 "UNCERTAINTY",
