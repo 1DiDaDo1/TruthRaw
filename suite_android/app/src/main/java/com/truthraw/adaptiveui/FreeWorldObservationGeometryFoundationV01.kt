@@ -10,6 +10,20 @@ import org.json.JSONObject
 object FreeWorldObservationGeometryFoundationV01 {
     const val SCHEMA = "D.RAW/FreeWorldObservationGeometryFoundation/0.1"
 
+    fun buildWithCalibrationBundle(
+        profiles: List<JSONObject>,
+        fieldRepeatability: JSONObject? = null,
+        calibrationRecordBundleJson: String,
+    ): JSONObject =
+        build(
+            profiles = profiles,
+            fieldRepeatability = fieldRepeatability,
+            calibrationRecords =
+                CalibrationObservationRecordBundleV01.validRecords(
+                    calibrationRecordBundleJson,
+                ),
+        )
+
     fun build(
         profiles: List<JSONObject>,
         fieldRepeatability: JSONObject? = null,
