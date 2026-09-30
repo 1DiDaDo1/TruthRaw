@@ -289,6 +289,25 @@ This path does **not** make calibration mandatory for ordinary users. It exists 
 Per explicit user instruction, this branch has not been compiled, tested, sent through CI, built as an APK, or device-validated after this implementation wave. Therefore no claim is made that the new branch compiles or that any candidate model is physically correct. The parent PR101 green checkpoint remains the last tested baseline.
 
 
+## Completion checkpoint — implementation wave
+
+The multidisciplinary recommendation wave is now implemented at the prevalidation/candidate-runtime level.
+
+Additional closure work completed:
+- Android Multi-observation UI can import one or more optional Calibration Observation Record JSON files/bundles;
+- imported records are re-used when generating the Free World Foundation and re-evaluated again at save time;
+- normal RAW intake remains independent of those files;
+- `CalibrationObservationAdmissionV01` separates a syntactically valid record from a relation that is strong enough to drive a numeric candidate;
+- `USER_GROUPING_HINT_ONLY` and `NONE` can never drive numeric solvers;
+- forbidden camera/lens/vendor/RAW/container/decoder identity keys are rejected recursively;
+- measured sparse CFA coordinates/phase/value are exported read-only from the backside audit;
+- repeated DARK/FLAT/scene relation sets can generate temporal/fixed-pattern candidates;
+- `SparseGridNoiseModelCandidateV01` can fit signal-dependent variance from those repeated sparse-CFA relation sets;
+- controlled NPS measurements use the same central relation-admission gate;
+- candidate availability still never equals calibration promotion.
+
+At this checkpoint there is no remaining implementation item from this recommendation wave that should be enabled without moving into the separately defined validation/promotion phase.
+
 ## Test/build status
 
 By explicit instruction, this implementation was committed **without running tests, CI, Android build, device validation or promotion experiments**.
