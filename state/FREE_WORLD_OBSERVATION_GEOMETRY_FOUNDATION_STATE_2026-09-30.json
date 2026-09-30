@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "LARGE_IMPLEMENTATION_WAVE_COMPLETE_AWAITING_GREEN_BUILD",
+  "status": "SECOND_SAFE_ARCHITECTURE_WAVE_COMPLETE_AWAITING_GREEN_BUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -24,7 +24,15 @@
     "FreeWorldContinuousQueryApiV01",
     "ViewAppearanceStateV01",
     "CalibrationObservationRecordV01",
-    "ResearchPromotionFirewallV01"
+    "ResearchPromotionFirewallV01",
+    "FreeWorldFeatureTrackHypothesesV01",
+    "ObservationGraphCycleConsistencyV01",
+    "RelativeWorldFeatureTrackProjectionV01",
+    "GeometryValidationReadinessV01",
+    "FreeWorldQuerySupportLedgerV01",
+    "SourceLatticeExactAnchorResolverV01",
+    "CalibrationObservationRecordValidatorV01",
+    "FreeWorldSourceLatticeBridgeContractV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -81,7 +89,12 @@
     "typed_kotlin_abi_implemented": true,
     "request_type": "FreeWorldContinuousQueryRequestV01",
     "result_type": "FreeWorldContinuousQueryResultV01",
-    "solver_interface": "FreeWorldContinuousQuerySolverV01"
+    "solver_interface": "FreeWorldContinuousQuerySolverV01",
+    "source_lattice_exact_anchor_resolver_implemented": true,
+    "measured_anchor_provider_interface": "MeasuredAnchorProviderV01",
+    "unanchored_lattice_position_returns_unknown": true,
+    "world_to_source_bridge_admitted": false,
+    "appearance_geometry_may_admit_world_to_source_bridge": false
   },
   "restoration_authority_roles": [
     "ORIGINAL_MEASURED_SUPPORT",
@@ -121,7 +134,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_ARCHITECTURE_WAVE_BEFORE_DEVICE_PROMOTION_TESTS",
+  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_SAFE_IMPLEMENTATION_OR_BEGIN_LATER_BUNDLED_DEVICE_VALIDATION",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -131,11 +144,33 @@
     "contract_implemented": true,
     "primary_identity": "SOURCE_SHA256_ROOTS",
     "camera_lens_vendor_name_is_key": false,
-    "required_for_normal_intake": false
+    "required_for_normal_intake": false,
+    "validator_implemented": true,
+    "validator": "CalibrationObservationRecordValidatorV01",
+    "validation_promotes_calibration": false
   },
   "research_promotion_firewall": {
     "implemented": true,
     "recursive_export_audit": true,
-    "export_must_pass": true
+    "export_must_pass": true,
+    "expanded_active_transform_guards": [
+      "registration_promoted",
+      "world_point_estimate_promoted",
+      "deconvolution_applied",
+      "inverse_optics_authorized",
+      "automatic_colour_correction_applied",
+      "temporal_fusion_applied",
+      "restoration_applied"
+    ]
+  },
+  "geometry_consistency": {
+    "multi_observation_feature_tracks_implemented": true,
+    "robust_inlier_matches_only": true,
+    "same_observation_track_conflicts_reported_not_hidden": true,
+    "three_observation_cycle_closure_audit_implemented": true,
+    "automatic_consistency_threshold_used": false,
+    "same_world_structure_proven": false,
+    "relative_world_track_projection_implemented": true,
+    "world_point_estimate_promoted": false
   }
 }
