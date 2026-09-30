@@ -1,3 +1,30 @@
+# D.RAW / TruthRaw — DEFINITIVE HANDOFF INDEX — 2026-09-30
+
+This section is the newest documentation entry point. No Android/native source
+code was changed after the green code head
+`c90ff62323a065eac54eee0d91f75256708cd4fd`.
+
+Read first:
+1. `docs/research/free-world-radiometric-noise-transport-v0.1/FINAL_PROJECT_HANDOFF_2026-09-30.md`
+2. `docs/research/free-world-radiometric-noise-transport-v0.1/CABLE_AUDIT_CLOSURE_2026-09-30.md`
+3. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
+4. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
+5. `docs/research/free-world-radiometric-noise-transport-v0.1/UX_NAVIGATION_2026-09-30.md`
+
+The final handoff contains the consolidated architecture, all cable-audit
+findings/fixes/improvements, build evidence, intentional boundaries, and the
+ordered device/physical-validation checklist that still must be executed.
+
+Current scientific status:
+- Android build green;
+- APK verified;
+- device validation pending;
+- bundled physical validation pending;
+- no new research axis promoted;
+- no Scientific Master writeback authorized.
+
+---
+
 # D.RAW / TruthRaw — CURRENT 2026-09-30 CABLE-CLOSURE CHECKPOINT
 
 This section supersedes older navigation/current-state notes below wherever they conflict.
