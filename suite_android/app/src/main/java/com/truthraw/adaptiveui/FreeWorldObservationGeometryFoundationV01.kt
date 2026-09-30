@@ -163,6 +163,11 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val fieldResponseSeparationCandidate =
             FieldResponseRotationSeparationCandidateV01.evaluate(boundCalibrationRecords)
+        val registrationAwareControlledRotationAudit =
+            RegistrationAwareControlledRotationAuditV01.evaluate(
+                graph = graph,
+                records = boundCalibrationRecords,
+            )
         val colourRelationCandidate =
             ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
@@ -271,6 +276,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("repeated_sparse_grid_noise_candidate", repeatedSparseGridNoiseCandidate)
                     .put("sparse_grid_noise_model_candidate", sparseGridNoiseModelCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
+                    .put(
+                        "registration_aware_controlled_rotation_audit",
+                        registrationAwareControlledRotationAudit,
+                    )
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put(
                         "colour_covariance_transport_candidate",
