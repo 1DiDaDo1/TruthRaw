@@ -6637,7 +6637,15 @@ class MainActivity : Activity() {
 
         addView(vertical().apply {
             addView(label("D.RAW", 22f, bold = true))
-            addView(label("${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · ${session.selectedCount} RAW geselecteerd", 12f, muted = true))
+            addView(
+                label(
+                    "${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · " +
+                        "${session.selectedCount} RAW geselecteerd" +
+                        if (researchWorkbenchMode) " · RESEARCH" else "",
+                    12f,
+                    muted = true,
+                ),
+            )
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
 
         addView(actionButton("RAW kiezen") { launchRawPicker() })
