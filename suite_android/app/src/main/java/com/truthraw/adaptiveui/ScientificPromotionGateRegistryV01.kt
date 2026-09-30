@@ -45,6 +45,7 @@ object ScientificPromotionGateRegistryV01 {
                 "EXPLICIT_SOURCE_COORDINATE_MAPPING",
                 "MAPPING_UNCERTAINTY",
                 "NO_APPEARANCE_ONLY_AUTHORITY_UPGRADE",
+                "MAPPING_SOURCE_ROOTS_BOUND_TO_ACTIVE_SESSION",
             ),
         )
         entry(
@@ -74,6 +75,7 @@ object ScientificPromotionGateRegistryV01 {
                 "AT_LEAST_TWO_CHARACTERIZED_ILLUMINANTS",
                 "HELD_OUT_VALIDATION",
                 "UNCERTAINTY",
+                "COLOUR_COVARIANCE_TRANSPORT_WHERE_UNCERTAINTY_AVAILABLE",
             ),
         )
         entry(
@@ -147,6 +149,8 @@ object ScientificPromotionGateRegistryV01 {
                 "SCIENTIFIC_DENOISE_SINGLE_FRAME_READY",
                 "OPTICAL_SUPPORT_CALIBRATION",
                 "FREQUENCY_DEPENDENT_NOISE_GAIN",
+                "CONTROLLED_NPS_AND_OPTICAL_SUPPORT_RELATION",
+                "EXPLICIT_SIGNAL_PSD_FOR_INVERSE_OPTICS",
                 "HELD_OUT_VALIDATION",
                 "SEPARATE_EXPLICIT_APPROVAL_GATE",
             ),
@@ -200,6 +204,17 @@ object ScientificPromotionGateRegistryV01 {
 
         return JSONObject()
             .put("schema", SCHEMA)
+            .put(
+                "global_promotion_prerequisites",
+                JSONArray()
+                    .put("CANONICAL_RECORD_IDENTITY")
+                    .put("ACTIVE_SESSION_SOURCE_ROOT_BINDING")
+                    .put("PHYSICAL_AND_DERIVED_SOURCE_ALIAS_DEDUPLICATION")
+                    .put("EXPLICIT_UNCERTAINTY")
+                    .put("HELD_OUT_VALIDATION")
+                    .put("INTERNAL_VALIDATOR_DECISION")
+                    .put("NO_USER_IMPORTED_RECORD_MAY_GRANT_PROMOTION"),
+            )
             .put("status", "PROMOTION_GATE_REGISTRY_AVAILABLE")
             .put("entries", entries)
             .put("registry_itself_grants_promotion", false)
