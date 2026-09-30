@@ -1,3 +1,52 @@
+# D.RAW / TruthRaw — CURRENT 2026-09-30 CABLE-CLOSURE CHECKPOINT
+
+This section supersedes older navigation/current-state notes below wherever they conflict.
+
+Current branch:
+`research/free-world-radiometric-noise-transport-v01-2026-09-30`
+
+Latest Android-build-proven source head:
+`55755b795ec6e48e326732c8e5d2071270b81a90`
+
+Build evidence:
+- workflow: `D.RAW Free World Research APK`
+- run: `36744973469`
+- result: **SUCCESS**
+- artifact: `DRAW-free-world-research-debug-arm64` / ID `11112237658`
+- APK bytes: `8155983`
+- APK SHA-256: `11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193`
+- device/physical validation of the new multidisciplinary wave: **NOT YET RUN**
+- scientific promotion of the new candidate axes: **FALSE**
+
+Cable-audit closure implemented:
+- physical camera lineage is explicit as sealed RAW_SENSOR root -> acquisition evidence -> derived processing-DNG root -> Universal Intake; the DNG is not a second physical frame;
+- Calibration Observation Records use canonical SHA-256 identity, semantic status/uncertainty checks, active-session source binding and physical/derived alias de-duplication;
+- cross-session relation records cannot drive numeric candidates;
+- colour 3x3 candidate can transport explicitly measured covariance via J*C*J^T;
+- controlled NPS + optical support + explicit signal PSD can feed the noise-aware inverse-optics candidate without inventing missing measurements;
+- promotion consumers accept flags only through the internal held-out/source-bound ScientificPromotionStateV01 path;
+- world->source admission requires a validated mapping, mapping uncertainty, held-out pass and active source-root binding;
+- reconstruction/denoise supports are bound to promoted source roots; Scientific Master writeback remains forbidden;
+- ResearchPromotionFirewallV01 also blocks candidate-applied, Scientific-Master-modified, measured-anchor-modified and image-transform-applied regressions;
+- Research mode/picker navigation is repaired and large calibration records persist through a private session cache rather than Activity Bundle payloads;
+- historical diagnostics now use the shared green/red status-dot + elapsed/final timer convention.
+
+Intentional boundaries — do not bypass:
+- DNG is the fully admitted native processing path; proprietary RAW decoders remain adapter-specific/pending unless separately implemented and validated;
+- the generic compute router stays CPU_REFERENCE until each accelerated kernel has its own correctness/self-test; existing specifically validated acceleration routes remain separate;
+- Scientific Master Streaming v0.3 remains a research candidate; production bridges remain on the current admitted binding until separately promoted;
+- Continuous Free World queries remain UNKNOWN until the world->source mapping and continuous reconstruction are physically validated;
+- no user-imported JSON may grant scientific promotion.
+
+Read first now:
+1. `docs/research/free-world-radiometric-noise-transport-v0.1/CABLE_AUDIT_CLOSURE_2026-09-30.md`
+2. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
+3. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
+4. `docs/research/free-world-radiometric-noise-transport-v0.1/UX_NAVIGATION_2026-09-30.md`
+5. then the historical/current documents below as required.
+
+---
+
 # D.RAW — POST-AUDIT CABLE REPAIR GREEN CHECKPOINT — 2026-09-30
 
 **Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
