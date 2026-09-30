@@ -20,7 +20,11 @@
     "FreeWorldUncertaintyTransportV01",
     "FreeWorldContinuousQueryContractV01",
     "ConservationRestorationAuthorityRuntimeV01",
-    "FreeWorldObservationGeometryFoundationV01"
+    "FreeWorldObservationGeometryFoundationV01",
+    "FreeWorldContinuousQueryApiV01",
+    "ViewAppearanceStateV01",
+    "CalibrationObservationRecordV01",
+    "ResearchPromotionFirewallV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -73,7 +77,11 @@
     "pixel_solver_implemented": false,
     "source_raster_is_world_resolution_limit": false,
     "fine_lattice_positions_begin_unknown": true,
-    "interpolation_may_create_measured_samples": false
+    "interpolation_may_create_measured_samples": false,
+    "typed_kotlin_abi_implemented": true,
+    "request_type": "FreeWorldContinuousQueryRequestV01",
+    "result_type": "FreeWorldContinuousQueryResultV01",
+    "solver_interface": "FreeWorldContinuousQuerySolverV01"
   },
   "restoration_authority_roles": [
     "ORIGINAL_MEASURED_SUPPORT",
@@ -113,5 +121,21 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_ARCHITECTURE_WAVE_BEFORE_DEVICE_PROMOTION_TESTS"
+  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_ARCHITECTURE_WAVE_BEFORE_DEVICE_PROMOTION_TESTS",
+  "view_appearance": {
+    "downstream_only": true,
+    "human_vision_may_write_scientific_master": false,
+    "film_cinema_appearance_may_create_measured_evidence": false
+  },
+  "calibration_observation_record": {
+    "contract_implemented": true,
+    "primary_identity": "SOURCE_SHA256_ROOTS",
+    "camera_lens_vendor_name_is_key": false,
+    "required_for_normal_intake": false
+  },
+  "research_promotion_firewall": {
+    "implemented": true,
+    "recursive_export_audit": true,
+    "export_must_pass": true
+  }
 }
