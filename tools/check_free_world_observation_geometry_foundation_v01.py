@@ -38,6 +38,9 @@ files = {
     "component_world": (JAVA / "ComponentRelativeWorldCoordinateHypothesesV01.kt").read_text(),
     "pair_model_bank": (JAVA / "DeterministicPairGeometryModelBankV01.kt").read_text(),
     "pair_model_bank_set": (JAVA / "PairGeometryModelBankSetV01.kt").read_text(),
+    "validation_campaign": (JAVA / "BundledPhysicalValidationCampaignV01.kt").read_text(),
+    "gate_registry": (JAVA / "ScientificPromotionGateRegistryV01.kt").read_text(),
+    "lineage": (JAVA / "FreeWorldEvidenceLineageManifestV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -148,6 +151,9 @@ required = {
         "FreeWorldObservationComponentsV01.build",
         "ComponentRelativeWorldCoordinateHypothesesV01.build",
         "PairGeometryModelBankSetV01.build",
+        "FreeWorldEvidenceLineageManifestV01.build",
+        "BundledPhysicalValidationCampaignV01.describe",
+        "ScientificPromotionGateRegistryV01.describe",
         "FailClosedFreeWorldContinuousQuerySolverV01",
         "ConservationRestorationAuthorityRuntimeV01.describe",
     ],
@@ -265,6 +271,27 @@ required = {
         "models_may_be_ranked_as_physical_truth",
         "future_validation_must_be_held_out",
     ],
+    "validation_campaign": [
+        "VALIDATION_CAMPAIGN_CONTRACT_AVAILABLE",
+        "NATURAL_OVERLAP_SAME_ROUTE",
+        "CROSS_OPTICAL_ROUTE_OVERLAP",
+        "RAW_360_SEQUENCE",
+        "COLOUR_MULTI_ILLUMINANT",
+        "normal_user_calibration_required",
+    ],
+    "gate_registry": [
+        "PROMOTION_GATE_REGISTRY_AVAILABLE",
+        "WORLD_TO_SOURCE_BRIDGE",
+        "CONTINUOUS_FREE_WORLD_SOLVER",
+        "SCIENTIFIC_CORRECTION_OR_WRITEBACK",
+        "automatic_promotion_allowed",
+    ],
+    "lineage": [
+        "DERIVED_LINEAGE_MANIFEST_AVAILABLE",
+        "source_sha256_roots",
+        "manifest_identity_is_physical_evidence_root",
+        "derived_objects_may_merge_source_authority",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -325,6 +352,12 @@ assert state["geometry_consistency"]["automatic_consistency_threshold_used"] is 
 assert state["geometry_consistency"]["same_world_structure_proven"] is False
 assert state["calibration_observation_record"]["validator_implemented"] is True
 assert state["calibration_observation_record"]["validation_promotes_calibration"] is False
+assert state["validation_campaign_contract"]["implemented"] is True
+assert state["validation_campaign_contract"]["normal_user_calibration_required"] is False
+assert state["scientific_gate_registry"]["automatic_promotion_allowed"] is False
+assert state["evidence_lineage_manifest"]["derived_manifest_is_evidence_root"] is False
+assert state["evidence_lineage_manifest"]["derived_graph_is_evidence_root"] is False
+assert state["build_memory_fix"]["scientific_runtime_behavior_changed"] is False
 assert state["research_promotion_firewall"]["implemented"] is True
 assert state["calibration_observation_record"]["required_for_normal_intake"] is False
 assert state["continuous_query"]["source_raster_is_world_resolution_limit"] is False
@@ -348,6 +381,8 @@ for phrase in [
     "No transform is invented between disconnected components.",
     "The same robust appearance-derived inlier correspondences are now fitted with multiple deterministic geometry families",
     "No candidate is selected as a winner.",
+    "The implementation-first objective is now complete in code.",
+    "One Free World may relate many sealed observations",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
