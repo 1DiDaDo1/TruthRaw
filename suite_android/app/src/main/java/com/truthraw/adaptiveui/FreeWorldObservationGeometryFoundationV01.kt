@@ -72,6 +72,15 @@ object FreeWorldObservationGeometryFoundationV01 {
                 cycles = cycleConsistency,
                 decomposition = decomposition,
             )
+        val lineage =
+            FreeWorldEvidenceLineageManifestV01.build(
+                profiles = profiles,
+                graph = graph,
+            )
+        val validationCampaign =
+            BundledPhysicalValidationCampaignV01.describe()
+        val gateRegistry =
+            ScientificPromotionGateRegistryV01.describe()
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -102,6 +111,9 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("temporal_relation", temporal)
             .put("query_support_ledger", querySupportLedger)
             .put("capability_matrix", capabilityMatrix)
+            .put("evidence_lineage_manifest", lineage)
+            .put("bundled_physical_validation_campaign", validationCampaign)
+            .put("scientific_gate_registry", gateRegistry)
             .put(
                 "optical_support_atlas_contract",
                 OpticalSupportAtlasV01.describe(),
