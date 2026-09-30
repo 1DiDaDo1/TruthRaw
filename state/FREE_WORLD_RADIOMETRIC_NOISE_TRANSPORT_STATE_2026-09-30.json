@@ -1,0 +1,57 @@
+{
+  "schema": "D.RAW/FreeWorldRadiometricNoiseTransportState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/free-world-radiometric-noise-transport-v01-2026-09-30",
+  "parent_pr": 101,
+  "parent_exact_green_head": "0006b56d3261cad9a13fec560f7ddcd39b0844db",
+  "status": "IMPLEMENTED_UNTESTED_PREVALIDATION_ARCHITECTURE",
+  "universal_identity_law": {
+    "raw_format_may_route_decoder": true,
+    "raw_format_may_define_scientific_truth": false,
+    "camera_lens_vendor_identity_may_be_provenance": true,
+    "camera_lens_vendor_identity_may_be_scientific_model_key": false,
+    "sealed_source_sha256_is_observation_identity": true,
+    "relation_evidence_required": true,
+    "normal_user_calibration_required": false
+  },
+  "new_modules": [
+    "RadiometricResponseAtlasV01",
+    "NoiseComponentAtlasV01",
+    "ScientificNoiseTransportV01",
+    "TemporalFootprintV01",
+    "GeometryDepthSupportAtlasV01",
+    "LightTransportAuthorityContractV01",
+    "WorldSpaceNoiseSeparationV01",
+    "PerceptualNoiseAppearanceV01",
+    "UniversalIdentityIndependenceV01"
+  ],
+  "promotion": {
+    "radiometric_calibration_promoted": false,
+    "noise_component_calibration_promoted": false,
+    "geometry_promoted": false,
+    "world_space_denoise_applied": false,
+    "noise_reduction_applied": false,
+    "temporal_fusion_applied": false,
+    "multi_frame_scientific_fusion_applied": false,
+    "scientific_writeback_allowed": false,
+    "creates_new_evidence": false
+  },
+  "validation": {
+    "tests_run": false,
+    "ci_run": false,
+    "android_build_run": false,
+    "device_validation_run": false,
+    "physical_gates_executed": false
+  },
+  "permanent_laws": [
+    "MEASURED != RECONSTRUCTED != APPEARANCE",
+    "BLACK_LEVEL != ZERO_LINE",
+    "OUTPUT_RASTER_DENSITY != OPTICAL_RESOLUTION",
+    "GEOMETRY_AUTHORITY != RADIOMETRIC_AUTHORITY",
+    "RAW_CONTAINER_IDENTITY_MAY_ROUTE_DECODING_NOT_SCIENTIFIC_INTERPRETATION",
+    "CAMERA_LENS_VENDOR_IDENTITY_IS_NOT_A_CALIBRATION_KEY",
+    "UNKNOWN_RESIDUAL_IS_NOT_AUTOMATICALLY_NOISE",
+    "PERCEPTUAL_DENOISE_IS_APPEARANCE_ONLY",
+    "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT"
+  ]
+}
