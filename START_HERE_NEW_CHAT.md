@@ -6,15 +6,15 @@ Current branch:
 `research/free-world-radiometric-noise-transport-v01-2026-09-30`
 
 Latest Android-build-proven source head:
-`55755b795ec6e48e326732c8e5d2071270b81a90`
+`c90ff62323a065eac54eee0d91f75256708cd4fd`
 
 Build evidence:
 - workflow: `D.RAW Free World Research APK`
-- run: `36744973469`
+- run: `36746687740`
 - result: **SUCCESS**
-- artifact: `DRAW-free-world-research-debug-arm64` / ID `11112237658`
+- artifact: `DRAW-free-world-research-debug-arm64` / ID `11113326128`
 - APK bytes: `8155983`
-- APK SHA-256: `11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193`
+- APK SHA-256: `1c5a97b6c5bce7a7534cda9899f1b3d926d9fced8fd8edc16cd53944a6620c03`
 - device/physical validation of the new multidisciplinary wave: **NOT YET RUN**
 - scientific promotion of the new candidate axes: **FALSE**
 
@@ -47,7 +47,7 @@ Read first now:
 
 ---
 
-# D.RAW — POST-AUDIT CABLE REPAIR GREEN CHECKPOINT — 2026-09-30
+# D.RAW — HISTORICAL INTERMEDIATE POST-AUDIT BUILD CHECKPOINT — 2026-09-30
 
 **Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
 **Green code head:** `f36f750afda57f4672c264e59ac53db489cd5e19`  
@@ -86,11 +86,11 @@ Next scientific phase: bundled physical validation and axis-specific promotion o
 
 ---
 
-# D.RAW — ACTIVE RESEARCH OVERLAY — RADIOMETRIC / NOISE / OPTICS / TEMPORAL INTEGRATION v0.1 — 2026-09-30
+# D.RAW — HISTORICAL PRE-BUILD RESEARCH OVERLAY — SUPERSEDED BY CURRENT CABLE-CLOSURE CHECKPOINT — 2026-09-30
 
 **Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
 **Parent checkpoint:** PR #101 exact green head `0006b56d3261cad9a13fec560f7ddcd39b0844db`  
-**Validation status:** IMPLEMENTED ONLY — **NO TESTS, NO CI, NO ANDROID BUILD, NO DEVICE VALIDATION PER USER INSTRUCTION**
+**Historical validation status at this earlier snapshot:** IMPLEMENTED ONLY — no build had yet been run. **Current state is the green cable-closure checkpoint at the top of this file.**
 
 Read first:
 1. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
@@ -109,7 +109,7 @@ Implementation-wave completion:
 - exact sparse CFA grids feed repeated-observation and signal-dependent noise-model candidates;
 - radiometry, field separation, NPS/noise, optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated denoise and perceptual mapping have numeric candidate runtimes;
 - no candidate is promoted, applied to Scientific Master, or allowed to create evidence;
-- this branch remains intentionally untested/unbuilt per user instruction.
+- historical note: at this earlier snapshot the branch was intentionally unbuilt; this is superseded by the current green build checkpoint above.
 
 New implemented prevalidation contracts:
 - `UniversalIdentityIndependenceV01`
@@ -143,14 +143,14 @@ Current completion checkpoint:
 - exact sparse measured CFA grids now feed repeated DARK/FLAT/scene noise candidates and a signal-dependent sparse-grid noise-model candidate;
 - numeric candidate runtimes cover radiometry, NPS/noise, field separation, optics/inverse-optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated scientific denoise and perceptual appearance;
 - none of these candidates is promoted or applied;
-- **no compile/test/CI/APK/device validation has been run on this implementation wave**.
+- historical note: no compile/CI/APK had been run at this earlier snapshot. Current cable-closure code is Android-build-green; device/physical validation remains pending.
 
 
 The full recommendation wave is now implemented as fail-closed candidate runtime code. In addition to the earlier contracts, current code includes radiometric fitting from explicit records and controlled RAW profiles, repeated exact sparse-CFA dark/flat statistics, NPS ingestion, world-vs-sensor field separation, SFR/MTF/PSF ingestion, noise-aware inverse-optics gain candidates, multi-illuminant colour fitting, temporal relation candidates, calibrated-ray triangulation, world-space residual decomposition, uncertainty-weighted reconstruction, gated scientific denoise, and appearance-only perceptual frequency mapping.
 
 Optional relation records may be ingested through `CalibrationObservationRecordBundleV01` and passed to `FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle`. Normal RAW intake remains calibration-bundle-independent and lens/camera/vendor/RAW identity independent at the scientific level.
 
-None of these candidate runtimes has been tested, built, device-validated or scientifically promoted in this branch.
+At this historical snapshot none had been built. Current cable-closure code now compiles/packages green, while device/physical validation and scientific promotion remain pending.
 
 No correction, denoise, deconvolution, temporal fusion, world-space fusion, geometry promotion, calibration promotion, new evidence creation or Scientific Master writeback is authorized by this overlay.
 
