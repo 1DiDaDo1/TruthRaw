@@ -607,14 +607,16 @@ class MainActivity : Activity() {
                 parsed.optJSONArray("records") ?: JSONArray()
             for (index in 0 until records.length()) {
                 val record = records.optJSONObject(index) ?: continue
-                val canonical = record.toString()
+                val normalized =
+                    CalibrationObservationRecordIdentityV01.normalize(record)
+                val identity =
+                    normalized.optString("record_identity_sha256")
                 val duplicate =
                     calibrationObservationRecords.any {
-                        it.toString() == canonical
+                        it.optString("record_identity_sha256") == identity
                     }
                 if (!duplicate) {
-                    calibrationObservationRecords +=
-                        JSONObject(canonical)
+                    calibrationObservationRecords += normalized
                     validImported++
                 }
             }
