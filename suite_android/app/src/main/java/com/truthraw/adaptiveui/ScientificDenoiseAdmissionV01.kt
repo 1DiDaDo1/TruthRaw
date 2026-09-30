@@ -26,7 +26,7 @@ object ScientificDenoiseAdmissionV01 {
             radiometric.optBoolean("radiometric_calibration_promoted", false)
         val noiseReady =
             noiseComponents.optBoolean(
-                "noise_component_decomposition_performed",
+                "noise_component_calibration_promoted",
                 false,
             )
         val numericNoiseTransportReady =
@@ -35,9 +35,10 @@ object ScientificDenoiseAdmissionV01 {
                 false,
             )
         val opticalReady =
-            opticalSupport.optBoolean("sfr_measurement_attached", false) ||
-                opticalSupport.optBoolean("mtf_measurement_attached", false) ||
-                opticalSupport.optBoolean("psf_measurement_attached", false)
+            opticalSupport.optBoolean(
+                "optical_support_calibration_promoted",
+                false,
+            )
         val temporalReady =
             temporalFootprint.optBoolean("physical_sequence_order_proven", false)
         val geometryReady =
