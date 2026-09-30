@@ -10,7 +10,10 @@ import org.json.JSONObject
 object ScientificNoiseTransportV01 {
     const val SCHEMA = "D.RAW/ScientificNoiseTransport/0.1"
 
-    fun describe(): JSONObject =
+    fun describe(
+        promotionState: JSONObject =
+            ScientificPromotionStateV01.blocked(),
+    ): JSONObject =
         JSONObject()
             .put("schema", SCHEMA)
             .put("status", "SCIENTIFIC_NOISE_TRANSPORT_CONTRACT_AVAILABLE")
@@ -43,8 +46,21 @@ object ScientificNoiseTransportV01 {
             )
             .put("numeric_primitives_implemented", true)
             .put("numeric_primitive_implementation", ScientificNoiseMathV01.METHOD_ID)
-            .put("numeric_transport_validated", false)
+            .put(
+                "numeric_transport_validated",
+                promotionState.optBoolean(
+                    "numeric_noise_transport_validated",
+                    false,
+                ),
+            )
             .put("numeric_noise_transport_performed", false)
+            .put(
+                "promotion_state_status",
+                promotionState.optString(
+                    "status",
+                    "NOT_PROMOTED_FAIL_CLOSED",
+                ),
+            )
             .put("noise_reduction_applied", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
