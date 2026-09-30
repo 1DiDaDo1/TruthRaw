@@ -93,6 +93,8 @@ class MainActivity : Activity() {
     private var fieldResponseRepeatabilityStatus: String? = null
     private val fieldResponseBatchPendingJobIds = linkedSetOf<String>()
     private val fieldResponseBatchFailedJobIds = linkedSetOf<String>()
+    private var pendingObservationWorldFieldSeparationJson: String? = null
+    private var observationWorldFieldSeparationStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1728,6 +1730,69 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY,
+        )
+    }
+
+    private fun currentObservationWorldProfiles(): List<JSONObject> =
+        session.jobs.mapNotNull { job ->
+            universalProfiles[job.id]
+        }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationWorldFieldSeparationExport() {
+        val profiles = currentObservationWorldProfiles()
+        val report = ObservationWorldFieldSeparationV01.evaluate(profiles)
+
+        if (
+            report.optString("status") !=
+            "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
+        ) {
+            observationWorldFieldSeparationStatus =
+                "Observation-World Field Separation v0.1 blijft fail-closed: minimaal twee " +
+                    "onderscheiden universele observations zijn nodig."
+            render()
+            return
+        }
+
+        val promotion =
+            report.optJSONObject("promotion_boundary") ?: JSONObject()
+        if (
+            promotion.optBoolean("camera_system_response_proven", true) ||
+            promotion.optBoolean("lens_only_vignetting_proven", true) ||
+            promotion.optBoolean("calibration_promoted", true) ||
+            promotion.optBoolean("correction_authorized", true) ||
+            promotion.optBoolean("scientific_writeback_allowed", true) ||
+            report.optBoolean("source_sample_values_modified", true) ||
+            report.optBoolean("source_sample_positions_modified", true) ||
+            report.optBoolean("new_measured_samples_created", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationWorldFieldSeparationStatus =
+                "Observation-World Field Separation v0.1 export geblokkeerd: safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationWorldFieldSeparationJson =
+            report.toString(2) + "\n"
+        observationWorldFieldSeparationStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_observation_world_field_separation_v0_1_" +
+                    report.optInt("observation_count", profiles.size) +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION,
         )
     }
 
@@ -3506,6 +3571,101 @@ class MainActivity : Activity() {
                     " · camera/lens-identiteit vereist=false · correctie=false · writeback=false."
             } catch (error: Exception) {
                 "Universal Observation & Calibration Atlas v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION) {
+            val reportText = pendingObservationWorldFieldSeparationJson
+            pendingObservationWorldFieldSeparationJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: pending report ontbreekt."
+                render()
+                return
+            }
+
+            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
+            val currentReport =
+                ObservationWorldFieldSeparationV01.evaluate(
+                    currentObservationWorldProfiles(),
+                )
+            if (
+                savedReport == null ||
+                savedReport.optString("status") !=
+                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE" ||
+                currentReport.optString("status") !=
+                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
+            ) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: observation-set niet meer geldig."
+                render()
+                return
+            }
+
+            val savedRoots =
+                savedReport.optJSONArray("observations")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull {
+                                roots.optJSONObject(it)
+                                    ?.optString("source_sha256")
+                            }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+            val currentRoots =
+                currentReport.optJSONArray("observations")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull {
+                                roots.optJSONObject(it)
+                                    ?.optString("source_sha256")
+                            }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+
+            if (savedRoots != currentRoots || savedRoots.size < 2) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: source-SHA set veranderde."
+                render()
+                return
+            }
+
+            observationWorldFieldSeparationStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+
+                val spaces = savedReport.optJSONObject("coordinate_spaces")
+                val world = spaces?.optJSONObject("world_scene_space")
+                val sensor = spaces?.optJSONObject("source_sensor_space")
+                "Observation-World Field Separation v0.1 JSON opgeslagen · observations=" +
+                    savedReport.optInt("observation_count", 0) +
+                    " · measured sensor fields=" +
+                    (sensor?.optInt("measured_field_observation_count", 0) ?: 0) +
+                    " · world registration=" +
+                    (world?.optString("registration_status", "UNKNOWN") ?: "UNKNOWN") +
+                    " · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Observation-World Field Separation v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -7739,6 +7899,24 @@ class MainActivity : Activity() {
         ) {
             launchFieldResponseRepeatabilityExport()
         })
+        addView(space(5))
+        addView(actionButton(
+            "Export Observation-World Field Separation v0.1 · JSON",
+            enabled = profiled >= 2,
+        ) {
+            launchObservationWorldFieldSeparationExport()
+        })
+        observationWorldFieldSeparationStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Nieuwe vrije-wereld fundering: SOURCE/SENSOR SPACE, WORLD/SCENE SPACE en VIEW/OUTPUT SPACE " +
+                "blijven strikt gescheiden. Gewone overlappende of 360°-observaties mogen later een " +
+                "deterministische wereldregistratie leveren; de gebruiker of panoramamiddenpunt wordt nooit " +
+                "het calibratiemiddelpunt. v0.1 registreert nog niet automatisch en corrigeert niets.",
+            10f,
+            muted = true,
+        ))
         backgroundOperationStatusView(
             fieldResponseRepeatabilityAnalysisOperationKey(),
             fieldResponseRepeatabilityStatus
@@ -7963,5 +8141,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
+        private const val REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129
     }
 }

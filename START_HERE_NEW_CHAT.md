@@ -1,3 +1,40 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION-WORLD FIELD SEPARATION v0.1 — 2026-09-30
+
+**Current branch:** `research/observation-world-field-separation-v01-2026-09-30`
+
+Parent PR99 established multi-scene field-repeatability measurement. Its first real 3-observation result showed that ordinary scene-dependent radial/azimuth structure is not yet separable enough for automatic light-falloff correction, while CFA-phase repeatability was materially tighter.
+
+This branch begins the universal successor:
+**Observation-World Field Separation v0.1**
+
+Three spaces are now explicitly separated:
+1. SOURCE/SENSOR SPACE
+2. WORLD/SCENE SPACE
+3. VIEW/OUTPUT SPACE
+
+Permanent current boundaries:
+- no camera/lens/vendor identity key;
+- no mandatory user calibration;
+- no requirement that the user or camera-holder becomes a world/calibration origin;
+- panorama centre is not calibration origin;
+- a single stitched 360° panorama is not source evidence;
+- original individual sealed observations remain required for measured authority;
+- current world registration = UNREGISTERED_V0_1;
+- existing structural signature / dominant edge direction / visual similarity are not registration proof;
+- future registration family = deterministic classical local-feature geometry only;
+- no AI/ML/neural/generative runtime;
+- no camera-system-response or lens-only-vignetting claim;
+- no calibration promotion, correction, or Scientific Master writeback.
+
+Android Multi-observation UI now exports:
+**Observation-World Field Separation v0.1 · JSON**
+
+Next gate: green integrity + ARM64 Android build, then device export; after that implement deterministic classical local-feature pair geometry v0.1 as a separate validated gate.
+
+Camera usability update on this branch: Universal Physical Capture (ultra-wide / wide-main / tele) now uses a fixed 5-second pre-capture stabilization timer. The live preview remains active during countdown; lens-role/focus/loupe controls are disabled until the physical RAW_SENSOR capture is submitted. The timer is acquisition UI only, records `ui_pre_capture_timer_seconds=5`, modifies no sensor evidence, and carries no scientific authority. The separate special 4K→200MP route is unchanged.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — FIELD RESPONSE REPEATABILITY v0.1 — 2026-09-30
 
 **Current branch:** `research/field-response-repeatability-v01-2026-09-30`

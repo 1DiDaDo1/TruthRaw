@@ -52,6 +52,10 @@ jobs:
           grep -F 'display_loupe_modifies_raw_capture", false' "$CAPTURE"
           grep -F 'capture_zoom_ratio_written", false' "$CAPTURE"
           grep -F 'capture_crop_region_written", false' "$CAPTURE"
+          grep -F 'CAPTURE_TIMER_SECONDS = 5' "$CAPTURE"
+          grep -F 'Maak volledige RAW_SENSOR-opname · 5s timer' "$CAPTURE"
+          grep -F 'ui_pre_capture_timer_authority", "ACQUISITION_UI_ONLY"' "$CAPTURE"
+          grep -F 'ui_pre_capture_timer_modifies_sensor_evidence", false' "$CAPTURE"
 
           if grep -F 'CaptureRequest.CONTROL_ZOOM_RATIO' "$CAPTURE"; then
             echo 'Capture zoom ratio must not be written by universal macro loupe' >&2

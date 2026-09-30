@@ -29,6 +29,7 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.util.Size
 import android.view.Gravity
 import android.view.MotionEvent
@@ -150,6 +151,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var activeRole: LensRole? = null
     private var finalizing = false
 
+    private val captureCountdownHandler = Handler(Looper.getMainLooper())
+    private var captureCountdownGeneration = 0L
+    private var captureCountdownActive = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DrawVisualTheme.applyWindow(this)
@@ -177,6 +182,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     override fun onPause() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         if (::captureButton.isInitialized) captureButton.isEnabled = false
         if (::focusLockButton.isInitialized) {
@@ -189,6 +198,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     override fun onDestroy() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         synchronized(pairLock) {
             pendingImage?.close()
@@ -340,13 +353,15 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(assistRow)
         root.addView(space(7))
 
-        captureButton = button("Maak volledige RAW_SENSOR-opname") {
+        captureButton = button("Maak volledige RAW_SENSOR-opname · 5s timer") {
             captureFromLivePreview()
         }.apply { isEnabled = false }
         root.addView(captureButton)
         root.addView(
             text(
-                "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
+                "Na indrukken telt D.RAW 5 seconden af voordat de fysieke RAW_SENSOR-capture wordt verstuurd. " +
+                    "De timer is alleen bediening/stabilisatie en verandert geen sensorwaarden, authority of reconstructie. " +
+                    "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
                 10f,
                 false,
                 DrawVisualTheme.MUTED,
@@ -402,6 +417,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun discoverUniversalRoutes() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         setButtonsEnabled(false)
         captureButton.isEnabled = false
@@ -678,6 +697,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun openPreviewRole(role: LensRole) {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
+
         val candidate = roleCandidates[role] ?: return
 
         if (
@@ -1449,24 +1473,87 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun captureFromLivePreview() {
+        if (captureCountdownActive) {
+            status("5s timer loopt al.")
+            return
+        }
+        if (
+            cameraDevice == null ||
+            cameraSession == null ||
+            activeCandidate == null ||
+            imageReader == null
+        ) {
+            status("Capture-timer kan niet starten: live RAW-camera/session ontbreekt.")
+            return
+        }
+
+        captureCountdownActive = true
+        captureCountdownGeneration += 1L
+        val generation = captureCountdownGeneration
+
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        setButtonsEnabled(false)
+
+        fun tick(secondsRemaining: Int) {
+            if (
+                !captureCountdownActive ||
+                generation != captureCountdownGeneration
+            ) {
+                return
+            }
+
+            if (secondsRemaining <= 0) {
+                captureCountdownActive = false
+                status("Timer gereed · RAW_SENSOR-capture wordt nu verstuurd.")
+                performCaptureFromLivePreview()
+                return
+            }
+
+            captureButton.text = "RAW capture over $secondsRemaining s"
+            status(
+                "5s stabilisatietimer · $secondsRemaining s · raak toestel niet aan.",
+            )
+            captureCountdownHandler.postDelayed(
+                { tick(secondsRemaining - 1) },
+                1000L,
+            )
+        }
+
+        tick(CAPTURE_TIMER_SECONDS)
+    }
+
+    private fun performCaptureFromLivePreview() {
+        captureButton.text =
+            "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+
         val camera = cameraDevice
             ?: run {
-                status("Geen live camera geopend.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: live camera is tijdens de timer gesloten.",
+                )
                 return
             }
         val session = cameraSession
             ?: run {
-                status("Geen actieve preview/capture-session.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: capture-session is tijdens de timer gesloten.",
+                )
                 return
             }
         val candidate = activeCandidate
             ?: run {
-                status("Geen actieve RAW-camera geselecteerd.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: actieve RAW-camera ontbreekt.",
+                )
                 return
             }
         val reader = imageReader
             ?: run {
-                status("RAW ImageReader ontbreekt.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: RAW ImageReader ontbreekt.",
+                )
                 return
             }
 
@@ -1476,11 +1563,68 @@ class UniversalPhysicalCaptureActivity : Activity() {
             pendingResult = null
             finalizing = false
         }
-        captureButton.isEnabled = false
-        focusLockButton.isEnabled = false
-        loupeButton.isEnabled = false
-        setButtonsEnabled(false)
         submitCapture(camera, session, candidate, reader)
+    }
+
+    private fun cancelCaptureCountdown(
+        restoreUi: Boolean,
+        message: String?,
+    ) {
+        if (!captureCountdownActive) return
+        captureCountdownActive = false
+        captureCountdownGeneration += 1L
+        captureCountdownHandler.removeCallbacksAndMessages(null)
+        if (::captureButton.isInitialized) {
+            captureButton.text =
+                "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        }
+        if (restoreUi && ::captureButton.isInitialized) {
+            captureButton.isEnabled =
+                cameraDevice != null &&
+                    cameraSession != null &&
+                    activeCandidate != null &&
+                    imageReader != null &&
+                    !previewPhysicalRouteUnresolved
+            focusLockButton.isEnabled =
+                activeCandidate?.let {
+                    runCatching {
+                        supportsAutoFocus(
+                            cameraManager.getCameraCharacteristics(
+                                it.effectiveCameraId,
+                            ),
+                        )
+                    }.getOrDefault(false)
+                } ?: false
+            loupeButton.isEnabled = cameraSession != null
+            restoreRoleButtons()
+        }
+        if (message != null && ::statusView.isInitialized) {
+            status(message)
+        }
+    }
+
+    private fun restoreCaptureUiAfterCountdownFailure(message: String) {
+        captureButton.text =
+            "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        captureButton.isEnabled =
+            cameraDevice != null &&
+                cameraSession != null &&
+                activeCandidate != null &&
+                imageReader != null &&
+                !previewPhysicalRouteUnresolved
+        focusLockButton.isEnabled =
+            activeCandidate?.let {
+                runCatching {
+                    supportsAutoFocus(
+                        cameraManager.getCameraCharacteristics(
+                            it.effectiveCameraId,
+                        ),
+                    )
+                }.getOrDefault(false)
+            } ?: false
+        loupeButton.isEnabled = cameraSession != null
+        restoreRoleButtons()
+        status(message)
     }
 
     private fun submitCapture(
@@ -2058,10 +2202,17 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 "frontside_or_backside_inference_created_by_capture_adapter",
                 false,
             )
+            .put("ui_pre_capture_timer_seconds", CAPTURE_TIMER_SECONDS)
+            .put("ui_pre_capture_timer_authority", "ACQUISITION_UI_ONLY")
+            .put("ui_pre_capture_timer_modifies_sensor_evidence", false)
             .put("special_4k_to_200mp_route", false)
     }
 
     private fun restoreRoleButtons() {
+        if (::captureButton.isInitialized && !captureCountdownActive) {
+            captureButton.text =
+                "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        }
         ultraButton.isEnabled =
             roleCandidates.containsKey(LensRole.ULTRA_WIDE)
         wideButton.isEnabled =
@@ -2080,6 +2231,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun closeCaptureResources() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         runCatching { cameraSession?.stopRepeating() }
         runCatching { cameraSession?.close() }
         runCatching { cameraDevice?.close() }
@@ -2194,5 +2349,6 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 9201
+        private const val CAPTURE_TIMER_SECONDS = 5
     }
 }

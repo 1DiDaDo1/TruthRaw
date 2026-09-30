@@ -1,0 +1,24 @@
+name: Observation-World Field Separation v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ObservationWorldFieldSeparationV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/observation-world-field-separation-v0.1/**'
+      - 'state/OBSERVATION_WORLD_FIELD_SEPARATION_STATE_2026-09-30.json'
+      - 'tools/check_observation_world_field_separation_v01.py'
+      - '.github/workflows/observation-world-field-separation-v01.yml'
+  push:
+    branches:
+      - 'research/observation-world-field-separation-v01-2026-09-30'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_observation_world_field_separation_v01.py
