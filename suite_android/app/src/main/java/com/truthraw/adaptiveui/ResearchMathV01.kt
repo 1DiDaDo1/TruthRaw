@@ -14,6 +14,18 @@ object ResearchMathV01 {
         return out.takeIf(Double::isFinite)
     }
 
+    fun sampleVariance(values: List<Double>): Double? {
+        if (values.size < 2 || values.any { !it.isFinite() }) return null
+        val m = mean(values) ?: return null
+        var sum = 0.0
+        for (v in values) {
+            val d = v - m
+            sum += d * d
+        }
+        val out = sum / (values.size - 1).toDouble()
+        return out.takeIf { it.isFinite() && it >= 0.0 }
+    }
+
     fun median(values: List<Double>): Double? {
         if (values.isEmpty() || values.any { !it.isFinite() }) return null
         val s = values.sorted()
