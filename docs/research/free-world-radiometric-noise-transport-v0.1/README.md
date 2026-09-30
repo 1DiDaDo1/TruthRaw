@@ -306,7 +306,7 @@ Additional closure work completed:
 - controlled NPS measurements use the same central relation-admission gate;
 - candidate availability still never equals calibration promotion.
 
-At this checkpoint there is no remaining implementation item from this recommendation wave that should be enabled without moving into the separately defined validation/promotion phase.
+At this checkpoint the audited wiring recommendations are closed in code. Remaining blocked capabilities require new decoder work or physical/held-out validation rather than another authority shortcut.
 
 ## Practical navigation layer
 
