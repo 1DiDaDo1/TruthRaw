@@ -121,6 +121,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                 profiles = profiles,
                 records = calibrationRecords,
             )
+        val sparseGridNoiseModelCandidate =
+            SparseGridNoiseModelCandidateV01.evaluate(
+                repeatedSparseGrid = repeatedSparseGridNoiseCandidate,
+            )
         val fieldResponseSeparationCandidate =
             FieldResponseRotationSeparationCandidateV01.evaluate(calibrationRecords)
         val colourRelationCandidate =
@@ -212,6 +216,7 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("noise_component_candidate", noiseComponentCandidate)
                     .put("noise_spectrum_candidate", noiseSpectrumCandidate)
                     .put("repeated_sparse_grid_noise_candidate", repeatedSparseGridNoiseCandidate)
+                    .put("sparse_grid_noise_model_candidate", sparseGridNoiseModelCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put("optical_support_candidate", opticalSupportCandidate)
