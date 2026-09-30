@@ -64,7 +64,7 @@ class TruthRawImplementationGuideActivity : Activity() {
             addView(space(12))
             addView(card("Universele camera").apply {
                 addView(body(
-                    "Ultra-wide, wide/main en tele zijn acquisitie/UI-rollen. Camera2, camera-ID en focal length zijn transport/provenance. Normale capture verzegelt eerst RAW_SENSOR en maakt daarna een afgeleide DNG voor dezelfde Universal Intake als een bestand. De speciale 4K→200MP-route blijft apart.",
+                    "Ultra-wide, wide/main en tele zijn acquisitie/UI-rollen. Camera2, camera-ID en focal length zijn transport/provenance. Normale capture verzegelt eerst RAW_SENSOR en maakt daarna een afgeleide DNG voor dezelfde Universal Intake als een bestand. D.RAW bewaart nu beide machine-readable: de fysieke RAW_SENSOR-root en de processing-DNG-root, zonder van de DNG een tweede fysieke opname te maken. De speciale 4K→200MP-route blijft apart.",
                     12f,
                 ))
             })
@@ -80,7 +80,7 @@ class TruthRawImplementationGuideActivity : Activity() {
             addView(space(12))
             addView(card("Multi-observation & Calibration Atlas").apply {
                 addView(body(
-                    "Gebruik ‘Analyseer alle geselecteerde bronnen universeel’ voor één of meer observaties. Eén bron kan al een Observation Optical Field Chart en Calibration Atlas opleveren. ≥3 geschikte onafhankelijke field charts zijn nodig voor de bestaande repeatability-audit. Calibration Observation Records zijn optioneel extra relationeel bewijs en nooit een normale ingangseis.",
+                    "Gebruik ‘Analyseer alle geselecteerde bronnen universeel’ voor één of meer observaties. Eén bron kan al een Observation Optical Field Chart en Calibration Atlas opleveren. ≥3 geschikte onafhankelijke field charts zijn nodig voor de bestaande repeatability-audit. Calibration Observation Records zijn optioneel extra relationeel bewijs en nooit een normale ingangseis. Records krijgen een canonical SHA-256-identiteit, worden aan de actuele bron-SHA’s gebonden en een RAW_SENSOR plus zijn afgeleide DNG mogen niet als twee onafhankelijke observaties meetellen.",
                     12f,
                 ))
             })
@@ -88,7 +88,7 @@ class TruthRawImplementationGuideActivity : Activity() {
             addView(space(12))
             addView(card("Nieuwe candidate-runtimes").apply {
                 addView(body(
-                    "Radiometric response/OECF · component-separated noise · sparse-CFA repeated-observation noise · NPS · world-vs-sensor field separation · SFR/MTF/PSF optical support · noise-aware inverse optics · multi-illuminant colour relation · temporal/stop-motion relation · 3D/depth/visibility candidates · world-space residuals · uncertainty-weighted reconstruction · gated scientific denoise · perceptual noise visibility.",
+                    "Radiometric response/OECF · component-separated noise · sparse-CFA repeated-observation noise · NPS · world-vs-sensor field separation · SFR/MTF/PSF optical support · NPS+optics joint candidate · noise-aware inverse optics · multi-illuminant colour relation · colour-covariance J·C·Jᵀ transport · temporal/stop-motion relation · 3D/depth/visibility candidates · world-space residuals · uncertainty-weighted reconstruction · typed promotion-state · gated scientific denoise · perceptual noise visibility.",
                     11.8f,
                 ))
                 addView(space(8))
@@ -145,7 +145,15 @@ class TruthRawImplementationGuideActivity : Activity() {
             addView(space(12))
             addView(card("Noise reduction · praktische volgorde").apply {
                 addView(body(
-                    "NoiseProfile-metadata is context, geen bewijs. D.RAW begint bij measured CFA/backside support, bewaart structure-protection van de voorkant, scheidt temporal/fixed-pattern/radiometric/optical componenten waar bewijs bestaat en laat UNKNOWN residual bestaan. Pas na afzonderlijke promotion kan een scientific denoise-route worden toegelaten; appearance-noise kan downstream los daarvan bestaan.",
+                    "NoiseProfile-metadata is context, geen bewijs. D.RAW begint bij measured CFA/backside support, bewaart structure-protection van de voorkant, scheidt temporal/fixed-pattern/radiometric/optical componenten waar bewijs bestaat en laat UNKNOWN residual bestaan. Kleurcovariantie wordt alleen getransporteerd wanneer echte input-covariantie aanwezig is; inverse optics vereist gecontroleerde NPS, MTF/SFR én expliciete signal-PSD. Pas na interne held-out validation, source-binding en afzonderlijke approval kan een scientific denoise-route een afgeleide RECONSTRUCTED-uitvoer toelaten; Scientific Master blijft ongewijzigd.",
+                    12f,
+                ))
+            })
+
+            addView(space(12))
+            addView(card("CPU / GPU").apply {
+                addView(body(
+                    "De algemene compute-router blijft bewust CPU_REFERENCE zolang een kernel geen eigen correctness/self-test heeft. ARM64/NEON/Vulkan-detectie is capability-informatie; specifieke bewezen paden zoals TruthNegative-Vulkan en restoration-multicore mogen hun eigen gevalideerde route gebruiken. Hardwarekeuze verandert nooit authority.",
                     12f,
                 ))
             })
