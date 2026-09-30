@@ -123,6 +123,12 @@ object CalibrationObservationRecordValidatorV01 {
         val uncertainty = record.opt("uncertainty")
         if (uncertainty !is JSONObject || uncertainty.length() == 0) {
             issues.put("NONEMPTY_UNCERTAINTY_OBJECT_REQUIRED")
+        } else {
+            validateUncertainty(
+                value = uncertainty,
+                path = "$.uncertainty",
+                issues = issues,
+            )
         }
 
         val validationStatus =
@@ -197,6 +203,84 @@ object CalibrationObservationRecordValidatorV01 {
             .put("correction_authorized", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+    }
+
+    private fun validateUncertainty(
+        value: Any?,
+        path: String,
+        issues: JSONArray,
+    ): Int {
+        var numericCount = 0
+        when (value) {
+            is JSONObject -> {
+                val keys = value.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val child = value.opt(key)
+                    val childPath = "$path.$key"
+                    if (child is Number) {
+                        val d = child.toDouble()
+                        if (!d.isFinite()) {
+                            issues.put(
+                                "NONFINITE_UNCERTAINTY_AT_$childPath",
+                            )
+                        } else {
+                            numericCount++
+                            val k = key.lowercase()
+                            if (
+                                (
+                                    "sigma" in k ||
+                                    "variance" in k ||
+                                    "uncertainty" in k ||
+                                    "bound" in k ||
+                                    "rmse" in k
+                                ) &&
+                                d < 0.0
+                            ) {
+                                issues.put(
+                                    "NEGATIVE_UNCERTAINTY_AT_$childPath",
+                                )
+                            }
+                        }
+                    } else {
+                        numericCount +=
+                            validateUncertainty(
+                                child,
+                                childPath,
+                                issues,
+                            )
+                    }
+                }
+            }
+            is JSONArray -> {
+                for (i in 0 until value.length()) {
+                    numericCount +=
+                        validateUncertainty(
+                            value.opt(i),
+                            "$path[$i]",
+                            issues,
+                        )
+                }
+            }
+        }
+        if (
+            path == "$.uncertainty" &&
+            numericCount == 0 &&
+            value is JSONObject &&
+            value.optString("status").uppercase() !in
+                setOf(
+                    "UNKNOWN",
+                    "BOUNDED",
+                    "MEASURED",
+                    "ESTIMATED",
+                    "EXPLICIT",
+                )
+        ) {
+            issues.put(
+                "UNCERTAINTY_REQUIRES_NUMERIC_VALUE_OR_EXPLICIT_STATUS",
+            )
+        }
+        return numericCount
     }
 
     private fun scanForbiddenIdentityKeys(
