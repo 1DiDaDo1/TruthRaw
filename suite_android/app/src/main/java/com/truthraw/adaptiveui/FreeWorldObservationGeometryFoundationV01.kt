@@ -105,6 +105,8 @@ object FreeWorldObservationGeometryFoundationV01 {
             BundledPhysicalValidationCampaignV01.describe()
         val gateRegistry =
             ScientificPromotionGateRegistryV01.describe()
+        val universalIdentityIndependence =
+            UniversalIdentityIndependenceV01.describe()
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -146,6 +148,7 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("evidence_lineage_manifest", lineage)
             .put("bundled_physical_validation_campaign", validationCampaign)
             .put("scientific_gate_registry", gateRegistry)
+            .put("universal_identity_independence", universalIdentityIndependence)
             .put(
                 "optical_support_atlas_contract",
                 OpticalSupportAtlasV01.describe(),
