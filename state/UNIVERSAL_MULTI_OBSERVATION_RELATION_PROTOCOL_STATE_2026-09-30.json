@@ -4,7 +4,7 @@
   "branch": "research/universal-multi-observation-relation-v01-2026-09-30",
   "parent_branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
   "parent_gate": "FIRST_TWO_SOURCE_PHYSICAL_GATE_COMPLETE",
-  "status": "FROZEN_PROTOCOL_IMPLEMENTED_AWAITING_BUILD_VALIDATION",
+  "status": "FROZEN_PROTOCOL_IMPLEMENTED_ANDROID_BUILD_GREEN",
   "law": "RELATE_OBSERVATIONS_WITH_EXPLICIT_EVIDENCE_NEVER_BY_CAMERA_OR_LENS_NAME",
   "relation_evidence_classes": [
     "SEALED_CAPTURE_SESSION_PROVENANCE",
@@ -37,7 +37,12 @@
   ],
   "set_level_minimums": {
     "field_repeatability_candidate_minimum_independent_observations": 3,
-    "flat_field_rotation_preferred_orientations_degrees": [0, 90, 180, 270],
+    "flat_field_rotation_preferred_orientations_degrees": [
+      0,
+      90,
+      180,
+      270
+    ],
     "colour_multi_illuminant_minimum_characterized_illuminants": 2,
     "colour_held_out_validation_required": true,
     "optical_directional_claim_requires_radial_and_tangential_sampling": true,
@@ -66,7 +71,14 @@
     "kotlin_module": "suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalMultiObservationRelationProtocolV01.kt",
     "pair_evaluator_available": true,
     "runtime_auto_relation_enabled": false,
-    "calibration_apply_path_enabled": false
+    "calibration_apply_path_enabled": false,
+    "android_build_validation": {
+      "workflow": "D.RAW Suite Universal Intake v0.1",
+      "run_id": 36646738789,
+      "conclusion": "SUCCESS",
+      "artifact_id": 11069175337,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64"
+    }
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_FIRST_READ_ONLY_FIELD_RESPONSE_REPEATABILITY_EXPERIMENT"
+  "next_gate": "FIRST_READ_ONLY_FIELD_RESPONSE_REPEATABILITY_EXPERIMENT_ACROSS_AT_LEAST_THREE_INDEPENDENT_OBSERVATIONS"
 }
