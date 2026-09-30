@@ -1,0 +1,29 @@
+name: Dark Chroma Stability v0.6 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-n2-sample-support-distance-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_support_distance_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2SampleSupportDistanceAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV06Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.6/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V06.json'
+      - 'tools/check_dark_chroma_stability_v06.py'
+      - '.github/workflows/dark-chroma-stability-v06.yml'
+  push:
+    branches:
+      - 'research/dark-chroma-stability-v06-2026-09-29'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_dark_chroma_stability_v06.py

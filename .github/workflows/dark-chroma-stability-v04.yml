@@ -1,0 +1,35 @@
+name: Dark Chroma Stability v0.4 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV04Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.4/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-29.json'
+      - 'tools/check_dark_chroma_stability_v04.py'
+      - '.github/workflows/dark-chroma-stability-v04.yml'
+  push:
+    branches:
+      - 'research/dark-chroma-stability-v04-2026-09-29'
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV04Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.4/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-29.json'
+      - 'tools/check_dark_chroma_stability_v04.py'
+      - '.github/workflows/dark-chroma-stability-v04.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_dark_chroma_stability_v04.py

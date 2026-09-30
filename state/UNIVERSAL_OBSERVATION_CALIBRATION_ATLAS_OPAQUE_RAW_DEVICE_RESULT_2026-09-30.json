@@ -1,0 +1,158 @@
+{
+  "schema": "D.RAW/UniversalObservationCalibrationAtlasOpaqueRawDeviceResult/0.1",
+  "date": "2026-09-30",
+  "branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
+  "status": "OPAQUE_UNSUPPORTED_RAW_DEVICE_EXPORT_VALIDATED",
+  "uploaded_bundle": {
+    "filename": "Download.zip",
+    "sha256": "e452b5962204af618bce8b54a96995af0aad2ae68d56e29494aca5f2503bd080",
+    "entries": [
+      "6U3A1966_draw_universal_observation_calibration_atlas_v0_1.json",
+      "6U3A1966.CR3"
+    ]
+  },
+  "source": {
+    "filename": "6U3A1966.CR3",
+    "bytes": 47178912,
+    "sha256": "fb6722044c381559a8bcc411b913b1f13cd77332d2bb7eae363a6048506ed875",
+    "atlas_source_sha256_matches_raw_bytes": true,
+    "source_class": "OPAQUE_RAW_OR_IMAGE_CONTAINER",
+    "source_route": "IMPORTED_FILE"
+  },
+  "universal_identity_policy": {
+    "camera_identity_required": false,
+    "lens_identity_required": false,
+    "vendor_identity_required": false,
+    "prior_user_calibration_required": false,
+    "raw_format_identity_may_route_decoder": true,
+    "raw_format_identity_may_define_scientific_truth": false,
+    "device_specific_map_required": false,
+    "law": "OBSERVE_WHAT_IS_PRESENT_BEFORE_ASKING_WHO_PRODUCED_IT"
+  },
+  "backside": {
+    "authority": "SOURCE_AND_MEASUREMENT_SIDE",
+    "measured_signal_available": false,
+    "measured_signal_status": "UNKNOWN",
+    "sample_lattice_status": "UNAVAILABLE",
+    "cfa_pattern_present": false,
+    "black_level_present": false,
+    "white_level_present": false,
+    "noise_profile_present": false,
+    "active_area_present": false,
+    "fail_closed_unknown_axes_preserved": true
+  },
+  "frontside": {
+    "inspection_available": true,
+    "status": "FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE",
+    "authority": "APPEARANCE_DERIVED_ONLY",
+    "structural_centroid_normalized": {
+      "x": 0.453107313802372,
+      "y": 0.6217683930658071
+    },
+    "mean_luma_0_255": 96.28995768229167,
+    "luma_stddev": 38.36932696214722,
+    "luma_p01_approx_0_255": 27.5,
+    "luma_p50_approx_0_255": 91.5,
+    "luma_p99_approx_0_255": 187.5,
+    "edge_density": 0.10092962856082781,
+    "visible_colour_available": true,
+    "colourimetric_authority": false,
+    "creates_sensor_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "colour": {
+    "base_authority": "UNKNOWN_OR_UNCALIBRATED",
+    "source_metadata_bound_colour_available": false,
+    "frontside_visible_colour_available": true,
+    "frontside_used_as_colorimetric_calibration": false,
+    "empirical_multi_illuminant_calibration_attached": false,
+    "spectral_calibration_attached": false,
+    "automatic_colour_correction_allowed": false
+  },
+  "illumination": {
+    "exposure_time_seconds": null,
+    "f_number": null,
+    "iso": null,
+    "scene_light_kind": "UNKNOWN",
+    "spectral_power_distribution": "UNKNOWN",
+    "light_direction": "UNKNOWN",
+    "spatial_extent": "UNKNOWN",
+    "flicker_temporal_modulation": "UNKNOWN",
+    "composite_field_signal_status": "UNKNOWN",
+    "lens_only_falloff_proven": false,
+    "camera_system_relative_illumination_calibrated": false,
+    "automatic_light_falloff_correction_allowed": false
+  },
+  "field_response": {
+    "coordinate_chart_available": false,
+    "coordinate_chart_status": "UNKNOWN",
+    "authority": "UNKNOWN",
+    "gain_map_metadata_present": false,
+    "lens_only_vignetting_proven": false,
+    "optical_axis_proven": false,
+    "correction_gain_allowed": false
+  },
+  "optical_support": {
+    "sfr_mtf_psf_calibration_attached": false,
+    "radial_support_status": "UNKNOWN",
+    "tangential_support_status": "UNKNOWN",
+    "field_curvature_status": "UNKNOWN",
+    "chromatic_displacement_status": "UNKNOWN",
+    "deconvolution_authorized": false
+  },
+  "temporal_exposure_footprint": {
+    "integration_duration_seconds": null,
+    "integration_duration_authority": "UNKNOWN",
+    "camera_or_subject_motion_path": "UNKNOWN",
+    "rolling_shutter_temporal_geometry": "UNKNOWN",
+    "physical_motion_blur_separated": false,
+    "synthetic_motion_blur_authority": "APPEARANCE_ONLY",
+    "virtual_exposure_creates_new_evidence": false
+  },
+  "optional_calibration_observation_pack": {
+    "required_for_universal_intake": false,
+    "normal_user_must_calibrate_camera": false,
+    "camera_or_lens_name_used_as_calibration_key": false,
+    "all_optional_observations_attached": false
+  },
+  "precision_contract": {
+    "exact_integer_or_packed_source_evidence_preserved": true,
+    "float64_branch_sensitive_compute_preserved": true,
+    "controlled_float32_scientific_storage_preserved": true,
+    "precision_may_change_authority": false
+  },
+  "zero_line_truthrange": {
+    "architecture_preserved": true,
+    "black_level_is_zero_line": false,
+    "zero_line_is_reference_gauge": true,
+    "source_white_level_is_truthrange_ceiling": false
+  },
+  "restoration_contract": {
+    "measured_support_overpaint_allowed": false,
+    "loss_compensation_must_remain_reconstructed": true,
+    "appearance_reintegration_scientific_writeback_allowed": false
+  },
+  "safety": {
+    "lens_profile_lookup_used": false,
+    "camera_model_routing_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "conclusion": {
+    "opaque_or_unsupported_raw_half_of_physical_gate": "PASS",
+    "source_sha_binding": "PASS",
+    "identity_agnostic_intake": "PASS",
+    "frontside_without_backside_promotion": "PASS",
+    "fail_closed_unknown_axes": "PASS",
+    "no_user_calibration_requirement": "PASS",
+    "no_automatic_colour_or_light_correction": "PASS",
+    "no_scientific_writeback": "PASS",
+    "first_two_source_physical_gate": "COMPLETE"
+  },
+  "next_gate": "FREEZE_UNIVERSAL_MULTI_OBSERVATION_RELATION_PROTOCOL_V0_1_BEFORE_ANY_CALIBRATION_OR_CORRECTION_PROMOTION"
+}

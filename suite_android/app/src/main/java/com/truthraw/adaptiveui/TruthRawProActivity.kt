@@ -82,9 +82,8 @@ class TruthRawProActivity : Activity() {
         root.addView(space(12))
         root.addView(card("Free-World scene pipeline").apply {
             addView(body(
-                "v0.2 Continuous Pixel Resolve → v0.3 Scientific Master/Open Scene binding → v0.4 Deep Scene → " +
-                    "v0.5 object/geometry/radiometry authority → v0.6 Light Transport → v0.7 Appearance/Display Resolve. " +
-                    "Deze lagen zijn nu onderdeel van de hoofd-native build; bestaande gevalideerde exports worden pas omgeleid wanneer hun eigen bridge dat expliciet activeert.",
+                "De bestaande Continuous Field / Deep Scene / Light Transport-lagen blijven actief. Daarboven staat nu een bredere prevalidatie-laag met radiometric response, noise-componenten, sparse-CFA repeated-observation noise, NPS, world-vs-sensor field separation, optical support, colour relation, temporal/stop-motion, geometry/depth, world-space residuals en uncertainty-weighted reconstruction. " +
+                    "Deze nieuwe onderdelen zijn IMPLEMENTED CANDIDATE / NOT PROMOTED en mogen Scientific Master niet wijzigen.",
                 11.5f,
             ))
         })
@@ -117,6 +116,32 @@ class TruthRawProActivity : Activity() {
                     "compatibility DNG en toekomstige JPG-L/TruthPhoto-container.",
                 12f,
             ))
+        })
+
+        root.addView(space(12))
+        root.addView(card("Research & JSON").apply {
+            addView(body(
+                "Gebruik de centrale Research-ingang voor Multi-observation, Calibration Observation Records, de Free World Foundation en de bron-onafhankelijke Global Research Snapshot. Normale PRO-fotografie heeft deze extra JSON-laag niet nodig.",
+                11.8f,
+            ))
+            addView(space(8))
+            addView(action("Open Research & JSON") {
+                startActivity(
+                    Intent(
+                        this@TruthRawProActivity,
+                        TruthRawResearchHubActivity::class.java,
+                    ),
+                )
+            })
+            addView(space(8))
+            addView(action("Wat is geïmplementeerd?") {
+                startActivity(
+                    Intent(
+                        this@TruthRawProActivity,
+                        TruthRawImplementationGuideActivity::class.java,
+                    ),
+                )
+            })
         })
 
         root.addView(space(12))

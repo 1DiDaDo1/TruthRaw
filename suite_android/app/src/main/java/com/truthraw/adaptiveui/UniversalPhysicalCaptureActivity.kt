@@ -23,11 +23,13 @@ import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.ExifInterface
 import android.media.Image
 import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.util.Size
 import android.view.Gravity
 import android.view.MotionEvent
@@ -49,6 +51,7 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.ln
 import kotlin.math.sqrt
@@ -131,6 +134,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var previewBufferSize: Size? = null
     private var lastPreviewResult: TotalCaptureResult? = null
     private var previewFrames: Long = 0
+    private var previewPhysicalRouteUnresolved = false
     private var focusLocked = false
     private var currentAfRegion: MeteringRectangle? = null
     private var macroLoupeScale = 1f
@@ -146,6 +150,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     private var activeCandidate: Candidate? = null
     private var activeRole: LensRole? = null
     private var finalizing = false
+
+    private val captureCountdownHandler = Handler(Looper.getMainLooper())
+    private var captureCountdownGeneration = 0L
+    private var captureCountdownActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -174,6 +182,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     override fun onPause() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         if (::captureButton.isInitialized) captureButton.isEnabled = false
         if (::focusLockButton.isInitialized) {
@@ -186,6 +198,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     override fun onDestroy() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         synchronized(pairLock) {
             pendingImage?.close()
@@ -203,7 +219,30 @@ class UniversalPhysicalCaptureActivity : Activity() {
             setBackgroundColor(DrawVisualTheme.PAPER_YELLOW)
         }
 
-        root.addView(text("D.RAW · Universele camera", 26f, true))
+        root.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(
+                    text("‹", 36f, false).apply {
+                        gravity = Gravity.CENTER
+                        contentDescription = "Terug"
+                        setOnClickListener { finish() }
+                    },
+                    LinearLayout.LayoutParams(dp(48), dp(48)).apply {
+                        marginEnd = dp(8)
+                    },
+                )
+                addView(
+                    text("D.RAW · Universele camera", 26f, true),
+                    LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f,
+                    ),
+                )
+            },
+        )
         root.addView(space(5))
         root.addView(
             text(
@@ -218,6 +257,15 @@ class UniversalPhysicalCaptureActivity : Activity() {
             text(
                 "Camera2 is alleen de Android transportlaag. Camera-ID, focal length en lensrol zijn acquisitie/UI-hints en bepalen geen wetenschappelijke waarheid.",
                 11f,
+                false,
+                DrawVisualTheme.MUTED,
+            ),
+        )
+        root.addView(space(5))
+        root.addView(
+            text(
+                "Na een normale opname: sealed RAW_SENSOR → afgeleide DNG → Universal Intake → dezelfde Scientific Master/route als een geïmporteerd bestand. Geen handmatige lenscalibratie is vereist; extra multi-observation/calibration-records zijn alleen optioneel onderzoeksbewijs.",
+                10.5f,
                 false,
                 DrawVisualTheme.MUTED,
             ),
@@ -337,13 +385,15 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(assistRow)
         root.addView(space(7))
 
-        captureButton = button("Maak volledige RAW_SENSOR-opname") {
+        captureButton = button("Maak volledige RAW_SENSOR-opname · 5s timer") {
             captureFromLivePreview()
         }.apply { isEnabled = false }
         root.addView(captureButton)
         root.addView(
             text(
-                "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
+                "Na indrukken telt D.RAW 5 seconden af voordat de fysieke RAW_SENSOR-capture wordt verstuurd. " +
+                    "De timer is alleen bediening/stabilisatie en verandert geen sensorwaarden, authority of reconstructie. " +
+                    "Macro-loep/pinch vergroot alleen de live weergave. De RAW_SENSOR-opname blijft op de volledige geselecteerde standaard bronresolutie.",
                 10f,
                 false,
                 DrawVisualTheme.MUTED,
@@ -384,6 +434,28 @@ class UniversalPhysicalCaptureActivity : Activity() {
         root.addView(statusView)
         root.addView(space(7))
         root.addView(detailView)
+        root.addView(space(14))
+        root.addView(
+            button("Wat gebeurt er met deze RAW?") {
+                startActivity(
+                    Intent(
+                        this,
+                        TruthRawImplementationGuideActivity::class.java,
+                    ),
+                )
+            },
+        )
+        root.addView(space(7))
+        root.addView(
+            button("Research & JSON") {
+                startActivity(
+                    Intent(
+                        this,
+                        TruthRawResearchHubActivity::class.java,
+                    ),
+                )
+            },
+        )
 
         return ScrollView(this).apply {
             isFillViewport = true
@@ -399,6 +471,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun discoverUniversalRoutes() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         closeCaptureResources()
         setButtonsEnabled(false)
         captureButton.isEnabled = false
@@ -527,30 +603,87 @@ class UniversalPhysicalCaptureActivity : Activity() {
             ?.filter { it.isFinite() && it > 0f }
             ?.minOrNull()
 
+    /**
+     * UI-only field-of-view ordering hint.
+     *
+     * Focal length alone is not comparable across different sensor sizes.  The
+     * diagonal/focal ratio is monotonic with diagonal angle of view and is
+     * therefore a better device-independent lens-role hint when physical sensor
+     * size is reported.  It remains acquisition/UI metadata only and never
+     * upgrades scientific authority.
+     */
+    private fun fieldOfViewScore(candidate: Candidate): Double? {
+        val focal = candidate.focalLengthMm?.toDouble()
+            ?.takeIf { it.isFinite() && it > 0.0 }
+            ?: return null
+        val c = runCatching {
+            cameraManager.getCameraCharacteristics(candidate.effectiveCameraId)
+        }.getOrNull() ?: return null
+        val physical =
+            c.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+                ?: return null
+        val diagonal =
+            hypot(physical.width.toDouble(), physical.height.toDouble())
+        if (!diagonal.isFinite() || diagonal <= 0.0) return null
+        return (diagonal / focal).takeIf { it.isFinite() && it > 0.0 }
+    }
+
+    private fun diagonalFieldOfViewDegrees(candidate: Candidate): Double? =
+        fieldOfViewScore(candidate)?.let { score ->
+            Math.toDegrees(2.0 * atan(score / 2.0))
+        }
+
     private fun assignRoles(candidates: List<Candidate>) {
         roleCandidates.clear()
-        val focal = candidates
-            .filter { it.focalLengthMm != null && it.focalLengthMm > 0f }
-            .sortedBy { it.focalLengthMm }
 
-        if (focal.isEmpty()) return
+        val distinct = candidates.distinctBy { it.effectiveCameraId }
+        val fov = distinct.mapNotNull { candidate ->
+            fieldOfViewScore(candidate)?.let { candidate to it }
+        }
 
-        roleCandidates[LensRole.ULTRA_WIDE] = focal.first()
+        val ordered = if (fov.size == distinct.size && fov.isNotEmpty()) {
+            // widest field of view first, narrowest last
+            fov.sortedByDescending { it.second }.map { it.first }
+        } else {
+            // Compatibility fallback when a vendor does not expose physical
+            // sensor dimensions.  Focal length remains only a UI hint.
+            distinct
+                .filter {
+                    it.focalLengthMm != null &&
+                        it.focalLengthMm > 0f
+                }
+                .sortedBy { it.focalLengthMm }
+        }
 
-        if (focal.size == 1) {
-            roleCandidates[LensRole.WIDE_MAIN] = focal.first()
+        if (ordered.isEmpty()) return
+
+        roleCandidates[LensRole.ULTRA_WIDE] = ordered.first()
+
+        if (ordered.size == 1) {
+            roleCandidates[LensRole.WIDE_MAIN] = ordered.first()
             return
         }
 
-        roleCandidates[LensRole.TELE] = focal.last()
+        roleCandidates[LensRole.TELE] = ordered.last()
 
-        if (focal.size >= 3) {
-            val low = focal.first().focalLengthMm!!.toDouble()
-            val high = focal.last().focalLengthMm!!.toDouble()
-            val geometricMid = sqrt(low * high)
-            val interior = focal.subList(1, focal.size - 1)
-            val main = interior.minByOrNull {
-                abs(ln(it.focalLengthMm!!.toDouble() / geometricMid))
+        if (ordered.size >= 3) {
+            val scored = ordered.mapNotNull { candidate ->
+                fieldOfViewScore(candidate)?.let { candidate to it }
+            }
+            val main = if (scored.size == ordered.size) {
+                val widest = scored.first().second
+                val narrowest = scored.last().second
+                val geometricMid = sqrt(widest * narrowest)
+                scored.subList(1, scored.size - 1).minByOrNull {
+                    abs(ln(it.second / geometricMid))
+                }?.first
+            } else {
+                val low = ordered.first().focalLengthMm!!.toDouble()
+                val high = ordered.last().focalLengthMm!!.toDouble()
+                val geometricMid = sqrt(low * high)
+                ordered.subList(1, ordered.size - 1).minByOrNull {
+                    abs(ln(it.focalLengthMm!!.toDouble() / geometricMid))
+                }
             }
             if (main != null) roleCandidates[LensRole.WIDE_MAIN] = main
         }
@@ -563,7 +696,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
             val focal =
                 c.focalLengthMm?.let { "%.2fmm".format(it) }
                     ?: "focal UNKNOWN"
-            return role.title + " · " + focal + " · " +
+            val fov =
+                diagonalFieldOfViewDegrees(c)?.let {
+                    " · diagFoV=%.1f°".format(Locale.ROOT, it)
+                }.orEmpty()
+            return role.title + " · " + focal + fov + " · " +
                 c.rawSize.width + "×" + c.rawSize.height
         }
 
@@ -597,7 +734,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 append(c.physicalCameraId ?: "none")
                 append(" · focal=")
                 append(c.focalLengthMm ?: "UNKNOWN")
-                append("mm · RAW=")
+                append("mm · diagFoV=")
+                append(
+                    diagonalFieldOfViewDegrees(c)?.let {
+                        "%.1f°".format(Locale.ROOT, it)
+                    } ?: "UNKNOWN",
+                )
+                append(" · RAW=")
                 append(c.rawSize.width)
                 append("×")
                 append(c.rawSize.height)
@@ -608,6 +751,11 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun openPreviewRole(role: LensRole) {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
+
         val candidate = roleCandidates[role] ?: return
 
         if (
@@ -644,6 +792,7 @@ class UniversalPhysicalCaptureActivity : Activity() {
         if (::focusMarker.isInitialized) focusMarker.visibility = View.INVISIBLE
         previewFrames = 0
         lastPreviewResult = null
+        previewPhysicalRouteUnresolved = false
         setMacroLoupeScale(1f)
         setButtonsEnabled(false)
         captureButton.isEnabled = false
@@ -881,21 +1030,55 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         lastPreviewResult = result
                         if (previewFrames == 1L || previewFrames % 12L == 0L) {
                             val effective =
-                                effectiveCaptureResult(candidate, result) ?: result
-                            val afState =
-                                effective.get(CaptureResult.CONTROL_AF_STATE)
+                            effectiveCaptureResult(candidate, result)
+                        if (
+                            candidate.physicalCameraId != null &&
+                            effective == null
+                        ) {
+                            previewPhysicalRouteUnresolved = true
+                            runOnUiThread {
+                                previewTelemetry.text =
+                                    "LIVE ROUTE NIET BEWEZEN · gekozen physical=" +
+                                        candidate.physicalCameraId +
+                                        " ontbreekt in physicalCameraResults · capture geblokkeerd."
+                                captureButton.isEnabled = false
+                                focusLockButton.isEnabled = false
+                                loupeButton.isEnabled = true
+                                restoreRoleButtons()
+                            }
+                            return
+                        }
+                        val boundResult = effective ?: result
+                        previewPhysicalRouteUnresolved = false
+                        val afState =
+                                boundResult.get(CaptureResult.CONTROL_AF_STATE)
                             val focusDistance =
-                                effective.get(CaptureResult.LENS_FOCUS_DISTANCE)
+                                boundResult.get(CaptureResult.LENS_FOCUS_DISTANCE)
                             val iso =
-                                effective.get(CaptureResult.SENSOR_SENSITIVITY)
+                                boundResult.get(CaptureResult.SENSOR_SENSITIVITY)
                             val exp =
-                                effective.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                                boundResult.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+                            val resultFocal =
+                                boundResult.get(CaptureResult.LENS_FOCAL_LENGTH)
                             runOnUiThread {
                                 previewTelemetry.text = buildString {
                                     append("LIVE · ")
                                     append(activeRole?.title ?: candidate.effectiveCameraId)
                                     append(" · loep=")
                                     append(String.format(Locale.ROOT, "%.1f×", macroLoupeScale))
+                                    append(" · route=")
+                                    append(candidate.effectiveCameraId)
+                                    append(
+                                        candidate.physicalCameraId?.let {
+                                            " physical=$it"
+                                        } ?: " direct",
+                                    )
+                                    append(" · resultFocal=")
+                                    append(
+                                        resultFocal?.let {
+                                            String.format(Locale.ROOT, "%.2fmm", it)
+                                        } ?: "UNKNOWN",
+                                    )
                                     append(" · AF=")
                                     append(afState ?: "UNKNOWN")
                                     append(" · focus=")
@@ -914,7 +1097,8 @@ class UniversalPhysicalCaptureActivity : Activity() {
                                     )
                                     append(" · display zoom verandert RAW niet")
                                 }
-                                captureButton.isEnabled = true
+                                captureButton.isEnabled =
+                                    !previewPhysicalRouteUnresolved
                                 focusLockButton.isEnabled =
                                     supportsAutoFocus(effectiveCharacteristics)
                                 loupeButton.isEnabled = true
@@ -1343,24 +1527,87 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun captureFromLivePreview() {
+        if (captureCountdownActive) {
+            status("5s timer loopt al.")
+            return
+        }
+        if (
+            cameraDevice == null ||
+            cameraSession == null ||
+            activeCandidate == null ||
+            imageReader == null
+        ) {
+            status("Capture-timer kan niet starten: live RAW-camera/session ontbreekt.")
+            return
+        }
+
+        captureCountdownActive = true
+        captureCountdownGeneration += 1L
+        val generation = captureCountdownGeneration
+
+        captureButton.isEnabled = false
+        focusLockButton.isEnabled = false
+        loupeButton.isEnabled = false
+        setButtonsEnabled(false)
+
+        fun tick(secondsRemaining: Int) {
+            if (
+                !captureCountdownActive ||
+                generation != captureCountdownGeneration
+            ) {
+                return
+            }
+
+            if (secondsRemaining <= 0) {
+                captureCountdownActive = false
+                status("Timer gereed · RAW_SENSOR-capture wordt nu verstuurd.")
+                performCaptureFromLivePreview()
+                return
+            }
+
+            captureButton.text = "RAW capture over $secondsRemaining s"
+            status(
+                "5s stabilisatietimer · $secondsRemaining s · raak toestel niet aan.",
+            )
+            captureCountdownHandler.postDelayed(
+                { tick(secondsRemaining - 1) },
+                1000L,
+            )
+        }
+
+        tick(CAPTURE_TIMER_SECONDS)
+    }
+
+    private fun performCaptureFromLivePreview() {
+        captureButton.text =
+            "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+
         val camera = cameraDevice
             ?: run {
-                status("Geen live camera geopend.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: live camera is tijdens de timer gesloten.",
+                )
                 return
             }
         val session = cameraSession
             ?: run {
-                status("Geen actieve preview/capture-session.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: capture-session is tijdens de timer gesloten.",
+                )
                 return
             }
         val candidate = activeCandidate
             ?: run {
-                status("Geen actieve RAW-camera geselecteerd.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: actieve RAW-camera ontbreekt.",
+                )
                 return
             }
         val reader = imageReader
             ?: run {
-                status("RAW ImageReader ontbreekt.")
+                restoreCaptureUiAfterCountdownFailure(
+                    "RAW capture geannuleerd: RAW ImageReader ontbreekt.",
+                )
                 return
             }
 
@@ -1370,11 +1617,68 @@ class UniversalPhysicalCaptureActivity : Activity() {
             pendingResult = null
             finalizing = false
         }
-        captureButton.isEnabled = false
-        focusLockButton.isEnabled = false
-        loupeButton.isEnabled = false
-        setButtonsEnabled(false)
         submitCapture(camera, session, candidate, reader)
+    }
+
+    private fun cancelCaptureCountdown(
+        restoreUi: Boolean,
+        message: String?,
+    ) {
+        if (!captureCountdownActive) return
+        captureCountdownActive = false
+        captureCountdownGeneration += 1L
+        captureCountdownHandler.removeCallbacksAndMessages(null)
+        if (::captureButton.isInitialized) {
+            captureButton.text =
+                "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        }
+        if (restoreUi && ::captureButton.isInitialized) {
+            captureButton.isEnabled =
+                cameraDevice != null &&
+                    cameraSession != null &&
+                    activeCandidate != null &&
+                    imageReader != null &&
+                    !previewPhysicalRouteUnresolved
+            focusLockButton.isEnabled =
+                activeCandidate?.let {
+                    runCatching {
+                        supportsAutoFocus(
+                            cameraManager.getCameraCharacteristics(
+                                it.effectiveCameraId,
+                            ),
+                        )
+                    }.getOrDefault(false)
+                } ?: false
+            loupeButton.isEnabled = cameraSession != null
+            restoreRoleButtons()
+        }
+        if (message != null && ::statusView.isInitialized) {
+            status(message)
+        }
+    }
+
+    private fun restoreCaptureUiAfterCountdownFailure(message: String) {
+        captureButton.text =
+            "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        captureButton.isEnabled =
+            cameraDevice != null &&
+                cameraSession != null &&
+                activeCandidate != null &&
+                imageReader != null &&
+                !previewPhysicalRouteUnresolved
+        focusLockButton.isEnabled =
+            activeCandidate?.let {
+                runCatching {
+                    supportsAutoFocus(
+                        cameraManager.getCameraCharacteristics(
+                            it.effectiveCameraId,
+                        ),
+                    )
+                }.getOrDefault(false)
+            } ?: false
+        loupeButton.isEnabled = cameraSession != null
+        restoreRoleButtons()
+        status(message)
     }
 
     private fun submitCapture(
@@ -1607,6 +1911,13 @@ class UniversalPhysicalCaptureActivity : Activity() {
             runCatching {
                 FileOutputStream(dngFile).use { out ->
                     DngCreator(characteristics, effectiveResult).use { creator ->
+                        // The DNG is a derived compatibility container, not the
+                        // sealed RAW_SENSOR evidence.  Some vendor DngCreator
+                        // paths on this device have emitted invalid TIFF
+                        // Orientation=9.  Force a standard storage-coordinate
+                        // orientation so the common D.RAW ingress can parse the
+                        // container without changing a single RAW_SENSOR byte.
+                        creator.setOrientation(ExifInterface.ORIENTATION_NORMAL)
                         creator.writeImage(out, image)
                     }
                 }
@@ -1908,6 +2219,20 @@ class UniversalPhysicalCaptureActivity : Activity() {
                         "role",
                         "DERIVED_COMPATIBILITY_CONTAINER_FOR_CURRENT_MAIN_HOUSE_INGRESS",
                     )
+                    .put(
+                        "storage_orientation_written",
+                        ExifInterface.ORIENTATION_NORMAL,
+                    )
+                    .put(
+                        "storage_orientation_semantics",
+                        "STORAGE_COORDINATE_NORMAL_ONLY",
+                    )
+                    .put(
+                        "presentation_orientation_authority",
+                        "UNKNOWN",
+                    )
+                    .put("world_orientation_claimed", false)
+                    .put("rawsensor_orientation_mutated", false)
                     .put("replaces_primary_rawsensor", false),
             )
             .put(
@@ -1931,10 +2256,17 @@ class UniversalPhysicalCaptureActivity : Activity() {
                 "frontside_or_backside_inference_created_by_capture_adapter",
                 false,
             )
+            .put("ui_pre_capture_timer_seconds", CAPTURE_TIMER_SECONDS)
+            .put("ui_pre_capture_timer_authority", "ACQUISITION_UI_ONLY")
+            .put("ui_pre_capture_timer_modifies_sensor_evidence", false)
             .put("special_4k_to_200mp_route", false)
     }
 
     private fun restoreRoleButtons() {
+        if (::captureButton.isInitialized && !captureCountdownActive) {
+            captureButton.text =
+                "Maak volledige RAW_SENSOR-opname · $CAPTURE_TIMER_SECONDS" + "s timer"
+        }
         ultraButton.isEnabled =
             roleCandidates.containsKey(LensRole.ULTRA_WIDE)
         wideButton.isEnabled =
@@ -1953,6 +2285,10 @@ class UniversalPhysicalCaptureActivity : Activity() {
     }
 
     private fun closeCaptureResources() {
+        cancelCaptureCountdown(
+            restoreUi = false,
+            message = null,
+        )
         runCatching { cameraSession?.stopRepeating() }
         runCatching { cameraSession?.close() }
         runCatching { cameraDevice?.close() }
@@ -2067,5 +2403,6 @@ class UniversalPhysicalCaptureActivity : Activity() {
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 9201
+        private const val CAPTURE_TIMER_SECONDS = 5
     }
 }

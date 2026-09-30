@@ -9,9 +9,9 @@
     "historical_freeze_handoff_preserved": true
   },
   "current_main_milestone": {
-    "merge_commit_sha": "1fa3850e4ec0c58f7dc294acd011721465041ea9",
-    "pull_request": 76,
-    "meaning": "Universal Physical Capture v0.1 is integrated into the canonical D.RAW suite; camera capture now converges with imported RAW at the same Universal Intake"
+    "merge_commit_sha": "a46d438145427e09e9c09db8e6cf3e443abe5a51",
+    "pull_request": 81,
+    "meaning": "Live Preview + Tap Focus + Focus Lock + display-only Macro Loupe v0.3 are integrated on main; normal RAW_SENSOR capture remains full-resolution and source-first"
   },
   "canonical_android_app": {
     "path": "suite_android",
@@ -40,7 +40,11 @@
     "device_specific_map_required": false,
     "free_world_rule": "representation may exceed the source; knowledge claims may not exceed the evidence",
     "camera_and_file_sources_converge_after_seal": true,
-    "camera_transport_not_scientific_truth": true
+    "camera_transport_not_scientific_truth": true,
+    "raster_independent_sample_world": true,
+    "source_raster_role": "measurement sampling geometry, not world-resolution boundary",
+    "sample_lattice_law": "The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.",
+    "unanchored_lattice_positions": "UNKNOWN until explicit versioned reconstruction supplies value/provenance/uncertainty"
   },
   "no_ai_rule": {
     "permanent": true,
@@ -73,13 +77,12 @@
     "provenance_and_admission_are_guardrails_not_world_boundaries": true
   },
   "next_priorities": [
-    "validate Universal Physical Capture v0.1 on real ultra-wide, wide/main and tele routes",
-    "broaden format-neutral RAW decoding through validated adapters without device maps",
-    "deepen deterministic frontside understanding with classical colour, optics, geometry and scene-structure analysis",
-    "bind frontside and backside knowledge into one universal source-understanding state without authority collapse",
-    "preserve and extend F64 compute to controlled F32 scientific RAW/state",
-    "keep D.RAWnegative/Open Scene/continuous-field research above the Scientific Master without confusing reconstruction with measurement",
-    "keep branding and PURE/ADVANCED/PRO as the canonical user-facing app"
+    "device-test Anchor-Constrained Local Reconstruction v0.1 on a selective Dark-Chroma observation",
+    "export the machine-readable anchor-constrained holdout JSON and compare solver/reference MAE, RMSE, bias, CFA-phase coverage and 1/2/3-sigma diagnostic coverage",
+    "bind holdout behavior to exact Structure/Censored/CensorBoundary distance geometry without treating lower noisy-target error as scene-truth or denoise proof",
+    "do not assign values to currently UNKNOWN lattice positions or apply any correction from v0.1 holdout evidence",
+    "keep measured anchors, Scientific Master and D.RAWnegative immutable; correction-supported=0 and private chroma A/B/Delta remain disabled",
+    "preserve the permanent no-AI rule"
   ],
   "universal_physical_capture_v0_1": {
     "canonical_entry": "suite_android -> UniversalPhysicalCaptureActivity",
@@ -94,11 +97,235 @@
     "fixed_camera_ids_required": false,
     "vendor_requests_written": false,
     "ai_or_learned_model_used": false,
-    "successful_capture_output": "SEALED_DNG",
-    "handoff": "SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW",
+    "successful_capture_output": "SEALED_APP_VISIBLE_RAW_SENSOR_SOURCE_FIRST_PLUS_DERIVED_COMPATIBILITY_DNG",
+    "handoff": "DERIVED_DNG_TO_SAME_UNIVERSAL_SOURCE_INTAKE_AS_IMPORTED_RAW",
     "camera_properties_scientific_truth": false,
     "special_4k_to_200mp_route_preserved": true,
     "special_4k_to_200mp_route": "FotoGraaf200MpStagedActivity",
     "validation": "FULL_ANDROID_APK_AND_SCIENTIFIC_INTEGRITY_CHECKS_SUCCESS"
+  },
+  "active_unmerged_research": {
+    "camera_input_v0_4": {
+      "branch": "fix/universal-camera-input-v04-2026-09-28",
+      "pull_request": 82,
+      "status": "DEVICE_VALIDATED_DRAFT_UNMERGED",
+      "evidence": "physical routes ultra-wide=4/main=2/tele=5 runtime-proven; derived DNG Orientation compatibility validated on real captures"
+    },
+    "dark_chroma_v0_1": {
+      "branch": "research/dark-chroma-stability-v01-2026-09-28",
+      "pull_request": 83,
+      "status": "DEVICE_TESTED_DRAFT_UNMERGED",
+      "role": "frontside visible chroma-instability + structure veto; audit-only"
+    },
+    "dark_chroma_v0_2": {
+      "branch": "research/dark-chroma-stability-v02-2026-09-28",
+      "pull_request": 84,
+      "status": "DEVICE_TESTED_DRAFT_UNMERGED",
+      "finding": "entropy-hard-gate proved too brittle on near-black tele; correction safety still held"
+    },
+    "dark_chroma_v0_3": {
+      "branch": "research/dark-chroma-stability-v03-2026-09-28",
+      "pull_request": 85,
+      "status": "DEVICE_VALIDATED_DRAFT_UNMERGED",
+      "additions": [
+        "frontside degeneracy blocker independent of entropy hard cutoff",
+        "Backside Signal Support v0.1 samples selected DNG CFA payload relative to BlackLevel/WhiteLevel",
+        "global backside signal may block colour reconstruction but cannot enable correction",
+        "local N2/backside spatial binding remains the next gate"
+      ],
+      "scientific_writeback_allowed": false,
+      "private_chroma_ab_delta_allowed": false,
+      "device_evidence": {
+        "near_black_tele": {
+          "state": "DARK_UNINFORMATIVE_BY_DEGENERACY",
+          "frontside_degenerate": true,
+          "backside_signal_state": "MEASURED_SIGNAL_PRESENT_OR_MIXED",
+          "backside_near_black": false,
+          "visible_candidate_tiles": 432,
+          "dark_uninformative_tiles": 432,
+          "correction_supported_tiles": 0
+        },
+        "conclusion": "v0.3 fixed the entropy-threshold brittleness without promoting correction"
+      }
+    },
+    "dark_chroma_v0_4": {
+      "branch": "research/dark-chroma-stability-v04-2026-09-29",
+      "pull_request": 86,
+      "status": "DEVICE_VALIDATED_THREE_CASES_REFINEMENT_REQUIRED",
+      "additions": [
+        "N2 Local Spatial Binding v0.1 computes existing N2 Factored Confidence v0.3.1 from the exact same source observation",
+        "frontside 16x16 analysis regions are proportionally bound to overlapping 64x64 source N2 tiles",
+        "predictability, center-outlier, pair, scale, variance, structure and censor axes remain separate",
+        "local N2 binding can never override DARK_UNINFORMATIVE",
+        "correction-supported remains zero and private chroma A/B/Delta remains disabled"
+      ],
+      "scientific_writeback_allowed": false,
+      "private_chroma_ab_delta_allowed": false,
+      "device_evidence": {
+        "near_black_tele": "local binding succeeds; DARK_UNINFORMATIVE preserved; correction-supported=0",
+        "structured_ultra_wide_1790636281140": "432/432 frontside tiles bind; visible candidates=0; non-degenerate; correction-supported=0",
+        "selective_main_wide_1790637640867": "432/432 frontside tiles bind; 6/6 visible candidates bind; all 6 are structure-blocked because structure_protection_present is true in 3072/3072 N2 tiles; only ~16.56% of sampled points are actually structure-protected"
+      },
+      "new_finding": "64x64 any-structure-presence is safe but too coarse for selective candidate-level veto; refine protection-support resolution before any private chroma candidate gate"
+    },
+    "dark_chroma_v0_5": {
+      "branch": "research/dark-chroma-stability-v05-2026-09-29",
+      "pull_request": 87,
+      "status": "DEVICE_VALIDATED_FINE_STRUCTURE_DID_NOT_SEPARATE",
+      "parent": "dark_chroma_v0_4",
+      "purpose": "refine local structure-support resolution after v0.4 selective main/wide proved 64x64 any-structure-presence too coarse",
+      "additions": [
+        "N2 Structure Support Field v0.1 reruns the unchanged N2 structure-preservation gate with 32x32 reporting tiles and samplingPeriod=8",
+        "fine field reports sampled structure/censor counts and fractions without inferring unsampled pixels",
+        "frontside binding records whole-overlap context plus fully-contained interior evidence",
+        "fine audit runs only for native-ready DNGs with non-zero visible Dark-Chroma candidates that are not globally DARK_UNINFORMATIVE",
+        "legacy v0.4 protection is not reduced; fine metrics cannot enable correction"
+      ],
+      "device_target": "DRAW_CAPTURE_1790637640867_wide_main_4096x3072.dng",
+      "scientific_writeback_allowed": false,
+      "private_chroma_ab_delta_allowed": false,
+      "correction_supported": false,
+      "code_checkpoint": "eec3a2d75ecf0333858b218bbe3a84b6c2395e5c",
+      "build_validation": {
+        "universal_capture_run": 36500676739,
+        "universal_intake_run": 36500676738,
+        "dngcreator_run": 36500676754,
+        "artifact_id": 11005636260,
+        "apk_sha256": "615e75323005d079a2a5650dba035128e6d6a40153a1f7bd45ba927d6173e46e",
+        "all_relevant_ci_green": true
+      },
+      "device_evidence": {
+        "capture": "1790662450477 wide/main 4096x3072",
+        "visible_candidates": 15,
+        "fine_bound": 15,
+        "legacy_v04_blocked": 15,
+        "overlap_structure_fraction": 0.1677,
+        "interior_structure_fraction": 0.1678,
+        "fine_tiles_structure_free": "558/0",
+        "zero_interior_structure_candidates": 0,
+        "correction_supported": 0,
+        "caveat": "fine-field aggregates are screenshot-grounded because exported ZIP omitted the v0.5 fine-field JSON sidecar"
+      },
+      "new_finding": "32x32 any-structure-presence remains saturated; exact sampled support distance/density is the next justified audit, not a protection reduction"
+    },
+    "dark_chroma_v0_6": {
+      "branch": "research/dark-chroma-stability-v06-2026-09-29",
+      "pull_request": 88,
+      "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
+      "parent": "dark_chroma_v0_5",
+      "purpose": "replace saturated tile-presence reasoning with exact sampled N2 support geometry while preserving all existing blockers",
+      "additions": [
+        "exact sampled Structure/Censored/CensorBoundary source coordinates",
+        "candidate-center support radii 8/16/32/64 source pixels",
+        "candidate-rectangle support margins 0/8/16/32 source pixels",
+        "exact nearest support coordinates/distances",
+        "protected-point stream SHA-256 and predecessor N2 candidate/audit hash domains",
+        "v0.5 aggregate protection-count parity when fine support is available"
+      ],
+      "distance_threshold_admitted": false,
+      "scalar_probability_created": false,
+      "unsampled_pixels_inferred": false,
+      "can_reduce_protection": false,
+      "correction_supported": false,
+      "private_chroma_ab_delta_allowed": false,
+      "scientific_writeback_allowed": false,
+      "code_checkpoint": "ae93117bf492e5ebd81a2411bf9f6bf592738cff",
+      "build_validation": {
+        "all_relevant_ci_green": true,
+        "universal_intake_run": 36539954222,
+        "universal_physical_capture_run": 36539954295,
+        "dngcreator_run": 36539954288,
+        "v06_integrity_run": 36539954353,
+        "artifact_id": 11020341011,
+        "apk_sha256": "b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd",
+        "apk_bytes": 7311423
+      },
+      "machine_readable_sidecar_export": "Export N2 Sample Support Distance v0.1 · JSON"
+    },
+    "raster_independent_sample_lattice_v0_1": {
+      "branch": "research/raster-independent-sample-lattice-v01-2026-09-29",
+      "pull_request": 89,
+      "status": "DEVICE_VALIDATED_FIRST_TELE_CASE",
+      "parent": "dark_chroma_v0_6",
+      "schema": "D.RAW/RasterIndependentSampleLattice/0.1",
+      "representation": "SPARSE_IMPLICIT_FIXED_POINT_SAMPLE_LATTICE",
+      "coordinate_fraction_bits": 20,
+      "coordinate_units_per_source_pixel": 1048576,
+      "dense_lattice_materialized": false,
+      "source_samples_remain_exact_measured_anchors": true,
+      "unanchored_positions_authority": "UNKNOWN",
+      "source_values_resampled": false,
+      "source_values_interpolated": false,
+      "source_bytes_modified": false,
+      "new_sensor_measurements_created": false,
+      "optical_resolution_increased": false,
+      "upscaling_performed": false,
+      "n2_v06_support_geometry_projected_to_lattice": true,
+      "dark_chroma_v07_binding": true,
+      "noise_correction_enabled": false,
+      "correction_supported": false,
+      "private_chroma_ab_delta_allowed": false,
+      "scientific_writeback_allowed": false,
+      "code_checkpoint": "f75025e0d2bbb3345653e1e6365becf28cb8f7d4",
+      "build_validation": {
+        "all_relevant_ci_green": true,
+        "universal_intake_run": 36544333888,
+        "integrity_run": 36544333896,
+        "artifact_id": 11022051681,
+        "apk_sha256": "615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3",
+        "apk_bytes": 7327807
+      },
+      "device_evidence": {
+        "capture": "1790673150696 tele 4080x3072",
+        "measured_anchors": 12533760,
+        "expected_anchors": 12533760,
+        "exact_anchor_count_match": true,
+        "n2_lattice_queries": 2,
+        "candidate_0_nearest_structure_center_px": 2.692582403567,
+        "candidate_1_nearest_structure_center_px": 8.514693182963,
+        "candidate_1_center_r8_structure": "0/12",
+        "candidate_1_center_r16_structure": "7/44",
+        "correction_supported": false,
+        "finding": "exact sampled support geometry separates local candidate support conditions that 32x32/rectangle any-structure presence could not separate"
+      }
+    },
+    "anchor_constrained_local_reconstruction_v0_1": {
+      "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
+      "pull_request": 90,
+      "status": "BUILD_GREEN_AWAITING_DEVICE_VALIDATION",
+      "parent": "raster_independent_sample_lattice_v0_1",
+      "schema": "D.RAW/AnchorConstrainedLocalReconstructionAudit/0.1",
+      "purpose": "deterministic holdout validation of local raster-independent reconstruction using only other measured same-CFA-phase anchors",
+      "solver": "INVERSE_VARIANCE_LOCAL_AFFINE_PLANE_V0_1",
+      "reference_predictor": "CENTER_EXCLUDED_MULTISCALE_V0_2",
+      "holdout_period": 8,
+      "support_radius_source_px": 8,
+      "target_value_used_by_solver": false,
+      "target_remains_measured": true,
+      "solver_output_authority": "RECONSTRUCTED_PRIVATE_AUDIT_ONLY",
+      "uncertainty_diagnostic_only": true,
+      "heldout_target_is_noisy_measurement": true,
+      "lower_holdout_error_proves_denoising": false,
+      "measured_anchors_modified": false,
+      "unanchored_values_promoted_to_measured": false,
+      "solver_applied_to_scientific_master": false,
+      "can_reduce_protection": false,
+      "can_enable_correction": false,
+      "correction_supported": false,
+      "private_chroma_ab_delta_allowed": false,
+      "scientific_writeback_allowed": false,
+      "code_checkpoint": "ae1f322a134a6c7b29fb3f983ceb8985aadba454",
+      "build_validation": {
+        "all_relevant_ci_green": true,
+        "universal_intake_run": 36567410420,
+        "universal_physical_capture_run": 36567410608,
+        "dngcreator_run": 36567411158,
+        "integrity_run": 36567410418,
+        "artifact_id": 11032268027,
+        "apk_sha256": "c6c864e2985a0a916a390beee36794be7ce6cdec7c0ac4532fdbbe34c9ecf5e6",
+        "apk_bytes": 7370911
+      },
+      "machine_readable_sidecar_export": "Export Anchor-Constrained Reconstruction v0.1 · JSON"
+    }
   }
 }

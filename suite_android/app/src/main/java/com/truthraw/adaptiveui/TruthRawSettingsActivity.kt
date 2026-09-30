@@ -61,9 +61,35 @@ class TruthRawSettingsActivity : Activity() {
         })
 
         root.addView(space(14))
+        root.addView(sectionCard("Research & documentatie").apply {
+            addView(body(
+                "De nieuwe Free World candidate-runtimes, relation-based Calibration Observation Records en globale JSON-documentatie staan in één centrale Research-ingang. Normale fotografie vereist deze laag niet.",
+                12f,
+            ))
+            addView(space(10))
+            addView(action("Research & JSON · centrale werkbank") {
+                startActivity(
+                    Intent(
+                        this@TruthRawSettingsActivity,
+                        TruthRawResearchHubActivity::class.java,
+                    ),
+                )
+            })
+            addView(space(8))
+            addView(action("Wat is geïmplementeerd en hoe gebruik ik het?") {
+                startActivity(
+                    Intent(
+                        this@TruthRawSettingsActivity,
+                        TruthRawImplementationGuideActivity::class.java,
+                    ),
+                )
+            })
+        })
+
+        root.addView(space(14))
         root.addView(sectionCard("Onderzoek & diagnostiek").apply {
             addView(body(
-                "Alle historische probes en testgereedschappen staan hier uit de hoofdinterface. Ze promoveren geen claims en veranderen de PURE-route niet.",
+                "Alle historische probes en testgereedschappen staan hier uit de hoofdinterface. Ze promoveren geen claims en veranderen de PURE-route niet. Het bestaande groen/rood statuspunt met Looptijd/Gereed in blijft de standaard voor tests en zware analyses.",
                 12f,
             ))
             addView(space(10))

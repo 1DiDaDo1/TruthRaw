@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
+import java.io.File
 
 /**
  * Universal read-only intake profiler for the full D.RAW suite.
@@ -22,6 +23,7 @@ object UniversalSourceProfiler {
     fun profile(
         resolver: ContentResolver,
         source: RawHandle,
+        cacheDir: File,
     ): JSONObject {
         val sourceSha256 = sha256(resolver, source.uri)
         val byteLength = source.declaredSizeBytes ?: queryLength(resolver, source.uri)
@@ -30,6 +32,47 @@ object UniversalSourceProfiler {
             .put("schema", "D.RAW/UniversalSourceProfile/0.2")
             .put("status", "AUTO_PROFILED_IN_FULL_DRAW_SUITE")
             .put("source_sha256", sourceSha256)
+            .put("processing_source_sha256", sourceSha256)
+            .put(
+                "upstream_sealed_source_sha256",
+                source.upstreamSealedSourceSha256 ?: JSONObject.NULL,
+            )
+            .put(
+                "upstream_source_role",
+                source.upstreamSourceRole ?: JSONObject.NULL,
+            )
+            .put(
+                "acquisition_evidence_sha256",
+                source.acquisitionEvidenceSha256 ?: JSONObject.NULL,
+            )
+            .put(
+                "camera_processing_source_is_derived_container",
+                source.sourceRoute == SourceIngressRoute.CAMERA_CAPTURE &&
+                    source.upstreamSealedSourceSha256 != null,
+            )
+            .put(
+                "source_lineage",
+                JSONObject()
+                    .put("processing_source_sha256", sourceSha256)
+                    .put(
+                        "physical_evidence_root_sha256",
+                        source.upstreamSealedSourceSha256 ?: sourceSha256,
+                    )
+                    .put(
+                        "upstream_sealed_source_sha256",
+                        source.upstreamSealedSourceSha256 ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "acquisition_evidence_sha256",
+                        source.acquisitionEvidenceSha256 ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "processing_source_is_derived_from_upstream",
+                        source.upstreamSealedSourceSha256 != null,
+                    )
+                    .put("processing_source_becomes_new_physical_frame", false)
+                    .put("physical_frame_count_increment", 0),
+            )
             .put("display_name", source.displayName)
             .put("byte_length", byteLength ?: JSONObject.NULL)
             .put("source_route", source.sourceRoute.name)
@@ -45,6 +88,33 @@ object UniversalSourceProfiler {
         base.put("container_sniff", sniff)
 
         if (sniff.optString("family") != "CLASSIC_TIFF") {
+            val frontside =
+                FrontsideSceneInspector.inspect(
+                    resolver,
+                    source.uri,
+                    null,
+                    sourceSha256,
+                )
+            val physicalNoiseContext =
+                PhysicalObservationNoiseContextV01.describe(
+                    sourceSha256 = sourceSha256,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
+            val atlas =
+                UniversalObservationCalibrationAtlasV01.describe(
+                    sourceSha256 = sourceSha256,
+                    sourceClass = "OPAQUE_RAW_OR_IMAGE_CONTAINER",
+                    sourceRoute = source.sourceRoute.name,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    sampleLattice = JSONObject().put("status", "UNAVAILABLE"),
+                    frontside = frontside,
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
             return base
                 .put("scientific_source_class", "OPAQUE_RAW_OR_IMAGE_CONTAINER")
                 .put("metadata_parse_status", "NOT_CLASSIC_TIFF")
@@ -62,15 +132,9 @@ object UniversalSourceProfiler {
                             },
                         ),
                 )
-                .put(
-                    "scene_analysis",
-                    FrontsideSceneInspector.inspect(
-                        resolver,
-                        source.uri,
-                        null,
-                        sourceSha256,
-                    ),
-                )
+                .put("scene_analysis", frontside)
+                .put("physical_observation_noise_context_v0_1", physicalNoiseContext)
+                .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
         }
@@ -78,6 +142,33 @@ object UniversalSourceProfiler {
         val parsed = try {
             parseClassicTiff(resolver, source.uri)
         } catch (e: Exception) {
+            val frontside =
+                FrontsideSceneInspector.inspect(
+                    resolver,
+                    source.uri,
+                    null,
+                    sourceSha256,
+                )
+            val physicalNoiseContext =
+                PhysicalObservationNoiseContextV01.describe(
+                    sourceSha256 = sourceSha256,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
+            val atlas =
+                UniversalObservationCalibrationAtlasV01.describe(
+                    sourceSha256 = sourceSha256,
+                    sourceClass = "TIFF_CONTAINER_METADATA_PARSE_FAILED",
+                    sourceRoute = source.sourceRoute.name,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    sampleLattice = JSONObject().put("status", "UNAVAILABLE"),
+                    frontside = frontside,
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
             return base
                 .put("scientific_source_class", "TIFF_CONTAINER_METADATA_PARSE_FAILED")
                 .put("metadata_parse_status", "FAILED")
@@ -89,15 +180,9 @@ object UniversalSourceProfiler {
                         .put("KEEP_ORIGINAL_SOURCE_SEALED")
                         .put("FAIL_CLOSED_OR_VERSIONED_COMPATIBILITY_ADAPTER"),
                 )
-                .put(
-                    "scene_analysis",
-                    FrontsideSceneInspector.inspect(
-                        resolver,
-                        source.uri,
-                        null,
-                        sourceSha256,
-                    ),
-                )
+                .put("scene_analysis", frontside)
+                .put("physical_observation_noise_context_v0_1", physicalNoiseContext)
+                .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
         }
@@ -199,6 +284,10 @@ object UniversalSourceProfiler {
             .put("tile_width", valueOrNull(primaryRaw?.opt("tileWidth")))
             .put("tile_length", valueOrNull(primaryRaw?.opt("tileLength")))
             .put("opcode_list_2_present", primaryRaw?.has("opcodeList2") == true)
+            .put(
+                "opcode_list_2_metadata",
+                valueOrNull(primaryRaw?.opt("opcodeList2")),
+            )
             .put("cfa_repeat_pattern_dim", valueOrNull(primaryRaw?.opt("cfaRepeatPatternDim")))
             .put("cfa_pattern", valueOrNull(primaryRaw?.opt("cfaPattern")))
             .put("black_level", valueOrNull(primaryRaw?.opt("blackLevel")))
@@ -212,6 +301,19 @@ object UniversalSourceProfiler {
                 "DNG_NON_CFA_OR_UNSUPPORTED_RAW_LAYOUT"
             else -> "TIFF_IMAGE_OR_UNKNOWN"
         }
+
+        val latticeWidth =
+            width?.takeIf { it in 1..Int.MAX_VALUE.toLong() }?.toInt()
+        val latticeHeight =
+            height?.takeIf { it in 1..Int.MAX_VALUE.toLong() }?.toInt()
+        val sampleLattice =
+            RasterIndependentSampleLatticeV01.describe(
+                sourceSha256 = sourceSha256,
+                sourceWidth = latticeWidth,
+                sourceHeight = latticeHeight,
+                sourceClass = sourceClass,
+                cfaPattern = primaryRaw?.opt("cfaPattern"),
+            )
 
         val routeHints = JSONArray().put("KEEP_ORIGINAL_SOURCE_SEALED")
         if (rawCandidates.length() > 0) {
@@ -242,12 +344,315 @@ object UniversalSourceProfiler {
                 "Focal length alone does not prove lens role, sensor crop, field of view or optical resolving support.",
             )
 
+        val backsideSignalSupport =
+            BacksideSignalSupportAudit.analyze(
+                resolver,
+                source.uri,
+                parsed,
+                primaryRaw,
+                sourceSha256,
+            )
+
+        val darkChromaBacksideSupport = JSONObject()
+            .put("authority", "SOURCE_METADATA_BOUND_HINT_PLUS_MEASURED_SIGNAL_BLOCKER")
+            .put("metadata_hint_authority", "SOURCE_METADATA_BOUND_HINT_ONLY")
+            .put("noise_profile_present", noiseProfile != null)
+            .put("black_level_present", primaryRaw?.opt("blackLevel") != null)
+            .put("white_level_present", primaryRaw?.opt("whiteLevel") != null)
+            .put("local_noise_confirmation_available", false)
+            .put("n2_local_support_bound", false)
+            .put("signal_support_audit", backsideSignalSupport)
+
         val frontside = FrontsideSceneInspector.inspect(
             resolver,
             source.uri,
             parsed,
             sourceSha256,
+            darkChromaBacksideSupport,
         )
+
+        val observationOpticalFieldChart =
+            ObservationOpticalFieldChartV01.describe(
+                sourceSha256 = sourceSha256,
+                sampleLattice = sampleLattice,
+                primaryRawRaster = raster,
+                frontside = frontside,
+                optics = optics,
+                measuredSignalProfile =
+                    backsideSignalSupport.optJSONObject(
+                        "observation_optical_field_signal_v0_1",
+                    ),
+            )
+
+        val physicalNoiseContext =
+            PhysicalObservationNoiseContextV01.describe(
+                sourceSha256 = sourceSha256,
+                metadata = metadata,
+                raster = raster,
+                backsideSignalSupport = backsideSignalSupport,
+                opticalFieldChart = observationOpticalFieldChart,
+            )
+
+        val universalObservationCalibrationAtlas =
+            UniversalObservationCalibrationAtlasV01.describe(
+                sourceSha256 = sourceSha256,
+                sourceClass = sourceClass,
+                sourceRoute = source.sourceRoute.name,
+                metadata = metadata,
+                raster = raster,
+                sampleLattice = sampleLattice,
+                frontside = frontside,
+                backsideSignalSupport = backsideSignalSupport,
+                opticalFieldChart = observationOpticalFieldChart,
+            )
+
+        val n2LocalSpatialBinding =
+            if (source.format.id == "DNG" && source.format.nativeProcessingReady) {
+                N2LocalSpatialBindingAudit.analyze(
+                    resolver = resolver,
+                    sourceUri = source.uri,
+                    sourceSha256 = sourceSha256,
+                    cacheDir = cacheDir,
+                    frontsideV01 =
+                        frontside.optJSONObject("dark_chroma_stability_v0_1"),
+                )
+            } else {
+                N2LocalSpatialBindingAudit.unavailable(
+                    sourceSha256,
+                    "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                )
+            }
+
+        val darkChromaV04 =
+            DarkChromaStabilityV04Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                localN2 = n2LocalSpatialBinding,
+            )
+
+        val frontsideV01 =
+            frontside.optJSONObject("dark_chroma_stability_v0_1")
+        val frontsideV01Global =
+            frontsideV01?.optJSONObject("global") ?: JSONObject()
+        val visibleDarkChromaCandidates =
+            frontsideV01Global.optLong(
+                "frontside_chroma_instability_candidate_tiles",
+                0L,
+            )
+        val v03State =
+            frontside.optJSONObject("dark_chroma_stability_v0_3")
+                ?.optString("global_information_state", "UNKNOWN")
+                ?: "UNKNOWN"
+        val nativeDngReady =
+            source.format.id == "DNG" && source.format.nativeProcessingReady
+        val fineStructureNeeded =
+            nativeDngReady &&
+                visibleDarkChromaCandidates > 0L &&
+                !v03State.startsWith("DARK_UNINFORMATIVE")
+
+        val n2StructureSupportBinding =
+            when {
+                fineStructureNeeded ->
+                    N2StructureSupportBindingAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                    )
+                !nativeDngReady ->
+                    N2StructureSupportBindingAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    N2StructureSupportBindingAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                else ->
+                    N2StructureSupportBindingAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_CORRECTION",
+                    )
+            }
+
+        val darkChromaV05 =
+            DarkChromaStabilityV05Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                v04 = darkChromaV04,
+                fineStructure = n2StructureSupportBinding,
+            )
+
+        val n2SampleSupportDistance =
+            when {
+                fineStructureNeeded ->
+                    N2SampleSupportDistanceAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                        fineStructure = n2StructureSupportBinding,
+                    )
+                !nativeDngReady ->
+                    N2SampleSupportDistanceAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    N2SampleSupportDistanceAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                else ->
+                    N2SampleSupportDistanceAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_CORRECTION",
+                    )
+            }
+
+        val darkChromaV06 =
+            DarkChromaStabilityV06Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v03 = frontside.optJSONObject("dark_chroma_stability_v0_3"),
+                v05 = darkChromaV05,
+                supportDistance = n2SampleSupportDistance,
+            )
+
+        val n2SampleLatticeGeometry =
+            RasterIndependentSampleLatticeV01.bindSupportGeometry(
+                sourceSha256 = sourceSha256,
+                lattice = sampleLattice,
+                supportDistance = n2SampleSupportDistance,
+            )
+
+        val darkChromaV07 =
+            DarkChromaStabilityV07Audit.analyze(
+                sourceSha256 = sourceSha256,
+                v06 = darkChromaV06,
+                lattice = sampleLattice,
+                latticeGeometry = n2SampleLatticeGeometry,
+            )
+
+        // Prospective model-bank policy MUST be frozen from observation
+        // geometry before the hold-out solver is allowed to reveal/score any
+        // hidden CFA target. It has no runtime dependency on hold-out results.
+        val universalObservationModelSelection =
+            UniversalObservationModelSelectionV01.analyze(
+                sourceSha256 = sourceSha256,
+                sampleLattice = sampleLattice,
+                latticeGeometry = n2SampleLatticeGeometry,
+            )
+
+        val universalLocalModelBankHoldout =
+            UniversalLocalModelBankHoldoutV01.describe(
+                sourceSha256 = sourceSha256,
+                nativeDngReady = nativeDngReady,
+                sampleLattice = sampleLattice,
+                prospectivePolicy = universalObservationModelSelection,
+            )
+
+        val universalLocalModelBankHoldoutV02 =
+            UniversalLocalModelBankHoldoutV02.describe(
+                sourceSha256 = sourceSha256,
+                nativeDngReady = nativeDngReady,
+                sampleLattice = sampleLattice,
+                prospectivePolicy = universalObservationModelSelection,
+            )
+
+        val universalLocalModelBankHoldoutV03 =
+            UniversalLocalModelBankHoldoutV03.describe(
+                sourceSha256 = sourceSha256,
+                nativeDngReady = nativeDngReady,
+                sampleLattice = sampleLattice,
+                prospectivePolicy = universalObservationModelSelection,
+            )
+
+        val anchorConstrainedReconstruction =
+            when {
+                fineStructureNeeded &&
+                    n2SampleSupportDistance.optString("status") ==
+                        "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" &&
+                    sampleLattice.optString("status") == "AVAILABLE" ->
+                    AnchorConstrainedLocalReconstructionAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideV01,
+                        sampleLattice = sampleLattice,
+                        supportDistance = n2SampleSupportDistance,
+                    )
+                !nativeDngReady ->
+                    AnchorConstrainedLocalReconstructionAudit.unavailable(
+                        sourceSha256,
+                        "NATIVE_DNG_ROUTE_NOT_AVAILABLE",
+                    )
+                visibleDarkChromaCandidates <= 0L ->
+                    AnchorConstrainedLocalReconstructionAudit.skipped(
+                        sourceSha256,
+                        "NO_VISIBLE_DARK_CHROMA_CANDIDATES",
+                    )
+                v03State.startsWith("DARK_UNINFORMATIVE") ->
+                    AnchorConstrainedLocalReconstructionAudit.skipped(
+                        sourceSha256,
+                        "GLOBAL_DARK_UNINFORMATIVE_ALREADY_BLOCKS_RECONSTRUCTION_RESEARCH",
+                    )
+                else ->
+                    AnchorConstrainedLocalReconstructionAudit.unavailable(
+                        sourceSha256,
+                        "EXACT_SUPPORT_GEOMETRY_OR_SAMPLE_LATTICE_NOT_AVAILABLE",
+                    )
+            }
+
+        frontside
+            .put("n2_local_spatial_binding_v0_1", n2LocalSpatialBinding)
+            .put("dark_chroma_stability_v0_4", darkChromaV04)
+            .put(
+                "n2_structure_support_binding_v0_1",
+                n2StructureSupportBinding,
+            )
+            .put("dark_chroma_stability_v0_5", darkChromaV05)
+            .put(
+                "n2_sample_support_distance_v0_1",
+                n2SampleSupportDistance,
+            )
+            .put("dark_chroma_stability_v0_6", darkChromaV06)
+            .put(
+                "n2_raster_independent_sample_geometry_v0_1",
+                n2SampleLatticeGeometry,
+            )
+            .put("dark_chroma_stability_v0_7", darkChromaV07)
+            .put(
+                "anchor_constrained_local_reconstruction_v0_1",
+                anchorConstrainedReconstruction,
+            )
+            .put(
+                "universal_observation_model_selection_v0_1",
+                universalObservationModelSelection,
+            )
+            .put(
+                "universal_local_model_bank_holdout_v0_2",
+                universalLocalModelBankHoldoutV02,
+            )
+            .put(
+                "universal_local_model_bank_holdout_v0_3",
+                universalLocalModelBankHoldoutV03,
+            )
+            .put(
+                "observation_optical_field_chart_v0_1",
+                observationOpticalFieldChart,
+            )
+            .put(
+                "universal_observation_calibration_atlas_v0_1",
+                universalObservationCalibrationAtlas,
+            )
+            .put(
+                "physical_observation_noise_context_v0_1",
+                physicalNoiseContext,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -255,9 +660,56 @@ object UniversalSourceProfiler {
             .put("container_metadata", parsed)
             .put("source_metadata", metadata)
             .put("primary_raw_raster", raster)
+            .put("raster_independent_sample_lattice", sampleLattice)
             .put("source_identity_hint", sourceIdentityHint)
             .put("optics", optics)
+            .put(
+                "observation_optical_field_chart",
+                observationOpticalFieldChart,
+            )
+            .put(
+                "universal_observation_calibration_atlas",
+                universalObservationCalibrationAtlas,
+            )
             .put("route_hints", routeHints)
+            .put("backside_signal_support", backsideSignalSupport)
+            .put(
+                "physical_observation_noise_context_v0_1",
+                physicalNoiseContext,
+            )
+            .put("n2_local_spatial_binding", n2LocalSpatialBinding)
+            .put(
+                "n2_structure_support_binding",
+                n2StructureSupportBinding,
+            )
+            .put(
+                "n2_sample_support_distance",
+                n2SampleSupportDistance,
+            )
+            .put(
+                "n2_raster_independent_sample_geometry",
+                n2SampleLatticeGeometry,
+            )
+            .put(
+                "anchor_constrained_local_reconstruction",
+                anchorConstrainedReconstruction,
+            )
+            .put(
+                "universal_observation_model_selection",
+                universalObservationModelSelection,
+            )
+            .put(
+                "universal_local_model_bank_holdout",
+                universalLocalModelBankHoldout,
+            )
+            .put(
+                "universal_local_model_bank_holdout_v0_2",
+                universalLocalModelBankHoldoutV02,
+            )
+            .put(
+                "universal_local_model_bank_holdout_v0_3",
+                universalLocalModelBankHoldoutV03,
+            )
             .put("scene_analysis", frontside)
             .put("authority", authorityBlock())
             .put("open_world", openWorldBlock())
@@ -437,6 +889,10 @@ object UniversalSourceProfiler {
             .put("sealed_source_does_not_seal_interpretation", true)
             .put("representation_may_exceed_source", true)
             .put("knowledge_claims_may_not_exceed_evidence", true)
+            .put("scientific_coordinate_domain_can_be_raster_independent", true)
+            .put("source_raster_defines_measurement_sampling_not_world_resolution", true)
+            .put("unmeasured_coordinate_positions_remain_unknown", true)
+            .put("coordinate_precision_does_not_create_evidence", true)
 
     private fun largestRawCandidate(array: JSONArray): JSONObject? {
         var best: JSONObject? = null

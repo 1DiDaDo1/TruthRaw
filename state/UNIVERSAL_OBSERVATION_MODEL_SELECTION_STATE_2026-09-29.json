@@ -1,0 +1,80 @@
+{
+  "schema": "D.RAW/UniversalObservationModelSelectionState/0.1",
+  "date": "2026-09-29",
+  "branch": "research/universal-observation-model-selection-v01-2026-09-29",
+  "status": "IMPLEMENTED_PROSPECTIVE_AUDIT_POLICY_NOT_VALIDATED",
+  "predecessor": {
+    "pr": 90,
+    "branch": "research/anchor-constrained-local-reconstruction-v01-2026-09-29",
+    "real_device_evidence": {
+      "capture": "DRAW_CAPTURE_1790686814757_tele_4080x3072",
+      "holdouts": 21760,
+      "both_valid": 19560,
+      "solver_mae_both": 0.0015497618175,
+      "baseline_mae_both": 0.0014748624273,
+      "solver_rmse_both": 0.002054844133,
+      "baseline_rmse_both": 0.0019059007453,
+      "solver_wins": 9363,
+      "baseline_wins": 10197,
+      "coverage_1sigma": 0.4769,
+      "coverage_2sigma": 0.8019,
+      "coverage_3sigma": 0.9354,
+      "conclusion": "AFFINE_SOLVER_NOT_PROMOTED"
+    }
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_noise_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "unanchored_positions_begin_unknown": true,
+    "output_projection_resolution_decoupled_from_source_sampling": true,
+    "law": "A_NEW_RASTER_MAY_REFINE_MEASUREMENT_SPACE_WITHOUT_REPLACING_MEASUREMENT_HISTORY"
+  },
+  "selector": {
+    "schema": "D.RAW/UniversalObservationModelSelection/0.1",
+    "authority": "OBSERVATION_DERIVED_MODEL_BANK_POLICY_AUDIT_ONLY",
+    "heldout_target_used_for_selection": false,
+    "holdout_error_used_for_selection": false,
+    "single_winner_predeclared": false,
+    "affine_plane_promoted": false,
+    "existing_2026_09_29_holdout_is_development_evidence_only": true,
+    "independent_new_capture_required_for_selector_validation": true,
+    "model_bank": [
+      "CENTER_EXCLUDED_MULTISCALE_REFERENCE",
+      "DIRECTIONAL_LINE_RESEARCH_CANDIDATE",
+      "ROBUST_LOCAL_CONSTANT_RESEARCH_CANDIDATE",
+      "AFFINE_PLANE_V0_1_RESEARCH_CANDIDATE",
+      "LOW_ORDER_CURVATURE_RESEARCH_CANDIDATE",
+      "NO_RECONSTRUCTION_CANDIDATE"
+    ],
+    "computed_before_anchor_holdout_target_reveal": true,
+    "anchor_holdout_runtime_dependency": false,
+    "machine_readable_export": "Export Universal Observation Model Selection v0.1 · JSON",
+    "export_contains_holdout_outcomes": false
+  },
+  "safety": {
+    "source_bytes_modified": false,
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "ai_or_learned_models_used": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "next_gate": "NEW_INDEPENDENT_CAPTURE_EXPORT_SELECTOR_BEFORE_INTERPRETING_HOLDOUT_THEN_NATIVE_TARGET_BLIND_MODEL_BANK_HOLDOUT_AUDIT",
+  "green_code_checkpoint": {
+    "sha": "4f1b5c1e99a115fa4b63d49b02d1913908d5a8ec",
+    "universal_intake_run": 36593498025,
+    "result": "SUCCESS",
+    "artifact_id": 11044977856,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "artifact_digest": "sha256:c76bff4277b64914fdc2760af17fead6ebbcda2bba1b365e946a5fb4ded1a5e4",
+    "apk_sha256": "bb303089805dc271da238d8a6ee41b1ed124f16e036deacb99976d6ce325c90d"
+  }
+}

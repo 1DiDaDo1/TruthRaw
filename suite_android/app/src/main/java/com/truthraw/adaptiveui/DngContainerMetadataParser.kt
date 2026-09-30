@@ -262,6 +262,9 @@ object DngContainerMetadataParser {
         }
 
         if (entry.type == 7 && entry.count > 64L) {
+            if (entry.tag == 51009 || entry.tag == 51022) {
+                return decodeDngOpcodeListHint(bytes, entry.tag)
+            }
             return JSONObject()
                 .put("opaqueMetadataBytes", bytes.size)
                 .put("hexPrefix", bytes.take(16).joinToString("") { "%02x".format(it.toInt() and 0xff) })
@@ -277,6 +280,326 @@ object DngContainerMetadataParser {
             values
         }
     }
+
+    private fun decodeDngOpcodeListHint(
+        bytes: ByteArray,
+        tag: Int,
+    ): JSONObject {
+        val out = JSONObject()
+            .put("opaqueMetadataBytes", bytes.size)
+            .put(
+                "hexPrefix",
+                bytes.take(16).joinToString("") {
+                    "%02x".format(it.toInt() and 0xff)
+                },
+            )
+            .put(
+                "authority",
+                "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+            )
+            .put("used_as_scientific_calibration", false)
+            .put("used_to_modify_source_samples", false)
+
+        if (bytes.size < 4) {
+            return out
+                .put("opcode_header_parse_status", "TOO_SHORT")
+        }
+
+        val declared = u32BigEndian(bytes, 0)
+        if (declared > 4096L) {
+            return out
+                .put("opcode_header_parse_status", "DECLARED_COUNT_IMPLAUSIBLE")
+                .put("declared_opcode_count", declared)
+        }
+
+        val opcodes = JSONArray()
+        var offset = 4
+        var gainMaps = 0
+        var complete = true
+
+        for (index in 0 until declared.toInt()) {
+            if (offset + 16 > bytes.size) {
+                complete = false
+                break
+            }
+
+            val opcodeId = u32BigEndian(bytes, offset)
+            val minVersion = u32BigEndian(bytes, offset + 4)
+            val flags = u32BigEndian(bytes, offset + 8)
+            val payloadBytes = u32BigEndian(bytes, offset + 12)
+            val payloadStart = offset + 16
+            val payloadEndLong =
+                payloadStart.toLong() + payloadBytes
+
+            val payloadValid =
+                payloadBytes <= Int.MAX_VALUE.toLong() &&
+                    payloadEndLong <= bytes.size.toLong()
+
+            val opcodeName = when (opcodeId) {
+                1L -> "WarpRectilinear"
+                2L -> "WarpFisheye"
+                3L -> "FixVignetteRadial"
+                4L -> "FixBadPixelsConstant"
+                5L -> "FixBadPixelsList"
+                6L -> "TrimBounds"
+                7L -> "MapTable"
+                8L -> "MapPolynomial"
+                9L -> "GainMap"
+                10L -> "DeltaPerRow"
+                11L -> "DeltaPerColumn"
+                12L -> "ScalePerRow"
+                13L -> "ScalePerColumn"
+                14L -> "WarpRectilinear2"
+                else -> "OPCODE_" + opcodeId
+            }
+            if (opcodeId == 9L) gainMaps++
+
+            val opcodeJson =
+                JSONObject()
+                    .put("index", index)
+                    .put("opcode_id", opcodeId)
+                    .put("opcode_name", opcodeName)
+                    .put(
+                        "minimum_dng_version",
+                        dngVersionString(minVersion),
+                    )
+                    .put("flags", flags)
+                    .put("payload_bytes", payloadBytes)
+                    .put("payload_bounds_valid", payloadValid)
+
+            if (opcodeId == 9L && payloadValid) {
+                opcodeJson.put(
+                    "gain_map_summary",
+                    decodeGainMapPayloadSummary(
+                        bytes.copyOfRange(
+                            payloadStart,
+                            payloadEndLong.toInt(),
+                        ),
+                    ),
+                )
+            }
+
+            opcodes.put(opcodeJson)
+
+            if (!payloadValid) {
+                complete = false
+                break
+            }
+            offset = payloadEndLong.toInt()
+        }
+
+        return out
+            .put(
+                "opcode_header_parse_status",
+                if (complete && opcodes.length() == declared.toInt()) {
+                    "HEADERS_PARSED"
+                } else {
+                    "PARTIAL_FAIL_CLOSED"
+                },
+            )
+            .put("opcode_list_tag", tag)
+            .put(
+                "opcode_list_stage",
+                if (tag == 51009) "OpcodeList2" else "OpcodeList3",
+            )
+            .put("declared_opcode_count", declared)
+            .put("parsed_opcode_count", opcodes.length())
+            .put("opcodes", opcodes)
+            .put("gain_map_opcode_count", gainMaps)
+            .put("gain_map_present", gainMaps > 0)
+            .put("gain_map_payload_summary_decoded", gainMaps > 0)
+            .put("gain_map_full_payload_exported", false)
+            .put("gain_map_used_as_scientific_calibration", false)
+            .put("gain_map_applied", false)
+    }
+
+    private fun decodeGainMapPayloadSummary(
+        payload: ByteArray,
+    ): JSONObject {
+        val out = JSONObject()
+            .put(
+                "authority",
+                "SOURCE_METADATA_PROVENANCE_HINT_ONLY",
+            )
+            .put("used_as_scientific_calibration", false)
+            .put("applied_to_source_samples", false)
+            .put("full_gain_grid_exported", false)
+
+        // GainMap fixed header:
+        // 10 LONG + 4 DOUBLE + 1 LONG = 76 bytes.
+        if (payload.size < 76) {
+            return out
+                .put("status", "GAIN_MAP_PAYLOAD_TOO_SHORT")
+        }
+
+        val b = ByteBuffer.wrap(payload).order(ByteOrder.BIG_ENDIAN)
+        val top = u32(b.int)
+        val left = u32(b.int)
+        val bottom = u32(b.int)
+        val right = u32(b.int)
+        val plane = u32(b.int)
+        val planes = u32(b.int)
+        val rowPitch = u32(b.int)
+        val colPitch = u32(b.int)
+        val pointsV = u32(b.int)
+        val pointsH = u32(b.int)
+        val spacingV = b.double
+        val spacingH = b.double
+        val originV = b.double
+        val originH = b.double
+        val mapPlanes = u32(b.int)
+
+        if (
+            pointsV <= 0L ||
+            pointsH <= 0L ||
+            mapPlanes <= 0L ||
+            pointsV > 4096L ||
+            pointsH > 4096L ||
+            mapPlanes > 16L
+        ) {
+            return out
+                .put("status", "GAIN_MAP_DIMENSIONS_INVALID")
+                .put("map_points_v", pointsV)
+                .put("map_points_h", pointsH)
+                .put("map_planes", mapPlanes)
+        }
+
+        val expectedLong =
+            pointsV * pointsH * mapPlanes
+        if (
+            expectedLong <= 0L ||
+            expectedLong > 1_000_000L
+        ) {
+            return out
+                .put("status", "GAIN_MAP_DIMENSIONS_INVALID")
+                .put("map_points_v", pointsV)
+                .put("map_points_h", pointsH)
+                .put("map_planes", mapPlanes)
+        }
+
+        val expected = expectedLong.toInt()
+        if (payload.size - b.position() != expected * 4) {
+            return out
+                .put("status", "GAIN_MAP_GAIN_COUNT_MISMATCH")
+                .put("map_points_v", pointsV)
+                .put("map_points_h", pointsH)
+                .put("map_planes", mapPlanes)
+                .put("expected_gain_count", expected)
+                .put(
+                    "payload_gain_count",
+                    (payload.size - b.position()) / 4,
+                )
+        }
+
+        val gains = DoubleArray(expected)
+        var minGain = Double.POSITIVE_INFINITY
+        var maxGain = Double.NEGATIVE_INFINITY
+        var sumGain = 0.0
+        for (i in 0 until expected) {
+            val gain = b.float.toDouble()
+            if (!gain.isFinite()) {
+                return out.put(
+                    "status",
+                    "GAIN_MAP_NON_FINITE_GAIN",
+                )
+            }
+            gains[i] = gain
+            minGain = kotlin.math.min(minGain, gain)
+            maxGain = kotlin.math.max(maxGain, gain)
+            sumGain += gain
+        }
+
+        val sorted = gains.copyOf()
+        sorted.sort()
+        val medianGain =
+            if ((sorted.size and 1) == 1) {
+                sorted[sorted.size / 2]
+            } else {
+                0.5 * (
+                    sorted[sorted.size / 2 - 1] +
+                        sorted[sorted.size / 2]
+                    )
+            }
+
+        val mapPlaneSummaries = JSONArray()
+        val mp = mapPlanes.toInt()
+        val h = pointsH.toInt()
+        val v = pointsV.toInt()
+        for (mapPlane in 0 until mp) {
+            fun gainAt(row: Int, col: Int): Double {
+                val index = ((row * h + col) * mp) + mapPlane
+                return gains[index]
+            }
+
+            val centerRow = v / 2
+            val centerCol = h / 2
+            mapPlaneSummaries.put(
+                JSONObject()
+                    .put("map_plane", mapPlane)
+                    .put(
+                        "center_nearest_gain",
+                        gainAt(centerRow, centerCol),
+                    )
+                    .put(
+                        "corner_gains",
+                        JSONArray()
+                            .put(gainAt(0, 0))
+                            .put(gainAt(0, h - 1))
+                            .put(gainAt(v - 1, 0))
+                            .put(gainAt(v - 1, h - 1)),
+                    ),
+            )
+        }
+
+        return out
+            .put("status", "GAIN_MAP_SUMMARY_AVAILABLE")
+            .put(
+                "affected_area",
+                JSONArray()
+                    .put(top)
+                    .put(left)
+                    .put(bottom)
+                    .put(right),
+            )
+            .put("plane", plane)
+            .put("planes", planes)
+            .put("row_pitch", rowPitch)
+            .put("col_pitch", colPitch)
+            .put("map_points_v", pointsV)
+            .put("map_points_h", pointsH)
+            .put("map_spacing_v", spacingV)
+            .put("map_spacing_h", spacingH)
+            .put("map_origin_v", originV)
+            .put("map_origin_h", originH)
+            .put("map_planes", mapPlanes)
+            .put("gain_count", expected)
+            .put("gain_min", minGain)
+            .put("gain_median", medianGain)
+            .put("gain_mean", sumGain / expected.toDouble())
+            .put("gain_max", maxGain)
+            .put("map_plane_summaries", mapPlaneSummaries)
+    }
+
+    private fun u32BigEndian(
+        bytes: ByteArray,
+        offset: Int,
+    ): Long {
+        if (offset < 0 || offset + 4 > bytes.size) return -1L
+        return (
+            ((bytes[offset].toLong() and 0xffL) shl 24) or
+                ((bytes[offset + 1].toLong() and 0xffL) shl 16) or
+                ((bytes[offset + 2].toLong() and 0xffL) shl 8) or
+                (bytes[offset + 3].toLong() and 0xffL)
+            )
+    }
+
+    private fun dngVersionString(value: Long): String =
+        listOf(
+            (value ushr 24) and 0xffL,
+            (value ushr 16) and 0xffL,
+            (value ushr 8) and 0xffL,
+            value and 0xffL,
+        ).joinToString(".")
 
     private fun decodeUnsignedLongValues(
         channel: FileChannel,

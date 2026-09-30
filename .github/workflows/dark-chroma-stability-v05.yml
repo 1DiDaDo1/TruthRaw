@@ -1,0 +1,41 @@
+name: Dark Chroma Stability v0.5 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-n2-structure-support-field-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_structure_support_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2StructureSupportBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV05Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.5/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V05.json'
+      - 'tools/check_dark_chroma_stability_v05.py'
+      - '.github/workflows/dark-chroma-stability-v05.yml'
+  push:
+    branches:
+      - 'research/dark-chroma-stability-v05-2026-09-29'
+    paths:
+      - 'docs/research/truthnegative-n2-structure-support-field-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_structure_support_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2StructureSupportBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DarkChromaStabilityV05Audit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/dark-chroma-stability-v0.5/**'
+      - 'state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V05.json'
+      - 'tools/check_dark_chroma_stability_v05.py'
+      - '.github/workflows/dark-chroma-stability-v05.yml'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_dark_chroma_stability_v05.py

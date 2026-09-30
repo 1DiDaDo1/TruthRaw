@@ -1,0 +1,84 @@
+{
+  "schema": "D.RAW/UniversalMultiObservationRelationProtocolState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/universal-multi-observation-relation-v01-2026-09-30",
+  "parent_branch": "research/universal-observation-calibration-atlas-v01-2026-09-30",
+  "parent_gate": "FIRST_TWO_SOURCE_PHYSICAL_GATE_COMPLETE",
+  "status": "FROZEN_PROTOCOL_IMPLEMENTED_ANDROID_BUILD_GREEN",
+  "law": "RELATE_OBSERVATIONS_WITH_EXPLICIT_EVIDENCE_NEVER_BY_CAMERA_OR_LENS_NAME",
+  "relation_evidence_classes": [
+    "SEALED_CAPTURE_SESSION_PROVENANCE",
+    "EXPLICIT_CALIBRATION_CAPTURE_RECORD",
+    "OBSERVATION_REPEATABILITY_CANDIDATE",
+    "USER_GROUPING_HINT_ONLY",
+    "NONE"
+  ],
+  "identity_independence": {
+    "camera_model_name_may_prove_relation": false,
+    "lens_model_name_may_prove_relation": false,
+    "vendor_name_may_prove_relation": false,
+    "file_extension_may_prove_relation": false,
+    "focal_length_metadata_may_prove_relation": false,
+    "visual_similarity_may_prove_relation": false,
+    "device_specific_profile_key_allowed": false
+  },
+  "relation_graph": {
+    "observation_root": "SOURCE_SHA256",
+    "edge_is_separate_scientific_object": true,
+    "source_evidence_merged": false,
+    "independent_evidence_count_upgraded": false
+  },
+  "axis_scopes": [
+    "FIELD_RESPONSE_REPEATABILITY",
+    "COLOUR_RELATION",
+    "OPTICAL_SUPPORT_RELATION",
+    "DARK_NOISE_OFFSET_RELATION",
+    "TEMPORAL_CAPTURE_RELATION"
+  ],
+  "set_level_minimums": {
+    "field_repeatability_candidate_minimum_independent_observations": 3,
+    "flat_field_rotation_preferred_orientations_degrees": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "colour_multi_illuminant_minimum_characterized_illuminants": 2,
+    "colour_held_out_validation_required": true,
+    "optical_directional_claim_requires_radial_and_tangential_sampling": true,
+    "dark_noise_requires_independent_observations": true,
+    "temporal_requires_physical_capture_relation": true
+  },
+  "promotion_boundary": {
+    "relation_protocol_promotes_calibration": false,
+    "relation_protocol_authorizes_correction": false,
+    "relation_protocol_authorizes_deconvolution": false,
+    "relation_protocol_authorizes_scientific_writeback": false,
+    "axis_specific_validation_required": true
+  },
+  "invariants": {
+    "ai_ml_neural_generative_used": false,
+    "camera_model_routing_used": false,
+    "lens_profile_lookup_used": false,
+    "vendor_mapping_used": false,
+    "source_sample_values_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "implementation": {
+    "kotlin_module": "suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalMultiObservationRelationProtocolV01.kt",
+    "pair_evaluator_available": true,
+    "runtime_auto_relation_enabled": false,
+    "calibration_apply_path_enabled": false,
+    "android_build_validation": {
+      "workflow": "D.RAW Suite Universal Intake v0.1",
+      "run_id": 36646738789,
+      "conclusion": "SUCCESS",
+      "artifact_id": 11069175337,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64"
+    }
+  },
+  "next_gate": "FIRST_READ_ONLY_FIELD_RESPONSE_REPEATABILITY_EXPERIMENT_ACROSS_AT_LEAST_THREE_INDEPENDENT_OBSERVATIONS"
+}

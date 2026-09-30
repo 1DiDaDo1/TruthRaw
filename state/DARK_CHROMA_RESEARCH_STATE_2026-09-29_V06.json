@@ -1,0 +1,92 @@
+{
+  "schema": "D.RAW/DarkChromaResearchState/2026-09-29/v0.6",
+  "status": "BUILD_GREEN_AWAITING_EXACT_DISTANCE_DEVICE_VALIDATION",
+  "branch": "research/dark-chroma-stability-v06-2026-09-29",
+  "parent_branch": "research/dark-chroma-stability-v05-2026-09-29",
+  "project_law": "Seal the evidence, not the thinking.",
+  "validated_parent_finding": {
+    "capture": "DRAW_CAPTURE_1790662450477_wide_main_4096x3072.dng",
+    "visible_candidates": 15,
+    "v05_fine_bound": 15,
+    "v05_overlap_structure_fraction": 0.1677,
+    "v05_interior_structure_fraction": 0.1678,
+    "n2_global_structure_sample_fraction": 0.16974258422851562,
+    "v05_fine_tiles_structure_free": "558/0",
+    "v05_zero_interior_structure_candidates": 0,
+    "conclusion": "32x32 any-structure-presence remains saturated; exact sampled support geometry is required"
+  },
+  "v06": {
+    "new_native_sidecar": "D.RAW/TruthNegative/N2SampleSupportDistance/0.1",
+    "evaluation_tile_edge": 64,
+    "sampling_period": 8,
+    "exact_sample_coordinates_recorded": true,
+    "coordinate_encoding": "BASE64_LE_U32_XY_PAIRS_SOURCE_NATIVE",
+    "support_categories": [
+      "Structure",
+      "Censored",
+      "CensorBoundary"
+    ],
+    "center_radii_px": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "rect_margin_radii_px": [
+      0,
+      8,
+      16,
+      32
+    ],
+    "nearest_support_coordinates_recorded": true,
+    "sample_grid_evidence_only": true,
+    "unsampled_pixels_inferred": false,
+    "scalar_probability_created": false,
+    "distance_threshold_admitted": false,
+    "can_reduce_protection": false,
+    "can_enable_correction": false,
+    "chroma_correction_supported": false,
+    "private_chroma_ab_delta_allowed": false,
+    "candidate_applied": false,
+    "scientific_writeback_allowed": false,
+    "machine_readable_export": {
+      "available": true,
+      "ui_label": "Export N2 Sample Support Distance v0.1 · JSON",
+      "sidecar_schema": "D.RAW/TruthNegative/N2SampleSupportDistance/0.1",
+      "exact_sample_coordinates_included": true,
+      "protected_point_stream_sha256_included": true,
+      "post_write_sha_verified": true
+    }
+  },
+  "single_shot_contract": {
+    "source_observation_count": 1,
+    "other_physical_lenses_used": false,
+    "temporal_frames_used": false,
+    "burst_used": false,
+    "multi_observation_fusion_allowed": false,
+    "ai_ml_neural_generative_runtime_allowed": false
+  },
+  "next_gate": {
+    "name": "DEVICE_VALIDATE_EXACT_SAMPLE_SUPPORT_DISTANCE",
+    "target": "selective wide/main source with non-zero visible Dark-Chroma candidates",
+    "required_evidence": [
+      "Universal Intake v0.6 support-distance metrics",
+      "exported N2 Sample Support Distance v0.1 JSON sidecar",
+      "screenshots binding UI metrics to same selected observation"
+    ],
+    "distance_threshold_research_blocked_until_device_evidence": true,
+    "private_chroma_ab_delta_still_blocked": true
+  },
+  "build_validation": {
+    "code_checkpoint": "ae93117bf492e5ebd81a2411bf9f6bf592738cff",
+    "all_relevant_ci_green": true,
+    "universal_intake_run": 36539954222,
+    "universal_physical_capture_run": 36539954295,
+    "dngcreator_run": 36539954288,
+    "dark_chroma_v06_integrity_run": 36539954353,
+    "artifact_id": 11020341011,
+    "artifact_digest": "sha256:766c9efaa868b10006b1ef2eea27b9e9f73c6b3a8b4647e8dc9d852452db5bad",
+    "apk_sha256": "b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd",
+    "apk_bytes": 7311423
+  }
+}

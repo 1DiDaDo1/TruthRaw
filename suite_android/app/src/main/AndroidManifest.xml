@@ -49,6 +49,15 @@
             android:exported="false" />
 
         <activity
+            android:name=".TruthRawResearchHubActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".TruthRawImplementationGuideActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
             android:name=".UniversalPhysicalCaptureActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"

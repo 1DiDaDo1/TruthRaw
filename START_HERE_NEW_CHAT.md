@@ -1,14 +1,679 @@
+# D.RAW / TruthRaw — CURRENT 2026-09-30 CABLE-CLOSURE CHECKPOINT
+
+This section supersedes older navigation/current-state notes below wherever they conflict.
+
+Current branch:
+`research/free-world-radiometric-noise-transport-v01-2026-09-30`
+
+Latest Android-build-proven source head:
+`55755b795ec6e48e326732c8e5d2071270b81a90`
+
+Build evidence:
+- workflow: `D.RAW Free World Research APK`
+- run: `36744973469`
+- result: **SUCCESS**
+- artifact: `DRAW-free-world-research-debug-arm64` / ID `11112237658`
+- APK bytes: `8155983`
+- APK SHA-256: `11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193`
+- device/physical validation of the new multidisciplinary wave: **NOT YET RUN**
+- scientific promotion of the new candidate axes: **FALSE**
+
+Cable-audit closure implemented:
+- physical camera lineage is explicit as sealed RAW_SENSOR root -> acquisition evidence -> derived processing-DNG root -> Universal Intake; the DNG is not a second physical frame;
+- Calibration Observation Records use canonical SHA-256 identity, semantic status/uncertainty checks, active-session source binding and physical/derived alias de-duplication;
+- cross-session relation records cannot drive numeric candidates;
+- colour 3x3 candidate can transport explicitly measured covariance via J*C*J^T;
+- controlled NPS + optical support + explicit signal PSD can feed the noise-aware inverse-optics candidate without inventing missing measurements;
+- promotion consumers accept flags only through the internal held-out/source-bound ScientificPromotionStateV01 path;
+- world->source admission requires a validated mapping, mapping uncertainty, held-out pass and active source-root binding;
+- reconstruction/denoise supports are bound to promoted source roots; Scientific Master writeback remains forbidden;
+- ResearchPromotionFirewallV01 also blocks candidate-applied, Scientific-Master-modified, measured-anchor-modified and image-transform-applied regressions;
+- Research mode/picker navigation is repaired and large calibration records persist through a private session cache rather than Activity Bundle payloads;
+- historical diagnostics now use the shared green/red status-dot + elapsed/final timer convention.
+
+Intentional boundaries — do not bypass:
+- DNG is the fully admitted native processing path; proprietary RAW decoders remain adapter-specific/pending unless separately implemented and validated;
+- the generic compute router stays CPU_REFERENCE until each accelerated kernel has its own correctness/self-test; existing specifically validated acceleration routes remain separate;
+- Scientific Master Streaming v0.3 remains a research candidate; production bridges remain on the current admitted binding until separately promoted;
+- Continuous Free World queries remain UNKNOWN until the world->source mapping and continuous reconstruction are physically validated;
+- no user-imported JSON may grant scientific promotion.
+
+Read first now:
+1. `docs/research/free-world-radiometric-noise-transport-v0.1/CABLE_AUDIT_CLOSURE_2026-09-30.md`
+2. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
+3. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
+4. `docs/research/free-world-radiometric-noise-transport-v0.1/UX_NAVIGATION_2026-09-30.md`
+5. then the historical/current documents below as required.
+
+---
+
+# D.RAW — POST-AUDIT CABLE REPAIR GREEN CHECKPOINT — 2026-09-30
+
+**Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
+**Green code head:** `f36f750afda57f4672c264e59ac53db489cd5e19`  
+**Android build:** SUCCESS · workflow run `36744717288`  
+**APK artifact:** `11111543510` · `DRAW-free-world-research-debug-arm64`  
+**APK bytes:** `8,155,983`  
+**APK SHA-256:** `d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036`  
+**Device/physical validation of the new multidisciplinary candidate wave:** NOT YET RUN.
+
+The full post-audit cable-repair round is implementation-complete and compiles green. No scientific axis was promoted by this work.
+
+Closed wiring includes:
+
+- camera RAW_SENSOR physical evidence root -> acquisition evidence -> derived processing DNG -> Universal Source Profile -> Free World lineage;
+- canonical Calibration Observation Record identity, SHA normalization, semantic validation, active-session source-root binding and private session persistence;
+- prevention of cross-session candidate records and physical/derived alias double counting;
+- typed internal promotion state with held-out/source-bound gating; research exports themselves still cannot promote;
+- expanded recursive promotion firewall including candidate application, image transform, Scientific Master and measured-anchor mutation flags;
+- explicit colour covariance transport `C_out = J C_in J^T` when real covariance exists;
+- controlled NPS + measured MTF/SFR + explicit signal PSD -> fail-closed noise-aware inverse-optics candidate bridge;
+- validated world-to-source mapping path bound to active source roots before world-space residual authority can be consumed;
+- Research mode/picker state and large calibration-record persistence repaired;
+- modern and historical diagnostics share the green/red dot + live/final timer convention.
+
+Permanent safety state at this checkpoint:
+
+- `MEASURED != RECONSTRUCTED != APPEARANCE`;
+- Scientific Master writeback from the research wave = false;
+- candidate availability != promotion;
+- camera/lens/vendor/RAW identity cannot select scientific truth;
+- unknown residual remains valid;
+- proprietary RAW formats may enter as sealed observations while decoder-pending formats remain fail-closed;
+- generic compute routing remains CPU_REFERENCE unless a specific kernel has its own correctness/self-test path.
+
+Next scientific phase: bundled physical validation and axis-specific promotion only. Do not turn candidate state into correction/denoise/deconvolution/world-space writeback merely because this build is green.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — RADIOMETRIC / NOISE / OPTICS / TEMPORAL INTEGRATION v0.1 — 2026-09-30
+
+**Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
+**Parent checkpoint:** PR #101 exact green head `0006b56d3261cad9a13fec560f7ddcd39b0844db`  
+**Validation status:** IMPLEMENTED ONLY — **NO TESTS, NO CI, NO ANDROID BUILD, NO DEVICE VALIDATION PER USER INSTRUCTION**
+
+Read first:
+1. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
+2. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
+3. PR101 foundation state/docs below.
+
+Implementation-wave completion:
+- launcher navigation is now normal-photo-first: active route → File/Camera → optional route change → separate Research & JSON / implementation guide;
+- the normal MainActivity photo workflow collapses the large research pane; explicit Research mode exposes Multi-observation, relation-record import, Free World JSON and per-source audits;
+- TruthRawResearchHubActivity is the central research/JSON entry and can export a source-independent Global Research Snapshot v0.1;
+- TruthRawImplementationGuideActivity explains what is implemented, when to use each route and which JSON to choose;
+- historical/new tests retain the green/red status-dot + live/final timer principle; the new shared implementation is TruthRawResearchStatusVisualV01;
+- Android UI can optionally ingest relation-based Calibration Observation Record JSON/bundles;
+- `CalibrationObservationAdmissionV01` blocks weak grouping hints from numeric science;
+- recursive identity-key rejection protects nested payloads;
+- exact sparse CFA grids feed repeated-observation and signal-dependent noise-model candidates;
+- radiometry, field separation, NPS/noise, optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated denoise and perceptual mapping have numeric candidate runtimes;
+- no candidate is promoted, applied to Scientific Master, or allowed to create evidence;
+- this branch remains intentionally untested/unbuilt per user instruction.
+
+New implemented prevalidation contracts:
+- `UniversalIdentityIndependenceV01`
+- `CalibrationObservationAdmissionV01`
+- `SparseGridNoiseModelCandidateV01`
+- `PhysicalObservationNoiseContextV01` (bound into Universal Intake)
+- `RadiometricResponseAtlasV01`
+- `NoiseComponentAtlasV01`
+- `ScientificNoiseTransportV01`
+- `ScientificNoiseMathV01` (deterministic variance/covariance primitives)
+- `TemporalFootprintV01`
+- `GeometryDepthSupportAtlasV01`
+- `LightTransportAuthorityContractV01`
+- `MultiObservationResidualRelationV01`
+- `ScientificDenoiseAdmissionV01` (single-frame / optics-aware / world-space routes)
+- `WorldSpaceNoiseSeparationV01`
+- `PerceptualNoiseAppearanceV01`
+
+Permanent identity law:
+**RAW/container identity may route decoding/parsing only. Camera, lens, vendor, physical camera ID or RAW-format identity may never be a scientific calibration/model-selection key. Scientific relations are observation/evidence based and source SHA-256 rooted.**
+
+Permanent denoise law:
+**Do not classify unexplained structure as noise. First separate radiometric response, stochastic/fixed-pattern sensor behavior, optical support, world/sensor coordinates, temporal footprint, view dependence, motion/occlusion and reconstruction uncertainty. UNKNOWN residual remains UNKNOWN until physically supported.**
+
+Current completion checkpoint:
+- code checkpoint: `caf4c0e39f3a74c94ed00802ff8a84c1f10013d1` (115 commits above exact green PR101 parent);
+- Android Multi-observation UI can optionally import relation-based Calibration Observation Record JSON files/bundles;
+- normal RAW intake still requires no calibration record;
+- central `CalibrationObservationAdmissionV01` blocks USER_GROUPING_HINT_ONLY/NONE from numeric solvers;
+- forbidden camera/lens/vendor/RAW identity keys are rejected recursively;
+- exact sparse measured CFA grids now feed repeated DARK/FLAT/scene noise candidates and a signal-dependent sparse-grid noise-model candidate;
+- numeric candidate runtimes cover radiometry, NPS/noise, field separation, optics/inverse-optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated scientific denoise and perceptual appearance;
+- none of these candidates is promoted or applied;
+- **no compile/test/CI/APK/device validation has been run on this implementation wave**.
+
+
+The full recommendation wave is now implemented as fail-closed candidate runtime code. In addition to the earlier contracts, current code includes radiometric fitting from explicit records and controlled RAW profiles, repeated exact sparse-CFA dark/flat statistics, NPS ingestion, world-vs-sensor field separation, SFR/MTF/PSF ingestion, noise-aware inverse-optics gain candidates, multi-illuminant colour fitting, temporal relation candidates, calibrated-ray triangulation, world-space residual decomposition, uncertainty-weighted reconstruction, gated scientific denoise, and appearance-only perceptual frequency mapping.
+
+Optional relation records may be ingested through `CalibrationObservationRecordBundleV01` and passed to `FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle`. Normal RAW intake remains calibration-bundle-independent and lens/camera/vendor/RAW identity independent at the scientific level.
+
+None of these candidate runtimes has been tested, built, device-validated or scientifically promoted in this branch.
+
+No correction, denoise, deconvolution, temporal fusion, world-space fusion, geometry promotion, calibration promotion, new evidence creation or Scientific Master writeback is authorized by this overlay.
+
+---
+
+# D.RAW — PREVALIDATION ARCHITECTURE CHECKPOINT COMPLETE — 2026-09-30
+
+**Active branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`  
+**Draft PR:** #101
+
+The user explicitly requested that the safe architecture be implemented **before returning to repeated phone tests**, because repeated test cycles were causing design ideas to be lost between chats.
+
+That implementation objective is now complete. Do not delete or collapse these modules merely because physical validation has not yet been run. Their authority is deliberately fail-closed.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. this file.
+
+The architecture now includes:
+- deterministic local features and pair geometry;
+- translation/similarity/affine/homography model bank with no automatic winner;
+- observation graph and disconnected component partitioning;
+- independent relative numeric gauges per connected candidate component;
+- multi-observation feature-track hypotheses and graph-cycle diagnostics;
+- relative-world feature-track projections;
+- ordinary overlap, cross-optical-route, rotation, RAW-360 and stop-motion campaign semantics;
+- Natural Self-Calibration Atlas;
+- world-fixed vs sensor-fixed decomposition scaffold;
+- colour, optics, dark/noise and temporal authority axes/contracts;
+- exact 20-bit source-lattice MEASURED-anchor resolver;
+- typed Free World Continuous Query ABI plus fail-closed UNKNOWN runtime;
+- explicit world↔source-lattice bridge boundary;
+- axis-separated uncertainty transport;
+- conservation/restoration runtime authority;
+- downstream human-vision/display/film-cinema View/Appearance boundary;
+- optional calibration-observation records plus fail-closed validator;
+- evidence-lineage manifest;
+- machine-readable capability matrix;
+- machine-readable future bundled physical-validation campaign;
+- scientific promotion-gate registry;
+- recursive research promotion firewall.
+
+Important permanent boundaries:
+- implementation != validation != measurement != promotion;
+- source SHA roots remain independent;
+- disconnected observations are not forced into one world;
+- camera/lens/vendor names are not scientific relation keys;
+- the user/camera/panorama centre is not a physical world origin;
+- a stitched panorama is not source evidence;
+- unanchored fine-lattice coordinates remain UNKNOWN;
+- no AI/ML/neural/generative reconstruction path;
+- no automatic registration/calibration/correction/deconvolution/temporal fusion/restoration promotion;
+- no Scientific Master writeback from this research foundation;
+- the special 4K→200MP route remains separate;
+- Universal Physical Capture ultra-wide / wide-main / tele retains the 5-second acquisition-only stabilization timer.
+
+The later physical validation design is preserved in `BundledPhysicalValidationCampaignV01`; it does **not** require normal users to perform camera-specific calibration.
+
+The first full compile after this expansion hit a Kotlin compiler GC-overhead OOM. This was a build-memory limit, not a scientific failure. `suite_android/gradle.properties` now uses a bounded 5 GiB in-process Kotlin/Gradle heap. The final ARM64 Android compile gate is now **GREEN** on source-code head `56a4498ae68ebc74e66834b82468573d0242f9f0`: **27/27 PR checks succeeded, 0 failed**.
+
+Green heavy Android runs:
+- Suite Universal Intake: `36698311586`
+- Universal Physical Capture: `36698311253`
+- Android DngCreator Compatibility: `36698311530`
+
+Green Suite artifact:
+- artifact id: `11088856561`
+- APK SHA-256: `d42ea61b2ef811481df490e2e4b972ca0fd73aa868b0e2b1caa8831d41fb121f`
+- APK size: `7844623` bytes
+
+The prevalidation architecture-preservation objective is complete. The next meaningful scientific phase is the already-preserved bundled physical-validation campaign; do not promote registration, calibration, correction, deconvolution, temporal fusion, restoration, or Scientific Master writeback without the required evidence.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — FREE WORLD OBSERVATION GEOMETRY FOUNDATION v0.1 — 2026-09-30
+
+**Current branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`
+
+This branch is the deliberate **implementation-before-promotion-validation** wave.
+
+Parent PR100 remains the source/sensor vs world/scene vs view/output authority foundation and includes the 5-second Universal Physical Capture timer for ultra-wide, wide/main and tele.
+
+Implemented now, without claiming physical promotion:
+- deterministic classical local features;
+- deterministic pair matching + affine geometry hypotheses;
+- Free World observation graph keyed by sealed source SHA;
+- relative world-coordinate graph-gauge hypotheses;
+- ordinary/multi-lens/rotation/RAW-360/stop-motion campaign model;
+- Natural Self-Calibration Atlas axes;
+- world-fixed vs sensor-fixed decomposition readiness scaffold;
+- Optical Support Atlas contract (SFR/MTF/PSF/radial/tangential/chromatic/field-curvature/focus);
+- Colour Relation Atlas contract;
+- Temporal Observation Relation scaffold;
+- axis-separated uncertainty transport;
+- raster-independent Free World Continuous Query contract;
+- conservation/restoration runtime authority roles;
+- typed Free World continuous-query Kotlin ABI (solver still disabled);
+- downstream View/Appearance boundary for human-vision/display/film-cinema rendering;
+- relation-based Calibration Observation Record contract;
+- mechanical recursive Research Promotion Firewall on foundation exports;
+- multi-observation feature tracks + graph-cycle consistency diagnostics;
+- relative-world feature-track projection with explicit dispersion;
+- exact measured-anchor resolver on the 20-bit source lattice; unanchored positions stay UNKNOWN;
+- explicit Free World↔source-lattice bridge boundary; appearance geometry cannot admit that bridge;
+- fail-closed Free World query runtime that returns UNKNOWN until scientific bridge/solver admission;
+- Calibration Observation Record validator;
+- machine-readable Free World Capability Matrix separating implementation from scientific promotion;
+- deterministic graph component partitioning so unrelated selected files are never forced into one world;
+- independent relative numeric gauge per connected appearance-geometry component, with no invented cross-component transform;
+- deterministic pair-geometry model bank (translation/similarity/affine/homography) reported side-by-side with no winner or promotion;
+- unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
+
+Permanent firewall:
+- local features = APPEARANCE_DERIVED_ONLY;
+- pair geometry = hypothesis, not same-world proof;
+- numeric graph gauge = convenience only, never photographer/camera/panorama physical origin;
+- no camera/lens/vendor identity key;
+- no mandatory user calibration;
+- no world-registration promotion;
+- no camera-system-response/lens-only-vignetting claim;
+- no calibration/correction/deconvolution;
+- no multi-frame Scientific Master fusion;
+- no new measured samples/evidence;
+- no Scientific Master writeback.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. Parent PR100 state + PR99 field-repeatability real-device result.
+
+The previously enumerated safe pre-validation architecture set is now implemented as executable code or explicit runtime contracts. Next gate is integrity + a green full Android build and compile repair only. No phone test is required merely to preserve these ideas; bundled physical validation comes later when scientific promotion is considered.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION-WORLD FIELD SEPARATION v0.1 — 2026-09-30
+
+**Current branch:** `research/observation-world-field-separation-v01-2026-09-30`
+
+Parent PR99 established multi-scene field-repeatability measurement. Its first real 3-observation result showed that ordinary scene-dependent radial/azimuth structure is not yet separable enough for automatic light-falloff correction, while CFA-phase repeatability was materially tighter.
+
+This branch begins the universal successor:
+**Observation-World Field Separation v0.1**
+
+Three spaces are now explicitly separated:
+1. SOURCE/SENSOR SPACE
+2. WORLD/SCENE SPACE
+3. VIEW/OUTPUT SPACE
+
+Permanent current boundaries:
+- no camera/lens/vendor identity key;
+- no mandatory user calibration;
+- no requirement that the user or camera-holder becomes a world/calibration origin;
+- panorama centre is not calibration origin;
+- a single stitched 360° panorama is not source evidence;
+- original individual sealed observations remain required for measured authority;
+- current world registration = UNREGISTERED_V0_1;
+- existing structural signature / dominant edge direction / visual similarity are not registration proof;
+- future registration family = deterministic classical local-feature geometry only;
+- no AI/ML/neural/generative runtime;
+- no camera-system-response or lens-only-vignetting claim;
+- no calibration promotion, correction, or Scientific Master writeback.
+
+Android Multi-observation UI now exports:
+**Observation-World Field Separation v0.1 · JSON**
+
+Next gate: green integrity + ARM64 Android build, then device export; after that implement deterministic classical local-feature pair geometry v0.1 as a separate validated gate.
+
+Camera usability update on this branch: Universal Physical Capture (ultra-wide / wide-main / tele) now uses a fixed 5-second pre-capture stabilization timer. The live preview remains active during countdown; lens-role/focus/loupe controls are disabled until the physical RAW_SENSOR capture is submitted. The timer is acquisition UI only, records `ui_pre_capture_timer_seconds=5`, modifies no sensor evidence, and carries no scientific authority. The separate special 4K→200MP route is unchanged.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — FIELD RESPONSE REPEATABILITY v0.1 — 2026-09-30
+
+**Current branch:** `research/field-response-repeatability-v01-2026-09-30`
+
+Parent PR98 froze the Universal Multi-Observation Relation Protocol and its Android build is green.
+
+This branch implements the first axis-specific read-only experiment:
+**Field Response Repeatability v0.1**
+
+Key rules:
+- minimum 3 distinct measured PR96 field observations;
+- remove only one scalar per observation;
+- compare radial, azimuth and CFA-phase shape in EV;
+- current runtime relation = USER_GROUPING_HINT_ONLY;
+- camera/lens identity remains unproven;
+- scene illumination / sensor angular response remain unseparated;
+- no automatic threshold, winner, calibration promotion or correction;
+- no source/sample mutation or Scientific Master writeback.
+
+Mobile UI includes a new Multi-observation panel with:
+1. Analyseer alle geselecteerde bronnen universeel
+2. Export Field Response Repeatability v0.1 · JSON
+
+Next gate: green integrity + full ARM64 Android build, then one device export from at least three substantially different DNG scenes.
+
+Device UI correction after first PR99 test: the batch analyse button now exposes the normal D.RAW running/success/error dot, elapsed chronometer, pending source count and a final measured-field-chart count. The action force-reanalyses the selected set; JPEG/decoder-pending/non-CFA sources remain observations but do not count toward the >=3 measured PR96 field-chart gate.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL MULTI-OBSERVATION RELATION v0.1 — 2026-09-30
+
+**Current branch:** `research/universal-multi-observation-relation-v01-2026-09-30`
+
+Parent PR #97 completed the first two-source physical gate:
+- admitted DNG path: PASS;
+- opaque/unsupported CR3 path: PASS.
+
+Read first:
+1. `state/UNIVERSAL_MULTI_OBSERVATION_RELATION_PROTOCOL_STATE_2026-09-30.json`
+2. `docs/research/universal-multi-observation-relation-v0.1/README.md`
+3. PR97 Atlas state and both device-result JSONs.
+
+New frozen law:
+**RELATE_OBSERVATIONS_WITH_EXPLICIT_EVIDENCE_NEVER_BY_CAMERA_OR_LENS_NAME**
+
+A relation is a separate scientific edge between immutable source-SHA observation roots. It may not merge evidence, inflate independentEvidenceCount, promote calibration, authorize correction/deconvolution, or write back to Scientific Master.
+
+Next gate: green integrity + Android build, then first read-only field-response repeatability experiment across multiple independent observations.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL OBSERVATION & CALIBRATION ATLAS v0.1 — 2026-09-30
+
+The first two-source physical gate is COMPLETE: admitted DNG and opaque/unsupported CR3 both validated.
+
+
+**Current branch:** `research/universal-observation-calibration-atlas-v01-2026-09-30`
+
+Read first:
+
+1. `state/UNIVERSAL_OBSERVATION_CALIBRATION_ATLAS_STATE_2026-09-30.json`
+2. `docs/research/universal-observation-calibration-atlas-v0.1/README.md`
+3. parent PR #96 Observation Optical Field Chart remains read-only and unmodified in meaning.
+
+Purpose:
+
+- keep universal input independent of camera name, lens name, vendor and prior user calibration;
+- bind the front side and back side of the same sealed observation into one read-only atlas;
+- keep colour, illumination/light falloff, optical support, temporal footprint, restoration and precision as separate authority axes;
+- preserve Float64 branch-sensitive compute + controlled Float32 scientific storage;
+- preserve Zero-Line / TruthRange and explicitly keep BlackLevel != Zero-Line;
+- define calibration as optional extra observation evidence, never an entrance requirement;
+- no lens-profile lookup, no camera-model scientific routing, no automatic correction and no Scientific-Master writeback.
+
+The atlas is attached even when the RAW/container cannot yet be scientifically decoded. Unsupported axes remain UNKNOWN.
+
+Explicit Android JSON export is implemented and the full ARM64 Android build is green. The first real-device admitted-DNG atlas export is also validated: source SHA 578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e; frontside + measured backside + sample lattice + PR96 field chart available; F64 reconstruction policy / F32 Scientific Master / Zero-Line bindings verified; no user calibration, auto colour/light correction or writeback. The opaque/unsupported-RAW half of the physical gate is still pending.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION OPTICAL FIELD CHART v0.1 — 2026-09-29
+
+**Current optical-field branch:** `research/observation-optical-field-chart-v01-2026-09-29`
+
+Read first:
+
+1. `state/OBSERVATION_OPTICAL_FIELD_CHART_STATE_2026-09-29.json`
+2. `state/OBSERVATION_OPTICAL_FIELD_CHART_DEVELOPMENT_RESULT_2026-09-29.json`
+3. `docs/research/observation-optical-field-chart-v0.1/README.md`
+4. `docs/research/observation-optical-field-chart-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. v0.3 selector remains frozen on PR #95 and is not modified by this branch.
+
+Purpose:
+
+- implement the user's "flat lens" idea as a deterministic flat field-coordinate chart;
+- source/active-area positions are mapped to rho + azimuth + radial/tangential basis;
+- geometric center is a declared coordinate origin only, not a proven physical optical axis;
+- existing measured CFA samples are grouped into 12 radial annuli and 12 azimuth sectors;
+- per-annulus CFA-phase medians and azimuthal dispersion are recorded;
+- observed outer/inner signal falloff is descriptive scene+lens+sensor evidence, not automatically lens vignetting;
+- no cos^4 model, lens profile, camera model or vendor map is assumed;
+- DNG OpcodeList2 headers may be reported as provenance hints; GainMap payloads are not interpreted/applied and cannot calibrate truth;
+- no correction gain, measured-sample mutation or Scientific Master writeback is allowed.
+
+Current measured topology is inherited from BacksideSignalSupportAudit: classic TIFF/DNG, uncompressed unsigned 16-bit, single sample/pixel, strips. Unsupported layouts fail closed for the measured field signal while the geometry chart can still exist when raster geometry is known.
+
+Development-source numerical result (`IMG_20260403_182145.dng`):
+
+- 12,288 sparse measured CFA samples using the same 64-pixel grid as runtime;
+- annular p50 rises from ~0.01668 centerward to ~0.20490 at the outer ring;
+- observed outer/inner p50 ratio ~12.28;
+- outer-half median azimuth relative MAD ~0.902, showing very strong scene asymmetry;
+- four 13x17 GainMaps remain provenance-only and are not applied;
+- conclusion: this one scene cannot identify lens-only vignetting.
+
+Next gate: green Android build, then inspect a real-device radial/azimuthal field profile without applying any correction.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.3 — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v03-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V03.json`
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V03_INDEPENDENT_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.3/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.3/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+6. v0.2 remains the frozen candidate-geometry predecessor.
+
+
+First independent v0.3 paired device result is now available on `IMG_20260403_182145.dng`:
+
+- original DNG byte SHA-256 `999216c4dfbb21180381a7621ef0d32e5faa16d1fcd2049f0185302760fa28ef` exactly matches v0.1/v0.2/v0.3 `source_sha256`;
+- all three versions used the exact same 11,844 holdout coordinates, targets and baseline predictions;
+- v0.2/v0.3 candidate estimates, support geometry and validation RMS values are identical; this is a selector-only comparison;
+- all-holdout MAE: v0.1 ≈ 0.00554706, v0.2 ≈ 0.00570195, v0.3 ≈ 0.00552648;
+- all-holdout RMSE: v0.1 ≈ 0.01008783, v0.2 ≈ 0.01039450, v0.3 ≈ 0.00995411;
+- v0.3 improves MAE ≈ 3.08% and RMSE ≈ 4.24% versus v0.2;
+- v0.3 is numerically ≈ 0.37% lower MAE than v0.1 over all holdouts, but the 512x512 block-bootstrap interval for v0.3-v0.1 crosses zero;
+- on the 11,012 reference-comparable holdouts, v0.1 MAE ≈ 0.00487253, v0.3 ≈ 0.00487868, reference ≈ 0.00494619;
+- v0.3 selector regret improves materially versus v0.2 but remains worse than v0.1;
+- conclusion: v0.3 selector fix successfully recovers the v0.2 regression, but superiority over v0.1 is not established; no promotion/writeback.
+
+Why v0.3 exists:
+
+- v0.2 improved candidate-bank capacity but its selector regressed;
+- v0.3 freezes every v0.2 candidate fit and direction choice;
+- cross-family selection now uses only common target-blind validation RMS;
+- no second BIC/AIC/parameter-count penalty is applied;
+- model complexity is only a deterministic numerical tie-break;
+- each holdout reports second-best validation RMS and selection margin;
+- source raster remains full-resolution MEASURED support, never world-resolution authority;
+- 20-bit raster-independent lattice remains the scientific solution domain;
+- no lens/camera/vendor routing, no AI/ML, no writeback.
+
+Retrospective development replay on the already-observed paired source predicts v0.3 MAE ≈ 0.00442126 vs v0.1 ≈ 0.00446583 and v0.2 ≈ 0.00460044. This is development evidence only, not validation.
+
+New APK test export:
+
+`Export Universal Local Model Bank Holdout v0.3 · JSON`
+
+Green v0.3 Android build checkpoint:
+
+- code SHA: `57754bf573bf964d042964843f080282d23d9cab`;
+- D.RAW Android DngCreator Compatibility run: `36620946032` — SUCCESS;
+- artifact: `11058269102`;
+- artifact digest: `sha256:9e599ffa625f92a3c5443ce7714cbe529f8cf5673eff13725503ed3ccf81fa5b`;
+- APK SHA-256: `fb08d089b71cf367106fae798703e36ba108a947a759d68f1fbeb31ef05a7752`;
+- an earlier Universal Intake retry failed only because the Android SDK CMake 3.22.1 download arrived as an invalid archive; this was external to the code.
+
+Validation law: use one NEW, previously unscored sealed RAW/DNG and export v0.1, v0.2 and v0.3 on that exact source. Holdout coordinates must match. v0.2/v0.3 per-model estimates must be bit-identical; only selected_model may differ.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK v0.2 — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v02-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29_V02.json`
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.2/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+6. PR #92 remains the frozen v0.1 real-device predecessor.
+
+
+Paired v0.1/v0.2 result now available on source `IMG_BNC_TRUTHRAW20260907_094414_423`:
+
+- exact same source/scientific/TruthNegative hashes for v0.1 and v0.2;
+- exact same 11,844 holdout coordinates and targets;
+- v0.2 successfully removed directional/affine redundancy: 0/11,844 bit-identical center estimates;
+- v0.1 selected MAE ≈ 0.00446583; v0.2 ≈ 0.00460044 over all holdouts;
+- on 11,031 reference-comparable holdouts: v0.1 MAE ≈ 0.00386913, v0.2 ≈ 0.00399589, reference ≈ 0.00397154;
+- v0.2 selector regret worsened, but v0.2 oracle MAE improved to ≈ 0.00338673 vs v0.1 oracle ≈ 0.00364386;
+- conclusion: v0.2 candidate geometry improved, selector regressed; no promotion/writeback;
+- original source was supplied afterwards as `IMG_BNC_TRUTHRAW20260907_094414_423.dng` (25,106,108 bytes); computed SHA-256 `578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e` exactly matches the paired v0.1/v0.2 `source_sha256`, so byte-level source provenance is now closed.
+
+Why v0.2 exists:
+
+- PR #92 v0.1 beat the historical reference on its first independent tele test, but no promotion/writeback was allowed;
+- selector regret remained material;
+- v0.1 DIRECTIONAL_LINE and AFFINE_PLANE center predictions were identical on all 11,844 hold-outs;
+- v0.2 therefore uses target-blind support cross-fit for model selection;
+- v0.2 replaces DIRECTIONAL_LINE with DIRECTIONAL_STRIP_LINE using observation-derived directional support only;
+- tele identity remains provenance only and is not a selector/calibration input;
+- the source raster remains exact full-resolution MEASURED support, not world-resolution authority;
+- the 20-bit sparse lattice remains the free scientific solution domain;
+- target numeric Stage-2 value remains unread until selector and reference predictions are frozen;
+- candidate_applied=false and scientific_writeback_allowed=false.
+
+New APK test export:
+
+`Export Universal Local Model Bank Holdout v0.2 · JSON`
+
+Validation law: use one NEW sealed RAW/DNG and export both v0.1 and v0.2 on the same source. Their hold-out coordinates should match exactly; compare v0.2 directly against v0.1 and the same baseline.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL LOCAL MODEL BANK — 2026-09-29
+
+**Current stacked successor:** `research/universal-local-model-bank-holdout-v01-2026-09-29`
+
+Read first:
+
+1. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_STATE_2026-09-29.json`
+2. `state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_REAL_DEVICE_RESULT_2026-09-29.json`
+3. `docs/research/universal-local-model-bank-holdout-v0.1/README.md`
+4. `docs/research/universal-local-model-bank-holdout-v0.1/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md`
+5. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+6. `docs/research/universal-observation-model-selection-v0.1/README.md`
+7. PR #90 real-device result remains negative evidence for universal affine promotion.
+
+
+PR #92 first independent device result is now available on capture
+`DRAW_CAPTURE_1790703829897_tele_4080x3072`:
+
+- 11,844 full-resolution real CFA hold-outs, exactly 2,961 per CFA phase;
+- selected model valid on 11,844/11,844; baseline valid on 11,667/11,844;
+- directly comparable MAE: selected ≈ 0.02082264 vs baseline ≈ 0.02143966;
+- directly comparable RMSE: selected ≈ 0.02706725 vs baseline ≈ 0.02784103;
+- wins selected/baseline = 6,227 / 5,440;
+- selected bias ≈ -0.00032525 vs baseline ≈ -0.00315449;
+- post-reveal oracle MAE ≈ 0.01833255; mean selector regret ≈ 0.00247127;
+- directional-line and affine-plane center estimates were exactly identical on all 11,844 hold-outs under the current symmetric 80-sample support, revealing a model-bank redundancy;
+- all target-leakage/lens/camera/vendor/writeback safety flags stayed false;
+- no promotion/writeback is allowed from this result.
+
+Review-package limitation: all JSON sidecars share the same source/scientific/TruthNegative hashes, but the original sealed source RAW/DNG bytes were not included in the uploaded ZIP, so external byte-level source-SHA reverification remains pending.
+
+New in this successor:
+
+- original source resolution is used as full-resolution MEASURED support for CFA values, phase, detail/structure, geometry, censor paths and hold-out validation — not only noise;
+- audit scope is a deterministic stratified set of real CFA anchors across the full source raster, not only Dark-Chroma regions;
+- Dark-Chroma/N2 candidate state and the PR #91 query-policy are optional context, **not admission gates** for this full-resolution audit;
+- the existing 20-bit fixed-point sample lattice remains the free scientific coordinate domain;
+- model bank: robust median constant, directional line, affine plane, quadratic surface, NO_RECONSTRUCTION;
+- model selection is frozen before target reveal;
+- target value, target error and post-reveal oracle are forbidden selector inputs;
+- the post-reveal oracle exists only to measure selector regret;
+- model selection does not require NoiseProfile; the legacy baseline is simply unavailable where its own variance contract cannot be satisfied;
+- no lens calibration, camera model, physical Camera2 ID or vendor map is a model-selection dependency;
+- no model output is applied to Scientific Master/D.RAWnegative;
+- new independent real-device RAW is required for scientific validation.
+
+APK test export:
+
+`Export Universal Local Model Bank Holdout v0.1 · JSON`
+
+Permanent laws remain:
+
+> The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
+
+> A new raster may refine the measurement space without replacing the measurement history.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — 2026-09-29
+
+**Current stacked research successor:** `research/universal-observation-model-selection-v01-2026-09-29`
+
+Read first for this branch:
+
+1. `state/UNIVERSAL_OBSERVATION_MODEL_SELECTION_STATE_2026-09-29.json`
+2. `docs/research/universal-observation-model-selection-v0.1/README.md`
+3. `state/ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_STATE_2026-09-29.json`
+4. `docs/research/anchor-constrained-local-reconstruction-v0.1/README.md`
+5. `state/RASTER_INDEPENDENT_SAMPLE_LATTICE_STATE_2026-09-29.json`
+
+Latest proven PR #90 real-device evidence is no longer "pending": tele capture
+`DRAW_CAPTURE_1790686814757_tele_4080x3072` produced 21,760 real CFA hold-outs.
+The affine solver had complete coverage but was worse than the existing baseline on
+the 19,560 directly comparable hold-outs (MAE ≈ 0.00154976 vs 0.00147486;
+RMSE ≈ 0.00205484 vs 0.00190590). Affine is therefore **not promoted**.
+Diagnostic uncertainty was too optimistic. Safety/writeback invariants remained intact.
+
+The active successor is intentionally universal and observation-conditioned:
+
+- no lens-specific noise calibration;
+- no camera-model/device routing;
+- no vendor lookup table;
+- no AI/ML/neural/generative runtime;
+- exact source CFA samples remain immutable MEASURED anchors;
+- the original source resolution is full-resolution evidence support for values,
+  structure, geometry, CFA phase, censoring and provenance — **not only noise**;
+- the source raster is measurement sampling, not world-resolution authority;
+- the existing 20-bit fixed-point sample lattice is the free scientific solution domain;
+- every unanchored coordinate begins UNKNOWN;
+- model-bank selection uses only pre-target observation geometry/support;
+- held-out target values and hold-out errors are forbidden selector inputs;
+- the already-seen 2026-09-29 tele hold-out is development evidence only;
+- a new independent capture is required to validate the selector.
+
+Green code-bearing PR #91 checkpoint:
+
+- code SHA: `4f1b5c1e99a115fa4b63d49b02d1913908d5a8ec`
+- D.RAW Suite Universal Intake run: `36593498025` — SUCCESS
+- artifact: `11044977856`
+- artifact digest: `sha256:c76bff4277b64914fdc2760af17fead6ebbcda2bba1b365e946a5fb4ded1a5e4`
+- APK SHA-256: `bb303089805dc271da238d8a6ee41b1ed124f16e036deacb99976d6ce325c90d`
+
+The APK exposes `Export Universal Observation Model Selection v0.1 · JSON`.
+This selector sidecar is computed before the anchor hold-out audit and contains no
+held-out target/error metrics. Export/freeze it before interpreting a new
+independent hold-out result.
+
+Permanent law for this line:
+
+> The source raster determines where D.RAW measured. It does not determine the raster on which D.RAW must think.
+
+And:
+
+> A new raster may refine the measurement space without replacing the measurement history.
+
+---
+
 # D.RAW — CURRENT PROJECT IDENTITY — 2026-09-28
 
 **Official product name: `D.RAW`.**
 
 Primary current repository line: `main`.
 
-Latest substantive integration:
+Latest canonical main integration:
 
-`1fa3850e4ec0c58f7dc294acd011721465041ea9`
+`a46d438145427e09e9c09db8e6cf3e443abe5a51` — PR #81
 
-This integration adds Universal Physical Capture to the full `suite_android` D.RAW app: ultra-wide, wide/main and tele are discovered dynamically as RAW-capable back-facing sources, captured to a sealed DNG, and handed to the same Universal Intake as imported RAW. Camera2 remains transport/provenance only. The existing special 4K→200MP Camera-5 route remains separate and preserved.
+Main includes the RAW_SENSOR-first universal physical-capture foundation plus live preview, tap focus, focus lock and display-only Macro Loupe v0.3. Camera2 remains transport/provenance only. The normal ultra-wide, wide/main and tele routes use separate physical-camera acquisition paths; the existing special 4K→200MP Camera-5 route remains separate and preserved.
 
 ## Current core vision
 
@@ -17,11 +682,71 @@ This integration adds Universal Physical Capture to the full `suite_android` D.R
 - Frontside inspection is deterministic classical vision only and remains `APPEARANCE_DERIVED_ONLY` unless a separate scientific path proves a stronger fact.
 - **No AI/ML/neural/generative/learned models are allowed in D.RAW.**
 - Device-specific maps are optional hints, never prerequisites for universal source entry or scientific truth.
-- Camera and file sources now converge after source sealing: physical capture → sealed DNG → the same Universal Intake as imported RAW.
-- Ultra-wide / wide-main / tele camera roles are dynamic UI focal-order hints only; Camera2 properties never become scientific truth.
+- Camera and file sources converge after source sealing: physical capture → sealed app-visible RAW_SENSOR evidence → derived compatibility DNG → the same Universal Intake as imported RAW.
+- Ultra-wide / wide-main / tele are dynamically discovered physical acquisition routes. Current PR #82 real-device tests prove distinct physical 4/2/5 runtime routes on the tested device, while role names/FoV ordering remain acquisition/UI knowledge rather than universal scientific truth.
 - Float64 compute where needed and controlled Float32 Scientific-Master/RAW storage remain the intended precision architecture.
 - Provenance/admission/authority are guardrails around claims; they do not bound the Free World itself.
+- The source raster is now explicitly **measurement sampling geometry, not the world-resolution boundary**. Active successor work introduces a sparse raster-independent sample lattice: measured source samples remain exact anchors; all positions between them begin `UNKNOWN` and are not upscaled/interpolated pixels.
 - The canonical Android product is `suite_android`. The geometry/universal-capture APK is a historical/test capture assistant.
+
+## Active unmerged 2026-09-28 device research
+
+The following work is deliberately **draft/unmerged** and must not be confused with canonical `main`:
+
+- **PR #82** · `fix/universal-camera-input-v04-2026-09-28` — real-device validated normal physical routing: ultra-wide route/physical 4 at 1.82 mm, main route/physical 2 at 6.55 mm, tele route/physical 5 at 22.48 mm; derived DNG Orientation compatibility fix validated through the scientific pipeline.
+- **PR #83** · `research/dark-chroma-stability-v01-2026-09-28` — same-observation frontside dark-chroma instability audit + structure veto; no correction/writeback.
+- **PR #84** · `research/dark-chroma-stability-v02-2026-09-28` — first information-support gate. Real-device near-black tele testing proved the entropy hard-cutoff too brittle, while correction safety still held.
+- **PR #85** · `research/dark-chroma-stability-v03-2026-09-28` — device-validated successor: non-entropy-hinged frontside degeneracy blocker plus sparse measured backside signal-support from the selected DNG CFA payload. Global backside support may **block** hidden-colour reconstruction but may never enable correction.
+- **PR #86** · `research/dark-chroma-stability-v04-2026-09-29` — device-validated in three cases: near-black tele remains `DARK_UNINFORMATIVE`; structured ultra-wide has zero visible candidates; selective main/wide `1790637640867` binds all 6 visible candidates but exposes a new limitation: `structure_protection_present` is true in 3072/3072 N2 tiles although only ~16.56% of sampled points are structure-protected. Therefore v0.4 binding is validated, but the 64x64 any-structure-presence veto is too coarse for candidate promotion. Correction-supported and private chroma A/B/Delta remain false.
+- **PR #87** · `research/dark-chroma-stability-v05-2026-09-29` — parent device-validated on selective main/wide `1790662450477`: 15/15 visible candidates fine-bound, overlap/interior structure fraction ≈0.1677/0.1678, fine tiles structure/free=558/0, zero-interior-structure=0, correction-supported=0. The 32×32 refinement therefore does not separate candidates; next gate is exact sampled structure-support distance/density, still audit-only: unchanged N2 structure gate, but 32×32 source reporting tiles expose sampled structure-protection density and fully-contained interior support for selective Dark-Chroma regions. It is measurement-only: no unsampled-pixel inference, no protection reduction, no correction enable and no private chroma A/B/Delta.
+
+Current Dark Chroma law:
+
+```text
+one sealed observation
+ -> deterministic frontside structure/chroma diagnostics
+ -> measured selected-DNG backside signal support where topology is provable
+ -> blocking/uncertainty constraints
+ -> one D.RAWnegative diagnostic binding
+
+NO hidden-colour reconstruction from DARK_UNINFORMATIVE
+NO CHROMA_CORRECTION_SUPPORTED without same-observation local N2/backside binding
+NO private chroma A/B/Delta yet
+NO Scientific-Master writeback
+```
+
+Read `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V06.json` and
+`docs/research/dark-chroma-stability-v0.6/README.md` before continuing this line.
+
+For the current coordinate-world successor also read:
+- `state/RASTER_INDEPENDENT_SAMPLE_LATTICE_STATE_2026-09-29.json`
+- `docs/DRAW_RASTER_INDEPENDENT_SAMPLE_WORLD_2026-09-29.md`
+- `docs/research/raster-independent-sample-lattice-v0.1/README.md`
+
+Latest v0.4 device evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_ULTRAWIDE_1790636281140.md`.
+Selective main/wide evidence: `docs/research/dark-chroma-stability-v0.4/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790637640867.md`.
+
+v0.5 green test APK checkpoint: artifact `11005636260`, APK SHA-256 `615e75323005d079a2a5650dba035128e6d6a40153a1f7bd45ba927d6173e46e`. The v0.5 device target remains the selective main/wide case; correction-supported stays false.
+
+v0.5 device evidence: `docs/research/dark-chroma-stability-v0.5/DEVICE_EVIDENCE_2026-09-29_MAIN_WIDE_1790662450477.md`. Important caveat: the uploaded package contains predecessor N2 JSON sidecars, but not the new fine-field JSON; the 32×32 aggregate values are grounded in the device UI screenshot.
+
+- **PR #88** · `research/dark-chroma-stability-v06-2026-09-29` — parent active support-distance successor; code checkpoint `ae93117bf492e5ebd81a2411bf9f6bf592738cff` is fully green. It records exact deterministic N2 sampled Structure/Censored/CensorBoundary coordinates + center/radius and rectangle-margin support geometry and now exposes a machine-readable `Export N2 Sample Support Distance v0.1 · JSON` sidecar. No distance threshold, no probability, no protection reduction, correction-supported=false.
+
+v0.6 green APK checkpoint: artifact `11020341011`, APK SHA-256 `b84093fdb428f724d58dc07665054537aa97cad45634748e540624e5898ac4fd`, bytes `7311423`. Device validation must include the exported support-distance JSON sidecar so exact sampled support can be independently recomputed.
+
+- **PR #89 · Raster-Independent Sample Lattice v0.1** · `research/raster-independent-sample-lattice-v01-2026-09-29` — current active successor above v0.6; code checkpoint `f75025e0d2bbb3345653e1e6365becf28cb8f7d4` is fully green: exact source CFA samples become measured anchors in a sparse fixed-point coordinate world with 2^20 coordinate units per source pixel. No dense replacement raster, no interpolation, no upscaling and no new measurement. The current v0.6 exact support geometry is projected into this world as `D.RAW/N2RasterIndependentSampleGeometry/0.1`; Dark Chroma v0.7 binds to it audit-only.
+
+Sample-lattice green APK checkpoint: artifact `11022051681`, APK SHA-256 `615ea1146f0a647fd3cd8d8100d6297dc7f56c2b1e7b88b1841a72e01269ada3`, bytes `7327807`. The APK is built from the fully green code checkpoint above; later branch commits only record state/documentation.
+
+First device evidence now exists: tele `1790673150696`, 4080×3072. Universal Intake reports exactly `12,533,760` measured anchors = 4080×3072, `dense=false`, `upscaling=false`, unanchored positions UNKNOWN. Two Dark-Chroma candidates bind into the lattice. Exact support geometry separates them: candidate 0 nearest sampled Structure support = 2.6926 px with 5/12 structure samples inside r8; candidate 1 nearest sampled Structure support = 8.5147 px with 0/12 inside r8 but 7/44 by r16. This does **not** enable correction; it proves exact sample geometry carries useful local information that coarse any-structure tiles lost. Evidence: `docs/research/raster-independent-sample-lattice-v0.1/DEVICE_EVIDENCE_2026-09-29_TELE_1790673150696.md`.
+
+- **PR #90 · Anchor-Constrained Local Reconstruction v0.1** · `research/anchor-constrained-local-reconstruction-v01-2026-09-29` — current active successor above the device-validated sample lattice; code checkpoint `ae1f322a134a6c7b29fb3f983ceb8985aadba454` is fully green. It performs deterministic period-8 holdout validation inside selective Dark-Chroma regions: the real CFA target remains immutable MEASURED evidence, is hidden from the solver, and is predicted from other same-phase measured anchors by an inverse-variance local affine plane. The existing center-excluded multiscale v0.2 predictor is retained only as a reference. Output authority is `RECONSTRUCTED_PRIVATE_AUDIT_ONLY`; lower holdout error does not prove denoising or scene truth. No correction, no private A/B/Δ and no Scientific-Master/D.RAWnegative writeback.
+
+Read before continuing this successor:
+- `state/ANCHOR_CONSTRAINED_LOCAL_RECONSTRUCTION_STATE_2026-09-29.json`
+- `docs/research/anchor-constrained-local-reconstruction-v0.1/README.md`
+
+Anchor-holdout green APK checkpoint: artifact `11032268027`, APK SHA-256 `c6c864e2985a0a916a390beee36794be7ce6cdec7c0ac4532fdbbe34c9ecf5e6`, bytes `7370911`. Device validation must include `Export Anchor-Constrained Reconstruction v0.1 · JSON`; lower holdout error remains prediction-of-noisy-target evidence only, not denoise/scene-truth proof.
 
 ## Current physical observations
 
@@ -48,18 +773,20 @@ Ultra-wide final admission state:
 ## Mandatory current reading order
 
 1. `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-2. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-3. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
-4. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
-5. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-6. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
-7. `docs/research/draw-observation-record-v0.4/README.md`
-8. `docs/research/draw-source-capability-envelope-v0.2/README.md`
-9. `docs/research/draw-source-admission-package-v0.2/README.md`
-10. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
-11. `docs/research/free-world-observation-graph-v0.1/README.md`
-12. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
-13. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+2. `state/DARK_CHROMA_RESEARCH_STATE_2026-09-29_V06.json` — active draft/unmerged Dark Chroma line
+3. `docs/research/dark-chroma-stability-v0.6/README.md`
+4. `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+5. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md` — historical pre-resumption handoff
+6. `state/CURRENT_PROJECT_STATE_2026-09-27.json` — parent state
+7. `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+8. `docs/research/draw-direct-physical-source-admission-v0.1/README.md`
+9. `docs/research/draw-observation-record-v0.4/README.md`
+10. `docs/research/draw-source-capability-envelope-v0.2/README.md`
+11. `docs/research/draw-source-admission-package-v0.2/README.md`
+12. `docs/research/draw-scientific-ingress-lineage-v0.1/README.md`
+13. `docs/research/free-world-observation-graph-v0.1/README.md`
+14. `docs/research/drawnegative-v0.1/SEAL_MANIFEST_v0_1.json`
+15. `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
 
 ## Current laws
 

@@ -1,0 +1,107 @@
+{
+  "schema": "D.RAW/UniversalLocalModelBankHoldoutState/0.2",
+  "date": "2026-09-29",
+  "branch": "research/universal-local-model-bank-holdout-v02-2026-09-29",
+  "status": "PAIRED_REAL_DEVICE_RESULT_AVAILABLE_NO_PROMOTION",
+  "parent": {
+    "pr": 92,
+    "branch": "research/universal-local-model-bank-holdout-v01-2026-09-29",
+    "result": "POSITIVE_PREDICTIVE_SIGNAL_NO_PROMOTION"
+  },
+  "development_evidence": {
+    "capture": "DRAW_CAPTURE_1790703829897_tele_4080x3072",
+    "lens_context": "TELE_TEST_PROVENANCE_ONLY",
+    "use_for_v02": "DEVELOPMENT_EVIDENCE_ONLY_NOT_INDEPENDENT_VALIDATION",
+    "v01_holdouts": 11844,
+    "v01_directly_comparable": 11667,
+    "v01_selected_mae": 0.020822638090543244,
+    "v01_baseline_mae": 0.02143966413691943,
+    "v01_mean_selector_regret": 0.002471270076658392,
+    "directional_affine_predictions_identical": true
+  },
+  "architecture": {
+    "universal_input_required": true,
+    "lens_specific_calibration_required": false,
+    "camera_model_required": false,
+    "vendor_mapping_required": false,
+    "ai_or_learned_models_used": false,
+    "source_raster_role": "EXACT_MEASURED_ANCHOR_GEOMETRY_AND_FULL_RESOLUTION_SOURCE_SUPPORT",
+    "source_raster_used_only_for_noise": false,
+    "source_raster_is_world_resolution_authority": false,
+    "scientific_solution_domain": "RASTER_INDEPENDENT_SPARSE_FIXED_POINT_LATTICE",
+    "coordinate_fraction_bits": 20,
+    "holdout_period": 64,
+    "support_radius_source_px": 8,
+    "noise_profile_required_for_selection": false
+  },
+  "model_bank": [
+    "ROBUST_MEDIAN_CONSTANT",
+    "DIRECTIONAL_STRIP_LINE",
+    "AFFINE_PLANE",
+    "QUADRATIC_SURFACE",
+    "NO_RECONSTRUCTION"
+  ],
+  "selector": {
+    "score": "TARGET_BLIND_SUPPORT_CROSSFIT_PREDICTIVE_SCORE_V0_2",
+    "partition": "VALIDATION_WHEN_OFFSET_LATTICE_INDEX_SUM_MOD_3_EQUALS_0",
+    "final_candidate_refit_uses_all_surrounding_admitted_support": true,
+    "final_candidate_refit_occurs_before_target_reveal": true,
+    "directional_support_conditioned": true,
+    "directional_strip_half_width_source_px": 2,
+    "target_censor_state_used_for_holdout_admission": true,
+    "target_numeric_stage2_value_read_before_selection": false,
+    "target_value_used_by_models": false,
+    "target_value_used_by_selector": false,
+    "holdout_error_used_by_selector": false,
+    "post_reveal_oracle_used_by_selector": false,
+    "direction_internal_validation_and_cross_family_validation_separated": true,
+    "cross_family_models_share_common_validation_anchors": true,
+    "direction_selection_uses_strip_internal_score": true,
+    "cross_family_selection_uses_common_validation_score": true
+  },
+  "validation": {
+    "protocol_frozen": true,
+    "protocol_path": "docs/research/universal-local-model-bank-holdout-v0.2/DEVICE_VALIDATION_PROTOCOL_2026-09-29.md",
+    "new_independent_real_device_raw_required": true,
+    "paired_v01_v02_same_capture_required": true,
+    "paired_holdout_coordinates_expected_identical": true,
+    "post_result_selector_or_threshold_changes_allowed": false
+  },
+  "safety": {
+    "measured_anchors_modified": false,
+    "unanchored_values_promoted_to_measured": false,
+    "model_bank_applied_to_scientific_master": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "next_gate": "DESIGN_TARGET_BLIND_SELECTOR_V0_3_USING_V02_CANDIDATES_WITH_OBSERVATION_REGIME_GATING_THEN_FREEZE_NEW_VALIDATION",
+  "build_integration": {
+    "streaming_dependency": "full_frame_streaming_v0_1",
+    "accidental_streaming_v0_2_dependency_forbidden": true,
+    "superseded_v01_fit_helpers_removed": true,
+    "compile_fix_checkpoint_before_device_validation": true
+  },
+  "paired_real_device_result": {
+    "result_path": "state/UNIVERSAL_LOCAL_MODEL_BANK_HOLDOUT_V02_PAIRED_RESULT_2026-09-29.json",
+    "source_display_stem": "IMG_BNC_TRUTHRAW20260907_094414_423",
+    "holdouts": 11844,
+    "paired_coordinates_exact": true,
+    "v01_selected_mae": 0.004465832922537994,
+    "v02_selected_mae": 0.004600440746879263,
+    "v02_oracle_mae": 0.003386727580456349,
+    "v01_oracle_mae": 0.0036438552668583246,
+    "v02_directional_affine_bit_identical_estimate": 0,
+    "v02_selector_regressed": true,
+    "v02_candidate_bank_capacity_improved": true,
+    "original_sealed_source_bytes_in_package": false,
+    "external_source_sha_reverification_pending": false,
+    "promotion_allowed": false,
+    "original_sealed_source_bytes_supplied_in_followup": true,
+    "original_source_filename": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+    "original_source_byte_size": 25106108,
+    "original_source_computed_sha256": "578fad42dad6819b1d3f9a1f9cbfcc5c547b63ae01f3951f26dca988d655d10e",
+    "original_source_matches_sidecar_source_sha256": true,
+    "source_byte_level_reverification_complete": true
+  }
+}

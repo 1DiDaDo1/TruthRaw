@@ -85,6 +85,7 @@ class CurrentAndroid17HonorCameraBaselineActivity : Activity() {
         ))
         body.addView(space(10))
         status = label("Nog geen v0.55 baseline.", 10f, false)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         return ScrollView(this).apply {

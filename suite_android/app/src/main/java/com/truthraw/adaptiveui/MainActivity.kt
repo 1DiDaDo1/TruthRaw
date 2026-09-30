@@ -26,6 +26,7 @@ import android.widget.Space
 import android.widget.TextView
 import java.io.File
 import java.io.IOException
+import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : Activity() {
@@ -69,6 +70,44 @@ class MainActivity : Activity() {
     private var n2ConfidenceFieldStatus: String? = null
     private var pendingN2FactoredConfidenceJobId: String? = null
     private var n2FactoredConfidenceStatus: String? = null
+    private var pendingN2SupportDistanceJobId: String? = null
+    private var n2SupportDistanceStatus: String? = null
+    private var pendingAnchorReconstructionJobId: String? = null
+    private var anchorReconstructionStatus: String? = null
+    private var pendingObservationModelSelectionJobId: String? = null
+    private var pendingObservationModelSelectionJson: String? = null
+    private var observationModelSelectionStatus: String? = null
+    private var pendingUniversalModelBankHoldoutJobId: String? = null
+    private var universalModelBankHoldoutStatus: String? = null
+    private var pendingUniversalModelBankHoldoutV02JobId: String? = null
+    private var universalModelBankHoldoutV02Status: String? = null
+    private var pendingUniversalModelBankHoldoutV03JobId: String? = null
+    private var universalModelBankHoldoutV03Status: String? = null
+    private var pendingObservationOpticalFieldJobId: String? = null
+    private var pendingObservationOpticalFieldJson: String? = null
+    private var observationOpticalFieldStatus: String? = null
+    private var pendingUniversalCalibrationAtlasJobId: String? = null
+    private var pendingUniversalCalibrationAtlasJson: String? = null
+    private var universalCalibrationAtlasStatus: String? = null
+    private var pendingFieldResponseRepeatabilityJson: String? = null
+    private var fieldResponseRepeatabilityStatus: String? = null
+    private val fieldResponseBatchPendingJobIds = linkedSetOf<String>()
+    private val fieldResponseBatchFailedJobIds = linkedSetOf<String>()
+    private var pendingObservationWorldFieldSeparationJson: String? = null
+    private var observationWorldFieldSeparationStatus: String? = null
+    private var pendingFreeWorldFoundationJson: String? = null
+    private var freeWorldFoundationStatus: String? = null
+    // UI-only navigation state. Scientific/session authority is intentionally
+    // not derived from or persisted through these scroll positions.
+    private var compactScrollY: Int = 0
+    private var mediumLeftScrollY: Int = 0
+    private var mediumRightScrollY: Int = 0
+    private var renderedLayoutTier: LayoutTier? = null
+    private val calibrationObservationRecords = mutableListOf<JSONObject>()
+    private var calibrationObservationRecordStatus: String? = null
+    private var calibrationObservationSessionStoreId: String =
+        java.util.UUID.randomUUID().toString()
+    private var researchWorkbenchMode: Boolean = false
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -152,6 +191,30 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
         DrawVisualTheme.applyWindow(this)
+        researchWorkbenchMode =
+            savedInstanceState?.getBoolean(
+                STATE_RESEARCH_WORKBENCH_MODE,
+            ) ?: intent.getBooleanExtra(
+                EXTRA_OPEN_RESEARCH_WORKBENCH,
+                false,
+            )
+        if (savedInstanceState != null) {
+            calibrationObservationRecordStatus =
+                savedInstanceState.getString(
+                    STATE_CALIBRATION_RECORD_STATUS,
+                )
+            calibrationObservationSessionStoreId =
+                savedInstanceState.getString(
+                    STATE_CALIBRATION_SESSION_STORE_ID,
+                ) ?: calibrationObservationSessionStoreId
+            calibrationObservationRecords.clear()
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir = cacheDir,
+                    sessionId =
+                        calibrationObservationSessionStoreId,
+                )
+        }
 
         var cameraJobToAutoStart: RawJob? = null
         if (savedInstanceState == null) {
@@ -178,25 +241,67 @@ class MainActivity : Activity() {
             }
         }
 
-        if (savedInstanceState == null &&
-            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
-            session.jobs.isEmpty()
+        if (
+            savedInstanceState == null &&
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false)
         ) {
             window.decorView.post { launchRawPicker() }
+        }
+
+        if (
+            savedInstanceState == null &&
+            intent.getBooleanExtra(
+                EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER,
+                false,
+            )
+        ) {
+            window.decorView.post {
+                launchCalibrationObservationRecordPicker()
+            }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val cameraJob = readInternalCameraJob(intent) ?: return
-        installInternalCameraJob(cameraJob)
-        render()
-        if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
-            window.decorView.post {
-                if (activeJobId == cameraJob.id && previewState is TilePreviewUiState.Idle) {
-                    requestPreview(cameraJob)
+        researchWorkbenchMode =
+            intent.getBooleanExtra(
+                EXTRA_OPEN_RESEARCH_WORKBENCH,
+                false,
+            )
+
+        val cameraJob = readInternalCameraJob(intent)
+        if (cameraJob != null) {
+            installInternalCameraJob(cameraJob)
+            render()
+            if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
+                window.decorView.post {
+                    if (
+                        activeJobId == cameraJob.id &&
+                        previewState is TilePreviewUiState.Idle
+                    ) {
+                        requestPreview(cameraJob)
+                    }
                 }
+            }
+        } else {
+            render()
+        }
+
+        if (
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false)
+        ) {
+            window.decorView.post { launchRawPicker() }
+        }
+
+        if (
+            intent.getBooleanExtra(
+                EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER,
+                false,
+            )
+        ) {
+            window.decorView.post {
+                launchCalibrationObservationRecordPicker()
             }
         }
     }
@@ -252,6 +357,10 @@ class MainActivity : Activity() {
         n2ConfidenceFieldStatus = null
         pendingN2FactoredConfidenceJobId = null
         n2FactoredConfidenceStatus = null
+        pendingN2SupportDistanceJobId = null
+        n2SupportDistanceStatus = null
+        pendingAnchorReconstructionJobId = null
+        anchorReconstructionStatus = null
         pendingAppearanceHighlightDetailJobId = null
         appearanceHighlightDetailStatus = null
         pendingAppearanceHeadroomSweepJobId = null
@@ -292,6 +401,12 @@ class MainActivity : Activity() {
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
+        if (isFinishing) {
+            CalibrationObservationRecordSessionStoreV01.clear(
+                cacheDir = cacheDir,
+                sessionId = calibrationObservationSessionStoreId,
+            )
+        }
         super.onDestroy()
     }
 
@@ -445,6 +560,27 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(
+            STATE_RESEARCH_WORKBENCH_MODE,
+            researchWorkbenchMode,
+        )
+        outState.putString(
+            STATE_CALIBRATION_RECORD_STATUS,
+            calibrationObservationRecordStatus,
+        )
+        CalibrationObservationRecordSessionStoreV01.save(
+            cacheDir = cacheDir,
+            sessionId = calibrationObservationSessionStoreId,
+            records = calibrationObservationRecords,
+        )
+        outState.putString(
+            STATE_CALIBRATION_SESSION_STORE_ID,
+            calibrationObservationSessionStoreId,
+        )
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         render()
@@ -460,6 +596,90 @@ class MainActivity : Activity() {
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_OPEN_RAW)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchCalibrationObservationRecordPicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS,
+        )
+    }
+
+    private fun currentCalibrationObservationRecords(): List<JSONObject> =
+        calibrationObservationRecords.map { JSONObject(it.toString()) }
+
+    private fun importCalibrationObservationRecords(data: Intent): String {
+        val uris = buildList {
+            data.data?.let(::add)
+            val clip: ClipData? = data.clipData
+            if (clip != null) {
+                for (index in 0 until clip.itemCount) {
+                    add(clip.getItemAt(index).uri)
+                }
+            }
+        }.distinct()
+
+        if (uris.isEmpty()) {
+            return "Calibration Observation Records: geen JSON-bron ontvangen."
+        }
+
+        var validImported = 0
+        var invalidRejected = 0
+        var filesFailed = 0
+
+        for (uri in uris) {
+            val text =
+                runCatching {
+                    contentResolver.openInputStream(uri)
+                        ?.bufferedReader(Charsets.UTF_8)
+                        ?.use { it.readText() }
+                }.getOrNull()
+            if (text.isNullOrBlank()) {
+                filesFailed++
+                continue
+            }
+
+            val parsed =
+                CalibrationObservationRecordBundleV01.parse(text)
+            invalidRejected +=
+                parsed.optInt("invalid_record_count", 0)
+
+            val records =
+                parsed.optJSONArray("records") ?: JSONArray()
+            for (index in 0 until records.length()) {
+                val record = records.optJSONObject(index) ?: continue
+                val normalized =
+                    CalibrationObservationRecordIdentityV01.normalize(record)
+                val identity =
+                    normalized.optString("record_identity_sha256")
+                val duplicate =
+                    calibrationObservationRecords.any {
+                        it.optString("record_identity_sha256") == identity
+                    }
+                if (!duplicate) {
+                    calibrationObservationRecords += normalized
+                    validImported++
+                }
+            }
+        }
+
+        return "Calibration Observation Records · nieuw=" +
+            validImported +
+            " · totaal=" +
+            calibrationObservationRecords.size +
+            " · rejected=" +
+            invalidRejected +
+            " · file-fail=" +
+            filesFailed +
+            " · relation-based only · promotion=false."
     }
 
     @Suppress("DEPRECATION")
@@ -597,6 +817,9 @@ class MainActivity : Activity() {
             "camera5-color-highlight-oracle",
             "truthnegative-native-container",
             "truthnegative-n2-spatial-sidecar",
+            "truthnegative-n2-support-distance",
+            "anchor-constrained-local-reconstruction",
+            "universal-local-model-bank-holdout",
             "truthnegative-n2-crop-ab",
         )
         return kinds
@@ -1118,6 +1341,726 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_N2_FACTORED_CONFIDENCE,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchN2SupportDistanceExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+        val profile = universalProfiles[job.id]
+        val support =
+            profile?.optJSONObject("n2_sample_support_distance")
+        if (
+            support?.optString("status") !=
+            "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE"
+        ) {
+            n2SupportDistanceStatus =
+                "N2 Sample Support Distance v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met zichtbare Dark-Chroma-kandidaten."
+            render()
+            return
+        }
+
+        pendingN2SupportDistanceJobId = job.id
+        n2SupportDistanceStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_n2_sample_support_distance_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_N2_SUPPORT_DISTANCE,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchAnchorConstrainedReconstructionExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            anchorReconstructionStatus =
+                "Anchor-Constrained Local Reconstruction v0.1 vereist de admitted DNG-route."
+            render()
+            return
+        }
+
+        val profile = universalProfiles[job.id]
+        val audit =
+            profile?.optJSONObject(
+                "anchor_constrained_local_reconstruction",
+            )
+        if (
+            audit?.optString("status") !=
+            "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE"
+        ) {
+            anchorReconstructionStatus =
+                "Anchor-Constrained Local Reconstruction v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met zichtbare Dark-Chroma-kandidaten en exacte support-geometrie."
+            render()
+            return
+        }
+
+        pendingAnchorReconstructionJobId = job.id
+        anchorReconstructionStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_anchor_constrained_local_reconstruction_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_ANCHOR_RECONSTRUCTION,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationModelSelectionExport(job: RawJob) {
+        if (job.id != activeJobId) return
+        val policy =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_observation_model_selection",
+            )
+        if (
+            policy?.optString("status") !=
+            "PROSPECTIVE_AUDIT_POLICY_AVAILABLE"
+        ) {
+            observationModelSelectionStatus =
+                "Universal Observation Model Selection v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met raster-onafhankelijke support-geometrie."
+            render()
+            return
+        }
+        if (
+            policy.optBoolean("heldout_target_used_for_selection", true) ||
+            policy.optBoolean("holdout_error_used_for_selection", true) ||
+            policy.optBoolean("lens_calibration_used", true) ||
+            policy.optBoolean("camera_model_used", true) ||
+            policy.optBoolean("vendor_mapping_used", true) ||
+            policy.optBoolean("candidate_applied", true) ||
+            policy.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationModelSelectionStatus =
+                "Universal Observation Model Selection v0.1 export geblokkeerd: target-blind/universele safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationModelSelectionJobId = job.id
+        pendingObservationModelSelectionJson = policy.toString(2) + "\n"
+        observationModelSelectionStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_observation_model_selection_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_MODEL_SELECTION,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalModelBankHoldoutExport(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || job.id != activeJobId) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            universalModelBankHoldoutStatus =
+                "Universal Local Model Bank Holdout v0.1 vereist momenteel de admitted native DNG-route."
+            render()
+            return
+        }
+
+        val audit =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_local_model_bank_holdout",
+            )
+        if (
+            audit?.optString("status") !=
+            "READY_FOR_EXPLICIT_EXPORT_AUDIT"
+        ) {
+            universalModelBankHoldoutStatus =
+                "Universal Local Model Bank Holdout v0.1 vereist eerst een succesvolle Universele Ingang-analyse met een geldige raster-onafhankelijke sample-lattice; Dark-Chroma/prospective query-policy is hiervoor niet vereist."
+            render()
+            return
+        }
+
+        pendingUniversalModelBankHoldoutJobId = job.id
+        universalModelBankHoldoutStatus = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_local_model_bank_holdout_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalModelBankHoldoutV02Export(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || job.id != activeJobId) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            universalModelBankHoldoutV02Status =
+                "Universal Local Model Bank Holdout v0.2 vereist momenteel de admitted native DNG-route."
+            render()
+            return
+        }
+
+        val audit =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_local_model_bank_holdout_v0_2",
+            )
+        if (
+            audit?.optString("status") !=
+            "READY_FOR_EXPLICIT_EXPORT_AUDIT"
+        ) {
+            universalModelBankHoldoutV02Status =
+                "Universal Local Model Bank Holdout v0.2 vereist eerst een succesvolle Universele Ingang-analyse met een geldige raster-onafhankelijke sample-lattice; Dark-Chroma/prospective query-policy is hiervoor niet vereist."
+            render()
+            return
+        }
+
+        pendingUniversalModelBankHoldoutV02JobId = job.id
+        universalModelBankHoldoutV02Status = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_local_model_bank_holdout_v0_2.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalModelBankHoldoutV03Export(job: RawJob) {
+        val ready = previewState as? TilePreviewUiState.Ready ?: return
+        if (ready.jobId != job.id || job.id != activeJobId) return
+        if (!job.source.format.nativeProcessingReady ||
+            job.source.format.id != "DNG"
+        ) {
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 vereist momenteel de admitted native DNG-route."
+            render()
+            return
+        }
+
+        val audit =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_local_model_bank_holdout_v0_3",
+            )
+        if (
+            audit?.optString("status") !=
+            "READY_FOR_EXPLICIT_EXPORT_AUDIT"
+        ) {
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 vereist eerst een succesvolle Universele Ingang-analyse met een geldige raster-onafhankelijke sample-lattice; Dark-Chroma/prospective query-policy is hiervoor niet vereist."
+            render()
+            return
+        }
+
+        pendingUniversalModelBankHoldoutV03JobId = job.id
+        universalModelBankHoldoutV03Status = null
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_local_model_bank_holdout_v0_3.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationOpticalFieldExport(job: RawJob) {
+        if (job.id != activeJobId) return
+
+        val chart =
+            universalProfiles[job.id]?.optJSONObject(
+                "observation_optical_field_chart",
+            )
+        if (chart?.optString("status") != "FIELD_CHART_AVAILABLE") {
+            observationOpticalFieldStatus =
+                "Observation Optical Field Chart v0.1 export vereist eerst een succesvolle Universele Ingang-analyse met geldige bron-/ActiveArea-geometrie."
+            render()
+            return
+        }
+        if (
+            chart.optJSONObject("vignetting_interpretation")
+                ?.optBoolean("correction_gain_allowed", true) != false ||
+            chart.optBoolean("source_sample_values_modified", true) ||
+            chart.optBoolean("source_sample_positions_modified", true) ||
+            chart.optBoolean("new_measured_samples_created", true) ||
+            chart.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationOpticalFieldStatus =
+                "Observation Optical Field Chart v0.1 export geblokkeerd: read-only optical-field safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationOpticalFieldJobId = job.id
+        pendingObservationOpticalFieldJson =
+            chart.toString(2) + "\n"
+        observationOpticalFieldStatus = null
+
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_observation_optical_field_chart_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchUniversalCalibrationAtlasExport(job: RawJob) {
+        if (job.id != activeJobId) return
+
+        val atlas =
+            universalProfiles[job.id]?.optJSONObject(
+                "universal_observation_calibration_atlas",
+            )
+        if (atlas?.optString("status") != "OBSERVATION_ATLAS_AVAILABLE") {
+            universalCalibrationAtlasStatus =
+                "Universal Observation & Calibration Atlas v0.1 vereist eerst een Universele Ingang-analyse van de sealed observation."
+            render()
+            return
+        }
+
+        val identity = atlas.optJSONObject("universal_identity_policy")
+        val colour = atlas.optJSONObject("colour_state")
+        val illumination = atlas.optJSONObject("illumination_state")
+        val optical = atlas.optJSONObject("optical_support")
+        if (
+            identity?.optBoolean("camera_identity_required", true) != false ||
+            identity?.optBoolean("lens_identity_required", true) != false ||
+            identity?.optBoolean("prior_user_calibration_required", true) != false ||
+            colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
+            illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
+            optical?.optBoolean("deconvolution_authorized", true) != false ||
+            atlas.optBoolean("source_sample_values_modified", true) ||
+            atlas.optBoolean("source_sample_positions_modified", true) ||
+            atlas.optBoolean("new_measured_samples_created", true) ||
+            atlas.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            universalCalibrationAtlasStatus =
+                "Universal Observation & Calibration Atlas v0.1 export geblokkeerd: universal/read-only safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingUniversalCalibrationAtlasJobId = job.id
+        pendingUniversalCalibrationAtlasJson = atlas.toString(2) + "\n"
+        universalCalibrationAtlasStatus = null
+
+        val stem =
+            job.source.displayName.substringBeforeLast(
+                '.',
+                job.source.displayName,
+            )
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_universal_observation_calibration_atlas_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS,
+        )
+    }
+
+    private fun currentMeasuredFieldCharts(): List<JSONObject> =
+        session.jobs.mapNotNull { job ->
+            universalProfiles[job.id]
+                ?.optJSONObject("observation_optical_field_chart")
+                ?.takeIf {
+                    it.optString("status") == "FIELD_CHART_AVAILABLE" &&
+                        it.optJSONObject("measured_composite_field_signal")
+                            ?.optString("status") ==
+                        "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE"
+                }
+        }
+
+    private fun fieldResponseRepeatabilityAnalysisOperationKey(
+        jobs: List<RawJob> = session.jobs,
+    ): String {
+        val setKey =
+            jobs
+                .map { it.id }
+                .sorted()
+                .joinToString("|")
+                .hashCode()
+                .toString()
+        return "main:field-response-repeatability-analysis:" + setKey
+    }
+
+    private fun requestUniversalProfilesForSelectedSources() {
+        val selected = session.jobs.toList()
+        if (selected.isEmpty()) {
+            fieldResponseRepeatabilityStatus =
+                "Geen geselecteerde bronnen voor Field Response Repeatability v0.1."
+            render()
+            return
+        }
+
+        fieldResponseBatchPendingJobIds.clear()
+        fieldResponseBatchFailedJobIds.clear()
+        fieldResponseBatchPendingJobIds.addAll(selected.map { it.id })
+
+        val operationKey =
+            fieldResponseRepeatabilityAnalysisOperationKey(selected)
+
+        if (
+            !startBackgroundOperation(
+                operationKey,
+                "Field Response Repeatability v0.1 · universele bronanalyse",
+            )
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 analyse kon niet starten omdat een gelijknamige operatie al actief is."
+            render()
+            return
+        }
+
+        fieldResponseRepeatabilityStatus =
+            "Universele bronanalyse loopt voor " + selected.size +
+                " geselecteerde bronnen."
+        render()
+
+        selected.forEach { job ->
+            requestUniversalProfile(
+                job = job,
+                force = true,
+            ) { success ->
+                if (!success) {
+                    fieldResponseBatchFailedJobIds += job.id
+                }
+                fieldResponseBatchPendingJobIds -= job.id
+
+                if (fieldResponseBatchPendingJobIds.isEmpty()) {
+                    val measured = currentMeasuredFieldCharts().size
+                    val failures = fieldResponseBatchFailedJobIds.size
+                    val message =
+                        if (failures == 0) {
+                            "Field Response bronanalyse gereed · measured-field-chart=" +
+                                measured + "/3" +
+                                if (measured >= 3) {
+                                    " · repeatability-export beschikbaar."
+                                } else {
+                                    " · nog onvoldoende measured field charts."
+                                }
+                        } else {
+                            "Field Response bronanalyse gereed met " + failures +
+                                " fout(en) · measured-field-chart=" + measured + "/3."
+                        }
+
+                    fieldResponseRepeatabilityStatus = message
+                    finishBackgroundOperation(
+                        operationKey,
+                        failures == 0,
+                        message,
+                    )
+                }
+                render()
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchFieldResponseRepeatabilityExport() {
+        val charts = currentMeasuredFieldCharts()
+        val report = FieldResponseRepeatabilityV01.evaluate(charts)
+        if (
+            report.optString("status") !=
+            "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 blijft fail-closed: " +
+                    report.optString("reason", "onvoldoende geschikte observaties") +
+                    " · measured charts=" + charts.size + "/3."
+            render()
+            return
+        }
+
+        if (
+            report.optJSONObject("interpretation")
+                ?.optBoolean("calibration_promoted", true) != false ||
+            report.optJSONObject("interpretation")
+                ?.optBoolean("correction_gain_allowed", true) != false ||
+            report.optBoolean("source_sample_values_modified", true) ||
+            report.optBoolean("source_sample_positions_modified", true) ||
+            report.optBoolean("new_measured_samples_created", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 export geblokkeerd: read-only safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingFieldResponseRepeatabilityJson = report.toString(2) + "\n"
+        fieldResponseRepeatabilityStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_field_response_repeatability_v0_1_" +
+                    report.optInt("observation_count", charts.size) +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY,
+        )
+    }
+
+    private fun currentObservationWorldProfiles(): List<JSONObject> =
+        session.jobs.mapNotNull { job ->
+            universalProfiles[job.id]
+        }
+
+    @Suppress("DEPRECATION")
+    private fun launchFreeWorldFoundationExport() {
+        val profiles = currentObservationWorldProfiles()
+        val repeatability =
+            FieldResponseRepeatabilityV01.evaluate(
+                currentMeasuredFieldCharts(),
+            ).takeIf {
+                it.optString("status") ==
+                    "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+            }
+
+        val report =
+            FreeWorldObservationGeometryFoundationV01.build(
+                profiles = profiles,
+                fieldRepeatability = repeatability,
+                calibrationRecords = currentCalibrationObservationRecords(),
+            )
+
+        if (
+            report.optString("status") !=
+            "FREE_WORLD_FOUNDATION_AVAILABLE"
+        ) {
+            freeWorldFoundationStatus =
+                "Free World Foundation v0.1 blijft fail-closed: minimaal twee geprofileerde observations zijn nodig."
+            render()
+            return
+        }
+
+        val boundary =
+            report.optJSONObject("promotion_boundary") ?: JSONObject()
+        val firewall =
+            report.optJSONObject("promotion_firewall") ?: JSONObject()
+        if (
+            firewall.optString("status") !=
+            "RESEARCH_PROMOTION_FIREWALL_PASS" ||
+            !firewall.optBoolean(
+                "export_safe_under_current_research_contract",
+                false,
+            ) ||
+            boundary.optBoolean("world_registration_promoted", true) ||
+            boundary.optBoolean("camera_system_response_proven", true) ||
+            boundary.optBoolean("lens_only_vignetting_proven", true) ||
+            boundary.optBoolean("calibration_promoted", true) ||
+            boundary.optBoolean("correction_authorized", true) ||
+            boundary.optBoolean("deconvolution_authorized", true) ||
+            boundary.optBoolean("multi_frame_scientific_fusion_applied", true) ||
+            boundary.optBoolean("scientific_writeback_allowed", true) ||
+            report.optBoolean("creates_new_evidence", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            freeWorldFoundationStatus =
+                "Free World Foundation v0.1 export geblokkeerd: promotion firewall mismatch."
+            render()
+            return
+        }
+
+        pendingFreeWorldFoundationJson = report.toString(2) + "\n"
+        freeWorldFoundationStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_free_world_observation_geometry_foundation_v0_1_" +
+                    profiles.size +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_FREE_WORLD_FOUNDATION,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchObservationWorldFieldSeparationExport() {
+        val profiles = currentObservationWorldProfiles()
+        val report = ObservationWorldFieldSeparationV01.evaluate(profiles)
+
+        if (
+            report.optString("status") !=
+            "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
+        ) {
+            observationWorldFieldSeparationStatus =
+                "Observation-World Field Separation v0.1 blijft fail-closed: minimaal twee " +
+                    "onderscheiden universele observations zijn nodig."
+            render()
+            return
+        }
+
+        val promotion =
+            report.optJSONObject("promotion_boundary") ?: JSONObject()
+        if (
+            promotion.optBoolean("camera_system_response_proven", true) ||
+            promotion.optBoolean("lens_only_vignetting_proven", true) ||
+            promotion.optBoolean("calibration_promoted", true) ||
+            promotion.optBoolean("correction_authorized", true) ||
+            promotion.optBoolean("scientific_writeback_allowed", true) ||
+            report.optBoolean("source_sample_values_modified", true) ||
+            report.optBoolean("source_sample_positions_modified", true) ||
+            report.optBoolean("new_measured_samples_created", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            observationWorldFieldSeparationStatus =
+                "Observation-World Field Separation v0.1 export geblokkeerd: safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingObservationWorldFieldSeparationJson =
+            report.toString(2) + "\n"
+        observationWorldFieldSeparationStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_observation_world_field_separation_v0_1_" +
+                    report.optInt("observation_count", profiles.size) +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION,
         )
     }
 
@@ -2399,6 +3342,1175 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_SAVE_N2_SUPPORT_DISTANCE) {
+            val expectedJob = pendingN2SupportDistanceJobId
+            pendingN2SupportDistanceJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val profile =
+                expectedJob?.let { universalProfiles[it] }
+            val support =
+                profile?.optJSONObject("n2_sample_support_distance")
+            val frontsideV01 =
+                profile?.optJSONObject("scene_analysis")
+                    ?.optJSONObject("dark_chroma_stability_v0_1")
+            val expectedSourceSha =
+                support?.optString("source_sha256", "") ?: ""
+
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob ||
+                support?.optString("status") !=
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" ||
+                frontsideV01 == null ||
+                expectedSourceSha.isBlank()
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 geblokkeerd: actieve bron/binding veranderde of de v0.6-audit is niet beschikbaar."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "truthnegative-n2-support-distance",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                n2SupportDistanceStatus =
+                    "Wacht op de andere D.RAWnegative/Camera-5 analysetaak. " +
+                        "N2 Sample Support Distance v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "N2 Sample Support Distance v0.1",
+                )
+            ) {
+                n2SupportDistanceStatus =
+                    "N2 Sample Support Distance v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            n2SupportDistanceStatus =
+                "N2 v0.6 support-distance sidecar · exacte sampled structure/censor-coördinaten " +
+                    "+ SHA-binding · geen drempel, geen correction-enable…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-n2-support-distance-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    n2SupportDistanceStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    N2SampleSupportDistanceAudit.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 = expectedSourceSha,
+                        frontsideV01 = frontsideV01,
+                    )
+                }
+
+                val success = exportResult.isSuccess
+                val finishMessage =
+                    exportResult.fold(
+                        onSuccess = {
+                            "N2 Sample Support Distance v0.1 opgeslagen + SHA geverifieerd."
+                        },
+                        onFailure = {
+                            "N2 Sample Support Distance v0.1 export faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    )
+                finishBackgroundOperation(
+                    operationKey,
+                    success,
+                    finishMessage,
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    n2SupportDistanceStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "N2 Sample Support Distance v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · queries=" +
+                                    status.optInt("queryCount", 0) +
+                                    " · structure=" +
+                                    status.optLong("structureProtected", 0L) +
+                                    " · support=" +
+                                    status.optString(
+                                        "supportPointStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString("jsonSha256", "").take(16) +
+                                    "… · correction=false."
+                            },
+                            onFailure = {
+                                "N2 Sample Support Distance v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_ANCHOR_RECONSTRUCTION) {
+            val expectedJob = pendingAnchorReconstructionJobId
+            pendingAnchorReconstructionJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            val profile =
+                expectedJob?.let { universalProfiles[it] }
+            val audit =
+                profile?.optJSONObject(
+                    "anchor_constrained_local_reconstruction",
+                )
+            val sampleLattice =
+                profile?.optJSONObject(
+                    "raster_independent_sample_lattice",
+                )
+            val support =
+                profile?.optJSONObject("n2_sample_support_distance")
+            val frontsideV01 =
+                profile?.optJSONObject("scene_analysis")
+                    ?.optJSONObject("dark_chroma_stability_v0_1")
+            val expectedSourceSha =
+                audit?.optString("source_sha256", "") ?: ""
+
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob ||
+                audit?.optString("status") !=
+                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE" ||
+                frontsideV01 == null ||
+                sampleLattice == null ||
+                support == null ||
+                expectedSourceSha.isBlank()
+            ) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1 geblokkeerd: actieve bron/lattice/support-binding veranderde of de holdout-audit is niet beschikbaar."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "anchor-constrained-local-reconstruction",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                anchorReconstructionStatus =
+                    "Wacht op de andere D.RAWnegative analysetaak. Anchor-Constrained Local Reconstruction v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Anchor-Constrained Local Reconstruction v0.1",
+                )
+            ) {
+                anchorReconstructionStatus =
+                    "Anchor-Constrained Local Reconstruction v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            anchorReconstructionStatus =
+                "Anchor holdout-sidecar · echte CFA-ankers tijdelijk verborgen voor predictor · " +
+                    "private RECONSTRUCTED schatting + onzekerheid · geen writeback…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-anchor-holdout-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    anchorReconstructionStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    AnchorConstrainedLocalReconstructionAudit.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 = expectedSourceSha,
+                        frontsideV01 = frontsideV01,
+                        sampleLattice = sampleLattice,
+                        supportDistance = support,
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Anchor-Constrained Local Reconstruction v0.1 opgeslagen + SHA geverifieerd."
+                        },
+                        onFailure = {
+                            "Anchor-Constrained Local Reconstruction v0.1 export faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    anchorReconstructionStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Anchor-Constrained Local Reconstruction v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · queries=" +
+                                    status.optInt("queryCount", 0) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · valid solver/baseline=" +
+                                    status.optLong("solverValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| solver/baseline=" +
+                                    status.optLong("solverLowerAbsError", 0L) + "/" +
+                                    status.optLong("baselineLowerAbsError", 0L) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString("jsonSha256", "").take(16) +
+                                    "… · writeback=false."
+                            },
+                            onFailure = {
+                                "Anchor-Constrained Local Reconstruction v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_MODEL_SELECTION) {
+            val expectedJob = pendingObservationModelSelectionJobId
+            val report = pendingObservationModelSelectionJson
+            pendingObservationModelSelectionJobId = null
+            pendingObservationModelSelectionJson = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val policy =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject(
+                        "universal_observation_model_selection",
+                    )
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                policy == null
+            ) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1 geblokkeerd: actieve bron/policy veranderde."
+                render()
+                return
+            }
+            if (
+                policy.optString("status") !=
+                    "PROSPECTIVE_AUDIT_POLICY_AVAILABLE" ||
+                policy.optBoolean("heldout_target_used_for_selection", true) ||
+                policy.optBoolean("holdout_error_used_for_selection", true) ||
+                policy.optBoolean("lens_calibration_used", true) ||
+                policy.optBoolean("camera_model_used", true) ||
+                policy.optBoolean("vendor_mapping_used", true) ||
+                policy.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                observationModelSelectionStatus =
+                    "Universal Observation Model Selection v0.1 geblokkeerd: target-blind/universele safety-contract mismatch."
+                render()
+                return
+            }
+
+            observationModelSelectionStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                "Universal Observation Model Selection v0.1 JSON opgeslagen · target-blind modelbank · queries=" +
+                    policy.optInt("query_count", 0) +
+                    " · lens/device calibration=false · writeback=false."
+            } catch (error: Exception) {
+                "Universal Observation Model Selection v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD) {
+            val expectedJob = pendingObservationOpticalFieldJobId
+            val report = pendingObservationOpticalFieldJson
+            pendingObservationOpticalFieldJobId = null
+            pendingObservationOpticalFieldJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val chart =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject("observation_optical_field_chart")
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                chart == null
+            ) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            if (
+                chart.optString("status") != "FIELD_CHART_AVAILABLE" ||
+                chart.optJSONObject("vignetting_interpretation")
+                    ?.optBoolean("correction_gain_allowed", true) != false ||
+                chart.optBoolean("source_sample_values_modified", true) ||
+                chart.optBoolean("source_sample_positions_modified", true) ||
+                chart.optBoolean("new_measured_samples_created", true) ||
+                chart.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                observationOpticalFieldStatus =
+                    "Observation Optical Field Chart v0.1 geblokkeerd: read-only optical-field safety-contract mismatch."
+                render()
+                return
+            }
+
+            observationOpticalFieldStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                val signal =
+                    chart.optJSONObject("measured_composite_field_signal")
+                val opcode =
+                    chart.optJSONObject("source_opcode_provenance_hint")
+                        ?.optJSONObject("opcode_list_2")
+                "Observation Optical Field Chart v0.1 JSON opgeslagen · field=" +
+                    chart.optString("status") +
+                    " · measured-signal=" +
+                    (signal?.optString("status") ?: "UNKNOWN") +
+                    " · GainMaps=" +
+                    (opcode?.optInt("gain_map_opcode_count", 0) ?: 0) +
+                    " · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Observation Optical Field Chart v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS) {
+            val expectedJob = pendingUniversalCalibrationAtlasJobId
+            val report = pendingUniversalCalibrationAtlasJson
+            pendingUniversalCalibrationAtlasJobId = null
+            pendingUniversalCalibrationAtlasJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val atlas =
+                expectedJob?.let { universalProfiles[it] }
+                    ?.optJSONObject("universal_observation_calibration_atlas")
+            if (
+                expectedJob == null ||
+                expectedJob != activeJobId ||
+                report == null ||
+                atlas == null
+            ) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val identity = atlas.optJSONObject("universal_identity_policy")
+            val colour = atlas.optJSONObject("colour_state")
+            val illumination = atlas.optJSONObject("illumination_state")
+            val optical = atlas.optJSONObject("optical_support")
+            if (
+                atlas.optString("status") != "OBSERVATION_ATLAS_AVAILABLE" ||
+                identity?.optBoolean("camera_identity_required", true) != false ||
+                identity?.optBoolean("lens_identity_required", true) != false ||
+                identity?.optBoolean("prior_user_calibration_required", true) != false ||
+                colour?.optBoolean("automatic_colour_correction_from_atlas_allowed", true) != false ||
+                illumination?.optBoolean("automatic_light_falloff_correction_allowed", true) != false ||
+                optical?.optBoolean("deconvolution_authorized", true) != false ||
+                atlas.optBoolean("source_sample_values_modified", true) ||
+                atlas.optBoolean("source_sample_positions_modified", true) ||
+                atlas.optBoolean("new_measured_samples_created", true) ||
+                atlas.optBoolean("scientific_writeback_allowed", true)
+            ) {
+                universalCalibrationAtlasStatus =
+                    "Universal Observation & Calibration Atlas v0.1 geblokkeerd: universal/read-only safety-contract mismatch."
+                render()
+                return
+            }
+
+            universalCalibrationAtlasStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report)
+                }
+                val front = atlas.optJSONObject("frontside")
+                val back = atlas.optJSONObject("backside")
+                val field = atlas.optJSONObject("field_response")
+                "Universal Observation & Calibration Atlas v0.1 JSON opgeslagen · front=" +
+                    (front?.optString("status") ?: "UNKNOWN") +
+                    " · backside-measured=" +
+                    (back?.optBoolean("measured_signal_available", false) ?: false) +
+                    " · field=" +
+                    (field?.optString("coordinate_chart_status") ?: "UNKNOWN") +
+                    " · camera/lens-identiteit vereist=false · correctie=false · writeback=false."
+            } catch (error: Exception) {
+                "Universal Observation & Calibration Atlas v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_FREE_WORLD_FOUNDATION) {
+            val reportText = pendingFreeWorldFoundationJson
+            pendingFreeWorldFoundationJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: pending report ontbreekt."
+                render()
+                return
+            }
+
+            val saved = runCatching { JSONObject(reportText) }.getOrNull()
+            val current =
+                FreeWorldObservationGeometryFoundationV01.build(
+                    profiles = currentObservationWorldProfiles(),
+                    fieldRepeatability =
+                        FieldResponseRepeatabilityV01.evaluate(
+                            currentMeasuredFieldCharts(),
+                        ).takeIf {
+                            it.optString("status") ==
+                                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+                        },
+                    calibrationRecords = currentCalibrationObservationRecords(),
+                )
+
+            if (
+                saved == null ||
+                saved.optString("status") !=
+                "FREE_WORLD_FOUNDATION_AVAILABLE" ||
+                current.optString("status") !=
+                "FREE_WORLD_FOUNDATION_AVAILABLE"
+            ) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: observation-set niet meer geldig."
+                render()
+                return
+            }
+
+            val savedGraph =
+                saved.optJSONObject("observation_graph") ?: JSONObject()
+            val currentGraph =
+                current.optJSONObject("observation_graph") ?: JSONObject()
+            if (
+                savedGraph.optString("graph_identity_sha256").isBlank() ||
+                savedGraph.optString("graph_identity_sha256") !=
+                currentGraph.optString("graph_identity_sha256")
+            ) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: graph identity veranderde."
+                render()
+                return
+            }
+
+            freeWorldFoundationStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+
+                val graph =
+                    saved.optJSONObject("observation_graph")
+                        ?: JSONObject()
+                "Free World Foundation v0.1 JSON opgeslagen · observations=" +
+                    graph.optInt("observation_count", 0) +
+                    " · pair geometry candidates=" +
+                    graph.optInt("geometry_candidate_edge_count", 0) +
+                    " · registration promoted=false · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Free World Foundation v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION) {
+            val reportText = pendingObservationWorldFieldSeparationJson
+            pendingObservationWorldFieldSeparationJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: pending report ontbreekt."
+                render()
+                return
+            }
+
+            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
+            val currentReport =
+                ObservationWorldFieldSeparationV01.evaluate(
+                    currentObservationWorldProfiles(),
+                )
+            if (
+                savedReport == null ||
+                savedReport.optString("status") !=
+                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE" ||
+                currentReport.optString("status") !=
+                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
+            ) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: observation-set niet meer geldig."
+                render()
+                return
+            }
+
+            val savedRoots =
+                savedReport.optJSONArray("observations")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull {
+                                roots.optJSONObject(it)
+                                    ?.optString("source_sha256")
+                            }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+            val currentRoots =
+                currentReport.optJSONArray("observations")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull {
+                                roots.optJSONObject(it)
+                                    ?.optString("source_sha256")
+                            }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+
+            if (savedRoots != currentRoots || savedRoots.size < 2) {
+                observationWorldFieldSeparationStatus =
+                    "Observation-World Field Separation v0.1 geblokkeerd: source-SHA set veranderde."
+                render()
+                return
+            }
+
+            observationWorldFieldSeparationStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+
+                val spaces = savedReport.optJSONObject("coordinate_spaces")
+                val world = spaces?.optJSONObject("world_scene_space")
+                val sensor = spaces?.optJSONObject("source_sensor_space")
+                "Observation-World Field Separation v0.1 JSON opgeslagen · observations=" +
+                    savedReport.optInt("observation_count", 0) +
+                    " · measured sensor fields=" +
+                    (sensor?.optInt("measured_field_observation_count", 0) ?: 0) +
+                    " · world registration=" +
+                    (world?.optString("registration_status", "UNKNOWN") ?: "UNKNOWN") +
+                    " · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Observation-World Field Separation v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY) {
+            val reportText = pendingFieldResponseRepeatabilityJson
+            pendingFieldResponseRepeatabilityJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: pending audit ontbreekt."
+                render()
+                return
+            }
+
+            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
+            val currentReport =
+                FieldResponseRepeatabilityV01.evaluate(
+                    currentMeasuredFieldCharts(),
+                )
+            if (
+                savedReport == null ||
+                currentReport.optString("status") !=
+                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
+                savedReport.optString("status") !=
+                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
+                savedReport.optInt("observation_count", -1) !=
+                currentReport.optInt("observation_count", -2)
+            ) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: geselecteerde observation-set veranderde."
+                render()
+                return
+            }
+
+            val savedRoots =
+                savedReport.optJSONArray("observation_roots")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+            val currentRoots =
+                currentReport.optJSONArray("observation_roots")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+
+            if (savedRoots != currentRoots || savedRoots.size < 3) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: source-SHA set veranderde."
+                render()
+                return
+            }
+
+            fieldResponseRepeatabilityStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+                val radial =
+                    savedReport.optJSONObject("radial_repeatability")
+                "Field Response Repeatability v0.1 JSON opgeslagen · observations=" +
+                    savedReport.optInt("observation_count", 0) +
+                    " · radial MAD(EV)=" +
+                    (radial?.opt("median_annulus_cross_observation_mad_ev")
+                        ?: "UNKNOWN") +
+                    " · relation=user-grouping-hint-only · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Field Response Repeatability v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT) {
+            val expectedJob = pendingUniversalModelBankHoldoutJobId
+            pendingUniversalModelBankHoldoutJobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                universalModelBankHoldoutStatus =
+                    "Universal Local Model Bank Holdout v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                universalModelBankHoldoutStatus =
+                    "Universal Local Model Bank Holdout v0.1 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "universal-local-model-bank-holdout",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                universalModelBankHoldoutStatus =
+                    "Wacht op de andere zware D.RAW-analysetaak; Universal Local Model Bank Holdout v0.1 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Universal Local Model Bank Holdout v0.1",
+                )
+            ) {
+                universalModelBankHoldoutStatus =
+                    "Universal Local Model Bank Holdout v0.1 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            universalModelBankHoldoutStatus =
+                "Universal Local Model Bank Holdout v0.1 · full-resolution CFA holdouts + target-blinde modelselectie worden doorgerekend…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-universal-model-bank-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    universalModelBankHoldoutStatus = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    UniversalLocalModelBankHoldoutV01.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 =
+                            universalProfiles[expectedJob]
+                                ?.optString("source_sha256", "")
+                                .orEmpty(),
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Universal Local Model Bank Holdout v0.1 gereed."
+                        },
+                        onFailure = {
+                            "Universal Local Model Bank Holdout v0.1 faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    universalModelBankHoldoutStatus =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Universal Local Model Bank Holdout v0.1 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · selected/baseline valid=" +
+                                    status.optLong("selectedValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| selected/baseline=" +
+                                    status.optLong(
+                                        "selectedLowerAbsErrorThanBaseline",
+                                        0L,
+                                    ) + "/" +
+                                    status.optLong(
+                                        "baselineLowerAbsErrorThanSelected",
+                                        0L,
+                                    ) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString(
+                                        "jsonSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · targetLeak=false · lens/device=false · writeback=false."
+                            },
+                            onFailure = {
+                                "Universal Local Model Bank Holdout v0.1 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02) {
+            val expectedJob = pendingUniversalModelBankHoldoutV02JobId
+            pendingUniversalModelBankHoldoutV02JobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                universalModelBankHoldoutV02Status =
+                    "Universal Local Model Bank Holdout v0.2-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                universalModelBankHoldoutV02Status =
+                    "Universal Local Model Bank Holdout v0.2 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "universal-local-model-bank-holdout-v02",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                universalModelBankHoldoutV02Status =
+                    "Wacht op de andere zware D.RAW-analysetaak; Universal Local Model Bank Holdout v0.2 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Universal Local Model Bank Holdout v0.2",
+                )
+            ) {
+                universalModelBankHoldoutV02Status =
+                    "Universal Local Model Bank Holdout v0.2 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            universalModelBankHoldoutV02Status =
+                "Universal Local Model Bank Holdout v0.2 · full-resolution CFA holdouts + target-blinde modelselectie worden doorgerekend…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-universal-model-bank-v02-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    universalModelBankHoldoutV02Status = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    UniversalLocalModelBankHoldoutV02.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 =
+                            universalProfiles[expectedJob]
+                                ?.optString("source_sha256", "")
+                                .orEmpty(),
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Universal Local Model Bank Holdout v0.2 gereed."
+                        },
+                        onFailure = {
+                            "Universal Local Model Bank Holdout v0.2 faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    universalModelBankHoldoutV02Status =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Universal Local Model Bank Holdout v0.2 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · selected/baseline valid=" +
+                                    status.optLong("selectedValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| selected/baseline=" +
+                                    status.optLong(
+                                        "selectedLowerAbsErrorThanBaseline",
+                                        0L,
+                                    ) + "/" +
+                                    status.optLong(
+                                        "baselineLowerAbsErrorThanSelected",
+                                        0L,
+                                    ) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString(
+                                        "jsonSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · targetLeak=false · lens/device=false · writeback=false."
+                            },
+                            onFailure = {
+                                "Universal Local Model Bank Holdout v0.2 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03) {
+            val expectedJob = pendingUniversalModelBankHoldoutV03JobId
+            pendingUniversalModelBankHoldoutV03JobId = null
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3-export geannuleerd."
+                render()
+                return
+            }
+
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            val ready = previewState as? TilePreviewUiState.Ready
+            if (
+                expectedJob == null ||
+                job == null ||
+                ready == null ||
+                ready.jobId != expectedJob ||
+                activeJobId != expectedJob
+            ) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3 geblokkeerd: actieve sealed observation veranderde."
+                render()
+                return
+            }
+
+            val operationKey =
+                backgroundOperationKey(
+                    "universal-local-model-bank-holdout-v03",
+                    expectedJob,
+                )
+            if (truthNegativeHeavyOperationActive(expectedJob, operationKey)) {
+                universalModelBankHoldoutV03Status =
+                    "Wacht op de andere zware D.RAW-analysetaak; Universal Local Model Bank Holdout v0.3 start daarna opnieuw handmatig."
+                render()
+                return
+            }
+            if (!startBackgroundOperation(
+                    operationKey,
+                    "Universal Local Model Bank Holdout v0.3",
+                )
+            ) {
+                universalModelBankHoldoutV03Status =
+                    "Universal Local Model Bank Holdout v0.3 achtergrondverwerking kon niet veilig starten."
+                render()
+                return
+            }
+
+            universalModelBankHoldoutV03Status =
+                "Universal Local Model Bank Holdout v0.3 · full-resolution CFA holdouts + target-blinde modelselectie worden doorgerekend…"
+            render()
+
+            startGuardedBackgroundThread(
+                name = "draw-universal-model-bank-v03-" + job.id.take(8),
+                operationKey = operationKey,
+                onUnexpected = {
+                    universalModelBankHoldoutV03Status = it
+                },
+            ) {
+                val exportResult = runCatching {
+                    UniversalLocalModelBankHoldoutV03.exportSidecar(
+                        resolver = contentResolver,
+                        sourceUri = job.source.uri,
+                        destinationUri = destination,
+                        expectedSourceSha256 =
+                            universalProfiles[expectedJob]
+                                ?.optString("source_sha256", "")
+                                .orEmpty(),
+                    )
+                }
+
+                finishBackgroundOperation(
+                    operationKey,
+                    exportResult.isSuccess,
+                    exportResult.fold(
+                        onSuccess = {
+                            "Universal Local Model Bank Holdout v0.3 gereed."
+                        },
+                        onFailure = {
+                            "Universal Local Model Bank Holdout v0.3 faalde: " +
+                                (it.message ?: it.javaClass.simpleName)
+                        },
+                    ),
+                )
+
+                runOnUiThread {
+                    if (activeJobId != expectedJob) return@runOnUiThread
+                    universalModelBankHoldoutV03Status =
+                        exportResult.fold(
+                            onSuccess = { status ->
+                                "Universal Local Model Bank Holdout v0.3 opgeslagen · " +
+                                    status.optInt("width", 0) + "×" +
+                                    status.optInt("height", 0) +
+                                    " · " +
+                                    formatBytes(status.optLong("fileBytes", 0L)) +
+                                    " · holdouts=" +
+                                    status.optLong("holdouts", 0L) +
+                                    " · selected/baseline valid=" +
+                                    status.optLong("selectedValid", 0L) + "/" +
+                                    status.optLong("baselineValid", 0L) +
+                                    " · lower-|error| selected/baseline=" +
+                                    status.optLong(
+                                        "selectedLowerAbsErrorThanBaseline",
+                                        0L,
+                                    ) + "/" +
+                                    status.optLong(
+                                        "baselineLowerAbsErrorThanSelected",
+                                        0L,
+                                    ) +
+                                    " · holdout=" +
+                                    status.optString(
+                                        "holdoutStreamSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · JSON=" +
+                                    status.optString(
+                                        "jsonSha256",
+                                        "",
+                                    ).take(16) +
+                                    "… · targetLeak=false · lens/device=false · writeback=false."
+                            },
+                            onFailure = {
+                                "Universal Local Model Bank Holdout v0.3 export faalde: " +
+                                    (it.message ?: it.javaClass.simpleName)
+                            },
+                        )
+                    render()
+                }
+            }
+            return
+        }
+
         if (requestCode == REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL) {
             val expectedJob = pendingAppearanceHighlightDetailJobId
             pendingAppearanceHighlightDetailJobId = null
@@ -3036,6 +5148,19 @@ class MainActivity : Activity() {
             return
         }
 
+        if (requestCode == REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS) {
+            if (resultCode != RESULT_OK || data == null) {
+                calibrationObservationRecordStatus =
+                    "Calibration Observation Record-import geannuleerd."
+                render()
+                return
+            }
+            calibrationObservationRecordStatus =
+                importCalibrationObservationRecords(data)
+            render()
+            return
+        }
+
         if (requestCode != REQUEST_OPEN_RAW || resultCode != RESULT_OK || data == null) return
 
         val uris = buildList {
@@ -3124,9 +5249,18 @@ class MainActivity : Activity() {
         render()
     }
 
-    private fun requestUniversalProfile(job: RawJob, force: Boolean = false) {
+    private fun requestUniversalProfile(
+        job: RawJob,
+        force: Boolean = false,
+        onComplete: ((Boolean) -> Unit)? = null,
+    ) {
         val jobId = job.id
-        if (!force && (universalProfiles.containsKey(jobId) || universalProfileLoading.contains(jobId))) {
+        if (!force && universalProfiles.containsKey(jobId)) {
+            onComplete?.invoke(true)
+            return
+        }
+        if (!force && universalProfileLoading.contains(jobId)) {
+            onComplete?.invoke(false)
             return
         }
         universalProfiles.remove(jobId)
@@ -3136,18 +5270,21 @@ class MainActivity : Activity() {
 
         Thread({
             val result = runCatching {
-                UniversalSourceProfiler.profile(contentResolver, job.source)
+                UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)
             }
             runOnUiThread {
                 universalProfileLoading.remove(jobId)
+                var success = false
                 result.onSuccess { profile ->
                     universalProfiles[jobId] = profile
                     universalProfileErrors.remove(jobId)
+                    success = true
                 }.onFailure { error ->
                     universalProfiles.remove(jobId)
                     universalProfileErrors[jobId] =
                         error.message ?: error.javaClass.simpleName
                 }
+                onComplete?.invoke(success)
                 render()
             }
         }, "draw-universal-intake-" + jobId.take(8)).start()
@@ -3191,6 +5328,68 @@ class MainActivity : Activity() {
                 val scene = profile.optJSONObject("scene_analysis") ?: JSONObject()
                 val stats = scene.optJSONObject("appearance_statistics") ?: JSONObject()
                 val readiness = scene.optJSONObject("geometry_readiness") ?: JSONObject()
+                val darkChroma =
+                    scene.optJSONObject("dark_chroma_stability_v0_1") ?: JSONObject()
+                val darkChromaGlobal =
+                    darkChroma.optJSONObject("global") ?: JSONObject()
+                val singleObservation =
+                    darkChroma.optJSONObject("single_observation_contract") ?: JSONObject()
+                val darkChromaV02 =
+                    scene.optJSONObject("dark_chroma_stability_v0_2") ?: JSONObject()
+                val darkChromaV02Global =
+                    darkChromaV02.optJSONObject("global") ?: JSONObject()
+                val darkChromaV02Backside =
+                    darkChromaV02.optJSONObject("backside_support") ?: JSONObject()
+                val backsideSignal =
+                    profile.optJSONObject("backside_signal_support") ?: JSONObject()
+                val backsideSignalGlobal =
+                    backsideSignal.optJSONObject("global") ?: JSONObject()
+                val darkChromaV03 =
+                    scene.optJSONObject("dark_chroma_stability_v0_3") ?: JSONObject()
+                val darkChromaV03Global =
+                    darkChromaV03.optJSONObject("global") ?: JSONObject()
+                val darkChromaV03Factors =
+                    darkChromaV03.optJSONObject("degeneracy_factors") ?: JSONObject()
+                val n2LocalBinding =
+                    profile.optJSONObject("n2_local_spatial_binding") ?: JSONObject()
+                val n2LocalGlobal =
+                    n2LocalBinding.optJSONObject("global") ?: JSONObject()
+                val darkChromaV04 =
+                    scene.optJSONObject("dark_chroma_stability_v0_4") ?: JSONObject()
+                val darkChromaV04Global =
+                    darkChromaV04.optJSONObject("global") ?: JSONObject()
+                val n2StructureSupport =
+                    profile.optJSONObject("n2_structure_support_binding") ?: JSONObject()
+                val n2StructureGlobal =
+                    n2StructureSupport.optJSONObject("global") ?: JSONObject()
+                val darkChromaV05 =
+                    scene.optJSONObject("dark_chroma_stability_v0_5") ?: JSONObject()
+                val darkChromaV05Global =
+                    darkChromaV05.optJSONObject("global") ?: JSONObject()
+                val n2SupportDistance =
+                    profile.optJSONObject("n2_sample_support_distance") ?: JSONObject()
+                val n2SupportDistanceGlobal =
+                    n2SupportDistance.optJSONObject("global") ?: JSONObject()
+                val darkChromaV06 =
+                    scene.optJSONObject("dark_chroma_stability_v0_6") ?: JSONObject()
+                val darkChromaV06Global =
+                    darkChromaV06.optJSONObject("global") ?: JSONObject()
+                val sampleLattice =
+                    profile.optJSONObject("raster_independent_sample_lattice") ?: JSONObject()
+                val n2LatticeGeometry =
+                    profile.optJSONObject("n2_raster_independent_sample_geometry") ?: JSONObject()
+                val darkChromaV07 =
+                    scene.optJSONObject("dark_chroma_stability_v0_7") ?: JSONObject()
+                val anchorReconstruction =
+                    profile.optJSONObject(
+                        "anchor_constrained_local_reconstruction",
+                    ) ?: JSONObject()
+                val anchorReconstructionGlobal =
+                    anchorReconstruction.optJSONObject("global") ?: JSONObject()
+                val observationModelSelection =
+                    profile.optJSONObject(
+                        "universal_observation_model_selection",
+                    ) ?: JSONObject()
 
                 val sourceClass = profile.optString("scientific_source_class", "UNKNOWN")
                 val width = raster.opt("width")?.toString() ?: "?"
@@ -3203,6 +5402,32 @@ class MainActivity : Activity() {
                     10.5f,
                     muted = true,
                 ))
+
+                val universalCalibrationAtlas =
+                    profile.optJSONObject(
+                        "universal_observation_calibration_atlas",
+                    )
+                if (
+                    universalCalibrationAtlas?.optString("status") ==
+                    "OBSERVATION_ATLAS_AVAILABLE"
+                ) {
+                    addView(space(5))
+                    addView(actionButton(
+                        "Export Universal Observation & Calibration Atlas v0.1 · JSON",
+                    ) {
+                        launchUniversalCalibrationAtlasExport(job)
+                    })
+                    universalCalibrationAtlasStatus?.let { status ->
+                        addView(label(status, 10f, muted = true))
+                    }
+                    addView(label(
+                        "Deze atlas-export hoort bij de Universele Ingang zelf en blijft beschikbaar als de " +
+                            "wetenschappelijke RAW-decoder fail-closed stopt. Geen Scientific Preview, DNG-route, " +
+                            "camera-/lensidentiteit of voorafgaande gebruikerskalibratie is vereist.",
+                        10f,
+                        muted = true,
+                    ))
+                }
 
                 val bits = raster.opt("bits_per_sample")?.toString() ?: "?"
                 val compression = raster.opt("compression")?.toString() ?: "?"
@@ -3230,6 +5455,40 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
+                if (sampleLattice.optString("status") == "AVAILABLE") {
+                    addView(space(4))
+                    addView(label(
+                        "D.RAW Sample Lattice v0.1 · RASTER-INDEPENDENT · source=" +
+                            sampleLattice.opt("source_width") + "×" +
+                            sampleLattice.opt("source_height") +
+                            " · units/source-pixel=" +
+                            sampleLattice.optLong(
+                                "coordinate_units_per_source_pixel",
+                                0L,
+                            ) +
+                            " · measured anchors=" +
+                            sampleLattice.opt("measured_anchor_count") +
+                            " · dense=false · upscaling=false",
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "De verzegelde bronmetingen blijven exact op hun eigen ankerposities. " +
+                            "De fijnere lattice is alleen een vrije wetenschappelijke coördinatenwereld: " +
+                            "tussenposities starten UNKNOWN, krijgen geen verzonnen pixelwaarde en verhogen " +
+                            "de optische bronresolutie niet. Het bronraster bepaalt waar gemeten is, niet waar D.RAW mag rekenen.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Originele resolutie is NIET alleen een noise-raster: zij blijft de full-resolution " +
+                            "MEASURED steun voor CFA-waarden, detail, structuur, geometrie en authority. " +
+                            "De oplossingsruimte en uiteindelijke projectieresolutie mogen daarvan losstaan.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
                 if (scene.optBoolean("decoded_preview_used", false)) {
                     val aw = scene.optInt("analysis_width", 0)
                     val ah = scene.optInt("analysis_height", 0)
@@ -3251,6 +5510,798 @@ class MainActivity : Activity() {
                         10.5f,
                         muted = true,
                     ))
+                }
+
+                if (darkChroma.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val tileCount = darkChromaGlobal.optLong("tile_count", 0L)
+                    val darkTiles = darkChromaGlobal.optLong("dark_tile_count", 0L)
+                    val flatDark = darkChromaGlobal.optLong("flat_dark_tile_count", 0L)
+                    val candidates =
+                        darkChromaGlobal.optLong(
+                            "frontside_chroma_instability_candidate_tiles",
+                            0L,
+                        )
+                    val structure =
+                        darkChromaGlobal.optLong("structure_protected_tiles", 0L)
+                    val auditSha = darkChroma.optString("audit_sha256", "")
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.1 · AUDIT ONLY · tiles=" + tileCount +
+                            " · dark=" + darkTiles +
+                            " · flat-dark=" + flatDark +
+                            " · chroma-candidates=" + candidates +
+                            " · structure-veto=" + structure +
+                            " · audit=" +
+                            (if (auditSha.length >= 16) auditSha.take(16) + "…" else auditSha),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Single observation · sourceCount=" +
+                            singleObservation.optInt("source_observation_count", 0) +
+                            " · otherLenses=" +
+                            singleObservation.optBoolean("other_physical_lenses_used", true) +
+                            " · temporalFrames=" +
+                            singleObservation.optBoolean("temporal_frames_used", true) +
+                            " · one D.RAWnegative diagnostic binding · candidateApplied=false.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Frontside mag alleen structuur beschermen en chroma-instabiliteit aanwijzen. " +
+                            "Geen vervangkleur, geen sensor-noise claim en geen Scientific-Master-writeback; " +
+                            "backside/noise-evidence blijft vereist voor iedere latere correctie.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    backsideSignal.optString("status") ==
+                    "MEASURED_SOURCE_PAYLOAD_SAMPLE_AVAILABLE"
+                ) {
+                    val p50 =
+                        backsideSignalGlobal.optDouble(
+                            "p50_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val p90 =
+                        backsideSignalGlobal.optDouble(
+                            "p90_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val p99 =
+                        backsideSignalGlobal.optDouble(
+                            "p99_normalized_above_black",
+                            Double.NaN,
+                        )
+                    val nearBlack =
+                        backsideSignalGlobal.optDouble("fraction_le_0_01", Double.NaN)
+                    addView(space(4))
+                    addView(label(
+                        "Backside Signal Support v0.1 · SOURCE PAYLOAD · state=" +
+                            backsideSignal.optString("signal_support_state", "UNKNOWN") +
+                            " · samples=" + backsideSignal.optInt("sample_count", 0) +
+                            " · p50/p90/p99=" +
+                            (if (p50.isFinite()) "%.5f".format(p50) else "?") + "/" +
+                            (if (p90.isFinite()) "%.5f".format(p90) else "?") + "/" +
+                            (if (p99.isFinite()) "%.5f".format(p99) else "?") +
+                            " · frac≤0.01=" +
+                            (if (nearBlack.isFinite()) "%.3f".format(nearBlack) else "?"),
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Meet direct uit geselecteerde DNG-CFA payload t.o.v. Black/White. " +
+                            "Geen clamp, geen ADC-claim, geen correctie-enable; alleen een conservatieve blocker.",
+                        10f,
+                        muted = true,
+                    ))
+                } else {
+                    addView(space(4))
+                    addView(label(
+                        "Backside Signal Support v0.1 · UNKNOWN/fail-closed · reason=" +
+                            backsideSignal.optString("reason", "niet beschikbaar") +
+                            ". Geen signaalclaim uit onbekende topology.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (darkChromaV02.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val infoState =
+                        darkChromaV02.optString("global_information_state", "UNKNOWN")
+                    val visible =
+                        darkChromaV02Global.optLong("visible_chroma_instability_tiles", 0L)
+                    val uninformative =
+                        darkChromaV02Global.optLong("dark_uninformative_tiles", 0L)
+                    val pending =
+                        darkChromaV02Global.optLong(
+                            "backside_confirmation_pending_tiles",
+                            0L,
+                        )
+                    val supported =
+                        darkChromaV02Global.optLong(
+                            "chroma_correction_supported_tiles",
+                            0L,
+                        )
+                    val v02Audit = darkChromaV02.optString("audit_sha256", "")
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.2 · INFORMATION GATE · state=" +
+                            infoState +
+                            " · visible-instability=" + visible +
+                            " · dark-uninformative=" + uninformative +
+                            " · backside-pending=" + pending +
+                            " · correction-supported=" + supported +
+                            " · audit=" +
+                            (if (v02Audit.length >= 16) v02Audit.take(16) + "…" else v02Audit),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Backside hint · NoiseProfile=" +
+                            darkChromaV02Backside.optBoolean("noise_profile_present", false) +
+                            " · localNoiseBound=" +
+                            darkChromaV02Backside.optBoolean(
+                                "local_noise_confirmation_available",
+                                false,
+                            ) +
+                            ". Metadata alleen promoveert geen correctie.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.2 wet: DARK_UNINFORMATIVE = geen verborgen kleur reconstrueren. " +
+                            "CHROMA_CORRECTION_SUPPORTED blijft onmogelijk totdat dezelfde observation " +
+                            "lokale backside/N2-support heeft; candidateApplied=false.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (darkChromaV03.optString("status") == "AUDIT_ONLY_AVAILABLE") {
+                    val state =
+                        darkChromaV03.optString("global_information_state", "UNKNOWN")
+                    val visible =
+                        darkChromaV03Global.optLong("visible_chroma_instability_tiles", 0L)
+                    val uninformative =
+                        darkChromaV03Global.optLong("dark_uninformative_tiles", 0L)
+                    val pending =
+                        darkChromaV03Global.optLong(
+                            "backside_confirmation_pending_tiles",
+                            0L,
+                        )
+                    val supported =
+                        darkChromaV03Global.optLong(
+                            "chroma_correction_supported_tiles",
+                            0L,
+                        )
+                    val darkFraction =
+                        darkChromaV03Factors.optDouble("dark_tile_fraction", Double.NaN)
+                    val candidateFraction =
+                        darkChromaV03Factors.optDouble(
+                            "visible_candidate_fraction",
+                            Double.NaN,
+                        )
+                    val structureFraction =
+                        darkChromaV03Factors.optDouble(
+                            "structure_protected_fraction",
+                            Double.NaN,
+                        )
+                    val edge =
+                        darkChromaV03Factors.optDouble("edge_density", Double.NaN)
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.3 · DEGENERACY + BACKSIDE GATE · state=" +
+                            state +
+                            " · degenerate=" +
+                            darkChromaV03.optBoolean("frontside_degenerate", false) +
+                            " · backsideNearBlack=" +
+                            darkChromaV03.optBoolean("backside_near_black_dominated", false) +
+                            " · visible=" + visible +
+                            " · dark-uninformative=" + uninformative +
+                            " · backside-pending=" + pending +
+                            " · correction-supported=" + supported,
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Degeneracy factors · dark=" +
+                            (if (darkFraction.isFinite()) "%.3f".format(darkFraction) else "?") +
+                            " · candidate=" +
+                            (if (candidateFraction.isFinite()) "%.3f".format(candidateFraction) else "?") +
+                            " · structure=" +
+                            (if (structureFraction.isFinite()) "%.3f".format(structureFraction) else "?") +
+                            " · edgeDensity=" +
+                            (if (edge.isFinite()) "%.4f".format(edge) else "?") +
+                            " · entropy is alleen diagnostiek, geen harde poort.",
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.3 wet: een gedegenereerde bijna-zwarte frontside of gemeten near-black backside " +
+                            "mag alleen blokkeren. Geen verborgen kleur, geen private A/B/Δ en geen " +
+                            "CHROMA_CORRECTION_SUPPORTED tot lokale N2/backside-binding bestaat.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    n2LocalBinding.optString("status") ==
+                    "AUDIT_ONLY_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Local Spatial Binding v0.1 · SAME OBSERVATION · frontside-bound=" +
+                            n2LocalGlobal.optLong("bound_frontside_tiles", 0L) + "/" +
+                            n2LocalGlobal.optLong("frontside_tile_count", 0L) +
+                            " · visible-bound=" +
+                            n2LocalGlobal.optLong("visible_candidate_bound_tiles", 0L) +
+                            " · structure-blocked=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_structure_blocked_tiles",
+                                0L,
+                            ) +
+                            " · censor-blocked=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_censor_blocked_tiles",
+                                0L,
+                            ) +
+                            " · all-predictable=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_all_predictable_tiles",
+                                0L,
+                            ) +
+                            " · center-outlier-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_center_outlier_free_tiles",
+                                0L,
+                            ) +
+                            " · pair-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_pair_rejection_free_tiles",
+                                0L,
+                            ) +
+                            " · scale-free=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_scale_rejection_free_tiles",
+                                0L,
+                            ) +
+                            " · strict-vector=" +
+                            n2LocalGlobal.optLong(
+                                "visible_candidate_strict_local_support_vector_tiles",
+                                0L,
+                            ),
+                        10f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "Frontside 16×16 analyse-regio's zijn proportioneel aan de 64×64 N2 Factored " +
+                            "Confidence v0.3.1 bron-tiles gebonden. Dit is alleen lokale provenance/support-binding: " +
+                            "N2 promotion=false, correction-supported=false.",
+                        10f,
+                        muted = true,
+                    ))
+                } else {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Local Spatial Binding v0.1 · UNKNOWN/fail-closed · reason=" +
+                            n2LocalBinding.optString("reason", "niet beschikbaar") +
+                            ". Geen lokale N2-claim zonder exacte source-binding.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    darkChromaV04.optString("status") ==
+                    "AUDIT_ONLY_LOCAL_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.4 · LOCAL N2 BINDING · global-v0.3=" +
+                            darkChromaV04.optString(
+                                "v0_3_global_information_state",
+                                "UNKNOWN",
+                            ) +
+                            " · localBinding=" +
+                            darkChromaV04.optBoolean("local_n2_binding_available", false) +
+                            " · visible=" +
+                            darkChromaV04Global.optLong("visible_candidate_tiles", 0L) +
+                            " · locally-bound=" +
+                            darkChromaV04Global.optLong(
+                                "locally_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · dark-blocked=" +
+                            darkChromaV04Global.optLong(
+                                "dark_uninformative_blocked_tiles",
+                                0L,
+                            ) +
+                            " · protection-blocked=" +
+                            darkChromaV04Global.optLong(
+                                "structure_or_censor_blocked_tiles",
+                                0L,
+                            ) +
+                            " · strict-vector=" +
+                            darkChromaV04Global.optLong(
+                                "local_strict_vector_present_tiles",
+                                0L,
+                            ) +
+                            " · correction-supported=" +
+                            darkChromaV04Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.4 wet: lokale N2-binding mag DARK_UNINFORMATIVE nooit overrulen. " +
+                            "Factored N2-assen blijven vector-valued diagnostiek en zijn geen kansscore. " +
+                            "Private chroma A/B/Δ blijft uit tot deze binding op echte toesteldata is gevalideerd.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (n2StructureSupport.optString("status")) {
+                    "AUDIT_ONLY_FINE_BINDING_AVAILABLE" -> {
+                        val overlapFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_overlap_structure_fraction",
+                                Double.NaN,
+                            )
+                        val interiorFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_interior_structure_fraction",
+                                Double.NaN,
+                            )
+                        val maxFineFraction =
+                            n2StructureGlobal.optDouble(
+                                "visible_candidate_max_fine_tile_structure_fraction",
+                                Double.NaN,
+                            )
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · FINE 32×32 SOURCE GRID · visible=" +
+                                n2StructureGlobal.optLong("visible_candidate_tiles", 0L) +
+                                " · fine-bound=" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_bound_tiles",
+                                    0L,
+                                ) +
+                                " · overlap-structure=" +
+                                (if (overlapFraction.isFinite()) {
+                                    "%.4f".format(overlapFraction)
+                                } else {
+                                    "?"
+                                }) +
+                                " · interior-structure=" +
+                                (if (interiorFraction.isFinite()) {
+                                    "%.4f".format(interiorFraction)
+                                } else {
+                                    "?"
+                                }) +
+                                " · fine tiles structure/free=" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_fine_tiles_with_structure",
+                                    0L,
+                                ) + "/" +
+                                n2StructureGlobal.optLong(
+                                    "visible_candidate_fine_tiles_without_structure",
+                                    0L,
+                                ) +
+                                " · max-fine=" +
+                                (if (maxFineFraction.isFinite()) {
+                                    "%.4f".format(maxFineFraction)
+                                } else {
+                                    "?"
+                                }),
+                            10f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Zelfde N2 structure-preservation gate en period=8 sample-grid, " +
+                                "maar gerapporteerd op 32×32 bron-tiles. Alleen gemeten sample-support: " +
+                                "onbemeten pixels worden niet ingevuld. Deze laag mag bescherming niet verminderen " +
+                                "en kan geen correctie inschakelen.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · niet nodig voor deze bronstate · reason=" +
+                                n2StructureSupport.optString("reason", "UNKNOWN") +
+                                ". Geen extra fine audit uitgevoerd.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Structure Support v0.1 · UNKNOWN/fail-closed · reason=" +
+                                n2StructureSupport.optString("reason", "niet beschikbaar") +
+                                ". Geen fijnere structure-claim zonder bewezen source-binding.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                if (
+                    darkChromaV05.optString("status") ==
+                    "AUDIT_ONLY_STRUCTURE_REFINEMENT_AVAILABLE"
+                ) {
+                    val overlapFraction =
+                        darkChromaV05Global.optDouble(
+                            "visible_candidate_overlap_structure_fraction",
+                            Double.NaN,
+                        )
+                    val interiorFraction =
+                        darkChromaV05Global.optDouble(
+                            "visible_candidate_interior_structure_fraction",
+                            Double.NaN,
+                        )
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.5 · STRUCTURE RESOLUTION REFINEMENT · visible=" +
+                            darkChromaV05Global.optLong("visible_candidate_tiles", 0L) +
+                            " · fine-bound=" +
+                            darkChromaV05Global.optLong(
+                                "fine_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · legacy-v0.4-blocked=" +
+                            darkChromaV05Global.optLong(
+                                "legacy_coarse_protection_blocked_visible_tiles",
+                                0L,
+                            ) +
+                            " · zero-interior-structure=" +
+                            darkChromaV05Global.optLong(
+                                "fine_zero_interior_structure_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · overlap/interior=" +
+                            (if (overlapFraction.isFinite()) {
+                                "%.4f".format(overlapFraction)
+                            } else {
+                                "?"
+                            }) + "/" +
+                            (if (interiorFraction.isFinite()) {
+                                "%.4f".format(interiorFraction)
+                            } else {
+                                "?"
+                            }) +
+                            " · correction-supported=" +
+                            darkChromaV05Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.5 verandert het v0.4-veto nog niet. Het meet alleen hoe dicht structure-protection " +
+                            "werkelijk binnen/om de selectieve frontside-regio ligt. Geen kansscore, geen verborgen " +
+                            "kleur, geen private A/B/Δ en geen Scientific-Master-writeback.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (n2SupportDistance.optString("status")) {
+                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" -> {
+                        val zero =
+                            n2SupportDistanceGlobal.optJSONArray(
+                                "center_zero_structure_candidates_r8_r16_r32_r64",
+                            ) ?: JSONArray()
+                        val nearestCenter =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_center_structure_distance_px",
+                            ) ?: JSONObject()
+                        val nearestRect =
+                            n2SupportDistanceGlobal.optJSONObject(
+                                "nearest_rect_structure_distance_px",
+                            ) ?: JSONObject()
+                        fun fmtDistance(o: JSONObject, key: String): String {
+                            val v = o.optDouble(key, Double.NaN)
+                            return if (v.isFinite()) "%.2f".format(v) else "?"
+                        }
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · EXACT SAMPLED GEOMETRY · queries=" +
+                                n2SupportDistanceGlobal.optLong("query_count", 0L) +
+                                " · structure-inside=" +
+                                n2SupportDistanceGlobal.optLong(
+                                    "structure_inside_rect_candidates",
+                                    0L,
+                                ) +
+                                " · center-zero r8/16/32/64=" +
+                                zero.optLong(0, 0L) + "/" +
+                                zero.optLong(1, 0L) + "/" +
+                                zero.optLong(2, 0L) + "/" +
+                                zero.optLong(3, 0L) +
+                                " · nearest-center min/med/max=" +
+                                fmtDistance(nearestCenter, "min") + "/" +
+                                fmtDistance(nearestCenter, "median") + "/" +
+                                fmtDistance(nearestCenter, "max") +
+                                " px · nearest-rect min/med/max=" +
+                                fmtDistance(nearestRect, "min") + "/" +
+                                fmtDistance(nearestRect, "median") + "/" +
+                                fmtDistance(nearestRect, "max") + " px",
+                            10f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Exacte N2 sample-coördinaten voor structure/censor/boundary zijn in de sidecar " +
+                                "opgenomen en gehasht. Afstanden en radius-dichtheden zijn alleen diagnostiek: " +
+                                "geen interpolatie van onbemeten pixels, geen kansscore en geen correctie-enable. " +
+                                "v0.5 aggregate parity=" +
+                                n2SupportDistance.optBoolean(
+                                    "v0_5_aggregate_parity_verified",
+                                    false,
+                                ) +
+                                ".",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · niet nodig voor deze bronstate · reason=" +
+                                n2SupportDistance.optString("reason", "UNKNOWN") +
+                                ". Geen extra afstandsaudit uitgevoerd.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "N2 Sample Support Distance v0.1 · UNKNOWN/fail-closed · reason=" +
+                                n2SupportDistance.optString("reason", "niet beschikbaar") +
+                                ". Geen afstandsclaim zonder exact sampled support.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                if (
+                    darkChromaV06.optString("status") ==
+                    "AUDIT_ONLY_SAMPLE_SUPPORT_DISTANCE_AVAILABLE"
+                ) {
+                    val zero =
+                        darkChromaV06Global.optJSONArray(
+                            "center_zero_structure_candidates_r8_r16_r32_r64",
+                        ) ?: JSONArray()
+                    addView(space(4))
+                    addView(label(
+                        "Dark Chroma Stability v0.6 · SAMPLE-LEVEL SUPPORT DISTANCE · visible=" +
+                            darkChromaV06Global.optLong("visible_candidate_tiles", 0L) +
+                            " · distance-bound=" +
+                            darkChromaV06Global.optLong(
+                                "distance_bound_visible_candidate_tiles",
+                                0L,
+                            ) +
+                            " · structure-inside=" +
+                            darkChromaV06Global.optLong(
+                                "structure_inside_rect_candidates",
+                                0L,
+                            ) +
+                            " · center-zero r8/16/32/64=" +
+                            zero.optLong(0, 0L) + "/" +
+                            zero.optLong(1, 0L) + "/" +
+                            zero.optLong(2, 0L) + "/" +
+                            zero.optLong(3, 0L) +
+                            " · correction-supported=" +
+                            darkChromaV06Global.optLong(
+                                "chroma_correction_supported_tiles",
+                                0L,
+                            ),
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.6 voert nog geen afstandsdrempel in. Exact sampled structure/censor-support blijft " +
+                            "een vector van meetfeiten; het mag bestaande bescherming niet verminderen en " +
+                            "private chroma A/B/Δ blijft uit.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    n2LatticeGeometry.optString("status") ==
+                    "AUDIT_ONLY_LATTICE_BINDING_AVAILABLE"
+                ) {
+                    addView(space(4))
+                    addView(label(
+                        "N2 Raster-Independent Geometry v0.1 · queries=" +
+                            n2LatticeGeometry.optInt("query_count", 0) +
+                            " · units/source-pixel=" +
+                            n2LatticeGeometry.optLong(
+                                "coordinate_units_per_source_pixel",
+                                0L,
+                            ) +
+                            " · source samples unchanged · unanchored UNKNOWN · correction=false",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                if (
+                    darkChromaV07.optString("status") ==
+                    "AUDIT_ONLY_RASTER_INDEPENDENT_GEOMETRY_AVAILABLE"
+                ) {
+                    addView(label(
+                        "Dark Chroma Stability v0.7 · SAMPLE-LATTICE BINDING · distance-bound=" +
+                            darkChromaV07.optInt(
+                                "distance_bound_candidate_count",
+                                0,
+                            ) +
+                            " · noiseCorrection=false · private A/B/Δ=false · writeback=false",
+                        10.5f,
+                        muted = true,
+                    ))
+                    addView(label(
+                        "v0.7 gebruikt het fijnere raster niet als nieuwe foto. Het is de oplossingsruimte " +
+                            "waarin gemeten ankers, structure-support en latere reconstructies met eigen provenance " +
+                            "kunnen bestaan zonder het camerarooster tot wereldgrens te maken.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
+                when (anchorReconstruction.optString("status")) {
+                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE" -> {
+                        val holdouts =
+                            anchorReconstructionGlobal.optLong(
+                                "holdouts",
+                                0L,
+                            )
+                        val solverValid =
+                            anchorReconstructionGlobal.optLong(
+                                "solver_valid",
+                                0L,
+                            )
+                        val baselineValid =
+                            anchorReconstructionGlobal.optLong(
+                                "baseline_valid",
+                                0L,
+                            )
+                        val bothValid =
+                            anchorReconstructionGlobal.optLong(
+                                "both_valid",
+                                0L,
+                            )
+                        val solverWins =
+                            anchorReconstructionGlobal.optLong(
+                                "solver_lower_abs_error",
+                                0L,
+                            )
+                        val baselineWins =
+                            anchorReconstructionGlobal.optLong(
+                                "baseline_lower_abs_error",
+                                0L,
+                            )
+                        val solverMae =
+                            anchorReconstructionGlobal.optDouble(
+                                "solver_mae",
+                                Double.NaN,
+                            )
+                        val baselineMae =
+                            anchorReconstructionGlobal.optDouble(
+                                "baseline_mae",
+                                Double.NaN,
+                            )
+                        val cov2 =
+                            anchorReconstructionGlobal.optDouble(
+                                "solver_coverage_2sigma",
+                                Double.NaN,
+                            )
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · HOLDOUT AUDIT · holdouts=" +
+                                holdouts +
+                                " · solver/baseline valid=" +
+                                solverValid + "/" + baselineValid +
+                                " · both=" + bothValid +
+                                " · lower-|error| solver/baseline=" +
+                                solverWins + "/" + baselineWins +
+                                " · MAE solver/baseline=" +
+                                (if (solverMae.isFinite()) {
+                                    "%.7f".format(solverMae)
+                                } else {
+                                    "?"
+                                }) + "/" +
+                                (if (baselineMae.isFinite()) {
+                                    "%.7f".format(baselineMae)
+                                } else {
+                                    "?"
+                                }) +
+                                " · 2σ coverage=" +
+                                (if (cov2.isFinite()) {
+                                    "%.3f".format(cov2)
+                                } else {
+                                    "?"
+                                }),
+                            10.5f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Echte CFA-ankers worden tijdelijk alleen voor de predictor verborgen; hun waarde wordt " +
+                                "pas daarna als holdout-truth gelezen. De nieuwe lokale affine lattice-solver gebruikt " +
+                                "alleen andere MEASURED ankers. Uitvoer blijft RECONSTRUCTED/audit-only. Een lagere " +
+                                "holdoutfout voorspelt de noisy meting beter, maar bewijst nog geen scene-truth of denoise-winst.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    "NOT_REQUIRED_BY_CURRENT_FRONT_SIDE_STATE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · niet nodig voor deze bronstate · reason=" +
+                                anchorReconstruction.optString(
+                                    "reason",
+                                    "UNKNOWN",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "Anchor-Constrained Local Reconstruction v0.1 · UNKNOWN/fail-closed · reason=" +
+                                anchorReconstruction.optString(
+                                    "reason",
+                                    "niet beschikbaar",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                }
+
+                when (observationModelSelection.optString("status")) {
+                    "PROSPECTIVE_AUDIT_POLICY_AVAILABLE" -> {
+                        addView(space(4))
+                        addView(label(
+                            "Universal Observation Model Selection v0.1 · PROSPECTIVE · queries=" +
+                                observationModelSelection.optInt("query_count", 0) +
+                                " · lensCalibration=false · cameraModel=false · vendorMap=false",
+                            10.5f,
+                            muted = true,
+                        ))
+                        addView(label(
+                            "Modelbank wordt alleen uit deze verzegelde observation begrensd: exacte CFA-ankers, " +
+                                "vrije lattice, Structure/Censored/CensorBoundary-support en frontside-geometrie. " +
+                                "Geen held-out target/error wordt gebruikt voor selectie. De bestaande 29-09 tele-holdout " +
+                                "is development evidence; een nieuwe onafhankelijke capture is vereist voor validatie.",
+                            10f,
+                            muted = true,
+                        ))
+                    }
+                    else -> {
+                        addView(space(4))
+                        addView(label(
+                            "Universal Observation Model Selection v0.1 · UNKNOWN/fail-closed · reason=" +
+                                observationModelSelection.optString(
+                                    "reason",
+                                    "niet beschikbaar",
+                                ),
+                            10f,
+                            muted = true,
+                        ))
+                    }
                 }
 
                 addView(label(
@@ -3598,6 +6649,25 @@ class MainActivity : Activity() {
 
     private fun render() {
         val tier = currentLayoutTier()
+        val previousTier = renderedLayoutTier
+        if (previousTier != null && previousTier != tier) {
+            when {
+                previousTier == LayoutTier.COMPACT &&
+                    tier == LayoutTier.MEDIUM -> {
+                    // Preserve the user's vertical working position in the main
+                    // content column after a portrait -> landscape transition.
+                    mediumRightScrollY = compactScrollY
+                    // The source list is deliberately kept at its top so all
+                    // selected RAW rows remain immediately reachable.
+                    mediumLeftScrollY = 0
+                }
+                previousTier == LayoutTier.MEDIUM &&
+                    tier == LayoutTier.COMPACT -> {
+                    compactScrollY = mediumRightScrollY
+                }
+            }
+        }
+        renderedLayoutTier = tier
         val root = vertical().apply {
             setBackgroundColor(palette.background)
             setPadding(dp(12), 0, dp(12), dp(12))
@@ -3637,35 +6707,131 @@ class MainActivity : Activity() {
 
         addView(vertical().apply {
             addView(label("D.RAW", 22f, bold = true))
-            addView(label("${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · ${session.selectedCount} RAW geselecteerd", 12f, muted = true))
+            addView(
+                label(
+                    "${tier.name.lowercase().replaceFirstChar { it.uppercase() }} layout · " +
+                        "${session.selectedCount} RAW geselecteerd" +
+                        if (researchWorkbenchMode) " · RESEARCH" else "",
+                    12f,
+                    muted = true,
+                ),
+            )
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
 
         addView(actionButton("RAW kiezen") { launchRawPicker() })
     }
 
-    private fun compactLayout(): View = ScrollView(this).apply {
-        isFillViewport = true
-        addView(
-            vertical().apply {
-                addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                addView(space(8))
-                addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                if (session.jobs.isNotEmpty()) {
+    private fun compactLayout(): View =
+        rememberedScrollView(
+            initialY = compactScrollY,
+            onScrollYChanged = { compactScrollY = it },
+        ).apply {
+            addView(
+                vertical().apply {
+                    addView(
+                        previewPane(),
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
                     addView(space(8))
-                    addView(jobStrip(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(132)))
-                }
-            },
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
-        )
-    }
+                    addView(
+                        routePane(),
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
+                    if (session.jobs.isNotEmpty()) {
+                        addView(space(8))
+                        // Keep the selected-source rows in the page's single scroll
+                        // surface. A fixed-height nested ScrollView caused touches to
+                        // be consumed by the outer page on compact phones.
+                        addView(
+                            jobRowsPane(),
+                            LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ),
+                        )
+                    }
+                    addView(space(8))
+                    addView(
+                        if (researchWorkbenchMode) {
+                            multiObservationPane()
+                        } else {
+                            researchEntryPane()
+                        },
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
+                },
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
+            )
+        }
 
     private fun mediumLayout(): View = horizontal().apply {
-        addView(vertical().apply {
-            addView(jobListPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-            addView(routePane())
-        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.38f).apply { marginEnd = dp(8) })
+        // Medium used to place a weighted, internally scrolling job list above
+        // wrap-content research controls. On phone landscape those controls could
+        // collapse the job list to zero height. Make each column one independent
+        // scroll surface instead.
+        addView(
+            rememberedScrollView(
+                initialY = mediumLeftScrollY,
+                onScrollYChanged = { mediumLeftScrollY = it },
+            ).apply {
+                addView(
+                    vertical().apply {
+                        addView(jobRowsPane())
+                        addView(space(8))
+                        addView(routePane())
+                        addView(space(8))
+                        addView(
+                            if (researchWorkbenchMode) {
+                                multiObservationPane()
+                            } else {
+                                researchEntryPane()
+                            },
+                        )
+                    },
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ),
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0.38f,
+            ).apply { marginEnd = dp(8) },
+        )
 
-        addView(previewPane(), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.62f))
+        addView(
+            rememberedScrollView(
+                initialY = mediumRightScrollY,
+                onScrollYChanged = { mediumRightScrollY = it },
+            ).apply {
+                addView(
+                    previewPane(),
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ),
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0.62f,
+            ),
+        )
     }
 
     private fun expandedLayout(): View = horizontal().apply {
@@ -3914,7 +7080,10 @@ class MainActivity : Activity() {
                 ))
                 addView(space(6))
                 val m = state.metrics
-                if (preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO) {
+                if (
+            preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO &&
+            researchWorkbenchMode
+        ) {
                     addView(label(
                         "Diagnostische Scientific Preview · source-bound controlebeeld; " +
                             "PRO bouwt automatisch daaronder de raster-onafhankelijke " +
@@ -4556,9 +7725,18 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
 
-                        addView(space(5))
-                        addView(actionButton(
-                            "PRO · Camera-5 Color/Highlight Oracle",
+                        if (researchWorkbenchMode) {
+                            addView(space(8))
+                            addView(
+                                label(
+                                    "Research tests & audits · groen/rood statuspunt + timer blijft actief",
+                                    12f,
+                                    bold = true,
+                                ),
+                            )
+                            addView(space(5))
+                            addView(actionButton(
+                                "PRO · Camera-5 Color/Highlight Oracle",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
                                     active.source.format.id == "DNG" &&
@@ -4733,6 +7911,250 @@ class MainActivity : Activity() {
 
                         addView(space(5))
                         addView(actionButton(
+                            "Export N2 Sample Support Distance v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject("n2_sample_support_distance")
+                                        ?.optString("status") ==
+                                    "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE",
+                        ) {
+                            launchN2SupportDistanceExport(active)
+                        })
+                        n2SupportDistanceStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "truthnegative-n2-support-distance",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.6 audit-sidecar: exact sampled Structure/Censored/CensorBoundary broncoördinaten " +
+                                "+ center/radius en rect-margin afstanden. Geen interpolatie van onbemeten pixels, " +
+                                "geen afstandsdrempel, geen promotion en geen Scientific-Master-writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Anchor-Constrained Reconstruction v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "anchor_constrained_local_reconstruction",
+                                        )
+                                        ?.optString("status") ==
+                                    "AUDIT_ONLY_HOLDOUT_VALIDATION_AVAILABLE",
+                        ) {
+                            launchAnchorConstrainedReconstructionExport(active)
+                        })
+                        anchorReconstructionStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "anchor-constrained-local-reconstruction",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Holdout-audit: echte CFA-ankers blijven verzegeld en worden alleen tijdelijk voor de " +
+                                "predictor verborgen. De private lattice-solver voorspelt ze uit andere gemeten " +
+                                "ankers; daarna wordt pas met de echte waarde vergeleken. RECONSTRUCTED authority, " +
+                                "onzekerheid diagnostisch, geen correction-enable en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Universal Observation Model Selection v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "universal_observation_model_selection",
+                                    )
+                                    ?.optString("status") ==
+                                "PROSPECTIVE_AUDIT_POLICY_AVAILABLE",
+                        ) {
+                            launchObservationModelSelectionExport(active)
+                        })
+                        observationModelSelectionStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Prospective selector-sidecar: legt alleen observation-derived supportregime en " +
+                                "eligible modelbank vast. Geen held-out target, holdout-error, lensprofiel, " +
+                                "camera-ID of vendor-map. Exporteer deze vóór beoordeling van nieuwe holdoutresultaten.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Universal Local Model Bank Holdout v0.1 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "universal_local_model_bank_holdout",
+                                        )
+                                        ?.optString("status") ==
+                                    "READY_FOR_EXPLICIT_EXPORT_AUDIT",
+                        ) {
+                            launchUniversalModelBankHoldoutExport(active)
+                        })
+                        universalModelBankHoldoutStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "universal-local-model-bank-holdout",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "Full-resolution research-audit: houdt een gestratificeerde set echte CFA-ankers " +
+                                "verborgen over de originele bron en kiest vóór target-reveal uit median/constant, " +
+                                "directional line, affine, quadratic of NO_RECONSTRUCTION. Geen lens/camera/vendor-profiel " +
+                                "nodig voor selectie; de post-reveal oracle is alleen diagnose en mag de selector niet sturen.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Universal Local Model Bank Holdout v0.2 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "universal_local_model_bank_holdout_v0_2",
+                                        )
+                                        ?.optString("status") ==
+                                    "READY_FOR_EXPLICIT_EXPORT_AUDIT",
+                        ) {
+                            launchUniversalModelBankHoldoutV02Export(active)
+                        })
+                        universalModelBankHoldoutV02Status?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "universal-local-model-bank-holdout-v02",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.2 successor: modelkeuze gebruikt een target-blinde support-crossfit. " +
+                                "De directionele kandidaat fit alleen richtinggebonden CFA-supportstroken, zodat hij " +
+                                "niet meer algebraïsch dezelfde centrumvoorspelling als affine hoeft te geven. " +
+                                "Tele/main/ultra-wide identiteit blijft buiten de selector.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Universal Local Model Bank Holdout v0.3 · JSON",
+                            enabled =
+                                active.source.format.nativeProcessingReady &&
+                                    active.source.format.id == "DNG" &&
+                                    universalProfiles[active.id]
+                                        ?.optJSONObject(
+                                            "universal_local_model_bank_holdout_v0_3",
+                                        )
+                                        ?.optString("status") ==
+                                    "READY_FOR_EXPLICIT_EXPORT_AUDIT",
+                        ) {
+                            launchUniversalModelBankHoldoutV03Export(active)
+                        })
+                        universalModelBankHoldoutV03Status?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey(
+                                    "universal-local-model-bank-holdout-v03",
+                                    active.id,
+                                ),
+                                status,
+                            )?.let(::addView) ?: addView(
+                                label(status, 10f, muted = true),
+                            )
+                        }
+                        addView(label(
+                            "v0.3 selector-only successor: gebruikt exact dezelfde v0.2 kandidaatfits en " +
+                                "directionele support, maar vergelijkt model families puur op dezelfde common " +
+                                "validation-RMS. Geen tweede BIC/complexiteitsstraf; modelcomplexiteit is alleen " +
+                                "deterministische tie-break. Geen lens/camera/vendor-profiel en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Observation Optical Field Chart v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "observation_optical_field_chart",
+                                    )
+                                    ?.optString("status") ==
+                                "FIELD_CHART_AVAILABLE",
+                        ) {
+                            launchObservationOpticalFieldExport(active)
+                        })
+                        observationOpticalFieldStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Platte veldkaart van dezelfde sealed observation: bron/ActiveArea → rho + azimut + " +
+                                "radiale/tangentiële basis, plus gemeten CFA-signaal per ring/sector. DNG GainMap is " +
+                                "alleen provenance-hint; geen lensprofiel, geen correctiegain en geen writeback.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
+                            "Export Universal Observation & Calibration Atlas v0.1 · JSON",
+                            enabled =
+                                universalProfiles[active.id]
+                                    ?.optJSONObject(
+                                        "universal_observation_calibration_atlas",
+                                    )
+                                    ?.optString("status") ==
+                                "OBSERVATION_ATLAS_AVAILABLE",
+                        ) {
+                            launchUniversalCalibrationAtlasExport(active)
+                        })
+                        universalCalibrationAtlasStatus?.let { status ->
+                            addView(label(status, 10f, muted = true))
+                        }
+                        addView(label(
+                            "Universele observatiekaart van dezelfde sealed bron: voor- en achterkant gekoppeld, " +
+                                "kleur/lichtval/optiek/tijd/restauratie als losse authority-assen. Geen camera- of " +
+                                "lensprofiel vereist; optionele kalibratie is extra evidence en nooit een ingangseis.",
+                            10f,
+                            muted = true,
+                        ))
+
+                        addView(space(5))
+                        addView(actionButton(
                             "Export Appearance Highlight Detail v0.1 · JSON",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
@@ -4788,6 +8210,7 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
+                        }
 
                         addView(space(5))
                         addView(actionButton("Legacy Scientific Negative · TN-4") {
@@ -4939,8 +8362,190 @@ class MainActivity : Activity() {
         ))
     }
 
+    private fun researchEntryPane(): View = card().apply {
+        addView(label("Research & JSON", 16f, bold = true))
+        addView(space(5))
+        addView(
+            label(
+                "Normale fotoverwerking blijft compact. Open deze werkbank alleen voor Multi-observation, Calibration Observation Records, field/atlas-exports, holdout-audits en de Free World Foundation.",
+                10.5f,
+                muted = true,
+            ),
+        )
+        addView(space(8))
+        addView(actionButton("Open onderzoekswerkbank") {
+            researchWorkbenchMode = true
+            render()
+        })
+        addView(space(6))
+        addView(actionButton("Research-overzicht / Global JSON") {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    TruthRawResearchHubActivity::class.java,
+                ),
+            )
+        })
+    }
+
+    private fun multiObservationPane(): View = card().apply {
+        val selected = session.jobs.size
+        val profiled =
+            session.jobs.count { universalProfiles[it.id] != null }
+        val measuredCharts = currentMeasuredFieldCharts().size
+        val calibrationRecordCount =
+            calibrationObservationRecords.size
+
+        addView(label("Multi-observation · Research & JSON", 16f, bold = true))
+        addView(label(
+            "selected=" + selected +
+                " · universal-profile=" + profiled +
+                " · measured-field-chart=" + measuredCharts +
+                " · minimum=3",
+            11f,
+            muted = true,
+        ))
+        addView(space(6))
+        addView(actionButton(
+            "Voeg relation-based Calibration Observation Record(s) · JSON toe",
+            enabled = true,
+        ) {
+            launchCalibrationObservationRecordPicker()
+        })
+        calibrationObservationRecordStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Optioneel · records=" +
+                calibrationRecordCount +
+                " · normale RAW-intake vereist geen calibratie. Camera/lens/vendor/RAW-identiteit mag geen scientific key zijn.",
+            10f,
+            muted = true,
+        ))
+        if (calibrationRecordCount > 0) {
+            addView(actionButton(
+                "Wis gekoppelde Calibration Observation Records",
+                enabled = true,
+            ) {
+                calibrationObservationRecords.clear()
+                calibrationObservationRecordStatus =
+                    "Calibration Observation Records gewist · RAW-observaties blijven onaangeraakt."
+                render()
+            })
+        }
+        addView(space(6))
+        addView(actionButton(
+            "Analyseer alle geselecteerde bronnen universeel",
+            enabled = selected > 0,
+        ) {
+            requestUniversalProfilesForSelectedSources()
+        })
+        addView(space(5))
+        addView(actionButton(
+            "Export Field Response Repeatability v0.1 · JSON",
+            enabled = measuredCharts >= 3,
+        ) {
+            launchFieldResponseRepeatabilityExport()
+        })
+        addView(space(5))
+        addView(actionButton(
+            "Export Observation-World Field Separation v0.1 · JSON",
+            enabled = profiled >= 2,
+        ) {
+            launchObservationWorldFieldSeparationExport()
+        })
+        observationWorldFieldSeparationStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(space(5))
+        addView(actionButton(
+            "Export Free World Observation Geometry Foundation v0.1 · JSON",
+            enabled = profiled >= 2,
+        ) {
+            launchFreeWorldFoundationExport()
+        })
+        freeWorldFoundationStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Foundation-export bundelt deterministische lokale features, pair-geometry hypotheses, " +
+                "Free World observation graph, multi-lens/360 campaign policy, Natural Self-Calibration Atlas, " +
+                "radiometric/noise/optics/colour/temporal/3D/world-space candidate-runtimes, " +
+                "gescheiden uncertainty, continuous-query contract en restoration authority. " +
+                "Optionele relation-records voeden alleen kandidaten; alles blijft fail-closed tot afzonderlijke validatie.",
+            10f,
+            muted = true,
+        ))
+        addView(label(
+            "Nieuwe vrije-wereld fundering: SOURCE/SENSOR SPACE, WORLD/SCENE SPACE en VIEW/OUTPUT SPACE " +
+                "blijven strikt gescheiden. Gewone overlappende of 360°-observaties mogen later een " +
+                "deterministische wereldregistratie leveren; de gebruiker of panoramamiddenpunt wordt nooit " +
+                "het calibratiemiddelpunt. v0.1 registreert nog niet automatisch en corrigeert niets.",
+            10f,
+            muted = true,
+        ))
+        backgroundOperationStatusView(
+            fieldResponseRepeatabilityAnalysisOperationKey(),
+            fieldResponseRepeatabilityStatus
+                ?: "Field Response Repeatability v0.1 bronanalyse",
+        )?.let(::addView)
+            ?: fieldResponseRepeatabilityStatus?.let {
+                addView(label(it, 10f, muted = true))
+            }
+
+        if (fieldResponseBatchPendingJobIds.isNotEmpty()) {
+            addView(label(
+                "Analyse actief · nog " +
+                    fieldResponseBatchPendingJobIds.size +
+                    " bron(nen) bezig.",
+                10f,
+                muted = true,
+            ))
+        }
+
+        if (measuredCharts < 3) {
+            addView(label(
+                "Repeatability-gate nog niet open: measured-field-chart=" +
+                    measuredCharts + "/3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
+                    "CFA-field chart tellen mee; JPEG en decoder-pending/ongeschikte RAW-topologie tellen niet mee.",
+                10f,
+                muted = true,
+            ))
+        }
+
+        addView(label(
+            "Read-only vergelijking van ≥3 onafhankelijke PR96-field charts. Per observation wordt alleen een " +
+                "scalar niveau verwijderd; radiale, azimutale en CFA-fasevormen worden in EV vergeleken. " +
+                "Geen camera-/lensidentiteit, geen lens-only vignettering, geen kalibratiepromotie, geen correctie.",
+            10f,
+            muted = true,
+        ))
+        addView(space(8))
+        addView(actionButton("Research-overzicht / Global JSON") {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    TruthRawResearchHubActivity::class.java,
+                ),
+            )
+        })
+        addView(space(6))
+        addView(actionButton("Sluit onderzoekswerkbank") {
+            researchWorkbenchMode = false
+            render()
+        })
+    }
+
     private fun toolsPane(): View = vertical().apply {
         addView(routePane())
+        addView(space(8))
+        addView(
+            if (researchWorkbenchMode) {
+                multiObservationPane()
+            } else {
+                researchEntryPane()
+            },
+        )
         addView(space(8))
         addView(card().apply {
             addView(label("Kamers", 16f, bold = true))
@@ -4973,6 +8578,39 @@ class MainActivity : Activity() {
             session.jobs.forEachIndexed { index, job -> addView(jobRow(index, job)) }
         })
     }
+
+    private fun jobRowsPane(): View = card().apply {
+        addView(label("Ingang", 16f, bold = true))
+        addView(
+            label(
+                "${session.selectedCount} onafhankelijke bronhandle(s)",
+                12f,
+                muted = true,
+            ),
+        )
+        addView(space(6))
+        if (session.jobs.isEmpty()) {
+            addView(label("Nog geen RAW geselecteerd.", 13f, muted = true))
+        } else {
+            session.jobs.forEachIndexed { index, job ->
+                addView(jobRow(index, job))
+            }
+        }
+    }
+
+    private fun rememberedScrollView(
+        initialY: Int,
+        onScrollYChanged: (Int) -> Unit,
+    ): ScrollView =
+        ScrollView(this).apply {
+            isFillViewport = true
+            setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                onScrollYChanged(scrollY)
+            }
+            post {
+                scrollTo(0, initialY.coerceAtLeast(0))
+            }
+        }
 
     private fun jobRow(index: Int, job: RawJob): View = vertical().apply {
         setPadding(dp(10), dp(8), dp(10), dp(8))
@@ -5089,7 +8727,17 @@ class MainActivity : Activity() {
     companion object {
         private const val PROJECTION_PICKER_PREFS = "truthraw_projection_picker_v072"
         private const val KEY_PENDING_PROJECTION_FORMAT = "pending_projection_format"
+        private const val STATE_RESEARCH_WORKBENCH_MODE =
+            "truthraw.state.RESEARCH_WORKBENCH_MODE"
+        private const val STATE_CALIBRATION_RECORD_STATUS =
+            "truthraw.state.CALIBRATION_RECORD_STATUS"
+        private const val STATE_CALIBRATION_SESSION_STORE_ID =
+            "truthraw.state.CALIBRATION_SESSION_STORE_ID"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
+        const val EXTRA_OPEN_RESEARCH_WORKBENCH =
+            "truthraw.extra.OPEN_RESEARCH_WORKBENCH"
+        const val EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER =
+            "truthraw.extra.AUTO_OPEN_CALIBRATION_RECORD_PICKER"
         const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
         const val EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH = "truthraw.extra.INTERNAL_CAMERA_EVIDENCE_PATH"
         const val EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256 = "truthraw.extra.INTERNAL_CAMERA_UPSTREAM_SHA256"
@@ -5114,5 +8762,17 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_N2_FACTORED_CONFIDENCE = 4117
         private const val REQUEST_SAVE_APPEARANCE_HIGHLIGHT_DETAIL = 4118
         private const val REQUEST_SAVE_APPEARANCE_HEADROOM_SWEEP = 4119
+        private const val REQUEST_SAVE_N2_SUPPORT_DISTANCE = 4120
+        private const val REQUEST_SAVE_ANCHOR_RECONSTRUCTION = 4121
+        private const val REQUEST_SAVE_OBSERVATION_MODEL_SELECTION = 4122
+        private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT = 4123
+        private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V02 = 4124
+        private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
+        private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
+        private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
+        private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
+        private const val REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129
+        private const val REQUEST_SAVE_FREE_WORLD_FOUNDATION = 4130
+        private const val REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS = 4131
     }
 }

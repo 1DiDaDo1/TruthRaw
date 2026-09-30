@@ -34,17 +34,54 @@ object FrontsideSceneInspector {
         uri: Uri,
         containerMetadata: JSONObject?,
         sourceSha256: String,
+        backsideSupport: JSONObject? = null,
     ): JSONObject {
         val decoded = decodeFrontside(resolver, uri, containerMetadata)
 
         if (decoded == null) {
+            val darkChromaV01Unavailable =
+                DarkChromaStabilityAudit.unavailable(sourceSha256)
+            val darkChromaV02Unavailable =
+                DarkChromaStabilityV02Audit.unavailable(
+                    sourceSha256,
+                    darkChromaV01Unavailable,
+                    backsideSupport,
+                )
+            val backsideSignal =
+                backsideSupport?.optJSONObject("signal_support_audit")
             return JSONObject()
-                .put("schema", "D.RAW/FrontsideSceneInspection/0.2")
+                .put("schema", "D.RAW/FrontsideSceneInspection/0.5")
                 .put("status", "FRONTSIDE_PREVIEW_UNAVAILABLE")
                 .put("source_sha256", sourceSha256)
                 .put("authority", "APPEARANCE_DERIVED_ONLY")
                 .put("decoded_preview_used", false)
                 .put("natural_feature_geometry_candidate", false)
+                .put("dark_chroma_stability_v0_1", darkChromaV01Unavailable)
+                .put("dark_chroma_stability_v0_2", darkChromaV02Unavailable)
+                .put(
+                    "dark_chroma_stability_v0_3",
+                    DarkChromaStabilityV03Audit.unavailable(
+                        sourceSha256,
+                        darkChromaV01Unavailable,
+                        darkChromaV02Unavailable,
+                        backsideSignal,
+                    ),
+                )
+                .put(
+                    "deterministic_local_feature_geometry_v0_1",
+                    JSONObject()
+                        .put(
+                            "schema",
+                            DeterministicLocalFeatureGeometryV01.SCHEMA,
+                        )
+                        .put("status", "UNKNOWN_FAIL_CLOSED")
+                        .put("reason", "FRONTSIDE_PREVIEW_UNAVAILABLE")
+                        .put("source_sha256", sourceSha256)
+                        .put("authority", "APPEARANCE_DERIVED_ONLY")
+                        .put("is_world_registration_proof", false)
+                        .put("creates_sensor_evidence", false)
+                        .put("scientific_writeback_allowed", false),
+                )
                 .put(
                     "semantic_scene_understanding",
                     JSONObject()
@@ -56,6 +93,29 @@ object FrontsideSceneInspector {
         }
 
         val bitmap = scaleForAnalysis(decoded.bitmap)
+        val localFeatureGeometry =
+            DeterministicLocalFeatureGeometryV01.extract(
+                bitmap = bitmap,
+                sourceSha256 = sourceSha256,
+            )
+        val darkChromaStability =
+            DarkChromaStabilityAudit.analyze(bitmap, sourceSha256)
+        val darkChromaStabilityV02 =
+            DarkChromaStabilityV02Audit.analyze(
+                bitmap,
+                sourceSha256,
+                darkChromaStability,
+                backsideSupport,
+            )
+        val backsideSignal =
+            backsideSupport?.optJSONObject("signal_support_audit")
+        val darkChromaStabilityV03 =
+            DarkChromaStabilityV03Audit.analyze(
+                sourceSha256,
+                darkChromaStability,
+                darkChromaStabilityV02,
+                backsideSignal,
+            )
         val width = bitmap.width
         val height = bitmap.height
         val n = width * height
@@ -222,7 +282,7 @@ object FrontsideSceneInspector {
         }
 
         return JSONObject()
-            .put("schema", "D.RAW/FrontsideSceneInspection/0.2")
+            .put("schema", "D.RAW/FrontsideSceneInspection/0.5")
             .put("status", "FRONTSIDE_STRUCTURAL_INSPECTION_AVAILABLE")
             .put("source_sha256", sourceSha256)
             .put("authority", "APPEARANCE_DERIVED_ONLY")
@@ -283,6 +343,18 @@ object FrontsideSceneInspector {
             .put("edge_orientation_histogram", edgeOrientationJson)
             .put("structural_feature_signature_sha256", signature)
             .put(
+                "deterministic_local_feature_geometry_v0_1",
+                localFeatureGeometry,
+            )
+            .put("dark_chroma_stability_v0_1", darkChromaStability)
+            .put("dark_chroma_stability_v0_2", darkChromaStabilityV02)
+            .put("dark_chroma_stability_v0_3", darkChromaStabilityV03)
+            .put(
+                "single_observation_frontside_contract",
+                darkChromaStability.optJSONObject("single_observation_contract")
+                    ?: JSONObject(),
+            )
+            .put(
                 "geometry_readiness",
                 JSONObject()
                     .put("natural_feature_geometry_candidate", enoughStructure)
@@ -300,10 +372,10 @@ object FrontsideSceneInspector {
             .put(
                 "semantic_scene_understanding",
                 JSONObject()
-                    .put("level", "STRUCTURAL_VISION_V0_2")
+                    .put("level", "STRUCTURAL_VISION_V0_5")
                     .put(
                         "description",
-                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Higher-level deterministic object/material/geometry/scene analysis may be added only through inspectable non-AI algorithms.",
+                        "Frontside proportions, luminance structure, edges, orientation and deterministic classical local-feature geometry are inspected at intake. Local features remain APPEARANCE_DERIVED_ONLY and are not registration proof. Dark Chroma Stability v0.1 and v0.2 remain immutable. v0.3 adds a non-entropy-hinged frontside degeneracy blocker plus measured selected-DNG CFA signal-support. These can block reconstruction but cannot enable correction; local backside/N2 support remains required.",
                     )
                     .put("future_classical_vision_extension_allowed", true),
             )
