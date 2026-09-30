@@ -15,15 +15,19 @@
     "normal_user_calibration_required": false
   },
   "new_modules": [
+    "UniversalIdentityIndependenceV01",
+    "PhysicalObservationNoiseContextV01",
     "RadiometricResponseAtlasV01",
     "NoiseComponentAtlasV01",
     "ScientificNoiseTransportV01",
+    "ScientificNoiseMathV01",
     "TemporalFootprintV01",
     "GeometryDepthSupportAtlasV01",
     "LightTransportAuthorityContractV01",
+    "MultiObservationResidualRelationV01",
+    "ScientificDenoiseAdmissionV01",
     "WorldSpaceNoiseSeparationV01",
-    "PerceptualNoiseAppearanceV01",
-    "UniversalIdentityIndependenceV01"
+    "PerceptualNoiseAppearanceV01"
   ],
   "promotion": {
     "radiometric_calibration_promoted": false,
@@ -53,5 +57,17 @@
     "UNKNOWN_RESIDUAL_IS_NOT_AUTOMATICALLY_NOISE",
     "PERCEPTUAL_DENOISE_IS_APPEARANCE_ONLY",
     "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT"
-  ]
+  ],
+  "latest_implementation_head": "74075f1318ceb5f45cec7ed7e0c9724e1c32b1c6",
+  "runtime_integration": {
+    "universal_intake_noise_context_bound": true,
+    "foundation_exports_new_axes": true,
+    "capability_matrix_extended": true,
+    "promotion_registry_extended": true,
+    "research_firewall_extended": true,
+    "continuous_query_extended": true,
+    "single_frame_denoise_requires_3d": false,
+    "single_frame_denoise_requires_multiple_frames": false,
+    "scientific_denoise_admitted": false
+  }
 }
