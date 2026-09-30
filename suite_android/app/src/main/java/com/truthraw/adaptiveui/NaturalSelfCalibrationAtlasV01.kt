@@ -126,7 +126,11 @@ object NaturalSelfCalibrationAtlasV01 {
             )
             .put(
                 "radiometric_response_axis",
-                radiometricResponse,
+                radiometricResponse
+                    .put(
+                        "profile_candidate_solver",
+                        "RadiometricProfileRelationCandidateV01",
+                    ),
             )
             .put(
                 "field_response_axis",
@@ -146,6 +150,10 @@ object NaturalSelfCalibrationAtlasV01 {
                         } else {
                             "UNKNOWN_OR_SINGLE_OBSERVATION"
                         },
+                    )
+                    .put(
+                        "candidate_solver",
+                        "FieldResponseRotationSeparationCandidateV01",
                     )
                     .put(
                         "camera_system_response_proven",
@@ -186,6 +194,10 @@ object NaturalSelfCalibrationAtlasV01 {
                         metadataColourCount,
                     )
                     .put(
+                        "candidate_solver",
+                        "ColourRelationCandidateSolverV01",
+                    )
+                    .put(
                         "multi_illuminant_reference_target_observations",
                         0,
                     )
@@ -202,6 +214,10 @@ object NaturalSelfCalibrationAtlasV01 {
             .put(
                 "optical_support_axis",
                 JSONObject()
+                    .put(
+                        "candidate_solver",
+                        "OpticalSupportMeasurementCandidateV01",
+                    )
                     .put(
                         "metadata_focal_hint_observation_count",
                         opticalMetadataHintCount,
@@ -226,6 +242,14 @@ object NaturalSelfCalibrationAtlasV01 {
                 "dark_noise_axis",
                 JSONObject()
                     .put(
+                        "sparse_grid_candidate_solver",
+                        "RepeatedSparseGridNoiseCandidateV01",
+                    )
+                    .put(
+                        "noise_spectrum_candidate_solver",
+                        "NoiseSpectrumMeasurementCandidateV01",
+                    )
+                    .put(
                         "noise_metadata_observation_count",
                         noiseMetadataCount,
                     )
@@ -245,6 +269,10 @@ object NaturalSelfCalibrationAtlasV01 {
             .put(
                 "temporal_axis",
                 JSONObject()
+                    .put(
+                        "candidate_solver",
+                        "TemporalSequenceCandidateSolverV01",
+                    )
                     .put(
                         "capture_time_metadata_hint_count",
                         captureTimeHintCount,
