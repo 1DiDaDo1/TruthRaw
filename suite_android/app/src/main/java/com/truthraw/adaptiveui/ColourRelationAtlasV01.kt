@@ -54,6 +54,14 @@ object ColourRelationAtlasV01 {
                 "colour_matrix_quality_may_ignore_noise_amplification",
                 false,
             )
+            .put(
+                "candidate_solver",
+                "ColourRelationCandidateSolverV01",
+            )
+            .put(
+                "covariance_transport_primitive",
+                ScientificNoiseMathV01.METHOD_ID,
+            )
             .put("empirical_relation_attached", false)
             .put("spectral_calibration_attached", false)
             .put("calibration_promoted", false)
