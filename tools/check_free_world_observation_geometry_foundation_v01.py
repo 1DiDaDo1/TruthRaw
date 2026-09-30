@@ -32,6 +32,8 @@ files = {
     "anchor_resolver": (JAVA / "SourceLatticeExactAnchorResolverV01.kt").read_text(),
     "calibration_validator": (JAVA / "CalibrationObservationRecordValidatorV01.kt").read_text(),
     "world_source_bridge": (JAVA / "FreeWorldSourceLatticeBridgeContractV01.kt").read_text(),
+    "fail_closed_solver": (JAVA / "FailClosedFreeWorldContinuousQuerySolverV01.kt").read_text(),
+    "capability_matrix": (JAVA / "FreeWorldCapabilityMatrixV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -138,6 +140,8 @@ required = {
         "GeometryValidationReadinessV01.describe",
         "FreeWorldQuerySupportLedgerV01.build",
         "FreeWorldSourceLatticeBridgeContractV01.describe",
+        "FreeWorldCapabilityMatrixV01.describe",
+        "FailClosedFreeWorldContinuousQuerySolverV01",
         "ConservationRestorationAuthorityRuntimeV01.describe",
     ],
     "typed_query": [
@@ -214,6 +218,18 @@ required = {
         "appearance_pair_geometry_is_sufficient",
         "world_to_source_bridge_admitted",
     ],
+    "fail_closed_solver": [
+        "FailClosedFreeWorldContinuousQuerySolverV01",
+        "UNKNOWN_NO_ADMITTED_WORLD_TO_SOURCE_BRIDGE",
+        "UNKNOWN_NO_ADMITTED_CONTINUOUS_PIXEL_SOLVER",
+        "FreeWorldAuthorityV01.UNKNOWN",
+    ],
+    "capability_matrix": [
+        "CAPABILITY_MATRIX_AVAILABLE",
+        "IMPLEMENTED_DOES_NOT_MEAN_VALIDATED",
+        "MEASURED_ONLY_AT_EXACT_ADMITTED_ANCHORS",
+        "TYPED_ABI_AND_FAIL_CLOSED_RUNTIME_IMPLEMENTED",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -256,6 +272,10 @@ assert state["continuous_query"]["pixel_solver_implemented"] is False
 assert state["continuous_query"]["source_lattice_exact_anchor_resolver_implemented"] is True
 assert state["continuous_query"]["unanchored_lattice_position_returns_unknown"] is True
 assert state["continuous_query"]["world_to_source_bridge_admitted"] is False
+assert state["continuous_query"]["fail_closed_world_runtime_implemented"] is True
+assert state["continuous_query"]["unadmitted_world_query_returns_unknown"] is True
+assert state["capability_matrix"]["implemented"] is True
+assert state["capability_matrix"]["separates_implementation_from_scientific_promotion"] is True
 assert state["geometry_consistency"]["multi_observation_feature_tracks_implemented"] is True
 assert state["geometry_consistency"]["automatic_consistency_threshold_used"] is False
 assert state["geometry_consistency"]["same_world_structure_proven"] is False
@@ -278,6 +298,8 @@ for phrase in [
     "Loss compensation never becomes measured.",
     "Any position between source anchors returns UNKNOWN.",
     "Physical truth is intentionally",
+    "Implemented does not mean validated.",
+    "No phone test is required merely to preserve these ideas",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
