@@ -58,9 +58,8 @@ object CalibrationObservationAdmissionV01 {
         }
 
         if (
-            record.optString("session_binding_status").isNotBlank() &&
             record.optString("session_binding_status") !=
-                "BOUND_TO_ACTIVE_OBSERVATION_SET"
+            "BOUND_TO_ACTIVE_OBSERVATION_SET"
         ) {
             issues.put("RECORD_NOT_BOUND_TO_ACTIVE_SESSION")
         }
