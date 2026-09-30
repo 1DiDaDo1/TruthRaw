@@ -29,6 +29,10 @@ object PerceptualNoiseAppearanceV01 {
                     .put("SPATIAL_FREQUENCY_SENSITIVITY")
                     .put("LUMINANCE_CHROMA_SENSITIVITY"),
             )
+            .put(
+                "visual_angle_candidate_runtime",
+                "PerceptualNoiseVisibilityCandidateV01",
+            )
             .put("scientific_noise_state_may_be_changed", false)
             .put("scientific_master_may_be_changed", false)
             .put("perceptual_noise_visibility_mapping_allowed", true)
