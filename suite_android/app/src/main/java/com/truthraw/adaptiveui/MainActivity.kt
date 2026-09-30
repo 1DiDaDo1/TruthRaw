@@ -6948,7 +6948,10 @@ class MainActivity : Activity() {
                 ))
                 addView(space(6))
                 val m = state.metrics
-                if (preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO) {
+                if (
+            preferredRoute() == TruthRawSuiteLauncherActivity.OUTPUT_PRO &&
+            researchWorkbenchMode
+        ) {
                     addView(label(
                         "Diagnostische Scientific Preview · source-bound controlebeeld; " +
                             "PRO bouwt automatisch daaronder de raster-onafhankelijke " +
@@ -7590,9 +7593,18 @@ class MainActivity : Activity() {
                             muted = true,
                         ))
 
-                        addView(space(5))
-                        addView(actionButton(
-                            "PRO · Camera-5 Color/Highlight Oracle",
+                        if (researchWorkbenchMode) {
+                            addView(space(8))
+                            addView(
+                                label(
+                                    "Research tests & audits · groen/rood statuspunt + timer blijft actief",
+                                    12f,
+                                    bold = true,
+                                ),
+                            )
+                            addView(space(5))
+                            addView(actionButton(
+                                "PRO · Camera-5 Color/Highlight Oracle",
                             enabled =
                                 active.source.format.nativeProcessingReady &&
                                     active.source.format.id == "DNG" &&
@@ -8066,6 +8078,7 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
+                        }
 
                         addView(space(5))
                         addView(actionButton("Legacy Scientific Negative · TN-4") {
