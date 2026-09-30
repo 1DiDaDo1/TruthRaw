@@ -571,3 +571,52 @@ At this point all architecture items previously enumerated for the pre-validatio
 - promotion firewall.
 
 Physical truth is intentionally **not** promoted merely because the architecture now exists.
+
+
+### 28. Fail-closed Free World world-query runtime
+
+`FailClosedFreeWorldContinuousQuerySolverV01.kt`
+
+The typed Free World query interface now has a real runtime-safe default implementation.
+
+Until both a validated world→source bridge and an admitted continuous reconstruction operator exist, every world-space query returns:
+
+- `values=null`;
+- authority `UNKNOWN`;
+- no source support;
+- no reconstruction support;
+- explicit unknown uncertainty axes for world→source relation and continuous reconstruction.
+
+This means the future query path can already exist in code without silently falling back to interpolation.
+
+### 29. Free World Capability Matrix v0.1
+
+`FreeWorldCapabilityMatrixV01.kt`
+
+The unified foundation export now includes a machine-readable distinction between:
+
+- **implemented machinery**;
+- **scientifically validated state**;
+- **active scientific use permission**.
+
+The matrix covers geometry, tracks, graph cycles, relative-world gauge, field decomposition, Natural Self-Calibration, optics, colour, temporal relations, exact source anchors, continuous queries, restoration, appearance and the promotion firewall.
+
+Its permanent law is:
+
+> **Implemented does not mean validated. Validated does not automatically mean measured.**
+
+This is specifically intended to prevent future chats or development passes from losing the distinction between code progress and scientific evidence.
+
+## Pre-validation architecture checkpoint
+
+The complete safe architecture set discussed before returning to repeated phone testing is now represented in executable code or explicit runtime contracts.
+
+No phone test is required merely to preserve these ideas in the project.
+
+The next engineering gate is therefore only:
+
+1. integrity checks;
+2. full Android compile/build;
+3. repair compile/integration errors if any.
+
+Only after that checkpoint does D.RAW need to return to bundled physical validation for scientific promotion.
