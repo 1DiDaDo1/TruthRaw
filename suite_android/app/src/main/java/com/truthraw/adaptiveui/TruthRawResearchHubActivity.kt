@@ -42,7 +42,7 @@ class TruthRawResearchHubActivity : Activity() {
 
             addView(card("Onderzoek & JSON").apply {
                 addView(body(
-                    "Centrale ingang voor de Free World onderzoekslaag. Normale fotografie blijft via Bestand of Camera werken; deze pagina is voor multi-observation, relation-records en machine-readable onderzoeksexports.",
+                    "Centrale ingang voor de Free World onderzoekslaag. Normale fotografie blijft via Bestand of Camera werken; deze pagina is voor multi-observation, relation-records en machine-readable onderzoeksexports. Geïmporteerde relation-records worden canonical gededupliceerd en mogen alleen kandidaten voeden wanneer hun source-SHA’s aan de actuele observatieset zijn gebonden.",
                     12.5f,
                 ))
                 addView(space(10))
@@ -116,7 +116,7 @@ class TruthRawResearchHubActivity : Activity() {
                 ))
                 addView(step(
                     "3 · Hele Free World-sessiestatus",
-                    "Free World Observation Geometry Foundation. Dit is de uitgebreide per-session onderzoeks-export met geometry, atlas, uncertainty en candidate-runtimes.",
+                    "Free World Observation Geometry Foundation. Dit is de uitgebreide per-session onderzoeks-export met processing- én physical-evidence lineage, record-session binding, geometry, atlas, uncertainty en candidate-runtimes.",
                 ))
                 addView(step(
                     "4 · Projectarchitectuur zonder foto",
