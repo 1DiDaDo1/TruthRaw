@@ -286,7 +286,7 @@ This path does **not** make calibration mandatory for ordinary users. It exists 
 
 ### Validation status
 
-The implementation wave has now passed a full Android arm64 debug build after the post-audit cable-repair round. Green code head: `f36f750afda57f4672c264e59ac53db489cd5e19`; workflow run `36744717288`; artifact `11111543510`; APK SHA-256 `d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036`; bytes `8,155,983`. No device/physical validation of the new candidate wave has been run, so compile success does not establish scientific correctness or promotion.
+The implementation wave has now passed a full Android arm64 debug build after the post-audit cable-repair round. Green code head: `c90ff62323a065eac54eee0d91f75256708cd4fd`; workflow run `36746687740`; artifact `11113326128`; APK SHA-256 `1c5a97b6c5bce7a7534cda9899f1b3d926d9fced8fd8edc16cd53944a6620c03`; bytes `8,155,983`. No device/physical validation of the new candidate wave has been run, so compile success does not establish scientific correctness or promotion.
 
 
 ## Completion checkpoint — implementation wave
@@ -325,12 +325,12 @@ See `UX_NAVIGATION_2026-09-30.md`.
 
 ## Test/build status
 
-The post-audit implementation now has a **green Android build/CI compile gate** on code head `f36f750afda57f4672c264e59ac53db489cd5e19`. No device validation, physical calibration campaign, scientific promotion experiment, or research-candidate writeback has been run.
+The post-audit implementation now has a **green Android build/CI compile gate** on final cable-closure code head `c90ff62323a065eac54eee0d91f75256708cd4fd`. No device validation, physical calibration campaign, scientific promotion experiment, or research-candidate writeback has been run.
 
 Therefore:
 
 - implementation status may be reported;
-- compilation success may NOT be reported;
+- compilation success **may** be reported for code head `c90ff62323a065eac54eee0d91f75256708cd4fd`;
 - physical correctness may NOT be reported;
 - no scientific promotion is implied.
 
@@ -352,7 +352,7 @@ Implemented candidate runtimes:
 - `ColourRelationCandidateSolverV01`: identity-independent 3x3 camera-RGB to reference-XYZ candidate fitted over at least two illuminants with held-out patches.
 - `TemporalSequenceCandidateSolverV01`: explicit sequence/readout candidate from relation records; metadata timing alone remains insufficient.
 - `GeometryDepthCandidateSolverV01`: calibrated-ray triangulation candidate from supplied pose/ray relations; geometry authority remains separate from radiometry.
-- `WorldSpaceResidualCandidateSolverV01`: world-fixed plus sensor-fixed residual candidate decomposition after admitted world/source and radiometric relations.
+- `WorldSpaceResidualCandidateSolverV01`: world-fixed plus sensor-fixed residual candidate decomposition from explicit active-session relation evidence; candidate execution does not itself promote the world/source or radiometric relation.
 - `ScientificReconstructionCandidateV01`: uncertainty-weighted reconstructed-value candidate with exact MEASURED anchor passthrough.
 - `ScientificDenoiseOperatorV01`: route-gated derived-output operator; it cannot run scientifically until the corresponding admission gate is promoted.
 - `PerceptualNoiseVisibilityCandidateV01`: appearance-only conversion from cycles/pixel to cycles/degree and optional use of an explicitly validated appearance sensitivity curve.
