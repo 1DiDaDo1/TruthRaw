@@ -67,14 +67,19 @@ object FreeWorldUncertaintyTransportV01 {
                 "axes",
                 JSONArray()
                     .put("SOURCE_MEASUREMENT")
+                    .put("RADIOMETRIC_RESPONSE")
+                    .put("NOISE_COMPONENT")
+                    .put("NOISE_COVARIANCE_OR_PSD")
                     .put("RECONSTRUCTION")
                     .put("PAIR_GEOMETRY")
+                    .put("GEOMETRY_DEPTH_VISIBILITY")
                     .put("WORLD_RELATION")
                     .put("FIELD_RESPONSE")
                     .put("COLOUR")
                     .put("OPTICAL_SUPPORT")
                     .put("TEMPORAL")
                     .put("RESTORATION")
+                    .put("LIGHT_TRANSPORT")
                     .put("APPEARANCE"),
             )
             .put("geometry_edges", geometryEdges)
@@ -133,6 +138,14 @@ object FreeWorldUncertaintyTransportV01 {
                     )
                     .put(
                         "high_precision_numeric_storage_implies_low_uncertainty",
+                        false,
+                    )
+                    .put(
+                        "unknown_noise_covariance_may_be_assumed_zero",
+                        false,
+                    )
+                    .put(
+                        "geometry_confidence_may_upgrade_radiometric_authority",
                         false,
                     ),
             )
