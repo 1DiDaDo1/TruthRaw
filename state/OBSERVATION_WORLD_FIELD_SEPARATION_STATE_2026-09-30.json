@@ -4,7 +4,7 @@
   "branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_branch": "research/field-response-repeatability-v01-2026-09-30",
   "parent_pr": 99,
-  "status": "IMPLEMENTED_COORDINATE_AUTHORITY_FOUNDATION_AWAITING_BUILD_VALIDATION",
+  "status": "IMPLEMENTED_COORDINATE_AUTHORITY_FOUNDATION_ANDROID_BUILD_GREEN_AWAITING_DEVICE_EXPORT",
   "purpose": "SEPARATE_SOURCE_SENSOR_WORLD_SCENE_AND_VIEW_OUTPUT_SPACES_BEFORE_NATURAL_SELF_CALIBRATION",
   "coordinate_spaces": {
     "source_sensor_space": {
@@ -42,7 +42,12 @@
   "controlled_validation": {
     "flat_field_rotation_experiment_optional": true,
     "purpose": "METHOD_VALIDATION_ONLY_NOT_USER_REQUIREMENT",
-    "preferred_orientation_degrees": [0, 90, 180, 270],
+    "preferred_orientation_degrees": [
+      0,
+      90,
+      180,
+      270
+    ],
     "result_may_be_hardcoded_by_device_name": false
   },
   "future_registration_contract": {
@@ -84,5 +89,16 @@
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false
   },
-  "next_gate": "GREEN_BUILD_THEN_DEVICE_EXPORT_THEN_DETERMINISTIC_CLASSICAL_LOCAL_FEATURE_PAIR_GEOMETRY_V0_1"
+  "next_gate": "DEVICE_EXPORT_OBSERVATION_WORLD_FIELD_SEPARATION_V0_1_FROM_MULTI_OBSERVATION_SET_THEN_DETERMINISTIC_CLASSICAL_LOCAL_FEATURE_PAIR_GEOMETRY_V0_1",
+  "android_build_validation": {
+    "workflow": "D.RAW Suite Universal Intake v0.1",
+    "run_id": 36685364035,
+    "conclusion": "SUCCESS",
+    "all_pull_request_checks": "26/26 SUCCESS",
+    "artifact_id": 11083343949,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "apk_bytes": 7648015,
+    "apk_sha256": "c3e915a8ffbf428e367a48bbf946ba052f4afd01d7117928c80db3d20f811111",
+    "apk_contains_world_separation_markers": true
+  }
 }
