@@ -43,6 +43,9 @@ object PhysicalObservationNoiseContextV01 {
         val fieldSignal =
             field.optJSONObject("measured_composite_field_signal")
                 ?: JSONObject().put("status", "UNKNOWN")
+        val sparseGrid =
+            backside.optJSONObject("sparse_measured_sample_grid")
+                ?: JSONObject().put("status", "UNKNOWN")
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -113,6 +116,20 @@ object PhysicalObservationNoiseContextV01 {
                         "signal_support_state",
                         backside.optString("signal_support_state", "UNKNOWN"),
                     ),
+            )
+            .put(
+                "sparse_measured_source_grid",
+                JSONObject()
+                    .put("status", sparseGrid.optString("status", "UNKNOWN"))
+                    .put(
+                        "sample_count",
+                        sparseGrid.opt("sample_count") ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "authority",
+                        sparseGrid.optString("authority", "UNKNOWN"),
+                    )
+                    .put("interpolation_performed", false),
             )
             .put(
                 "measured_field_context",
