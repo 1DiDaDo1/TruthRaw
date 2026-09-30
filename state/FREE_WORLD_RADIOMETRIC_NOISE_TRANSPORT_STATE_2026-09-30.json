@@ -152,7 +152,47 @@
     "tests_run": false,
     "ci_run": false,
     "android_build_run": false,
-    "device_validation_run": false
+    "device_validation_run": false,
+    "practical_navigation_reorganized": true,
+    "research_json_hub_available": true,
+    "global_research_snapshot_available": true,
+    "implementation_guide_available": true,
+    "test_status_dot_timer_preserved": true,
+    "normal_pro_route_research_clutter_reduced": true
   },
-  "parent_distance_commits_before_state_checkpoint": 120
+  "parent_distance_commits_before_state_checkpoint": 120,
+  "navigation_ux": {
+    "normal_photo_first": true,
+    "start_page_active_route_visible_before_input": true,
+    "direct_file_input": true,
+    "direct_universal_camera_input": true,
+    "route_choice_separate_from_input": true,
+    "research_and_json_explicit_entry": true,
+    "normal_main_workbench_research_panel_collapsed": true,
+    "explicit_research_workbench_mode": true,
+    "global_research_snapshot_json": true,
+    "global_research_snapshot_contains_photo_measurement": false,
+    "implementation_guide_activity": true,
+    "pro_research_audits_hidden_outside_research_mode": true,
+    "ordinary_pro_exports_remain_visible": true,
+    "universal_camera_practical_workflow_text": true
+  },
+  "research_test_status_ui": {
+    "existing_mainactivity_status_preserved": true,
+    "shared_new_component": "TruthRawResearchStatusVisualV01",
+    "running_indicator": "GREEN_DOT",
+    "success_indicator": "GREEN_DOT",
+    "error_indicator": "RED_DOT",
+    "cancelled_indicator": "MUTED",
+    "running_timer": "LIVE_ELAPSED",
+    "terminal_timer": "FINAL_DURATION",
+    "authority_effect": "NONE"
+  },
+  "new_navigation_modules": [
+    "TruthRawResearchHubActivity",
+    "TruthRawImplementationGuideActivity",
+    "GlobalResearchSnapshotV01",
+    "TruthRawResearchStatusVisualV01"
+  ],
+  "ux_checkpoint_status": "IMPLEMENTED_UNTESTED_NAVIGATION_RESEARCH_JSON_GUIDE_COMPLETE"
 }
