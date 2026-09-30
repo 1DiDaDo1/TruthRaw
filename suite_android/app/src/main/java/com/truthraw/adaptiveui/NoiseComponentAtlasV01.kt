@@ -84,6 +84,7 @@ object NoiseComponentAtlasV01 {
                     .put("denoise_requires_component_or_residual_authority", true),
             )
             .put("noise_component_decomposition_performed", false)
+            .put("numeric_noise_transport_validated", false)
             .put("noise_reduction_applied", false)
             .put("candidate_applied", false)
             .put("creates_new_evidence", false)
