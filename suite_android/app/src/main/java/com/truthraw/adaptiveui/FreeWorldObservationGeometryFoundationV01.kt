@@ -26,6 +26,22 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val relativeWorld =
             RelativeWorldCoordinateHypothesisV01.build(graph)
+        val featureTracks =
+            FreeWorldFeatureTrackHypothesesV01.build(graph)
+        val cycleConsistency =
+            ObservationGraphCycleConsistencyV01.evaluate(graph)
+        val trackProjection =
+            RelativeWorldFeatureTrackProjectionV01.build(
+                tracks = featureTracks,
+                relativeWorld = relativeWorld,
+            )
+        val geometryValidationReadiness =
+            GeometryValidationReadinessV01.describe(
+                graph = graph,
+                tracks = featureTracks,
+                cycles = cycleConsistency,
+                trackProjection = trackProjection,
+            )
         val decomposition =
             WorldSensorFieldDecompositionScaffoldV01.describe(
                 profiles = profiles,
@@ -38,6 +54,8 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val temporal =
             TemporalObservationRelationV01.describe(profiles)
+        val querySupportLedger =
+            FreeWorldQuerySupportLedgerV01.build(profiles)
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -52,10 +70,15 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("campaign", campaign)
             .put("observation_graph", graph)
             .put("relative_world_coordinate_hypothesis", relativeWorld)
+            .put("feature_track_hypotheses", featureTracks)
+            .put("graph_cycle_consistency", cycleConsistency)
+            .put("relative_world_feature_track_projection", trackProjection)
+            .put("geometry_validation_readiness", geometryValidationReadiness)
             .put("natural_self_calibration_atlas", atlas)
             .put("world_sensor_decomposition", decomposition)
             .put("uncertainty_transport", uncertainty)
             .put("temporal_relation", temporal)
+            .put("query_support_ledger", querySupportLedger)
             .put(
                 "optical_support_atlas_contract",
                 OpticalSupportAtlasV01.describe(),
