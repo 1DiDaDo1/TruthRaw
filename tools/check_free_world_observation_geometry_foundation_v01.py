@@ -41,6 +41,12 @@ files = {
     "validation_campaign": (JAVA / "BundledPhysicalValidationCampaignV01.kt").read_text(),
     "gate_registry": (JAVA / "ScientificPromotionGateRegistryV01.kt").read_text(),
     "lineage": (JAVA / "FreeWorldEvidenceLineageManifestV01.kt").read_text(),
+    "axis_authority": (JAVA / "ObservationAxisAuthorityMatrixV01.kt").read_text(),
+    "unknown_guard": (JAVA / "UnknownPropagationGuardV01.kt").read_text(),
+    "field_separation_set": (JAVA / "FieldResponseSeparationCandidateSetV01.kt").read_text(),
+    "query_planner": (JAVA / "FreeWorldContinuousQueryPlannerV01.kt").read_text(),
+    "scientific_snapshot": (JAVA / "FreeWorldScientificStateSnapshotV01.kt").read_text(),
+    "candidate_ledger": (JAVA / "PrevalidationCandidateLedgerV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -152,6 +158,12 @@ required = {
         "ComponentRelativeWorldCoordinateHypothesesV01.build",
         "PairGeometryModelBankSetV01.build",
         "FreeWorldEvidenceLineageManifestV01.build",
+        "ObservationAxisAuthorityMatrixV01.build",
+        "UnknownPropagationGuardV01.describe",
+        "FieldResponseSeparationCandidateSetV01.build",
+        "FreeWorldContinuousQueryPlannerV01.plan",
+        "FreeWorldScientificStateSnapshotV01.build",
+        "PrevalidationCandidateLedgerV01.build",
         "BundledPhysicalValidationCampaignV01.describe",
         "ScientificPromotionGateRegistryV01.describe",
         "FailClosedFreeWorldContinuousQuerySolverV01",
@@ -292,6 +304,46 @@ required = {
         "manifest_identity_is_physical_evidence_root",
         "derived_objects_may_merge_source_authority",
     ],
+    "axis_authority": [
+        "AXIS_AUTHORITY_MATRIX_AVAILABLE",
+        "frontside_may_upgrade_backside",
+        "metadata_hint_may_become_measurement",
+        "stronger_axis_may_upgrade_weaker_axis",
+    ],
+    "unknown_guard": [
+        "UNKNOWN_PROPAGATION_GUARD_AVAILABLE",
+        "UNKNOWN_TO_ZERO",
+        "UNKNOWN_TO_IDENTITY_TRANSFORM",
+        "missing_uncertainty_may_default_to_zero",
+        "unsupported_query_must_remain_unknown",
+    ],
+    "field_separation_set": [
+        "FIELD_SEPARATION_CANDIDATE_SET_AVAILABLE",
+        "eligible_for_future_field_separation_experiment",
+        "world_fixed_component_estimated",
+        "sensor_fixed_component_estimated",
+        "camera_or_lens_identity_used",
+    ],
+    "query_planner": [
+        "QUERY_PLAN_CONTEXT_AVAILABLE_NO_WORLD_SOURCE_RESOLUTION",
+        "planner_may_invent_cross_component_transform",
+        "planner_may_treat_candidate_geometry_as_admitted_bridge",
+        "planner_may_return_measured_without_exact_source_support",
+    ],
+    "scientific_snapshot": [
+        "SCIENTIFIC_STATE_SNAPSHOT_AVAILABLE",
+        "implementation_equals_validation",
+        "validation_equals_measurement",
+        "measurement_equals_promotion",
+        "derived_manifest_is_physical_evidence_root",
+    ],
+    "candidate_ledger": [
+        "PREVALIDATION_CANDIDATE_LEDGER_AVAILABLE",
+        "phone_test_required_to_preserve_items",
+        "automatic_promotion_allowed",
+        "WORLD_TO_SOURCE_BRIDGE",
+        "CONTINUOUS_FREE_WORLD_SOLVER",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -336,6 +388,23 @@ assert state["continuous_query"]["unanchored_lattice_position_returns_unknown"] 
 assert state["continuous_query"]["world_to_source_bridge_admitted"] is False
 assert state["continuous_query"]["fail_closed_world_runtime_implemented"] is True
 assert state["continuous_query"]["unadmitted_world_query_returns_unknown"] is True
+assert state["continuous_query"]["query_planner_implemented"] is True
+assert state["continuous_query"]["planner_may_treat_candidate_geometry_as_world_source_bridge"] is False
+assert state["continuous_query"]["planner_may_return_measured_without_exact_source_support"] is False
+assert state["authority_closure"]["observation_axis_authority_matrix_implemented"] is True
+assert state["authority_closure"]["cross_axis_upgrade_allowed"] is False
+assert state["authority_closure"]["unknown_propagation_guard_implemented"] is True
+assert state["authority_closure"]["unknown_to_zero_allowed"] is False
+assert state["authority_closure"]["unknown_to_identity_transform_allowed"] is False
+assert state["field_response_separation_candidate_set"]["implemented"] is True
+assert state["field_response_separation_candidate_set"]["decomposition_performed"] is False
+assert state["field_response_separation_candidate_set"]["lens_only_vignetting_proven"] is False
+assert state["scientific_state_snapshot"]["implemented"] is True
+assert state["scientific_state_snapshot"]["implementation_equals_validation"] is False
+assert state["scientific_state_snapshot"]["measurement_equals_promotion"] is False
+assert state["prevalidation_candidate_ledger"]["implemented"] is True
+assert state["prevalidation_candidate_ledger"]["phone_test_required_to_preserve_items"] is False
+assert state["prevalidation_candidate_ledger"]["automatic_promotion_allowed"] is False
 assert state["capability_matrix"]["implemented"] is True
 assert state["capability_matrix"]["separates_implementation_from_scientific_promotion"] is True
 assert state["observation_component_policy"]["component_partition_implemented"] is True
@@ -383,6 +452,11 @@ for phrase in [
     "No candidate is selected as a winner.",
     "The implementation-first objective is now complete in code.",
     "One Free World may relate many sealed observations",
+    "UNKNOWN is now protected by an executable runtime contract.",
+    "The runtime can now identify exactly which observation pairs are structurally eligible",
+    "implementation != validation != measurement != promotion",
+    "phone_test_required_to_preserve_items=false",
+    "Physical validation is still required for promotion.",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
