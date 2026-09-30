@@ -23,6 +23,7 @@ object CalibrationObservationRecordValidatorV01 {
             "NOISE_COMPONENT_SEPARATION",
             "GEOMETRY_DEPTH_VISIBILITY",
             "TEMPORAL_FOOTPRINT",
+            "WORLD_SPACE_RESIDUAL",
         )
 
     private val allowedRelationClasses =
@@ -107,6 +108,13 @@ object CalibrationObservationRecordValidatorV01 {
             record.optString("validation_status").isBlank()
         ) {
             issues.put("VALIDATION_STATUS_REQUIRED")
+        }
+
+        if (
+            record.has("axis_payload") &&
+            record.opt("axis_payload") !is JSONObject
+        ) {
+            issues.put("AXIS_PAYLOAD_MUST_BE_OBJECT")
         }
 
         for (forbidden in listOf(
