@@ -40,13 +40,15 @@ object CalibrationObservationRecordBundleV01 {
                 )
                 continue
             }
+            val normalized =
+                CalibrationObservationRecordIdentityV01.normalize(record)
             val validation =
-                CalibrationObservationRecordValidatorV01.validate(record)
+                CalibrationObservationRecordValidatorV01.validate(normalized)
             if (
                 validation.optString("status") ==
                 "CALIBRATION_OBSERVATION_RECORD_VALID"
             ) {
-                valid.put(record)
+                valid.put(normalized)
             } else {
                 invalid.put(
                     JSONObject()
