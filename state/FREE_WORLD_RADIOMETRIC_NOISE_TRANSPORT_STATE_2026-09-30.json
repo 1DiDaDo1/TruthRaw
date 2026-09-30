@@ -327,5 +327,38 @@
     "free_world_continuous_query": "FAIL_CLOSED_UNKNOWN_UNTIL_VALIDATED_MAPPING_AND_PROMOTED_RECONSTRUCTION",
     "scientific_denoise": "TYPED_PROMOTION_PATH_EXISTS_BUT_CURRENT_RESEARCH_FOUNDATION_DOES_NOT_PROJECT_PROMOTION",
     "device_validation": "PENDING"
-  }
+  },
+  "definitive_documentation_handoff": {
+    "path": "docs/research/free-world-radiometric-noise-transport-v0.1/FINAL_PROJECT_HANDOFF_2026-09-30.md",
+    "language": "nl",
+    "covers": [
+      "architecture",
+      "audit_findings",
+      "implemented_fixes",
+      "improvements",
+      "green_build_evidence",
+      "intentional_boundaries",
+      "ordered_remaining_device_and_physical_validation"
+    ],
+    "android_source_changed_after_green_code_head": false,
+    "green_code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
+    "next_phase": "DEVICE_AND_PHYSICAL_VALIDATION_THEN_AXIS_SPECIFIC_PROMOTION_ONLY"
+  },
+  "remaining_user_execution": {
+    "apk_smoke_test": true,
+    "universal_camera_lineage_test": true,
+    "natural_overlap_same_route": true,
+    "cross_optical_route_overlap": true,
+    "controlled_rotation_field_test": true,
+    "radiometric_exposure_linearity_series": true,
+    "dark_noise_component_series": true,
+    "colour_multi_illuminant_target": true,
+    "optical_sfr_mtf_psf": true,
+    "temporal_stop_motion_sequence": true,
+    "geometry_depth_visibility": true,
+    "world_space_residual_validation": true,
+    "axis_specific_promotion_only_after_held_out_validation": true,
+    "scientific_denoise_only_after_required_axes_promoted": true
+  },
+  "documentation_status": "DEFINITIVE_HANDOFF_ADDED_AFTER_GREEN_BUILD"
 }
