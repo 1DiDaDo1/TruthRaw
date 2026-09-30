@@ -93,8 +93,18 @@ object FreeWorldObservationGeometryFoundationV01 {
 
         val radiometricResponseCandidate =
             RadiometricResponseCandidateSolverV01.evaluate(calibrationRecords)
+        val radiometricProfileCandidate =
+            RadiometricProfileRelationCandidateV01.evaluate(
+                profiles = profiles,
+                records = calibrationRecords,
+            )
         val noiseComponentCandidate =
             NoiseComponentDecompositionCandidateV01.evaluate(calibrationRecords)
+        val repeatedSparseGridNoiseCandidate =
+            RepeatedSparseGridNoiseCandidateV01.evaluate(
+                profiles = profiles,
+                records = calibrationRecords,
+            )
         val fieldResponseSeparationCandidate =
             FieldResponseRotationSeparationCandidateV01.evaluate(calibrationRecords)
         val colourRelationCandidate =
@@ -182,7 +192,9 @@ object FreeWorldObservationGeometryFoundationV01 {
                 JSONObject()
                     .put("calibration_observation_record_count", calibrationRecords.size)
                     .put("radiometric_response_candidate", radiometricResponseCandidate)
+                    .put("radiometric_profile_candidate", radiometricProfileCandidate)
                     .put("noise_component_candidate", noiseComponentCandidate)
+                    .put("repeated_sparse_grid_noise_candidate", repeatedSparseGridNoiseCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put("optical_support_candidate", opticalSupportCandidate)
