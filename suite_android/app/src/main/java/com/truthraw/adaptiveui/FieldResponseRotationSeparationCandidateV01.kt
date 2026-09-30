@@ -28,10 +28,14 @@ object FieldResponseRotationSeparationCandidateV01 {
 
         for (record in records) {
             if (record.optString("axis_scope") != "FIELD_RESPONSE") continue
-            val validation = CalibrationObservationRecordValidatorV01.validate(record)
+            val admission =
+                CalibrationObservationAdmissionV01.admitForNumericCandidate(
+                    record = record,
+                    axis = "FIELD_RESPONSE",
+                )
             if (
-                validation.optString("status") !=
-                "CALIBRATION_OBSERVATION_RECORD_VALID"
+                admission.optString("status") !=
+                "NUMERIC_CANDIDATE_RELATION_ADMITTED"
             ) {
                 continue
             }
