@@ -6650,12 +6650,28 @@ class MainActivity : Activity() {
                 addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 addView(space(8))
                 addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                addView(space(8))
-                addView(multiObservationPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 if (session.jobs.isNotEmpty()) {
                     addView(space(8))
-                    addView(jobStrip(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(132)))
+                    addView(
+                        jobStrip(),
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            dp(132),
+                        ),
+                    )
                 }
+                addView(space(8))
+                addView(
+                    if (researchWorkbenchMode) {
+                        multiObservationPane()
+                    } else {
+                        researchEntryPane()
+                    },
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ),
+                )
             },
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
         )
@@ -6666,7 +6682,13 @@ class MainActivity : Activity() {
             addView(jobListPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(routePane())
             addView(space(8))
-            addView(multiObservationPane())
+            addView(
+                if (researchWorkbenchMode) {
+                    multiObservationPane()
+                } else {
+                    researchEntryPane()
+                },
+            )
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.38f).apply { marginEnd = dp(8) })
 
         addView(previewPane(), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.62f))
@@ -8187,6 +8209,32 @@ class MainActivity : Activity() {
         ))
     }
 
+    private fun researchEntryPane(): View = card().apply {
+        addView(label("Research & JSON", 16f, bold = true))
+        addView(space(5))
+        addView(
+            label(
+                "Normale fotoverwerking blijft compact. Open deze werkbank alleen voor Multi-observation, Calibration Observation Records, field/atlas-exports, holdout-audits en de Free World Foundation.",
+                10.5f,
+                muted = true,
+            ),
+        )
+        addView(space(8))
+        addView(actionButton("Open onderzoekswerkbank") {
+            researchWorkbenchMode = true
+            render()
+        })
+        addView(space(6))
+        addView(actionButton("Research-overzicht / Global JSON") {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    TruthRawResearchHubActivity::class.java,
+                ),
+            )
+        })
+    }
+
     private fun multiObservationPane(): View = card().apply {
         val selected = session.jobs.size
         val profiled =
@@ -8195,7 +8243,7 @@ class MainActivity : Activity() {
         val calibrationRecordCount =
             calibrationObservationRecords.size
 
-        addView(label("Multi-observation · Field Response v0.1", 16f, bold = true))
+        addView(label("Multi-observation · Research & JSON", 16f, bold = true))
         addView(label(
             "selected=" + selected +
                 " · universal-profile=" + profiled +
@@ -8319,12 +8367,32 @@ class MainActivity : Activity() {
             10f,
             muted = true,
         ))
+        addView(space(8))
+        addView(actionButton("Research-overzicht / Global JSON") {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    TruthRawResearchHubActivity::class.java,
+                ),
+            )
+        })
+        addView(space(6))
+        addView(actionButton("Sluit onderzoekswerkbank") {
+            researchWorkbenchMode = false
+            render()
+        })
     }
 
     private fun toolsPane(): View = vertical().apply {
         addView(routePane())
         addView(space(8))
-        addView(multiObservationPane())
+        addView(
+            if (researchWorkbenchMode) {
+                multiObservationPane()
+            } else {
+                researchEntryPane()
+            },
+        )
         addView(space(8))
         addView(card().apply {
             addView(label("Kamers", 16f, bold = true))
