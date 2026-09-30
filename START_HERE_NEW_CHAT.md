@@ -31,6 +31,8 @@ Android Multi-observation UI now exports:
 
 Next gate: green integrity + ARM64 Android build, then device export; after that implement deterministic classical local-feature pair geometry v0.1 as a separate validated gate.
 
+Camera usability update on this branch: Universal Physical Capture (ultra-wide / wide-main / tele) now uses a fixed 5-second pre-capture stabilization timer. The live preview remains active during countdown; lens-role/focus/loupe controls are disabled until the physical RAW_SENSOR capture is submitted. The timer is acquisition UI only, records `ui_pre_capture_timer_seconds=5`, modifies no sensor evidence, and carries no scientific authority. The separate special 4K→200MP route is unchanged.
+
 ---
 
 # D.RAW — ACTIVE RESEARCH OVERLAY — FIELD RESPONSE REPEATABILITY v0.1 — 2026-09-30
