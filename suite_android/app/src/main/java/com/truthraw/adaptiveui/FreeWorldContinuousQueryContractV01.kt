@@ -23,6 +23,10 @@ object FreeWorldContinuousQueryContractV01 {
                     .put("RELATIVE_WORLD_Y")
                     .put("OPTIONAL_TIME")
                     .put("OPTIONAL_VIEW_DIRECTION")
+                    .put("OPTIONAL_DEPTH_OR_SURFACE_RELATION")
+                    .put("OPTIONAL_FOCUS_STATE")
+                    .put("OPTIONAL_APERTURE_STATE")
+                    .put("OPTIONAL_ILLUMINATION_RELATION")
                     .put("REQUESTED_OUTPUT_FOOTPRINT"),
             )
             .put(
@@ -32,6 +36,11 @@ object FreeWorldContinuousQueryContractV01 {
                     .put("VALUE_DOMAIN")
                     .put("SOURCE_SUPPORT")
                     .put("RECONSTRUCTION_SUPPORT")
+                    .put("RADIOMETRIC_RESPONSE_CONTEXT")
+                    .put("NOISE_COMPONENT_SUPPORT")
+                    .put("NOISE_UNCERTAINTY_OR_COVARIANCE")
+                    .put("OPTICAL_FREQUENCY_SUPPORT")
+                    .put("GEOMETRY_DEPTH_VISIBILITY_SUPPORT")
                     .put("SPATIAL_FOOTPRINT")
                     .put("TEMPORAL_FOOTPRINT")
                     .put("AUTHORITY")
@@ -84,6 +93,14 @@ object FreeWorldContinuousQueryContractV01 {
                         "precision_is_authority",
                         false,
                     ),
+            )
+            .put(
+                "scientific_noise_policy",
+                JSONObject()
+                    .put("unknown_residual_may_be_declared_noise", false)
+                    .put("noise_reduction_requires_explicit_support_and_uncertainty", true)
+                    .put("world_space_denoise_requires_validated_world_source_relations", true)
+                    .put("perceptual_denoise_is_downstream_appearance_only", true),
             )
             .put(
                 "view_policy",
