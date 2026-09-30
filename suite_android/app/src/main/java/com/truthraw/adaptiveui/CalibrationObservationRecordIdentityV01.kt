@@ -65,8 +65,19 @@ object CalibrationObservationRecordIdentityV01 {
                 append(']')
             }
             is String -> JSONObject.quote(value)
-            is Number,
-            is Boolean -> JSONObject.valueToString(value)
+            is Number -> {
+                val text = value.toString()
+                if (
+                    text == "NaN" ||
+                    text == "Infinity" ||
+                    text == "-Infinity"
+                ) {
+                    "null"
+                } else {
+                    text
+                }
+            }
+            is Boolean -> if (value) "true" else "false"
             else -> JSONObject.quote(value.toString())
         }
 
