@@ -53,9 +53,9 @@ object FreeWorldSourceLatticeBridgeContractV01 {
                 ) &&
                 rootsBound
         val promoted =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "world_to_source_bridge_promoted",
-                false,
             )
         val admitted = promoted && mappingValid
 
