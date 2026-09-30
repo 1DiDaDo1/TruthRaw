@@ -89,6 +89,8 @@ class MainActivity : Activity() {
     private var pendingUniversalCalibrationAtlasJobId: String? = null
     private var pendingUniversalCalibrationAtlasJson: String? = null
     private var universalCalibrationAtlasStatus: String? = null
+    private var pendingFieldResponseRepeatabilityJson: String? = null
+    private var fieldResponseRepeatabilityStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1573,6 +1575,83 @@ class MainActivity : Activity() {
         startActivityForResult(
             intent,
             REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS,
+        )
+    }
+
+    private fun currentMeasuredFieldCharts(): List<JSONObject> =
+        session.jobs.mapNotNull { job ->
+            universalProfiles[job.id]
+                ?.optJSONObject("observation_optical_field_chart")
+                ?.takeIf {
+                    it.optString("status") == "FIELD_CHART_AVAILABLE" &&
+                        it.optJSONObject("measured_composite_field_signal")
+                            ?.optString("status") ==
+                        "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE"
+                }
+        }
+
+    private fun requestUniversalProfilesForSelectedSources() {
+        session.jobs.forEach { job ->
+            requestUniversalProfile(job)
+        }
+        fieldResponseRepeatabilityStatus =
+            "Universele bronanalyse gestart/gevraagd voor alle geselecteerde bronnen. " +
+                "De repeatability-audit wordt pas beschikbaar zodra ≥3 onafhankelijke " +
+                "measured field charts gereed zijn."
+        render()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchFieldResponseRepeatabilityExport() {
+        val charts = currentMeasuredFieldCharts()
+        val report = FieldResponseRepeatabilityV01.evaluate(charts)
+        if (
+            report.optString("status") !=
+            "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 blijft fail-closed: " +
+                    report.optString("reason", "onvoldoende geschikte observaties") +
+                    " · measured charts=" + charts.size + "/3."
+            render()
+            return
+        }
+
+        if (
+            report.optJSONObject("interpretation")
+                ?.optBoolean("calibration_promoted", true) != false ||
+            report.optJSONObject("interpretation")
+                ?.optBoolean("correction_gain_allowed", true) != false ||
+            report.optBoolean("source_sample_values_modified", true) ||
+            report.optBoolean("source_sample_positions_modified", true) ||
+            report.optBoolean("new_measured_samples_created", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 export geblokkeerd: read-only safety-contract mismatch."
+            render()
+            return
+        }
+
+        pendingFieldResponseRepeatabilityJson = report.toString(2) + "\n"
+        fieldResponseRepeatabilityStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_field_response_repeatability_v0_1_" +
+                    report.optInt("observation_count", charts.size) +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY,
         )
     }
 
@@ -3351,6 +3430,94 @@ class MainActivity : Activity() {
                     " · camera/lens-identiteit vereist=false · correctie=false · writeback=false."
             } catch (error: Exception) {
                 "Universal Observation & Calibration Atlas v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY) {
+            val reportText = pendingFieldResponseRepeatabilityJson
+            pendingFieldResponseRepeatabilityJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: pending audit ontbreekt."
+                render()
+                return
+            }
+
+            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
+            val currentReport =
+                FieldResponseRepeatabilityV01.evaluate(
+                    currentMeasuredFieldCharts(),
+                )
+            if (
+                savedReport == null ||
+                currentReport.optString("status") !=
+                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
+                savedReport.optString("status") !=
+                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
+                savedReport.optInt("observation_count", -1) !=
+                currentReport.optInt("observation_count", -2)
+            ) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: geselecteerde observation-set veranderde."
+                render()
+                return
+            }
+
+            val savedRoots =
+                savedReport.optJSONArray("observation_roots")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+            val currentRoots =
+                currentReport.optJSONArray("observation_roots")
+                    ?.let { roots ->
+                        (0 until roots.length())
+                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
+                            .filter { it.isNotBlank() }
+                            .toSet()
+                    } ?: emptySet()
+
+            if (savedRoots != currentRoots || savedRoots.size < 3) {
+                fieldResponseRepeatabilityStatus =
+                    "Field Response Repeatability v0.1 geblokkeerd: source-SHA set veranderde."
+                render()
+                return
+            }
+
+            fieldResponseRepeatabilityStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+                val radial =
+                    savedReport.optJSONObject("radial_repeatability")
+                "Field Response Repeatability v0.1 JSON opgeslagen · observations=" +
+                    savedReport.optInt("observation_count", 0) +
+                    " · radial MAD(EV)=" +
+                    (radial?.opt("median_annulus_cross_observation_mad_ev")
+                        ?: "UNKNOWN") +
+                    " · relation=user-grouping-hint-only · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Field Response Repeatability v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -5918,6 +6085,8 @@ class MainActivity : Activity() {
                 addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 addView(space(8))
                 addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(space(8))
+                addView(multiObservationPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 if (session.jobs.isNotEmpty()) {
                     addView(space(8))
                     addView(jobStrip(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(132)))
@@ -5931,6 +6100,8 @@ class MainActivity : Activity() {
         addView(vertical().apply {
             addView(jobListPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(routePane())
+            addView(space(8))
+            addView(multiObservationPane())
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.38f).apply { marginEnd = dp(8) })
 
         addView(previewPane(), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.62f))
@@ -7451,8 +7622,51 @@ class MainActivity : Activity() {
         ))
     }
 
+    private fun multiObservationPane(): View = card().apply {
+        val selected = session.jobs.size
+        val profiled =
+            session.jobs.count { universalProfiles[it.id] != null }
+        val measuredCharts = currentMeasuredFieldCharts().size
+
+        addView(label("Multi-observation · Field Response v0.1", 16f, bold = true))
+        addView(label(
+            "selected=" + selected +
+                " · universal-profile=" + profiled +
+                " · measured-field-chart=" + measuredCharts +
+                " · minimum=3",
+            11f,
+            muted = true,
+        ))
+        addView(space(6))
+        addView(actionButton(
+            "Analyseer alle geselecteerde bronnen universeel",
+            enabled = selected > 0,
+        ) {
+            requestUniversalProfilesForSelectedSources()
+        })
+        addView(space(5))
+        addView(actionButton(
+            "Export Field Response Repeatability v0.1 · JSON",
+            enabled = measuredCharts >= 3,
+        ) {
+            launchFieldResponseRepeatabilityExport()
+        })
+        fieldResponseRepeatabilityStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Read-only vergelijking van ≥3 onafhankelijke PR96-field charts. Per observation wordt alleen een " +
+                "scalar niveau verwijderd; radiale, azimutale en CFA-fasevormen worden in EV vergeleken. " +
+                "Geen camera-/lensidentiteit, geen lens-only vignettering, geen kalibratiepromotie, geen correctie.",
+            10f,
+            muted = true,
+        ))
+    }
+
     private fun toolsPane(): View = vertical().apply {
         addView(routePane())
+        addView(space(8))
+        addView(multiObservationPane())
         addView(space(8))
         addView(card().apply {
             addView(label("Kamers", 16f, bold = true))
@@ -7634,5 +7848,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
+        private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
     }
 }
