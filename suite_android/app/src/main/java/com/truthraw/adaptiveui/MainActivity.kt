@@ -97,6 +97,12 @@ class MainActivity : Activity() {
     private var observationWorldFieldSeparationStatus: String? = null
     private var pendingFreeWorldFoundationJson: String? = null
     private var freeWorldFoundationStatus: String? = null
+    // UI-only navigation state. Scientific/session authority is intentionally
+    // not derived from or persisted through these scroll positions.
+    private var compactScrollY: Int = 0
+    private var mediumLeftScrollY: Int = 0
+    private var mediumRightScrollY: Int = 0
+    private var renderedLayoutTier: LayoutTier? = null
     private val calibrationObservationRecords = mutableListOf<JSONObject>()
     private var calibrationObservationRecordStatus: String? = null
     private var calibrationObservationSessionStoreId: String =
@@ -6643,6 +6649,25 @@ class MainActivity : Activity() {
 
     private fun render() {
         val tier = currentLayoutTier()
+        val previousTier = renderedLayoutTier
+        if (previousTier != null && previousTier != tier) {
+            when {
+                previousTier == LayoutTier.COMPACT &&
+                    tier == LayoutTier.MEDIUM -> {
+                    // Preserve the user's vertical working position in the main
+                    // content column after a portrait -> landscape transition.
+                    mediumRightScrollY = compactScrollY
+                    // The source list is deliberately kept at its top so all
+                    // selected RAW rows remain immediately reachable.
+                    mediumLeftScrollY = 0
+                }
+                previousTier == LayoutTier.MEDIUM &&
+                    tier == LayoutTier.COMPACT -> {
+                    compactScrollY = mediumRightScrollY
+                }
+            }
+        }
+        renderedLayoutTier = tier
         val root = vertical().apply {
             setBackgroundColor(palette.background)
             setPadding(dp(12), 0, dp(12), dp(12))
@@ -6696,55 +6721,117 @@ class MainActivity : Activity() {
         addView(actionButton("RAW kiezen") { launchRawPicker() })
     }
 
-    private fun compactLayout(): View = ScrollView(this).apply {
-        isFillViewport = true
-        addView(
-            vertical().apply {
-                addView(previewPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                addView(space(8))
-                addView(routePane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                if (session.jobs.isNotEmpty()) {
-                    addView(space(8))
+    private fun compactLayout(): View =
+        rememberedScrollView(
+            initialY = compactScrollY,
+            onScrollYChanged = { compactScrollY = it },
+        ).apply {
+            addView(
+                vertical().apply {
                     addView(
-                        jobStrip(),
+                        previewPane(),
                         LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            dp(132),
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
                         ),
                     )
-                }
-                addView(space(8))
+                    addView(space(8))
+                    addView(
+                        routePane(),
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
+                    if (session.jobs.isNotEmpty()) {
+                        addView(space(8))
+                        // Keep the selected-source rows in the page's single scroll
+                        // surface. A fixed-height nested ScrollView caused touches to
+                        // be consumed by the outer page on compact phones.
+                        addView(
+                            jobRowsPane(),
+                            LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ),
+                        )
+                    }
+                    addView(space(8))
+                    addView(
+                        if (researchWorkbenchMode) {
+                            multiObservationPane()
+                        } else {
+                            researchEntryPane()
+                        },
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
+                },
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
+            )
+        }
+
+    private fun mediumLayout(): View = horizontal().apply {
+        // Medium used to place a weighted, internally scrolling job list above
+        // wrap-content research controls. On phone landscape those controls could
+        // collapse the job list to zero height. Make each column one independent
+        // scroll surface instead.
+        addView(
+            rememberedScrollView(
+                initialY = mediumLeftScrollY,
+                onScrollYChanged = { mediumLeftScrollY = it },
+            ).apply {
                 addView(
-                    if (researchWorkbenchMode) {
-                        multiObservationPane()
-                    } else {
-                        researchEntryPane()
+                    vertical().apply {
+                        addView(jobRowsPane())
+                        addView(space(8))
+                        addView(routePane())
+                        addView(space(8))
+                        addView(
+                            if (researchWorkbenchMode) {
+                                multiObservationPane()
+                            } else {
+                                researchEntryPane()
+                            },
+                        )
                     },
-                    LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                     ),
                 )
             },
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0.38f,
+            ).apply { marginEnd = dp(8) },
         )
-    }
 
-    private fun mediumLayout(): View = horizontal().apply {
-        addView(vertical().apply {
-            addView(jobListPane(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-            addView(routePane())
-            addView(space(8))
-            addView(
-                if (researchWorkbenchMode) {
-                    multiObservationPane()
-                } else {
-                    researchEntryPane()
-                },
-            )
-        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.38f).apply { marginEnd = dp(8) })
-
-        addView(previewPane(), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.62f))
+        addView(
+            rememberedScrollView(
+                initialY = mediumRightScrollY,
+                onScrollYChanged = { mediumRightScrollY = it },
+            ).apply {
+                addView(
+                    previewPane(),
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ),
+                )
+            },
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0.62f,
+            ),
+        )
     }
 
     private fun expandedLayout(): View = horizontal().apply {
@@ -8491,6 +8578,39 @@ class MainActivity : Activity() {
             session.jobs.forEachIndexed { index, job -> addView(jobRow(index, job)) }
         })
     }
+
+    private fun jobRowsPane(): View = card().apply {
+        addView(label("Ingang", 16f, bold = true))
+        addView(
+            label(
+                "${session.selectedCount} onafhankelijke bronhandle(s)",
+                12f,
+                muted = true,
+            ),
+        )
+        addView(space(6))
+        if (session.jobs.isEmpty()) {
+            addView(label("Nog geen RAW geselecteerd.", 13f, muted = true))
+        } else {
+            session.jobs.forEachIndexed { index, job ->
+                addView(jobRow(index, job))
+            }
+        }
+    }
+
+    private fun rememberedScrollView(
+        initialY: Int,
+        onScrollYChanged: (Int) -> Unit,
+    ): ScrollView =
+        ScrollView(this).apply {
+            isFillViewport = true
+            setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                onScrollYChanged(scrollY)
+            }
+            post {
+                scrollTo(0, initialY.coerceAtLeast(0))
+            }
+        }
 
     private fun jobRow(index: Int, job: RawJob): View = vertical().apply {
         setPadding(dp(10), dp(8), dp(10), dp(8))
