@@ -4,7 +4,7 @@
   "branch": "research/field-response-repeatability-v01-2026-09-30",
   "parent_branch": "research/universal-multi-observation-relation-v01-2026-09-30",
   "parent_pr": 98,
-  "status": "IMPLEMENTED_READ_ONLY_AWAITING_ANDROID_BUILD_AND_DEVICE_VALIDATION",
+  "status": "IMPLEMENTED_READ_ONLY_WITH_BATCH_PROGRESS_AWAITING_REBUILD_AND_DEVICE_VALIDATION",
   "purpose": "DESCRIBE_MULTI_OBSERVATION_FIELD_SHAPE_REPEATABILITY_WITHOUT_CAMERA_LENS_IDENTITY_OR_CALIBRATION_PROMOTION",
   "minimum_distinct_measured_observations": 3,
   "input_contract": {
@@ -52,7 +52,16 @@
     "analyze_all_selected_sources_action": true,
     "json_export_action": true,
     "export_requires_minimum_measured_charts": true,
-    "source_sha_set_rechecked_before_write": true
+    "source_sha_set_rechecked_before_write": true,
+    "batch_progress_indicator": {
+      "implemented": true,
+      "green_running_and_success_dot": true,
+      "red_error_dot": true,
+      "elapsed_chronometer": true,
+      "pending_source_count": true,
+      "operation_key_scoped_to_selected_source_set": true,
+      "force_reanalysis_on_user_action": true
+    }
   },
   "invariants": {
     "camera_model_routing_used": false,
@@ -70,5 +79,10 @@
     "ui_binding": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt",
     "request_code": 4128
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_EXPORT_ONE_DEVICE_REPORT_FROM_AT_LEAST_THREE_SUBSTANTIALLY_DIFFERENT_DNG_SCENES"
+  "next_gate": "GREEN_REBUILD_THEN_RETEST_THREE_SELECTED_SOURCES_AND_VERIFY_VISIBLE_RUNNING_TIMER_AND_COMPLETION_STATUS",
+  "device_feedback_fix": {
+    "observed_issue": "Button appeared to do nothing when all three universal profiles were already cached; no progress/timer was shown.",
+    "screenshot_observation": "selected=3, universal-profile=3, measured-field-chart=0; first selected item was JPEG and therefore cannot contribute a measured CFA field chart.",
+    "fix": "Explicit batch operation state + chronometer + completion result; force universal re-analysis; explain measured-chart eligibility."
+  }
 }
