@@ -34,6 +34,8 @@ files = {
     "world_source_bridge": (JAVA / "FreeWorldSourceLatticeBridgeContractV01.kt").read_text(),
     "fail_closed_solver": (JAVA / "FailClosedFreeWorldContinuousQuerySolverV01.kt").read_text(),
     "capability_matrix": (JAVA / "FreeWorldCapabilityMatrixV01.kt").read_text(),
+    "components": (JAVA / "FreeWorldObservationComponentsV01.kt").read_text(),
+    "component_world": (JAVA / "ComponentRelativeWorldCoordinateHypothesesV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -141,6 +143,8 @@ required = {
         "FreeWorldQuerySupportLedgerV01.build",
         "FreeWorldSourceLatticeBridgeContractV01.describe",
         "FreeWorldCapabilityMatrixV01.describe",
+        "FreeWorldObservationComponentsV01.build",
+        "ComponentRelativeWorldCoordinateHypothesesV01.build",
         "FailClosedFreeWorldContinuousQuerySolverV01",
         "ConservationRestorationAuthorityRuntimeV01.describe",
     ],
@@ -230,6 +234,18 @@ required = {
         "MEASURED_ONLY_AT_EXACT_ADMITTED_ANCHORS",
         "TYPED_ABI_AND_FAIL_CLOSED_RUNTIME_IMPLEMENTED",
     ],
+    "components": [
+        "OBSERVATION_COMPONENTS_AVAILABLE",
+        "selection_set_equals_one_world",
+        "component_is_same_physical_scene_proven",
+        "ISOLATED_OBSERVATION",
+    ],
+    "component_world": [
+        "COMPONENT_RELATIVE_WORLD_HYPOTHESES_AVAILABLE",
+        "cross_component_transform_exists",
+        "disconnected_components_may_share_numeric_gauge",
+        "component_connectivity_is_same_world_proof",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -276,6 +292,11 @@ assert state["continuous_query"]["fail_closed_world_runtime_implemented"] is Tru
 assert state["continuous_query"]["unadmitted_world_query_returns_unknown"] is True
 assert state["capability_matrix"]["implemented"] is True
 assert state["capability_matrix"]["separates_implementation_from_scientific_promotion"] is True
+assert state["observation_component_policy"]["component_partition_implemented"] is True
+assert state["observation_component_policy"]["connected_component_equals_same_world_proof"] is False
+assert state["observation_component_policy"]["selection_set_equals_one_world"] is False
+assert state["observation_component_policy"]["cross_component_transform_exists"] is False
+assert state["relative_world_coordinates"]["component_aware_multi_gauge_implemented"] is True
 assert state["geometry_consistency"]["multi_observation_feature_tracks_implemented"] is True
 assert state["geometry_consistency"]["automatic_consistency_threshold_used"] is False
 assert state["geometry_consistency"]["same_world_structure_proven"] is False
@@ -300,6 +321,8 @@ for phrase in [
     "Physical truth is intentionally",
     "Implemented does not mean validated.",
     "No phone test is required merely to preserve these ideas",
+    "Selected files are no longer even implicitly treated as one connected world.",
+    "No transform is invented between disconnected components.",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
