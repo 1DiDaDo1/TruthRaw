@@ -91,6 +91,8 @@ class MainActivity : Activity() {
     private var universalCalibrationAtlasStatus: String? = null
     private var pendingFieldResponseRepeatabilityJson: String? = null
     private var fieldResponseRepeatabilityStatus: String? = null
+    private val fieldResponseBatchPendingJobIds = linkedSetOf<String>()
+    private val fieldResponseBatchFailedJobIds = linkedSetOf<String>()
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1591,14 +1593,72 @@ class MainActivity : Activity() {
         }
 
     private fun requestUniversalProfilesForSelectedSources() {
-        session.jobs.forEach { job ->
-            requestUniversalProfile(job)
+        val selected = session.jobs.toList()
+        if (selected.isEmpty()) {
+            fieldResponseRepeatabilityStatus =
+                "Geen geselecteerde bronnen voor Field Response Repeatability v0.1."
+            render()
+            return
         }
+
+        fieldResponseBatchPendingJobIds.clear()
+        fieldResponseBatchFailedJobIds.clear()
+        fieldResponseBatchPendingJobIds.addAll(selected.map { it.id })
+
+        if (
+            !startBackgroundOperation(
+                FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+                "Field Response Repeatability v0.1 · universele bronanalyse",
+            )
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 analyse kon niet starten omdat een gelijknamige operatie al actief is."
+            render()
+            return
+        }
+
         fieldResponseRepeatabilityStatus =
-            "Universele bronanalyse gestart/gevraagd voor alle geselecteerde bronnen. " +
-                "De repeatability-audit wordt pas beschikbaar zodra ≥3 onafhankelijke " +
-                "measured field charts gereed zijn."
+            "Universele bronanalyse loopt voor " + selected.size +
+                " geselecteerde bronnen."
         render()
+
+        selected.forEach { job ->
+            requestUniversalProfile(
+                job = job,
+                force = true,
+            ) { success ->
+                if (!success) {
+                    fieldResponseBatchFailedJobIds += job.id
+                }
+                fieldResponseBatchPendingJobIds -= job.id
+
+                if (fieldResponseBatchPendingJobIds.isEmpty()) {
+                    val measured = currentMeasuredFieldCharts().size
+                    val failures = fieldResponseBatchFailedJobIds.size
+                    val message =
+                        if (failures == 0) {
+                            "Field Response bronanalyse gereed · measured-field-chart=" +
+                                measured + "/3" +
+                                if (measured >= 3) {
+                                    " · repeatability-export beschikbaar."
+                                } else {
+                                    " · nog onvoldoende measured field charts."
+                                }
+                        } else {
+                            "Field Response bronanalyse gereed met " + failures +
+                                " fout(en) · measured-field-chart=" + measured + "/3."
+                        }
+
+                    fieldResponseRepeatabilityStatus = message
+                    finishBackgroundOperation(
+                        FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+                        failures == 0,
+                        message,
+                    )
+                }
+                render()
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -4645,9 +4705,18 @@ class MainActivity : Activity() {
         render()
     }
 
-    private fun requestUniversalProfile(job: RawJob, force: Boolean = false) {
+    private fun requestUniversalProfile(
+        job: RawJob,
+        force: Boolean = false,
+        onComplete: ((Boolean) -> Unit)? = null,
+    ) {
         val jobId = job.id
-        if (!force && (universalProfiles.containsKey(jobId) || universalProfileLoading.contains(jobId))) {
+        if (!force && universalProfiles.containsKey(jobId)) {
+            onComplete?.invoke(true)
+            return
+        }
+        if (!force && universalProfileLoading.contains(jobId)) {
+            onComplete?.invoke(false)
             return
         }
         universalProfiles.remove(jobId)
@@ -4661,14 +4730,17 @@ class MainActivity : Activity() {
             }
             runOnUiThread {
                 universalProfileLoading.remove(jobId)
+                var success = false
                 result.onSuccess { profile ->
                     universalProfiles[jobId] = profile
                     universalProfileErrors.remove(jobId)
+                    success = true
                 }.onFailure { error ->
                     universalProfiles.remove(jobId)
                     universalProfileErrors[jobId] =
                         error.message ?: error.javaClass.simpleName
                 }
+                onComplete?.invoke(success)
                 render()
             }
         }, "draw-universal-intake-" + jobId.take(8)).start()
@@ -7651,9 +7723,25 @@ class MainActivity : Activity() {
         ) {
             launchFieldResponseRepeatabilityExport()
         })
-        fieldResponseRepeatabilityStatus?.let {
-            addView(label(it, 10f, muted = true))
+        backgroundOperationStatusView(
+            FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+            fieldResponseRepeatabilityStatus
+                ?: "Field Response Repeatability v0.1 bronanalyse",
+        )?.let(::addView)
+            ?: fieldResponseRepeatabilityStatus?.let {
+                addView(label(it, 10f, muted = true))
+            }
+
+        if (measuredCharts < 3) {
+            addView(label(
+                "Repeatability-gate nog niet open: measured-field-chart=" +
+                    measuredCharts + "/3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
+                    "CFA-field chart tellen mee; JPEG en decoder-pending/ongeschikte RAW-topologie tellen niet mee.",
+                10f,
+                muted = true,
+            ))
         }
+
         addView(label(
             "Read-only vergelijking van ≥3 onafhankelijke PR96-field charts. Per observation wordt alleen een " +
                 "scalar niveau verwijderd; radiale, azimutale en CFA-fasevormen worden in EV vergeleken. " +
@@ -7849,5 +7937,7 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
+        private const val FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY =
+            "main:field-response-repeatability-analysis"
     }
 }
