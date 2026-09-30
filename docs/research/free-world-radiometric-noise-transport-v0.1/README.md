@@ -26,6 +26,14 @@ D.RAW remains camera-, lens-, vendor- and RAW-format independent at the scientif
 
 ## New runtime contracts
 
+### PhysicalObservationNoiseContextV01
+
+Universal Intake now binds every source to a source-SHA-rooted physical noise context.
+
+For supported measured CFA payloads it reuses already-admitted sparse backside summaries (normalized statistics, CFA-phase summary and measured field context). For opaque/unsupported RAWs the object still exists but keeps measured payload support UNKNOWN.
+
+A single observation is explicitly forbidden from turning its observed standard deviation, chroma variation, CFA-phase difference or field variation into a noise/lens/sensor claim.
+
 ### RadiometricResponseAtlasV01
 
 Separates:
@@ -62,9 +70,18 @@ Declares separate future components:
 
 Temporal noise is not fixed-pattern noise. Metadata NoiseProfile is not a complete noise calibration. Frontside texture may not be declared noise merely because it is irregular.
 
-### ScientificNoiseTransportV01
+### ScientificNoiseTransportV01 + ScientificNoiseMathV01
 
 Future scientific transforms must preserve uncertainty rather than only values.
+
+Deterministic numeric primitives are now implemented for:
+- scalar variance propagation through gain;
+- 3x3 covariance propagation through scalar gain;
+- 3x3 linear/Jacobian covariance transport `C_out = J C_in J^T`;
+- diagonal covariance construction;
+- bounded inverse-transfer noise-gain calculation that fails closed near zero optical transfer.
+
+The primitives transform admitted uncertainty only. They do not synthesize missing covariance, classify residuals as noise or authorize deconvolution.
 
 Contracted representations include:
 
@@ -131,6 +148,20 @@ Carries forward the older Deep Scene / Light Transport separation:
 remain separate authority axes.
 
 A physically plausible renderer is not a measurement system. RGB is not a spectrometer. A Lambertian model can be a bounded hypothesis but does not prove a real surface is Lambertian.
+
+### MultiObservationResidualRelationV01
+
+A read-only multi-observation residual scaffold now binds independent source roots and their source-level physical noise contexts. No alignment or residual calculation occurs until world-to-source, radiometric, temporal, visibility/occlusion and uncertainty relations are admitted.
+
+### ScientificDenoiseAdmissionV01
+
+Scientific denoise now has three separate future admission routes:
+
+1. single-frame component-aware;
+2. optics-aware / inverse-optics;
+3. multi-observation world-space.
+
+The single-frame route does not require 3D or multiple frames. Stronger routes require the extra physical evidence they actually use. All routes remain blocked in this branch.
 
 ### WorldSpaceNoiseSeparationV01
 
