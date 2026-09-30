@@ -36,6 +36,8 @@ files = {
     "capability_matrix": (JAVA / "FreeWorldCapabilityMatrixV01.kt").read_text(),
     "components": (JAVA / "FreeWorldObservationComponentsV01.kt").read_text(),
     "component_world": (JAVA / "ComponentRelativeWorldCoordinateHypothesesV01.kt").read_text(),
+    "pair_model_bank": (JAVA / "DeterministicPairGeometryModelBankV01.kt").read_text(),
+    "pair_model_bank_set": (JAVA / "PairGeometryModelBankSetV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -145,6 +147,7 @@ required = {
         "FreeWorldCapabilityMatrixV01.describe",
         "FreeWorldObservationComponentsV01.build",
         "ComponentRelativeWorldCoordinateHypothesesV01.build",
+        "PairGeometryModelBankSetV01.build",
         "FailClosedFreeWorldContinuousQuerySolverV01",
         "ConservationRestorationAuthorityRuntimeV01.describe",
     ],
@@ -246,6 +249,22 @@ required = {
         "disconnected_components_may_share_numeric_gauge",
         "component_connectivity_is_same_world_proof",
     ],
+    "pair_model_bank": [
+        "PAIR_GEOMETRY_MODEL_BANK_AVAILABLE",
+        "TRANSLATION_2D",
+        "SIMILARITY_2D",
+        "AFFINE_2D",
+        "HOMOGRAPHY_2D_PROJECTIVE",
+        "automatic_model_winner_used",
+        "lowest_residual_model_is_physical_truth",
+        "pure_3d_rotation_model_implemented",
+        "scientific_model_promoted",
+    ],
+    "pair_model_bank_set": [
+        "PAIR_GEOMETRY_MODEL_BANK_SET_AVAILABLE",
+        "models_may_be_ranked_as_physical_truth",
+        "future_validation_must_be_held_out",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -297,6 +316,10 @@ assert state["observation_component_policy"]["connected_component_equals_same_wo
 assert state["observation_component_policy"]["selection_set_equals_one_world"] is False
 assert state["observation_component_policy"]["cross_component_transform_exists"] is False
 assert state["relative_world_coordinates"]["component_aware_multi_gauge_implemented"] is True
+assert state["pair_geometry"]["model_bank_implemented"] is True
+assert state["pair_geometry"]["automatic_model_winner_used"] is False
+assert state["pair_geometry"]["lowest_residual_model_is_physical_truth"] is False
+assert state["pair_geometry"]["pure_3d_rotation_model_implemented"] is False
 assert state["geometry_consistency"]["multi_observation_feature_tracks_implemented"] is True
 assert state["geometry_consistency"]["automatic_consistency_threshold_used"] is False
 assert state["geometry_consistency"]["same_world_structure_proven"] is False
@@ -323,6 +346,8 @@ for phrase in [
     "No phone test is required merely to preserve these ideas",
     "Selected files are no longer even implicitly treated as one connected world.",
     "No transform is invented between disconnected components.",
+    "The same robust appearance-derived inlier correspondences are now fitted with multiple deterministic geometry families",
+    "No candidate is selected as a winner.",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
