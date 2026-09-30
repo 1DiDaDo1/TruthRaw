@@ -82,6 +82,10 @@ object RadiometricResponseAtlasV01 {
                     .put("white_level_proves_scene_clipping_point", false)
                     .put("zero_line_may_be_derived_from_black_level_alone", false),
             )
+            .put(
+                "candidate_solver",
+                "RadiometricResponseCandidateSolverV01",
+            )
             .put("oecf_measurement_attached", false)
             .put("effective_gain_calibrated", false)
             .put("response_linearity_proven", false)
