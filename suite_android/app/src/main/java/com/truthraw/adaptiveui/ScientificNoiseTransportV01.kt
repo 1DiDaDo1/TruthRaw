@@ -48,9 +48,9 @@ object ScientificNoiseTransportV01 {
             .put("numeric_primitive_implementation", ScientificNoiseMathV01.METHOD_ID)
             .put(
                 "numeric_transport_validated",
-                promotionState.optBoolean(
+                ScientificPromotionStateV01.decision(
+                    promotionState,
                     "numeric_noise_transport_validated",
-                    false,
                 ),
             )
             .put("numeric_noise_transport_performed", false)
