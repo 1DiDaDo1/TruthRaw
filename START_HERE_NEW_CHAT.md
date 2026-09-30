@@ -1,3 +1,21 @@
+# D.RAW — PREVALIDATION ARCHITECTURE CLOSURE REFRESH — 2026-09-30
+
+The user explicitly said **do not stop for a phone test; continue and finish the safe implementation wave now**.
+
+The previous green checkpoint remains valid. A final closure layer has now also been added:
+- per-observation axis authority matrix;
+- explicit UNKNOWN propagation guard;
+- field-response separation candidate-set builder;
+- fail-closed continuous-query planner;
+- scientific-state snapshot;
+- prevalidation candidate ledger.
+
+These additions do not promote any physical interpretation. Their purpose is to preserve the remaining architecture and prevent future chats from turning missing information into defaults or confusing implementation with evidence.
+
+Current gate: rebuild PR101. If green, freeze this as the final prevalidation architecture handoff. Do not require a phone test merely to preserve these modules.
+
+---
+
 # D.RAW — PREVALIDATION ARCHITECTURE CHECKPOINT COMPLETE — 2026-09-30
 
 **Active branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`  
