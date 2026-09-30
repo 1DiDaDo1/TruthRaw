@@ -99,6 +99,7 @@ class MainActivity : Activity() {
     private var freeWorldFoundationStatus: String? = null
     private val calibrationObservationRecords = mutableListOf<JSONObject>()
     private var calibrationObservationRecordStatus: String? = null
+    private var researchWorkbenchMode: Boolean = false
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -182,6 +183,11 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
         DrawVisualTheme.applyWindow(this)
+        researchWorkbenchMode =
+            intent.getBooleanExtra(
+                EXTRA_OPEN_RESEARCH_WORKBENCH,
+                false,
+            )
 
         var cameraJobToAutoStart: RawJob? = null
         if (savedInstanceState == null) {
@@ -232,6 +238,14 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (
+            intent.getBooleanExtra(
+                EXTRA_OPEN_RESEARCH_WORKBENCH,
+                false,
+            )
+        ) {
+            researchWorkbenchMode = true
+        }
 
         val cameraJob = readInternalCameraJob(intent)
         if (cameraJob != null) {
