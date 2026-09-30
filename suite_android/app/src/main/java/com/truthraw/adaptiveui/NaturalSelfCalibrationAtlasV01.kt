@@ -93,6 +93,10 @@ object NaturalSelfCalibrationAtlasV01 {
                 ?.optJSONObject("cfa_phase_repeatability")
                 ?.opt("median_phase_bin_cross_observation_mad_ev")
                 ?: JSONObject.NULL
+        val radiometricResponse =
+            RadiometricResponseAtlasV01.build(profiles)
+        val noiseComponents =
+            NoiseComponentAtlasV01.build(profiles)
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -119,6 +123,10 @@ object NaturalSelfCalibrationAtlasV01 {
                         "normal_user_calibration_required",
                         false,
                     ),
+            )
+            .put(
+                "radiometric_response_axis",
+                radiometricResponse,
             )
             .put(
                 "field_response_axis",
@@ -229,6 +237,10 @@ object NaturalSelfCalibrationAtlasV01 {
                         "measured_offset_noise_model_promoted",
                         false,
                     ),
+            )
+            .put(
+                "noise_component_axis",
+                noiseComponents,
             )
             .put(
                 "temporal_axis",
