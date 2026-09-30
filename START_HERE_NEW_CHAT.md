@@ -1,3 +1,61 @@
+# D.RAW — PREVALIDATION ARCHITECTURE CHECKPOINT COMPLETE — 2026-09-30
+
+**Active branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`  
+**Draft PR:** #101
+
+The user explicitly requested that the safe architecture be implemented **before returning to repeated phone tests**, because repeated test cycles were causing design ideas to be lost between chats.
+
+That implementation objective is now complete. Do not delete or collapse these modules merely because physical validation has not yet been run. Their authority is deliberately fail-closed.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. this file.
+
+The architecture now includes:
+- deterministic local features and pair geometry;
+- translation/similarity/affine/homography model bank with no automatic winner;
+- observation graph and disconnected component partitioning;
+- independent relative numeric gauges per connected candidate component;
+- multi-observation feature-track hypotheses and graph-cycle diagnostics;
+- relative-world feature-track projections;
+- ordinary overlap, cross-optical-route, rotation, RAW-360 and stop-motion campaign semantics;
+- Natural Self-Calibration Atlas;
+- world-fixed vs sensor-fixed decomposition scaffold;
+- colour, optics, dark/noise and temporal authority axes/contracts;
+- exact 20-bit source-lattice MEASURED-anchor resolver;
+- typed Free World Continuous Query ABI plus fail-closed UNKNOWN runtime;
+- explicit world↔source-lattice bridge boundary;
+- axis-separated uncertainty transport;
+- conservation/restoration runtime authority;
+- downstream human-vision/display/film-cinema View/Appearance boundary;
+- optional calibration-observation records plus fail-closed validator;
+- evidence-lineage manifest;
+- machine-readable capability matrix;
+- machine-readable future bundled physical-validation campaign;
+- scientific promotion-gate registry;
+- recursive research promotion firewall.
+
+Important permanent boundaries:
+- implementation != validation != measurement != promotion;
+- source SHA roots remain independent;
+- disconnected observations are not forced into one world;
+- camera/lens/vendor names are not scientific relation keys;
+- the user/camera/panorama centre is not a physical world origin;
+- a stitched panorama is not source evidence;
+- unanchored fine-lattice coordinates remain UNKNOWN;
+- no AI/ML/neural/generative reconstruction path;
+- no automatic registration/calibration/correction/deconvolution/temporal fusion/restoration promotion;
+- no Scientific Master writeback from this research foundation;
+- the special 4K→200MP route remains separate;
+- Universal Physical Capture ultra-wide / wide-main / tele retains the 5-second acquisition-only stabilization timer.
+
+The later physical validation design is preserved in `BundledPhysicalValidationCampaignV01`; it does **not** require normal users to perform camera-specific calibration.
+
+The first full compile after this expansion hit a Kotlin compiler GC-overhead OOM. This was a build-memory limit, not a scientific failure. `suite_android/gradle.properties` now uses a bounded 5 GiB in-process Kotlin/Gradle heap. The next required gate is a final green ARM64 Android build/artifact. If that build fails, repair integration/build issues only; do not weaken the evidence/promotion boundaries to make it pass.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — FREE WORLD OBSERVATION GEOMETRY FOUNDATION v0.1 — 2026-09-30
 
 **Current branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`
