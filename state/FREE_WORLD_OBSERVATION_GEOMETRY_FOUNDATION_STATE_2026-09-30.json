@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "PREVALIDATION_ARCHITECTURE_CHECKPOINT_COMPLETE_GREEN",
+  "status": "PREVALIDATION_ARCHITECTURE_CLOSURE_IMPLEMENTED_AWAITING_GREEN_REBUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -41,7 +41,13 @@
     "PairGeometryModelBankSetV01",
     "BundledPhysicalValidationCampaignV01",
     "ScientificPromotionGateRegistryV01",
-    "FreeWorldEvidenceLineageManifestV01"
+    "FreeWorldEvidenceLineageManifestV01",
+    "ObservationAxisAuthorityMatrixV01",
+    "UnknownPropagationGuardV01",
+    "FieldResponseSeparationCandidateSetV01",
+    "FreeWorldContinuousQueryPlannerV01",
+    "FreeWorldScientificStateSnapshotV01",
+    "PrevalidationCandidateLedgerV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -120,7 +126,11 @@
     "appearance_geometry_may_admit_world_to_source_bridge": false,
     "fail_closed_world_runtime_implemented": true,
     "fail_closed_world_solver": "FailClosedFreeWorldContinuousQuerySolverV01",
-    "unadmitted_world_query_returns_unknown": true
+    "unadmitted_world_query_returns_unknown": true,
+    "query_planner_implemented": true,
+    "query_planner": "FreeWorldContinuousQueryPlannerV01",
+    "planner_may_treat_candidate_geometry_as_world_source_bridge": false,
+    "planner_may_return_measured_without_exact_source_support": false
   },
   "restoration_authority_roles": [
     "ORIGINAL_MEASURED_SUPPORT",
@@ -160,7 +170,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "BUNDLED_PHYSICAL_VALIDATION_ONLY_WHEN_READY; DO_NOT_ADD_SCIENTIFIC_PROMOTION_WITHOUT_EVIDENCE",
+  "next_gate": "GREEN_FULL_REBUILD_OF_ARCHITECTURE_CLOSURE; THEN_PRESERVE_AS_FINAL_PREVALIDATION_HANDOFF_WITHOUT_PHONE_TEST",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -236,7 +246,13 @@
     "capability_matrix": true,
     "component_aware_graph_partitioning": true,
     "independent_relative_world_gauges_per_connected_component": true,
-    "deterministic_pair_geometry_model_bank": true
+    "deterministic_pair_geometry_model_bank": true,
+    "observation_axis_authority_matrix": true,
+    "unknown_propagation_guard": true,
+    "field_response_separation_candidate_set": true,
+    "continuous_query_planner": true,
+    "scientific_state_snapshot": true,
+    "prevalidation_candidate_ledger": true
   },
   "observation_component_policy": {
     "component_partition_implemented": true,
@@ -308,5 +324,37 @@
       "reason": "KOTLIN_CODEGEN_GC_OVERHEAD_LIMIT_ON_EXPANDED_SUITE",
       "scientific_runtime_semantics_changed": false
     }
+  },
+  "authority_closure": {
+    "observation_axis_authority_matrix_implemented": true,
+    "cross_axis_upgrade_allowed": false,
+    "frontside_may_upgrade_backside": false,
+    "metadata_hint_may_become_measurement": false,
+    "unknown_propagation_guard_implemented": true,
+    "unknown_to_zero_allowed": false,
+    "unknown_to_identity_transform_allowed": false,
+    "missing_uncertainty_to_zero_allowed": false
+  },
+  "field_response_separation_candidate_set": {
+    "implemented": true,
+    "camera_or_lens_identity_used": false,
+    "decomposition_performed": false,
+    "world_fixed_component_estimated": false,
+    "sensor_fixed_component_estimated": false,
+    "lens_only_vignetting_proven": false
+  },
+  "scientific_state_snapshot": {
+    "implemented": true,
+    "schema": "D.RAW/FreeWorldScientificStateSnapshot/0.1",
+    "derived_snapshot_is_physical_evidence_root": false,
+    "implementation_equals_validation": false,
+    "validation_equals_measurement": false,
+    "measurement_equals_promotion": false
+  },
+  "prevalidation_candidate_ledger": {
+    "implemented": true,
+    "schema": "D.RAW/PrevalidationCandidateLedger/0.1",
+    "phone_test_required_to_preserve_items": false,
+    "automatic_promotion_allowed": false
   }
 }
