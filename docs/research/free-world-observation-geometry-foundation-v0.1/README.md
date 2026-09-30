@@ -905,3 +905,37 @@ So future chats no longer need to reconstruct these ideas merely because physica
 At this checkpoint the safe prevalidation architecture is not merely documented: its principal boundaries are represented by executable runtime objects, typed interfaces, fail-closed planners/solvers, machine-readable capability/authority state, and CI gates.
 
 Physical validation is still required for promotion. It is **not** required to keep the architecture intact.
+
+
+### 36. Formal Prevalidation Architecture Closure v0.1
+
+`PrevalidationArchitectureClosureV01.kt`
+
+The implementation-before-validation phase now has an explicit machine-readable closure record.
+
+Closure succeeds only when the final non-promoting infrastructure is present and the research promotion firewall passes. It checks the authority matrix, UNKNOWN propagation guard, query planner, candidate ledger, capability matrix, field-separation candidate set and promotion firewall.
+
+A successful closure means only:
+
+`SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED`
+
+It explicitly does **not** mean:
+
+- physical validation completed;
+- same-world registration proven;
+- calibration promoted;
+- correction authorized;
+- deconvolution authorized;
+- temporal fusion authorized;
+- restoration authorized;
+- Scientific Master writeback authorized.
+
+The closure also records:
+
+`phone_test_required_to_preserve_architecture=false`
+
+and:
+
+`future_physical_validation_still_required_for_promotion=true`
+
+This is the formal endpoint of the user's requested prevalidation implementation wave.
