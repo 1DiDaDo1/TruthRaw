@@ -1592,6 +1592,19 @@ class MainActivity : Activity() {
                 }
         }
 
+    private fun fieldResponseRepeatabilityAnalysisOperationKey(
+        jobs: List<RawJob> = session.jobs,
+    ): String {
+        val setKey =
+            jobs
+                .map { it.id }
+                .sorted()
+                .joinToString("|")
+                .hashCode()
+                .toString()
+        return "main:field-response-repeatability-analysis:" + setKey
+    }
+
     private fun requestUniversalProfilesForSelectedSources() {
         val selected = session.jobs.toList()
         if (selected.isEmpty()) {
@@ -1605,9 +1618,12 @@ class MainActivity : Activity() {
         fieldResponseBatchFailedJobIds.clear()
         fieldResponseBatchPendingJobIds.addAll(selected.map { it.id })
 
+        val operationKey =
+            fieldResponseRepeatabilityAnalysisOperationKey(selected)
+
         if (
             !startBackgroundOperation(
-                FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+                operationKey,
                 "Field Response Repeatability v0.1 · universele bronanalyse",
             )
         ) {
@@ -1651,7 +1667,7 @@ class MainActivity : Activity() {
 
                     fieldResponseRepeatabilityStatus = message
                     finishBackgroundOperation(
-                        FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+                        operationKey,
                         failures == 0,
                         message,
                     )
@@ -7724,13 +7740,23 @@ class MainActivity : Activity() {
             launchFieldResponseRepeatabilityExport()
         })
         backgroundOperationStatusView(
-            FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY,
+            fieldResponseRepeatabilityAnalysisOperationKey(),
             fieldResponseRepeatabilityStatus
                 ?: "Field Response Repeatability v0.1 bronanalyse",
         )?.let(::addView)
             ?: fieldResponseRepeatabilityStatus?.let {
                 addView(label(it, 10f, muted = true))
             }
+
+        if (fieldResponseBatchPendingJobIds.isNotEmpty()) {
+            addView(label(
+                "Analyse actief · nog " +
+                    fieldResponseBatchPendingJobIds.size +
+                    " bron(nen) bezig.",
+                10f,
+                muted = true,
+            ))
+        }
 
         if (measuredCharts < 3) {
             addView(label(
@@ -7937,7 +7963,5 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
-        private const val FIELD_RESPONSE_REPEATABILITY_ANALYSIS_OPERATION_KEY =
-            "main:field-response-repeatability-analysis"
     }
 }
