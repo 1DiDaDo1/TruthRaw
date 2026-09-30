@@ -60,6 +60,12 @@ object BundledPhysicalValidationCampaignV01 {
             "LARGE_SCALE_RELATIVE_WORLD_GRAPH",
         )
         gate(
+            "RADIOMETRIC_RESPONSE_LINEARITY",
+            "Validate exposure-to-code response, effective gain, black offset and censor/saturation behavior without equating BlackLevel to Zero-Line.",
+            "Independent controlled exposure series with source-bound exposure context, repeated levels and held-out observations.",
+            "RADIOMETRIC_RESPONSE_CALIBRATION_CANDIDATE",
+        )
+        gate(
             "CONTROLLED_FIELD_ROTATION",
             "Method-validation experiment for source/sensor-fixed field response.",
             "Prefer 0/90/180/270 degree controlled orientations of a sufficiently uniform field, with setup uncertainty recorded.",
@@ -80,8 +86,26 @@ object BundledPhysicalValidationCampaignV01 {
         gate(
             "DARK_NOISE_OFFSET",
             "Admit dark/noise/offset behavior from physical observations rather than metadata alone.",
-            "Independent dark/noise observation set with exposure/gain context and held-out validation.",
+            "Independent dark/noise observations with exposure/gain context, repeated dark frames, signal-level observations where applicable, and held-out validation.",
             "DARK_NOISE_CALIBRATION_CANDIDATE",
+        )
+        gate(
+            "NOISE_COMPONENT_SEPARATION",
+            "Separate temporal random noise, fixed-pattern response, CFA-phase behavior, correlated row/column structure and residual uncertainty.",
+            "Independent repeated observations with dark and illuminated conditions where applicable; source coordinates and radiometric context preserved; held-out validation.",
+            "NOISE_COMPONENT_CALIBRATION_CANDIDATE",
+        )
+        gate(
+            "WORLD_SPACE_RESIDUAL_SEPARATION",
+            "Test whether repeated observations can separate world-fixed structure, sensor-fixed pattern, temporal residual, view dependence and motion/occlusion.",
+            "Validated world-to-source relations over multiple independently sealed observations with sensor-position diversity, uncertainty and held-out observations.",
+            "WORLD_SPACE_NOISE_SEPARATION_CANDIDATE",
+        )
+        gate(
+            "GEOMETRY_DEPTH_VISIBILITY",
+            "Validate parallax/depth/visibility as a separate authority axis from radiometry.",
+            "Multiple overlapping sealed observations with independently checkable geometry; 2D appearance alignment alone is insufficient.",
+            "GEOMETRY_DEPTH_VISIBILITY_CANDIDATE",
         )
         gate(
             "TEMPORAL_FOOTPRINT",
