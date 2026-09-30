@@ -37,6 +37,8 @@ object FreeWorldObservationGeometryFoundationV01 {
             FreeWorldFeatureTrackHypothesesV01.build(graph)
         val cycleConsistency =
             ObservationGraphCycleConsistencyV01.evaluate(graph)
+        val pairGeometryModelBanks =
+            PairGeometryModelBankSetV01.build(graph)
         val trackProjection =
             RelativeWorldFeatureTrackProjectionV01.build(
                 tracks = featureTracks,
@@ -91,6 +93,7 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
             .put("feature_track_hypotheses", featureTracks)
             .put("graph_cycle_consistency", cycleConsistency)
+            .put("pair_geometry_model_banks", pairGeometryModelBanks)
             .put("relative_world_feature_track_projection", trackProjection)
             .put("geometry_validation_readiness", geometryValidationReadiness)
             .put("natural_self_calibration_atlas", atlas)
