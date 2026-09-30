@@ -26,6 +26,13 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val relativeWorld =
             RelativeWorldCoordinateHypothesisV01.build(graph)
+        val observationComponents =
+            FreeWorldObservationComponentsV01.build(graph)
+        val componentRelativeWorld =
+            ComponentRelativeWorldCoordinateHypothesesV01.build(
+                graph = graph,
+                components = observationComponents,
+            )
         val featureTracks =
             FreeWorldFeatureTrackHypothesesV01.build(graph)
         val cycleConsistency =
@@ -33,7 +40,7 @@ object FreeWorldObservationGeometryFoundationV01 {
         val trackProjection =
             RelativeWorldFeatureTrackProjectionV01.build(
                 tracks = featureTracks,
-                relativeWorld = relativeWorld,
+                relativeWorld = componentRelativeWorld,
             )
         val geometryValidationReadiness =
             GeometryValidationReadinessV01.describe(
@@ -76,7 +83,12 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
             .put("campaign", campaign)
             .put("observation_graph", graph)
+            .put("observation_components", observationComponents)
             .put("relative_world_coordinate_hypothesis", relativeWorld)
+            .put(
+                "component_relative_world_coordinate_hypotheses",
+                componentRelativeWorld,
+            )
             .put("feature_track_hypotheses", featureTracks)
             .put("graph_cycle_consistency", cycleConsistency)
             .put("relative_world_feature_track_projection", trackProjection)
