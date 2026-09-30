@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: **IMPLEMENTED PREVALIDATION ARCHITECTURE — NOT TESTED, NOT BUILT, NOT SCIENTIFICALLY PROMOTED**
+Status: **IMPLEMENTED + ANDROID-COMPILED GREEN PREVALIDATION ARCHITECTURE — NOT DEVICE/PHYSICALLY VALIDATED, NOT SCIENTIFICALLY PROMOTED**
 
 Parent checkpoint: PR #101 Free World Observation Geometry Foundation v0.1, exact green head `0006b56d3261cad9a13fec560f7ddcd39b0844db`.
 
@@ -286,7 +286,7 @@ This path does **not** make calibration mandatory for ordinary users. It exists 
 
 ### Validation status
 
-Per explicit user instruction, this branch has not been compiled, tested, sent through CI, built as an APK, or device-validated after this implementation wave. Therefore no claim is made that the new branch compiles or that any candidate model is physically correct. The parent PR101 green checkpoint remains the last tested baseline.
+The implementation wave has now passed a full Android arm64 debug build after the post-audit cable-repair round. Green code head: `f36f750afda57f4672c264e59ac53db489cd5e19`; workflow run `36744717288`; artifact `11111543510`; APK SHA-256 `d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036`; bytes `8,155,983`. No device/physical validation of the new candidate wave has been run, so compile success does not establish scientific correctness or promotion.
 
 
 ## Completion checkpoint — implementation wave
@@ -325,7 +325,7 @@ See `UX_NAVIGATION_2026-09-30.md`.
 
 ## Test/build status
 
-By explicit instruction, this implementation was committed **without running tests, CI, Android build, device validation or promotion experiments**.
+The post-audit implementation now has a **green Android build/CI compile gate** on code head `f36f750afda57f4672c264e59ac53db489cd5e19`. No device validation, physical calibration campaign, scientific promotion experiment, or research-candidate writeback has been run.
 
 Therefore:
 
