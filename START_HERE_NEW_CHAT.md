@@ -1,3 +1,49 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — FREE WORLD OBSERVATION GEOMETRY FOUNDATION v0.1 — 2026-09-30
+
+**Current branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`
+
+This branch is the deliberate **implementation-before-promotion-validation** wave.
+
+Parent PR100 remains the source/sensor vs world/scene vs view/output authority foundation and includes the 5-second Universal Physical Capture timer for ultra-wide, wide/main and tele.
+
+Implemented now, without claiming physical promotion:
+- deterministic classical local features;
+- deterministic pair matching + affine geometry hypotheses;
+- Free World observation graph keyed by sealed source SHA;
+- relative world-coordinate graph-gauge hypotheses;
+- ordinary/multi-lens/rotation/RAW-360/stop-motion campaign model;
+- Natural Self-Calibration Atlas axes;
+- world-fixed vs sensor-fixed decomposition readiness scaffold;
+- Optical Support Atlas contract (SFR/MTF/PSF/radial/tangential/chromatic/field-curvature/focus);
+- Colour Relation Atlas contract;
+- Temporal Observation Relation scaffold;
+- axis-separated uncertainty transport;
+- raster-independent Free World Continuous Query contract;
+- conservation/restoration runtime authority roles;
+- unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
+
+Permanent firewall:
+- local features = APPEARANCE_DERIVED_ONLY;
+- pair geometry = hypothesis, not same-world proof;
+- numeric graph gauge = convenience only, never photographer/camera/panorama physical origin;
+- no camera/lens/vendor identity key;
+- no mandatory user calibration;
+- no world-registration promotion;
+- no camera-system-response/lens-only-vignetting claim;
+- no calibration/correction/deconvolution;
+- no multi-frame Scientific Master fusion;
+- no new measured samples/evidence;
+- no Scientific Master writeback.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. Parent PR100 state + PR99 field-repeatability real-device result.
+
+Next gate is a green full Android build. After that the architecture wave can continue further before any promotion-oriented phone validation is required.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION-WORLD FIELD SEPARATION v0.1 — 2026-09-30
 
 **Current branch:** `research/observation-world-field-separation-v01-2026-09-30`
