@@ -233,7 +233,7 @@ required = {
     ],
     "capability_matrix": [
         "CAPABILITY_MATRIX_AVAILABLE",
-        "IMPLEMENTED_DOES_NOT_MEAN_VALIDATED",
+        "implemented_does_not_mean_validated",
         "MEASURED_ONLY_AT_EXACT_ADMITTED_ANCHORS",
         "TYPED_ABI_AND_FAIL_CLOSED_RUNTIME_IMPLEMENTED",
     ],
