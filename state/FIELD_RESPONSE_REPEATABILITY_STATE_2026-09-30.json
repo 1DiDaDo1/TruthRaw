@@ -1,0 +1,88 @@
+{
+  "schema": "D.RAW/FieldResponseRepeatabilityState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/field-response-repeatability-v01-2026-09-30",
+  "parent_branch": "research/universal-multi-observation-relation-v01-2026-09-30",
+  "parent_pr": 98,
+  "status": "IMPLEMENTED_READ_ONLY_WITH_BATCH_PROGRESS_AWAITING_REBUILD_AND_DEVICE_VALIDATION",
+  "purpose": "DESCRIBE_MULTI_OBSERVATION_FIELD_SHAPE_REPEATABILITY_WITHOUT_CAMERA_LENS_IDENTITY_OR_CALIBRATION_PROMOTION",
+  "minimum_distinct_measured_observations": 3,
+  "input_contract": {
+    "pr96_field_chart_required": true,
+    "measured_composite_field_signal_required": true,
+    "distinct_source_sha256_required": true,
+    "opaque_unsupported_raw_may_remain_non_contributing": true
+  },
+  "normalization": {
+    "per_observation_scalar": "MEDIAN_OF_POSITIVE_ANNULUS_P50",
+    "radial_value": "log2(annulus_p50/per_observation_scalar)",
+    "azimuth_value": "log2(sector_p50/annulus_p50)",
+    "cfa_phase_value": "log2(phase_p50/annulus_p50)",
+    "exposure_metadata_used": false,
+    "white_balance_used": false,
+    "gain_map_used": false,
+    "scene_content_removed": false
+  },
+  "metrics": {
+    "radial_cross_observation_median_and_mad_ev": true,
+    "pairwise_radial_shape_pearson": true,
+    "azimuth_cell_cross_observation_median_and_mad_ev": true,
+    "cfa_phase_cross_observation_median_and_mad_ev": true,
+    "automatic_threshold_or_winner": false
+  },
+  "relation_context": {
+    "runtime_relation_evidence_class": "USER_GROUPING_HINT_ONLY",
+    "runtime_relation_authority": "NON_AUTHORITY_GROUPING_HINT",
+    "same_physical_camera_proven": false,
+    "same_physical_lens_proven": false
+  },
+  "interpretation": {
+    "repeatable_camera_system_response_proven": false,
+    "lens_only_vignetting_proven": false,
+    "scene_illumination_separated": false,
+    "sensor_angular_response_separated": false,
+    "optical_axis_proven": false,
+    "calibration_promoted": false,
+    "correction_gain_allowed": false
+  },
+  "android_ui": {
+    "compact_layout_available": true,
+    "medium_layout_available": true,
+    "expanded_layout_available": true,
+    "analyze_all_selected_sources_action": true,
+    "json_export_action": true,
+    "export_requires_minimum_measured_charts": true,
+    "source_sha_set_rechecked_before_write": true,
+    "batch_progress_indicator": {
+      "implemented": true,
+      "green_running_and_success_dot": true,
+      "red_error_dot": true,
+      "elapsed_chronometer": true,
+      "pending_source_count": true,
+      "operation_key_scoped_to_selected_source_set": true,
+      "force_reanalysis_on_user_action": true
+    }
+  },
+  "invariants": {
+    "camera_model_routing_used": false,
+    "lens_profile_lookup_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "implementation": {
+    "kotlin_module": "suite_android/app/src/main/java/com/truthraw/adaptiveui/FieldResponseRepeatabilityV01.kt",
+    "ui_binding": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt",
+    "request_code": 4128
+  },
+  "next_gate": "GREEN_REBUILD_THEN_RETEST_THREE_SELECTED_SOURCES_AND_VERIFY_VISIBLE_RUNNING_TIMER_AND_COMPLETION_STATUS",
+  "device_feedback_fix": {
+    "observed_issue": "Button appeared to do nothing when all three universal profiles were already cached; no progress/timer was shown.",
+    "screenshot_observation": "selected=3, universal-profile=3, measured-field-chart=0; first selected item was JPEG and therefore cannot contribute a measured CFA field chart.",
+    "fix": "Explicit batch operation state + chronometer + completion result; force universal re-analysis; explain measured-chart eligibility."
+  }
+}
