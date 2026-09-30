@@ -39,6 +39,10 @@ object GeometryDepthSupportAtlasV01 {
                     .put("OCCLUSION")
                     .put("NON_RIGID_STATE"),
             )
+            .put(
+                "candidate_solver",
+                "GeometryDepthCandidateSolverV01",
+            )
             .put("intrinsic_ray_model_validated", false)
             .put("metric_pose_validated", false)
             .put("parallax_depth_estimated", false)
