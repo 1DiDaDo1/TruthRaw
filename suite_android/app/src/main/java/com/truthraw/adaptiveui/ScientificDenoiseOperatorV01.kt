@@ -19,6 +19,38 @@ object ScientificDenoiseOperatorV01 {
             .put("noise_reduction_applied", false)
             .put("scientific_writeback_allowed", false)
 
+    fun resolveWithPromotionState(
+        route: String,
+        request: JSONObject,
+        radiometric: JSONObject,
+        noiseComponents: JSONObject,
+        opticalSupport: JSONObject,
+        temporalFootprint: JSONObject,
+        geometryDepth: JSONObject,
+        worldSpaceNoise: JSONObject,
+        promotionState: JSONObject,
+    ): JSONObject {
+        val noiseTransport =
+            ScientificNoiseTransportV01.describe(promotionState)
+        val admission =
+            ScientificDenoiseAdmissionV01.describe(
+                radiometric = radiometric,
+                noiseComponents = noiseComponents,
+                noiseTransport = noiseTransport,
+                opticalSupport = opticalSupport,
+                temporalFootprint = temporalFootprint,
+                geometryDepth = geometryDepth,
+                worldSpaceNoise = worldSpaceNoise,
+                promotionState = promotionState,
+                allowPromotionProjection = true,
+            )
+        return resolveDerived(
+            admission = admission,
+            route = route,
+            request = request,
+        )
+    }
+
     fun resolveDerived(
         admission: JSONObject,
         route: String,
