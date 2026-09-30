@@ -13,7 +13,10 @@ import kotlin.math.sqrt
 object ScientificReconstructionCandidateV01 {
     const val SCHEMA = "D.RAW/ScientificReconstructionCandidate/0.1"
 
-    fun evaluate(request: JSONObject): JSONObject {
+    fun evaluate(
+        request: JSONObject,
+        allowedSourceRoots: Set<String>? = null,
+    ): JSONObject {
         val exact = request.optJSONObject("exact_measured_anchor")
         if (exact != null) {
             val values = vector3(exact.optJSONArray("values"))
@@ -42,10 +45,17 @@ object ScientificReconstructionCandidateV01 {
             val variance = vector3(s.optJSONArray("variance")) ?: continue
             val supportWeight =
                 s.optDouble("support_weight", Double.NaN)
-            val sha = s.optString("source_sha256")
+            val sha =
+                s.optString("source_sha256").trim().lowercase()
             if (
                 !supportWeight.isFinite() || supportWeight <= 0.0 ||
                 variance.any { !it.isFinite() || it <= 0.0 }
+            ) {
+                continue
+            }
+            if (
+                allowedSourceRoots != null &&
+                sha !in allowedSourceRoots
             ) {
                 continue
             }
@@ -56,6 +66,13 @@ object ScientificReconstructionCandidateV01 {
                 sumWeight[c] += w
                 sumValue[c] += w * values[c]
             }
+        }
+
+        if (
+            allowedSourceRoots != null &&
+            roots.isEmpty()
+        ) {
+            return unavailable("NO_SUPPORT_BOUND_TO_PROMOTED_SOURCE_ROOTS")
         }
 
         if (sumWeight.any { !it.isFinite() || it <= 0.0 }) {
