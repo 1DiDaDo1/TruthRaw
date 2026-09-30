@@ -15,10 +15,13 @@ object CalibrationObservationRecordValidatorV01 {
 
     private val allowedAxes =
         setOf(
+            "RADIOMETRIC_RESPONSE",
             "FIELD_RESPONSE",
             "COLOUR_RELATION",
             "OPTICAL_SUPPORT",
             "DARK_NOISE_OFFSET",
+            "NOISE_COMPONENT_SEPARATION",
+            "GEOMETRY_DEPTH_VISIBILITY",
             "TEMPORAL_FOOTPRINT",
         )
 
@@ -111,6 +114,10 @@ object CalibrationObservationRecordValidatorV01 {
             "lens_model_key",
             "vendor_key",
             "device_profile_key",
+            "raw_format_key",
+            "container_format_key",
+            "decoder_route_key",
+            "physical_camera_id_key",
         )) {
             if (record.has(forbidden)) {
                 issues.put(
