@@ -31,6 +31,8 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldSourceLatticeBridgeContractV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FailClosedFreeWorldContinuousQuerySolverV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldCapabilityMatrixV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationComponentsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ComponentRelativeWorldCoordinateHypothesesV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'docs/research/free-world-observation-geometry-foundation-v0.1/**'
