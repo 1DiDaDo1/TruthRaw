@@ -142,9 +142,30 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "RADIOMETRIC_PROFILE_RELATION_CANDIDATE",
+            "CONTROLLED_RAW_PROFILE_RUNTIME_IMPLEMENTED",
+            "SOURCE_MEASURED_SIGNAL_VS_EXPOSURE_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
             "RADIOMETRIC_RESPONSE_CANDIDATE_SOLVER",
             "NUMERIC_CANDIDATE_SOLVER_IMPLEMENTED",
             "LINEAR_AND_PIECEWISE_RESPONSE_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "REPEATED_SPARSE_GRID_NOISE_CANDIDATE",
+            "MEASURED_CFA_GRID_RUNTIME_IMPLEMENTED",
+            "DARK_FLAT_TEMPORAL_AND_FIXED_PATTERN_CANDIDATES_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "NOISE_SPECTRUM_MEASUREMENT_CANDIDATE",
+            "CONTROLLED_NPS_INGEST_RUNTIME_IMPLEMENTED",
+            "NOISE_POWER_SPECTRUM_CANDIDATE_ONLY",
             false,
             true,
         )
