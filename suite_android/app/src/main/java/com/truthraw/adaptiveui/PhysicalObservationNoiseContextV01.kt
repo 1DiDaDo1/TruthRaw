@@ -30,7 +30,7 @@ object PhysicalObservationNoiseContextV01 {
                 "MEASURED_SOURCE_PAYLOAD_SAMPLE_AVAILABLE"
         val statistics =
             if (measuredBackside) {
-                backside.optJSONObject("statistics") ?: JSONObject()
+                backside.optJSONObject("global") ?: JSONObject()
             } else {
                 JSONObject()
             }
