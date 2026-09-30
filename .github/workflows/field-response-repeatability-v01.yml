@@ -1,0 +1,24 @@
+name: Field Response Repeatability v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FieldResponseRepeatabilityV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/field-response-repeatability-v0.1/**'
+      - 'state/FIELD_RESPONSE_REPEATABILITY_STATE_2026-09-30.json'
+      - 'tools/check_field_response_repeatability_v01.py'
+      - '.github/workflows/field-response-repeatability-v01.yml'
+  push:
+    branches:
+      - 'research/field-response-repeatability-v01-2026-09-30'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_field_response_repeatability_v01.py
