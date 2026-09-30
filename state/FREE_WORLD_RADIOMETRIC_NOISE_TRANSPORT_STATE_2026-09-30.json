@@ -99,7 +99,7 @@
     "EXACT_MEASURED_CFA_ANCHORS_MAY_NOT_BE_OVERWRITTEN",
     "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT"
   ],
-  "latest_implementation_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
+  "latest_implementation_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
   "runtime_integration": {
     "universal_intake_noise_context_bound": true,
     "sparse_measured_cfa_grid_exported": true,
@@ -159,9 +159,9 @@
     "legacy_diagnostics_share_dot_timer_status": true,
     "generic_compute_router_unvalidated_gpu_auto_dispatch": false
   },
-  "implementation_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+  "implementation_code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
   "documentation_head_before_state_checkpoint": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
-  "parent_distance_commits_at_code_checkpoint": 217,
+  "parent_distance_commits_at_code_checkpoint": 229,
   "completion_checkpoint": {
     "checkpoint_parent_head": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
     "relation_records_reachable_from_android_ui": true,
@@ -188,7 +188,7 @@
     "implementation_guide_available": true,
     "test_status_dot_timer_preserved": true,
     "normal_pro_route_research_clutter_reduced": true,
-    "checkpoint_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "checkpoint_code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
     "provenance_cables_closed": true,
     "calibration_session_binding_closed": true,
     "canonical_record_identity_closed": true,
@@ -201,12 +201,13 @@
     "legacy_test_status_unified": true,
     "android_compile_green": true,
     "android_build_success": true,
-    "latest_built_code_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
+    "latest_built_code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
     "apk_verified": true,
     "cable_audit_closure_complete": true,
     "cross_session_record_use_allowed": false,
     "physical_processing_lineage_complete": true,
-    "legacy_test_status_dot_timer_preserved": true
+    "legacy_test_status_dot_timer_preserved": true,
+    "world_space_candidate_execution_preserved_without_promotion": true
   },
   "parent_distance_commits_before_state_checkpoint": 120,
   "navigation_ux": {
@@ -246,20 +247,20 @@
   ],
   "ux_checkpoint_status": "IMPLEMENTED_AND_ANDROID_BUILD_VERIFIED_DEVICE_VALIDATION_PENDING",
   "green_android_build_checkpoint": {
-    "code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
-    "workflow_run_id": 36744717288,
+    "code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
+    "workflow_run_id": 36746687740,
     "workflow_conclusion": "success",
-    "artifact_id": 11111543510,
+    "artifact_id": 11113326128,
     "artifact_name": "DRAW-free-world-research-debug-arm64",
-    "artifact_archive_sha256": "19dce8f5d812af774b16894a1a65f0170c173a6ab8a91a84efae093de61dcf16",
+    "artifact_archive_sha256": "6efc9ab5e8c9731e81f1c3e3c36d6898ca13546b97389f5e963fcde097c438d6",
     "apk_bytes": 8155983,
-    "apk_sha256": "d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036",
+    "apk_sha256": "1c5a97b6c5bce7a7534cda9899f1b3d926d9fced8fd8edc16cd53944a6620c03",
     "build_successful": true,
     "device_validated": false
   },
   "post_audit_cable_repair": {
-    "status": "COMPLETE_AT_IMPLEMENTATION_LEVEL",
-    "code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "status": "COMPLETE_AT_IMPLEMENTATION_LEVEL_AND_ANDROID_BUILD_GREEN",
+    "code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
     "safety": {
       "scientific_writeback_allowed": false,
       "candidate_runtime_is_promotion": false,
@@ -278,16 +279,17 @@
       "proven_specialized_paths_may_use_their_own_self_tested_acceleration": true
     }
   },
-  "latest_built_code_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
+  "latest_built_code_head": "c90ff62323a065eac54eee0d91f75256708cd4fd",
   "build_evidence": {
     "workflow": "D.RAW Free World Research APK",
-    "workflow_run_id": 36744973469,
+    "workflow_run_id": 36746687740,
     "conclusion": "SUCCESS",
     "apk_verified": true,
     "apk_bytes": 8155983,
-    "apk_sha256": "11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193",
+    "apk_sha256": "1c5a97b6c5bce7a7534cda9899f1b3d926d9fced8fd8edc16cd53944a6620c03",
     "artifact_name": "DRAW-free-world-research-debug-arm64",
-    "artifact_id": 11112237658,
+    "artifact_id": 11113326128,
+    "artifact_archive_sha256": "6efc9ab5e8c9731e81f1c3e3c36d6898ca13546b97389f5e963fcde097c438d6",
     "compile_warning_only": [
       "canonical/reconstruction/v4.7i/native/src/core.cpp:196 misleading indentation; build successful; canonical algorithm not changed during cable closure"
     ]
@@ -314,7 +316,9 @@
     "calibration_records_private_session_persistence": true,
     "legacy_test_dot_timer_uniformity": true,
     "research_foundation_can_auto_promote": false,
-    "scientific_writeback_allowed": false
+    "scientific_writeback_allowed": false,
+    "world_space_candidate_execution_preserved_without_promotion": true,
+    "user_imported_json_can_grant_promotion": false
   },
   "intentional_boundaries": {
     "proprietary_raw_decoders": "DNG_NATIVE; NEF_SAMPLE_CALIBRATION_PENDING; CR3_CR2_ARW_RAF_RW2_ORF_PEF_IIQ_X3F_AND_OTHERS_DECODER_PENDING",
