@@ -20,6 +20,10 @@ Implemented now, without claiming physical promotion:
 - axis-separated uncertainty transport;
 - raster-independent Free World Continuous Query contract;
 - conservation/restoration runtime authority roles;
+- typed Free World continuous-query Kotlin ABI (solver still disabled);
+- downstream View/Appearance boundary for human-vision/display/film-cinema rendering;
+- relation-based Calibration Observation Record contract;
+- mechanical recursive Research Promotion Firewall on foundation exports;
 - unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
 
 Permanent firewall:
