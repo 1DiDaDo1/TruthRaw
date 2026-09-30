@@ -29,7 +29,8 @@ object CalibrationObservationRecordV01 {
                     .put("DARK_NOISE_OFFSET")
                     .put("NOISE_COMPONENT_SEPARATION")
                     .put("GEOMETRY_DEPTH_VISIBILITY")
-                    .put("TEMPORAL_FOOTPRINT"),
+                    .put("TEMPORAL_FOOTPRINT")
+                    .put("WORLD_SPACE_RESIDUAL"),
             )
             .put(
                 "required_record_fields",
@@ -42,6 +43,14 @@ object CalibrationObservationRecordV01 {
                     .put("RELATION_EVIDENCE_CLASS")
                     .put("UNCERTAINTY")
                     .put("VALIDATION_STATUS"),
+            )
+            .put(
+                "candidate_runtime_payload",
+                JSONObject()
+                    .put("field_name", "AXIS_PAYLOAD")
+                    .put("optional_for_record_validity", true)
+                    .put("required_for_numeric_candidate_solver", true)
+                    .put("camera_lens_vendor_or_raw_identity_may_replace_payload_evidence", false),
             )
             .put(
                 "identity_policy",
