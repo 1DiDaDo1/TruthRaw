@@ -100,6 +100,8 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val noiseComponentCandidate =
             NoiseComponentDecompositionCandidateV01.evaluate(calibrationRecords)
+        val noiseSpectrumCandidate =
+            NoiseSpectrumMeasurementCandidateV01.evaluate(calibrationRecords)
         val repeatedSparseGridNoiseCandidate =
             RepeatedSparseGridNoiseCandidateV01.evaluate(
                 profiles = profiles,
@@ -194,6 +196,7 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("radiometric_response_candidate", radiometricResponseCandidate)
                     .put("radiometric_profile_candidate", radiometricProfileCandidate)
                     .put("noise_component_candidate", noiseComponentCandidate)
+                    .put("noise_spectrum_candidate", noiseSpectrumCandidate)
                     .put("repeated_sparse_grid_noise_candidate", repeatedSparseGridNoiseCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
                     .put("colour_relation_candidate", colourRelationCandidate)
