@@ -377,7 +377,9 @@ object DeterministicPairGeometryModelBankV01 {
             .put(
                 "parameters",
                 JSONArray().also { array ->
-                    parameters.forEach(array::put)
+                    for (value in parameters) {
+                        array.put(value)
+                    }
                 },
             )
             .put(
