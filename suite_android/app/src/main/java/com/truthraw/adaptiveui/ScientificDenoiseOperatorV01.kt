@@ -44,10 +44,27 @@ object ScientificDenoiseOperatorV01 {
                 promotionState = promotionState,
                 allowPromotionProjection = true,
             )
+        val roots =
+            linkedSetOf<String>().apply {
+                val arr =
+                    promotionState.optJSONArray(
+                        "source_sha256_roots",
+                    )
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        arr.optString(i)
+                            .trim()
+                            .lowercase()
+                            .takeIf(String::isNotBlank)
+                            ?.let(::add)
+                    }
+                }
+            }
         return resolveDerived(
             admission = admission,
             route = route,
             request = request,
+            allowedSourceRoots = roots,
         )
     }
 
@@ -55,6 +72,7 @@ object ScientificDenoiseOperatorV01 {
         admission: JSONObject,
         route: String,
         request: JSONObject,
+        allowedSourceRoots: Set<String>? = null,
     ): JSONObject {
         val routeState =
             admission.optJSONObject("routes")
@@ -68,7 +86,11 @@ object ScientificDenoiseOperatorV01 {
             return blocked("SCIENTIFIC_DENOISE_NOT_ADMITTED", route)
         }
 
-        val candidate = ScientificReconstructionCandidateV01.evaluate(request)
+        val candidate =
+            ScientificReconstructionCandidateV01.evaluate(
+                request = request,
+                allowedSourceRoots = allowedSourceRoots,
+            )
         if (
             candidate.optString("status") !=
             "RECONSTRUCTED_VALUE_CANDIDATE_AVAILABLE"
