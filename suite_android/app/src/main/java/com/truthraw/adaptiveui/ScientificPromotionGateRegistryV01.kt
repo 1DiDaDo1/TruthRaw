@@ -130,6 +130,41 @@ object ScientificPromotionGateRegistryV01 {
             ),
         )
         entry(
+            "SCIENTIFIC_DENOISE_SINGLE_FRAME",
+            listOf(
+                "RADIOMETRIC_RESPONSE_CALIBRATED",
+                "NOISE_COMPONENT_CALIBRATION",
+                "NUMERIC_NOISE_UNCERTAINTY_TRANSPORT_VALIDATED",
+                "RECONSTRUCTION_UNCERTAINTY",
+                "EXACT_MEASURED_ANCHOR_PRESERVATION",
+                "HELD_OUT_VALIDATION",
+                "SEPARATE_EXPLICIT_APPROVAL_GATE",
+            ),
+        )
+        entry(
+            "SCIENTIFIC_DENOISE_OPTICS_AWARE",
+            listOf(
+                "SCIENTIFIC_DENOISE_SINGLE_FRAME_READY",
+                "OPTICAL_SUPPORT_CALIBRATION",
+                "FREQUENCY_DEPENDENT_NOISE_GAIN",
+                "HELD_OUT_VALIDATION",
+                "SEPARATE_EXPLICIT_APPROVAL_GATE",
+            ),
+        )
+        entry(
+            "SCIENTIFIC_DENOISE_WORLD_SPACE",
+            listOf(
+                "SCIENTIFIC_DENOISE_SINGLE_FRAME_READY",
+                "VALIDATED_WORLD_TO_SOURCE_BRIDGE",
+                "TEMPORAL_RELATION",
+                "GEOMETRY_DEPTH_VISIBILITY_WHERE_REQUIRED",
+                "WORLD_SPACE_NOISE_SEPARATION",
+                "VISIBILITY_OCCLUSION_VIEW_DEPENDENCE_ACCOUNTED_FOR",
+                "HELD_OUT_VALIDATION",
+                "SEPARATE_EXPLICIT_APPROVAL_GATE",
+            ),
+        )
+        entry(
             "TEMPORAL_RELATION",
             listOf(
                 "SOURCE_BOUND_TIMING_EVIDENCE",
