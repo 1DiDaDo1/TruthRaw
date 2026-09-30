@@ -54,6 +54,14 @@ object UniversalSourceProfiler {
                     null,
                     sourceSha256,
                 )
+            val physicalNoiseContext =
+                PhysicalObservationNoiseContextV01.describe(
+                    sourceSha256 = sourceSha256,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
+                )
             val atlas =
                 UniversalObservationCalibrationAtlasV01.describe(
                     sourceSha256 = sourceSha256,
@@ -84,6 +92,7 @@ object UniversalSourceProfiler {
                         ),
                 )
                 .put("scene_analysis", frontside)
+                .put("physical_observation_noise_context_v0_1", physicalNoiseContext)
                 .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
@@ -98,6 +107,14 @@ object UniversalSourceProfiler {
                     source.uri,
                     null,
                     sourceSha256,
+                )
+            val physicalNoiseContext =
+                PhysicalObservationNoiseContextV01.describe(
+                    sourceSha256 = sourceSha256,
+                    metadata = JSONObject(),
+                    raster = JSONObject(),
+                    backsideSignalSupport = null,
+                    opticalFieldChart = null,
                 )
             val atlas =
                 UniversalObservationCalibrationAtlasV01.describe(
@@ -123,6 +140,7 @@ object UniversalSourceProfiler {
                         .put("FAIL_CLOSED_OR_VERSIONED_COMPATIBILITY_ADAPTER"),
                 )
                 .put("scene_analysis", frontside)
+                .put("physical_observation_noise_context_v0_1", physicalNoiseContext)
                 .put("universal_observation_calibration_atlas", atlas)
                 .put("authority", authorityBlock())
                 .put("open_world", openWorldBlock())
@@ -323,6 +341,15 @@ object UniversalSourceProfiler {
                     backsideSignalSupport.optJSONObject(
                         "observation_optical_field_signal_v0_1",
                     ),
+            )
+
+        val physicalNoiseContext =
+            PhysicalObservationNoiseContextV01.describe(
+                sourceSha256 = sourceSha256,
+                metadata = metadata,
+                raster = raster,
+                backsideSignalSupport = backsideSignalSupport,
+                opticalFieldChart = observationOpticalFieldChart,
             )
 
         val universalObservationCalibrationAtlas =
@@ -581,6 +608,10 @@ object UniversalSourceProfiler {
                 "universal_observation_calibration_atlas_v0_1",
                 universalObservationCalibrationAtlas,
             )
+            .put(
+                "physical_observation_noise_context_v0_1",
+                physicalNoiseContext,
+            )
 
         return base
             .put("scientific_source_class", sourceClass)
@@ -601,6 +632,10 @@ object UniversalSourceProfiler {
             )
             .put("route_hints", routeHints)
             .put("backside_signal_support", backsideSignalSupport)
+            .put(
+                "physical_observation_noise_context_v0_1",
+                physicalNoiseContext,
+            )
             .put("n2_local_spatial_binding", n2LocalSpatialBinding)
             .put(
                 "n2_structure_support_binding",
