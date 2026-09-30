@@ -30,6 +30,12 @@ Permanent identity law:
 Permanent denoise law:
 **Do not classify unexplained structure as noise. First separate radiometric response, stochastic/fixed-pattern sensor behavior, optical support, world/sensor coordinates, temporal footprint, view dependence, motion/occlusion and reconstruction uncertainty. UNKNOWN residual remains UNKNOWN until physically supported.**
 
+The full recommendation wave is now implemented as fail-closed candidate runtime code. In addition to the earlier contracts, current code includes radiometric fitting from explicit records and controlled RAW profiles, repeated exact sparse-CFA dark/flat statistics, NPS ingestion, world-vs-sensor field separation, SFR/MTF/PSF ingestion, noise-aware inverse-optics gain candidates, multi-illuminant colour fitting, temporal relation candidates, calibrated-ray triangulation, world-space residual decomposition, uncertainty-weighted reconstruction, gated scientific denoise, and appearance-only perceptual frequency mapping.
+
+Optional relation records may be ingested through `CalibrationObservationRecordBundleV01` and passed to `FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle`. Normal RAW intake remains calibration-bundle-independent and lens/camera/vendor/RAW identity independent at the scientific level.
+
+None of these candidate runtimes has been tested, built, device-validated or scientifically promoted in this branch.
+
 No correction, denoise, deconvolution, temporal fusion, world-space fusion, geometry promotion, calibration promotion, new evidence creation or Scientific Master writeback is authorized by this overlay.
 
 ---
