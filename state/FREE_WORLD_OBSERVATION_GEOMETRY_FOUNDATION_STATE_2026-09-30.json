@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "PREVALIDATION_SAFE_ARCHITECTURE_SET_IMPLEMENTED_COMPONENT_AWARE_AWAITING_GREEN_BUILD",
+  "status": "PREVALIDATION_SAFE_ARCHITECTURE_IMPLEMENTATION_COMPLETE_AWAITING_FINAL_GREEN_ANDROID_BUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -38,7 +38,10 @@
     "FreeWorldObservationComponentsV01",
     "ComponentRelativeWorldCoordinateHypothesesV01",
     "DeterministicPairGeometryModelBankV01",
-    "PairGeometryModelBankSetV01"
+    "PairGeometryModelBankSetV01",
+    "BundledPhysicalValidationCampaignV01",
+    "ScientificPromotionGateRegistryV01",
+    "FreeWorldEvidenceLineageManifestV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -157,7 +160,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD; NO_PHONE_PROMOTION_TEST_REQUIRED_BEFORE_THIS_ARCHITECTURE_CHECKPOINT",
+  "next_gate": "FINAL_GREEN_ANDROID_COMPILE_AND_ARTIFACT; AFTER THAT PREVALIDATION_ARCHITECTURE_CHECKPOINT_IS COMPLETE",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -244,5 +247,42 @@
     "independent_numeric_gauge_per_component": true,
     "cross_component_transform_exists": false,
     "component_gauge_has_physical_origin_authority": false
+  },
+  "validation_campaign_contract": {
+    "implemented": true,
+    "schema": "D.RAW/BundledPhysicalValidationCampaign/0.1",
+    "phone_test_required_to_preserve_architecture": false,
+    "normal_user_calibration_required": false,
+    "includes": [
+      "NATURAL_OVERLAP_SAME_ROUTE",
+      "CROSS_OPTICAL_ROUTE_OVERLAP",
+      "ROTATION_SEQUENCE",
+      "RAW_360_SEQUENCE",
+      "CONTROLLED_FIELD_ROTATION",
+      "COLOUR_MULTI_ILLUMINANT",
+      "OPTICAL_SUPPORT",
+      "DARK_NOISE_OFFSET",
+      "TEMPORAL_FOOTPRINT"
+    ]
+  },
+  "scientific_gate_registry": {
+    "implemented": true,
+    "automatic_promotion_allowed": false,
+    "registry_itself_grants_promotion": false
+  },
+  "evidence_lineage_manifest": {
+    "implemented": true,
+    "primary_roots": "SOURCE_SHA256",
+    "derived_manifest_is_evidence_root": false,
+    "derived_graph_is_evidence_root": false,
+    "source_roots_remain_independent": true
+  },
+  "build_memory_fix": {
+    "implemented": true,
+    "path": "suite_android/gradle.properties",
+    "gradle_heap": "5g",
+    "kotlin_compiler_execution_strategy": "in-process",
+    "scientific_runtime_behavior_changed": false,
+    "reason": "CI Kotlin compiler GC-overhead OutOfMemoryError"
   }
 }
