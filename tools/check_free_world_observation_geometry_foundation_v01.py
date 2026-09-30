@@ -20,6 +20,10 @@ files = {
     "query": (JAVA / "FreeWorldContinuousQueryContractV01.kt").read_text(),
     "restoration": (JAVA / "ConservationRestorationAuthorityRuntimeV01.kt").read_text(),
     "foundation": (JAVA / "FreeWorldObservationGeometryFoundationV01.kt").read_text(),
+    "typed_query": (JAVA / "FreeWorldContinuousQueryApiV01.kt").read_text(),
+    "view": (JAVA / "ViewAppearanceStateV01.kt").read_text(),
+    "calibration_record": (JAVA / "CalibrationObservationRecordV01.kt").read_text(),
+    "firewall": (JAVA / "ResearchPromotionFirewallV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -117,7 +121,33 @@ required = {
         "RelativeWorldCoordinateHypothesisV01.build",
         "NaturalSelfCalibrationAtlasV01.build",
         "FreeWorldContinuousQueryContractV01.describe",
+        "CalibrationObservationRecordV01.describeContract",
+        "ViewAppearanceStateV01.describe",
+        "ResearchPromotionFirewallV01.audit",
         "ConservationRestorationAuthorityRuntimeV01.describe",
+    ],
+    "typed_query": [
+        "FreeWorldContinuousQueryRequestV01",
+        "FreeWorldContinuousQueryResultV01",
+        "FreeWorldContinuousQuerySolverV01",
+        "FreeWorldAuthorityV01",
+    ],
+    "view": [
+        "VIEW_APPEARANCE_BOUNDARY_AVAILABLE",
+        "pupil_or_adaptation_model_may_change_scientific_master",
+        "halation_or_grain_synthesis_is_measured_evidence",
+    ],
+    "calibration_record": [
+        "CALIBRATION_OBSERVATION_RECORD_CONTRACT_AVAILABLE",
+        "SOURCE_SHA256_ROOTS",
+        "camera_model_name_is_key",
+        "required_for_raw_intake",
+    ],
+    "firewall": [
+        "RESEARCH_PROMOTION_FIREWALL_PASS",
+        "RESEARCH_PROMOTION_FIREWALL_BLOCK",
+        "FORBIDDEN_RESEARCH_PROMOTION_TRUE",
+        "export_safe_under_current_research_contract",
     ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
@@ -156,7 +186,10 @@ for name in [
 ]:
     assert state["promotion_firewall"][name] is False
 
+assert state["continuous_query"]["typed_kotlin_abi_implemented"] is True
 assert state["continuous_query"]["pixel_solver_implemented"] is False
+assert state["research_promotion_firewall"]["implemented"] is True
+assert state["calibration_observation_record"]["required_for_normal_intake"] is False
 assert state["continuous_query"]["source_raster_is_world_resolution_limit"] is False
 assert state["relative_world_coordinates"]["camera_holder_is_world_origin"] is False
 assert state["relative_world_coordinates"]["panorama_center_is_world_origin"] is False
