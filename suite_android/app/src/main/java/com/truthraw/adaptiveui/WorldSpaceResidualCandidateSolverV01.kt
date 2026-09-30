@@ -83,9 +83,25 @@ object WorldSpaceResidualCandidateSolverV01 {
                 // Legacy hints may remain present but have no authority.
             }
             relationRecordCount++
-            val rs = record.optJSONArray("source_sha256_roots") ?: JSONArray()
+            val rs =
+                record.optJSONArray("source_sha256_roots") ?: JSONArray()
+            val processingRs =
+                record.optJSONArray(
+                    "session_processing_source_sha256_roots",
+                ) ?: JSONArray()
             for (i in 0 until rs.length()) {
-                rs.optString(i).takeIf(String::isNotBlank)?.let(roots::add)
+                rs.optString(i)
+                    .trim()
+                    .lowercase()
+                    .takeIf(String::isNotBlank)
+                    ?.let(roots::add)
+            }
+            for (i in 0 until processingRs.length()) {
+                processingRs.optString(i)
+                    .trim()
+                    .lowercase()
+                    .takeIf(String::isNotBlank)
+                    ?.let(roots::add)
             }
             val arr = payload.optJSONArray("samples") ?: continue
             for (i in 0 until arr.length()) {
