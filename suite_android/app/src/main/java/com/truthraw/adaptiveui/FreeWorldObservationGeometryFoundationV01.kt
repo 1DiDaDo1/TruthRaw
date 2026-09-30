@@ -56,6 +56,13 @@ object FreeWorldObservationGeometryFoundationV01 {
             TemporalObservationRelationV01.describe(profiles)
         val querySupportLedger =
             FreeWorldQuerySupportLedgerV01.build(profiles)
+        val capabilityMatrix =
+            FreeWorldCapabilityMatrixV01.describe(
+                graph = graph,
+                tracks = featureTracks,
+                cycles = cycleConsistency,
+                decomposition = decomposition,
+            )
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -79,6 +86,7 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("uncertainty_transport", uncertainty)
             .put("temporal_relation", temporal)
             .put("query_support_ledger", querySupportLedger)
+            .put("capability_matrix", capabilityMatrix)
             .put(
                 "optical_support_atlas_contract",
                 OpticalSupportAtlasV01.describe(),
@@ -114,7 +122,15 @@ object FreeWorldObservationGeometryFoundationV01 {
                         "measured_anchor_provider_interface",
                         "MeasuredAnchorProviderV01",
                     )
+                    .put(
+                        "fail_closed_world_solver",
+                        "FailClosedFreeWorldContinuousQuerySolverV01",
+                    )
                     .put("world_solver_implemented", false)
+                    .put(
+                        "fail_closed_world_runtime_implemented",
+                        true,
+                    )
                     .put(
                         "exact_source_anchor_semantics_implemented",
                         true,
