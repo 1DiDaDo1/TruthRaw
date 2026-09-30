@@ -33,6 +33,8 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldCapabilityMatrixV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationComponentsV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ComponentRelativeWorldCoordinateHypothesesV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DeterministicPairGeometryModelBankV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PairGeometryModelBankSetV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'docs/research/free-world-observation-geometry-foundation-v0.1/**'
