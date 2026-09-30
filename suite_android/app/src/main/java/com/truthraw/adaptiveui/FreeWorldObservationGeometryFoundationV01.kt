@@ -63,6 +63,30 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val temporal =
             TemporalObservationRelationV01.describe(profiles)
+        val radiometricResponse =
+            RadiometricResponseAtlasV01.build(profiles)
+        val noiseComponents =
+            NoiseComponentAtlasV01.build(profiles)
+        val scientificNoiseTransport =
+            ScientificNoiseTransportV01.describe()
+        val temporalFootprint =
+            TemporalFootprintV01.build(profiles)
+        val geometryDepth =
+            GeometryDepthSupportAtlasV01.describe(
+                graph = graph,
+                tracks = featureTracks,
+                cycles = cycleConsistency,
+            )
+        val worldSpaceNoise =
+            WorldSpaceNoiseSeparationV01.describe(
+                decomposition = decomposition,
+                temporal = temporalFootprint,
+                geometry = geometryDepth,
+            )
+        val lightTransportAuthority =
+            LightTransportAuthorityContractV01.describe()
+        val perceptualNoiseAppearance =
+            PerceptualNoiseAppearanceV01.describe()
         val querySupportLedger =
             FreeWorldQuerySupportLedgerV01.build(profiles)
         val capabilityMatrix =
@@ -109,6 +133,14 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("world_sensor_decomposition", decomposition)
             .put("uncertainty_transport", uncertainty)
             .put("temporal_relation", temporal)
+            .put("radiometric_response_atlas", radiometricResponse)
+            .put("noise_component_atlas", noiseComponents)
+            .put("scientific_noise_transport", scientificNoiseTransport)
+            .put("temporal_footprint", temporalFootprint)
+            .put("geometry_depth_support_atlas", geometryDepth)
+            .put("world_space_noise_separation", worldSpaceNoise)
+            .put("light_transport_authority_contract", lightTransportAuthority)
+            .put("perceptual_noise_appearance_contract", perceptualNoiseAppearance)
             .put("query_support_ledger", querySupportLedger)
             .put("capability_matrix", capabilityMatrix)
             .put("evidence_lineage_manifest", lineage)
@@ -201,6 +233,18 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "representation_may_exceed_source_knowledge_claims_may_not",
                         true,
+                    )
+                    .put(
+                        "camera_lens_vendor_or_raw_identity_may_route_decoding_not_scientific_truth",
+                        true,
+                    )
+                    .put(
+                        "noise_reduction_requires_explained_physical_or_reconstruction_residual",
+                        true,
+                    )
+                    .put(
+                        "radiometry_geometry_illumination_material_view_are_separate_authority_axes",
+                        true,
                     ),
             )
             .put(
@@ -212,6 +256,11 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("calibration_promoted", false)
                     .put("correction_authorized", false)
                     .put("deconvolution_authorized", false)
+                    .put("radiometric_calibration_promoted", false)
+                    .put("noise_component_calibration_promoted", false)
+                    .put("world_space_denoise_applied", false)
+                    .put("geometry_promoted", false)
+                    .put("temporal_fusion_applied", false)
                     .put("multi_frame_scientific_fusion_applied", false)
                     .put("scientific_writeback_allowed", false),
             )
