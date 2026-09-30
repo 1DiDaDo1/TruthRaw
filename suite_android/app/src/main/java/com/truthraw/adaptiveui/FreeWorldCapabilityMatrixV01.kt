@@ -65,6 +65,13 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "PAIR_GEOMETRY_MODEL_BANK",
+            "IMPLEMENTED",
+            "TRANSLATION_SIMILARITY_AFFINE_HOMOGRAPHY_CANDIDATES_NO_WINNER",
+            false,
+            true,
+        )
+        capability(
             "MULTI_OBSERVATION_FEATURE_TRACKS",
             "IMPLEMENTED",
             "TRACK_HYPOTHESES_ONLY",
