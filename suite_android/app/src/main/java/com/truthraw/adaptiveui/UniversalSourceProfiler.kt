@@ -32,6 +32,47 @@ object UniversalSourceProfiler {
             .put("schema", "D.RAW/UniversalSourceProfile/0.2")
             .put("status", "AUTO_PROFILED_IN_FULL_DRAW_SUITE")
             .put("source_sha256", sourceSha256)
+            .put("processing_source_sha256", sourceSha256)
+            .put(
+                "upstream_sealed_source_sha256",
+                source.upstreamSealedSourceSha256 ?: JSONObject.NULL,
+            )
+            .put(
+                "upstream_source_role",
+                source.upstreamSourceRole ?: JSONObject.NULL,
+            )
+            .put(
+                "acquisition_evidence_sha256",
+                source.acquisitionEvidenceSha256 ?: JSONObject.NULL,
+            )
+            .put(
+                "camera_processing_source_is_derived_container",
+                source.sourceRoute == SourceIngressRoute.CAMERA_CAPTURE &&
+                    source.upstreamSealedSourceSha256 != null,
+            )
+            .put(
+                "source_lineage",
+                JSONObject()
+                    .put("processing_source_sha256", sourceSha256)
+                    .put(
+                        "physical_evidence_root_sha256",
+                        source.upstreamSealedSourceSha256 ?: sourceSha256,
+                    )
+                    .put(
+                        "upstream_sealed_source_sha256",
+                        source.upstreamSealedSourceSha256 ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "acquisition_evidence_sha256",
+                        source.acquisitionEvidenceSha256 ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "processing_source_is_derived_from_upstream",
+                        source.upstreamSealedSourceSha256 != null,
+                    )
+                    .put("processing_source_becomes_new_physical_frame", false)
+                    .put("physical_frame_count_increment", 0),
+            )
             .put("display_name", source.displayName)
             .put("byte_length", byteLength ?: JSONObject.NULL)
             .put("source_route", source.sourceRoute.name)
