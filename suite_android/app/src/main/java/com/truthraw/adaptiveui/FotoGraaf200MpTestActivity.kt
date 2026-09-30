@@ -142,6 +142,7 @@ class FotoGraaf200MpTestActivity : Activity(), TextureView.SurfaceTextureListene
         status = label("Zoeken naar exact geadverteerde 200MP-route…", 12f, false, Color.WHITE)
         root.addView(telemetry)
         root.addView(space(6))
+        TruthRawLegacyTestStatusV01.attach(status)
         root.addView(status)
         root.addView(space(8))
 
