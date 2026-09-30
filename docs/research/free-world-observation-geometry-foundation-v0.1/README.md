@@ -620,3 +620,53 @@ The next engineering gate is therefore only:
 3. repair compile/integration errors if any.
 
 Only after that checkpoint does D.RAW need to return to bundled physical validation for scientific promotion.
+
+
+### 30. Component-aware observation graph partitioning v0.1
+
+`FreeWorldObservationComponentsV01.kt`
+
+Selected files are no longer even implicitly treated as one connected world.
+
+The runtime partitions the candidate pair-geometry graph into deterministic connected components.
+
+Each component records:
+
+- its own source SHA-256 roots;
+- number of candidate geometry edges;
+- whether it is an isolated observation;
+- a deterministic component identity;
+- a possible numeric gauge root.
+
+Connectivity remains appearance-derived only.
+
+A connected component does **not** prove:
+
+- one physical scene;
+- one capture system;
+- one lens;
+- one camera;
+- one physical world origin.
+
+This is important when a user selects unrelated photographs together, or when only part of a large 360/multi-lens campaign overlaps.
+
+### 31. Independent relative-world gauge per component v0.1
+
+`ComponentRelativeWorldCoordinateHypothesesV01.kt`
+
+Every connected appearance-geometry component now receives its own independent relative numeric gauge hypothesis.
+
+No transform is invented between disconnected components.
+
+Therefore D.RAW no longer needs one global pseudo-world origin for an arbitrary selection set.
+
+The original `RelativeWorldCoordinateHypothesisV01` remains available for compatibility, while the unified foundation uses the component-aware hypothesis for multi-view track projection.
+
+Permanent rules:
+
+- `cross_component_transform_exists=false`;
+- `disconnected_components_may_share_numeric_gauge=false`;
+- component gauge has no physical-origin authority;
+- component connectivity is not same-world proof.
+
+This also strengthens the 360°/multi-lens design: overlap can grow a graph component naturally, while unrelated observations remain separate rather than being forced into the same world.
