@@ -41,6 +41,14 @@ object GeometryDepthCandidateSolverV01 {
                 continue
             }
             val payload = record.optJSONObject("axis_payload") ?: continue
+            if (
+                record.optString("relation_evidence_class") !=
+                    "EXPLICIT_CALIBRATION_CAPTURE_RECORD" &&
+                record.optString("relation_evidence_class") !=
+                    "SEALED_CAPTURE_SESSION_PROVENANCE"
+            ) {
+                continue
+            }
             if (!payload.optBoolean("pose_relation_admitted", false)) continue
             val rs = record.optJSONArray("source_sha256_roots") ?: JSONArray()
             for (i in 0 until rs.length()) {
@@ -62,12 +70,17 @@ object GeometryDepthCandidateSolverV01 {
             val rays = ArrayList<Ray>()
             for (i in 0 until obs.length()) {
                 val o = obs.optJSONObject(i) ?: continue
-                val sha = o.optString("source_sha256")
+                val sha =
+                    o.optString("source_sha256").trim().lowercase()
                 val center = vector3(o.optJSONArray("camera_center"))
                 val direction =
                     vector3(o.optJSONArray("ray_direction"))
                         ?.let(ResearchMathV01::normalize3)
-                if (sha.isNotBlank() && center != null && direction != null) {
+                if (
+                    sha in roots.map(String::lowercase).toSet() &&
+                    center != null &&
+                    direction != null
+                ) {
                     rays += Ray(sha, center, direction)
                 }
             }
