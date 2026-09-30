@@ -101,6 +101,7 @@ class HonorPassiveRouteObserverActivity : Activity() {
 
         body.addView(space(10))
         status = label("Nog geen report.", 10f, false, Color.WHITE)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         val scroll = ScrollView(this).apply {
