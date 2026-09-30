@@ -14,6 +14,11 @@ import java.security.MessageDigest
 object CalibrationObservationRecordIdentityV01 {
     const val SCHEMA = "D.RAW/CalibrationObservationRecordIdentity/0.1"
     private const val ID_FIELD = "record_identity_sha256"
+    private val DERIVED_BINDING_FIELDS =
+        setOf(
+            "session_processing_source_sha256_roots",
+            "session_binding_status",
+        )
 
     fun normalize(record: JSONObject): JSONObject {
         val out = JSONObject(record.toString())
@@ -46,7 +51,15 @@ object CalibrationObservationRecordIdentityV01 {
                     append('{')
                     var first = true
                     for (key in keys) {
-                        if (ignoreIdentity && key == ID_FIELD) continue
+                        if (
+                            ignoreIdentity &&
+                            (
+                                key == ID_FIELD ||
+                                key in DERIVED_BINDING_FIELDS
+                            )
+                        ) {
+                            continue
+                        }
                         if (!first) append(',')
                         first = false
                         append(JSONObject.quote(key))
