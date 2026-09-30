@@ -145,7 +145,18 @@ object ScientificDenoiseAdmissionV01 {
 
         return JSONObject()
             .put("schema", SCHEMA)
-            .put("status", "SCIENTIFIC_DENOISE_ADMISSION_BLOCKED")
+            .put(
+                "status",
+                if (
+                    singleFrameAdmitted ||
+                    opticsAdmitted ||
+                    worldAdmitted
+                ) {
+                    "SCIENTIFIC_DENOISE_ADMISSION_GRANTED"
+                } else {
+                    "SCIENTIFIC_DENOISE_ADMISSION_BLOCKED"
+                },
+            )
             .put(
                 "routes",
                 JSONObject()
