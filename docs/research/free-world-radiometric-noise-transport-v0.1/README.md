@@ -308,6 +308,21 @@ Additional closure work completed:
 
 At this checkpoint there is no remaining implementation item from this recommendation wave that should be enabled without moving into the separately defined validation/promotion phase.
 
+## Practical navigation layer
+
+The app navigation now mirrors the scientific separation:
+
+- normal photography is the default path;
+- PURE / ADVANCED / PRO remain downstream view/workbench choices over the same sealed source and Scientific Master;
+- Research & JSON is a separate explicit entry rather than a permanent large pane in the normal photo workflow;
+- the Research hub provides direct relation-record import, Multi-observation access and Global Research Snapshot JSON;
+- the implementation guide explains the practical use of the new multidisciplinary candidate runtimes;
+- PRO source-bound N2/holdout/oracle/field/atlas/appearance diagnostics are shown only in explicit Research workbench mode;
+- ordinary professional exports remain visible in normal PRO mode;
+- the existing green/red status dot plus elapsed/final timer remains the invariant for tests/heavy analyses.
+
+See `UX_NAVIGATION_2026-09-30.md`.
+
 ## Test/build status
 
 By explicit instruction, this implementation was committed **without running tests, CI, Android build, device validation or promotion experiments**.
