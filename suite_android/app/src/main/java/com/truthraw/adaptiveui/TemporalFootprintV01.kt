@@ -66,6 +66,10 @@ object TemporalFootprintV01 {
             .put("observation_count", seen.size)
             .put("integration_duration_known_count", exposureKnown)
             .put("capture_time_hint_known_count", captureTimeHintKnown)
+            .put(
+                "candidate_solver",
+                "TemporalSequenceCandidateSolverV01",
+            )
             .put("physical_sequence_order_proven", false)
             .put("rolling_shutter_readout_proven", false)
             .put("motion_path_proven", false)
