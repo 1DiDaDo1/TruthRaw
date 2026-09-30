@@ -17,11 +17,24 @@ object RadiometricProfileRelationCandidateV01 {
         records: List<JSONObject>,
     ): JSONObject {
         val bySha =
-            profiles.mapNotNull { p ->
-                p.optString("source_sha256")
-                    .takeIf(String::isNotBlank)
-                    ?.let { it to p }
-            }.toMap()
+            linkedMapOf<String, JSONObject>().apply {
+                for (profile in profiles) {
+                    val processing =
+                        profile.optString("source_sha256")
+                            .trim()
+                            .lowercase()
+                    if (processing.isNotBlank()) {
+                        put(processing, profile)
+                    }
+                    val upstream =
+                        profile.optString(
+                            "upstream_sealed_source_sha256",
+                        ).trim().lowercase()
+                    if (upstream.isNotBlank()) {
+                        put(upstream, profile)
+                    }
+                }
+            }
 
         val syntheticRecords = ArrayList<JSONObject>()
         for (record in records) {
@@ -45,7 +58,10 @@ object RadiometricProfileRelationCandidateV01 {
                 continue
             }
 
-            val roots = record.optJSONArray("source_sha256_roots") ?: continue
+            val roots =
+                record.optJSONArray(
+                    "session_processing_source_sha256_roots",
+                ) ?: record.optJSONArray("source_sha256_roots") ?: continue
             val roles = record.optJSONArray("observation_roles") ?: continue
             if (roots.length() != roles.length() || roots.length() < 3) continue
 
@@ -60,7 +76,8 @@ object RadiometricProfileRelationCandidateV01 {
 
             val points = ArrayList<Point>()
             for (i in 0 until roots.length()) {
-                val sha = roots.optString(i)
+                val sha =
+                    roots.optString(i).trim().lowercase()
                 val profile = bySha[sha] ?: continue
                 val metadata = profile.optJSONObject("source_metadata") ?: JSONObject()
                 val backside =
