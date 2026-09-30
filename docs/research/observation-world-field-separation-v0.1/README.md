@@ -208,3 +208,19 @@ It deliberately reports world registration as unregistered in v0.1.
 4. Only after pair geometry is independently validated may a world-fixed vs sensor-fixed separation estimator be attempted.
 
 No correction path is authorized by this branch.
+
+
+## Android build validation
+
+The full ARM64 Android build is green.
+
+- all pull-request checks: `26/26 SUCCESS`;
+- Universal Intake run: `36685364035`;
+- artifact id: `11083343949`;
+- artifact: `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`;
+- APK bytes: `7648015`;
+- APK SHA-256: `c3e915a8ffbf428e367a48bbf946ba052f4afd01d7117928c80db3d20f811111`.
+
+The built APK was inspected and contains the v0.1 schema, UNREGISTERED world-space boundary, natural self-calibration target, deterministic classical local-feature contract, and Android export label.
+
+This closes the software/build gate only. The next gate is a real-device JSON export from a multi-observation set.
