@@ -136,8 +136,8 @@ object FreeWorldCapabilityMatrixV01 {
         )
         capability(
             "SCIENTIFIC_NOISE_TRANSPORT",
-            "RUNTIME_CONTRACT_IMPLEMENTED",
-            "NO_NUMERIC_COVARIANCE_OR_PSD_TRANSPORT_APPLIED",
+            "DETERMINISTIC_NUMERIC_PRIMITIVES_IMPLEMENTED",
+            "COVARIANCE_MATH_AVAILABLE_BUT_NOT_PHYSICALLY_VALIDATED_OR_APPLIED",
             false,
             true,
         )
