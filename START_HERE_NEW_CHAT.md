@@ -1,3 +1,33 @@
+# D.RAW — FINAL GREEN PREVALIDATION HANDOFF — 2026-09-30
+
+**PR #101 safe prevalidation architecture is COMPLETE.**
+
+Final green source-code head: `64396e30d375c4bca11473214679091d9a280292`
+
+Green result: **27/27 PR checks success, 0 failed**, including Suite Universal Intake, Universal Physical Capture, Android DngCreator Compatibility and Free World Observation Geometry Foundation integrity.
+
+Latest green Suite artifact:
+- ID `11089749606`
+- `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+- APK SHA-256 `1abe28d53048337ee614f7369e60edcfb2ca94f702bb647c451b737c97b8706c`
+- APK size `7,861,007` bytes
+
+Two final compile-only syntax defects were found and fixed before the green build:
+- `FieldResponseSeparationCandidateSetV01.kt` missing final object brace;
+- `FreeWorldContinuousQueryPlannerV01.kt` missing final object brace.
+
+Read first in every successor chat:
+1. `state/FREE_WORLD_PREVALIDATION_FINAL_HANDOFF_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/FINAL_HANDOFF_2026-09-30.md`
+3. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+
+Do not rebuild this architecture from scratch. The prevalidation implementation objective is complete. Further phone work is only for later physical validation/promotion when the user explicitly asks to continue.
+
+Permanent law remains:
+**MEASURED != RECONSTRUCTED != APPEARANCE. Seal the evidence, not the thinking.**
+
+---
+
 # D.RAW — PREVALIDATION ARCHITECTURE CLOSURE REFRESH — 2026-09-30
 
 The user explicitly said **do not stop for a phone test; continue and finish the safe implementation wave now**.
