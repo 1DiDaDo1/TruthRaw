@@ -110,7 +110,7 @@ object FreeWorldObservationGeometryFoundationV01 {
         val calibrationBinding =
             CalibrationObservationSessionBindingV01.bind(
                 profiles = profiles,
-                records = boundCalibrationRecords,
+                records = calibrationRecords,
             )
         val boundCalibrationRecords =
             calibrationBinding.records
@@ -133,7 +133,7 @@ object FreeWorldObservationGeometryFoundationV01 {
         val repeatedSparseGridNoiseCandidate =
             RepeatedSparseGridNoiseCandidateV01.evaluate(
                 profiles = profiles,
-                records = calibrationRecords,
+                records = boundCalibrationRecords,
             )
         val sparseGridNoiseModelCandidate =
             SparseGridNoiseModelCandidateV01.evaluate(
