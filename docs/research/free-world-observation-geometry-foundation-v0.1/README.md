@@ -393,3 +393,181 @@ Foundation exports are recursively audited before they may be written.
 The firewall blocks any research bundle that accidentally sets a prohibited promotion flag such as world-registration promotion, camera-system response proof, calibration, correction, deconvolution, multi-frame Scientific Master fusion, creation of new evidence or scientific writeback.
 
 This converts the research/non-promotion rule from documentation into executable runtime enforcement.
+
+
+### 19. Multi-observation feature-track hypotheses v0.1
+
+`FreeWorldFeatureTrackHypothesesV01.kt`
+
+Robust inlier matches from pair geometry are now assembled into deterministic cross-observation track hypotheses.
+
+Each member remains identified by:
+
+- sealed source SHA-256;
+- local feature index;
+- normalized frontside coordinates.
+
+Tracks spanning two or more observations are reported explicitly. Tracks that accidentally contain multiple different features from the same observation are **not silently repaired or discarded**; the conflict remains visible in the report.
+
+A track remains:
+
+`APPEARANCE_DERIVED_TRACK_HYPOTHESIS_ONLY`
+
+and never proves that its members are one physical world point.
+
+### 20. Observation graph cycle-consistency audit v0.1
+
+`ObservationGraphCycleConsistencyV01.kt`
+
+For every available three-observation closed triangle, D.RAW now compares:
+
+`direct A→C`
+
+against:
+
+`A→B→C`
+
+over a fixed set of normalized canonical points.
+
+The report exposes closure RMS and maximum discrepancy.
+
+There is deliberately no automatic pass threshold or registration winner. A small loop error is useful evidence for later validation design but is not same-world proof.
+
+### 21. Relative-world feature-track projection v0.1
+
+`RelativeWorldFeatureTrackProjectionV01.kt`
+
+Feature-track members can now be projected through the current relative graph-gauge transforms.
+
+For each track the runtime reports:
+
+- projected members;
+- graph-gauge centroid;
+- RMS dispersion;
+- maximum dispersion;
+- missing-transform count.
+
+The graph gauge remains numeric convenience only. Low dispersion does not promote a world point or world registration.
+
+### 22. Geometry validation readiness v0.1
+
+`GeometryValidationReadinessV01.kt`
+
+D.RAW now summarizes, without thresholds:
+
+- number of pair-geometry candidates;
+- multi-observation tracks;
+- tracks spanning three or more observations;
+- closed graph cycles;
+- projected feature tracks;
+- visible track conflicts;
+- descriptive cycle and track residuals.
+
+It also permanently records which later physical gates are still required: overlap, cross-focal-length, rotation, graph loops, held-out observations and world-vs-sensor separation.
+
+### 23. Free World query-support ledger v0.1
+
+`FreeWorldQuerySupportLedgerV01.kt`
+
+Every sealed observation now exposes what it could eventually contribute to a continuous query:
+
+- sample-lattice availability;
+- measured sensor-field availability;
+- frontside local geometry availability;
+- capture-time metadata hint;
+- exact-query-support resolver state.
+
+The ledger never fabricates support. Unsupported world queries must remain UNKNOWN.
+
+### 24. Exact source-lattice measured-anchor resolver v0.1
+
+`SourceLatticeExactAnchorResolverV01.kt`
+
+The raster-independent 20-bit lattice now has an executable exact-anchor semantic resolver.
+
+A query can be MEASURED only when:
+
+1. its lattice U/V coordinates are exact multiples of the source-pixel lattice unit;
+2. an admitted `MeasuredAnchorProviderV01` returns the exact source coordinate;
+3. source coordinate and source SHA binding agree.
+
+Any position between source anchors returns UNKNOWN.
+
+No interpolation is performed.
+
+This is deliberately a **source-lattice** resolver, not a world solver.
+
+### 25. Free World ↔ source-lattice bridge contract v0.1
+
+`FreeWorldSourceLatticeBridgeContractV01.kt`
+
+The boundary between world coordinates and exact source-lattice coordinates is now explicit.
+
+A future world query may reach a measured anchor only through a validated explicit world-to-source relation with uncertainty.
+
+The following are insufficient by themselves:
+
+- appearance pair geometry;
+- relative graph gauge;
+- camera/lens identity;
+- stitched panorama geometry.
+
+Current status remains:
+
+`world_to_source_bridge_admitted=false`
+
+### 26. Calibration Observation Record validator v0.1
+
+`CalibrationObservationRecordValidatorV01.kt`
+
+Optional calibration records now have an executable fail-closed validator.
+
+It checks:
+
+- supported axis scope;
+- unique 64-hex source SHA roots;
+- one observation role per source root;
+- setup description;
+- allowed relation-evidence class;
+- explicit uncertainty;
+- validation status;
+- absence of camera/lens/vendor/device-profile identity keys.
+
+A valid record is still only a valid record. Record validation never promotes calibration and never authorizes correction.
+
+### 27. Expanded research promotion firewall
+
+The recursive firewall now also blocks accidental activation of:
+
+- registration promotion;
+- world-point estimate promotion;
+- deconvolution application;
+- inverse-optics authorization;
+- automatic colour correction;
+- temporal fusion;
+- restoration application.
+
+This lets the implementation wave continue further while keeping the scientific output fail-closed.
+
+## Implementation-wave checkpoint
+
+At this point all architecture items previously enumerated for the pre-validation wave have executable runtime code or a typed/runtime contract:
+
+- local geometry;
+- pair geometry;
+- multi-view tracks;
+- graph/cycle diagnostics;
+- relative world hypotheses;
+- multi-lens/360/stop-motion campaigns;
+- Natural Self-Calibration axes;
+- world-vs-sensor separation scaffold;
+- optics/colour/temporal contracts;
+- uncertainty transport;
+- exact source-lattice anchor semantics;
+- Free World query ABI and world/source bridge boundary;
+- restoration authority;
+- view/appearance separation;
+- calibration record validation;
+- promotion firewall.
+
+Physical truth is intentionally **not** promoted merely because the architecture now exists.
