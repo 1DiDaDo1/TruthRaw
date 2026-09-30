@@ -26,13 +26,45 @@ object TemporalSequenceCandidateSolverV01 {
             ) {
                 continue
             }
-            val rs = record.optJSONArray("source_sha256_roots") ?: JSONArray()
+            val rs =
+                record.optJSONArray("source_sha256_roots") ?: JSONArray()
+            val processingRs =
+                record.optJSONArray(
+                    "session_processing_source_sha256_roots",
+                ) ?: JSONArray()
+            val recordRoots = linkedSetOf<String>()
             for (i in 0 until rs.length()) {
-                rs.optString(i).takeIf(String::isNotBlank)?.let(roots::add)
+                rs.optString(i)
+                    .trim()
+                    .lowercase()
+                    .takeIf(String::isNotBlank)
+                    ?.let {
+                        roots += it
+                        recordRoots += it
+                    }
+            }
+            for (i in 0 until processingRs.length()) {
+                processingRs.optString(i)
+                    .trim()
+                    .lowercase()
+                    .takeIf(String::isNotBlank)
+                    ?.let {
+                        roots += it
+                        recordRoots += it
+                    }
             }
             val payload = record.optJSONObject("axis_payload") ?: continue
             val arr = payload.optJSONArray("observations") ?: continue
-            for (i in 0 until arr.length()) arr.optJSONObject(i)?.let(observations::add)
+            for (i in 0 until arr.length()) {
+                val observation = arr.optJSONObject(i) ?: continue
+                val sha =
+                    observation.optString("source_sha256")
+                        .trim()
+                        .lowercase()
+                if (sha !in recordRoots) continue
+                observation.put("source_sha256", sha)
+                observations += observation
+            }
         }
 
         if (observations.size < 2) {
