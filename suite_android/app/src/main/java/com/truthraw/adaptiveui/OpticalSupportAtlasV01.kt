@@ -46,6 +46,14 @@ object OpticalSupportAtlasV01 {
                 "scientific_support_propagation_minimum_authority",
                 "CALIBRATED_ESTIMATE_OR_MEASURED_ONLY",
             )
+            .put(
+                "optical_frequency_support_policy",
+                JSONObject()
+                    .put("output_raster_density_equals_optical_resolution", false)
+                    .put("inverse_optics_requires_noise_transport", true)
+                    .put("near_zero_transfer_may_be_blindly_inverted", false)
+                    .put("field_and_focus_dependence_must_be_preserved", true),
+            )
             .put("sfr_measurement_attached", false)
             .put("mtf_measurement_attached", false)
             .put("psf_measurement_attached", false)
