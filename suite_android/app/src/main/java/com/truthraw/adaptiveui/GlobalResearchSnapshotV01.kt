@@ -86,16 +86,30 @@ object GlobalResearchSnapshotV01 {
                     .put("NOISE_SPECTRUM_NPS")
                     .put("FIELD_RESPONSE_WORLD_SENSOR_SEPARATION")
                     .put("OPTICAL_SUPPORT_SFR_MTF_PSF")
+                    .put("NOISE_OPTICS_JOINT_CANDIDATE")
                     .put("NOISE_AWARE_INVERSE_OPTICS")
                     .put("COLOUR_RELATION_MULTI_ILLUMINANT")
+                    .put("COLOUR_COVARIANCE_J_C_JT_TRANSPORT")
                     .put("TEMPORAL_SEQUENCE_AND_READOUT")
                     .put("GEOMETRY_DEPTH_VISIBILITY_CANDIDATES")
                     .put("WORLD_SPACE_RESIDUAL_SEPARATION")
                     .put("UNCERTAINTY_WEIGHTED_RECONSTRUCTION")
+                    .put("TYPED_INTERNAL_PROMOTION_STATE")
+                    .put("VALIDATED_WORLD_TO_SOURCE_PROMOTION_BRIDGE")
                     .put("GATED_SCIENTIFIC_DENOISE")
                     .put(
                         "PERCEPTUAL_NOISE_VISIBILITY_APPEARANCE",
                     ),
+            )
+            .put(
+                "provenance_and_record_binding",
+                JSONObject()
+                    .put("physical_rawsensor_to_processing_dng_lineage", true)
+                    .put("processing_dng_is_second_physical_frame", false)
+                    .put("canonical_calibration_record_identity", true)
+                    .put("records_must_bind_active_session_roots", true)
+                    .put("physical_and_derived_alias_double_count_allowed", false)
+                    .put("cross_session_candidate_record_use_allowed", false),
             )
             .put(
                 "session_capability_matrix_location",
@@ -137,7 +151,10 @@ object GlobalResearchSnapshotV01 {
             .put(
                 "validation_state",
                 JSONObject()
-                    .put("new_multidisciplinary_wave_built", false)
+                    .put(
+                        "build_status_authority",
+                        "EXTERNAL_CI_ARTIFACT_STATE_NOT_EMBEDDED_IN_SCIENTIFIC_SNAPSHOT",
+                    )
                     .put(
                         "new_multidisciplinary_wave_device_validated",
                         false,
