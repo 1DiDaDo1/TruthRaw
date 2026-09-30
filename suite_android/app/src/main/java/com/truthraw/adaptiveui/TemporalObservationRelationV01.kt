@@ -48,6 +48,10 @@ object TemporalObservationRelationV01 {
                 timeHintCount,
             )
             .put(
+                "temporal_footprint_contract",
+                "D.RAW/TemporalFootprint/0.1",
+            )
+            .put(
                 "physical_sequence_relation_proven",
                 false,
             )
@@ -56,6 +60,8 @@ object TemporalObservationRelationV01 {
                 false,
             )
             .put("motion_path_proven", false)
+            .put("occlusion_time_relation_proven", false)
+            .put("exposure_integration_is_not_instantaneous_sample", true)
             .put(
                 "synthetic_frame_counts_as_physical_evidence",
                 false,
