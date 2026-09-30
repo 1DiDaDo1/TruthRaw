@@ -96,6 +96,7 @@ object FreeWorldObservationGraphV01 {
 
         val profileList = unique.values.toList()
         val edges = JSONArray()
+        val edgeIdentityParts = ArrayList<String>()
         var candidateCount = 0
         for (i in profileList.indices) {
             for (j in i + 1 until profileList.size) {
@@ -122,6 +123,18 @@ object FreeWorldObservationGraphV01 {
                 ) {
                     candidateCount++
                 }
+                val leftSha = left.optString("source_sha256")
+                val rightSha = right.optString("source_sha256")
+                val candidateMatrix =
+                    pair.optJSONObject("geometry_candidate")
+                        ?.optJSONArray("left_to_right_matrix_2x3")
+                        ?.toString() ?: "NONE"
+                edgeIdentityParts +=
+                    leftSha + ">" + rightSha + ":" +
+                        pair.optString("status", "UNKNOWN") + ":" +
+                        candidateMatrix + ":" +
+                        pair.optJSONObject("geometry_candidate")
+                            ?.optString("rms_residual_normalized", "UNKNOWN")
                 edges.put(
                     JSONObject()
                         .put(
@@ -166,7 +179,8 @@ object FreeWorldObservationGraphV01 {
         val graphIdentity =
             sha256(
                 roots.joinToString("|") +
-                    "|candidateEdges=" + candidateCount,
+                    "|edges=" +
+                    edgeIdentityParts.sorted().joinToString("|"),
             )
 
         return JSONObject()
