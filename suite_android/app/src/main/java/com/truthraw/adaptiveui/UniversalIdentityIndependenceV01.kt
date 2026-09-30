@@ -56,3 +56,4 @@ object UniversalIdentityIndependenceV01 {
             .put("vendor_mapping_required", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+}
