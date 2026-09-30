@@ -24,6 +24,13 @@ Implemented now, without claiming physical promotion:
 - downstream View/Appearance boundary for human-vision/display/film-cinema rendering;
 - relation-based Calibration Observation Record contract;
 - mechanical recursive Research Promotion Firewall on foundation exports;
+- multi-observation feature tracks + graph-cycle consistency diagnostics;
+- relative-world feature-track projection with explicit dispersion;
+- exact measured-anchor resolver on the 20-bit source lattice; unanchored positions stay UNKNOWN;
+- explicit Free World↔source-lattice bridge boundary; appearance geometry cannot admit that bridge;
+- fail-closed Free World query runtime that returns UNKNOWN until scientific bridge/solver admission;
+- Calibration Observation Record validator;
+- machine-readable Free World Capability Matrix separating implementation from scientific promotion;
 - unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
 
 Permanent firewall:
@@ -44,7 +51,7 @@ Read first:
 2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
 3. Parent PR100 state + PR99 field-repeatability real-device result.
 
-Next gate is a green full Android build. After that the architecture wave can continue further before any promotion-oriented phone validation is required.
+The previously enumerated safe pre-validation architecture set is now implemented as executable code or explicit runtime contracts. Next gate is integrity + a green full Android build and compile repair only. No phone test is required merely to preserve these ideas; bundled physical validation comes later when scientific promotion is considered.
 
 ---
 
