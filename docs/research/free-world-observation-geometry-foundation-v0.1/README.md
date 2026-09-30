@@ -707,3 +707,77 @@ The model bank is now applied read-only to every candidate edge in the observati
 This allows later bundled device validation to compare whether ordinary overlap, cross-focal-length overlap, rotation sequences and 360° sequences favour different *candidate* geometry families without changing current authority.
 
 There is no automatic ranking, no correction and no world-registration promotion.
+
+
+### 30. Bundled physical-validation campaign contract
+
+`BundledPhysicalValidationCampaignV01.kt`
+
+The later physical test campaign is now preserved in code so it cannot be lost between chats.
+
+It contains separate future gates for:
+
+- same-route natural overlap;
+- cross-optical-route overlap;
+- rotation sequences;
+- original-RAW 360° sequences;
+- optional controlled field rotations;
+- colour under multiple characterized illuminants;
+- optical SFR/MTF/PSF support;
+- dark/noise/offset observations;
+- temporal/rolling-shutter relations.
+
+Every gate starts `performed=false`, `passed=false`, `promoted=false`.
+
+The contract does not require normal users to calibrate their camera and does not use camera/lens identity as the relation key.
+
+### 31. Scientific promotion-gate registry v0.1
+
+`ScientificPromotionGateRegistryV01.kt`
+
+The project now records what future evidence is required before candidate machinery may move toward:
+
+- world registration;
+- a world→source bridge;
+- field-response calibration;
+- colour calibration;
+- optical-support calibration;
+- dark/noise calibration;
+- temporal relations;
+- a continuous Free World solver;
+- any scientific correction/writeback.
+
+The registry is descriptive and versionable. It never grants promotion automatically.
+
+### 32. Evidence lineage manifest v0.1
+
+`FreeWorldEvidenceLineageManifestV01.kt`
+
+Every foundation export can now bind its independent sealed source SHA roots to the derived graph state.
+
+Derived graph or manifest hashes are explicitly **not** physical evidence roots.
+
+This preserves the rule:
+
+> One Free World may relate many sealed observations without merging their evidence identity.
+
+### 33. Android compiler-memory repair
+
+The first full compile after the architecture expansion exposed a build-system limit rather than a scientific failure: the Kotlin JVM bytecode optimizer exhausted its default CI heap while compiling the already-large D.RAW suite.
+
+`suite_android/gradle.properties` now gives the Suite build one bounded 5 GiB Gradle/Kotlin in-process heap and disables competing Gradle parallel/daemon behavior.
+
+This changes build execution only. It does not alter RAW values, scientific algorithms, authority, runtime precision or export semantics.
+
+## Pre-validation architecture implementation complete
+
+The implementation-first objective is now complete in code.
+
+All major ideas identified for the no-phone-test implementation wave either have:
+
+- executable read-only machinery;
+- an explicit typed/runtime contract;
+- a fail-closed placeholder that returns UNKNOWN;
+- or a machine-readable future validation gate.
+
+The project must now pass one final full Android compile/artifact gate. A successful compile does **not** promote any scientific candidate; it only proves the integrated implementation builds.
