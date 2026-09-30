@@ -52,7 +52,19 @@ Important permanent boundaries:
 
 The later physical validation design is preserved in `BundledPhysicalValidationCampaignV01`; it does **not** require normal users to perform camera-specific calibration.
 
-The first full compile after this expansion hit a Kotlin compiler GC-overhead OOM. This was a build-memory limit, not a scientific failure. `suite_android/gradle.properties` now uses a bounded 5 GiB in-process Kotlin/Gradle heap. The next required gate is a final green ARM64 Android build/artifact. If that build fails, repair integration/build issues only; do not weaken the evidence/promotion boundaries to make it pass.
+The first full compile after this expansion hit a Kotlin compiler GC-overhead OOM. This was a build-memory limit, not a scientific failure. `suite_android/gradle.properties` now uses a bounded 5 GiB in-process Kotlin/Gradle heap. The final ARM64 Android compile gate is now **GREEN** on source-code head `56a4498ae68ebc74e66834b82468573d0242f9f0`: **27/27 PR checks succeeded, 0 failed**.
+
+Green heavy Android runs:
+- Suite Universal Intake: `36698311586`
+- Universal Physical Capture: `36698311253`
+- Android DngCreator Compatibility: `36698311530`
+
+Green Suite artifact:
+- artifact id: `11088856561`
+- APK SHA-256: `d42ea61b2ef811481df490e2e4b972ca0fd73aa868b0e2b1caa8831d41fb121f`
+- APK size: `7844623` bytes
+
+The prevalidation architecture-preservation objective is complete. The next meaningful scientific phase is the already-preserved bundled physical-validation campaign; do not promote registration, calibration, correction, deconvolution, temporal fusion, restoration, or Scientific Master writeback without the required evidence.
 
 ---
 

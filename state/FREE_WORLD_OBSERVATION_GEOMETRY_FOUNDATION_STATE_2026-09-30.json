@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "PREVALIDATION_SAFE_ARCHITECTURE_IMPLEMENTATION_COMPLETE_AWAITING_FINAL_GREEN_ANDROID_BUILD",
+  "status": "PREVALIDATION_ARCHITECTURE_CHECKPOINT_COMPLETE_GREEN",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -160,7 +160,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "FINAL_GREEN_ANDROID_COMPILE_AND_ARTIFACT; AFTER THAT PREVALIDATION_ARCHITECTURE_CHECKPOINT_IS COMPLETE",
+  "next_gate": "BUNDLED_PHYSICAL_VALIDATION_ONLY_WHEN_READY; DO_NOT_ADD_SCIENTIFIC_PROMOTION_WITHOUT_EVIDENCE",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -284,5 +284,29 @@
     "kotlin_compiler_execution_strategy": "in-process",
     "scientific_runtime_behavior_changed": false,
     "reason": "CI Kotlin compiler GC-overhead OutOfMemoryError"
+  },
+  "final_green_checkpoint": {
+    "source_code_head_sha": "56a4498ae68ebc74e66834b82468573d0242f9f0",
+    "handoff_integrity_head_before_final_metadata": "feaf98d57d665f18f18276baedc93a566bc1001f",
+    "pull_request": 101,
+    "source_code_head_pull_request_checks_total": 27,
+    "source_code_head_pull_request_checks_success": 27,
+    "source_code_head_pull_request_checks_failed": 0,
+    "suite_universal_intake_run_id": 36698311586,
+    "universal_physical_capture_run_id": 36698311253,
+    "android_dngcreator_compatibility_run_id": 36698311530,
+    "suite_artifact": {
+      "artifact_id": 11088856561,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+      "apk_sha256": "d42ea61b2ef811481df490e2e4b972ca0fd73aa868b0e2b1caa8831d41fb121f",
+      "apk_size_bytes": 7844623
+    },
+    "build_memory_fix": {
+      "path": "suite_android/gradle.properties",
+      "gradle_max_heap": "5g",
+      "kotlin_compiler_execution_strategy": "in-process",
+      "reason": "KOTLIN_CODEGEN_GC_OVERHEAD_LIMIT_ON_EXPANDED_SUITE",
+      "scientific_runtime_semantics_changed": false
+    }
   }
 }
