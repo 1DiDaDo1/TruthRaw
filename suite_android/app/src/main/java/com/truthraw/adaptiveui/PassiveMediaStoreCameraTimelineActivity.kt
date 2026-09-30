@@ -109,6 +109,7 @@ class PassiveMediaStoreCameraTimelineActivity : Activity() {
         body.addView(space(8))
 
         status = label("Nog geen v0.42 report.", 10f, false)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         return ScrollView(this).apply {
