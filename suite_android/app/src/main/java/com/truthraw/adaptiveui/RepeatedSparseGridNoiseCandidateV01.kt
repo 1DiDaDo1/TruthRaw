@@ -25,11 +25,24 @@ object RepeatedSparseGridNoiseCandidateV01 {
         records: List<JSONObject>,
     ): JSONObject {
         val bySha =
-            profiles.mapNotNull { p ->
-                p.optString("source_sha256")
-                    .takeIf(String::isNotBlank)
-                    ?.let { it to p }
-            }.toMap()
+            linkedMapOf<String, JSONObject>().apply {
+                for (profile in profiles) {
+                    val processing =
+                        profile.optString("source_sha256")
+                            .trim()
+                            .lowercase()
+                    if (processing.isNotBlank()) {
+                        put(processing, profile)
+                    }
+                    val upstream =
+                        profile.optString(
+                            "upstream_sealed_source_sha256",
+                        ).trim().lowercase()
+                    if (upstream.isNotBlank()) {
+                        put(upstream, profile)
+                    }
+                }
+            }
 
         val sets = JSONArray()
         var usableSetCount = 0
@@ -58,10 +71,17 @@ object RepeatedSparseGridNoiseCandidateV01 {
             val kind = payload.optString("observation_kind").uppercase()
             if (kind !in setOf("DARK", "FLAT", "REPEATED_SCENE")) continue
 
-            val roots = record.optJSONArray("source_sha256_roots") ?: continue
+            val roots =
+                record.optJSONArray(
+                    "session_processing_source_sha256_roots",
+                ) ?: record.optJSONArray("source_sha256_roots") ?: continue
             val sourceRoots = ArrayList<String>()
             for (i in 0 until roots.length()) {
-                roots.optString(i).takeIf(String::isNotBlank)?.let(sourceRoots::add)
+                roots.optString(i)
+                    .trim()
+                    .lowercase()
+                    .takeIf(String::isNotBlank)
+                    ?.let(sourceRoots::add)
             }
             if (sourceRoots.size < 2) continue
 
