@@ -12,6 +12,8 @@ The previous green checkpoint remains valid. A final closure layer has now also 
 
 These additions do not promote any physical interpretation. Their purpose is to preserve the remaining architecture and prevent future chats from turning missing information into defaults or confusing implementation with evidence.
 
+Formal closure object: `PrevalidationArchitectureClosureV01`. A PASS means only `SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED`; it is not physical validation or scientific promotion.
+
 Current gate: rebuild PR101. If green, freeze this as the final prevalidation architecture handoff. Do not require a phone test merely to preserve these modules.
 
 ---
