@@ -102,13 +102,83 @@ class TruthRawSuiteLauncherActivity : Activity() {
         }
 
         root.addView(header())
-        root.addView(space(if (compactHeight) 12 else 20))
-        root.addView(title("Kies route", if (compactHeight) 24f else 27f))
-        root.addView(body("Kies welke view je uit dezelfde verzegelde bron wilt opbouwen. Evidence-authority blijft upstream vast.", if (compactHeight) 12.5f else 14f))
-        root.addView(space(10))
+        root.addView(space(if (compactHeight) 12 else 18))
 
         val selected = preferredOutput()
         val routeUi = DrawRouteLogic.forMode(selected)
+
+        root.addView(title("Start foto", if (compactHeight) 24f else 27f))
+        root.addView(
+            body(
+                "Gebruik de actieve route voor een bestaand RAW/DNG-bestand of een nieuwe fysieke RAW-opname. De route verandert alleen de downstream view; dezelfde sealed source en Scientific Master blijven upstream.",
+                if (compactHeight) 12.3f else 13.5f,
+            ),
+        )
+        root.addView(space(9))
+        root.addView(infoStrip(selected))
+        root.addView(space(if (compactHeight) 9 else 12))
+
+        root.addView(horizontal().apply {
+            addView(
+                inputCard(
+                    iconRes = R.drawable.ic_folder_truthraw,
+                    titleText = "Bestand",
+                    subtitleText = routeUi.fileInputSubtitle,
+                    accent = blue,
+                    fill = DrawVisualTheme.PAPER_BLUE,
+                ) {
+                    startActivity(
+                        Intent(
+                            this@TruthRawSuiteLauncherActivity,
+                            MainActivity::class.java,
+                        ).apply {
+                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                            putExtra(
+                                MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER,
+                                true,
+                            )
+                        },
+                    )
+                },
+                LinearLayout.LayoutParams(
+                    0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1f,
+                ).apply { marginEnd = dp(6) },
+            )
+            addView(
+                inputCard(
+                    iconRes = R.drawable.ic_camera_truthraw,
+                    titleText = "Camera",
+                    subtitleText = routeUi.cameraInputSubtitle,
+                    accent = cyan,
+                    fill = DrawVisualTheme.PAPER_MINT,
+                ) {
+                    startActivity(
+                        Intent(
+                            this@TruthRawSuiteLauncherActivity,
+                            UniversalPhysicalCaptureActivity::class.java,
+                        ),
+                    )
+                },
+                LinearLayout.LayoutParams(
+                    0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1f,
+                ).apply { marginStart = dp(6) },
+            )
+        })
+
+        root.addView(space(if (compactHeight) 16 else 22))
+        root.addView(title("Route wijzigen", if (compactHeight) 22f else 25f))
+        root.addView(
+            body(
+                "PURE, ADVANCED en PRO delen dezelfde evidence-bound kern. Kies hier welke view en werkbank je wilt gebruiken.",
+                if (compactHeight) 12f else 13f,
+            ),
+        )
+        root.addView(space(9))
+
         root.addView(routeCard(
             titleText = "D.RAW PURE",
             subtitleText = "Scientific View · evidence-constrained",
@@ -129,15 +199,12 @@ class TruthRawSuiteLauncherActivity : Activity() {
         root.addView(space(9))
         root.addView(routeCard(
             titleText = "D.RAW PRO",
-            subtitleText = "Open Scene / Light Transport",
-            detail = "Continuous Field · Deep Scene · geometry/radiometry authority · light transport · provenance · display resolve.",
+            subtitleText = "Open Scene / Research / Professional",
+            detail = "Open Scene · provenance · exports · Free World research-candidates. Meer gereedschap, nooit automatisch sterkere evidence.",
             accent = purple,
             fill = DrawVisualTheme.PAPER_PURPLE,
             selected = selected == OUTPUT_PRO,
         ) { setPreferredOutput(OUTPUT_PRO) })
-
-        root.addView(space(10))
-        root.addView(infoStrip(selected))
 
         if (selected == OUTPUT_ADVANCED || selected == OUTPUT_PRO) {
             root.addView(space(8))
@@ -145,54 +212,50 @@ class TruthRawSuiteLauncherActivity : Activity() {
                 startActivity(
                     Intent(
                         this,
-                        if (selected == OUTPUT_ADVANCED) TruthRawAdvancedActivity::class.java
-                        else TruthRawProActivity::class.java,
+                        if (selected == OUTPUT_ADVANCED) {
+                            TruthRawAdvancedActivity::class.java
+                        } else {
+                            TruthRawProActivity::class.java
+                        },
                     ),
                 )
             })
         }
 
-        root.addView(space(if (compactHeight) 16 else 24))
-        root.addView(title("Kies invoer", if (compactHeight) 24f else 27f))
-        root.addView(body("Waar komt je foto vandaan?", if (compactHeight) 13.5f else 15f))
-        root.addView(space(if (compactHeight) 8 else 12))
-        root.addView(horizontal().apply {
-            addView(
-                inputCard(
-                    iconRes = R.drawable.ic_folder_truthraw,
-                    titleText = "Bestand",
-                    subtitleText = routeUi.fileInputSubtitle,
-                    accent = blue,
-                    fill = DrawVisualTheme.PAPER_BLUE,
-                ) {
-                    startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                        putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
-                    })
-                },
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) },
+        root.addView(space(if (compactHeight) 16 else 22))
+        root.addView(title("Onderzoek & kennis", if (compactHeight) 22f else 25f))
+        root.addView(
+            body(
+                "Gebruik dit alleen wanneer je multi-observation, calibration-records, diagnostische JSON of de huidige implementatiestatus wilt inspecteren.",
+                if (compactHeight) 12f else 13f,
+            ),
+        )
+        root.addView(space(8))
+        root.addView(action("Research & JSON · centrale werkbank") {
+            startActivity(
+                Intent(
+                    this@TruthRawSuiteLauncherActivity,
+                    TruthRawResearchHubActivity::class.java,
+                ),
             )
-            addView(
-                inputCard(
-                    iconRes = R.drawable.ic_camera_truthraw,
-                    titleText = "Camera",
-                    subtitleText = routeUi.cameraInputSubtitle,
-                    accent = cyan,
-                    fill = DrawVisualTheme.PAPER_MINT,
-                ) {
-                    startActivity(
-                        Intent(
-                            this@TruthRawSuiteLauncherActivity,
-                            UniversalPhysicalCaptureActivity::class.java,
-                        ),
-                    )
-                },
-                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) },
+        })
+        root.addView(space(8))
+        root.addView(action("Wat is geïmplementeerd en hoe gebruik ik het?") {
+            startActivity(
+                Intent(
+                    this@TruthRawSuiteLauncherActivity,
+                    TruthRawImplementationGuideActivity::class.java,
+                ),
             )
         })
 
         root.addView(space(if (compactHeight) 14 else 18))
-        root.addView(DrawVisualTheme.brandFooter(this, if (compactHeight) 82 else 94))
+        root.addView(
+            DrawVisualTheme.brandFooter(
+                this,
+                if (compactHeight) 82 else 94,
+            ),
+        )
 
         return ScrollView(this).apply {
             isFillViewport = true
@@ -200,7 +263,12 @@ class TruthRawSuiteLauncherActivity : Activity() {
             setBackgroundColor(backgroundColor)
             setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                view.setPadding(
+                    bars.left,
+                    bars.top,
+                    bars.right,
+                    bars.bottom,
+                )
                 insets
             }
             addView(root)
