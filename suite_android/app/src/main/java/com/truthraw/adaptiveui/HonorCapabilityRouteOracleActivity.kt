@@ -82,6 +82,7 @@ class HonorCapabilityRouteOracleActivity : Activity() {
 
         body.addView(space(10))
         status = label("Nog geen v0.46 report.", 10f, false)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         return ScrollView(this).apply {
