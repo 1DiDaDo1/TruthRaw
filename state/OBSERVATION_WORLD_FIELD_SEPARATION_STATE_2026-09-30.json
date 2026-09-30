@@ -1,0 +1,88 @@
+{
+  "schema": "D.RAW/ObservationWorldFieldSeparationState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/observation-world-field-separation-v01-2026-09-30",
+  "parent_branch": "research/field-response-repeatability-v01-2026-09-30",
+  "parent_pr": 99,
+  "status": "IMPLEMENTED_COORDINATE_AUTHORITY_FOUNDATION_AWAITING_BUILD_VALIDATION",
+  "purpose": "SEPARATE_SOURCE_SENSOR_WORLD_SCENE_AND_VIEW_OUTPUT_SPACES_BEFORE_NATURAL_SELF_CALIBRATION",
+  "coordinate_spaces": {
+    "source_sensor_space": {
+      "measured_authority_allowed_when_supported": true,
+      "camera_identity_required": false,
+      "lens_identity_required": false,
+      "world_scene_content_removed": false
+    },
+    "world_scene_space": {
+      "registration_status": "UNREGISTERED_V0_1",
+      "automatic_pair_matching_implemented": false,
+      "same_world_structure_proven": false,
+      "absolute_metric_scale_proven": false,
+      "camera_holder_is_world_origin": false,
+      "panorama_center_is_calibration_origin": false,
+      "user_identity_or_position_required": false
+    },
+    "view_output_space": {
+      "may_define_sensor_calibration": false,
+      "may_create_measured_evidence": false,
+      "stitched_panorama_is_source_evidence": false
+    }
+  },
+  "natural_self_calibration": {
+    "target": "SEPARATE_WORLD_FIXED_FROM_SENSOR_FIXED_FIELD_BEHAVIOUR",
+    "normal_user_calibration_required": false,
+    "flat_field_required_for_normal_use": false,
+    "camera_or_lens_name_used_as_key": false,
+    "natural_overlapping_observations_allowed": true,
+    "360_observation_sequence_allowed": true,
+    "single_stitched_360_image_sufficient": false,
+    "original_individual_observations_required_for_measured_authority": true,
+    "automatic_world_registration_available": false
+  },
+  "controlled_validation": {
+    "flat_field_rotation_experiment_optional": true,
+    "purpose": "METHOD_VALIDATION_ONLY_NOT_USER_REQUIREMENT",
+    "preferred_orientation_degrees": [0, 90, 180, 270],
+    "result_may_be_hardcoded_by_device_name": false
+  },
+  "future_registration_contract": {
+    "algorithm_family": "DETERMINISTIC_CLASSICAL_LOCAL_FEATURE_GEOMETRY",
+    "ai_ml_neural_generative_allowed": false,
+    "structural_signature_hash_is_registration_proof": false,
+    "dominant_edge_orientation_is_registration_proof": false,
+    "visual_similarity_is_relation_proof": false,
+    "pair_geometry_must_be_explicit_and_inspectable": true,
+    "outlier_rejection_must_be_deterministic": true,
+    "registration_uncertainty_required": true
+  },
+  "promotion_boundary": {
+    "camera_system_response_proven": false,
+    "lens_only_vignetting_proven": false,
+    "scene_illumination_separated": false,
+    "sensor_angular_response_separated": false,
+    "calibration_promoted": false,
+    "correction_authorized": false,
+    "scientific_writeback_allowed": false
+  },
+  "android_ui": {
+    "multi_observation_export_added": true,
+    "minimum_profiled_observations_for_export": 2,
+    "request_code": 4129
+  },
+  "implementation": {
+    "kotlin_module": "suite_android/app/src/main/java/com/truthraw/adaptiveui/ObservationWorldFieldSeparationV01.kt",
+    "ui_binding": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt"
+  },
+  "invariants": {
+    "camera_model_routing_used": false,
+    "lens_profile_lookup_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "source_sample_positions_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "next_gate": "GREEN_BUILD_THEN_DEVICE_EXPORT_THEN_DETERMINISTIC_CLASSICAL_LOCAL_FEATURE_PAIR_GEOMETRY_V0_1"
+}
