@@ -170,6 +170,13 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "SPARSE_GRID_NOISE_MODEL_CANDIDATE",
+            "MEASURED_CFA_RELATION_MODEL_RUNTIME_IMPLEMENTED",
+            "SIGNAL_DEPENDENT_TEMPORAL_AND_FIXED_PATTERN_MODEL_CANDIDATE_NO_PROMOTION",
+            false,
+            true,
+        )
+        capability(
             "NOISE_SPECTRUM_MEASUREMENT_CANDIDATE",
             "CONTROLLED_NPS_INGEST_RUNTIME_IMPLEMENTED",
             "NOISE_POWER_SPECTRUM_CANDIDATE_ONLY",
