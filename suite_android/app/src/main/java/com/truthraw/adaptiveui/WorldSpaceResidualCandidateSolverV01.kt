@@ -28,28 +28,21 @@ object WorldSpaceResidualCandidateSolverV01 {
         promotionState: JSONObject =
             ScientificPromotionStateV01.blocked(),
     ): JSONObject {
-        if (
-            !worldSourceBridge.optBoolean(
+        val promotedBridge =
+            worldSourceBridge.optBoolean(
                 "world_to_source_bridge_admitted",
                 false,
-            )
-        ) {
-            return unavailable(
-                "VALIDATED_WORLD_TO_SOURCE_BRIDGE_REQUIRED",
-                emptySet(),
-            )
-        }
-        if (
-            !ScientificPromotionStateV01.decision(
+            ) &&
+                ScientificPromotionStateV01.decision(
+                    promotionState,
+                    "world_to_source_bridge_promoted",
+                )
+        val promotedRadiometry =
+            ScientificPromotionStateV01.decision(
                 promotionState,
                 "radiometric_calibration_promoted",
             )
-        ) {
-            return unavailable(
-                "PROMOTED_RADIOMETRIC_RELATION_REQUIRED",
-                emptySet(),
-            )
-        }
+
         val roots = linkedSetOf<String>()
         val samples = ArrayList<Sample>()
         var relationRecordCount = 0
@@ -68,20 +61,23 @@ object WorldSpaceResidualCandidateSolverV01 {
                 continue
             }
             val payload = record.optJSONObject("axis_payload") ?: continue
-            // Authority comes from the validated Foundation bridge and typed
-            // promotion state above, never from booleans inside imported JSON.
-            if (
-                payload.optBoolean(
-                    "world_to_source_relation_admitted",
-                    false,
-                ) ||
-                payload.optBoolean(
-                    "radiometric_relation_admitted",
-                    false,
-                )
-            ) {
-                // Legacy hints may remain present but have no authority.
-            }
+            val explicitCandidateRelation =
+                record.optString("session_binding_status") ==
+                    "BOUND_TO_ACTIVE_OBSERVATION_SET" &&
+                    record.optString("relation_evidence_class") in
+                    setOf(
+                        "EXPLICIT_CALIBRATION_CAPTURE_RECORD",
+                        "SEALED_CAPTURE_SESSION_PROVENANCE",
+                    ) &&
+                    payload.optBoolean(
+                        "world_to_source_relation_admitted",
+                        false,
+                    ) &&
+                    payload.optBoolean(
+                        "radiometric_relation_admitted",
+                        false,
+                    )
+            if (!explicitCandidateRelation && !promotedBridge) continue
             relationRecordCount++
             val rs =
                 record.optJSONArray("source_sha256_roots") ?: JSONArray()
@@ -201,6 +197,22 @@ object WorldSpaceResidualCandidateSolverV01 {
                 "held_out_reconstruction_rmse",
                 ResearchMathV01.rmse(heldActual, heldPred)
                     ?: JSONObject.NULL,
+            )
+            .put(
+                "world_to_source_relation_authority",
+                if (promotedBridge) {
+                    "PROMOTED_WORLD_TO_SOURCE_BRIDGE"
+                } else {
+                    "EXPLICIT_SESSION_BOUND_RECORD_CANDIDATE_ONLY"
+                },
+            )
+            .put(
+                "radiometric_relation_authority",
+                if (promotedRadiometry) {
+                    "PROMOTED_RADIOMETRIC_CALIBRATION"
+                } else {
+                    "EXPLICIT_SESSION_BOUND_RECORD_CANDIDATE_ONLY"
+                },
             )
             .put("view_dependent_component_estimated", false)
             .put("motion_occlusion_component_estimated", false)
