@@ -97,6 +97,8 @@ class MainActivity : Activity() {
     private var observationWorldFieldSeparationStatus: String? = null
     private var pendingFreeWorldFoundationJson: String? = null
     private var freeWorldFoundationStatus: String? = null
+    private val calibrationObservationRecords = mutableListOf<JSONObject>()
+    private var calibrationObservationRecordStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -492,6 +494,88 @@ class MainActivity : Activity() {
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         startActivityForResult(intent, REQUEST_OPEN_RAW)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchCalibrationObservationRecordPicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS,
+        )
+    }
+
+    private fun currentCalibrationObservationRecords(): List<JSONObject> =
+        calibrationObservationRecords.map { JSONObject(it.toString()) }
+
+    private fun importCalibrationObservationRecords(data: Intent): String {
+        val uris = buildList {
+            data.data?.let(::add)
+            val clip: ClipData? = data.clipData
+            if (clip != null) {
+                for (index in 0 until clip.itemCount) {
+                    add(clip.getItemAt(index).uri)
+                }
+            }
+        }.distinct()
+
+        if (uris.isEmpty()) {
+            return "Calibration Observation Records: geen JSON-bron ontvangen."
+        }
+
+        var validImported = 0
+        var invalidRejected = 0
+        var filesFailed = 0
+
+        for (uri in uris) {
+            val text =
+                runCatching {
+                    contentResolver.openInputStream(uri)
+                        ?.bufferedReader(Charsets.UTF_8)
+                        ?.use { it.readText() }
+                }.getOrNull()
+            if (text.isNullOrBlank()) {
+                filesFailed++
+                continue
+            }
+
+            val parsed =
+                CalibrationObservationRecordBundleV01.parse(text)
+            invalidRejected +=
+                parsed.optInt("invalid_record_count", 0)
+
+            val records =
+                parsed.optJSONArray("records") ?: JSONArray()
+            for (index in 0 until records.length()) {
+                val record = records.optJSONObject(index) ?: continue
+                val canonical = record.toString()
+                val duplicate =
+                    calibrationObservationRecords.any {
+                        it.toString() == canonical
+                    }
+                if (!duplicate) {
+                    calibrationObservationRecords +=
+                        JSONObject(canonical)
+                    validImported++
+                }
+            }
+        }
+
+        return "Calibration Observation Records · nieuw=" +
+            validImported +
+            " · totaal=" +
+            calibrationObservationRecords.size +
+            " · rejected=" +
+            invalidRejected +
+            " · file-fail=" +
+            filesFailed +
+            " · relation-based only · promotion=false."
     }
 
     @Suppress("DEPRECATION")
@@ -1755,6 +1839,7 @@ class MainActivity : Activity() {
             FreeWorldObservationGeometryFoundationV01.build(
                 profiles = profiles,
                 fieldRepeatability = repeatability,
+                calibrationRecords = currentCalibrationObservationRecords(),
             )
 
         if (
@@ -3686,6 +3771,7 @@ class MainActivity : Activity() {
                             it.optString("status") ==
                                 "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
                         },
+                    calibrationRecords = currentCalibrationObservationRecords(),
                 )
 
             if (
@@ -4954,6 +5040,19 @@ class MainActivity : Activity() {
             } catch (error: Exception) {
                 "NEF measurement JSON-export faalde: ${error.message ?: error.javaClass.simpleName}"
             }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS) {
+            if (resultCode != RESULT_OK || data == null) {
+                calibrationObservationRecordStatus =
+                    "Calibration Observation Record-import geannuleerd."
+                render()
+                return
+            }
+            calibrationObservationRecordStatus =
+                importCalibrationObservationRecords(data)
             render()
             return
         }
@@ -8040,6 +8139,8 @@ class MainActivity : Activity() {
         val profiled =
             session.jobs.count { universalProfiles[it.id] != null }
         val measuredCharts = currentMeasuredFieldCharts().size
+        val calibrationRecordCount =
+            calibrationObservationRecords.size
 
         addView(label("Multi-observation · Field Response v0.1", 16f, bold = true))
         addView(label(
@@ -8050,6 +8151,34 @@ class MainActivity : Activity() {
             11f,
             muted = true,
         ))
+        addView(space(6))
+        addView(actionButton(
+            "Voeg relation-based Calibration Observation Record(s) · JSON toe",
+            enabled = true,
+        ) {
+            launchCalibrationObservationRecordPicker()
+        })
+        calibrationObservationRecordStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Optioneel · records=" +
+                calibrationRecordCount +
+                " · normale RAW-intake vereist geen calibratie. Camera/lens/vendor/RAW-identiteit mag geen scientific key zijn.",
+            10f,
+            muted = true,
+        ))
+        if (calibrationRecordCount > 0) {
+            addView(actionButton(
+                "Wis gekoppelde Calibration Observation Records",
+                enabled = true,
+            ) {
+                calibrationObservationRecords.clear()
+                calibrationObservationRecordStatus =
+                    "Calibration Observation Records gewist · RAW-observaties blijven onaangeraakt."
+                render()
+            })
+        }
         addView(space(6))
         addView(actionButton(
             "Analyseer alle geselecteerde bronnen universeel",
@@ -8087,8 +8216,9 @@ class MainActivity : Activity() {
         addView(label(
             "Foundation-export bundelt deterministische lokale features, pair-geometry hypotheses, " +
                 "Free World observation graph, multi-lens/360 campaign policy, Natural Self-Calibration Atlas, " +
-                "world-vs-sensor decomposition readiness, gescheiden uncertainty, continuous-query contract en " +
-                "restoration authority. Alles blijft read-only/fail-closed tot afzonderlijke validatie.",
+                "radiometric/noise/optics/colour/temporal/3D/world-space candidate-runtimes, " +
+                "gescheiden uncertainty, continuous-query contract en restoration authority. " +
+                "Optionele relation-records voeden alleen kandidaten; alles blijft fail-closed tot afzonderlijke validatie.",
             10f,
             muted = true,
         ))
@@ -8326,5 +8456,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
         private const val REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129
         private const val REQUEST_SAVE_FREE_WORLD_FOUNDATION = 4130
+        private const val REQUEST_OPEN_CALIBRATION_OBSERVATION_RECORDS = 4131
     }
 }
