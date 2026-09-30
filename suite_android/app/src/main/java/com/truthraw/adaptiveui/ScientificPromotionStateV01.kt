@@ -38,6 +38,38 @@ object ScientificPromotionStateV01 {
             .put("scientific_writeback_allowed", false)
             .put("creates_new_evidence", false)
 
+    fun isAdmittedInternalState(
+        state: JSONObject,
+    ): Boolean {
+        if (
+            state.optString("schema") != SCHEMA ||
+            state.optString("status") !=
+                "INTERNAL_PROMOTION_DECISION_BOUND" ||
+            !state.optBoolean("held_out_validation_passed", false) ||
+            state.optBoolean("scientific_writeback_allowed", true) ||
+            state.optBoolean("creates_new_evidence", true)
+        ) {
+            return false
+        }
+        val roots =
+            state.optJSONArray("source_sha256_roots") ?: return false
+        if (roots.length() == 0) return false
+        val unique = linkedSetOf<String>()
+        for (i in 0 until roots.length()) {
+            val root = roots.optString(i).trim().lowercase()
+            if (!root.matches(Regex("[0-9a-f]{64}"))) return false
+            unique += root
+        }
+        return unique.size == roots.length()
+    }
+
+    fun decision(
+        state: JSONObject,
+        key: String,
+    ): Boolean =
+        isAdmittedInternalState(state) &&
+            state.optBoolean(key, false)
+
     fun fromInternalValidationDecision(
         report: JSONObject,
         activeSourceRoots: Set<String>,
@@ -52,14 +84,23 @@ object ScientificPromotionStateV01 {
             return blocked("INTERNAL_PROMOTION_DECISION_INVARIANT_FAILED")
         }
 
+        val normalizedActiveRoots =
+            activeSourceRoots.map { it.trim().lowercase() }.toSet()
         val roots = report.optJSONArray("source_sha256_roots") ?: JSONArray()
-        if (roots.length() == 0) {
+        if (roots.length() == 0 || normalizedActiveRoots.isEmpty()) {
             return blocked("PROMOTION_DECISION_SOURCE_ROOTS_REQUIRED")
         }
+        val uniqueRoots = linkedSetOf<String>()
         for (i in 0 until roots.length()) {
             val root = roots.optString(i).trim().lowercase()
-            if (root !in activeSourceRoots) {
+            if (
+                !root.matches(Regex("[0-9a-f]{64}")) ||
+                root !in normalizedActiveRoots
+            ) {
                 return blocked("PROMOTION_DECISION_NOT_BOUND_TO_ACTIVE_SESSION")
+            }
+            if (!uniqueRoots.add(root)) {
+                return blocked("PROMOTION_DECISION_DUPLICATE_SOURCE_ROOT")
             }
         }
 
@@ -70,11 +111,7 @@ object ScientificPromotionStateV01 {
             decisions.optBoolean(key, false)
 
         val boundRoots = JSONArray()
-        for (i in 0 until roots.length()) {
-            boundRoots.put(
-                roots.optString(i).trim().lowercase(),
-            )
-        }
+        uniqueRoots.forEach(boundRoots::put)
 
         return JSONObject()
             .put("schema", SCHEMA)
