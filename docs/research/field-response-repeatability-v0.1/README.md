@@ -188,3 +188,28 @@ Use at least three substantially different real DNG scenes that each produce a m
 Export one `Field Response Repeatability v0.1` JSON.
 
 The first device result should be interpreted descriptively. Thresholds for a stronger controlled relation experiment must not be invented from the same three scenes after seeing the answer.
+
+
+## Device UI progress correction
+
+First device use exposed a UI problem: the set-level action could look idle when the individual Universal Intake profiles were already cached. The panel showed source counts but no running-state dot or elapsed time, unlike older long-running D.RAW tests.
+
+The batch action now creates an explicit background operation scoped to the exact selected source set.
+
+While running, the existing D.RAW operation UI shows:
+
+- green running dot;
+- elapsed chronometer;
+- remaining source count.
+
+At completion:
+
+- green success state when all requested profiles completed;
+- red error state when one or more source analyses failed;
+- final measured-field-chart count.
+
+The user action now explicitly re-runs Universal Intake for the selected set instead of silently returning cached profiles.
+
+The panel also explains that not every selected file contributes to the >=3 measured-field-chart gate. JPEG, opaque decoder-pending sources, LinearRaw/non-CFA layouts, and other unsupported measured topologies remain valid observations but do not become measured PR96 CFA field charts.
+
+This is a UI/experiment-orchestration correction only. No scientific authority, calibration, correction or source data is changed.
