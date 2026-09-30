@@ -77,11 +77,26 @@ object FreeWorldObservationGeometryFoundationV01 {
                 tracks = featureTracks,
                 cycles = cycleConsistency,
             )
+        val residualRelation =
+            MultiObservationResidualRelationV01.build(
+                profiles = profiles,
+                graph = graph,
+                temporalFootprint = temporalFootprint,
+            )
         val worldSpaceNoise =
             WorldSpaceNoiseSeparationV01.describe(
                 decomposition = decomposition,
                 temporal = temporalFootprint,
                 geometry = geometryDepth,
+            )
+        val scientificDenoiseAdmission =
+            ScientificDenoiseAdmissionV01.describe(
+                radiometric = radiometricResponse,
+                noiseComponents = noiseComponents,
+                opticalSupport = OpticalSupportAtlasV01.describe(),
+                temporalFootprint = temporalFootprint,
+                geometryDepth = geometryDepth,
+                worldSpaceNoise = worldSpaceNoise,
             )
         val lightTransportAuthority =
             LightTransportAuthorityContractV01.describe()
@@ -140,7 +155,9 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("scientific_noise_transport", scientificNoiseTransport)
             .put("temporal_footprint", temporalFootprint)
             .put("geometry_depth_support_atlas", geometryDepth)
+            .put("multi_observation_residual_relation", residualRelation)
             .put("world_space_noise_separation", worldSpaceNoise)
+            .put("scientific_denoise_admission", scientificDenoiseAdmission)
             .put("light_transport_authority_contract", lightTransportAuthority)
             .put("perceptual_noise_appearance_contract", perceptualNoiseAppearance)
             .put("query_support_ledger", querySupportLedger)
