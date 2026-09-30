@@ -72,6 +72,22 @@ object FreeWorldQuerySupportLedgerV01 {
                             "DETERMINISTIC_LOCAL_FEATURES_AVAILABLE",
                     )
                     .put(
+                        "radiometric_response_promoted",
+                        false,
+                    )
+                    .put(
+                        "noise_component_model_promoted",
+                        false,
+                    )
+                    .put(
+                        "optical_support_promoted",
+                        false,
+                    )
+                    .put(
+                        "geometry_depth_visibility_promoted",
+                        false,
+                    )
+                    .put(
                         "capture_time_metadata_hint_available",
                         metadata.opt(
                             "capture_time_preferred_text",
