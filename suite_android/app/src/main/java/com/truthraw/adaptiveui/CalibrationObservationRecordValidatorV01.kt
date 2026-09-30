@@ -117,22 +117,23 @@ object CalibrationObservationRecordValidatorV01 {
             issues.put("AXIS_PAYLOAD_MUST_BE_OBJECT")
         }
 
-        for (forbidden in listOf(
-            "camera_model_key",
-            "lens_model_key",
-            "vendor_key",
-            "device_profile_key",
-            "raw_format_key",
-            "container_format_key",
-            "decoder_route_key",
-            "physical_camera_id_key",
-        )) {
-            if (record.has(forbidden)) {
-                issues.put(
-                    "FORBIDDEN_IDENTITY_KEY_$forbidden",
-                )
-            }
-        }
+        val forbiddenIdentityKeys =
+            setOf(
+                "camera_model_key",
+                "lens_model_key",
+                "vendor_key",
+                "device_profile_key",
+                "raw_format_key",
+                "container_format_key",
+                "decoder_route_key",
+                "physical_camera_id_key",
+            )
+        scanForbiddenIdentityKeys(
+            value = record,
+            path = "$",
+            forbidden = forbiddenIdentityKeys,
+            issues = issues,
+        )
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -157,5 +158,44 @@ object CalibrationObservationRecordValidatorV01 {
             .put("correction_authorized", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+    }
+
+    private fun scanForbiddenIdentityKeys(
+        value: Any?,
+        path: String,
+        forbidden: Set<String>,
+        issues: JSONArray,
+    ) {
+        when (value) {
+            is JSONObject -> {
+                val keys = value.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val child = value.opt(key)
+                    val childPath = "$path.$key"
+                    if (key in forbidden) {
+                        issues.put(
+                            "FORBIDDEN_IDENTITY_KEY_AT_$childPath",
+                        )
+                    }
+                    scanForbiddenIdentityKeys(
+                        child,
+                        childPath,
+                        forbidden,
+                        issues,
+                    )
+                }
+            }
+            is JSONArray -> {
+                for (i in 0 until value.length()) {
+                    scanForbiddenIdentityKeys(
+                        value.opt(i),
+                        "$path[$i]",
+                        forbidden,
+                        issues,
+                    )
+                }
+            }
+        }
     }
 }
