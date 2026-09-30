@@ -29,10 +29,14 @@ object GeometryDepthCandidateSolverV01 {
             ) {
                 continue
             }
-            val validation = CalibrationObservationRecordValidatorV01.validate(record)
+            val admission =
+                CalibrationObservationAdmissionV01.admitForNumericCandidate(
+                    record = record,
+                    axis = "GEOMETRY_DEPTH_VISIBILITY",
+                )
             if (
-                validation.optString("status") !=
-                "CALIBRATION_OBSERVATION_RECORD_VALID"
+                admission.optString("status") !=
+                "NUMERIC_CANDIDATE_RELATION_ADMITTED"
             ) {
                 continue
             }
