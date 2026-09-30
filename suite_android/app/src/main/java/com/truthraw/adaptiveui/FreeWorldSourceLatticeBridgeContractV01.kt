@@ -37,15 +37,17 @@ object FreeWorldSourceLatticeBridgeContractV01 {
             activeSourceRoots.isNotEmpty() &&
                 mappingRoots.isNotEmpty() &&
                 mappingRoots.all { it in activeSourceRoots }
+        val mapping = validatedMapping
         val mappingValid =
-            validatedMapping?.optString("schema") ==
-                "D.RAW/ValidatedWorldToSourceRelation/0.1" &&
-                validatedMapping.optBoolean(
+            mapping != null &&
+                mapping.optString("schema") ==
+                    "D.RAW/ValidatedWorldToSourceRelation/0.1" &&
+                mapping.optBoolean(
                     "held_out_validation_passed",
                     false,
                 ) &&
-                validatedMapping.has("mapping_uncertainty") &&
-                !validatedMapping.optBoolean(
+                mapping.has("mapping_uncertainty") &&
+                !mapping.optBoolean(
                     "appearance_only_authority",
                     true,
                 ) &&
