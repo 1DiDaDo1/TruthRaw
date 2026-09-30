@@ -78,6 +78,7 @@ class Api37Raw14ExtensionOracleActivity : Activity() {
         ))
         body.addView(space(10))
         status = label("Nog geen v0.47 report.", 10f, false)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         return ScrollView(this).apply {
