@@ -9,8 +9,19 @@ Read first:
 2. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
 3. PR101 foundation state/docs below.
 
+Implementation-wave completion:
+- Android UI can optionally ingest relation-based Calibration Observation Record JSON/bundles;
+- `CalibrationObservationAdmissionV01` blocks weak grouping hints from numeric science;
+- recursive identity-key rejection protects nested payloads;
+- exact sparse CFA grids feed repeated-observation and signal-dependent noise-model candidates;
+- radiometry, field separation, NPS/noise, optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated denoise and perceptual mapping have numeric candidate runtimes;
+- no candidate is promoted, applied to Scientific Master, or allowed to create evidence;
+- this branch remains intentionally untested/unbuilt per user instruction.
+
 New implemented prevalidation contracts:
 - `UniversalIdentityIndependenceV01`
+- `CalibrationObservationAdmissionV01`
+- `SparseGridNoiseModelCandidateV01`
 - `PhysicalObservationNoiseContextV01` (bound into Universal Intake)
 - `RadiometricResponseAtlasV01`
 - `NoiseComponentAtlasV01`
