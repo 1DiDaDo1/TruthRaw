@@ -131,7 +131,13 @@ The specialized 4K→200MP route remains separate.
 
 ## Validation status
 
-This UX/navigation implementation is intentionally unbuilt and untested at this
-checkpoint, following the user instruction for this implementation wave.
+The UX/navigation and cable-repair implementation now compiles in the green
+Android arm64 debug build at code head
+`f36f750afda57f4672c264e59ac53db489cd5e19`.
 
-No compile, CI, APK build, or device validation is claimed.
+Workflow run: `36744717288`  
+APK artifact: `11111543510`  
+APK SHA-256: `d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036`
+
+This is a compile/build checkpoint only. The new multidisciplinary research
+candidates remain physically/device-unvalidated and scientifically unpromoted.
