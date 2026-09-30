@@ -28,6 +28,8 @@ object FreeWorldObservationGeometryFoundationV01 {
         profiles: List<JSONObject>,
         fieldRepeatability: JSONObject? = null,
         calibrationRecords: List<JSONObject> = emptyList(),
+        promotionState: JSONObject =
+            ScientificPromotionStateV01.blocked(),
     ): JSONObject {
         val campaign =
             MultiObservationCampaignV01.describe(profiles)
@@ -83,7 +85,7 @@ object FreeWorldObservationGeometryFoundationV01 {
         val noiseComponents =
             NoiseComponentAtlasV01.build(profiles)
         val scientificNoiseTransport =
-            ScientificNoiseTransportV01.describe()
+            ScientificNoiseTransportV01.describe(promotionState)
         val temporalFootprint =
             TemporalFootprintV01.build(profiles)
         val geometryDepth =
@@ -105,17 +107,29 @@ object FreeWorldObservationGeometryFoundationV01 {
                 geometry = geometryDepth,
             )
 
+        val calibrationBinding =
+            CalibrationObservationSessionBindingV01.bind(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+            )
+        val boundCalibrationRecords =
+            calibrationBinding.records
+        val worldSourceBridge =
+            FreeWorldSourceLatticeBridgeContractV01.describe()
+
         val radiometricResponseCandidate =
-            RadiometricResponseCandidateSolverV01.evaluate(calibrationRecords)
+            RadiometricResponseCandidateSolverV01.evaluate(
+                boundCalibrationRecords,
+            )
         val radiometricProfileCandidate =
             RadiometricProfileRelationCandidateV01.evaluate(
                 profiles = profiles,
-                records = calibrationRecords,
+                records = boundCalibrationRecords,
             )
         val noiseComponentCandidate =
-            NoiseComponentDecompositionCandidateV01.evaluate(calibrationRecords)
+            NoiseComponentDecompositionCandidateV01.evaluate(boundCalibrationRecords)
         val noiseSpectrumCandidate =
-            NoiseSpectrumMeasurementCandidateV01.evaluate(calibrationRecords)
+            NoiseSpectrumMeasurementCandidateV01.evaluate(boundCalibrationRecords)
         val repeatedSparseGridNoiseCandidate =
             RepeatedSparseGridNoiseCandidateV01.evaluate(
                 profiles = profiles,
@@ -126,17 +140,32 @@ object FreeWorldObservationGeometryFoundationV01 {
                 repeatedSparseGrid = repeatedSparseGridNoiseCandidate,
             )
         val fieldResponseSeparationCandidate =
-            FieldResponseRotationSeparationCandidateV01.evaluate(calibrationRecords)
+            FieldResponseRotationSeparationCandidateV01.evaluate(boundCalibrationRecords)
         val colourRelationCandidate =
-            ColourRelationCandidateSolverV01.evaluate(calibrationRecords)
+            ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
-            OpticalSupportMeasurementCandidateV01.evaluate(calibrationRecords)
+            OpticalSupportMeasurementCandidateV01.evaluate(boundCalibrationRecords)
         val temporalSequenceCandidate =
-            TemporalSequenceCandidateSolverV01.evaluate(calibrationRecords)
+            TemporalSequenceCandidateSolverV01.evaluate(boundCalibrationRecords)
         val geometryDepthCandidate =
-            GeometryDepthCandidateSolverV01.evaluate(calibrationRecords)
+            GeometryDepthCandidateSolverV01.evaluate(boundCalibrationRecords)
+        val colourCovarianceTransportCandidate =
+            ColourCovarianceTransportCandidateV01.evaluate(
+                colourRelation = colourRelationCandidate,
+                records = boundCalibrationRecords,
+            )
+        val noiseOpticsJointCandidate =
+            NoiseOpticsJointCandidateV01.evaluate(
+                noiseSpectrum = noiseSpectrumCandidate,
+                opticalSupport = opticalSupportCandidate,
+                records = boundCalibrationRecords,
+            )
         val worldSpaceResidualCandidate =
-            WorldSpaceResidualCandidateSolverV01.evaluate(calibrationRecords)
+            WorldSpaceResidualCandidateSolverV01.evaluate(
+                records = boundCalibrationRecords,
+                worldSourceBridge = worldSourceBridge,
+                promotionState = promotionState,
+            )
 
         val scientificDenoiseAdmission =
             ScientificDenoiseAdmissionV01.describe(
@@ -147,6 +176,8 @@ object FreeWorldObservationGeometryFoundationV01 {
                 temporalFootprint = temporalSequenceCandidate,
                 geometryDepth = geometryDepthCandidate,
                 worldSpaceNoise = worldSpaceResidualCandidate,
+                promotionState = promotionState,
+                allowPromotionProjection = false,
             )
         val lightTransportAuthority =
             LightTransportAuthorityContractV01.describe()
@@ -219,7 +250,15 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("sparse_grid_noise_model_candidate", sparseGridNoiseModelCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
                     .put("colour_relation_candidate", colourRelationCandidate)
+                    .put(
+                        "colour_covariance_transport_candidate",
+                        colourCovarianceTransportCandidate,
+                    )
                     .put("optical_support_candidate", opticalSupportCandidate)
+                    .put(
+                        "noise_optics_joint_candidate",
+                        noiseOpticsJointCandidate,
+                    )
                     .put("temporal_sequence_candidate", temporalSequenceCandidate)
                     .put("geometry_depth_candidate", geometryDepthCandidate)
                     .put("world_space_residual_candidate", worldSpaceResidualCandidate)
@@ -242,6 +281,11 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("candidates_are_promotions", false)
                     .put("candidate_application_enabled", false),
             )
+            .put(
+                "calibration_observation_session_binding",
+                calibrationBinding.report,
+            )
+            .put("scientific_promotion_state", promotionState)
             .put("scientific_denoise_admission", scientificDenoiseAdmission)
             .put("light_transport_authority_contract", lightTransportAuthority)
             .put("perceptual_noise_appearance_contract", perceptualNoiseAppearance)
@@ -302,7 +346,7 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
             .put(
                 "world_source_lattice_bridge_contract",
-                FreeWorldSourceLatticeBridgeContractV01.describe(),
+                worldSourceBridge,
             )
             .put(
                 "calibration_observation_record_contract",
@@ -310,6 +354,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "attached_record_count",
                         calibrationRecords.size,
+                    )
+                    .put(
+                        "session_bound_record_count",
+                        boundCalibrationRecords.size,
                     )
                     .put(
                         "validator",
