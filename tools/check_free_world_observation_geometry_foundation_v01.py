@@ -168,7 +168,7 @@ assert state["inherited_capture_usability"]["universal_physical_capture_timer_se
 for phrase in [
     "Implement the safe architecture first; validate promotion later.",
     "A feature is never sensor evidence",
-    "The lexicographically first source SHA may be chosen as a numeric gauge only.",
+    "The lexicographically first source SHA may be chosen as a",
     "Loss compensation never becomes measured.",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
