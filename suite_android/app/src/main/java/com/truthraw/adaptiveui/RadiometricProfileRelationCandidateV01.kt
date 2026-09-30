@@ -149,7 +149,10 @@ object RadiometricProfileRelationCandidateV01 {
                             .put("constant_iso_metadata", iso0)
                             .put("constant_f_number_metadata", f0),
                     )
-            syntheticRecords += synthetic
+            syntheticRecords +=
+                CalibrationObservationRecordIdentityV01.normalize(
+                    synthetic,
+                )
         }
 
         if (syntheticRecords.isEmpty()) {
