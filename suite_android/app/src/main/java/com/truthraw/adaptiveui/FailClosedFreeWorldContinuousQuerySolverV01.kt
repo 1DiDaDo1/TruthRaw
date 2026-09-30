@@ -29,6 +29,34 @@ class FailClosedFreeWorldContinuousQuerySolverV01 :
                             "UNKNOWN_NO_ADMITTED_WORLD_TO_SOURCE_BRIDGE",
                     ),
                     FreeWorldAxisUncertaintyV01(
+                        axis = "RADIOMETRIC_RESPONSE",
+                        sigmaOrBound = null,
+                        units = null,
+                        status =
+                            "UNKNOWN_NO_PROMOTED_RADIOMETRIC_RESPONSE",
+                    ),
+                    FreeWorldAxisUncertaintyV01(
+                        axis = "NOISE_COMPONENT_AND_COVARIANCE",
+                        sigmaOrBound = null,
+                        units = null,
+                        status =
+                            "UNKNOWN_NO_PROMOTED_NOISE_COMPONENT_MODEL",
+                    ),
+                    FreeWorldAxisUncertaintyV01(
+                        axis = "OPTICAL_FREQUENCY_SUPPORT",
+                        sigmaOrBound = null,
+                        units = null,
+                        status =
+                            "UNKNOWN_NO_PROMOTED_OPTICAL_SUPPORT",
+                    ),
+                    FreeWorldAxisUncertaintyV01(
+                        axis = "GEOMETRY_DEPTH_VISIBILITY",
+                        sigmaOrBound = null,
+                        units = null,
+                        status =
+                            "UNKNOWN_NO_PROMOTED_3D_GEOMETRY",
+                    ),
+                    FreeWorldAxisUncertaintyV01(
                         axis = "CONTINUOUS_RECONSTRUCTION",
                         sigmaOrBound = null,
                         units = null,
