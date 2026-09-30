@@ -16,6 +16,7 @@ object ScientificDenoiseAdmissionV01 {
     fun describe(
         radiometric: JSONObject,
         noiseComponents: JSONObject,
+        noiseTransport: JSONObject,
         opticalSupport: JSONObject,
         temporalFootprint: JSONObject,
         geometryDepth: JSONObject,
@@ -29,8 +30,8 @@ object ScientificDenoiseAdmissionV01 {
                 false,
             )
         val numericNoiseTransportReady =
-            noiseComponents.optBoolean(
-                "numeric_noise_transport_validated",
+            noiseTransport.optBoolean(
+                "numeric_transport_validated",
                 false,
             )
         val opticalReady =
