@@ -44,6 +44,7 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldContinuousQueryPlannerV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldScientificStateSnapshotV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PrevalidationCandidateLedgerV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/PrevalidationArchitectureClosureV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
       - 'docs/research/free-world-observation-geometry-foundation-v0.1/**'
