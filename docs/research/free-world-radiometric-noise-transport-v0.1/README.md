@@ -254,6 +254,41 @@ The intended logic is:
 
 > Do not first ask which pixels look noisy. First ask which part of the observation can be explained by world structure, sensor-fixed response, optical support, temporal sampling, view dependence, motion/occlusion, reconstruction uncertainty or known stochastic components. Only the unresolved supported residual may become a noise candidate.
 
+## Completed implementation checkpoint
+
+Code checkpoint before documentation updates: `caf4c0e39f3a74c94ed00802ff8a84c1f10013d1` — 115 commits ahead of the exact green PR101 parent `0006b56d3261cad9a13fec560f7ddcd39b0844db`.
+
+The recommendation wave is now implemented end-to-end as **candidate runtime**, not as scientific promotion:
+
+- Android can optionally import one or more Calibration Observation Record JSON files/bundles.
+- normal RAW intake remains independent of those records;
+- every record is recursively checked for forbidden camera/lens/vendor/RAW scientific identity keys;
+- record validity does not equal numerical relation admission;
+- `USER_GROUPING_HINT_ONLY` and `NONE` cannot drive numeric candidate solvers;
+- explicit admitted relation records can feed radiometric, field, colour, optics, dark/noise, NPS, temporal, geometry and world-space candidate runtimes;
+- the measured backside audit exports an exact sparse CFA grid with source x/y, CFA phase and normalized measured value;
+- repeated admitted DARK/FLAT/scene relations can produce temporal/fixed-pattern summaries and a signal-dependent sparse-grid noise-model candidate;
+- radiometric candidates can be fitted from explicit measurement points or controlled RAW-profile exposure relations;
+- optical SFR/MTF/PSF observations, colour 3x3 relation candidates, temporal sequence/readout candidates and calibrated-ray 3D triangulation candidates are executable;
+- controlled rotation can produce a world-vs-sensor field candidate without claiming lens-only vignetting;
+- world-space residual candidates preserve world-fixed, sensor-fixed, temporal/view/motion and UNKNOWN separation boundaries;
+- deterministic covariance/variance transport and noise-aware inverse-optics gain candidates are available;
+- exact measured anchors pass through unchanged; non-anchor reconstruction can only become `RECONSTRUCTED_CANDIDATE`;
+- the scientific denoise operator remains gated and cannot modify Scientific Master;
+- perceptual noise visibility remains VIEW/APPEARANCE only;
+- older executable Deep Scene / Light Transport research is referenced under the current authority firewall instead of being silently promoted.
+
+### Android relation-record path
+
+The Multi-observation panel now contains an optional JSON picker for Calibration Observation Records. Imported valid records are retained separately from sealed RAW observations and are passed into the Free World Foundation export. The record set is re-read when the export is committed so a stale report cannot silently survive a changed relation set.
+
+This path does **not** make calibration mandatory for ordinary users. It exists only to let controlled or explicitly related physical observations reach the candidate solvers.
+
+### Validation status
+
+Per explicit user instruction, this branch has not been compiled, tested, sent through CI, built as an APK, or device-validated after this implementation wave. Therefore no claim is made that the new branch compiles or that any candidate model is physically correct. The parent PR101 green checkpoint remains the last tested baseline.
+
+
 ## Test/build status
 
 By explicit instruction, this implementation was committed **without running tests, CI, Android build, device validation or promotion experiments**.
