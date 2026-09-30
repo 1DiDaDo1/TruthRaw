@@ -106,11 +106,31 @@ object FreeWorldObservationGeometryFoundationV01 {
                         "solver_interface",
                         "FreeWorldContinuousQuerySolverV01",
                     )
-                    .put("solver_implemented", false),
+                    .put(
+                        "source_lattice_exact_anchor_resolver",
+                        "SourceLatticeExactAnchorResolverV01",
+                    )
+                    .put(
+                        "measured_anchor_provider_interface",
+                        "MeasuredAnchorProviderV01",
+                    )
+                    .put("world_solver_implemented", false)
+                    .put(
+                        "exact_source_anchor_semantics_implemented",
+                        true,
+                    ),
+            )
+            .put(
+                "world_source_lattice_bridge_contract",
+                FreeWorldSourceLatticeBridgeContractV01.describe(),
             )
             .put(
                 "calibration_observation_record_contract",
-                CalibrationObservationRecordV01.describeContract(),
+                CalibrationObservationRecordV01.describeContract()
+                    .put(
+                        "validator",
+                        "CalibrationObservationRecordValidatorV01",
+                    ),
             )
             .put(
                 "view_appearance_state_contract",
