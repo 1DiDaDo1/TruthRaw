@@ -26,41 +26,44 @@ object ScientificDenoiseAdmissionV01 {
         allowPromotionProjection: Boolean = false,
     ): JSONObject {
         val radiometricReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "radiometric_calibration_promoted",
-                false,
             )
         val noiseReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "noise_component_calibration_promoted",
-                false,
             )
         val numericNoiseTransportReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "numeric_noise_transport_validated",
-                false,
             )
         val opticalReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "optical_support_calibration_promoted",
-                false,
             )
         val temporalReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "temporal_relation_promoted",
-                false,
             )
         val geometryReady =
-            promotionState.optBoolean("geometry_promoted", false)
+            ScientificPromotionStateV01.decision(
+                promotionState,
+                "geometry_promoted",
+            )
         val worldBridgeReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "world_to_source_bridge_promoted",
-                false,
             )
         val worldSeparationReady =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "world_space_noise_separation_promoted",
-                false,
             )
 
         val singleFramePrerequisites =
@@ -102,19 +105,19 @@ object ScientificDenoiseAdmissionV01 {
                 worldSeparationReady
 
         val singleFrameApproved =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "scientific_denoise_single_frame_approved",
-                false,
             )
         val opticsApproved =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "scientific_denoise_optics_approved",
-                false,
             )
         val worldApproved =
-            promotionState.optBoolean(
+            ScientificPromotionStateV01.decision(
+                promotionState,
                 "scientific_denoise_world_space_approved",
-                false,
             )
 
         val singleFrameAdmitted =
