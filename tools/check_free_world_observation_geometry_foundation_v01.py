@@ -47,6 +47,7 @@ files = {
     "query_planner": (JAVA / "FreeWorldContinuousQueryPlannerV01.kt").read_text(),
     "scientific_snapshot": (JAVA / "FreeWorldScientificStateSnapshotV01.kt").read_text(),
     "candidate_ledger": (JAVA / "PrevalidationCandidateLedgerV01.kt").read_text(),
+    "closure": (JAVA / "PrevalidationArchitectureClosureV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -164,6 +165,7 @@ required = {
         "FreeWorldContinuousQueryPlannerV01.plan",
         "FreeWorldScientificStateSnapshotV01.build",
         "PrevalidationCandidateLedgerV01.build",
+        "PrevalidationArchitectureClosureV01.build",
         "BundledPhysicalValidationCampaignV01.describe",
         "ScientificPromotionGateRegistryV01.describe",
         "FailClosedFreeWorldContinuousQuerySolverV01",
@@ -344,6 +346,14 @@ required = {
         "WORLD_TO_SOURCE_BRIDGE",
         "CONTINUOUS_FREE_WORLD_SOLVER",
     ],
+    "closure": [
+        "PREVALIDATION_ARCHITECTURE_CLOSURE_COMPLETE",
+        "SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED",
+        "closure_is_physical_validation",
+        "closure_is_scientific_promotion",
+        "phone_test_required_to_preserve_architecture",
+        "future_physical_validation_still_required_for_promotion",
+    ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
         "DeterministicLocalFeatureGeometryV01.extract",
@@ -405,6 +415,11 @@ assert state["scientific_state_snapshot"]["measurement_equals_promotion"] is Fal
 assert state["prevalidation_candidate_ledger"]["implemented"] is True
 assert state["prevalidation_candidate_ledger"]["phone_test_required_to_preserve_items"] is False
 assert state["prevalidation_candidate_ledger"]["automatic_promotion_allowed"] is False
+assert state["prevalidation_architecture_closure"]["implemented"] is True
+assert state["prevalidation_architecture_closure"]["closure_is_physical_validation"] is False
+assert state["prevalidation_architecture_closure"]["closure_is_scientific_promotion"] is False
+assert state["prevalidation_architecture_closure"]["phone_test_required_to_preserve_architecture"] is False
+assert state["prevalidation_architecture_closure"]["future_physical_validation_still_required_for_promotion"] is True
 assert state["capability_matrix"]["implemented"] is True
 assert state["capability_matrix"]["separates_implementation_from_scientific_promotion"] is True
 assert state["observation_component_policy"]["component_partition_implemented"] is True
@@ -457,6 +472,9 @@ for phrase in [
     "implementation != validation != measurement != promotion",
     "phone_test_required_to_preserve_items=false",
     "Physical validation is still required for promotion.",
+    "Formal Prevalidation Architecture Closure v0.1",
+    "SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED",
+    "This is the formal endpoint of the user's requested prevalidation implementation wave.",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
