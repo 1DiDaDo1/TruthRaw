@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "PREVALIDATION_SAFE_ARCHITECTURE_SET_IMPLEMENTED_AWAITING_GREEN_BUILD",
+  "status": "PREVALIDATION_SAFE_ARCHITECTURE_SET_IMPLEMENTED_COMPONENT_AWARE_AWAITING_GREEN_BUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -34,7 +34,9 @@
     "CalibrationObservationRecordValidatorV01",
     "FreeWorldSourceLatticeBridgeContractV01",
     "FailClosedFreeWorldContinuousQuerySolverV01",
-    "FreeWorldCapabilityMatrixV01"
+    "FreeWorldCapabilityMatrixV01",
+    "FreeWorldObservationComponentsV01",
+    "ComponentRelativeWorldCoordinateHypothesesV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -64,7 +66,10 @@
     "camera_holder_is_world_origin": false,
     "panorama_center_is_world_origin": false,
     "absolute_metric_scale_proven": false,
-    "depth_proven": false
+    "depth_proven": false,
+    "component_aware_multi_gauge_implemented": true,
+    "cross_component_transform_exists": false,
+    "disconnected_components_share_numeric_gauge": false
   },
   "campaign": {
     "ordinary_overlap_supported": true,
@@ -205,6 +210,18 @@
     "view_appearance_boundary": true,
     "calibration_record_contract_and_validator": true,
     "promotion_firewall": true,
-    "capability_matrix": true
+    "capability_matrix": true,
+    "component_aware_graph_partitioning": true,
+    "independent_relative_world_gauges_per_connected_component": true
+  },
+  "observation_component_policy": {
+    "component_partition_implemented": true,
+    "candidate_geometry_edges_define_connectivity_only": true,
+    "connected_component_equals_same_world_proof": false,
+    "selection_set_equals_one_world": false,
+    "isolated_observations_preserved": true,
+    "independent_numeric_gauge_per_component": true,
+    "cross_component_transform_exists": false,
+    "component_gauge_has_physical_origin_authority": false
   }
 }
