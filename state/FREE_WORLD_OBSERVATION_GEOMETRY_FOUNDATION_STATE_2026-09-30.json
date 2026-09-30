@@ -36,7 +36,9 @@
     "FailClosedFreeWorldContinuousQuerySolverV01",
     "FreeWorldCapabilityMatrixV01",
     "FreeWorldObservationComponentsV01",
-    "ComponentRelativeWorldCoordinateHypothesesV01"
+    "ComponentRelativeWorldCoordinateHypothesesV01",
+    "DeterministicPairGeometryModelBankV01",
+    "PairGeometryModelBankSetV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -52,7 +54,18 @@
     "ratio_test": "BEST_LE_0_8_SECOND",
     "candidate_model": "AFFINE_2D_APPEARANCE_HYPOTHESIS",
     "deterministic_mad_outlier_rejection": true,
-    "registration_promoted": false
+    "registration_promoted": false,
+    "model_bank_implemented": true,
+    "model_families": [
+      "TRANSLATION_2D",
+      "SIMILARITY_2D",
+      "AFFINE_2D",
+      "HOMOGRAPHY_2D_PROJECTIVE"
+    ],
+    "automatic_model_winner_used": false,
+    "lowest_residual_model_is_physical_truth": false,
+    "pure_3d_rotation_model_implemented": false,
+    "pure_3d_rotation_block_reason": "REQUIRES_ADMITTED_INTRINSIC_OR_EQUIVALENT_RAY_GEOMETRY"
   },
   "observation_graph": {
     "node_key": "SOURCE_SHA256",
@@ -171,6 +184,13 @@
       "automatic_colour_correction_applied",
       "temporal_fusion_applied",
       "restoration_applied"
+    ],
+    "expanded_world_geometry_guards": [
+      "world_registration_proven",
+      "same_world_structure_proven",
+      "same_physical_world_point_proven",
+      "component_is_same_physical_scene_proven",
+      "scientific_model_promoted"
     ]
   },
   "geometry_consistency": {
@@ -212,7 +232,8 @@
     "promotion_firewall": true,
     "capability_matrix": true,
     "component_aware_graph_partitioning": true,
-    "independent_relative_world_gauges_per_connected_component": true
+    "independent_relative_world_gauges_per_connected_component": true,
+    "deterministic_pair_geometry_model_bank": true
   },
   "observation_component_policy": {
     "component_partition_implemented": true,
