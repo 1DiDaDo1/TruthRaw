@@ -40,6 +40,14 @@ object ViewAppearanceStateV01 {
                         false,
                     )
                     .put(
+                        "perceptual_noise_visibility_may_change_scientific_master",
+                        false,
+                    )
+                    .put(
+                        "perceptual_noise_appearance_contract",
+                        "D.RAW/PerceptualNoiseAppearance/0.1",
+                    )
+                    .put(
                         "viewing_distance_is_sensor_calibration",
                         false,
                     ),
