@@ -208,25 +208,64 @@ class MainActivity : Activity() {
             }
         }
 
-        if (savedInstanceState == null &&
+        if (
+            savedInstanceState == null &&
             intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
             session.jobs.isEmpty()
         ) {
             window.decorView.post { launchRawPicker() }
+        }
+
+        if (
+            savedInstanceState == null &&
+            intent.getBooleanExtra(
+                EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER,
+                false,
+            )
+        ) {
+            window.decorView.post {
+                launchCalibrationObservationRecordPicker()
+            }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val cameraJob = readInternalCameraJob(intent) ?: return
-        installInternalCameraJob(cameraJob)
-        render()
-        if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
-            window.decorView.post {
-                if (activeJobId == cameraJob.id && previewState is TilePreviewUiState.Idle) {
-                    requestPreview(cameraJob)
+
+        val cameraJob = readInternalCameraJob(intent)
+        if (cameraJob != null) {
+            installInternalCameraJob(cameraJob)
+            render()
+            if (intent.getBooleanExtra(EXTRA_AUTO_START_TRUTHRAW, false)) {
+                window.decorView.post {
+                    if (
+                        activeJobId == cameraJob.id &&
+                        previewState is TilePreviewUiState.Idle
+                    ) {
+                        requestPreview(cameraJob)
+                    }
                 }
+            }
+        } else {
+            render()
+        }
+
+        if (
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
+            session.jobs.isEmpty()
+        ) {
+            window.decorView.post { launchRawPicker() }
+        }
+
+        if (
+            intent.getBooleanExtra(
+                EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER,
+                false,
+            )
+        ) {
+            window.decorView.post {
+                launchCalibrationObservationRecordPicker()
             }
         }
     }
@@ -8421,6 +8460,10 @@ class MainActivity : Activity() {
         private const val PROJECTION_PICKER_PREFS = "truthraw_projection_picker_v072"
         private const val KEY_PENDING_PROJECTION_FORMAT = "pending_projection_format"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
+        const val EXTRA_OPEN_RESEARCH_WORKBENCH =
+            "truthraw.extra.OPEN_RESEARCH_WORKBENCH"
+        const val EXTRA_AUTO_OPEN_CALIBRATION_RECORD_PICKER =
+            "truthraw.extra.AUTO_OPEN_CALIBRATION_RECORD_PICKER"
         const val EXTRA_INTERNAL_CAMERA_SOURCE_PATH = "truthraw.extra.INTERNAL_CAMERA_SOURCE_PATH"
         const val EXTRA_INTERNAL_CAMERA_EVIDENCE_PATH = "truthraw.extra.INTERNAL_CAMERA_EVIDENCE_PATH"
         const val EXTRA_INTERNAL_CAMERA_UPSTREAM_SHA256 = "truthraw.extra.INTERNAL_CAMERA_UPSTREAM_SHA256"
