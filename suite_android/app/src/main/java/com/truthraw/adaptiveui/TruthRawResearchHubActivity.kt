@@ -16,7 +16,7 @@ import android.widget.TextView
 class TruthRawResearchHubActivity : Activity() {
     private val bg = DrawVisualTheme.PAPER_YELLOW
     private val surface = DrawVisualTheme.PAPER_WHITE
-    private val text = DrawVisualTheme.INK
+    private val ink = DrawVisualTheme.INK
     private val muted = DrawVisualTheme.MUTED
     private val blue = DrawVisualTheme.BLUE
 
@@ -250,7 +250,7 @@ class TruthRawResearchHubActivity : Activity() {
             TextView(this@TruthRawResearchHubActivity).apply {
                 text = "‹"
                 textSize = 36f
-                setTextColor(text)
+                setTextColor(ink)
                 gravity = Gravity.CENTER
                 setOnClickListener { finish() }
             },
@@ -296,7 +296,7 @@ class TruthRawResearchHubActivity : Activity() {
         TextView(this).apply {
             text = label
             textSize = 14f
-            setTextColor(text)
+            setTextColor(ink)
             gravity = Gravity.CENTER
             setPadding(dp(14), dp(13), dp(14), dp(13))
             background = rounded(DrawVisualTheme.PAPER_BLUE, blue, 15f)
@@ -310,7 +310,7 @@ class TruthRawResearchHubActivity : Activity() {
     ): GradientDrawable =
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = dp(radius).toFloat()
+            cornerRadius = radius * resources.displayMetrics.density
             setColor(fill)
             setStroke(dp(1), stroke)
         }
@@ -334,7 +334,7 @@ class TruthRawResearchHubActivity : Activity() {
         TextView(this).apply {
             text = value
             textSize = size
-            setTextColor(text)
+            setTextColor(ink)
             setTypeface(typeface, Typeface.BOLD)
         }
 
