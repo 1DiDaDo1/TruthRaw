@@ -23,6 +23,8 @@ Mobile UI includes a new Multi-observation panel with:
 
 Next gate: green integrity + full ARM64 Android build, then one device export from at least three substantially different DNG scenes.
 
+Device UI correction after first PR99 test: the batch analyse button now exposes the normal D.RAW running/success/error dot, elapsed chronometer, pending source count and a final measured-field-chart count. The action force-reanalyses the selected set; JPEG/decoder-pending/non-CFA sources remain observations but do not count toward the >=3 measured PR96 field-chart gate.
+
 ---
 
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL MULTI-OBSERVATION RELATION v0.1 — 2026-09-30
