@@ -1,0 +1,38 @@
+name: Free World Observation Geometry Foundation v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DeterministicLocalFeatureGeometryV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DeterministicLocalFeaturePairGeometryV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGraphV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RelativeWorldCoordinateHypothesisV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MultiObservationCampaignV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/NaturalSelfCalibrationAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/WorldSensorFieldDecompositionScaffoldV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/OpticalSupportAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourRelationAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TemporalObservationRelationV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldContinuousQueryContractV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ConservationRestorationAuthorityRuntimeV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGeometryFoundationV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FrontsideSceneInspector.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'docs/research/free-world-observation-geometry-foundation-v0.1/**'
+      - 'state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json'
+      - 'tools/check_free_world_observation_geometry_foundation_v01.py'
+      - '.github/workflows/free-world-observation-geometry-foundation-v01.yml'
+  push:
+    branches:
+      - 'research/free-world-observation-geometry-foundation-v01-2026-09-30'
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/check_free_world_observation_geometry_foundation_v01.py
