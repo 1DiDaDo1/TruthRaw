@@ -341,6 +341,17 @@ object BacksideSignalSupportAudit {
             )
         }
 
+        val sparseGrid = JSONArray()
+        for (sample in fieldSamples) {
+            sparseGrid.put(
+                JSONObject()
+                    .put("source_x", sample.x)
+                    .put("source_y", sample.y)
+                    .put("cfa_phase", sample.phase)
+                    .put("normalized_above_black", sample.value),
+            )
+        }
+
         return JSONObject()
             .put("schema", "D.RAW/BacksideSignalSupport/0.1")
             .put("status", "MEASURED_SOURCE_PAYLOAD_SAMPLE_AVAILABLE")
@@ -376,6 +387,16 @@ object BacksideSignalSupportAudit {
                     .put("fraction_le_0_02", lowSignalFraction),
             )
             .put("cfa_phase_summary", phaseJson)
+            .put(
+                "sparse_measured_sample_grid",
+                JSONObject()
+                    .put("status", "MEASURED_SPARSE_SOURCE_GRID_AVAILABLE")
+                    .put("authority", "SOURCE_PAYLOAD_MEASURED_WITHIN_SELECTED_DNG")
+                    .put("sample_grid_step", SAMPLE_GRID_STEP)
+                    .put("sample_count", sparseGrid.length())
+                    .put("interpolation_performed", false)
+                    .put("points", sparseGrid),
+            )
             .put(
                 "observation_optical_field_signal_v0_1",
                 opticalFieldSignal,
