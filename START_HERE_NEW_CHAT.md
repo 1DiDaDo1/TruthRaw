@@ -1,3 +1,183 @@
+# D.RAW — FINAL GREEN PREVALIDATION HANDOFF — 2026-09-30
+
+**PR #101 safe prevalidation architecture is COMPLETE.**
+
+Final green source-code head: `64396e30d375c4bca11473214679091d9a280292`
+
+Green result: **27/27 PR checks success, 0 failed**, including Suite Universal Intake, Universal Physical Capture, Android DngCreator Compatibility and Free World Observation Geometry Foundation integrity.
+
+Latest green Suite artifact:
+- ID `11089749606`
+- `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+- APK SHA-256 `1abe28d53048337ee614f7369e60edcfb2ca94f702bb647c451b737c97b8706c`
+- APK size `7,861,007` bytes
+
+Two final compile-only syntax defects were found and fixed before the green build:
+- `FieldResponseSeparationCandidateSetV01.kt` missing final object brace;
+- `FreeWorldContinuousQueryPlannerV01.kt` missing final object brace.
+
+Read first in every successor chat:
+1. `state/FREE_WORLD_PREVALIDATION_FINAL_HANDOFF_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/FINAL_HANDOFF_2026-09-30.md`
+3. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+
+Do not rebuild this architecture from scratch. The prevalidation implementation objective is complete. Further phone work is only for later physical validation/promotion when the user explicitly asks to continue.
+
+Permanent law remains:
+**MEASURED != RECONSTRUCTED != APPEARANCE. Seal the evidence, not the thinking.**
+
+---
+
+# D.RAW — PREVALIDATION ARCHITECTURE CLOSURE REFRESH — 2026-09-30
+
+The user explicitly said **do not stop for a phone test; continue and finish the safe implementation wave now**.
+
+The previous green checkpoint remains valid. A final closure layer has now also been added:
+- per-observation axis authority matrix;
+- explicit UNKNOWN propagation guard;
+- field-response separation candidate-set builder;
+- fail-closed continuous-query planner;
+- scientific-state snapshot;
+- prevalidation candidate ledger.
+
+These additions do not promote any physical interpretation. Their purpose is to preserve the remaining architecture and prevent future chats from turning missing information into defaults or confusing implementation with evidence.
+
+Formal closure object: `PrevalidationArchitectureClosureV01`. A PASS means only `SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED`; it is not physical validation or scientific promotion.
+
+Current gate: rebuild PR101. If green, freeze this as the final prevalidation architecture handoff. Do not require a phone test merely to preserve these modules.
+
+---
+
+# D.RAW — PREVALIDATION ARCHITECTURE CHECKPOINT COMPLETE — 2026-09-30
+
+**Active branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`  
+**Draft PR:** #101
+
+The user explicitly requested that the safe architecture be implemented **before returning to repeated phone tests**, because repeated test cycles were causing design ideas to be lost between chats.
+
+That implementation objective is now complete. Do not delete or collapse these modules merely because physical validation has not yet been run. Their authority is deliberately fail-closed.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. this file.
+
+The architecture now includes:
+- deterministic local features and pair geometry;
+- translation/similarity/affine/homography model bank with no automatic winner;
+- observation graph and disconnected component partitioning;
+- independent relative numeric gauges per connected candidate component;
+- multi-observation feature-track hypotheses and graph-cycle diagnostics;
+- relative-world feature-track projections;
+- ordinary overlap, cross-optical-route, rotation, RAW-360 and stop-motion campaign semantics;
+- Natural Self-Calibration Atlas;
+- world-fixed vs sensor-fixed decomposition scaffold;
+- colour, optics, dark/noise and temporal authority axes/contracts;
+- exact 20-bit source-lattice MEASURED-anchor resolver;
+- typed Free World Continuous Query ABI plus fail-closed UNKNOWN runtime;
+- explicit world↔source-lattice bridge boundary;
+- axis-separated uncertainty transport;
+- conservation/restoration runtime authority;
+- downstream human-vision/display/film-cinema View/Appearance boundary;
+- optional calibration-observation records plus fail-closed validator;
+- evidence-lineage manifest;
+- machine-readable capability matrix;
+- machine-readable future bundled physical-validation campaign;
+- scientific promotion-gate registry;
+- recursive research promotion firewall.
+
+Important permanent boundaries:
+- implementation != validation != measurement != promotion;
+- source SHA roots remain independent;
+- disconnected observations are not forced into one world;
+- camera/lens/vendor names are not scientific relation keys;
+- the user/camera/panorama centre is not a physical world origin;
+- a stitched panorama is not source evidence;
+- unanchored fine-lattice coordinates remain UNKNOWN;
+- no AI/ML/neural/generative reconstruction path;
+- no automatic registration/calibration/correction/deconvolution/temporal fusion/restoration promotion;
+- no Scientific Master writeback from this research foundation;
+- the special 4K→200MP route remains separate;
+- Universal Physical Capture ultra-wide / wide-main / tele retains the 5-second acquisition-only stabilization timer.
+
+The later physical validation design is preserved in `BundledPhysicalValidationCampaignV01`; it does **not** require normal users to perform camera-specific calibration.
+
+The first full compile after this expansion hit a Kotlin compiler GC-overhead OOM. This was a build-memory limit, not a scientific failure. `suite_android/gradle.properties` now uses a bounded 5 GiB in-process Kotlin/Gradle heap. The final ARM64 Android compile gate is now **GREEN** on source-code head `56a4498ae68ebc74e66834b82468573d0242f9f0`: **27/27 PR checks succeeded, 0 failed**.
+
+Green heavy Android runs:
+- Suite Universal Intake: `36698311586`
+- Universal Physical Capture: `36698311253`
+- Android DngCreator Compatibility: `36698311530`
+
+Green Suite artifact:
+- artifact id: `11088856561`
+- APK SHA-256: `d42ea61b2ef811481df490e2e4b972ca0fd73aa868b0e2b1caa8831d41fb121f`
+- APK size: `7844623` bytes
+
+The prevalidation architecture-preservation objective is complete. The next meaningful scientific phase is the already-preserved bundled physical-validation campaign; do not promote registration, calibration, correction, deconvolution, temporal fusion, restoration, or Scientific Master writeback without the required evidence.
+
+---
+
+# D.RAW — ACTIVE RESEARCH OVERLAY — FREE WORLD OBSERVATION GEOMETRY FOUNDATION v0.1 — 2026-09-30
+
+**Current branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`
+
+This branch is the deliberate **implementation-before-promotion-validation** wave.
+
+Parent PR100 remains the source/sensor vs world/scene vs view/output authority foundation and includes the 5-second Universal Physical Capture timer for ultra-wide, wide/main and tele.
+
+Implemented now, without claiming physical promotion:
+- deterministic classical local features;
+- deterministic pair matching + affine geometry hypotheses;
+- Free World observation graph keyed by sealed source SHA;
+- relative world-coordinate graph-gauge hypotheses;
+- ordinary/multi-lens/rotation/RAW-360/stop-motion campaign model;
+- Natural Self-Calibration Atlas axes;
+- world-fixed vs sensor-fixed decomposition readiness scaffold;
+- Optical Support Atlas contract (SFR/MTF/PSF/radial/tangential/chromatic/field-curvature/focus);
+- Colour Relation Atlas contract;
+- Temporal Observation Relation scaffold;
+- axis-separated uncertainty transport;
+- raster-independent Free World Continuous Query contract;
+- conservation/restoration runtime authority roles;
+- typed Free World continuous-query Kotlin ABI (solver still disabled);
+- downstream View/Appearance boundary for human-vision/display/film-cinema rendering;
+- relation-based Calibration Observation Record contract;
+- mechanical recursive Research Promotion Firewall on foundation exports;
+- multi-observation feature tracks + graph-cycle consistency diagnostics;
+- relative-world feature-track projection with explicit dispersion;
+- exact measured-anchor resolver on the 20-bit source lattice; unanchored positions stay UNKNOWN;
+- explicit Free World↔source-lattice bridge boundary; appearance geometry cannot admit that bridge;
+- fail-closed Free World query runtime that returns UNKNOWN until scientific bridge/solver admission;
+- Calibration Observation Record validator;
+- machine-readable Free World Capability Matrix separating implementation from scientific promotion;
+- deterministic graph component partitioning so unrelated selected files are never forced into one world;
+- independent relative numeric gauge per connected appearance-geometry component, with no invented cross-component transform;
+- deterministic pair-geometry model bank (translation/similarity/affine/homography) reported side-by-side with no winner or promotion;
+- unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
+
+Permanent firewall:
+- local features = APPEARANCE_DERIVED_ONLY;
+- pair geometry = hypothesis, not same-world proof;
+- numeric graph gauge = convenience only, never photographer/camera/panorama physical origin;
+- no camera/lens/vendor identity key;
+- no mandatory user calibration;
+- no world-registration promotion;
+- no camera-system-response/lens-only-vignetting claim;
+- no calibration/correction/deconvolution;
+- no multi-frame Scientific Master fusion;
+- no new measured samples/evidence;
+- no Scientific Master writeback.
+
+Read first:
+1. `state/FREE_WORLD_OBSERVATION_GEOMETRY_FOUNDATION_STATE_2026-09-30.json`
+2. `docs/research/free-world-observation-geometry-foundation-v0.1/README.md`
+3. Parent PR100 state + PR99 field-repeatability real-device result.
+
+The previously enumerated safe pre-validation architecture set is now implemented as executable code or explicit runtime contracts. Next gate is integrity + a green full Android build and compile repair only. No phone test is required merely to preserve these ideas; bundled physical validation comes later when scientific promotion is considered.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — OBSERVATION-WORLD FIELD SEPARATION v0.1 — 2026-09-30
 
 **Current branch:** `research/observation-world-field-separation-v01-2026-09-30`

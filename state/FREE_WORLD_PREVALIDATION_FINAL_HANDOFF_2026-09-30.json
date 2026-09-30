@@ -1,0 +1,94 @@
+{
+  "schema": "D.RAW/FreeWorldPrevalidationFinalHandoff/0.1",
+  "date": "2026-09-30",
+  "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
+  "pull_request": 101,
+  "status": "FINAL_GREEN_PREVALIDATION_HANDOFF",
+  "final_green_source_head_sha": "64396e30d375c4bca11473214679091d9a280292",
+  "checks": {
+    "total": 27,
+    "success": 27,
+    "failed": 0
+  },
+  "build_runs": {
+    "suite_universal_intake": 36701583904,
+    "universal_physical_capture": 36701583972,
+    "android_dngcreator_compatibility": 36701583982
+  },
+  "artifact": {
+    "id": 11089749606,
+    "name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "apk_sha256": "1abe28d53048337ee614f7369e60edcfb2ca94f702bb647c451b737c97b8706c",
+    "apk_size_bytes": 7861007
+  },
+  "inherited_camera_usability": {
+    "universal_physical_capture_timer_seconds": 5,
+    "applies_to": [
+      "ULTRA_WIDE",
+      "WIDE_MAIN",
+      "TELE"
+    ],
+    "timer_authority": "ACQUISITION_UI_ONLY",
+    "special_4k_to_200mp_route_unchanged": true
+  },
+  "architecture_complete_before_phone_validation": [
+    "DETERMINISTIC_LOCAL_FEATURE_GEOMETRY",
+    "PAIR_GEOMETRY_AND_MODEL_BANK",
+    "MULTI_OBSERVATION_FEATURE_TRACKS",
+    "GRAPH_CYCLE_CONSISTENCY",
+    "COMPONENT_AWARE_OBSERVATION_GRAPH",
+    "INDEPENDENT_RELATIVE_WORLD_GAUGES_PER_COMPONENT",
+    "MULTI_LENS_ROTATION_RAW360_STOPMOTION_CAMPAIGN_MODEL",
+    "NATURAL_SELF_CALIBRATION_ATLAS",
+    "WORLD_SENSOR_FIELD_SEPARATION_CANDIDATE_SET",
+    "OBSERVATION_AXIS_AUTHORITY_MATRIX",
+    "UNKNOWN_PROPAGATION_GUARD",
+    "OPTICAL_SUPPORT_CONTRACT",
+    "COLOUR_RELATION_CONTRACT",
+    "TEMPORAL_MULTIVIEW_CONTRACT",
+    "AXIS_SEPARATED_UNCERTAINTY",
+    "RASTER_INDEPENDENT_EXACT_SOURCE_ANCHOR_RESOLVER",
+    "CONTINUOUS_QUERY_TYPED_ABI",
+    "FAIL_CLOSED_CONTINUOUS_QUERY_RUNTIME",
+    "WORLD_TO_SOURCE_LATTICE_BRIDGE_CONTRACT",
+    "FREE_WORLD_QUERY_PLANNER",
+    "RESTORATION_AUTHORITY_RUNTIME",
+    "VIEW_APPEARANCE_BOUNDARY",
+    "CALIBRATION_OBSERVATION_RECORD_AND_VALIDATOR",
+    "SCIENTIFIC_PROMOTION_GATE_REGISTRY",
+    "RESEARCH_PROMOTION_FIREWALL",
+    "EVIDENCE_LINEAGE_MANIFEST",
+    "SCIENTIFIC_STATE_SNAPSHOT",
+    "PREVALIDATION_CANDIDATE_LEDGER",
+    "CAPABILITY_MATRIX",
+    "PREVALIDATION_ARCHITECTURE_CLOSURE"
+  ],
+  "permanent_nonpromotion_boundaries": {
+    "world_registration_promoted": false,
+    "camera_system_response_proven": false,
+    "lens_only_vignetting_proven": false,
+    "calibration_promoted": false,
+    "correction_authorized": false,
+    "deconvolution_authorized": false,
+    "multi_frame_scientific_fusion_applied": false,
+    "scientific_writeback_allowed": false,
+    "creates_new_evidence": false
+  },
+  "universal_laws": {
+    "camera_lens_vendor_identity_is_scientific_key": false,
+    "normal_user_calibration_required": false,
+    "user_or_camera_holder_is_world_origin": false,
+    "panorama_center_is_world_origin": false,
+    "stitched_panorama_is_source_evidence": false,
+    "original_sealed_observations_remain_evidence_roots": true,
+    "source_raster_is_world_resolution_boundary": false,
+    "unanchored_lattice_positions_begin_unknown": true,
+    "interpolation_may_create_measured_samples": false,
+    "implemented_does_not_mean_validated": true,
+    "validated_does_not_mean_measured": true,
+    "measured_does_not_automatically_mean_promoted": true
+  },
+  "next_chat_instruction": "Do not rebuild the prevalidation architecture from scratch. Treat this handoff and PR101 as the completed safe implementation checkpoint. Only begin bundled physical validation or later promotion research when the user explicitly chooses to continue.",
+  "phone_test_required_to_preserve_architecture": false,
+  "physical_validation_required_for_future_scientific_promotion": true
+}

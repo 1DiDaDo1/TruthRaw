@@ -1,0 +1,392 @@
+{
+  "schema": "D.RAW/FreeWorldObservationGeometryFoundationState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
+  "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
+  "parent_pr": 100,
+  "status": "PREVALIDATION_ARCHITECTURE_COMPLETE_GREEN_ANDROID_BUILD_FINAL_HANDOFF",
+  "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
+  "implemented_modules": [
+    "DeterministicLocalFeatureGeometryV01",
+    "DeterministicLocalFeaturePairGeometryV01",
+    "FreeWorldObservationGraphV01",
+    "RelativeWorldCoordinateHypothesisV01",
+    "MultiObservationCampaignV01",
+    "NaturalSelfCalibrationAtlasV01",
+    "WorldSensorFieldDecompositionScaffoldV01",
+    "OpticalSupportAtlasV01",
+    "ColourRelationAtlasV01",
+    "TemporalObservationRelationV01",
+    "FreeWorldUncertaintyTransportV01",
+    "FreeWorldContinuousQueryContractV01",
+    "ConservationRestorationAuthorityRuntimeV01",
+    "FreeWorldObservationGeometryFoundationV01",
+    "FreeWorldContinuousQueryApiV01",
+    "ViewAppearanceStateV01",
+    "CalibrationObservationRecordV01",
+    "ResearchPromotionFirewallV01",
+    "FreeWorldFeatureTrackHypothesesV01",
+    "ObservationGraphCycleConsistencyV01",
+    "RelativeWorldFeatureTrackProjectionV01",
+    "GeometryValidationReadinessV01",
+    "FreeWorldQuerySupportLedgerV01",
+    "SourceLatticeExactAnchorResolverV01",
+    "CalibrationObservationRecordValidatorV01",
+    "FreeWorldSourceLatticeBridgeContractV01",
+    "FailClosedFreeWorldContinuousQuerySolverV01",
+    "FreeWorldCapabilityMatrixV01",
+    "FreeWorldObservationComponentsV01",
+    "ComponentRelativeWorldCoordinateHypothesesV01",
+    "DeterministicPairGeometryModelBankV01",
+    "PairGeometryModelBankSetV01",
+    "BundledPhysicalValidationCampaignV01",
+    "ScientificPromotionGateRegistryV01",
+    "FreeWorldEvidenceLineageManifestV01",
+    "ObservationAxisAuthorityMatrixV01",
+    "UnknownPropagationGuardV01",
+    "FieldResponseSeparationCandidateSetV01",
+    "FreeWorldContinuousQueryPlannerV01",
+    "FreeWorldScientificStateSnapshotV01",
+    "PrevalidationCandidateLedgerV01",
+    "PrevalidationArchitectureClosureV01"
+  ],
+  "frontside_feature_geometry": {
+    "detector_family": "HARRIS_STRUCTURE_TENSOR",
+    "descriptor_family": "ORIENTATION_NORMALIZED_BINARY_INTENSITY_PAIRS",
+    "descriptor_bits": 128,
+    "maximum_keypoints": 96,
+    "authority": "APPEARANCE_DERIVED_ONLY",
+    "registration_proof": false
+  },
+  "pair_geometry": {
+    "descriptor_metric": "HAMMING_128",
+    "mutual_best_required": true,
+    "ratio_test": "BEST_LE_0_8_SECOND",
+    "candidate_model": "AFFINE_2D_APPEARANCE_HYPOTHESIS",
+    "deterministic_mad_outlier_rejection": true,
+    "registration_promoted": false,
+    "model_bank_implemented": true,
+    "model_families": [
+      "TRANSLATION_2D",
+      "SIMILARITY_2D",
+      "AFFINE_2D",
+      "HOMOGRAPHY_2D_PROJECTIVE"
+    ],
+    "automatic_model_winner_used": false,
+    "lowest_residual_model_is_physical_truth": false,
+    "pure_3d_rotation_model_implemented": false,
+    "pure_3d_rotation_block_reason": "REQUIRES_ADMITTED_INTRINSIC_OR_EQUIVALENT_RAY_GEOMETRY"
+  },
+  "observation_graph": {
+    "node_key": "SOURCE_SHA256",
+    "source_evidence_merged": false,
+    "camera_or_lens_identity_is_key": false,
+    "derived_graph_identity_is_evidence_root": false
+  },
+  "relative_world_coordinates": {
+    "numeric_gauge_may_be_selected": true,
+    "numeric_gauge_has_physical_origin_authority": false,
+    "camera_holder_is_world_origin": false,
+    "panorama_center_is_world_origin": false,
+    "absolute_metric_scale_proven": false,
+    "depth_proven": false,
+    "component_aware_multi_gauge_implemented": true,
+    "cross_component_transform_exists": false,
+    "disconnected_components_share_numeric_gauge": false
+  },
+  "campaign": {
+    "ordinary_overlap_supported": true,
+    "multi_lens_overlap_supported": true,
+    "rotation_sequence_supported": true,
+    "raw_360_sequence_supported": true,
+    "stop_motion_sequence_supported": true,
+    "stitched_panorama_is_independent_evidence": false
+  },
+  "natural_self_calibration_axes": [
+    "FIELD_RESPONSE",
+    "CFA_PHASE",
+    "COLOUR",
+    "OPTICAL_SUPPORT",
+    "DARK_NOISE",
+    "TEMPORAL"
+  ],
+  "continuous_query": {
+    "contract_implemented": true,
+    "pixel_solver_implemented": false,
+    "source_raster_is_world_resolution_limit": false,
+    "fine_lattice_positions_begin_unknown": true,
+    "interpolation_may_create_measured_samples": false,
+    "typed_kotlin_abi_implemented": true,
+    "request_type": "FreeWorldContinuousQueryRequestV01",
+    "result_type": "FreeWorldContinuousQueryResultV01",
+    "solver_interface": "FreeWorldContinuousQuerySolverV01",
+    "source_lattice_exact_anchor_resolver_implemented": true,
+    "measured_anchor_provider_interface": "MeasuredAnchorProviderV01",
+    "unanchored_lattice_position_returns_unknown": true,
+    "world_to_source_bridge_admitted": false,
+    "appearance_geometry_may_admit_world_to_source_bridge": false,
+    "fail_closed_world_runtime_implemented": true,
+    "fail_closed_world_solver": "FailClosedFreeWorldContinuousQuerySolverV01",
+    "unadmitted_world_query_returns_unknown": true,
+    "query_planner_implemented": true,
+    "query_planner": "FreeWorldContinuousQueryPlannerV01",
+    "planner_may_treat_candidate_geometry_as_world_source_bridge": false,
+    "planner_may_return_measured_without_exact_source_support": false
+  },
+  "restoration_authority_roles": [
+    "ORIGINAL_MEASURED_SUPPORT",
+    "CONDITION_OBSERVED",
+    "STABILIZED_DERIVED",
+    "LOSS_COMPENSATION_RECONSTRUCTED",
+    "AESTHETIC_REINTEGRATION_ONLY",
+    "UNRESOLVED_LOSS"
+  ],
+  "android_ui": {
+    "foundation_export_added": true,
+    "minimum_profiled_observations": 2,
+    "request_code": 4130
+  },
+  "promotion_firewall": {
+    "world_registration_promoted": false,
+    "camera_system_response_proven": false,
+    "lens_only_vignetting_proven": false,
+    "calibration_promoted": false,
+    "correction_authorized": false,
+    "deconvolution_authorized": false,
+    "multi_frame_scientific_fusion_applied": false,
+    "scientific_writeback_allowed": false
+  },
+  "invariants": {
+    "camera_model_routing_used": false,
+    "lens_profile_lookup_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "inherited_capture_usability": {
+    "universal_physical_capture_timer_seconds": 5,
+    "timer_authority": "ACQUISITION_UI_ONLY",
+    "special_4k_to_200mp_route_unchanged": true
+  },
+  "next_gate": "NO_MORE_PREVALIDATION_ARCHITECTURE_WORK_REQUIRED; NEXT CHAT MAY BEGIN_BUNDLED_PHYSICAL_VALIDATION_WHEN_USER_CHOOSES",
+  "view_appearance": {
+    "downstream_only": true,
+    "human_vision_may_write_scientific_master": false,
+    "film_cinema_appearance_may_create_measured_evidence": false
+  },
+  "calibration_observation_record": {
+    "contract_implemented": true,
+    "primary_identity": "SOURCE_SHA256_ROOTS",
+    "camera_lens_vendor_name_is_key": false,
+    "required_for_normal_intake": false,
+    "validator_implemented": true,
+    "validator": "CalibrationObservationRecordValidatorV01",
+    "validation_promotes_calibration": false
+  },
+  "research_promotion_firewall": {
+    "implemented": true,
+    "recursive_export_audit": true,
+    "export_must_pass": true,
+    "expanded_active_transform_guards": [
+      "registration_promoted",
+      "world_point_estimate_promoted",
+      "deconvolution_applied",
+      "inverse_optics_authorized",
+      "automatic_colour_correction_applied",
+      "temporal_fusion_applied",
+      "restoration_applied"
+    ],
+    "expanded_world_geometry_guards": [
+      "world_registration_proven",
+      "same_world_structure_proven",
+      "same_physical_world_point_proven",
+      "component_is_same_physical_scene_proven",
+      "scientific_model_promoted"
+    ]
+  },
+  "geometry_consistency": {
+    "multi_observation_feature_tracks_implemented": true,
+    "robust_inlier_matches_only": true,
+    "same_observation_track_conflicts_reported_not_hidden": true,
+    "three_observation_cycle_closure_audit_implemented": true,
+    "automatic_consistency_threshold_used": false,
+    "same_world_structure_proven": false,
+    "relative_world_track_projection_implemented": true,
+    "world_point_estimate_promoted": false
+  },
+  "capability_matrix": {
+    "implemented": true,
+    "schema": "D.RAW/FreeWorldCapabilityMatrix/0.1",
+    "law": "IMPLEMENTED_DOES_NOT_MEAN_VALIDATED",
+    "separates_implementation_from_scientific_promotion": true
+  },
+  "prevalidation_safe_architecture_items_from_user_requested_wave": {
+    "local_feature_geometry": true,
+    "pair_geometry": true,
+    "multi_observation_tracks": true,
+    "graph_cycle_consistency": true,
+    "relative_world_hypotheses": true,
+    "multi_lens_and_360_campaigns": true,
+    "natural_self_calibration_atlas": true,
+    "world_sensor_separation_scaffold": true,
+    "optical_support_contract": true,
+    "colour_relation_contract": true,
+    "temporal_multiview_contract": true,
+    "axis_separated_uncertainty": true,
+    "exact_source_lattice_anchor_semantics": true,
+    "continuous_query_typed_abi": true,
+    "fail_closed_world_query_runtime": true,
+    "world_source_bridge_boundary": true,
+    "restoration_authority_runtime": true,
+    "view_appearance_boundary": true,
+    "calibration_record_contract_and_validator": true,
+    "promotion_firewall": true,
+    "capability_matrix": true,
+    "component_aware_graph_partitioning": true,
+    "independent_relative_world_gauges_per_connected_component": true,
+    "deterministic_pair_geometry_model_bank": true,
+    "observation_axis_authority_matrix": true,
+    "unknown_propagation_guard": true,
+    "field_response_separation_candidate_set": true,
+    "continuous_query_planner": true,
+    "scientific_state_snapshot": true,
+    "prevalidation_candidate_ledger": true,
+    "formal_prevalidation_architecture_closure": true
+  },
+  "observation_component_policy": {
+    "component_partition_implemented": true,
+    "candidate_geometry_edges_define_connectivity_only": true,
+    "connected_component_equals_same_world_proof": false,
+    "selection_set_equals_one_world": false,
+    "isolated_observations_preserved": true,
+    "independent_numeric_gauge_per_component": true,
+    "cross_component_transform_exists": false,
+    "component_gauge_has_physical_origin_authority": false
+  },
+  "validation_campaign_contract": {
+    "implemented": true,
+    "schema": "D.RAW/BundledPhysicalValidationCampaign/0.1",
+    "phone_test_required_to_preserve_architecture": false,
+    "normal_user_calibration_required": false,
+    "includes": [
+      "NATURAL_OVERLAP_SAME_ROUTE",
+      "CROSS_OPTICAL_ROUTE_OVERLAP",
+      "ROTATION_SEQUENCE",
+      "RAW_360_SEQUENCE",
+      "CONTROLLED_FIELD_ROTATION",
+      "COLOUR_MULTI_ILLUMINANT",
+      "OPTICAL_SUPPORT",
+      "DARK_NOISE_OFFSET",
+      "TEMPORAL_FOOTPRINT"
+    ]
+  },
+  "scientific_gate_registry": {
+    "implemented": true,
+    "automatic_promotion_allowed": false,
+    "registry_itself_grants_promotion": false
+  },
+  "evidence_lineage_manifest": {
+    "implemented": true,
+    "primary_roots": "SOURCE_SHA256",
+    "derived_manifest_is_evidence_root": false,
+    "derived_graph_is_evidence_root": false,
+    "source_roots_remain_independent": true
+  },
+  "build_memory_fix": {
+    "implemented": true,
+    "path": "suite_android/gradle.properties",
+    "gradle_heap": "5g",
+    "kotlin_compiler_execution_strategy": "in-process",
+    "scientific_runtime_behavior_changed": false,
+    "reason": "CI Kotlin compiler GC-overhead OutOfMemoryError"
+  },
+  "final_green_checkpoint": {
+    "source_code_head_sha": "64396e30d375c4bca11473214679091d9a280292",
+    "pull_request": 101,
+    "pull_request_checks_total": 27,
+    "pull_request_checks_success": 27,
+    "pull_request_checks_failed": 0,
+    "suite_universal_intake_run_id": 36701583904,
+    "universal_physical_capture_run_id": 36701583972,
+    "android_dngcreator_compatibility_run_id": 36701583982,
+    "suite_artifact": {
+      "artifact_id": 11089749606,
+      "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+      "apk_sha256": "1abe28d53048337ee614f7369e60edcfb2ca94f702bb647c451b737c97b8706c",
+      "apk_size_bytes": 7861007
+    },
+    "compile_repair": {
+      "reason": "Two newly added Kotlin objects were missing their final object-closing brace after otherwise complete function bodies.",
+      "fixed_files": [
+        "suite_android/app/src/main/java/com/truthraw/adaptiveui/FieldResponseSeparationCandidateSetV01.kt",
+        "suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldContinuousQueryPlannerV01.kt"
+      ],
+      "fix_commits": [
+        "0597e2afe911c88684c1c994b83d337fc7f3339b",
+        "64396e30d375c4bca11473214679091d9a280292"
+      ],
+      "scientific_runtime_semantics_changed": false
+    }
+  },
+  "authority_closure": {
+    "observation_axis_authority_matrix_implemented": true,
+    "cross_axis_upgrade_allowed": false,
+    "frontside_may_upgrade_backside": false,
+    "metadata_hint_may_become_measurement": false,
+    "unknown_propagation_guard_implemented": true,
+    "unknown_to_zero_allowed": false,
+    "unknown_to_identity_transform_allowed": false,
+    "missing_uncertainty_to_zero_allowed": false
+  },
+  "field_response_separation_candidate_set": {
+    "implemented": true,
+    "camera_or_lens_identity_used": false,
+    "decomposition_performed": false,
+    "world_fixed_component_estimated": false,
+    "sensor_fixed_component_estimated": false,
+    "lens_only_vignetting_proven": false
+  },
+  "scientific_state_snapshot": {
+    "implemented": true,
+    "schema": "D.RAW/FreeWorldScientificStateSnapshot/0.1",
+    "derived_snapshot_is_physical_evidence_root": false,
+    "implementation_equals_validation": false,
+    "validation_equals_measurement": false,
+    "measurement_equals_promotion": false
+  },
+  "prevalidation_candidate_ledger": {
+    "implemented": true,
+    "schema": "D.RAW/PrevalidationCandidateLedger/0.1",
+    "phone_test_required_to_preserve_items": false,
+    "automatic_promotion_allowed": false
+  },
+  "prevalidation_architecture_closure": {
+    "implemented": true,
+    "schema": "D.RAW/PrevalidationArchitectureClosure/0.1",
+    "closure_meaning": "SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED",
+    "closure_is_physical_validation": false,
+    "closure_is_scientific_promotion": false,
+    "phone_test_required_to_preserve_architecture": false,
+    "future_physical_validation_still_required_for_promotion": true,
+    "normal_user_calibration_required": false
+  },
+  "final_handoff": {
+    "architecture_preserved_without_phone_test": true,
+    "phone_test_required_to_preserve_ideas": false,
+    "physical_validation_still_required_for_promotion": true,
+    "no_camera_lens_vendor_identity_key": true,
+    "no_ai_ml_neural_generative_runtime": true,
+    "source_evidence_immutable": true,
+    "measured_reconstructed_appearance_separated": true,
+    "user_or_camera_holder_is_world_origin": false,
+    "panorama_center_is_world_origin": false,
+    "source_raster_is_world_resolution_boundary": false,
+    "correction_authorized": false,
+    "calibration_promoted": false,
+    "world_registration_promoted": false,
+    "scientific_writeback_allowed": false
+  }
+}

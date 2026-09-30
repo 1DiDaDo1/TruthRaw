@@ -68,6 +68,21 @@ object FrontsideSceneInspector {
                     ),
                 )
                 .put(
+                    "deterministic_local_feature_geometry_v0_1",
+                    JSONObject()
+                        .put(
+                            "schema",
+                            DeterministicLocalFeatureGeometryV01.SCHEMA,
+                        )
+                        .put("status", "UNKNOWN_FAIL_CLOSED")
+                        .put("reason", "FRONTSIDE_PREVIEW_UNAVAILABLE")
+                        .put("source_sha256", sourceSha256)
+                        .put("authority", "APPEARANCE_DERIVED_ONLY")
+                        .put("is_world_registration_proof", false)
+                        .put("creates_sensor_evidence", false)
+                        .put("scientific_writeback_allowed", false),
+                )
+                .put(
                     "semantic_scene_understanding",
                     JSONObject()
                         .put("level", "FRONTSIDE_UNAVAILABLE")
@@ -78,6 +93,11 @@ object FrontsideSceneInspector {
         }
 
         val bitmap = scaleForAnalysis(decoded.bitmap)
+        val localFeatureGeometry =
+            DeterministicLocalFeatureGeometryV01.extract(
+                bitmap = bitmap,
+                sourceSha256 = sourceSha256,
+            )
         val darkChromaStability =
             DarkChromaStabilityAudit.analyze(bitmap, sourceSha256)
         val darkChromaStabilityV02 =
@@ -322,6 +342,10 @@ object FrontsideSceneInspector {
             .put("dominant_edge_orientation_degrees", dominantAngleDeg)
             .put("edge_orientation_histogram", edgeOrientationJson)
             .put("structural_feature_signature_sha256", signature)
+            .put(
+                "deterministic_local_feature_geometry_v0_1",
+                localFeatureGeometry,
+            )
             .put("dark_chroma_stability_v0_1", darkChromaStability)
             .put("dark_chroma_stability_v0_2", darkChromaStabilityV02)
             .put("dark_chroma_stability_v0_3", darkChromaStabilityV03)
@@ -351,7 +375,7 @@ object FrontsideSceneInspector {
                     .put("level", "STRUCTURAL_VISION_V0_5")
                     .put(
                         "description",
-                        "Frontside proportions, luminance structure, edges and orientation are inspected at intake. Dark Chroma Stability v0.1 and v0.2 remain immutable. v0.3 adds a non-entropy-hinged frontside degeneracy blocker plus measured selected-DNG CFA signal-support. Both can block colour reconstruction but cannot enable correction; local backside/N2 support remains required. Higher-level deterministic analysis may be added only through inspectable non-AI algorithms.",
+                        "Frontside proportions, luminance structure, edges, orientation and deterministic classical local-feature geometry are inspected at intake. Local features remain APPEARANCE_DERIVED_ONLY and are not registration proof. Dark Chroma Stability v0.1 and v0.2 remain immutable. v0.3 adds a non-entropy-hinged frontside degeneracy blocker plus measured selected-DNG CFA signal-support. These can block reconstruction but cannot enable correction; local backside/N2 support remains required.",
                     )
                     .put("future_classical_vision_extension_allowed", true),
             )

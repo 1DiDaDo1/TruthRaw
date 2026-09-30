@@ -95,6 +95,8 @@ class MainActivity : Activity() {
     private val fieldResponseBatchFailedJobIds = linkedSetOf<String>()
     private var pendingObservationWorldFieldSeparationJson: String? = null
     private var observationWorldFieldSeparationStatus: String? = null
+    private var pendingFreeWorldFoundationJson: String? = null
+    private var freeWorldFoundationStatus: String? = null
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
     private var pendingAppearanceHeadroomSweepJobId: String? = null
@@ -1737,6 +1739,83 @@ class MainActivity : Activity() {
         session.jobs.mapNotNull { job ->
             universalProfiles[job.id]
         }
+
+    @Suppress("DEPRECATION")
+    private fun launchFreeWorldFoundationExport() {
+        val profiles = currentObservationWorldProfiles()
+        val repeatability =
+            FieldResponseRepeatabilityV01.evaluate(
+                currentMeasuredFieldCharts(),
+            ).takeIf {
+                it.optString("status") ==
+                    "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+            }
+
+        val report =
+            FreeWorldObservationGeometryFoundationV01.build(
+                profiles = profiles,
+                fieldRepeatability = repeatability,
+            )
+
+        if (
+            report.optString("status") !=
+            "FREE_WORLD_FOUNDATION_AVAILABLE"
+        ) {
+            freeWorldFoundationStatus =
+                "Free World Foundation v0.1 blijft fail-closed: minimaal twee geprofileerde observations zijn nodig."
+            render()
+            return
+        }
+
+        val boundary =
+            report.optJSONObject("promotion_boundary") ?: JSONObject()
+        val firewall =
+            report.optJSONObject("promotion_firewall") ?: JSONObject()
+        if (
+            firewall.optString("status") !=
+            "RESEARCH_PROMOTION_FIREWALL_PASS" ||
+            !firewall.optBoolean(
+                "export_safe_under_current_research_contract",
+                false,
+            ) ||
+            boundary.optBoolean("world_registration_promoted", true) ||
+            boundary.optBoolean("camera_system_response_proven", true) ||
+            boundary.optBoolean("lens_only_vignetting_proven", true) ||
+            boundary.optBoolean("calibration_promoted", true) ||
+            boundary.optBoolean("correction_authorized", true) ||
+            boundary.optBoolean("deconvolution_authorized", true) ||
+            boundary.optBoolean("multi_frame_scientific_fusion_applied", true) ||
+            boundary.optBoolean("scientific_writeback_allowed", true) ||
+            report.optBoolean("creates_new_evidence", true) ||
+            report.optBoolean("scientific_writeback_allowed", true)
+        ) {
+            freeWorldFoundationStatus =
+                "Free World Foundation v0.1 export geblokkeerd: promotion firewall mismatch."
+            render()
+            return
+        }
+
+        pendingFreeWorldFoundationJson = report.toString(2) + "\n"
+        freeWorldFoundationStatus = null
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                "draw_free_world_observation_geometry_foundation_v0_1_" +
+                    profiles.size +
+                    "_observations.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        startActivityForResult(
+            intent,
+            REQUEST_SAVE_FREE_WORLD_FOUNDATION,
+        )
+    }
 
     @Suppress("DEPRECATION")
     private fun launchObservationWorldFieldSeparationExport() {
@@ -3571,6 +3650,92 @@ class MainActivity : Activity() {
                     " · camera/lens-identiteit vereist=false · correctie=false · writeback=false."
             } catch (error: Exception) {
                 "Universal Observation & Calibration Atlas v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_FREE_WORLD_FOUNDATION) {
+            val reportText = pendingFreeWorldFoundationJson
+            pendingFreeWorldFoundationJson = null
+            val destination = data?.data
+
+            if (resultCode != RESULT_OK || destination == null) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1-export geannuleerd."
+                render()
+                return
+            }
+
+            if (reportText == null) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: pending report ontbreekt."
+                render()
+                return
+            }
+
+            val saved = runCatching { JSONObject(reportText) }.getOrNull()
+            val current =
+                FreeWorldObservationGeometryFoundationV01.build(
+                    profiles = currentObservationWorldProfiles(),
+                    fieldRepeatability =
+                        FieldResponseRepeatabilityV01.evaluate(
+                            currentMeasuredFieldCharts(),
+                        ).takeIf {
+                            it.optString("status") ==
+                                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
+                        },
+                )
+
+            if (
+                saved == null ||
+                saved.optString("status") !=
+                "FREE_WORLD_FOUNDATION_AVAILABLE" ||
+                current.optString("status") !=
+                "FREE_WORLD_FOUNDATION_AVAILABLE"
+            ) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: observation-set niet meer geldig."
+                render()
+                return
+            }
+
+            val savedGraph =
+                saved.optJSONObject("observation_graph") ?: JSONObject()
+            val currentGraph =
+                current.optJSONObject("observation_graph") ?: JSONObject()
+            if (
+                savedGraph.optString("graph_identity_sha256").isBlank() ||
+                savedGraph.optString("graph_identity_sha256") !=
+                currentGraph.optString("graph_identity_sha256")
+            ) {
+                freeWorldFoundationStatus =
+                    "Free World Foundation v0.1 geblokkeerd: graph identity veranderde."
+                render()
+                return
+            }
+
+            freeWorldFoundationStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException(
+                            "Documentprovider gaf geen outputstream.",
+                        )
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(reportText)
+                }
+
+                val graph =
+                    saved.optJSONObject("observation_graph")
+                        ?: JSONObject()
+                "Free World Foundation v0.1 JSON opgeslagen · observations=" +
+                    graph.optInt("observation_count", 0) +
+                    " · pair geometry candidates=" +
+                    graph.optInt("geometry_candidate_edge_count", 0) +
+                    " · registration promoted=false · calibration=false · correction=false · writeback=false."
+            } catch (error: Exception) {
+                "Free World Foundation v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -7909,6 +8074,24 @@ class MainActivity : Activity() {
         observationWorldFieldSeparationStatus?.let {
             addView(label(it, 10f, muted = true))
         }
+        addView(space(5))
+        addView(actionButton(
+            "Export Free World Observation Geometry Foundation v0.1 · JSON",
+            enabled = profiled >= 2,
+        ) {
+            launchFreeWorldFoundationExport()
+        })
+        freeWorldFoundationStatus?.let {
+            addView(label(it, 10f, muted = true))
+        }
+        addView(label(
+            "Foundation-export bundelt deterministische lokale features, pair-geometry hypotheses, " +
+                "Free World observation graph, multi-lens/360 campaign policy, Natural Self-Calibration Atlas, " +
+                "world-vs-sensor decomposition readiness, gescheiden uncertainty, continuous-query contract en " +
+                "restoration authority. Alles blijft read-only/fail-closed tot afzonderlijke validatie.",
+            10f,
+            muted = true,
+        ))
         addView(label(
             "Nieuwe vrije-wereld fundering: SOURCE/SENSOR SPACE, WORLD/SCENE SPACE en VIEW/OUTPUT SPACE " +
                 "blijven strikt gescheiden. Gewone overlappende of 360°-observaties mogen later een " +
@@ -8142,5 +8325,6 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
         private const val REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129
+        private const val REQUEST_SAVE_FREE_WORLD_FOUNDATION = 4130
     }
 }

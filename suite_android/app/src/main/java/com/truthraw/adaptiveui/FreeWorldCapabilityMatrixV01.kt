@@ -1,0 +1,231 @@
+package com.truthraw.adaptiveui
+
+import org.json.JSONArray
+import org.json.JSONObject
+
+/**
+ * Machine-readable checkpoint of implemented Free World capabilities versus
+ * scientifically promoted capabilities.
+ *
+ * It exists so later development cannot confuse "code exists" with
+ * "physical interpretation validated".
+ */
+object FreeWorldCapabilityMatrixV01 {
+    const val SCHEMA = "D.RAW/FreeWorldCapabilityMatrix/0.1"
+
+    fun describe(
+        graph: JSONObject,
+        tracks: JSONObject,
+        cycles: JSONObject,
+        decomposition: JSONObject,
+    ): JSONObject {
+        val capabilities = JSONArray()
+
+        fun capability(
+            id: String,
+            implementationStatus: String,
+            scientificStatus: String,
+            activeUseAllowed: Boolean,
+            validationRequired: Boolean,
+        ) {
+            capabilities.put(
+                JSONObject()
+                    .put("id", id)
+                    .put(
+                        "implementation_status",
+                        implementationStatus,
+                    )
+                    .put(
+                        "scientific_status",
+                        scientificStatus,
+                    )
+                    .put(
+                        "active_scientific_use_allowed",
+                        activeUseAllowed,
+                    )
+                    .put(
+                        "physical_validation_required",
+                        validationRequired,
+                    ),
+            )
+        }
+
+        capability(
+            "LOCAL_FEATURE_GEOMETRY",
+            "IMPLEMENTED",
+            "APPEARANCE_DERIVED_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "PAIR_GEOMETRY",
+            "IMPLEMENTED",
+            "AFFINE_APPEARANCE_HYPOTHESIS_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "PAIR_GEOMETRY_MODEL_BANK",
+            "IMPLEMENTED",
+            "TRANSLATION_SIMILARITY_AFFINE_HOMOGRAPHY_CANDIDATES_NO_WINNER",
+            false,
+            true,
+        )
+        capability(
+            "MULTI_OBSERVATION_FEATURE_TRACKS",
+            "IMPLEMENTED",
+            "TRACK_HYPOTHESES_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "GRAPH_CYCLE_CONSISTENCY",
+            "IMPLEMENTED",
+            "DESCRIPTIVE_DIAGNOSTIC_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "RELATIVE_WORLD_GRAPH_GAUGE",
+            "IMPLEMENTED",
+            "NUMERIC_GAUGE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "WORLD_SENSOR_FIELD_DECOMPOSITION",
+            "SCAFFOLD_IMPLEMENTED",
+            "NOT_ESTIMATED",
+            false,
+            true,
+        )
+        capability(
+            "NATURAL_SELF_CALIBRATION",
+            "ATLAS_IMPLEMENTED",
+            "NO_AXIS_PROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "OPTICAL_SUPPORT",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "NO_MEASURED_SFR_MTF_PSF_ATTACHED",
+            false,
+            true,
+        )
+        capability(
+            "COLOUR_RELATION",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "NO_EMPIRICAL_OR_SPECTRAL_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "TEMPORAL_MULTIVIEW",
+            "SCAFFOLD_IMPLEMENTED",
+            "NO_PHYSICAL_SEQUENCE_RELATION_PROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "SOURCE_LATTICE_EXACT_ANCHOR_QUERY",
+            "IMPLEMENTED",
+            "MEASURED_ONLY_AT_EXACT_ADMITTED_ANCHORS",
+            true,
+            false,
+        )
+        capability(
+            "FREE_WORLD_CONTINUOUS_QUERY",
+            "TYPED_ABI_AND_FAIL_CLOSED_RUNTIME_IMPLEMENTED",
+            "UNKNOWN_UNTIL_WORLD_SOURCE_BRIDGE_AND_SOLVER_ADMITTED",
+            false,
+            true,
+        )
+        capability(
+            "RESTORATION_AUTHORITY",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "NO_RESTORATION_APPLIED",
+            false,
+            true,
+        )
+        capability(
+            "VIEW_APPEARANCE",
+            "DOWNSTREAM_BOUNDARY_IMPLEMENTED",
+            "APPEARANCE_ONLY",
+            true,
+            false,
+        )
+        capability(
+            "RESEARCH_PROMOTION_FIREWALL",
+            "IMPLEMENTED",
+            "ENFORCED_ON_FOUNDATION_EXPORT",
+            true,
+            false,
+        )
+
+        return JSONObject()
+            .put("schema", SCHEMA)
+            .put(
+                "status",
+                "CAPABILITY_MATRIX_AVAILABLE",
+            )
+            .put(
+                "observation_graph_candidate_edges",
+                graph.optInt(
+                    "geometry_candidate_edge_count",
+                    0,
+                ),
+            )
+            .put(
+                "feature_track_hypothesis_count",
+                tracks.optInt("track_count", 0),
+            )
+            .put(
+                "closed_cycle_count",
+                cycles.optInt(
+                    "closed_triangle_count",
+                    0,
+                ),
+            )
+            .put(
+                "decomposition_world_component_estimated",
+                decomposition.optBoolean(
+                    "world_fixed_component_estimated",
+                    false,
+                ),
+            )
+            .put(
+                "decomposition_sensor_component_estimated",
+                decomposition.optBoolean(
+                    "sensor_fixed_component_estimated",
+                    false,
+                ),
+            )
+            .put("capabilities", capabilities)
+            .put(
+                "global_law",
+                JSONObject()
+                    .put(
+                        "implemented_does_not_mean_validated",
+                        true,
+                    )
+                    .put(
+                        "validated_does_not_mean_measured",
+                        true,
+                    )
+                    .put(
+                        "representation_freedom_does_not_upgrade_authority",
+                        true,
+                    )
+                    .put(
+                        "unknown_is_valid_state",
+                        true,
+                    ),
+            )
+            .put("calibration_promoted", false)
+            .put("correction_authorized", false)
+            .put("deconvolution_authorized", false)
+            .put("scientific_writeback_allowed", false)
+            .put("creates_new_evidence", false)
+    }
+}
