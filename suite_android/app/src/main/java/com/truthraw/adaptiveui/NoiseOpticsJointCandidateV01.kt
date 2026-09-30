@@ -153,6 +153,17 @@ object NoiseOpticsJointCandidateV01 {
             ) {
                 continue
             }
+            val admission =
+                CalibrationObservationAdmissionV01.admitForNumericCandidate(
+                    record = record,
+                    axis = axis,
+                )
+            if (
+                admission.optString("status") !=
+                "NUMERIC_CANDIDATE_RELATION_ADMITTED"
+            ) {
+                continue
+            }
             val payload = record.optJSONObject("axis_payload") ?: continue
             val bins = payload.optJSONArray("signal_psd_bins") ?: continue
             for (i in 0 until bins.length()) {
