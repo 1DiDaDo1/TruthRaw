@@ -21,40 +21,47 @@ object ScientificDenoiseAdmissionV01 {
         temporalFootprint: JSONObject,
         geometryDepth: JSONObject,
         worldSpaceNoise: JSONObject,
+        promotionState: JSONObject =
+            ScientificPromotionStateV01.blocked(),
+        allowPromotionProjection: Boolean = false,
     ): JSONObject {
         val radiometricReady =
-            radiometric.optBoolean("radiometric_calibration_promoted", false)
+            promotionState.optBoolean(
+                "radiometric_calibration_promoted",
+                false,
+            )
         val noiseReady =
-            noiseComponents.optBoolean(
+            promotionState.optBoolean(
                 "noise_component_calibration_promoted",
                 false,
             )
         val numericNoiseTransportReady =
-            noiseTransport.optBoolean(
-                "numeric_transport_validated",
+            promotionState.optBoolean(
+                "numeric_noise_transport_validated",
                 false,
             )
         val opticalReady =
-            opticalSupport.optBoolean(
+            promotionState.optBoolean(
                 "optical_support_calibration_promoted",
                 false,
             )
         val temporalReady =
-            temporalFootprint.optBoolean("physical_sequence_order_proven", false)
+            promotionState.optBoolean(
+                "temporal_relation_promoted",
+                false,
+            )
         val geometryReady =
-            geometryDepth.optBoolean("geometry_promoted", false)
+            promotionState.optBoolean("geometry_promoted", false)
+        val worldBridgeReady =
+            promotionState.optBoolean(
+                "world_to_source_bridge_promoted",
+                false,
+            )
         val worldSeparationReady =
-            worldSpaceNoise.optBoolean("world_fixed_signal_estimated", false) &&
-                (
-                    worldSpaceNoise.optBoolean(
-                        "sensor_fixed_pattern_estimated",
-                        false,
-                    ) ||
-                        worldSpaceNoise.optBoolean(
-                            "temporal_random_residual_estimated",
-                            false,
-                        )
-                )
+            promotionState.optBoolean(
+                "world_space_noise_separation_promoted",
+                false,
+            )
 
         val singleFramePrerequisites =
             JSONObject()
@@ -82,19 +89,59 @@ object ScientificDenoiseAdmissionV01 {
                 .put("physical_temporal_relation_promoted", temporalReady)
                 .put("geometry_depth_visibility_promoted", geometryReady)
                 .put("world_sensor_residual_separation_promoted", worldSeparationReady)
-                .put("validated_world_to_source_bridge_required", true)
+                .put(
+                    "validated_world_to_source_bridge",
+                    worldBridgeReady,
+                )
                 .put("occlusion_and_view_dependence_required", true)
         val worldReady =
             singleFrameReady &&
                 temporalReady &&
                 geometryReady &&
+                worldBridgeReady &&
                 worldSeparationReady
+
+        val singleFrameApproved =
+            promotionState.optBoolean(
+                "scientific_denoise_single_frame_approved",
+                false,
+            )
+        val opticsApproved =
+            promotionState.optBoolean(
+                "scientific_denoise_optics_approved",
+                false,
+            )
+        val worldApproved =
+            promotionState.optBoolean(
+                "scientific_denoise_world_space_approved",
+                false,
+            )
+
+        val singleFrameAdmitted =
+            allowPromotionProjection &&
+                singleFrameReady &&
+                singleFrameApproved
+        val opticsAdmitted =
+            allowPromotionProjection &&
+                opticsReady &&
+                opticsApproved
+        val worldAdmitted =
+            allowPromotionProjection &&
+                worldReady &&
+                worldApproved
 
         val blockers = JSONArray()
         if (!radiometricReady) blockers.put("RADIOMETRIC_RESPONSE_NOT_PROMOTED")
         if (!noiseReady) blockers.put("NOISE_COMPONENT_DECOMPOSITION_NOT_PROMOTED")
         if (!numericNoiseTransportReady) blockers.put("NUMERIC_NOISE_TRANSPORT_NOT_VALIDATED")
-        blockers.put("EXPLICIT_SCIENTIFIC_DENOISE_APPROVAL_GATE_NOT_GRANTED")
+        if (!singleFrameApproved) {
+            blockers.put(
+                "EXPLICIT_SCIENTIFIC_DENOISE_APPROVAL_GATE_NOT_GRANTED",
+            )
+        }
+        if (!allowPromotionProjection) {
+            blockers.put("RESEARCH_FOUNDATION_CANNOT_PROJECT_PROMOTION")
+        }
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -107,21 +154,30 @@ object ScientificDenoiseAdmissionV01 {
                         JSONObject()
                             .put("prerequisites", singleFramePrerequisites)
                             .put("evidence_ready", singleFrameReady)
-                            .put("scientific_denoise_admitted", false),
+                            .put(
+                                "scientific_denoise_admitted",
+                                singleFrameAdmitted,
+                            ),
                     )
                     .put(
                         "optics_aware_or_inverse_optics",
                         JSONObject()
                             .put("prerequisites", opticsPrerequisites)
                             .put("evidence_ready", opticsReady)
-                            .put("scientific_denoise_admitted", false),
+                            .put(
+                                "scientific_denoise_admitted",
+                                opticsAdmitted,
+                            ),
                     )
                     .put(
                         "multi_observation_world_space",
                         JSONObject()
                             .put("prerequisites", worldPrerequisites)
                             .put("evidence_ready", worldReady)
-                            .put("scientific_denoise_admitted", false),
+                            .put(
+                                "scientific_denoise_admitted",
+                                worldAdmitted,
+                            ),
                     ),
             )
             .put(
@@ -138,7 +194,23 @@ object ScientificDenoiseAdmissionV01 {
                     .put("multi_observation_route_may_merge_source_evidence_roots", false),
             )
             .put("blockers", blockers)
-            .put("scientific_denoise_admitted", false)
+            .put(
+                "scientific_denoise_admitted",
+                singleFrameAdmitted ||
+                    opticsAdmitted ||
+                    worldAdmitted,
+            )
+            .put(
+                "promotion_projection_allowed",
+                allowPromotionProjection,
+            )
+            .put(
+                "promotion_state_status",
+                promotionState.optString(
+                    "status",
+                    "NOT_PROMOTED_FAIL_CLOSED",
+                ),
+            )
             .put("noise_reduction_applied", false)
             .put("candidate_applied", false)
             .put("creates_new_evidence", false)
