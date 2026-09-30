@@ -46,6 +46,22 @@ object PhysicalObservationNoiseContextV01 {
         val sparseGrid =
             backside.optJSONObject("sparse_measured_sample_grid")
                 ?: JSONObject().put("status", "UNKNOWN")
+        val normalization =
+            backside.optJSONObject("normalization") ?: JSONObject()
+        val quantizationSteps = JSONArray()
+        val white =
+            normalization.optDouble("white_level", Double.NaN)
+        val blackLevels =
+            normalization.optJSONArray("black_levels") ?: JSONArray()
+        if (white.isFinite()) {
+            for (i in 0 until blackLevels.length()) {
+                val black = blackLevels.optDouble(i, Double.NaN)
+                val denominator = white - black
+                if (black.isFinite() && denominator.isFinite() && denominator > 0.0) {
+                    quantizationSteps.put(1.0 / denominator)
+                }
+            }
+        }
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -89,6 +105,23 @@ object PhysicalObservationNoiseContextV01 {
                     .put("cfa_pattern", r.opt("cfa_pattern") ?: JSONObject.NULL)
                     .put("black_level_equals_zero_line", false)
                     .put("coding_bounds_are_noise_model", false),
+            )
+            .put(
+                "quantization_context",
+                JSONObject()
+                    .put(
+                        "normalized_code_step_candidates",
+                        quantizationSteps,
+                    )
+                    .put(
+                        "authority",
+                        if (quantizationSteps.length() > 0) {
+                            "DERIVED_FROM_SOURCE_CODING_BOUNDS"
+                        } else {
+                            "UNKNOWN"
+                        },
+                    )
+                    .put("quantization_is_full_noise_model", false),
             )
             .put(
                 "measured_payload_summary",
