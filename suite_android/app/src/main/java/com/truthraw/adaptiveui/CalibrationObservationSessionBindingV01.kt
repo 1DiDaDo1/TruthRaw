@@ -65,7 +65,24 @@ object CalibrationObservationSessionBindingV01 {
                 }
             }
 
-            if (roots.length() > 0 && missing.length() == 0) {
+            val uniqueProcessingAliases =
+                linkedSetOf<String>().apply {
+                    for (i in 0 until processingAliases.length()) {
+                        processingAliases.optString(i)
+                            .takeIf(String::isNotBlank)
+                            ?.let(::add)
+                    }
+                }
+            val ancestryAliasDuplicate =
+                processingAliases.length() > 0 &&
+                    uniqueProcessingAliases.size <
+                        processingAliases.length()
+
+            if (
+                roots.length() > 0 &&
+                missing.length() == 0 &&
+                !ancestryAliasDuplicate
+            ) {
                 record.put(
                     "session_processing_source_sha256_roots",
                     processingAliases,
@@ -86,10 +103,15 @@ object CalibrationObservationSessionBindingV01 {
                         )
                         .put(
                             "reason",
-                            if (roots.length() == 0) {
-                                "NO_SOURCE_ROOTS"
-                            } else {
-                                "SOURCE_ROOT_NOT_IN_ACTIVE_SESSION"
+                            when {
+                                roots.length() == 0 ->
+                                    "NO_SOURCE_ROOTS"
+                                missing.length() > 0 ->
+                                    "SOURCE_ROOT_NOT_IN_ACTIVE_SESSION"
+                                ancestryAliasDuplicate ->
+                                    "PHYSICAL_AND_DERIVED_ALIAS_DUPLICATE_SAME_OBSERVATION"
+                                else ->
+                                    "SESSION_BINDING_FAILED"
                             },
                         )
                         .put("missing_source_sha256_roots", missing),
@@ -119,6 +141,10 @@ object CalibrationObservationSessionBindingV01 {
                     .put("rejected_record_count", rejected.length())
                     .put("rejected_records", rejected)
                     .put("cross_session_record_use_allowed", false)
+                    .put(
+                        "physical_and_derived_alias_may_inflate_evidence_count",
+                        false,
+                    )
                     .put("binding_promotes_calibration", false)
                     .put("scientific_writeback_allowed", false),
         )
