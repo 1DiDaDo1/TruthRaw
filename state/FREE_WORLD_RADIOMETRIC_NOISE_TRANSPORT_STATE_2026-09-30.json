@@ -4,7 +4,7 @@
   "branch": "research/free-world-radiometric-noise-transport-v01-2026-09-30",
   "parent_pr": 101,
   "parent_exact_green_head": "0006b56d3261cad9a13fec560f7ddcd39b0844db",
-  "status": "IMPLEMENTED_COMPILED_GREEN_CABLE_REPAIR_COMPLETE_PHYSICALLY_UNVALIDATED",
+  "status": "IMPLEMENTED_BUILT_FAIL_CLOSED_CABLE_CLOSURE_DEVICE_VALIDATION_PENDING",
   "universal_identity_law": {
     "raw_format_may_route_decoder": true,
     "raw_format_may_define_scientific_truth": false,
@@ -78,14 +78,13 @@
     "tests_run": false,
     "ci_run": true,
     "android_build_run": true,
-    "android_build_success": true,
-    "android_build_workflow": "D.RAW Free World Research APK",
-    "android_build_run_id": 36744717288,
-    "android_build_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "apk_verified": true,
     "device_validation_run": false,
     "physical_gates_executed": false,
     "compilation_claimed": true,
-    "scientific_correctness_claimed": false
+    "compilation_result": "SUCCESS",
+    "scientific_correctness_claimed": false,
+    "scientific_promotion_claimed": false
   },
   "permanent_laws": [
     "MEASURED != RECONSTRUCTED != APPEARANCE",
@@ -100,7 +99,7 @@
     "EXACT_MEASURED_CFA_ANCHORS_MAY_NOT_BE_OVERWRITTEN",
     "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT"
   ],
-  "latest_implementation_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+  "latest_implementation_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
   "runtime_integration": {
     "universal_intake_noise_context_bound": true,
     "sparse_measured_cfa_grid_exported": true,
@@ -178,7 +177,7 @@
     "unknown_residual_preserved": true,
     "candidate_runtime_is_promotion": false,
     "recommendation_wave_open_implementation_items": 0,
-    "next_phase": "BUNDLED_PHYSICAL_VALIDATION_AND_AXIS_SPECIFIC_PROMOTION_ONLY",
+    "next_phase": "DEVICE_AND_PHYSICAL_VALIDATION_WITHOUT_AUTOMATIC_PROMOTION",
     "tests_run": false,
     "ci_run": true,
     "android_build_run": true,
@@ -201,7 +200,13 @@
     "research_picker_mode_persistence_closed": true,
     "legacy_test_status_unified": true,
     "android_compile_green": true,
-    "android_build_success": true
+    "android_build_success": true,
+    "latest_built_code_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
+    "apk_verified": true,
+    "cable_audit_closure_complete": true,
+    "cross_session_record_use_allowed": false,
+    "physical_processing_lineage_complete": true,
+    "legacy_test_status_dot_timer_preserved": true
   },
   "parent_distance_commits_before_state_checkpoint": 120,
   "navigation_ux": {
@@ -239,7 +244,7 @@
     "GlobalResearchSnapshotV01",
     "TruthRawResearchStatusVisualV01"
   ],
-  "ux_checkpoint_status": "IMPLEMENTED_COMPILED_GREEN_NAVIGATION_RESEARCH_JSON_GUIDE_AND_TEST_STATUS_COMPLETE",
+  "ux_checkpoint_status": "IMPLEMENTED_AND_ANDROID_BUILD_VERIFIED_DEVICE_VALIDATION_PENDING",
   "green_android_build_checkpoint": {
     "code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
     "workflow_run_id": 36744717288,
@@ -272,5 +277,51 @@
       "cpu_reference_default": true,
       "proven_specialized_paths_may_use_their_own_self_tested_acceleration": true
     }
+  },
+  "latest_built_code_head": "55755b795ec6e48e326732c8e5d2071270b81a90",
+  "build_evidence": {
+    "workflow": "D.RAW Free World Research APK",
+    "workflow_run_id": 36744973469,
+    "conclusion": "SUCCESS",
+    "apk_verified": true,
+    "apk_bytes": 8155983,
+    "apk_sha256": "11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193",
+    "artifact_name": "DRAW-free-world-research-debug-arm64",
+    "artifact_id": 11112237658,
+    "compile_warning_only": [
+      "canonical/reconstruction/v4.7i/native/src/core.cpp:196 misleading indentation; build successful; canonical algorithm not changed during cable closure"
+    ]
+  },
+  "cable_audit_closure": {
+    "status": "IMPLEMENTED_AND_ANDROID_BUILD_VERIFIED",
+    "physical_rawsensor_to_processing_dng_lineage": true,
+    "calibration_record_canonical_identity": true,
+    "calibration_records_bound_to_active_session": true,
+    "physical_derived_alias_double_count_blocked": true,
+    "calibration_validation_status_semantics": true,
+    "calibration_uncertainty_semantics": true,
+    "colour_covariance_transport_bridge": true,
+    "nps_optics_signal_psd_bridge": true,
+    "typed_internal_promotion_state": true,
+    "promotion_consumers_validate_internal_state": true,
+    "promotion_firewall_extended_side_effect_flags": true,
+    "world_to_source_mapping_requires_held_out_uncertainty_and_active_roots": true,
+    "geometry_nested_source_roots_bound": true,
+    "temporal_nested_source_roots_bound": true,
+    "reconstruction_support_bound_to_promoted_roots": true,
+    "research_mode_resets_on_normal_intent": true,
+    "raw_picker_reopens_with_existing_session": true,
+    "calibration_records_private_session_persistence": true,
+    "legacy_test_dot_timer_uniformity": true,
+    "research_foundation_can_auto_promote": false,
+    "scientific_writeback_allowed": false
+  },
+  "intentional_boundaries": {
+    "proprietary_raw_decoders": "DNG_NATIVE; NEF_SAMPLE_CALIBRATION_PENDING; CR3_CR2_ARW_RAF_RW2_ORF_PEF_IIQ_X3F_AND_OTHERS_DECODER_PENDING",
+    "generic_compute_router": "CPU_REFERENCE_DISCOVERY_ONLY_UNTIL_KERNEL_SPECIFIC_CORRECTNESS_SELFTEST",
+    "scientific_master_streaming_v0_3": "RESEARCH_CANDIDATE_NOT_SWITCHED_INTO_PRODUCTION_BRIDGES",
+    "free_world_continuous_query": "FAIL_CLOSED_UNKNOWN_UNTIL_VALIDATED_MAPPING_AND_PROMOTED_RECONSTRUCTION",
+    "scientific_denoise": "TYPED_PROMOTION_PATH_EXISTS_BUT_CURRENT_RESEARCH_FOUNDATION_DOES_NOT_PROJECT_PROMOTION",
+    "device_validation": "PENDING"
   }
 }
