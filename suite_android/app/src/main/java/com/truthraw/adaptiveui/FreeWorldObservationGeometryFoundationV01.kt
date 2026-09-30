@@ -93,6 +93,7 @@ object FreeWorldObservationGeometryFoundationV01 {
             ScientificDenoiseAdmissionV01.describe(
                 radiometric = radiometricResponse,
                 noiseComponents = noiseComponents,
+                noiseTransport = scientificNoiseTransport,
                 opticalSupport = OpticalSupportAtlasV01.describe(),
                 temporalFootprint = temporalFootprint,
                 geometryDepth = geometryDepth,
