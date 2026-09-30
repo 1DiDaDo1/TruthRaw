@@ -1,3 +1,42 @@
+# D.RAW — POST-AUDIT CABLE REPAIR GREEN CHECKPOINT — 2026-09-30
+
+**Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
+**Green code head:** `f36f750afda57f4672c264e59ac53db489cd5e19`  
+**Android build:** SUCCESS · workflow run `36744717288`  
+**APK artifact:** `11111543510` · `DRAW-free-world-research-debug-arm64`  
+**APK bytes:** `8,155,983`  
+**APK SHA-256:** `d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036`  
+**Device/physical validation of the new multidisciplinary candidate wave:** NOT YET RUN.
+
+The full post-audit cable-repair round is implementation-complete and compiles green. No scientific axis was promoted by this work.
+
+Closed wiring includes:
+
+- camera RAW_SENSOR physical evidence root -> acquisition evidence -> derived processing DNG -> Universal Source Profile -> Free World lineage;
+- canonical Calibration Observation Record identity, SHA normalization, semantic validation, active-session source-root binding and private session persistence;
+- prevention of cross-session candidate records and physical/derived alias double counting;
+- typed internal promotion state with held-out/source-bound gating; research exports themselves still cannot promote;
+- expanded recursive promotion firewall including candidate application, image transform, Scientific Master and measured-anchor mutation flags;
+- explicit colour covariance transport `C_out = J C_in J^T` when real covariance exists;
+- controlled NPS + measured MTF/SFR + explicit signal PSD -> fail-closed noise-aware inverse-optics candidate bridge;
+- validated world-to-source mapping path bound to active source roots before world-space residual authority can be consumed;
+- Research mode/picker state and large calibration-record persistence repaired;
+- modern and historical diagnostics share the green/red dot + live/final timer convention.
+
+Permanent safety state at this checkpoint:
+
+- `MEASURED != RECONSTRUCTED != APPEARANCE`;
+- Scientific Master writeback from the research wave = false;
+- candidate availability != promotion;
+- camera/lens/vendor/RAW identity cannot select scientific truth;
+- unknown residual remains valid;
+- proprietary RAW formats may enter as sealed observations while decoder-pending formats remain fail-closed;
+- generic compute routing remains CPU_REFERENCE unless a specific kernel has its own correctness/self-test path.
+
+Next scientific phase: bundled physical validation and axis-specific promotion only. Do not turn candidate state into correction/denoise/deconvolution/world-space writeback merely because this build is green.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — RADIOMETRIC / NOISE / OPTICS / TEMPORAL INTEGRATION v0.1 — 2026-09-30
 
 **Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
