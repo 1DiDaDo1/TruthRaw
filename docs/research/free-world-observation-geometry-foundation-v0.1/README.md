@@ -340,3 +340,56 @@ The following are now implemented as machinery or contracts but still require fu
 > **Implement the safe architecture first; validate promotion later.**
 
 This does not weaken D.RAW's evidence law because every unvalidated component remains explicitly non-authoritative.
+
+
+### 15. Typed Free World Continuous Query ABI v0.1
+
+`FreeWorldContinuousQueryApiV01.kt`
+
+The continuous-query concept is now also a typed Kotlin ABI rather than only JSON documentation.
+
+A future solver must consume a request with relative world coordinates, optional time/view direction and requested footprint, and return a result that includes:
+
+- value or null/UNKNOWN;
+- value domain;
+- authority;
+- source support;
+- reconstruction support;
+- axis-separated uncertainty;
+- censor bounds;
+- provenance source SHA roots;
+- spatial and temporal footprint descriptions.
+
+No solver implementation is enabled yet.
+
+### 16. View / Appearance State boundary v0.1
+
+`ViewAppearanceStateV01.kt`
+
+Viewing distance, display luminance, ambient light, adaptation, output size and acutance are explicitly downstream.
+
+Human-vision or pupil/adaptation modelling may change presentation only.
+
+Film/cinema-like density/tone curves, halation, grain or synthesized motion blur remain appearance-only and never become physical capture evidence.
+
+### 17. Calibration Observation Record contract v0.1
+
+`CalibrationObservationRecordV01.kt`
+
+Optional calibration evidence now has a versioned relation-based record contract.
+
+The primary keys are sealed source SHA roots, not camera/lens/vendor names.
+
+The contract supports field response, colour, optics, dark/noise and temporal observations and requires explicit setup, relation evidence, uncertainty and validation status.
+
+It is never required for normal RAW intake.
+
+### 18. Mechanical Research Promotion Firewall v0.1
+
+`ResearchPromotionFirewallV01.kt`
+
+Foundation exports are recursively audited before they may be written.
+
+The firewall blocks any research bundle that accidentally sets a prohibited promotion flag such as world-registration promotion, camera-system response proof, calibration, correction, deconvolution, multi-frame Scientific Master fusion, creation of new evidence or scientific writeback.
+
+This converts the research/non-promotion rule from documentation into executable runtime enforcement.
