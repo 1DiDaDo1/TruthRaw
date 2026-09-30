@@ -33,6 +33,7 @@ Implemented now, without claiming physical promotion:
 - machine-readable Free World Capability Matrix separating implementation from scientific promotion;
 - deterministic graph component partitioning so unrelated selected files are never forced into one world;
 - independent relative numeric gauge per connected appearance-geometry component, with no invented cross-component transform;
+- deterministic pair-geometry model bank (translation/similarity/affine/homography) reported side-by-side with no winner or promotion;
 - unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
 
 Permanent firewall:
