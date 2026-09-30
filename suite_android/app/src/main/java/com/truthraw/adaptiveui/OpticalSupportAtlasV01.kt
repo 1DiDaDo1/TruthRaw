@@ -54,6 +54,14 @@ object OpticalSupportAtlasV01 {
                     .put("near_zero_transfer_may_be_blindly_inverted", false)
                     .put("field_and_focus_dependence_must_be_preserved", true),
             )
+            .put(
+                "candidate_measurement_runtime",
+                "OpticalSupportMeasurementCandidateV01",
+            )
+            .put(
+                "noise_aware_inverse_optics_candidate",
+                "NoiseAwareInverseOpticsCandidateV01",
+            )
             .put("sfr_measurement_attached", false)
             .put("mtf_measurement_attached", false)
             .put("psf_measurement_attached", false)
