@@ -65,6 +65,21 @@ object FreeWorldObservationGeometryFoundationV01 {
             TemporalObservationRelationV01.describe(profiles)
         val querySupportLedger =
             FreeWorldQuerySupportLedgerV01.build(profiles)
+        val queryPlanner =
+            FreeWorldContinuousQueryPlannerV01.plan(
+                components = observationComponents,
+                querySupportLedger = querySupportLedger,
+            )
+        val axisAuthorityMatrix =
+            ObservationAxisAuthorityMatrixV01.build(profiles)
+        val unknownPropagation =
+            UnknownPropagationGuardV01.describe()
+        val fieldSeparationCandidateSet =
+            FieldResponseSeparationCandidateSetV01.build(
+                profiles = profiles,
+                graph = graph,
+                modelBankSet = pairGeometryModelBanks,
+            )
         val capabilityMatrix =
             FreeWorldCapabilityMatrixV01.describe(
                 graph = graph,
@@ -110,6 +125,13 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("uncertainty_transport", uncertainty)
             .put("temporal_relation", temporal)
             .put("query_support_ledger", querySupportLedger)
+            .put("continuous_query_planner", queryPlanner)
+            .put("observation_axis_authority_matrix", axisAuthorityMatrix)
+            .put("unknown_propagation_guard", unknownPropagation)
+            .put(
+                "field_response_separation_candidate_set",
+                fieldSeparationCandidateSet,
+            )
             .put("capability_matrix", capabilityMatrix)
             .put("evidence_lineage_manifest", lineage)
             .put("bundled_physical_validation_campaign", validationCampaign)
@@ -152,6 +174,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "fail_closed_world_solver",
                         "FailClosedFreeWorldContinuousQuerySolverV01",
+                    )
+                    .put(
+                        "query_planner",
+                        "FreeWorldContinuousQueryPlannerV01",
                     )
                     .put("world_solver_implemented", false)
                     .put(
