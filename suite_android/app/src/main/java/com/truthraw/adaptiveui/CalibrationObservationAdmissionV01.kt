@@ -20,6 +20,16 @@ object CalibrationObservationAdmissionV01 {
             "OBSERVATION_REPEATABILITY_CANDIDATE",
         )
 
+    private val numericValidationStatuses =
+        setOf(
+            "RELATION_RECORDED",
+            "MEASURED",
+            "VALIDATED",
+            "HELD_OUT_VALIDATED",
+            "PASS",
+            "PASS_HELD_OUT",
+        )
+
     fun admitForNumericCandidate(
         record: JSONObject,
         axis: String,
@@ -41,12 +51,18 @@ object CalibrationObservationAdmissionV01 {
         if (relation !in numericRelationClasses) {
             issues.put("RELATION_EVIDENCE_INSUFFICIENT_FOR_NUMERIC_CANDIDATE")
         }
-        val validationStatus = record.optString("validation_status")
+        val validationStatus =
+            record.optString("validation_status").uppercase()
+        if (validationStatus !in numericValidationStatuses) {
+            issues.put("RECORD_VALIDATION_STATUS_NOT_NUMERICALLY_ADMITTED")
+        }
+
         if (
-            validationStatus.equals("REJECTED", ignoreCase = true) ||
-            validationStatus.equals("FAILED", ignoreCase = true)
+            record.optString("session_binding_status").isNotBlank() &&
+            record.optString("session_binding_status") !=
+                "BOUND_TO_ACTIVE_OBSERVATION_SET"
         ) {
-            issues.put("RECORD_VALIDATION_STATUS_REJECTED")
+            issues.put("RECORD_NOT_BOUND_TO_ACTIVE_SESSION")
         }
 
         return JSONObject()
