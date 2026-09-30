@@ -114,6 +114,13 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "PHYSICAL_OBSERVATION_NOISE_CONTEXT",
+            "IMPLEMENTED",
+            "SOURCE_BOUND_CONTEXT_ONLY_NO_NOISE_CLASSIFICATION",
+            true,
+            false,
+        )
+        capability(
             "RADIOMETRIC_RESPONSE",
             "RUNTIME_FOUNDATION_IMPLEMENTED",
             "METADATA_CONTEXT_ONLY_NO_OECF_OR_LINEARITY_PROMOTION",
@@ -159,6 +166,20 @@ object FreeWorldCapabilityMatrixV01 {
             "LIGHT_TRANSPORT_AUTHORITY",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "MATERIAL_ILLUMINATION_GEOMETRY_REMAIN_UNPROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "MULTI_OBSERVATION_RESIDUAL_RELATION",
+            "SCAFFOLD_IMPLEMENTED",
+            "NO_RESIDUALS_COMPUTED_NO_WORLD_SOURCE_RELATION_PROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "SCIENTIFIC_DENOISE_ADMISSION",
+            "FAIL_CLOSED_POLICY_IMPLEMENTED",
+            "ALL_SCIENTIFIC_DENOISE_ROUTES_BLOCKED_UNTIL_AXIS_GATES_PASS",
             false,
             true,
         )
