@@ -31,6 +31,7 @@ object ResearchPromotionFirewallV01 {
             "inverse_optics_authorized",
             "automatic_colour_correction_applied",
             "automatic_radiometric_correction_applied",
+            "scientific_denoise_admitted",
             "noise_reduction_applied",
             "world_space_denoise_applied",
             "light_transport_applied_to_scientific_master",
