@@ -30,6 +30,7 @@ object FreeWorldObservationGeometryFoundationV01 {
         calibrationRecords: List<JSONObject> = emptyList(),
         promotionState: JSONObject =
             ScientificPromotionStateV01.blocked(),
+        validatedWorldToSourceMapping: JSONObject? = null,
     ): JSONObject {
         val campaign =
             MultiObservationCampaignV01.describe(profiles)
@@ -114,8 +115,29 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val boundCalibrationRecords =
             calibrationBinding.records
+        val activeSourceRoots =
+            linkedSetOf<String>().apply {
+                for (profile in profiles) {
+                    profile.optString("source_sha256")
+                        .trim()
+                        .lowercase()
+                        .takeIf { it.matches(Regex("[0-9a-f]{64}")) }
+                        ?.let(::add)
+                    profile.optString(
+                        "upstream_sealed_source_sha256",
+                    )
+                        .trim()
+                        .lowercase()
+                        .takeIf { it.matches(Regex("[0-9a-f]{64}")) }
+                        ?.let(::add)
+                }
+            }
         val worldSourceBridge =
-            FreeWorldSourceLatticeBridgeContractV01.describe()
+            FreeWorldSourceLatticeBridgeContractV01.describe(
+                promotionState = promotionState,
+                validatedMapping = validatedWorldToSourceMapping,
+                activeSourceRoots = activeSourceRoots,
+            )
 
         val radiometricResponseCandidate =
             RadiometricResponseCandidateSolverV01.evaluate(
@@ -286,6 +308,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                 calibrationBinding.report,
             )
             .put("scientific_promotion_state", promotionState)
+            .put(
+                "validated_world_to_source_mapping_attached",
+                validatedWorldToSourceMapping != null,
+            )
             .put("scientific_denoise_admission", scientificDenoiseAdmission)
             .put("light_transport_authority_contract", lightTransportAuthority)
             .put("perceptual_noise_appearance_contract", perceptualNoiseAppearance)
