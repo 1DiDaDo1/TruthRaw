@@ -99,6 +99,8 @@ class MainActivity : Activity() {
     private var freeWorldFoundationStatus: String? = null
     private val calibrationObservationRecords = mutableListOf<JSONObject>()
     private var calibrationObservationRecordStatus: String? = null
+    private var calibrationObservationSessionStoreId: String =
+        java.util.UUID.randomUUID().toString()
     private var researchWorkbenchMode: Boolean = false
     private var pendingAppearanceHighlightDetailJobId: String? = null
     private var appearanceHighlightDetailStatus: String? = null
@@ -195,31 +197,17 @@ class MainActivity : Activity() {
                 savedInstanceState.getString(
                     STATE_CALIBRATION_RECORD_STATUS,
                 )
-            val savedRecords =
+            calibrationObservationSessionStoreId =
                 savedInstanceState.getString(
-                    STATE_CALIBRATION_RECORDS_JSON,
+                    STATE_CALIBRATION_SESSION_STORE_ID,
+                ) ?: calibrationObservationSessionStoreId
+            calibrationObservationRecords.clear()
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir = cacheDir,
+                    sessionId =
+                        calibrationObservationSessionStoreId,
                 )
-            if (!savedRecords.isNullOrBlank()) {
-                runCatching {
-                    val array = JSONArray(savedRecords)
-                    calibrationObservationRecords.clear()
-                    for (i in 0 until array.length()) {
-                        val record = array.optJSONObject(i) ?: continue
-                        val normalized =
-                            CalibrationObservationRecordIdentityV01
-                                .normalize(record)
-                        val validation =
-                            CalibrationObservationRecordValidatorV01
-                                .validate(normalized)
-                        if (
-                            validation.optString("status") ==
-                            "CALIBRATION_OBSERVATION_RECORD_VALID"
-                        ) {
-                            calibrationObservationRecords += normalized
-                        }
-                    }
-                }
-            }
         }
 
         var cameraJobToAutoStart: RawJob? = null
@@ -570,12 +558,25 @@ class MainActivity : Activity() {
             STATE_CALIBRATION_RECORD_STATUS,
             calibrationObservationRecordStatus,
         )
-        val records = JSONArray()
-        calibrationObservationRecords.forEach(records::put)
-        outState.putString(
-            STATE_CALIBRATION_RECORDS_JSON,
-            records.toString(),
+        CalibrationObservationRecordSessionStoreV01.save(
+            cacheDir = cacheDir,
+            sessionId = calibrationObservationSessionStoreId,
+            records = calibrationObservationRecords,
         )
+        outState.putString(
+            STATE_CALIBRATION_SESSION_STORE_ID,
+            calibrationObservationSessionStoreId,
+        )
+    }
+
+    override fun onDestroy() {
+        if (isFinishing) {
+            CalibrationObservationRecordSessionStoreV01.clear(
+                cacheDir = cacheDir,
+                sessionId = calibrationObservationSessionStoreId,
+            )
+        }
+        super.onDestroy()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -8614,8 +8615,8 @@ class MainActivity : Activity() {
             "truthraw.state.RESEARCH_WORKBENCH_MODE"
         private const val STATE_CALIBRATION_RECORD_STATUS =
             "truthraw.state.CALIBRATION_RECORD_STATUS"
-        private const val STATE_CALIBRATION_RECORDS_JSON =
-            "truthraw.state.CALIBRATION_RECORDS_JSON"
+        private const val STATE_CALIBRATION_SESSION_STORE_ID =
+            "truthraw.state.CALIBRATION_SESSION_STORE_ID"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
         const val EXTRA_OPEN_RESEARCH_WORKBENCH =
             "truthraw.extra.OPEN_RESEARCH_WORKBENCH"
