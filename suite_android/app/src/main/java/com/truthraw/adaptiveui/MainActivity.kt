@@ -184,10 +184,43 @@ class MainActivity : Activity() {
         window.setDecorFitsSystemWindows(false)
         DrawVisualTheme.applyWindow(this)
         researchWorkbenchMode =
-            intent.getBooleanExtra(
+            savedInstanceState?.getBoolean(
+                STATE_RESEARCH_WORKBENCH_MODE,
+            ) ?: intent.getBooleanExtra(
                 EXTRA_OPEN_RESEARCH_WORKBENCH,
                 false,
             )
+        if (savedInstanceState != null) {
+            calibrationObservationRecordStatus =
+                savedInstanceState.getString(
+                    STATE_CALIBRATION_RECORD_STATUS,
+                )
+            val savedRecords =
+                savedInstanceState.getString(
+                    STATE_CALIBRATION_RECORDS_JSON,
+                )
+            if (!savedRecords.isNullOrBlank()) {
+                runCatching {
+                    val array = JSONArray(savedRecords)
+                    calibrationObservationRecords.clear()
+                    for (i in 0 until array.length()) {
+                        val record = array.optJSONObject(i) ?: continue
+                        val normalized =
+                            CalibrationObservationRecordIdentityV01
+                                .normalize(record)
+                        val validation =
+                            CalibrationObservationRecordValidatorV01
+                                .validate(normalized)
+                        if (
+                            validation.optString("status") ==
+                            "CALIBRATION_OBSERVATION_RECORD_VALID"
+                        ) {
+                            calibrationObservationRecords += normalized
+                        }
+                    }
+                }
+            }
+        }
 
         var cameraJobToAutoStart: RawJob? = null
         if (savedInstanceState == null) {
@@ -216,8 +249,7 @@ class MainActivity : Activity() {
 
         if (
             savedInstanceState == null &&
-            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
-            session.jobs.isEmpty()
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false)
         ) {
             window.decorView.post { launchRawPicker() }
         }
@@ -238,14 +270,11 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (
+        researchWorkbenchMode =
             intent.getBooleanExtra(
                 EXTRA_OPEN_RESEARCH_WORKBENCH,
                 false,
             )
-        ) {
-            researchWorkbenchMode = true
-        }
 
         val cameraJob = readInternalCameraJob(intent)
         if (cameraJob != null) {
@@ -266,8 +295,7 @@ class MainActivity : Activity() {
         }
 
         if (
-            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false) &&
-            session.jobs.isEmpty()
+            intent.getBooleanExtra(EXTRA_AUTO_OPEN_RAW_PICKER, false)
         ) {
             window.decorView.post { launchRawPicker() }
         }
@@ -530,6 +558,24 @@ class MainActivity : Activity() {
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(
+            STATE_RESEARCH_WORKBENCH_MODE,
+            researchWorkbenchMode,
+        )
+        outState.putString(
+            STATE_CALIBRATION_RECORD_STATUS,
+            calibrationObservationRecordStatus,
+        )
+        val records = JSONArray()
+        calibrationObservationRecords.forEach(records::put)
+        outState.putString(
+            STATE_CALIBRATION_RECORDS_JSON,
+            records.toString(),
+        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -8564,6 +8610,12 @@ class MainActivity : Activity() {
     companion object {
         private const val PROJECTION_PICKER_PREFS = "truthraw_projection_picker_v072"
         private const val KEY_PENDING_PROJECTION_FORMAT = "pending_projection_format"
+        private const val STATE_RESEARCH_WORKBENCH_MODE =
+            "truthraw.state.RESEARCH_WORKBENCH_MODE"
+        private const val STATE_CALIBRATION_RECORD_STATUS =
+            "truthraw.state.CALIBRATION_RECORD_STATUS"
+        private const val STATE_CALIBRATION_RECORDS_JSON =
+            "truthraw.state.CALIBRATION_RECORDS_JSON"
         const val EXTRA_AUTO_OPEN_RAW_PICKER = "truthraw.extra.AUTO_OPEN_RAW_PICKER"
         const val EXTRA_OPEN_RESEARCH_WORKBENCH =
             "truthraw.extra.OPEN_RESEARCH_WORKBENCH"
