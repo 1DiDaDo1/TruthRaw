@@ -58,6 +58,20 @@ object FreeWorldCapabilityMatrixV01 {
             false,
         )
         capability(
+            "CALIBRATION_OBSERVATION_SESSION_BINDING",
+            "CANONICAL_SHA256_AND_ACTIVE_SESSION_BINDING_IMPLEMENTED",
+            "CROSS_SESSION_RECORDS_FAIL_CLOSED",
+            true,
+            false,
+        )
+        capability(
+            "PHYSICAL_TO_PROCESSING_SOURCE_LINEAGE",
+            "RAW_SENSOR_TO_DERIVED_DNG_LINEAGE_IMPLEMENTED",
+            "PROCESSING_ROOT_AND_PHYSICAL_EVIDENCE_ROOT_REMAIN_DISTINCT",
+            true,
+            false,
+        )
+        capability(
             "UNIVERSAL_IDENTITY_INDEPENDENCE",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "RAW_LENS_CAMERA_VENDOR_IDENTITY_CANNOT_SELECT_SCIENTIFIC_TRUTH",
@@ -233,6 +247,20 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "COLOUR_COVARIANCE_TRANSPORT_CANDIDATE",
+            "J_COV_JT_RUNTIME_BRIDGE_IMPLEMENTED",
+            "EXPLICIT_INPUT_COVARIANCE_ONLY_NO_SYNTHESIS_NO_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "NOISE_OPTICS_JOINT_CANDIDATE",
+            "NPS_MTF_SFR_SIGNAL_PSD_BRIDGE_IMPLEMENTED",
+            "EXPLICIT_SIGNAL_PSD_REQUIRED_NO_IMAGE_TRANSFORM_AUTHORITY",
+            false,
+            true,
+        )
+        capability(
             "TEMPORAL_SEQUENCE_CANDIDATE_SOLVER",
             "NUMERIC_RELATION_RUNTIME_IMPLEMENTED",
             "EXPLICIT_ORDER_AND_READOUT_CANDIDATE_ONLY",
@@ -268,9 +296,23 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "SCIENTIFIC_PROMOTION_STATE",
+            "TYPED_INTERNAL_VALIDATION_BRIDGE_IMPLEMENTED",
+            "NO_USER_RECORD_CAN_GRANT_PROMOTION_HELD_OUT_INTERNAL_DECISION_REQUIRED",
+            false,
+            true,
+        )
+        capability(
+            "WORLD_TO_SOURCE_PROMOTION_BRIDGE",
+            "TYPED_MAPPING_AND_UNCERTAINTY_ADMISSION_PATH_IMPLEMENTED",
+            "CURRENT_RESEARCH_FOUNDATION_REMAINS_UNADMITTED",
+            false,
+            true,
+        )
+        capability(
             "SCIENTIFIC_DENOISE_ADMISSION",
             "FAIL_CLOSED_POLICY_IMPLEMENTED",
-            "ALL_SCIENTIFIC_DENOISE_ROUTES_BLOCKED_UNTIL_AXIS_GATES_PASS",
+            "RESEARCH_FOUNDATION_BLOCKED_TYPED_PROMOTION_ROUTE_AVAILABLE_AFTER_AXIS_GATES_AND_EXPLICIT_APPROVAL",
             false,
             true,
         )
