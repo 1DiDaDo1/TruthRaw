@@ -35,6 +35,20 @@ object CalibrationObservationRecordValidatorV01 {
             "NONE",
         )
 
+    private val allowedValidationStatuses =
+        setOf(
+            "RELATION_RECORDED",
+            "MEASURED",
+            "VALIDATED",
+            "HELD_OUT_VALIDATED",
+            "PASS",
+            "PASS_HELD_OUT",
+            "UNVALIDATED",
+            "CANDIDATE",
+            "REJECTED",
+            "FAILED",
+        )
+
     fun validate(record: JSONObject): JSONObject {
         val issues = JSONArray()
 
@@ -86,6 +100,12 @@ object CalibrationObservationRecordValidatorV01 {
             issues.put(
                 "OBSERVATION_ROLES_MUST_MATCH_SOURCE_ROOT_COUNT",
             )
+        } else {
+            for (i in 0 until roles.length()) {
+                if (roles.optString(i).isBlank()) {
+                    issues.put("OBSERVATION_ROLE_BLANK_AT_INDEX_$i")
+                }
+            }
         }
 
         if (
@@ -100,14 +120,17 @@ object CalibrationObservationRecordValidatorV01 {
             issues.put("UNSUPPORTED_RELATION_EVIDENCE_CLASS")
         }
 
-        if (!record.has("uncertainty")) {
-            issues.put("UNCERTAINTY_REQUIRED")
+        val uncertainty = record.opt("uncertainty")
+        if (uncertainty !is JSONObject || uncertainty.length() == 0) {
+            issues.put("NONEMPTY_UNCERTAINTY_OBJECT_REQUIRED")
         }
 
-        if (
-            record.optString("validation_status").isBlank()
-        ) {
+        val validationStatus =
+            record.optString("validation_status").uppercase()
+        if (validationStatus.isBlank()) {
             issues.put("VALIDATION_STATUS_REQUIRED")
+        } else if (validationStatus !in allowedValidationStatuses) {
+            issues.put("UNSUPPORTED_VALIDATION_STATUS")
         }
 
         if (
@@ -135,6 +158,18 @@ object CalibrationObservationRecordValidatorV01 {
             issues = issues,
         )
 
+        val suppliedIdentity =
+            record.optString("record_identity_sha256")
+        if (
+            suppliedIdentity.isNotBlank() &&
+            !suppliedIdentity.equals(
+                CalibrationObservationRecordIdentityV01.identity(record),
+                ignoreCase = true,
+            )
+        ) {
+            issues.put("RECORD_IDENTITY_SHA256_MISMATCH")
+        }
+
         return JSONObject()
             .put("schema", SCHEMA)
             .put(
@@ -149,6 +184,10 @@ object CalibrationObservationRecordValidatorV01 {
             .put(
                 "validated_source_root_count",
                 uniqueRoots.size,
+            )
+            .put(
+                "record_identity_sha256",
+                CalibrationObservationRecordIdentityV01.identity(record),
             )
             .put(
                 "record_validation_promotes_calibration",
