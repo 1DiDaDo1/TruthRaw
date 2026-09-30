@@ -45,6 +45,11 @@ object ResearchPromotionFirewallV01 {
             "restoration_applied",
             "scientific_writeback_allowed",
             "creates_new_evidence",
+            "candidate_applied",
+            "scientific_master_modified",
+            "measured_anchor_modified",
+            "measured_anchors_modified",
+            "image_transform_applied",
         )
 
     fun audit(report: JSONObject): JSONObject {
