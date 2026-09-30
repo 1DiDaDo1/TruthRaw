@@ -10,6 +10,11 @@ Read first:
 3. PR101 foundation state/docs below.
 
 Implementation-wave completion:
+- launcher navigation is now normal-photo-first: active route → File/Camera → optional route change → separate Research & JSON / implementation guide;
+- the normal MainActivity photo workflow collapses the large research pane; explicit Research mode exposes Multi-observation, relation-record import, Free World JSON and per-source audits;
+- TruthRawResearchHubActivity is the central research/JSON entry and can export a source-independent Global Research Snapshot v0.1;
+- TruthRawImplementationGuideActivity explains what is implemented, when to use each route and which JSON to choose;
+- historical/new tests retain the green/red status-dot + live/final timer principle; the new shared implementation is TruthRawResearchStatusVisualV01;
 - Android UI can optionally ingest relation-based Calibration Observation Record JSON/bundles;
 - `CalibrationObservationAdmissionV01` blocks weak grouping hints from numeric science;
 - recursive identity-key rejection protects nested payloads;
