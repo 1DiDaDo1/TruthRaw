@@ -94,6 +94,10 @@ object WorldSensorFieldDecompositionScaffoldV01 {
                 "SEPARATE_WORLD_FIXED_FROM_SENSOR_FIXED_FIELD_BEHAVIOUR",
             )
             .put(
+                "controlled_rotation_candidate_solver",
+                "FieldResponseRotationSeparationCandidateV01",
+            )
+            .put(
                 "measured_sensor_field_observation_count",
                 measuredRoots.size,
             )
