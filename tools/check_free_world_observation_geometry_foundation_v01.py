@@ -46,7 +46,7 @@ required = {
         "registration_promoted",
     ],
     "graph": [
-        "SOURCE_SHA256",
+        "source_sha256",
         "FRONTSIDE_PAIR_GEOMETRY_CANDIDATE",
         "source_evidence_merged",
         "camera_or_lens_identity_is_graph_key",
