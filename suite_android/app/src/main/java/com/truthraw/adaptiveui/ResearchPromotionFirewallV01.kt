@@ -12,12 +12,19 @@ object ResearchPromotionFirewallV01 {
     private val forbiddenTrueKeys =
         listOf(
             "world_registration_promoted",
+            "registration_promoted",
+            "world_point_estimate_promoted",
             "camera_system_response_proven",
             "lens_only_vignetting_proven",
             "calibration_promoted",
             "correction_authorized",
             "deconvolution_authorized",
+            "deconvolution_applied",
+            "inverse_optics_authorized",
+            "automatic_colour_correction_applied",
+            "temporal_fusion_applied",
             "multi_frame_scientific_fusion_applied",
+            "restoration_applied",
             "scientific_writeback_allowed",
             "creates_new_evidence",
         )
