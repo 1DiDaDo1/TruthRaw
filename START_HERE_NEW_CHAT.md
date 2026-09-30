@@ -1,3 +1,35 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — RADIOMETRIC / NOISE / OPTICS / TEMPORAL INTEGRATION v0.1 — 2026-09-30
+
+**Active branch:** `research/free-world-radiometric-noise-transport-v01-2026-09-30`  
+**Parent checkpoint:** PR #101 exact green head `0006b56d3261cad9a13fec560f7ddcd39b0844db`  
+**Validation status:** IMPLEMENTED ONLY — **NO TESTS, NO CI, NO ANDROID BUILD, NO DEVICE VALIDATION PER USER INSTRUCTION**
+
+Read first:
+1. `state/FREE_WORLD_RADIOMETRIC_NOISE_TRANSPORT_STATE_2026-09-30.json`
+2. `docs/research/free-world-radiometric-noise-transport-v0.1/README.md`
+3. PR101 foundation state/docs below.
+
+New implemented prevalidation contracts:
+- `UniversalIdentityIndependenceV01`
+- `RadiometricResponseAtlasV01`
+- `NoiseComponentAtlasV01`
+- `ScientificNoiseTransportV01`
+- `TemporalFootprintV01`
+- `GeometryDepthSupportAtlasV01`
+- `LightTransportAuthorityContractV01`
+- `WorldSpaceNoiseSeparationV01`
+- `PerceptualNoiseAppearanceV01`
+
+Permanent identity law:
+**RAW/container identity may route decoding/parsing only. Camera, lens, vendor, physical camera ID or RAW-format identity may never be a scientific calibration/model-selection key. Scientific relations are observation/evidence based and source SHA-256 rooted.**
+
+Permanent denoise law:
+**Do not classify unexplained structure as noise. First separate radiometric response, stochastic/fixed-pattern sensor behavior, optical support, world/sensor coordinates, temporal footprint, view dependence, motion/occlusion and reconstruction uncertainty. UNKNOWN residual remains UNKNOWN until physically supported.**
+
+No correction, denoise, deconvolution, temporal fusion, world-space fusion, geometry promotion, calibration promotion, new evidence creation or Scientific Master writeback is authorized by this overlay.
+
+---
+
 # D.RAW — PREVALIDATION ARCHITECTURE CHECKPOINT COMPLETE — 2026-09-30
 
 **Active branch:** `research/free-world-observation-geometry-foundation-v01-2026-09-30`  
