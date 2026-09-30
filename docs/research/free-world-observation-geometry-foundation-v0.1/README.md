@@ -670,3 +670,40 @@ Permanent rules:
 - component connectivity is not same-world proof.
 
 This also strengthens the 360°/multi-lens design: overlap can grow a graph component naturally, while unrelated observations remain separate rather than being forced into the same world.
+
+
+### 32. Deterministic pair-geometry model bank v0.1
+
+`DeterministicPairGeometryModelBankV01.kt`
+
+The same robust appearance-derived inlier correspondences are now fitted with multiple deterministic geometry families:
+
+- 2D translation;
+- 2D similarity;
+- 2D affine;
+- 2D projective homography.
+
+Every valid candidate reports:
+
+- parameter count;
+- parameters;
+- valid/invalid projection count;
+- RMS residual;
+- median residual;
+- p95 residual.
+
+No candidate is selected as a winner.
+
+The lowest-residual model is explicitly **not** treated as physical truth, because added model freedom can reduce residuals without proving the corresponding camera/world geometry.
+
+A true 3D pure-rotation/spherical model remains deliberately unimplemented until an admitted intrinsic or equivalent ray-geometry relation exists. Focal-length metadata by itself is not sufficient.
+
+### 33. Pair-geometry model-bank set v0.1
+
+`PairGeometryModelBankSetV01.kt`
+
+The model bank is now applied read-only to every candidate edge in the observation graph and included in the unified foundation export.
+
+This allows later bundled device validation to compare whether ordinary overlap, cross-focal-length overlap, rotation sequences and 360° sequences favour different *candidate* geometry families without changing current authority.
+
+There is no automatic ranking, no correction and no world-registration promotion.
