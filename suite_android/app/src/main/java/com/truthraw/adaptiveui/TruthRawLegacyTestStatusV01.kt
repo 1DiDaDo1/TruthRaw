@@ -60,10 +60,17 @@ object TruthRawLegacyTestStatusV01 {
                     if (state.internalUpdate) return
                     val raw = s?.toString().orEmpty()
                     state.rawMessage = raw
+                    val previous = state.phase
                     val next = classify(raw)
                     if (
                         next != Phase.IDLE &&
-                        state.startedAtElapsedMs == null
+                        (
+                            state.startedAtElapsedMs == null ||
+                            (
+                                next == Phase.RUNNING &&
+                                previous != Phase.RUNNING
+                            )
+                        )
                     ) {
                         state.startedAtElapsedMs =
                             SystemClock.elapsedRealtime()
@@ -181,7 +188,8 @@ object TruthRawLegacyTestStatusV01 {
                         val current = states[view]
                         if (
                             current == null ||
-                            current.phase != Phase.RUNNING
+                            current.phase != Phase.RUNNING ||
+                            !view.isAttachedToWindow
                         ) {
                             current?.tickerScheduled = false
                             return
