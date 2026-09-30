@@ -4,7 +4,7 @@
   "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
   "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
   "parent_pr": 100,
-  "status": "PREVALIDATION_ARCHITECTURE_CLOSURE_IMPLEMENTED_AWAITING_GREEN_REBUILD",
+  "status": "FORMAL_PREVALIDATION_ARCHITECTURE_CLOSURE_IMPLEMENTED_AWAITING_GREEN_REBUILD",
   "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
   "implemented_modules": [
     "DeterministicLocalFeatureGeometryV01",
@@ -47,7 +47,8 @@
     "FieldResponseSeparationCandidateSetV01",
     "FreeWorldContinuousQueryPlannerV01",
     "FreeWorldScientificStateSnapshotV01",
-    "PrevalidationCandidateLedgerV01"
+    "PrevalidationCandidateLedgerV01",
+    "PrevalidationArchitectureClosureV01"
   ],
   "frontside_feature_geometry": {
     "detector_family": "HARRIS_STRUCTURE_TENSOR",
@@ -170,7 +171,7 @@
     "timer_authority": "ACQUISITION_UI_ONLY",
     "special_4k_to_200mp_route_unchanged": true
   },
-  "next_gate": "GREEN_FULL_REBUILD_OF_ARCHITECTURE_CLOSURE; THEN_PRESERVE_AS_FINAL_PREVALIDATION_HANDOFF_WITHOUT_PHONE_TEST",
+  "next_gate": "GREEN_FULL_REBUILD_OF_FORMAL_PREVALIDATION_CLOSURE; THEN FREEZE FINAL_HANDOFF_WITHOUT_PHONE_TEST",
   "view_appearance": {
     "downstream_only": true,
     "human_vision_may_write_scientific_master": false,
@@ -252,7 +253,8 @@
     "field_response_separation_candidate_set": true,
     "continuous_query_planner": true,
     "scientific_state_snapshot": true,
-    "prevalidation_candidate_ledger": true
+    "prevalidation_candidate_ledger": true,
+    "formal_prevalidation_architecture_closure": true
   },
   "observation_component_policy": {
     "component_partition_implemented": true,
@@ -356,5 +358,15 @@
     "schema": "D.RAW/PrevalidationCandidateLedger/0.1",
     "phone_test_required_to_preserve_items": false,
     "automatic_promotion_allowed": false
+  },
+  "prevalidation_architecture_closure": {
+    "implemented": true,
+    "schema": "D.RAW/PrevalidationArchitectureClosure/0.1",
+    "closure_meaning": "SAFE_ARCHITECTURE_IMPLEMENTED_AND_FAIL_CLOSED",
+    "closure_is_physical_validation": false,
+    "closure_is_scientific_promotion": false,
+    "phone_test_required_to_preserve_architecture": false,
+    "future_physical_validation_still_required_for_promotion": true,
+    "normal_user_calibration_required": false
   }
 }
