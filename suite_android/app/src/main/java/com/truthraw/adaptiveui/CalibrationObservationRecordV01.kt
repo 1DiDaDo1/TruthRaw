@@ -61,6 +61,19 @@ object CalibrationObservationRecordV01 {
                     .put("source_sha256_roots_are_primary", true),
             )
             .put(
+                "bundle_ingest",
+                JSONObject()
+                    .put(
+                        "runtime",
+                        "CalibrationObservationRecordBundleV01",
+                    )
+                    .put(
+                        "foundation_entry_point",
+                        "FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle",
+                    )
+                    .put("invalid_records_fail_closed", true),
+            )
+            .put(
                 "normal_use_policy",
                 JSONObject()
                     .put("required_for_raw_intake", false)
