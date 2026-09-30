@@ -142,9 +142,44 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "RADIOMETRIC_RESPONSE_CANDIDATE_SOLVER",
+            "NUMERIC_CANDIDATE_SOLVER_IMPLEMENTED",
+            "LINEAR_AND_PIECEWISE_RESPONSE_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "NOISE_COMPONENT_CANDIDATE_SOLVER",
+            "NUMERIC_CANDIDATE_SOLVER_IMPLEMENTED",
+            "SHOT_READ_AND_FIXED_PATTERN_SUMMARY_CANDIDATES_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "FIELD_RESPONSE_ROTATION_SEPARATION",
+            "NUMERIC_CANDIDATE_SOLVER_IMPLEMENTED",
+            "WORLD_SENSOR_ADDITIVE_CANDIDATE_ONLY_NO_VIGNETTING_CLAIM",
+            false,
+            true,
+        )
+        capability(
             "OPTICAL_SUPPORT",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "NO_MEASURED_SFR_MTF_PSF_ATTACHED",
+            false,
+            true,
+        )
+        capability(
+            "OPTICAL_SUPPORT_MEASUREMENT_CANDIDATE",
+            "NUMERIC_CANDIDATE_RUNTIME_IMPLEMENTED",
+            "SFR_MTF_PSF_INPUT_SUMMARY_NO_CALIBRATION_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "NOISE_AWARE_INVERSE_OPTICS_CANDIDATE",
+            "NUMERIC_CANDIDATE_RUNTIME_IMPLEMENTED",
+            "FREQUENCY_GAINS_ONLY_NO_IMAGE_TRANSFORM_OR_DECONVOLUTION_AUTHORITY",
             false,
             true,
         )
@@ -156,9 +191,30 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "COLOUR_RELATION_CANDIDATE_SOLVER",
+            "NUMERIC_3X3_FIT_IMPLEMENTED",
+            "MULTI_ILLUMINANT_HELD_OUT_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "TEMPORAL_SEQUENCE_CANDIDATE_SOLVER",
+            "NUMERIC_RELATION_RUNTIME_IMPLEMENTED",
+            "EXPLICIT_ORDER_AND_READOUT_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
             "GEOMETRY_DEPTH_VISIBILITY",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "2D_APPEARANCE_GEOMETRY_ONLY_NO_3D_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "GEOMETRY_DEPTH_CANDIDATE_SOLVER",
+            "RAY_TRIANGULATION_CANDIDATE_RUNTIME_IMPLEMENTED",
+            "POSE_ADMITTED_GEOMETRY_CANDIDATE_ONLY",
             false,
             true,
         )
@@ -184,11 +240,39 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "WORLD_SPACE_RESIDUAL_CANDIDATE_SOLVER",
+            "NUMERIC_CANDIDATE_RUNTIME_IMPLEMENTED",
+            "WORLD_SENSOR_RESIDUAL_CANDIDATES_NO_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "SCIENTIFIC_RECONSTRUCTION_CANDIDATE",
+            "UNCERTAINTY_WEIGHTED_RUNTIME_IMPLEMENTED",
+            "EXACT_ANCHOR_PASSTHROUGH_OR_RECONSTRUCTED_CANDIDATE_ONLY",
+            false,
+            true,
+        )
+        capability(
+            "SCIENTIFIC_DENOISE_OPERATOR",
+            "GATED_DERIVED_OUTPUT_OPERATOR_IMPLEMENTED",
+            "BLOCKED_UNTIL_ROUTE_SPECIFIC_PROMOTION",
+            false,
+            true,
+        )
+        capability(
             "WORLD_SPACE_NOISE_SEPARATION",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "NO_WORLD_SENSOR_TEMPORAL_RESIDUAL_DECOMPOSITION_PERFORMED",
             false,
             true,
+        )
+        capability(
+            "PERCEPTUAL_NOISE_VISIBILITY_CANDIDATE",
+            "VISUAL_ANGLE_RUNTIME_IMPLEMENTED",
+            "APPEARANCE_ONLY_NO_HVS_CURVE_INVENTED",
+            true,
+            false,
         )
         capability(
             "PERCEPTUAL_NOISE_APPEARANCE",
