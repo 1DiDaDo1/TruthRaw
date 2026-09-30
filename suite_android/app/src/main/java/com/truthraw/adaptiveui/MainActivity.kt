@@ -1769,7 +1769,15 @@ class MainActivity : Activity() {
 
         val boundary =
             report.optJSONObject("promotion_boundary") ?: JSONObject()
+        val firewall =
+            report.optJSONObject("promotion_firewall") ?: JSONObject()
         if (
+            firewall.optString("status") !=
+            "RESEARCH_PROMOTION_FIREWALL_PASS" ||
+            !firewall.optBoolean(
+                "export_safe_under_current_research_contract",
+                false,
+            ) ||
             boundary.optBoolean("world_registration_promoted", true) ||
             boundary.optBoolean("camera_system_response_proven", true) ||
             boundary.optBoolean("lens_only_vignetting_proven", true) ||
