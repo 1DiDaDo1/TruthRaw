@@ -42,6 +42,12 @@ for needle in [
     "REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128",
     "currentMeasuredFieldCharts",
     "source-SHA set veranderde",
+    "fieldResponseRepeatabilityAnalysisOperationKey",
+    "startBackgroundOperation",
+    "backgroundOperationStatusView",
+    "Analyse actief · nog ",
+    "force = true",
+    "Alleen DNG-observaties met een werkelijk gemeten PR96",
 ]:
     assert needle in main, f"missing Android repeatability binding: {needle}"
 
@@ -78,6 +84,9 @@ assert state["relation_context"]["same_physical_lens_proven"] is False
 assert state["interpretation"]["calibration_promoted"] is False
 assert state["interpretation"]["correction_gain_allowed"] is False
 assert state["invariants"]["scientific_writeback_allowed"] is False
+assert state["android_ui"]["batch_progress_indicator"]["implemented"] is True
+assert state["android_ui"]["batch_progress_indicator"]["elapsed_chronometer"] is True
+assert state["android_ui"]["batch_progress_indicator"]["operation_key_scoped_to_selected_source_set"] is True
 
 for phrase in [
     "This is not a lens-vignetting calibration.",
