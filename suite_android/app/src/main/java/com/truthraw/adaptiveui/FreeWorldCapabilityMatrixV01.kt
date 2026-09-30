@@ -51,6 +51,13 @@ object FreeWorldCapabilityMatrixV01 {
         }
 
         capability(
+            "UNIVERSAL_IDENTITY_INDEPENDENCE",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "RAW_LENS_CAMERA_VENDOR_IDENTITY_CANNOT_SELECT_SCIENTIFIC_TRUTH",
+            true,
+            false,
+        )
+        capability(
             "LOCAL_FEATURE_GEOMETRY",
             "IMPLEMENTED",
             "APPEARANCE_DERIVED_CANDIDATE_ONLY",
