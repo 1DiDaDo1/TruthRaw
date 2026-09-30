@@ -50,6 +50,10 @@ object WorldSpaceNoiseSeparationV01 {
                             geometry.optBoolean("visibility_graph_estimated", false),
                     ),
             )
+            .put(
+                "candidate_solver",
+                "WorldSpaceResidualCandidateSolverV01",
+            )
             .put("world_fixed_signal_estimated", false)
             .put("sensor_fixed_pattern_estimated", false)
             .put("temporal_random_residual_estimated", false)
