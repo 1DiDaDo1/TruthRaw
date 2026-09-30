@@ -46,6 +46,14 @@ object ColourRelationAtlasV01 {
                 "frontside_visible_colour_is_colorimetric_calibration",
                 false,
             )
+            .put(
+                "colour_transform_must_transport_noise_covariance_when_available",
+                true,
+            )
+            .put(
+                "colour_matrix_quality_may_ignore_noise_amplification",
+                false,
+            )
             .put("empirical_relation_attached", false)
             .put("spectral_calibration_attached", false)
             .put("calibration_promoted", false)
