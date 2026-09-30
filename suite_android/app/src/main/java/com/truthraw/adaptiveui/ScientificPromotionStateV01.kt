@@ -20,6 +20,7 @@ object ScientificPromotionStateV01 {
             .put("schema", SCHEMA)
             .put("status", "NOT_PROMOTED_FAIL_CLOSED")
             .put("reason", reason)
+            .put("source_sha256_roots", JSONArray())
             .put("world_registration_promoted", false)
             .put("world_to_source_bridge_promoted", false)
             .put("radiometric_calibration_promoted", false)
@@ -68,10 +69,18 @@ object ScientificPromotionStateV01 {
         fun decision(key: String): Boolean =
             decisions.optBoolean(key, false)
 
+        val boundRoots = JSONArray()
+        for (i in 0 until roots.length()) {
+            boundRoots.put(
+                roots.optString(i).trim().lowercase(),
+            )
+        }
+
         return JSONObject()
             .put("schema", SCHEMA)
             .put("status", "INTERNAL_PROMOTION_DECISION_BOUND")
             .put("held_out_validation_passed", true)
+            .put("source_sha256_roots", boundRoots)
             .put("world_registration_promoted", decision("world_registration_promoted"))
             .put("world_to_source_bridge_promoted", decision("world_to_source_bridge_promoted"))
             .put("radiometric_calibration_promoted", decision("radiometric_calibration_promoted"))
