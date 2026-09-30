@@ -21,7 +21,35 @@ object WorldSpaceResidualCandidateSolverV01 {
         val role: String,
     )
 
-    fun evaluate(records: List<JSONObject>): JSONObject {
+    fun evaluate(
+        records: List<JSONObject>,
+        worldSourceBridge: JSONObject =
+            FreeWorldSourceLatticeBridgeContractV01.describe(),
+        promotionState: JSONObject =
+            ScientificPromotionStateV01.blocked(),
+    ): JSONObject {
+        if (
+            !worldSourceBridge.optBoolean(
+                "world_to_source_bridge_admitted",
+                false,
+            )
+        ) {
+            return unavailable(
+                "VALIDATED_WORLD_TO_SOURCE_BRIDGE_REQUIRED",
+                emptySet(),
+            )
+        }
+        if (
+            !promotionState.optBoolean(
+                "radiometric_calibration_promoted",
+                false,
+            )
+        ) {
+            return unavailable(
+                "PROMOTED_RADIOMETRIC_RELATION_REQUIRED",
+                emptySet(),
+            )
+        }
         val roots = linkedSetOf<String>()
         val samples = ArrayList<Sample>()
         var relationRecordCount = 0
@@ -40,11 +68,19 @@ object WorldSpaceResidualCandidateSolverV01 {
                 continue
             }
             val payload = record.optJSONObject("axis_payload") ?: continue
+            // Authority comes from the validated Foundation bridge and typed
+            // promotion state above, never from booleans inside imported JSON.
             if (
-                !payload.optBoolean("world_to_source_relation_admitted", false) ||
-                !payload.optBoolean("radiometric_relation_admitted", false)
+                payload.optBoolean(
+                    "world_to_source_relation_admitted",
+                    false,
+                ) ||
+                payload.optBoolean(
+                    "radiometric_relation_admitted",
+                    false,
+                )
             ) {
-                continue
+                // Legacy hints may remain present but have no authority.
             }
             relationRecordCount++
             val rs = record.optJSONArray("source_sha256_roots") ?: JSONArray()
@@ -59,8 +95,10 @@ object WorldSpaceResidualCandidateSolverV01 {
                 val sensor = s.optString("sensor_cell_id")
                 val sha = s.optString("source_sha256")
                 val value = s.optDouble("value", Double.NaN)
+                val normalizedSha = sha.trim().lowercase()
                 if (
-                    world.isBlank() || sensor.isBlank() || sha.isBlank() ||
+                    world.isBlank() || sensor.isBlank() ||
+                    normalizedSha !in roots.map(String::lowercase).toSet() ||
                     !value.isFinite()
                 ) {
                     continue
@@ -68,7 +106,7 @@ object WorldSpaceResidualCandidateSolverV01 {
                 samples += Sample(
                     worldPointId = world,
                     sensorCellId = sensor,
-                    sourceSha256 = sha,
+                    sourceSha256 = normalizedSha,
                     value = value,
                     role = s.optString("role", "TRAIN"),
                 )
