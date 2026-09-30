@@ -24,6 +24,14 @@ files = {
     "view": (JAVA / "ViewAppearanceStateV01.kt").read_text(),
     "calibration_record": (JAVA / "CalibrationObservationRecordV01.kt").read_text(),
     "firewall": (JAVA / "ResearchPromotionFirewallV01.kt").read_text(),
+    "tracks": (JAVA / "FreeWorldFeatureTrackHypothesesV01.kt").read_text(),
+    "cycles": (JAVA / "ObservationGraphCycleConsistencyV01.kt").read_text(),
+    "track_projection": (JAVA / "RelativeWorldFeatureTrackProjectionV01.kt").read_text(),
+    "geometry_readiness": (JAVA / "GeometryValidationReadinessV01.kt").read_text(),
+    "query_ledger": (JAVA / "FreeWorldQuerySupportLedgerV01.kt").read_text(),
+    "anchor_resolver": (JAVA / "SourceLatticeExactAnchorResolverV01.kt").read_text(),
+    "calibration_validator": (JAVA / "CalibrationObservationRecordValidatorV01.kt").read_text(),
+    "world_source_bridge": (JAVA / "FreeWorldSourceLatticeBridgeContractV01.kt").read_text(),
     "frontside": (JAVA / "FrontsideSceneInspector.kt").read_text(),
     "main": (JAVA / "MainActivity.kt").read_text(),
 }
@@ -124,6 +132,12 @@ required = {
         "CalibrationObservationRecordV01.describeContract",
         "ViewAppearanceStateV01.describe",
         "ResearchPromotionFirewallV01.audit",
+        "FreeWorldFeatureTrackHypothesesV01.build",
+        "ObservationGraphCycleConsistencyV01.evaluate",
+        "RelativeWorldFeatureTrackProjectionV01.build",
+        "GeometryValidationReadinessV01.describe",
+        "FreeWorldQuerySupportLedgerV01.build",
+        "FreeWorldSourceLatticeBridgeContractV01.describe",
         "ConservationRestorationAuthorityRuntimeV01.describe",
     ],
     "typed_query": [
@@ -148,6 +162,57 @@ required = {
         "RESEARCH_PROMOTION_FIREWALL_BLOCK",
         "FORBIDDEN_RESEARCH_PROMOTION_TRUE",
         "export_safe_under_current_research_contract",
+        "registration_promoted",
+        "world_point_estimate_promoted",
+        "automatic_colour_correction_applied",
+        "temporal_fusion_applied",
+        "restoration_applied",
+    ],
+    "tracks": [
+        "FEATURE_TRACK_HYPOTHESES_AVAILABLE",
+        "APPEARANCE_DERIVED_TRACK_HYPOTHESIS_ONLY",
+        "same_physical_world_point_proven",
+        "track_conflict_may_be_silently_discarded",
+    ],
+    "cycles": [
+        "DESCRIPTIVE_CYCLE_CONSISTENCY_AVAILABLE",
+        "DIRECT_A_TO_C_VS_A_TO_B_TO_C",
+        "automatic_consistency_threshold_used",
+        "cycle_consistency_is_same_world_proof",
+    ],
+    "track_projection": [
+        "RELATIVE_WORLD_TRACK_PROJECTIONS_AVAILABLE",
+        "graph_gauge_rms_dispersion",
+        "same_physical_world_point_proven",
+        "world_point_estimate_promoted",
+    ],
+    "geometry_readiness": [
+        "GEOMETRY_VALIDATION_MACHINERY_AVAILABLE",
+        "held_out_observation_validation_required",
+        "world_vs_sensor_field_separation_validation_required",
+    ],
+    "query_ledger": [
+        "QUERY_SUPPORT_LEDGER_AVAILABLE",
+        "unsupported_query_must_return_unknown",
+        "world_to_source_registration_promoted",
+    ],
+    "anchor_resolver": [
+        "SourceLatticeExactAnchorResolverV01",
+        "UNANCHORED_LATTICE_POSITION_UNKNOWN",
+        "MEASURED_ANCHOR_PROVIDER_BINDING_MISMATCH",
+        "interpolationPerformed = false",
+    ],
+    "calibration_validator": [
+        "CALIBRATION_OBSERVATION_RECORD_VALID",
+        "SOURCE_SHA256_ROOTS_REQUIRED",
+        "FORBIDDEN_IDENTITY_KEY_",
+        "record_validation_promotes_calibration",
+    ],
+    "world_source_bridge": [
+        "BRIDGE_CONTRACT_AVAILABLE_NO_ADMITTED_WORLD_TO_SOURCE_MAP",
+        "VALIDATED_EXPLICIT_WORLD_TO_SOURCE_RELATION_WITH_UNCERTAINTY",
+        "appearance_pair_geometry_is_sufficient",
+        "world_to_source_bridge_admitted",
     ],
     "frontside": [
         "deterministic_local_feature_geometry_v0_1",
@@ -188,6 +253,14 @@ for name in [
 
 assert state["continuous_query"]["typed_kotlin_abi_implemented"] is True
 assert state["continuous_query"]["pixel_solver_implemented"] is False
+assert state["continuous_query"]["source_lattice_exact_anchor_resolver_implemented"] is True
+assert state["continuous_query"]["unanchored_lattice_position_returns_unknown"] is True
+assert state["continuous_query"]["world_to_source_bridge_admitted"] is False
+assert state["geometry_consistency"]["multi_observation_feature_tracks_implemented"] is True
+assert state["geometry_consistency"]["automatic_consistency_threshold_used"] is False
+assert state["geometry_consistency"]["same_world_structure_proven"] is False
+assert state["calibration_observation_record"]["validator_implemented"] is True
+assert state["calibration_observation_record"]["validation_promotes_calibration"] is False
 assert state["research_promotion_firewall"]["implemented"] is True
 assert state["calibration_observation_record"]["required_for_normal_intake"] is False
 assert state["continuous_query"]["source_raster_is_world_resolution_limit"] is False
@@ -203,6 +276,8 @@ for phrase in [
     "A feature is never sensor evidence",
     "The lexicographically first source SHA may be chosen as a",
     "Loss compensation never becomes measured.",
+    "Any position between source anchors returns UNKNOWN.",
+    "Physical truth is intentionally",
 ]:
     assert phrase.lower() in readme.lower(), f"README missing: {phrase}"
 
