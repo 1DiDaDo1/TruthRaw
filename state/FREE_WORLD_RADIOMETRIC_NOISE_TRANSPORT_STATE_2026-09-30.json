@@ -4,7 +4,7 @@
   "branch": "research/free-world-radiometric-noise-transport-v01-2026-09-30",
   "parent_pr": 101,
   "parent_exact_green_head": "0006b56d3261cad9a13fec560f7ddcd39b0844db",
-  "status": "IMPLEMENTED_UNTESTED_MULTIDISCIPLINARY_NUMERIC_CANDIDATE_ARCHITECTURE_COMPLETE",
+  "status": "IMPLEMENTED_COMPILED_GREEN_CABLE_REPAIR_COMPLETE_PHYSICALLY_UNVALIDATED",
   "universal_identity_law": {
     "raw_format_may_route_decoder": true,
     "raw_format_may_define_scientific_truth": false,
@@ -46,7 +46,14 @@
     "PerceptualNoiseAppearanceV01",
     "PerceptualNoiseVisibilityCandidateV01",
     "CalibrationObservationAdmissionV01",
-    "SparseGridNoiseModelCandidateV01"
+    "SparseGridNoiseModelCandidateV01",
+    "CalibrationObservationRecordIdentityV01",
+    "CalibrationObservationSessionBindingV01",
+    "CalibrationObservationRecordSessionStoreV01",
+    "ScientificPromotionStateV01",
+    "ColourCovarianceTransportCandidateV01",
+    "NoiseOpticsJointCandidateV01",
+    "TruthRawLegacyTestStatusV01"
   ],
   "promotion": {
     "radiometric_calibration_promoted": false,
@@ -69,11 +76,15 @@
   },
   "validation": {
     "tests_run": false,
-    "ci_run": false,
-    "android_build_run": false,
+    "ci_run": true,
+    "android_build_run": true,
+    "android_build_success": true,
+    "android_build_workflow": "D.RAW Free World Research APK",
+    "android_build_run_id": 36744717288,
+    "android_build_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
     "device_validation_run": false,
     "physical_gates_executed": false,
-    "compilation_claimed": false,
+    "compilation_claimed": true,
     "scientific_correctness_claimed": false
   },
   "permanent_laws": [
@@ -89,7 +100,7 @@
     "EXACT_MEASURED_CFA_ANCHORS_MAY_NOT_BE_OVERWRITTEN",
     "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT"
   ],
-  "latest_implementation_head": "74075f1318ceb5f45cec7ed7e0c9724e1c32b1c6",
+  "latest_implementation_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
   "runtime_integration": {
     "universal_intake_noise_context_bound": true,
     "sparse_measured_cfa_grid_exported": true,
@@ -128,11 +139,30 @@
     "camera_lens_vendor_raw_identity_can_drive_numeric_candidate": false,
     "calibration_records_revalidated_on_export_save": true,
     "weak_grouping_hint_numeric_admission": false,
-    "controlled_nps_uses_numeric_relation_admission": true
+    "controlled_nps_uses_numeric_relation_admission": true,
+    "camera_rawsensor_lineage_to_universal_profile": true,
+    "free_world_physical_and_processing_roots_separated": true,
+    "calibration_record_canonical_identity": true,
+    "calibration_records_bound_to_active_session_before_solver": true,
+    "cross_session_candidate_record_use_allowed": false,
+    "calibration_record_sha_case_normalized": true,
+    "calibration_record_semantic_validation_strengthened": true,
+    "canonical_record_dedup": true,
+    "colour_covariance_transport_candidate": true,
+    "nps_optics_signal_psd_joint_candidate": true,
+    "typed_internal_promotion_state": true,
+    "validated_world_to_source_mapping_bridge": true,
+    "promotion_consumers_require_validated_internal_state": true,
+    "world_space_imported_authority_booleans_sufficient": false,
+    "research_mode_state_restored": true,
+    "raw_picker_can_open_with_existing_session": true,
+    "calibration_record_private_session_store": true,
+    "legacy_diagnostics_share_dot_timer_status": true,
+    "generic_compute_router_unvalidated_gpu_auto_dispatch": false
   },
-  "implementation_code_head": null,
+  "implementation_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
   "documentation_head_before_state_checkpoint": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
-  "parent_distance_commits_at_code_checkpoint": 115,
+  "parent_distance_commits_at_code_checkpoint": 217,
   "completion_checkpoint": {
     "checkpoint_parent_head": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
     "relation_records_reachable_from_android_ui": true,
@@ -150,15 +180,28 @@
     "recommendation_wave_open_implementation_items": 0,
     "next_phase": "BUNDLED_PHYSICAL_VALIDATION_AND_AXIS_SPECIFIC_PROMOTION_ONLY",
     "tests_run": false,
-    "ci_run": false,
-    "android_build_run": false,
+    "ci_run": true,
+    "android_build_run": true,
     "device_validation_run": false,
     "practical_navigation_reorganized": true,
     "research_json_hub_available": true,
     "global_research_snapshot_available": true,
     "implementation_guide_available": true,
     "test_status_dot_timer_preserved": true,
-    "normal_pro_route_research_clutter_reduced": true
+    "normal_pro_route_research_clutter_reduced": true,
+    "checkpoint_code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "provenance_cables_closed": true,
+    "calibration_session_binding_closed": true,
+    "canonical_record_identity_closed": true,
+    "promotion_state_cable_closed": true,
+    "research_firewall_side_effect_keys_closed": true,
+    "colour_covariance_bridge_closed": true,
+    "noise_optics_bridge_closed": true,
+    "world_source_bridge_future_path_closed": true,
+    "research_picker_mode_persistence_closed": true,
+    "legacy_test_status_unified": true,
+    "android_compile_green": true,
+    "android_build_success": true
   },
   "parent_distance_commits_before_state_checkpoint": 120,
   "navigation_ux": {
@@ -186,7 +229,9 @@
     "cancelled_indicator": "MUTED",
     "running_timer": "LIVE_ELAPSED",
     "terminal_timer": "FINAL_DURATION",
-    "authority_effect": "NONE"
+    "authority_effect": "NONE",
+    "legacy_diagnostics_shared_component": "TruthRawLegacyTestStatusV01",
+    "legacy_diagnostics_uniform": true
   },
   "new_navigation_modules": [
     "TruthRawResearchHubActivity",
@@ -194,5 +239,38 @@
     "GlobalResearchSnapshotV01",
     "TruthRawResearchStatusVisualV01"
   ],
-  "ux_checkpoint_status": "IMPLEMENTED_UNTESTED_NAVIGATION_RESEARCH_JSON_GUIDE_COMPLETE"
+  "ux_checkpoint_status": "IMPLEMENTED_COMPILED_GREEN_NAVIGATION_RESEARCH_JSON_GUIDE_AND_TEST_STATUS_COMPLETE",
+  "green_android_build_checkpoint": {
+    "code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "workflow_run_id": 36744717288,
+    "workflow_conclusion": "success",
+    "artifact_id": 11111543510,
+    "artifact_name": "DRAW-free-world-research-debug-arm64",
+    "artifact_archive_sha256": "19dce8f5d812af774b16894a1a65f0170c173a6ab8a91a84efae093de61dcf16",
+    "apk_bytes": 8155983,
+    "apk_sha256": "d78811f1535075bda0ca1beec553d5cf99eb3533b4bf12ad088ec7dad9f36036",
+    "build_successful": true,
+    "device_validated": false
+  },
+  "post_audit_cable_repair": {
+    "status": "COMPLETE_AT_IMPLEMENTATION_LEVEL",
+    "code_head": "f36f750afda57f4672c264e59ac53db489cd5e19",
+    "safety": {
+      "scientific_writeback_allowed": false,
+      "candidate_runtime_is_promotion": false,
+      "measured_anchor_mutation_allowed": false,
+      "creates_new_evidence": false
+    },
+    "decoder_boundary": {
+      "dng_native_processing_ready": true,
+      "proprietary_raw_universal_ingress": true,
+      "proprietary_raw_full_scientific_decode_complete": false,
+      "note": "Decoder-pending proprietary RAW remains fail-closed; identity-independence does not imply every proprietary decoder is implemented."
+    },
+    "compute_boundary": {
+      "generic_router_auto_gpu_dispatch": false,
+      "cpu_reference_default": true,
+      "proven_specialized_paths_may_use_their_own_self_tested_acceleration": true
+    }
+  }
 }
