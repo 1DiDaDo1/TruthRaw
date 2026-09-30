@@ -106,3 +106,4 @@ object NoiseSpectrumMeasurementCandidateV01 {
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
 }
+}
