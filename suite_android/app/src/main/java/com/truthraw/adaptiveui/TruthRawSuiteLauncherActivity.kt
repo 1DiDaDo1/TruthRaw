@@ -54,20 +54,7 @@ class TruthRawSuiteLauncherActivity : Activity() {
             addView(title("D.RAW", 34f).apply { gravity = Gravity.CENTER })
             addView(body("BEYOND THE OBVIOUS", 12f).apply { gravity = Gravity.CENTER })
             addView(space(20))
-            addView(title("Kies route", 24f))
-            addView(action("D.RAW PURE") { setPreferredOutput(OUTPUT_PURE) })
-            addView(space(8))
-            addView(action("D.RAW ADVANCED") {
-                setPreferredOutput(OUTPUT_ADVANCED)
-                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawAdvancedActivity::class.java))
-            })
-            addView(space(8))
-            addView(action("D.RAW PRO") {
-                setPreferredOutput(OUTPUT_PRO)
-                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawProActivity::class.java))
-            })
-            addView(space(20))
-            addView(title("Kies invoer", 24f))
+            addView(title("Start foto", 24f))
             addView(action("Bestand · Open RAW / DNG") {
                 startActivity(Intent(this@TruthRawSuiteLauncherActivity, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
@@ -82,6 +69,23 @@ class TruthRawSuiteLauncherActivity : Activity() {
                         UniversalPhysicalCaptureActivity::class.java,
                     ),
                 )
+            })
+            addView(space(18))
+            addView(title("Route wijzigen", 24f))
+            addView(action("D.RAW PURE") { setPreferredOutput(OUTPUT_PURE) })
+            addView(space(8))
+            addView(action("D.RAW ADVANCED") {
+                setPreferredOutput(OUTPUT_ADVANCED)
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawAdvancedActivity::class.java))
+            })
+            addView(space(8))
+            addView(action("D.RAW PRO") {
+                setPreferredOutput(OUTPUT_PRO)
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawProActivity::class.java))
+            })
+            addView(space(18))
+            addView(action("Research & JSON") {
+                startActivity(Intent(this@TruthRawSuiteLauncherActivity, TruthRawResearchHubActivity::class.java))
             })
             addView(space(18))
             addView(body("Evidence-bound computational photography and open scene reconstruction", 10.5f).apply {
