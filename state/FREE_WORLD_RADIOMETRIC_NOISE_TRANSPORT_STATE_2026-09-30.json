@@ -125,23 +125,34 @@
     "sparse_grid_noise_model_candidate": true,
     "radiometric_profile_candidate": true,
     "normal_raw_intake_requires_calibration_records": false,
-    "camera_lens_vendor_raw_identity_can_drive_numeric_candidate": false
+    "camera_lens_vendor_raw_identity_can_drive_numeric_candidate": false,
+    "calibration_records_revalidated_on_export_save": true,
+    "weak_grouping_hint_numeric_admission": false,
+    "controlled_nps_uses_numeric_relation_admission": true
   },
-  "implementation_code_head": "caf4c0e39f3a74c94ed00802ff8a84c1f10013d1",
-  "documentation_head_before_state_checkpoint": "cca8b4071e07adc416a712e1dddee67efabbbf9d",
+  "implementation_code_head": null,
+  "documentation_head_before_state_checkpoint": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
   "parent_distance_commits_at_code_checkpoint": 115,
   "completion_checkpoint": {
-    "code_head": "caf4c0e39f3a74c94ed00802ff8a84c1f10013d1",
+    "checkpoint_parent_head": "6c408bd5e7707a7d04b8565d8a5a9e81ed3c5cf8",
     "relation_records_reachable_from_android_ui": true,
     "relation_records_revalidated_on_export_save": true,
     "user_grouping_hint_can_drive_numeric_solver": false,
     "none_relation_can_drive_numeric_solver": false,
+    "nested_identity_keys_blocked": true,
+    "sparse_cfa_grid_drives_repeated_observation_candidates": true,
+    "sparse_cfa_relation_sets_drive_signal_dependent_noise_candidate": true,
+    "controlled_nps_requires_admitted_relation": true,
     "raw_lens_camera_vendor_independence_preserved": true,
     "exact_measured_cfa_anchor_preservation": true,
     "unknown_residual_preserved": true,
+    "candidate_runtime_is_promotion": false,
+    "recommendation_wave_open_implementation_items": 0,
+    "next_phase": "BUNDLED_PHYSICAL_VALIDATION_AND_AXIS_SPECIFIC_PROMOTION_ONLY",
     "tests_run": false,
     "ci_run": false,
     "android_build_run": false,
     "device_validation_run": false
-  }
+  },
+  "parent_distance_commits_before_state_checkpoint": 120
 }
