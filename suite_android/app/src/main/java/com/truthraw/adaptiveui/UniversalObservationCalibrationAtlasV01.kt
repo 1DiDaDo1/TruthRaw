@@ -58,6 +58,10 @@ object UniversalObservationCalibrationAtlasV01 {
 
         val optionalObservations = JSONArray()
             .put(optionalObservation(
+                "RADIOMETRIC_RESPONSE_LINEARITY",
+                "Controlled exposure-to-code relation, effective gain, black offset and censor/saturation behavior; BlackLevel remains distinct from Zero-Line.",
+            ))
+            .put(optionalObservation(
                 "FLAT_FIELD_RELATIVE_ILLUMINATION",
                 "Repeatable camera-system field response; scene/lens/sensor separation requires independent observations.",
             ))
@@ -72,6 +76,14 @@ object UniversalObservationCalibrationAtlasV01 {
             .put(optionalObservation(
                 "DARK_NOISE_OFFSET",
                 "Independent offset/noise support; may refine uncertainty but cannot rewrite measured anchors.",
+            ))
+            .put(optionalObservation(
+                "NOISE_COMPONENT_SEPARATION",
+                "Repeated dark and illuminated observations may separate temporal, fixed-pattern, CFA-phase and correlated residual components without using camera/lens/vendor identity.",
+            ))
+            .put(optionalObservation(
+                "GEOMETRY_DEPTH_VISIBILITY",
+                "Independent multi-view observations may constrain parallax, depth, visibility and occlusion while radiometric authority remains separate.",
             ))
             .put(optionalObservation(
                 "TEMPORAL_MOTION_FOOTPRINT",
@@ -145,6 +157,17 @@ object UniversalObservationCalibrationAtlasV01 {
                     .put("may_write_scientific_state", false),
             )
             .put(
+                "radiometric_response_state",
+                JSONObject()
+                    .put("exposure_time_seconds", exposureSeconds ?: JSONObject.NULL)
+                    .put("iso_metadata", iso ?: JSONObject.NULL)
+                    .put("oecf_or_equivalent_measured", false)
+                    .put("effective_gain_calibrated", false)
+                    .put("response_linearity_proven", false)
+                    .put("black_level_equals_zero_line", false)
+                    .put("automatic_radiometric_correction_allowed", false),
+            )
+            .put(
                 "colour_state",
                 JSONObject()
                     .put(
@@ -162,7 +185,18 @@ object UniversalObservationCalibrationAtlasV01 {
                     .put("spectral_calibration_attached", false)
                     .put("white_balance_is_not_spectral_calibration", true)
                     .put("three_channel_rgb_proves_full_spectrum", false)
-                    .put("automatic_colour_correction_from_atlas_allowed", false),
+                    .put("automatic_colour_correction_from_atlas_allowed", false)
+                    .put("colour_transform_must_transport_noise_uncertainty", true),
+            )
+            .put(
+                "noise_state",
+                JSONObject()
+                    .put("noise_profile_metadata_present", m.optBoolean("noise_profile_present", false))
+                    .put("component_separated_noise_model_attached", false)
+                    .put("temporal_and_fixed_pattern_separated", false)
+                    .put("noise_covariance_or_psd_attached", false)
+                    .put("unknown_residual_remains_unknown", true)
+                    .put("noise_reduction_allowed", false),
             )
             .put(
                 "illumination_state",
