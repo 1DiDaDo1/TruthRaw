@@ -31,6 +31,8 @@ Implemented now, without claiming physical promotion:
 - fail-closed Free World query runtime that returns UNKNOWN until scientific bridge/solver admission;
 - Calibration Observation Record validator;
 - machine-readable Free World Capability Matrix separating implementation from scientific promotion;
+- deterministic graph component partitioning so unrelated selected files are never forced into one world;
+- independent relative numeric gauge per connected appearance-geometry component, with no invented cross-component transform;
 - unified Android JSON export: **Free World Observation Geometry Foundation v0.1**.
 
 Permanent firewall:
