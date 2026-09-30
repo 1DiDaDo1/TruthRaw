@@ -22,10 +22,13 @@ object CalibrationObservationRecordV01 {
             .put(
                 "supported_axes",
                 JSONArray()
+                    .put("RADIOMETRIC_RESPONSE")
                     .put("FIELD_RESPONSE")
                     .put("COLOUR_RELATION")
                     .put("OPTICAL_SUPPORT")
                     .put("DARK_NOISE_OFFSET")
+                    .put("NOISE_COMPONENT_SEPARATION")
+                    .put("GEOMETRY_DEPTH_VISIBILITY")
                     .put("TEMPORAL_FOOTPRINT"),
             )
             .put(
