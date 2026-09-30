@@ -1,3 +1,30 @@
+# D.RAW — ACTIVE RESEARCH OVERLAY — FIELD RESPONSE REPEATABILITY v0.1 — 2026-09-30
+
+**Current branch:** `research/field-response-repeatability-v01-2026-09-30`
+
+Parent PR98 froze the Universal Multi-Observation Relation Protocol and its Android build is green.
+
+This branch implements the first axis-specific read-only experiment:
+**Field Response Repeatability v0.1**
+
+Key rules:
+- minimum 3 distinct measured PR96 field observations;
+- remove only one scalar per observation;
+- compare radial, azimuth and CFA-phase shape in EV;
+- current runtime relation = USER_GROUPING_HINT_ONLY;
+- camera/lens identity remains unproven;
+- scene illumination / sensor angular response remain unseparated;
+- no automatic threshold, winner, calibration promotion or correction;
+- no source/sample mutation or Scientific Master writeback.
+
+Mobile UI includes a new Multi-observation panel with:
+1. Analyseer alle geselecteerde bronnen universeel
+2. Export Field Response Repeatability v0.1 · JSON
+
+Next gate: green integrity + full ARM64 Android build, then one device export from at least three substantially different DNG scenes.
+
+---
+
 # D.RAW — ACTIVE RESEARCH OVERLAY — UNIVERSAL MULTI-OBSERVATION RELATION v0.1 — 2026-09-30
 
 **Current branch:** `research/universal-multi-observation-relation-v01-2026-09-30`
