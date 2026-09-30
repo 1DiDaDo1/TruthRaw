@@ -69,6 +69,31 @@ object FreeWorldObservationGeometryFoundationV01 {
                 FreeWorldContinuousQueryContractV01.describe(),
             )
             .put(
+                "continuous_query_typed_abi",
+                JSONObject()
+                    .put(
+                        "request_type",
+                        "FreeWorldContinuousQueryRequestV01",
+                    )
+                    .put(
+                        "result_type",
+                        "FreeWorldContinuousQueryResultV01",
+                    )
+                    .put(
+                        "solver_interface",
+                        "FreeWorldContinuousQuerySolverV01",
+                    )
+                    .put("solver_implemented", false),
+            )
+            .put(
+                "calibration_observation_record_contract",
+                CalibrationObservationRecordV01.describeContract(),
+            )
+            .put(
+                "view_appearance_state_contract",
+                ViewAppearanceStateV01.describe(),
+            )
+            .put(
                 "restoration_authority_contract",
                 ConservationRestorationAuthorityRuntimeV01.describe(),
             )
@@ -107,5 +132,11 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("ai_ml_neural_generative_used", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+            .also { report ->
+                report.put(
+                    "promotion_firewall",
+                    ResearchPromotionFirewallV01.audit(report),
+                )
+            }
     }
 }
