@@ -40,9 +40,9 @@ object WorldSpaceResidualCandidateSolverV01 {
             )
         }
         if (
-            !promotionState.optBoolean(
+            !ScientificPromotionStateV01.decision(
+                promotionState,
                 "radiometric_calibration_promoted",
-                false,
             )
         ) {
             return unavailable(
