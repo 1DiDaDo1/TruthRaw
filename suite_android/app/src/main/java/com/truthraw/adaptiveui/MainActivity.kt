@@ -5403,6 +5403,33 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
+                val observationOpticalFieldChart =
+                    profile.optJSONObject(
+                        "observation_optical_field_chart",
+                    )
+                if (
+                    observationOpticalFieldChart?.optString("status") ==
+                    "FIELD_CHART_AVAILABLE"
+                ) {
+                    addView(space(5))
+                    addView(actionButton(
+                        "Export Observation Optical Field Chart v0.1 · JSON",
+                    ) {
+                        launchObservationOpticalFieldExport(job)
+                    })
+                    observationOpticalFieldStatus?.let { status ->
+                        addView(label(status, 10f, muted = true))
+                    }
+                    addView(label(
+                        "Universele read-only veldkaart van deze sealed observation: bron/ActiveArea → rho + " +
+                            "azimut + radiale/tangentiële basis, plus gemeten CFA-signaal per ring/sector. " +
+                            "Beschikbaar vanuit Research ongeacht PURE/ADVANCED/PRO en zonder Finalized Preview. " +
+                            "DNG GainMap blijft provenance-hint; geen lensprofiel, correctiegain of writeback.",
+                        10f,
+                        muted = true,
+                    ))
+                }
+
                 val universalCalibrationAtlas =
                     profile.optJSONObject(
                         "universal_observation_calibration_atlas",
@@ -8101,30 +8128,6 @@ class MainActivity : Activity() {
                                 "directionele support, maar vergelijkt model families puur op dezelfde common " +
                                 "validation-RMS. Geen tweede BIC/complexiteitsstraf; modelcomplexiteit is alleen " +
                                 "deterministische tie-break. Geen lens/camera/vendor-profiel en geen writeback.",
-                            10f,
-                            muted = true,
-                        ))
-
-                        addView(space(5))
-                        addView(actionButton(
-                            "Export Observation Optical Field Chart v0.1 · JSON",
-                            enabled =
-                                universalProfiles[active.id]
-                                    ?.optJSONObject(
-                                        "observation_optical_field_chart",
-                                    )
-                                    ?.optString("status") ==
-                                "FIELD_CHART_AVAILABLE",
-                        ) {
-                            launchObservationOpticalFieldExport(active)
-                        })
-                        observationOpticalFieldStatus?.let { status ->
-                            addView(label(status, 10f, muted = true))
-                        }
-                        addView(label(
-                            "Platte veldkaart van dezelfde sealed observation: bron/ActiveArea → rho + azimut + " +
-                                "radiale/tangentiële basis, plus gemeten CFA-signaal per ring/sector. DNG GainMap is " +
-                                "alleen provenance-hint; geen lensprofiel, geen correctiegain en geen writeback.",
                             10f,
                             muted = true,
                         ))
