@@ -1,4 +1,25 @@
 # D.RAW Free World Radiometric / Noise / Optics / Temporal Integration v0.1
+## Definitive handoff
+
+The consolidated Dutch end-of-wave handoff is:
+
+`FINAL_PROJECT_HANDOFF_2026-09-30.md`
+
+It supersedes scattered implementation notes when a next chat needs the current
+whole-project picture. It includes:
+
+- final green build evidence;
+- architecture and authority boundaries;
+- all cable-audit findings and closures;
+- provenance/session-binding/promotion/firewall fixes;
+- colour-covariance and NPS/optics bridges;
+- UI/navigation/test-status changes;
+- intentional decoder/compute/streaming boundaries;
+- the exact ordered device and physical-validation work still to perform.
+
+No Android/native source code was changed after the green code head
+`c90ff62323a065eac54eee0d91f75256708cd4fd`.
+
 
 Date: 2026-09-30
 
