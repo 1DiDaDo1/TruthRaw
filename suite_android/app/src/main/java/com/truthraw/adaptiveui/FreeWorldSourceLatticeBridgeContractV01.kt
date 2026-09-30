@@ -15,7 +15,28 @@ object FreeWorldSourceLatticeBridgeContractV01 {
         promotionState: JSONObject =
             ScientificPromotionStateV01.blocked(),
         validatedMapping: JSONObject? = null,
+        activeSourceRoots: Set<String> = emptySet(),
     ): JSONObject {
+        val mappingRoots =
+            linkedSetOf<String>().apply {
+                val arr =
+                    validatedMapping?.optJSONArray(
+                        "source_sha256_roots",
+                    )
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        arr.optString(i)
+                            .trim()
+                            .lowercase()
+                            .takeIf(String::isNotBlank)
+                            ?.let(::add)
+                    }
+                }
+            }
+        val rootsBound =
+            activeSourceRoots.isNotEmpty() &&
+                mappingRoots.isNotEmpty() &&
+                mappingRoots.all { it in activeSourceRoots }
         val mappingValid =
             validatedMapping?.optString("schema") ==
                 "D.RAW/ValidatedWorldToSourceRelation/0.1" &&
@@ -27,7 +48,8 @@ object FreeWorldSourceLatticeBridgeContractV01 {
                 !validatedMapping.optBoolean(
                     "appearance_only_authority",
                     true,
-                )
+                ) &&
+                rootsBound
         val promoted =
             promotionState.optBoolean(
                 "world_to_source_bridge_promoted",
@@ -83,6 +105,7 @@ object FreeWorldSourceLatticeBridgeContractV01 {
             )
             .put("promotion_state_granted", promoted)
             .put("validated_mapping_attached", mappingValid)
+            .put("validated_mapping_source_roots_bound", rootsBound)
             .put(
                 "unmapped_world_query_must_remain_unknown",
                 true,
