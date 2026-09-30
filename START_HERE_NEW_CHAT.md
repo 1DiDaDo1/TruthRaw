@@ -11,12 +11,16 @@ Read first:
 
 New implemented prevalidation contracts:
 - `UniversalIdentityIndependenceV01`
+- `PhysicalObservationNoiseContextV01` (bound into Universal Intake)
 - `RadiometricResponseAtlasV01`
 - `NoiseComponentAtlasV01`
 - `ScientificNoiseTransportV01`
+- `ScientificNoiseMathV01` (deterministic variance/covariance primitives)
 - `TemporalFootprintV01`
 - `GeometryDepthSupportAtlasV01`
 - `LightTransportAuthorityContractV01`
+- `MultiObservationResidualRelationV01`
+- `ScientificDenoiseAdmissionV01` (single-frame / optics-aware / world-space routes)
 - `WorldSpaceNoiseSeparationV01`
 - `PerceptualNoiseAppearanceV01`
 
