@@ -96,6 +96,21 @@ object FreeWorldObservationGeometryFoundationV01 {
             BundledPhysicalValidationCampaignV01.describe()
         val gateRegistry =
             ScientificPromotionGateRegistryV01.describe()
+        val scientificStateSnapshot =
+            FreeWorldScientificStateSnapshotV01.build(
+                lineage = lineage,
+                axisAuthority = axisAuthorityMatrix,
+                capabilityMatrix = capabilityMatrix,
+                gateRegistry = gateRegistry,
+                unknownGuard = unknownPropagation,
+            )
+        val candidateLedger =
+            PrevalidationCandidateLedgerV01.build(
+                graph = graph,
+                tracks = featureTracks,
+                cycles = cycleConsistency,
+                fieldSeparation = fieldSeparationCandidateSet,
+            )
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -134,6 +149,8 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
             .put("capability_matrix", capabilityMatrix)
             .put("evidence_lineage_manifest", lineage)
+            .put("scientific_state_snapshot", scientificStateSnapshot)
+            .put("prevalidation_candidate_ledger", candidateLedger)
             .put("bundled_physical_validation_campaign", validationCampaign)
             .put("scientific_gate_registry", gateRegistry)
             .put(
