@@ -11,12 +11,39 @@ object FreeWorldSourceLatticeBridgeContractV01 {
     const val SCHEMA =
         "D.RAW/FreeWorldSourceLatticeBridgeContract/0.1"
 
-    fun describe(): JSONObject =
-        JSONObject()
+    fun describe(
+        promotionState: JSONObject =
+            ScientificPromotionStateV01.blocked(),
+        validatedMapping: JSONObject? = null,
+    ): JSONObject {
+        val mappingValid =
+            validatedMapping?.optString("schema") ==
+                "D.RAW/ValidatedWorldToSourceRelation/0.1" &&
+                validatedMapping.optBoolean(
+                    "held_out_validation_passed",
+                    false,
+                ) &&
+                validatedMapping.has("mapping_uncertainty") &&
+                !validatedMapping.optBoolean(
+                    "appearance_only_authority",
+                    true,
+                )
+        val promoted =
+            promotionState.optBoolean(
+                "world_to_source_bridge_promoted",
+                false,
+            )
+        val admitted = promoted && mappingValid
+
+        return JSONObject()
             .put("schema", SCHEMA)
             .put(
                 "status",
-                "BRIDGE_CONTRACT_AVAILABLE_NO_ADMITTED_WORLD_TO_SOURCE_MAP",
+                if (admitted) {
+                    "VALIDATED_WORLD_TO_SOURCE_BRIDGE_ADMITTED"
+                } else {
+                    "BRIDGE_CONTRACT_AVAILABLE_NO_ADMITTED_WORLD_TO_SOURCE_MAP"
+                },
             )
             .put(
                 "source_coordinate_domain",
@@ -52,12 +79,15 @@ object FreeWorldSourceLatticeBridgeContractV01 {
             )
             .put(
                 "world_to_source_bridge_admitted",
-                false,
+                admitted,
             )
+            .put("promotion_state_granted", promoted)
+            .put("validated_mapping_attached", mappingValid)
             .put(
                 "unmapped_world_query_must_remain_unknown",
                 true,
             )
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+    }
 }
