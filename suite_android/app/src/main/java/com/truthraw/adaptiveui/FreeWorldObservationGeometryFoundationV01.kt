@@ -24,6 +24,8 @@ object FreeWorldObservationGeometryFoundationV01 {
                 graph = graph,
                 fieldRepeatability = fieldRepeatability,
             )
+        val relativeWorld =
+            RelativeWorldCoordinateHypothesisV01.build(graph)
         val decomposition =
             WorldSensorFieldDecompositionScaffoldV01.describe(
                 profiles = profiles,
@@ -34,6 +36,8 @@ object FreeWorldObservationGeometryFoundationV01 {
                 graph = graph,
                 atlas = atlas,
             )
+        val temporal =
+            TemporalObservationRelationV01.describe(profiles)
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -47,9 +51,19 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
             .put("campaign", campaign)
             .put("observation_graph", graph)
+            .put("relative_world_coordinate_hypothesis", relativeWorld)
             .put("natural_self_calibration_atlas", atlas)
             .put("world_sensor_decomposition", decomposition)
             .put("uncertainty_transport", uncertainty)
+            .put("temporal_relation", temporal)
+            .put(
+                "optical_support_atlas_contract",
+                OpticalSupportAtlasV01.describe(),
+            )
+            .put(
+                "colour_relation_atlas_contract",
+                ColourRelationAtlasV01.describe(),
+            )
             .put(
                 "continuous_query_contract",
                 FreeWorldContinuousQueryContractV01.describe(),
