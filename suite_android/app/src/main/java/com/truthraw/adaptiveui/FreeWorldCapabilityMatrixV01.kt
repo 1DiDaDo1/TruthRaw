@@ -107,6 +107,27 @@ object FreeWorldCapabilityMatrixV01 {
             true,
         )
         capability(
+            "RADIOMETRIC_RESPONSE",
+            "RUNTIME_FOUNDATION_IMPLEMENTED",
+            "METADATA_CONTEXT_ONLY_NO_OECF_OR_LINEARITY_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "NOISE_COMPONENT_DECOMPOSITION",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "COMPONENTS_DECLARED_NO_DECOMPOSITION_PROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "SCIENTIFIC_NOISE_TRANSPORT",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "NO_NUMERIC_COVARIANCE_OR_PSD_TRANSPORT_APPLIED",
+            false,
+            true,
+        )
+        capability(
             "OPTICAL_SUPPORT",
             "RUNTIME_CONTRACT_IMPLEMENTED",
             "NO_MEASURED_SFR_MTF_PSF_ATTACHED",
@@ -119,6 +140,34 @@ object FreeWorldCapabilityMatrixV01 {
             "NO_EMPIRICAL_OR_SPECTRAL_PROMOTION",
             false,
             true,
+        )
+        capability(
+            "GEOMETRY_DEPTH_VISIBILITY",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "2D_APPEARANCE_GEOMETRY_ONLY_NO_3D_PROMOTION",
+            false,
+            true,
+        )
+        capability(
+            "LIGHT_TRANSPORT_AUTHORITY",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "MATERIAL_ILLUMINATION_GEOMETRY_REMAIN_UNPROMOTED",
+            false,
+            true,
+        )
+        capability(
+            "WORLD_SPACE_NOISE_SEPARATION",
+            "RUNTIME_CONTRACT_IMPLEMENTED",
+            "NO_WORLD_SENSOR_TEMPORAL_RESIDUAL_DECOMPOSITION_PERFORMED",
+            false,
+            true,
+        )
+        capability(
+            "PERCEPTUAL_NOISE_APPEARANCE",
+            "DOWNSTREAM_CONTRACT_IMPLEMENTED",
+            "APPEARANCE_ONLY",
+            true,
+            false,
         )
         capability(
             "TEMPORAL_MULTIVIEW",
