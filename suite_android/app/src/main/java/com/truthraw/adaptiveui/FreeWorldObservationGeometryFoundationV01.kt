@@ -262,6 +262,20 @@ object FreeWorldObservationGeometryFoundationV01 {
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
             .also { report ->
+                val initialFirewall =
+                    ResearchPromotionFirewallV01.audit(report)
+                report.put(
+                    "prevalidation_architecture_closure",
+                    PrevalidationArchitectureClosureV01.build(
+                        axisAuthority = axisAuthorityMatrix,
+                        unknownGuard = unknownPropagation,
+                        queryPlanner = queryPlanner,
+                        candidateLedger = candidateLedger,
+                        capabilityMatrix = capabilityMatrix,
+                        fieldSeparation = fieldSeparationCandidateSet,
+                        promotionFirewall = initialFirewall,
+                    ),
+                )
                 report.put(
                     "promotion_firewall",
                     ResearchPromotionFirewallV01.audit(report),
