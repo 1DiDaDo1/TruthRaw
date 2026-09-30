@@ -264,3 +264,62 @@ Therefore:
 - compilation success may NOT be reported;
 - physical correctness may NOT be reported;
 - no scientific promotion is implied.
+
+
+## Completed numeric candidate implementation wave
+
+The multidisciplinary recommendations are now represented by executable, fail-closed candidate runtimes rather than contracts alone.
+
+Implemented candidate runtimes:
+
+- `RadiometricResponseCandidateSolverV01`: deterministic linear/piecewise response candidate with held-out residual reporting.
+- `RadiometricProfileRelationCandidateV01`: builds radiometric candidates directly from controlled sealed RAW profile relations using exposure time plus measured backside signal while refusing to treat ISO metadata as measured gain.
+- `NoiseComponentDecompositionCandidateV01`: shot/read variance candidate plus fixed-pattern summary candidates.
+- `RepeatedSparseGridNoiseCandidateV01`: direct repeated-frame comparison of exact sparse measured CFA coordinates for DARK/FLAT/REPEATED_SCENE relation sets.
+- `NoiseSpectrumMeasurementCandidateV01`: controlled NPS/spatial-frequency measurement ingestion.
+- `FieldResponseRotationSeparationCandidateV01`: robust additive world-cell versus sensor-cell field candidate under explicitly admitted controlled rotation relations.
+- `OpticalSupportMeasurementCandidateV01`: SFR/MTF/PSF candidate measurement ingestion with field/focus context.
+- `NoiseAwareInverseOpticsCandidateV01`: bounded Wiener-like frequency-gain candidate using explicit transfer, signal PSD and noise PSD; it never transforms an image or authorizes deconvolution.
+- `ColourRelationCandidateSolverV01`: identity-independent 3x3 camera-RGB to reference-XYZ candidate fitted over at least two illuminants with held-out patches.
+- `TemporalSequenceCandidateSolverV01`: explicit sequence/readout candidate from relation records; metadata timing alone remains insufficient.
+- `GeometryDepthCandidateSolverV01`: calibrated-ray triangulation candidate from supplied pose/ray relations; geometry authority remains separate from radiometry.
+- `WorldSpaceResidualCandidateSolverV01`: world-fixed plus sensor-fixed residual candidate decomposition after admitted world/source and radiometric relations.
+- `ScientificReconstructionCandidateV01`: uncertainty-weighted reconstructed-value candidate with exact MEASURED anchor passthrough.
+- `ScientificDenoiseOperatorV01`: route-gated derived-output operator; it cannot run scientifically until the corresponding admission gate is promoted.
+- `PerceptualNoiseVisibilityCandidateV01`: appearance-only conversion from cycles/pixel to cycles/degree and optional use of an explicitly validated appearance sensitivity curve.
+- `ResearchMathV01` and `ScientificNoiseMathV01`: deterministic fitting, matrix, variance and covariance primitives.
+
+The existing backside audit now also exports the exact sparse measured sample grid:
+`source_x, source_y, cfa_phase, normalized_above_black`.
+No interpolation is performed. This enables later relation-based repeated-frame statistics at identical sensor coordinates.
+
+Quantization context is now derived from the source coding bounds as normalized code-step candidates, but is explicitly not treated as a complete noise model.
+
+## Optional relation-record ingestion
+
+`CalibrationObservationRecordBundleV01` accepts JSON observation-record bundles, validates every record fail-closed, and exposes only valid records to:
+
+`FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle(...)`
+
+Normal RAW intake does not require such a bundle. Camera, lens, vendor and RAW-format identity remain forbidden as scientific calibration/model-selection keys.
+
+## Important state after this implementation wave
+
+All numeric outputs above remain **CANDIDATE / UNVALIDATED**.
+
+In particular, the implementation does not set any of the following true:
+
+- radiometric calibration promoted;
+- field-response calibration promoted;
+- noise-component calibration promoted;
+- optical-support calibration promoted;
+- colour calibration promoted;
+- temporal relation promoted;
+- geometry promoted;
+- world-space noise separation promoted;
+- scientific denoise admitted;
+- deconvolution authorized;
+- correction authorized;
+- Scientific Master writeback allowed.
+
+The research firewall explicitly rejects those promotion/application flags in the current foundation export.
