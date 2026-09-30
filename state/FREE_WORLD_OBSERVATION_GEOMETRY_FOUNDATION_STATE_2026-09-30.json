@@ -1,0 +1,117 @@
+{
+  "schema": "D.RAW/FreeWorldObservationGeometryFoundationState/0.1",
+  "date": "2026-09-30",
+  "branch": "research/free-world-observation-geometry-foundation-v01-2026-09-30",
+  "parent_branch": "research/observation-world-field-separation-v01-2026-09-30",
+  "parent_pr": 100,
+  "status": "LARGE_IMPLEMENTATION_WAVE_COMPLETE_AWAITING_GREEN_BUILD",
+  "purpose": "IMPLEMENT_SAFE_FREE_WORLD_MULTI_OBSERVATION_ARCHITECTURE_BEFORE_PHYSICAL_PROMOTION_TESTING",
+  "implemented_modules": [
+    "DeterministicLocalFeatureGeometryV01",
+    "DeterministicLocalFeaturePairGeometryV01",
+    "FreeWorldObservationGraphV01",
+    "RelativeWorldCoordinateHypothesisV01",
+    "MultiObservationCampaignV01",
+    "NaturalSelfCalibrationAtlasV01",
+    "WorldSensorFieldDecompositionScaffoldV01",
+    "OpticalSupportAtlasV01",
+    "ColourRelationAtlasV01",
+    "TemporalObservationRelationV01",
+    "FreeWorldUncertaintyTransportV01",
+    "FreeWorldContinuousQueryContractV01",
+    "ConservationRestorationAuthorityRuntimeV01",
+    "FreeWorldObservationGeometryFoundationV01"
+  ],
+  "frontside_feature_geometry": {
+    "detector_family": "HARRIS_STRUCTURE_TENSOR",
+    "descriptor_family": "ORIENTATION_NORMALIZED_BINARY_INTENSITY_PAIRS",
+    "descriptor_bits": 128,
+    "maximum_keypoints": 96,
+    "authority": "APPEARANCE_DERIVED_ONLY",
+    "registration_proof": false
+  },
+  "pair_geometry": {
+    "descriptor_metric": "HAMMING_128",
+    "mutual_best_required": true,
+    "ratio_test": "BEST_LE_0_8_SECOND",
+    "candidate_model": "AFFINE_2D_APPEARANCE_HYPOTHESIS",
+    "deterministic_mad_outlier_rejection": true,
+    "registration_promoted": false
+  },
+  "observation_graph": {
+    "node_key": "SOURCE_SHA256",
+    "source_evidence_merged": false,
+    "camera_or_lens_identity_is_key": false,
+    "derived_graph_identity_is_evidence_root": false
+  },
+  "relative_world_coordinates": {
+    "numeric_gauge_may_be_selected": true,
+    "numeric_gauge_has_physical_origin_authority": false,
+    "camera_holder_is_world_origin": false,
+    "panorama_center_is_world_origin": false,
+    "absolute_metric_scale_proven": false,
+    "depth_proven": false
+  },
+  "campaign": {
+    "ordinary_overlap_supported": true,
+    "multi_lens_overlap_supported": true,
+    "rotation_sequence_supported": true,
+    "raw_360_sequence_supported": true,
+    "stop_motion_sequence_supported": true,
+    "stitched_panorama_is_independent_evidence": false
+  },
+  "natural_self_calibration_axes": [
+    "FIELD_RESPONSE",
+    "CFA_PHASE",
+    "COLOUR",
+    "OPTICAL_SUPPORT",
+    "DARK_NOISE",
+    "TEMPORAL"
+  ],
+  "continuous_query": {
+    "contract_implemented": true,
+    "pixel_solver_implemented": false,
+    "source_raster_is_world_resolution_limit": false,
+    "fine_lattice_positions_begin_unknown": true,
+    "interpolation_may_create_measured_samples": false
+  },
+  "restoration_authority_roles": [
+    "ORIGINAL_MEASURED_SUPPORT",
+    "CONDITION_OBSERVED",
+    "STABILIZED_DERIVED",
+    "LOSS_COMPENSATION_RECONSTRUCTED",
+    "AESTHETIC_REINTEGRATION_ONLY",
+    "UNRESOLVED_LOSS"
+  ],
+  "android_ui": {
+    "foundation_export_added": true,
+    "minimum_profiled_observations": 2,
+    "request_code": 4130
+  },
+  "promotion_firewall": {
+    "world_registration_promoted": false,
+    "camera_system_response_proven": false,
+    "lens_only_vignetting_proven": false,
+    "calibration_promoted": false,
+    "correction_authorized": false,
+    "deconvolution_authorized": false,
+    "multi_frame_scientific_fusion_applied": false,
+    "scientific_writeback_allowed": false
+  },
+  "invariants": {
+    "camera_model_routing_used": false,
+    "lens_profile_lookup_used": false,
+    "vendor_mapping_used": false,
+    "ai_ml_neural_generative_used": false,
+    "source_sample_values_modified": false,
+    "new_measured_samples_created": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "inherited_capture_usability": {
+    "universal_physical_capture_timer_seconds": 5,
+    "timer_authority": "ACQUISITION_UI_ONLY",
+    "special_4k_to_200mp_route_unchanged": true
+  },
+  "next_gate": "GREEN_INTEGRITY_AND_ANDROID_BUILD_THEN_CONTINUE_ARCHITECTURE_WAVE_BEFORE_DEVICE_PROMOTION_TESTS"
+}
