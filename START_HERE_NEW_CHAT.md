@@ -30,6 +30,18 @@ Permanent identity law:
 Permanent denoise law:
 **Do not classify unexplained structure as noise. First separate radiometric response, stochastic/fixed-pattern sensor behavior, optical support, world/sensor coordinates, temporal footprint, view dependence, motion/occlusion and reconstruction uncertainty. UNKNOWN residual remains UNKNOWN until physically supported.**
 
+Current completion checkpoint:
+- code checkpoint: `caf4c0e39f3a74c94ed00802ff8a84c1f10013d1` (115 commits above exact green PR101 parent);
+- Android Multi-observation UI can optionally import relation-based Calibration Observation Record JSON files/bundles;
+- normal RAW intake still requires no calibration record;
+- central `CalibrationObservationAdmissionV01` blocks USER_GROUPING_HINT_ONLY/NONE from numeric solvers;
+- forbidden camera/lens/vendor/RAW identity keys are rejected recursively;
+- exact sparse measured CFA grids now feed repeated DARK/FLAT/scene noise candidates and a signal-dependent sparse-grid noise-model candidate;
+- numeric candidate runtimes cover radiometry, NPS/noise, field separation, optics/inverse-optics, colour, temporal/stop-motion, calibrated-ray 3D, world-space residuals, reconstruction, gated scientific denoise and perceptual appearance;
+- none of these candidates is promoted or applied;
+- **no compile/test/CI/APK/device validation has been run on this implementation wave**.
+
+
 The full recommendation wave is now implemented as fail-closed candidate runtime code. In addition to the earlier contracts, current code includes radiometric fitting from explicit records and controlled RAW profiles, repeated exact sparse-CFA dark/flat statistics, NPS ingestion, world-vs-sensor field separation, SFR/MTF/PSF ingestion, noise-aware inverse-optics gain candidates, multi-illuminant colour fitting, temporal relation candidates, calibrated-ray triangulation, world-space residual decomposition, uncertainty-weighted reconstruction, gated scientific denoise, and appearance-only perceptual frequency mapping.
 
 Optional relation records may be ingested through `CalibrationObservationRecordBundleV01` and passed to `FreeWorldObservationGeometryFoundationV01.buildWithCalibrationBundle`. Normal RAW intake remains calibration-bundle-independent and lens/camera/vendor/RAW identity independent at the scientific level.
