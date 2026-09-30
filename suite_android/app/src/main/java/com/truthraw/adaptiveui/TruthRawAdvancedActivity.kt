@@ -174,6 +174,32 @@ class TruthRawAdvancedActivity : Activity() {
             ))
         })
 
+        root.addView(space(14))
+        root.addView(card().apply {
+            addView(title("Nieuwe Free World researchlaag", 16f))
+            addView(space(6))
+            addView(body(
+                "Radiometrie, noise, optica, kleur, tijd/stop-motion, 3D en reconstruction-candidates blijven upstream onderzoeksinformatie. ADVANCED gebruikt alleen toegelaten Scientific/Open Scene-state en houdt appearance/restoration downstream.",
+                11.5f,
+            ))
+            addView(space(8))
+            addView(Button(this@TruthRawAdvancedActivity).apply {
+                text = "Wat is geïmplementeerd?"
+                isAllCaps = false
+                textSize = 14f
+                setTextColor(textColor)
+                background = rounded(DrawVisualTheme.PAPER_MINT, DrawVisualTheme.TEAL, 15f)
+                setOnClickListener {
+                    startActivity(
+                        Intent(
+                            this@TruthRawAdvancedActivity,
+                            TruthRawImplementationGuideActivity::class.java,
+                        ),
+                    )
+                }
+            })
+        })
+
         root.addView(space(18))
         root.addView(Button(this).apply {
             text = "Gebruik ADVANCED · Appearance View"
