@@ -4,7 +4,7 @@
   "branch": "research/free-world-radiometric-noise-transport-v01-2026-09-30",
   "parent_pr": 101,
   "parent_exact_green_head": "0006b56d3261cad9a13fec560f7ddcd39b0844db",
-  "status": "IMPLEMENTED_UNTESTED_MULTIDISCIPLINARY_NUMERIC_CANDIDATE_ARCHITECTURE",
+  "status": "IMPLEMENTED_UNTESTED_MULTIDISCIPLINARY_NUMERIC_CANDIDATE_ARCHITECTURE_COMPLETE",
   "universal_identity_law": {
     "raw_format_may_route_decoder": true,
     "raw_format_may_define_scientific_truth": false,
@@ -44,7 +44,9 @@
     "ScientificDenoiseOperatorV01",
     "WorldSpaceNoiseSeparationV01",
     "PerceptualNoiseAppearanceV01",
-    "PerceptualNoiseVisibilityCandidateV01"
+    "PerceptualNoiseVisibilityCandidateV01",
+    "CalibrationObservationAdmissionV01",
+    "SparseGridNoiseModelCandidateV01"
   ],
   "promotion": {
     "radiometric_calibration_promoted": false,
@@ -116,8 +118,30 @@
     "continuous_query_extended": true,
     "single_frame_denoise_requires_3d": false,
     "single_frame_denoise_requires_multiple_frames": false,
-    "scientific_denoise_admitted": false
+    "scientific_denoise_admitted": false,
+    "calibration_record_android_import_ui": true,
+    "numeric_relation_admission_gate": true,
+    "recursive_identity_key_rejection": true,
+    "sparse_grid_noise_model_candidate": true,
+    "radiometric_profile_candidate": true,
+    "normal_raw_intake_requires_calibration_records": false,
+    "camera_lens_vendor_raw_identity_can_drive_numeric_candidate": false
   },
-  "implementation_code_head": "f8a08741d66d10f1809d5ef8204a7eae7f49b49a",
-  "documentation_head_before_state_checkpoint": "cca8b4071e07adc416a712e1dddee67efabbbf9d"
+  "implementation_code_head": "caf4c0e39f3a74c94ed00802ff8a84c1f10013d1",
+  "documentation_head_before_state_checkpoint": "cca8b4071e07adc416a712e1dddee67efabbbf9d",
+  "parent_distance_commits_at_code_checkpoint": 115,
+  "completion_checkpoint": {
+    "code_head": "caf4c0e39f3a74c94ed00802ff8a84c1f10013d1",
+    "relation_records_reachable_from_android_ui": true,
+    "relation_records_revalidated_on_export_save": true,
+    "user_grouping_hint_can_drive_numeric_solver": false,
+    "none_relation_can_drive_numeric_solver": false,
+    "raw_lens_camera_vendor_independence_preserved": true,
+    "exact_measured_cfa_anchor_preservation": true,
+    "unknown_residual_preserved": true,
+    "tests_run": false,
+    "ci_run": false,
+    "android_build_run": false,
+    "device_validation_run": false
+  }
 }
