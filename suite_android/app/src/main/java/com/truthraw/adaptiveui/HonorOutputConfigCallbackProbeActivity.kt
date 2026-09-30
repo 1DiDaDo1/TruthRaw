@@ -95,6 +95,7 @@ class HonorOutputConfigCallbackProbeActivity : Activity() {
 
         body.addView(space(12))
         status = label("Nog geen v0.41 report.", 10f, false)
+        TruthRawLegacyTestStatusV01.attach(status)
         body.addView(status)
 
         return ScrollView(this).apply {
