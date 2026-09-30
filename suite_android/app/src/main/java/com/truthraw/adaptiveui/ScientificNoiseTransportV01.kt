@@ -41,6 +41,9 @@ object ScientificNoiseTransportV01 {
                     .put("optical_support_and_noise_support_must_be_jointly_considered", true)
                     .put("output_raster_density_is_not_recovered_frequency_support", true),
             )
+            .put("numeric_primitives_implemented", true)
+            .put("numeric_primitive_implementation", ScientificNoiseMathV01.METHOD_ID)
+            .put("numeric_transport_validated", false)
             .put("numeric_noise_transport_performed", false)
             .put("noise_reduction_applied", false)
             .put("creates_new_evidence", false)
