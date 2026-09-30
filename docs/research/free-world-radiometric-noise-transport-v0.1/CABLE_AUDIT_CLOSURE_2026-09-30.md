@@ -5,16 +5,16 @@
 **IMPLEMENTED + ANDROID BUILD VERIFIED**
 
 Build-proven source head:
-`55755b795ec6e48e326732c8e5d2071270b81a90`
+`c90ff62323a065eac54eee0d91f75256708cd4fd`
 
 Workflow:
 - name: `D.RAW Free World Research APK`
-- run: `36744973469`
+- run: `36746687740`
 - conclusion: `SUCCESS`
 - artifact: `DRAW-free-world-research-debug-arm64`
-- artifact id: `11112237658`
+- artifact id: `11113326128`
 - APK bytes: `8155983`
-- APK SHA-256: `11df4341bc9414a15fdfdd1412b769c700eeb798298a9119fea83c108f3d5193`
+- APK SHA-256: `1c5a97b6c5bce7a7534cda9899f1b3d926d9fced8fd8edc16cd53944a6620c03`
 
 This build result proves integration/compilation/package creation only.
 It does not prove the new physical models, calibrations, world registration,
@@ -150,9 +150,12 @@ Default/current research state remains fail-closed.
 Nested geometry rays, temporal observations and world-space residual samples
 must belong to source roots admitted by their session-bound record.
 
-World-space residual decomposition additionally requires the actual admitted
-world-to-source bridge and promoted radiometric relation; imported payload
-booleans are not authority.
+World-space residual decomposition remains executable as a **candidate** when
+the relation is an explicitly session-bound calibration/capture record whose
+world-to-source and radiometric relation declarations are present. Those
+record booleans do not grant promotion authority. A promoted world-space route
+still requires the typed internal promotion state and validated world-to-source
+bridge.
 
 ### Reconstruction / denoise
 
