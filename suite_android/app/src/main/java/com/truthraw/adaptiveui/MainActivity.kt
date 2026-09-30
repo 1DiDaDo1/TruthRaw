@@ -395,6 +395,12 @@ class MainActivity : Activity() {
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
+        if (isFinishing) {
+            CalibrationObservationRecordSessionStoreV01.clear(
+                cacheDir = cacheDir,
+                sessionId = calibrationObservationSessionStoreId,
+            )
+        }
         super.onDestroy()
     }
 
@@ -567,16 +573,6 @@ class MainActivity : Activity() {
             STATE_CALIBRATION_SESSION_STORE_ID,
             calibrationObservationSessionStoreId,
         )
-    }
-
-    override fun onDestroy() {
-        if (isFinishing) {
-            CalibrationObservationRecordSessionStoreV01.clear(
-                cacheDir = cacheDir,
-                sessionId = calibrationObservationSessionStoreId,
-            )
-        }
-        super.onDestroy()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
