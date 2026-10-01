@@ -1,5 +1,38 @@
 # D.RAW state directory
 
+## Current active state — 2026-10-01 — code 44485
+
+Read first:
+
+- `CURRENT_PROJECT_STATE_2026-10-01.json`
+- `../docs/DRAW_MAIN_PROJECT_STATE_2026-10-01.md`
+- `../docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `../docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `../docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `../docs/research/optical-field-topography-v0.1/README.md`
+
+Continuation code:
+
+`44485`
+
+Active branch:
+
+`research/registration-aware-rotation-audit-v01-2026-10-01`
+
+Android/scientific source-code checkpoint:
+
+`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+
+Current frontier:
+
+measured sparse source support -> field-cell centroid/footprint -> optical-field topography -> device validation on the unchanged 0/90/180/270 controlled-rotation set.
+
+All older dated state snapshots below remain provenance and must not be rewritten to pretend they knew later results.
+
+---
+
+# D.RAW state directory
+
 ## Current active state — 2026-09-26
 
 Read first:
