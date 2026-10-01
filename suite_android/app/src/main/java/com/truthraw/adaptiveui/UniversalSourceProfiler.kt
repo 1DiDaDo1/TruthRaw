@@ -26,24 +26,48 @@ object UniversalSourceProfiler {
         cacheDir: File,
         progress: ((String) -> Unit)? = null,
         derivedStageCacheDir: File? = null,
-    ): JSONObject =
+    ): JSONObject {
+        val trace = ResearchPerformanceDiagnosticsV01.ProfileTrace()
+        var result: JSONObject? = null
+        var cacheReleaseAttempted = false
+        var cacheReleaseSucceeded = false
+
         try {
-            profileInternal(
-                resolver = resolver,
-                source = source,
-                cacheDir = cacheDir,
-                progress = progress,
-                derivedStageCacheDir = derivedStageCacheDir,
-            )
+            val completed =
+                profileInternal(
+                    resolver = resolver,
+                    source = source,
+                    cacheDir = cacheDir,
+                    progress = { event ->
+                        trace.onProgress(event)
+                        progress?.invoke(event)
+                    },
+                    derivedStageCacheDir = derivedStageCacheDir,
+                )
+            result = completed
+            return completed
         } finally {
             // Bound the native shared preparation to exactly one profile,
             // regardless of whether this profiler was invoked from the
             // foreground Research service or another read-only intake path.
-            runCatching {
-                TruthNegativeN2FactoredConfidenceBridge
-                    .clearSharedPipelineCache()
+            cacheReleaseAttempted = true
+            cacheReleaseSucceeded =
+                runCatching {
+                    TruthNegativeN2FactoredConfidenceBridge
+                        .clearSharedPipelineCache()
+                }.getOrDefault(false)
+
+            result?.let {
+                trace.attach(
+                    profile = it,
+                    sharedCacheReleaseAttempted =
+                        cacheReleaseAttempted,
+                    sharedCacheReleaseSucceeded =
+                        cacheReleaseSucceeded,
+                )
             }
         }
+    }
 
     private fun profileInternal(
         resolver: ContentResolver,
