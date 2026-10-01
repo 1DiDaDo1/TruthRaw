@@ -8931,7 +8931,7 @@ class MainActivity : Activity() {
         if (measuredCharts < 3) {
             addView(label(
                 "Repeatability-gate nog niet open: measured-field-chart=" +
-                    measuredCharts + "/3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
+                    measuredCharts + " · minimum=3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
                     "CFA-field chart tellen mee; JPEG en decoder-pending/ongeschikte RAW-topologie tellen niet mee.",
                 10f,
                 muted = true,
