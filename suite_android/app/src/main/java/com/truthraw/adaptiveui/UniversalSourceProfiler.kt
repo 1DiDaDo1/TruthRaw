@@ -24,9 +24,44 @@ object UniversalSourceProfiler {
         resolver: ContentResolver,
         source: RawHandle,
         cacheDir: File,
+        progress: ((String) -> Unit)? = null,
+        derivedStageCacheDir: File? = null,
     ): JSONObject {
+        progress?.invoke("SOURCE_SHA256")
         val sourceSha256 = sha256(resolver, source.uri)
         val byteLength = source.declaredSizeBytes ?: queryLength(resolver, source.uri)
+
+        fun cachedStage(
+            stageId: String,
+            inputFingerprint: String,
+            compute: () -> JSONObject,
+        ): JSONObject {
+            val cached =
+                derivedStageCacheDir?.let {
+                    ResearchProfileStageCacheV01.load(
+                        filesDir = it,
+                        sourceSha256 = sourceSha256,
+                        stageId = stageId,
+                        inputFingerprint = inputFingerprint,
+                    )
+                }
+            if (cached != null) {
+                progress?.invoke(stageId + "_CACHE_HIT")
+                return cached
+            }
+            progress?.invoke(stageId)
+            val result = compute()
+            derivedStageCacheDir?.let {
+                ResearchProfileStageCacheV01.save(
+                    filesDir = it,
+                    sourceSha256 = sourceSha256,
+                    stageId = stageId,
+                    inputFingerprint = inputFingerprint,
+                    result = result,
+                )
+            }
+            return result
+        }
 
         val base = JSONObject()
             .put("schema", "D.RAW/UniversalSourceProfile/0.2")
@@ -84,6 +119,7 @@ object UniversalSourceProfiler {
             .put("full_draw_suite_integrated", true)
             .put("extensions", JSONObject())
 
+        progress?.invoke("CONTAINER_SNIFF")
         val sniff = sniffContainer(resolver, source.uri)
         base.put("container_sniff", sniff)
 
@@ -139,6 +175,7 @@ object UniversalSourceProfiler {
                 .put("open_world", openWorldBlock())
         }
 
+        progress?.invoke("TIFF_DNG_METADATA")
         val parsed = try {
             parseClassicTiff(resolver, source.uri)
         } catch (e: Exception) {
@@ -344,6 +381,7 @@ object UniversalSourceProfiler {
                 "Focal length alone does not prove lens role, sensor crop, field of view or optical resolving support.",
             )
 
+        progress?.invoke("BACKSIDE_SIGNAL_FIELD")
         val backsideSignalSupport =
             BacksideSignalSupportAudit.analyze(
                 resolver,
@@ -363,6 +401,7 @@ object UniversalSourceProfiler {
             .put("n2_local_support_bound", false)
             .put("signal_support_audit", backsideSignalSupport)
 
+        progress?.invoke("FRONTSIDE_SCENE")
         val frontside = FrontsideSceneInspector.inspect(
             resolver,
             source.uri,
@@ -371,6 +410,7 @@ object UniversalSourceProfiler {
             darkChromaBacksideSupport,
         )
 
+        progress?.invoke("OPTICAL_FIELD_CHART")
         val observationOpticalFieldChart =
             ObservationOpticalFieldChartV01.describe(
                 sourceSha256 = sourceSha256,
@@ -393,6 +433,7 @@ object UniversalSourceProfiler {
                 opticalFieldChart = observationOpticalFieldChart,
             )
 
+        progress?.invoke("OBSERVATION_CALIBRATION_ATLAS")
         val universalObservationCalibrationAtlas =
             UniversalObservationCalibrationAtlasV01.describe(
                 sourceSha256 = sourceSha256,
@@ -408,14 +449,23 @@ object UniversalSourceProfiler {
 
         val n2LocalSpatialBinding =
             if (source.format.id == "DNG" && source.format.nativeProcessingReady) {
-                N2LocalSpatialBindingAudit.analyze(
-                    resolver = resolver,
-                    sourceUri = source.uri,
-                    sourceSha256 = sourceSha256,
-                    cacheDir = cacheDir,
-                    frontsideV01 =
-                        frontside.optJSONObject("dark_chroma_stability_v0_1"),
-                )
+                val frontsideInput =
+                    frontside.optJSONObject("dark_chroma_stability_v0_1")
+                cachedStage(
+                    stageId = "N2_LOCAL_SPATIAL_V01_R1",
+                    inputFingerprint =
+                        ResearchProfileStageCacheV01.fingerprint(
+                            frontsideInput?.toString(),
+                        ),
+                ) {
+                    N2LocalSpatialBindingAudit.analyze(
+                        resolver = resolver,
+                        sourceUri = source.uri,
+                        sourceSha256 = sourceSha256,
+                        cacheDir = cacheDir,
+                        frontsideV01 = frontsideInput,
+                    )
+                }
             } else {
                 N2LocalSpatialBindingAudit.unavailable(
                     sourceSha256,
@@ -453,13 +503,21 @@ object UniversalSourceProfiler {
         val n2StructureSupportBinding =
             when {
                 fineStructureNeeded ->
-                    N2StructureSupportBindingAudit.analyze(
-                        resolver = resolver,
-                        sourceUri = source.uri,
-                        sourceSha256 = sourceSha256,
-                        cacheDir = cacheDir,
-                        frontsideV01 = frontsideV01,
-                    )
+                    cachedStage(
+                        stageId = "N2_STRUCTURE_SUPPORT_V01_R1",
+                        inputFingerprint =
+                            ResearchProfileStageCacheV01.fingerprint(
+                                frontsideV01?.toString(),
+                            ),
+                    ) {
+                        N2StructureSupportBindingAudit.analyze(
+                            resolver = resolver,
+                            sourceUri = source.uri,
+                            sourceSha256 = sourceSha256,
+                            cacheDir = cacheDir,
+                            frontsideV01 = frontsideV01,
+                        )
+                    }
                 !nativeDngReady ->
                     N2StructureSupportBindingAudit.unavailable(
                         sourceSha256,
@@ -488,14 +546,23 @@ object UniversalSourceProfiler {
         val n2SampleSupportDistance =
             when {
                 fineStructureNeeded ->
-                    N2SampleSupportDistanceAudit.analyze(
-                        resolver = resolver,
-                        sourceUri = source.uri,
-                        sourceSha256 = sourceSha256,
-                        cacheDir = cacheDir,
-                        frontsideV01 = frontsideV01,
-                        fineStructure = n2StructureSupportBinding,
-                    )
+                    cachedStage(
+                        stageId = "N2_SAMPLE_SUPPORT_DISTANCE_V01_R1",
+                        inputFingerprint =
+                            ResearchProfileStageCacheV01.fingerprint(
+                                frontsideV01?.toString(),
+                                n2StructureSupportBinding.toString(),
+                            ),
+                    ) {
+                        N2SampleSupportDistanceAudit.analyze(
+                            resolver = resolver,
+                            sourceUri = source.uri,
+                            sourceSha256 = sourceSha256,
+                            cacheDir = cacheDir,
+                            frontsideV01 = frontsideV01,
+                            fineStructure = n2StructureSupportBinding,
+                        )
+                    }
                 !nativeDngReady ->
                     N2SampleSupportDistanceAudit.unavailable(
                         sourceSha256,
@@ -576,15 +643,25 @@ object UniversalSourceProfiler {
                     n2SampleSupportDistance.optString("status") ==
                         "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE" &&
                     sampleLattice.optString("status") == "AVAILABLE" ->
-                    AnchorConstrainedLocalReconstructionAudit.analyze(
-                        resolver = resolver,
-                        sourceUri = source.uri,
-                        sourceSha256 = sourceSha256,
-                        cacheDir = cacheDir,
-                        frontsideV01 = frontsideV01,
-                        sampleLattice = sampleLattice,
-                        supportDistance = n2SampleSupportDistance,
-                    )
+                    cachedStage(
+                        stageId = "ANCHOR_LOCAL_RECONSTRUCTION_V01_R1",
+                        inputFingerprint =
+                            ResearchProfileStageCacheV01.fingerprint(
+                                frontsideV01?.toString(),
+                                sampleLattice.toString(),
+                                n2SampleSupportDistance.toString(),
+                            ),
+                    ) {
+                        AnchorConstrainedLocalReconstructionAudit.analyze(
+                            resolver = resolver,
+                            sourceUri = source.uri,
+                            sourceSha256 = sourceSha256,
+                            cacheDir = cacheDir,
+                            frontsideV01 = frontsideV01,
+                            sampleLattice = sampleLattice,
+                            supportDistance = n2SampleSupportDistance,
+                        )
+                    }
                 !nativeDngReady ->
                     AnchorConstrainedLocalReconstructionAudit.unavailable(
                         sourceSha256,
@@ -654,6 +731,7 @@ object UniversalSourceProfiler {
                 physicalNoiseContext,
             )
 
+        progress?.invoke("PROFILE_ASSEMBLY")
         return base
             .put("scientific_source_class", sourceClass)
             .put("metadata_parse_status", "PASS_READ_ONLY")
