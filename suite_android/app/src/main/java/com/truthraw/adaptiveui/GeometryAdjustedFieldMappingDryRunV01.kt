@@ -603,25 +603,12 @@ object GeometryAdjustedFieldMappingDryRunV01 {
                 )
         }
 
-        val nominalTrain =
-            nominalComparableResult.optDouble(
-                "training_rmse_ev",
-                Double.NaN,
-            )
-        val adjustedTrain =
-            adjustedResult.optDouble(
-                "training_rmse_ev",
-                Double.NaN,
-            )
-        val nominalHeld =
-            nominalComparableResult.optDouble(
-                "held_out_rmse_ev",
-                Double.NaN,
-            )
-        val adjustedHeld =
-            adjustedResult.optDouble(
-                "held_out_rmse_ev",
-                Double.NaN,
+        val sameSampleComparison =
+            sameSampleComparison(
+                nominalSamples = nominalSamples,
+                adjustedSamples = adjustedSamples,
+                nominalResult = nominalComparableResult,
+                adjustedResult = adjustedResult,
             )
 
         val perObservation = JSONArray()
@@ -727,22 +714,8 @@ object GeometryAdjustedFieldMappingDryRunV01 {
                 ),
             )
             .put(
-                "rmse_delta_adjusted_minus_nominal_ev",
-                JSONObject()
-                    .put(
-                        "training",
-                        finiteDifference(
-                            adjustedTrain,
-                            nominalTrain,
-                        ),
-                    )
-                    .put(
-                        "held_out",
-                        finiteDifference(
-                            adjustedHeld,
-                            nominalHeld,
-                        ),
-                    ),
+                "same_sample_rmse_comparison",
+                sameSampleComparison,
             )
             .put(
                 "comparison_interpretation",
@@ -994,6 +967,214 @@ object GeometryAdjustedFieldMappingDryRunV01 {
             )
     }
 
+    private fun sameSampleComparison(
+        nominalSamples: JSONArray,
+        adjustedSamples: JSONArray,
+        nominalResult: JSONObject,
+        adjustedResult: JSONObject,
+    ): JSONObject {
+        val nominalWorld =
+            nominalResult.optJSONObject(
+                "world_component_candidates_ev",
+            ) ?: JSONObject()
+        val nominalSensor =
+            nominalResult.optJSONObject(
+                "sensor_component_candidates_ev",
+            ) ?: JSONObject()
+        val adjustedWorld =
+            adjustedResult.optJSONObject(
+                "world_component_candidates_ev",
+            ) ?: JSONObject()
+        val adjustedSensor =
+            adjustedResult.optJSONObject(
+                "sensor_component_candidates_ev",
+            ) ?: JSONObject()
+
+        val trainActual = ArrayList<Double>()
+        val trainNominal = ArrayList<Double>()
+        val trainAdjusted = ArrayList<Double>()
+        val heldActual = ArrayList<Double>()
+        val heldNominal = ArrayList<Double>()
+        val heldAdjusted = ArrayList<Double>()
+
+        val n =
+            minOf(
+                nominalSamples.length(),
+                adjustedSamples.length(),
+            )
+        for (i in 0 until n) {
+            val nominal =
+                nominalSamples.optJSONObject(i)
+                    ?: continue
+            val adjusted =
+                adjustedSamples.optJSONObject(i)
+                    ?: continue
+            val value =
+                nominal.optDouble(
+                    "relative_signal_ev",
+                    Double.NaN,
+                )
+            if (!value.isFinite()) continue
+
+            val sensorId =
+                nominal.optString(
+                    "sensor_cell_id",
+                )
+            val nominalWorldId =
+                nominal.optString(
+                    "world_cell_id",
+                )
+            val adjustedWorldId =
+                adjusted.optString(
+                    "world_cell_id",
+                )
+            if (
+                sensorId.isBlank() ||
+                nominalWorldId.isBlank() ||
+                adjustedWorldId.isBlank()
+            ) {
+                continue
+            }
+
+            val nw =
+                if (nominalWorld.has(nominalWorldId)) {
+                    nominalWorld.optDouble(
+                        nominalWorldId,
+                        Double.NaN,
+                    )
+                } else {
+                    Double.NaN
+                }
+            val ns =
+                if (nominalSensor.has(sensorId)) {
+                    nominalSensor.optDouble(
+                        sensorId,
+                        Double.NaN,
+                    )
+                } else {
+                    Double.NaN
+                }
+            val aw =
+                if (adjustedWorld.has(adjustedWorldId)) {
+                    adjustedWorld.optDouble(
+                        adjustedWorldId,
+                        Double.NaN,
+                    )
+                } else {
+                    Double.NaN
+                }
+            val asv =
+                if (adjustedSensor.has(sensorId)) {
+                    adjustedSensor.optDouble(
+                        sensorId,
+                        Double.NaN,
+                    )
+                } else {
+                    Double.NaN
+                }
+            if (
+                !nw.isFinite() ||
+                !ns.isFinite() ||
+                !aw.isFinite() ||
+                !asv.isFinite()
+            ) {
+                continue
+            }
+
+            val role =
+                nominal.optString(
+                    "role",
+                    "TRAIN",
+                )
+            if (role == "HELD_OUT") {
+                heldActual += value
+                heldNominal += nw + ns
+                heldAdjusted += aw + asv
+            } else {
+                trainActual += value
+                trainNominal += nw + ns
+                trainAdjusted += aw + asv
+            }
+        }
+
+        val nominalTrain =
+            ResearchMathV01.rmse(
+                trainActual,
+                trainNominal,
+            )
+        val adjustedTrain =
+            ResearchMathV01.rmse(
+                trainActual,
+                trainAdjusted,
+            )
+        val nominalHeld =
+            ResearchMathV01.rmse(
+                heldActual,
+                heldNominal,
+            )
+        val adjustedHeld =
+            ResearchMathV01.rmse(
+                heldActual,
+                heldAdjusted,
+            )
+
+        return JSONObject()
+            .put(
+                "training_sample_count",
+                trainActual.size,
+            )
+            .put(
+                "held_out_sample_count",
+                heldActual.size,
+            )
+            .put(
+                "nominal_training_rmse_ev",
+                nominalTrain ?: JSONObject.NULL,
+            )
+            .put(
+                "geometry_adjusted_training_rmse_ev",
+                adjustedTrain ?: JSONObject.NULL,
+            )
+            .put(
+                "training_delta_adjusted_minus_nominal_ev",
+                finiteDifference(
+                    adjustedTrain,
+                    nominalTrain,
+                ),
+            )
+            .put(
+                "nominal_held_out_rmse_ev",
+                nominalHeld ?: JSONObject.NULL,
+            )
+            .put(
+                "geometry_adjusted_held_out_rmse_ev",
+                adjustedHeld ?: JSONObject.NULL,
+            )
+            .put(
+                "held_out_delta_adjusted_minus_nominal_ev",
+                finiteDifference(
+                    adjustedHeld,
+                    nominalHeld,
+                ),
+            )
+            .put(
+                "identical_sample_set_used_for_nominal_and_adjusted_rmse",
+                true,
+            )
+            .put(
+                "held_out_values_used_for_training",
+                false,
+            )
+            .put(
+                "held_out_values_used_for_geometry_selection",
+                false,
+            )
+            .put(
+                "automatic_winner_selected",
+                false,
+            )
+    }
+
     private fun compactSolverResult(
         result: JSONObject,
     ): JSONObject =
@@ -1035,10 +1216,12 @@ object GeometryAdjustedFieldMappingDryRunV01 {
             )
 
     private fun finiteDifference(
-        a: Double,
-        b: Double,
+        a: Double?,
+        b: Double?,
     ): Any =
         if (
+            a != null &&
+            b != null &&
             a.isFinite() &&
             b.isFinite()
         ) {
