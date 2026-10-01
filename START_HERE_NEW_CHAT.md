@@ -1,3 +1,70 @@
+# D.RAW / TruthRaw — CURRENT 2026-10-01 CHECKPOINT — CODE 44485
+
+This section supersedes older global-current-state notes below wherever they conflict.
+
+Continuation code:
+
+`44485`
+
+Meaning: restore the complete D.RAW/TruthRaw project context through the measured-support coordinate bridge and optical-field topography wave before continuing scientific or code work.
+
+Current branch:
+
+`research/registration-aware-rotation-audit-v01-2026-10-01`
+
+Current PR:
+
+`#104 — Add constrained rotation, measured support, and optical-field topography audits`
+
+Current Android/scientific source-code checkpoint:
+
+`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+
+Current state:
+
+`state/CURRENT_PROJECT_STATE_2026-10-01.json`
+
+Current handoff:
+
+`docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+
+Current document index:
+
+`docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+
+Read first now:
+
+1. `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+3. `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+4. `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+5. `docs/research/optical-field-topography-v0.1/README.md`
+6. older material only as required for provenance
+
+Latest green APK-producing build at the source-code checkpoint:
+
+- workflow `D.RAW Suite Universal Intake v0.1`
+- run `36831352713`
+- artifact `11146499757`
+- APK bytes `8,368,975`
+- APK SHA-256 `a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3`
+
+All relevant gates were green: Foundation Integrity, Canonical Integrity, Tile-Native DNG compatibility, Suite Universal Intake, Universal Physical Capture and Android DngCreator compatibility.
+
+Current scientific frontier:
+
+- keep the admitted 0/90/180/270 relation record immutable;
+- residual rotation by itself does not improve or harm the present 12-sector mapping;
+- coarse scale/translation + hard field re-binning can overfit training and harm held-out;
+- therefore use actual sparse measured source-grid support for field-cell geometry;
+- inspect the resulting field as topographic X/Y/Z surfaces from top, side-X, side-Y and oblique views;
+- do not interpret topographic Z as physical scene depth or literal lens curvature unless separately proven;
+- no automatic problem cause, geometry winner, calibration promotion, correction, candidate application or Scientific Master writeback.
+
+The next device validation reuses the same four RAWs and the same Calibration Observation Record and exports a fresh **Free World Observation Geometry Foundation v0.1 JSON**.
+
+---
+
 # D.RAW / TruthRaw — CURRENT 2026-09-30 CABLE-CLOSURE CHECKPOINT
 
 This section supersedes older navigation/current-state notes below wherever they conflict.
