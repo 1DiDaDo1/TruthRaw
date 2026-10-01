@@ -23,5 +23,5 @@ jobs:
         run: cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2 -B build/n2_sparse_v022 -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build/n2_sparse_v022 --config Release -j2
-      - name: Run exact v0.2.1 vs v0.2.2 metric parity
+      - name: Run byte-identical v0.2.1 output parity
         run: ctest --test-dir build/n2_sparse_v022 --output-on-failure
