@@ -26,7 +26,7 @@ Continuation code:
 
 Current Android/scientific source-code checkpoint:
 
-`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+`4fbc9767d178903ffcf70f5318b9b0706dadf187`
 
 Current branch:
 
@@ -35,6 +35,28 @@ Current branch:
 Current PR:
 
 `#104`
+
+## Current engineering resilience
+
+The multi-observation workbench now persists the selected RAW document handles/metadata in a private lightweight store and restores them after Activity/process recreation or re-entry. RAW payload bytes are never copied into that store.
+
+The explicit **Analyseer alle geselecteerde bronnen universeel** operation now profiles sources sequentially and joins already-running per-source work rather than launching duplicate heavy profilers. Multi-source Research also suppresses automatic preview/profile startup so the batch operation controls peak memory.
+
+Source-code checkpoint for this fix:
+
+`4fbc9767d178903ffcf70f5318b9b0706dadf187`
+
+Green APK-producing run:
+
+`36840564859`
+
+Artifact:
+
+`11151017383`
+
+APK SHA-256:
+
+`35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
 
 ## Current device evidence
 
