@@ -177,6 +177,13 @@ object ResearchPerformanceDiagnosticsV01 {
                 "v01_sparse_reference_index_complete",
                 false,
             ) ?: false
+        val rowBandReported =
+            n2Local?.has("row_band_reuse_active") == true
+        val rowBandActive =
+            n2Local?.optBoolean(
+                "row_band_reuse_active",
+                false,
+            ) ?: false
 
         return JSONObject()
             .put(
@@ -214,6 +221,128 @@ object ResearchPerformanceDiagnosticsV01 {
                         "v01_sparse_reference_index_complete",
                         if (sparseReferenceReported) {
                             sparseReferenceIndexComplete
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_telemetry_reported",
+                        rowBandReported,
+                    )
+                    .put(
+                        "row_band_reuse_active",
+                        if (rowBandReported) {
+                            rowBandActive
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_row_band_fill_count",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "v01_row_band_fill_count",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_row_band_served_request_count",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "v01_row_band_served_request_count",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_row_band_cache_hit_request_count",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "v01_row_band_cache_hit_request_count",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_row_band_fallback_request_count",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "v01_row_band_fallback_request_count",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_fill_count_total",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "row_band_fill_count_total",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_served_request_count_total",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "row_band_served_request_count_total",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_cache_hit_request_count_total",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "row_band_cache_hit_request_count_total",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_fallback_request_count_total",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "row_band_fallback_request_count_total",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_peak_cache_bytes",
+                        if (rowBandReported) {
+                            n2Local?.optLong(
+                                "row_band_peak_cache_bytes",
+                                0L,
+                            ) ?: 0L
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "row_band_scientific_values_modified",
+                        if (rowBandReported) {
+                            n2Local?.optBoolean(
+                                "row_band_scientific_values_modified",
+                                true,
+                            ) ?: true
                         } else {
                             JSONObject.NULL
                         },
