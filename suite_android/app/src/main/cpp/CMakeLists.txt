@@ -63,6 +63,7 @@ set(TRUTHNEGATIVE_APPEARANCE_HIGHLIGHT_DETAIL_V01 "${RESEARCH_ROOT}/truthnegativ
 set(TRUTHNEGATIVE_APPEARANCE_HEADROOM_SWEEP_V02 "${RESEARCH_ROOT}/truthnegative-appearance-highlight-headroom-sweep-v0.2/native")
 set(TRUTHNEGATIVE_N2_PIPELINE_V01 "${RESEARCH_ROOT}/truthnegative-n2-candidate-pipeline-v0.1/native")
 set(TRUTHNEGATIVE_N2_CFA_AUDIT_V01 "${RESEARCH_ROOT}/truthnegative-n2-cfa-audit-v0.1/native")
+set(TRUTHNEGATIVE_N2_ROW_BAND_REUSE_V01 "${RESEARCH_ROOT}/truthnegative-n2-row-band-reuse-v0.1/native")
 set(TRUTHNEGATIVE_N2_SPATIAL_V01 "${RESEARCH_ROOT}/truthnegative-n2-spatial-sidecar-v0.1/native")
 set(TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01 "${RESEARCH_ROOT}/truthnegative-n2-structure-support-field-v0.1/native")
 set(TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01 "${RESEARCH_ROOT}/truthnegative-n2-sample-support-distance-v0.1/native")
@@ -256,6 +257,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${TRUTHNEGATIVE_APPEARANCE_HEADROOM_SWEEP_V02}
     ${TRUTHNEGATIVE_N2_PIPELINE_V01}
     ${TRUTHNEGATIVE_N2_CFA_AUDIT_V01}
+    ${TRUTHNEGATIVE_N2_ROW_BAND_REUSE_V01}
     ${TRUTHNEGATIVE_N2_SPATIAL_V01}
     ${TRUTHNEGATIVE_N2_STRUCTURE_SUPPORT_V01}
     ${TRUTHNEGATIVE_N2_SUPPORT_DISTANCE_V01}
