@@ -194,6 +194,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
         return status(env, prepared.code, prepared.message);
     }
 
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+
     std::vector<distance::QueryRegion> queries;
     if (!build_queries(
             env,
