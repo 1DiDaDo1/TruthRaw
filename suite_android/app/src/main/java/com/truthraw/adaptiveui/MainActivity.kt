@@ -324,6 +324,7 @@ class MainActivity : Activity() {
             return
         }
         session = restored
+        restoreResearchUniversalProfilesForCurrentSession()
         activeJobId =
             restored.jobs.firstOrNull()?.id
         previewState = TilePreviewUiState.Idle
@@ -346,6 +347,31 @@ class MainActivity : Activity() {
             ResearchWorkbenchSessionStoreV01.save(
                 cacheDir = cacheDir,
                 session = session,
+            )
+        }
+    }
+
+    private fun restoreResearchUniversalProfilesForCurrentSession() {
+        if (session.jobs.isEmpty()) {
+            return
+        }
+        val restoredProfiles =
+            ResearchUniversalProfileStoreV01.load(
+                filesDir = filesDir,
+                session = session,
+            )
+        if (restoredProfiles.isEmpty()) {
+            return
+        }
+        universalProfiles.putAll(
+            restoredProfiles,
+        )
+        for (jobId in restoredProfiles.keys) {
+            universalProfileErrors.remove(
+                jobId,
+            )
+            universalProfileLoading.remove(
+                jobId,
             )
         }
     }
@@ -416,6 +442,17 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        restoreResearchWorkbenchSessionIfNeeded()
+        restoreResearchUniversalProfilesForCurrentSession()
+        if (researchWorkbenchMode && session.jobs.isNotEmpty()) {
+            TruthRawOperationStore.read(
+                this,
+                fieldResponseRepeatabilityAnalysisOperationKey(),
+            )?.let { operation ->
+                fieldResponseRepeatabilityStatus =
+                    operation.message
+            }
+        }
         FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
         RestorationProjectionJobStore.recoverInterruptedIfNeeded(this)
         recoverBackgroundOperationStatuses()
@@ -1878,18 +1915,115 @@ class MainActivity : Activity() {
         }
 
         fieldResponseRepeatabilityStatus =
-            "Universele bronanalyse loopt sequentieel voor " +
+            "Universele bronanalyse loopt in één achtergrondketen voor " +
                 selected.size +
-                " geselecteerde bronnen · piekgeheugen beschermd."
+                " geselecteerde bronnen · app-focus niet vereist."
         render()
 
-        fun finishBatch() {
-            val measured =
-                currentMeasuredFieldCharts().size
+        startGuardedBackgroundThread(
+            name = "draw-research-universal-batch",
+            operationKey = operationKey,
+            onUnexpected = { message ->
+                fieldResponseRepeatabilityStatus =
+                    message
+            },
+        ) {
+            val completedProfiles =
+                linkedMapOf<String, JSONObject>()
             val failures =
-                fieldResponseBatchFailedJobIds.size
+                linkedMapOf<String, String>()
+
+            for ((index, job) in selected.withIndex()) {
+                val progress =
+                    "Universele bronanalyse " +
+                        (index + 1) +
+                        "/" +
+                        selected.size +
+                        " · " +
+                        job.source.displayName
+                TruthRawOperationStore.update(
+                    applicationContext,
+                    operationKey,
+                    TruthRawOperationPhase.RUNNING,
+                    progress,
+                )
+
+                ResearchUniversalProfileStoreV01.remove(
+                    filesDir = filesDir,
+                    jobId = job.id,
+                )
+
+                val result =
+                    runCatching {
+                        UniversalSourceProfiler.profile(
+                            contentResolver,
+                            job.source,
+                            cacheDir,
+                        )
+                    }
+
+                result.onSuccess { profile ->
+                    completedProfiles[job.id] =
+                        profile
+                    ResearchUniversalProfileStoreV01.save(
+                        filesDir = filesDir,
+                        job = job,
+                        profile = profile,
+                    )
+                }.onFailure { error ->
+                    failures[job.id] =
+                        error.message
+                            ?: error.javaClass.simpleName
+                }
+
+                runOnUiThread {
+                    result.onSuccess { profile ->
+                        universalProfiles[job.id] =
+                            profile
+                        universalProfileErrors.remove(
+                            job.id,
+                        )
+                    }.onFailure { error ->
+                        universalProfiles.remove(
+                            job.id,
+                        )
+                        universalProfileErrors[job.id] =
+                            error.message
+                                ?: error.javaClass.simpleName
+                    }
+                    fieldResponseBatchPendingJobIds -=
+                        job.id
+                    if (job.id in failures) {
+                        fieldResponseBatchFailedJobIds +=
+                            job.id
+                    }
+                    fieldResponseRepeatabilityStatus =
+                        progress +
+                            " · gereed=" +
+                            (index + 1) +
+                            "/" +
+                            selected.size
+                    render()
+                }
+            }
+
+            val measured =
+                completedProfiles.values.count { profile ->
+                    profile.optJSONObject(
+                        "observation_optical_field_chart",
+                    )
+                        ?.takeIf {
+                            it.optString("status") ==
+                                "FIELD_CHART_AVAILABLE" &&
+                                it.optJSONObject(
+                                    "measured_composite_field_signal",
+                                )
+                                    ?.optString("status") ==
+                                "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE"
+                        } != null
+                }
             val message =
-                if (failures == 0) {
+                if (failures.isEmpty()) {
                     "Field Response bronanalyse gereed · measured-field-chart=" +
                         measured +
                         "/3" +
@@ -1900,53 +2034,30 @@ class MainActivity : Activity() {
                         }
                 } else {
                     "Field Response bronanalyse gereed met " +
-                        failures +
+                        failures.size +
                         " fout(en) · measured-field-chart=" +
                         measured +
                         "/3."
                 }
 
-            fieldResponseRepeatabilityStatus =
-                message
             finishBackgroundOperation(
                 operationKey,
-                failures == 0,
+                failures.isEmpty(),
                 message,
             )
-            render()
-        }
 
-        fun analyzeIndex(index: Int) {
-            if (index >= selected.size) {
-                finishBatch()
-                return
-            }
-
-            val job = selected[index]
-            fieldResponseRepeatabilityStatus =
-                "Universele bronanalyse " +
-                    (index + 1) +
-                    "/" +
-                    selected.size +
-                    " · " +
-                    job.source.displayName
-            render()
-
-            requestUniversalProfile(
-                job = job,
-                force = true,
-            ) { success ->
-                if (!success) {
-                    fieldResponseBatchFailedJobIds +=
-                        job.id
-                }
-                fieldResponseBatchPendingJobIds -=
-                    job.id
-                analyzeIndex(index + 1)
+            runOnUiThread {
+                restoreResearchUniversalProfilesForCurrentSession()
+                fieldResponseBatchPendingJobIds.clear()
+                fieldResponseBatchFailedJobIds.clear()
+                fieldResponseBatchFailedJobIds.addAll(
+                    failures.keys,
+                )
+                fieldResponseRepeatabilityStatus =
+                    message
+                render()
             }
         }
-
-        analyzeIndex(0)
     }
 
     @Suppress("DEPRECATION")
@@ -1982,6 +2093,13 @@ class MainActivity : Activity() {
         }
 
         pendingFieldResponseRepeatabilityJson = report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+            reportText =
+                pendingFieldResponseRepeatabilityJson!!,
+        )
         fieldResponseRepeatabilityStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -2065,6 +2183,13 @@ class MainActivity : Activity() {
         }
 
         pendingFreeWorldFoundationJson = report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+            reportText =
+                pendingFreeWorldFoundationJson!!,
+        )
         freeWorldFoundationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -2123,6 +2248,13 @@ class MainActivity : Activity() {
 
         pendingObservationWorldFieldSeparationJson =
             report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+            reportText =
+                pendingObservationWorldFieldSeparationJson!!,
+        )
         observationWorldFieldSeparationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -3926,11 +4058,22 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_FREE_WORLD_FOUNDATION) {
-            val reportText = pendingFreeWorldFoundationJson
+            val reportText =
+                pendingFreeWorldFoundationJson
+                    ?: ResearchPendingJsonExportStoreV01.load(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+                    )
             pendingFreeWorldFoundationJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+                )
                 freeWorldFoundationStatus =
                     "Free World Foundation v0.1-export geannuleerd."
                 render()
@@ -4008,16 +4151,32 @@ class MainActivity : Activity() {
                 "Free World Foundation v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+            )
             render()
             return
         }
 
         if (requestCode == REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION) {
-            val reportText = pendingObservationWorldFieldSeparationJson
+            val reportText =
+                pendingObservationWorldFieldSeparationJson
+                    ?: ResearchPendingJsonExportStoreV01.load(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+                    )
             pendingObservationWorldFieldSeparationJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+                )
                 observationWorldFieldSeparationStatus =
                     "Observation-World Field Separation v0.1-export geannuleerd."
                 render()
@@ -4103,16 +4262,32 @@ class MainActivity : Activity() {
                 "Observation-World Field Separation v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+            )
             render()
             return
         }
 
         if (requestCode == REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY) {
-            val reportText = pendingFieldResponseRepeatabilityJson
+            val reportText =
+                pendingFieldResponseRepeatabilityJson
+                    ?: ResearchPendingJsonExportStoreV01.load(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+                    )
             pendingFieldResponseRepeatabilityJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+                )
                 fieldResponseRepeatabilityStatus =
                     "Field Response Repeatability v0.1-export geannuleerd."
                 render()
@@ -4191,6 +4366,11 @@ class MainActivity : Activity() {
                 "Field Response Repeatability v0.1 export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+            )
             render()
             return
         }
@@ -5252,6 +5432,13 @@ class MainActivity : Activity() {
         }
 
         val jobs = RawIngress.readHandlesOnly(contentResolver, uris, data.flags)
+        ResearchUniversalProfileStoreV01.clear(
+            filesDir,
+        )
+        universalProfiles.clear()
+        universalProfileErrors.clear()
+        universalProfileLoading.clear()
+        universalProfileCompletionWaiters.clear()
         session = session.withJobs(jobs)
         researchWorkbenchSessionRestoreStatus = null
         persistResearchWorkbenchSession()
@@ -5398,6 +5585,11 @@ class MainActivity : Activity() {
                 result.onSuccess { profile ->
                     universalProfiles[jobId] =
                         profile
+                    ResearchUniversalProfileStoreV01.save(
+                        filesDir = filesDir,
+                        job = job,
+                        profile = profile,
+                    )
                     universalProfileErrors.remove(
                         jobId,
                     )
@@ -5405,6 +5597,10 @@ class MainActivity : Activity() {
                 }.onFailure { error ->
                     universalProfiles.remove(
                         jobId,
+                    )
+                    ResearchUniversalProfileStoreV01.remove(
+                        filesDir = filesDir,
+                        jobId = jobId,
                     )
                     universalProfileErrors[jobId] =
                         error.message
