@@ -7,6 +7,7 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DeterministicLocalFeaturePairGeometryV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ControlledRotationConstrainedGeometryV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/GeometryAdjustedFieldMappingDryRunV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FieldResponseRotationSeparationCandidateV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGraphV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RelativeWorldCoordinateHypothesisV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MultiObservationCampaignV01.kt'
