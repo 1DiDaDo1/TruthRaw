@@ -381,15 +381,23 @@ object UniversalSourceProfiler {
                 "Focal length alone does not prove lens role, sensor crop, field of view or optical resolving support.",
             )
 
-        progress?.invoke("BACKSIDE_SIGNAL_FIELD")
         val backsideSignalSupport =
-            BacksideSignalSupportAudit.analyze(
-                resolver,
-                source.uri,
-                parsed,
-                primaryRaw,
-                sourceSha256,
-            )
+            cachedStage(
+                stageId = "BACKSIDE_SIGNAL_FIELD_V01_R1",
+                inputFingerprint =
+                    ResearchProfileStageCacheV01.fingerprint(
+                        parsed.toString(),
+                        primaryRaw?.toString(),
+                    ),
+            ) {
+                BacksideSignalSupportAudit.analyze(
+                    resolver,
+                    source.uri,
+                    parsed,
+                    primaryRaw,
+                    sourceSha256,
+                )
+            }
 
         val darkChromaBacksideSupport = JSONObject()
             .put("authority", "SOURCE_METADATA_BOUND_HINT_PLUS_MEASURED_SIGNAL_BLOCKER")
@@ -401,14 +409,23 @@ object UniversalSourceProfiler {
             .put("n2_local_support_bound", false)
             .put("signal_support_audit", backsideSignalSupport)
 
-        progress?.invoke("FRONTSIDE_SCENE")
-        val frontside = FrontsideSceneInspector.inspect(
-            resolver,
-            source.uri,
-            parsed,
-            sourceSha256,
-            darkChromaBacksideSupport,
-        )
+        val frontside =
+            cachedStage(
+                stageId = "FRONTSIDE_SCENE_V01_R1",
+                inputFingerprint =
+                    ResearchProfileStageCacheV01.fingerprint(
+                        parsed.toString(),
+                        darkChromaBacksideSupport.toString(),
+                    ),
+            ) {
+                FrontsideSceneInspector.inspect(
+                    resolver,
+                    source.uri,
+                    parsed,
+                    sourceSha256,
+                    darkChromaBacksideSupport,
+                )
+            }
 
         progress?.invoke("OPTICAL_FIELD_CHART")
         val observationOpticalFieldChart =
