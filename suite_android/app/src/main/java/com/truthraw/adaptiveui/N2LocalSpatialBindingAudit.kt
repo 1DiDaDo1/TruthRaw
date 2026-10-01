@@ -329,6 +329,17 @@ object N2LocalSpatialBindingAudit {
                     "shared_pipeline_prepare_cache_hit",
                     status.optBoolean("sharedPipelineCacheHit", false),
                 )
+                .put(
+                    "v01_sparse_reference_reuse_verified",
+                    status.optBoolean(
+                        "v01SparseReferenceReuseVerified",
+                        false,
+                    ),
+                )
+                .put(
+                    "v01_rerun_performed",
+                    status.optBoolean("v01RerunPerformed", true),
+                )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
                 .put("source_width", sourceWidth)
                 .put("source_height", sourceHeight)
