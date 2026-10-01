@@ -26,7 +26,7 @@ Continuation code:
 
 Current Android/scientific source-code checkpoint:
 
-`4fbc9767d178903ffcf70f5318b9b0706dadf187`
+`a7cefe7c568a0218b13abda855ad3dbd8b278cc8`
 
 Current branch:
 
@@ -38,25 +38,30 @@ Current PR:
 
 ## Current engineering resilience
 
-The multi-observation workbench now persists the selected RAW document handles/metadata in a private lightweight store and restores them after Activity/process recreation or re-entry. RAW payload bytes are never copied into that store.
+The device test showed a second failure after the first RAW-selection persistence fix: the four RAW handles survived, but the media-processing service disappeared after about 30:50. A separate Foundation save could leave a 0-byte destination.
 
-The explicit **Analyseer alle geselecteerde bronnen universeel** operation now profiles sources sequentially and joins already-running per-source work rather than launching duplicate heavy profilers. Multi-source Research also suppresses automatic preview/profile startup so the batch operation controls peak memory.
+The current source head moves the long multi-RAW profiler **into** `TruthRawMediaProcessingForegroundService`, uses `START_REDELIVER_INTENT`, checkpoints each completed derived UniversalSourceProfile to private storage, and resumes from completed sources after restart. MainActivity no longer owns the long batch worker.
 
-Source-code checkpoint for this fix:
+Research JSON exports are now frozen to private disk with byte length + SHA-256 **before** `ACTION_CREATE_DOCUMENT`; after the picker, exact bytes are streamed to the destination with no Foundation rebuild. The active relation-record session pointer is also durable and can migrate the previous cache-only session.
 
-`4fbc9767d178903ffcf70f5318b9b0706dadf187`
+Source-code checkpoint:
+
+`a7cefe7c568a0218b13abda855ad3dbd8b278cc8`
 
 Green APK-producing run:
 
-`36840564859`
+`36853127628`
 
 Artifact:
 
-`11151017383`
+`11156013820`
 
 APK SHA-256:
 
-`35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
+`c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653`
+
+GPU is not used for this repair because the observed failure is lifecycle/heap/export orchestration. GPU remains a future option only for separately validated kernels, especially APPEARANCE_DERIVED_ONLY work with CPU-reference parity.
+
 
 ## Current device evidence
 
