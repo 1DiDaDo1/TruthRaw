@@ -8,9 +8,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
 #include <limits>
-#include <sstream>
 #include <utility>
 
 namespace truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2 {
@@ -26,6 +24,8 @@ using Result = v021::Result;
 namespace {
 
 namespace detail = truthraw::streaming_v0_1::detail;
+namespace ce =
+    truthraw::truthnegative_center_excluded_neighborhood::v0_2;
 
 constexpr std::array<int,3u> kRadii{2,4,8};
 constexpr std::array<std::array<int,2u>,4u> kDirections{{
@@ -36,16 +36,6 @@ constexpr int kMaxRadius = 8;
 bool nonzero(const Digest& d) noexcept {
     return std::any_of(
         d.begin(),d.end(),[](std::uint8_t v){return v!=0u;});
-}
-
-std::string hex(const Digest& d) {
-    static constexpr char kHex[]="0123456789abcdef";
-    std::string out(d.size()*2u,'0');
-    for(std::size_t i=0u;i<d.size();++i){
-        out[2u*i]=kHex[d[i]>>4u];
-        out[2u*i+1u]=kHex[d[i]&0x0fu];
-    }
-    return out;
 }
 
 void hash_u32(truthraw::sha256_v0_69::Hasher& h,std::uint32_t v) noexcept {
@@ -286,52 +276,6 @@ void hash_metrics(
 
 double safe_mean(double sum,std::uint64_t n) noexcept {
     return n>0u ? sum/static_cast<double>(n) : 0.0;
-}
-
-void write_metrics(std::ostringstream& o,const Metrics& m) {
-    o<<"\"sampled\":"<<m.sampled;
-    o<<",\"v01_candidate_centers\":"<<m.v01CandidateCenters;
-    o<<",\"predictor_valid\":"<<m.predictorValid;
-    o<<",\"predictor_invalid\":"<<m.predictorInvalid;
-    o<<",\"pairs_considered\":"<<m.symmetricPairsConsidered;
-    o<<",\"pairs_accepted\":"<<m.symmetricPairsAccepted;
-    o<<",\"pairs_rejected\":"<<m.symmetricPairsRejected;
-    o<<",\"scales_considered\":"<<m.scalesConsidered;
-    o<<",\"scales_accepted\":"<<m.scalesAccepted;
-    o<<",\"scales_rejected\":"<<m.scalesRejected;
-    o<<",\"center_z_le_1\":"<<m.centerResidualWithin1Sigma;
-    o<<",\"center_z_1_to_2\":"<<m.centerResidualBetween1And2Sigma;
-    o<<",\"center_z_gt_2\":"<<m.centerResidualAbove2Sigma;
-    o<<",\"combined_z_le_1\":"<<m.combinedResidualWithin1Sigma;
-    o<<",\"combined_z_1_to_2\":"<<m.combinedResidualBetween1And2Sigma;
-    o<<",\"combined_z_gt_2\":"<<m.combinedResidualAbove2Sigma;
-    o<<",\"mean_abs_residual\":"
-     <<safe_mean(m.absResidualSum,m.predictorValid);
-    o<<",\"max_abs_residual\":"<<m.maxAbsResidual;
-    o<<",\"mean_center_variance\":"
-     <<safe_mean(m.centerVarianceSum,m.predictorValid);
-    o<<",\"mean_estimate_variance\":"
-     <<safe_mean(m.estimateVarianceSum,m.predictorValid);
-    o<<",\"mean_estimate_to_center_variance_ratio\":"
-     <<safe_mean(
-           m.estimateToCenterVarianceRatioSum,
-           m.predictorValid);
-    o<<",\"max_estimate_to_center_variance_ratio\":"
-     <<m.maxEstimateToCenterVarianceRatio;
-    o<<",\"max_directional_disagreement_sigma\":"
-     <<m.maxDirectionalDisagreementSigma;
-    o<<",\"max_cross_scale_disagreement_sigma\":"
-     <<m.maxCrossScaleDisagreementSigma;
-    o<<",\"v01_candidate_cfa_phase\":["
-     <<m.v01CandidateCfaPhase[0]<<","
-     <<m.v01CandidateCfaPhase[1]<<","
-     <<m.v01CandidateCfaPhase[2]<<","
-     <<m.v01CandidateCfaPhase[3]<<"]";
-    o<<",\"predictor_valid_cfa_phase\":["
-     <<m.predictorValidCfaPhase[0]<<","
-     <<m.predictorValidCfaPhase[1]<<","
-     <<m.predictorValidCfaPhase[2]<<","
-     <<m.predictorValidCfaPhase[3]<<"]";
 }
 
 } // namespace
