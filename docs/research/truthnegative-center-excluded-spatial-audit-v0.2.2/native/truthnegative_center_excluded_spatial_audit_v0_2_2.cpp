@@ -274,10 +274,6 @@ void hash_metrics(
     for(auto v:m.predictorValidCfaPhase)hash_u64(h,v);
 }
 
-double safe_mean(double sum,std::uint64_t n) noexcept {
-    return n>0u ? sum/static_cast<double>(n) : 0.0;
-}
-
 } // namespace
 
 bool runSparseReference(
