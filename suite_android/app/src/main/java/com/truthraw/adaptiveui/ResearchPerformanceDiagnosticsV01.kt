@@ -55,6 +55,10 @@ object ResearchPerformanceDiagnosticsV01 {
                 JSONObject()
                     .put("schema", SCHEMA)
                     .put("status", "RUNTIME_DIAGNOSTICS_AVAILABLE")
+                    .put(
+                        "profile_cache_generation",
+                        UniversalSourceProfiler.CACHE_GENERATION,
+                    )
                     .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
                     .put(
                         "source_sha256",
