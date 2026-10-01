@@ -92,11 +92,13 @@ for token in [
 ]:
     assert token in cmake, f"Android native build missing {token}"
 
-assert "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF" in profiler
+assert "N2_LOCAL_SPATIAL_V01_R3_ROW_BAND" in profiler
 for token in [
     "v01_sparse_reference_reuse_verified",
     "v01_rerun_performed",
     "v01_sparse_reference_index_complete",
+    "row_band_reuse_active",
+    "row_band_scientific_values_modified",
 ]:
     assert token in binding, f"profile telemetry missing {token}"
 
