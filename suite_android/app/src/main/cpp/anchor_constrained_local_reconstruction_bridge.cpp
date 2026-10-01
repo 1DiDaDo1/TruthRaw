@@ -194,6 +194,8 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
         return status(env, prepared.code, prepared.message);
     }
 
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+
     std::vector<holdout::QueryRegion> queries;
     if (!build_queries(
             env,
