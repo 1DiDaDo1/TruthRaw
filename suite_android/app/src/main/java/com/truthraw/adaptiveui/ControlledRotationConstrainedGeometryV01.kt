@@ -42,6 +42,82 @@ object ControlledRotationConstrainedGeometryV01 {
     private const val MAX_CENTER_DISPLACEMENT = 0.15
     private const val MAX_RMS_RESIDUAL = 0.035
 
+    fun evaluate(
+        profiles: List<JSONObject>,
+        records: List<JSONObject>,
+    ): JSONObject {
+        val reports = JSONArray()
+        var admittedCount = 0
+
+        for ((index, record) in records.withIndex()) {
+            if (record.optString("axis_scope") != "FIELD_RESPONSE") continue
+            val payload = record.optJSONObject("axis_payload") ?: continue
+            if (!payload.optBoolean("controlled_rotation_relation", false)) continue
+
+            val admission =
+                CalibrationObservationAdmissionV01.admitForNumericCandidate(
+                    record = record,
+                    axis = "FIELD_RESPONSE",
+                )
+            if (
+                admission.optString("status") !=
+                "NUMERIC_CANDIDATE_RELATION_ADMITTED"
+            ) {
+                continue
+            }
+
+            admittedCount++
+            val report =
+                evaluate(
+                    profiles = profiles,
+                    record = record,
+                )
+            report.put("record_index", index)
+            reports.put(report)
+        }
+
+        if (admittedCount == 0) {
+            return unavailable(
+                "NO_ADMITTED_CONTROLLED_ROTATION_RELATION_RECORD",
+            )
+        }
+
+        return JSONObject()
+            .put("schema", SCHEMA)
+            .put(
+                "status",
+                "CONTROLLED_ROTATION_CONSTRAINED_GEOMETRY_AUDIT_SET_AVAILABLE",
+            )
+            .put("admitted_record_count", admittedCount)
+            .put("record_reports", reports)
+            .put(
+                "authority_boundary",
+                JSONObject()
+                    .put(
+                        "nominal_relation_used_as_geometry_constraint",
+                        true,
+                    )
+                    .put(
+                        "unconstrained_affine_may_override_nominal_relation",
+                        false,
+                    )
+                    .put(
+                        "registration_adjusted_field_solver_executed",
+                        false,
+                    )
+                    .put("world_registration_promoted", false)
+                    .put(
+                        "field_response_calibration_promoted",
+                        false,
+                    )
+                    .put("correction_authorized", false),
+            )
+            .put("image_transform_applied", false)
+            .put("creates_sensor_evidence", false)
+            .put("creates_new_evidence", false)
+            .put("scientific_writeback_allowed", false)
+    }
+
     private data class Feature(
         val index: Int,
         val xIso: Double,
