@@ -28,11 +28,14 @@ object AndroidExitForensicsV01 {
 
         val description = info.description ?: ""
         val memoryLimiterAnonSwap =
-            info.reason == ApplicationExitInfo.REASON_OTHER &&
-                description.contains(
-                    "MemoryLimiter:AnonSwap",
-                    ignoreCase = true,
-                )
+            info.reason == REASON_MEMORY_LIMITER_API_37_2 ||
+                (
+                    info.reason == ApplicationExitInfo.REASON_OTHER &&
+                        description.contains(
+                            "MemoryLimiter:AnonSwap",
+                            ignoreCase = true,
+                        )
+                    )
 
         return JSONObject()
             .put("schema", SCHEMA)
@@ -71,6 +74,12 @@ object AndroidExitForensicsV01 {
             ApplicationExitInfo.REASON_PACKAGE_STATE_CHANGE ->
                 "PACKAGE_STATE_CHANGE"
             ApplicationExitInfo.REASON_PACKAGE_UPDATED -> "PACKAGE_UPDATED"
+            REASON_MEMORY_LIMITER_API_37_2 -> "MEMORY_LIMITER"
             else -> "REASON_$reason"
         }
+
+    // Added by the Android 17 API surface as reason code 17. Keeping the
+    // numeric value here allows the diagnostics source to compile even when a
+    // build machine exposes API 37 without the later 37.2 symbol stub.
+    private const val REASON_MEMORY_LIMITER_API_37_2 = 17
 }
