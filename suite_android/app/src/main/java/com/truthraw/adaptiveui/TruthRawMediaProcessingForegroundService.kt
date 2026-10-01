@@ -203,35 +203,48 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     val profile =
                         existing
                             ?: runCatching {
-                                UniversalSourceProfiler.profile(
-                                    resolver = contentResolver,
-                                    source = job.source,
-                                    cacheDir = cacheDir,
-                                    progress = { stage ->
-                                        val stageMessage =
-                                            progress +
-                                                " · stage=" +
-                                                stage
-                                        labels[operationKey] =
-                                            stageMessage
-                                        TruthRawOperationStore.update(
-                                            applicationContext,
-                                            operationKey,
-                                            TruthRawOperationPhase.RUNNING,
-                                            stageMessage,
-                                        )
-                                        ResearchBatchJournalV02.stage(
-                                            context = applicationContext,
-                                            operationKey = operationKey,
-                                            job = job,
-                                            index = index,
-                                            total = session.jobs.size,
-                                            stage = stage,
-                                        )
-                                        notifyProgress()
-                                    },
-                                    derivedStageCacheDir = filesDir,
-                                )
+                                try {
+                                    UniversalSourceProfiler.profile(
+                                        resolver = contentResolver,
+                                        source = job.source,
+                                        cacheDir = cacheDir,
+                                        progress = { stage ->
+                                            val stageMessage =
+                                                progress +
+                                                    " · stage=" +
+                                                    stage
+                                            labels[operationKey] =
+                                                stageMessage
+                                            TruthRawOperationStore.update(
+                                                applicationContext,
+                                                operationKey,
+                                                TruthRawOperationPhase.RUNNING,
+                                                stageMessage,
+                                            )
+                                            ResearchBatchJournalV02.stage(
+                                                context = applicationContext,
+                                                operationKey = operationKey,
+                                                job = job,
+                                                index = index,
+                                                total = session.jobs.size,
+                                                stage = stage,
+                                            )
+                                            notifyProgress()
+                                        },
+                                        derivedStageCacheDir = filesDir,
+                                    )
+                                } finally {
+                                    // The shared native preparation cache is
+                                    // intentionally one-source and one-profile
+                                    // scoped. Release it before the service
+                                    // advances to the next RAW so no large
+                                    // Scientific-Master context survives the
+                                    // profile boundary.
+                                    runCatching {
+                                        TruthNegativeN2FactoredConfidenceBridge
+                                            .clearSharedPipelineCache()
+                                    }
+                                }
                             }.onSuccess {
                                 ResearchUniversalProfileStoreV01.save(
                                     filesDir = filesDir,

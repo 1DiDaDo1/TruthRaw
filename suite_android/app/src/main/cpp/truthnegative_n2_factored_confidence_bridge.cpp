@@ -98,20 +98,24 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,-90,"invalid destination fd");
     }
 
-    pipeline::Context ctx{};
-    const auto prepared=pipeline::prepare(
+    std::shared_ptr<pipeline::Context> ctx;
+    bool sharedPipelineCacheHit=false;
+    const auto prepared=pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0,maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0,maxLogicalResidentBytes)),
-        ctx);
+        ctx,
+        sharedPipelineCacheHit);
     if(!prepared){
         return status(env,prepared.code,prepared.message);
     }
 
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+
     n2_cfa::Binding v01Binding{};
-    v01Binding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    v01Binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     v01Binding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     n2_cfa::Options options{};
     options.tileEdge=64u;
@@ -119,7 +123,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
 
     n2_cfa::Result v01{};
     if(!n2_cfa::run(
-            *ctx.openedSource.source,
+            *ctx->openedSource.source,
             v01Binding,
             options,
             v01)||
@@ -131,20 +135,20 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     }
 
     ce_spatial::Binding ceBinding{};
-    ceBinding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    ceBinding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     ceBinding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     ceBinding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     ceBinding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     ceBinding.v01CandidateSha256=v01.candidateSha256;
     ceBinding.v01AuditSha256=v01.auditSha256;
     ceBinding.v01SpatialSha256=v01.spatialSha256;
 
     ce_spatial::Result ceAudit{};
     if(!ce_spatial::run(
-            *ctx.openedSource.source,
+            *ctx->openedSource.source,
             ceBinding,
             v01,
             ceAudit)||
@@ -156,13 +160,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     }
 
     confidence::Binding confidenceBinding{};
-    confidenceBinding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    confidenceBinding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     confidenceBinding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     confidenceBinding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     confidenceBinding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     confidenceBinding.v01CandidateSha256=v01.candidateSha256;
     confidenceBinding.v01AuditSha256=v01.auditSha256;
     confidenceBinding.v01SpatialSha256=v01.spatialSha256;
@@ -184,13 +188,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     }
 
     factored::Binding binding{};
-    binding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     binding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     binding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     binding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     binding.v01CandidateSha256=v01.candidateSha256;
     binding.v01AuditSha256=v01.auditSha256;
     binding.v01SpatialSha256=v01.spatialSha256;
@@ -214,8 +218,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     factored::Report report{};
     if(!factored::encode(
             binding,
-            ctx.width,
-            ctx.height,
+            ctx->width,
+            ctx->height,
             state,
             report)||
        report.promotionEligible||
@@ -238,14 +242,15 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,-97,"N2 factored confidence post-write SHA mismatch");
     }
 
-    if(!pipeline::reverify(ctx)){
+    if(!pipeline::reverify(*ctx)){
         return status(env,-98,"source changed during N2 factored confidence export");
     }
 
     std::ostringstream o;
     o<<"{\"status\":0";
-    o<<",\"width\":"<<ctx.width;
-    o<<",\"height\":"<<ctx.height;
+    o<<",\"width\":"<<ctx->width;
+    o<<",\"height\":"<<ctx->height;
+    o<<",\"sharedPipelineCacheHit\":"<<(sharedPipelineCacheHit?"true":"false");
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;
@@ -268,13 +273,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"maxPredictorVarianceLeCenterVarianceTiles\":"
       <<state.maxPredictorVarianceLeCenterVarianceTiles;
     o<<",\"sourceSha256\":\""
-      <<sha::hex(ctx.sourceSeal.sha256)<<"\"";
+      <<sha::hex(ctx->sourceSeal.sha256)<<"\"";
     o<<",\"scientificMasterSha256\":\""
-      <<sha::hex(ctx.scientific.scientificMasterHash)<<"\"";
+      <<sha::hex(ctx->scientific.scientificMasterHash)<<"\"";
     o<<",\"authorityFieldSha256\":\""
-      <<sha::hex(ctx.authorityField.contentSha256)<<"\"";
+      <<sha::hex(ctx->authorityField.contentSha256)<<"\"";
     o<<",\"truthNegativeStateSha256\":\""
-      <<sha::hex(ctx.truthNegativeState.stateSha256)<<"\"";
+      <<sha::hex(ctx->truthNegativeState.stateSha256)<<"\"";
     o<<",\"v01CandidateSha256\":\""
       <<sha::hex(v01.candidateSha256)<<"\"";
     o<<",\"v01AuditSha256\":\""
@@ -301,3 +306,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"scientificWritebackAllowed\":false}";
     return env->NewStringUTF(o.str().c_str());
 }
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_clearSharedPipelineCache(
+    JNIEnv*,
+    jobject) {
+    pipeline::clearSharedCache();
+    return JNI_TRUE;
+}
+

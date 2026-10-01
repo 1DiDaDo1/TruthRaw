@@ -52,7 +52,7 @@ for needle in [
     'report.scalarProbabilityCreated',
     'report.canReduceProtection',
     'report.canEnableCorrection',
-    'pipeline::reverify(ctx)',
+    'pipeline::reverify(*ctx)',
 ]:
     assert needle in bridge, f"missing bridge invariant: {needle}"
 

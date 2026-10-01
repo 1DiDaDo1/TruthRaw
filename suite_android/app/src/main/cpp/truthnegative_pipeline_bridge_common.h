@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace truthraw::android_truthnegative_pipeline::v0_1 {
@@ -26,6 +27,15 @@ struct Status final {
 };
 
 struct Context final {
+    // Serialize callers that reuse the same process-local prepared context.
+    // Scientific/sample values remain read-only; this protects mutable
+    // transport/audit counters inside the tile source from concurrent access.
+    std::shared_ptr<std::mutex> useMutex =
+        std::make_shared<std::mutex>();
+
+    // Own a duplicated descriptor so a shared prepared context stays valid
+    // after the Java ParcelFileDescriptor used to create it is closed.
+    std::shared_ptr<int> ownedSourceFd;
     std::shared_ptr<tile_dng_v0_1::IRandomAccessByteSource> bytes;
     scientific_preview_binding_v0_1::SourceSeal sourceSeal{};
     dng_color_binding_producer_v0_2::ProducerResult produced{};
@@ -60,6 +70,23 @@ Status prepare(
     std::size_t maxSourceResidentBytes,
     std::size_t maxLogicalResidentBytes,
     Context& out) noexcept;
+
+/**
+ * Acquire a process-local, single-source prepared context.
+ *
+ * The current source is SHA-256 sealed before a cache hit is accepted.
+ * Only the expensive immutable preparation is shared; each caller must still
+ * run its own audit and source re-verification. The cache holds at most one
+ * prepared source and therefore cannot merge evidence across observations.
+ */
+Status acquireShared(
+    int sourceFd,
+    std::size_t maxSourceResidentBytes,
+    std::size_t maxLogicalResidentBytes,
+    std::shared_ptr<Context>& out,
+    bool& cacheHit) noexcept;
+
+void clearSharedCache() noexcept;
 
 bool reverify(const Context& context) noexcept;
 

@@ -325,6 +325,10 @@ object N2LocalSpatialBindingAudit {
                 .put("schema", "D.RAW/Frontside/N2LocalSpatialBinding/0.1")
                 .put("status", "AUDIT_ONLY_BINDING_AVAILABLE")
                 .put("source_sha256", sourceSha256)
+                .put(
+                    "shared_pipeline_prepare_cache_hit",
+                    status.optBoolean("sharedPipelineCacheHit", false),
+                )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
                 .put("source_width", sourceWidth)
                 .put("source_height", sourceHeight)

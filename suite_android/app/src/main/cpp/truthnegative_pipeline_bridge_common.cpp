@@ -2,13 +2,40 @@
 
 #include "tile_native_dng_source_v0_1.h"
 
+#include <mutex>
 #include <utility>
+#include <unistd.h>
 
 namespace truthraw::android_truthnegative_pipeline::v0_1 {
 namespace {
 
 Status fail(int code, std::string message) {
     return {code, std::move(message)};
+}
+
+std::mutex gSharedCacheMutex;
+std::shared_ptr<Context> gSharedContext;
+std::size_t gSharedMaxSourceResidentBytes = 0u;
+std::size_t gSharedMaxLogicalResidentBytes = 0u;
+
+std::shared_ptr<int> duplicate_owned_fd(int sourceFd) {
+    const int duplicated = ::dup(sourceFd);
+    if (duplicated < 0) return {};
+    return std::shared_ptr<int>(
+        new int(duplicated),
+        [](int* fd) {
+            if (fd != nullptr) {
+                if (*fd >= 0) ::close(*fd);
+                delete fd;
+            }
+        });
+}
+
+bool same_source_seal(
+    const scientific_preview_binding_v0_1::SourceSeal& a,
+    const scientific_preview_binding_v0_1::SourceSeal& b) noexcept {
+    return a.sha256 == b.sha256 &&
+        a.byteLength == b.byteLength;
 }
 
 }  // namespace
@@ -26,8 +53,13 @@ Status prepare(
             return fail(-1, "invalid pipeline arguments");
         }
 
+        out.ownedSourceFd = duplicate_owned_fd(sourceFd);
+        if (!out.ownedSourceFd) {
+            return fail(-8, "source fd duplication failed");
+        }
         out.bytes =
-            std::make_shared<tile_dng_v0_1::PosixFdByteSource>(sourceFd);
+            std::make_shared<tile_dng_v0_1::PosixFdByteSource>(
+                *out.ownedSourceFd);
 
         const auto sealed =
             scientific_preview_binding_v0_1::seal_source_sha256(
@@ -227,6 +259,91 @@ Status prepare(
         out = Context{};
         return fail(-99, "unexpected pipeline exception");
     }
+}
+
+Status acquireShared(
+    int sourceFd,
+    std::size_t maxSourceResidentBytes,
+    std::size_t maxLogicalResidentBytes,
+    std::shared_ptr<Context>& out,
+    bool& cacheHit) noexcept {
+    out.reset();
+    cacheHit = false;
+
+    try {
+        if (sourceFd < 0 ||
+            maxSourceResidentBytes == 0u ||
+            maxLogicalResidentBytes == 0u) {
+            return fail(-1, "invalid shared pipeline arguments");
+        }
+
+        tile_dng_v0_1::PosixFdByteSource probeBytes(sourceFd);
+        scientific_preview_binding_v0_1::SourceSeal probeSeal{};
+        const auto sealed =
+            scientific_preview_binding_v0_1::seal_source_sha256(
+                probeBytes,
+                probeSeal);
+        if (!sealed) {
+            return fail(
+                2000 + static_cast<int>(sealed.code),
+                sealed.message);
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(gSharedCacheMutex);
+            if (gSharedContext &&
+                gSharedMaxSourceResidentBytes == maxSourceResidentBytes &&
+                gSharedMaxLogicalResidentBytes == maxLogicalResidentBytes &&
+                same_source_seal(
+                    gSharedContext->sourceSeal,
+                    probeSeal)) {
+                out = gSharedContext;
+                cacheHit = true;
+                return {};
+            }
+
+            // Do not retain the previous RAW's heavy prepared context while
+            // constructing the next one. This bounds peak memory on Android.
+            gSharedContext.reset();
+            gSharedMaxSourceResidentBytes = 0u;
+            gSharedMaxLogicalResidentBytes = 0u;
+        }
+
+        auto fresh = std::make_shared<Context>();
+        const auto prepared =
+            prepare(
+                sourceFd,
+                maxSourceResidentBytes,
+                maxLogicalResidentBytes,
+                *fresh);
+        if (!prepared) {
+            return prepared;
+        }
+        if (!same_source_seal(fresh->sourceSeal, probeSeal)) {
+            return fail(-9, "source changed while preparing shared context");
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(gSharedCacheMutex);
+            gSharedContext = fresh;
+            gSharedMaxSourceResidentBytes = maxSourceResidentBytes;
+            gSharedMaxLogicalResidentBytes = maxLogicalResidentBytes;
+        }
+        out = std::move(fresh);
+        cacheHit = false;
+        return {};
+    } catch (...) {
+        out.reset();
+        cacheHit = false;
+        return fail(-99, "unexpected shared pipeline exception");
+    }
+}
+
+void clearSharedCache() noexcept {
+    std::lock_guard<std::mutex> guard(gSharedCacheMutex);
+    gSharedContext.reset();
+    gSharedMaxSourceResidentBytes = 0u;
+    gSharedMaxLogicalResidentBytes = 0u;
 }
 
 bool reverify(const Context& context) noexcept {
