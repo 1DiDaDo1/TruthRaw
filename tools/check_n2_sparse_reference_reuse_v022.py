@@ -77,8 +77,12 @@ for token in [
     "ce_spatial::Result ceAudit{}",
     "confidence::derive(",
     "factored::encode(",
-    '\"v01SparseReferenceReuseVerified\":true',
-    '\"v01RerunPerformed\":false',
+    "v01SparseReferenceReuseVerified",
+    "v01RerunPerformed",
+    "v01SparseReferenceIndexComplete",
+    '(v01SparseReferenceReuseVerified?"true":"false")',
+    '(v01RerunPerformed?"true":"false")',
+    '(v01.correctedSampleCoordinatesComplete?"true":"false")',
 ]:
     assert token in bridge, f"Android bridge sparse route missing {token}"
 
