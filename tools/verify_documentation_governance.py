@@ -1072,6 +1072,10 @@ if topography_1001.get("literal_lens_surface_sag_claim") is not False:
     errors.append("current_2026_10_01_topography_lens_sag_claim_forbidden")
 if topography_1001.get("automatic_problem_cause_selected") is not False:
     errors.append("current_2026_10_01_topography_auto_cause_forbidden")
+if topography_1001.get("onscreen_3d_renderer_implemented") is not False:
+    errors.append("current_2026_10_01_topography_renderer_status_mismatch")
+if topography_1001.get("exported_view_presets_are_render_semantics_only") is not True:
+    errors.append("current_2026_10_01_topography_view_semantics_mismatch")
 
 latest_result_1001 = current_2026_10_01.get("latest_real_device_result") or {}
 safety_1001 = latest_result_1001.get("safety") or {}
