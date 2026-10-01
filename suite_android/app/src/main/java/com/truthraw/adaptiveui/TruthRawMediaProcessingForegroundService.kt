@@ -54,6 +54,11 @@ class TruthRawMediaProcessingForegroundService : Service() {
         oldestStartedAtWallMs =
             if (oldestStartedAtWallMs == 0L) started else minOf(oldestStartedAtWallMs, started)
 
+        val startResearchWorker =
+            intent.action ==
+                ACTION_RESEARCH_UNIVERSAL_BATCH &&
+                researchWorkerKeys.add(key)
+
         acquireWakeLock()
         startForeground(
             NOTIFICATION_ID,
@@ -61,17 +66,21 @@ class TruthRawMediaProcessingForegroundService : Service() {
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING,
         )
 
-        if (
-            intent.action == ACTION_RESEARCH_UNIVERSAL_BATCH &&
-            researchWorkerKeys.add(key)
-        ) {
+        if (startResearchWorker) {
             runResearchUniversalBatch(
                 operationKey = key,
             )
             return START_REDELIVER_INTENT
         }
 
-        return START_NOT_STICKY
+        return if (
+            intent.action ==
+            ACTION_RESEARCH_UNIVERSAL_BATCH
+        ) {
+            START_REDELIVER_INTENT
+        } else {
+            START_NOT_STICKY
+        }
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {
@@ -320,7 +329,17 @@ class TruthRawMediaProcessingForegroundService : Service() {
             this,
             0,
             Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags =
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                if (
+                    researchWorkerKeys.isNotEmpty()
+                ) {
+                    putExtra(
+                        MainActivity.EXTRA_OPEN_RESEARCH_WORKBENCH,
+                        true,
+                    )
+                }
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
