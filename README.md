@@ -8,11 +8,13 @@
 >
 > Active branch: `research/registration-aware-rotation-audit-v01-2026-10-01`  
 > PR: `#104`  
-> Android/scientific source-code checkpoint: `faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+> Android/scientific source-code checkpoint: `4fbc9767d178903ffcf70f5318b9b0706dadf187`
 >
 > Current state: `state/CURRENT_PROJECT_STATE_2026-10-01.json`  
 > Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`  
 > Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+>
+> Multi-RAW Research resilience is now part of the current checkpoint: selected RAW handles survive workbench recreation/re-entry, Universal Intake batch profiling is sequential, duplicate in-flight profiling is suppressed, and multi-source Research does not auto-start a heavy preview in parallel. RAW payload bytes are not copied into the session store.
 >
 > The current research wave extends the Free World foundation with constrained controlled-rotation geometry, a read-only coordinate-bridge decomposition, **Measured Field Support Coordinate Bridge v0.1**, and **Optical Field Topography v0.1**.
 >
@@ -22,7 +24,7 @@
 >
 > A topographic ridge, basin or peak does **not** automatically mean scene depth, literal lens-surface sag, field curvature, distortion, vignetting, aberration or sensor angular response. Physical interpretation stays axis-specific and fail-closed.
 >
-> Latest green APK-producing run: `36831352713`; artifact `11146499757`; APK SHA-256 `a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3`.
+> Latest green APK-producing run: `36840564859`; artifact `11151017383`; APK SHA-256 `35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`.
 >
 > **MEASURED != RECONSTRUCTED != APPEARANCE.**
 >
