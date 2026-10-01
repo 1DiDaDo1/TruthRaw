@@ -431,7 +431,9 @@ required = {
         "Export Free World Observation Geometry Foundation v0.1 · JSON",
         "launchFreeWorldFoundationExport",
         "REQUEST_SAVE_FREE_WORLD_FOUNDATION = 4130",
-        "graph identity veranderde",
+        "ResearchPendingJsonExportStoreV01.copyFrozenTo",
+        "startResearchBatch",
+        "app-focus niet vereist",
     ],
 }
 
