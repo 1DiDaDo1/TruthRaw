@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace truthraw::android_truthnegative_pipeline::v0_1 {
@@ -26,6 +27,12 @@ struct Status final {
 };
 
 struct Context final {
+    // Serialize callers that reuse the same process-local prepared context.
+    // Scientific/sample values remain read-only; this protects mutable
+    // transport/audit counters inside the tile source from concurrent access.
+    std::shared_ptr<std::mutex> useMutex =
+        std::make_shared<std::mutex>();
+
     // Own a duplicated descriptor so a shared prepared context stays valid
     // after the Java ParcelFileDescriptor used to create it is closed.
     std::shared_ptr<int> ownedSourceFd;
