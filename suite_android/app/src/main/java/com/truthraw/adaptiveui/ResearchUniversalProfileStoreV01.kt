@@ -64,6 +64,66 @@ object ResearchUniversalProfileStoreV01 {
         )
     }
 
+    fun loadForJob(
+        filesDir: File,
+        job: RawJob,
+    ): JSONObject? {
+        val file =
+            File(
+                File(
+                    filesDir,
+                    DIR_NAME,
+                ),
+                safeName(job.id) +
+                    ".json",
+            )
+        if (!file.isFile) {
+            return null
+        }
+        val wrapper =
+            runCatching {
+                JSONObject(
+                    file.readText(
+                        Charsets.UTF_8,
+                    ),
+                )
+            }.getOrNull()
+                ?: return null
+        if (
+            wrapper.optString("schema") !=
+            SCHEMA ||
+            wrapper.optString("job_id") !=
+            job.id ||
+            wrapper.optString("source_uri") !=
+            job.source.uri.toString() ||
+            wrapper.optBoolean(
+                "creates_new_evidence",
+                true,
+            ) ||
+            wrapper.optBoolean(
+                "scientific_writeback_allowed",
+                true,
+            )
+        ) {
+            return null
+        }
+        val profile =
+            wrapper.optJSONObject("profile")
+                ?: return null
+        if (
+            profile.optString("status") !=
+            "AUTO_PROFILED_IN_FULL_DRAW_SUITE" ||
+            profile.optString(
+                "source_sha256",
+            ).isBlank()
+        ) {
+            return null
+        }
+        return JSONObject(
+            profile.toString(),
+        )
+    }
+
     fun load(
         filesDir: File,
         session: BatchSession,
