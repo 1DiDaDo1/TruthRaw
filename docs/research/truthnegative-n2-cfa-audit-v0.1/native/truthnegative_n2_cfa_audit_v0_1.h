@@ -84,6 +84,10 @@ struct Result final {
     // correctionApplied=true. This is derived from the same single v0.1 pass,
     // is never promoted to evidence, and is not included in v0.1 hashes.
     std::vector<CorrectedSampleCoordinate> correctedSampleCoordinates{};
+    // Runtime optimization index is bounded. If this becomes false the
+    // scientific v0.1 result remains valid and downstream code must use the
+    // legacy v0.2.1 rerun path instead of sparse reuse.
+    bool correctedSampleCoordinatesComplete = true;
     std::uint32_t appearanceGridWidth = 0u;
     std::uint32_t appearanceGridHeight = 0u;
     std::uint32_t regionX = 0u;
