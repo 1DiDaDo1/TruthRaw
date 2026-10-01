@@ -150,12 +150,36 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     ceBinding.v01SpatialSha256=v01.spatialSha256;
 
     ce_spatial::Result ceAudit{};
-    if(!ce_sparse::runSparseReference(
-            *ctx->openedSource.source,
-            ceBinding,
-            v01,
-            ceAudit)||
-       !ceAudit.v01TileParityVerified||
+    bool v01SparseReferenceReuseVerified=false;
+    bool v01RerunPerformed=false;
+    if(v01.correctedSampleCoordinatesComplete){
+        if(!ce_sparse::runSparseReference(
+                *ctx->openedSource.source,
+                ceBinding,
+                v01,
+                ceAudit)){
+            return status(
+                env,
+                -92,
+                "v0.2.1 sparse factored reference audit failed");
+        }
+        v01SparseReferenceReuseVerified=true;
+    }else{
+        // Bounded optimization metadata is unavailable. Preserve the exact
+        // established v0.2.1 scientific route rather than expanding memory.
+        if(!ce_spatial::run(
+                *ctx->openedSource.source,
+                ceBinding,
+                v01,
+                ceAudit)){
+            return status(
+                env,
+                -92,
+                "v0.2.1 legacy factored reference audit failed");
+        }
+        v01RerunPerformed=true;
+    }
+    if(!ceAudit.v01TileParityVerified||
        ceAudit.candidateApplied||
        ceAudit.createsNewEvidence||
        ceAudit.scientificWritebackAllowed){
@@ -254,8 +278,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"width\":"<<ctx->width;
     o<<",\"height\":"<<ctx->height;
     o<<",\"sharedPipelineCacheHit\":"<<(sharedPipelineCacheHit?"true":"false");
-    o<<",\"v01SparseReferenceReuseVerified\":true";
-    o<<",\"v01RerunPerformed\":false";
+    o<<",\"v01SparseReferenceReuseVerified\":"
+      <<(v01SparseReferenceReuseVerified?"true":"false");
+    o<<",\"v01RerunPerformed\":"
+      <<(v01RerunPerformed?"true":"false");
+    o<<",\"v01SparseReferenceIndexComplete\":"
+      <<(v01.correctedSampleCoordinatesComplete?"true":"false");
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;
