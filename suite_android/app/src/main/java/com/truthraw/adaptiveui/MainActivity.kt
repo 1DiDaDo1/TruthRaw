@@ -355,6 +355,13 @@ class MainActivity : Activity() {
         if (session.jobs.isEmpty()) {
             return
         }
+        if (
+            TruthRawMediaProcessingForegroundService.isActive(
+                fieldResponseRepeatabilityAnalysisOperationKey(),
+            )
+        ) {
+            return
+        }
         val restoredProfiles =
             ResearchUniversalProfileStoreV01.load(
                 filesDir = filesDir,
@@ -451,6 +458,10 @@ class MainActivity : Activity() {
             )?.let { operation ->
                 fieldResponseRepeatabilityStatus =
                     operation.message
+                if (operation.terminal) {
+                    restoreResearchUniversalProfilesForCurrentSession()
+                    fieldResponseBatchPendingJobIds.clear()
+                }
             }
         }
         FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
@@ -1910,162 +1921,27 @@ class MainActivity : Activity() {
                 selected,
             )
 
-        if (
-            !startBackgroundOperation(
-                operationKey,
-                "Field Response Repeatability v0.1 · universele bronanalyse",
-            )
-        ) {
+        val started =
+            TruthRawMediaProcessingForegroundService
+                .startResearchBatch(
+                    context = applicationContext,
+                    key = operationKey,
+                    label =
+                        "Field Response Repeatability v0.1 · universele bronanalyse",
+                )
+
+        if (!started) {
             fieldResponseRepeatabilityStatus =
-                "Field Response Repeatability v0.1 analyse kon niet starten omdat een gelijknamige operatie al actief is."
+                "Field Response Repeatability v0.1 analyse kon niet starten: er loopt al een gelijknamige achtergrondanalyse."
             render()
             return
         }
 
         fieldResponseRepeatabilityStatus =
-            "Universele bronanalyse loopt in één achtergrondketen voor " +
+            "Universele bronanalyse draait nu in de Android foreground media-processing service · " +
                 selected.size +
-                " geselecteerde bronnen · app-focus niet vereist."
+                " bronnen · app-focus niet vereist · resultaten worden per RAW persistent opgeslagen."
         render()
-
-        startGuardedBackgroundThread(
-            name = "draw-research-universal-batch",
-            operationKey = operationKey,
-            onUnexpected = { message ->
-                fieldResponseRepeatabilityStatus =
-                    message
-            },
-        ) {
-            val completedProfiles =
-                linkedMapOf<String, JSONObject>()
-            val failures =
-                linkedMapOf<String, String>()
-
-            for ((index, job) in selected.withIndex()) {
-                val progress =
-                    "Universele bronanalyse " +
-                        (index + 1) +
-                        "/" +
-                        selected.size +
-                        " · " +
-                        job.source.displayName
-                TruthRawOperationStore.update(
-                    applicationContext,
-                    operationKey,
-                    TruthRawOperationPhase.RUNNING,
-                    progress,
-                )
-
-                ResearchUniversalProfileStoreV01.remove(
-                    filesDir = filesDir,
-                    jobId = job.id,
-                )
-
-                val result =
-                    runCatching {
-                        UniversalSourceProfiler.profile(
-                            contentResolver,
-                            job.source,
-                            cacheDir,
-                        )
-                    }
-
-                result.onSuccess { profile ->
-                    completedProfiles[job.id] =
-                        profile
-                    ResearchUniversalProfileStoreV01.save(
-                        filesDir = filesDir,
-                        job = job,
-                        profile = profile,
-                    )
-                }.onFailure { error ->
-                    failures[job.id] =
-                        error.message
-                            ?: error.javaClass.simpleName
-                }
-
-                runOnUiThread {
-                    result.onSuccess { profile ->
-                        universalProfiles[job.id] =
-                            profile
-                        universalProfileErrors.remove(
-                            job.id,
-                        )
-                    }.onFailure { error ->
-                        universalProfiles.remove(
-                            job.id,
-                        )
-                        universalProfileErrors[job.id] =
-                            error.message
-                                ?: error.javaClass.simpleName
-                    }
-                    fieldResponseBatchPendingJobIds -=
-                        job.id
-                    if (job.id in failures) {
-                        fieldResponseBatchFailedJobIds +=
-                            job.id
-                    }
-                    fieldResponseRepeatabilityStatus =
-                        progress +
-                            " · gereed=" +
-                            (index + 1) +
-                            "/" +
-                            selected.size
-                    render()
-                }
-            }
-
-            val measured =
-                completedProfiles.values.count { profile ->
-                    profile.optJSONObject(
-                        "observation_optical_field_chart",
-                    )
-                        ?.takeIf {
-                            it.optString("status") ==
-                                "FIELD_CHART_AVAILABLE" &&
-                                it.optJSONObject(
-                                    "measured_composite_field_signal",
-                                )
-                                    ?.optString("status") ==
-                                "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE"
-                        } != null
-                }
-            val message =
-                if (failures.isEmpty()) {
-                    "Field Response bronanalyse gereed · measured-field-chart=" +
-                        measured +
-                        "/3" +
-                        if (measured >= 3) {
-                            " · repeatability-export beschikbaar."
-                        } else {
-                            " · nog onvoldoende measured field charts."
-                        }
-                } else {
-                    "Field Response bronanalyse gereed met " +
-                        failures.size +
-                        " fout(en) · measured-field-chart=" +
-                        measured +
-                        "/3."
-                }
-
-            finishBackgroundOperation(
-                operationKey,
-                failures.isEmpty(),
-                message,
-            )
-
-            runOnUiThread {
-                restoreResearchUniversalProfilesForCurrentSession()
-                fieldResponseBatchPendingJobIds.clear()
-                fieldResponseBatchFailedJobIds.clear()
-                fieldResponseBatchFailedJobIds.addAll(
-                    failures.keys,
-                )
-                fieldResponseRepeatabilityStatus =
-                    message
-                render()
-            }
-        }
     }
 
     @Suppress("DEPRECATION")
