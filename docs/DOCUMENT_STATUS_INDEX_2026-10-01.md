@@ -7,6 +7,7 @@ This index defines the current reading order for the active controlled-rotation 
 **Current**
 
 - `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-10-01.md`
 - `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
 - `START_HERE_NEW_CHAT.md`
 - `README.md`
