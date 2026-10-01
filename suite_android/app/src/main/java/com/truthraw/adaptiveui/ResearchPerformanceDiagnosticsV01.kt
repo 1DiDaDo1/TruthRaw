@@ -168,6 +168,11 @@ object ResearchPerformanceDiagnosticsV01 {
                 "v01_rerun_performed",
                 true,
             ) ?: true
+        val sparseReferenceIndexComplete =
+            n2Local?.optBoolean(
+                "v01_sparse_reference_index_complete",
+                false,
+            ) ?: false
 
         return JSONObject()
             .put(
@@ -200,6 +205,18 @@ object ResearchPerformanceDiagnosticsV01 {
                         } else {
                             JSONObject.NULL
                         },
+                    )
+                    .put(
+                        "v01_sparse_reference_index_complete",
+                        if (sparseReferenceReported) {
+                            sparseReferenceIndexComplete
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "bounded_index_fallback_policy",
+                        "LEGACY_V0_2_1_RERUN_IF_SPARSE_INDEX_INCOMPLETE",
                     )
                     .put(
                         "scientific_output_contract",
