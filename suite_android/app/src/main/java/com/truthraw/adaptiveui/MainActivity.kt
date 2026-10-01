@@ -168,6 +168,7 @@ class MainActivity : Activity() {
     private val universalProfileCompletionWaiters =
         mutableMapOf<String, MutableList<(Boolean) -> Unit>>()
     private var researchWorkbenchSessionRestoreStatus: String? = null
+    private var researchBatchLastHeartbeatWallMs: Long = 0L
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -479,13 +480,10 @@ class MainActivity : Activity() {
         if (session.jobs.isEmpty()) {
             return
         }
-        if (
-            TruthRawMediaProcessingForegroundService.isActive(
-                fieldResponseRepeatabilityAnalysisOperationKey(),
-            )
-        ) {
-            return
-        }
+        // Completed per-RAW profiles are immutable derived diagnostics and may
+        // be loaded while the service continues with later RAWs. Keeping this
+        // live prevents the UI from reporting 0/3 after one or more profiles
+        // have already been durably committed.
         val restoredProfiles =
             ResearchUniversalProfileStoreV01.load(
                 filesDir = filesDir,
@@ -714,16 +712,80 @@ class MainActivity : Activity() {
             changed = true
         }
 
-        if (operation.terminal) {
-            val before =
-                universalProfiles.size
-            restoreResearchUniversalProfilesForCurrentSession()
-            if (
-                universalProfiles.size !=
-                before
-            ) {
-                changed = true
+        val profilesBefore =
+            universalProfiles.size
+        restoreResearchUniversalProfilesForCurrentSession()
+        if (universalProfiles.size != profilesBefore) {
+            changed = true
+        }
+
+        val journal =
+            ResearchBatchJournalV02.read(
+                this,
+                key,
+            )
+        val completed =
+            linkedSetOf<String>().apply {
+                addAll(universalProfiles.keys)
+                addAll(
+                    ResearchBatchJournalV02.completedJobIds(
+                        this@MainActivity,
+                        key,
+                    ),
+                )
             }
+        val failed =
+            ResearchBatchJournalV02.failedJobIds(
+                this,
+                key,
+            )
+        val pending =
+            session.jobs
+                .map { it.id }
+                .filterNot {
+                    it in completed ||
+                        it in failed
+                }
+                .toSet()
+
+        if (
+            fieldResponseBatchPendingJobIds.toSet() !=
+            pending
+        ) {
+            fieldResponseBatchPendingJobIds.clear()
+            fieldResponseBatchPendingJobIds.addAll(
+                pending,
+            )
+            changed = true
+        }
+        if (
+            fieldResponseBatchFailedJobIds.toSet() !=
+            failed
+        ) {
+            fieldResponseBatchFailedJobIds.clear()
+            fieldResponseBatchFailedJobIds.addAll(
+                failed,
+            )
+            changed = true
+        }
+
+        val heartbeat =
+            journal?.optLong(
+                "service_heartbeat_wall_ms",
+                0L,
+            ) ?: 0L
+        if (
+            heartbeat > 0L &&
+            heartbeat !=
+            researchBatchLastHeartbeatWallMs
+        ) {
+            researchBatchLastHeartbeatWallMs =
+                heartbeat
+            changed = true
+        }
+
+        if (operation.terminal) {
+            restoreResearchUniversalProfilesForCurrentSession()
             if (
                 fieldResponseBatchPendingJobIds.isNotEmpty()
             ) {
@@ -8774,6 +8836,96 @@ class MainActivity : Activity() {
                 10f,
                 muted = true,
             ))
+
+            val journal =
+                ResearchBatchJournalV02.read(
+                    this@MainActivity,
+                    fieldResponseRepeatabilityAnalysisOperationKey(),
+                )
+            if (journal != null) {
+                val heartbeat =
+                    journal.optLong(
+                        "service_heartbeat_wall_ms",
+                        0L,
+                    )
+                val ageSeconds =
+                    if (heartbeat > 0L) {
+                        (
+                            (
+                                System.currentTimeMillis() -
+                                    heartbeat
+                                ).coerceAtLeast(0L) /
+                                1000L
+                            )
+                    } else {
+                        -1L
+                    }
+                val system =
+                    journal.optJSONObject(
+                        "system",
+                    )
+                val pssKb =
+                    system?.optLong(
+                        "process_pss_kb",
+                        -1L,
+                    ) ?: -1L
+                val stage =
+                    journal.optString(
+                        "current_stage",
+                        "UNKNOWN",
+                    )
+                val attempt =
+                    journal.optInt(
+                        "attempt_count",
+                        0,
+                    )
+                val redeliveries =
+                    journal.optInt(
+                        "redelivery_count",
+                        0,
+                    )
+                addView(
+                    label(
+                        "Service-checkpoint · stage=" +
+                            stage +
+                            " · heartbeat=" +
+                            if (ageSeconds >= 0L) {
+                                ageSeconds.toString() + " s"
+                            } else {
+                                "onbekend"
+                            } +
+                            " · PSS=" +
+                            if (pssKb >= 0L) {
+                                (pssKb / 1024L).toString() + " MiB"
+                            } else {
+                                "onbekend"
+                            } +
+                            " · poging=" +
+                            attempt +
+                            " · redelivery=" +
+                            redeliveries,
+                        10f,
+                        muted = true,
+                    ),
+                )
+
+                journal.optJSONObject(
+                    "previous_process_exit",
+                )?.takeIf {
+                    it.optBoolean(
+                        "android17_memory_limiter_anon_swap",
+                        false,
+                    )
+                }?.let {
+                    addView(
+                        label(
+                            "Vorige process-exit: Android 17 MemoryLimiter:AnonSwap gedetecteerd.",
+                            10f,
+                            muted = true,
+                        ),
+                    )
+                }
+            }
         }
 
         if (measuredCharts < 3) {
