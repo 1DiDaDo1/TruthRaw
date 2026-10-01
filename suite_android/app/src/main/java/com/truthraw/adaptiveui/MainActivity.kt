@@ -498,6 +498,11 @@ class MainActivity : Activity() {
             universalProfiles[job.id] = restored
             universalProfileErrors.remove(job.id)
             universalProfileLoading.remove(job.id)
+
+            // Bound main-thread work: restore at most one large profile per
+            // poll/resume pass. Remaining completed profiles are admitted on
+            // subsequent lightweight status polls.
+            break
         }
     }
 
@@ -796,7 +801,18 @@ class MainActivity : Activity() {
             render()
         }
 
-        return !operation.terminal
+        val completedOnDisk =
+            ResearchBatchJournalV02.completedJobIds(
+                this,
+                key,
+            )
+        val profileRestorePending =
+            completedOnDisk.any {
+                !universalProfiles.containsKey(it)
+            }
+
+        return !operation.terminal ||
+            profileRestorePending
     }
 
     private fun syncFullResRestorationStatus() {
