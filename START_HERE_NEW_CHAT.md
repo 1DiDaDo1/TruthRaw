@@ -18,7 +18,7 @@ Current PR:
 
 Current Android/scientific source-code checkpoint:
 
-`4fbc9767d178903ffcf70f5318b9b0706dadf187`
+`a7cefe7c568a0218b13abda855ad3dbd8b278cc8`
 
 Current state:
 
@@ -44,19 +44,22 @@ Read first now:
 Latest green APK-producing build at the source-code checkpoint:
 
 - workflow `D.RAW Suite Universal Intake v0.1`
-- run `36840564859`
-- artifact `11151017383`
-- APK bytes `8,368,975`
-- APK SHA-256 `35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
+- run `36853127628`
+- artifact `11156013820`
+- APK bytes `8,401,743`
+- APK SHA-256 `c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653`
 
 All relevant gates were green: Foundation Integrity, Canonical Integrity, Tile-Native DNG compatibility, Suite Universal Intake, Universal Physical Capture and Android DngCreator compatibility.
 
 Current engineering resilience fix:
 
-- multi-RAW Research selections are persisted as lightweight URI/metadata handles in a private session store;
-- multi-source Universal Intake profiling is sequential rather than parallel;
-- in-flight per-source analysis is joined rather than duplicated;
-- multi-source Research no longer auto-starts a heavy preview/profile in parallel with the explicit batch analysis.
+- multi-RAW Research selections are persisted as lightweight URI/metadata handles;
+- the foreground media-processing service now owns the long UniversalSourceProfiler batch instead of MainActivity;
+- each completed derived source profile is checkpointed to private storage and reused after service/process restart;
+- research service restart uses START_REDELIVER_INTENT and completed sources are not recomputed;
+- Activity memory no longer retains the complete growing multi-source profile set while the batch runs;
+- Foundation/Repeatability/World-Separation JSON is frozen and SHA-256-bound before Android's document picker, then streamed without post-picker recomputation;
+- relation-record session identity is durably recoverable, including migration from the previous cache-only session.
 
 Current scientific frontier:
 
