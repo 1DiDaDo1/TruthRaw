@@ -26,6 +26,8 @@ namespace {
 namespace detail = truthraw::streaming_v0_1::detail;
 namespace ce =
     truthraw::truthnegative_center_excluded_neighborhood::v0_2;
+namespace ce =
+    truthraw::truthnegative_center_excluded_neighborhood::v0_2;
 
 constexpr std::array<int,3u> kRadii{2,4,8};
 constexpr std::array<std::array<int,2u>,4u> kDirections{{
