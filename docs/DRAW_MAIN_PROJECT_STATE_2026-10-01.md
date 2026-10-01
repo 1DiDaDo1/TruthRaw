@@ -195,3 +195,26 @@ If a future chat receives only:
 `44485`
 
 it should recover this state first and continue from the measured-support/topography validation frontier rather than restarting older coarse bin-centre experiments.
+
+
+## Android 17 shared-context performance baseline
+
+The current research profiling baseline supersedes the older APK/build performance note above.
+
+- PR #107 merged at `9c74740bc8174d7e29d2312e342c1f3c8c943e16`.
+- Same four DNG observations, cold run after app-data clear: **15:31 -> 05:18**.
+- Saved time: **10:13**; observed speedup: **2.93x**; elapsed-time reduction: **65.84%**.
+- attempt=1, redelivery=0.
+- No terminal ANR; navigation away/back after completion passed.
+- Free World Foundation export after completion passed.
+- Same-RAW shared scientific preparation remains bounded to one context, serialized, source-reverified and released at the profile boundary.
+- Scientific authority is unchanged: no source mutation, calibration/correction promotion, candidate application or Scientific-Master writeback.
+
+The follow-up baseline adds diagnostic-only per-stage timing, shared prepare cache hit/miss and release telemetry, and Foundation-level aggregation. Android `versionCode` is now repository-owned via `suite_android/VERSION_CODE=26100101`, while the application ID and stable signing lineage remain unchanged.
+
+Canonical records:
+- `state/DRAW_ANDROID17_RESEARCH_PERFORMANCE_BASELINE_2026-10-01.json`
+- `state/DRAW_ANDROID_VERSION_LINEAGE_V01.json`
+- `docs/research/shared-scientific-context-v0.1/README.md`
+
+The Calibration Observation Record was absent from the final performance Foundation because app data was deliberately cleared before the cold run. Controlled-rotation/measured-support/topography remaining fail-closed in that export is expected and is not a runtime regression.
