@@ -1036,7 +1036,7 @@ if current_2026_10_01.get("continuation_code") != "44485":
     errors.append("current_2026_10_01_continuation_code_mismatch")
 if current_2026_10_01.get("active_branch") != "research/registration-aware-rotation-audit-v01-2026-10-01":
     errors.append("current_2026_10_01_active_branch_mismatch")
-if current_2026_10_01.get("source_code_head") != "4fbc9767d178903ffcf70f5318b9b0706dadf187":
+if current_2026_10_01.get("source_code_head") != "a7cefe7c568a0218b13abda855ad3dbd8b278cc8":
     errors.append("current_2026_10_01_source_code_head_mismatch")
 
 pr_1001 = current_2026_10_01.get("pull_request") or {}
@@ -1044,12 +1044,22 @@ if pr_1001.get("number") != 104:
     errors.append("current_2026_10_01_pr_number_mismatch")
 
 apk_1001 = current_2026_10_01.get("latest_green_android_build") or {}
-if apk_1001.get("run_id") != 36840564859:
+if apk_1001.get("run_id") != 36853127628:
     errors.append("current_2026_10_01_build_run_mismatch")
-if apk_1001.get("artifact_id") != 11151017383:
+if apk_1001.get("artifact_id") != 11156013820:
     errors.append("current_2026_10_01_artifact_id_mismatch")
-if apk_1001.get("apk_sha256") != "35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2":
+if apk_1001.get("apk_sha256") != "c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653":
     errors.append("current_2026_10_01_apk_sha_mismatch")
+
+resilience_1001 = current_2026_10_01.get("research_workbench_resilience_fix") or {}
+if resilience_1001.get("status") != "IMPLEMENTED_BUILD_GREEN":
+    errors.append("current_2026_10_01_research_resilience_status_mismatch")
+if resilience_1001.get("scientific_authority_changed") is not False:
+    errors.append("current_2026_10_01_research_resilience_must_not_change_authority")
+if resilience_1001.get("source_evidence_modified") is not False:
+    errors.append("current_2026_10_01_research_resilience_must_not_modify_source")
+if resilience_1001.get("gpu_acceleration_status") != "NOT_USED_FOR_THIS_FIX":
+    errors.append("current_2026_10_01_gpu_status_mismatch")
 
 support_1001 = current_2026_10_01.get("measured_support_bridge") or {}
 if support_1001.get("status") != "IMPLEMENTED_BUILD_GREEN_DEVICE_RESULT_PENDING":
