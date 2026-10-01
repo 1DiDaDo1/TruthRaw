@@ -296,8 +296,7 @@ Status acquireShared(
                 gSharedMaxLogicalResidentBytes == maxLogicalResidentBytes &&
                 same_source_seal(
                     gSharedContext->sourceSeal,
-                    probeSeal) &&
-                reverify(*gSharedContext)) {
+                    probeSeal)) {
                 out = gSharedContext;
                 cacheHit = true;
                 return {};
