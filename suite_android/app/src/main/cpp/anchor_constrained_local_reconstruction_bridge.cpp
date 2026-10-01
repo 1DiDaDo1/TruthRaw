@@ -182,12 +182,14 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
         return status(env, -110, "invalid destination fd");
     }
 
-    pipeline::Context ctx{};
-    const auto prepared = pipeline::prepare(
+    std::shared_ptr<pipeline::Context> ctx;
+    bool sharedPipelineCacheHit = false;
+    const auto prepared = pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0, maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0, maxLogicalResidentBytes)),
-        ctx);
+        ctx,
+        sharedPipelineCacheHit);
     if (!prepared) {
         return status(env, prepared.code, prepared.message);
     }
@@ -198,24 +200,24 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
             frontsideTiles,
             analysisWidth,
             analysisHeight,
-            ctx.width,
-            ctx.height,
+            ctx->width,
+            ctx->height,
             queries)) {
         return status(env, -111, "invalid frontside holdout query set");
     }
 
     holdout::Binding binding{};
-    binding.sourceEvidenceSha256 = ctx.sourceSeal.sha256;
+    binding.sourceEvidenceSha256 = ctx->sourceSeal.sha256;
     binding.scientificMasterSha256 =
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     binding.authorityFieldSha256 =
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     binding.truthNegativeStateSha256 =
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     holdout::Report report{};
     if (!holdout::run(
-            *ctx.openedSource.source,
+            *ctx->openedSource.source,
             binding,
             queries,
             report) ||
@@ -248,7 +250,7 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
             "anchor-constrained holdout post-write SHA mismatch");
     }
 
-    if (!pipeline::reverify(ctx)) {
+    if (!pipeline::reverify(*ctx)) {
         return status(
             env,
             -115,
@@ -257,8 +259,10 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
 
     std::ostringstream o;
     o << "{\"status\":0";
-    o << ",\"width\":" << ctx.width;
-    o << ",\"height\":" << ctx.height;
+    o << ",\"width\":" << ctx->width;
+    o << ",\"height\":" << ctx->height;
+    o << ",\"sharedPipelineCacheHit\":"
+      << (sharedPipelineCacheHit ? "true" : "false");
     o << ",\"fileBytes\":" << report.json.size();
     o << ",\"queryCount\":" << report.queries.size();
     o << ",\"holdouts\":" << report.global.holdouts;
@@ -270,13 +274,13 @@ Java_com_truthraw_adaptiveui_AnchorConstrainedLocalReconstructionBridge_exportAn
     o << ",\"baselineLowerAbsError\":"
       << report.global.baselineLowerAbsError;
     o << ",\"sourceSha256\":\""
-      << sha::hex(ctx.sourceSeal.sha256) << "\"";
+      << sha::hex(ctx->sourceSeal.sha256) << "\"";
     o << ",\"scientificMasterSha256\":\""
-      << sha::hex(ctx.scientific.scientificMasterHash) << "\"";
+      << sha::hex(ctx->scientific.scientificMasterHash) << "\"";
     o << ",\"authorityFieldSha256\":\""
-      << sha::hex(ctx.authorityField.contentSha256) << "\"";
+      << sha::hex(ctx->authorityField.contentSha256) << "\"";
     o << ",\"truthNegativeStateSha256\":\""
-      << sha::hex(ctx.truthNegativeState.stateSha256) << "\"";
+      << sha::hex(ctx->truthNegativeState.stateSha256) << "\"";
     o << ",\"holdoutStreamSha256\":\""
       << sha::hex(report.holdoutStreamSha256) << "\"";
     o << ",\"jsonSha256\":\""
