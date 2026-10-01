@@ -83,9 +83,9 @@ object ResearchProfileStageCacheV01 {
         for (part in parts) {
             val bytes = (part ?: "<null>").toByteArray(Charsets.UTF_8)
             digest.update(bytes.size.toString().toByteArray(Charsets.UTF_8))
-            digest.update(0)
+            digest.update(0.toByte())
             digest.update(bytes)
-            digest.update(0)
+            digest.update(0.toByte())
         }
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
