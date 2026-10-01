@@ -182,12 +182,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
         return status(env, -100, "invalid destination fd");
     }
 
-    pipeline::Context ctx{};
-    const auto prepared = pipeline::prepare(
+    std::shared_ptr<pipeline::Context> ctx;
+    bool sharedPipelineCacheHit = false;
+    const auto prepared = pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0, maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0, maxLogicalResidentBytes)),
-        ctx);
+        ctx,
+        sharedPipelineCacheHit);
     if (!prepared) {
         return status(env, prepared.code, prepared.message);
     }
@@ -198,24 +200,24 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
             frontsideTiles,
             analysisWidth,
             analysisHeight,
-            ctx.width,
-            ctx.height,
+            ctx->width,
+            ctx->height,
             queries)) {
         return status(env, -101, "invalid frontside candidate query set");
     }
 
     distance::Binding binding{};
-    binding.sourceEvidenceSha256 = ctx.sourceSeal.sha256;
+    binding.sourceEvidenceSha256 = ctx->sourceSeal.sha256;
     binding.scientificMasterSha256 =
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     binding.authorityFieldSha256 =
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     binding.truthNegativeStateSha256 =
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     distance::Report report{};
     if (!distance::run(
-            *ctx.openedSource.source,
+            *ctx->openedSource.source,
             binding,
             queries,
             report) ||
@@ -246,7 +248,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
             "N2 support-distance post-write SHA mismatch");
     }
 
-    if (!pipeline::reverify(ctx)) {
+    if (!pipeline::reverify(*ctx)) {
         return status(
             env,
             -105,
@@ -255,8 +257,10 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
 
     std::ostringstream o;
     o << "{\"status\":0";
-    o << ",\"width\":" << ctx.width;
-    o << ",\"height\":" << ctx.height;
+    o << ",\"width\":" << ctx->width;
+    o << ",\"height\":" << ctx->height;
+    o << ",\"sharedPipelineCacheHit\":"
+      << (sharedPipelineCacheHit ? "true" : "false");
     o << ",\"fileBytes\":" << report.json.size();
     o << ",\"queryCount\":" << report.queries.size();
     o << ",\"sampled\":" << report.sampled;
@@ -265,13 +269,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2SupportDistanceBridge_exportAndVerif
     o << ",\"censorBoundaryProtected\":"
       << report.audit.censorBoundaryProtected;
     o << ",\"sourceSha256\":\""
-      << sha::hex(ctx.sourceSeal.sha256) << "\"";
+      << sha::hex(ctx->sourceSeal.sha256) << "\"";
     o << ",\"scientificMasterSha256\":\""
-      << sha::hex(ctx.scientific.scientificMasterHash) << "\"";
+      << sha::hex(ctx->scientific.scientificMasterHash) << "\"";
     o << ",\"authorityFieldSha256\":\""
-      << sha::hex(ctx.authorityField.contentSha256) << "\"";
+      << sha::hex(ctx->authorityField.contentSha256) << "\"";
     o << ",\"truthNegativeStateSha256\":\""
-      << sha::hex(ctx.truthNegativeState.stateSha256) << "\"";
+      << sha::hex(ctx->truthNegativeState.stateSha256) << "\"";
     o << ",\"candidateSha256\":\""
       << sha::hex(report.candidateSha256) << "\"";
     o << ",\"auditSha256\":\""
