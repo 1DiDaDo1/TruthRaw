@@ -14,6 +14,15 @@
 #include <utility>
 
 namespace truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2 {
+
+namespace v021 =
+    truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
+using Digest = v021::Digest;
+using Binding = v021::Binding;
+using Metrics = v021::Metrics;
+using TileMetrics = v021::TileMetrics;
+using Result = v021::Result;
+
 namespace {
 
 namespace detail = truthraw::streaming_v0_1::detail;
@@ -327,7 +336,7 @@ void write_metrics(std::ostringstream& o,const Metrics& m) {
 
 } // namespace
 
-bool run(
+bool runSparseReference(
     stream::IRawTileSource& source,
     const Binding& binding,
     const v01::Result& referenceV01,
@@ -665,8 +674,6 @@ bool run(
         }
         out.auditSha256=hasher.finalize();
         out.v01TileParityVerified=true;
-        out.v01SparseReferenceReuseVerified=true;
-        out.v01RerunPerformed=false;
         out.centerOnlySigmaPrimary=true;
         out.combinedSigmaDiagnosticOnly=true;
         out.noiseIndependenceAdmitted=false;
@@ -676,8 +683,6 @@ bool run(
 
         return nonzero(out.auditSha256)&&
                out.v01TileParityVerified&&
-               out.v01SparseReferenceReuseVerified&&
-               !out.v01RerunPerformed&&
                out.centerOnlySigmaPrimary&&
                out.combinedSigmaDiagnosticOnly&&
                !out.noiseIndependenceAdmitted&&
@@ -690,104 +695,5 @@ bool run(
     }
 }
 
-bool encode(
-    const Binding& binding,
-    std::uint32_t sourceWidth,
-    std::uint32_t sourceHeight,
-    const Result& audit,
-    Report& out) noexcept {
-    out={};
-    try{
-        if(sourceWidth==0u||sourceHeight==0u||
-           !nonzero(binding.sourceEvidenceSha256)||
-           !nonzero(binding.scientificMasterSha256)||
-           !nonzero(binding.authorityFieldSha256)||
-           !nonzero(binding.truthNegativeStateSha256)||
-           !nonzero(binding.v01CandidateSha256)||
-           !nonzero(binding.v01AuditSha256)||
-           !nonzero(binding.v01SpatialSha256)||
-           !nonzero(audit.auditSha256)||
-           audit.tiles.empty()||
-           !metrics_consistent(audit.metrics)||
-           !audit.v01TileParityVerified||
-           !audit.v01SparseReferenceReuseVerified||
-           audit.v01RerunPerformed||
-           !audit.centerOnlySigmaPrimary||
-           !audit.combinedSigmaDiagnosticOnly||
-           audit.noiseIndependenceAdmitted||
-           audit.candidateApplied||
-           audit.createsNewEvidence||
-           audit.scientificWritebackAllowed){
-            return false;
-        }
-
-        std::ostringstream o;
-        o.setf(std::ios::fixed);
-        o<<std::setprecision(12);
-        o<<"{\n";
-        o<<"  \"schema\":\""<<kSchemaName<<"\",\n";
-        o<<"  \"source_width\":"<<sourceWidth<<",\n";
-        o<<"  \"source_height\":"<<sourceHeight<<",\n";
-        o<<"  \"tile_edge\":"<<audit.tileEdge<<",\n";
-        o<<"  \"sampling_period\":"<<audit.samplingPeriod<<",\n";
-        o<<"  \"v01_sparse_reference_reuse_verified\":true,\n";
-        o<<"  \"v01_rerun_performed\":false,\n";
-        o<<"  \"source_sha256\":\""
-         <<hex(binding.sourceEvidenceSha256)<<"\",\n";
-        o<<"  \"scientific_master_sha256\":\""
-         <<hex(binding.scientificMasterSha256)<<"\",\n";
-        o<<"  \"authority_field_sha256\":\""
-         <<hex(binding.authorityFieldSha256)<<"\",\n";
-        o<<"  \"truthnegative_state_sha256\":\""
-         <<hex(binding.truthNegativeStateSha256)<<"\",\n";
-        o<<"  \"v01_candidate_sha256\":\""
-         <<hex(binding.v01CandidateSha256)<<"\",\n";
-        o<<"  \"v01_audit_sha256\":\""
-         <<hex(binding.v01AuditSha256)<<"\",\n";
-        o<<"  \"v01_spatial_sha256\":\""
-         <<hex(binding.v01SpatialSha256)<<"\",\n";
-        o<<"  \"center_excluded_audit_sha256\":\""
-         <<hex(audit.auditSha256)<<"\",\n";
-        o<<"  \"v01_tile_parity_verified\":true,\n";
-        o<<"  \"center_only_sigma_primary\":true,\n";
-        o<<"  \"combined_sigma_diagnostic_only\":true,\n";
-        o<<"  \"noise_independence_admitted\":false,\n";
-        o<<"  \"candidate_applied\":false,\n";
-        o<<"  \"creates_new_evidence\":false,\n";
-        o<<"  \"scientific_writeback_allowed\":false,\n";
-        o<<"  \"global\":{";
-        write_metrics(o,audit.metrics);
-        o<<"},\n";
-        o<<"  \"tiles\":[\n";
-        for(std::size_t i=0u;i<audit.tiles.size();++i){
-            const auto& tile=audit.tiles[i];
-            o<<"    {\"x\":"<<tile.x
-             <<",\"y\":"<<tile.y
-             <<",\"width\":"<<tile.width
-             <<",\"height\":"<<tile.height<<",";
-            write_metrics(o,tile.metrics);
-            o<<"}";
-            if(i+1u<audit.tiles.size())o<<",";
-            o<<"\n";
-        }
-        o<<"  ]\n";
-        o<<"}\n";
-
-        out.json=o.str();
-        truthraw::sha256_v0_69::Hasher hasher;
-        hasher.update(
-            reinterpret_cast<const std::uint8_t*>(out.json.data()),
-            out.json.size());
-        out.jsonSha256=hasher.finalize();
-        out.tileCount=audit.tiles.size();
-        out.candidateApplied=false;
-        out.createsNewEvidence=false;
-        out.scientificWritebackAllowed=false;
-        return !out.json.empty()&&nonzero(out.jsonSha256);
-    }catch(...){
-        out={};
-        return false;
-    }
-}
 
 } // namespace truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2
