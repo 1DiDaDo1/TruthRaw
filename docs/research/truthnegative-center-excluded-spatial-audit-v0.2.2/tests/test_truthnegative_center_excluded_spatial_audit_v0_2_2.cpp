@@ -210,6 +210,13 @@ int main() {
     R(!newimpl::runSparseReference(
         source, ob, badReference, shouldFail));
 
+    auto incompleteReference = reference;
+    incompleteReference.correctedSampleCoordinates.clear();
+    incompleteReference.correctedSampleCoordinatesComplete = false;
+    oldce::Result incompleteShouldFail{};
+    R(!newimpl::runSparseReference(
+        source, ob, incompleteReference, incompleteShouldFail));
+
     std::cout
         << "N2 sparse-reference v0.2.2 byte-identical v0.2.1 parity PASS "
         << "sampled=" << newResult.metrics.sampled
