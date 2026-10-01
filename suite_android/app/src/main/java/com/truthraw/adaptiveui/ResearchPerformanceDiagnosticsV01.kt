@@ -55,6 +55,10 @@ object ResearchPerformanceDiagnosticsV01 {
                 JSONObject()
                     .put("schema", SCHEMA)
                     .put("status", "RUNTIME_DIAGNOSTICS_AVAILABLE")
+                    .put(
+                        "profile_cache_generation",
+                        UniversalSourceProfiler.CACHE_GENERATION,
+                    )
                     .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
                     .put(
                         "source_sha256",
@@ -152,6 +156,27 @@ object ResearchPerformanceDiagnosticsV01 {
 
         val first = reportedValues.firstOrNull()
         val later = reportedValues.drop(1)
+        val n2Local =
+            profile.optJSONObject("n2_local_spatial_binding")
+        val sparseReferenceReported =
+            n2Local?.has(
+                "v01_sparse_reference_reuse_verified",
+            ) == true
+        val sparseReferenceVerified =
+            n2Local?.optBoolean(
+                "v01_sparse_reference_reuse_verified",
+                false,
+            ) ?: false
+        val v01RerunPerformed =
+            n2Local?.optBoolean(
+                "v01_rerun_performed",
+                true,
+            ) ?: true
+        val sparseReferenceIndexComplete =
+            n2Local?.optBoolean(
+                "v01_sparse_reference_index_complete",
+                false,
+            ) ?: false
 
         return JSONObject()
             .put(
@@ -162,6 +187,47 @@ object ResearchPerformanceDiagnosticsV01 {
             .put("max_process_local_contexts", 1)
             .put("single_source_context_policy", true)
             .put("cross_observation_context_reuse_allowed", false)
+            .put(
+                "n2_local_execution",
+                JSONObject()
+                    .put(
+                        "sparse_reference_telemetry_reported",
+                        sparseReferenceReported,
+                    )
+                    .put(
+                        "v01_sparse_reference_reuse_verified",
+                        if (sparseReferenceReported) {
+                            sparseReferenceVerified
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_rerun_performed",
+                        if (sparseReferenceReported) {
+                            v01RerunPerformed
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "v01_sparse_reference_index_complete",
+                        if (sparseReferenceReported) {
+                            sparseReferenceIndexComplete
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "bounded_index_fallback_policy",
+                        "LEGACY_V0_2_1_RERUN_IF_SPARSE_INDEX_INCOMPLETE",
+                    )
+                    .put(
+                        "scientific_output_contract",
+                        "N2_CENTER_EXCLUDED_SPATIAL_AUDIT_V0_2_1_BYTE_IDENTICAL",
+                    )
+                    .put("authority", "DIAGNOSTIC_RUNTIME_ONLY"),
+            )
             .put("audit_order", audits)
             .put("reported_audit_count", reported)
             .put("cache_hit_count", hits)

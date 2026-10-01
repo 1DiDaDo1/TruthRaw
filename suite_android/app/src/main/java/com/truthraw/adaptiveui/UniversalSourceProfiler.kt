@@ -19,6 +19,8 @@ import java.io.File
  * facts stay UNKNOWN. Frontside interpretation is APPEARANCE_DERIVED_ONLY.
  */
 object UniversalSourceProfiler {
+    const val CACHE_GENERATION =
+        "D.RAW/UniversalSourceProfileCache/0.2.2-n2-sparse-ref-v1"
 
     fun profile(
         resolver: ContentResolver,
@@ -115,6 +117,7 @@ object UniversalSourceProfiler {
         val base = JSONObject()
             .put("schema", "D.RAW/UniversalSourceProfile/0.2")
             .put("status", "AUTO_PROFILED_IN_FULL_DRAW_SUITE")
+            .put("profile_cache_generation", CACHE_GENERATION)
             .put("source_sha256", sourceSha256)
             .put("processing_source_sha256", sourceSha256)
             .put(
@@ -518,7 +521,7 @@ object UniversalSourceProfiler {
                 val frontsideInput =
                     frontside.optJSONObject("dark_chroma_stability_v0_1")
                 cachedStage(
-                    stageId = "N2_LOCAL_SPATIAL_V01_R1",
+                    stageId = "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF",
                     inputFingerprint =
                         ResearchProfileStageCacheV01.fingerprint(
                             frontsideInput?.toString(),
