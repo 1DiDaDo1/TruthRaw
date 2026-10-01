@@ -296,6 +296,10 @@ object AnchorConstrainedLocalReconstructionAudit {
                 )
                 .put("source_sha256", sourceSha256)
                 .put(
+                    "shared_pipeline_prepare_cache_hit",
+                    status.optBoolean("sharedPipelineCacheHit", false),
+                )
+                .put(
                     "authority",
                     "PRIVATE_RECONSTRUCTION_AUDIT_ONLY",
                 )
