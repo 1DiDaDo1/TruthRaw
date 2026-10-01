@@ -180,6 +180,8 @@ bool run(
 
         detail::Workspace workspace{};
         constexpr int kStep=2;
+        constexpr std::size_t kMaxSparseCorrectedSampleCoordinates =
+            1'048'576u;
 
         const int regionX0=static_cast<int>(regionX);
         const int regionY0=static_cast<int>(regionY);
@@ -195,8 +197,10 @@ bool run(
                 tile.width=static_cast<std::uint32_t>(x1-x0);
                 tile.height=static_cast<std::uint32_t>(y1-y0);
                 tile.correctedSampleOffset =
-                    static_cast<std::uint64_t>(
-                        out.correctedSampleCoordinates.size());
+                    out.correctedSampleCoordinatesComplete
+                        ? static_cast<std::uint64_t>(
+                            out.correctedSampleCoordinates.size())
+                        : 0u;
                 TileRect t{};
                 t.x0=x0;t.y0=y0;t.x1=x1;t.y1=y1;
                 t.hx0=std::max(0,x0-kStep);
@@ -330,10 +334,20 @@ bool run(
                             }
                         }
 
-                        if(pr.correctionApplied){
-                            out.correctedSampleCoordinates.push_back(
-                                {static_cast<std::uint32_t>(gx),
-                                 static_cast<std::uint32_t>(gy)});
+                        if(pr.correctionApplied &&
+                           out.correctedSampleCoordinatesComplete){
+                            if(out.correctedSampleCoordinates.size() <
+                               kMaxSparseCorrectedSampleCoordinates){
+                                out.correctedSampleCoordinates.push_back(
+                                    {static_cast<std::uint32_t>(gx),
+                                     static_cast<std::uint32_t>(gy)});
+                            }else{
+                                // Optimization metadata is optional. Do not
+                                // fail or alter v0.1 scientific output when
+                                // the bounded index is exhausted.
+                                out.correctedSampleCoordinates.clear();
+                                out.correctedSampleCoordinatesComplete=false;
+                            }
                         }
 
                         if(out.appearanceGridDerived){
@@ -380,13 +394,20 @@ bool run(
                     }
                 }
 
-                tile.correctedSampleCount =
-                    static_cast<std::uint64_t>(
-                        out.correctedSampleCoordinates.size()) -
-                    tile.correctedSampleOffset;
+                if(out.correctedSampleCoordinatesComplete){
+                    tile.correctedSampleCount =
+                        static_cast<std::uint64_t>(
+                            out.correctedSampleCoordinates.size()) -
+                        tile.correctedSampleOffset;
+                    if(tile.correctedSampleCount!=tile.audit.corrected){
+                        return false;
+                    }
+                }else{
+                    tile.correctedSampleOffset=0u;
+                    tile.correctedSampleCount=0u;
+                }
                 if(tile.sampled==0u||
-                   tile.audit.total!=tile.sampled||
-                   tile.correctedSampleCount!=tile.audit.corrected){
+                   tile.audit.total!=tile.sampled){
                     return false;
                 }
                 hash_u32(spatialHasher,tile.x);
@@ -415,7 +436,10 @@ bool run(
         if(out.sampled==0u||
            out.audit.total!=out.sampled||
            out.tiles.empty()||
-           out.correctedSampleCoordinates.size()!=out.audit.corrected){
+           (out.correctedSampleCoordinatesComplete &&
+            out.correctedSampleCoordinates.size()!=out.audit.corrected)||
+           (!out.correctedSampleCoordinatesComplete &&
+            !out.correctedSampleCoordinates.empty())){
             return false;
         }
         out.spatialSha256=spatialHasher.finalize();
