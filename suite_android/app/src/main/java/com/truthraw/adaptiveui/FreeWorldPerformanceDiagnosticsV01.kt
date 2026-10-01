@@ -27,12 +27,18 @@ object FreeWorldPerformanceDiagnosticsV01 {
 
         for (profile in profiles) {
             val sourceSha = profile.optString("source_sha256")
+            val cacheGeneration =
+                profile.optString("profile_cache_generation")
             val diagnostics =
                 profile.optJSONObject("performance_diagnostics_v0_1")
             if (diagnostics == null) {
                 observations.put(
                     JSONObject()
                         .put("source_sha256", sourceSha)
+                        .put(
+                            "profile_cache_generation",
+                            if (cacheGeneration.isBlank()) JSONObject.NULL else cacheGeneration,
+                        )
                         .put("status", "UNKNOWN_NO_PROFILE_TELEMETRY"),
                 )
                 continue
@@ -83,6 +89,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
             observations.put(
                 JSONObject()
                     .put("source_sha256", sourceSha)
+                    .put(
+                        "profile_cache_generation",
+                        if (cacheGeneration.isBlank()) JSONObject.NULL else cacheGeneration,
+                    )
                     .put("status", "PROFILE_RUNTIME_TELEMETRY_AVAILABLE")
                     .put(
                         "profile_elapsed_ms",
@@ -106,6 +116,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
 
         return JSONObject()
             .put("schema", SCHEMA)
+            .put(
+                "expected_profile_cache_generation",
+                UniversalSourceProfiler.CACHE_GENERATION,
+            )
             .put(
                 "status",
                 if (telemetryProfiles > 0) {
