@@ -27,4 +27,6 @@ jobs:
       - name: Verify document authority and historical classification
         run: python3 tools/verify_documentation_governance.py
       - name: Validate current state JSON
-        run: python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-10.json >/dev/null
+        run: |
+          python3 -m json.tool state/CURRENT_CANONICAL_STATE_2026-09-10.json >/dev/null
+          python3 -m json.tool state/CURRENT_PROJECT_STATE_2026-10-01.json >/dev/null
