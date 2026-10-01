@@ -301,6 +301,7 @@ bool runSparseReference(
            referenceV01.truthNegativeModified||
            referenceV01.createsNewEvidence||
            referenceV01.scientificWritebackAllowed||
+           !referenceV01.correctedSampleCoordinatesComplete||
            referenceV01.tiles.empty()||
            referenceV01.sampled==0u||
            referenceV01.tileEdge<8u||
