@@ -91,7 +91,14 @@ object N2LocalSpatialBindingAudit {
             }
             if (
                 !status.optBoolean("postWriteVerified", false) ||
-                status.optString("sourceSha256") != sourceSha256
+                status.optString("sourceSha256") != sourceSha256 ||
+                (
+                    status.optBoolean("rowBandReuseActive", false) &&
+                        status.optBoolean(
+                            "rowBandScientificValuesModified",
+                            true,
+                        )
+                    )
             ) {
                 return unavailable(sourceSha256, "N2_FACTORED_STATUS_BINDING_MISMATCH")
             }
@@ -345,6 +352,71 @@ object N2LocalSpatialBindingAudit {
                     status.optBoolean(
                         "v01SparseReferenceIndexComplete",
                         false,
+                    ),
+                )
+                .put(
+                    "row_band_reuse_active",
+                    status.optBoolean("rowBandReuseActive", false),
+                )
+                .put(
+                    "v01_row_band_fill_count",
+                    status.optLong("v01RowBandFillCount", 0L),
+                )
+                .put(
+                    "v01_row_band_served_request_count",
+                    status.optLong(
+                        "v01RowBandServedRequestCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "v01_row_band_cache_hit_request_count",
+                    status.optLong(
+                        "v01RowBandCacheHitRequestCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "v01_row_band_fallback_request_count",
+                    status.optLong(
+                        "v01RowBandFallbackRequestCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "row_band_fill_count_total",
+                    status.optLong("rowBandFillCountTotal", 0L),
+                )
+                .put(
+                    "row_band_served_request_count_total",
+                    status.optLong(
+                        "rowBandServedRequestCountTotal",
+                        0L,
+                    ),
+                )
+                .put(
+                    "row_band_cache_hit_request_count_total",
+                    status.optLong(
+                        "rowBandCacheHitRequestCountTotal",
+                        0L,
+                    ),
+                )
+                .put(
+                    "row_band_fallback_request_count_total",
+                    status.optLong(
+                        "rowBandFallbackRequestCountTotal",
+                        0L,
+                    ),
+                )
+                .put(
+                    "row_band_peak_cache_bytes",
+                    status.optLong("rowBandPeakCacheBytes", 0L),
+                )
+                .put(
+                    "row_band_scientific_values_modified",
+                    status.optBoolean(
+                        "rowBandScientificValuesModified",
+                        true,
                     ),
                 )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
