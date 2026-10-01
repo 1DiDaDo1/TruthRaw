@@ -168,6 +168,11 @@ object FreeWorldObservationGeometryFoundationV01 {
                 graph = graph,
                 records = boundCalibrationRecords,
             )
+        val controlledRotationConstrainedGeometryAudit =
+            ControlledRotationConstrainedGeometryV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+            )
         val colourRelationCandidate =
             ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
@@ -279,6 +284,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "registration_aware_controlled_rotation_audit",
                         registrationAwareControlledRotationAudit,
+                    )
+                    .put(
+                        "controlled_rotation_constrained_geometry_audit",
+                        controlledRotationConstrainedGeometryAudit,
                     )
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put(
