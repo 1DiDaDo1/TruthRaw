@@ -1,0 +1,20 @@
+name: Shared Scientific Context v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/**'
+      - 'tools/check_shared_scientific_context_v01.py'
+      - '.github/workflows/shared-scientific-context-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bounded shared preparation contract
+        run: python3 tools/check_shared_scientific_context_v01.py
