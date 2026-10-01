@@ -194,6 +194,9 @@ bool run(
                 tile.y=static_cast<std::uint32_t>(y0);
                 tile.width=static_cast<std::uint32_t>(x1-x0);
                 tile.height=static_cast<std::uint32_t>(y1-y0);
+                tile.correctedSampleOffset =
+                    static_cast<std::uint64_t>(
+                        out.correctedSampleCoordinates.size());
                 TileRect t{};
                 t.x0=x0;t.y0=y0;t.x1=x1;t.y1=y1;
                 t.hx0=std::max(0,x0-kStep);
@@ -327,6 +330,12 @@ bool run(
                             }
                         }
 
+                        if(pr.correctionApplied){
+                            out.correctedSampleCoordinates.push_back(
+                                {static_cast<std::uint32_t>(gx),
+                                 static_cast<std::uint32_t>(gy)});
+                        }
+
                         if(out.appearanceGridDerived){
                             const auto bx=std::min<std::uint32_t>(
                                 out.appearanceGridWidth-1u,
@@ -371,7 +380,15 @@ bool run(
                     }
                 }
 
-                if(tile.sampled==0u||tile.audit.total!=tile.sampled)return false;
+                tile.correctedSampleCount =
+                    static_cast<std::uint64_t>(
+                        out.correctedSampleCoordinates.size()) -
+                    tile.correctedSampleOffset;
+                if(tile.sampled==0u||
+                   tile.audit.total!=tile.sampled||
+                   tile.correctedSampleCount!=tile.audit.corrected){
+                    return false;
+                }
                 hash_u32(spatialHasher,tile.x);
                 hash_u32(spatialHasher,tile.y);
                 hash_u32(spatialHasher,tile.width);
@@ -395,7 +412,12 @@ bool run(
             }
         }
 
-        if(out.sampled==0u||out.audit.total!=out.sampled||out.tiles.empty())return false;
+        if(out.sampled==0u||
+           out.audit.total!=out.sampled||
+           out.tiles.empty()||
+           out.correctedSampleCoordinates.size()!=out.audit.corrected){
+            return false;
+        }
         out.spatialSha256=spatialHasher.finalize();
         if(!nonzero(out.spatialSha256))return false;
         out.candidateSha256=candidateHasher.finalize();
