@@ -194,6 +194,14 @@ object FreeWorldObservationGeometryFoundationV01 {
                 constrainedAudit =
                     controlledRotationConstrainedGeometryAudit,
             )
+        val opticalFieldTopographyAudit =
+            OpticalFieldTopographyAuditV01.evaluate(
+                records = boundCalibrationRecords,
+                fieldResponse =
+                    fieldResponseSeparationCandidate,
+                measuredSupportAudit =
+                    measuredFieldSupportCoordinateBridgeAudit,
+            )
         val colourRelationCandidate =
             ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
@@ -321,6 +329,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "measured_field_support_coordinate_bridge_audit",
                         measuredFieldSupportCoordinateBridgeAudit,
+                    )
+                    .put(
+                        "optical_field_topography_audit",
+                        opticalFieldTopographyAudit,
                     )
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put(
