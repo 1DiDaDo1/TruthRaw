@@ -14,7 +14,11 @@ namespace rb =
     truthraw::truthnegative_n2_row_band_reuse::v0_1;
 namespace n2 =
     truthraw::truthnegative_n2_cfa_audit::v0_1;
-namespace ce =
+namespace pipe =
+    truthraw::truthnegative_n2_candidate_pipeline::v0_1;
+namespace ce21 =
+    truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
+namespace ce22 =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2;
 namespace st = truthraw::streaming_v0_1;
 
@@ -166,8 +170,8 @@ public:
 };
 
 bool same_n2_audit(
-    const n2::Audit& a,
-    const n2::Audit& b) {
+    const pipe::Audit& a,
+    const pipe::Audit& b) {
     return
         a.total == b.total &&
         a.eligible == b.eligible &&
@@ -274,8 +278,8 @@ bool same_ce_metrics(
 }
 
 bool same_ce_result(
-    const ce::Result& a,
-    const ce::Result& b) {
+    const ce21::Result& a,
+    const ce21::Result& b) {
     if (a.auditSha256 != b.auditSha256 ||
         a.tileEdge != b.tileEdge ||
         a.samplingPeriod != b.samplingPeriod ||
@@ -337,7 +341,7 @@ int main() {
     R(!rowBand.createsNewEvidence());
     R(!rowBand.scientificWritebackAllowed());
 
-    ce::Binding ceBinding{};
+    ce21::Binding ceBinding{};
     ceBinding.sourceEvidenceSha256 =
         binding.sourceEvidenceSha256;
     ceBinding.scientificMasterSha256[0] = 3u;
@@ -352,8 +356,8 @@ int main() {
         directV01.spatialSha256;
 
     FakeSource ceDirectSource;
-    ce::Result directCe{};
-    R(ce::runSparseReference(
+    ce21::Result directCe{};
+    R(ce22::runSparseReference(
         ceDirectSource,
         ceBinding,
         directV01,
@@ -363,8 +367,8 @@ int main() {
     rb::RowBandReuseTileSource ceRowBand(
         ceCachedSource,
         8u * 1024u * 1024u);
-    ce::Result cachedCe{};
-    R(ce::runSparseReference(
+    ce21::Result cachedCe{};
+    R(ce22::runSparseReference(
         ceRowBand,
         ceBinding,
         cachedV01,
