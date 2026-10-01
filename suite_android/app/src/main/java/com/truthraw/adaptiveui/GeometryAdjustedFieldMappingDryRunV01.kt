@@ -420,10 +420,6 @@ object GeometryAdjustedFieldMappingDryRunV01 {
                     "FIELD_SAMPLES_MISSING",
                 )
 
-        val nominalComparable =
-            JSONObject(record.toString())
-        val adjusted =
-            JSONObject(record.toString())
         val nominalSamples = JSONArray()
         val adjustedSamples = JSONArray()
         val mappingStats =
@@ -561,22 +557,22 @@ object GeometryAdjustedFieldMappingDryRunV01 {
             }
         }
 
-        nominalComparable
-            .getJSONObject("axis_payload")
-            .put("samples", nominalSamples)
-        adjusted
-            .getJSONObject("axis_payload")
-            .put("samples", adjustedSamples)
+        val sourceRoots =
+            record.optJSONArray(
+                "source_sha256_roots",
+            ) ?: JSONArray()
 
         val nominalComparableResult =
             FieldResponseRotationSeparationCandidateV01
-                .evaluate(
-                    listOf(nominalComparable),
+                .evaluateDerivedDiagnosticSamples(
+                    samples = nominalSamples,
+                    sourceSha256Roots = sourceRoots,
                 )
         val adjustedResult =
             FieldResponseRotationSeparationCandidateV01
-                .evaluate(
-                    listOf(adjusted),
+                .evaluateDerivedDiagnosticSamples(
+                    samples = adjustedSamples,
+                    sourceSha256Roots = sourceRoots,
                 )
 
         if (
@@ -666,6 +662,22 @@ object GeometryAdjustedFieldMappingDryRunV01 {
                 false,
             )
             .put(
+                "source_calibration_record_revalidated_after_derived_relabel",
+                false,
+            )
+            .put(
+                "source_calibration_record_identity_preserved_unchanged",
+                true,
+            )
+            .put(
+                "derived_solver_input_is_calibration_record",
+                false,
+            )
+            .put(
+                "derived_solver_input_authority",
+                "READ_ONLY_IN_MEMORY_DIAGNOSTIC_ONLY",
+            )
+            .put(
                 "geometry_by_observation",
                 geometrySummary,
             )
@@ -742,6 +754,14 @@ object GeometryAdjustedFieldMappingDryRunV01 {
                     )
                     .put(
                         "geometry_adjusted_result_can_authorize_correction",
+                        false,
+                    )
+                    .put(
+                        "source_record_identity_mutated_for_dry_run",
+                        false,
+                    )
+                    .put(
+                        "derived_relabelled_samples_are_new_calibration_record",
                         false,
                     ),
             )
