@@ -1036,7 +1036,7 @@ if current_2026_10_01.get("continuation_code") != "44485":
     errors.append("current_2026_10_01_continuation_code_mismatch")
 if current_2026_10_01.get("active_branch") != "research/registration-aware-rotation-audit-v01-2026-10-01":
     errors.append("current_2026_10_01_active_branch_mismatch")
-if current_2026_10_01.get("source_code_head") != "faac21e2e2fe97477c846609b8dc4e71af29b3c1":
+if current_2026_10_01.get("source_code_head") != "4fbc9767d178903ffcf70f5318b9b0706dadf187":
     errors.append("current_2026_10_01_source_code_head_mismatch")
 
 pr_1001 = current_2026_10_01.get("pull_request") or {}
@@ -1044,11 +1044,11 @@ if pr_1001.get("number") != 104:
     errors.append("current_2026_10_01_pr_number_mismatch")
 
 apk_1001 = current_2026_10_01.get("latest_green_android_build") or {}
-if apk_1001.get("run_id") != 36831352713:
+if apk_1001.get("run_id") != 36840564859:
     errors.append("current_2026_10_01_build_run_mismatch")
-if apk_1001.get("artifact_id") != 11146499757:
+if apk_1001.get("artifact_id") != 11151017383:
     errors.append("current_2026_10_01_artifact_id_mismatch")
-if apk_1001.get("apk_sha256") != "a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3":
+if apk_1001.get("apk_sha256") != "35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2":
     errors.append("current_2026_10_01_apk_sha_mismatch")
 
 support_1001 = current_2026_10_01.get("measured_support_bridge") or {}
