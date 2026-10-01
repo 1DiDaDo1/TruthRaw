@@ -18,7 +18,7 @@ Current PR:
 
 Current Android/scientific source-code checkpoint:
 
-`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+`4fbc9767d178903ffcf70f5318b9b0706dadf187`
 
 Current state:
 
@@ -44,12 +44,19 @@ Read first now:
 Latest green APK-producing build at the source-code checkpoint:
 
 - workflow `D.RAW Suite Universal Intake v0.1`
-- run `36831352713`
-- artifact `11146499757`
+- run `36840564859`
+- artifact `11151017383`
 - APK bytes `8,368,975`
-- APK SHA-256 `a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3`
+- APK SHA-256 `35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
 
 All relevant gates were green: Foundation Integrity, Canonical Integrity, Tile-Native DNG compatibility, Suite Universal Intake, Universal Physical Capture and Android DngCreator compatibility.
+
+Current engineering resilience fix:
+
+- multi-RAW Research selections are persisted as lightweight URI/metadata handles in a private session store;
+- multi-source Universal Intake profiling is sequential rather than parallel;
+- in-flight per-source analysis is joined rather than duplicated;
+- multi-source Research no longer auto-starts a heavy preview/profile in parallel with the explicit batch analysis.
 
 Current scientific frontier:
 
