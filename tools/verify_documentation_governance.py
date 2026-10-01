@@ -46,6 +46,11 @@ current_2026_09_27_index = need("docs/DOCUMENT_STATUS_INDEX_2026-09-27.md")
 current_2026_09_28_state_text = need("state/CURRENT_PROJECT_STATE_2026-09-28.json")
 current_2026_09_28_vision = need("docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md")
 current_2026_09_27_graph = need("docs/research/free-world-observation-graph-v0.1/README.md")
+current_2026_10_01_state_text = need("state/CURRENT_PROJECT_STATE_2026-10-01.json")
+current_2026_10_01_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md")
+current_2026_10_01_index = need("docs/DOCUMENT_STATUS_INDEX_2026-10-01.md")
+current_2026_10_01_measured_support = need("docs/research/measured-field-support-coordinate-bridge-v0.1/README.md")
+current_2026_10_01_topography = need("docs/research/optical-field-topography-v0.1/README.md")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -997,11 +1002,103 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-26.json",
             "state/CURRENT_PROJECT_STATE_2026-09-27.json",
             "state/CURRENT_PROJECT_STATE_2026-09-28.json",
+            "state/CURRENT_PROJECT_STATE_2026-10-01.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
     if not classified:
         errors.append(f"unclassified_readme_like_path:{rel}")
+
+# Current 2026-10-01 controlled-rotation / measured-support / topography overlay.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-10-01.json",
+    "docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-10-01.md",
+    "docs/research/measured-field-support-coordinate-bridge-v0.1/README.md",
+    "docs/research/optical-field-topography-v0.1/README.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_10_01_pointer:{required}")
+    if required not in root_readme and required.startswith(("state/", "docs/handoff/", "docs/DOCUMENT_STATUS_INDEX_")):
+        errors.append(f"root_readme_missing_current_2026_10_01_pointer:{required}")
+
+try:
+    current_2026_10_01 = json.loads(current_2026_10_01_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_10_01_project_state_invalid_json:{exc}")
+    current_2026_10_01 = {}
+
+if current_2026_10_01.get("schema") != "D.RAW/CurrentProjectState/2026-10-01":
+    errors.append("current_2026_10_01_project_state_schema_mismatch")
+if current_2026_10_01.get("status") != "ACTIVE_RESEARCH_CHECKPOINT":
+    errors.append("current_2026_10_01_project_state_status_mismatch")
+if current_2026_10_01.get("continuation_code") != "44485":
+    errors.append("current_2026_10_01_continuation_code_mismatch")
+if current_2026_10_01.get("active_branch") != "research/registration-aware-rotation-audit-v01-2026-10-01":
+    errors.append("current_2026_10_01_active_branch_mismatch")
+if current_2026_10_01.get("source_code_head") != "faac21e2e2fe97477c846609b8dc4e71af29b3c1":
+    errors.append("current_2026_10_01_source_code_head_mismatch")
+
+pr_1001 = current_2026_10_01.get("pull_request") or {}
+if pr_1001.get("number") != 104:
+    errors.append("current_2026_10_01_pr_number_mismatch")
+
+apk_1001 = current_2026_10_01.get("latest_green_android_build") or {}
+if apk_1001.get("run_id") != 36831352713:
+    errors.append("current_2026_10_01_build_run_mismatch")
+if apk_1001.get("artifact_id") != 11146499757:
+    errors.append("current_2026_10_01_artifact_id_mismatch")
+if apk_1001.get("apk_sha256") != "a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3":
+    errors.append("current_2026_10_01_apk_sha_mismatch")
+
+support_1001 = current_2026_10_01.get("measured_support_bridge") or {}
+if support_1001.get("status") != "IMPLEMENTED_BUILD_GREEN_DEVICE_RESULT_PENDING":
+    errors.append("current_2026_10_01_measured_support_status_mismatch")
+if support_1001.get("photometric_values_used_to_construct_support_geometry") is not False:
+    errors.append("current_2026_10_01_support_geometry_must_not_use_photometry")
+if support_1001.get("measured_sparse_positions_are_source_evidence") is not True:
+    errors.append("current_2026_10_01_sparse_positions_authority_missing")
+if support_1001.get("support_centroids_are_derived") is not True:
+    errors.append("current_2026_10_01_support_centroid_authority_mismatch")
+if support_1001.get("source_grid_to_frontside_isotropic_bridge_proven") is not False:
+    errors.append("current_2026_10_01_source_frontside_bridge_must_remain_unproven")
+
+topography_1001 = current_2026_10_01.get("optical_field_topography") or {}
+if topography_1001.get("status") != "IMPLEMENTED_BUILD_GREEN_DEVICE_RESULT_PENDING":
+    errors.append("current_2026_10_01_topography_status_mismatch")
+if topography_1001.get("physical_scene_depth_claim") is not False:
+    errors.append("current_2026_10_01_topography_depth_claim_forbidden")
+if topography_1001.get("literal_lens_surface_sag_claim") is not False:
+    errors.append("current_2026_10_01_topography_lens_sag_claim_forbidden")
+if topography_1001.get("automatic_problem_cause_selected") is not False:
+    errors.append("current_2026_10_01_topography_auto_cause_forbidden")
+
+latest_result_1001 = current_2026_10_01.get("latest_real_device_result") or {}
+safety_1001 = latest_result_1001.get("safety") or {}
+for key, expected in {
+    "automatic_variant_winner_selected": False,
+    "field_response_calibration_promoted": False,
+    "world_registration_promoted": False,
+    "correction_authorized": False,
+    "candidate_applied": False,
+    "scientific_writeback_allowed": False,
+}.items():
+    if safety_1001.get(key) != expected:
+        errors.append(f"current_2026_10_01_safety_mismatch:{key}")
+
+for text, label in (
+    (current_2026_10_01_handoff, "handoff"),
+    (current_2026_10_01_index, "index"),
+):
+    if "44485" not in text:
+        errors.append(f"current_2026_10_01_continuation_code_missing:{label}")
+
+if "MeasuredFieldSupportCoordinateBridgeAuditV01.kt" not in current_2026_10_01_measured_support:
+    errors.append("current_2026_10_01_measured_support_impl_pointer_missing")
+if "OpticalFieldTopographyAuditV01.kt" not in current_2026_10_01_topography:
+    errors.append("current_2026_10_01_topography_impl_pointer_missing")
+if "height is **not** automatically" not in current_2026_10_01_topography:
+    errors.append("current_2026_10_01_topography_authority_warning_missing")
 
 # PTC acronym guard remains permanent.
 for text, label in (
