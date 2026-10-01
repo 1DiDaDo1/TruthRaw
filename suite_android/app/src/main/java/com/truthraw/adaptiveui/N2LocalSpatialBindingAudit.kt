@@ -340,6 +340,13 @@ object N2LocalSpatialBindingAudit {
                     "v01_rerun_performed",
                     status.optBoolean("v01RerunPerformed", true),
                 )
+                .put(
+                    "v01_sparse_reference_index_complete",
+                    status.optBoolean(
+                        "v01SparseReferenceIndexComplete",
+                        false,
+                    ),
+                )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
                 .put("source_width", sourceWidth)
                 .put("source_height", sourceHeight)
