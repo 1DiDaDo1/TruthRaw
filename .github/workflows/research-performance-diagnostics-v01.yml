@@ -1,0 +1,23 @@
+name: Research Performance Diagnostics v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGeometryFoundationV01.kt'
+      - 'tools/check_research_performance_diagnostics_v01.py'
+      - '.github/workflows/research-performance-diagnostics-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify diagnostic-only performance telemetry
+        run: python3 tools/check_research_performance_diagnostics_v01.py
