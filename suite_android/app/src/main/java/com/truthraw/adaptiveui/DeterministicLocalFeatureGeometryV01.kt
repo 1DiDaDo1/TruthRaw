@@ -29,6 +29,13 @@ object DeterministicLocalFeatureGeometryV01 {
     private const val HARRIS_K = 0.04
     private const val DESCRIPTOR_BITS = 128
 
+    // Secondary appearance-only support for constrained controlled-rotation
+    // diagnostics. The primary keypoint set and generic pair geometry remain
+    // unchanged.
+    private const val ROTATION_SUPPORT_MAX_KEYPOINTS = 192
+    private const val ROTATION_SUPPORT_MIN_KEYPOINT_DISTANCE_PX = 5
+    private const val ROTATION_SUPPORT_RELATIVE_RESPONSE_FLOOR = 0.0025
+
     private data class Candidate(
         val x: Int,
         val y: Int,
@@ -166,6 +173,44 @@ object DeterministicLocalFeatureGeometryV01 {
             )
         }
 
+        val rotationSupportSorted =
+            candidates
+                .asSequence()
+                .filter {
+                    it.response >=
+                        maxPositiveResponse *
+                        ROTATION_SUPPORT_RELATIVE_RESPONSE_FLOOR
+                }
+                .sortedWith(
+                    compareByDescending<Candidate> { it.response }
+                        .thenBy { it.y }
+                        .thenBy { it.x },
+                )
+                .toList()
+        val rotationSupportAccepted =
+            ArrayList<Candidate>()
+        val rotationSupportMinDistance2 =
+            ROTATION_SUPPORT_MIN_KEYPOINT_DISTANCE_PX *
+                ROTATION_SUPPORT_MIN_KEYPOINT_DISTANCE_PX
+
+        for (candidate in rotationSupportSorted) {
+            val separated =
+                rotationSupportAccepted.none { prior ->
+                    val dx = candidate.x - prior.x
+                    val dy = candidate.y - prior.y
+                    dx * dx + dy * dy <
+                        rotationSupportMinDistance2
+                }
+            if (!separated) continue
+            rotationSupportAccepted += candidate
+            if (
+                rotationSupportAccepted.size >=
+                ROTATION_SUPPORT_MAX_KEYPOINTS
+            ) {
+                break
+            }
+        }
+
         val keypoints = JSONArray()
         for ((index, kp) in accepted.withIndex()) {
             val orientation =
@@ -197,6 +242,54 @@ object DeterministicLocalFeatureGeometryV01 {
                     .put(
                         "response_relative_to_max",
                         kp.response / maxPositiveResponse,
+                    )
+                    .put(
+                        "orientation_degrees",
+                        Math.toDegrees(orientation),
+                    )
+                    .put(
+                        "descriptor_hex_128bit",
+                        descriptor,
+                    ),
+            )
+        }
+
+        val rotationSupportKeypoints =
+            JSONArray()
+        for (
+            (index, kp) in
+            rotationSupportAccepted.withIndex()
+        ) {
+            val orientation =
+                atan2(kp.gy, kp.gx)
+            val descriptor =
+                descriptorHex(
+                    luma = luma,
+                    width = width,
+                    height = height,
+                    x = kp.x,
+                    y = kp.y,
+                    orientationRadians = orientation,
+                )
+            rotationSupportKeypoints.put(
+                JSONObject()
+                    .put("index", index)
+                    .put(
+                        "x_normalized",
+                        kp.x.toDouble() /
+                            max(1, width - 1).toDouble(),
+                    )
+                    .put(
+                        "y_normalized",
+                        kp.y.toDouble() /
+                            max(1, height - 1).toDouble(),
+                    )
+                    .put("x_analysis_px", kp.x)
+                    .put("y_analysis_px", kp.y)
+                    .put(
+                        "response_relative_to_max",
+                        kp.response /
+                            maxPositiveResponse,
                     )
                     .put(
                         "orientation_degrees",
@@ -252,6 +345,50 @@ object DeterministicLocalFeatureGeometryV01 {
                     ),
             )
             .put("keypoints", keypoints)
+            .put(
+                "rotation_support_keypoint_count",
+                rotationSupportKeypoints.length(),
+            )
+            .put(
+                "rotation_support_keypoints",
+                rotationSupportKeypoints,
+            )
+            .put(
+                "rotation_support_detector",
+                JSONObject()
+                    .put(
+                        "purpose",
+                        "CONTROLLED_ROTATION_CONSTRAINED_GEOMETRY_DIAGNOSTIC_ONLY",
+                    )
+                    .put(
+                        "family",
+                        "HARRIS_STRUCTURE_TENSOR",
+                    )
+                    .put(
+                        "relative_response_floor",
+                        ROTATION_SUPPORT_RELATIVE_RESPONSE_FLOOR,
+                    )
+                    .put(
+                        "minimum_keypoint_distance_px",
+                        ROTATION_SUPPORT_MIN_KEYPOINT_DISTANCE_PX,
+                    )
+                    .put(
+                        "max_keypoints",
+                        ROTATION_SUPPORT_MAX_KEYPOINTS,
+                    )
+                    .put(
+                        "primary_pair_geometry_replaced",
+                        false,
+                    )
+                    .put(
+                        "scientific_promotion_threshold",
+                        false,
+                    ),
+            )
+            .put(
+                "rotation_support_authority",
+                "APPEARANCE_DERIVED_DIAGNOSTIC_ONLY",
+            )
             .put("camera_identity_used", false)
             .put("lens_identity_used", false)
             .put("vendor_mapping_used", false)
