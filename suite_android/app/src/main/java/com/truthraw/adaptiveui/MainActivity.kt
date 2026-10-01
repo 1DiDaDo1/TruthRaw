@@ -318,7 +318,7 @@ class MainActivity : Activity() {
         }
         val restored =
             ResearchWorkbenchSessionStoreV01.load(
-                cacheDir,
+                filesDir,
             ) ?: return
         if (restored.jobs.isEmpty()) {
             return
@@ -341,11 +341,11 @@ class MainActivity : Activity() {
         }
         if (session.jobs.isEmpty()) {
             ResearchWorkbenchSessionStoreV01.clear(
-                cacheDir,
+                filesDir,
             )
         } else {
             ResearchWorkbenchSessionStoreV01.save(
-                cacheDir = cacheDir,
+                cacheDir = filesDir,
                 session = session,
             )
         }
@@ -752,6 +752,14 @@ class MainActivity : Activity() {
                 }
             }
         }
+
+        CalibrationObservationRecordSessionStoreV01.save(
+            cacheDir = cacheDir,
+            sessionId =
+                calibrationObservationSessionStoreId,
+            records =
+                calibrationObservationRecords,
+        )
 
         return "Calibration Observation Records · nieuw=" +
             validImported +
