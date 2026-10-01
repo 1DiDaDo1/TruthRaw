@@ -67,7 +67,7 @@ for needle in [
 # Optimization is preparation reuse only; the research service must still
 # execute one UniversalSourceProfiler profile at a time.
 assert "Thread({" in service
-assert "session.jobs.forEachIndexed" in service
+assert "for ((index, job) in session.jobs.withIndex())" in service
 assert "scientific_writeback_allowed" in (JAVA / "UniversalSourceProfiler.kt").read_text()
 
 print("shared_scientific_context_v0_1_integrity=PASS")
