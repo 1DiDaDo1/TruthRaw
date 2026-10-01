@@ -24,6 +24,7 @@ for token in [
     "correctedSampleOffset",
     "correctedSampleCount",
     "correctedSampleCoordinates",
+    "correctedSampleCoordinatesComplete",
 ]:
     assert token in v01h, f"v0.1 sparse runtime index missing {token}"
 
@@ -31,6 +32,8 @@ for token in [
     "out.correctedSampleCoordinates.push_back",
     "tile.correctedSampleCount",
     "out.correctedSampleCoordinates.size()!=out.audit.corrected",
+    "kMaxSparseCorrectedSampleCoordinates",
+    "out.correctedSampleCoordinatesComplete=false",
 ]:
     assert token in v01cpp, f"v0.1 sparse capture missing {token}"
 
@@ -56,6 +59,7 @@ for token in [
 assert "v01::run(" not in v022cpp, "v0.2.2 must not rerun v0.1"
 for token in [
     "referenceV01.correctedSampleCoordinates",
+    "!referenceV01.correctedSampleCoordinatesComplete",
     "sparseCount!=referenceTile.audit.corrected",
     "D_RAW_TN_N2_CENTER_EXCLUDED_SPATIAL_AUDIT_V0_2_1",
     "out.v01TileParityVerified=true",
@@ -67,7 +71,9 @@ for token in [
 
 for token in [
     '#include "truthnegative_center_excluded_spatial_audit_v0_2_2.h"',
+    "v01.correctedSampleCoordinatesComplete",
     "ce_sparse::runSparseReference",
+    "ce_spatial::run",
     "ce_spatial::Result ceAudit{}",
     "confidence::derive(",
     "factored::encode(",
@@ -86,6 +92,7 @@ assert "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF" in profiler
 for token in [
     "v01_sparse_reference_reuse_verified",
     "v01_rerun_performed",
+    "v01_sparse_reference_index_complete",
 ]:
     assert token in binding, f"profile telemetry missing {token}"
 
@@ -93,6 +100,8 @@ for token in [
     "sparse_reference_telemetry_reported",
     "v01_sparse_reference_reuse_verified",
     "v01_rerun_performed",
+    "v01_sparse_reference_index_complete",
+    "LEGACY_V0_2_1_RERUN_IF_SPARSE_INDEX_INCOMPLETE",
     "N2_CENTER_EXCLUDED_SPATIAL_AUDIT_V0_2_1_BYTE_IDENTICAL",
     "DIAGNOSTIC_RUNTIME_ONLY",
 ]:
