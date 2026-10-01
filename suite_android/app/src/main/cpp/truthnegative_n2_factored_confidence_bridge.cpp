@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "truthnegative_center_excluded_spatial_audit_v0_2_1.h"
+#include "truthnegative_center_excluded_spatial_audit_v0_2_2.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_confidence_field_v0_3.h"
 #include "truthnegative_n2_factored_confidence_state_v0_3_1.h"
@@ -24,6 +25,8 @@ namespace n2_cfa =
     truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace ce_spatial =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
+namespace ce_sparse =
+    truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2;
 namespace confidence =
     truthraw::truthnegative_n2_confidence_field::v0_3;
 namespace factored =
@@ -147,7 +150,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     ceBinding.v01SpatialSha256=v01.spatialSha256;
 
     ce_spatial::Result ceAudit{};
-    if(!ce_spatial::run(
+    if(!ce_sparse::runSparseReference(
             *ctx->openedSource.source,
             ceBinding,
             v01,
@@ -251,6 +254,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"width\":"<<ctx->width;
     o<<",\"height\":"<<ctx->height;
     o<<",\"sharedPipelineCacheHit\":"<<(sharedPipelineCacheHit?"true":"false");
+    o<<",\"v01SparseReferenceReuseVerified\":true";
+    o<<",\"v01RerunPerformed\":false";
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;
