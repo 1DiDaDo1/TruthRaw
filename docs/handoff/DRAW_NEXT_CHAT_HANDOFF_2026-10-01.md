@@ -20,7 +20,7 @@ Open PR:
 
 Latest Android/source-code head covered by this handoff:
 
-`4fbc9767d178903ffcf70f5318b9b0706dadf187`
+`a7cefe7c568a0218b13abda855ad3dbd8b278cc8`
 
 Documentation commits may advance beyond that hash without changing the Android/scientific source checkpoint. Use the source-code head above when comparing APK behavior.
 
@@ -32,36 +32,37 @@ Workflow:
 
 Run:
 
-`36840564859`
+`36853127628`
 
 Artifact:
 
-`11151017383 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+`11156013820 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
 
 Artifact ZIP digest:
 
-`sha256:9c0221c0bcd91467a65923dbdf1068847cb88169f5db18f5dc71f9930d17c0ab`
+`sha256:1530da1afad38c470fd89f7f5fbb4ddac2aae727fb479958097e6830c4dd14ad`
 
 Extracted APK:
 
-`DRAW_research_multiraw_resilience_fix_v0_1_debug_arm64.apk`
+`DRAW_research_foreground_checkpoint_export_v0_1_debug_arm64.apk`
 
 APK bytes:
 
-`8,368,975`
+`8,401,743`
 
 APK SHA-256:
 
-`35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
+`c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653`
 
 Green gates at this source head:
 
-- Free World Observation Geometry Foundation v0.1 Integrity — run `36831352861`
-- Canonical Integrity — run `36831352840`
-- Tile-Native DNG Source v0.2 Android Compatibility — run `36831352745`
-- D.RAW Suite Universal Intake v0.1 — run `36831352713`
-- D.RAW Universal Physical Capture v0.3 Live Preview Macro — run `36831352655`
-- D.RAW Android DngCreator Compatibility v0.1 — run `36831352685`
+- Free World Observation Geometry Foundation v0.1 Integrity — run `36853128033`
+- Canonical Integrity — run `36853127721`
+- Tile-Native DNG Source v0.2 Android Compatibility — run `36853127963`
+- D.RAW Suite Universal Intake v0.1 — run `36853127628`
+- D.RAW Universal Physical Capture v0.3 Live Preview Macro — run `36853127609`
+- D.RAW Android DngCreator Compatibility v0.1 — run `36853127632`
+- Documentation Governance 2026-09-10 — run `36853127597`
 
 ## Read first
 
@@ -87,22 +88,42 @@ Green gates at this source head:
 
 ## Research workbench resilience fix
 
-The 2026-10-01 device test exposed a practical failure mode: pressing **Analyseer alle geselecteerde bronnen universeel** could return to the Research & JSON hub and the four selected RAW handles were then gone.
+Two successive real-device failures established that preserving the four RAW handles alone was not enough.
 
-The code had two concrete vulnerabilities matching that symptom:
+Observed device behavior:
 
-1. the selected `RawJob` list lived only in `MainActivity` memory and was not restored after Activity/process recreation;
-2. the batch button started every `UniversalSourceProfiler` in parallel with `force=true`, while the first source could already be profiling automatically, allowing duplicate heavy work and an avoidable memory-pressure spike.
+- first failure: the workbench could disappear and the selected RAW set was lost;
+- after the first persistence fix, the four RAW handles survived, but the long analysis still stopped after about 30:50 with no active Android media-processing service;
+- a Foundation save could also leave a 0-byte JSON because Android's document provider had already created the destination before the app finished the post-picker work.
 
-The fix at source head `4fbc9767d178903ffcf70f5318b9b0706dadf187`:
+Current source head `a7cefe7c568a0218b13abda855ad3dbd8b278cc8` changes the ownership model:
 
-- adds `ResearchWorkbenchSessionStoreV01`, storing lightweight URI/metadata handles only — never RAW payload bytes;
-- restores the selected research RAW set after recreation/re-entry;
-- profiles multi-source research sets sequentially;
-- joins an already-running source profile via completion waiters rather than starting a duplicate;
-- suppresses automatic heavy preview/profile startup for multi-source research selections so the explicit batch operation owns the workload.
+- `TruthRawMediaProcessingForegroundService` owns the complete multi-RAW UniversalSourceProfiler batch instead of merely holding a WakeLock while MainActivity owns the worker;
+- the research service action returns `START_REDELIVER_INTENT`, so Android may redeliver it after process loss;
+- each completed derived UniversalSourceProfile is committed separately to private persistent storage;
+- a restarted service reuses completed profiles and restarts only unfinished sources;
+- the service does not accumulate all full profile JSON objects in memory while processing;
+- MainActivity polls persistent progress only while foregrounded and loads completed profiles after the batch is terminal;
+- the foreground notification returns to the Research workbench;
+- the active relation-record session pointer is durable and can migrate the latest valid legacy cached relation session.
 
-This is an engineering resilience fix only. It changes no scientific authority, evidence, calibration, geometry, topography or promotion state.
+The Foundation/export lifecycle is also changed:
+
+- the already safety-checked JSON is frozen to a private payload **before** `ACTION_CREATE_DOCUMENT`;
+- byte length and SHA-256 are recorded;
+- after the picker returns, D.RAW streams those exact frozen bytes to the destination;
+- the Foundation is **not recomputed after the picker**;
+- the giant pending JSON String is released before leaving for the document provider.
+
+This directly removes the old 0-byte failure window caused by expensive post-picker reconstruction.
+
+### GPU / high-power policy for this test wave
+
+GPU acceleration is not used blindly in this repair. The failing path is primarily lifecycle, heap pressure, URI/file I/O, TIFF/DNG parsing, hashing, CFA statistics and JSON assembly. Moving those pieces to the GPU would not solve the service death and could introduce numerical/reproducibility differences.
+
+The Honor device may be used aggressively later for acceleration, but only on separately validated kernels. In particular, APPEARANCE_DERIVED_ONLY feature/visual kernels may become GPU candidates after CPU-reference parity tests. Authoritative scientific paths stay CPU-reference unless an accelerated kernel has its own correctness proof.
+
+This is an engineering resilience change only. It changes no source evidence, geometry authority, calibration state, topography interpretation or promotion state.
 
 ## Current controlled-rotation campaign
 
