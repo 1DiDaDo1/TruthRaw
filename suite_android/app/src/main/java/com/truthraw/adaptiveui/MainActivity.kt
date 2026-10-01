@@ -119,6 +119,20 @@ class MainActivity : Activity() {
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
     private var projectionStatus: String? = null
+    private val researchStatusHandler = Handler(Looper.getMainLooper())
+    private val researchStatusPoll = object : Runnable {
+        override fun run() {
+            val keepPolling =
+                syncResearchBatchStatus()
+            if (keepPolling) {
+                researchStatusHandler.postDelayed(
+                    this,
+                    1000L,
+                )
+            }
+        }
+    }
+
     private val restorationStatusHandler = Handler(Looper.getMainLooper())
     private val restorationStatusPoll = object : Runnable {
         override fun run() {
@@ -477,15 +491,30 @@ class MainActivity : Activity() {
         ) {
             restorationStatusHandler.post(restorationStatusPoll)
         }
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
+        if (syncResearchBatchStatus()) {
+            researchStatusHandler.postDelayed(
+                researchStatusPoll,
+                1000L,
+            )
+        }
         render()
     }
 
     override fun onPause() {
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         super.onPause()
     }
 
     override fun onDestroy() {
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
@@ -542,6 +571,57 @@ class MainActivity : Activity() {
                 previewState = TilePreviewUiState.Failed(jobId, op.message)
             }
         }
+    }
+
+    private fun syncResearchBatchStatus(): Boolean {
+        if (
+            !researchWorkbenchMode ||
+            session.jobs.isEmpty()
+        ) {
+            return false
+        }
+
+        val key =
+            fieldResponseRepeatabilityAnalysisOperationKey()
+        val operation =
+            TruthRawOperationStore.read(
+                this,
+                key,
+            ) ?: return false
+
+        var changed = false
+        if (
+            fieldResponseRepeatabilityStatus !=
+            operation.message
+        ) {
+            fieldResponseRepeatabilityStatus =
+                operation.message
+            changed = true
+        }
+
+        if (operation.terminal) {
+            val before =
+                universalProfiles.size
+            restoreResearchUniversalProfilesForCurrentSession()
+            if (
+                universalProfiles.size !=
+                before
+            ) {
+                changed = true
+            }
+            if (
+                fieldResponseBatchPendingJobIds.isNotEmpty()
+            ) {
+                fieldResponseBatchPendingJobIds.clear()
+                changed = true
+            }
+        }
+
+        if (changed) {
+            render()
+        }
+
+        return !operation.terminal
     }
 
     private fun syncFullResRestorationStatus() {
