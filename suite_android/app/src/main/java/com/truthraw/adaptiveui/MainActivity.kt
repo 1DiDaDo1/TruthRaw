@@ -151,6 +151,9 @@ class MainActivity : Activity() {
     private val universalProfiles = mutableMapOf<String, JSONObject>()
     private val universalProfileErrors = mutableMapOf<String, String>()
     private val universalProfileLoading = mutableSetOf<String>()
+    private val universalProfileCompletionWaiters =
+        mutableMapOf<String, MutableList<(Boolean) -> Unit>>()
+    private var researchWorkbenchSessionRestoreStatus: String? = null
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -227,6 +230,8 @@ class MainActivity : Activity() {
             }
         }
 
+        restoreResearchWorkbenchSessionIfNeeded()
+
         if (session.jobs.isEmpty() && hasPendingProjectionPicker()) {
             restoreProjectionSourceSession()
         }
@@ -285,6 +290,7 @@ class MainActivity : Activity() {
                 }
             }
         } else {
+            restoreResearchWorkbenchSessionIfNeeded()
             render()
         }
 
@@ -303,6 +309,44 @@ class MainActivity : Activity() {
             window.decorView.post {
                 launchCalibrationObservationRecordPicker()
             }
+        }
+    }
+
+    private fun restoreResearchWorkbenchSessionIfNeeded() {
+        if (!researchWorkbenchMode || session.jobs.isNotEmpty()) {
+            return
+        }
+        val restored =
+            ResearchWorkbenchSessionStoreV01.load(
+                cacheDir,
+            ) ?: return
+        if (restored.jobs.isEmpty()) {
+            return
+        }
+        session = restored
+        activeJobId =
+            restored.jobs.firstOrNull()?.id
+        previewState = TilePreviewUiState.Idle
+        loadingStartedAtElapsedMs = null
+        researchWorkbenchSessionRestoreStatus =
+            "Onderzoeksselectie hersteld · " +
+                restored.jobs.size +
+                " RAW-bron(nen)."
+    }
+
+    private fun persistResearchWorkbenchSession() {
+        if (!researchWorkbenchMode) {
+            return
+        }
+        if (session.jobs.isEmpty()) {
+            ResearchWorkbenchSessionStoreV01.clear(
+                cacheDir,
+            )
+        } else {
+            ResearchWorkbenchSessionStoreV01.save(
+                cacheDir = cacheDir,
+                session = session,
+            )
         }
     }
 
@@ -579,6 +623,7 @@ class MainActivity : Activity() {
             STATE_CALIBRATION_SESSION_STORE_ID,
             calibrationObservationSessionStoreId,
         )
+        persistResearchWorkbenchSession()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -1806,12 +1851,19 @@ class MainActivity : Activity() {
             return
         }
 
+        persistResearchWorkbenchSession()
         fieldResponseBatchPendingJobIds.clear()
         fieldResponseBatchFailedJobIds.clear()
-        fieldResponseBatchPendingJobIds.addAll(selected.map { it.id })
+        fieldResponseBatchPendingJobIds.addAll(
+            selected.map {
+                it.id
+            },
+        )
 
         val operationKey =
-            fieldResponseRepeatabilityAnalysisOperationKey(selected)
+            fieldResponseRepeatabilityAnalysisOperationKey(
+                selected,
+            )
 
         if (
             !startBackgroundOperation(
@@ -1826,47 +1878,75 @@ class MainActivity : Activity() {
         }
 
         fieldResponseRepeatabilityStatus =
-            "Universele bronanalyse loopt voor " + selected.size +
-                " geselecteerde bronnen."
+            "Universele bronanalyse loopt sequentieel voor " +
+                selected.size +
+                " geselecteerde bronnen · piekgeheugen beschermd."
         render()
 
-        selected.forEach { job ->
+        fun finishBatch() {
+            val measured =
+                currentMeasuredFieldCharts().size
+            val failures =
+                fieldResponseBatchFailedJobIds.size
+            val message =
+                if (failures == 0) {
+                    "Field Response bronanalyse gereed · measured-field-chart=" +
+                        measured +
+                        "/3" +
+                        if (measured >= 3) {
+                            " · repeatability-export beschikbaar."
+                        } else {
+                            " · nog onvoldoende measured field charts."
+                        }
+                } else {
+                    "Field Response bronanalyse gereed met " +
+                        failures +
+                        " fout(en) · measured-field-chart=" +
+                        measured +
+                        "/3."
+                }
+
+            fieldResponseRepeatabilityStatus =
+                message
+            finishBackgroundOperation(
+                operationKey,
+                failures == 0,
+                message,
+            )
+            render()
+        }
+
+        fun analyzeIndex(index: Int) {
+            if (index >= selected.size) {
+                finishBatch()
+                return
+            }
+
+            val job = selected[index]
+            fieldResponseRepeatabilityStatus =
+                "Universele bronanalyse " +
+                    (index + 1) +
+                    "/" +
+                    selected.size +
+                    " · " +
+                    job.source.displayName
+            render()
+
             requestUniversalProfile(
                 job = job,
                 force = true,
             ) { success ->
                 if (!success) {
-                    fieldResponseBatchFailedJobIds += job.id
+                    fieldResponseBatchFailedJobIds +=
+                        job.id
                 }
-                fieldResponseBatchPendingJobIds -= job.id
-
-                if (fieldResponseBatchPendingJobIds.isEmpty()) {
-                    val measured = currentMeasuredFieldCharts().size
-                    val failures = fieldResponseBatchFailedJobIds.size
-                    val message =
-                        if (failures == 0) {
-                            "Field Response bronanalyse gereed · measured-field-chart=" +
-                                measured + "/3" +
-                                if (measured >= 3) {
-                                    " · repeatability-export beschikbaar."
-                                } else {
-                                    " · nog onvoldoende measured field charts."
-                                }
-                        } else {
-                            "Field Response bronanalyse gereed met " + failures +
-                                " fout(en) · measured-field-chart=" + measured + "/3."
-                        }
-
-                    fieldResponseRepeatabilityStatus = message
-                    finishBackgroundOperation(
-                        operationKey,
-                        failures == 0,
-                        message,
-                    )
-                }
-                render()
+                fieldResponseBatchPendingJobIds -=
+                    job.id
+                analyzeIndex(index + 1)
             }
         }
+
+        analyzeIndex(0)
     }
 
     @Suppress("DEPRECATION")
@@ -5173,6 +5253,8 @@ class MainActivity : Activity() {
 
         val jobs = RawIngress.readHandlesOnly(contentResolver, uris, data.flags)
         session = session.withJobs(jobs)
+        researchWorkbenchSessionRestoreStatus = null
+        persistResearchWorkbenchSession()
         val first = session.jobs.firstOrNull()
         jpegStatus = null
         renderEditStatus = null
@@ -5194,7 +5276,10 @@ class MainActivity : Activity() {
             render()
         } else {
             selectJob(first)
-            if (first.source.format.nativeProcessingReady) {
+            if (
+                first.source.format.nativeProcessingReady &&
+                (!researchWorkbenchMode || session.jobs.size <= 1)
+            ) {
                 window.decorView.post {
                     if (activeJobId == first.id && previewState is TilePreviewUiState.Idle) {
                         requestPreview(first)
@@ -5245,7 +5330,9 @@ class MainActivity : Activity() {
         pendingNefMeasurementJobId = null
         pendingNefMeasurementJson = null
         nefMeasurementExportStatus = null
-        requestUniversalProfile(job)
+        if (!researchWorkbenchMode || session.jobs.size <= 1) {
+            requestUniversalProfile(job)
+        }
         render()
     }
 
@@ -5255,36 +5342,82 @@ class MainActivity : Activity() {
         onComplete: ((Boolean) -> Unit)? = null,
     ) {
         val jobId = job.id
-        if (!force && universalProfiles.containsKey(jobId)) {
+
+        if (
+            !force &&
+            universalProfiles.containsKey(
+                jobId,
+            )
+        ) {
             onComplete?.invoke(true)
             return
         }
-        if (!force && universalProfileLoading.contains(jobId)) {
-            onComplete?.invoke(false)
+
+        if (
+            universalProfileLoading.contains(
+                jobId,
+            )
+        ) {
+            onComplete?.let { callback ->
+                universalProfileCompletionWaiters
+                    .getOrPut(jobId) {
+                        mutableListOf()
+                    }
+                    .add(callback)
+            }
             return
         }
+
+        onComplete?.let { callback ->
+            universalProfileCompletionWaiters
+                .getOrPut(jobId) {
+                    mutableListOf()
+                }
+                .add(callback)
+        }
+
         universalProfiles.remove(jobId)
         universalProfileErrors.remove(jobId)
         universalProfileLoading.add(jobId)
         render()
 
         Thread({
-            val result = runCatching {
-                UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)
-            }
+            val result =
+                runCatching {
+                    UniversalSourceProfiler.profile(
+                        contentResolver,
+                        job.source,
+                        cacheDir,
+                    )
+                }
             runOnUiThread {
-                universalProfileLoading.remove(jobId)
+                universalProfileLoading.remove(
+                    jobId,
+                )
                 var success = false
                 result.onSuccess { profile ->
-                    universalProfiles[jobId] = profile
-                    universalProfileErrors.remove(jobId)
+                    universalProfiles[jobId] =
+                        profile
+                    universalProfileErrors.remove(
+                        jobId,
+                    )
                     success = true
                 }.onFailure { error ->
-                    universalProfiles.remove(jobId)
+                    universalProfiles.remove(
+                        jobId,
+                    )
                     universalProfileErrors[jobId] =
-                        error.message ?: error.javaClass.simpleName
+                        error.message
+                            ?: error.javaClass.simpleName
                 }
-                onComplete?.invoke(success)
+
+                val waiters =
+                    universalProfileCompletionWaiters
+                        .remove(jobId)
+                        .orEmpty()
+                for (callback in waiters) {
+                    callback(success)
+                }
                 render()
             }
         }, "draw-universal-intake-" + jobId.take(8)).start()
@@ -8408,6 +8541,15 @@ class MainActivity : Activity() {
             11f,
             muted = true,
         ))
+        researchWorkbenchSessionRestoreStatus?.let {
+            addView(
+                label(
+                    it,
+                    10f,
+                    muted = true,
+                ),
+            )
+        }
         addView(space(6))
         addView(actionButton(
             "Voeg relation-based Calibration Observation Record(s) · JSON toe",
