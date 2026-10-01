@@ -68,7 +68,9 @@ for token in [
 for token in [
     '#include "truthnegative_center_excluded_spatial_audit_v0_2_2.h"',
     "ce_sparse::runSparseReference",
-    "ce_spatial::encode",
+    "ce_spatial::Result ceAudit{}",
+    "confidence::derive(",
+    "factored::encode(",
     '\"v01SparseReferenceReuseVerified\":true',
     '\"v01RerunPerformed\":false',
 ]:
