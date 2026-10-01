@@ -22,3 +22,15 @@ aggregate and per-tile metric, the v0.2.1 audit SHA-256, the encoded JSON bytes,
 and the encoded JSON SHA-256. v0.2.2 therefore introduces no new scientific
 output schema; it is an implementation optimization for the existing v0.2.1
 contract.
+
+
+## Bounded runtime index
+
+The optional sparse coordinate index is capped at **1,048,576** coordinates
+(about 8 MiB of coordinate payload at two uint32 values per entry). If that
+bound is exceeded, v0.1 remains scientifically valid and unchanged, the sparse
+index is marked incomplete, and Android explicitly falls back to the existing
+v0.2.1 rerun implementation. An incomplete index can never be consumed by the
+v0.2.2 sparse executor. This bounds the optimization on very large or unusually
+candidate-dense RAW sources without turning performance metadata into an
+admission requirement.
