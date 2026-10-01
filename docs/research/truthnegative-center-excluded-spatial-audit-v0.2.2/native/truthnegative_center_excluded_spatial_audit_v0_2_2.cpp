@@ -60,11 +60,6 @@ void hash_f64(truthraw::sha256_v0_69::Hasher& h,double v) noexcept {
     hash_u64(h,std::bit_cast<std::uint64_t>(v));
 }
 
-bool same_f64(double a,double b) noexcept {
-    return std::bit_cast<std::uint64_t>(a)==
-           std::bit_cast<std::uint64_t>(b);
-}
-
 int measured_channel(CfaPattern cfa,int x,int y) noexcept {
     const int phase=(y&1)*2+(x&1);
     static constexpr int bggr[4]={2,1,1,0};
