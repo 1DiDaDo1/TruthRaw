@@ -20,7 +20,7 @@ Open PR:
 
 Latest Android/source-code head covered by this handoff:
 
-`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+`4fbc9767d178903ffcf70f5318b9b0706dadf187`
 
 Documentation commits may advance beyond that hash without changing the Android/scientific source checkpoint. Use the source-code head above when comparing APK behavior.
 
@@ -32,19 +32,19 @@ Workflow:
 
 Run:
 
-`36831352713`
+`36840564859`
 
 Artifact:
 
-`11146499757 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+`11151017383 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
 
 Artifact ZIP digest:
 
-`sha256:301526cb15d0f94a62855280bcc5cfc6332a1e44fd5b79e1c29113cf3ee09a03`
+`sha256:9c0221c0bcd91467a65923dbdf1068847cb88169f5db18f5dc71f9930d17c0ab`
 
 Extracted APK:
 
-`DRAW_optical_field_topography_v0_1_debug_arm64.apk`
+`DRAW_research_multiraw_resilience_fix_v0_1_debug_arm64.apk`
 
 APK bytes:
 
@@ -52,7 +52,7 @@ APK bytes:
 
 APK SHA-256:
 
-`a892a9220c554f5ad655cfaffe23f580dbba37f8eba1ec9fe34f2fe9c00571d3`
+`35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2`
 
 Green gates at this source head:
 
@@ -84,6 +84,25 @@ Green gates at this source head:
 - D.RAW uses no AI/ML/neural/generative runtime.
 - Scientific Master writeback from this research wave is forbidden.
 - A derived topographic height is not physical scene depth or literal lens-surface curvature unless separately proven.
+
+## Research workbench resilience fix
+
+The 2026-10-01 device test exposed a practical failure mode: pressing **Analyseer alle geselecteerde bronnen universeel** could return to the Research & JSON hub and the four selected RAW handles were then gone.
+
+The code had two concrete vulnerabilities matching that symptom:
+
+1. the selected `RawJob` list lived only in `MainActivity` memory and was not restored after Activity/process recreation;
+2. the batch button started every `UniversalSourceProfiler` in parallel with `force=true`, while the first source could already be profiling automatically, allowing duplicate heavy work and an avoidable memory-pressure spike.
+
+The fix at source head `4fbc9767d178903ffcf70f5318b9b0706dadf187`:
+
+- adds `ResearchWorkbenchSessionStoreV01`, storing lightweight URI/metadata handles only — never RAW payload bytes;
+- restores the selected research RAW set after recreation/re-entry;
+- profiles multi-source research sets sequentially;
+- joins an already-running source profile via completion waiters rather than starting a duplicate;
+- suppresses automatic heavy preview/profile startup for multi-source research selections so the explicit batch operation owns the workload.
+
+This is an engineering resilience fix only. It changes no scientific authority, evidence, calibration, geometry, topography or promotion state.
 
 ## Current controlled-rotation campaign
 
