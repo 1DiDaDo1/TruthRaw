@@ -14,7 +14,7 @@ namespace rb =
     truthraw::truthnegative_n2_row_band_reuse::v0_1;
 namespace n2 =
     truthraw::truthnegative_n2_cfa_audit::v0_1;
-namespace pipe =
+namespace n2pipe =
     truthraw::truthnegative_n2_candidate_pipeline::v0_1;
 namespace ce21 =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
@@ -170,8 +170,8 @@ public:
 };
 
 bool same_n2_audit(
-    const pipe::Audit& a,
-    const pipe::Audit& b) {
+    const n2pipe::Audit& a,
+    const n2pipe::Audit& b) {
     return
         a.total == b.total &&
         a.eligible == b.eligible &&
