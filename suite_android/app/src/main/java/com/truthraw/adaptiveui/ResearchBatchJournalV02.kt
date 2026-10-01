@@ -91,13 +91,19 @@ object ResearchBatchJournalV02 {
         val now = System.currentTimeMillis()
         val state =
             jobState(root, job)
-                .put("index", index + 1)
-                .put("total", total)
-                .put("status", "RUNNING")
-                .put("stage", stage)
-                .put("updated_at_wall_ms", now)
+        val previousStage =
+            state.optString(
+                "stage",
+                "",
+            )
+        state
+            .put("index", index + 1)
+            .put("total", total)
+            .put("status", "RUNNING")
+            .put("stage", stage)
+            .put("updated_at_wall_ms", now)
 
-        if (state.optString("stage") != stage) {
+        if (previousStage != stage) {
             state.put("stage_started_at_wall_ms", now)
         }
         if (!detail.isNullOrBlank()) {
