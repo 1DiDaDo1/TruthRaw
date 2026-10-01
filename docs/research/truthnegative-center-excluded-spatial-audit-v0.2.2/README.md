@@ -16,6 +16,9 @@ runs the same center-excluded predictor, preserves the same protection rules,
 and remains audit-only. It does not alter source values, Scientific Master,
 TruthNegative, calibration, correction authority or scientific writeback.
 
-CI executes v0.2.1 and v0.2.2 on the same synthetic RAW source and requires
-exact equality of every aggregate and per-tile metric. The expected identity
-difference is the versioned v0.2.2 audit/report hash itself.
+CI executes the legacy v0.2.1 implementation and the v0.2.2 sparse execution
+path on the same synthetic RAW source and requires exact equality of every
+aggregate and per-tile metric, the v0.2.1 audit SHA-256, the encoded JSON bytes,
+and the encoded JSON SHA-256. v0.2.2 therefore introduces no new scientific
+output schema; it is an implementation optimization for the existing v0.2.1
+contract.
