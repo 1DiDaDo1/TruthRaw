@@ -304,3 +304,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"scientificWritebackAllowed\":false}";
     return env->NewStringUTF(o.str().c_str());
 }
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_clearSharedPipelineCache(
+    JNIEnv*,
+    jobject) {
+    pipeline::clearSharedCache();
+    return JNI_TRUE;
+}
+
