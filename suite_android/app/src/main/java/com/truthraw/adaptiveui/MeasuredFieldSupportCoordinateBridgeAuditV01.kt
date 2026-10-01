@@ -469,6 +469,14 @@ object MeasuredFieldSupportCoordinateBridgeAuditV01 {
                         deviation,
                     )
                     .put(
+                        "support_cells",
+                        supportCellsJson(
+                            grid = grid,
+                            radialBins = radialBins,
+                            azimuthBins = azimuthBins,
+                        ),
+                    )
+                    .put(
                         "support_coordinates_authority",
                         "MEASURED_SOURCE_SAMPLE_POSITIONS",
                     )
@@ -1373,6 +1381,147 @@ object MeasuredFieldSupportCoordinateBridgeAuditV01 {
             rho = rho,
             azimuthRadians = angle,
         )
+    }
+
+    private fun supportCellsJson(
+        grid: SourceSupportGrid,
+        radialBins: Int,
+        azimuthBins: Int,
+    ): JSONArray {
+        val out = JSONArray()
+        for ((key, cell) in grid.cells) {
+            val parts = key.split(':')
+            if (parts.size != 2) continue
+            val radialBin =
+                parts[0].toIntOrNull()
+                    ?: continue
+            val sensorSector =
+                parts[1].toIntOrNull()
+                    ?: continue
+            val theoreticalRho =
+                (
+                    radialBin.toDouble() +
+                        0.5
+                    ) /
+                    radialBins.toDouble()
+            val theoreticalAngle =
+                (
+                    sensorSector.toDouble() +
+                        0.5
+                    ) *
+                    (
+                        2.0 *
+                            PI /
+                            azimuthBins.toDouble()
+                        )
+            val theoreticalX =
+                theoreticalRho *
+                    cos(theoreticalAngle)
+            val theoreticalY =
+                theoreticalRho *
+                    sin(theoreticalAngle)
+            val measuredX =
+                cell.centroidRho *
+                    cos(
+                        cell.centroidAngleRadians,
+                    )
+            val measuredY =
+                cell.centroidRho *
+                    sin(
+                        cell.centroidAngleRadians,
+                    )
+            val centroidOffset =
+                sqrt(
+                    (
+                        measuredX -
+                            theoreticalX
+                        ) *
+                        (
+                            measuredX -
+                                theoreticalX
+                            ) +
+                        (
+                            measuredY -
+                                theoreticalY
+                            ) *
+                        (
+                            measuredY -
+                                theoreticalY
+                            ),
+                )
+            out.put(
+                JSONObject()
+                    .put(
+                        "radial_bin",
+                        radialBin,
+                    )
+                    .put(
+                        "sensor_sector",
+                        sensorSector,
+                    )
+                    .put(
+                        "support_point_count",
+                        cell.count,
+                    )
+                    .put(
+                        "centroid_x_source_px",
+                        cell.centroidXSourcePx,
+                    )
+                    .put(
+                        "centroid_y_source_px",
+                        cell.centroidYSourcePx,
+                    )
+                    .put(
+                        "centroid_x_isotropic",
+                        cell.centroidXIso,
+                    )
+                    .put(
+                        "centroid_y_isotropic",
+                        cell.centroidYIso,
+                    )
+                    .put(
+                        "centroid_rho",
+                        cell.centroidRho,
+                    )
+                    .put(
+                        "centroid_azimuth_radians",
+                        cell.centroidAngleRadians,
+                    )
+                    .put(
+                        "theoretical_bin_center_rho",
+                        theoreticalRho,
+                    )
+                    .put(
+                        "theoretical_bin_center_azimuth_radians",
+                        theoreticalAngle,
+                    )
+                    .put(
+                        "centroid_offset_from_theoretical_bin_center_normalized",
+                        centroidOffset,
+                    )
+                    .put(
+                        "footprint_rms_radius_source_px",
+                        cell.footprintRmsRadiusSourcePx,
+                    )
+                    .put(
+                        "footprint_width_source_px",
+                        cell.footprintWidthSourcePx,
+                    )
+                    .put(
+                        "footprint_height_source_px",
+                        cell.footprintHeightSourcePx,
+                    )
+                    .put(
+                        "centroid_is_exact_measured_sample_position",
+                        false,
+                    )
+                    .put(
+                        "support_points_are_measured_source_positions",
+                        true,
+                    ),
+            )
+        }
+        return out
     }
 
     private fun supportCentroidDeviationSummary(
