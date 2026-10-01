@@ -317,7 +317,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     if (failures == 0) {
                         "Field Response bronanalyse gereed · measured-field-chart=" +
                             measuredCharts +
-                            "/3" +
+                            " · minimum=3" +
                             if (measuredCharts >= 3) {
                                 " · repeatability-export beschikbaar."
                             } else {
@@ -328,7 +328,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
                             failures +
                             " fout(en) · measured-field-chart=" +
                             measuredCharts +
-                            "/3."
+                            " · minimum=3."
                     }
 
                 ResearchBatchJournalV02.finish(
