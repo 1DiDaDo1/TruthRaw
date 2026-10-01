@@ -13,6 +13,31 @@ Status fail(int code, std::string message) {
     return {code, std::move(message)};
 }
 
+std::mutex gSharedCacheMutex;
+std::shared_ptr<Context> gSharedContext;
+std::size_t gSharedMaxSourceResidentBytes = 0u;
+std::size_t gSharedMaxLogicalResidentBytes = 0u;
+
+std::shared_ptr<int> duplicate_owned_fd(int sourceFd) {
+    const int duplicated = ::dup(sourceFd);
+    if (duplicated < 0) return {};
+    return std::shared_ptr<int>(
+        new int(duplicated),
+        [](int* fd) {
+            if (fd != nullptr) {
+                if (*fd >= 0) ::close(*fd);
+                delete fd;
+            }
+        });
+}
+
+bool same_source_seal(
+    const scientific_preview_binding_v0_1::SourceSeal& a,
+    const scientific_preview_binding_v0_1::SourceSeal& b) noexcept {
+    return a.sha256 == b.sha256 &&
+        a.byteLength == b.byteLength;
+}
+
 }  // namespace
 
 Status prepare(
@@ -277,6 +302,12 @@ Status acquireShared(
                 cacheHit = true;
                 return {};
             }
+
+            // Do not retain the previous RAW's heavy prepared context while
+            // constructing the next one. This bounds peak memory on Android.
+            gSharedContext.reset();
+            gSharedMaxSourceResidentBytes = 0u;
+            gSharedMaxLogicalResidentBytes = 0u;
         }
 
         auto fresh = std::make_shared<Context>();
