@@ -204,6 +204,24 @@ class MainActivity : Activity() {
         n2CropAbStatus = null
     }
 
+    private fun calibrationObservationRecordStoreDir(): File =
+        if (researchWorkbenchMode) {
+            filesDir
+        } else {
+            cacheDir
+        }
+
+    private fun persistResearchCalibrationSessionPointer() {
+        if (!researchWorkbenchMode) {
+            return
+        }
+        ResearchCalibrationSessionPointerV01.save(
+            filesDir = filesDir,
+            sessionId =
+                calibrationObservationSessionStoreId,
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
@@ -215,6 +233,19 @@ class MainActivity : Activity() {
                 EXTRA_OPEN_RESEARCH_WORKBENCH,
                 false,
             )
+
+        if (
+            researchWorkbenchMode &&
+            savedInstanceState == null
+        ) {
+            ResearchCalibrationSessionPointerV01.load(
+                filesDir,
+            )?.let {
+                calibrationObservationSessionStoreId =
+                    it
+            }
+        }
+
         if (savedInstanceState != null) {
             calibrationObservationRecordStatus =
                 savedInstanceState.getString(
@@ -227,10 +258,24 @@ class MainActivity : Activity() {
             calibrationObservationRecords.clear()
             calibrationObservationRecords +=
                 CalibrationObservationRecordSessionStoreV01.load(
-                    cacheDir = cacheDir,
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
                     sessionId =
                         calibrationObservationSessionStoreId,
                 )
+        } else if (researchWorkbenchMode) {
+            calibrationObservationRecords.clear()
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
+                    sessionId =
+                        calibrationObservationSessionStoreId,
+                )
+        }
+
+        if (researchWorkbenchMode) {
+            persistResearchCalibrationSessionPointer()
         }
 
         var cameraJobToAutoStart: RawJob? = null
@@ -288,6 +333,25 @@ class MainActivity : Activity() {
                 EXTRA_OPEN_RESEARCH_WORKBENCH,
                 false,
             )
+
+        if (
+            researchWorkbenchMode &&
+            calibrationObservationRecords.isEmpty()
+        ) {
+            ResearchCalibrationSessionPointerV01.load(
+                filesDir,
+            )?.let {
+                calibrationObservationSessionStoreId =
+                    it
+            }
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
+                    sessionId =
+                        calibrationObservationSessionStoreId,
+                )
+        }
 
         val cameraJob = readInternalCameraJob(intent)
         if (cameraJob != null) {
@@ -522,10 +586,15 @@ class MainActivity : Activity() {
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
-        if (isFinishing) {
+        if (
+            isFinishing &&
+            !researchWorkbenchMode
+        ) {
             CalibrationObservationRecordSessionStoreV01.clear(
-                cacheDir = cacheDir,
-                sessionId = calibrationObservationSessionStoreId,
+                cacheDir =
+                    calibrationObservationRecordStoreDir(),
+                sessionId =
+                    calibrationObservationSessionStoreId,
             )
         }
         super.onDestroy()
@@ -743,10 +812,14 @@ class MainActivity : Activity() {
             calibrationObservationRecordStatus,
         )
         CalibrationObservationRecordSessionStoreV01.save(
-            cacheDir = cacheDir,
-            sessionId = calibrationObservationSessionStoreId,
-            records = calibrationObservationRecords,
+            cacheDir =
+                calibrationObservationRecordStoreDir(),
+            sessionId =
+                calibrationObservationSessionStoreId,
+            records =
+                calibrationObservationRecords,
         )
+        persistResearchCalibrationSessionPointer()
         outState.putString(
             STATE_CALIBRATION_SESSION_STORE_ID,
             calibrationObservationSessionStoreId,
@@ -845,12 +918,14 @@ class MainActivity : Activity() {
         }
 
         CalibrationObservationRecordSessionStoreV01.save(
-            cacheDir = cacheDir,
+            cacheDir =
+                calibrationObservationRecordStoreDir(),
             sessionId =
                 calibrationObservationSessionStoreId,
             records =
                 calibrationObservationRecords,
         )
+        persistResearchCalibrationSessionPointer()
 
         return "Calibration Observation Records · nieuw=" +
             validImported +
