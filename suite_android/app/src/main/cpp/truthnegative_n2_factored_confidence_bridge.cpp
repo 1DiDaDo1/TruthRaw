@@ -110,6 +110,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,prepared.code,prepared.message);
     }
 
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+
     n2_cfa::Binding v01Binding{};
     v01Binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     v01Binding.truthNegativeStateSha256=
