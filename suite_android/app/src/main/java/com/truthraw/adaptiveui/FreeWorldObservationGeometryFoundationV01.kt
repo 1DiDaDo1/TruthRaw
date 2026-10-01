@@ -173,6 +173,13 @@ object FreeWorldObservationGeometryFoundationV01 {
                 profiles = profiles,
                 records = boundCalibrationRecords,
             )
+        val geometryAdjustedFieldMappingDryRun =
+            GeometryAdjustedFieldMappingDryRunV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+                constrainedAudit =
+                    controlledRotationConstrainedGeometryAudit,
+            )
         val colourRelationCandidate =
             ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
@@ -288,6 +295,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put(
                         "controlled_rotation_constrained_geometry_audit",
                         controlledRotationConstrainedGeometryAudit,
+                    )
+                    .put(
+                        "geometry_adjusted_field_mapping_dry_run",
+                        geometryAdjustedFieldMappingDryRun,
                     )
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put(
