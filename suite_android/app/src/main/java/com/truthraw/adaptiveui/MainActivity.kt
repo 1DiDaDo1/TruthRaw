@@ -119,6 +119,20 @@ class MainActivity : Activity() {
     private var fullResRestorationStatus: String? = null
     private var pendingProjectionFormat: RestorationProjectionFormat? = null
     private var projectionStatus: String? = null
+    private val researchStatusHandler = Handler(Looper.getMainLooper())
+    private val researchStatusPoll = object : Runnable {
+        override fun run() {
+            val keepPolling =
+                syncResearchBatchStatus()
+            if (keepPolling) {
+                researchStatusHandler.postDelayed(
+                    this,
+                    1000L,
+                )
+            }
+        }
+    }
+
     private val restorationStatusHandler = Handler(Looper.getMainLooper())
     private val restorationStatusPoll = object : Runnable {
         override fun run() {
@@ -151,6 +165,9 @@ class MainActivity : Activity() {
     private val universalProfiles = mutableMapOf<String, JSONObject>()
     private val universalProfileErrors = mutableMapOf<String, String>()
     private val universalProfileLoading = mutableSetOf<String>()
+    private val universalProfileCompletionWaiters =
+        mutableMapOf<String, MutableList<(Boolean) -> Unit>>()
+    private var researchWorkbenchSessionRestoreStatus: String? = null
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -187,6 +204,24 @@ class MainActivity : Activity() {
         n2CropAbStatus = null
     }
 
+    private fun calibrationObservationRecordStoreDir(): File =
+        if (researchWorkbenchMode) {
+            filesDir
+        } else {
+            cacheDir
+        }
+
+    private fun persistResearchCalibrationSessionPointer() {
+        if (!researchWorkbenchMode) {
+            return
+        }
+        ResearchCalibrationSessionPointerV01.save(
+            filesDir = filesDir,
+            sessionId =
+                calibrationObservationSessionStoreId,
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setDecorFitsSystemWindows(false)
@@ -198,6 +233,65 @@ class MainActivity : Activity() {
                 EXTRA_OPEN_RESEARCH_WORKBENCH,
                 false,
             )
+
+        if (
+            researchWorkbenchMode &&
+            savedInstanceState == null
+        ) {
+            val persistentPointer =
+                ResearchCalibrationSessionPointerV01.load(
+                    filesDir,
+                )
+            val recoveredFromFiles =
+                persistentPointer
+                    ?: CalibrationObservationRecordSessionStoreV01
+                        .latestValidSessionId(
+                            filesDir,
+                        )
+            val recoveredFromLegacyCache =
+                if (recoveredFromFiles == null) {
+                    CalibrationObservationRecordSessionStoreV01
+                        .latestValidSessionId(
+                            cacheDir,
+                        )
+                } else {
+                    null
+                }
+            val recoveredSessionId =
+                recoveredFromFiles
+                    ?: recoveredFromLegacyCache
+
+            if (recoveredSessionId != null) {
+                calibrationObservationSessionStoreId =
+                    recoveredSessionId
+
+                if (
+                    recoveredFromLegacyCache !=
+                    null
+                ) {
+                    val legacyRecords =
+                        CalibrationObservationRecordSessionStoreV01.load(
+                            cacheDir = cacheDir,
+                            sessionId =
+                                recoveredSessionId,
+                        )
+                    if (
+                        legacyRecords.isNotEmpty()
+                    ) {
+                        CalibrationObservationRecordSessionStoreV01.save(
+                            cacheDir = filesDir,
+                            sessionId =
+                                recoveredSessionId,
+                            records =
+                                legacyRecords,
+                        )
+                    }
+                }
+
+                persistResearchCalibrationSessionPointer()
+            }
+        }
+
         if (savedInstanceState != null) {
             calibrationObservationRecordStatus =
                 savedInstanceState.getString(
@@ -210,10 +304,24 @@ class MainActivity : Activity() {
             calibrationObservationRecords.clear()
             calibrationObservationRecords +=
                 CalibrationObservationRecordSessionStoreV01.load(
-                    cacheDir = cacheDir,
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
                     sessionId =
                         calibrationObservationSessionStoreId,
                 )
+        } else if (researchWorkbenchMode) {
+            calibrationObservationRecords.clear()
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
+                    sessionId =
+                        calibrationObservationSessionStoreId,
+                )
+        }
+
+        if (researchWorkbenchMode) {
+            persistResearchCalibrationSessionPointer()
         }
 
         var cameraJobToAutoStart: RawJob? = null
@@ -226,6 +334,8 @@ class MainActivity : Activity() {
                 }
             }
         }
+
+        restoreResearchWorkbenchSessionIfNeeded()
 
         if (session.jobs.isEmpty() && hasPendingProjectionPicker()) {
             restoreProjectionSourceSession()
@@ -270,6 +380,25 @@ class MainActivity : Activity() {
                 false,
             )
 
+        if (
+            researchWorkbenchMode &&
+            calibrationObservationRecords.isEmpty()
+        ) {
+            ResearchCalibrationSessionPointerV01.load(
+                filesDir,
+            )?.let {
+                calibrationObservationSessionStoreId =
+                    it
+            }
+            calibrationObservationRecords +=
+                CalibrationObservationRecordSessionStoreV01.load(
+                    cacheDir =
+                        calibrationObservationRecordStoreDir(),
+                    sessionId =
+                        calibrationObservationSessionStoreId,
+                )
+        }
+
         val cameraJob = readInternalCameraJob(intent)
         if (cameraJob != null) {
             installInternalCameraJob(cameraJob)
@@ -285,6 +414,7 @@ class MainActivity : Activity() {
                 }
             }
         } else {
+            restoreResearchWorkbenchSessionIfNeeded()
             render()
         }
 
@@ -303,6 +433,77 @@ class MainActivity : Activity() {
             window.decorView.post {
                 launchCalibrationObservationRecordPicker()
             }
+        }
+    }
+
+    private fun restoreResearchWorkbenchSessionIfNeeded() {
+        if (!researchWorkbenchMode || session.jobs.isNotEmpty()) {
+            return
+        }
+        val restored =
+            ResearchWorkbenchSessionStoreV01.load(
+                filesDir,
+            ) ?: return
+        if (restored.jobs.isEmpty()) {
+            return
+        }
+        session = restored
+        restoreResearchUniversalProfilesForCurrentSession()
+        activeJobId =
+            restored.jobs.firstOrNull()?.id
+        previewState = TilePreviewUiState.Idle
+        loadingStartedAtElapsedMs = null
+        researchWorkbenchSessionRestoreStatus =
+            "Onderzoeksselectie hersteld · " +
+                restored.jobs.size +
+                " RAW-bron(nen)."
+    }
+
+    private fun persistResearchWorkbenchSession() {
+        if (!researchWorkbenchMode) {
+            return
+        }
+        if (session.jobs.isEmpty()) {
+            ResearchWorkbenchSessionStoreV01.clear(
+                filesDir,
+            )
+        } else {
+            ResearchWorkbenchSessionStoreV01.save(
+                cacheDir = filesDir,
+                session = session,
+            )
+        }
+    }
+
+    private fun restoreResearchUniversalProfilesForCurrentSession() {
+        if (session.jobs.isEmpty()) {
+            return
+        }
+        if (
+            TruthRawMediaProcessingForegroundService.isActive(
+                fieldResponseRepeatabilityAnalysisOperationKey(),
+            )
+        ) {
+            return
+        }
+        val restoredProfiles =
+            ResearchUniversalProfileStoreV01.load(
+                filesDir = filesDir,
+                session = session,
+            )
+        if (restoredProfiles.isEmpty()) {
+            return
+        }
+        universalProfiles.putAll(
+            restoredProfiles,
+        )
+        for (jobId in restoredProfiles.keys) {
+            universalProfileErrors.remove(
+                jobId,
+            )
+            universalProfileLoading.remove(
+                jobId,
+            )
         }
     }
 
@@ -372,6 +573,21 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        restoreResearchWorkbenchSessionIfNeeded()
+        restoreResearchUniversalProfilesForCurrentSession()
+        if (researchWorkbenchMode && session.jobs.isNotEmpty()) {
+            TruthRawOperationStore.read(
+                this,
+                fieldResponseRepeatabilityAnalysisOperationKey(),
+            )?.let { operation ->
+                fieldResponseRepeatabilityStatus =
+                    operation.message
+                if (operation.terminal) {
+                    restoreResearchUniversalProfilesForCurrentSession()
+                    fieldResponseBatchPendingJobIds.clear()
+                }
+            }
+        }
         FullResRestorationJobStore.recoverInterruptedIfNeeded(this)
         RestorationProjectionJobStore.recoverInterruptedIfNeeded(this)
         recoverBackgroundOperationStatuses()
@@ -385,15 +601,30 @@ class MainActivity : Activity() {
         ) {
             restorationStatusHandler.post(restorationStatusPoll)
         }
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
+        if (syncResearchBatchStatus()) {
+            researchStatusHandler.postDelayed(
+                researchStatusPoll,
+                1000L,
+            )
+        }
         render()
     }
 
     override fun onPause() {
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         super.onPause()
     }
 
     override fun onDestroy() {
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
         unifiedOutputPreviewState?.bitmap?.recycle()
@@ -401,10 +632,15 @@ class MainActivity : Activity() {
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
-        if (isFinishing) {
+        if (
+            isFinishing &&
+            !researchWorkbenchMode
+        ) {
             CalibrationObservationRecordSessionStoreV01.clear(
-                cacheDir = cacheDir,
-                sessionId = calibrationObservationSessionStoreId,
+                cacheDir =
+                    calibrationObservationRecordStoreDir(),
+                sessionId =
+                    calibrationObservationSessionStoreId,
             )
         }
         super.onDestroy()
@@ -450,6 +686,57 @@ class MainActivity : Activity() {
                 previewState = TilePreviewUiState.Failed(jobId, op.message)
             }
         }
+    }
+
+    private fun syncResearchBatchStatus(): Boolean {
+        if (
+            !researchWorkbenchMode ||
+            session.jobs.isEmpty()
+        ) {
+            return false
+        }
+
+        val key =
+            fieldResponseRepeatabilityAnalysisOperationKey()
+        val operation =
+            TruthRawOperationStore.read(
+                this,
+                key,
+            ) ?: return false
+
+        var changed = false
+        if (
+            fieldResponseRepeatabilityStatus !=
+            operation.message
+        ) {
+            fieldResponseRepeatabilityStatus =
+                operation.message
+            changed = true
+        }
+
+        if (operation.terminal) {
+            val before =
+                universalProfiles.size
+            restoreResearchUniversalProfilesForCurrentSession()
+            if (
+                universalProfiles.size !=
+                before
+            ) {
+                changed = true
+            }
+            if (
+                fieldResponseBatchPendingJobIds.isNotEmpty()
+            ) {
+                fieldResponseBatchPendingJobIds.clear()
+                changed = true
+            }
+        }
+
+        if (changed) {
+            render()
+        }
+
+        return !operation.terminal
     }
 
     private fun syncFullResRestorationStatus() {
@@ -571,14 +858,19 @@ class MainActivity : Activity() {
             calibrationObservationRecordStatus,
         )
         CalibrationObservationRecordSessionStoreV01.save(
-            cacheDir = cacheDir,
-            sessionId = calibrationObservationSessionStoreId,
-            records = calibrationObservationRecords,
+            cacheDir =
+                calibrationObservationRecordStoreDir(),
+            sessionId =
+                calibrationObservationSessionStoreId,
+            records =
+                calibrationObservationRecords,
         )
+        persistResearchCalibrationSessionPointer()
         outState.putString(
             STATE_CALIBRATION_SESSION_STORE_ID,
             calibrationObservationSessionStoreId,
         )
+        persistResearchWorkbenchSession()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -670,6 +962,16 @@ class MainActivity : Activity() {
                 }
             }
         }
+
+        CalibrationObservationRecordSessionStoreV01.save(
+            cacheDir =
+                calibrationObservationRecordStoreDir(),
+            sessionId =
+                calibrationObservationSessionStoreId,
+            records =
+                calibrationObservationRecords,
+        )
+        persistResearchCalibrationSessionPointer()
 
         return "Calibration Observation Records · nieuw=" +
             validImported +
@@ -1806,67 +2108,41 @@ class MainActivity : Activity() {
             return
         }
 
+        persistResearchWorkbenchSession()
         fieldResponseBatchPendingJobIds.clear()
         fieldResponseBatchFailedJobIds.clear()
-        fieldResponseBatchPendingJobIds.addAll(selected.map { it.id })
+        fieldResponseBatchPendingJobIds.addAll(
+            selected.map {
+                it.id
+            },
+        )
 
         val operationKey =
-            fieldResponseRepeatabilityAnalysisOperationKey(selected)
-
-        if (
-            !startBackgroundOperation(
-                operationKey,
-                "Field Response Repeatability v0.1 · universele bronanalyse",
+            fieldResponseRepeatabilityAnalysisOperationKey(
+                selected,
             )
-        ) {
+
+        val started =
+            TruthRawMediaProcessingForegroundService
+                .startResearchBatch(
+                    context = applicationContext,
+                    key = operationKey,
+                    label =
+                        "Field Response Repeatability v0.1 · universele bronanalyse",
+                )
+
+        if (!started) {
             fieldResponseRepeatabilityStatus =
-                "Field Response Repeatability v0.1 analyse kon niet starten omdat een gelijknamige operatie al actief is."
+                "Field Response Repeatability v0.1 analyse kon niet starten: er loopt al een gelijknamige achtergrondanalyse."
             render()
             return
         }
 
         fieldResponseRepeatabilityStatus =
-            "Universele bronanalyse loopt voor " + selected.size +
-                " geselecteerde bronnen."
+            "Universele bronanalyse draait nu in de Android foreground media-processing service · " +
+                selected.size +
+                " bronnen · app-focus niet vereist · resultaten worden per RAW persistent opgeslagen."
         render()
-
-        selected.forEach { job ->
-            requestUniversalProfile(
-                job = job,
-                force = true,
-            ) { success ->
-                if (!success) {
-                    fieldResponseBatchFailedJobIds += job.id
-                }
-                fieldResponseBatchPendingJobIds -= job.id
-
-                if (fieldResponseBatchPendingJobIds.isEmpty()) {
-                    val measured = currentMeasuredFieldCharts().size
-                    val failures = fieldResponseBatchFailedJobIds.size
-                    val message =
-                        if (failures == 0) {
-                            "Field Response bronanalyse gereed · measured-field-chart=" +
-                                measured + "/3" +
-                                if (measured >= 3) {
-                                    " · repeatability-export beschikbaar."
-                                } else {
-                                    " · nog onvoldoende measured field charts."
-                                }
-                        } else {
-                            "Field Response bronanalyse gereed met " + failures +
-                                " fout(en) · measured-field-chart=" + measured + "/3."
-                        }
-
-                    fieldResponseRepeatabilityStatus = message
-                    finishBackgroundOperation(
-                        operationKey,
-                        failures == 0,
-                        message,
-                    )
-                }
-                render()
-            }
-        }
     }
 
     @Suppress("DEPRECATION")
@@ -1902,6 +2178,14 @@ class MainActivity : Activity() {
         }
 
         pendingFieldResponseRepeatabilityJson = report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+            reportText =
+                pendingFieldResponseRepeatabilityJson!!,
+        )
+        pendingFieldResponseRepeatabilityJson = null
         fieldResponseRepeatabilityStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -1985,6 +2269,14 @@ class MainActivity : Activity() {
         }
 
         pendingFreeWorldFoundationJson = report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+            reportText =
+                pendingFreeWorldFoundationJson!!,
+        )
+        pendingFreeWorldFoundationJson = null
         freeWorldFoundationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -2043,6 +2335,14 @@ class MainActivity : Activity() {
 
         pendingObservationWorldFieldSeparationJson =
             report.toString(2) + "\n"
+        ResearchPendingJsonExportStoreV01.save(
+            filesDir = filesDir,
+            key =
+                ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+            reportText =
+                pendingObservationWorldFieldSeparationJson!!,
+        )
+        pendingObservationWorldFieldSeparationJson = null
         observationWorldFieldSeparationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -3846,271 +4146,163 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_FREE_WORLD_FOUNDATION) {
-            val reportText = pendingFreeWorldFoundationJson
             pendingFreeWorldFoundationJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+                )
                 freeWorldFoundationStatus =
                     "Free World Foundation v0.1-export geannuleerd."
                 render()
                 return
             }
 
-            if (reportText == null) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: pending report ontbreekt."
-                render()
-                return
-            }
-
-            val saved = runCatching { JSONObject(reportText) }.getOrNull()
-            val current =
-                FreeWorldObservationGeometryFoundationV01.build(
-                    profiles = currentObservationWorldProfiles(),
-                    fieldRepeatability =
-                        FieldResponseRepeatabilityV01.evaluate(
-                            currentMeasuredFieldCharts(),
-                        ).takeIf {
-                            it.optString("status") ==
-                                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
-                        },
-                    calibrationRecords = currentCalibrationObservationRecords(),
-                )
-
-            if (
-                saved == null ||
-                saved.optString("status") !=
-                "FREE_WORLD_FOUNDATION_AVAILABLE" ||
-                current.optString("status") !=
-                "FREE_WORLD_FOUNDATION_AVAILABLE"
-            ) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: observation-set niet meer geldig."
-                render()
-                return
-            }
-
-            val savedGraph =
-                saved.optJSONObject("observation_graph") ?: JSONObject()
-            val currentGraph =
-                current.optJSONObject("observation_graph") ?: JSONObject()
-            if (
-                savedGraph.optString("graph_identity_sha256").isBlank() ||
-                savedGraph.optString("graph_identity_sha256") !=
-                currentGraph.optString("graph_identity_sha256")
-            ) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: graph identity veranderde."
-                render()
-                return
-            }
-
-            freeWorldFoundationStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
 
-                val graph =
-                    saved.optJSONObject("observation_graph")
-                        ?: JSONObject()
-                "Free World Foundation v0.1 JSON opgeslagen · observations=" +
-                    graph.optInt("observation_count", 0) +
-                    " · pair geometry candidates=" +
-                    graph.optInt("geometry_candidate_edge_count", 0) +
-                    " · registration promoted=false · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Free World Foundation v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+            freeWorldFoundationStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Free World Foundation v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "… · geen herberekening na bestandskiezer."
+                    },
+                    onFailure = { error ->
+                        "Free World Foundation v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+            )
             render()
             return
         }
 
         if (requestCode == REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION) {
-            val reportText = pendingObservationWorldFieldSeparationJson
             pendingObservationWorldFieldSeparationJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+                )
                 observationWorldFieldSeparationStatus =
                     "Observation-World Field Separation v0.1-export geannuleerd."
                 render()
                 return
             }
 
-            if (reportText == null) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: pending report ontbreekt."
-                render()
-                return
-            }
-
-            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
-            val currentReport =
-                ObservationWorldFieldSeparationV01.evaluate(
-                    currentObservationWorldProfiles(),
-                )
-            if (
-                savedReport == null ||
-                savedReport.optString("status") !=
-                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE" ||
-                currentReport.optString("status") !=
-                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
-            ) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: observation-set niet meer geldig."
-                render()
-                return
-            }
-
-            val savedRoots =
-                savedReport.optJSONArray("observations")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull {
-                                roots.optJSONObject(it)
-                                    ?.optString("source_sha256")
-                            }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-            val currentRoots =
-                currentReport.optJSONArray("observations")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull {
-                                roots.optJSONObject(it)
-                                    ?.optString("source_sha256")
-                            }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-
-            if (savedRoots != currentRoots || savedRoots.size < 2) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: source-SHA set veranderde."
-                render()
-                return
-            }
-
-            observationWorldFieldSeparationStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
 
-                val spaces = savedReport.optJSONObject("coordinate_spaces")
-                val world = spaces?.optJSONObject("world_scene_space")
-                val sensor = spaces?.optJSONObject("source_sensor_space")
-                "Observation-World Field Separation v0.1 JSON opgeslagen · observations=" +
-                    savedReport.optInt("observation_count", 0) +
-                    " · measured sensor fields=" +
-                    (sensor?.optInt("measured_field_observation_count", 0) ?: 0) +
-                    " · world registration=" +
-                    (world?.optString("registration_status", "UNKNOWN") ?: "UNKNOWN") +
-                    " · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Observation-World Field Separation v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+            observationWorldFieldSeparationStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Observation-World Field Separation v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "…"
+                    },
+                    onFailure = { error ->
+                        "Observation-World Field Separation v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+            )
             render()
             return
         }
 
         if (requestCode == REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY) {
-            val reportText = pendingFieldResponseRepeatabilityJson
             pendingFieldResponseRepeatabilityJson = null
             val destination = data?.data
 
             if (resultCode != RESULT_OK || destination == null) {
+                ResearchPendingJsonExportStoreV01.clear(
+                    filesDir = filesDir,
+                    key =
+                        ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+                )
                 fieldResponseRepeatabilityStatus =
                     "Field Response Repeatability v0.1-export geannuleerd."
                 render()
                 return
             }
 
-            if (reportText == null) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: pending audit ontbreekt."
-                render()
-                return
-            }
-
-            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
-            val currentReport =
-                FieldResponseRepeatabilityV01.evaluate(
-                    currentMeasuredFieldCharts(),
-                )
-            if (
-                savedReport == null ||
-                currentReport.optString("status") !=
-                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
-                savedReport.optString("status") !=
-                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
-                savedReport.optInt("observation_count", -1) !=
-                currentReport.optInt("observation_count", -2)
-            ) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: geselecteerde observation-set veranderde."
-                render()
-                return
-            }
-
-            val savedRoots =
-                savedReport.optJSONArray("observation_roots")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-            val currentRoots =
-                currentReport.optJSONArray("observation_roots")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-
-            if (savedRoots != currentRoots || savedRoots.size < 3) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: source-SHA set veranderde."
-                render()
-                return
-            }
-
-            fieldResponseRepeatabilityStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
-                val radial =
-                    savedReport.optJSONObject("radial_repeatability")
-                "Field Response Repeatability v0.1 JSON opgeslagen · observations=" +
-                    savedReport.optInt("observation_count", 0) +
-                    " · radial MAD(EV)=" +
-                    (radial?.opt("median_annulus_cross_observation_mad_ev")
-                        ?: "UNKNOWN") +
-                    " · relation=user-grouping-hint-only · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Field Response Repeatability v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+
+            fieldResponseRepeatabilityStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Field Response Repeatability v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "…"
+                    },
+                    onFailure = { error ->
+                        "Field Response Repeatability v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
+            ResearchPendingJsonExportStoreV01.clear(
+                filesDir = filesDir,
+                key =
+                    ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+            )
             render()
             return
         }
@@ -5172,7 +5364,16 @@ class MainActivity : Activity() {
         }
 
         val jobs = RawIngress.readHandlesOnly(contentResolver, uris, data.flags)
+        ResearchUniversalProfileStoreV01.clear(
+            filesDir,
+        )
+        universalProfiles.clear()
+        universalProfileErrors.clear()
+        universalProfileLoading.clear()
+        universalProfileCompletionWaiters.clear()
         session = session.withJobs(jobs)
+        researchWorkbenchSessionRestoreStatus = null
+        persistResearchWorkbenchSession()
         val first = session.jobs.firstOrNull()
         jpegStatus = null
         renderEditStatus = null
@@ -5194,7 +5395,10 @@ class MainActivity : Activity() {
             render()
         } else {
             selectJob(first)
-            if (first.source.format.nativeProcessingReady) {
+            if (
+                first.source.format.nativeProcessingReady &&
+                (!researchWorkbenchMode || session.jobs.size <= 1)
+            ) {
                 window.decorView.post {
                     if (activeJobId == first.id && previewState is TilePreviewUiState.Idle) {
                         requestPreview(first)
@@ -5245,7 +5449,9 @@ class MainActivity : Activity() {
         pendingNefMeasurementJobId = null
         pendingNefMeasurementJson = null
         nefMeasurementExportStatus = null
-        requestUniversalProfile(job)
+        if (!researchWorkbenchMode || session.jobs.size <= 1) {
+            requestUniversalProfile(job)
+        }
         render()
     }
 
@@ -5255,36 +5461,91 @@ class MainActivity : Activity() {
         onComplete: ((Boolean) -> Unit)? = null,
     ) {
         val jobId = job.id
-        if (!force && universalProfiles.containsKey(jobId)) {
+
+        if (
+            !force &&
+            universalProfiles.containsKey(
+                jobId,
+            )
+        ) {
             onComplete?.invoke(true)
             return
         }
-        if (!force && universalProfileLoading.contains(jobId)) {
-            onComplete?.invoke(false)
+
+        if (
+            universalProfileLoading.contains(
+                jobId,
+            )
+        ) {
+            onComplete?.let { callback ->
+                universalProfileCompletionWaiters
+                    .getOrPut(jobId) {
+                        mutableListOf()
+                    }
+                    .add(callback)
+            }
             return
         }
+
+        onComplete?.let { callback ->
+            universalProfileCompletionWaiters
+                .getOrPut(jobId) {
+                    mutableListOf()
+                }
+                .add(callback)
+        }
+
         universalProfiles.remove(jobId)
         universalProfileErrors.remove(jobId)
         universalProfileLoading.add(jobId)
         render()
 
         Thread({
-            val result = runCatching {
-                UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)
-            }
+            val result =
+                runCatching {
+                    UniversalSourceProfiler.profile(
+                        contentResolver,
+                        job.source,
+                        cacheDir,
+                    )
+                }
             runOnUiThread {
-                universalProfileLoading.remove(jobId)
+                universalProfileLoading.remove(
+                    jobId,
+                )
                 var success = false
                 result.onSuccess { profile ->
-                    universalProfiles[jobId] = profile
-                    universalProfileErrors.remove(jobId)
+                    universalProfiles[jobId] =
+                        profile
+                    ResearchUniversalProfileStoreV01.save(
+                        filesDir = filesDir,
+                        job = job,
+                        profile = profile,
+                    )
+                    universalProfileErrors.remove(
+                        jobId,
+                    )
                     success = true
                 }.onFailure { error ->
-                    universalProfiles.remove(jobId)
+                    universalProfiles.remove(
+                        jobId,
+                    )
+                    ResearchUniversalProfileStoreV01.remove(
+                        filesDir = filesDir,
+                        jobId = jobId,
+                    )
                     universalProfileErrors[jobId] =
-                        error.message ?: error.javaClass.simpleName
+                        error.message
+                            ?: error.javaClass.simpleName
                 }
-                onComplete?.invoke(success)
+
+                val waiters =
+                    universalProfileCompletionWaiters
+                        .remove(jobId)
+                        .orEmpty()
+                for (callback in waiters) {
+                    callback(success)
+                }
                 render()
             }
         }, "draw-universal-intake-" + jobId.take(8)).start()
@@ -8408,6 +8669,15 @@ class MainActivity : Activity() {
             11f,
             muted = true,
         ))
+        researchWorkbenchSessionRestoreStatus?.let {
+            addView(
+                label(
+                    it,
+                    10f,
+                    muted = true,
+                ),
+            )
+        }
         addView(space(6))
         addView(actionButton(
             "Voeg relation-based Calibration Observation Record(s) · JSON toe",

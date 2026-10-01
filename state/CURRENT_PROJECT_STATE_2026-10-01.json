@@ -1,0 +1,219 @@
+{
+  "schema": "D.RAW/CurrentProjectState/2026-10-01",
+  "status": "ACTIVE_RESEARCH_CHECKPOINT",
+  "continuation_code": "44485",
+  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through the measured-support coordinate bridge and optical-field topography wave before making further scientific or code changes.",
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_branch": "research/registration-aware-rotation-audit-v01-2026-10-01",
+  "pull_request": {
+    "number": 104,
+    "title": "Add constrained rotation, measured support, and optical-field topography audits",
+    "state": "OPEN"
+  },
+  "source_code_head": "a7cefe7c568a0218b13abda855ad3dbd8b278cc8",
+  "latest_green_android_build": {
+    "workflow": "D.RAW Suite Universal Intake v0.1",
+    "run_id": 36853127628,
+    "artifact_id": 11156013820,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "artifact_zip_digest_sha256": "1530da1afad38c470fd89f7f5fbb4ddac2aae727fb479958097e6830c4dd14ad",
+    "extracted_apk_name": "DRAW_research_foreground_checkpoint_export_v0_1_debug_arm64.apk",
+    "apk_size_bytes": 8401743,
+    "apk_sha256": "c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653"
+  },
+  "green_checks": [
+    {
+      "name": "Free World Observation Geometry Foundation v0.1 Integrity",
+      "run_id": 36853128033
+    },
+    {
+      "name": "Canonical Integrity",
+      "run_id": 36853127721
+    },
+    {
+      "name": "Tile-Native DNG Source v0.2 Android Compatibility",
+      "run_id": 36853127963
+    },
+    {
+      "name": "D.RAW Suite Universal Intake v0.1",
+      "run_id": 36853127628
+    },
+    {
+      "name": "D.RAW Universal Physical Capture v0.3 Live Preview Macro",
+      "run_id": 36853127609
+    },
+    {
+      "name": "D.RAW Android DngCreator Compatibility v0.1",
+      "run_id": 36853127632
+    },
+    {
+      "name": "Documentation Governance 2026-09-10",
+      "run_id": 36853127597
+    }
+  ],
+  "active_scientific_wave": {
+    "name": "controlled rotation field geometry and optical-field topography",
+    "modules": [
+      "ControlledRotationConstrainedGeometryV01",
+      "GeometryAdjustedFieldMappingDryRunV01",
+      "ControlledRotationFieldCoordinateBridgeAuditV01",
+      "MeasuredFieldSupportCoordinateBridgeAuditV01",
+      "OpticalFieldTopographyAuditV01"
+    ],
+    "purpose": "Diagnose the field-coordinate bridge from measured RAW source support into a free optical-field representation without promoting appearance geometry as physical sensor truth."
+  },
+  "campaign": {
+    "type": "CONTROLLED_ROTATION_SEQUENCE",
+    "observation_count": 4,
+    "observations": [
+      {
+        "capture_time": "2026:10:01 01:51:08",
+        "role": "ROTATION_0_DEG TRAIN",
+        "source_sha256": "f2e25aa807598f3a1cd6dfa321535abb5f7350f4b2511e0eecfcff79b221ca29"
+      },
+      {
+        "capture_time": "2026:10:01 01:51:36",
+        "role": "ROTATION_90_DEG TRAIN",
+        "source_sha256": "58e6595108be099074ac88c9e237f19a4fb6cf336299cab3e0110afda4adfebb"
+      },
+      {
+        "capture_time": "2026:10:01 01:52:07",
+        "role": "ROTATION_180_DEG TRAIN",
+        "source_sha256": "d46047482f444e42eabbab2ad016b73391825cf85f9de7cfaee97ba291655fa3"
+      },
+      {
+        "capture_time": "2026:10:01 01:52:23",
+        "role": "ROTATION_270_DEG HELD_OUT",
+        "source_sha256": "4f9d38389816ab04f2d2530e1e45d9b3224824b1ef626f75b45c818c7d3a38e2"
+      }
+    ],
+    "selected_shift_sign": -1
+  },
+  "latest_real_device_result": {
+    "foundation_status": "FREE_WORLD_FOUNDATION_AVAILABLE",
+    "field_coordinate_bridge_status": "CONTROLLED_ROTATION_FIELD_COORDINATE_BRIDGE_AUDIT_SET_AVAILABLE",
+    "exact_common_predictable_sample_count": {
+      "training": 378,
+      "held_out": 122
+    },
+    "variant_rmse_ev": {
+      "RELATION_NOMINAL_WORLD_CELL": {
+        "training": 0.3115382850580802,
+        "held_out": 0.4952042895968784
+      },
+      "RESIDUAL_ROTATION_ONLY": {
+        "training": 0.3115382850580802,
+        "held_out": 0.4952042895968784
+      },
+      "UNIFORM_SCALE_ONLY": {
+        "training": 0.3146035982419517,
+        "held_out": 0.49794027798085727
+      },
+      "TRANSLATION_ONLY": {
+        "training": 0.30153492010221555,
+        "held_out": 0.5187642227025557
+      },
+      "RESIDUAL_ROTATION_PLUS_SCALE": {
+        "training": 0.3146035982419517,
+        "held_out": 0.49794027798085727
+      },
+      "RESIDUAL_ROTATION_PLUS_TRANSLATION": {
+        "training": 0.3005933060219842,
+        "held_out": 0.5190954673593811
+      },
+      "FULL_RESIDUAL_SIMILARITY": {
+        "training": 0.1995020643647174,
+        "held_out": 0.7163537541489856
+      }
+    },
+    "interpretation": [
+      "Residual rotation alone does not change the current 12-sector mapping.",
+      "Scale and translation can change hard field-cell assignments.",
+      "Full residual similarity strongly lowers training RMSE but worsens the independent 270-degree hold-out.",
+      "The current weak link is the source-field to frontside coordinate bridge and coarse re-binning, not evidence that the measured rotation relation itself is physically wrong."
+    ],
+    "safety": {
+      "automatic_variant_winner_selected": false,
+      "field_response_calibration_promoted": false,
+      "world_registration_promoted": false,
+      "correction_authorized": false,
+      "candidate_applied": false,
+      "scientific_writeback_allowed": false
+    }
+  },
+  "measured_support_bridge": {
+    "status": "IMPLEMENTED_BUILD_GREEN_DEVICE_RESULT_PENDING",
+    "source_geometry": "BacksideSignalSupportAudit.sparse_measured_sample_grid source_x/source_y",
+    "support_cell_mapping": "same radial/azimuth field bins as measured field signal",
+    "photometric_values_used_to_construct_support_geometry": false,
+    "measured_sparse_positions_are_source_evidence": true,
+    "support_centroids_are_derived": true,
+    "source_grid_to_frontside_isotropic_bridge_proven": false
+  },
+  "optical_field_topography": {
+    "status": "IMPLEMENTED_BUILD_GREEN_DEVICE_RESULT_PENDING",
+    "coordinate_plane": "MEASURED_SUPPORT_CENTROID_UNIT_DISK",
+    "view_presets": [
+      "TOP_DOWN",
+      "SIDE_X",
+      "SIDE_Y",
+      "OBLIQUE"
+    ],
+    "height_layers": [
+      "RELATIVE_SIGNAL_EV",
+      "NOMINAL_MODEL_SIGNED_RESIDUAL_EV",
+      "NOMINAL_MODEL_ABS_RESIDUAL_EV",
+      "SUPPORT_POINT_COUNT",
+      "SUPPORT_CENTROID_OFFSET_NORMALIZED",
+      "SUPPORT_FOOTPRINT_RMS_SOURCE_PX"
+    ],
+    "physical_scene_depth_claim": false,
+    "literal_lens_surface_sag_claim": false,
+    "automatic_problem_cause_selected": false,
+    "onscreen_3d_renderer_implemented": false,
+    "exported_view_presets_are_render_semantics_only": true
+  },
+  "permanent_laws": [
+    "MEASURED != RECONSTRUCTED != APPEARANCE",
+    "Seal the evidence, not the thinking.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "Camera/lens/vendor/RAW identity may route decoding but may not select scientific truth.",
+    "Held-out values may evaluate a candidate but may not fit or select it.",
+    "No AI/ML/neural/generative runtime.",
+    "Scientific Master writeback from this research wave is forbidden.",
+    "A topographic height is an observable axis only unless physical depth or literal lens curvature is separately proven."
+  ],
+  "next_test": {
+    "reuse_same_four_raws": true,
+    "reuse_same_calibration_observation_record": true,
+    "export": "Free World Observation Geometry Foundation v0.1 JSON",
+    "expected_new_sections": [
+      "measured_field_support_coordinate_bridge_audit",
+      "optical_field_topography_audit"
+    ],
+    "goal": "Determine whether topographic ridges/basins in support geometry or nominal residuals explain the training-versus-held-out behavior without promoting a correction."
+  },
+  "research_workbench_resilience_fix": {
+    "status": "IMPLEMENTED_BUILD_GREEN",
+    "latest_observed_device_failure": "Foreground analysis service disappeared after about 30:50 while four RAW handles survived; prior Foundation save also produced a 0-byte destination after document-picker lifecycle loss.",
+    "confirmed_code_failure_modes": [
+      "The first resilience pass persisted RAW handles but the UniversalSourceProfiler worker still belonged to MainActivity rather than the foreground service.",
+      "Completed full UniversalSourceProfile JSON objects could accumulate in Activity/process heap during long multi-RAW profiling.",
+      "ACTION_CREATE_DOCUMENT creates the destination before MainActivity returns; the old Foundation result path rebuilt the full report after the picker, so interruption could leave a 0-byte document.",
+      "Research relation records had a session id that could be lost on a cold process restart even when the records themselves still existed."
+    ],
+    "changes": [
+      "TruthRawMediaProcessingForegroundService now owns the multi-RAW UniversalSourceProfiler batch and returns START_REDELIVER_INTENT for that research action.",
+      "Each completed derived UniversalSourceProfile is persisted independently; restarted service runs reuse completed profiles and redo only unfinished RAWs.",
+      "The service does not retain the complete multi-observation profile set while processing and forces a GC checkpoint between newly completed RAWs to reduce peak heap.",
+      "MainActivity polls persisted operation state while foregrounded and reloads completed profile JSON only after the service batch is terminal.",
+      "Research notification returns directly to the Research workbench.",
+      "Research JSON exports are frozen to a private payload file before ACTION_CREATE_DOCUMENT, SHA-256/byte-length validated, then streamed exactly to the chosen destination without rebuilding the Foundation after the picker.",
+      "The active research Calibration Observation Record session pointer is persisted durably and can migrate the latest valid legacy cache session after app restart."
+    ],
+    "gpu_acceleration_status": "NOT_USED_FOR_THIS_FIX",
+    "gpu_reason": "Current failure is lifecycle/heap/export orchestration. Hashing, TIFF/DNG parsing, CFA statistics and JSON assembly are not suitable for a blind GPU migration, and authoritative numerical paths should keep deterministic CPU parity. GPU remains eligible later for separately validated APPEARANCE_DERIVED_ONLY kernels.",
+    "scientific_authority_changed": false,
+    "source_evidence_modified": false
+  }
+}

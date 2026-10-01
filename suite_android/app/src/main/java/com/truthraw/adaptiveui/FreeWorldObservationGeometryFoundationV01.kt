@@ -163,6 +163,45 @@ object FreeWorldObservationGeometryFoundationV01 {
             )
         val fieldResponseSeparationCandidate =
             FieldResponseRotationSeparationCandidateV01.evaluate(boundCalibrationRecords)
+        val registrationAwareControlledRotationAudit =
+            RegistrationAwareControlledRotationAuditV01.evaluate(
+                graph = graph,
+                records = boundCalibrationRecords,
+            )
+        val controlledRotationConstrainedGeometryAudit =
+            ControlledRotationConstrainedGeometryV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+            )
+        val geometryAdjustedFieldMappingDryRun =
+            GeometryAdjustedFieldMappingDryRunV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+                constrainedAudit =
+                    controlledRotationConstrainedGeometryAudit,
+            )
+        val controlledRotationFieldCoordinateBridgeAudit =
+            ControlledRotationFieldCoordinateBridgeAuditV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+                constrainedAudit =
+                    controlledRotationConstrainedGeometryAudit,
+            )
+        val measuredFieldSupportCoordinateBridgeAudit =
+            MeasuredFieldSupportCoordinateBridgeAuditV01.evaluate(
+                profiles = profiles,
+                records = boundCalibrationRecords,
+                constrainedAudit =
+                    controlledRotationConstrainedGeometryAudit,
+            )
+        val opticalFieldTopographyAudit =
+            OpticalFieldTopographyAuditV01.evaluate(
+                records = boundCalibrationRecords,
+                fieldResponse =
+                    fieldResponseSeparationCandidate,
+                measuredSupportAudit =
+                    measuredFieldSupportCoordinateBridgeAudit,
+            )
         val colourRelationCandidate =
             ColourRelationCandidateSolverV01.evaluate(boundCalibrationRecords)
         val opticalSupportCandidate =
@@ -271,6 +310,30 @@ object FreeWorldObservationGeometryFoundationV01 {
                     .put("repeated_sparse_grid_noise_candidate", repeatedSparseGridNoiseCandidate)
                     .put("sparse_grid_noise_model_candidate", sparseGridNoiseModelCandidate)
                     .put("field_response_separation_candidate", fieldResponseSeparationCandidate)
+                    .put(
+                        "registration_aware_controlled_rotation_audit",
+                        registrationAwareControlledRotationAudit,
+                    )
+                    .put(
+                        "controlled_rotation_constrained_geometry_audit",
+                        controlledRotationConstrainedGeometryAudit,
+                    )
+                    .put(
+                        "geometry_adjusted_field_mapping_dry_run",
+                        geometryAdjustedFieldMappingDryRun,
+                    )
+                    .put(
+                        "controlled_rotation_field_coordinate_bridge_audit",
+                        controlledRotationFieldCoordinateBridgeAudit,
+                    )
+                    .put(
+                        "measured_field_support_coordinate_bridge_audit",
+                        measuredFieldSupportCoordinateBridgeAudit,
+                    )
+                    .put(
+                        "optical_field_topography_audit",
+                        opticalFieldTopographyAudit,
+                    )
                     .put("colour_relation_candidate", colourRelationCandidate)
                     .put(
                         "colour_covariance_transport_candidate",

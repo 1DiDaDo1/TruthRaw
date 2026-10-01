@@ -76,6 +76,41 @@ object CalibrationObservationRecordSessionStoreV01 {
             }
         }.getOrElse { emptyList() }
 
+    fun latestValidSessionId(
+        cacheDir: File,
+    ): String? {
+        val dir =
+            File(
+                cacheDir,
+                "calibration_observation_record_sessions",
+            )
+        if (!dir.isDirectory) {
+            return null
+        }
+        return dir.listFiles()
+            .orEmpty()
+            .asSequence()
+            .filter {
+                it.isFile &&
+                    it.extension.equals(
+                        "json",
+                        ignoreCase = true,
+                    )
+            }
+            .sortedByDescending {
+                it.lastModified()
+            }
+            .map {
+                it.nameWithoutExtension
+            }
+            .firstOrNull { sessionId ->
+                load(
+                    cacheDir = cacheDir,
+                    sessionId = sessionId,
+                ).isNotEmpty()
+            }
+    }
+
     fun clear(
         cacheDir: File,
         sessionId: String,

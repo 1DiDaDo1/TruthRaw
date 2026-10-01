@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 class TruthRawMediaProcessingForegroundService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private val labels = ConcurrentHashMap<String, String>()
+    private val researchWorkerKeys = ConcurrentHashMap.newKeySet<String>()
     private var oldestStartedAtWallMs: Long = 0L
 
     override fun onCreate() {
@@ -53,13 +54,33 @@ class TruthRawMediaProcessingForegroundService : Service() {
         oldestStartedAtWallMs =
             if (oldestStartedAtWallMs == 0L) started else minOf(oldestStartedAtWallMs, started)
 
+        val startResearchWorker =
+            intent.action ==
+                ACTION_RESEARCH_UNIVERSAL_BATCH &&
+                researchWorkerKeys.add(key)
+
         acquireWakeLock()
         startForeground(
             NOTIFICATION_ID,
             notification(currentLabel(), ongoing = true),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROCESSING,
         )
-        return START_NOT_STICKY
+
+        if (startResearchWorker) {
+            runResearchUniversalBatch(
+                operationKey = key,
+            )
+            return START_REDELIVER_INTENT
+        }
+
+        return if (
+            intent.action ==
+            ACTION_RESEARCH_UNIVERSAL_BATCH
+        ) {
+            START_REDELIVER_INTENT
+        } else {
+            START_NOT_STICKY
+        }
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {
@@ -75,7 +96,184 @@ class TruthRawMediaProcessingForegroundService : Service() {
         stopSelf(startId)
     }
 
+    private fun runResearchUniversalBatch(
+        operationKey: String,
+    ) {
+        Thread({
+            try {
+                val session =
+                    ResearchWorkbenchSessionStoreV01.load(
+                        filesDir,
+                    )
+                        ?: kotlin.error(
+                            "Geen persistente Research-selectie gevonden.",
+                        )
+                if (session.jobs.isEmpty()) {
+                    kotlin.error(
+                        "Persistente Research-selectie bevat geen RAW-bronnen.",
+                    )
+                }
+
+                var measuredCharts = 0
+                var failures = 0
+
+                for ((index, job) in session.jobs.withIndex()) {
+                    val existing =
+                        ResearchUniversalProfileStoreV01.loadForJob(
+                            filesDir = filesDir,
+                            job = job,
+                        )
+
+                    val progress =
+                        "Universele bronanalyse " +
+                            (index + 1) +
+                            "/" +
+                            session.jobs.size +
+                            " · " +
+                            job.source.displayName
+
+                    val progressMessage =
+                        if (existing != null) {
+                            progress +
+                                " · persistent profiel hergebruikt"
+                        } else {
+                            progress
+                        }
+                    labels[operationKey] =
+                        progressMessage
+                    TruthRawOperationStore.update(
+                        applicationContext,
+                        operationKey,
+                        TruthRawOperationPhase.RUNNING,
+                        progressMessage,
+                    )
+                    notifyProgress()
+
+                    val profile =
+                        existing
+                            ?: runCatching {
+                                UniversalSourceProfiler.profile(
+                                    contentResolver,
+                                    job.source,
+                                    cacheDir,
+                                )
+                            }.onSuccess {
+                                ResearchUniversalProfileStoreV01.save(
+                                    filesDir = filesDir,
+                                    job = job,
+                                    profile = it,
+                                )
+                            }.onFailure { error ->
+                                failures++
+                                val failureMessage =
+                                    progress +
+                                        " · fout=" +
+                                        (
+                                            error.message
+                                                ?: error.javaClass.simpleName
+                                            )
+                                labels[operationKey] =
+                                    failureMessage
+                                TruthRawOperationStore.update(
+                                    applicationContext,
+                                    operationKey,
+                                    TruthRawOperationPhase.RUNNING,
+                                    failureMessage,
+                                )
+                                notifyProgress()
+                            }.getOrNull()
+
+                    if (
+                        profile
+                            ?.optJSONObject(
+                                "observation_optical_field_chart",
+                            )
+                            ?.takeIf {
+                                it.optString("status") ==
+                                    "FIELD_CHART_AVAILABLE" &&
+                                    it.optJSONObject(
+                                        "measured_composite_field_signal",
+                                    )
+                                        ?.optString("status") ==
+                                    "MEASURED_COMPOSITE_FIELD_SIGNAL_AVAILABLE"
+                            } != null
+                    ) {
+                        measuredCharts++
+                    }
+
+                    // The research batch intentionally does not retain full
+                    // profiles in service memory. Each completed derived
+                    // profile is committed to private storage before moving
+                    // to the next RAW. This bounds peak heap independently of
+                    // the number of selected observations.
+                    if (profile != null && existing == null) {
+                        System.gc()
+                    }
+                }
+
+                val message =
+                    if (failures == 0) {
+                        "Field Response bronanalyse gereed · measured-field-chart=" +
+                            measuredCharts +
+                            "/3" +
+                            if (measuredCharts >= 3) {
+                                " · repeatability-export beschikbaar."
+                            } else {
+                                " · nog onvoldoende measured field charts."
+                            }
+                    } else {
+                        "Field Response bronanalyse gereed met " +
+                            failures +
+                            " fout(en) · measured-field-chart=" +
+                            measuredCharts +
+                            "/3."
+                    }
+
+                if (failures == 0) {
+                    success(
+                        applicationContext,
+                        operationKey,
+                        message,
+                    )
+                } else {
+                    error(
+                        applicationContext,
+                        operationKey,
+                        message,
+                    )
+                }
+            } catch (error: Throwable) {
+                error(
+                    applicationContext,
+                    operationKey,
+                    "Research bronanalyse faalde: " +
+                        (
+                            error.message
+                                ?: error.javaClass.simpleName
+                            ),
+                )
+            } finally {
+                researchWorkerKeys.remove(
+                    operationKey,
+                )
+            }
+        }, "draw-research-profile-service").start()
+    }
+
+    private fun notifyProgress() {
+        getSystemService(
+            NotificationManager::class.java,
+        )?.notify(
+            NOTIFICATION_ID,
+            notification(
+                currentLabel(),
+                ongoing = true,
+            ),
+        )
+    }
+
     private fun completeKey(key: String) {
+        researchWorkerKeys.remove(key)
         labels.remove(key)
         activeKeys.remove(key)
         if (labels.isEmpty()) {
@@ -131,7 +329,17 @@ class TruthRawMediaProcessingForegroundService : Service() {
             this,
             0,
             Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags =
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                if (
+                    researchWorkerKeys.isNotEmpty()
+                ) {
+                    putExtra(
+                        MainActivity.EXTRA_OPEN_RESEARCH_WORKBENCH,
+                        true,
+                    )
+                }
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -170,6 +378,8 @@ class TruthRawMediaProcessingForegroundService : Service() {
         private const val NOTIFICATION_ID = 7001
         private const val EXTRA_KEY = "operation_key"
         private const val EXTRA_LABEL = "operation_label"
+        private const val ACTION_RESEARCH_UNIVERSAL_BATCH =
+            "com.truthraw.adaptiveui.action.RESEARCH_UNIVERSAL_BATCH"
         private const val WAKELOCK_TIMEOUT_MS = 6L * 60L * 60L * 1000L
 
         @Volatile
@@ -201,6 +411,53 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     TruthRawOperationPhase.ERROR,
                     "Achtergrondverwerking kon niet starten: " +
                         (error.message ?: error.javaClass.simpleName),
+                )
+                false
+            }
+        }
+
+        fun startResearchBatch(
+            context: Context,
+            key: String,
+            label: String,
+        ): Boolean {
+            val app = context.applicationContext
+            if (!activeKeys.add(key)) return false
+            TruthRawOperationStore.begin(
+                app,
+                key,
+                label,
+            )
+            val intent =
+                Intent(
+                    app,
+                    TruthRawMediaProcessingForegroundService::class.java,
+                )
+                    .setAction(
+                        ACTION_RESEARCH_UNIVERSAL_BATCH,
+                    )
+                    .putExtra(
+                        EXTRA_KEY,
+                        key,
+                    )
+                    .putExtra(
+                        EXTRA_LABEL,
+                        label,
+                    )
+            return try {
+                app.startForegroundService(intent)
+                true
+            } catch (error: Throwable) {
+                activeKeys.remove(key)
+                TruthRawOperationStore.update(
+                    app,
+                    key,
+                    TruthRawOperationPhase.ERROR,
+                    "Research achtergrondverwerking kon niet starten: " +
+                        (
+                            error.message
+                                ?: error.javaClass.simpleName
+                            ),
                 )
                 false
             }

@@ -1,3 +1,51 @@
+# 2026-10-01 active extension — controlled rotation, measured support, optical topography
+
+This section is the current extension of the Free World Observation Geometry Foundation and supersedes older frontier notes below where they conflict.
+
+Continuation code: `44485`
+
+Current branch:
+
+`research/registration-aware-rotation-audit-v01-2026-10-01`
+
+Current Android/scientific source-code checkpoint:
+
+`faac21e2e2fe97477c846609b8dc4e71af29b3c1`
+
+Current additions integrated into `FreeWorldObservationGeometryFoundationV01`:
+
+- `ControlledRotationConstrainedGeometryV01`
+- `GeometryAdjustedFieldMappingDryRunV01`
+- `ControlledRotationFieldCoordinateBridgeAuditV01`
+- `MeasuredFieldSupportCoordinateBridgeAuditV01`
+- `OpticalFieldTopographyAuditV01`
+
+The controlled-rotation campaign uses the same four 0/90/180/270 observations and keeps 270° held out. Residual rotation alone is identical to the nominal relation at the present 12-sector discretization. Translation and especially the full residual similarity can reduce training RMSE while worsening held-out RMSE, so the project does not promote the appearance similarity as physical field truth.
+
+The measured-support successor reconstructs field-cell geometry from the actual `BacksideSignalSupportAudit.sparse_measured_sample_grid` source positions rather than from ideal bin centres.
+
+The topography successor provides X/Y field coordinates plus independent Z layers for measured/derived observables and explicit top/side/oblique view semantics.
+
+Current authority boundary:
+
+- sparse source positions: measured source evidence;
+- support centroids/footprints: derived diagnostics;
+- topographic height: selected observable only;
+- source-grid -> frontside coordinate bridge: unproven;
+- literal physical lens curvature: unproven;
+- physical scene depth: unproven;
+- automatic winner/problem cause: disabled;
+- world registration/calibration/correction/writeback: not promoted.
+
+Current detailed docs:
+
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+
+---
+
 # D.RAW Free World Observation Geometry Foundation v0.1
 
 Date: 2026-09-30

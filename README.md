@@ -4,6 +4,35 @@
 
 # D.RAW
 
+> **CURRENT PROJECT CHECKPOINT — 2026-10-01 — continuation code `44485`**
+>
+> Active branch: `research/registration-aware-rotation-audit-v01-2026-10-01`  
+> PR: `#104`  
+> Android/scientific source-code checkpoint: `a7cefe7c568a0218b13abda855ad3dbd8b278cc8`
+>
+> Current state: `state/CURRENT_PROJECT_STATE_2026-10-01.json`  
+> Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`  
+> Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+>
+> Multi-RAW Research resilience is now foreground-service-owned: selected RAW handles survive recreation, the service checkpoints each completed derived profile, can resume after process/service loss with `START_REDELIVER_INTENT`, and does not retain the growing four-profile set while profiling. Research JSON snapshots are frozen and SHA-256-bound before the Android document picker so a picker lifecycle loss cannot require an expensive Foundation rebuild or intentionally leave a 0-byte output.
+>
+> The current research wave extends the Free World foundation with constrained controlled-rotation geometry, a read-only coordinate-bridge decomposition, **Measured Field Support Coordinate Bridge v0.1**, and **Optical Field Topography v0.1**.
+>
+> The measured-support bridge stops pretending that an aggregate 12x12 field cell lives exactly at its theoretical polar bin centre. It reconstructs each cell's spatial support from the existing measured sparse source-grid positions and exposes derived centroids/footprints without promoting them to new evidence.
+>
+> Optical Field Topography uses the measured-support field coordinates as X/Y and allows independent diagnostic Z layers for relative field signal, nominal-model residual, support count, centroid offset and support footprint. `TOP_DOWN`, `SIDE_X`, `SIDE_Y` and `OBLIQUE` are view semantics only.
+>
+> A topographic ridge, basin or peak does **not** automatically mean scene depth, literal lens-surface sag, field curvature, distortion, vignetting, aberration or sensor angular response. Physical interpretation stays axis-specific and fail-closed.
+>
+> Latest green APK-producing run: `36853127628`; artifact `11156013820`; APK SHA-256 `c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653`.
+>
+> **MEASURED != RECONSTRUCTED != APPEARANCE.**
+>
+> **Seal the evidence, not the thinking.**
+>
+> **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+
 > **CURRENT CORE DIRECTION — 2026-09-28**
 >
 > D.RAW is the canonical project/product. The canonical Android app is `suite_android`; the standalone Universal Capture/Geometry APK remains a test/capture assistant, not the replacement UI.
