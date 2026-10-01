@@ -165,7 +165,9 @@
     ],
     "physical_scene_depth_claim": false,
     "literal_lens_surface_sag_claim": false,
-    "automatic_problem_cause_selected": false
+    "automatic_problem_cause_selected": false,
+    "onscreen_3d_renderer_implemented": false,
+    "exported_view_presets_are_render_semantics_only": true
   },
   "permanent_laws": [
     "MEASURED != RECONSTRUCTED != APPEARANCE",
