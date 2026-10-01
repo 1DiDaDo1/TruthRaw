@@ -238,11 +238,57 @@ class MainActivity : Activity() {
             researchWorkbenchMode &&
             savedInstanceState == null
         ) {
-            ResearchCalibrationSessionPointerV01.load(
-                filesDir,
-            )?.let {
+            val persistentPointer =
+                ResearchCalibrationSessionPointerV01.load(
+                    filesDir,
+                )
+            val recoveredFromFiles =
+                persistentPointer
+                    ?: CalibrationObservationRecordSessionStoreV01
+                        .latestValidSessionId(
+                            filesDir,
+                        )
+            val recoveredFromLegacyCache =
+                if (recoveredFromFiles == null) {
+                    CalibrationObservationRecordSessionStoreV01
+                        .latestValidSessionId(
+                            cacheDir,
+                        )
+                } else {
+                    null
+                }
+            val recoveredSessionId =
+                recoveredFromFiles
+                    ?: recoveredFromLegacyCache
+
+            if (recoveredSessionId != null) {
                 calibrationObservationSessionStoreId =
-                    it
+                    recoveredSessionId
+
+                if (
+                    recoveredFromLegacyCache !=
+                    null
+                ) {
+                    val legacyRecords =
+                        CalibrationObservationRecordSessionStoreV01.load(
+                            cacheDir = cacheDir,
+                            sessionId =
+                                recoveredSessionId,
+                        )
+                    if (
+                        legacyRecords.isNotEmpty()
+                    ) {
+                        CalibrationObservationRecordSessionStoreV01.save(
+                            cacheDir = filesDir,
+                            sessionId =
+                                recoveredSessionId,
+                            records =
+                                legacyRecords,
+                        )
+                    }
+                }
+
+                persistResearchCalibrationSessionPointer()
             }
         }
 
