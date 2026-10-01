@@ -10,7 +10,7 @@
 
 namespace oldce =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
-namespace newce =
+namespace newimpl =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2;
 namespace a = truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace st = truthraw::streaming_v0_1;
@@ -163,26 +163,17 @@ int main() {
     ob.v01AuditSha256 = reference.auditSha256;
     ob.v01SpatialSha256 = reference.spatialSha256;
 
-    newce::Binding nb{};
-    nb.sourceEvidenceSha256 = ob.sourceEvidenceSha256;
-    nb.scientificMasterSha256 = ob.scientificMasterSha256;
-    nb.authorityFieldSha256 = ob.authorityFieldSha256;
-    nb.truthNegativeStateSha256 = ob.truthNegativeStateSha256;
-    nb.v01CandidateSha256 = ob.v01CandidateSha256;
-    nb.v01AuditSha256 = ob.v01AuditSha256;
-    nb.v01SpatialSha256 = ob.v01SpatialSha256;
-
     oldce::Result oldResult{};
-    newce::Result newResult{};
+    oldce::Result newResult{};
     R(oldce::run(source, ob, reference, oldResult));
-    R(newce::run(source, nb, reference, newResult));
+    R(newimpl::runSparseReference(
+        source, ob, reference, newResult));
 
     R(oldResult.v01TileParityVerified);
     R(newResult.v01TileParityVerified);
-    R(newResult.v01SparseReferenceReuseVerified);
-    R(!newResult.v01RerunPerformed);
     R(same_metrics(oldResult.metrics, newResult.metrics));
     R(oldResult.tiles.size() == newResult.tiles.size());
+    R(oldResult.auditSha256 == newResult.auditSha256);
 
     for (std::size_t i = 0; i < oldResult.tiles.size(); ++i) {
         const auto& x = oldResult.tiles[i];
@@ -194,30 +185,33 @@ int main() {
         R(same_metrics(x.metrics, y.metrics));
     }
 
-    newce::Report report{};
-    R(newce::encode(
-        nb,
+    oldce::Report oldReport{};
+    oldce::Report newReport{};
+    R(oldce::encode(
+        ob,
+        static_cast<std::uint32_t>(source.md.width),
+        static_cast<std::uint32_t>(source.md.height),
+        oldResult,
+        oldReport));
+    R(oldce::encode(
+        ob,
         static_cast<std::uint32_t>(source.md.width),
         static_cast<std::uint32_t>(source.md.height),
         newResult,
-        report));
-    R(report.json.find(
-        "\"v01_sparse_reference_reuse_verified\":true") !=
-      std::string::npos);
-    R(report.json.find(
-        "\"v01_rerun_performed\":false") !=
-      std::string::npos);
-    R(!report.candidateApplied);
-    R(!report.createsNewEvidence);
-    R(!report.scientificWritebackAllowed);
-
+        newReport));
+    R(oldReport.json == newReport.json);
+    R(oldReport.jsonSha256 == newReport.jsonSha256);
+    R(!newReport.candidateApplied);
+    R(!newReport.createsNewEvidence);
+    R(!newReport.scientificWritebackAllowed);
     auto badReference = reference;
     badReference.correctedSampleCoordinates.pop_back();
-    newce::Result shouldFail{};
-    R(!newce::run(source, nb, badReference, shouldFail));
+    oldce::Result shouldFail{};
+    R(!newimpl::runSparseReference(
+        source, ob, badReference, shouldFail));
 
     std::cout
-        << "N2 sparse-reference v0.2.2 exact-metric parity PASS "
+        << "N2 sparse-reference v0.2.2 byte-identical v0.2.1 parity PASS "
         << "sampled=" << newResult.metrics.sampled
         << " candidates=" << newResult.metrics.v01CandidateCenters
         << " valid=" << newResult.metrics.predictorValid
