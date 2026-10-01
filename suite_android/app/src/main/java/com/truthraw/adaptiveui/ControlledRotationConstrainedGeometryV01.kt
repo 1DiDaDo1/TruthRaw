@@ -231,6 +231,8 @@ object ControlledRotationConstrainedGeometryV01 {
                 )
         val anchorFeatures =
             readFeatures(anchorFront)
+        val anchorFeatureSupportSource =
+            featureSupportSource(anchorFront)
         if (anchorFeatures.size < MIN_MATCHES) {
             return unavailable(
                 "ROTATION_0_DEG_FEATURE_SUPPORT_TOO_LOW",
@@ -256,6 +258,14 @@ object ControlledRotationConstrainedGeometryV01 {
                 .put("center_displacement_isotropic", 0.0)
                 .put("rms_residual_isotropic", 0.0)
                 .put("robust_match_count", anchorFeatures.size)
+                .put(
+                    "feature_support_source",
+                    anchorFeatureSupportSource,
+                )
+                .put(
+                    "feature_support_count",
+                    anchorFeatures.size,
+                )
                 .put("diagnostic_bounds_pass", true)
                 .put("candidate_applied", false)
                 .put("scientific_writeback_allowed", false),
@@ -358,6 +368,14 @@ object ControlledRotationConstrainedGeometryV01 {
                     .put(
                         "unconstrained_affine_may_override_nominal_relation",
                         false,
+                    )
+                    .put(
+                        "rotation_support_keypoints_preferred",
+                        true,
+                    )
+                    .put(
+                        "rotation_support_changes_primary_pair_geometry",
+                        false,
                     ),
             )
             .put(
@@ -437,6 +455,10 @@ object ControlledRotationConstrainedGeometryV01 {
     ): JSONObject {
         val left = readFeatures(leftFrontside)
         val right = readFeatures(rightFrontside)
+        val leftFeatureSupportSource =
+            featureSupportSource(leftFrontside)
+        val rightFeatureSupportSource =
+            featureSupportSource(rightFrontside)
         if (
             left.size < MIN_MATCHES ||
             right.size < MIN_MATCHES
@@ -783,6 +805,16 @@ object ControlledRotationConstrainedGeometryV01 {
                 centerDisplacement,
             )
             .put(
+                "left_feature_support_source",
+                leftFeatureSupportSource,
+            )
+            .put(
+                "right_feature_support_source",
+                rightFeatureSupportSource,
+            )
+            .put("left_feature_support_count", left.size)
+            .put("right_feature_support_count", right.size)
+            .put(
                 "descriptor_candidate_count",
                 candidates.size,
             )
@@ -915,9 +947,20 @@ object ControlledRotationConstrainedGeometryV01 {
                 .toDouble()
         val cx = (width - 1) * 0.5
         val cy = (height - 1) * 0.5
+        val rotationSupport =
+            geometry.optJSONArray(
+                "rotation_support_keypoints",
+            )
         val array =
-            geometry.optJSONArray("keypoints")
-                ?: return emptyList()
+            if (
+                rotationSupport != null &&
+                rotationSupport.length() >= MIN_MATCHES
+            ) {
+                rotationSupport
+            } else {
+                geometry.optJSONArray("keypoints")
+                    ?: return emptyList()
+            }
         val out = ArrayList<Feature>()
 
         for (i in 0 until array.length()) {
@@ -963,6 +1006,27 @@ object ControlledRotationConstrainedGeometryV01 {
                 )
         }
         return out
+    }
+
+    private fun featureSupportSource(
+        frontside: JSONObject,
+    ): String {
+        val geometry =
+            frontside.optJSONObject(
+                "deterministic_local_feature_geometry_v0_1",
+            ) ?: return "UNAVAILABLE"
+        val rotationSupport =
+            geometry.optJSONArray(
+                "rotation_support_keypoints",
+            )
+        return if (
+            rotationSupport != null &&
+            rotationSupport.length() >= MIN_MATCHES
+        ) {
+            "ROTATION_SUPPORT_KEYPOINTS"
+        } else {
+            "PRIMARY_KEYPOINTS"
+        }
     }
 
     private fun fitResidualSimilarity(
