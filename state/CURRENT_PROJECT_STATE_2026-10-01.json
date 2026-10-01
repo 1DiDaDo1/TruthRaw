@@ -10,41 +10,45 @@
     "title": "Add constrained rotation, measured support, and optical-field topography audits",
     "state": "OPEN"
   },
-  "source_code_head": "4fbc9767d178903ffcf70f5318b9b0706dadf187",
+  "source_code_head": "a7cefe7c568a0218b13abda855ad3dbd8b278cc8",
   "latest_green_android_build": {
     "workflow": "D.RAW Suite Universal Intake v0.1",
-    "run_id": 36840564859,
-    "artifact_id": 11151017383,
+    "run_id": 36853127628,
+    "artifact_id": 11156013820,
     "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
-    "artifact_zip_digest_sha256": "9c0221c0bcd91467a65923dbdf1068847cb88169f5db18f5dc71f9930d17c0ab",
-    "extracted_apk_name": "DRAW_research_multiraw_resilience_fix_v0_1_debug_arm64.apk",
-    "apk_size_bytes": 8368975,
-    "apk_sha256": "35e82830ace915c01328241819ed584d24d82048427d6ae86a36dade4bac02c2"
+    "artifact_zip_digest_sha256": "1530da1afad38c470fd89f7f5fbb4ddac2aae727fb479958097e6830c4dd14ad",
+    "extracted_apk_name": "DRAW_research_foreground_checkpoint_export_v0_1_debug_arm64.apk",
+    "apk_size_bytes": 8401743,
+    "apk_sha256": "c50c3788864331f9fd71af5a462cbb477b8aad7ecfb2c30fa7e1a1eee462f653"
   },
   "green_checks": [
     {
       "name": "Free World Observation Geometry Foundation v0.1 Integrity",
-      "run_id": 36840564746
+      "run_id": 36853128033
     },
     {
       "name": "Canonical Integrity",
-      "run_id": 36840564810
+      "run_id": 36853127721
     },
     {
       "name": "Tile-Native DNG Source v0.2 Android Compatibility",
-      "run_id": 36840564853
+      "run_id": 36853127963
     },
     {
       "name": "D.RAW Suite Universal Intake v0.1",
-      "run_id": 36840564859
+      "run_id": 36853127628
     },
     {
       "name": "D.RAW Universal Physical Capture v0.3 Live Preview Macro",
-      "run_id": 36840564922
+      "run_id": 36853127609
+    },
+    {
+      "name": "D.RAW Android DngCreator Compatibility v0.1",
+      "run_id": 36853127632
     },
     {
       "name": "Documentation Governance 2026-09-10",
-      "run_id": 36840565059
+      "run_id": 36853127597
     }
   ],
   "active_scientific_wave": {
@@ -191,19 +195,24 @@
   },
   "research_workbench_resilience_fix": {
     "status": "IMPLEMENTED_BUILD_GREEN",
-    "symptom": "Multi-observation analysis could return to Research & JSON and lose the four selected RAW handles.",
+    "latest_observed_device_failure": "Foreground analysis service disappeared after about 30:50 while four RAW handles survived; prior Foundation save also produced a 0-byte destination after document-picker lifecycle loss.",
     "confirmed_code_failure_modes": [
-      "Selected RawJob handles lived only in MainActivity memory and were not restored after Activity/process recreation.",
-      "The multi-source button launched all UniversalSourceProfiler jobs in parallel with force=true; the first source could already be profiling automatically, allowing duplicate/concurrent heavy work.",
-      "A multi-source research selection also auto-started a photo preview for the first source, increasing peak memory during research profiling."
+      "The first resilience pass persisted RAW handles but the UniversalSourceProfiler worker still belonged to MainActivity rather than the foreground service.",
+      "Completed full UniversalSourceProfile JSON objects could accumulate in Activity/process heap during long multi-RAW profiling.",
+      "ACTION_CREATE_DOCUMENT creates the destination before MainActivity returns; the old Foundation result path rebuilt the full report after the picker, so interruption could leave a 0-byte document.",
+      "Research relation records had a session id that could be lost on a cold process restart even when the records themselves still existed."
     ],
     "changes": [
-      "ResearchWorkbenchSessionStoreV01 persists lightweight RAW handles/metadata only; RAW payload bytes are never copied.",
-      "Research workbench restores the selected RAW set after recreation/re-entry.",
-      "Multi-source universal profiling now runs sequentially.",
-      "In-flight per-source profiling is joined via completion waiters instead of duplicated.",
-      "Automatic heavy preview and automatic profile startup are suppressed for multi-source research selections; the explicit batch analysis owns the workload."
+      "TruthRawMediaProcessingForegroundService now owns the multi-RAW UniversalSourceProfiler batch and returns START_REDELIVER_INTENT for that research action.",
+      "Each completed derived UniversalSourceProfile is persisted independently; restarted service runs reuse completed profiles and redo only unfinished RAWs.",
+      "The service does not retain the complete multi-observation profile set while processing and forces a GC checkpoint between newly completed RAWs to reduce peak heap.",
+      "MainActivity polls persisted operation state while foregrounded and reloads completed profile JSON only after the service batch is terminal.",
+      "Research notification returns directly to the Research workbench.",
+      "Research JSON exports are frozen to a private payload file before ACTION_CREATE_DOCUMENT, SHA-256/byte-length validated, then streamed exactly to the chosen destination without rebuilding the Foundation after the picker.",
+      "The active research Calibration Observation Record session pointer is persisted durably and can migrate the latest valid legacy cache session after app restart."
     ],
+    "gpu_acceleration_status": "NOT_USED_FOR_THIS_FIX",
+    "gpu_reason": "Current failure is lifecycle/heap/export orchestration. Hashing, TIFF/DNG parsing, CFA statistics and JSON assembly are not suitable for a blind GPU migration, and authoritative numerical paths should keep deterministic CPU parity. GPU remains eligible later for separately validated APPEARANCE_DERIVED_ONLY kernels.",
     "scientific_authority_changed": false,
     "source_evidence_modified": false
   }
