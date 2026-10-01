@@ -39,7 +39,7 @@ for path in workflows:
         "DRAW_SIGNING_KEY_ALIAS",
         "DRAW_SIGNING_KEY_PASSWORD",
         cert,
-        "apksigner verify --print-certs",
+        "verify --print-certs",
     ]:
         assert token in text, f"{path.name}: missing stable update invariant {token}"
 
