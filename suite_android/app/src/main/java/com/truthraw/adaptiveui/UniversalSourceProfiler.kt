@@ -26,6 +26,31 @@ object UniversalSourceProfiler {
         cacheDir: File,
         progress: ((String) -> Unit)? = null,
         derivedStageCacheDir: File? = null,
+    ): JSONObject =
+        try {
+            profileInternal(
+                resolver = resolver,
+                source = source,
+                cacheDir = cacheDir,
+                progress = progress,
+                derivedStageCacheDir = derivedStageCacheDir,
+            )
+        } finally {
+            // Bound the native shared preparation to exactly one profile,
+            // regardless of whether this profiler was invoked from the
+            // foreground Research service or another read-only intake path.
+            runCatching {
+                TruthNegativeN2FactoredConfidenceBridge
+                    .clearSharedPipelineCache()
+            }
+        }
+
+    private fun profileInternal(
+        resolver: ContentResolver,
+        source: RawHandle,
+        cacheDir: File,
+        progress: ((String) -> Unit)? = null,
+        derivedStageCacheDir: File? = null,
     ): JSONObject {
         progress?.invoke("SOURCE_SHA256")
         val sourceSha256 = sha256(resolver, source.uri)
