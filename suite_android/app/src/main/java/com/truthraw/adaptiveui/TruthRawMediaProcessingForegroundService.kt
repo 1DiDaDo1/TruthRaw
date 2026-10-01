@@ -96,11 +96,11 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     ResearchWorkbenchSessionStoreV01.load(
                         filesDir,
                     )
-                        ?: error(
+                        ?: kotlin.error(
                             "Geen persistente Research-selectie gevonden.",
                         )
                 if (session.jobs.isEmpty()) {
-                    error(
+                    kotlin.error(
                         "Persistente Research-selectie bevat geen RAW-bronnen.",
                     )
                 }
@@ -123,16 +123,20 @@ class TruthRawMediaProcessingForegroundService : Service() {
                             " · " +
                             job.source.displayName
 
-                    TruthRawOperationStore.update(
-                        applicationContext,
-                        operationKey,
-                        TruthRawOperationPhase.RUNNING,
+                    val progressMessage =
                         if (existing != null) {
                             progress +
                                 " · persistent profiel hergebruikt"
                         } else {
                             progress
-                        },
+                        }
+                    labels[operationKey] =
+                        progressMessage
+                    TruthRawOperationStore.update(
+                        applicationContext,
+                        operationKey,
+                        TruthRawOperationPhase.RUNNING,
+                        progressMessage,
                     )
                     notifyProgress()
 
@@ -152,16 +156,20 @@ class TruthRawMediaProcessingForegroundService : Service() {
                                 )
                             }.onFailure { error ->
                                 failures++
-                                TruthRawOperationStore.update(
-                                    applicationContext,
-                                    operationKey,
-                                    TruthRawOperationPhase.RUNNING,
+                                val failureMessage =
                                     progress +
                                         " · fout=" +
                                         (
                                             error.message
                                                 ?: error.javaClass.simpleName
-                                            ),
+                                            )
+                                labels[operationKey] =
+                                    failureMessage
+                                TruthRawOperationStore.update(
+                                    applicationContext,
+                                    operationKey,
+                                    TruthRawOperationPhase.RUNNING,
+                                    failureMessage,
                                 )
                                 notifyProgress()
                             }.getOrNull()
