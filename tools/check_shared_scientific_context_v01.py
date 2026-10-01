@@ -50,7 +50,9 @@ for name in bridges:
         "std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex)",
         "pipeline::reverify(*ctx)",
         "sharedPipelineCacheHit",
-        '"scientificWritebackAllowed":false',
+        "scientificWritebackAllowed",
+        "candidateApplied",
+        "createsNewEvidence",
     ]:
         assert needle in text, f"{name}: missing invariant: {needle}"
 
