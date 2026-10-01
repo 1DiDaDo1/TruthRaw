@@ -18,6 +18,8 @@ object TruthNegativeN2FactoredConfidenceBridge {
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): String
+
+    external fun clearSharedPipelineCache(): Boolean
 }
 
 data class TruthNegativeN2FactoredConfidenceMetrics(
