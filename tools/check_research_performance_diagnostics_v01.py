@@ -7,12 +7,14 @@ JAVA = ROOT / "suite_android/app/src/main/java/com/truthraw/adaptiveui"
 trace = (JAVA / "ResearchPerformanceDiagnosticsV01.kt").read_text()
 aggregate = (JAVA / "FreeWorldPerformanceDiagnosticsV01.kt").read_text()
 profiler = (JAVA / "UniversalSourceProfiler.kt").read_text()
+profile_store = (JAVA / "ResearchUniversalProfileStoreV01.kt").read_text()
 foundation = (JAVA / "FreeWorldObservationGeometryFoundationV01.kt").read_text()
 
 for token in [
     "D.RAW/ResearchPerformanceDiagnostics/0.1",
     "SystemClock.elapsedRealtimeNanos()",
     "profile_elapsed_ms",
+    "profile_cache_generation",
     "derived_stage_cache_hit",
     "shared_pipeline_prepare_cache_hit",
     "cache_hit_count",
@@ -33,6 +35,8 @@ for token in [
     "D.RAW/FreeWorldPerformanceDiagnostics/0.1",
     "PERFORMANCE_DIAGNOSTICS_AVAILABLE",
     "aggregate_profile_elapsed_ms",
+    "expected_profile_cache_generation",
+    "profile_cache_generation",
     "shared_scientific_preparation_summary",
     "profiles_cache_release_succeeded",
     "all_reported_profiles_single_source_context_policy",
@@ -50,8 +54,19 @@ for token in [
     "trace.onProgress(event)",
     "clearSharedPipelineCache()",
     "trace.attach(",
+    "D.RAW/UniversalSourceProfileCache/0.2.2-n2-sparse-ref-v1",
+    '"profile_cache_generation"',
+    "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF",
 ]:
     assert token in profiler, f"profiler missing {token}"
+
+for token in [
+    "isCurrentProfile",
+    '"profile_cache_generation"',
+    "UniversalSourceProfiler.CACHE_GENERATION",
+    "Refusing to persist a UniversalSourceProfile from a stale profiler cache generation.",
+]:
+    assert token in profile_store, f"profile store missing {token}"
 
 for token in [
     '"performance_diagnostics_v0_1"',
@@ -70,5 +85,6 @@ for forbidden in [
 ]:
     assert forbidden not in trace
     assert forbidden not in aggregate
+    assert forbidden not in profile_store
 
 print("research_performance_diagnostics_v0_1_integrity=PASS")
