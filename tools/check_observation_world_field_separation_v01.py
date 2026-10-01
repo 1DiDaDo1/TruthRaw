@@ -37,15 +37,24 @@ for needle in [
 ]:
     assert needle in code, f"missing world-separation invariant: {needle}"
 
+pending_export = (JAVA / "ResearchPendingJsonExportStoreV01.kt").read_text()
+
 for needle in [
     "Export Observation-World Field Separation v0.1 · JSON",
     "launchObservationWorldFieldSeparationExport",
     "REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129",
     "currentObservationWorldProfiles",
-    "source-SHA set veranderde",
+    "ResearchPendingJsonExportStoreV01.save",
     "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE en VIEW/OUTPUT SPACE",
 ]:
     assert needle in main, f"missing Android world-separation binding: {needle}"
+
+for needle in [
+    "OBSERVATION_WORLD_FIELD_SEPARATION",
+    "copyFrozenTo",
+    "sha256",
+]:
+    assert needle in pending_export, f"missing frozen world-separation export invariant: {needle}"
 
 for forbidden in [
     '.put("camera_holder_is_world_origin", true)',
