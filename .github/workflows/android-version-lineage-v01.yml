@@ -1,0 +1,25 @@
+name: Android Version Lineage v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'tools/check_android_version_lineage_v01.py'
+      - '.github/workflows/draw-suite-universal-intake-v01.yml'
+      - '.github/workflows/draw-android-dngcreator-compat-v01.yml'
+      - '.github/workflows/draw-universal-physical-capture-v01.yml'
+      - '.github/workflows/android-version-lineage-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify monotonic update lineage
+        run: python3 tools/check_android_version_lineage_v01.py
