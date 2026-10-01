@@ -217,6 +217,8 @@ The audit also reports descriptive Pearson associations, separately for TRAIN an
 
 These correlations are descriptive only. Correlation is not causation, is not a scientific promotion threshold, and does not select a problem cause automatically.
 
+The current APK exports the topographic data and view semantics in JSON. An interactive on-screen 3D renderer is not yet implemented; that should come only after the exported scientific topology is validated.
+
 ### Topography authority rule
 
 A visible peak, basin, ridge or slope means only that the chosen observable varies over field position.
