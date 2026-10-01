@@ -1730,3 +1730,32 @@ These are frozen downstream references for their validated source and are not au
 6. keep Scientific Master, Dynamic Authority, TruthRange, HDR, restoration and appearance downstream from correctly established source topology.
 
 v0.71 CI run `35506676249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Documentation governance run `35506676288` = **SUCCESS**. Artifact ID `10604525855`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
+
+
+## 2026-10-01 Android 17 performance baseline (current)
+
+This section supersedes the older Android/research-performance continuation notes above.
+
+Validated real-device checkpoint:
+- PR #107 merged as `9c74740bc8174d7e29d2312e342c1f3c8c943e16`.
+- Same four DNGs, cold run after app-data clear: **15:31 -> 05:18**.
+- attempt=1, redelivery=0, no terminal ANR.
+- leaving/returning to Research after completion passed.
+- Free World Observation Geometry Foundation export after completion passed.
+- Shared scientific preparation is same-RAW only, one context maximum, serialized, source-reverified and released at the profile boundary.
+- Scientific authority did not change: no source mutation, no calibration/correction promotion, no candidate application, no Scientific-Master writeback.
+
+Follow-up source-control baseline:
+- per-stage monotonic timing and shared prepare hit/miss telemetry are diagnostic-only;
+- Foundation export aggregates that telemetry per observation;
+- Android `versionCode` is now repository-owned via `suite_android/VERSION_CODE`;
+- current versionCode baseline: `26100101`;
+- application ID remains `com.truthraw.adaptiveui`;
+- stable signing certificate remains `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
+
+Canonical supporting records:
+- `state/DRAW_ANDROID17_RESEARCH_PERFORMANCE_BASELINE_2026-10-01.json`
+- `state/DRAW_ANDROID_VERSION_LINEAGE_V01.json`
+- `docs/research/shared-scientific-context-v0.1/README.md`
+
+Important: the cold performance run intentionally cleared app data. Therefore the Calibration Observation Record was absent from that run's final Foundation export; controlled-rotation/measured-support/topography candidates failing closed in that export are not a runtime regression.
