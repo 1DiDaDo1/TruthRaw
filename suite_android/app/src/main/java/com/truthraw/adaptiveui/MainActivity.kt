@@ -1984,6 +1984,7 @@ class MainActivity : Activity() {
             reportText =
                 pendingFieldResponseRepeatabilityJson!!,
         )
+        pendingFieldResponseRepeatabilityJson = null
         fieldResponseRepeatabilityStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -2074,6 +2075,7 @@ class MainActivity : Activity() {
             reportText =
                 pendingFreeWorldFoundationJson!!,
         )
+        pendingFreeWorldFoundationJson = null
         freeWorldFoundationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -2139,6 +2141,7 @@ class MainActivity : Activity() {
             reportText =
                 pendingObservationWorldFieldSeparationJson!!,
         )
+        pendingObservationWorldFieldSeparationJson = null
         observationWorldFieldSeparationStatus = null
 
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -3942,13 +3945,6 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_FREE_WORLD_FOUNDATION) {
-            val reportText =
-                pendingFreeWorldFoundationJson
-                    ?: ResearchPendingJsonExportStoreV01.load(
-                        filesDir = filesDir,
-                        key =
-                            ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
-                    )
             pendingFreeWorldFoundationJson = null
             val destination = data?.data
 
@@ -3964,77 +3960,35 @@ class MainActivity : Activity() {
                 return
             }
 
-            if (reportText == null) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: pending report ontbreekt."
-                render()
-                return
-            }
-
-            val saved = runCatching { JSONObject(reportText) }.getOrNull()
-            val current =
-                FreeWorldObservationGeometryFoundationV01.build(
-                    profiles = currentObservationWorldProfiles(),
-                    fieldRepeatability =
-                        FieldResponseRepeatabilityV01.evaluate(
-                            currentMeasuredFieldCharts(),
-                        ).takeIf {
-                            it.optString("status") ==
-                                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE"
-                        },
-                    calibrationRecords = currentCalibrationObservationRecords(),
-                )
-
-            if (
-                saved == null ||
-                saved.optString("status") !=
-                "FREE_WORLD_FOUNDATION_AVAILABLE" ||
-                current.optString("status") !=
-                "FREE_WORLD_FOUNDATION_AVAILABLE"
-            ) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: observation-set niet meer geldig."
-                render()
-                return
-            }
-
-            val savedGraph =
-                saved.optJSONObject("observation_graph") ?: JSONObject()
-            val currentGraph =
-                current.optJSONObject("observation_graph") ?: JSONObject()
-            if (
-                savedGraph.optString("graph_identity_sha256").isBlank() ||
-                savedGraph.optString("graph_identity_sha256") !=
-                currentGraph.optString("graph_identity_sha256")
-            ) {
-                freeWorldFoundationStatus =
-                    "Free World Foundation v0.1 geblokkeerd: graph identity veranderde."
-                render()
-                return
-            }
-
-            freeWorldFoundationStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FREE_WORLD_FOUNDATION,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
 
-                val graph =
-                    saved.optJSONObject("observation_graph")
-                        ?: JSONObject()
-                "Free World Foundation v0.1 JSON opgeslagen · observations=" +
-                    graph.optInt("observation_count", 0) +
-                    " · pair geometry candidates=" +
-                    graph.optInt("geometry_candidate_edge_count", 0) +
-                    " · registration promoted=false · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Free World Foundation v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+            freeWorldFoundationStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Free World Foundation v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "… · geen herberekening na bestandskiezer."
+                    },
+                    onFailure = { error ->
+                        "Free World Foundation v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
             ResearchPendingJsonExportStoreV01.clear(
                 filesDir = filesDir,
                 key =
@@ -4045,13 +3999,6 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION) {
-            val reportText =
-                pendingObservationWorldFieldSeparationJson
-                    ?: ResearchPendingJsonExportStoreV01.load(
-                        filesDir = filesDir,
-                        key =
-                            ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
-                    )
             pendingObservationWorldFieldSeparationJson = null
             val destination = data?.data
 
@@ -4067,85 +4014,35 @@ class MainActivity : Activity() {
                 return
             }
 
-            if (reportText == null) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: pending report ontbreekt."
-                render()
-                return
-            }
-
-            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
-            val currentReport =
-                ObservationWorldFieldSeparationV01.evaluate(
-                    currentObservationWorldProfiles(),
-                )
-            if (
-                savedReport == null ||
-                savedReport.optString("status") !=
-                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE" ||
-                currentReport.optString("status") !=
-                "COORDINATE_AUTHORITY_SEPARATION_AVAILABLE"
-            ) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: observation-set niet meer geldig."
-                render()
-                return
-            }
-
-            val savedRoots =
-                savedReport.optJSONArray("observations")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull {
-                                roots.optJSONObject(it)
-                                    ?.optString("source_sha256")
-                            }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-            val currentRoots =
-                currentReport.optJSONArray("observations")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull {
-                                roots.optJSONObject(it)
-                                    ?.optString("source_sha256")
-                            }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-
-            if (savedRoots != currentRoots || savedRoots.size < 2) {
-                observationWorldFieldSeparationStatus =
-                    "Observation-World Field Separation v0.1 geblokkeerd: source-SHA set veranderde."
-                render()
-                return
-            }
-
-            observationWorldFieldSeparationStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.OBSERVATION_WORLD_FIELD_SEPARATION,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
 
-                val spaces = savedReport.optJSONObject("coordinate_spaces")
-                val world = spaces?.optJSONObject("world_scene_space")
-                val sensor = spaces?.optJSONObject("source_sensor_space")
-                "Observation-World Field Separation v0.1 JSON opgeslagen · observations=" +
-                    savedReport.optInt("observation_count", 0) +
-                    " · measured sensor fields=" +
-                    (sensor?.optInt("measured_field_observation_count", 0) ?: 0) +
-                    " · world registration=" +
-                    (world?.optString("registration_status", "UNKNOWN") ?: "UNKNOWN") +
-                    " · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Observation-World Field Separation v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+            observationWorldFieldSeparationStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Observation-World Field Separation v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "…"
+                    },
+                    onFailure = { error ->
+                        "Observation-World Field Separation v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
             ResearchPendingJsonExportStoreV01.clear(
                 filesDir = filesDir,
                 key =
@@ -4156,13 +4053,6 @@ class MainActivity : Activity() {
         }
 
         if (requestCode == REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY) {
-            val reportText =
-                pendingFieldResponseRepeatabilityJson
-                    ?: ResearchPendingJsonExportStoreV01.load(
-                        filesDir = filesDir,
-                        key =
-                            ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
-                    )
             pendingFieldResponseRepeatabilityJson = null
             val destination = data?.data
 
@@ -4178,78 +4068,35 @@ class MainActivity : Activity() {
                 return
             }
 
-            if (reportText == null) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: pending audit ontbreekt."
-                render()
-                return
-            }
-
-            val savedReport = runCatching { JSONObject(reportText) }.getOrNull()
-            val currentReport =
-                FieldResponseRepeatabilityV01.evaluate(
-                    currentMeasuredFieldCharts(),
-                )
-            if (
-                savedReport == null ||
-                currentReport.optString("status") !=
-                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
-                savedReport.optString("status") !=
-                "READ_ONLY_REPEATABILITY_AUDIT_AVAILABLE" ||
-                savedReport.optInt("observation_count", -1) !=
-                currentReport.optInt("observation_count", -2)
-            ) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: geselecteerde observation-set veranderde."
-                render()
-                return
-            }
-
-            val savedRoots =
-                savedReport.optJSONArray("observation_roots")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-            val currentRoots =
-                currentReport.optJSONArray("observation_roots")
-                    ?.let { roots ->
-                        (0 until roots.length())
-                            .mapNotNull { roots.optJSONObject(it)?.optString("source_sha256") }
-                            .filter { it.isNotBlank() }
-                            .toSet()
-                    } ?: emptySet()
-
-            if (savedRoots != currentRoots || savedRoots.size < 3) {
-                fieldResponseRepeatabilityStatus =
-                    "Field Response Repeatability v0.1 geblokkeerd: source-SHA set veranderde."
-                render()
-                return
-            }
-
-            fieldResponseRepeatabilityStatus = try {
-                val stream =
-                    contentResolver.openOutputStream(destination, "w")
-                        ?: throw IOException(
-                            "Documentprovider gaf geen outputstream.",
-                        )
-                stream.bufferedWriter(Charsets.UTF_8).use {
-                    it.write(reportText)
+            val copied =
+                runCatching {
+                    ResearchPendingJsonExportStoreV01.copyFrozenTo(
+                        filesDir = filesDir,
+                        key =
+                            ResearchPendingJsonExportStoreV01.FIELD_RESPONSE_REPEATABILITY,
+                        resolver = contentResolver,
+                        destination = destination,
+                    )
                 }
-                val radial =
-                    savedReport.optJSONObject("radial_repeatability")
-                "Field Response Repeatability v0.1 JSON opgeslagen · observations=" +
-                    savedReport.optInt("observation_count", 0) +
-                    " · radial MAD(EV)=" +
-                    (radial?.opt("median_annulus_cross_observation_mad_ev")
-                        ?: "UNKNOWN") +
-                    " · relation=user-grouping-hint-only · calibration=false · correction=false · writeback=false."
-            } catch (error: Exception) {
-                "Field Response Repeatability v0.1 export faalde: " +
-                    (error.message ?: error.javaClass.simpleName)
-            }
+
+            fieldResponseRepeatabilityStatus =
+                copied.fold(
+                    onSuccess = { result ->
+                        "Field Response Repeatability v0.1 JSON opgeslagen · bevroren snapshot exact gekopieerd · bytes=" +
+                            result.byteLength +
+                            " · SHA-256=" +
+                            result.sha256.take(16) +
+                            "…"
+                    },
+                    onFailure = { error ->
+                        "Field Response Repeatability v0.1 export faalde: " +
+                            (
+                                error.message
+                                    ?: error.javaClass.simpleName
+                                )
+                    },
+                )
+
             ResearchPendingJsonExportStoreV01.clear(
                 filesDir = filesDir,
                 key =
