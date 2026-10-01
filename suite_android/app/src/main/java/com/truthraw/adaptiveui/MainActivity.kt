@@ -127,7 +127,7 @@ class MainActivity : Activity() {
             if (keepPolling) {
                 researchStatusHandler.postDelayed(
                     this,
-                    1000L,
+                    2000L,
                 )
             }
         }
@@ -480,28 +480,24 @@ class MainActivity : Activity() {
         if (session.jobs.isEmpty()) {
             return
         }
-        // Completed per-RAW profiles are immutable derived diagnostics and may
-        // be loaded while the service continues with later RAWs. Keeping this
-        // live prevents the UI from reporting 0/3 after one or more profiles
-        // have already been durably committed.
-        val restoredProfiles =
-            ResearchUniversalProfileStoreV01.load(
-                filesDir = filesDir,
-                session = session,
-            )
-        if (restoredProfiles.isEmpty()) {
-            return
-        }
-        universalProfiles.putAll(
-            restoredProfiles,
-        )
-        for (jobId in restoredProfiles.keys) {
-            universalProfileErrors.remove(
-                jobId,
-            )
-            universalProfileLoading.remove(
-                jobId,
-            )
+
+        // Never reparse a large UniversalSourceProfile that is already present
+        // in this Activity. The previous implementation loaded every persisted
+        // profile on every 1 s status poll and again on every onResume(), which
+        // caused large transient JSONObject churn and could starve the UI
+        // thread after a four-RAW batch.
+        for (job in session.jobs) {
+            if (universalProfiles.containsKey(job.id)) {
+                continue
+            }
+            val restored =
+                ResearchUniversalProfileStoreV01.loadForJob(
+                    filesDir = filesDir,
+                    job = job,
+                ) ?: continue
+            universalProfiles[job.id] = restored
+            universalProfileErrors.remove(job.id)
+            universalProfileLoading.remove(job.id)
         }
     }
 
@@ -605,7 +601,7 @@ class MainActivity : Activity() {
         if (syncResearchBatchStatus()) {
             researchStatusHandler.postDelayed(
                 researchStatusPoll,
-                1000L,
+                2000L,
             )
         }
         render()
@@ -779,9 +775,11 @@ class MainActivity : Activity() {
             heartbeat !=
             researchBatchLastHeartbeatWallMs
         ) {
+            // Heartbeat proves service liveness, but it must not rebuild the
+            // entire research UI. Re-rendering the very large workbench every
+            // heartbeat caused main-thread pressure and ANR risk.
             researchBatchLastHeartbeatWallMs =
                 heartbeat
-            changed = true
         }
 
         if (operation.terminal) {
