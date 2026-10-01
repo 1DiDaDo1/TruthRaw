@@ -51,6 +51,8 @@ The export defines four view presets:
 
 These are render/view semantics only. They do not change the source evidence or scientific state.
 
+An interactive/on-screen 3D renderer is **not implemented yet**. The current APK exports the topographic points, Z-layer fields and view presets in the Foundation JSON so the scientific data model can be validated before a visual renderer is added.
+
 ## Association diagnostics
 
 For both TRAIN and HELD_OUT samples separately, the module reports descriptive Pearson association between nominal absolute model residual and:
