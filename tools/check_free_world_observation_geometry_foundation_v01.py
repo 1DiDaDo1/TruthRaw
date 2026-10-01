@@ -58,6 +58,9 @@ required = {
         "ORIENTATION_NORMALIZED_BINARY_INTENSITY_PAIRS",
         "APPEARANCE_DERIVED_ONLY",
         "is_world_registration_proof",
+        "rotation_support_keypoints",
+        "CONTROLLED_ROTATION_CONSTRAINED_GEOMETRY_DIAGNOSTIC_ONLY",
+        "primary_pair_geometry_replaced",
     ],
     "pair": [
         "HAMMING_128",
@@ -81,6 +84,9 @@ required = {
         "field_response_calibration_promoted",
         "correction_authorized",
         "scientific_writeback_allowed",
+        "rotation_support_keypoints_preferred",
+        "rotation_support_changes_primary_pair_geometry",
+        "ROTATION_SUPPORT_KEYPOINTS",
     ],
     "graph": [
         "source_sha256",
