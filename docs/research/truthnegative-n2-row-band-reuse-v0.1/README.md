@@ -1,6 +1,6 @@
 # N2 Row-Band Reuse v0.1
 
-Performance-only candidate for the N2 local spatial path.
+Performance-only, transport-only candidate for the N2 local spatial path.
 
 The established N2 v0.1 CFA audit requests many neighboring 64x64 tile
 rectangles from the same immutable RAW source. On Android's tile-native DNG
