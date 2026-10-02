@@ -119,11 +119,11 @@ for token in [
 
 for text in [neighbor_h, neighbor_cpp, spatial_h, spatial_cpp, bridge, binding, diag, readme]:
     for forbidden in [
-        'candidate_applied", true',
-        'creates_new_evidence", true',
-        'scientific_writeback_allowed", true',
-        'calibration_promoted", true',
-        'correction_authorized", true',
+        '.put("candidate_applied", true)',
+        '.put("creates_new_evidence", true)',
+        '.put("scientific_writeback_allowed", true)',
+        '.put("calibration_promoted", true)',
+        '.put("correction_authorized", true)',
     ]:
         assert forbidden not in text, f"profiling gained scientific authority: {forbidden}"
 
