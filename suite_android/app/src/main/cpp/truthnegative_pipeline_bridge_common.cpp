@@ -134,6 +134,14 @@ public:
         return accumulator_.genericFallbackRecordCount();
     }
 
+    std::uint64_t shaDirectInputBlockTransformCount() const noexcept {
+        return accumulator_.shaDirectInputBlockTransformCount();
+    }
+
+    std::uint64_t shaBufferedInputBlockTransformCount() const noexcept {
+        return accumulator_.shaBufferedInputBlockTransformCount();
+    }
+
 private:
     CfaPattern cfa_ = CfaPattern::BGGR;
     float whiteLevel_ = 0.0f;
@@ -307,6 +315,14 @@ Status prepare(
                 authorityObserver.directByteRecordCount();
             timing->authorityGenericFallbackRecordCount =
                 authorityObserver.genericFallbackRecordCount();
+            timing->authorityShaDirectInputBlockTransformCount =
+                authorityObserver.shaDirectInputBlockTransformCount();
+            timing->authorityShaBufferedInputBlockTransformCount =
+                authorityObserver.shaBufferedInputBlockTransformCount();
+            timing->authorityShaDirectInputBytes =
+                timing->authorityShaDirectInputBlockTransformCount * 64u;
+            timing->authorityShaDirectBlockTransportActive =
+                timing->authorityShaDirectInputBlockTransformCount > 0u;
             timing->authorityDirectRecordStreamMs =
                 authorityObserver.directRecordStreamMs();
             timing->authorityDirectRecordStreamTileCount =
