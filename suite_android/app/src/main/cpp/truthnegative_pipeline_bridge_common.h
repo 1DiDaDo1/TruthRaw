@@ -26,6 +26,29 @@ struct Status final {
     explicit operator bool() const noexcept { return code == 0; }
 };
 
+struct PreparationTiming final {
+    double duplicateAndByteSourceMs = 0.0;
+    double sealSourceMs = 0.0;
+    double colorBindingMs = 0.0;
+    double prepareColorSourceMs = 0.0;
+    double preOpenReverifyMs = 0.0;
+    double openDngAdapterMs = 0.0;
+    double bindScientificMasterMs = 0.0;
+    double finalizePhase2Ms = 0.0;
+    double summarizeAuthorityFieldMs = 0.0;
+    double finalizeTruthNegativeMs = 0.0;
+    double finalizeDrawNegativeMs = 0.0;
+    double totalMs = 0.0;
+};
+
+struct SharedAcquireTiming final {
+    double probeSealMs = 0.0;
+    double cacheLookupMs = 0.0;
+    double prepareTotalMs = 0.0;
+    bool cacheHit = false;
+    PreparationTiming preparation{};
+};
+
 struct Context final {
     // Serialize callers that reuse the same process-local prepared context.
     // Scientific/sample values remain read-only; this protects mutable
@@ -69,7 +92,8 @@ Status prepare(
     int sourceFd,
     std::size_t maxSourceResidentBytes,
     std::size_t maxLogicalResidentBytes,
-    Context& out) noexcept;
+    Context& out,
+    PreparationTiming* timing = nullptr) noexcept;
 
 /**
  * Acquire a process-local, single-source prepared context.
@@ -84,7 +108,8 @@ Status acquireShared(
     std::size_t maxSourceResidentBytes,
     std::size_t maxLogicalResidentBytes,
     std::shared_ptr<Context>& out,
-    bool& cacheHit) noexcept;
+    bool& cacheHit,
+    SharedAcquireTiming* timing = nullptr) noexcept;
 
 void clearSharedCache() noexcept;
 
