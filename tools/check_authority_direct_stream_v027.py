@@ -125,8 +125,8 @@ for token in [
     assert token in diag, f"Research direct-stream telemetry missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.8-authority-direct-byte-v1",
-    "N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE",
+    "D.RAW/UniversalSourceProfileCache/0.2.9-sha-direct-block-v1",
+    "N2_LOCAL_SPATIAL_V01_R9_SHA_DIRECT_BLOCK",
 ]:
     assert token in profiler, f"fresh direct-stream profiler identity missing {token}"
 
