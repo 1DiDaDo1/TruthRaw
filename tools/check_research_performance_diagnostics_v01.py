@@ -69,9 +69,9 @@ for token in [
     "trace.onProgress(event)",
     "clearSharedPipelineCache()",
     "trace.attach(",
-    "D.RAW/UniversalSourceProfileCache/0.2.5-n2-subphase-timing-v1",
+    "D.RAW/UniversalSourceProfileCache/0.2.6-authority-fused-v1",
     '"profile_cache_generation"',
-    "N2_LOCAL_SPATIAL_V01_R5_SUBPHASE_TIMING",
+    "N2_LOCAL_SPATIAL_V01_R6_AUTHORITY_FUSED",
 ]:
     assert token in profiler, f"profiler missing {token}"
 
