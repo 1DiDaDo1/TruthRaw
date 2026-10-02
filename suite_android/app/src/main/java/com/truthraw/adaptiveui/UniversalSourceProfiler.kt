@@ -24,6 +24,10 @@ object UniversalSourceProfiler {
         "D.RAW/UniversalSourceProfileCache/0.2.10-authority-pixel-triplet-v1"
     const val PREVIOUS_N2_STAGE_V0210 =
         "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET"
+    const val PREVIOUS_N2_STAGE_V0211 =
+        "N2_LOCAL_SPATIAL_V01_R11_AUTHORITY_TEMPLATE_REUSE"
+    const val CURRENT_N2_STAGE_V0211_FINAL_VALIDATION =
+        "N2_LOCAL_SPATIAL_V01_R11_FINAL_VALIDATION"
 
     const val CACHE_GENERATION =
         "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1"
@@ -527,7 +531,7 @@ object UniversalSourceProfiler {
                 val frontsideInput =
                     frontside.optJSONObject("dark_chroma_stability_v0_1")
                 cachedStage(
-                    stageId = "N2_LOCAL_SPATIAL_V01_R11_FINAL_VALIDATION",
+                    stageId = CURRENT_N2_STAGE_V0211_FINAL_VALIDATION,
                     inputFingerprint =
                         ResearchProfileStageCacheV01.fingerprint(
                             frontsideInput?.toString(),
