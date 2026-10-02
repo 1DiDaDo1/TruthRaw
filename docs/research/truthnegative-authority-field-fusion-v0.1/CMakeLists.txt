@@ -13,6 +13,7 @@ set(SMSB1 "${REPO_ROOT}/docs/research/scientific-master-streaming-binding-v0.1/n
 set(SMSB2 "${REPO_ROOT}/docs/research/scientific-master-streaming-binding-v0.2/native")
 set(DIGEST "${REPO_ROOT}/docs/research/scientific-master-digest-v0.1/native")
 set(TRUTHRANGE "${REPO_ROOT}/docs/research/truthrange-latent-binding-v0.2/native")
+set(BACKPLANE "${REPO_ROOT}/docs/research/technical-backplane-v0.1/native")
 set(MASTER_TILE "${REPO_ROOT}/docs/research/scientific-master-linear-dng-projection-v0.1/native")
 set(TN "${REPO_ROOT}/docs/research/truthnegative-continuous-v0.5/native")
 set(FREE_WORLD "${REPO_ROOT}/docs/research/free-world-pixel-resolve-2d-v0.2/native")
@@ -54,6 +55,7 @@ target_include_directories(
     "${SMSB2}"
     "${DIGEST}"
     "${TRUTHRANGE}"
+    "${BACKPLANE}"
     "${MASTER_TILE}"
     "${TN}"
     "${FREE_WORLD}"
