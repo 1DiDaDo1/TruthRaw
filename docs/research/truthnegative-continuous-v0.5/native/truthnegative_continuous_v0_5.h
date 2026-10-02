@@ -72,6 +72,7 @@ public:
     std::uint64_t directByteRecordCount() const noexcept;
     std::uint64_t genericFallbackRecordCount() const noexcept;
     std::uint64_t directPixelTripletCount() const noexcept;
+    std::uint64_t canonicalTemplatePixelTripletCount() const noexcept;
     std::uint64_t genericFallbackPixelCount() const noexcept;
     std::uint64_t shaDirectInputBlockTransformCount() const noexcept;
     std::uint64_t shaBufferedInputBlockTransformCount() const noexcept;
@@ -108,6 +109,7 @@ private:
     std::uint64_t directByteRecordCount_ = 0u;
     std::uint64_t genericFallbackRecordCount_ = 0u;
     std::uint64_t directPixelTripletCount_ = 0u;
+    std::uint64_t canonicalTemplatePixelTripletCount_ = 0u;
     std::uint64_t genericFallbackPixelCount_ = 0u;
     bool valid_ = false;
     bool finalized_ = false;
