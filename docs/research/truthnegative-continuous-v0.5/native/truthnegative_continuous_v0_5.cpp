@@ -244,6 +244,56 @@ bool AuthorityFieldAccumulator::accountCanonicalSourceRecord(
     }
 }
 
+bool AuthorityFieldAccumulator::accountCanonicalSourcePixelTriplet(
+    const field::CanonicalSourcePixelTriplet& triplet) noexcept {
+    if (!valid_ || finalized_ ||
+        triplet.measuredChannel > 2u) {
+        return false;
+    }
+    try {
+        const auto measuredRole =
+            static_cast<std::size_t>(
+                field::CreationRole::SourceMeasuredCfa);
+        const auto reconstructedRole =
+            static_cast<std::size_t>(
+                field::CreationRole::ScientificReconstruction);
+        const auto measuredAuthorityRaw =
+            static_cast<std::uint8_t>(
+                triplet.measuredCensored
+                    ? field::Authority::Censored
+                    : field::Authority::CalibratedEstimate);
+        const auto unknownAuthorityRaw =
+            static_cast<std::uint8_t>(
+                field::Authority::Unknown);
+        if (measuredRole >= partial_.creationRoleCounts.size() ||
+            reconstructedRole >= partial_.creationRoleCounts.size() ||
+            measuredAuthorityRaw < 1u ||
+            measuredAuthorityRaw > 4u ||
+            unknownAuthorityRaw < 1u ||
+            unknownAuthorityRaw > 4u) {
+            return false;
+        }
+
+        ++partial_.creationRoleCounts[measuredRole];
+        partial_.creationRoleCounts[reconstructedRole] += 2u;
+        ++partial_.authorityCounts[
+            static_cast<std::size_t>(
+                measuredAuthorityRaw - 1u)];
+        partial_.authorityCounts[
+            static_cast<std::size_t>(
+                unknownAuthorityRaw - 1u)] += 2u;
+        partial_.recordCount += 3u;
+        ++partial_.supportKnownCount;
+        if (triplet.measuredCensored) {
+            ++partial_.boundKnownCount;
+        }
+        return true;
+    } catch (...) {
+        valid_ = false;
+        return false;
+    }
+}
+
 bool AuthorityFieldAccumulator::finishTile(
     std::uint32_t x,
     std::uint32_t y) noexcept {
@@ -329,53 +379,52 @@ bool AuthorityFieldAccumulator::appendSourceTile(
             for (std::uint32_t xx = 0u; xx < width; ++xx) {
                 const std::size_t pi =
                     static_cast<std::size_t>(yy) * width + xx;
-                for (int ch = 0; ch < 3; ++ch) {
-                    const float cameraNativeValue =
-                        cameraNativeRgb[
-                            3u * pi +
-                            static_cast<std::size_t>(ch)];
-                    field::CanonicalSourceChannelRecord encoded{};
-                    const auto encodeStatus =
-                        field::encode_source_channel_record_canonical_v1(
-                            cfa,
-                            x + xx,
-                            y + yy,
-                            raw[pi],
-                            whiteLevel,
-                            ch,
-                            cameraNativeValue,
-                            encoded);
+                const auto rgb =
+                    cameraNativeRgb.subspan(3u * pi, 3u);
+                field::CanonicalSourcePixelTriplet triplet{};
+                const auto encodeStatus =
+                    field::encode_source_pixel_triplet_canonical_v1(
+                        cfa,
+                        x + xx,
+                        y + yy,
+                        raw[pi],
+                        whiteLevel,
+                        rgb,
+                        triplet);
 
-                    if (encodeStatus ==
-                        field::CanonicalSourceEncodingStatus::Encoded) {
-                        if (!accountCanonicalSourceRecord(encoded)) {
-                            valid_ = false;
-                            return false;
-                        }
-                        if (batchUsed + encoded.bytes.size() >
-                            byteBatch.size()) {
-                            if (!flushBatch()) {
-                                valid_ = false;
-                                return false;
-                            }
-                        }
-                        std::copy(
-                            encoded.bytes.begin(),
-                            encoded.bytes.end(),
-                            byteBatch.begin() +
-                                static_cast<std::ptrdiff_t>(batchUsed));
-                        batchUsed += encoded.bytes.size();
-                        ++directByteRecordCount_;
-                        continue;
+                if (encodeStatus ==
+                    field::CanonicalSourceEncodingStatus::Encoded) {
+                    if (!accountCanonicalSourcePixelTriplet(
+                            triplet)) {
+                        valid_ = false;
+                        return false;
                     }
-
-                    if (encodeStatus ==
-                        field::CanonicalSourceEncodingStatus::
-                            UnsupportedSemanticExtension) {
+                    if (batchUsed + triplet.bytes.size() >
+                        byteBatch.size()) {
                         if (!flushBatch()) {
                             valid_ = false;
                             return false;
                         }
+                    }
+                    std::copy(
+                        triplet.bytes.begin(),
+                        triplet.bytes.end(),
+                        byteBatch.begin() +
+                            static_cast<std::ptrdiff_t>(batchUsed));
+                    batchUsed += triplet.bytes.size();
+                    directByteRecordCount_ += 3u;
+                    ++directPixelTripletCount_;
+                    continue;
+                }
+
+                if (encodeStatus ==
+                    field::CanonicalSourceEncodingStatus::
+                        UnsupportedSemanticExtension) {
+                    if (!flushBatch()) {
+                        valid_ = false;
+                        return false;
+                    }
+                    for (int ch = 0; ch < 3; ++ch) {
                         field::ChannelRecord fallback{};
                         if (!field::build_source_channel_record(
                                 cfa,
@@ -384,19 +433,20 @@ bool AuthorityFieldAccumulator::appendSourceTile(
                                 raw[pi],
                                 whiteLevel,
                                 ch,
-                                cameraNativeValue,
+                                rgb[static_cast<std::size_t>(ch)],
                                 fallback) ||
                             !appendRecord(fallback)) {
                             valid_ = false;
                             return false;
                         }
-                        ++genericFallbackRecordCount_;
-                        continue;
                     }
-
-                    valid_ = false;
-                    return false;
+                    genericFallbackRecordCount_ += 3u;
+                    ++genericFallbackPixelCount_;
+                    continue;
                 }
+
+                valid_ = false;
+                return false;
             }
         }
         if (!flushBatch()) {
@@ -420,6 +470,14 @@ std::uint64_t AuthorityFieldAccumulator::directByteRecordCount() const noexcept 
 
 std::uint64_t AuthorityFieldAccumulator::genericFallbackRecordCount() const noexcept {
     return genericFallbackRecordCount_;
+}
+
+std::uint64_t AuthorityFieldAccumulator::directPixelTripletCount() const noexcept {
+    return directPixelTripletCount_;
+}
+
+std::uint64_t AuthorityFieldAccumulator::genericFallbackPixelCount() const noexcept {
+    return genericFallbackPixelCount_;
 }
 
 std::uint64_t AuthorityFieldAccumulator::shaDirectInputBlockTransformCount() const noexcept {
