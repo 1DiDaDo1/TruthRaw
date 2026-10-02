@@ -568,6 +568,20 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: 0L,
                             )
                             .put(
+                                "authority_direct_byte_record_count",
+                                n2Local?.optLong(
+                                    "authority_direct_byte_record_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_generic_fallback_record_count",
+                                n2Local?.optLong(
+                                    "authority_generic_fallback_record_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
                                 "authority_direct_record_stream_ms",
                                 n2Local?.optDouble(
                                     "authority_direct_record_stream_ms",
