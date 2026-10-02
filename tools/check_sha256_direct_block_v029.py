@@ -127,12 +127,12 @@ for token in [
 ]:
     assert token in profiler, f"fresh SHA profiler identity missing {token}"
 
-# 44488 remains the current recovery anchor and v0.2.8 remains the proven
-# baseline while v0.2.9 is still only a candidate.
+# 44488 remains the current recovery anchor. v0.2.9 is now the proven
+# merged baseline while v0.2.10 remains only a candidate.
 assert state["continuation_code"] == "44488"
-assert state["latest_merged_pr"]["number"] == 115
-assert state["source_code_head"] == "85e67ca3090aa113edda7133d656f28087e3ad22"
-assert state["next_frontier"]["name"] == "SHA-256 direct-block transport v0.2.9"
+assert state["latest_merged_pr"]["number"] == 116
+assert state["source_code_head"] == "edcae3eabb077d53b6a25802e6b9ca62c188b973"
+assert state["next_frontier"]["name"] == "Pixel-triplet authority encoder v0.2.10"
 
 # This candidate is transport-only and must not gain scientific authority.
 for text in [pipeline_cpp, binding, diag]:
