@@ -20,6 +20,11 @@ object FreeWorldPerformanceDiagnosticsV01 {
         var sharedReportedAudits = 0
         var sharedHits = 0
         var sharedMisses = 0
+        var currentRunDerivedStageHits = 0
+        var currentRunDerivedStageMisses = 0
+        var currentRunNativeAuditCompute = 0
+        var cachedOriginNativeAuditTelemetry = 0
+        var profilesWithCachedOriginComputeTelemetry = 0
         var releaseAttempted = 0
         var releaseSucceeded = 0
         var allSingleSourcePolicy = true
@@ -57,6 +62,30 @@ object FreeWorldPerformanceDiagnosticsV01 {
                 shared.optInt("reported_audit_count", 0)
             sharedHits += shared.optInt("cache_hit_count", 0)
             sharedMisses += shared.optInt("cache_miss_count", 0)
+            currentRunDerivedStageHits +=
+                shared.optInt(
+                    "current_run_derived_stage_cache_hit_count",
+                    0,
+                )
+            currentRunDerivedStageMisses +=
+                shared.optInt(
+                    "current_run_derived_stage_cache_miss_count",
+                    0,
+                )
+            currentRunNativeAuditCompute +=
+                shared.optInt(
+                    "current_run_native_audit_compute_count",
+                    0,
+                )
+            val cachedOriginCount =
+                shared.optInt(
+                    "cached_origin_native_audit_telemetry_count",
+                    0,
+                )
+            cachedOriginNativeAuditTelemetry += cachedOriginCount
+            if (cachedOriginCount > 0) {
+                profilesWithCachedOriginComputeTelemetry++
+            }
             if (
                 shared.optBoolean(
                     "cache_release_after_profile_attempted",
@@ -103,6 +132,34 @@ object FreeWorldPerformanceDiagnosticsV01 {
                         },
                     )
                     .put(
+                        "profile_elapsed_scope",
+                        diagnostics.optString(
+                            "profile_elapsed_scope",
+                            "CURRENT_PROFILE_RUN",
+                        ),
+                    )
+                    .put(
+                        "stage_elapsed_scope",
+                        diagnostics.optString(
+                            "stage_elapsed_scope",
+                            "CURRENT_PROFILE_RUN",
+                        ),
+                    )
+                    .put(
+                        "timing_provenance_policy",
+                        diagnostics.optString(
+                            "timing_provenance_policy",
+                            "UNKNOWN",
+                        ),
+                    )
+                    .put(
+                        "contains_cached_origin_compute_telemetry",
+                        diagnostics.optBoolean(
+                            "contains_cached_origin_compute_telemetry",
+                            false,
+                        ),
+                    )
+                    .put(
                         "stages",
                         diagnostics.optJSONArray("stages")
                             ?: JSONArray(),
@@ -138,6 +195,18 @@ object FreeWorldPerformanceDiagnosticsV01 {
                     JSONObject.NULL
                 },
             )
+            .put(
+                "aggregate_profile_elapsed_scope",
+                "CURRENT_PROFILE_RUN",
+            )
+            .put(
+                "timing_provenance_policy",
+                "CURRENT_RUN_SEPARATE_FROM_CACHED_ORIGIN_COMPUTE",
+            )
+            .put(
+                "profiles_with_cached_origin_compute_telemetry",
+                profilesWithCachedOriginComputeTelemetry,
+            )
             .put("observations", observations)
             .put(
                 "shared_scientific_preparation_summary",
@@ -146,8 +215,28 @@ object FreeWorldPerformanceDiagnosticsV01 {
                         "reported_audit_count",
                         sharedReportedAudits,
                     )
+                    .put(
+                        "native_shared_prepare_cache_count_scope",
+                        "ORIGIN_NATIVE_EXECUTION",
+                    )
                     .put("cache_hit_count", sharedHits)
                     .put("cache_miss_count", sharedMisses)
+                    .put(
+                        "current_run_derived_stage_cache_hit_count",
+                        currentRunDerivedStageHits,
+                    )
+                    .put(
+                        "current_run_derived_stage_cache_miss_count",
+                        currentRunDerivedStageMisses,
+                    )
+                    .put(
+                        "current_run_native_audit_compute_count",
+                        currentRunNativeAuditCompute,
+                    )
+                    .put(
+                        "cached_origin_native_audit_telemetry_count",
+                        cachedOriginNativeAuditTelemetry,
+                    )
                     .put(
                         "profiles_cache_release_attempted",
                         releaseAttempted,

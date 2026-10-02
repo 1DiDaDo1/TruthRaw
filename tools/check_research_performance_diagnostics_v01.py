@@ -43,6 +43,19 @@ for token in [
     "phase_total_bridge_ms",
     "phase_timing_is_scientific_evidence",
     "phase_timing_may_change_scientific_authority",
+    "profile_elapsed_scope",
+    "stage_elapsed_scope",
+    "CURRENT_RUN_SEPARATE_FROM_CACHED_ORIGIN_COMPUTE",
+    "current_run_stage_elapsed_ms",
+    "current_run_derived_stage_cache_hit",
+    "native_telemetry_origin",
+    "native_phase_timing_origin",
+    "native_phase_timing_represents_current_run",
+    "native_phase_timing_is_cached_origin_compute",
+    "current_run_derived_stage_cache_hit_count",
+    "current_run_derived_stage_cache_miss_count",
+    "current_run_native_audit_compute_count",
+    "cached_origin_native_audit_telemetry_count",
 ]:
     assert token in trace, f"trace missing {token}"
 
@@ -61,6 +74,13 @@ for token in [
     "performance_changes_measurement_authority",
     "creates_new_evidence",
     "scientific_writeback_allowed",
+    "aggregate_profile_elapsed_scope",
+    "timing_provenance_policy",
+    "profiles_with_cached_origin_compute_telemetry",
+    "current_run_derived_stage_cache_hit_count",
+    "current_run_derived_stage_cache_miss_count",
+    "current_run_native_audit_compute_count",
+    "cached_origin_native_audit_telemetry_count",
 ]:
     assert token in aggregate, f"aggregate missing {token}"
 

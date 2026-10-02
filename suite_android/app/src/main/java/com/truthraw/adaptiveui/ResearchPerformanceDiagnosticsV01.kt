@@ -46,6 +46,7 @@ object ResearchPerformanceDiagnosticsV01 {
             val shared =
                 summarizeSharedScientificPreparation(
                     profile = profile,
+                    stages = stages,
                     cacheReleaseAttempted = sharedCacheReleaseAttempted,
                     cacheReleaseSucceeded = sharedCacheReleaseSucceeded,
                 )
@@ -67,6 +68,19 @@ object ResearchPerformanceDiagnosticsV01 {
                     .put(
                         "profile_elapsed_ms",
                         nanosToMillis(finishedNs - profileStartedNs),
+                    )
+                    .put("profile_elapsed_scope", "CURRENT_PROFILE_RUN")
+                    .put("stage_elapsed_scope", "CURRENT_PROFILE_RUN")
+                    .put(
+                        "timing_provenance_policy",
+                        "CURRENT_RUN_SEPARATE_FROM_CACHED_ORIGIN_COMPUTE",
+                    )
+                    .put(
+                        "contains_cached_origin_compute_telemetry",
+                        shared.optInt(
+                            "cached_origin_native_audit_telemetry_count",
+                            0,
+                        ) > 0,
                     )
                     .put("stage_count", stages.length())
                     .put("stages", stages)
@@ -100,25 +114,45 @@ object ResearchPerformanceDiagnosticsV01 {
 
     private fun summarizeSharedScientificPreparation(
         profile: JSONObject,
+        stages: JSONArray,
         cacheReleaseAttempted: Boolean,
         cacheReleaseSucceeded: Boolean,
     ): JSONObject {
         val auditSpecs =
             listOf(
-                "N2_LOCAL_SPATIAL" to "n2_local_spatial_binding",
-                "N2_STRUCTURE_SUPPORT" to "n2_structure_support_binding",
-                "N2_SAMPLE_SUPPORT_DISTANCE" to "n2_sample_support_distance",
-                "ANCHOR_LOCAL_RECONSTRUCTION" to
+                Triple(
+                    "N2_LOCAL_SPATIAL",
+                    "n2_local_spatial_binding",
+                    "N2_LOCAL_SPATIAL_",
+                ),
+                Triple(
+                    "N2_STRUCTURE_SUPPORT",
+                    "n2_structure_support_binding",
+                    "N2_STRUCTURE_SUPPORT_",
+                ),
+                Triple(
+                    "N2_SAMPLE_SUPPORT_DISTANCE",
+                    "n2_sample_support_distance",
+                    "N2_SAMPLE_SUPPORT_DISTANCE_",
+                ),
+                Triple(
+                    "ANCHOR_LOCAL_RECONSTRUCTION",
                     "anchor_constrained_local_reconstruction",
+                    "ANCHOR_LOCAL_RECONSTRUCTION_",
+                ),
             )
 
         val audits = JSONArray()
         var reported = 0
         var hits = 0
         var misses = 0
+        var currentRunDerivedHits = 0
+        var currentRunDerivedMisses = 0
+        var currentRunNativeAuditComputeCount = 0
+        var cachedOriginNativeAuditTelemetryCount = 0
         val reportedValues = mutableListOf<Boolean>()
 
-        for ((auditId, profileKey) in auditSpecs) {
+        for ((auditId, profileKey, stagePrefix) in auditSpecs) {
             val audit = profile.optJSONObject(profileKey)
             val hasTelemetry =
                 audit?.has("shared_pipeline_prepare_cache_hit") == true
@@ -132,11 +166,50 @@ object ResearchPerformanceDiagnosticsV01 {
                     false
                 }
 
+            val currentRunStage =
+                findCurrentRunStage(
+                    stages = stages,
+                    stagePrefix = stagePrefix,
+                )
+            val currentRunDerivedCacheHit =
+                currentRunStage?.optBoolean(
+                    "derived_stage_cache_hit",
+                    false,
+                )
+            val nativeTelemetryOrigin =
+                when {
+                    !hasTelemetry -> "UNAVAILABLE"
+                    currentRunStage == null ->
+                        "UNKNOWN_CURRENT_STAGE_TRACE_MISSING"
+                    currentRunDerivedCacheHit == true ->
+                        "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE"
+                    else -> "CURRENT_PROFILE_RUN"
+                }
+
             if (hasTelemetry) {
                 reported++
                 reportedValues += cacheHit
                 if (cacheHit) hits++ else misses++
+                when (nativeTelemetryOrigin) {
+                    "CURRENT_PROFILE_RUN" ->
+                        currentRunNativeAuditComputeCount++
+                    "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE" ->
+                        cachedOriginNativeAuditTelemetryCount++
+                }
             }
+            if (currentRunStage != null) {
+                if (currentRunDerivedCacheHit == true) {
+                    currentRunDerivedHits++
+                } else {
+                    currentRunDerivedMisses++
+                }
+            }
+
+            val currentRunStageElapsedMs =
+                currentRunStage?.optDouble(
+                    "elapsed_ms",
+                    Double.NaN,
+                ) ?: Double.NaN
 
             audits.put(
                 JSONObject()
@@ -150,6 +223,34 @@ object ResearchPerformanceDiagnosticsV01 {
                     .put(
                         "shared_pipeline_prepare_cache_hit",
                         if (hasTelemetry) cacheHit else JSONObject.NULL,
+                    )
+                    .put(
+                        "shared_pipeline_prepare_cache_hit_scope",
+                        if (hasTelemetry) {
+                            "ORIGIN_NATIVE_EXECUTION"
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "current_run_stage_present",
+                        currentRunStage != null,
+                    )
+                    .put(
+                        "current_run_stage_elapsed_ms",
+                        if (currentRunStageElapsedMs.isFinite()) {
+                            currentRunStageElapsedMs
+                        } else {
+                            JSONObject.NULL
+                        },
+                    )
+                    .put(
+                        "current_run_derived_stage_cache_hit",
+                        currentRunDerivedCacheHit ?: JSONObject.NULL,
+                    )
+                    .put(
+                        "native_telemetry_origin",
+                        nativeTelemetryOrigin,
                     ),
             )
         }
@@ -158,6 +259,21 @@ object ResearchPerformanceDiagnosticsV01 {
         val later = reportedValues.drop(1)
         val n2Local =
             profile.optJSONObject("n2_local_spatial_binding")
+        val n2CurrentRunStage =
+            findCurrentRunStage(
+                stages = stages,
+                stagePrefix = "N2_LOCAL_SPATIAL_",
+            )
+        val n2CurrentRunDerivedCacheHit =
+            n2CurrentRunStage?.optBoolean(
+                "derived_stage_cache_hit",
+                false,
+            )
+        val n2CurrentRunElapsedMs =
+            n2CurrentRunStage?.optDouble(
+                "elapsed_ms",
+                Double.NaN,
+            ) ?: Double.NaN
         val sparseReferenceReported =
             n2Local?.has(
                 "v01_sparse_reference_reuse_verified",
@@ -184,6 +300,25 @@ object ResearchPerformanceDiagnosticsV01 {
                 "row_band_reuse_active",
                 false,
             ) ?: false
+        val nativePhaseTimingAvailable =
+            n2Local?.optBoolean(
+                "native_phase_timing_available",
+                false,
+            ) ?: false
+        val n2NativeTimingOrigin =
+            when {
+                !nativePhaseTimingAvailable -> "UNAVAILABLE"
+                n2CurrentRunStage == null ->
+                    "UNKNOWN_CURRENT_STAGE_TRACE_MISSING"
+                n2CurrentRunDerivedCacheHit == true ->
+                    "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE"
+                else -> "CURRENT_PROFILE_RUN"
+            }
+        val n2NativeTimingRepresentsCurrentRun =
+            n2NativeTimingOrigin == "CURRENT_PROFILE_RUN"
+        val n2NativeTimingIsCachedOriginCompute =
+            n2NativeTimingOrigin ==
+                "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE"
 
         return JSONObject()
             .put(
@@ -348,11 +483,51 @@ object ResearchPerformanceDiagnosticsV01 {
                         },
                     )
                     .put(
+                        "current_run_stage",
+                        JSONObject()
+                            .put(
+                                "present",
+                                n2CurrentRunStage != null,
+                            )
+                            .put(
+                                "elapsed_ms",
+                                if (n2CurrentRunElapsedMs.isFinite()) {
+                                    n2CurrentRunElapsedMs
+                                } else {
+                                    JSONObject.NULL
+                                },
+                            )
+                            .put(
+                                "derived_stage_cache_hit",
+                                n2CurrentRunDerivedCacheHit
+                                    ?: JSONObject.NULL,
+                            )
+                            .put(
+                                "native_compute_performed_in_current_run",
+                                nativePhaseTimingAvailable &&
+                                    n2CurrentRunStage != null &&
+                                    n2CurrentRunDerivedCacheHit == false,
+                            )
+                            .put(
+                                "authority",
+                                "DIAGNOSTIC_RUNTIME_ONLY",
+                            ),
+                    )
+                    .put(
                         "native_phase_timing_available",
-                        n2Local?.optBoolean(
-                            "native_phase_timing_available",
-                            false,
-                        ) ?: false,
+                        nativePhaseTimingAvailable,
+                    )
+                    .put(
+                        "native_phase_timing_origin",
+                        n2NativeTimingOrigin,
+                    )
+                    .put(
+                        "native_phase_timing_represents_current_run",
+                        n2NativeTimingRepresentsCurrentRun,
+                    )
+                    .put(
+                        "native_phase_timing_is_cached_origin_compute",
+                        n2NativeTimingIsCachedOriginCompute,
                     )
                     .put(
                         "phase_shared_acquire_ms",
@@ -434,6 +609,18 @@ object ResearchPerformanceDiagnosticsV01 {
                     .put(
                         "subphase_timing",
                         JSONObject()
+                            .put(
+                                "timing_origin",
+                                n2NativeTimingOrigin,
+                            )
+                            .put(
+                                "timing_represents_current_run",
+                                n2NativeTimingRepresentsCurrentRun,
+                            )
+                            .put(
+                                "timing_is_cached_origin_compute",
+                                n2NativeTimingIsCachedOriginCompute,
+                            )
                             .put(
                                 "shared_acquire_subphase_timing_available",
                                 n2Local?.optBoolean(
@@ -768,8 +955,28 @@ object ResearchPerformanceDiagnosticsV01 {
             )
             .put("audit_order", audits)
             .put("reported_audit_count", reported)
+            .put(
+                "native_shared_prepare_cache_count_scope",
+                "ORIGIN_NATIVE_EXECUTION",
+            )
             .put("cache_hit_count", hits)
             .put("cache_miss_count", misses)
+            .put(
+                "current_run_derived_stage_cache_hit_count",
+                currentRunDerivedHits,
+            )
+            .put(
+                "current_run_derived_stage_cache_miss_count",
+                currentRunDerivedMisses,
+            )
+            .put(
+                "current_run_native_audit_compute_count",
+                currentRunNativeAuditComputeCount,
+            )
+            .put(
+                "cached_origin_native_audit_telemetry_count",
+                cachedOriginNativeAuditTelemetryCount,
+            )
             .put(
                 "first_reported_audit_cache_hit",
                 first ?: JSONObject.NULL,
@@ -794,6 +1001,19 @@ object ResearchPerformanceDiagnosticsV01 {
             .put("candidate_applied", false)
             .put("creates_new_evidence", false)
             .put("scientific_writeback_allowed", false)
+    }
+
+    private fun findCurrentRunStage(
+        stages: JSONArray,
+        stagePrefix: String,
+    ): JSONObject? {
+        for (index in 0 until stages.length()) {
+            val stage = stages.optJSONObject(index) ?: continue
+            if (stage.optString("stage").startsWith(stagePrefix)) {
+                return stage
+            }
+        }
+        return null
     }
 
     private fun nanosToMillis(nanos: Long): Double =
