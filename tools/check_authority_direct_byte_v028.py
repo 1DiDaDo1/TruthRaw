@@ -138,8 +138,8 @@ for token in [
     assert token in diag, f"Research direct-byte telemetry missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.9-sha-direct-block-v1",
-    "N2_LOCAL_SPATIAL_V01_R9_SHA_DIRECT_BLOCK",
+    "D.RAW/UniversalSourceProfileCache/0.2.10-authority-pixel-triplet-v1",
+    "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET",
 ]:
     assert token in profiler, f"fresh direct-byte profiler identity missing {token}"
 
