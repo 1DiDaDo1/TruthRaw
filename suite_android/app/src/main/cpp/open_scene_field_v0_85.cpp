@@ -129,6 +129,128 @@ void put_f32_record(
         std::bit_cast<std::uint32_t>(value));
 }
 
+inline constexpr std::size_t kCanonicalAuthorityValueBytes = 4u;
+inline constexpr std::size_t kCanonicalAuthorityRecordSuffixBytes =
+    kCanonicalAuthorityRecordBytes - kCanonicalAuthorityValueBytes;
+using CanonicalAuthorityRecordSuffix =
+    std::array<std::uint8_t, kCanonicalAuthorityRecordSuffixBytes>;
+using CanonicalAuthorityPixelTripletTemplate =
+    std::array<std::uint8_t, kCanonicalAuthorityPixelTripletBytes>;
+
+constexpr CanonicalAuthorityRecordSuffix make_source_record_suffix(
+    CreationRole role,
+    Authority authority,
+    BoundDomain boundDomain,
+    bool supportKnown,
+    bool boundKnown,
+    std::uint8_t contributionMask) noexcept {
+    CanonicalAuthorityRecordSuffix suffix{};
+    suffix[0] = static_cast<std::uint8_t>(role);
+    suffix[1] = static_cast<std::uint8_t>(authority);
+    suffix[2] =
+        static_cast<std::uint8_t>(
+            UncertaintyKnowledge::Unresolved);
+    suffix[3] = static_cast<std::uint8_t>(boundDomain);
+    suffix[4] = 1u;
+    suffix[5] = 0u;
+    suffix[10] = supportKnown ? 1u : 0u;
+    if (supportKnown) {
+        suffix[11] = 0x00u;
+        suffix[12] = 0x00u;
+        suffix[13] = 0x80u;
+        suffix[14] = 0x3fu;
+    }
+    suffix[15] = boundKnown ? 1u : 0u;
+    suffix[20] = contributionMask;
+    return suffix;
+}
+
+inline constexpr CanonicalAuthorityRecordSuffix
+    kReconstructedSourceRecordSuffix =
+        make_source_record_suffix(
+            CreationRole::ScientificReconstruction,
+            Authority::Unknown,
+            BoundDomain::None,
+            false,
+            false,
+            static_cast<std::uint8_t>(
+                ContributionReconstructed |
+                ContributionUnknown));
+
+inline constexpr CanonicalAuthorityRecordSuffix
+    kMeasuredSourceRecordSuffix =
+        make_source_record_suffix(
+            CreationRole::SourceMeasuredCfa,
+            Authority::CalibratedEstimate,
+            BoundDomain::None,
+            true,
+            false,
+            ContributionMeasured);
+
+inline constexpr CanonicalAuthorityRecordSuffix
+    kCensoredMeasuredSourceRecordSuffix =
+        make_source_record_suffix(
+            CreationRole::SourceMeasuredCfa,
+            Authority::Censored,
+            BoundDomain::SourceRawCode,
+            true,
+            true,
+            static_cast<std::uint8_t>(
+                ContributionMeasured |
+                ContributionCensored));
+
+constexpr CanonicalAuthorityPixelTripletTemplate
+make_source_pixel_triplet_template(
+    std::uint8_t measuredChannel,
+    bool measuredCensored) noexcept {
+    CanonicalAuthorityPixelTripletTemplate out{};
+    for (std::size_t ch = 0u; ch < 3u; ++ch) {
+        const bool measured =
+            ch == static_cast<std::size_t>(measuredChannel);
+        const auto& suffix =
+            measured
+                ? (measuredCensored
+                    ? kCensoredMeasuredSourceRecordSuffix
+                    : kMeasuredSourceRecordSuffix)
+                : kReconstructedSourceRecordSuffix;
+        const std::size_t destination =
+            ch * kCanonicalAuthorityRecordBytes +
+            kCanonicalAuthorityValueBytes;
+        for (std::size_t i = 0u; i < suffix.size(); ++i) {
+            out[destination + i] = suffix[i];
+        }
+    }
+    return out;
+}
+
+inline constexpr std::array<
+    CanonicalAuthorityPixelTripletTemplate, 3u>
+    kSourcePixelTripletTemplates{
+        make_source_pixel_triplet_template(0u, false),
+        make_source_pixel_triplet_template(1u, false),
+        make_source_pixel_triplet_template(2u, false),
+    };
+
+inline constexpr std::array<
+    CanonicalAuthorityPixelTripletTemplate, 3u>
+    kCensoredSourcePixelTripletTemplates{
+        make_source_pixel_triplet_template(0u, true),
+        make_source_pixel_triplet_template(1u, true),
+        make_source_pixel_triplet_template(2u, true),
+    };
+
+template <std::size_t N>
+void put_f32_at(
+    std::array<std::uint8_t, N>& out,
+    std::size_t offset,
+    float value) noexcept {
+    const auto bits = std::bit_cast<std::uint32_t>(value);
+    out[offset] = static_cast<std::uint8_t>(bits);
+    out[offset + 1u] = static_cast<std::uint8_t>(bits >> 8u);
+    out[offset + 2u] = static_cast<std::uint8_t>(bits >> 16u);
+    out[offset + 3u] = static_cast<std::uint8_t>(bits >> 24u);
+}
+
 struct SourceRecordSemantics final {
     CreationRole role = CreationRole::Unknown;
     Authority authority = Authority::Unknown;
@@ -393,31 +515,33 @@ encode_source_pixel_triplet_canonical_v1(
         }
         const bool censored =
             static_cast<float>(rawCode) >= whiteLevel;
+        const auto measuredIndex =
+            static_cast<std::size_t>(measured);
 
-        std::size_t offset = 0u;
-        for (int ch = 0; ch < 3; ++ch) {
-            const bool isMeasured = ch == measured;
-            const auto semantics =
-                source_record_semantics(
-                    isMeasured,
-                    isMeasured && censored,
-                    whiteLevel);
-            if (!write_source_record_canonical(
-                    out.bytes,
-                    offset,
-                    cameraNativeRgb[
-                        static_cast<std::size_t>(ch)],
-                    semantics)) {
-                return CanonicalSourceEncodingStatus::Invalid;
-            }
+        // Performance-only specialization: preserve the exact 75-byte
+        // canonical stream while reusing immutable semantic suffix bytes.
+        out.bytes =
+            censored
+                ? kCensoredSourcePixelTripletTemplates[measuredIndex]
+                : kSourcePixelTripletTemplates[measuredIndex];
+
+        for (std::size_t ch = 0u; ch < 3u; ++ch) {
+            put_f32_at(
+                out.bytes,
+                ch * kCanonicalAuthorityRecordBytes,
+                cameraNativeRgb[ch]);
         }
-        if (offset != kCanonicalAuthorityPixelTripletBytes) {
-            return CanonicalSourceEncodingStatus::Invalid;
+        if (censored) {
+            put_f32_at(
+                out.bytes,
+                measuredIndex * kCanonicalAuthorityRecordBytes + 20u,
+                whiteLevel);
         }
 
         out.measuredChannel =
             static_cast<std::uint8_t>(measured);
         out.measuredCensored = censored;
+        out.canonicalTemplateReuseApplied = true;
         return CanonicalSourceEncodingStatus::Encoded;
     } catch (...) {
         out = CanonicalSourcePixelTriplet{};
