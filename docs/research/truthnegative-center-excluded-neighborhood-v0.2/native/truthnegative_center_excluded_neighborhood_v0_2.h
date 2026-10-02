@@ -38,7 +38,7 @@ struct Input final {
 };
 
 /**
- * Diagnostic-only sampled timing/counter sink for estimate().
+ * Diagnostic-only sampled timing/counter sink for estimate paths.
  *
  * These fields never participate in Result, hashing, candidate authority,
  * evidence, reconstruction, calibration or writeback. Callers may pass null
@@ -83,7 +83,29 @@ struct Result final {
     bool scientificWritebackAllowed = false;
 };
 
+enum class FixedTopologyOutcome : std::uint8_t {
+    NotApplicable = 0,
+    Success = 1,
+    Failure = 2,
+};
+
+/** Canonical generic predictor. */
 bool estimate(
+    const Input& input,
+    Result& out,
+    Diagnostics* diagnostics = nullptr) noexcept;
+
+/**
+ * Specialized predictor for the established 3 radii x 4 directions x 2 sides
+ * Center-Excluded topology (radii 2,4,8).
+ *
+ * The function is only a transport/data-structure fast path. It preserves the
+ * same admissibility, thresholds, floating-point operation order per accepted
+ * pair/scale, Result semantics and scientific authority as estimate().
+ * Unsupported admissible geometry returns NotApplicable so callers can fall
+ * back to estimate() without broadening the scientific contract.
+ */
+FixedTopologyOutcome estimateFixedTopology(
     const Input& input,
     Result& out,
     Diagnostics* diagnostics = nullptr) noexcept;
