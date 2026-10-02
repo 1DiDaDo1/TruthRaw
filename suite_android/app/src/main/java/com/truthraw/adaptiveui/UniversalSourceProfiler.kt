@@ -527,7 +527,7 @@ object UniversalSourceProfiler {
                 val frontsideInput =
                     frontside.optJSONObject("dark_chroma_stability_v0_1")
                 cachedStage(
-                    stageId = "N2_LOCAL_SPATIAL_V01_R11_AUTHORITY_TEMPLATE_REUSE",
+                    stageId = "N2_LOCAL_SPATIAL_V01_R11_FINAL_VALIDATION",
                     inputFingerprint =
                         ResearchProfileStageCacheV01.fingerprint(
                             frontsideInput?.toString(),
