@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -155,6 +156,61 @@ private:
     const truthraw::DecodedDngFrame& frame_;
 };
 
+class VerifyingObserver final : public smsb2::ICanonicalTileObserver {
+public:
+    explicit VerifyingObserver(
+        const truthraw::DecodedDngFrame& frame)
+        : frame_(frame) {}
+
+    std::size_t residentBytesUpperBound() const noexcept override {
+        return 0u;
+    }
+
+    bool observeCanonicalTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        const std::uint16_t* rawCore,
+        std::size_t rawCount,
+        const float* cameraNativeRgb,
+        std::size_t floatCount) noexcept override {
+        if (!rawCore || !cameraNativeRgb ||
+            width == 0u || height == 0u ||
+            rawCount != static_cast<std::size_t>(width) * height ||
+            floatCount != rawCount * 3u ||
+            x + width > static_cast<std::uint32_t>(frame_.meta.width) ||
+            y + height > static_cast<std::uint32_t>(frame_.meta.height)) {
+            return false;
+        }
+        for (std::uint32_t yy = 0u; yy < height; ++yy) {
+            for (std::uint32_t xx = 0u; xx < width; ++xx) {
+                const auto local =
+                    static_cast<std::size_t>(yy) * width + xx;
+                const auto source =
+                    static_cast<std::size_t>(y + yy) *
+                        static_cast<std::size_t>(frame_.meta.width) +
+                    static_cast<std::size_t>(x + xx);
+                if (rawCore[local] != frame_.raw[source]) return false;
+                for (std::size_t ch = 0u; ch < 3u; ++ch) {
+                    const float value =
+                        cameraNativeRgb[3u * local + ch];
+                    if (!std::isfinite(value)) return false;
+                }
+            }
+        }
+        ++tileCount;
+        observedRawSamples += rawCount;
+        return true;
+    }
+
+    std::size_t tileCount = 0u;
+    std::size_t observedRawSamples = 0u;
+
+private:
+    const truthraw::DecodedDngFrame& frame_;
+};
+
 bool equal_double_bits(double a, double b) {
     return std::memcmp(&a, &b, sizeof(double)) == 0;
 }
@@ -165,20 +221,49 @@ void compare_case(int width, int height, Pattern pattern, const char* label) {
     truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction reconstructionV2;
     CountingFrameSource sourceV1(frame);
     CountingFrameSource sourceV2(frame);
+    CountingFrameSource sourceObserved(frame);
+    truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction
+        reconstructionObserved;
+    VerifyingObserver observer(frame);
 
     smsb1::Result v1{};
     smsb2::Result v2{};
+    smsb2::Result observed{};
     const smsb1::Options options{};
     const auto s1 = smsb1::bind_scientific_master_streaming(
         sourceV1, reconstructionV1, options, v1);
     const auto s2 = smsb2::bind_scientific_master_streaming(
         sourceV2, reconstructionV2, options, v2);
+    const auto so = smsb2::bind_scientific_master_streaming_observed(
+        sourceObserved,
+        reconstructionObserved,
+        options,
+        observer,
+        observed);
     if (!s1) std::cerr << label << " v0.1 failed: " << s1.message << '\n';
     if (!s2) std::cerr << label << " v0.2 failed: " << s2.message << '\n';
+    if (!so) std::cerr << label << " observed v0.2 failed: " << so.message << '\n';
     REQUIRE(s1);
     REQUIRE(s2);
+    REQUIRE(so);
 
     REQUIRE(v1.scientificMasterHash == v2.scientificMasterHash);
+    REQUIRE(observed.scientificMasterHash == v2.scientificMasterHash);
+    REQUIRE(equal_double_bits(
+        observed.zeroLineGauge.L0,
+        v2.zeroLineGauge.L0));
+    REQUIRE(observed.zeroLineGauge.mode == v2.zeroLineGauge.mode);
+    REQUIRE(observed.zeroLineGauge.gaugeId == v2.zeroLineGauge.gaugeId);
+    REQUIRE(observed.sceneBinding.reconstructionBackend ==
+            v2.sceneBinding.reconstructionBackend);
+    REQUIRE(observed.sceneBinding.sceneScaleId ==
+            v2.sceneBinding.sceneScaleId);
+    REQUIRE(observed.selfGaugeEligibleSamples ==
+            v2.selfGaugeEligibleSamples);
+    REQUIRE(observed.masterTilesProcessed ==
+            v2.masterTilesProcessed);
+    REQUIRE(observed.stage2GaugeScanPasses ==
+            v2.stage2GaugeScanPasses);
     REQUIRE(v1.zeroLineGauge.mode == v2.zeroLineGauge.mode);
     REQUIRE(v1.zeroLineGauge.gaugeId == v2.zeroLineGauge.gaugeId);
     REQUIRE(equal_double_bits(v1.zeroLineGauge.L0, v2.zeroLineGauge.L0));
@@ -210,6 +295,12 @@ void compare_case(int width, int height, Pattern pattern, const char* label) {
     REQUIRE(v1.masterTilesProcessed == tiles);
     REQUIRE(sourceV1.rawTileCalls == tiles * 4u);
     REQUIRE(sourceV2.rawTileCalls == tiles * 2u);
+    REQUIRE(sourceObserved.rawTileCalls == sourceV2.rawTileCalls);
+    REQUIRE(sourceObserved.rawSamplesRead == sourceV2.rawSamplesRead);
+    REQUIRE(observer.tileCount == tiles);
+    REQUIRE(observer.observedRawSamples ==
+            static_cast<std::size_t>(width) *
+            static_cast<std::size_t>(height));
     REQUIRE(sourceV1.rawSamplesRead == sourceV2.rawSamplesRead * 2u);
 
     // The optimization trades bounded memory for fewer full Stage-2 scans.
