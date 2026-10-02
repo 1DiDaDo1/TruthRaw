@@ -422,6 +422,14 @@ std::uint64_t AuthorityFieldAccumulator::genericFallbackRecordCount() const noex
     return genericFallbackRecordCount_;
 }
 
+std::uint64_t AuthorityFieldAccumulator::shaDirectInputBlockTransformCount() const noexcept {
+    return hasher_.directInputBlockTransformCount();
+}
+
+std::uint64_t AuthorityFieldAccumulator::shaBufferedInputBlockTransformCount() const noexcept {
+    return hasher_.bufferedInputBlockTransformCount();
+}
+
 bool AuthorityFieldAccumulator::finalize(
     AuthorityFieldSummary& out) noexcept {
     out = AuthorityFieldSummary{};
