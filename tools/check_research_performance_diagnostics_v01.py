@@ -32,6 +32,17 @@ for token in [
     "row_band_reuse_active",
     "row_band_peak_cache_bytes",
     "row_band_scientific_values_modified",
+    "native_phase_timing_available",
+    "phase_shared_acquire_ms",
+    "phase_v01_cfa_audit_ms",
+    "phase_center_excluded_ms",
+    "phase_confidence_derive_ms",
+    "phase_factored_derive_ms",
+    "phase_factored_encode_ms",
+    "phase_write_readback_reverify_ms",
+    "phase_total_bridge_ms",
+    "phase_timing_is_scientific_evidence",
+    "phase_timing_may_change_scientific_authority",
 ]:
     assert token in trace, f"trace missing {token}"
 
@@ -58,9 +69,9 @@ for token in [
     "trace.onProgress(event)",
     "clearSharedPipelineCache()",
     "trace.attach(",
-    "D.RAW/UniversalSourceProfileCache/0.2.3-n2-row-band-v1",
+    "D.RAW/UniversalSourceProfileCache/0.2.4-n2-phase-timing-v1",
     '"profile_cache_generation"',
-    "N2_LOCAL_SPATIAL_V01_R3_ROW_BAND",
+    "N2_LOCAL_SPATIAL_V01_R4_PHASE_TIMING",
 ]:
     assert token in profiler, f"profiler missing {token}"
 

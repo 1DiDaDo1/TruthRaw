@@ -348,6 +348,90 @@ object ResearchPerformanceDiagnosticsV01 {
                         },
                     )
                     .put(
+                        "native_phase_timing_available",
+                        n2Local?.optBoolean(
+                            "native_phase_timing_available",
+                            false,
+                        ) ?: false,
+                    )
+                    .put(
+                        "phase_shared_acquire_ms",
+                        n2Local?.optDouble(
+                            "phase_shared_acquire_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_shared_context_lock_wait_ms",
+                        n2Local?.optDouble(
+                            "phase_shared_context_lock_wait_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_v01_cfa_audit_ms",
+                        n2Local?.optDouble(
+                            "phase_v01_cfa_audit_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_center_excluded_ms",
+                        n2Local?.optDouble(
+                            "phase_center_excluded_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_confidence_derive_ms",
+                        n2Local?.optDouble(
+                            "phase_confidence_derive_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_factored_derive_ms",
+                        n2Local?.optDouble(
+                            "phase_factored_derive_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_factored_encode_ms",
+                        n2Local?.optDouble(
+                            "phase_factored_encode_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_write_readback_reverify_ms",
+                        n2Local?.optDouble(
+                            "phase_write_readback_reverify_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_total_bridge_ms",
+                        n2Local?.optDouble(
+                            "phase_total_bridge_ms",
+                            0.0,
+                        ) ?: 0.0,
+                    )
+                    .put(
+                        "phase_timing_is_scientific_evidence",
+                        n2Local?.optBoolean(
+                            "phase_timing_is_scientific_evidence",
+                            true,
+                        ) ?: true,
+                    )
+                    .put(
+                        "phase_timing_may_change_scientific_authority",
+                        n2Local?.optBoolean(
+                            "phase_timing_may_change_scientific_authority",
+                            true,
+                        ) ?: true,
+                    )
+                    .put(
                         "bounded_index_fallback_policy",
                         "LEGACY_V0_2_1_RERUN_IF_SPARSE_INDEX_INCOMPLETE",
                     )

@@ -10,6 +10,7 @@
 #include "truthraw_sha256_v0_69.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <sstream>
@@ -35,6 +36,14 @@ namespace factored =
 namespace row_band =
     truthraw::truthnegative_n2_row_band_reuse::v0_1;
 namespace sha = truthraw::sha256_v0_69;
+using SteadyClock = std::chrono::steady_clock;
+
+double elapsed_ms(
+    SteadyClock::time_point started,
+    SteadyClock::time_point finished) noexcept {
+    return std::chrono::duration<double,std::milli>(
+        finished-started).count();
+}
 
 jstring status(JNIEnv* env,int code,const std::string& message) {
     std::ostringstream o;
@@ -104,6 +113,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,-90,"invalid destination fd");
     }
 
+    const auto bridgeStarted=SteadyClock::now();
+
     std::shared_ptr<pipeline::Context> ctx;
     bool sharedPipelineCacheHit=false;
     const auto prepared=pipeline::acquireShared(
@@ -115,8 +126,11 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     if(!prepared){
         return status(env,prepared.code,prepared.message);
     }
+    const auto sharedAcquireFinished=SteadyClock::now();
 
+    const auto sharedLockWaitStarted=SteadyClock::now();
     std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+    const auto sharedLockAcquired=SteadyClock::now();
 
     n2_cfa::Binding v01Binding{};
     v01Binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
@@ -130,6 +144,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     row_band::RowBandReuseTileSource n2ReadSource(
         *ctx->openedSource.source);
 
+    const auto v01Started=SteadyClock::now();
     n2_cfa::Result v01{};
     if(!n2_cfa::run(
             n2ReadSource,
@@ -145,6 +160,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        n2ReadSource.scientificWritebackAllowed()){
         return status(env,-91,"v0.1 factored reference audit failed");
     }
+    const auto v01Finished=SteadyClock::now();
 
     const auto v01RowBandFillCount =
         n2ReadSource.bandFillCount();
@@ -167,6 +183,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     ceBinding.v01AuditSha256=v01.auditSha256;
     ceBinding.v01SpatialSha256=v01.spatialSha256;
 
+    const auto centerExcludedStarted=SteadyClock::now();
     ce_spatial::Result ceAudit{};
     bool v01SparseReferenceReuseVerified=false;
     bool v01RerunPerformed=false;
@@ -197,6 +214,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         }
         v01RerunPerformed=true;
     }
+    const auto centerExcludedFinished=SteadyClock::now();
     if(!ceAudit.v01TileParityVerified||
        ceAudit.candidateApplied||
        ceAudit.createsNewEvidence||
@@ -217,6 +235,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     confidenceBinding.v01SpatialSha256=v01.spatialSha256;
     confidenceBinding.centerExcludedAuditSha256=ceAudit.auditSha256;
 
+    const auto confidenceStarted=SteadyClock::now();
     confidence::Result confidenceField{};
     if(!confidence::derive(
             confidenceBinding,
@@ -231,6 +250,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        confidenceField.scientificWritebackAllowed){
         return status(env,-93,"v0.3 confidence reference failed");
     }
+    const auto confidenceFinished=SteadyClock::now();
 
     factored::Binding binding{};
     binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
@@ -246,6 +266,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     binding.centerExcludedAuditSha256=ceAudit.auditSha256;
     binding.confidenceFieldSha256=confidenceField.fieldSha256;
 
+    const auto factoredDeriveStarted=SteadyClock::now();
     factored::Result state{};
     if(!factored::derive(binding,confidenceField,state)||
        !state.exactConfidenceFieldBindingVerified||
@@ -259,7 +280,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        state.scientificWritebackAllowed){
         return status(env,-94,"N2 factored confidence derivation failed");
     }
+    const auto factoredDeriveFinished=SteadyClock::now();
 
+    const auto factoredEncodeStarted=SteadyClock::now();
     factored::Report report{};
     if(!factored::encode(
             binding,
@@ -273,7 +296,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        report.scientificWritebackAllowed){
         return status(env,-95,"N2 factored confidence encode failed");
     }
+    const auto factoredEncodeFinished=SteadyClock::now();
 
+    const auto writeVerifyStarted=SteadyClock::now();
     if(!write_all(destinationFd,report.json)){
         return status(env,-96,"N2 factored confidence write failed");
     }
@@ -290,6 +315,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     if(!pipeline::reverify(*ctx)){
         return status(env,-98,"source changed during N2 factored confidence export");
     }
+    const auto writeVerifyFinished=SteadyClock::now();
+    const auto bridgeFinished=SteadyClock::now();
 
     std::ostringstream o;
     o<<"{\"status\":0";
@@ -321,6 +348,27 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"rowBandPeakCacheBytes\":"
       <<n2ReadSource.peakCacheBytes();
     o<<",\"rowBandScientificValuesModified\":false";
+    o<<",\"nativePhaseTimingAvailable\":true";
+    o<<",\"phaseSharedAcquireMs\":"
+      <<elapsed_ms(bridgeStarted,sharedAcquireFinished);
+    o<<",\"phaseSharedContextLockWaitMs\":"
+      <<elapsed_ms(sharedLockWaitStarted,sharedLockAcquired);
+    o<<",\"phaseV01CfaAuditMs\":"
+      <<elapsed_ms(v01Started,v01Finished);
+    o<<",\"phaseCenterExcludedMs\":"
+      <<elapsed_ms(centerExcludedStarted,centerExcludedFinished);
+    o<<",\"phaseConfidenceDeriveMs\":"
+      <<elapsed_ms(confidenceStarted,confidenceFinished);
+    o<<",\"phaseFactoredDeriveMs\":"
+      <<elapsed_ms(factoredDeriveStarted,factoredDeriveFinished);
+    o<<",\"phaseFactoredEncodeMs\":"
+      <<elapsed_ms(factoredEncodeStarted,factoredEncodeFinished);
+    o<<",\"phaseWriteReadbackReverifyMs\":"
+      <<elapsed_ms(writeVerifyStarted,writeVerifyFinished);
+    o<<",\"phaseTotalBridgeMs\":"
+      <<elapsed_ms(bridgeStarted,bridgeFinished);
+    o<<",\"phaseTimingIsScientificEvidence\":false";
+    o<<",\"phaseTimingMayChangeScientificAuthority\":false";
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;

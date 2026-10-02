@@ -85,10 +85,10 @@ for token in [
     assert token in binding, f"Kotlin row-band telemetry missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.3-n2-row-band-v1",
-    "N2_LOCAL_SPATIAL_V01_R3_ROW_BAND",
+    "D.RAW/UniversalSourceProfileCache/0.2.4-n2-phase-timing-v1",
+    "N2_LOCAL_SPATIAL_V01_R4_PHASE_TIMING",
 ]:
-    assert token in profiler, f"R3 profiler identity missing {token}"
+    assert token in profiler, f"row-band profiler identity missing {token}"
 
 for token in [
     "row_band_telemetry_reported",
