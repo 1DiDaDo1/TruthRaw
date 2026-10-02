@@ -28,19 +28,19 @@ Current development branch:
 
 Latest merged performance PR:
 
-`#115 — Encode canonical authority bytes directly v0.2.8`
+`#116 — SHA-256 Direct Block v0.2.9`
 
 Source-code merge checkpoint:
 
-`85e67ca3090aa113edda7133d656f28087e3ad22`
+`edcae3eabb077d53b6a25802e6b9ca62c188b973`
 
-PR #115 source head before merge:
+PR #116 source head before merge:
 
-`052b95ef8e648517281aeac141030f2d41fe1e9e`
+`0e7c8d70974a45ac5171dc06d894a8dc4f422c93`
 
-PR #115 was exact-parity green and real-device validated before merge. The merge checkpoint then completed **37/37 workflows green, 0 failures**.
+PR #116 was 34/34 green and real-device validated before merge.
 
-## Current Android build line
+## Current validated Android build line
 
 Application ID:
 
@@ -48,119 +48,84 @@ Application ID:
 
 Version code:
 
-`26100109`
+`26100110`
 
 Version name:
 
-`0.53-v0.84.2-authority-direct-byte`
+`0.53-v0.84.2-sha-direct-block`
 
 Stable signing certificate SHA-256:
 
 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
 
-Post-merge APK:
+Validated candidate APK:
 
-- size: `8,486,427 bytes`
-- SHA-256: `71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a`
-- Suite run: `37003837807`
-- artifact: `11224452595 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
-- artifact ZIP digest: `sha256:bbec758e92837c2ef813415d2e177aef02f3dbe8bda24ee0d28a204b401b9674`
+- size: `8,487,331 bytes`
+- SHA-256: `30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd`
 
-This remains an in-place update on the same package/signing lineage. Normal continuation tests must not uninstall the app or clear app data unless a specific proven failure requires it.
+The app remains an in-place update. Do not uninstall or clear app data for normal performance continuation.
 
-## Current real-device performance result — v0.2.8
+## Current real-device performance result — v0.2.9
 
 The validated Foundation export used:
 
-`D.RAW/UniversalSourceProfileCache/0.2.8-authority-direct-byte-v1`
+`D.RAW/UniversalSourceProfileCache/0.2.9-sha-direct-block-v1`
 
-Profile count:
+Aggregate two-RAW profile elapsed:
 
-`2`
+`32,515.211967 ms`
 
-Aggregate profile elapsed:
+This is about **1.37% faster** than v0.2.8.
 
-`32,967.853217 ms`
+Observation 1:
+- profile elapsed `14,466.439474 ms`
+- N2 `14,102.344890 ms`
+- shared acquire `8,481.58 ms`
+- Scientific Master bind `7,922.83 ms`
+- authority hot path `5,058.70 ms`
+- center-excluded `4,008.33 ms`
+- predictor `3,010.19 ms`
 
-This is about **18.96% faster** than the same two-RAW v0.2.7 aggregate (`40,683.016651 ms`).
+Observation 2:
+- profile elapsed `18,048.772493 ms`
+- N2 `17,135.811608 ms`
+- shared acquire `9,282.79 ms`
+- Scientific Master bind `8,511.31 ms`
+- authority hot path `5,481.69 ms`
+- center-excluded `6,118.97 ms`
+- predictor `4,863.84 ms`
 
-### Observation 1
+For each RAW:
+- direct authority-byte records: `37,601,280`
+- generic authority fallback records: `0`
+- SHA direct input block transforms: `14,296,320`
+- SHA buffered input block transforms: `392,832`
+- SHA direct input bytes: `914,964,480`
+- authority record-vector scratch: `0 bytes`
 
-- profile elapsed: `14,797.067651 ms`
-- N2 stage: `N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE`
-- N2 elapsed: `14,459.694161 ms`
-- shared acquire: `8,891.15 ms`
-- v0.1 CFA audit: `858.39 ms`
-- center-excluded: `3,967.78 ms`
-- center-excluded predictor: `2,975.81 ms`
-- Scientific Master bind: `8,344.42 ms`
-- authority direct-byte/stream hot path: `5,346.54 ms`
-- direct-byte records: `37,601,280`
-- generic fallback records: `0`
-- canonical bytes per authority record: `25`
-- hash batch: `96 records / 2,400 bytes`
-- authority accumulator record-vector scratch: `0 bytes`
-
-### Observation 2
-
-- profile elapsed: `18,170.785566 ms`
-- N2 stage: `N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE`
-- N2 elapsed: `17,269.418014 ms`
-- shared acquire: `9,482.18 ms`
-- v0.1 CFA audit: `884.319 ms`
-- center-excluded: `6,077.23 ms`
-- center-excluded predictor: `4,821.46 ms`
-- Scientific Master bind: `8,731.73 ms`
-- authority direct-byte/stream hot path: `5,670.28 ms`
-- direct-byte records: `37,601,280`
-- generic fallback records: `0`
-- canonical bytes per authority record: `25`
-- hash batch: `96 records / 2,400 bytes`
-- authority accumulator record-vector scratch: `0 bytes`
-
-### v0.2.8 device conclusion
-
-The specialized route is genuinely active and complete for the current source semantics:
-
-- `authority_direct_record_streaming_active=true`
-- `authority_temporary_record_vector_used=false`
-- `authority_direct_byte_encoding_active=true`
-- `authority_generic_record_validation_bypassed=true`
-- `authority_generic_fallback_record_count=0`
-- `authority_accumulator_resident_bytes_upper_bound=0`
-- `authority_field_fused_into_scientific_master_pass=true`
-- `authority_field_replay_pass_performed=false`
-
-Scientific safety remains intact:
-
-- sparse-reference reuse verified;
+Safety remains unchanged:
+- sparse reuse verified;
 - no v0.1 rerun;
-- row-band reuse active with zero fallbacks;
-- row-band scientific values not modified;
-- source values not modified;
-- candidate not applied;
-- no new evidence;
-- no scientific writeback.
-
-The direct-byte step therefore removed a large part of the former per-record object/validation overhead. The remaining authority hot path still processes exactly `37,601,280 * 25 = 940,032,000` canonical authority bytes per RAW through SHA-256.
+- row-band active with zero fallback requests;
+- no source-value modification;
+- candidate application false;
+- creates-new-evidence false;
+- Scientific Master writeback false.
 
 ## Current next performance frontier
 
-The next isolated candidate is **SHA-256 direct-block transport v0.2.9**.
+The next isolated candidate is **Pixel-Triplet Authority Encoder v0.2.10**.
 
-The current generic `Hasher::update()` copies every complete 64-byte SHA block into its internal 64-byte buffer before calling the unchanged compression transform. For the authority stream this creates a redundant memory pass over almost 940 MB per RAW.
+The current fast path still determines CFA phase/censor semantics and emits one 25-byte canonical authority record three times per pixel.
 
-The candidate may:
+v0.2.10 may:
+- determine the pixel's measured CFA channel and censor state once;
+- emit the exact three channel records in order 0,1,2 as one 75-byte canonical triplet;
+- update counts from the same specialized pixel semantics;
+- preserve the exact v0.2.9 byte stream and therefore the exact authority SHA-256;
+- retain a versioned fail-closed fallback to the general per-channel path for future semantic extensions.
 
-- fill an existing partial block exactly as before;
-- transform already-contiguous complete 64-byte input blocks directly from the caller buffer;
-- keep the internal buffer only for the remaining partial tail;
-- leave `transform()`, padding, bit length and digest semantics unchanged;
-- prove known SHA-256 vectors, long multi-block vectors and arbitrary chunk-boundary parity;
-- expose only diagnostic/performance telemetry if useful;
-- make no scientific/authority/evidence changes.
-
-Do **not** combine this with the later per-pixel/three-channel authority encoder optimization. Keep the changes separable so real-device gains remain attributable.
+Do **not** combine template/suffix reuse, larger batch-size tuning or center-excluded changes into v0.2.10. Those remain later isolated steps and are conditional on real-device evidence.
 
 ## N2 performance lineage that must remain understood
 
