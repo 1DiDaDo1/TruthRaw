@@ -2,12 +2,22 @@
 
 #include "tile_native_dng_source_v0_1.h"
 
+#include <chrono>
 #include <mutex>
 #include <utility>
 #include <unistd.h>
 
 namespace truthraw::android_truthnegative_pipeline::v0_1 {
 namespace {
+
+using SteadyClock = std::chrono::steady_clock;
+
+double elapsed_ms(
+    SteadyClock::time_point started,
+    SteadyClock::time_point finished) noexcept {
+    return std::chrono::duration<double,std::milli>(
+        finished-started).count();
+}
 
 Status fail(int code, std::string message) {
     return {code, std::move(message)};
@@ -44,8 +54,11 @@ Status prepare(
     int sourceFd,
     std::size_t maxSourceResidentBytes,
     std::size_t maxLogicalResidentBytes,
-    Context& out) noexcept {
+    Context& out,
+    PreparationTiming* timing) noexcept {
     out = Context{};
+    if (timing) *timing = PreparationTiming{};
+    const auto totalStarted = SteadyClock::now();
     try {
         if (sourceFd < 0 ||
             maxSourceResidentBytes == 0u ||
@@ -53,6 +66,7 @@ Status prepare(
             return fail(-1, "invalid pipeline arguments");
         }
 
+        const auto duplicateStarted = SteadyClock::now();
         out.ownedSourceFd = duplicate_owned_fd(sourceFd);
         if (!out.ownedSourceFd) {
             return fail(-8, "source fd duplication failed");
@@ -60,7 +74,13 @@ Status prepare(
         out.bytes =
             std::make_shared<tile_dng_v0_1::PosixFdByteSource>(
                 *out.ownedSourceFd);
+        const auto duplicateFinished = SteadyClock::now();
+        if (timing) {
+            timing->duplicateAndByteSourceMs =
+                elapsed_ms(duplicateStarted, duplicateFinished);
+        }
 
+        const auto sealStarted = SteadyClock::now();
         const auto sealed =
             scientific_preview_binding_v0_1::seal_source_sha256(
                 *out.bytes, out.sourceSeal);
@@ -69,7 +89,10 @@ Status prepare(
                 2000 + static_cast<int>(sealed.code),
                 sealed.message);
         }
+        const auto sealFinished = SteadyClock::now();
+        if (timing) timing->sealSourceMs = elapsed_ms(sealStarted, sealFinished);
 
+        const auto colorStarted = SteadyClock::now();
         const auto color =
             dng_color_binding_producer_v0_2::
                 produce_source_metadata_color_binding(
@@ -79,7 +102,10 @@ Status prepare(
                 2100 + static_cast<int>(color.code),
                 color.message);
         }
+        const auto colorFinished = SteadyClock::now();
+        if (timing) timing->colorBindingMs = elapsed_ms(colorStarted, colorFinished);
 
+        const auto prepareColorStarted = SteadyClock::now();
         const auto preparedStatus =
             scientific_preview_binding_v0_2::
                 prepare_scientific_color_source(
@@ -96,7 +122,13 @@ Status prepare(
             out.prepared.independentEvidenceCount != 1u) {
             return fail(-2, "prepared source evidence invariant failed");
         }
+        const auto prepareColorFinished = SteadyClock::now();
+        if (timing) {
+            timing->prepareColorSourceMs =
+                elapsed_ms(prepareColorStarted, prepareColorFinished);
+        }
 
+        const auto preStarted = SteadyClock::now();
         const auto pre =
             scientific_preview_binding_v0_1::reverify_source_sha256(
                 *out.bytes, out.sourceSeal);
@@ -105,9 +137,12 @@ Status prepare(
                 2000 + static_cast<int>(pre.code),
                 pre.message);
         }
+        const auto preFinished = SteadyClock::now();
+        if (timing) timing->preOpenReverifyMs = elapsed_ms(preStarted, preFinished);
 
         auto options = out.prepared.tileNativeOptions;
         options.maxResidentBytes = maxSourceResidentBytes;
+        const auto openStarted = SteadyClock::now();
         const auto opened =
             android_raw_adapter_bridge::v0_1::openDngViaAdapter(
                 out.bytes,
@@ -119,6 +154,8 @@ Status prepare(
                 7000 + static_cast<int>(opened.code),
                 opened.message);
         }
+        const auto openFinished = SteadyClock::now();
+        if (timing) timing->openDngAdapterMs = elapsed_ms(openStarted, openFinished);
 
         out.reconstruction =
             std::make_shared<
@@ -127,6 +164,7 @@ Status prepare(
 
         scientific_master_streaming_binding::v0_2::Options scienceOptions;
         scienceOptions.memoryBudgetBytes = maxLogicalResidentBytes;
+        const auto scienceStarted = SteadyClock::now();
         const auto scienceStatus =
             scientific_master_streaming_binding::v0_2::
                 bind_scientific_master_streaming(
@@ -138,6 +176,11 @@ Status prepare(
             return fail(
                 8000 + static_cast<int>(scienceStatus.code),
                 scienceStatus.message);
+        }
+        const auto scienceFinished = SteadyClock::now();
+        if (timing) {
+            timing->bindScientificMasterMs =
+                elapsed_ms(scienceStarted, scienceFinished);
         }
 
         technical_backplane_phase2::v0_1::Phase2Input phaseInput;
@@ -151,6 +194,7 @@ Status prepare(
         phaseInput.claimStatus =
             technical_backplane::v0_1::ClaimStatus::Candidate;
 
+        const auto phaseStarted = SteadyClock::now();
         const auto phaseStatus =
             technical_backplane_phase2::v0_1::finalize_phase2(
                 phaseInput, out.phase2);
@@ -159,6 +203,8 @@ Status prepare(
                 9000 + static_cast<int>(phaseStatus.code),
                 phaseStatus.message);
         }
+        const auto phaseFinished = SteadyClock::now();
+        if (timing) timing->finalizePhase2Ms = elapsed_ms(phaseStarted, phaseFinished);
 
         if (out.phase2.admission.claimScope ==
                 scientific_preview_binding_v0_1::ColorClaimScope::None ||
@@ -194,11 +240,17 @@ Status prepare(
                         *out.openedSource.source,
                         *out.masterSource);
 
+        const auto authorityStarted = SteadyClock::now();
         if (!truthnegative_continuous::v0_5::summarizeAuthorityField(
                 *out.fieldSource, out.authorityField) ||
             out.authorityField.createsNewEvidence ||
             out.authorityField.scientificWritebackAllowed) {
             return fail(-5, "authority field binding failed");
+        }
+        const auto authorityFinished = SteadyClock::now();
+        if (timing) {
+            timing->summarizeAuthorityFieldMs =
+                elapsed_ms(authorityStarted, authorityFinished);
         }
 
         truthnegative_continuous::v0_5::StateInput stateInput{};
@@ -216,12 +268,18 @@ Status prepare(
         stateInput.physicalFrameCount = 1u;
         stateInput.independentEvidenceCount = 1u;
 
+        const auto tnStarted = SteadyClock::now();
         if (!truthnegative_continuous::v0_5::finalizeState(
                 stateInput, out.truthNegativeState) ||
             !out.truthNegativeState.isRasterIndependent ||
             out.truthNegativeState.createsNewEvidence ||
             out.truthNegativeState.scientificWritebackAllowed) {
             return fail(-6, "TruthNegative continuous parent state failed");
+        }
+        const auto tnFinished = SteadyClock::now();
+        if (timing) {
+            timing->finalizeTruthNegativeMs =
+                elapsed_ms(tnStarted, tnFinished);
         }
 
         const std::string sourceHex =
@@ -241,6 +299,7 @@ Status prepare(
         drawNegativeInput.truthRangeCoordinateFamilyDeclared = true;
         drawNegativeInput.perSampleTruthRangeMaterialized = false;
 
+        const auto drawStarted = SteadyClock::now();
         if (!drawnegative::v0_1::finalize(
                 drawNegativeInput, out.drawNegativeState) ||
             !out.drawNegativeState.isRasterIndependent ||
@@ -252,6 +311,12 @@ Status prepare(
             out.drawNegativeState.parentTruthNegativeStateSha256 !=
                 out.truthNegativeState.stateSha256) {
             return fail(-7, "D.RAWnegative v0.1 state failed");
+        }
+        const auto drawFinished = SteadyClock::now();
+        if (timing) {
+            timing->finalizeDrawNegativeMs =
+                elapsed_ms(drawStarted, drawFinished);
+            timing->totalMs = elapsed_ms(totalStarted, drawFinished);
         }
 
         return {};
@@ -266,9 +331,11 @@ Status acquireShared(
     std::size_t maxSourceResidentBytes,
     std::size_t maxLogicalResidentBytes,
     std::shared_ptr<Context>& out,
-    bool& cacheHit) noexcept {
+    bool& cacheHit,
+    SharedAcquireTiming* timing) noexcept {
     out.reset();
     cacheHit = false;
+    if (timing) *timing = SharedAcquireTiming{};
 
     try {
         if (sourceFd < 0 ||
@@ -279,6 +346,7 @@ Status acquireShared(
 
         tile_dng_v0_1::PosixFdByteSource probeBytes(sourceFd);
         scientific_preview_binding_v0_1::SourceSeal probeSeal{};
+        const auto probeStarted = SteadyClock::now();
         const auto sealed =
             scientific_preview_binding_v0_1::seal_source_sha256(
                 probeBytes,
@@ -288,7 +356,10 @@ Status acquireShared(
                 2000 + static_cast<int>(sealed.code),
                 sealed.message);
         }
+        const auto probeFinished = SteadyClock::now();
+        if (timing) timing->probeSealMs = elapsed_ms(probeStarted, probeFinished);
 
+        const auto lookupStarted = SteadyClock::now();
         {
             std::lock_guard<std::mutex> guard(gSharedCacheMutex);
             if (gSharedContext &&
@@ -299,6 +370,11 @@ Status acquireShared(
                     probeSeal)) {
                 out = gSharedContext;
                 cacheHit = true;
+                if (timing) {
+                    timing->cacheHit = true;
+                    timing->cacheLookupMs =
+                        elapsed_ms(lookupStarted, SteadyClock::now());
+                }
                 return {};
             }
 
@@ -308,14 +384,27 @@ Status acquireShared(
             gSharedMaxSourceResidentBytes = 0u;
             gSharedMaxLogicalResidentBytes = 0u;
         }
+        if (timing) {
+            timing->cacheLookupMs =
+                elapsed_ms(lookupStarted, SteadyClock::now());
+        }
 
         auto fresh = std::make_shared<Context>();
+        PreparationTiming preparationTiming{};
+        const auto prepareStarted = SteadyClock::now();
         const auto prepared =
             prepare(
                 sourceFd,
                 maxSourceResidentBytes,
                 maxLogicalResidentBytes,
-                *fresh);
+                *fresh,
+                &preparationTiming);
+        const auto prepareFinished = SteadyClock::now();
+        if (timing) {
+            timing->prepareTotalMs =
+                elapsed_ms(prepareStarted, prepareFinished);
+            timing->preparation = preparationTiming;
+        }
         if (!prepared) {
             return prepared;
         }
@@ -331,6 +420,7 @@ Status acquireShared(
         }
         out = std::move(fresh);
         cacheHit = false;
+        if (timing) timing->cacheHit = false;
         return {};
     } catch (...) {
         out.reset();
