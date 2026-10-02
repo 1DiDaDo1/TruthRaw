@@ -144,6 +144,25 @@ enum class CanonicalSourceEncodingStatus : std::uint8_t {
     Invalid = 3u,
 };
 
+inline constexpr std::size_t kCanonicalAuthorityPixelTripletBytes =
+    3u * kCanonicalAuthorityRecordBytes;
+
+struct CanonicalSourcePixelTriplet final {
+    std::array<std::uint8_t, kCanonicalAuthorityPixelTripletBytes> bytes{};
+    std::uint8_t measuredChannel = 0u;
+    bool measuredCensored = false;
+};
+
+CanonicalSourceEncodingStatus
+encode_source_pixel_triplet_canonical_v1(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    std::span<const float> cameraNativeRgb,
+    CanonicalSourcePixelTriplet& out) noexcept;
+
 CanonicalSourceEncodingStatus
 encode_source_channel_record_canonical_v1(
     CfaPattern cfa,
