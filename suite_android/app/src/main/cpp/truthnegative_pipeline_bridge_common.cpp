@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <mutex>
+#include <span>
 #include <utility>
 #include <unistd.h>
 
@@ -47,6 +48,64 @@ bool same_source_seal(
     return a.sha256 == b.sha256 &&
         a.byteLength == b.byteLength;
 }
+
+class AuthorityFieldFusionObserver final
+    : public scientific_master_streaming_binding::v0_2::
+          ICanonicalTileObserver {
+public:
+    explicit AuthorityFieldFusionObserver(
+        const DngMetadata& metadata) noexcept
+        : cfa_(metadata.cfa),
+          whiteLevel_(metadata.whiteLevel),
+          accumulator_(
+              metadata.width > 0
+                  ? static_cast<std::uint32_t>(metadata.width)
+                  : 0u,
+              metadata.height > 0
+                  ? static_cast<std::uint32_t>(metadata.height)
+                  : 0u) {}
+
+    std::size_t residentBytesUpperBound() const noexcept override {
+        return accumulator_.residentBytesUpperBound();
+    }
+
+    bool observeCanonicalTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        const std::uint16_t* rawCore,
+        std::size_t rawCount,
+        const float* cameraNativeRgb,
+        std::size_t floatCount) noexcept override {
+        if (!rawCore || !cameraNativeRgb) return false;
+        return accumulator_.appendSourceTile(
+            cfa_,
+            x,
+            y,
+            width,
+            height,
+            std::span<const std::uint16_t>(
+                rawCore,
+                rawCount),
+            whiteLevel_,
+            std::span<const float>(
+                cameraNativeRgb,
+                floatCount));
+    }
+
+    bool finalize(
+        truthnegative_continuous::v0_5::
+            AuthorityFieldSummary& out) noexcept {
+        return accumulator_.finalize(out);
+    }
+
+private:
+    CfaPattern cfa_ = CfaPattern::BGGR;
+    float whiteLevel_ = 0.0f;
+    truthnegative_continuous::v0_5::
+        AuthorityFieldAccumulator accumulator_;
+};
 
 }  // namespace
 
@@ -157,6 +216,16 @@ Status prepare(
         const auto openFinished = SteadyClock::now();
         if (timing) timing->openDngAdapterMs = elapsed_ms(openStarted, openFinished);
 
+        const auto& sourceMetadata =
+            out.openedSource.source->metadata();
+        if (sourceMetadata.width <= 0 ||
+            sourceMetadata.height <= 0) {
+            return fail(-4, "invalid source geometry");
+        }
+
+        AuthorityFieldFusionObserver authorityObserver(
+            sourceMetadata);
+
         out.reconstruction =
             std::make_shared<
                 scientific_master_f64_reconstruction_v0_1::
@@ -167,10 +236,11 @@ Status prepare(
         const auto scienceStarted = SteadyClock::now();
         const auto scienceStatus =
             scientific_master_streaming_binding::v0_2::
-                bind_scientific_master_streaming(
+                bind_scientific_master_streaming_observed(
                     *out.openedSource.source,
                     *out.reconstruction,
                     scienceOptions,
+                    authorityObserver,
                     out.scientific);
         if (!scienceStatus) {
             return fail(
@@ -220,12 +290,10 @@ Status prepare(
             return fail(-3, "phase2/master lineage invariant failed");
         }
 
-        const auto& metadata = out.openedSource.source->metadata();
-        if (metadata.width <= 0 || metadata.height <= 0) {
-            return fail(-4, "invalid source geometry");
-        }
-        out.width = static_cast<std::uint32_t>(metadata.width);
-        out.height = static_cast<std::uint32_t>(metadata.height);
+        out.width =
+            static_cast<std::uint32_t>(sourceMetadata.width);
+        out.height =
+            static_cast<std::uint32_t>(sourceMetadata.height);
 
         out.masterSource =
             std::make_unique<
@@ -241,16 +309,26 @@ Status prepare(
                         *out.masterSource);
 
         const auto authorityStarted = SteadyClock::now();
-        if (!truthnegative_continuous::v0_5::summarizeAuthorityField(
-                *out.fieldSource, out.authorityField) ||
+        if (!authorityObserver.finalize(
+                out.authorityField) ||
             out.authorityField.createsNewEvidence ||
             out.authorityField.scientificWritebackAllowed) {
-            return fail(-5, "authority field binding failed");
+            return fail(-5, "fused authority field binding failed");
         }
         const auto authorityFinished = SteadyClock::now();
         if (timing) {
+            const auto authorityFinalizeMs =
+                elapsed_ms(
+                    authorityStarted,
+                    authorityFinished);
             timing->summarizeAuthorityFieldMs =
-                elapsed_ms(authorityStarted, authorityFinished);
+                authorityFinalizeMs;
+            timing->authorityFusedFinalizeMs =
+                authorityFinalizeMs;
+            timing->authorityFusedIntoScientificMasterPass =
+                true;
+            timing->authorityReplayPassPerformed =
+                false;
         }
 
         truthnegative_continuous::v0_5::StateInput stateInput{};

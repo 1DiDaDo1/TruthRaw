@@ -556,6 +556,27 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_field_fused_into_scientific_master_pass",
+                    status.optBoolean(
+                        "authorityFieldFusedIntoScientificMasterPass",
+                        false,
+                    ),
+                )
+                .put(
+                    "authority_field_replay_pass_performed",
+                    status.optBoolean(
+                        "authorityFieldReplayPassPerformed",
+                        true,
+                    ),
+                )
+                .put(
+                    "authority_field_fused_finalize_ms",
+                    status.optDouble(
+                        "authorityFieldFusedFinalizeMs",
+                        0.0,
+                    ),
+                )
+                .put(
                     "prepare_finalize_truthnegative_ms",
                     status.optDouble(
                         "prepareFinalizeTruthNegativeMs",

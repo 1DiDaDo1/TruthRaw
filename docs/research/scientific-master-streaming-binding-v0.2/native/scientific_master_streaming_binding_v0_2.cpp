@@ -9,6 +9,7 @@
 #include <memory>
 #include <new>
 #include <string>
+#include <vector>
 
 namespace truthraw::scientific_master_streaming_binding::v0_2 {
 namespace {
@@ -118,6 +119,7 @@ Status check_initial_budget(
     const Options& options,
     streaming_v0_1::IRawTileSource& source,
     const scientific_master_digest::v0_1::ScientificMasterDigestAccumulator& digest,
+    std::size_t extraResidentBytes,
     std::size_t& residentPeak) noexcept {
     bool overflow = false;
     const auto safe_add = [&](std::size_t a, std::size_t b) -> std::size_t {
@@ -130,6 +132,7 @@ Status check_initial_budget(
 
     std::size_t resident = source.residentBytesUpperBound();
     resident = safe_add(resident, digest.metrics().residentBytesUpperBound);
+    resident = safe_add(resident, extraResidentBytes);
     resident = safe_add(resident, kMaximumRadixAuxiliaryBytes);
     if (overflow) {
         return Status::error(StatusCode::BudgetExceeded,
@@ -148,6 +151,7 @@ Status check_budget(
     streaming_v0_1::IRawTileSource& source,
     const Workspace& workspace,
     const scientific_master_digest::v0_1::ScientificMasterDigestAccumulator& digest,
+    std::size_t extraResidentBytes,
     std::size_t& workspacePeak,
     std::size_t& residentPeak) noexcept {
     workspacePeak = std::max(workspacePeak, vector_bytes(workspace));
@@ -164,6 +168,7 @@ Status check_budget(
 
     std::size_t resident = safe_add(source.residentBytesUpperBound(), workspacePeak);
     resident = safe_add(resident, digestMetrics.residentBytesUpperBound);
+    resident = safe_add(resident, extraResidentBytes);
     resident = safe_add(resident, kMaximumRadixAuxiliaryBytes);
     if (overflow) {
         return Status::error(StatusCode::BudgetExceeded,
@@ -179,10 +184,35 @@ Status check_budget(
 
 }  // namespace
 
-Status bind_scientific_master_streaming(
+namespace {
+
+bool observer_resident_bytes(
+    ICanonicalTileObserver* observer,
+    const std::vector<std::uint16_t>& coreRaw,
+    std::size_t& out) noexcept {
+    out = 0u;
+    if (coreRaw.capacity() >
+        std::numeric_limits<std::size_t>::max() /
+            sizeof(std::uint16_t)) {
+        return false;
+    }
+    const std::size_t rawBytes =
+        coreRaw.capacity() * sizeof(std::uint16_t);
+    const std::size_t observerBytes =
+        observer ? observer->residentBytesUpperBound() : 0u;
+    if (observerBytes >
+        std::numeric_limits<std::size_t>::max() - rawBytes) {
+        return false;
+    }
+    out = observerBytes + rawBytes;
+    return true;
+}
+
+Status bind_impl(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const Options& options,
+    ICanonicalTileObserver* observer,
     Result& out) noexcept {
     out = {};
     const auto& metadata = source.metadata();
@@ -217,7 +247,14 @@ Status bind_scientific_master_streaming(
 
     std::size_t workspacePeak = 0u;
     std::size_t residentPeak = 0u;
-    const auto initialBudget = check_initial_budget(options, source, digest, residentPeak);
+    const std::size_t initialObserverBytes =
+        observer ? observer->residentBytesUpperBound() : 0u;
+    const auto initialBudget = check_initial_budget(
+        options,
+        source,
+        digest,
+        initialObserverBytes,
+        residentPeak);
     if (!initialBudget) return initialBudget;
 
     std::unique_ptr<std::uint64_t[]> lowerHistogram(
@@ -230,6 +267,7 @@ Status bind_scientific_master_streaming(
     }
 
     Workspace workspace{};
+    std::vector<std::uint16_t> observerRaw{};
     std::uint64_t eligibleCount = 0u;
     std::size_t masterTiles = 0u;
 
@@ -269,6 +307,38 @@ Status bind_scientific_master_streaming(
                                      "Scientific Master digest tile rejected: " + digest.error());
             }
 
+            if (observer != nullptr) {
+                observerRaw.resize(coreSamples);
+                const int coreOffsetX = tile.x0 - tile.hx0;
+                const int coreOffsetY = tile.y0 - tile.hy0;
+                for (int yy = 0; yy < coreHeight; ++yy) {
+                    const std::size_t sourceOffset =
+                        static_cast<std::size_t>(coreOffsetY + yy) *
+                            static_cast<std::size_t>(tileWidth) +
+                        static_cast<std::size_t>(coreOffsetX);
+                    const std::size_t destinationOffset =
+                        static_cast<std::size_t>(yy) *
+                        static_cast<std::size_t>(coreWidth);
+                    std::copy_n(
+                        w.raw.data() + sourceOffset,
+                        static_cast<std::size_t>(coreWidth),
+                        observerRaw.data() + destinationOffset);
+                }
+                if (!observer->observeCanonicalTile(
+                        static_cast<std::uint32_t>(tile.x0),
+                        static_cast<std::uint32_t>(tile.y0),
+                        static_cast<std::uint32_t>(coreWidth),
+                        static_cast<std::uint32_t>(coreHeight),
+                        observerRaw.data(),
+                        observerRaw.size(),
+                        w.cam.data(),
+                        w.cam.size())) {
+                    return Status::error(
+                        StatusCode::DigestFailed,
+                        "canonical Scientific Master observer rejected tile");
+                }
+            }
+
             for (int y = tile.y0; y < tile.y1; ++y) {
                 for (int x = tile.x0; x < tile.x1; ++x) {
                     float stage2 = 0.0f;
@@ -285,7 +355,23 @@ Status bind_scientific_master_streaming(
             }
 
             ++masterTiles;
-            return check_budget(options, source, w, digest, workspacePeak, residentPeak);
+            std::size_t observerBytes = 0u;
+            if (!observer_resident_bytes(
+                    observer,
+                    observerRaw,
+                    observerBytes)) {
+                return Status::error(
+                    StatusCode::BudgetExceeded,
+                    "canonical observer resident accounting overflow");
+            }
+            return check_budget(
+                options,
+                source,
+                w,
+                digest,
+                observerBytes,
+                workspacePeak,
+                residentPeak);
         });
     if (!firstPass) return firstPass;
 
@@ -338,7 +424,23 @@ Status bind_scientific_master_streaming(
                     }
                 }
             }
-            return check_budget(options, source, w, digest, workspacePeak, residentPeak);
+            std::size_t observerBytes = 0u;
+            if (!observer_resident_bytes(
+                    observer,
+                    observerRaw,
+                    observerBytes)) {
+                return Status::error(
+                    StatusCode::BudgetExceeded,
+                    "canonical observer resident accounting overflow");
+            }
+            return check_budget(
+                options,
+                source,
+                w,
+                digest,
+                observerBytes,
+                workspacePeak,
+                residentPeak);
         });
     if (!secondPass) return secondPass;
 
@@ -397,6 +499,35 @@ Status bind_scientific_master_streaming(
 
     out = result;
     return Status::ok();
+}
+
+}  // namespace
+
+Status bind_scientific_master_streaming(
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    const Options& options,
+    Result& out) noexcept {
+    return bind_impl(
+        source,
+        reconstruction,
+        options,
+        nullptr,
+        out);
+}
+
+Status bind_scientific_master_streaming_observed(
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    const Options& options,
+    ICanonicalTileObserver& observer,
+    Result& out) noexcept {
+    return bind_impl(
+        source,
+        reconstruction,
+        options,
+        &observer,
+        out);
 }
 
 }  // namespace truthraw::scientific_master_streaming_binding::v0_2
