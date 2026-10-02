@@ -582,6 +582,34 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: 0L,
                             )
                             .put(
+                                "authority_sha_direct_block_transport_active",
+                                n2Local?.optBoolean(
+                                    "authority_sha_direct_block_transport_active",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "authority_sha_direct_input_block_transform_count",
+                                n2Local?.optLong(
+                                    "authority_sha_direct_input_block_transform_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_sha_buffered_input_block_transform_count",
+                                n2Local?.optLong(
+                                    "authority_sha_buffered_input_block_transform_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_sha_direct_input_bytes",
+                                n2Local?.optLong(
+                                    "authority_sha_direct_input_bytes",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
                                 "authority_direct_record_stream_ms",
                                 n2Local?.optDouble(
                                     "authority_direct_record_stream_ms",
