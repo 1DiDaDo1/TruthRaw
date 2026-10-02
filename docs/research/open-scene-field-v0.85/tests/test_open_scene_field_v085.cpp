@@ -2,6 +2,7 @@
 #include "open_scene_local_policy_v0_86.h"
 #include "truthnegative_local_authority_projection_v0_4.h"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
