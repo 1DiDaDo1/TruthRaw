@@ -337,6 +337,7 @@ bool runSparseReference(
         }
 
         detail::Workspace workspace{};
+        std::uint64_t profileOrdinal=0u;
 
         for(const auto& referenceTile:referenceV01.tiles){
             if(diagnostics)++diagnostics->tileCount;
@@ -426,7 +427,7 @@ bool runSparseReference(
                     };
 
                 const auto pathTouchesCensor=
-                    [&](int gx,int gy,int dx,int dy) noexcept {
+                    [&](int gx,int gy,int dx,int dy,bool profiled) noexcept {
                         const int radius=
                             std::max(std::abs(dx),std::abs(dy));
                         if(radius<=0||(radius%2)!=0)return true;
@@ -435,6 +436,9 @@ bool runSparseReference(
                         const int stepX=dx/steps;
                         const int stepY=dy/steps;
                         for(int step=1;step<=steps;++step){
+                            if(diagnostics&&profiled){
+                                ++diagnostics->profiledPathStepCount;
+                            }
                             std::size_t i=0u;
                             if(!indexOf(
                                     gx+step*stepX,
