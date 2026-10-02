@@ -130,9 +130,9 @@ for token in [
 # 44488 remains the current recovery anchor. v0.2.9 is now the proven
 # merged baseline while v0.2.10 remains only a candidate.
 assert state["continuation_code"] == "44488"
-assert state["latest_merged_pr"]["number"] == 116
-assert state["source_code_head"] == "edcae3eabb077d53b6a25802e6b9ca62c188b973"
-assert state["next_frontier"]["name"] == "Pixel-triplet authority encoder v0.2.10"
+assert state["latest_merged_pr"]["number"] == 117
+assert state["source_code_head"] == "719887443c9f82e1acd6ef83d52870808c8c5e9b"
+assert state["next_frontier"]["name"] == "Canonical template/suffix reuse v0.2.11"
 
 # This candidate is transport-only and must not gain scientific authority.
 for text in [pipeline_cpp, binding, diag]:
