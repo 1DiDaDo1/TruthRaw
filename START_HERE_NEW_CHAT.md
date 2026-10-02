@@ -1,3 +1,83 @@
+# D.RAW / TruthRaw — CURRENT 2026-10-02 CHECKPOINT — CODE 44488
+
+This section supersedes older global-current-state notes below wherever they conflict.
+
+Continuation code:
+
+`44488`
+
+Meaning: restore the complete D.RAW/TruthRaw project context through the merged and real-device-validated N2/authority performance line up to **authority direct stream v0.2.7**, while preserving all earlier scientific, Free World, cable-recovery, acquisition, calibration, optics, colour, temporal, 3D/world-space and authority context.
+
+Current development branch:
+
+`fix/android17-research-resilience-v02`
+
+Latest merged PR:
+
+`#114 — Stream authority records directly into canonical digest v0.2.7`
+
+Current Android/scientific source-code checkpoint:
+
+`33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+
+Current state:
+
+`state/CURRENT_PROJECT_STATE_2026-10-02.json`
+
+Current handoff:
+
+`docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+
+Current document index:
+
+`docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+
+Read first now:
+
+1. `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+3. `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+4. `docs/research/truthnegative-authority-direct-stream-v0.1/README.md`
+5. `docs/research/truthnegative-authority-field-fusion-v0.1/README.md`
+6. older dated material only as required for provenance
+
+Current validated Android version:
+
+- versionCode `26100108`
+- versionName `0.53-v0.84.2-authority-direct-stream`
+- APK SHA-256 `eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c`
+- stable signing certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+
+Real-device v0.2.7 result:
+
+- direct authority record streaming is active;
+- temporary authority `ChannelRecord` vector is not used;
+- authority accumulator record-vector resident bound is 0 bytes;
+- authority replay remains removed;
+- fused authority remains inside Scientific Master pass 1;
+- exact authority semantics remain parity-validated;
+- aggregate two-RAW profile time is about 40.683 s;
+- remaining dominant authority cost is per-record semantic construction/validation/classification accounting/canonical SHA, not tile-vector allocation.
+
+Current next frontier:
+
+**canonical direct-byte authority encoder** — preserve exactly the same canonical source-record semantics, Float32 bits, CFA/censor classification, counts, tile order and authority SHA-256 while avoiding unnecessary per-record object construction and repeated generic validation overhead.
+
+Permanent laws remain:
+
+- `MEASURED != RECONSTRUCTED != APPEARANCE`
+- sealed Direct-CFA evidence remains immutable;
+- Scientific Master is separate from presentation/export;
+- camera/lens/vendor/RAW identity may not select scientific truth;
+- held-out data may evaluate but not fit/select;
+- no AI/ML/neural/generative scientific runtime;
+- no diagnostic/performance route may promote calibration/correction or write Scientific Master;
+- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
+
+A future chat receiving only **44488** should recover the repository state first and continue from this checkpoint rather than asking the user to reconstruct the project manually.
+
+---
+
 # D.RAW / TruthRaw — CURRENT 2026-10-01 CHECKPOINT — CODE 44485
 
 This section supersedes older global-current-state notes below wherever they conflict.
