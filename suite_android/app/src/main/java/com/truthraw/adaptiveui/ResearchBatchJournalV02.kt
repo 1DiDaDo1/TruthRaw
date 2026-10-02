@@ -39,8 +39,17 @@ object ResearchBatchJournalV02 {
 
         root
             .put("updated_at_wall_ms", now)
+            .put("attempt_started_at_wall_ms", now)
             .put("terminal", false)
             .put("status", "RUNNING")
+            .put(
+                "run_mode",
+                if (redelivered) {
+                    "REDELIVERED_RESUME"
+                } else {
+                    "FRESH_USER_RUN"
+                },
+            )
             .put("attempt_count", root.optInt("attempt_count", 0) + 1)
             .put("service_heartbeat_wall_ms", now)
             .put("system", systemSample(context))
@@ -54,6 +63,16 @@ object ResearchBatchJournalV02 {
                 "redelivery_count",
                 root.optInt("redelivery_count", 0) + 1,
             )
+        } else {
+            // A new explicit Research run is a fresh measurement attempt.
+            // Old terminal/job-stage facts belong to the previous attempt and
+            // must not make the UI or export path believe that new work has
+            // already completed. Redelivery is the only resume path.
+            root.remove("current_job_id")
+            root.remove("current_job_index")
+            root.remove("current_job_total")
+            root.remove("current_stage")
+            root.remove("terminal_message")
         }
 
         val map =
@@ -69,10 +88,23 @@ object ResearchBatchJournalV02 {
                 .put("index", index + 1)
                 .put("display_name", job.source.displayName)
                 .put("source_uri", job.source.uri.toString())
-                .put(
+
+            if (redelivered) {
+                existing.put(
                     "status",
                     existing.optString("status", "PENDING"),
                 )
+            } else {
+                existing
+                    .put("status", "PENDING")
+                    .put("updated_at_wall_ms", now)
+                existing.remove("stage")
+                existing.remove("stage_started_at_wall_ms")
+                existing.remove("detail")
+                existing.remove("failure")
+                existing.remove("source_sha256")
+                existing.remove("completed_at_wall_ms")
+            }
             map.put(job.id, existing)
         }
 

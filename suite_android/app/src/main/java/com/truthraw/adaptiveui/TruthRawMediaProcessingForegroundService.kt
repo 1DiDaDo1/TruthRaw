@@ -120,6 +120,26 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     )
                 }
 
+                if (!redelivered) {
+                    // An explicit new analysis request must produce a fresh
+                    // UniversalSourceProfile for every selected RAW. The
+                    // private profile store is a derived cache, not evidence.
+                    // Redelivery is the only path that may reuse profiles
+                    // already committed by the interrupted attempt.
+                    val cacheResetOk =
+                        session.jobs.all { job ->
+                            ResearchUniversalProfileStoreV01.remove(
+                                filesDir = filesDir,
+                                jobId = job.id,
+                            )
+                        }
+                    if (!cacheResetOk) {
+                        kotlin.error(
+                            "Fresh Research-run kon afgeleide profielcache niet volledig resetten.",
+                        )
+                    }
+                }
+
                 ResearchBatchJournalV02.begin(
                     context = applicationContext,
                     operationKey = operationKey,
@@ -524,6 +544,9 @@ class TruthRawMediaProcessingForegroundService : Service() {
         private val activeKeys = ConcurrentHashMap.newKeySet<String>()
 
         fun isActive(key: String): Boolean = activeKeys.contains(key)
+
+        fun isResearchBatchActive(key: String): Boolean =
+            instance?.researchWorkerKeys?.contains(key) == true
 
         fun start(context: Context, key: String, label: String): Boolean {
             val app = context.applicationContext

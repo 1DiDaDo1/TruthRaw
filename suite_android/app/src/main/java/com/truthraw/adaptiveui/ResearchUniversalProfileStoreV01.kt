@@ -176,6 +176,8 @@ object ResearchUniversalProfileStoreV01 {
             if (
                 wrapper.optString("schema") !=
                 SCHEMA ||
+                wrapper.optString("profile_cache_generation") !=
+                UniversalSourceProfiler.CACHE_GENERATION ||
                 wrapper.optString("job_id") !=
                 job.id ||
                 wrapper.optString("source_uri") !=
@@ -198,6 +200,7 @@ object ResearchUniversalProfileStoreV01 {
             if (
                 profile.optString("status") !=
                 "AUTO_PROFILED_IN_FULL_DRAW_SUITE" ||
+                !isCurrentProfile(profile) ||
                 profile.optString(
                     "source_sha256",
                 ).isBlank()
@@ -215,8 +218,8 @@ object ResearchUniversalProfileStoreV01 {
     fun remove(
         filesDir: File,
         jobId: String,
-    ) {
-        runCatching {
+    ): Boolean {
+        val file =
             File(
                 File(
                     filesDir,
@@ -224,8 +227,13 @@ object ResearchUniversalProfileStoreV01 {
                 ),
                 safeName(jobId) +
                     ".json",
-            ).delete()
+            )
+        if (!file.exists()) {
+            return true
         }
+        return runCatching {
+            file.delete() || !file.exists()
+        }.getOrDefault(false)
     }
 
     fun clear(
