@@ -1,67 +1,61 @@
 # D.RAW / TruthRaw — CURRENT 2026-10-02 CHECKPOINT — CODE 44488
 
-This section supersedes older global-current-state notes below wherever they conflict.
-
 Continuation code:
 
 `44488`
 
-Meaning: restore the complete D.RAW/TruthRaw project context through **authority direct-byte v0.2.8**, now merged, **37/37 post-merge green** and real-device validated, while preserving all earlier scientific, Free World, cable-recovery, acquisition, calibration, optics, colour, temporal, 3D/world-space and authority context.
+Restore the complete project through **v0.2.9 SHA-256 Direct Block**, now merged and real-device validated, while preserving all earlier scientific, Free World, calibration, optics, colour, temporal, 3D/world-space, cable-recovery and authority context.
 
-Current development branch:
+Current branch:
 
 `fix/android17-research-resilience-v02`
 
 Latest merged PR:
 
-`#115 — Encode canonical authority bytes directly v0.2.8`
+`#116 — SHA-256 Direct Block v0.2.9`
 
-Current source-code checkpoint:
+Current source checkpoint:
 
-`85e67ca3090aa113edda7133d656f28087e3ad22`
+`edcae3eabb077d53b6a25802e6b9ca62c188b973`
 
 Read first:
 
 1. `state/CURRENT_PROJECT_STATE_2026-10-02.json`
 2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
 3. `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
-4. `docs/research/truthnegative-authority-direct-stream-v0.1/README.md`
-5. older dated material only for provenance
 
-Current validated Android line:
+Validated Android line:
 
-- versionCode `26100109`
-- versionName `0.53-v0.84.2-authority-direct-byte`
-- APK SHA-256 `71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a`
+- versionCode `26100110`
+- versionName `0.53-v0.84.2-sha-direct-block`
+- APK SHA-256 `30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd`
 - stable signing certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
 
-Real-device v0.2.8:
-
-- aggregate two-RAW profile time `32.967853 s`, about 18.96% faster than v0.2.7;
-- direct-byte encoding active;
-- generic record validation bypassed only inside the proven specialized path;
-- `37,601,280` direct-byte records per RAW;
-- `0` generic fallbacks;
-- exact authority SHA/count semantics retained;
+Real-device v0.2.9:
+- aggregate two-RAW profile time `32.515212 s`;
+- SHA direct-block transport active;
+- `914,964,480` authority bytes per RAW bypass the old complete-block staging copy;
+- exact authority digest/count semantics retained;
 - scientific firewall unchanged.
 
 Current next frontier:
 
-**SHA-256 direct-block transport v0.2.9** — remove the redundant full-block memcpy in the generic SHA update path while leaving the SHA-256 compression algorithm and every digest bit unchanged. Keep the later pixel-triplet authority encoder as a separate candidate.
+**Pixel-Triplet Authority Encoder v0.2.10** — determine CFA/censor state once per pixel and emit the exact three existing 25-byte channel records as one 75-byte triplet. All four Bayer phases, censored/non-censored cases, byte order, record order, counts and final SHA must remain exact. Future unsupported semantics must fail closed to the general route.
+
+The following remain separate later candidates and must not be folded into v0.2.10:
+- canonical template/suffix reuse;
+- hash-batch-size tuning;
+- center-excluded predictor optimization;
+- deterministic local scientific model selection.
 
 Permanent laws remain:
+- `MEASURED != RECONSTRUCTED != APPEARANCE`;
+- seal the evidence, not the thinking;
+- representation can exceed the source; knowledge claims cannot exceed the evidence;
+- no performance path may promote calibration/correction or write Scientific Master;
+- specialized fast paths stay versioned, parity-proven and fail-closed.
 
-- `MEASURED != RECONSTRUCTED != APPEARANCE`
-- sealed Direct-CFA evidence remains immutable;
-- Scientific Master is separate from presentation/export;
-- camera/lens/vendor/RAW identity may not select scientific truth;
-- held-out data may evaluate but not fit/select;
-- no AI/ML/neural/generative scientific runtime;
-- no diagnostic/performance route may promote calibration/correction or write Scientific Master;
-- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct;
-- optimized cables may specialize a proven semantic case but must remain versioned, fail-closed and able to fall back to a more general path when future semantics expand.
-
-A future chat receiving only **44488** should recover the repository state first and continue from this checkpoint rather than asking the user to reconstruct the project manually.
+A future chat receiving only **44488** should recover repository state first and continue from this checkpoint unless a newer proven state exists.
 
 ---
 
