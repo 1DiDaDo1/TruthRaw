@@ -8,6 +8,7 @@ on:
       - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchProfileStageCacheV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
       - 'suite_android/VERSION_CODE'
       - 'suite_android/app/build.gradle.kts'
@@ -27,3 +28,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify Center-Excluded profiling stays diagnostic-only
         run: python3 tools/check_center_excluded_v2_profile_v01.py
+      - name: Configure fixed-topology parity oracle
+        run: >-
+          cmake
+          -S docs/research/truthnegative-center-excluded-neighborhood-v0.2
+          -B build/center-excluded-neighborhood
+          -DCMAKE_BUILD_TYPE=Release
+      - name: Build fixed-topology parity oracle
+        run: cmake --build build/center-excluded-neighborhood --parallel 2
+      - name: Run exact Result parity oracle
+        run: ctest --test-dir build/center-excluded-neighborhood --output-on-failure
