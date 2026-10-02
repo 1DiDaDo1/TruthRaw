@@ -105,8 +105,10 @@ for token in [
 
 for token in [
     "authorityPixelTripletEncodingActive",
+    "authorityCanonicalTemplateReuseActive",
     "authorityCanonicalPixelTripletBytes",
     "authorityDirectPixelTripletCount",
+    "authorityCanonicalTemplatePixelTripletCount",
     "authorityGenericFallbackPixelCount",
 ]:
     assert token in pipeline_h, f"pipeline triplet telemetry missing {token}"
@@ -114,6 +116,7 @@ for token in [
 
 for token in [
     "authorityObserver.directPixelTripletCount()",
+    "authorityObserver.canonicalTemplatePixelTripletCount()",
     "authorityObserver.genericFallbackPixelCount()",
     "kCanonicalAuthorityPixelTripletBytes",
 ]:
@@ -121,8 +124,10 @@ for token in [
 
 for token in [
     "authority_pixel_triplet_encoding_active",
+    "authority_canonical_template_reuse_active",
     "authority_canonical_pixel_triplet_bytes",
     "authority_direct_pixel_triplet_count",
+    "authority_canonical_template_pixel_triplet_count",
     "authority_generic_fallback_pixel_count",
 ]:
     assert token in binding, f"Kotlin triplet telemetry missing {token}"
