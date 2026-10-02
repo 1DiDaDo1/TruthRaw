@@ -330,36 +330,72 @@ bool AuthorityFieldAccumulator::appendSourceTile(
                 const std::size_t pi =
                     static_cast<std::size_t>(yy) * width + xx;
                 for (int ch = 0; ch < 3; ++ch) {
+                    const float cameraNativeValue =
+                        cameraNativeRgb[
+                            3u * pi +
+                            static_cast<std::size_t>(ch)];
                     field::CanonicalSourceChannelRecord encoded{};
-                    if (!field::encode_source_channel_record_canonical(
+                    const auto encodeStatus =
+                        field::encode_source_channel_record_canonical_v1(
                             cfa,
                             x + xx,
                             y + yy,
                             raw[pi],
                             whiteLevel,
                             ch,
-                            cameraNativeRgb[
-                                3u * pi +
-                                static_cast<std::size_t>(ch)],
-                            encoded) ||
-                        !accountCanonicalSourceRecord(encoded)) {
-                        valid_ = false;
-                        return false;
+                            cameraNativeValue,
+                            encoded);
+
+                    if (encodeStatus ==
+                        field::CanonicalSourceEncodingStatus::Encoded) {
+                        if (!accountCanonicalSourceRecord(encoded)) {
+                            valid_ = false;
+                            return false;
+                        }
+                        if (batchUsed + encoded.bytes.size() >
+                            byteBatch.size()) {
+                            if (!flushBatch()) {
+                                valid_ = false;
+                                return false;
+                            }
+                        }
+                        std::copy(
+                            encoded.bytes.begin(),
+                            encoded.bytes.end(),
+                            byteBatch.begin() +
+                                static_cast<std::ptrdiff_t>(batchUsed));
+                        batchUsed += encoded.bytes.size();
+                        ++directByteRecordCount_;
+                        continue;
                     }
 
-                    if (batchUsed + encoded.bytes.size() >
-                        byteBatch.size()) {
+                    if (encodeStatus ==
+                        field::CanonicalSourceEncodingStatus::
+                            UnsupportedSemanticExtension) {
                         if (!flushBatch()) {
                             valid_ = false;
                             return false;
                         }
+                        field::ChannelRecord fallback{};
+                        if (!field::build_source_channel_record(
+                                cfa,
+                                x + xx,
+                                y + yy,
+                                raw[pi],
+                                whiteLevel,
+                                ch,
+                                cameraNativeValue,
+                                fallback) ||
+                            !appendRecord(fallback)) {
+                            valid_ = false;
+                            return false;
+                        }
+                        ++genericFallbackRecordCount_;
+                        continue;
                     }
-                    std::copy(
-                        encoded.bytes.begin(),
-                        encoded.bytes.end(),
-                        byteBatch.begin() +
-                            static_cast<std::ptrdiff_t>(batchUsed));
-                    batchUsed += encoded.bytes.size();
+
+                    valid_ = false;
+                    return false;
                 }
             }
         }
@@ -376,6 +412,14 @@ bool AuthorityFieldAccumulator::appendSourceTile(
 
 std::size_t AuthorityFieldAccumulator::residentBytesUpperBound() const noexcept {
     return 0u;
+}
+
+std::uint64_t AuthorityFieldAccumulator::directByteRecordCount() const noexcept {
+    return directByteRecordCount_;
+}
+
+std::uint64_t AuthorityFieldAccumulator::genericFallbackRecordCount() const noexcept {
+    return genericFallbackRecordCount_;
 }
 
 bool AuthorityFieldAccumulator::finalize(
