@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 namespace field = truthraw::open_scene_field::v0_85;
@@ -27,6 +28,37 @@ field::Digest digest(std::uint8_t seed){
     field::Digest d{};
     for(std::size_t i=0;i<d.size();++i)d[i]=static_cast<std::uint8_t>(seed+i);
     return d;
+}
+
+std::array<std::uint8_t, field::kCanonicalAuthorityRecordBytes>
+canonical_authority_bytes(const field::ChannelRecord& r){
+    std::array<std::uint8_t, field::kCanonicalAuthorityRecordBytes> out{};
+    std::size_t off=0u;
+    const auto put8=[&](std::uint8_t v){out[off++]=v;};
+    const auto put32=[&](std::uint32_t v){
+        put8(static_cast<std::uint8_t>(v));
+        put8(static_cast<std::uint8_t>(v>>8u));
+        put8(static_cast<std::uint8_t>(v>>16u));
+        put8(static_cast<std::uint8_t>(v>>24u));
+    };
+    const auto putf=[&](float v){
+        put32(std::bit_cast<std::uint32_t>(v));
+    };
+    putf(r.value);
+    put8(static_cast<std::uint8_t>(r.role));
+    put8(static_cast<std::uint8_t>(r.authority));
+    put8(static_cast<std::uint8_t>(r.uncertainty));
+    put8(static_cast<std::uint8_t>(r.boundDomain));
+    put8(r.valuePresent?1u:0u);
+    put8(r.p95Known?1u:0u);
+    putf(r.p95);
+    put8(r.supportKnown?1u:0u);
+    putf(r.support);
+    put8(r.boundKnown?1u:0u);
+    putf(r.bound);
+    put8(r.contributionMask);
+    require(off==out.size(),"canonical authority record byte width");
+    return out;
 }
 
 int measured_channel(truthraw::CfaPattern cfa,int x,int y){
@@ -125,6 +157,29 @@ void test_source_field_and_encoding(){
                 require(
                     direct.contributionMask==vectorRecord.contributionMask,
                     "single/vector contribution mask exact");
+                field::CanonicalSourceChannelRecord encodedDirect{};
+                require(
+                    field::encode_source_channel_record_canonical(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        encodedDirect),
+                    "canonical direct-byte source channel encode");
+                require(
+                    encodedDirect.bytes==
+                        canonical_authority_bytes(vectorRecord),
+                    "direct-byte/materialized canonical bytes exact");
+                require(
+                    encodedDirect.role==vectorRecord.role &&
+                    encodedDirect.authority==vectorRecord.authority &&
+                    encodedDirect.p95Known==vectorRecord.p95Known &&
+                    encodedDirect.supportKnown==vectorRecord.supportKnown &&
+                    encodedDirect.boundKnown==vectorRecord.boundKnown,
+                    "direct-byte/materialized summary fields exact");
             }
         }
     }
@@ -166,6 +221,19 @@ void test_source_field_and_encoding(){
     }
     require(measured==16u&&reconstructed==32u&&calibrated==15u&&censored==1u&&unknown==32u,
             "source counts");
+
+    field::CanonicalSourceChannelRecord invalidCanonical{};
+    require(
+        !field::encode_source_channel_record_canonical(
+            truthraw::CfaPattern::BGGR,
+            0u,
+            0u,
+            100u,
+            1023.0f,
+            0,
+            std::numeric_limits<float>::quiet_NaN(),
+            invalidCanonical),
+        "canonical direct-byte encoder fails closed on non-finite source value");
 
     field::EncodedTile encoded{};
     require(field::encode_tile(0u,0u,w,h,records,encoded),"encode source tile");
