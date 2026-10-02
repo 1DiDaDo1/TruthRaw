@@ -13,6 +13,75 @@ import org.json.JSONObject
 object FreeWorldPerformanceDiagnosticsV01 {
     const val SCHEMA = "D.RAW/FreeWorldPerformanceDiagnostics/0.1"
 
+    private fun scientificMasterTileReadAttribution(
+        bindProfile: JSONObject?,
+    ): JSONObject {
+        val available = bindProfile?.optBoolean("available", false) == true
+        val rawCalls = bindProfile?.optLong("source_read_raw_call_count", 0L) ?: 0L
+        val reconstructionCalls =
+            bindProfile?.optLong("reconstruction_call_count", 0L) ?: 0L
+        val rawMs =
+            bindProfile?.optDouble("source_read_raw_ms", Double.NaN)
+                ?: Double.NaN
+        val safeTwoPassCount =
+            reconstructionCalls > 0L &&
+                reconstructionCalls <= Long.MAX_VALUE / 2L
+        val expectedRawCalls =
+            if (safeTwoPassCount) reconstructionCalls * 2L else -1L
+        val reconciles =
+            available &&
+                safeTwoPassCount &&
+                rawCalls == expectedRawCalls
+        val passCallCount: Any =
+            if (reconciles) reconstructionCalls else JSONObject.NULL
+        val unattributedRawCalls =
+            if (reconciles) 0L else rawCalls
+
+        return JSONObject()
+            .put(
+                "schema",
+                "D.RAW/ScientificMasterTileReadAttribution/0.1",
+            )
+            .put(
+                "status",
+                if (reconciles) {
+                    "TWO_PASS_BINDER_SCHEDULE_RECONCILED"
+                } else {
+                    "UNKNOWN_FAIL_CLOSED"
+                },
+            )
+            .put(
+                "attribution_basis",
+                "SCIENTIFIC_MASTER_STREAMING_BINDING_V0_2_TWO_CANONICAL_PASSES",
+            )
+            .put(
+                "pass_1_role",
+                "SCIENTIFIC_MASTER_DIGEST_RECONSTRUCTION_AUTHORITY_AND_HIGH16_GAUGE",
+            )
+            .put(
+                "pass_2_role",
+                "EXACT_SELF_GAUGE_LOW16_RESOLUTION",
+            )
+            .put("aggregate_source_read_raw_call_count", rawCalls)
+            .put("expected_two_pass_raw_call_count", if (safeTwoPassCount) expectedRawCalls else JSONObject.NULL)
+            .put("pass_1_raw_call_count", passCallCount)
+            .put("pass_2_raw_call_count", passCallCount)
+            .put("unattributed_raw_call_count", unattributedRawCalls)
+            .put("raw_call_count_reconciles", reconciles)
+            .put(
+                "aggregate_source_read_raw_ms",
+                if (rawMs.isFinite()) rawMs else JSONObject.NULL,
+            )
+            .put("per_pass_source_read_timing_available", false)
+            .put("per_pass_timing_inferred", false)
+            .put("optimization_applied", false)
+            .put("source_values_modified", false)
+            .put("candidate_applied", false)
+            .put("creates_new_evidence", false)
+            .put("scientific_writeback_allowed", false)
+            .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
+    }
+
     fun build(profiles: List<JSONObject>): JSONObject {
         val observations = JSONArray()
         var telemetryProfiles = 0
@@ -161,6 +230,12 @@ object FreeWorldPerformanceDiagnosticsV01 {
                             false,
                         )
                 }
+            scientificMasterBindProfile.put(
+                "tile_read_attribution_v0_1",
+                scientificMasterTileReadAttribution(
+                    rawScientificMasterBindProfile,
+                ),
+            )
 
             observations.put(
                 JSONObject()
