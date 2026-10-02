@@ -51,6 +51,9 @@ current_2026_10_01_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-0
 current_2026_10_01_index = need("docs/DOCUMENT_STATUS_INDEX_2026-10-01.md")
 current_2026_10_01_measured_support = need("docs/research/measured-field-support-coordinate-bridge-v0.1/README.md")
 current_2026_10_01_topography = need("docs/research/optical-field-topography-v0.1/README.md")
+current_2026_10_02_state_text = need("state/CURRENT_PROJECT_STATE_2026-10-02.json")
+current_2026_10_02_handoff = need("docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md")
+current_2026_10_02_index = need("docs/DOCUMENT_STATUS_INDEX_2026-10-02.md")
 need("state/README.md")
 
 # New research foundations that the current integration line explicitly carries.
@@ -1003,6 +1006,7 @@ for p in repo.rglob("*"):
             "state/CURRENT_PROJECT_STATE_2026-09-27.json",
             "state/CURRENT_PROJECT_STATE_2026-09-28.json",
             "state/CURRENT_PROJECT_STATE_2026-10-01.json",
+            "state/CURRENT_PROJECT_STATE_2026-10-02.json",
         }
         or rel.startswith("docs/PROJECT_STATE_AUDIT_")
     )
@@ -1113,6 +1117,82 @@ if "OpticalFieldTopographyAuditV01.kt" not in current_2026_10_01_topography:
     errors.append("current_2026_10_01_topography_impl_pointer_missing")
 if "height is **not** automatically" not in current_2026_10_01_topography:
     errors.append("current_2026_10_01_topography_authority_warning_missing")
+
+# Current 2026-10-02 44488 handoff / authority-direct-stream checkpoint.
+for required in (
+    "state/CURRENT_PROJECT_STATE_2026-10-02.json",
+    "docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md",
+    "docs/DOCUMENT_STATUS_INDEX_2026-10-02.md",
+):
+    if required not in bootstrap:
+        errors.append(f"bootstrap_missing_current_2026_10_02_pointer:{required}")
+    if required not in root_readme:
+        errors.append(f"root_readme_missing_current_2026_10_02_pointer:{required}")
+
+try:
+    current_2026_10_02 = json.loads(current_2026_10_02_state_text)
+except Exception as exc:
+    errors.append(f"current_2026_10_02_project_state_invalid_json:{exc}")
+    current_2026_10_02 = {}
+
+if current_2026_10_02.get("schema") != "D.RAW/CurrentProjectState/2026-10-02":
+    errors.append("current_2026_10_02_project_state_schema_mismatch")
+if current_2026_10_02.get("status") != "ACTIVE_RESEARCH_CHECKPOINT":
+    errors.append("current_2026_10_02_project_state_status_mismatch")
+if current_2026_10_02.get("continuation_code") != "44488":
+    errors.append("current_2026_10_02_continuation_code_mismatch")
+if current_2026_10_02.get("active_branch") != "fix/android17-research-resilience-v02":
+    errors.append("current_2026_10_02_active_branch_mismatch")
+if current_2026_10_02.get("source_code_head") != "33c69b635be5bcc57ec4a947eb8fda3649e492ad":
+    errors.append("current_2026_10_02_source_checkpoint_mismatch")
+
+latest_pr_1002 = current_2026_10_02.get("latest_merged_pr") or {}
+if latest_pr_1002.get("number") != 114 or latest_pr_1002.get("state") != "MERGED":
+    errors.append("current_2026_10_02_latest_merged_pr_mismatch")
+
+android_1002 = current_2026_10_02.get("android") or {}
+if android_1002.get("version_code") != 26100108:
+    errors.append("current_2026_10_02_android_version_code_mismatch")
+if android_1002.get("apk_sha256") != "eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c":
+    errors.append("current_2026_10_02_apk_sha_mismatch")
+if android_1002.get("app_data_wipe_required") is not False:
+    errors.append("current_2026_10_02_app_data_wipe_must_not_be_required")
+
+ci_1002 = current_2026_10_02.get("post_merge_ci") or {}
+if ci_1002.get("status") != "FULLY_GREEN":
+    errors.append("current_2026_10_02_post_merge_ci_not_green")
+if ci_1002.get("successful") != 36 or ci_1002.get("failed") != 0:
+    errors.append("current_2026_10_02_post_merge_ci_count_mismatch")
+
+device_1002 = current_2026_10_02.get("real_device_v027") or {}
+invariants_1002 = device_1002.get("invariants") or {}
+for key, expected in {
+    "authority_direct_record_streaming_active": True,
+    "authority_temporary_record_vector_used": False,
+    "authority_accumulator_resident_bytes_upper_bound": 0,
+    "authority_field_fused_into_scientific_master_pass": True,
+    "authority_field_replay_pass_performed": False,
+    "candidate_applied": False,
+    "creates_new_evidence": False,
+    "scientific_writeback_allowed": False,
+}.items():
+    if invariants_1002.get(key) != expected:
+        errors.append(f"current_2026_10_02_device_invariant_mismatch:{key}")
+
+for text, label in (
+    (current_2026_10_02_handoff, "handoff"),
+    (current_2026_10_02_index, "index"),
+):
+    if "44488" not in text:
+        errors.append(f"current_2026_10_02_continuation_code_missing:{label}")
+
+for phrase in (
+    "Seal the evidence, not the thinking.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "canonical direct-byte authority encoder",
+):
+    if phrase not in current_2026_10_02_handoff:
+        errors.append("current_2026_10_02_handoff_missing:" + phrase)
 
 # PTC acronym guard remains permanent.
 for text, label in (
