@@ -2,7 +2,7 @@
   "schema": "D.RAW/CurrentProjectState/2026-10-02",
   "status": "ACTIVE_RESEARCH_CHECKPOINT",
   "continuation_code": "44488",
-  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged and real-device-validated authority direct streaming v0.2.7, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the canonical direct-byte authority encoder frontier.",
+  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged, 37/37 post-merge-green and real-device-validated authority direct-byte v0.2.8, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the SHA-256 direct-block transport frontier.",
   "supersedes_continuation_codes": [
     "44487",
     "44485",
@@ -11,30 +11,31 @@
   "repository": "1DiDaDo1/TruthRaw",
   "active_branch": "fix/android17-research-resilience-v02",
   "latest_merged_pr": {
-    "number": 114,
-    "title": "Stream authority records directly into canonical digest v0.2.7",
+    "number": 115,
+    "title": "Encode canonical authority bytes directly v0.2.8",
     "state": "MERGED",
-    "merge_commit": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
-    "source_head": "31d2c1fc6555eb82138547628bff3776b6bea36d"
+    "merge_commit": "85e67ca3090aa113edda7133d656f28087e3ad22",
+    "source_head": "052b95ef8e648517281aeac141030f2d41fe1e9e"
   },
-  "source_code_head": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
+  "source_code_head": "85e67ca3090aa113edda7133d656f28087e3ad22",
   "android": {
     "application_id": "com.truthraw.adaptiveui",
-    "version_code": 26100108,
-    "version_name": "0.53-v0.84.2-authority-direct-stream",
+    "version_code": 26100109,
+    "version_name": "0.53-v0.84.2-authority-direct-byte",
     "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
-    "apk_size_bytes": 8483287,
-    "apk_sha256": "eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c",
+    "apk_size_bytes": 8486427,
+    "apk_sha256": "71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a",
     "update_over_previous_supported": true,
     "app_data_wipe_required": false
   },
   "post_merge_build": {
     "workflow": "D.RAW Suite Universal Intake v0.1",
-    "run_id": 36998622812,
-    "artifact_id": 11222019082,
+    "run_id": 37003837807,
+    "artifact_id": 11224452595,
     "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
-    "artifact_zip_digest_sha256": "eb7dc0366874d0821ac24fcdfbd9fd8d54acf3907eeffcf795fc524f128c54a9",
-    "apk_sha256": "eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c",
+    "artifact_zip_digest_sha256": "bbec758e92837c2ef813415d2e177aef02f3dbe8bda24ee0d28a204b401b9674",
+    "apk_size_bytes": 8486427,
+    "apk_sha256": "71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a",
     "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
   },
   "real_device_v027": {
@@ -128,6 +129,11 @@
       "pr": 114,
       "version": "v0.2.7",
       "change": "direct authority record streaming without temporary ChannelRecord vector"
+    },
+    {
+      "pr": 115,
+      "version": "v0.2.8",
+      "change": "canonical authority direct-byte encoding with zero current-semantic generic fallbacks"
     }
   ],
   "anchor_constrained_local_reconstruction": {
@@ -147,20 +153,18 @@
     "scientific_writeback_allowed": false
   },
   "next_frontier": {
-    "name": "canonical direct-byte authority encoder",
-    "purpose": "Remove remaining per-record object construction and repeated generic validation overhead while preserving exactly the same canonical authority byte stream, SHA-256, counts and scientific semantics.",
+    "name": "SHA-256 direct-block transport v0.2.9",
+    "purpose": "Remove the redundant memcpy of already-contiguous full 64-byte SHA-256 input blocks before transform while preserving exactly the same SHA-256 digest and all scientific semantics.",
     "requirements": [
-      "reuse the same canonical source-record semantics",
-      "bit-identical Float32/scalar/classification representation",
-      "same CFA phase and censor/bound semantics",
-      "same contribution masks and count semantics",
-      "same canonical tile order",
-      "same authority SHA-256",
-      "materialized route retained as parity oracle",
-      "host exact parity before APK",
-      "full CI before device test",
+      "same SHA-256 algorithm and digest for all inputs",
+      "known-vector validation including long multi-block input",
+      "one-shot versus arbitrary chunk-boundary parity",
+      "buffered remainder path retained",
+      "no authority or evidence semantic change",
+      "no source/scientific-master value change",
+      "host exact parity and full CI before APK",
       "real-device telemetry before merge",
-      "no authority promotion or scientific writeback"
+      "keep later pixel-triplet authority encoder as a separate candidate so gains remain attributable"
     ]
   },
   "permanent_laws": [
@@ -177,14 +181,84 @@
     "No diagnostic/performance candidate may write Scientific Master.",
     "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct."
   ],
-  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, and continue from the direct-byte authority encoder frontier unless newer evidence supersedes it.",
+  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, treat v0.2.8 direct-byte authority encoding as merged/37-of-37-green/real-device validated, and continue from the SHA-256 direct-block transport frontier unless newer evidence supersedes it.",
   "post_merge_ci": {
-    "source_code_head": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
-    "total_workflows": 36,
-    "successful": 36,
+    "source_code_head": "85e67ca3090aa113edda7133d656f28087e3ad22",
+    "total_workflows": 37,
+    "successful": 37,
     "failed": 0,
     "in_progress": 0,
     "queued": 0,
     "status": "FULLY_GREEN"
+  },
+  "real_device_v028": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.8-authority-direct-byte-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 32967.853217,
+    "comparison_to_v027_aggregate_speedup_percent": 18.9641,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 14797.067651,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE",
+        "n2_elapsed_ms": 14459.694161,
+        "phase_shared_acquire_ms": 8891.15,
+        "phase_v01_cfa_audit_ms": 858.39,
+        "phase_center_excluded_ms": 3967.78,
+        "center_excluded_predictor_estimate_ms": 2975.81,
+        "prepare_bind_scientific_master_ms": 8344.42,
+        "authority_direct_record_stream_ms": 5346.54,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_hash_batch_record_capacity": 96,
+        "authority_hash_batch_bytes": 2400,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 18170.785566,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE",
+        "n2_elapsed_ms": 17269.418014,
+        "phase_shared_acquire_ms": 9482.18,
+        "phase_v01_cfa_audit_ms": 884.319,
+        "phase_center_excluded_ms": 6077.23,
+        "center_excluded_predictor_estimate_ms": 4821.46,
+        "prepare_bind_scientific_master_ms": 8731.73,
+        "authority_direct_record_stream_ms": 5670.28,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_hash_batch_record_capacity": 96,
+        "authority_hash_batch_bytes": 2400,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      }
+    ],
+    "invariants": {
+      "authority_direct_record_streaming_active": true,
+      "authority_temporary_record_vector_used": false,
+      "authority_direct_byte_encoding_active": true,
+      "authority_generic_record_validation_bypassed": true,
+      "authority_generic_fallback_record_count": 0,
+      "authority_accumulator_resident_bytes_upper_bound": 0,
+      "authority_field_fused_into_scientific_master_pass": true,
+      "authority_field_replay_pass_performed": false,
+      "v01_sparse_reference_reuse_verified": true,
+      "v01_rerun_performed": false,
+      "row_band_reuse_active": true,
+      "row_band_fallback_request_count_total": 0,
+      "row_band_scientific_values_modified": false,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "interpretation": [
+      "Canonical direct-byte authority encoding is active on real device for every current source record with zero generic fallbacks.",
+      "Aggregate two-RAW profiler time improved by about 18.96 percent versus v0.2.7.",
+      "Authority direct-stream time fell from 9.57186 s to 5.34654 s on observation 1 and from 8.75652 s to 5.67028 s on observation 2.",
+      "The remaining authority hot path is dominated by canonical byte generation plus roughly 940,032,000 SHA-256 input bytes per RAW and associated transport.",
+      "Center-excluded remains a separate major compute block."
+    ]
   }
 }
