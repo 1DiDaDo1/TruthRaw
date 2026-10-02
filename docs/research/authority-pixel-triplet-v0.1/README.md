@@ -1,5 +1,14 @@
 # TruthNegative Authority Pixel-Triplet v0.1
 
+> **v0.2.11 successor candidate:** Canonical Template/Suffix Reuse keeps the
+> proven 75-byte triplet identity but selects one of six immutable semantic
+> templates (measured channel 0/1/2 × censored/non-censored) and patches only
+> the three existing Float32 values plus the dynamic measured white-level bound
+> when censored. The 96-record / 2400-byte hash batch, center-excluded path,
+> SIMD, reconstruction and scientific authority remain unchanged. Exact parity
+> with the established single-channel encoder is still mandatory.
+
+
 Performance-only successor to merged and real-device-validated SHA-256
 direct-block transport v0.2.9.
 
