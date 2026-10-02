@@ -1,0 +1,27 @@
+name: Scientific Master Bind Profile v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'docs/research/scientific-master-bind-profile-v0.1/**'
+      - 'tools/check_scientific_master_bind_profile_v01.py'
+      - '.github/workflows/scientific-master-bind-profile-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Scientific Master bind profiling stays diagnostic-only
+        run: python3 tools/check_scientific_master_bind_profile_v01.py
