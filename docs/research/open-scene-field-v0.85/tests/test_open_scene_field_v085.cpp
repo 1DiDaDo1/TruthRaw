@@ -2,6 +2,7 @@
 #include "open_scene_local_policy_v0_86.h"
 #include "truthnegative_local_authority_projection_v0_4.h"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
@@ -99,6 +100,81 @@ struct VectorFieldSource final : projection::IFieldTileSource {
     }
 };
 
+
+void test_pixel_triplet_exact_parity(){
+    const std::array<truthraw::CfaPattern,4u> cfas{
+        truthraw::CfaPattern::BGGR,
+        truthraw::CfaPattern::RGGB,
+        truthraw::CfaPattern::GRBG,
+        truthraw::CfaPattern::GBRG,
+    };
+    for(const auto cfa:cfas){
+        for(std::uint32_t y=0u;y<4u;++y){
+            for(std::uint32_t x=0u;x<4u;++x){
+                for(const std::uint16_t rawCode:
+                    {std::uint16_t{100u},std::uint16_t{1023u}}){
+                    const std::array<float,3u> rgb{
+                        0.125f+static_cast<float>(x)*0.01f,
+                        0.25f+static_cast<float>(y)*0.02f,
+                        0.5f+static_cast<float>(x+y)*0.005f,
+                    };
+                    field::CanonicalSourcePixelTriplet triplet{};
+                    require(
+                        field::encode_source_pixel_triplet_canonical_v1(
+                            cfa,x,y,rawCode,1023.0f,rgb,triplet)==
+                            field::CanonicalSourceEncodingStatus::Encoded,
+                        "pixel triplet canonical encode");
+                    require(
+                        triplet.measuredChannel==
+                            static_cast<std::uint8_t>(
+                                measured_channel(
+                                    cfa,
+                                    static_cast<int>(x),
+                                    static_cast<int>(y))),
+                        "pixel triplet measured CFA channel exact");
+                    require(
+                        triplet.measuredCensored==(rawCode>=1023u),
+                        "pixel triplet censor classification exact");
+
+                    for(int ch=0;ch<3;++ch){
+                        field::CanonicalSourceChannelRecord single{};
+                        require(
+                            field::encode_source_channel_record_canonical_v1(
+                                cfa,x,y,rawCode,1023.0f,ch,
+                                rgb[static_cast<std::size_t>(ch)],
+                                single)==
+                                field::CanonicalSourceEncodingStatus::Encoded,
+                            "single canonical encode for triplet oracle");
+                        const auto begin=
+                            triplet.bytes.begin()+
+                            static_cast<std::ptrdiff_t>(
+                                static_cast<std::size_t>(ch)*
+                                field::kCanonicalAuthorityRecordBytes);
+                        require(
+                            std::equal(
+                                single.bytes.begin(),
+                                single.bytes.end(),
+                                begin),
+                            "pixel triplet bytes equal concatenated single records");
+                    }
+                }
+            }
+        }
+    }
+
+    field::CanonicalSourcePixelTriplet invalid{};
+    const std::array<float,3u> invalidRgb{
+        0.1f,
+        std::numeric_limits<float>::quiet_NaN(),
+        0.3f,
+    };
+    require(
+        field::encode_source_pixel_triplet_canonical_v1(
+            truthraw::CfaPattern::BGGR,
+            0u,0u,100u,1023.0f,invalidRgb,invalid)==
+            field::CanonicalSourceEncodingStatus::Invalid,
+        "pixel triplet fails closed on non-finite source value");
+}
 
 void test_source_field_and_encoding(){
     constexpr std::uint32_t w=4u,h=4u;
@@ -456,6 +532,7 @@ void test_scene_linear_bound_projection(){
 } // namespace
 
 int main(){
+    test_pixel_triplet_exact_parity();
     test_source_field_and_encoding();
     test_dense_projection_fail_closed();
     test_procedural_dense_binding();

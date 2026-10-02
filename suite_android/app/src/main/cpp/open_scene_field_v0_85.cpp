@@ -99,15 +99,17 @@ bool classify_source_channel(
     return true;
 }
 
+template <std::size_t N>
 void put_u8_record(
-    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::array<std::uint8_t, N>& out,
     std::size_t& offset,
     std::uint8_t value) noexcept {
     out[offset++] = value;
 }
 
+template <std::size_t N>
 void put_u32_record(
-    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::array<std::uint8_t, N>& out,
     std::size_t& offset,
     std::uint32_t value) noexcept {
     out[offset++] = static_cast<std::uint8_t>(value);
@@ -116,14 +118,87 @@ void put_u32_record(
     out[offset++] = static_cast<std::uint8_t>(value >> 24u);
 }
 
+template <std::size_t N>
 void put_f32_record(
-    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::array<std::uint8_t, N>& out,
     std::size_t& offset,
     float value) noexcept {
     put_u32_record(
         out,
         offset,
         std::bit_cast<std::uint32_t>(value));
+}
+
+struct SourceRecordSemantics final {
+    CreationRole role = CreationRole::Unknown;
+    Authority authority = Authority::Unknown;
+    UncertaintyKnowledge uncertainty = UncertaintyKnowledge::Unresolved;
+    BoundDomain boundDomain = BoundDomain::None;
+    bool valuePresent = true;
+    bool p95Known = false;
+    float p95 = 0.0f;
+    bool supportKnown = false;
+    float support = 0.0f;
+    bool boundKnown = false;
+    float bound = 0.0f;
+    std::uint8_t contributionMask = ContributionNone;
+};
+
+SourceRecordSemantics source_record_semantics(
+    bool measured,
+    bool censored,
+    float whiteLevel) noexcept {
+    SourceRecordSemantics s{};
+    if (measured) {
+        s.role = CreationRole::SourceMeasuredCfa;
+        s.supportKnown = true;
+        s.support = 1.0f;
+        s.contributionMask = ContributionMeasured;
+        if (censored) {
+            s.authority = Authority::Censored;
+            s.boundDomain = BoundDomain::SourceRawCode;
+            s.boundKnown = true;
+            s.bound = whiteLevel;
+            s.contributionMask = static_cast<std::uint8_t>(
+                s.contributionMask | ContributionCensored);
+        } else {
+            s.authority = Authority::CalibratedEstimate;
+        }
+    } else {
+        s.role = CreationRole::ScientificReconstruction;
+        s.authority = Authority::Unknown;
+        s.contributionMask = static_cast<std::uint8_t>(
+            ContributionReconstructed | ContributionUnknown);
+    }
+    return s;
+}
+
+template <std::size_t N>
+bool write_source_record_canonical(
+    std::array<std::uint8_t, N>& out,
+    std::size_t& offset,
+    float cameraNativeValue,
+    const SourceRecordSemantics& s) noexcept {
+    if (!std::isfinite(cameraNativeValue) ||
+        offset > out.size() ||
+        out.size() - offset < kCanonicalAuthorityRecordBytes) {
+        return false;
+    }
+    const std::size_t start = offset;
+    put_f32_record(out, offset, cameraNativeValue);
+    put_u8_record(out, offset, static_cast<std::uint8_t>(s.role));
+    put_u8_record(out, offset, static_cast<std::uint8_t>(s.authority));
+    put_u8_record(out, offset, static_cast<std::uint8_t>(s.uncertainty));
+    put_u8_record(out, offset, static_cast<std::uint8_t>(s.boundDomain));
+    put_u8_record(out, offset, s.valuePresent ? 1u : 0u);
+    put_u8_record(out, offset, s.p95Known ? 1u : 0u);
+    put_f32_record(out, offset, s.p95);
+    put_u8_record(out, offset, s.supportKnown ? 1u : 0u);
+    put_f32_record(out, offset, s.support);
+    put_u8_record(out, offset, s.boundKnown ? 1u : 0u);
+    put_f32_record(out, offset, s.bound);
+    put_u8_record(out, offset, s.contributionMask);
+    return offset - start == kCanonicalAuthorityRecordBytes;
 }
 
 bool valid_binding(const Binding& b) noexcept {
@@ -290,6 +365,67 @@ std::uint32_t classification_word(const ChannelRecord& r) noexcept {
 }
 
 CanonicalSourceEncodingStatus
+encode_source_pixel_triplet_canonical_v1(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    std::span<const float> cameraNativeRgb,
+    CanonicalSourcePixelTriplet& out) noexcept {
+    out = CanonicalSourcePixelTriplet{};
+    try {
+        if (!std::isfinite(whiteLevel) ||
+            whiteLevel <= 0.0f ||
+            cameraNativeRgb.size() != 3u) {
+            return CanonicalSourceEncodingStatus::Invalid;
+        }
+        for (const float value : cameraNativeRgb) {
+            if (!std::isfinite(value)) {
+                return CanonicalSourceEncodingStatus::Invalid;
+            }
+        }
+
+        const int measured =
+            measured_channel(cfa, globalX, globalY);
+        if (measured < 0 || measured > 2) {
+            return CanonicalSourceEncodingStatus::Invalid;
+        }
+        const bool censored =
+            static_cast<float>(rawCode) >= whiteLevel;
+
+        std::size_t offset = 0u;
+        for (int ch = 0; ch < 3; ++ch) {
+            const bool isMeasured = ch == measured;
+            const auto semantics =
+                source_record_semantics(
+                    isMeasured,
+                    isMeasured && censored,
+                    whiteLevel);
+            if (!write_source_record_canonical(
+                    out.bytes,
+                    offset,
+                    cameraNativeRgb[
+                        static_cast<std::size_t>(ch)],
+                    semantics)) {
+                return CanonicalSourceEncodingStatus::Invalid;
+            }
+        }
+        if (offset != kCanonicalAuthorityPixelTripletBytes) {
+            return CanonicalSourceEncodingStatus::Invalid;
+        }
+
+        out.measuredChannel =
+            static_cast<std::uint8_t>(measured);
+        out.measuredCensored = censored;
+        return CanonicalSourceEncodingStatus::Encoded;
+    } catch (...) {
+        out = CanonicalSourcePixelTriplet{};
+        return CanonicalSourceEncodingStatus::Invalid;
+    }
+}
+
+CanonicalSourceEncodingStatus
 encode_source_channel_record_canonical_v1(
     CfaPattern cfa,
     std::uint32_t globalX,
@@ -314,93 +450,26 @@ encode_source_channel_record_canonical_v1(
             return CanonicalSourceEncodingStatus::Invalid;
         }
 
-        const CreationRole role =
-            classification.measured
-                ? CreationRole::SourceMeasuredCfa
-                : CreationRole::ScientificReconstruction;
-        const Authority authority =
-            classification.censored
-                ? Authority::Censored
-                : (classification.measured
-                    ? Authority::CalibratedEstimate
-                    : Authority::Unknown);
-        const UncertaintyKnowledge uncertainty =
-            UncertaintyKnowledge::Unresolved;
-        const BoundDomain boundDomain =
-            classification.censored
-                ? BoundDomain::SourceRawCode
-                : BoundDomain::None;
-        const bool valuePresent = true;
-        const bool p95Known = false;
-        const float p95 = 0.0f;
-        const bool supportKnown = classification.measured;
-        const float support =
-            classification.measured ? 1.0f : 0.0f;
-        const bool boundKnown = classification.censored;
-        const float bound =
-            classification.censored ? whiteLevel : 0.0f;
-        const std::uint8_t contributionMask =
-            classification.measured
-                ? static_cast<std::uint8_t>(
-                    ContributionMeasured |
-                    (classification.censored
-                        ? ContributionCensored
-                        : ContributionNone))
-                : static_cast<std::uint8_t>(
-                    ContributionReconstructed |
-                    ContributionUnknown);
-
+        const auto semantics =
+            source_record_semantics(
+                classification.measured,
+                classification.censored,
+                whiteLevel);
         std::size_t offset = 0u;
-        put_f32_record(out.bytes, offset, cameraNativeValue);
-        put_u8_record(
-            out.bytes,
-            offset,
-            static_cast<std::uint8_t>(role));
-        put_u8_record(
-            out.bytes,
-            offset,
-            static_cast<std::uint8_t>(authority));
-        put_u8_record(
-            out.bytes,
-            offset,
-            static_cast<std::uint8_t>(uncertainty));
-        put_u8_record(
-            out.bytes,
-            offset,
-            static_cast<std::uint8_t>(boundDomain));
-        put_u8_record(
-            out.bytes,
-            offset,
-            valuePresent ? 1u : 0u);
-        put_u8_record(
-            out.bytes,
-            offset,
-            p95Known ? 1u : 0u);
-        put_f32_record(out.bytes, offset, p95);
-        put_u8_record(
-            out.bytes,
-            offset,
-            supportKnown ? 1u : 0u);
-        put_f32_record(out.bytes, offset, support);
-        put_u8_record(
-            out.bytes,
-            offset,
-            boundKnown ? 1u : 0u);
-        put_f32_record(out.bytes, offset, bound);
-        put_u8_record(
-            out.bytes,
-            offset,
-            contributionMask);
-
-        if (offset != kCanonicalAuthorityRecordBytes) {
+        if (!write_source_record_canonical(
+                out.bytes,
+                offset,
+                cameraNativeValue,
+                semantics) ||
+            offset != kCanonicalAuthorityRecordBytes) {
             return CanonicalSourceEncodingStatus::Invalid;
         }
 
-        out.role = role;
-        out.authority = authority;
-        out.p95Known = p95Known;
-        out.supportKnown = supportKnown;
-        out.boundKnown = boundKnown;
+        out.role = semantics.role;
+        out.authority = semantics.authority;
+        out.p95Known = semantics.p95Known;
+        out.supportKnown = semantics.supportKnown;
+        out.boundKnown = semantics.boundKnown;
         return CanonicalSourceEncodingStatus::Encoded;
     } catch (...) {
         out = CanonicalSourceChannelRecord{};

@@ -605,9 +605,23 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_pixel_triplet_encoding_active",
+                    status.optBoolean(
+                        "authorityPixelTripletEncodingActive",
+                        false,
+                    ),
+                )
+                .put(
                     "authority_canonical_record_bytes",
                     status.optLong(
                         "authorityCanonicalRecordBytes",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_canonical_pixel_triplet_bytes",
+                    status.optLong(
+                        "authorityCanonicalPixelTripletBytes",
                         0L,
                     ),
                 )
@@ -636,6 +650,20 @@ object N2LocalSpatialBindingAudit {
                     "authority_generic_fallback_record_count",
                     status.optLong(
                         "authorityGenericFallbackRecordCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_direct_pixel_triplet_count",
+                    status.optLong(
+                        "authorityDirectPixelTripletCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_generic_fallback_pixel_count",
+                    status.optLong(
+                        "authorityGenericFallbackPixelCount",
                         0L,
                     ),
                 )

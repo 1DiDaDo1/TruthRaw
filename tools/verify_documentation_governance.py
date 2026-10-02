@@ -1143,17 +1143,17 @@ if current_2026_10_02.get("continuation_code") != "44488":
     errors.append("current_2026_10_02_continuation_code_mismatch")
 if current_2026_10_02.get("active_branch") != "fix/android17-research-resilience-v02":
     errors.append("current_2026_10_02_active_branch_mismatch")
-if current_2026_10_02.get("source_code_head") != "85e67ca3090aa113edda7133d656f28087e3ad22":
+if current_2026_10_02.get("source_code_head") != "edcae3eabb077d53b6a25802e6b9ca62c188b973":
     errors.append("current_2026_10_02_source_checkpoint_mismatch")
 
 latest_pr_1002 = current_2026_10_02.get("latest_merged_pr") or {}
-if latest_pr_1002.get("number") != 115 or latest_pr_1002.get("state") != "MERGED":
+if latest_pr_1002.get("number") != 116 or latest_pr_1002.get("state") != "MERGED":
     errors.append("current_2026_10_02_latest_merged_pr_mismatch")
 
 android_1002 = current_2026_10_02.get("android") or {}
-if android_1002.get("version_code") != 26100109:
+if android_1002.get("version_code") != 26100110:
     errors.append("current_2026_10_02_android_version_code_mismatch")
-if android_1002.get("apk_sha256") != "71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a":
+if android_1002.get("apk_sha256") != "30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd":
     errors.append("current_2026_10_02_apk_sha_mismatch")
 if android_1002.get("app_data_wipe_required") is not False:
     errors.append("current_2026_10_02_app_data_wipe_must_not_be_required")
@@ -1161,10 +1161,10 @@ if android_1002.get("app_data_wipe_required") is not False:
 ci_1002 = current_2026_10_02.get("post_merge_ci") or {}
 if ci_1002.get("status") != "FULLY_GREEN":
     errors.append("current_2026_10_02_post_merge_ci_not_green")
-if ci_1002.get("successful") != 37 or ci_1002.get("failed") != 0:
+if ci_1002.get("successful") != 38 or ci_1002.get("failed") != 0:
     errors.append("current_2026_10_02_post_merge_ci_count_mismatch")
 
-device_1002 = current_2026_10_02.get("real_device_v028") or {}
+device_1002 = current_2026_10_02.get("real_device_v029") or {}
 invariants_1002 = device_1002.get("invariants") or {}
 for key, expected in {
     "authority_direct_record_streaming_active": True,

@@ -43,11 +43,15 @@ struct PreparationTiming final {
     bool authorityTemporaryRecordVectorUsed = true;
     bool authorityDirectByteEncodingActive = false;
     bool authorityGenericRecordValidationBypassed = false;
+    bool authorityPixelTripletEncodingActive = false;
     std::size_t authorityCanonicalRecordBytes = 0u;
+    std::size_t authorityCanonicalPixelTripletBytes = 0u;
     std::size_t authorityHashBatchRecordCapacity = 0u;
     std::size_t authorityHashBatchBytes = 0u;
     std::uint64_t authorityDirectByteRecordCount = 0u;
     std::uint64_t authorityGenericFallbackRecordCount = 0u;
+    std::uint64_t authorityDirectPixelTripletCount = 0u;
+    std::uint64_t authorityGenericFallbackPixelCount = 0u;
     bool authorityShaDirectBlockTransportActive = false;
     std::uint64_t authorityShaDirectInputBlockTransformCount = 0u;
     std::uint64_t authorityShaBufferedInputBlockTransformCount = 0u;
