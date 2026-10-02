@@ -41,6 +41,11 @@ struct PreparationTiming final {
     bool authorityReplayPassPerformed = true;
     bool authorityDirectRecordStreamingActive = false;
     bool authorityTemporaryRecordVectorUsed = true;
+    bool authorityDirectByteEncodingActive = false;
+    bool authorityGenericRecordValidationBypassed = false;
+    std::size_t authorityCanonicalRecordBytes = 0u;
+    std::size_t authorityHashBatchRecordCapacity = 0u;
+    std::size_t authorityHashBatchBytes = 0u;
     double authorityDirectRecordStreamMs = 0.0;
     std::uint64_t authorityDirectRecordStreamTileCount = 0u;
     std::uint64_t authorityDirectRecordStreamRecordCount = 0u;
