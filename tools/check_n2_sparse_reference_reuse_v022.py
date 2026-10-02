@@ -92,7 +92,7 @@ for token in [
 ]:
     assert token in cmake, f"Android native build missing {token}"
 
-assert "N2_LOCAL_SPATIAL_V01_R9_SHA_DIRECT_BLOCK" in profiler
+assert "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET" in profiler
 for token in [
     "v01_sparse_reference_reuse_verified",
     "v01_rerun_performed",
