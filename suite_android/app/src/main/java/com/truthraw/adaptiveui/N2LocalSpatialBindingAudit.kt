@@ -591,6 +591,41 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_direct_byte_encoding_active",
+                    status.optBoolean(
+                        "authorityDirectByteEncodingActive",
+                        false,
+                    ),
+                )
+                .put(
+                    "authority_generic_record_validation_bypassed",
+                    status.optBoolean(
+                        "authorityGenericRecordValidationBypassed",
+                        false,
+                    ),
+                )
+                .put(
+                    "authority_canonical_record_bytes",
+                    status.optLong(
+                        "authorityCanonicalRecordBytes",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_hash_batch_record_capacity",
+                    status.optLong(
+                        "authorityHashBatchRecordCapacity",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_hash_batch_bytes",
+                    status.optLong(
+                        "authorityHashBatchBytes",
+                        0L,
+                    ),
+                )
+                .put(
                     "authority_direct_record_stream_ms",
                     status.optDouble(
                         "authorityDirectRecordStreamMs",
