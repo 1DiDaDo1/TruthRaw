@@ -117,12 +117,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
 
     std::shared_ptr<pipeline::Context> ctx;
     bool sharedPipelineCacheHit=false;
+    pipeline::SharedAcquireTiming sharedAcquireTiming{};
     const auto prepared=pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0,maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0,maxLogicalResidentBytes)),
         ctx,
-        sharedPipelineCacheHit);
+        sharedPipelineCacheHit,
+        &sharedAcquireTiming);
     if(!prepared){
         return status(env,prepared.code,prepared.message);
     }
@@ -185,6 +187,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
 
     const auto centerExcludedStarted=SteadyClock::now();
     ce_spatial::Result ceAudit{};
+    ce_sparse::Diagnostics centerExcludedDiagnostics{};
+    bool centerExcludedSparseDiagnosticsAvailable=false;
     bool v01SparseReferenceReuseVerified=false;
     bool v01RerunPerformed=false;
     if(v01.correctedSampleCoordinatesComplete){
@@ -192,13 +196,15 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
                 n2ReadSource,
                 ceBinding,
                 v01,
-                ceAudit)){
+                ceAudit,
+                &centerExcludedDiagnostics)){
             return status(
                 env,
                 -92,
                 "v0.2.1 sparse factored reference audit failed");
         }
         v01SparseReferenceReuseVerified=true;
+        centerExcludedSparseDiagnosticsAvailable=true;
     }else{
         // Bounded optimization metadata is unavailable. Preserve the exact
         // established v0.2.1 scientific route rather than expanding memory.
@@ -353,10 +359,59 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<elapsed_ms(bridgeStarted,sharedAcquireFinished);
     o<<",\"phaseSharedContextLockWaitMs\":"
       <<elapsed_ms(sharedLockWaitStarted,sharedLockAcquired);
+    o<<",\"sharedAcquireSubphaseTimingAvailable\":true";
+    o<<",\"sharedAcquireProbeSealMs\":"
+      <<sharedAcquireTiming.probeSealMs;
+    o<<",\"sharedAcquireCacheLookupMs\":"
+      <<sharedAcquireTiming.cacheLookupMs;
+    o<<",\"sharedAcquirePrepareTotalMs\":"
+      <<sharedAcquireTiming.prepareTotalMs;
+    o<<",\"prepareDuplicateAndByteSourceMs\":"
+      <<sharedAcquireTiming.preparation.duplicateAndByteSourceMs;
+    o<<",\"prepareSealSourceMs\":"
+      <<sharedAcquireTiming.preparation.sealSourceMs;
+    o<<",\"prepareColorBindingMs\":"
+      <<sharedAcquireTiming.preparation.colorBindingMs;
+    o<<",\"prepareColorSourceMs\":"
+      <<sharedAcquireTiming.preparation.prepareColorSourceMs;
+    o<<",\"preparePreOpenReverifyMs\":"
+      <<sharedAcquireTiming.preparation.preOpenReverifyMs;
+    o<<",\"prepareOpenDngAdapterMs\":"
+      <<sharedAcquireTiming.preparation.openDngAdapterMs;
+    o<<",\"prepareBindScientificMasterMs\":"
+      <<sharedAcquireTiming.preparation.bindScientificMasterMs;
+    o<<",\"prepareFinalizePhase2Ms\":"
+      <<sharedAcquireTiming.preparation.finalizePhase2Ms;
+    o<<",\"prepareSummarizeAuthorityFieldMs\":"
+      <<sharedAcquireTiming.preparation.summarizeAuthorityFieldMs;
+    o<<",\"prepareFinalizeTruthNegativeMs\":"
+      <<sharedAcquireTiming.preparation.finalizeTruthNegativeMs;
+    o<<",\"prepareFinalizeDrawNegativeMs\":"
+      <<sharedAcquireTiming.preparation.finalizeDrawNegativeMs;
+    o<<",\"prepareTotalInstrumentedMs\":"
+      <<sharedAcquireTiming.preparation.totalMs;
     o<<",\"phaseV01CfaAuditMs\":"
       <<elapsed_ms(v01Started,v01Finished);
     o<<",\"phaseCenterExcludedMs\":"
       <<elapsed_ms(centerExcludedStarted,centerExcludedFinished);
+    o<<",\"centerExcludedSubphaseTimingAvailable\":"
+      <<(centerExcludedSparseDiagnosticsAvailable?"true":"false");
+    o<<",\"centerExcludedFillStage2Ms\":"
+      <<centerExcludedDiagnostics.fillStage2Ms;
+    o<<",\"centerExcludedCandidateLoopMs\":"
+      <<centerExcludedDiagnostics.candidateLoopMs;
+    o<<",\"centerExcludedPredictorEstimateMs\":"
+      <<centerExcludedDiagnostics.predictorEstimateMs;
+    o<<",\"centerExcludedFinalHashMs\":"
+      <<centerExcludedDiagnostics.finalHashMs;
+    o<<",\"centerExcludedTotalInstrumentedMs\":"
+      <<centerExcludedDiagnostics.totalMs;
+    o<<",\"centerExcludedTileCount\":"
+      <<centerExcludedDiagnostics.tileCount;
+    o<<",\"centerExcludedCandidateTileCount\":"
+      <<centerExcludedDiagnostics.candidateTileCount;
+    o<<",\"centerExcludedCandidateCenterCount\":"
+      <<centerExcludedDiagnostics.candidateCenterCount;
     o<<",\"phaseConfidenceDeriveMs\":"
       <<elapsed_ms(confidenceStarted,confidenceFinished);
     o<<",\"phaseFactoredDeriveMs\":"
