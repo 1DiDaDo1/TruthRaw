@@ -1,0 +1,28 @@
+name: Research Fresh Rerun v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawMediaProcessingForegroundService.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchBatchJournalV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchUniversalProfileStoreV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'docs/research/research-fresh-rerun-v0.1/**'
+      - 'tools/check_research_fresh_rerun_v01.py'
+      - '.github/workflows/research-fresh-rerun-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lifecycle-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fresh rerun stays diagnostic-only and resumable
+        run: python3 tools/check_research_fresh_rerun_v01.py
