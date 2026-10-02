@@ -151,6 +151,7 @@ struct CanonicalSourcePixelTriplet final {
     std::array<std::uint8_t, kCanonicalAuthorityPixelTripletBytes> bytes{};
     std::uint8_t measuredChannel = 0u;
     bool measuredCensored = false;
+    bool canonicalTemplateReuseApplied = false;
 };
 
 CanonicalSourceEncodingStatus
