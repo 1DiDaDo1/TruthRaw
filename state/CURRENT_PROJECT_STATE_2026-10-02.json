@@ -2,7 +2,7 @@
   "schema": "D.RAW/CurrentProjectState/2026-10-02",
   "status": "ACTIVE_RESEARCH_CHECKPOINT",
   "continuation_code": "44488",
-  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged, 38/38 post-merge-green and real-device-validated SHA-256 direct-block transport v0.2.9, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the pixel-triplet authority encoder v0.2.10 frontier.",
+  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged, 40/40 post-merge-green and real-device-validated Pixel-Triplet Authority Encoder v0.2.10, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the canonical template/suffix reuse v0.2.11 frontier.",
   "supersedes_continuation_codes": [
     "44487",
     "44485",
@@ -11,20 +11,20 @@
   "repository": "1DiDaDo1/TruthRaw",
   "active_branch": "fix/android17-research-resilience-v02",
   "latest_merged_pr": {
-    "number": 116,
-    "title": "SHA-256 Direct Block v0.2.9",
+    "number": 117,
+    "title": "Encode source authority as exact pixel triplets v0.2.10",
     "state": "MERGED",
-    "merge_commit": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
-    "source_head": "0e7c8d70974a45ac5171dc06d894a8dc4f422c93"
+    "merge_commit": "719887443c9f82e1acd6ef83d52870808c8c5e9b",
+    "source_head": "ca2434a66c63f847e6f9b4584ebaf18bf0ccd573"
   },
-  "source_code_head": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
+  "source_code_head": "719887443c9f82e1acd6ef83d52870808c8c5e9b",
   "android": {
     "application_id": "com.truthraw.adaptiveui",
-    "version_code": 26100110,
-    "version_name": "0.53-v0.84.2-sha-direct-block",
+    "version_code": 26100111,
+    "version_name": "0.53-v0.84.2-authority-pixel-triplet",
     "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
-    "apk_size_bytes": 8487331,
-    "apk_sha256": "30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd",
+    "apk_size_bytes": 8490055,
+    "apk_sha256": "16a1229365dca2c4275f8a3d0dd265039a2e7ccdffb660f43cb1788a3f29f36e",
     "update_over_previous_supported": true,
     "app_data_wipe_required": false
   },
@@ -139,6 +139,11 @@
       "pr": 116,
       "version": "v0.2.9",
       "change": "SHA-256 direct-block transport for complete input blocks"
+    },
+    {
+      "pr": 117,
+      "version": "v0.2.10",
+      "change": "pixel-triplet authority encoder with one CFA/censor classification per pixel and exact 75-byte canonical parity"
     }
   ],
   "anchor_constrained_local_reconstruction": {
@@ -158,20 +163,21 @@
     "scientific_writeback_allowed": false
   },
   "next_frontier": {
-    "name": "Pixel-triplet authority encoder v0.2.10",
-    "purpose": "Determine CFA phase and censor state once per source pixel and emit the exact three canonical 25-byte authority records as one 75-byte triplet while preserving record order, digest, counts and future fallback flexibility.",
+    "name": "Canonical template/suffix reuse v0.2.11",
+    "purpose": "Reuse immutable canonical record suffix/pixel-triplet templates for the already-proven source semantics, patching only the three Float32 values and the censored measured bound while preserving the exact 75-byte stream.",
     "requirements": [
-      "same three channel records in channel order 0,1,2",
-      "exactly the same 75 canonical bytes per pixel as v0.2.9",
-      "all BGGR/RGGB/GRBG/GBRG phases covered",
-      "censored and non-censored measured samples covered",
-      "same authority SHA-256 and all summary counts",
-      "same source/scientific-master values",
-      "current semantic case uses specialized triplet path with zero generic fallbacks",
-      "future unsupported semantic extensions fail closed to the general per-channel route",
+      "exact byte parity with the established single-channel canonical encoder for BGGR/RGGB/GRBG/GBRG",
+      "same 25-byte record and 75-byte triplet layout",
+      "same record order, authority SHA-256 and all summary counts",
+      "same source/scientific-master values and no scientific writeback",
+      "immutable templates may encode only already-proven constant semantics",
+      "dynamic Float32 values remain bit-identical",
+      "censored source-raw-code bound remains the exact dynamic white-level Float32",
+      "current semantic path must report canonical template reuse active",
+      "future unsupported semantic extensions still fail closed to the general route",
+      "no hash batch-size change, no center-excluded change and no SIMD in this candidate",
       "host exact parity and full CI before APK",
-      "real-device telemetry before promotion",
-      "do not combine template/suffix reuse or batch-size tuning into this candidate"
+      "real-device two-RAW timing export before promotion"
     ]
   },
   "permanent_laws": [
@@ -188,11 +194,11 @@
     "No diagnostic/performance candidate may write Scientific Master.",
     "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct."
   ],
-  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, treat v0.2.9 SHA direct-block transport as merged/38-of-38-green/real-device validated, and continue from the pixel-triplet authority encoder v0.2.10 frontier unless newer evidence supersedes it.",
+  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, treat v0.2.10 Pixel-Triplet Authority Encoder as merged/40-of-40-green/real-device validated, and continue from canonical template/suffix reuse v0.2.11 unless newer evidence supersedes it.",
   "post_merge_ci": {
-    "source_code_head": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
-    "total_workflows": 38,
-    "successful": 38,
+    "source_code_head": "719887443c9f82e1acd6ef83d52870808c8c5e9b",
+    "total_workflows": 40,
+    "successful": 40,
     "failed": 0,
     "in_progress": 0,
     "queued": 0,
@@ -338,5 +344,60 @@
       "Aggregate two-RAW profile time improves by about 1.37 percent versus v0.2.8.",
       "The next isolated authority optimization should move classification/encoding from three per-channel invocations to one per-pixel triplet while preserving the exact 75-byte channel-record sequence."
     ]
+  },
+  "real_device_v0210": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.10-authority-pixel-triplet-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 31973.22082,
+    "comparison_to_v029_aggregate_speedup_percent": 1.6669,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 14479.423275,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET",
+        "n2_elapsed_ms": 14041.750463,
+        "phase_center_excluded_ms": 4001.8,
+        "center_excluded_predictor_estimate_ms": 2996.14,
+        "authority_direct_record_stream_ms": 4937.09,
+        "authority_direct_pixel_triplet_count": 12533760,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_pixel_count": 0,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_canonical_pixel_triplet_bytes": 75,
+        "authority_sha_direct_input_bytes": 914964480
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 17493.797545,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET",
+        "n2_elapsed_ms": 16565.077494,
+        "phase_center_excluded_ms": 6136.93,
+        "center_excluded_predictor_estimate_ms": 4876.3,
+        "authority_direct_record_stream_ms": 5021.26,
+        "authority_direct_pixel_triplet_count": 12533760,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_pixel_count": 0,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_canonical_pixel_triplet_bytes": 75,
+        "authority_sha_direct_input_bytes": 914964480
+      }
+    ],
+    "comparison_to_v029": {
+      "authority_stream_combined_ms_before": 10540.39,
+      "authority_stream_combined_ms_after": 9958.35,
+      "authority_stream_combined_speedup_percent": 5.522,
+      "aggregate_profile_delta_ms": -541.991147
+    },
+    "invariants": {
+      "authority_pixel_triplet_encoding_active": true,
+      "authority_generic_fallback_pixel_count": 0,
+      "authority_generic_fallback_record_count": 0,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    }
   }
 }
