@@ -612,6 +612,13 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_canonical_template_reuse_active",
+                    status.optBoolean(
+                        "authorityCanonicalTemplateReuseActive",
+                        false,
+                    ),
+                )
+                .put(
                     "authority_canonical_record_bytes",
                     status.optLong(
                         "authorityCanonicalRecordBytes",
