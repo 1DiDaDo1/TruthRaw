@@ -250,6 +250,7 @@ void test_fused_authority_summary_matches_replay_exactly() {
     truthraw::ResearchEdgeAwareMeasuredPreservingReconstruction
         fusedReconstruction;
     AuthorityObserver observer(frame.meta);
+    REQUIRE(observer.residentBytesUpperBound() == 0u);
 
     smsb::Result fusedScientific{};
     smsb::Options options{};
@@ -274,6 +275,7 @@ void test_fused_authority_summary_matches_replay_exactly() {
         ((static_cast<std::size_t>(frame.meta.width) + 63u) / 64u) *
         ((static_cast<std::size_t>(frame.meta.height) + 63u) / 64u);
     REQUIRE(observer.tileCount == tiles);
+    REQUIRE(observer.residentBytesUpperBound() == 0u);
     REQUIRE(fusedSource.rawTileCalls == tiles * 2u);
     const auto readsAfterFusedScientific =
         fusedSource.rawTileCalls;
