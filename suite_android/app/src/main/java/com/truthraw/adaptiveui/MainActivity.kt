@@ -575,9 +575,14 @@ class MainActivity : Activity() {
         restoreResearchWorkbenchSessionIfNeeded()
         restoreResearchUniversalProfilesForCurrentSession()
         if (researchWorkbenchMode && session.jobs.isNotEmpty()) {
-            TruthRawOperationStore.read(
-                this,
-                fieldResponseRepeatabilityAnalysisOperationKey(),
+            val researchKey =
+                fieldResponseRepeatabilityAnalysisOperationKey()
+            TruthRawOperationStore.recoverInterruptedIfNeeded(
+                context = this,
+                key = researchKey,
+                serviceRunning =
+                    TruthRawMediaProcessingForegroundService
+                        .isResearchBatchActive(researchKey),
             )?.let { operation ->
                 fieldResponseRepeatabilityStatus =
                     operation.message
@@ -698,9 +703,12 @@ class MainActivity : Activity() {
         val key =
             fieldResponseRepeatabilityAnalysisOperationKey()
         val operation =
-            TruthRawOperationStore.read(
-                this,
-                key,
+            TruthRawOperationStore.recoverInterruptedIfNeeded(
+                context = this,
+                key = key,
+                serviceRunning =
+                    TruthRawMediaProcessingForegroundService
+                        .isResearchBatchActive(key),
             ) ?: return false
 
         var changed = false
@@ -2184,6 +2192,41 @@ class MainActivity : Activity() {
             return
         }
 
+        val operationKey =
+            fieldResponseRepeatabilityAnalysisOperationKey(
+                selected,
+            )
+
+        if (
+            TruthRawMediaProcessingForegroundService
+                .isActive(operationKey)
+        ) {
+            fieldResponseRepeatabilityStatus =
+                "Field Response Repeatability v0.1 analyse draait al; bestaande run blijft leidend."
+            render()
+            return
+        }
+
+        // An explicit tap on universal analysis means a fresh measurement
+        // attempt, not a replay of the previous current-generation profile.
+        // These files are derived diagnostics only; sealed RAW/source evidence
+        // is never removed or modified.
+        var cacheResetOk = true
+        selected.forEach { job ->
+            cacheResetOk =
+                ResearchUniversalProfileStoreV01.remove(
+                    filesDir = filesDir,
+                    jobId = job.id,
+                ) && cacheResetOk
+            universalProfiles.remove(job.id)
+        }
+        if (!cacheResetOk) {
+            fieldResponseRepeatabilityStatus =
+                "Universele bronanalyse niet gestart: afgeleide profielcache kon niet volledig worden gereset."
+            render()
+            return
+        }
+
         persistResearchWorkbenchSession()
         fieldResponseBatchPendingJobIds.clear()
         fieldResponseBatchFailedJobIds.clear()
@@ -2192,11 +2235,7 @@ class MainActivity : Activity() {
                 it.id
             },
         )
-
-        val operationKey =
-            fieldResponseRepeatabilityAnalysisOperationKey(
-                selected,
-            )
+        freeWorldFoundationStatus = null
 
         val started =
             TruthRawMediaProcessingForegroundService
