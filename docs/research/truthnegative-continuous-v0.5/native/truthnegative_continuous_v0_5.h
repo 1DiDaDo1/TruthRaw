@@ -71,6 +71,8 @@ public:
     std::size_t residentBytesUpperBound() const noexcept;
     std::uint64_t directByteRecordCount() const noexcept;
     std::uint64_t genericFallbackRecordCount() const noexcept;
+    std::uint64_t shaDirectInputBlockTransformCount() const noexcept;
+    std::uint64_t shaBufferedInputBlockTransformCount() const noexcept;
 
     bool finalize(AuthorityFieldSummary& out) noexcept;
 

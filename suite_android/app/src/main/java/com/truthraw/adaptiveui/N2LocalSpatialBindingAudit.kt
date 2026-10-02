@@ -640,6 +640,34 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_sha_direct_block_transport_active",
+                    status.optBoolean(
+                        "authorityShaDirectBlockTransportActive",
+                        false,
+                    ),
+                )
+                .put(
+                    "authority_sha_direct_input_block_transform_count",
+                    status.optLong(
+                        "authorityShaDirectInputBlockTransformCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_sha_buffered_input_block_transform_count",
+                    status.optLong(
+                        "authorityShaBufferedInputBlockTransformCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_sha_direct_input_bytes",
+                    status.optLong(
+                        "authorityShaDirectInputBytes",
+                        0L,
+                    ),
+                )
+                .put(
                     "authority_direct_record_stream_ms",
                     status.optDouble(
                         "authorityDirectRecordStreamMs",

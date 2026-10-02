@@ -414,6 +414,15 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<sharedAcquireTiming.preparation.authorityDirectByteRecordCount;
     o<<",\"authorityGenericFallbackRecordCount\":"
       <<sharedAcquireTiming.preparation.authorityGenericFallbackRecordCount;
+    o<<",\"authorityShaDirectBlockTransportActive\":"
+      <<(sharedAcquireTiming.preparation.authorityShaDirectBlockTransportActive
+            ?"true":"false");
+    o<<",\"authorityShaDirectInputBlockTransformCount\":"
+      <<sharedAcquireTiming.preparation.authorityShaDirectInputBlockTransformCount;
+    o<<",\"authorityShaBufferedInputBlockTransformCount\":"
+      <<sharedAcquireTiming.preparation.authorityShaBufferedInputBlockTransformCount;
+    o<<",\"authorityShaDirectInputBytes\":"
+      <<sharedAcquireTiming.preparation.authorityShaDirectInputBytes;
     o<<",\"authorityDirectRecordStreamMs\":"
 
       <<sharedAcquireTiming.preparation.authorityDirectRecordStreamMs;

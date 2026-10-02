@@ -48,6 +48,10 @@ struct PreparationTiming final {
     std::size_t authorityHashBatchBytes = 0u;
     std::uint64_t authorityDirectByteRecordCount = 0u;
     std::uint64_t authorityGenericFallbackRecordCount = 0u;
+    bool authorityShaDirectBlockTransportActive = false;
+    std::uint64_t authorityShaDirectInputBlockTransformCount = 0u;
+    std::uint64_t authorityShaBufferedInputBlockTransformCount = 0u;
+    std::uint64_t authorityShaDirectInputBytes = 0u;
     double authorityDirectRecordStreamMs = 0.0;
     std::uint64_t authorityDirectRecordStreamTileCount = 0u;
     std::uint64_t authorityDirectRecordStreamRecordCount = 0u;
