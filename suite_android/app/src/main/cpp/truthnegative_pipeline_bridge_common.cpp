@@ -134,6 +134,14 @@ public:
         return accumulator_.genericFallbackRecordCount();
     }
 
+    std::uint64_t directPixelTripletCount() const noexcept {
+        return accumulator_.directPixelTripletCount();
+    }
+
+    std::uint64_t genericFallbackPixelCount() const noexcept {
+        return accumulator_.genericFallbackPixelCount();
+    }
+
     std::uint64_t shaDirectInputBlockTransformCount() const noexcept {
         return accumulator_.shaDirectInputBlockTransformCount();
     }
@@ -302,9 +310,17 @@ Status prepare(
                 authorityObserver.directByteRecordCount() > 0u;
             timing->authorityGenericRecordValidationBypassed =
                 authorityObserver.genericFallbackRecordCount() == 0u;
+            timing->authorityPixelTripletEncodingActive =
+                authorityObserver.directPixelTripletCount() > 0u &&
+                authorityObserver.directPixelTripletCount() * 3u ==
+                    authorityObserver.directByteRecordCount() &&
+                authorityObserver.genericFallbackPixelCount() == 0u;
             timing->authorityCanonicalRecordBytes =
                 open_scene_field::v0_85::
                     kCanonicalAuthorityRecordBytes;
+            timing->authorityCanonicalPixelTripletBytes =
+                open_scene_field::v0_85::
+                    kCanonicalAuthorityPixelTripletBytes;
             timing->authorityHashBatchRecordCapacity =
                 truthnegative_continuous::v0_5::
                     kAuthorityDirectHashBatchRecordCount;
@@ -315,6 +331,10 @@ Status prepare(
                 authorityObserver.directByteRecordCount();
             timing->authorityGenericFallbackRecordCount =
                 authorityObserver.genericFallbackRecordCount();
+            timing->authorityDirectPixelTripletCount =
+                authorityObserver.directPixelTripletCount();
+            timing->authorityGenericFallbackPixelCount =
+                authorityObserver.genericFallbackPixelCount();
             timing->authorityShaDirectInputBlockTransformCount =
                 authorityObserver.shaDirectInputBlockTransformCount();
             timing->authorityShaBufferedInputBlockTransformCount =
