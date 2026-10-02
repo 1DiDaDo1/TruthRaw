@@ -282,6 +282,17 @@ Status prepare(
                 elapsed_ms(scienceStarted, scienceFinished);
             timing->authorityDirectRecordStreamingActive = true;
             timing->authorityTemporaryRecordVectorUsed = false;
+            timing->authorityDirectByteEncodingActive = true;
+            timing->authorityGenericRecordValidationBypassed = true;
+            timing->authorityCanonicalRecordBytes =
+                open_scene_field::v0_85::
+                    kCanonicalAuthorityRecordBytes;
+            timing->authorityHashBatchRecordCapacity =
+                truthnegative_continuous::v0_5::
+                    kAuthorityDirectHashBatchRecordCount;
+            timing->authorityHashBatchBytes =
+                truthnegative_continuous::v0_5::
+                    kAuthorityDirectHashBatchBytes;
             timing->authorityDirectRecordStreamMs =
                 authorityObserver.directRecordStreamMs();
             timing->authorityDirectRecordStreamTileCount =
