@@ -98,6 +98,211 @@ void hash_channel_summary(
 
 }  // namespace
 
+AuthorityFieldAccumulator::AuthorityFieldAccumulator(
+    std::uint32_t sourceWidth,
+    std::uint32_t sourceHeight) noexcept
+    : sourceWidth_(sourceWidth),
+      sourceHeight_(sourceHeight) {
+    try {
+        if (sourceWidth_ == 0u || sourceHeight_ == 0u) return;
+        constexpr char domain[] =
+            "D_RAW_TRUTHNEGATIVE_LOCAL_AUTHORITY_FIELD_V0_5";
+        hasher_.update(
+            reinterpret_cast<const std::uint8_t*>(domain),
+            sizeof(domain) - 1u);
+        hash_u32(hasher_, sourceWidth_);
+        hash_u32(hasher_, sourceHeight_);
+        hash_u32(hasher_, field::kCanonicalTileEdge);
+        valid_ = true;
+    } catch (...) {
+        valid_ = false;
+    }
+}
+
+bool AuthorityFieldAccumulator::valid() const noexcept {
+    return valid_ && !finalized_;
+}
+
+bool AuthorityFieldAccumulator::appendRecords(
+    std::uint32_t x,
+    std::uint32_t y,
+    std::uint32_t width,
+    std::uint32_t height,
+    std::span<const field::ChannelRecord> records) noexcept {
+    if (!valid_ || finalized_ || width == 0u || height == 0u) return false;
+    try {
+        if (x != expectedTileX_ || y != expectedTileY_ ||
+            x >= sourceWidth_ || y >= sourceHeight_ ||
+            width != std::min(field::kCanonicalTileEdge, sourceWidth_ - x) ||
+            height != std::min(field::kCanonicalTileEdge, sourceHeight_ - y)) {
+            return false;
+        }
+
+        const std::size_t pixels =
+            static_cast<std::size_t>(width) *
+            static_cast<std::size_t>(height);
+        if (pixels >
+            std::numeric_limits<std::size_t>::max() / 3u) {
+            return false;
+        }
+        const std::size_t count = pixels * 3u;
+        if (records.size() != count) return false;
+
+        hash_u32(hasher_, x);
+        hash_u32(hasher_, y);
+        hash_u32(hasher_, width);
+        hash_u32(hasher_, height);
+        hash_u64(
+            hasher_,
+            static_cast<std::uint64_t>(count));
+
+        for (const auto& r : records) {
+            if (!field::validate_record(r) || !r.valuePresent) {
+                return false;
+            }
+
+            const auto role =
+                static_cast<std::size_t>(r.role);
+            const auto authorityRaw =
+                static_cast<std::uint8_t>(r.authority);
+            if (role >= partial_.creationRoleCounts.size() ||
+                authorityRaw < 1u || authorityRaw > 4u) {
+                return false;
+            }
+            const std::size_t authority =
+                static_cast<std::size_t>(authorityRaw - 1u);
+
+            ++partial_.creationRoleCounts[role];
+            ++partial_.authorityCounts[authority];
+            ++partial_.recordCount;
+            if (r.p95Known) ++partial_.p95KnownCount;
+            if (r.supportKnown) ++partial_.supportKnownCount;
+            if (r.boundKnown) ++partial_.boundKnownCount;
+
+            hash_f32(hasher_, r.value);
+            hash_u8(
+                hasher_,
+                static_cast<std::uint8_t>(r.role));
+            hash_u8(
+                hasher_,
+                static_cast<std::uint8_t>(r.authority));
+            hash_u8(
+                hasher_,
+                static_cast<std::uint8_t>(r.uncertainty));
+            hash_u8(
+                hasher_,
+                static_cast<std::uint8_t>(r.boundDomain));
+            hash_u8(hasher_, r.valuePresent ? 1u : 0u);
+            hash_u8(hasher_, r.p95Known ? 1u : 0u);
+            hash_f32(hasher_, r.p95);
+            hash_u8(hasher_, r.supportKnown ? 1u : 0u);
+            hash_f32(hasher_, r.support);
+            hash_u8(hasher_, r.boundKnown ? 1u : 0u);
+            hash_f32(hasher_, r.bound);
+            hash_u8(hasher_, r.contributionMask);
+        }
+        ++partial_.tileCount;
+
+        const std::uint32_t nextX =
+            x + field::kCanonicalTileEdge;
+        if (nextX >= sourceWidth_) {
+            expectedTileX_ = 0u;
+            expectedTileY_ =
+                y + field::kCanonicalTileEdge;
+        } else {
+            expectedTileX_ = nextX;
+            expectedTileY_ = y;
+        }
+        return true;
+    } catch (...) {
+        valid_ = false;
+        return false;
+    }
+}
+
+bool AuthorityFieldAccumulator::appendSourceTile(
+    CfaPattern cfa,
+    std::uint32_t x,
+    std::uint32_t y,
+    std::uint32_t width,
+    std::uint32_t height,
+    std::span<const std::uint16_t> raw,
+    float whiteLevel,
+    std::span<const float> cameraNativeRgb) noexcept {
+    if (!valid_ || finalized_) return false;
+    try {
+        if (!field::build_source_tile_records(
+                cfa,
+                x,
+                y,
+                width,
+                height,
+                raw,
+                whiteLevel,
+                cameraNativeRgb,
+                scratch_)) {
+            return false;
+        }
+        return appendRecords(
+            x,
+            y,
+            width,
+            height,
+            scratch_);
+    } catch (...) {
+        valid_ = false;
+        return false;
+    }
+}
+
+std::size_t AuthorityFieldAccumulator::residentBytesUpperBound() const noexcept {
+    if (scratch_.capacity() >
+        std::numeric_limits<std::size_t>::max() /
+            sizeof(field::ChannelRecord)) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+    return scratch_.capacity() *
+        sizeof(field::ChannelRecord);
+}
+
+bool AuthorityFieldAccumulator::finalize(
+    AuthorityFieldSummary& out) noexcept {
+    out = AuthorityFieldSummary{};
+    if (!valid_ || finalized_) return false;
+    try {
+        const std::uint64_t expected =
+            static_cast<std::uint64_t>(sourceWidth_) *
+            static_cast<std::uint64_t>(sourceHeight_) * 3u;
+        const std::uint64_t expectedTilesX =
+            (static_cast<std::uint64_t>(sourceWidth_) +
+             field::kCanonicalTileEdge - 1u) /
+            field::kCanonicalTileEdge;
+        const std::uint64_t expectedTilesY =
+            (static_cast<std::uint64_t>(sourceHeight_) +
+             field::kCanonicalTileEdge - 1u) /
+            field::kCanonicalTileEdge;
+        if (partial_.recordCount != expected ||
+            partial_.tileCount != expectedTilesX * expectedTilesY ||
+            expectedTileX_ != 0u ||
+            expectedTileY_ < sourceHeight_) {
+            return false;
+        }
+
+        partial_.contentSha256 = hasher_.finalize();
+        partial_.createsNewEvidence = false;
+        partial_.scientificWritebackAllowed = false;
+        if (!nonzero(partial_.contentSha256)) return false;
+
+        out = partial_;
+        finalized_ = true;
+        return true;
+    } catch (...) {
+        out = AuthorityFieldSummary{};
+        valid_ = false;
+        return false;
+    }
+}
+
 bool summarizeAuthorityField(
     local::IFieldTileSource& source,
     AuthorityFieldSummary& out) noexcept {
@@ -106,95 +311,52 @@ bool summarizeAuthorityField(
         const auto g = source.geometry();
         if (g.sourceWidth == 0u || g.sourceHeight == 0u) return false;
 
-        truthraw::sha256_v0_69::Hasher h;
-        constexpr char domain[] =
-            "D_RAW_TRUTHNEGATIVE_LOCAL_AUTHORITY_FIELD_V0_5";
-        h.update(
-            reinterpret_cast<const std::uint8_t*>(domain),
-            sizeof(domain) - 1u);
-        hash_u32(h, g.sourceWidth);
-        hash_u32(h, g.sourceHeight);
-        hash_u32(h, field::kCanonicalTileEdge);
+        AuthorityFieldAccumulator accumulator(
+            g.sourceWidth,
+            g.sourceHeight);
+        if (!accumulator.valid()) return false;
 
         std::vector<field::ChannelRecord> records;
         for (std::uint32_t y = 0u; y < g.sourceHeight;
              y += field::kCanonicalTileEdge) {
             const std::uint32_t height =
-                std::min(field::kCanonicalTileEdge, g.sourceHeight - y);
+                std::min(
+                    field::kCanonicalTileEdge,
+                    g.sourceHeight - y);
             for (std::uint32_t x = 0u; x < g.sourceWidth;
                  x += field::kCanonicalTileEdge) {
                 const std::uint32_t width =
-                    std::min(field::kCanonicalTileEdge, g.sourceWidth - x);
+                    std::min(
+                        field::kCanonicalTileEdge,
+                        g.sourceWidth - x);
                 const std::size_t pixels =
-                    static_cast<std::size_t>(width) * height;
+                    static_cast<std::size_t>(width) *
+                    static_cast<std::size_t>(height);
                 if (pixels >
                     std::numeric_limits<std::size_t>::max() / 3u) {
                     return false;
                 }
-                const std::size_t count = pixels * 3u;
-                records.assign(count, field::ChannelRecord{});
+                records.assign(
+                    pixels * 3u,
+                    field::ChannelRecord{});
                 if (!source.readSourceTile(
-                        x, y, width, height,
-                        records.data(), records.size())) {
+                        x,
+                        y,
+                        width,
+                        height,
+                        records.data(),
+                        records.size()) ||
+                    !accumulator.appendRecords(
+                        x,
+                        y,
+                        width,
+                        height,
+                        records)) {
                     return false;
                 }
-
-                hash_u32(h, x);
-                hash_u32(h, y);
-                hash_u32(h, width);
-                hash_u32(h, height);
-                hash_u64(h, static_cast<std::uint64_t>(count));
-
-                for (const auto& r : records) {
-                    if (!field::validate_record(r) || !r.valuePresent) {
-                        return false;
-                    }
-
-                    const auto role =
-                        static_cast<std::size_t>(r.role);
-                    const auto authorityRaw =
-                        static_cast<std::uint8_t>(r.authority);
-                    if (role >= out.creationRoleCounts.size() ||
-                        authorityRaw < 1u || authorityRaw > 4u) {
-                        return false;
-                    }
-                    const std::size_t authority =
-                        static_cast<std::size_t>(authorityRaw - 1u);
-
-                    ++out.creationRoleCounts[role];
-                    ++out.authorityCounts[authority];
-                    ++out.recordCount;
-                    if (r.p95Known) ++out.p95KnownCount;
-                    if (r.supportKnown) ++out.supportKnownCount;
-                    if (r.boundKnown) ++out.boundKnownCount;
-
-                    hash_f32(h, r.value);
-                    hash_u8(h, static_cast<std::uint8_t>(r.role));
-                    hash_u8(h, static_cast<std::uint8_t>(r.authority));
-                    hash_u8(h, static_cast<std::uint8_t>(r.uncertainty));
-                    hash_u8(h, static_cast<std::uint8_t>(r.boundDomain));
-                    hash_u8(h, r.valuePresent ? 1u : 0u);
-                    hash_u8(h, r.p95Known ? 1u : 0u);
-                    hash_f32(h, r.p95);
-                    hash_u8(h, r.supportKnown ? 1u : 0u);
-                    hash_f32(h, r.support);
-                    hash_u8(h, r.boundKnown ? 1u : 0u);
-                    hash_f32(h, r.bound);
-                    hash_u8(h, r.contributionMask);
-                }
-                ++out.tileCount;
             }
         }
-
-        const std::uint64_t expected =
-            static_cast<std::uint64_t>(g.sourceWidth) *
-            static_cast<std::uint64_t>(g.sourceHeight) * 3u;
-        if (out.recordCount != expected) return false;
-
-        out.contentSha256 = h.finalize();
-        out.createsNewEvidence = false;
-        out.scientificWritebackAllowed = false;
-        return nonzero(out.contentSha256);
+        return accumulator.finalize(out);
     } catch (...) {
         out = AuthorityFieldSummary{};
         return false;
