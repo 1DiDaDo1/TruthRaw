@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -35,6 +36,47 @@ struct AuthorityFieldSummary final {
     std::uint64_t tileCount = 0u;
     bool createsNewEvidence = false;
     bool scientificWritebackAllowed = false;
+};
+
+class AuthorityFieldAccumulator final {
+public:
+    AuthorityFieldAccumulator(
+        std::uint32_t sourceWidth,
+        std::uint32_t sourceHeight) noexcept;
+
+    bool valid() const noexcept;
+
+    bool appendRecords(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::span<const field::ChannelRecord> records) noexcept;
+
+    bool appendSourceTile(
+        CfaPattern cfa,
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::span<const std::uint16_t> raw,
+        float whiteLevel,
+        std::span<const float> cameraNativeRgb) noexcept;
+
+    std::size_t residentBytesUpperBound() const noexcept;
+
+    bool finalize(AuthorityFieldSummary& out) noexcept;
+
+private:
+    std::uint32_t sourceWidth_ = 0u;
+    std::uint32_t sourceHeight_ = 0u;
+    std::uint32_t expectedTileX_ = 0u;
+    std::uint32_t expectedTileY_ = 0u;
+    truthraw::sha256_v0_69::Hasher hasher_{};
+    AuthorityFieldSummary partial_{};
+    std::vector<field::ChannelRecord> scratch_{};
+    bool valid_ = false;
+    bool finalized_ = false;
 };
 
 struct StateInput final {
