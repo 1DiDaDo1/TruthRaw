@@ -577,6 +577,48 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_direct_record_streaming_active",
+                    status.optBoolean(
+                        "authorityDirectRecordStreamingActive",
+                        false,
+                    ),
+                )
+                .put(
+                    "authority_temporary_record_vector_used",
+                    status.optBoolean(
+                        "authorityTemporaryRecordVectorUsed",
+                        true,
+                    ),
+                )
+                .put(
+                    "authority_direct_record_stream_ms",
+                    status.optDouble(
+                        "authorityDirectRecordStreamMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "authority_direct_record_stream_tile_count",
+                    status.optLong(
+                        "authorityDirectRecordStreamTileCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_direct_record_stream_record_count",
+                    status.optLong(
+                        "authorityDirectRecordStreamRecordCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "authority_accumulator_resident_bytes_upper_bound",
+                    status.optLong(
+                        "authorityAccumulatorResidentBytesUpperBound",
+                        0L,
+                    ),
+                )
+                .put(
                     "prepare_finalize_truthnegative_ms",
                     status.optDouble(
                         "prepareFinalizeTruthNegativeMs",
