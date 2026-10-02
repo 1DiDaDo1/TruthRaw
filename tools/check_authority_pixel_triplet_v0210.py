@@ -54,7 +54,7 @@ triplet_region = field_cpp[
 assert triplet_region.count("measured_channel(") == 1, (
     "triplet encoder must resolve CFA measured channel exactly once per pixel"
 )
-assert "for (int ch = 0; ch < 3; ++ch)" in triplet_region
+assert "for (std::size_t ch = 0u; ch < 3u; ++ch)" in triplet_region
 
 for token in [
     "test_pixel_triplet_exact_parity",
@@ -126,8 +126,8 @@ for token in [
     assert token in diag, f"Research triplet telemetry missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.10-authority-pixel-triplet-v1",
-    "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET",
+    "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1",
+    "N2_LOCAL_SPATIAL_V01_R11_AUTHORITY_TEMPLATE_REUSE",
 ]:
     assert token in profiler, f"fresh triplet profiler identity missing {token}"
 
