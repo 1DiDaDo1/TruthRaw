@@ -1,3 +1,25 @@
+> **CURRENT PROJECT CHECKPOINT — 2026-10-02 — continuation code `44488`**
+>
+> Current development branch: `fix/android17-research-resilience-v02`  
+> Latest merged PR: `#114 — authority direct stream v0.2.7`  
+> Android/scientific source checkpoint: `33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+>
+> Current state: `state/CURRENT_PROJECT_STATE_2026-10-02.json`  
+> Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`  
+> Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+>
+> v0.2.7 is host-parity and real-device validated. Direct authority record streaming is active, the temporary tile-wide `ChannelRecord` vector is gone, authority replay remains removed, and the accumulator uses zero record-vector scratch. Exact authority SHA/count semantics and the scientific firewall remain intact.
+>
+> The next performance frontier is a **canonical direct-byte authority encoder**: preserve the exact canonical source-record byte stream, CFA/censor semantics, Float32 bits, counts, tile order and SHA-256 while removing remaining per-record object/validation overhead.
+>
+> **MEASURED != RECONSTRUCTED != APPEARANCE.**
+>
+> **Seal the evidence, not the thinking.**
+>
+> **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+
+---
+
 <p align="center">
   <img src="docs/assets/draw_brand_banner.webp" alt="D.RAW" width="100%">
 </p>
