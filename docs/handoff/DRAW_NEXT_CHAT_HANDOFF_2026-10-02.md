@@ -40,6 +40,8 @@ PR #116 source head before merge:
 
 PR #116 was 34/34 green and real-device validated before merge.
 
+This is the proven **SHA-256 direct-block transport** baseline. v0.2.10 remains a separate candidate until its own real-device validation.
+
 ## Current validated Android build line
 
 Application ID:
