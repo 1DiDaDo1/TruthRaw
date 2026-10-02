@@ -477,136 +477,237 @@ bool runSparseReference(
                         return false;
                     }
 
+                    const auto currentProfileOrdinal=profileOrdinal++;
+                    const bool profileCandidate=
+                        diagnostics&&
+                        diagnostics->profileSampleStride>0u&&
+                        (currentProfileOrdinal%
+                            diagnostics->profileSampleStride)==0u;
+                    if(profileCandidate){
+                        ++diagnostics->profiledCandidateCount;
+                    }
+
+                    SteadyClock::time_point profiledStarted{};
+                    if(profileCandidate){
+                        profiledStarted=SteadyClock::now();
+                    }
+
                     const int channel=measured_channel(md.cfa,gx,gy);
                     if(channel<0||channel>2)return false;
 
-                        const auto phase=
-                            static_cast<std::size_t>((gy&1)*2+(gx&1));
-                        ++tile.metrics.v01CandidateCfaPhase[phase];
+                    const auto phase=
+                        static_cast<std::size_t>((gy&1)*2+(gx&1));
+                    ++tile.metrics.v01CandidateCfaPhase[phase];
 
-                        std::size_t centerIndex=0u;
-                        if(!indexOf(gx,gy,centerIndex))return false;
-                        if(static_cast<float>(workspace.raw[centerIndex])>=
-                           md.whiteLevel){
-                            return false;
-                        }
-                        const double center=workspace.stage2[centerIndex];
-                        double centerVariance=0.0;
-                        if(!std::isfinite(center)||
-                           !variance_for(
-                               md,workspace,centerIndex,
-                               channel,center,centerVariance)){
-                            return false;
-                        }
+                    std::size_t centerIndex=0u;
+                    if(!indexOf(gx,gy,centerIndex))return false;
+                    if(static_cast<float>(workspace.raw[centerIndex])>=
+                       md.whiteLevel){
+                        return false;
+                    }
+                    const double center=workspace.stage2[centerIndex];
+                    double centerVariance=0.0;
+                    if(!std::isfinite(center)||
+                       !variance_for(
+                           md,workspace,centerIndex,
+                           channel,center,centerVariance)){
+                        return false;
+                    }
+                    if(profileCandidate){
+                        diagnostics->profiledCenterSetupMs+=
+                            elapsed_ms(
+                                profiledStarted,
+                                SteadyClock::now());
+                    }
 
-                        ce::Input input{};
-                        input.neighbors.reserve(
-                            kRadii.size()*kDirections.size()*2u);
-                        for(const int radius:kRadii){
-                            for(const auto& direction:kDirections){
-                                for(const int side:{-1,1}){
-                                    const int dx=
-                                        side*radius*direction[0];
-                                    const int dy=
-                                        side*radius*direction[1];
-                                    const int nx=gx+dx;
-                                    const int ny=gy+dy;
-                                    std::size_t ni=0u;
-                                    if(!indexOf(nx,ny,ni))continue;
-                                    if(measured_channel(md.cfa,nx,ny)!=
-                                       channel){
-                                        return false;
-                                    }
-
-                                    const double value=workspace.stage2[ni];
-                                    const bool censored=
-                                        static_cast<float>(
-                                            workspace.raw[ni])>=md.whiteLevel;
-                                    double variance=0.0;
-                                    const bool varianceKnown=
-                                        !censored&&
-                                        variance_for(
-                                            md,workspace,ni,
-                                            channel,value,variance);
-
-                                    ce::Sample sample{};
-                                    sample.value=value;
-                                    sample.variance=variance;
-                                    sample.dx=dx;
-                                    sample.dy=dy;
-                                    sample.authority=censored
-                                        ? ce::SampleAuthority::Censored
-                                        : ce::SampleAuthority::Measured;
-                                    sample.varianceKnown=varianceKnown;
-                                    sample.sameChannel=true;
-                                    sample.sameObject=true;
-                                    sample.objectIdentityKnown=false;
-                                    sample.censorBoundary=
-                                        pathTouchesCensor(
-                                            gx,gy,dx,dy);
-                                    input.neighbors.push_back(sample);
+                    ce::Input input{};
+                    input.neighbors.reserve(
+                        kRadii.size()*kDirections.size()*2u);
+                    for(const int radius:kRadii){
+                        for(const auto& direction:kDirections){
+                            for(const int side:{-1,1}){
+                                if(profileCandidate){
+                                    profiledStarted=SteadyClock::now();
                                 }
+                                const int dx=
+                                    side*radius*direction[0];
+                                const int dy=
+                                    side*radius*direction[1];
+                                const int nx=gx+dx;
+                                const int ny=gy+dy;
+                                std::size_t ni=0u;
+                                if(!indexOf(nx,ny,ni))continue;
+                                if(measured_channel(md.cfa,nx,ny)!=
+                                   channel){
+                                    return false;
+                                }
+
+                                const double value=workspace.stage2[ni];
+                                const bool censored=
+                                    static_cast<float>(
+                                        workspace.raw[ni])>=md.whiteLevel;
+                                if(profileCandidate){
+                                    ++diagnostics->profiledNeighborSampleCount;
+                                    diagnostics->profiledNeighborAcquireMs+=
+                                        elapsed_ms(
+                                            profiledStarted,
+                                            SteadyClock::now());
+                                    profiledStarted=SteadyClock::now();
+                                }
+
+                                double variance=0.0;
+                                const bool varianceKnown=
+                                    !censored&&
+                                    variance_for(
+                                        md,workspace,ni,
+                                        channel,value,variance);
+                                if(profileCandidate){
+                                    ++diagnostics->profiledNeighborVarianceCount;
+                                    diagnostics->profiledNeighborVarianceMs+=
+                                        elapsed_ms(
+                                            profiledStarted,
+                                            SteadyClock::now());
+                                }
+
+                                ce::Sample sample{};
+                                sample.value=value;
+                                sample.variance=variance;
+                                sample.dx=dx;
+                                sample.dy=dy;
+                                sample.authority=censored
+                                    ? ce::SampleAuthority::Censored
+                                    : ce::SampleAuthority::Measured;
+                                sample.varianceKnown=varianceKnown;
+                                sample.sameChannel=true;
+                                sample.sameObject=true;
+                                sample.objectIdentityKnown=false;
+
+                                if(profileCandidate){
+                                    profiledStarted=SteadyClock::now();
+                                    ++diagnostics->profiledPathCheckCount;
+                                }
+                                sample.censorBoundary=
+                                    pathTouchesCensor(
+                                        gx,
+                                        gy,
+                                        dx,
+                                        dy,
+                                        profileCandidate);
+                                if(profileCandidate){
+                                    diagnostics->profiledPathCensorMs+=
+                                        elapsed_ms(
+                                            profiledStarted,
+                                            SteadyClock::now());
+                                }
+                                input.neighbors.push_back(sample);
                             }
                         }
+                    }
 
-                        ce::Result predictor{};
-                        const auto predictorStarted=SteadyClock::now();
-                        const auto predictorOk=ce::estimate(input,predictor);
-                        const auto predictorFinished=SteadyClock::now();
-                        if(diagnostics){
-                            diagnostics->predictorEstimateMs+=
-                                elapsed_ms(
-                                    predictorStarted,
-                                    predictorFinished);
+                    ce::Result predictor{};
+                    ce::Diagnostics predictorProfile{};
+                    const auto predictorStarted=SteadyClock::now();
+                    const auto predictorOk=ce::estimate(
+                        input,
+                        predictor,
+                        profileCandidate
+                            ? &predictorProfile
+                            : nullptr);
+                    const auto predictorFinished=SteadyClock::now();
+                    if(diagnostics){
+                        const auto predictorElapsed=
+                            elapsed_ms(
+                                predictorStarted,
+                                predictorFinished);
+                        diagnostics->predictorEstimateMs+=predictorElapsed;
+                        if(profileCandidate){
+                            diagnostics->profiledPredictorEstimateMs+=
+                                predictorElapsed;
+                            diagnostics->predictorAdmissibilitySlotBuildMs+=
+                                predictorProfile.admissibilitySlotBuildMs;
+                            diagnostics->predictorPairBuildGateMs+=
+                                predictorProfile.pairBuildGateMs;
+                            diagnostics->predictorScaleConsistencyMs+=
+                                predictorProfile.scaleConsistencyMs;
+                            diagnostics->predictorCrossScaleCombineMs+=
+                                predictorProfile.crossScaleCombineMs;
+                            diagnostics->predictorFinalCombineMs+=
+                                predictorProfile.finalCombineMs;
+                            diagnostics->predictorProfiledEstimateCount+=
+                                predictorProfile.profiledEstimateCount;
+                            diagnostics->predictorSlotDuplicateCount+=
+                                predictorProfile.slotDuplicateCount;
+                            diagnostics->predictorPairLookupCount+=
+                                predictorProfile.pairLookupCount;
+                            diagnostics->predictorPairZDistanceCount+=
+                                predictorProfile.pairZDistanceCount;
+                            diagnostics->predictorDirectionalZDistanceCount+=
+                                predictorProfile.directionalZDistanceCount;
+                            diagnostics->predictorCrossScaleZDistanceCount+=
+                                predictorProfile.crossScaleZDistanceCount;
+                            diagnostics->predictorInverseVariancePairCombineCount+=
+                                predictorProfile.inverseVariancePairCombineCount;
+                            diagnostics->predictorInverseVarianceScaleCombineCount+=
+                                predictorProfile.inverseVarianceScaleCombineCount;
                         }
-                        if(!predictorOk||
-                           !predictor.centerExcluded||
-                           predictor.createsNewEvidence||
-                           predictor.scientificWritebackAllowed){
-                            return false;
-                        }
+                    }
+                    if(!predictorOk||
+                       !predictor.centerExcluded||
+                       predictor.createsNewEvidence||
+                       predictor.scientificWritebackAllowed){
+                        return false;
+                    }
 
-                        add_counted_result(tile.metrics,predictor);
-                        if(!predictor.valid){
-                            ++tile.metrics.predictorInvalid;
-                            continue;
-                        }
+                    add_counted_result(tile.metrics,predictor);
+                    if(!predictor.valid){
+                        ++tile.metrics.predictorInvalid;
+                        continue;
+                    }
 
-                        if(!std::isfinite(predictor.estimate)||
-                           !(predictor.estimateVariance>0.0)||
-                           !std::isfinite(predictor.estimateVariance)){
-                            return false;
-                        }
-                        const double absResidual=
-                            std::abs(center-predictor.estimate);
-                        const double centerSigma=
-                            std::sqrt(centerVariance);
-                        const double combinedVariance=
-                            centerVariance+predictor.estimateVariance;
-                        const double combinedSigma=
-                            std::sqrt(combinedVariance);
-                        if(!std::isfinite(absResidual)||
-                           !(centerSigma>0.0)||
-                           !std::isfinite(centerSigma)||
-                           !(combinedSigma>0.0)||
-                           !std::isfinite(combinedSigma)){
-                            return false;
-                        }
+                    if(profileCandidate){
+                        profiledStarted=SteadyClock::now();
+                    }
+                    if(!std::isfinite(predictor.estimate)||
+                       !(predictor.estimateVariance>0.0)||
+                       !std::isfinite(predictor.estimateVariance)){
+                        return false;
+                    }
+                    const double absResidual=
+                        std::abs(center-predictor.estimate);
+                    const double centerSigma=
+                        std::sqrt(centerVariance);
+                    const double combinedVariance=
+                        centerVariance+predictor.estimateVariance;
+                    const double combinedSigma=
+                        std::sqrt(combinedVariance);
+                    if(!std::isfinite(absResidual)||
+                       !(centerSigma>0.0)||
+                       !std::isfinite(centerSigma)||
+                       !(combinedSigma>0.0)||
+                       !std::isfinite(combinedSigma)){
+                        return false;
+                    }
 
-                        const double centerZ=absResidual/centerSigma;
-                        const double combinedZ=absResidual/combinedSigma;
-                        if(!std::isfinite(centerZ)||
-                           !std::isfinite(combinedZ)){
-                            return false;
-                        }
-                        add_valid_result(
-                            tile.metrics,
-                            absResidual,
-                            centerVariance,
-                            predictor.estimateVariance,
-                            centerZ,
-                            combinedZ,
-                            phase);
+                    const double centerZ=absResidual/centerSigma;
+                    const double combinedZ=absResidual/combinedSigma;
+                    if(!std::isfinite(centerZ)||
+                       !std::isfinite(combinedZ)){
+                        return false;
+                    }
+                    add_valid_result(
+                        tile.metrics,
+                        absResidual,
+                        centerVariance,
+                        predictor.estimateVariance,
+                        centerZ,
+                        combinedZ,
+                        phase);
+                    if(profileCandidate){
+                        diagnostics->profiledResidualMetricsMs+=
+                            elapsed_ms(
+                                profiledStarted,
+                                SteadyClock::now());
+                    }
                 }
                 const auto candidateLoopFinished=SteadyClock::now();
                 if(diagnostics){
