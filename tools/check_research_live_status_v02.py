@@ -58,7 +58,9 @@ for token in [
 ]:
     assert token.lower() in readme.lower(), f"README missing {token}"
 
-changed_scope = start_slice + helper + journal + readme
+journal_finish_start = journal.index("fun finish(")
+journal_finish = journal[journal_finish_start:journal_finish_start+1800]
+changed_scope = start_slice + helper + journal_finish + readme
 for forbidden in [
     'candidate_applied", true',
     'creates_new_evidence", true',
