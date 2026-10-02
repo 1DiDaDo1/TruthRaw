@@ -41,6 +41,12 @@ Read first now:
 5. `docs/research/truthnegative-authority-field-fusion-v0.1/README.md`
 6. older dated material only as required for provenance
 
+Post-merge source checkpoint status:
+
+- `33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+- **36/36 workflows green**
+- **0 failures**
+
 Current validated Android version:
 
 - versionCode `26100108`
