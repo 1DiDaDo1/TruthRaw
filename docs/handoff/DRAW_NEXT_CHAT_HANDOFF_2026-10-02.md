@@ -80,6 +80,15 @@ Artifact ZIP digest:
 
 The post-merge build reproduced the same APK SHA-256 and the same stable signing certificate.
 
+Post-merge source checkpoint CI on `33c69b635be5bcc57ec4a947eb8fda3649e492ad`:
+
+- total workflows: `36`
+- successful: `36`
+- failed: `0`
+- queued/in-progress: `0`
+
+This includes the direct-stream, fused-authority, N2 sparse/row-band/phase/subphase, Shared Scientific Context, Canonical, version-lineage, Free World and the three heavy Android/APK build families.
+
 The APK is an in-place update from 26100107. Do not instruct the user to uninstall or clear app data for normal continuation tests unless a specific failure requires that and the reason is proven.
 
 ## Current real-device performance result — v0.2.7
