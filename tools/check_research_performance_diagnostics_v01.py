@@ -28,6 +28,10 @@ for token in [
     "candidate_applied",
     "creates_new_evidence",
     "scientific_writeback_allowed",
+    "row_band_telemetry_reported",
+    "row_band_reuse_active",
+    "row_band_peak_cache_bytes",
+    "row_band_scientific_values_modified",
 ]:
     assert token in trace, f"trace missing {token}"
 
@@ -54,9 +58,9 @@ for token in [
     "trace.onProgress(event)",
     "clearSharedPipelineCache()",
     "trace.attach(",
-    "D.RAW/UniversalSourceProfileCache/0.2.2-n2-sparse-ref-v1",
+    "D.RAW/UniversalSourceProfileCache/0.2.3-n2-row-band-v1",
     '"profile_cache_generation"',
-    "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF",
+    "N2_LOCAL_SPATIAL_V01_R3_ROW_BAND",
 ]:
     assert token in profiler, f"profiler missing {token}"
 

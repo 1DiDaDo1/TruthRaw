@@ -5,6 +5,7 @@
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_confidence_field_v0_3.h"
 #include "truthnegative_n2_factored_confidence_state_v0_3_1.h"
+#include "truthnegative_n2_row_band_reuse_v0_1.h"
 #include "truthnegative_pipeline_bridge_common.h"
 #include "truthraw_sha256_v0_69.h"
 
@@ -31,6 +32,8 @@ namespace confidence =
     truthraw::truthnegative_n2_confidence_field::v0_3;
 namespace factored =
     truthraw::truthnegative_n2_factored_confidence_state::v0_3_1;
+namespace row_band =
+    truthraw::truthnegative_n2_row_band_reuse::v0_1;
 namespace sha = truthraw::sha256_v0_69;
 
 jstring status(JNIEnv* env,int code,const std::string& message) {
@@ -124,18 +127,33 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     options.tileEdge=64u;
     options.samplingPeriod=8u;
 
+    row_band::RowBandReuseTileSource n2ReadSource(
+        *ctx->openedSource.source);
+
     n2_cfa::Result v01{};
     if(!n2_cfa::run(
-            *ctx->openedSource.source,
+            n2ReadSource,
             v01Binding,
             options,
             v01)||
        v01.sourceValuesModified||
        v01.truthNegativeModified||
        v01.createsNewEvidence||
-       v01.scientificWritebackAllowed){
+       v01.scientificWritebackAllowed||
+       n2ReadSource.scientificValuesModified()||
+       n2ReadSource.createsNewEvidence()||
+       n2ReadSource.scientificWritebackAllowed()){
         return status(env,-91,"v0.1 factored reference audit failed");
     }
+
+    const auto v01RowBandFillCount =
+        n2ReadSource.bandFillCount();
+    const auto v01RowBandServedRequestCount =
+        n2ReadSource.bandServedRequestCount();
+    const auto v01RowBandCacheHitRequestCount =
+        n2ReadSource.bandCacheHitRequestCount();
+    const auto v01RowBandFallbackRequestCount =
+        n2ReadSource.fallbackRequestCount();
 
     ce_spatial::Binding ceBinding{};
     ceBinding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
@@ -154,7 +172,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     bool v01RerunPerformed=false;
     if(v01.correctedSampleCoordinatesComplete){
         if(!ce_sparse::runSparseReference(
-                *ctx->openedSource.source,
+                n2ReadSource,
                 ceBinding,
                 v01,
                 ceAudit)){
@@ -284,6 +302,25 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<(v01RerunPerformed?"true":"false");
     o<<",\"v01SparseReferenceIndexComplete\":"
       <<(v01.correctedSampleCoordinatesComplete?"true":"false");
+    o<<",\"rowBandReuseActive\":true";
+    o<<",\"v01RowBandFillCount\":"<<v01RowBandFillCount;
+    o<<",\"v01RowBandServedRequestCount\":"
+      <<v01RowBandServedRequestCount;
+    o<<",\"v01RowBandCacheHitRequestCount\":"
+      <<v01RowBandCacheHitRequestCount;
+    o<<",\"v01RowBandFallbackRequestCount\":"
+      <<v01RowBandFallbackRequestCount;
+    o<<",\"rowBandFillCountTotal\":"
+      <<n2ReadSource.bandFillCount();
+    o<<",\"rowBandServedRequestCountTotal\":"
+      <<n2ReadSource.bandServedRequestCount();
+    o<<",\"rowBandCacheHitRequestCountTotal\":"
+      <<n2ReadSource.bandCacheHitRequestCount();
+    o<<",\"rowBandFallbackRequestCountTotal\":"
+      <<n2ReadSource.fallbackRequestCount();
+    o<<",\"rowBandPeakCacheBytes\":"
+      <<n2ReadSource.peakCacheBytes();
+    o<<",\"rowBandScientificValuesModified\":false";
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;

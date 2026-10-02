@@ -20,7 +20,7 @@ import java.io.File
  */
 object UniversalSourceProfiler {
     const val CACHE_GENERATION =
-        "D.RAW/UniversalSourceProfileCache/0.2.2-n2-sparse-ref-v1"
+        "D.RAW/UniversalSourceProfileCache/0.2.3-n2-row-band-v1"
 
     fun profile(
         resolver: ContentResolver,
@@ -521,7 +521,7 @@ object UniversalSourceProfiler {
                 val frontsideInput =
                     frontside.optJSONObject("dark_chroma_stability_v0_1")
                 cachedStage(
-                    stageId = "N2_LOCAL_SPATIAL_V01_R2_SPARSE_REF",
+                    stageId = "N2_LOCAL_SPATIAL_V01_R3_ROW_BAND",
                     inputFingerprint =
                         ResearchProfileStageCacheV01.fingerprint(
                             frontsideInput?.toString(),
