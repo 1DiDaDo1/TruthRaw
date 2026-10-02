@@ -547,9 +547,23 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: false,
                             )
                             .put(
+                                "authority_pixel_triplet_encoding_active",
+                                n2Local?.optBoolean(
+                                    "authority_pixel_triplet_encoding_active",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
                                 "authority_canonical_record_bytes",
                                 n2Local?.optLong(
                                     "authority_canonical_record_bytes",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_canonical_pixel_triplet_bytes",
+                                n2Local?.optLong(
+                                    "authority_canonical_pixel_triplet_bytes",
                                     0L,
                                 ) ?: 0L,
                             )
@@ -578,6 +592,20 @@ object ResearchPerformanceDiagnosticsV01 {
                                 "authority_generic_fallback_record_count",
                                 n2Local?.optLong(
                                     "authority_generic_fallback_record_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_direct_pixel_triplet_count",
+                                n2Local?.optLong(
+                                    "authority_direct_pixel_triplet_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_generic_fallback_pixel_count",
+                                n2Local?.optLong(
+                                    "authority_generic_fallback_pixel_count",
                                     0L,
                                 ) ?: 0L,
                             )
