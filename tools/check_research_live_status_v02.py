@@ -15,7 +15,9 @@ readme = (ROOT / "docs/research/research-live-status-v0.2/README.md").read_text(
 
 start_marker = "The Research page can already be resumed before the user starts a"
 assert start_marker in main
-start_slice = main[main.index(start_marker):main.index(start_marker)+1600]
+start_pos = main.index(start_marker)
+start_end = main.index("render()\n    }", start_pos) + len("render()\n    }")
+start_slice = main[start_pos:start_end]
 for token in [
     "researchBatchLastHeartbeatWallMs = 0L",
     "researchStatusHandler.removeCallbacks(",
