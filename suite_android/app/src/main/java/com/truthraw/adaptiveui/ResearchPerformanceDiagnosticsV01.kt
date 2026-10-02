@@ -498,6 +498,27 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: 0.0,
                             )
                             .put(
+                                "authority_field_fused_into_scientific_master_pass",
+                                n2Local?.optBoolean(
+                                    "authority_field_fused_into_scientific_master_pass",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "authority_field_replay_pass_performed",
+                                n2Local?.optBoolean(
+                                    "authority_field_replay_pass_performed",
+                                    true,
+                                ) ?: true,
+                            )
+                            .put(
+                                "authority_field_fused_finalize_ms",
+                                n2Local?.optDouble(
+                                    "authority_field_fused_finalize_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
                                 "prepare_total_instrumented_ms",
                                 n2Local?.optDouble(
                                     "prepare_total_instrumented_ms",
