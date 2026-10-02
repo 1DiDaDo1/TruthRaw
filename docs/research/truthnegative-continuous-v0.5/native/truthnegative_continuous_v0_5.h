@@ -78,6 +78,9 @@ private:
     bool appendRecord(
         const field::ChannelRecord& record) noexcept;
 
+    bool accountCanonicalSourceRecord(
+        const field::CanonicalSourceChannelRecord& record) noexcept;
+
     bool finishTile(
         std::uint32_t x,
         std::uint32_t y) noexcept;
