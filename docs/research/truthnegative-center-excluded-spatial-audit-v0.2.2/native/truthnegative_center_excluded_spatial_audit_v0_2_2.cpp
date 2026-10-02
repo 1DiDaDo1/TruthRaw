@@ -24,6 +24,15 @@ using Result = v021::Result;
 
 namespace {
 
+using SteadyClock = std::chrono::steady_clock;
+
+double elapsed_ms(
+    SteadyClock::time_point started,
+    SteadyClock::time_point finished) noexcept {
+    return std::chrono::duration<double,std::milli>(
+        finished-started).count();
+}
+
 namespace detail = truthraw::streaming_v0_1::detail;
 namespace ce =
     truthraw::truthnegative_center_excluded_neighborhood::v0_2;
