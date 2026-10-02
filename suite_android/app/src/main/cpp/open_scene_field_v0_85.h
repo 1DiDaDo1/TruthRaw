@@ -127,6 +127,44 @@ bool validate_record(const ChannelRecord& record) noexcept;
 
 std::uint32_t classification_word(const ChannelRecord& record) noexcept;
 
+inline constexpr std::size_t kCanonicalAuthorityRecordBytes = 25u;
+
+struct CanonicalSourceChannelRecord final {
+    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes> bytes{};
+    CreationRole role = CreationRole::Unknown;
+    Authority authority = Authority::Unknown;
+    bool p95Known = false;
+    bool supportKnown = false;
+    bool boundKnown = false;
+};
+
+enum class CanonicalSourceEncodingStatus : std::uint8_t {
+    Encoded = 1u,
+    UnsupportedSemanticExtension = 2u,
+    Invalid = 3u,
+};
+
+CanonicalSourceEncodingStatus
+encode_source_channel_record_canonical_v1(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept;
+
+bool encode_source_channel_record_canonical(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept;
+
 bool build_source_channel_record(
     CfaPattern cfa,
     std::uint32_t globalX,

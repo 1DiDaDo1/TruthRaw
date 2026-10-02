@@ -65,6 +65,67 @@ int measured_channel(CfaPattern cfa, std::uint32_t x, std::uint32_t y) noexcept 
     return -1;
 }
 
+struct SourceChannelClassification final {
+    bool measured = false;
+    bool censored = false;
+};
+
+bool classify_source_channel(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    SourceChannelClassification& out) noexcept {
+    out = SourceChannelClassification{};
+    if (!std::isfinite(whiteLevel) ||
+        whiteLevel <= 0.0f ||
+        channel < 0 ||
+        channel > 2 ||
+        !std::isfinite(cameraNativeValue)) {
+        return false;
+    }
+    const int measured =
+        measured_channel(cfa, globalX, globalY);
+    if (measured < 0 || measured > 2) {
+        return false;
+    }
+    out.measured = channel == measured;
+    out.censored =
+        out.measured &&
+        static_cast<float>(rawCode) >= whiteLevel;
+    return true;
+}
+
+void put_u8_record(
+    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::size_t& offset,
+    std::uint8_t value) noexcept {
+    out[offset++] = value;
+}
+
+void put_u32_record(
+    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::size_t& offset,
+    std::uint32_t value) noexcept {
+    out[offset++] = static_cast<std::uint8_t>(value);
+    out[offset++] = static_cast<std::uint8_t>(value >> 8u);
+    out[offset++] = static_cast<std::uint8_t>(value >> 16u);
+    out[offset++] = static_cast<std::uint8_t>(value >> 24u);
+}
+
+void put_f32_record(
+    std::array<std::uint8_t, kCanonicalAuthorityRecordBytes>& out,
+    std::size_t& offset,
+    float value) noexcept {
+    put_u32_record(
+        out,
+        offset,
+        std::bit_cast<std::uint32_t>(value));
+}
+
 bool valid_binding(const Binding& b) noexcept {
     return nonzero(b.sourceEvidenceSha256) &&
            nonzero(b.scientificMasterSha256) &&
@@ -228,6 +289,145 @@ std::uint32_t classification_word(const ChannelRecord& r) noexcept {
     return word;
 }
 
+CanonicalSourceEncodingStatus
+encode_source_channel_record_canonical_v1(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept {
+    out = CanonicalSourceChannelRecord{};
+    try {
+        SourceChannelClassification classification{};
+        if (!classify_source_channel(
+                cfa,
+                globalX,
+                globalY,
+                rawCode,
+                whiteLevel,
+                channel,
+                cameraNativeValue,
+                classification)) {
+            return CanonicalSourceEncodingStatus::Invalid;
+        }
+
+        const CreationRole role =
+            classification.measured
+                ? CreationRole::SourceMeasuredCfa
+                : CreationRole::ScientificReconstruction;
+        const Authority authority =
+            classification.censored
+                ? Authority::Censored
+                : (classification.measured
+                    ? Authority::CalibratedEstimate
+                    : Authority::Unknown);
+        const UncertaintyKnowledge uncertainty =
+            UncertaintyKnowledge::Unresolved;
+        const BoundDomain boundDomain =
+            classification.censored
+                ? BoundDomain::SourceRawCode
+                : BoundDomain::None;
+        const bool valuePresent = true;
+        const bool p95Known = false;
+        const float p95 = 0.0f;
+        const bool supportKnown = classification.measured;
+        const float support =
+            classification.measured ? 1.0f : 0.0f;
+        const bool boundKnown = classification.censored;
+        const float bound =
+            classification.censored ? whiteLevel : 0.0f;
+        const std::uint8_t contributionMask =
+            classification.measured
+                ? static_cast<std::uint8_t>(
+                    ContributionMeasured |
+                    (classification.censored
+                        ? ContributionCensored
+                        : ContributionNone))
+                : static_cast<std::uint8_t>(
+                    ContributionReconstructed |
+                    ContributionUnknown);
+
+        std::size_t offset = 0u;
+        put_f32_record(out.bytes, offset, cameraNativeValue);
+        put_u8_record(
+            out.bytes,
+            offset,
+            static_cast<std::uint8_t>(role));
+        put_u8_record(
+            out.bytes,
+            offset,
+            static_cast<std::uint8_t>(authority));
+        put_u8_record(
+            out.bytes,
+            offset,
+            static_cast<std::uint8_t>(uncertainty));
+        put_u8_record(
+            out.bytes,
+            offset,
+            static_cast<std::uint8_t>(boundDomain));
+        put_u8_record(
+            out.bytes,
+            offset,
+            valuePresent ? 1u : 0u);
+        put_u8_record(
+            out.bytes,
+            offset,
+            p95Known ? 1u : 0u);
+        put_f32_record(out.bytes, offset, p95);
+        put_u8_record(
+            out.bytes,
+            offset,
+            supportKnown ? 1u : 0u);
+        put_f32_record(out.bytes, offset, support);
+        put_u8_record(
+            out.bytes,
+            offset,
+            boundKnown ? 1u : 0u);
+        put_f32_record(out.bytes, offset, bound);
+        put_u8_record(
+            out.bytes,
+            offset,
+            contributionMask);
+
+        if (offset != kCanonicalAuthorityRecordBytes) {
+            return CanonicalSourceEncodingStatus::Invalid;
+        }
+
+        out.role = role;
+        out.authority = authority;
+        out.p95Known = p95Known;
+        out.supportKnown = supportKnown;
+        out.boundKnown = boundKnown;
+        return CanonicalSourceEncodingStatus::Encoded;
+    } catch (...) {
+        out = CanonicalSourceChannelRecord{};
+        return CanonicalSourceEncodingStatus::Invalid;
+    }
+}
+
+bool encode_source_channel_record_canonical(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept {
+    return encode_source_channel_record_canonical_v1(
+        cfa,
+        globalX,
+        globalY,
+        rawCode,
+        whiteLevel,
+        channel,
+        cameraNativeValue,
+        out) == CanonicalSourceEncodingStatus::Encoded;
+}
+
 bool build_source_channel_record(
     CfaPattern cfa,
     std::uint32_t globalX,
@@ -239,29 +439,28 @@ bool build_source_channel_record(
     ChannelRecord& out) noexcept {
     out = ChannelRecord{};
     try {
-        if (!std::isfinite(whiteLevel) ||
-            whiteLevel <= 0.0f ||
-            channel < 0 ||
-            channel > 2 ||
-            !std::isfinite(cameraNativeValue)) {
-            return false;
-        }
-
-        const int measured =
-            measured_channel(cfa, globalX, globalY);
-        if (measured < 0 || measured > 2) {
+        SourceChannelClassification classification{};
+        if (!classify_source_channel(
+                cfa,
+                globalX,
+                globalY,
+                rawCode,
+                whiteLevel,
+                channel,
+                cameraNativeValue,
+                classification)) {
             return false;
         }
 
         out.value = cameraNativeValue;
         out.valuePresent = true;
 
-        if (channel == measured) {
+        if (classification.measured) {
             out.role = CreationRole::SourceMeasuredCfa;
             out.supportKnown = true;
             out.support = 1.0f;
             out.contributionMask = ContributionMeasured;
-            if (static_cast<float>(rawCode) >= whiteLevel) {
+            if (classification.censored) {
                 out.authority = Authority::Censored;
                 out.boundKnown = true;
                 out.bound = whiteLevel;

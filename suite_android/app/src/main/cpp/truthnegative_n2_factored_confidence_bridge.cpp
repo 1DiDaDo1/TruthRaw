@@ -398,7 +398,24 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"authorityTemporaryRecordVectorUsed\":"
       <<(sharedAcquireTiming.preparation.authorityTemporaryRecordVectorUsed
             ?"true":"false");
+    o<<",\"authorityDirectByteEncodingActive\":"
+      <<(sharedAcquireTiming.preparation.authorityDirectByteEncodingActive
+            ?"true":"false");
+    o<<",\"authorityGenericRecordValidationBypassed\":"
+      <<(sharedAcquireTiming.preparation.authorityGenericRecordValidationBypassed
+            ?"true":"false");
+    o<<",\"authorityCanonicalRecordBytes\":"
+      <<sharedAcquireTiming.preparation.authorityCanonicalRecordBytes;
+    o<<",\"authorityHashBatchRecordCapacity\":"
+      <<sharedAcquireTiming.preparation.authorityHashBatchRecordCapacity;
+    o<<",\"authorityHashBatchBytes\":"
+      <<sharedAcquireTiming.preparation.authorityHashBatchBytes;
+    o<<",\"authorityDirectByteRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectByteRecordCount;
+    o<<",\"authorityGenericFallbackRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityGenericFallbackRecordCount;
     o<<",\"authorityDirectRecordStreamMs\":"
+
       <<sharedAcquireTiming.preparation.authorityDirectRecordStreamMs;
     o<<",\"authorityDirectRecordStreamTileCount\":"
       <<sharedAcquireTiming.preparation.authorityDirectRecordStreamTileCount;

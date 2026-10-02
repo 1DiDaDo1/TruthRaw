@@ -216,6 +216,34 @@ bool AuthorityFieldAccumulator::appendRecord(
     }
 }
 
+bool AuthorityFieldAccumulator::accountCanonicalSourceRecord(
+    const field::CanonicalSourceChannelRecord& r) noexcept {
+    if (!valid_ || finalized_) return false;
+    try {
+        const auto role =
+            static_cast<std::size_t>(r.role);
+        const auto authorityRaw =
+            static_cast<std::uint8_t>(r.authority);
+        if (role >= partial_.creationRoleCounts.size() ||
+            authorityRaw < 1u || authorityRaw > 4u) {
+            return false;
+        }
+        const std::size_t authority =
+            static_cast<std::size_t>(authorityRaw - 1u);
+
+        ++partial_.creationRoleCounts[role];
+        ++partial_.authorityCounts[authority];
+        ++partial_.recordCount;
+        if (r.p95Known) ++partial_.p95KnownCount;
+        if (r.supportKnown) ++partial_.supportKnownCount;
+        if (r.boundKnown) ++partial_.boundKnownCount;
+        return true;
+    } catch (...) {
+        valid_ = false;
+        return false;
+    }
+}
+
 bool AuthorityFieldAccumulator::finishTile(
     std::uint32_t x,
     std::uint32_t y) noexcept {
@@ -274,6 +302,8 @@ bool AuthorityFieldAccumulator::appendSourceTile(
             std::numeric_limits<std::size_t>::max() / 3u ||
             raw.size() != pixels ||
             cameraNativeRgb.size() != pixels * 3u ||
+            !std::isfinite(whiteLevel) ||
+            whiteLevel <= 0.0f ||
             !beginTile(
                 x,
                 y,
@@ -283,28 +313,95 @@ bool AuthorityFieldAccumulator::appendSourceTile(
             return false;
         }
 
+        std::array<
+            std::uint8_t,
+            kAuthorityDirectHashBatchBytes> byteBatch{};
+        std::size_t batchUsed = 0u;
+
+        const auto flushBatch = [&]() noexcept -> bool {
+            if (batchUsed == 0u) return true;
+            hasher_.update(byteBatch.data(), batchUsed);
+            batchUsed = 0u;
+            return true;
+        };
+
         for (std::uint32_t yy = 0u; yy < height; ++yy) {
             for (std::uint32_t xx = 0u; xx < width; ++xx) {
                 const std::size_t pi =
                     static_cast<std::size_t>(yy) * width + xx;
                 for (int ch = 0; ch < 3; ++ch) {
-                    field::ChannelRecord record{};
-                    if (!field::build_source_channel_record(
+                    const float cameraNativeValue =
+                        cameraNativeRgb[
+                            3u * pi +
+                            static_cast<std::size_t>(ch)];
+                    field::CanonicalSourceChannelRecord encoded{};
+                    const auto encodeStatus =
+                        field::encode_source_channel_record_canonical_v1(
                             cfa,
                             x + xx,
                             y + yy,
                             raw[pi],
                             whiteLevel,
                             ch,
-                            cameraNativeRgb[
-                                3u * pi +
-                                static_cast<std::size_t>(ch)],
-                            record) ||
-                        !appendRecord(record)) {
-                        return false;
+                            cameraNativeValue,
+                            encoded);
+
+                    if (encodeStatus ==
+                        field::CanonicalSourceEncodingStatus::Encoded) {
+                        if (!accountCanonicalSourceRecord(encoded)) {
+                            valid_ = false;
+                            return false;
+                        }
+                        if (batchUsed + encoded.bytes.size() >
+                            byteBatch.size()) {
+                            if (!flushBatch()) {
+                                valid_ = false;
+                                return false;
+                            }
+                        }
+                        std::copy(
+                            encoded.bytes.begin(),
+                            encoded.bytes.end(),
+                            byteBatch.begin() +
+                                static_cast<std::ptrdiff_t>(batchUsed));
+                        batchUsed += encoded.bytes.size();
+                        ++directByteRecordCount_;
+                        continue;
                     }
+
+                    if (encodeStatus ==
+                        field::CanonicalSourceEncodingStatus::
+                            UnsupportedSemanticExtension) {
+                        if (!flushBatch()) {
+                            valid_ = false;
+                            return false;
+                        }
+                        field::ChannelRecord fallback{};
+                        if (!field::build_source_channel_record(
+                                cfa,
+                                x + xx,
+                                y + yy,
+                                raw[pi],
+                                whiteLevel,
+                                ch,
+                                cameraNativeValue,
+                                fallback) ||
+                            !appendRecord(fallback)) {
+                            valid_ = false;
+                            return false;
+                        }
+                        ++genericFallbackRecordCount_;
+                        continue;
+                    }
+
+                    valid_ = false;
+                    return false;
                 }
             }
+        }
+        if (!flushBatch()) {
+            valid_ = false;
+            return false;
         }
         return finishTile(x, y);
     } catch (...) {
@@ -315,6 +412,14 @@ bool AuthorityFieldAccumulator::appendSourceTile(
 
 std::size_t AuthorityFieldAccumulator::residentBytesUpperBound() const noexcept {
     return 0u;
+}
+
+std::uint64_t AuthorityFieldAccumulator::directByteRecordCount() const noexcept {
+    return directByteRecordCount_;
+}
+
+std::uint64_t AuthorityFieldAccumulator::genericFallbackRecordCount() const noexcept {
+    return genericFallbackRecordCount_;
 }
 
 bool AuthorityFieldAccumulator::finalize(

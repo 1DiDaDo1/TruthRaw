@@ -25,6 +25,11 @@ inline constexpr const char* kAuthorityFieldDigestMethod =
 inline constexpr const char* kStateMethod =
     "TRUTHNEGATIVE_CONTINUOUS_CAMERA_PLANE_STATE_V0_5";
 
+inline constexpr std::size_t kAuthorityDirectHashBatchRecordCount = 96u;
+inline constexpr std::size_t kAuthorityDirectHashBatchBytes =
+    field::kCanonicalAuthorityRecordBytes *
+    kAuthorityDirectHashBatchRecordCount;
+
 struct AuthorityFieldSummary final {
     Digest contentSha256{};
     std::array<std::uint64_t, 5u> creationRoleCounts{};
@@ -64,6 +69,8 @@ public:
         std::span<const float> cameraNativeRgb) noexcept;
 
     std::size_t residentBytesUpperBound() const noexcept;
+    std::uint64_t directByteRecordCount() const noexcept;
+    std::uint64_t genericFallbackRecordCount() const noexcept;
 
     bool finalize(AuthorityFieldSummary& out) noexcept;
 
@@ -78,6 +85,9 @@ private:
     bool appendRecord(
         const field::ChannelRecord& record) noexcept;
 
+    bool accountCanonicalSourceRecord(
+        const field::CanonicalSourceChannelRecord& record) noexcept;
+
     bool finishTile(
         std::uint32_t x,
         std::uint32_t y) noexcept;
@@ -88,6 +98,8 @@ private:
     std::uint32_t expectedTileY_ = 0u;
     truthraw::sha256_v0_69::Hasher hasher_{};
     AuthorityFieldSummary partial_{};
+    std::uint64_t directByteRecordCount_ = 0u;
+    std::uint64_t genericFallbackRecordCount_ = 0u;
     bool valid_ = false;
     bool finalized_ = false;
 };
