@@ -138,7 +138,7 @@ for token in [
 
 for token in [
     "same canonical 64x64 tile order",
-    "same `build_source_channel_record()` implementation",
+    "same canonical `build_source_channel_record()` implementation",
     "same authority-field SHA-256",
     "no new evidence",
     "no Scientific Master writeback",
