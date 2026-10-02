@@ -158,6 +158,19 @@ void test_source_field_and_encoding(){
                     direct.contributionMask==vectorRecord.contributionMask,
                     "single/vector contribution mask exact");
                 field::CanonicalSourceChannelRecord encodedDirect{};
+                field::CanonicalSourceChannelRecord encodedV1{};
+                require(
+                    field::encode_source_channel_record_canonical_v1(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        encodedV1) ==
+                        field::CanonicalSourceEncodingStatus::Encoded,
+                    "versioned canonical direct-byte source encode");
                 require(
                     field::encode_source_channel_record_canonical(
                         truthraw::CfaPattern::BGGR,
