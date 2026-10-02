@@ -126,6 +126,14 @@ public:
         return accumulator_.residentBytesUpperBound();
     }
 
+    std::uint64_t directByteRecordCount() const noexcept {
+        return accumulator_.directByteRecordCount();
+    }
+
+    std::uint64_t genericFallbackRecordCount() const noexcept {
+        return accumulator_.genericFallbackRecordCount();
+    }
+
 private:
     CfaPattern cfa_ = CfaPattern::BGGR;
     float whiteLevel_ = 0.0f;
@@ -282,8 +290,10 @@ Status prepare(
                 elapsed_ms(scienceStarted, scienceFinished);
             timing->authorityDirectRecordStreamingActive = true;
             timing->authorityTemporaryRecordVectorUsed = false;
-            timing->authorityDirectByteEncodingActive = true;
-            timing->authorityGenericRecordValidationBypassed = true;
+            timing->authorityDirectByteEncodingActive =
+                authorityObserver.directByteRecordCount() > 0u;
+            timing->authorityGenericRecordValidationBypassed =
+                authorityObserver.genericFallbackRecordCount() == 0u;
             timing->authorityCanonicalRecordBytes =
                 open_scene_field::v0_85::
                     kCanonicalAuthorityRecordBytes;
@@ -293,6 +303,10 @@ Status prepare(
             timing->authorityHashBatchBytes =
                 truthnegative_continuous::v0_5::
                     kAuthorityDirectHashBatchBytes;
+            timing->authorityDirectByteRecordCount =
+                authorityObserver.directByteRecordCount();
+            timing->authorityGenericFallbackRecordCount =
+                authorityObserver.genericFallbackRecordCount();
             timing->authorityDirectRecordStreamMs =
                 authorityObserver.directRecordStreamMs();
             timing->authorityDirectRecordStreamTileCount =
