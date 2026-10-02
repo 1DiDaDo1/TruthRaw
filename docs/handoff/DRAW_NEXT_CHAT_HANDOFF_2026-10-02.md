@@ -28,17 +28,17 @@ Current development branch:
 
 Latest merged performance PR:
 
-`#114 — Stream authority records directly into canonical digest v0.2.7`
+`#115 — Encode canonical authority bytes directly v0.2.8`
 
 Source-code merge checkpoint:
 
-`33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+`85e67ca3090aa113edda7133d656f28087e3ad22`
 
-PR #114 source head before merge:
+PR #115 source head before merge:
 
-`31d2c1fc6555eb82138547628bff3776b6bea36d`
+`052b95ef8e648517281aeac141030f2d41fe1e9e`
 
-PR #114 was host-parity green and real-device validated before merge.
+PR #115 was exact-parity green and real-device validated before merge. The merge checkpoint then completed **37/37 workflows green, 0 failures**.
 
 ## Current Android build line
 
@@ -48,54 +48,31 @@ Application ID:
 
 Version code:
 
-`26100108`
+`26100109`
 
 Version name:
 
-`0.53-v0.84.2-authority-direct-stream`
+`0.53-v0.84.2-authority-direct-byte`
 
 Stable signing certificate SHA-256:
 
 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
 
-Current APK SHA-256:
+Post-merge APK:
 
-`eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c`
+- size: `8,486,427 bytes`
+- SHA-256: `71390d5f58c431c565d987e76daa86f908d3f7ce1aef646674ef18a27d2b466a`
+- Suite run: `37003837807`
+- artifact: `11224452595 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+- artifact ZIP digest: `sha256:bbec758e92837c2ef813415d2e177aef02f3dbe8bda24ee0d28a204b401b9674`
 
-APK size:
+This remains an in-place update on the same package/signing lineage. Normal continuation tests must not uninstall the app or clear app data unless a specific proven failure requires it.
 
-`8,483,287 bytes`
+## Current real-device performance result — v0.2.8
 
-Post-merge Suite Universal Intake run:
+The validated Foundation export used:
 
-`36998622812`
-
-Post-merge artifact:
-
-`11222019082 — DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
-
-Artifact ZIP digest:
-
-`sha256:eb7dc0366874d0821ac24fcdfbd9fd8d54acf3907eeffcf795fc524f128c54a9`
-
-The post-merge build reproduced the same APK SHA-256 and the same stable signing certificate.
-
-Post-merge source checkpoint CI on `33c69b635be5bcc57ec4a947eb8fda3649e492ad`:
-
-- total workflows: `36`
-- successful: `36`
-- failed: `0`
-- queued/in-progress: `0`
-
-This includes the direct-stream, fused-authority, N2 sparse/row-band/phase/subphase, Shared Scientific Context, Canonical, version-lineage, Free World and the three heavy Android/APK build families.
-
-The APK is an in-place update from 26100107. Do not instruct the user to uninstall or clear app data for normal continuation tests unless a specific failure requires that and the reason is proven.
-
-## Current real-device performance result — v0.2.7
-
-The real-device Foundation export used:
-
-`D.RAW/UniversalSourceProfileCache/0.2.7-authority-direct-stream-v1`
+`D.RAW/UniversalSourceProfileCache/0.2.8-authority-direct-byte-v1`
 
 Profile count:
 
@@ -103,76 +80,87 @@ Profile count:
 
 Aggregate profile elapsed:
 
-`40,683.016651 ms`
+`32,967.853217 ms`
+
+This is about **18.96% faster** than the same two-RAW v0.2.7 aggregate (`40,683.016651 ms`).
 
 ### Observation 1
 
-- profile elapsed: `19,376.694576 ms`
-- N2 stage: `N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM`
-- N2 elapsed: `18,998.244055 ms`
-- shared acquire: `13,401.1 ms`
-- v0.1 CFA audit: `865.024 ms`
-- center-excluded: `3,983.37 ms`
-- center-excluded predictor: `2,988.03 ms`
-- Scientific Master bind: `12,820.6 ms`
-- fused authority finalize: `0.001198 ms`
-- direct authority record stream: `9,571.86 ms`
-- authority tiles: `3,072`
-- authority records: `37,601,280`
-- temporary authority record vector used: `false`
-- accumulator resident record-vector upper bound: `0 bytes`
+- profile elapsed: `14,797.067651 ms`
+- N2 stage: `N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE`
+- N2 elapsed: `14,459.694161 ms`
+- shared acquire: `8,891.15 ms`
+- v0.1 CFA audit: `858.39 ms`
+- center-excluded: `3,967.78 ms`
+- center-excluded predictor: `2,975.81 ms`
+- Scientific Master bind: `8,344.42 ms`
+- authority direct-byte/stream hot path: `5,346.54 ms`
+- direct-byte records: `37,601,280`
+- generic fallback records: `0`
+- canonical bytes per authority record: `25`
+- hash batch: `96 records / 2,400 bytes`
+- authority accumulator record-vector scratch: `0 bytes`
 
 ### Observation 2
 
-- profile elapsed: `21,306.322075 ms`
-- N2 stage: `N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM`
-- N2 elapsed: `20,395.912075 ms`
-- shared acquire: `12,582.2 ms`
-- v0.1 CFA audit: `888.623 ms`
-- center-excluded: `6,089.38 ms`
-- center-excluded predictor: `4,837.6 ms`
-- Scientific Master bind: `11,795.7 ms`
-- fused authority finalize: `0.001302 ms`
-- direct authority record stream: `8,756.52 ms`
-- authority tiles: `3,072`
-- authority records: `37,601,280`
-- temporary authority record vector used: `false`
-- accumulator resident record-vector upper bound: `0 bytes`
+- profile elapsed: `18,170.785566 ms`
+- N2 stage: `N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE`
+- N2 elapsed: `17,269.418014 ms`
+- shared acquire: `9,482.18 ms`
+- v0.1 CFA audit: `884.319 ms`
+- center-excluded: `6,077.23 ms`
+- center-excluded predictor: `4,821.46 ms`
+- Scientific Master bind: `8,731.73 ms`
+- authority direct-byte/stream hot path: `5,670.28 ms`
+- direct-byte records: `37,601,280`
+- generic fallback records: `0`
+- canonical bytes per authority record: `25`
+- hash batch: `96 records / 2,400 bytes`
+- authority accumulator record-vector scratch: `0 bytes`
 
-### Device conclusion
+### v0.2.8 device conclusion
 
-The direct-stream route is genuinely active:
+The specialized route is genuinely active and complete for the current source semantics:
 
 - `authority_direct_record_streaming_active=true`
 - `authority_temporary_record_vector_used=false`
+- `authority_direct_byte_encoding_active=true`
+- `authority_generic_record_validation_bypassed=true`
+- `authority_generic_fallback_record_count=0`
 - `authority_accumulator_resident_bytes_upper_bound=0`
 - `authority_field_fused_into_scientific_master_pass=true`
 - `authority_field_replay_pass_performed=false`
 
-The structural optimization is therefore proven on-device, but the aggregate speed gain versus v0.2.6 is modest, about 1.4% on this two-RAW run.
+Scientific safety remains intact:
 
-The dominant authority cost is no longer allocation/materialization of a tile-wide `std::vector<ChannelRecord>`. It is the repeated per-record construction, validation, classification accounting and canonical SHA feed for 37.6 million channel records per RAW.
+- sparse-reference reuse verified;
+- no v0.1 rerun;
+- row-band reuse active with zero fallbacks;
+- row-band scientific values not modified;
+- source values not modified;
+- candidate not applied;
+- no new evidence;
+- no scientific writeback.
+
+The direct-byte step therefore removed a large part of the former per-record object/validation overhead. The remaining authority hot path still processes exactly `37,601,280 * 25 = 940,032,000` canonical authority bytes per RAW through SHA-256.
 
 ## Current next performance frontier
 
-Do **not** reintroduce the removed authority replay or temporary record vector.
+The next isolated candidate is **SHA-256 direct-block transport v0.2.9**.
 
-The next candidate direction is a canonical **direct-byte authority encoder**:
+The current generic `Hasher::update()` copies every complete 64-byte SHA block into its internal 64-byte buffer before calling the unchanged compression transform. For the authority stream this creates a redundant memory pass over almost 940 MB per RAW.
 
-- preserve exactly the same source-record semantics;
-- preserve the same CFA phase classification;
-- preserve censor classification and bound semantics;
-- preserve Float32 value bits;
-- preserve contribution masks and count semantics;
-- preserve canonical tile order;
-- preserve exactly the same authority SHA-256;
-- avoid constructing a full `ChannelRecord` object for every channel when the canonical bytes/count updates can be emitted directly from the same semantic primitive;
-- avoid repeated generic `validate_record()` work when equivalent fail-closed validity can be proven in the specialized canonical source-record path;
-- retain the materialized route as parity oracle;
-- require host bit/SHA/count parity before any APK;
-- require real-device telemetry before merge/promotion.
+The candidate may:
 
-This is a performance/transport optimization only. It may not change scientific authority.
+- fill an existing partial block exactly as before;
+- transform already-contiguous complete 64-byte input blocks directly from the caller buffer;
+- keep the internal buffer only for the remaining partial tail;
+- leave `transform()`, padding, bit length and digest semantics unchanged;
+- prove known SHA-256 vectors, long multi-block vectors and arbitrary chunk-boundary parity;
+- expose only diagnostic/performance telemetry if useful;
+- make no scientific/authority/evidence changes.
+
+Do **not** combine this with the later per-pixel/three-channel authority encoder optimization. Keep the changes separable so real-device gains remain attributable.
 
 ## N2 performance lineage that must remain understood
 
