@@ -138,6 +138,23 @@ struct CanonicalSourceChannelRecord final {
     bool boundKnown = false;
 };
 
+enum class CanonicalSourceEncodingStatus : std::uint8_t {
+    Encoded = 1u,
+    UnsupportedSemanticExtension = 2u,
+    Invalid = 3u,
+};
+
+CanonicalSourceEncodingStatus
+encode_source_channel_record_canonical_v1(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept;
+
 bool encode_source_channel_record_canonical(
     CfaPattern cfa,
     std::uint32_t globalX,
