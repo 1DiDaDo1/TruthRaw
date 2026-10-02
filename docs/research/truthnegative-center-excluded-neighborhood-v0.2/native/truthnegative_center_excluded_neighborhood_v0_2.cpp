@@ -153,6 +153,19 @@ bool estimate(
     Diagnostics* diagnostics) noexcept {
     out = Result{};
     try {
+        // The established runtime topology is fixed at radii 2/4/8 and four
+        // symmetric directions. Unsampled calls take the specialized path.
+        // Any unsupported or failed specialized case falls back to this exact
+        // canonical generic implementation; scientific semantics never widen.
+        if (diagnostics == nullptr) {
+            Result fixed{};
+            const auto fixedOutcome = estimateFixedTopology(input,fixed,nullptr);
+            if (fixedOutcome == FixedTopologyOutcome::Success) {
+                out = fixed;
+                return true;
+            }
+        }
+
         using SteadyClock = std::chrono::steady_clock;
         const auto elapsedMs = [](
             SteadyClock::time_point started,
