@@ -228,6 +228,67 @@ std::uint32_t classification_word(const ChannelRecord& r) noexcept {
     return word;
 }
 
+bool build_source_channel_record(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    ChannelRecord& out) noexcept {
+    out = ChannelRecord{};
+    try {
+        if (!std::isfinite(whiteLevel) ||
+            whiteLevel <= 0.0f ||
+            channel < 0 ||
+            channel > 2 ||
+            !std::isfinite(cameraNativeValue)) {
+            return false;
+        }
+
+        const int measured =
+            measured_channel(cfa, globalX, globalY);
+        if (measured < 0 || measured > 2) {
+            return false;
+        }
+
+        out.value = cameraNativeValue;
+        out.valuePresent = true;
+
+        if (channel == measured) {
+            out.role = CreationRole::SourceMeasuredCfa;
+            out.supportKnown = true;
+            out.support = 1.0f;
+            out.contributionMask = ContributionMeasured;
+            if (static_cast<float>(rawCode) >= whiteLevel) {
+                out.authority = Authority::Censored;
+                out.boundKnown = true;
+                out.bound = whiteLevel;
+                out.boundDomain = BoundDomain::SourceRawCode;
+                out.contributionMask =
+                    static_cast<std::uint8_t>(
+                        out.contributionMask |
+                        ContributionCensored);
+            } else {
+                out.authority = Authority::CalibratedEstimate;
+            }
+        } else {
+            out.role = CreationRole::ScientificReconstruction;
+            out.authority = Authority::Unknown;
+            out.contributionMask =
+                static_cast<std::uint8_t>(
+                    ContributionReconstructed |
+                    ContributionUnknown);
+        }
+
+        return validate_record(out);
+    } catch (...) {
+        out = ChannelRecord{};
+        return false;
+    }
+}
+
 bool build_source_tile_records(
     CfaPattern cfa,
     std::uint32_t globalX,
@@ -248,40 +309,24 @@ bool build_source_tile_records(
         out.assign(pixels*3u,ChannelRecord{});
         for(std::uint32_t y=0u;y<height;++y){
             for(std::uint32_t x=0u;x<width;++x){
-                const std::size_t pi=static_cast<std::size_t>(y)*width+x;
-                const int measured=measured_channel(cfa,globalX+x,globalY+y);
-                if(measured<0 || measured>2) return false;
-                const bool censored=static_cast<float>(raw[pi])>=whiteLevel;
-
+                const std::size_t pi=
+                    static_cast<std::size_t>(y)*width+x;
                 for(int ch=0;ch<3;++ch){
-                    auto& r=out[3u*pi+static_cast<std::size_t>(ch)];
-                    r.value=rgb[3u*pi+static_cast<std::size_t>(ch)];
-                    r.valuePresent=std::isfinite(r.value);
-                    if(!r.valuePresent) return false;
-
-                    if(ch==measured){
-                        r.role=CreationRole::SourceMeasuredCfa;
-                        r.supportKnown=true;
-                        r.support=1.0f;
-                        r.contributionMask=ContributionMeasured;
-                        if(censored){
-                            r.authority=Authority::Censored;
-                            r.boundKnown=true;
-                            r.bound=whiteLevel;
-                            r.boundDomain=BoundDomain::SourceRawCode;
-                            r.contributionMask=static_cast<std::uint8_t>(
-                                r.contributionMask | ContributionCensored);
-                        }else{
-                            r.authority=Authority::CalibratedEstimate;
-                        }
-                    }else{
-                        r.role=CreationRole::ScientificReconstruction;
-                        r.authority=Authority::Unknown;
-                        r.contributionMask=
-                            static_cast<std::uint8_t>(
-                                ContributionReconstructed | ContributionUnknown);
+                    auto& r=
+                        out[3u*pi+static_cast<std::size_t>(ch)];
+                    if(!build_source_channel_record(
+                            cfa,
+                            globalX+x,
+                            globalY+y,
+                            raw[pi],
+                            whiteLevel,
+                            ch,
+                            rgb[
+                                3u*pi+
+                                static_cast<std::size_t>(ch)],
+                            r)) {
+                        return false;
                     }
-                    if(!validate_record(r)) return false;
                 }
             }
         }
