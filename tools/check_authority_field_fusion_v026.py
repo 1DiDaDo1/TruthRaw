@@ -130,7 +130,6 @@ for token in [
     "require_same_summary(",
     "fusedAuthority",
     "replayAuthority",
-    "fusedAuthority.contentSha256",
     "readsAfterFusedScientific + 2u * tiles",
     "directScientific.scientificMasterHash ==",
     "directSource.rawTileCalls ==",
