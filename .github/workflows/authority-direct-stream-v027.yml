@@ -1,0 +1,46 @@
+name: Authority Direct Stream v0.2.7 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.h'
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.cpp'
+      - 'docs/research/open-scene-field-v0.85/**'
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/truthnegative-authority-field-fusion-v0.1/**'
+      - 'docs/research/truthnegative-authority-direct-stream-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'tools/check_authority_direct_stream_v027.py'
+      - '.github/workflows/authority-direct-stream-v027.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Source-record bit parity
+        run: |
+          cmake -S docs/research/open-scene-field-v0.85 -B build/open_scene_field -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/open_scene_field --config Release -j2
+          ctest --test-dir build/open_scene_field --output-on-failure
+      - name: Authority accumulator exact parity
+        run: |
+          cmake -S docs/research/truthnegative-continuous-v0.5 -B build/tn_continuous -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/tn_continuous --config Release -j2
+          ctest --test-dir build/tn_continuous --output-on-failure
+      - name: Fused end-to-end exact parity
+        run: |
+          cmake -S docs/research/truthnegative-authority-field-fusion-v0.1 -B build/authority_fusion -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/authority_fusion --config Release -j2
+          ctest --test-dir build/authority_fusion --output-on-failure
+      - name: Verify direct stream remains transport-only
+        run: python3 tools/check_authority_direct_stream_v027.py
