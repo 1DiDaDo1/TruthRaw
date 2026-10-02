@@ -1,0 +1,52 @@
+name: Authority Pixel Triplet v0.2.10 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.h'
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.cpp'
+      - 'docs/research/open-scene-field-v0.85/**'
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/truthnegative-authority-field-fusion-v0.1/**'
+      - 'docs/research/sha256-direct-block-v0.1/**'
+      - 'docs/research/authority-pixel-triplet-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'tools/check_authority_pixel_triplet_v0210.py'
+      - '.github/workflows/authority-pixel-triplet-v0210.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pixel-triplet versus single-channel exact bytes
+        run: |
+          cmake -S docs/research/open-scene-field-v0.85 -B build/open_scene_field -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/open_scene_field --config Release -j2
+          ctest --test-dir build/open_scene_field --output-on-failure
+      - name: Authority SHA and summary exact parity
+        run: |
+          cmake -S docs/research/truthnegative-continuous-v0.5 -B build/tn_continuous -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/tn_continuous --config Release -j2
+          ctest --test-dir build/tn_continuous --output-on-failure
+      - name: Fused Scientific Master versus replay exact parity
+        run: |
+          cmake -S docs/research/truthnegative-authority-field-fusion-v0.1 -B build/authority_fusion -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/authority_fusion --config Release -j2
+          ctest --test-dir build/authority_fusion --output-on-failure
+      - name: SHA direct-block compatibility
+        run: |
+          cmake -S docs/research/sha256-direct-block-v0.1 -B build/sha_direct -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/sha_direct --config Release -j2
+          ctest --test-dir build/sha_direct --output-on-failure
+      - name: Verify triplet remains a versioned authority-neutral fast path
+        run: python3 tools/check_authority_pixel_triplet_v0210.py
