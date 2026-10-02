@@ -39,6 +39,12 @@ struct PreparationTiming final {
     double authorityFusedFinalizeMs = 0.0;
     bool authorityFusedIntoScientificMasterPass = false;
     bool authorityReplayPassPerformed = true;
+    bool authorityDirectRecordStreamingActive = false;
+    bool authorityTemporaryRecordVectorUsed = true;
+    double authorityDirectRecordStreamMs = 0.0;
+    std::uint64_t authorityDirectRecordStreamTileCount = 0u;
+    std::uint64_t authorityDirectRecordStreamRecordCount = 0u;
+    std::size_t authorityAccumulatorResidentBytesUpperBound = 0u;
     double finalizeTruthNegativeMs = 0.0;
     double finalizeDrawNegativeMs = 0.0;
     double totalMs = 0.0;

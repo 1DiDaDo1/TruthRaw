@@ -519,6 +519,48 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: 0.0,
                             )
                             .put(
+                                "authority_direct_record_streaming_active",
+                                n2Local?.optBoolean(
+                                    "authority_direct_record_streaming_active",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "authority_temporary_record_vector_used",
+                                n2Local?.optBoolean(
+                                    "authority_temporary_record_vector_used",
+                                    true,
+                                ) ?: true,
+                            )
+                            .put(
+                                "authority_direct_record_stream_ms",
+                                n2Local?.optDouble(
+                                    "authority_direct_record_stream_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "authority_direct_record_stream_tile_count",
+                                n2Local?.optLong(
+                                    "authority_direct_record_stream_tile_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_direct_record_stream_record_count",
+                                n2Local?.optLong(
+                                    "authority_direct_record_stream_record_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_accumulator_resident_bytes_upper_bound",
+                                n2Local?.optLong(
+                                    "authority_accumulator_resident_bytes_upper_bound",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
                                 "prepare_total_instrumented_ms",
                                 n2Local?.optDouble(
                                     "prepare_total_instrumented_ms",

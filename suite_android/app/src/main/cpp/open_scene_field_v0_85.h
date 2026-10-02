@@ -127,6 +127,16 @@ bool validate_record(const ChannelRecord& record) noexcept;
 
 std::uint32_t classification_word(const ChannelRecord& record) noexcept;
 
+bool build_source_channel_record(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    ChannelRecord& out) noexcept;
+
 bool build_source_tile_records(
     CfaPattern cfa,
     std::uint32_t globalX,

@@ -392,6 +392,20 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
             ?"true":"false");
     o<<",\"authorityFieldFusedFinalizeMs\":"
       <<sharedAcquireTiming.preparation.authorityFusedFinalizeMs;
+    o<<",\"authorityDirectRecordStreamingActive\":"
+      <<(sharedAcquireTiming.preparation.authorityDirectRecordStreamingActive
+            ?"true":"false");
+    o<<",\"authorityTemporaryRecordVectorUsed\":"
+      <<(sharedAcquireTiming.preparation.authorityTemporaryRecordVectorUsed
+            ?"true":"false");
+    o<<",\"authorityDirectRecordStreamMs\":"
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamMs;
+    o<<",\"authorityDirectRecordStreamTileCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamTileCount;
+    o<<",\"authorityDirectRecordStreamRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamRecordCount;
+    o<<",\"authorityAccumulatorResidentBytesUpperBound\":"
+      <<sharedAcquireTiming.preparation.authorityAccumulatorResidentBytesUpperBound;
     o<<",\"prepareFinalizeTruthNegativeMs\":"
       <<sharedAcquireTiming.preparation.finalizeTruthNegativeMs;
     o<<",\"prepareFinalizeDrawNegativeMs\":"

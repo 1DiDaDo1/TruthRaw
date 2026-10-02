@@ -22,7 +22,7 @@ core RAW and camera-native RGB are already present.
 Hard invariants:
 
 - same canonical 64x64 tile order;
-- same `build_source_tile_records()` implementation;
+- same canonical `build_source_channel_record()` implementation for both materialized and direct-streamed source records;
 - same per-record validation;
 - same Float32 value bits and classification fields;
 - same authority-field SHA-256 and all summary counts;
