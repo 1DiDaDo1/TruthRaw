@@ -554,6 +554,13 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: false,
                             )
                             .put(
+                                "authority_canonical_template_reuse_active",
+                                n2Local?.optBoolean(
+                                    "authority_canonical_template_reuse_active",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
                                 "authority_canonical_record_bytes",
                                 n2Local?.optLong(
                                     "authority_canonical_record_bytes",
