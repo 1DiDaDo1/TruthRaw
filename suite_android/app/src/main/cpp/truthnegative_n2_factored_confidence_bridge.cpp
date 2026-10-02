@@ -384,6 +384,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<sharedAcquireTiming.preparation.finalizePhase2Ms;
     o<<",\"prepareSummarizeAuthorityFieldMs\":"
       <<sharedAcquireTiming.preparation.summarizeAuthorityFieldMs;
+    o<<",\"authorityFieldFusedIntoScientificMasterPass\":"
+      <<(sharedAcquireTiming.preparation.authorityFusedIntoScientificMasterPass
+            ?"true":"false");
+    o<<",\"authorityFieldReplayPassPerformed\":"
+      <<(sharedAcquireTiming.preparation.authorityReplayPassPerformed
+            ?"true":"false");
+    o<<",\"authorityFieldFusedFinalizeMs\":"
+      <<sharedAcquireTiming.preparation.authorityFusedFinalizeMs;
     o<<",\"prepareFinalizeTruthNegativeMs\":"
       <<sharedAcquireTiming.preparation.finalizeTruthNegativeMs;
     o<<",\"prepareFinalizeDrawNegativeMs\":"
