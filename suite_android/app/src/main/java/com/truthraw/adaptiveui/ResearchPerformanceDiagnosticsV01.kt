@@ -610,6 +610,13 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: 0L,
                             )
                             .put(
+                                "authority_canonical_template_pixel_triplet_count",
+                                n2Local?.optLong(
+                                    "authority_canonical_template_pixel_triplet_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
                                 "authority_generic_fallback_pixel_count",
                                 n2Local?.optLong(
                                     "authority_generic_fallback_pixel_count",
