@@ -407,6 +407,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"authorityPixelTripletEncodingActive\":"
       <<(sharedAcquireTiming.preparation.authorityPixelTripletEncodingActive
             ?"true":"false");
+    o<<",\"authorityCanonicalTemplateReuseActive\":"
+      <<(sharedAcquireTiming.preparation.authorityCanonicalTemplateReuseActive
+            ?"true":"false");
     o<<",\"authorityCanonicalRecordBytes\":"
       <<sharedAcquireTiming.preparation.authorityCanonicalRecordBytes;
     o<<",\"authorityCanonicalPixelTripletBytes\":"
@@ -421,6 +424,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<sharedAcquireTiming.preparation.authorityGenericFallbackRecordCount;
     o<<",\"authorityDirectPixelTripletCount\":"
       <<sharedAcquireTiming.preparation.authorityDirectPixelTripletCount;
+    o<<",\"authorityCanonicalTemplatePixelTripletCount\":"
+      <<sharedAcquireTiming.preparation.authorityCanonicalTemplatePixelTripletCount;
     o<<",\"authorityGenericFallbackPixelCount\":"
       <<sharedAcquireTiming.preparation.authorityGenericFallbackPixelCount;
     o<<",\"authorityShaDirectBlockTransportActive\":"
