@@ -135,6 +135,9 @@ void test_pixel_triplet_exact_parity(){
                     require(
                         triplet.measuredCensored==(rawCode>=1023u),
                         "pixel triplet censor classification exact");
+                    require(
+                        triplet.canonicalTemplateReuseApplied,
+                        "pixel triplet canonical template reuse active");
 
                     for(int ch=0;ch<3;++ch){
                         field::CanonicalSourceChannelRecord single{};
