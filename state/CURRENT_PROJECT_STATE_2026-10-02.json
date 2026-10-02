@@ -177,5 +177,14 @@
     "No diagnostic/performance candidate may write Scientific Master.",
     "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct."
   ],
-  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, and continue from the direct-byte authority encoder frontier unless newer evidence supersedes it."
+  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, and continue from the direct-byte authority encoder frontier unless newer evidence supersedes it.",
+  "post_merge_ci": {
+    "source_code_head": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
+    "total_workflows": 36,
+    "successful": 36,
+    "failed": 0,
+    "in_progress": 0,
+    "queued": 0,
+    "status": "FULLY_GREEN"
+  }
 }
