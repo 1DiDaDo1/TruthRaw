@@ -419,6 +419,78 @@ object N2LocalSpatialBindingAudit {
                         true,
                     ),
                 )
+                .put(
+                    "native_phase_timing_available",
+                    status.optBoolean(
+                        "nativePhaseTimingAvailable",
+                        false,
+                    ),
+                )
+                .put(
+                    "phase_shared_acquire_ms",
+                    status.optDouble("phaseSharedAcquireMs", 0.0),
+                )
+                .put(
+                    "phase_shared_context_lock_wait_ms",
+                    status.optDouble(
+                        "phaseSharedContextLockWaitMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "phase_v01_cfa_audit_ms",
+                    status.optDouble("phaseV01CfaAuditMs", 0.0),
+                )
+                .put(
+                    "phase_center_excluded_ms",
+                    status.optDouble("phaseCenterExcludedMs", 0.0),
+                )
+                .put(
+                    "phase_confidence_derive_ms",
+                    status.optDouble(
+                        "phaseConfidenceDeriveMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "phase_factored_derive_ms",
+                    status.optDouble(
+                        "phaseFactoredDeriveMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "phase_factored_encode_ms",
+                    status.optDouble(
+                        "phaseFactoredEncodeMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "phase_write_readback_reverify_ms",
+                    status.optDouble(
+                        "phaseWriteReadbackReverifyMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "phase_total_bridge_ms",
+                    status.optDouble("phaseTotalBridgeMs", 0.0),
+                )
+                .put(
+                    "phase_timing_is_scientific_evidence",
+                    status.optBoolean(
+                        "phaseTimingIsScientificEvidence",
+                        true,
+                    ),
+                )
+                .put(
+                    "phase_timing_may_change_scientific_authority",
+                    status.optBoolean(
+                        "phaseTimingMayChangeScientificAuthority",
+                        true,
+                    ),
+                )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
                 .put("source_width", sourceWidth)
                 .put("source_height", sourceHeight)
