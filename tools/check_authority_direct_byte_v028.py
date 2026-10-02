@@ -40,7 +40,8 @@ for token in [
 for token in [
     "classify_source_channel(",
     "encode_source_channel_record_canonical_v1(",
-    "put_f32_record(out.bytes, offset, cameraNativeValue)",
+    "write_source_record_canonical(",
+    "source_record_semantics(",
     "return CanonicalSourceEncodingStatus::Encoded",
     "return validate_record(out)",
 ]:
@@ -67,18 +68,30 @@ append_source = tn_cpp[
     tn_cpp.index("std::size_t AuthorityFieldAccumulator::residentBytesUpperBound",)
 ]
 for token in [
-    "encode_source_channel_record_canonical_v1(",
     "CanonicalSourceEncodingStatus::Encoded",
     "CanonicalSourceEncodingStatus::",
     "UnsupportedSemanticExtension",
     "flushBatch()",
     "build_source_channel_record(",
     "appendRecord(fallback)",
-    "++directByteRecordCount_",
-    "++genericFallbackRecordCount_",
     "hasher_.update(byteBatch.data(), batchUsed)",
 ]:
     assert token in append_source, f"direct-byte/fallback route missing {token}"
+
+assert (
+    "encode_source_channel_record_canonical_v1(" in append_source or
+    "encode_source_pixel_triplet_canonical_v1(" in append_source
+), "direct-byte source path must use a proven canonical encoder"
+
+assert (
+    "++directByteRecordCount_" in append_source or
+    "directByteRecordCount_ += 3u" in append_source
+), "direct-byte record count must remain explicit"
+
+assert (
+    "++genericFallbackRecordCount_" in append_source or
+    "genericFallbackRecordCount_ += 3u" in append_source
+), "generic fallback record count must remain explicit"
 
 assert "std::vector<field::ChannelRecord>" not in append_source, (
     "direct-byte source path reintroduced a record vector"
