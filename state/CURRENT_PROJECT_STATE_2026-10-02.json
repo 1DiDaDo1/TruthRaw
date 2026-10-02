@@ -1,0 +1,181 @@
+{
+  "schema": "D.RAW/CurrentProjectState/2026-10-02",
+  "status": "ACTIVE_RESEARCH_CHECKPOINT",
+  "continuation_code": "44488",
+  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged and real-device-validated authority direct streaming v0.2.7, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the canonical direct-byte authority encoder frontier.",
+  "supersedes_continuation_codes": [
+    "44487",
+    "44485",
+    "44484"
+  ],
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_branch": "fix/android17-research-resilience-v02",
+  "latest_merged_pr": {
+    "number": 114,
+    "title": "Stream authority records directly into canonical digest v0.2.7",
+    "state": "MERGED",
+    "merge_commit": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
+    "source_head": "31d2c1fc6555eb82138547628bff3776b6bea36d"
+  },
+  "source_code_head": "33c69b635be5bcc57ec4a947eb8fda3649e492ad",
+  "android": {
+    "application_id": "com.truthraw.adaptiveui",
+    "version_code": 26100108,
+    "version_name": "0.53-v0.84.2-authority-direct-stream",
+    "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
+    "apk_size_bytes": 8483287,
+    "apk_sha256": "eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c",
+    "update_over_previous_supported": true,
+    "app_data_wipe_required": false
+  },
+  "post_merge_build": {
+    "workflow": "D.RAW Suite Universal Intake v0.1",
+    "run_id": 36998622812,
+    "artifact_id": 11222019082,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "artifact_zip_digest_sha256": "eb7dc0366874d0821ac24fcdfbd9fd8d54acf3907eeffcf795fc524f128c54a9",
+    "apk_sha256": "eecd83309b5136acc79cff11b9775a3c5635cf539d2e93d73bc3a6335a53a15c",
+    "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+  },
+  "real_device_v027": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.7-authority-direct-stream-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 40683.016651,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 19376.694576,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
+        "n2_elapsed_ms": 18998.244055,
+        "phase_shared_acquire_ms": 13401.1,
+        "phase_v01_cfa_audit_ms": 865.024,
+        "phase_center_excluded_ms": 3983.37,
+        "center_excluded_predictor_estimate_ms": 2988.03,
+        "prepare_bind_scientific_master_ms": 12820.6,
+        "authority_direct_record_stream_ms": 9571.86,
+        "authority_direct_record_stream_tile_count": 3072,
+        "authority_direct_record_stream_record_count": 37601280,
+        "authority_temporary_record_vector_used": false,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 21306.322075,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
+        "n2_elapsed_ms": 20395.912075,
+        "phase_shared_acquire_ms": 12582.2,
+        "phase_v01_cfa_audit_ms": 888.623,
+        "phase_center_excluded_ms": 6089.38,
+        "center_excluded_predictor_estimate_ms": 4837.6,
+        "prepare_bind_scientific_master_ms": 11795.7,
+        "authority_direct_record_stream_ms": 8756.52,
+        "authority_direct_record_stream_tile_count": 3072,
+        "authority_direct_record_stream_record_count": 37601280,
+        "authority_temporary_record_vector_used": false,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      }
+    ],
+    "invariants": {
+      "authority_direct_record_streaming_active": true,
+      "authority_temporary_record_vector_used": false,
+      "authority_accumulator_resident_bytes_upper_bound": 0,
+      "authority_field_fused_into_scientific_master_pass": true,
+      "authority_field_replay_pass_performed": false,
+      "v01_sparse_reference_reuse_verified": true,
+      "v01_rerun_performed": false,
+      "row_band_reuse_active": true,
+      "row_band_fallback_request_count_total": 0,
+      "row_band_scientific_values_modified": false,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "interpretation": [
+      "Direct authority record streaming is active on real device and removes the temporary tile-wide ChannelRecord vector.",
+      "The aggregate two-RAW profiler time is modestly lower than v0.2.6 rather than dramatically lower.",
+      "The dominant remaining authority cost is per-record semantic construction, validation, classification accounting and canonical SHA feed for 37,601,280 channel records per RAW.",
+      "Center-excluded remains the second major compute block and scales strongly with candidate-center count."
+    ]
+  },
+  "n2_performance_lineage": [
+    {
+      "pr": 109,
+      "version": "v0.2.2",
+      "change": "sparse-reference reuse"
+    },
+    {
+      "pr": 110,
+      "version": "v0.2.3",
+      "change": "row-band reuse"
+    },
+    {
+      "pr": 111,
+      "version": "v0.2.4",
+      "change": "native phase timing"
+    },
+    {
+      "pr": 112,
+      "version": "v0.2.5",
+      "change": "shared-preparation and center-excluded subphase timing"
+    },
+    {
+      "pr": 113,
+      "version": "v0.2.6",
+      "change": "authority-field fusion into Scientific Master pass"
+    },
+    {
+      "pr": 114,
+      "version": "v0.2.7",
+      "change": "direct authority record streaming without temporary ChannelRecord vector"
+    }
+  ],
+  "anchor_constrained_local_reconstruction": {
+    "status": "NOT_PROMOTED",
+    "true_cfa_holdouts": 21760,
+    "comparable_samples": 19560,
+    "affine_mae": 0.00154976,
+    "baseline_mae": 0.00147486,
+    "affine_rmse": 0.00205484,
+    "baseline_rmse": 0.0019059,
+    "affine_bias": -0.00049664,
+    "baseline_bias": -0.00009471,
+    "affine_wins": 9363,
+    "baseline_wins": 10197,
+    "additional_affine_valid_points": 2200,
+    "uncertainty_too_optimistic": true,
+    "scientific_writeback_allowed": false
+  },
+  "next_frontier": {
+    "name": "canonical direct-byte authority encoder",
+    "purpose": "Remove remaining per-record object construction and repeated generic validation overhead while preserving exactly the same canonical authority byte stream, SHA-256, counts and scientific semantics.",
+    "requirements": [
+      "reuse the same canonical source-record semantics",
+      "bit-identical Float32/scalar/classification representation",
+      "same CFA phase and censor/bound semantics",
+      "same contribution masks and count semantics",
+      "same canonical tile order",
+      "same authority SHA-256",
+      "materialized route retained as parity oracle",
+      "host exact parity before APK",
+      "full CI before device test",
+      "real-device telemetry before merge",
+      "no authority promotion or scientific writeback"
+    ]
+  },
+  "permanent_laws": [
+    "MEASURED != RECONSTRUCTED != APPEARANCE",
+    "Seal the evidence, not the thinking.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "Direct-CFA source evidence remains immutable.",
+    "Scientific Master remains separate from export and presentation.",
+    "Camera, lens, vendor and RAW identity may route parsing but may not select scientific truth.",
+    "APK/GCam/computational RAW may not determine TruthRaw evidence or calibration.",
+    "Held-out data may evaluate but may not fit/select a frozen candidate.",
+    "Unknown residual remains UNKNOWN until supported.",
+    "No AI/ML/neural/generative runtime in the scientific path.",
+    "No diagnostic/performance candidate may write Scientific Master.",
+    "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct."
+  ],
+  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, and continue from the direct-byte authority encoder frontier unless newer evidence supersedes it."
+}
