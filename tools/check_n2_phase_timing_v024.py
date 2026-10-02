@@ -62,8 +62,8 @@ for token in [
     assert token in diag, f"performance diagnostics missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.6-authority-fused-v1",
-    "N2_LOCAL_SPATIAL_V01_R6_AUTHORITY_FUSED",
+    "D.RAW/UniversalSourceProfileCache/0.2.7-authority-direct-stream-v1",
+    "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
 ]:
     assert token in profiler, f"fresh phase-timing profile identity missing {token}"
 
