@@ -936,6 +936,181 @@ object ResearchPerformanceDiagnosticsV01 {
                                     0L,
                                 ) ?: 0L,
                             )
+                            .put(
+                                "center_excluded_profile_sample_stride",
+                                n2Local?.optLong(
+                                    "center_excluded_profile_sample_stride",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_candidate_count",
+                                n2Local?.optLong(
+                                    "center_excluded_profiled_candidate_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_neighbor_sample_count",
+                                n2Local?.optLong(
+                                    "center_excluded_profiled_neighbor_sample_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_path_check_count",
+                                n2Local?.optLong(
+                                    "center_excluded_profiled_path_check_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_path_step_count",
+                                n2Local?.optLong(
+                                    "center_excluded_profiled_path_step_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_neighbor_variance_count",
+                                n2Local?.optLong(
+                                    "center_excluded_profiled_neighbor_variance_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_profiled_center_setup_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_center_setup_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_profiled_neighbor_acquire_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_neighbor_acquire_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_profiled_path_censor_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_path_censor_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_profiled_neighbor_variance_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_neighbor_variance_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_profiled_predictor_estimate_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_predictor_estimate_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_profiled_residual_metrics_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_profiled_residual_metrics_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_admissibility_slot_build_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_admissibility_slot_build_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_pair_build_gate_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_pair_build_gate_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_scale_consistency_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_scale_consistency_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_cross_scale_combine_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_cross_scale_combine_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_final_combine_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_final_combine_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_profiled_estimate_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_profiled_estimate_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_slot_duplicate_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_slot_duplicate_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_pair_lookup_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_pair_lookup_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_pair_z_distance_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_pair_z_distance_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_directional_z_distance_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_directional_z_distance_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_cross_scale_z_distance_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_cross_scale_z_distance_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_inverse_variance_pair_combine_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_inverse_variance_pair_combine_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_predictor_inverse_variance_scale_combine_count",
+                                n2Local?.optLong(
+                                    "center_excluded_predictor_inverse_variance_scale_combine_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
                             .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
                             .put("timing_is_scientific_evidence", false)
                             .put(
