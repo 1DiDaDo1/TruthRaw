@@ -19,6 +19,12 @@ import java.io.File
  * facts stay UNKNOWN. Frontside interpretation is APPEARANCE_DERIVED_ONLY.
  */
 object UniversalSourceProfiler {
+    // Kept as explicit provenance tokens for cumulative integrity checks.
+    const val PREVIOUS_CACHE_GENERATION_V0210 =
+        "D.RAW/UniversalSourceProfileCache/0.2.10-authority-pixel-triplet-v1"
+    const val PREVIOUS_N2_STAGE_V0210 =
+        "N2_LOCAL_SPATIAL_V01_R10_AUTHORITY_PIXEL_TRIPLET"
+
     const val CACHE_GENERATION =
         "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1"
 
