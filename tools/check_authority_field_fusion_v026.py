@@ -37,7 +37,7 @@ for token in [
 for token in [
     "AuthorityFieldAccumulator::appendRecords",
     "AuthorityFieldAccumulator::appendSourceTile",
-    "field::build_source_tile_records(",
+    "field::build_source_channel_record(",
     "AuthorityFieldAccumulator accumulator(",
     "accumulator.appendRecords(",
     "accumulator.finalize(out)",
@@ -121,8 +121,8 @@ for token in [
     assert token in diag, f"Research fused authority telemetry missing {token}"
 
 for token in [
-    "D.RAW/UniversalSourceProfileCache/0.2.6-authority-fused-v1",
-    "N2_LOCAL_SPATIAL_V01_R6_AUTHORITY_FUSED",
+    "D.RAW/UniversalSourceProfileCache/0.2.7-authority-direct-stream-v1",
+    "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
 ]:
     assert token in profiler, f"fresh authority fusion profiler identity missing {token}"
 
@@ -138,7 +138,7 @@ for token in [
 
 for token in [
     "same canonical 64x64 tile order",
-    "same `build_source_tile_records()` implementation",
+    "same `build_source_channel_record()` implementation",
     "same authority-field SHA-256",
     "no new evidence",
     "no Scientific Master writeback",
