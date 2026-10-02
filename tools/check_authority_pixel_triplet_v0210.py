@@ -34,6 +34,7 @@ for token in [
     "encode_source_pixel_triplet_canonical_v1(",
     "measuredChannel",
     "measuredCensored",
+    "canonicalTemplateReuseApplied",
 ]:
     assert token in field_h, f"pixel-triplet contract missing {token}"
 
@@ -42,8 +43,9 @@ for token in [
     "const int measured =",
     "measured_channel(cfa, globalX, globalY)",
     "const bool censored =",
-    "source_record_semantics(",
-    "write_source_record_canonical(",
+    "kSourcePixelTripletTemplates",
+    "kCensoredSourcePixelTripletTemplates",
+    "canonicalTemplateReuseApplied = true",
 ]:
     assert token in field_cpp, f"pixel-triplet implementation missing {token}"
 
@@ -70,6 +72,7 @@ for token in [
 
 for token in [
     "directPixelTripletCount() const noexcept",
+    "canonicalTemplatePixelTripletCount() const noexcept",
     "genericFallbackPixelCount() const noexcept",
     "accountCanonicalSourcePixelTriplet(",
 ]:
@@ -143,11 +146,11 @@ for token in [
 ]:
     assert token.lower() in readme.lower(), f"triplet README missing {token}"
 
-# 44488 must still point to the proven merged baseline while v0.2.10 is draft.
+# 44488 now points to the proven merged v0.2.10 baseline.
 assert state["continuation_code"] == "44488"
-assert state["latest_merged_pr"]["number"] == 116
-assert state["source_code_head"] == "edcae3eabb077d53b6a25802e6b9ca62c188b973"
-assert state["next_frontier"]["name"] == "Pixel-triplet authority encoder v0.2.10"
+assert state["latest_merged_pr"]["number"] == 117
+assert state["source_code_head"] == "719887443c9f82e1acd6ef83d52870808c8c5e9b"
+assert state["next_frontier"]["name"] == "Canonical template/suffix reuse v0.2.11"
 
 for text in [pipeline_cpp, binding, diag]:
     for forbidden in [
