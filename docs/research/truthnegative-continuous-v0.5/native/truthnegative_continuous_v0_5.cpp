@@ -414,6 +414,9 @@ bool AuthorityFieldAccumulator::appendSourceTile(
                     batchUsed += triplet.bytes.size();
                     directByteRecordCount_ += 3u;
                     ++directPixelTripletCount_;
+                    if (triplet.canonicalTemplateReuseApplied) {
+                        ++canonicalTemplatePixelTripletCount_;
+                    }
                     continue;
                 }
 
@@ -474,6 +477,10 @@ std::uint64_t AuthorityFieldAccumulator::genericFallbackRecordCount() const noex
 
 std::uint64_t AuthorityFieldAccumulator::directPixelTripletCount() const noexcept {
     return directPixelTripletCount_;
+}
+
+std::uint64_t AuthorityFieldAccumulator::canonicalTemplatePixelTripletCount() const noexcept {
+    return canonicalTemplatePixelTripletCount_;
 }
 
 std::uint64_t AuthorityFieldAccumulator::genericFallbackPixelCount() const noexcept {
