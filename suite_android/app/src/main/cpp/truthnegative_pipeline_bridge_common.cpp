@@ -138,6 +138,10 @@ public:
         return accumulator_.directPixelTripletCount();
     }
 
+    std::uint64_t canonicalTemplatePixelTripletCount() const noexcept {
+        return accumulator_.canonicalTemplatePixelTripletCount();
+    }
+
     std::uint64_t genericFallbackPixelCount() const noexcept {
         return accumulator_.genericFallbackPixelCount();
     }
@@ -315,6 +319,10 @@ Status prepare(
                 authorityObserver.directPixelTripletCount() * 3u ==
                     authorityObserver.directByteRecordCount() &&
                 authorityObserver.genericFallbackPixelCount() == 0u;
+            timing->authorityCanonicalTemplateReuseActive =
+                authorityObserver.directPixelTripletCount() > 0u &&
+                authorityObserver.canonicalTemplatePixelTripletCount() ==
+                    authorityObserver.directPixelTripletCount();
             timing->authorityCanonicalRecordBytes =
                 open_scene_field::v0_85::
                     kCanonicalAuthorityRecordBytes;
@@ -333,6 +341,8 @@ Status prepare(
                 authorityObserver.genericFallbackRecordCount();
             timing->authorityDirectPixelTripletCount =
                 authorityObserver.directPixelTripletCount();
+            timing->authorityCanonicalTemplatePixelTripletCount =
+                authorityObserver.canonicalTemplatePixelTripletCount();
             timing->authorityGenericFallbackPixelCount =
                 authorityObserver.genericFallbackPixelCount();
             timing->authorityShaDirectInputBlockTransformCount =
