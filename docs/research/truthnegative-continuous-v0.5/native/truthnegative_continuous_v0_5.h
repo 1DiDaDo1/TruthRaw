@@ -71,6 +71,8 @@ public:
     std::size_t residentBytesUpperBound() const noexcept;
     std::uint64_t directByteRecordCount() const noexcept;
     std::uint64_t genericFallbackRecordCount() const noexcept;
+    std::uint64_t directPixelTripletCount() const noexcept;
+    std::uint64_t genericFallbackPixelCount() const noexcept;
     std::uint64_t shaDirectInputBlockTransformCount() const noexcept;
     std::uint64_t shaBufferedInputBlockTransformCount() const noexcept;
 
@@ -90,6 +92,9 @@ private:
     bool accountCanonicalSourceRecord(
         const field::CanonicalSourceChannelRecord& record) noexcept;
 
+    bool accountCanonicalSourcePixelTriplet(
+        const field::CanonicalSourcePixelTriplet& triplet) noexcept;
+
     bool finishTile(
         std::uint32_t x,
         std::uint32_t y) noexcept;
@@ -102,6 +107,8 @@ private:
     AuthorityFieldSummary partial_{};
     std::uint64_t directByteRecordCount_ = 0u;
     std::uint64_t genericFallbackRecordCount_ = 0u;
+    std::uint64_t directPixelTripletCount_ = 0u;
+    std::uint64_t genericFallbackPixelCount_ = 0u;
     bool valid_ = false;
     bool finalized_ = false;
 };
