@@ -341,6 +341,7 @@ void test_authority_accumulator_source_tile_path_is_exact() {
 
     tn::AuthorityFieldAccumulator accumulator(130u, 70u);
     REQUIRE(accumulator.valid());
+    REQUIRE(accumulator.residentBytesUpperBound() == 0u);
 
     std::vector<std::uint16_t> rawTile;
     std::vector<float> rgbTile;
@@ -377,6 +378,7 @@ void test_authority_accumulator_source_tile_path_is_exact() {
 
     tn::AuthorityFieldSummary fused{};
     REQUIRE(accumulator.finalize(fused));
+    REQUIRE(accumulator.residentBytesUpperBound() == 0u);
     REQUIRE(fused.contentSha256 == replay.contentSha256);
     REQUIRE(fused.creationRoleCounts == replay.creationRoleCounts);
     REQUIRE(fused.authorityCounts == replay.authorityCounts);
