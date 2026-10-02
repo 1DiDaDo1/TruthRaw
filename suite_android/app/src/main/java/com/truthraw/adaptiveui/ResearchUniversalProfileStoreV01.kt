@@ -218,8 +218,8 @@ object ResearchUniversalProfileStoreV01 {
     fun remove(
         filesDir: File,
         jobId: String,
-    ) {
-        runCatching {
+    ): Boolean {
+        val file =
             File(
                 File(
                     filesDir,
@@ -227,8 +227,13 @@ object ResearchUniversalProfileStoreV01 {
                 ),
                 safeName(jobId) +
                     ".json",
-            ).delete()
+            )
+        if (!file.exists()) {
+            return true
         }
+        return runCatching {
+            file.delete() || !file.exists()
+        }.getOrDefault(false)
     }
 
     fun clear(
