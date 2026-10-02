@@ -533,6 +533,41 @@ object ResearchPerformanceDiagnosticsV01 {
                                 ) ?: true,
                             )
                             .put(
+                                "authority_direct_byte_encoding_active",
+                                n2Local?.optBoolean(
+                                    "authority_direct_byte_encoding_active",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "authority_generic_record_validation_bypassed",
+                                n2Local?.optBoolean(
+                                    "authority_generic_record_validation_bypassed",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "authority_canonical_record_bytes",
+                                n2Local?.optLong(
+                                    "authority_canonical_record_bytes",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_hash_batch_record_capacity",
+                                n2Local?.optLong(
+                                    "authority_hash_batch_record_capacity",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "authority_hash_batch_bytes",
+                                n2Local?.optLong(
+                                    "authority_hash_batch_bytes",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
                                 "authority_direct_record_stream_ms",
                                 n2Local?.optDouble(
                                     "authority_direct_record_stream_ms",
