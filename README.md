@@ -6,6 +6,7 @@
 >
 > Current state: `state/CURRENT_PROJECT_STATE_2026-10-02.json`  
 > Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+> Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 >
 > v0.2.9 is exact-parity and real-device validated. Complete SHA-256 blocks now enter the unchanged compression transform directly; 914,964,480 authority bytes per RAW bypass the historical full-block staging copy. Authority digest/count semantics and the scientific firewall remain unchanged.
 >
