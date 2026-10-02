@@ -49,7 +49,7 @@ android {
         minSdk = 31
         targetSdk = 37
         versionCode = drawVersionCode
-        versionName = "0.53-v0.84.2-authority-field-fused"
+        versionName = "0.53-v0.84.2-authority-direct-stream"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }
