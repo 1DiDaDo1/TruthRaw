@@ -1,0 +1,25 @@
+name: Research Live Status v0.2 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchBatchJournalV02.kt'
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'docs/research/research-live-status-v0.2/**'
+      - 'tools/check_research_live_status_v02.py'
+      - '.github/workflows/research-live-status-v02.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-status-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify live Research status remains diagnostic-only
+        run: python3 tools/check_research_live_status_v02.py
