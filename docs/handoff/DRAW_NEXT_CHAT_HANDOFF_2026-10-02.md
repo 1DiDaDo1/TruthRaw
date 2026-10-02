@@ -28,19 +28,19 @@ Current development branch:
 
 Latest merged performance PR:
 
-`#116 — SHA-256 Direct Block v0.2.9`
+`#117 — Pixel-Triplet Authority Encoder v0.2.10`
 
 Source-code merge checkpoint:
 
-`edcae3eabb077d53b6a25802e6b9ca62c188b973`
+`719887443c9f82e1acd6ef83d52870808c8c5e9b`
 
-PR #116 source head before merge:
+PR #117 source head before merge:
 
-`0e7c8d70974a45ac5171dc06d894a8dc4f422c93`
+`ca2434a66c63f847e6f9b4584ebaf18bf0ccd573`
 
-PR #116 was 34/34 green and real-device validated before merge.
+PR #117 was exact-parity green, real-device validated, merged, and the merge head completed **40/40** workflows green.
 
-This is the proven **SHA-256 direct-block transport** baseline. v0.2.10 remains a separate candidate until its own real-device validation.
+This is the proven **Pixel-Triplet Authority Encoder v0.2.10** baseline. SHA-256 direct-block transport remains intact underneath it.
 
 ## Current validated Android build line
 
@@ -50,11 +50,11 @@ Application ID:
 
 Version code:
 
-`26100110`
+`26100111`
 
 Version name:
 
-`0.53-v0.84.2-sha-direct-block`
+`0.53-v0.84.2-authority-pixel-triplet`
 
 Stable signing certificate SHA-256:
 
@@ -62,8 +62,8 @@ Stable signing certificate SHA-256:
 
 Validated candidate APK:
 
-- size: `8,487,331 bytes`
-- SHA-256: `30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd`
+- size: `8,490,055 bytes`
+- SHA-256: `16a1229365dca2c4275f8a3d0dd265039a2e7ccdffb660f43cb1788a3f29f36e`
 
 The app remains an in-place update. Do not uninstall or clear app data for normal performance continuation.
 
@@ -116,7 +116,7 @@ Safety remains unchanged:
 
 ## Current next performance frontier
 
-The next isolated candidate is **Pixel-Triplet Authority Encoder v0.2.10**.
+The next isolated candidate is **Canonical Template/Suffix Reuse v0.2.11**. It may reuse immutable canonical semantic bytes already proven constant by v0.2.10, while the three Float32 channel values and any censored measured white-level bound remain dynamic and bit-identical. Hash batch sizing, center-excluded changes and SIMD remain outside this candidate.
 
 The current fast path still determines CFA phase/censor semantics and emits one 25-byte canonical authority record three times per pixel.
 
