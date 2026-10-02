@@ -27,6 +27,12 @@ The original reconstruction object remains stored in the prepared context and re
 
 Timing fields are diagnostic runtime observations. They are not scientific evidence and may not change scientific authority.
 
+## Foundation export
+
+The per-source `scientific_master_bind_profile_v0_1` object is copied into each observation inside `FreeWorldPerformanceDiagnostics/0.1`. The Foundation copy adds the existing native timing provenance classification: `timing_origin`, `timing_represents_current_run` and `timing_is_cached_origin_compute`. This allows the established Free World Observation Geometry Foundation export to be the only device file required for the real-device profile decision.
+
+The Foundation propagation is diagnostic-only. It does not feed the Scientific Master, canonical authority, reconstruction, calibration, correction, promotion, evidence identity or any scientific digest.
+
 ## Fail-closed scientific boundary
 
 This profile does not modify source values, Scientific Master samples, authority records, evidence identity, reconstruction thresholds, colour binding, calibration state or output hashes. It cannot set `candidate_applied`, `creates_new_evidence` or `scientific_writeback_allowed` true.
