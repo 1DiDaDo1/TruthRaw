@@ -54,7 +54,7 @@ assert lineage["current_version_code"] == 26100116
 assert lineage["scientific_authority_affected"] is False
 
 for token in [
-    "current Universal Source Profile run",
+    "CURRENT_PROFILE_RUN",
     "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE",
     "ORIGIN_NATIVE_EXECUTION",
     "telemetry/provenance only",
