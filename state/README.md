@@ -9,23 +9,21 @@ Read first:
 - `../docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 - `../START_HERE_NEW_CHAT.md`
 
-Continuation code:
-
-`44488`
-
 Current development branch:
 
 `fix/android17-research-resilience-v02`
 
-Current Android/scientific source-code checkpoint:
+Current source-code checkpoint:
 
-`33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+`85e67ca3090aa113edda7133d656f28087e3ad22`
 
 Latest merged performance line:
 
-PR #109 sparse-reference reuse -> #110 row-band reuse -> #111 phase timing -> #112 subphase timing -> #113 authority fusion -> #114 authority direct stream v0.2.7.
+PR #109 sparse-reference reuse -> #110 row-band reuse -> #111 phase timing -> #112 subphase timing -> #113 authority fusion -> #114 authority direct stream -> **#115 authority direct-byte v0.2.8**.
 
-Real-device v0.2.7 proves direct authority streaming is active with no temporary tile-wide record vector and zero record-vector scratch. The next frontier is the canonical direct-byte authority encoder, with exact digest/count/bit parity required before device testing.
+v0.2.8 is real-device validated and **37/37 post-merge green**. It encodes the canonical 25 authority bytes directly for all `37,601,280` current source records per RAW, uses zero generic fallbacks on this semantic case, keeps the old general path as the fallback/parity oracle, and reduces the two-RAW aggregate profiler time to about 32.968 s.
+
+The current frontier is **SHA-256 direct-block transport v0.2.9**: remove the redundant copy of complete 64-byte input blocks before the unchanged SHA compression transform. The later per-pixel three-channel encoder remains a separate candidate so performance attribution stays clean.
 
 All older dated state snapshots remain provenance and must not be rewritten to pretend they knew later results.
 
