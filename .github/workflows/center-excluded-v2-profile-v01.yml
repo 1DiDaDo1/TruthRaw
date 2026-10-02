@@ -1,0 +1,29 @@
+name: Center-Excluded v2 Profile v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-center-excluded-neighborhood-v0.2/**'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'docs/research/center-excluded-v2-profile-v0.1/**'
+      - 'tools/check_center_excluded_v2_profile_v01.py'
+      - '.github/workflows/center-excluded-v2-profile-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Center-Excluded profiling stays diagnostic-only
+        run: python3 tools/check_center_excluded_v2_profile_v01.py
