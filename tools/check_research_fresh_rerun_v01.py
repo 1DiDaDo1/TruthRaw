@@ -68,7 +68,15 @@ for token in [
 ]:
     assert token.lower() in readme.lower(), f"README missing {token}"
 
-for text in [main, service, journal, store]:
+fresh_main = main[
+    main.index("An explicit tap on universal analysis means a fresh measurement"):
+    main.index("val started =", main.index("An explicit tap on universal analysis means a fresh measurement")) + 200
+]
+fresh_service = service[
+    service.index("An explicit new analysis request must produce a fresh"):
+    service.index("ResearchBatchJournalV02.begin(", service.index("An explicit new analysis request must produce a fresh"))
+]
+for text in [fresh_main, fresh_service, journal, store, readme]:
     for forbidden in [
         'candidate_applied", true',
         'creates_new_evidence", true',
