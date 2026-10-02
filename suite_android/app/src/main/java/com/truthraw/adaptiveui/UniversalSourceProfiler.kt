@@ -20,7 +20,7 @@ import java.io.File
  */
 object UniversalSourceProfiler {
     const val CACHE_GENERATION =
-        "D.RAW/UniversalSourceProfileCache/0.2.4-n2-phase-timing-v1"
+        "D.RAW/UniversalSourceProfileCache/0.2.5-n2-subphase-timing-v1"
 
     fun profile(
         resolver: ContentResolver,
@@ -521,7 +521,7 @@ object UniversalSourceProfiler {
                 val frontsideInput =
                     frontside.optJSONObject("dark_chroma_stability_v0_1")
                 cachedStage(
-                    stageId = "N2_LOCAL_SPATIAL_V01_R4_PHASE_TIMING",
+                    stageId = "N2_LOCAL_SPATIAL_V01_R5_SUBPHASE_TIMING",
                     inputFingerprint =
                         ResearchProfileStageCacheV01.fingerprint(
                             frontsideInput?.toString(),
