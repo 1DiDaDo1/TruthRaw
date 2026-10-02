@@ -1,18 +1,18 @@
 > **CURRENT PROJECT CHECKPOINT — 2026-10-02 — continuation code `44488`**
 >
 > Current branch: `fix/android17-research-resilience-v02`  
-> Latest merged PR: `#116 — SHA-256 Direct Block v0.2.9`  
-> Source checkpoint: `edcae3eabb077d53b6a25802e6b9ca62c188b973`
+> Latest merged PR: `#117 — Pixel-Triplet Authority Encoder v0.2.10`  
+> Source checkpoint: `719887443c9f82e1acd6ef83d52870808c8c5e9b`
 >
 > Current state: `state/CURRENT_PROJECT_STATE_2026-10-02.json`  
 > Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
 > Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 >
-> v0.2.9 is exact-parity and real-device validated. Complete SHA-256 blocks now enter the unchanged compression transform directly; 914,964,480 authority bytes per RAW bypass the historical full-block staging copy. Authority digest/count semantics and the scientific firewall remain unchanged.
+> v0.2.10 is exact-parity, merged, 40/40 post-merge green and real-device validated. CFA/censor state is resolved once per pixel and the exact three 25-byte canonical records are emitted as one 75-byte triplet with zero generic fallbacks on both test RAWs.
 >
-> The next isolated frontier is **Pixel-Triplet Authority Encoder v0.2.10**: determine CFA/censor state once per pixel and emit the exact three existing 25-byte authority records as one 75-byte triplet. Future unsupported semantics must fall back to the general route.
+> The next isolated frontier is **Canonical Template/Suffix Reuse v0.2.11**: reuse immutable canonical bytes for already-proven constant semantics, patching only the three Float32 values and any dynamic censored source bound. Future unsupported semantics must still fall back to the general route.
 >
-> Template/suffix reuse, batch-size tuning, center-excluded optimization and later scientific model-selection remain separate stages.
+> Larger hash-emission blocks, center-excluded optimization, SIMD and later scientific model-selection remain separate stages.
 >
 > **MEASURED != RECONSTRUCTED != APPEARANCE.**
 >
