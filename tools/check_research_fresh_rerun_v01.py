@@ -55,9 +55,9 @@ for token in [
 
 assert "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1" in profiler
 assert int(version_code) >= 26100113
-assert 'versionName = "0.53-v0.84.2-authority-template-reuse-' in gradle
 assert lineage["current_version_code"] == int(version_code)
 assert lineage["current_version_code"] > lineage["previous_version_code"]
+assert f'versionName = "{lineage["version_name"]}"' in gradle
 assert lineage["scientific_authority_affected"] is False
 
 for token in [

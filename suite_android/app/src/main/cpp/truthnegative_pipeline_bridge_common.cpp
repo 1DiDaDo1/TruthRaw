@@ -2,6 +2,7 @@
 
 #include "tile_native_dng_source_v0_1.h"
 
+#include <algorithm>
 #include <chrono>
 #include <mutex>
 #include <span>
@@ -164,6 +165,144 @@ private:
     std::uint64_t recordCount_ = 0u;
 };
 
+/**
+ * Diagnostic-only decorator around the exact source used by Scientific Master.
+ * Every byte/sample returned to the binder comes directly from the delegate;
+ * this object only accumulates monotonic wall time and call counts.
+ */
+class ScientificMasterSourceProfilingProxy final
+    : public streaming_v0_1::IRawTileSource {
+public:
+    explicit ScientificMasterSourceProfilingProxy(
+        streaming_v0_1::IRawTileSource& delegate) noexcept
+        : delegate_(delegate) {}
+
+    const DngMetadata& metadata() const override {
+        return delegate_.metadata();
+    }
+
+    std::size_t residentBytesUpperBound() const override {
+        return delegate_.residentBytesUpperBound();
+    }
+
+    streaming_v0_1::StreamStatus readRawTile(
+        const TileRect& rect,
+        std::uint16_t* rawOut,
+        std::size_t rawCount,
+        float* gainOut,
+        std::size_t gainCount) override {
+        const auto started = SteadyClock::now();
+        const auto result = delegate_.readRawTile(
+            rect, rawOut, rawCount, gainOut, gainCount);
+        rawMs_ += elapsed_ms(started, SteadyClock::now());
+        ++rawCalls_;
+        return result;
+    }
+
+    streaming_v0_1::StreamStatus readRowBias(
+        int y0,
+        int y1,
+        float* out,
+        std::size_t count) override {
+        const auto started = SteadyClock::now();
+        const auto result = delegate_.readRowBias(y0, y1, out, count);
+        rowBiasMs_ += elapsed_ms(started, SteadyClock::now());
+        ++rowBiasCalls_;
+        return result;
+    }
+
+    streaming_v0_1::StreamStatus readColBias(
+        int x0,
+        int x1,
+        float* out,
+        std::size_t count) override {
+        const auto started = SteadyClock::now();
+        const auto result = delegate_.readColBias(x0, x1, out, count);
+        colBiasMs_ += elapsed_ms(started, SteadyClock::now());
+        ++colBiasCalls_;
+        return result;
+    }
+
+    double rawMs() const noexcept { return rawMs_; }
+    double rowBiasMs() const noexcept { return rowBiasMs_; }
+    double colBiasMs() const noexcept { return colBiasMs_; }
+    std::uint64_t rawCalls() const noexcept { return rawCalls_; }
+    std::uint64_t rowBiasCalls() const noexcept { return rowBiasCalls_; }
+    std::uint64_t colBiasCalls() const noexcept { return colBiasCalls_; }
+
+private:
+    streaming_v0_1::IRawTileSource& delegate_;
+    double rawMs_ = 0.0;
+    double rowBiasMs_ = 0.0;
+    double colBiasMs_ = 0.0;
+    std::uint64_t rawCalls_ = 0u;
+    std::uint64_t rowBiasCalls_ = 0u;
+    std::uint64_t colBiasCalls_ = 0u;
+};
+
+/**
+ * Diagnostic-only decorator around the established reconstruction backend.
+ * It preserves quality/name/halo and forwards identical pointers, geometry and
+ * CFA arguments. No values are inspected or modified by this profiler.
+ */
+class ScientificMasterReconstructionProfilingProxy final
+    : public IReconstructionBackend {
+public:
+    explicit ScientificMasterReconstructionProfilingProxy(
+        IReconstructionBackend& delegate) noexcept
+        : delegate_(delegate) {}
+
+    ReconstructionQuality quality() const override {
+        return delegate_.quality();
+    }
+
+    const char* name() const override {
+        return delegate_.name();
+    }
+
+    int requiredHalo() const override {
+        return delegate_.requiredHalo();
+    }
+
+    truthraw::Status reconstructTile(
+        const float* stage2FullTile,
+        int tileW,
+        int tileH,
+        int globalHx0,
+        int globalHy0,
+        int coreX0,
+        int coreY0,
+        int coreW,
+        int coreH,
+        CfaPattern cfa,
+        float* coreCameraRgb) override {
+        const auto started = SteadyClock::now();
+        const auto result = delegate_.reconstructTile(
+            stage2FullTile,
+            tileW,
+            tileH,
+            globalHx0,
+            globalHy0,
+            coreX0,
+            coreY0,
+            coreW,
+            coreH,
+            cfa,
+            coreCameraRgb);
+        elapsedMs_ += elapsed_ms(started, SteadyClock::now());
+        ++calls_;
+        return result;
+    }
+
+    double elapsedMs() const noexcept { return elapsedMs_; }
+    std::uint64_t calls() const noexcept { return calls_; }
+
+private:
+    IReconstructionBackend& delegate_;
+    double elapsedMs_ = 0.0;
+    std::uint64_t calls_ = 0u;
+};
+
 }  // namespace
 
 Status prepare(
@@ -288,14 +427,19 @@ Status prepare(
                 scientific_master_f64_reconstruction_v0_1::
                     ResearchEdgeAwareMeasuredPreservingReconstructionF64>();
 
+        ScientificMasterSourceProfilingProxy profiledSource(
+            *out.openedSource.source);
+        ScientificMasterReconstructionProfilingProxy profiledReconstruction(
+            *out.reconstruction);
+
         scientific_master_streaming_binding::v0_2::Options scienceOptions;
         scienceOptions.memoryBudgetBytes = maxLogicalResidentBytes;
         const auto scienceStarted = SteadyClock::now();
         const auto scienceStatus =
             scientific_master_streaming_binding::v0_2::
                 bind_scientific_master_streaming_observed(
-                    *out.openedSource.source,
-                    *out.reconstruction,
+                    profiledSource,
+                    profiledReconstruction,
                     scienceOptions,
                     authorityObserver,
                     out.scientific);
@@ -308,6 +452,27 @@ Status prepare(
         if (timing) {
             timing->bindScientificMasterMs =
                 elapsed_ms(scienceStarted, scienceFinished);
+            timing->scientificMasterBindProfileAvailable = true;
+            timing->scientificMasterSourceReadRawMs = profiledSource.rawMs();
+            timing->scientificMasterSourceReadRawCallCount = profiledSource.rawCalls();
+            timing->scientificMasterSourceReadRowBiasMs = profiledSource.rowBiasMs();
+            timing->scientificMasterSourceReadRowBiasCallCount = profiledSource.rowBiasCalls();
+            timing->scientificMasterSourceReadColBiasMs = profiledSource.colBiasMs();
+            timing->scientificMasterSourceReadColBiasCallCount = profiledSource.colBiasCalls();
+            timing->scientificMasterReconstructionMs = profiledReconstruction.elapsedMs();
+            timing->scientificMasterReconstructionCallCount = profiledReconstruction.calls();
+            timing->scientificMasterAuthorityObserverMs =
+                authorityObserver.directRecordStreamMs();
+            const double profiledKnownMs =
+                timing->scientificMasterSourceReadRawMs +
+                timing->scientificMasterSourceReadRowBiasMs +
+                timing->scientificMasterSourceReadColBiasMs +
+                timing->scientificMasterReconstructionMs +
+                timing->scientificMasterAuthorityObserverMs;
+            timing->scientificMasterBindUnattributedMs =
+                std::max(0.0, timing->bindScientificMasterMs - profiledKnownMs);
+            timing->scientificMasterBindTimingIsScientificEvidence = false;
+            timing->scientificMasterBindTimingMayChangeScientificAuthority = false;
             timing->authorityDirectRecordStreamingActive = true;
             timing->authorityTemporaryRecordVectorUsed = false;
             timing->authorityDirectByteEncodingActive =

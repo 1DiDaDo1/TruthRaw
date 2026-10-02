@@ -115,6 +115,53 @@ object FreeWorldPerformanceDiagnosticsV01 {
                         true,
                     )
 
+            val n2LocalExecution =
+                shared.optJSONObject("n2_local_execution") ?: JSONObject()
+            val nativeTimingOrigin =
+                n2LocalExecution.optString(
+                    "native_phase_timing_origin",
+                    "UNAVAILABLE",
+                )
+            val rawScientificMasterBindProfile =
+                profile
+                    .optJSONObject("n2_local_spatial_binding")
+                    ?.optJSONObject("scientific_master_bind_profile_v0_1")
+            val scientificMasterBindProfile =
+                if (rawScientificMasterBindProfile != null) {
+                    JSONObject(rawScientificMasterBindProfile.toString())
+                        .put("timing_origin", nativeTimingOrigin)
+                        .put(
+                            "timing_represents_current_run",
+                            nativeTimingOrigin == "CURRENT_PROFILE_RUN",
+                        )
+                        .put(
+                            "timing_is_cached_origin_compute",
+                            nativeTimingOrigin ==
+                                "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE",
+                        )
+                        .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
+                } else {
+                    JSONObject()
+                        .put(
+                            "schema",
+                            "D.RAW/ScientificMasterBindProfile/0.1",
+                        )
+                        .put("available", false)
+                        .put("timing_origin", nativeTimingOrigin)
+                        .put("timing_represents_current_run", false)
+                        .put(
+                            "timing_is_cached_origin_compute",
+                            nativeTimingOrigin ==
+                                "CACHED_DERIVED_STAGE_ORIGIN_COMPUTE",
+                        )
+                        .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
+                        .put("timing_is_scientific_evidence", false)
+                        .put(
+                            "timing_may_change_scientific_authority",
+                            false,
+                        )
+                }
+
             observations.put(
                 JSONObject()
                     .put("source_sha256", sourceSha)
@@ -167,6 +214,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
                     .put(
                         "shared_scientific_preparation",
                         shared,
+                    )
+                    .put(
+                        "scientific_master_bind_profile_v0_1",
+                        scientificMasterBindProfile,
                     ),
             )
         }
