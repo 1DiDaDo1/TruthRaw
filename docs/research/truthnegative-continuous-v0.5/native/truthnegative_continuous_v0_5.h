@@ -68,13 +68,26 @@ public:
     bool finalize(AuthorityFieldSummary& out) noexcept;
 
 private:
+    bool beginTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::size_t recordCount) noexcept;
+
+    bool appendRecord(
+        const field::ChannelRecord& record) noexcept;
+
+    bool finishTile(
+        std::uint32_t x,
+        std::uint32_t y) noexcept;
+
     std::uint32_t sourceWidth_ = 0u;
     std::uint32_t sourceHeight_ = 0u;
     std::uint32_t expectedTileX_ = 0u;
     std::uint32_t expectedTileY_ = 0u;
     truthraw::sha256_v0_69::Hasher hasher_{};
     AuthorityFieldSummary partial_{};
-    std::vector<field::ChannelRecord> scratch_{};
     bool valid_ = false;
     bool finalized_ = false;
 };
