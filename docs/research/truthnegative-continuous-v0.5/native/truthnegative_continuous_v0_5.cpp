@@ -313,11 +313,9 @@ bool AuthorityFieldAccumulator::appendSourceTile(
             return false;
         }
 
-        constexpr std::size_t kBatchRecordCount = 96u;
-        constexpr std::size_t kBatchBytes =
-            field::kCanonicalAuthorityRecordBytes *
-            kBatchRecordCount;
-        std::array<std::uint8_t, kBatchBytes> byteBatch{};
+        std::array<
+            std::uint8_t,
+            kAuthorityDirectHashBatchBytes> byteBatch{};
         std::size_t batchUsed = 0u;
 
         const auto flushBatch = [&]() noexcept -> bool {
