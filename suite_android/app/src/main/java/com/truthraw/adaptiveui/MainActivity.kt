@@ -2257,6 +2257,19 @@ class MainActivity : Activity() {
             "Universele bronanalyse draait nu in de Android foreground media-processing service · " +
                 selected.size +
                 " bronnen · app-focus niet vereist · resultaten worden per RAW persistent opgeslagen."
+
+        // The Research page can already be resumed before the user starts a
+        // batch. In that state onResume() correctly decides that no polling is
+        // needed. Once the explicit start succeeds we must arm polling here;
+        // otherwise the Activity can keep showing the last RUNNING frame long
+        // after the foreground worker has already persisted SUCCESS.
+        researchBatchLastHeartbeatWallMs = 0L
+        researchStatusHandler.removeCallbacks(
+            researchStatusPoll,
+        )
+        researchStatusHandler.post(
+            researchStatusPoll,
+        )
         render()
     }
 
@@ -6839,6 +6852,54 @@ class MainActivity : Activity() {
         )
     }
 
+    private fun researchBatchOperationStatusView(
+        key: String,
+        fallbackMessage: String,
+    ): View? {
+        val state =
+            TruthRawOperationStore.recoverInterruptedIfNeeded(
+                context = this,
+                key = key,
+                serviceRunning =
+                    TruthRawMediaProcessingForegroundService
+                        .isResearchBatchActive(key),
+            ) ?: return null
+        val journal =
+            ResearchBatchJournalV02.read(
+                this,
+                key,
+            )
+        val attemptStartedAt =
+            journal
+                ?.optLong(
+                    "attempt_started_at_wall_ms",
+                    0L,
+                )
+                ?.takeIf { it > 0L }
+                ?: state.startedAtWallMs
+        val attemptFinishedAt =
+            if (state.terminal) {
+                journal
+                    ?.optLong(
+                        "attempt_finished_at_wall_ms",
+                        0L,
+                    )
+                    ?.takeIf { it >= attemptStartedAt }
+                    ?: state.finishedAtWallMs
+            } else {
+                null
+            }
+        return operationStatusVisual(
+            message =
+                state.message.ifBlank {
+                    fallbackMessage
+                },
+            phase = state.phase,
+            startedAtWallMs = attemptStartedAt,
+            finishedAtWallMs = attemptFinishedAt,
+        )
+    }
+
     private fun restorationStatusView(
         snapshot: FullResRestorationJobSnapshot,
     ): View = operationStatusVisual(
@@ -8872,7 +8933,7 @@ class MainActivity : Activity() {
             10f,
             muted = true,
         ))
-        backgroundOperationStatusView(
+        researchBatchOperationStatusView(
             fieldResponseRepeatabilityAnalysisOperationKey(),
             fieldResponseRepeatabilityStatus
                 ?: "Field Response Repeatability v0.1 bronanalyse",
