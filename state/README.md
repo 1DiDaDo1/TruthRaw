@@ -9,23 +9,25 @@ Read first:
 - `../docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 - `../START_HERE_NEW_CHAT.md`
 
-Current development branch:
+Current branch:
 
 `fix/android17-research-resilience-v02`
 
-Current source-code checkpoint:
+Current merged source checkpoint:
 
-`85e67ca3090aa113edda7133d656f28087e3ad22`
+`edcae3eabb077d53b6a25802e6b9ca62c188b973`
 
 Latest merged performance line:
 
-PR #109 sparse-reference reuse -> #110 row-band reuse -> #111 phase timing -> #112 subphase timing -> #113 authority fusion -> #114 authority direct stream -> **#115 authority direct-byte v0.2.8**.
+#109 sparse-reference reuse -> #110 row-band reuse -> #111 phase timing -> #112 subphase timing -> #113 authority fusion -> #114 direct record streaming -> #115 canonical direct-byte -> **#116 SHA-256 direct-block transport v0.2.9**.
 
-v0.2.8 is real-device validated and **37/37 post-merge green**. It encodes the canonical 25 authority bytes directly for all `37,601,280` current source records per RAW, uses zero generic fallbacks on this semantic case, keeps the old general path as the fallback/parity oracle, and reduces the two-RAW aggregate profiler time to about 32.968 s.
+v0.2.9 is real-device validated. The two-RAW aggregate is about 32.515 s. Complete SHA input blocks now bypass the old staging-copy while the compression transform and digest semantics remain exact.
 
-The current frontier is **SHA-256 direct-block transport v0.2.9**: remove the redundant copy of complete 64-byte input blocks before the unchanged SHA compression transform. The later per-pixel three-channel encoder remains a separate candidate so performance attribution stays clean.
+The current next frontier is **Pixel-Triplet Authority Encoder v0.2.10**. It must emit exactly the same three 25-byte records per pixel in channel order, preserve the final authority SHA/counts, and retain a fail-closed general fallback for future semantic extensions.
 
-All older dated state snapshots remain provenance and must not be rewritten to pretend they knew later results.
+Template reuse, batch tuning and center-excluded work remain separate later candidates.
+
+All older dated state snapshots remain provenance.
 
 ---
 
