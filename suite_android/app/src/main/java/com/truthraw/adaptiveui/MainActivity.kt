@@ -8932,6 +8932,11 @@ class MainActivity : Activity() {
                         "attempt_count",
                         0,
                     )
+                val runMode =
+                    journal.optString(
+                        "run_mode",
+                        "UNKNOWN",
+                    )
                 val redeliveries =
                     journal.optInt(
                         "redelivery_count",
@@ -8939,7 +8944,9 @@ class MainActivity : Activity() {
                     )
                 addView(
                     label(
-                        "Service-checkpoint · stage=" +
+                        "Service-checkpoint · run=" +
+                            runMode +
+                            " · stage=" +
                             stage +
                             " · heartbeat=" +
                             if (ageSeconds >= 0L) {
