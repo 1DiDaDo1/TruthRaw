@@ -25,6 +25,11 @@ inline constexpr const char* kAuthorityFieldDigestMethod =
 inline constexpr const char* kStateMethod =
     "TRUTHNEGATIVE_CONTINUOUS_CAMERA_PLANE_STATE_V0_5";
 
+inline constexpr std::size_t kAuthorityDirectHashBatchRecordCount = 96u;
+inline constexpr std::size_t kAuthorityDirectHashBatchBytes =
+    field::kCanonicalAuthorityRecordBytes *
+    kAuthorityDirectHashBatchRecordCount;
+
 struct AuthorityFieldSummary final {
     Digest contentSha256{};
     std::array<std::uint64_t, 5u> creationRoleCounts{};
