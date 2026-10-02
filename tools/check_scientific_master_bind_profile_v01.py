@@ -10,6 +10,7 @@ header = (CPP / "truthnegative_pipeline_bridge_common.h").read_text()
 pipeline = (CPP / "truthnegative_pipeline_bridge_common.cpp").read_text()
 bridge = (CPP / "truthnegative_n2_factored_confidence_bridge.cpp").read_text()
 binding = (JAVA / "N2LocalSpatialBindingAudit.kt").read_text()
+foundation = (JAVA / "FreeWorldPerformanceDiagnosticsV01.kt").read_text()
 gradle = (ROOT / "suite_android/app/build.gradle.kts").read_text()
 version_code = int((ROOT / "suite_android/VERSION_CODE").read_text().strip())
 lineage = json.loads((ROOT / "state/DRAW_ANDROID_VERSION_LINEAGE_V01.json").read_text())
@@ -79,6 +80,16 @@ for token in [
 ]:
     assert token in binding, f"Kotlin bind profile telemetry missing {token}"
 
+for token in [
+    '"scientific_master_bind_profile_v0_1"',
+    '"native_phase_timing_origin"',
+    '"timing_represents_current_run"',
+    '"timing_is_cached_origin_compute"',
+    "JSONObject(rawScientificMasterBindProfile.toString())",
+    '"DIAGNOSTIC_RUNTIME_ONLY"',
+]:
+    assert token in foundation, f"Foundation bind profile propagation missing {token}"
+
 # Timing is explicitly non-authoritative at its native source.
 assert "scientificMasterBindTimingIsScientificEvidence = false" in pipeline
 assert "scientificMasterBindTimingMayChangeScientificAuthority = false" in pipeline
@@ -94,7 +105,7 @@ for forbidden in [
         f"Scientific Master profile telemetry leaked into Phase2 authority region: {forbidden}"
     )
 
-assert version_code >= 26100121
+assert version_code >= 26100122
 assert lineage["current_version_code"] == version_code
 assert lineage["current_version_code"] > lineage["previous_version_code"]
 assert f'versionName = "{lineage["version_name"]}"' in gradle
@@ -106,10 +117,11 @@ for token in [
     "exact arguments",
     "original reconstruction object remains",
     "does not modify source values",
+    "Foundation export",
 ]:
     assert token.lower() in readme.lower(), f"README missing {token}"
 
-for text in [header, pipeline, bridge, binding, readme]:
+for text in [header, pipeline, bridge, binding, foundation, readme]:
     for forbidden in [
         'candidate_applied\",true',
         'creates_new_evidence\",true',
