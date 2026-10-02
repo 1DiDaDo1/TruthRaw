@@ -57,8 +57,32 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Materialize stable D.RAW development signing identity
+        env:
+          DRAW_DEBUG_KEYSTORE_B64: ${{ secrets.DRAW_DEBUG_KEYSTORE_B64 }}
+          DRAW_DEBUG_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_DEBUG_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_DEBUG_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::D.RAW signing slot A missing: keystore Base64 payload"; exit 1; }
+          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::D.RAW signing slot B missing: keystore password"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::D.RAW signing slot C missing: key alias"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::D.RAW signing slot D missing: key password"; exit 1; }
+          printf '%s' "$DRAW_DEBUG_KEYSTORE_B64" | tr -d '\r\n\t ' | base64 --decode > "$RUNNER_TEMP/draw-debug.jks"
+          test -s "$RUNNER_TEMP/draw-debug.jks"
+          ACTUAL_KEYSTORE_SHA256=$(sha256sum "$RUNNER_TEMP/draw-debug.jks" | awk '{print $1}')
+          test "$ACTUAL_KEYSTORE_SHA256" = "eaddcb4abdab1353a5cd15d71d52ea373abbabc46459ed7f2c8c08acf15d1137"
+          keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
+
+
       - name: Assemble full D.RAW arm64 debug APK
         working-directory: suite_android
+        env:
+          DRAW_SIGNING_STORE_FILE: ${{ runner.temp }}/draw-debug.jks
+          DRAW_SIGNING_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_SIGNING_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_SIGNING_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Verify D.RAW APK
@@ -71,6 +95,10 @@ jobs:
           unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
           readelf -Ws /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'Java_com_truthraw_adaptiveui_PureFloat32DngNativeBridge_exportPureFloat32Dng'
           sha256sum "$APK" | tee "$APK.sha256"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)
+          echo "apk_signing_cert_sha256=$CERT_SHA256"
+          test "$CERT_SHA256" = "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
 
       - uses: actions/upload-artifact@v4
         with:

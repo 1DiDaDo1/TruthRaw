@@ -1,0 +1,33 @@
+name: N2 Sparse Reference Reuse v0.2.2 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-n2-cfa-audit-v0.1/native/**'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.1/native/**'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'tools/check_n2_sparse_reference_reuse_v022.py'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - '.github/workflows/n2-sparse-reference-reuse-v022.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-metric-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2 -B build/n2_sparse_v022 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/n2_sparse_v022 --config Release -j2
+      - name: Run byte-identical v0.2.1 output parity
+        run: ctest --test-dir build/n2_sparse_v022 --output-on-failure
+      - name: Verify Android sparse-reference route
+        run: python3 tools/check_n2_sparse_reference_reuse_v022.py

@@ -13,6 +13,14 @@ val hasDrawStableSigning =
     !drawSigningKeyAlias.isNullOrBlank() &&
     !drawSigningKeyPassword.isNullOrBlank()
 
+val drawVersionCodeFile = rootProject.file("VERSION_CODE")
+val drawVersionCode =
+    drawVersionCodeFile.readText().trim().toInt().also {
+        require(it in 1..2_100_000_000) {
+            "D.RAW VERSION_CODE must be within Android's supported range"
+        }
+    }
+
 android {
     namespace = "com.truthraw.adaptiveui"
     compileSdk = 35
@@ -40,8 +48,8 @@ android {
         applicationId = "com.truthraw.adaptiveui"
         minSdk = 31
         targetSdk = 37
-        versionCode = 51
-        versionName = "0.51-v0.84.2-adaptive-compute-router"
+        versionCode = drawVersionCode
+        versionName = "0.53-v0.84.2-authority-pixel-triplet"
 
         ndk { abiFilters += listOf("arm64-v8a") }
         externalNativeBuild { cmake { cppFlags += listOf("-std=c++20", "-Wall", "-Wextra", "-Werror") } }

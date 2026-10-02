@@ -58,7 +58,10 @@ assert "N2LocalSpatialBindingAudit.analyze" in profiler
 assert "DarkChromaStabilityV04Audit.analyze" in profiler
 assert '"n2_local_spatial_binding"' in profiler
 assert '"dark_chroma_stability_v0_4"' in profiler
-assert "UniversalSourceProfiler.profile(contentResolver, job.source, cacheDir)" in main
+service = (base / "TruthRawMediaProcessingForegroundService.kt").read_text()
+assert "UniversalSourceProfiler.profile" in main
+assert "UniversalSourceProfiler.profile" in service
+assert "ResearchUniversalProfileStoreV01.save" in service
 assert "N2 Local Spatial Binding v0.1 · SAME OBSERVATION" in main
 assert "Dark Chroma Stability v0.4 · LOCAL N2 BINDING" in main
 assert "Private chroma A/B/Δ blijft uit" in main

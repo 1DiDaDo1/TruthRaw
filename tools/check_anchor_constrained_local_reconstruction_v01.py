@@ -52,7 +52,7 @@ for needle in [
     'report.measuredAnchorsModified',
     'report.unanchoredValuesPromotedToMeasured',
     'report.solverAppliedToScientificMaster',
-    'pipeline::reverify(ctx)',
+    'pipeline::reverify(*ctx)',
 ]:
     assert needle in bridge, f"missing bridge invariant: {needle}"
 

@@ -108,6 +108,146 @@ private:
     bool mutateAuthority_;
 };
 
+class GeneratedField final : public local::IFieldTileSource {
+public:
+    GeneratedField(
+        std::uint32_t width,
+        std::uint32_t height)
+        : width_(width),
+          height_(height),
+          raw_(
+              static_cast<std::size_t>(width) *
+              static_cast<std::size_t>(height)),
+          rgb_(
+              static_cast<std::size_t>(width) *
+              static_cast<std::size_t>(height) * 3u) {
+        for (std::uint32_t y = 0u; y < height_; ++y) {
+            for (std::uint32_t x = 0u; x < width_; ++x) {
+                const std::size_t pi =
+                    static_cast<std::size_t>(y) * width_ + x;
+                std::uint16_t raw =
+                    static_cast<std::uint16_t>(
+                        80u + ((x * 29u + y * 17u) % 880u));
+                if ((x + 3u * y) % 101u == 0u) {
+                    raw = 1023u;
+                }
+                raw_[pi] = raw;
+                for (std::size_t ch = 0u; ch < 3u; ++ch) {
+                    rgb_[3u * pi + ch] =
+                        static_cast<float>(
+                            0.0005 * static_cast<double>(raw) +
+                            0.01 * static_cast<double>(ch) +
+                            0.00001 *
+                                static_cast<double>(x + 2u * y));
+                }
+            }
+        }
+    }
+
+    local::Geometry geometry() const noexcept override {
+        return {
+            width_,
+            height_,
+            width_ * 4u,
+            height_ * 4u,
+        };
+    }
+
+    bool extractTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::vector<std::uint16_t>& rawOut,
+        std::vector<float>& rgbOut) const {
+        if (width == 0u || height == 0u ||
+            x + width > width_ ||
+            y + height > height_) {
+            return false;
+        }
+        const std::size_t pixels =
+            static_cast<std::size_t>(width) * height;
+        rawOut.resize(pixels);
+        rgbOut.resize(pixels * 3u);
+        for (std::uint32_t yy = 0u; yy < height; ++yy) {
+            for (std::uint32_t xx = 0u; xx < width; ++xx) {
+                const std::size_t src =
+                    static_cast<std::size_t>(y + yy) * width_ +
+                    static_cast<std::size_t>(x + xx);
+                const std::size_t dst =
+                    static_cast<std::size_t>(yy) * width + xx;
+                rawOut[dst] = raw_[src];
+                for (std::size_t ch = 0u; ch < 3u; ++ch) {
+                    rgbOut[3u * dst + ch] =
+                        rgb_[3u * src + ch];
+                }
+            }
+        }
+        return true;
+    }
+
+    bool readSourceTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        field::ChannelRecord* out,
+        std::size_t recordCount) noexcept override {
+        try {
+            std::vector<std::uint16_t> rawTile;
+            std::vector<float> rgbTile;
+            if (!extractTile(
+                    x,
+                    y,
+                    width,
+                    height,
+                    rawTile,
+                    rgbTile)) {
+                return false;
+            }
+            std::vector<field::ChannelRecord> records;
+            if (!field::build_source_tile_records(
+                    cfa_,
+                    x,
+                    y,
+                    width,
+                    height,
+                    rawTile,
+                    whiteLevel_,
+                    rgbTile,
+                    records) ||
+                records.size() != recordCount ||
+                out == nullptr) {
+                return false;
+            }
+            std::copy(
+                records.begin(),
+                records.end(),
+                out);
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+
+    truthraw::CfaPattern cfa() const noexcept {
+        return cfa_;
+    }
+
+    float whiteLevel() const noexcept {
+        return whiteLevel_;
+    }
+
+private:
+    std::uint32_t width_;
+    std::uint32_t height_;
+    truthraw::CfaPattern cfa_ =
+        truthraw::CfaPattern::BGGR;
+    float whiteLevel_ = 1023.0f;
+    std::vector<std::uint16_t> raw_;
+    std::vector<float> rgb_;
+};
+
 class SyntheticScene final : public fw::IScenePlaneSource {
 public:
     SyntheticScene(std::uint32_t width, std::uint32_t height)
@@ -191,6 +331,70 @@ void test_authority_field_digest_is_deterministic_and_sensitive() {
         == 9u * 7u * 2u);
     REQUIRE(!sa.createsNewEvidence);
     REQUIRE(!sa.scientificWritebackAllowed);
+}
+
+void test_authority_accumulator_source_tile_path_is_exact() {
+    GeneratedField source(130u, 70u);
+
+    tn::AuthorityFieldSummary replay{};
+    REQUIRE(tn::summarizeAuthorityField(source, replay));
+
+    tn::AuthorityFieldAccumulator accumulator(130u, 70u);
+    REQUIRE(accumulator.valid());
+    REQUIRE(accumulator.residentBytesUpperBound() == 0u);
+
+    std::vector<std::uint16_t> rawTile;
+    std::vector<float> rgbTile;
+    for (std::uint32_t y = 0u; y < 70u;
+         y += field::kCanonicalTileEdge) {
+        const std::uint32_t height =
+            std::min(
+                field::kCanonicalTileEdge,
+                70u - y);
+        for (std::uint32_t x = 0u; x < 130u;
+             x += field::kCanonicalTileEdge) {
+            const std::uint32_t width =
+                std::min(
+                    field::kCanonicalTileEdge,
+                    130u - x);
+            REQUIRE(source.extractTile(
+                x,
+                y,
+                width,
+                height,
+                rawTile,
+                rgbTile));
+            REQUIRE(accumulator.appendSourceTile(
+                source.cfa(),
+                x,
+                y,
+                width,
+                height,
+                rawTile,
+                source.whiteLevel(),
+                rgbTile));
+        }
+    }
+
+    tn::AuthorityFieldSummary fused{};
+    REQUIRE(accumulator.finalize(fused));
+    REQUIRE(accumulator.residentBytesUpperBound() == 0u);
+    REQUIRE(accumulator.directByteRecordCount() == fused.recordCount);
+    REQUIRE(accumulator.genericFallbackRecordCount() == 0u);
+    REQUIRE(
+        accumulator.directPixelTripletCount() ==
+        fused.recordCount / 3u);
+    REQUIRE(accumulator.genericFallbackPixelCount() == 0u);
+    REQUIRE(fused.contentSha256 == replay.contentSha256);
+    REQUIRE(fused.creationRoleCounts == replay.creationRoleCounts);
+    REQUIRE(fused.authorityCounts == replay.authorityCounts);
+    REQUIRE(fused.recordCount == replay.recordCount);
+    REQUIRE(fused.p95KnownCount == replay.p95KnownCount);
+    REQUIRE(fused.supportKnownCount == replay.supportKnownCount);
+    REQUIRE(fused.boundKnownCount == replay.boundKnownCount);
+    REQUIRE(fused.tileCount == replay.tileCount);
+    REQUIRE(!fused.createsNewEvidence);
+    REQUIRE(!fused.scientificWritebackAllowed);
 }
 
 void test_state_binds_source_master_authority_but_not_output_raster() {
@@ -314,6 +518,7 @@ void test_geometry_or_state_mismatch_fails_closed() {
 
 int main() {
     test_authority_field_digest_is_deterministic_and_sensitive();
+    test_authority_accumulator_source_tile_path_is_exact();
     test_state_binds_source_master_authority_but_not_output_raster();
     test_queries_keep_one_state_across_multiple_rasters();
     test_cached_raster_resolver_matches_direct_queries();

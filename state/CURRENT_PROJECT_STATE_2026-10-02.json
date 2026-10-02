@@ -1,0 +1,342 @@
+{
+  "schema": "D.RAW/CurrentProjectState/2026-10-02",
+  "status": "ACTIVE_RESEARCH_CHECKPOINT",
+  "continuation_code": "44488",
+  "continuation_code_semantics": "Restore the complete D.RAW/TruthRaw project context through merged, 38/38 post-merge-green and real-device-validated SHA-256 direct-block transport v0.2.9, including prior cable recovery, Free World, N2 performance lineage, scientific authority laws, and the pixel-triplet authority encoder v0.2.10 frontier.",
+  "supersedes_continuation_codes": [
+    "44487",
+    "44485",
+    "44484"
+  ],
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_branch": "fix/android17-research-resilience-v02",
+  "latest_merged_pr": {
+    "number": 116,
+    "title": "SHA-256 Direct Block v0.2.9",
+    "state": "MERGED",
+    "merge_commit": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
+    "source_head": "0e7c8d70974a45ac5171dc06d894a8dc4f422c93"
+  },
+  "source_code_head": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
+  "android": {
+    "application_id": "com.truthraw.adaptiveui",
+    "version_code": 26100110,
+    "version_name": "0.53-v0.84.2-sha-direct-block",
+    "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
+    "apk_size_bytes": 8487331,
+    "apk_sha256": "30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd",
+    "update_over_previous_supported": true,
+    "app_data_wipe_required": false
+  },
+  "post_merge_build": {
+    "workflow": "D.RAW Suite Universal Intake v0.1",
+    "run_id": 37010105695,
+    "artifact_id": 11227079549,
+    "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
+    "artifact_zip_digest_sha256": "13c1d6b354ab30d72c9511047e1fc2eb4434922c53e03224cea696b813790709",
+    "apk_size_bytes": 8487331,
+    "apk_sha256": "30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd",
+    "signing_certificate_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+  },
+  "real_device_v027": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.7-authority-direct-stream-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 40683.016651,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 19376.694576,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
+        "n2_elapsed_ms": 18998.244055,
+        "phase_shared_acquire_ms": 13401.1,
+        "phase_v01_cfa_audit_ms": 865.024,
+        "phase_center_excluded_ms": 3983.37,
+        "center_excluded_predictor_estimate_ms": 2988.03,
+        "prepare_bind_scientific_master_ms": 12820.6,
+        "authority_direct_record_stream_ms": 9571.86,
+        "authority_direct_record_stream_tile_count": 3072,
+        "authority_direct_record_stream_record_count": 37601280,
+        "authority_temporary_record_vector_used": false,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 21306.322075,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R7_AUTHORITY_DIRECT_STREAM",
+        "n2_elapsed_ms": 20395.912075,
+        "phase_shared_acquire_ms": 12582.2,
+        "phase_v01_cfa_audit_ms": 888.623,
+        "phase_center_excluded_ms": 6089.38,
+        "center_excluded_predictor_estimate_ms": 4837.6,
+        "prepare_bind_scientific_master_ms": 11795.7,
+        "authority_direct_record_stream_ms": 8756.52,
+        "authority_direct_record_stream_tile_count": 3072,
+        "authority_direct_record_stream_record_count": 37601280,
+        "authority_temporary_record_vector_used": false,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      }
+    ],
+    "invariants": {
+      "authority_direct_record_streaming_active": true,
+      "authority_temporary_record_vector_used": false,
+      "authority_accumulator_resident_bytes_upper_bound": 0,
+      "authority_field_fused_into_scientific_master_pass": true,
+      "authority_field_replay_pass_performed": false,
+      "v01_sparse_reference_reuse_verified": true,
+      "v01_rerun_performed": false,
+      "row_band_reuse_active": true,
+      "row_band_fallback_request_count_total": 0,
+      "row_band_scientific_values_modified": false,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "interpretation": [
+      "Direct authority record streaming is active on real device and removes the temporary tile-wide ChannelRecord vector.",
+      "The aggregate two-RAW profiler time is modestly lower than v0.2.6 rather than dramatically lower.",
+      "The dominant remaining authority cost is per-record semantic construction, validation, classification accounting and canonical SHA feed for 37,601,280 channel records per RAW.",
+      "Center-excluded remains the second major compute block and scales strongly with candidate-center count."
+    ]
+  },
+  "n2_performance_lineage": [
+    {
+      "pr": 109,
+      "version": "v0.2.2",
+      "change": "sparse-reference reuse"
+    },
+    {
+      "pr": 110,
+      "version": "v0.2.3",
+      "change": "row-band reuse"
+    },
+    {
+      "pr": 111,
+      "version": "v0.2.4",
+      "change": "native phase timing"
+    },
+    {
+      "pr": 112,
+      "version": "v0.2.5",
+      "change": "shared-preparation and center-excluded subphase timing"
+    },
+    {
+      "pr": 113,
+      "version": "v0.2.6",
+      "change": "authority-field fusion into Scientific Master pass"
+    },
+    {
+      "pr": 114,
+      "version": "v0.2.7",
+      "change": "direct authority record streaming without temporary ChannelRecord vector"
+    },
+    {
+      "pr": 115,
+      "version": "v0.2.8",
+      "change": "canonical authority direct-byte encoding with zero current-semantic generic fallbacks"
+    },
+    {
+      "pr": 116,
+      "version": "v0.2.9",
+      "change": "SHA-256 direct-block transport for complete input blocks"
+    }
+  ],
+  "anchor_constrained_local_reconstruction": {
+    "status": "NOT_PROMOTED",
+    "true_cfa_holdouts": 21760,
+    "comparable_samples": 19560,
+    "affine_mae": 0.00154976,
+    "baseline_mae": 0.00147486,
+    "affine_rmse": 0.00205484,
+    "baseline_rmse": 0.0019059,
+    "affine_bias": -0.00049664,
+    "baseline_bias": -0.00009471,
+    "affine_wins": 9363,
+    "baseline_wins": 10197,
+    "additional_affine_valid_points": 2200,
+    "uncertainty_too_optimistic": true,
+    "scientific_writeback_allowed": false
+  },
+  "next_frontier": {
+    "name": "Pixel-triplet authority encoder v0.2.10",
+    "purpose": "Determine CFA phase and censor state once per source pixel and emit the exact three canonical 25-byte authority records as one 75-byte triplet while preserving record order, digest, counts and future fallback flexibility.",
+    "requirements": [
+      "same three channel records in channel order 0,1,2",
+      "exactly the same 75 canonical bytes per pixel as v0.2.9",
+      "all BGGR/RGGB/GRBG/GBRG phases covered",
+      "censored and non-censored measured samples covered",
+      "same authority SHA-256 and all summary counts",
+      "same source/scientific-master values",
+      "current semantic case uses specialized triplet path with zero generic fallbacks",
+      "future unsupported semantic extensions fail closed to the general per-channel route",
+      "host exact parity and full CI before APK",
+      "real-device telemetry before promotion",
+      "do not combine template/suffix reuse or batch-size tuning into this candidate"
+    ]
+  },
+  "permanent_laws": [
+    "MEASURED != RECONSTRUCTED != APPEARANCE",
+    "Seal the evidence, not the thinking.",
+    "Representation can exceed the source. Knowledge claims cannot exceed the evidence.",
+    "Direct-CFA source evidence remains immutable.",
+    "Scientific Master remains separate from export and presentation.",
+    "Camera, lens, vendor and RAW identity may route parsing but may not select scientific truth.",
+    "APK/GCam/computational RAW may not determine TruthRaw evidence or calibration.",
+    "Held-out data may evaluate but may not fit/select a frozen candidate.",
+    "Unknown residual remains UNKNOWN until supported.",
+    "No AI/ML/neural/generative runtime in the scientific path.",
+    "No diagnostic/performance candidate may write Scientific Master.",
+    "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct."
+  ],
+  "continuation_instruction": "A future chat receiving 44488 should recover this state and the 2026-10-02 handoff, verify whether any newer branch/head/PR exists, preserve all scientific authority laws, treat v0.2.9 SHA direct-block transport as merged/38-of-38-green/real-device validated, and continue from the pixel-triplet authority encoder v0.2.10 frontier unless newer evidence supersedes it.",
+  "post_merge_ci": {
+    "source_code_head": "edcae3eabb077d53b6a25802e6b9ca62c188b973",
+    "total_workflows": 38,
+    "successful": 38,
+    "failed": 0,
+    "in_progress": 0,
+    "queued": 0,
+    "status": "FULLY_GREEN"
+  },
+  "real_device_v028": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.8-authority-direct-byte-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 32967.853217,
+    "comparison_to_v027_aggregate_speedup_percent": 18.9641,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 14797.067651,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE",
+        "n2_elapsed_ms": 14459.694161,
+        "phase_shared_acquire_ms": 8891.15,
+        "phase_v01_cfa_audit_ms": 858.39,
+        "phase_center_excluded_ms": 3967.78,
+        "center_excluded_predictor_estimate_ms": 2975.81,
+        "prepare_bind_scientific_master_ms": 8344.42,
+        "authority_direct_record_stream_ms": 5346.54,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_hash_batch_record_capacity": 96,
+        "authority_hash_batch_bytes": 2400,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 18170.785566,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R8_AUTHORITY_DIRECT_BYTE",
+        "n2_elapsed_ms": 17269.418014,
+        "phase_shared_acquire_ms": 9482.18,
+        "phase_v01_cfa_audit_ms": 884.319,
+        "phase_center_excluded_ms": 6077.23,
+        "center_excluded_predictor_estimate_ms": 4821.46,
+        "prepare_bind_scientific_master_ms": 8731.73,
+        "authority_direct_record_stream_ms": 5670.28,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_canonical_record_bytes": 25,
+        "authority_hash_batch_record_capacity": 96,
+        "authority_hash_batch_bytes": 2400,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      }
+    ],
+    "invariants": {
+      "authority_direct_record_streaming_active": true,
+      "authority_temporary_record_vector_used": false,
+      "authority_direct_byte_encoding_active": true,
+      "authority_generic_record_validation_bypassed": true,
+      "authority_generic_fallback_record_count": 0,
+      "authority_accumulator_resident_bytes_upper_bound": 0,
+      "authority_field_fused_into_scientific_master_pass": true,
+      "authority_field_replay_pass_performed": false,
+      "v01_sparse_reference_reuse_verified": true,
+      "v01_rerun_performed": false,
+      "row_band_reuse_active": true,
+      "row_band_fallback_request_count_total": 0,
+      "row_band_scientific_values_modified": false,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "interpretation": [
+      "Canonical direct-byte authority encoding is active on real device for every current source record with zero generic fallbacks.",
+      "Aggregate two-RAW profiler time improved by about 18.96 percent versus v0.2.7.",
+      "Authority direct-stream time fell from 9.57186 s to 5.34654 s on observation 1 and from 8.75652 s to 5.67028 s on observation 2.",
+      "The remaining authority hot path is dominated by canonical byte generation plus roughly 940,032,000 SHA-256 input bytes per RAW and associated transport.",
+      "Center-excluded remains a separate major compute block."
+    ]
+  },
+  "real_device_v029": {
+    "profile_cache_generation": "D.RAW/UniversalSourceProfileCache/0.2.9-sha-direct-block-v1",
+    "profile_count": 2,
+    "aggregate_profile_elapsed_ms": 32515.211967000003,
+    "comparison_to_v028_aggregate_speedup_percent": 1.3726,
+    "observations": [
+      {
+        "source_sha256": "12664b4839f89d2be67267fae217683f06dd534c5d068a9644eb2235f6cd696e",
+        "profile_elapsed_ms": 14466.439474,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R9_SHA_DIRECT_BLOCK",
+        "n2_elapsed_ms": 14102.34489,
+        "phase_shared_acquire_ms": 8481.58,
+        "phase_v01_cfa_audit_ms": 862.68,
+        "phase_center_excluded_ms": 4008.33,
+        "center_excluded_predictor_estimate_ms": 3010.19,
+        "prepare_bind_scientific_master_ms": 7922.83,
+        "authority_direct_record_stream_ms": 5058.7,
+        "authority_sha_direct_input_block_transform_count": 14296320,
+        "authority_sha_buffered_input_block_transform_count": 392832,
+        "authority_sha_direct_input_bytes": 914964480,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      },
+      {
+        "source_sha256": "9af38a1ac3fc04437ccc2846d35b27ac68009ee6314bf1cadecf15bf65351b85",
+        "profile_elapsed_ms": 18048.772493,
+        "n2_stage": "N2_LOCAL_SPATIAL_V01_R9_SHA_DIRECT_BLOCK",
+        "n2_elapsed_ms": 17135.811608,
+        "phase_shared_acquire_ms": 9282.79,
+        "phase_v01_cfa_audit_ms": 888.337,
+        "phase_center_excluded_ms": 6118.97,
+        "center_excluded_predictor_estimate_ms": 4863.84,
+        "prepare_bind_scientific_master_ms": 8511.31,
+        "authority_direct_record_stream_ms": 5481.69,
+        "authority_sha_direct_input_block_transform_count": 14296320,
+        "authority_sha_buffered_input_block_transform_count": 392832,
+        "authority_sha_direct_input_bytes": 914964480,
+        "authority_direct_byte_record_count": 37601280,
+        "authority_generic_fallback_record_count": 0,
+        "authority_accumulator_resident_bytes_upper_bound": 0
+      }
+    ],
+    "invariants": {
+      "authority_direct_record_streaming_active": true,
+      "authority_temporary_record_vector_used": false,
+      "authority_direct_byte_encoding_active": true,
+      "authority_generic_record_validation_bypassed": true,
+      "authority_generic_fallback_record_count": 0,
+      "authority_sha_direct_block_transport_active": true,
+      "authority_accumulator_resident_bytes_upper_bound": 0,
+      "authority_field_fused_into_scientific_master_pass": true,
+      "authority_field_replay_pass_performed": false,
+      "v01_sparse_reference_reuse_verified": true,
+      "v01_rerun_performed": false,
+      "row_band_reuse_active": true,
+      "row_band_fallback_request_count_total": 0,
+      "row_band_scientific_values_modified": false,
+      "source_values_modified": false,
+      "candidate_applied": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "interpretation": [
+      "SHA-256 direct-block transport is active on real device and preserves the same authority stream/digest semantics.",
+      "14,296,320 complete SHA blocks per RAW are transformed directly from caller input; 392,832 blocks per RAW still use the required buffered path.",
+      "914,964,480 authority bytes per RAW bypass the historical full-block staging memcpy.",
+      "Aggregate two-RAW profile time improves by about 1.37 percent versus v0.2.8.",
+      "The next isolated authority optimization should move classification/encoding from three per-channel invocations to one per-pixel triplet while preserving the exact 75-byte channel-record sequence."
+    ]
+  }
+}

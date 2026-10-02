@@ -1,13 +1,16 @@
 #include <jni.h>
 
 #include "truthnegative_center_excluded_spatial_audit_v0_2_1.h"
+#include "truthnegative_center_excluded_spatial_audit_v0_2_2.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
 #include "truthnegative_n2_confidence_field_v0_3.h"
 #include "truthnegative_n2_factored_confidence_state_v0_3_1.h"
+#include "truthnegative_n2_row_band_reuse_v0_1.h"
 #include "truthnegative_pipeline_bridge_common.h"
 #include "truthraw_sha256_v0_69.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <sstream>
@@ -24,11 +27,23 @@ namespace n2_cfa =
     truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace ce_spatial =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
+namespace ce_sparse =
+    truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2;
 namespace confidence =
     truthraw::truthnegative_n2_confidence_field::v0_3;
 namespace factored =
     truthraw::truthnegative_n2_factored_confidence_state::v0_3_1;
+namespace row_band =
+    truthraw::truthnegative_n2_row_band_reuse::v0_1;
 namespace sha = truthraw::sha256_v0_69;
+using SteadyClock = std::chrono::steady_clock;
+
+double elapsed_ms(
+    SteadyClock::time_point started,
+    SteadyClock::time_point finished) noexcept {
+    return std::chrono::duration<double,std::milli>(
+        finished-started).count();
+}
 
 jstring status(JNIEnv* env,int code,const std::string& message) {
     std::ostringstream o;
@@ -98,57 +113,115 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,-90,"invalid destination fd");
     }
 
-    pipeline::Context ctx{};
-    const auto prepared=pipeline::prepare(
+    const auto bridgeStarted=SteadyClock::now();
+
+    std::shared_ptr<pipeline::Context> ctx;
+    bool sharedPipelineCacheHit=false;
+    pipeline::SharedAcquireTiming sharedAcquireTiming{};
+    const auto prepared=pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0,maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0,maxLogicalResidentBytes)),
-        ctx);
+        ctx,
+        sharedPipelineCacheHit,
+        &sharedAcquireTiming);
     if(!prepared){
         return status(env,prepared.code,prepared.message);
     }
+    const auto sharedAcquireFinished=SteadyClock::now();
+
+    const auto sharedLockWaitStarted=SteadyClock::now();
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+    const auto sharedLockAcquired=SteadyClock::now();
 
     n2_cfa::Binding v01Binding{};
-    v01Binding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    v01Binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     v01Binding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     n2_cfa::Options options{};
     options.tileEdge=64u;
     options.samplingPeriod=8u;
 
+    row_band::RowBandReuseTileSource n2ReadSource(
+        *ctx->openedSource.source);
+
+    const auto v01Started=SteadyClock::now();
     n2_cfa::Result v01{};
     if(!n2_cfa::run(
-            *ctx.openedSource.source,
+            n2ReadSource,
             v01Binding,
             options,
             v01)||
        v01.sourceValuesModified||
        v01.truthNegativeModified||
        v01.createsNewEvidence||
-       v01.scientificWritebackAllowed){
+       v01.scientificWritebackAllowed||
+       n2ReadSource.scientificValuesModified()||
+       n2ReadSource.createsNewEvidence()||
+       n2ReadSource.scientificWritebackAllowed()){
         return status(env,-91,"v0.1 factored reference audit failed");
     }
+    const auto v01Finished=SteadyClock::now();
+
+    const auto v01RowBandFillCount =
+        n2ReadSource.bandFillCount();
+    const auto v01RowBandServedRequestCount =
+        n2ReadSource.bandServedRequestCount();
+    const auto v01RowBandCacheHitRequestCount =
+        n2ReadSource.bandCacheHitRequestCount();
+    const auto v01RowBandFallbackRequestCount =
+        n2ReadSource.fallbackRequestCount();
 
     ce_spatial::Binding ceBinding{};
-    ceBinding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    ceBinding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     ceBinding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     ceBinding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     ceBinding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     ceBinding.v01CandidateSha256=v01.candidateSha256;
     ceBinding.v01AuditSha256=v01.auditSha256;
     ceBinding.v01SpatialSha256=v01.spatialSha256;
 
+    const auto centerExcludedStarted=SteadyClock::now();
     ce_spatial::Result ceAudit{};
-    if(!ce_spatial::run(
-            *ctx.openedSource.source,
-            ceBinding,
-            v01,
-            ceAudit)||
-       !ceAudit.v01TileParityVerified||
+    ce_sparse::Diagnostics centerExcludedDiagnostics{};
+    bool centerExcludedSparseDiagnosticsAvailable=false;
+    bool v01SparseReferenceReuseVerified=false;
+    bool v01RerunPerformed=false;
+    if(v01.correctedSampleCoordinatesComplete){
+        if(!ce_sparse::runSparseReference(
+                n2ReadSource,
+                ceBinding,
+                v01,
+                ceAudit,
+                &centerExcludedDiagnostics)){
+            return status(
+                env,
+                -92,
+                "v0.2.1 sparse factored reference audit failed");
+        }
+        v01SparseReferenceReuseVerified=true;
+        centerExcludedSparseDiagnosticsAvailable=true;
+    }else{
+        // Bounded optimization metadata is unavailable. Preserve the exact
+        // established v0.2.1 scientific route rather than expanding memory.
+        if(!ce_spatial::run(
+                *ctx->openedSource.source,
+                ceBinding,
+                v01,
+                ceAudit)){
+            return status(
+                env,
+                -92,
+                "v0.2.1 legacy factored reference audit failed");
+        }
+        v01RerunPerformed=true;
+    }
+    const auto centerExcludedFinished=SteadyClock::now();
+    if(!ceAudit.v01TileParityVerified||
        ceAudit.candidateApplied||
        ceAudit.createsNewEvidence||
        ceAudit.scientificWritebackAllowed){
@@ -156,18 +229,19 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     }
 
     confidence::Binding confidenceBinding{};
-    confidenceBinding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    confidenceBinding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     confidenceBinding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     confidenceBinding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     confidenceBinding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     confidenceBinding.v01CandidateSha256=v01.candidateSha256;
     confidenceBinding.v01AuditSha256=v01.auditSha256;
     confidenceBinding.v01SpatialSha256=v01.spatialSha256;
     confidenceBinding.centerExcludedAuditSha256=ceAudit.auditSha256;
 
+    const auto confidenceStarted=SteadyClock::now();
     confidence::Result confidenceField{};
     if(!confidence::derive(
             confidenceBinding,
@@ -182,21 +256,23 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        confidenceField.scientificWritebackAllowed){
         return status(env,-93,"v0.3 confidence reference failed");
     }
+    const auto confidenceFinished=SteadyClock::now();
 
     factored::Binding binding{};
-    binding.sourceEvidenceSha256=ctx.sourceSeal.sha256;
+    binding.sourceEvidenceSha256=ctx->sourceSeal.sha256;
     binding.scientificMasterSha256=
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     binding.authorityFieldSha256=
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     binding.truthNegativeStateSha256=
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
     binding.v01CandidateSha256=v01.candidateSha256;
     binding.v01AuditSha256=v01.auditSha256;
     binding.v01SpatialSha256=v01.spatialSha256;
     binding.centerExcludedAuditSha256=ceAudit.auditSha256;
     binding.confidenceFieldSha256=confidenceField.fieldSha256;
 
+    const auto factoredDeriveStarted=SteadyClock::now();
     factored::Result state{};
     if(!factored::derive(binding,confidenceField,state)||
        !state.exactConfidenceFieldBindingVerified||
@@ -210,12 +286,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        state.scientificWritebackAllowed){
         return status(env,-94,"N2 factored confidence derivation failed");
     }
+    const auto factoredDeriveFinished=SteadyClock::now();
 
+    const auto factoredEncodeStarted=SteadyClock::now();
     factored::Report report{};
     if(!factored::encode(
             binding,
-            ctx.width,
-            ctx.height,
+            ctx->width,
+            ctx->height,
             state,
             report)||
        report.promotionEligible||
@@ -224,7 +302,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
        report.scientificWritebackAllowed){
         return status(env,-95,"N2 factored confidence encode failed");
     }
+    const auto factoredEncodeFinished=SteadyClock::now();
 
+    const auto writeVerifyStarted=SteadyClock::now();
     if(!write_all(destinationFd,report.json)){
         return status(env,-96,"N2 factored confidence write failed");
     }
@@ -238,14 +318,169 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
         return status(env,-97,"N2 factored confidence post-write SHA mismatch");
     }
 
-    if(!pipeline::reverify(ctx)){
+    if(!pipeline::reverify(*ctx)){
         return status(env,-98,"source changed during N2 factored confidence export");
     }
+    const auto writeVerifyFinished=SteadyClock::now();
+    const auto bridgeFinished=SteadyClock::now();
 
     std::ostringstream o;
     o<<"{\"status\":0";
-    o<<",\"width\":"<<ctx.width;
-    o<<",\"height\":"<<ctx.height;
+    o<<",\"width\":"<<ctx->width;
+    o<<",\"height\":"<<ctx->height;
+    o<<",\"sharedPipelineCacheHit\":"<<(sharedPipelineCacheHit?"true":"false");
+    o<<",\"v01SparseReferenceReuseVerified\":"
+      <<(v01SparseReferenceReuseVerified?"true":"false");
+    o<<",\"v01RerunPerformed\":"
+      <<(v01RerunPerformed?"true":"false");
+    o<<",\"v01SparseReferenceIndexComplete\":"
+      <<(v01.correctedSampleCoordinatesComplete?"true":"false");
+    o<<",\"rowBandReuseActive\":true";
+    o<<",\"v01RowBandFillCount\":"<<v01RowBandFillCount;
+    o<<",\"v01RowBandServedRequestCount\":"
+      <<v01RowBandServedRequestCount;
+    o<<",\"v01RowBandCacheHitRequestCount\":"
+      <<v01RowBandCacheHitRequestCount;
+    o<<",\"v01RowBandFallbackRequestCount\":"
+      <<v01RowBandFallbackRequestCount;
+    o<<",\"rowBandFillCountTotal\":"
+      <<n2ReadSource.bandFillCount();
+    o<<",\"rowBandServedRequestCountTotal\":"
+      <<n2ReadSource.bandServedRequestCount();
+    o<<",\"rowBandCacheHitRequestCountTotal\":"
+      <<n2ReadSource.bandCacheHitRequestCount();
+    o<<",\"rowBandFallbackRequestCountTotal\":"
+      <<n2ReadSource.fallbackRequestCount();
+    o<<",\"rowBandPeakCacheBytes\":"
+      <<n2ReadSource.peakCacheBytes();
+    o<<",\"rowBandScientificValuesModified\":false";
+    o<<",\"nativePhaseTimingAvailable\":true";
+    o<<",\"phaseSharedAcquireMs\":"
+      <<elapsed_ms(bridgeStarted,sharedAcquireFinished);
+    o<<",\"phaseSharedContextLockWaitMs\":"
+      <<elapsed_ms(sharedLockWaitStarted,sharedLockAcquired);
+    o<<",\"sharedAcquireSubphaseTimingAvailable\":true";
+    o<<",\"sharedAcquireProbeSealMs\":"
+      <<sharedAcquireTiming.probeSealMs;
+    o<<",\"sharedAcquireCacheLookupMs\":"
+      <<sharedAcquireTiming.cacheLookupMs;
+    o<<",\"sharedAcquirePrepareTotalMs\":"
+      <<sharedAcquireTiming.prepareTotalMs;
+    o<<",\"prepareDuplicateAndByteSourceMs\":"
+      <<sharedAcquireTiming.preparation.duplicateAndByteSourceMs;
+    o<<",\"prepareSealSourceMs\":"
+      <<sharedAcquireTiming.preparation.sealSourceMs;
+    o<<",\"prepareColorBindingMs\":"
+      <<sharedAcquireTiming.preparation.colorBindingMs;
+    o<<",\"prepareColorSourceMs\":"
+      <<sharedAcquireTiming.preparation.prepareColorSourceMs;
+    o<<",\"preparePreOpenReverifyMs\":"
+      <<sharedAcquireTiming.preparation.preOpenReverifyMs;
+    o<<",\"prepareOpenDngAdapterMs\":"
+      <<sharedAcquireTiming.preparation.openDngAdapterMs;
+    o<<",\"prepareBindScientificMasterMs\":"
+      <<sharedAcquireTiming.preparation.bindScientificMasterMs;
+    o<<",\"prepareFinalizePhase2Ms\":"
+      <<sharedAcquireTiming.preparation.finalizePhase2Ms;
+    o<<",\"prepareSummarizeAuthorityFieldMs\":"
+      <<sharedAcquireTiming.preparation.summarizeAuthorityFieldMs;
+    o<<",\"authorityFieldFusedIntoScientificMasterPass\":"
+      <<(sharedAcquireTiming.preparation.authorityFusedIntoScientificMasterPass
+            ?"true":"false");
+    o<<",\"authorityFieldReplayPassPerformed\":"
+      <<(sharedAcquireTiming.preparation.authorityReplayPassPerformed
+            ?"true":"false");
+    o<<",\"authorityFieldFusedFinalizeMs\":"
+      <<sharedAcquireTiming.preparation.authorityFusedFinalizeMs;
+    o<<",\"authorityDirectRecordStreamingActive\":"
+      <<(sharedAcquireTiming.preparation.authorityDirectRecordStreamingActive
+            ?"true":"false");
+    o<<",\"authorityTemporaryRecordVectorUsed\":"
+      <<(sharedAcquireTiming.preparation.authorityTemporaryRecordVectorUsed
+            ?"true":"false");
+    o<<",\"authorityDirectByteEncodingActive\":"
+      <<(sharedAcquireTiming.preparation.authorityDirectByteEncodingActive
+            ?"true":"false");
+    o<<",\"authorityGenericRecordValidationBypassed\":"
+      <<(sharedAcquireTiming.preparation.authorityGenericRecordValidationBypassed
+            ?"true":"false");
+    o<<",\"authorityPixelTripletEncodingActive\":"
+      <<(sharedAcquireTiming.preparation.authorityPixelTripletEncodingActive
+            ?"true":"false");
+    o<<",\"authorityCanonicalRecordBytes\":"
+      <<sharedAcquireTiming.preparation.authorityCanonicalRecordBytes;
+    o<<",\"authorityCanonicalPixelTripletBytes\":"
+      <<sharedAcquireTiming.preparation.authorityCanonicalPixelTripletBytes;
+    o<<",\"authorityHashBatchRecordCapacity\":"
+      <<sharedAcquireTiming.preparation.authorityHashBatchRecordCapacity;
+    o<<",\"authorityHashBatchBytes\":"
+      <<sharedAcquireTiming.preparation.authorityHashBatchBytes;
+    o<<",\"authorityDirectByteRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectByteRecordCount;
+    o<<",\"authorityGenericFallbackRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityGenericFallbackRecordCount;
+    o<<",\"authorityDirectPixelTripletCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectPixelTripletCount;
+    o<<",\"authorityGenericFallbackPixelCount\":"
+      <<sharedAcquireTiming.preparation.authorityGenericFallbackPixelCount;
+    o<<",\"authorityShaDirectBlockTransportActive\":"
+      <<(sharedAcquireTiming.preparation.authorityShaDirectBlockTransportActive
+            ?"true":"false");
+    o<<",\"authorityShaDirectInputBlockTransformCount\":"
+      <<sharedAcquireTiming.preparation.authorityShaDirectInputBlockTransformCount;
+    o<<",\"authorityShaBufferedInputBlockTransformCount\":"
+      <<sharedAcquireTiming.preparation.authorityShaBufferedInputBlockTransformCount;
+    o<<",\"authorityShaDirectInputBytes\":"
+      <<sharedAcquireTiming.preparation.authorityShaDirectInputBytes;
+    o<<",\"authorityDirectRecordStreamMs\":"
+
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamMs;
+    o<<",\"authorityDirectRecordStreamTileCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamTileCount;
+    o<<",\"authorityDirectRecordStreamRecordCount\":"
+      <<sharedAcquireTiming.preparation.authorityDirectRecordStreamRecordCount;
+    o<<",\"authorityAccumulatorResidentBytesUpperBound\":"
+      <<sharedAcquireTiming.preparation.authorityAccumulatorResidentBytesUpperBound;
+    o<<",\"prepareFinalizeTruthNegativeMs\":"
+      <<sharedAcquireTiming.preparation.finalizeTruthNegativeMs;
+    o<<",\"prepareFinalizeDrawNegativeMs\":"
+      <<sharedAcquireTiming.preparation.finalizeDrawNegativeMs;
+    o<<",\"prepareTotalInstrumentedMs\":"
+      <<sharedAcquireTiming.preparation.totalMs;
+    o<<",\"phaseV01CfaAuditMs\":"
+      <<elapsed_ms(v01Started,v01Finished);
+    o<<",\"phaseCenterExcludedMs\":"
+      <<elapsed_ms(centerExcludedStarted,centerExcludedFinished);
+    o<<",\"centerExcludedSubphaseTimingAvailable\":"
+      <<(centerExcludedSparseDiagnosticsAvailable?"true":"false");
+    o<<",\"centerExcludedFillStage2Ms\":"
+      <<centerExcludedDiagnostics.fillStage2Ms;
+    o<<",\"centerExcludedCandidateLoopMs\":"
+      <<centerExcludedDiagnostics.candidateLoopMs;
+    o<<",\"centerExcludedPredictorEstimateMs\":"
+      <<centerExcludedDiagnostics.predictorEstimateMs;
+    o<<",\"centerExcludedFinalHashMs\":"
+      <<centerExcludedDiagnostics.finalHashMs;
+    o<<",\"centerExcludedTotalInstrumentedMs\":"
+      <<centerExcludedDiagnostics.totalMs;
+    o<<",\"centerExcludedTileCount\":"
+      <<centerExcludedDiagnostics.tileCount;
+    o<<",\"centerExcludedCandidateTileCount\":"
+      <<centerExcludedDiagnostics.candidateTileCount;
+    o<<",\"centerExcludedCandidateCenterCount\":"
+      <<centerExcludedDiagnostics.candidateCenterCount;
+    o<<",\"phaseConfidenceDeriveMs\":"
+      <<elapsed_ms(confidenceStarted,confidenceFinished);
+    o<<",\"phaseFactoredDeriveMs\":"
+      <<elapsed_ms(factoredDeriveStarted,factoredDeriveFinished);
+    o<<",\"phaseFactoredEncodeMs\":"
+      <<elapsed_ms(factoredEncodeStarted,factoredEncodeFinished);
+    o<<",\"phaseWriteReadbackReverifyMs\":"
+      <<elapsed_ms(writeVerifyStarted,writeVerifyFinished);
+    o<<",\"phaseTotalBridgeMs\":"
+      <<elapsed_ms(bridgeStarted,bridgeFinished);
+    o<<",\"phaseTimingIsScientificEvidence\":false";
+    o<<",\"phaseTimingMayChangeScientificAuthority\":false";
     o<<",\"fileBytes\":"<<report.json.size();
     o<<",\"tileCount\":"<<report.tileCount;
     o<<",\"hasCandidateTiles\":"<<state.hasCandidateTiles;
@@ -268,13 +503,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"maxPredictorVarianceLeCenterVarianceTiles\":"
       <<state.maxPredictorVarianceLeCenterVarianceTiles;
     o<<",\"sourceSha256\":\""
-      <<sha::hex(ctx.sourceSeal.sha256)<<"\"";
+      <<sha::hex(ctx->sourceSeal.sha256)<<"\"";
     o<<",\"scientificMasterSha256\":\""
-      <<sha::hex(ctx.scientific.scientificMasterHash)<<"\"";
+      <<sha::hex(ctx->scientific.scientificMasterHash)<<"\"";
     o<<",\"authorityFieldSha256\":\""
-      <<sha::hex(ctx.authorityField.contentSha256)<<"\"";
+      <<sha::hex(ctx->authorityField.contentSha256)<<"\"";
     o<<",\"truthNegativeStateSha256\":\""
-      <<sha::hex(ctx.truthNegativeState.stateSha256)<<"\"";
+      <<sha::hex(ctx->truthNegativeState.stateSha256)<<"\"";
     o<<",\"v01CandidateSha256\":\""
       <<sha::hex(v01.candidateSha256)<<"\"";
     o<<",\"v01AuditSha256\":\""
@@ -301,3 +536,12 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"scientificWritebackAllowed\":false}";
     return env->NewStringUTF(o.str().c_str());
 }
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_clearSharedPipelineCache(
+    JNIEnv*,
+    jobject) {
+    pipeline::clearSharedCache();
+    return JNI_TRUE;
+}
+

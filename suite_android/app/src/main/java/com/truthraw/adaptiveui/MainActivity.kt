@@ -127,7 +127,7 @@ class MainActivity : Activity() {
             if (keepPolling) {
                 researchStatusHandler.postDelayed(
                     this,
-                    1000L,
+                    2000L,
                 )
             }
         }
@@ -168,6 +168,7 @@ class MainActivity : Activity() {
     private val universalProfileCompletionWaiters =
         mutableMapOf<String, MutableList<(Boolean) -> Unit>>()
     private var researchWorkbenchSessionRestoreStatus: String? = null
+    private var researchBatchLastHeartbeatWallMs: Long = 0L
 
     private enum class LayoutTier { COMPACT, MEDIUM, EXPANDED }
 
@@ -479,31 +480,29 @@ class MainActivity : Activity() {
         if (session.jobs.isEmpty()) {
             return
         }
-        if (
-            TruthRawMediaProcessingForegroundService.isActive(
-                fieldResponseRepeatabilityAnalysisOperationKey(),
-            )
-        ) {
-            return
-        }
-        val restoredProfiles =
-            ResearchUniversalProfileStoreV01.load(
-                filesDir = filesDir,
-                session = session,
-            )
-        if (restoredProfiles.isEmpty()) {
-            return
-        }
-        universalProfiles.putAll(
-            restoredProfiles,
-        )
-        for (jobId in restoredProfiles.keys) {
-            universalProfileErrors.remove(
-                jobId,
-            )
-            universalProfileLoading.remove(
-                jobId,
-            )
+
+        // Never reparse a large UniversalSourceProfile that is already present
+        // in this Activity. The previous implementation loaded every persisted
+        // profile on every 1 s status poll and again on every onResume(), which
+        // caused large transient JSONObject churn and could starve the UI
+        // thread after a four-RAW batch.
+        for (job in session.jobs) {
+            if (universalProfiles.containsKey(job.id)) {
+                continue
+            }
+            val restored =
+                ResearchUniversalProfileStoreV01.loadForJob(
+                    filesDir = filesDir,
+                    job = job,
+                ) ?: continue
+            universalProfiles[job.id] = restored
+            universalProfileErrors.remove(job.id)
+            universalProfileLoading.remove(job.id)
+
+            // Bound main-thread work: restore at most one large profile per
+            // poll/resume pass. Remaining completed profiles are admitted on
+            // subsequent lightweight status polls.
+            break
         }
     }
 
@@ -607,7 +606,7 @@ class MainActivity : Activity() {
         if (syncResearchBatchStatus()) {
             researchStatusHandler.postDelayed(
                 researchStatusPoll,
-                1000L,
+                2000L,
             )
         }
         render()
@@ -714,16 +713,82 @@ class MainActivity : Activity() {
             changed = true
         }
 
-        if (operation.terminal) {
-            val before =
-                universalProfiles.size
-            restoreResearchUniversalProfilesForCurrentSession()
-            if (
-                universalProfiles.size !=
-                before
-            ) {
-                changed = true
+        val profilesBefore =
+            universalProfiles.size
+        restoreResearchUniversalProfilesForCurrentSession()
+        if (universalProfiles.size != profilesBefore) {
+            changed = true
+        }
+
+        val journal =
+            ResearchBatchJournalV02.read(
+                this,
+                key,
+            )
+        val completed =
+            linkedSetOf<String>().apply {
+                addAll(universalProfiles.keys)
+                addAll(
+                    ResearchBatchJournalV02.completedJobIds(
+                        this@MainActivity,
+                        key,
+                    ),
+                )
             }
+        val failed =
+            ResearchBatchJournalV02.failedJobIds(
+                this,
+                key,
+            )
+        val pending =
+            session.jobs
+                .map { it.id }
+                .filterNot {
+                    it in completed ||
+                        it in failed
+                }
+                .toSet()
+
+        if (
+            fieldResponseBatchPendingJobIds.toSet() !=
+            pending
+        ) {
+            fieldResponseBatchPendingJobIds.clear()
+            fieldResponseBatchPendingJobIds.addAll(
+                pending,
+            )
+            changed = true
+        }
+        if (
+            fieldResponseBatchFailedJobIds.toSet() !=
+            failed
+        ) {
+            fieldResponseBatchFailedJobIds.clear()
+            fieldResponseBatchFailedJobIds.addAll(
+                failed,
+            )
+            changed = true
+        }
+
+        val heartbeat =
+            journal?.optLong(
+                "service_heartbeat_wall_ms",
+                0L,
+            ) ?: 0L
+        if (
+            heartbeat > 0L &&
+            heartbeat !=
+            researchBatchLastHeartbeatWallMs
+        ) {
+            // Heartbeat proves service liveness, but it must not rebuild the
+            // entire research UI. Re-rendering the very large workbench every
+            // heartbeat caused main-thread pressure and ANR risk.
+            researchBatchLastHeartbeatWallMs =
+                heartbeat
+        }
+
+        if (operation.terminal) {
+            restoreResearchUniversalProfilesForCurrentSession()
             if (
                 fieldResponseBatchPendingJobIds.isNotEmpty()
             ) {
@@ -736,7 +801,18 @@ class MainActivity : Activity() {
             render()
         }
 
-        return !operation.terminal
+        val completedOnDisk =
+            ResearchBatchJournalV02.completedJobIds(
+                this,
+                key,
+            )
+        val profileRestorePending =
+            completedOnDisk.any {
+                !universalProfiles.containsKey(it)
+            }
+
+        return !operation.terminal ||
+            profileRestorePending
     }
 
     private fun syncFullResRestorationStatus() {
@@ -8774,12 +8850,102 @@ class MainActivity : Activity() {
                 10f,
                 muted = true,
             ))
+
+            val journal =
+                ResearchBatchJournalV02.read(
+                    this@MainActivity,
+                    fieldResponseRepeatabilityAnalysisOperationKey(),
+                )
+            if (journal != null) {
+                val heartbeat =
+                    journal.optLong(
+                        "service_heartbeat_wall_ms",
+                        0L,
+                    )
+                val ageSeconds =
+                    if (heartbeat > 0L) {
+                        (
+                            (
+                                System.currentTimeMillis() -
+                                    heartbeat
+                                ).coerceAtLeast(0L) /
+                                1000L
+                            )
+                    } else {
+                        -1L
+                    }
+                val system =
+                    journal.optJSONObject(
+                        "system",
+                    )
+                val pssKb =
+                    system?.optLong(
+                        "process_pss_kb",
+                        -1L,
+                    ) ?: -1L
+                val stage =
+                    journal.optString(
+                        "current_stage",
+                        "UNKNOWN",
+                    )
+                val attempt =
+                    journal.optInt(
+                        "attempt_count",
+                        0,
+                    )
+                val redeliveries =
+                    journal.optInt(
+                        "redelivery_count",
+                        0,
+                    )
+                addView(
+                    label(
+                        "Service-checkpoint · stage=" +
+                            stage +
+                            " · heartbeat=" +
+                            if (ageSeconds >= 0L) {
+                                ageSeconds.toString() + " s"
+                            } else {
+                                "onbekend"
+                            } +
+                            " · PSS=" +
+                            if (pssKb >= 0L) {
+                                (pssKb / 1024L).toString() + " MiB"
+                            } else {
+                                "onbekend"
+                            } +
+                            " · poging=" +
+                            attempt +
+                            " · redelivery=" +
+                            redeliveries,
+                        10f,
+                        muted = true,
+                    ),
+                )
+
+                journal.optJSONObject(
+                    "previous_process_exit",
+                )?.takeIf {
+                    it.optBoolean(
+                        "android17_memory_limiter_anon_swap",
+                        false,
+                    )
+                }?.let {
+                    addView(
+                        label(
+                            "Vorige process-exit: Android 17 MemoryLimiter:AnonSwap gedetecteerd.",
+                            10f,
+                            muted = true,
+                        ),
+                    )
+                }
+            }
         }
 
         if (measuredCharts < 3) {
             addView(label(
                 "Repeatability-gate nog niet open: measured-field-chart=" +
-                    measuredCharts + "/3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
+                    measuredCharts + " · minimum=3. Alleen DNG-observaties met een werkelijk gemeten PR96 " +
                     "CFA-field chart tellen mee; JPEG en decoder-pending/ongeschikte RAW-topologie tellen niet mee.",
                 10f,
                 muted = true,

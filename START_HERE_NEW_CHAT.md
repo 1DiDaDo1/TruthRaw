@@ -1,3 +1,64 @@
+# D.RAW / TruthRaw — CURRENT 2026-10-02 CHECKPOINT — CODE 44488
+
+Continuation code:
+
+`44488`
+
+Restore the complete project through **v0.2.9 SHA-256 Direct Block**, now merged and real-device validated, while preserving all earlier scientific, Free World, calibration, optics, colour, temporal, 3D/world-space, cable-recovery and authority context.
+
+Current branch:
+
+`fix/android17-research-resilience-v02`
+
+Latest merged PR:
+
+`#116 — SHA-256 Direct Block v0.2.9`
+
+Current source checkpoint:
+
+`edcae3eabb077d53b6a25802e6b9ca62c188b973`
+
+Read first:
+
+1. `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+3. `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+
+Validated Android line:
+
+- versionCode `26100110`
+- versionName `0.53-v0.84.2-sha-direct-block`
+- APK SHA-256 `30756dbff117b4fba432e7f541eea37e0b4bbe35ef9ea24beb301a20d6e1e2bd`
+- stable signing certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+
+Real-device v0.2.9:
+- aggregate two-RAW profile time `32.515212 s`;
+- SHA direct-block transport active;
+- `914,964,480` authority bytes per RAW bypass the old complete-block staging copy;
+- exact authority digest/count semantics retained;
+- scientific firewall unchanged.
+
+Current next frontier:
+
+**Pixel-Triplet Authority Encoder v0.2.10** — determine CFA/censor state once per pixel and emit the exact three existing 25-byte channel records as one 75-byte triplet. All four Bayer phases, censored/non-censored cases, byte order, record order, counts and final SHA must remain exact. Future unsupported semantics must fail closed to the general route.
+
+The following remain separate later candidates and must not be folded into v0.2.10:
+- canonical template/suffix reuse;
+- hash-batch-size tuning;
+- center-excluded predictor optimization;
+- deterministic local scientific model selection.
+
+Permanent laws remain:
+- `MEASURED != RECONSTRUCTED != APPEARANCE`;
+- seal the evidence, not the thinking;
+- representation can exceed the source; knowledge claims cannot exceed the evidence;
+- no performance path may promote calibration/correction or write Scientific Master;
+- specialized fast paths stay versioned, parity-proven and fail-closed.
+
+A future chat receiving only **44488** should recover repository state first and continue from this checkpoint unless a newer proven state exists.
+
+---
+
 # D.RAW / TruthRaw — CURRENT 2026-10-01 CHECKPOINT — CODE 44485
 
 This section supersedes older global-current-state notes below wherever they conflict.
@@ -1730,3 +1791,32 @@ These are frozen downstream references for their validated source and are not au
 6. keep Scientific Master, Dynamic Authority, TruthRange, HDR, restoration and appearance downstream from correctly established source topology.
 
 v0.71 CI run `35506676249` = **SUCCESS** on GCC, Clang, scientific contracts and Android. Documentation governance run `35506676288` = **SUCCESS**. Artifact ID `10604525855`; APK SHA-256 `5653f33c5bbf3263473ee89cfc70e1d0807ce0a529b258b61e3325b791700e46`.
+
+
+## 2026-10-01 Android 17 performance baseline (current)
+
+This section supersedes the older Android/research-performance continuation notes above.
+
+Validated real-device checkpoint:
+- PR #107 merged as `9c74740bc8174d7e29d2312e342c1f3c8c943e16`.
+- Same four DNGs, cold run after app-data clear: **15:31 -> 05:18**.
+- attempt=1, redelivery=0, no terminal ANR.
+- leaving/returning to Research after completion passed.
+- Free World Observation Geometry Foundation export after completion passed.
+- Shared scientific preparation is same-RAW only, one context maximum, serialized, source-reverified and released at the profile boundary.
+- Scientific authority did not change: no source mutation, no calibration/correction promotion, no candidate application, no Scientific-Master writeback.
+
+Follow-up source-control baseline:
+- per-stage monotonic timing and shared prepare hit/miss telemetry are diagnostic-only;
+- Foundation export aggregates that telemetry per observation;
+- Android `versionCode` is now repository-owned via `suite_android/VERSION_CODE`;
+- current versionCode baseline: `26100101`;
+- application ID remains `com.truthraw.adaptiveui`;
+- stable signing certificate remains `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
+
+Canonical supporting records:
+- `state/DRAW_ANDROID17_RESEARCH_PERFORMANCE_BASELINE_2026-10-01.json`
+- `state/DRAW_ANDROID_VERSION_LINEAGE_V01.json`
+- `docs/research/shared-scientific-context-v0.1/README.md`
+
+Important: the cold performance run intentionally cleared app data. Therefore the Calibration Observation Record was absent from that run's final Foundation export; controlled-rotation/measured-support/topography candidates failing closed in that export are not a runtime regression.

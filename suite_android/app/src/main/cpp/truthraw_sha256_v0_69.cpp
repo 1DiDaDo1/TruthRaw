@@ -18,11 +18,35 @@ inline std::uint32_t rotr(std::uint32_t v,unsigned n) noexcept {return (v>>n)|(v
 void Hasher::update(const std::uint8_t* data,std::size_t size) noexcept {
     if(finalized_||data==nullptr||size==0) return;
     total_+=static_cast<std::uint64_t>(size);
-    while(size){
-        const auto take=std::min<std::size_t>(size,block_.size()-used_);
+
+    // Preserve the historical buffered path whenever a previous update left
+    // a partial block. Only after that block is completed may complete input
+    // blocks bypass the staging memcpy and enter the unchanged transform
+    // directly.
+    if(used_!=0u){
+        const auto take=
+            std::min<std::size_t>(size,block_.size()-used_);
         std::memcpy(block_.data()+used_,data,take);
-        used_+=take; data+=take; size-=take;
-        if(used_==block_.size()){transform(block_.data());used_=0;}
+        used_+=take;
+        data+=take;
+        size-=take;
+        if(used_==block_.size()){
+            transform(block_.data());
+            ++bufferedInputBlockTransforms_;
+            used_=0u;
+        }
+    }
+
+    while(size>=block_.size()){
+        transform(data);
+        ++directInputBlockTransforms_;
+        data+=block_.size();
+        size-=block_.size();
+    }
+
+    if(size!=0u){
+        std::memcpy(block_.data(),data,size);
+        used_=size;
     }
 }
 void Hasher::transform(const std::uint8_t* b) noexcept {

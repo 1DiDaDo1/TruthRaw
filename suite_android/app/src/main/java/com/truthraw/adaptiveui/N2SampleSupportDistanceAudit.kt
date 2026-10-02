@@ -362,6 +362,10 @@ object N2SampleSupportDistanceAudit {
                 .put("status", "AUDIT_ONLY_DISTANCE_BINDING_AVAILABLE")
                 .put("source_sha256", sourceSha256)
                 .put(
+                    "shared_pipeline_prepare_cache_hit",
+                    status.optBoolean("sharedPipelineCacheHit", false),
+                )
+                .put(
                     "authority",
                     "EXACT_SAMPLED_SUPPORT_GEOMETRY_DIAGNOSTIC_ONLY",
                 )

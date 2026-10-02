@@ -96,20 +96,24 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
         return status(env, -90, "invalid destination fd");
     }
 
-    pipeline::Context ctx{};
-    const auto prepared = pipeline::prepare(
+    std::shared_ptr<pipeline::Context> ctx;
+    bool sharedPipelineCacheHit = false;
+    const auto prepared = pipeline::acquireShared(
         sourceFd,
         static_cast<std::size_t>(std::max(0, maxSourceResidentBytes)),
         static_cast<std::size_t>(std::max(0, maxLogicalResidentBytes)),
-        ctx);
+        ctx,
+        sharedPipelineCacheHit);
     if (!prepared) {
         return status(env, prepared.code, prepared.message);
     }
 
+    std::lock_guard<std::mutex> sharedContextUse(*ctx->useMutex);
+
     n2_cfa::Binding auditBinding{};
-    auditBinding.sourceEvidenceSha256 = ctx.sourceSeal.sha256;
+    auditBinding.sourceEvidenceSha256 = ctx->sourceSeal.sha256;
     auditBinding.truthNegativeStateSha256 =
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     n2_cfa::Options options{};
     options.tileEdge = support::kTileEdge;
@@ -117,7 +121,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
 
     n2_cfa::Result audit{};
     if (!n2_cfa::run(
-            *ctx.openedSource.source,
+            *ctx->openedSource.source,
             auditBinding,
             options,
             audit) ||
@@ -129,19 +133,19 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
     }
 
     support::Binding binding{};
-    binding.sourceEvidenceSha256 = ctx.sourceSeal.sha256;
+    binding.sourceEvidenceSha256 = ctx->sourceSeal.sha256;
     binding.scientificMasterSha256 =
-        ctx.scientific.scientificMasterHash;
+        ctx->scientific.scientificMasterHash;
     binding.authorityFieldSha256 =
-        ctx.authorityField.contentSha256;
+        ctx->authorityField.contentSha256;
     binding.truthNegativeStateSha256 =
-        ctx.truthNegativeState.stateSha256;
+        ctx->truthNegativeState.stateSha256;
 
     support::Report report{};
     if (!support::encode(
             binding,
-            ctx.width,
-            ctx.height,
+            ctx->width,
+            ctx->height,
             audit,
             report) ||
         !report.sampleGridEvidenceOnly ||
@@ -170,7 +174,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
             "N2 fine structure-support post-write SHA mismatch");
     }
 
-    if (!pipeline::reverify(ctx)) {
+    if (!pipeline::reverify(*ctx)) {
         return status(
             env,
             -95,
@@ -179,8 +183,10 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
 
     std::ostringstream o;
     o << "{\"status\":0";
-    o << ",\"width\":" << ctx.width;
-    o << ",\"height\":" << ctx.height;
+    o << ",\"width\":" << ctx->width;
+    o << ",\"height\":" << ctx->height;
+    o << ",\"sharedPipelineCacheHit\":"
+      << (sharedPipelineCacheHit ? "true" : "false");
     o << ",\"fileBytes\":" << report.json.size();
     o << ",\"tileCount\":" << report.tileCount;
     o << ",\"tileEdge\":" << support::kTileEdge;
@@ -191,13 +197,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2StructureSupportBridge_exportAndVeri
     o << ",\"censorBoundaryProtected\":"
       << report.censorBoundaryProtected;
     o << ",\"sourceSha256\":\""
-      << sha::hex(ctx.sourceSeal.sha256) << "\"";
+      << sha::hex(ctx->sourceSeal.sha256) << "\"";
     o << ",\"scientificMasterSha256\":\""
-      << sha::hex(ctx.scientific.scientificMasterHash) << "\"";
+      << sha::hex(ctx->scientific.scientificMasterHash) << "\"";
     o << ",\"authorityFieldSha256\":\""
-      << sha::hex(ctx.authorityField.contentSha256) << "\"";
+      << sha::hex(ctx->authorityField.contentSha256) << "\"";
     o << ",\"truthNegativeStateSha256\":\""
-      << sha::hex(ctx.truthNegativeState.stateSha256) << "\"";
+      << sha::hex(ctx->truthNegativeState.stateSha256) << "\"";
     o << ",\"candidateSha256\":\""
       << sha::hex(audit.candidateSha256) << "\"";
     o << ",\"auditSha256\":\""

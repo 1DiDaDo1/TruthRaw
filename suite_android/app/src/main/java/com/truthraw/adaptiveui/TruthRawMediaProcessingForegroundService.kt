@@ -11,6 +11,7 @@ import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.os.PowerManager
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 class TruthRawMediaProcessingForegroundService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
@@ -69,6 +70,8 @@ class TruthRawMediaProcessingForegroundService : Service() {
         if (startResearchWorker) {
             runResearchUniversalBatch(
                 operationKey = key,
+                redelivered =
+                    flags and START_FLAG_REDELIVERY != 0,
             )
             return START_REDELIVER_INTENT
         }
@@ -98,8 +101,11 @@ class TruthRawMediaProcessingForegroundService : Service() {
 
     private fun runResearchUniversalBatch(
         operationKey: String,
+        redelivered: Boolean,
     ) {
         Thread({
+            var heartbeatStop: AtomicBoolean? = null
+            var heartbeatThread: Thread? = null
             try {
                 val session =
                     ResearchWorkbenchSessionStoreV01.load(
@@ -113,6 +119,38 @@ class TruthRawMediaProcessingForegroundService : Service() {
                         "Persistente Research-selectie bevat geen RAW-bronnen.",
                     )
                 }
+
+                ResearchBatchJournalV02.begin(
+                    context = applicationContext,
+                    operationKey = operationKey,
+                    jobs = session.jobs,
+                    redelivered = redelivered,
+                )
+
+                val stopHeartbeat = AtomicBoolean(false)
+                heartbeatStop = stopHeartbeat
+                heartbeatThread =
+                    Thread(
+                        {
+                            while (!stopHeartbeat.get()) {
+                                ResearchBatchJournalV02.heartbeat(
+                                    applicationContext,
+                                    operationKey,
+                                )
+                                try {
+                                    Thread.sleep(
+                                        RESEARCH_HEARTBEAT_INTERVAL_MS,
+                                    )
+                                } catch (_: InterruptedException) {
+                                    break
+                                }
+                            }
+                        },
+                        "draw-research-heartbeat",
+                    ).apply {
+                        isDaemon = true
+                        start()
+                    }
 
                 var measuredCharts = 0
                 var failures = 0
@@ -139,6 +177,19 @@ class TruthRawMediaProcessingForegroundService : Service() {
                         } else {
                             progress
                         }
+                    ResearchBatchJournalV02.stage(
+                        context = applicationContext,
+                        operationKey = operationKey,
+                        job = job,
+                        index = index,
+                        total = session.jobs.size,
+                        stage =
+                            if (existing != null) {
+                                "PROFILE_REUSED"
+                            } else {
+                                "PROFILE_BEGIN"
+                            },
+                    )
                     labels[operationKey] =
                         progressMessage
                     TruthRawOperationStore.update(
@@ -152,16 +203,62 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     val profile =
                         existing
                             ?: runCatching {
-                                UniversalSourceProfiler.profile(
-                                    contentResolver,
-                                    job.source,
-                                    cacheDir,
-                                )
+                                try {
+                                    UniversalSourceProfiler.profile(
+                                        resolver = contentResolver,
+                                        source = job.source,
+                                        cacheDir = cacheDir,
+                                        progress = { stage ->
+                                            val stageMessage =
+                                                progress +
+                                                    " · stage=" +
+                                                    stage
+                                            labels[operationKey] =
+                                                stageMessage
+                                            TruthRawOperationStore.update(
+                                                applicationContext,
+                                                operationKey,
+                                                TruthRawOperationPhase.RUNNING,
+                                                stageMessage,
+                                            )
+                                            ResearchBatchJournalV02.stage(
+                                                context = applicationContext,
+                                                operationKey = operationKey,
+                                                job = job,
+                                                index = index,
+                                                total = session.jobs.size,
+                                                stage = stage,
+                                            )
+                                            notifyProgress()
+                                        },
+                                        derivedStageCacheDir = filesDir,
+                                    )
+                                } finally {
+                                    // The shared native preparation cache is
+                                    // intentionally one-source and one-profile
+                                    // scoped. Release it before the service
+                                    // advances to the next RAW so no large
+                                    // Scientific-Master context survives the
+                                    // profile boundary.
+                                    runCatching {
+                                        TruthNegativeN2FactoredConfidenceBridge
+                                            .clearSharedPipelineCache()
+                                    }
+                                }
                             }.onSuccess {
                                 ResearchUniversalProfileStoreV01.save(
                                     filesDir = filesDir,
                                     job = job,
                                     profile = it,
+                                )
+                                ResearchBatchJournalV02.completed(
+                                    context = applicationContext,
+                                    operationKey = operationKey,
+                                    job = job,
+                                    sourceSha256 =
+                                        it.optString(
+                                            "source_sha256",
+                                        ),
                                 )
                             }.onFailure { error ->
                                 failures++
@@ -174,6 +271,12 @@ class TruthRawMediaProcessingForegroundService : Service() {
                                             )
                                 labels[operationKey] =
                                     failureMessage
+                                ResearchBatchJournalV02.failed(
+                                    context = applicationContext,
+                                    operationKey = operationKey,
+                                    job = job,
+                                    message = failureMessage,
+                                )
                                 TruthRawOperationStore.update(
                                     applicationContext,
                                     operationKey,
@@ -182,6 +285,18 @@ class TruthRawMediaProcessingForegroundService : Service() {
                                 )
                                 notifyProgress()
                             }.getOrNull()
+
+                    if (existing != null) {
+                        ResearchBatchJournalV02.completed(
+                            context = applicationContext,
+                            operationKey = operationKey,
+                            job = job,
+                            sourceSha256 =
+                                existing.optString(
+                                    "source_sha256",
+                                ),
+                        )
+                    }
 
                     if (
                         profile
@@ -215,7 +330,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     if (failures == 0) {
                         "Field Response bronanalyse gereed · measured-field-chart=" +
                             measuredCharts +
-                            "/3" +
+                            " · minimum=3" +
                             if (measuredCharts >= 3) {
                                 " · repeatability-export beschikbaar."
                             } else {
@@ -226,9 +341,15 @@ class TruthRawMediaProcessingForegroundService : Service() {
                             failures +
                             " fout(en) · measured-field-chart=" +
                             measuredCharts +
-                            "/3."
+                            " · minimum=3."
                     }
 
+                ResearchBatchJournalV02.finish(
+                    context = applicationContext,
+                    operationKey = operationKey,
+                    success = failures == 0,
+                    message = message,
+                )
                 if (failures == 0) {
                     success(
                         applicationContext,
@@ -243,16 +364,26 @@ class TruthRawMediaProcessingForegroundService : Service() {
                     )
                 }
             } catch (error: Throwable) {
-                error(
-                    applicationContext,
-                    operationKey,
+                val failure =
                     "Research bronanalyse faalde: " +
                         (
                             error.message
                                 ?: error.javaClass.simpleName
-                            ),
+                            )
+                ResearchBatchJournalV02.finish(
+                    context = applicationContext,
+                    operationKey = operationKey,
+                    success = false,
+                    message = failure,
+                )
+                error(
+                    applicationContext,
+                    operationKey,
+                    failure,
                 )
             } finally {
+                heartbeatStop?.set(true)
+                heartbeatThread?.interrupt()
                 researchWorkerKeys.remove(
                     operationKey,
                 )
@@ -381,6 +512,7 @@ class TruthRawMediaProcessingForegroundService : Service() {
         private const val ACTION_RESEARCH_UNIVERSAL_BATCH =
             "com.truthraw.adaptiveui.action.RESEARCH_UNIVERSAL_BATCH"
         private const val WAKELOCK_TIMEOUT_MS = 6L * 60L * 60L * 1000L
+        private const val RESEARCH_HEARTBEAT_INTERVAL_MS = 5_000L
 
         @Volatile
         private var instance: TruthRawMediaProcessingForegroundService? = null

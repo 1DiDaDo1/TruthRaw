@@ -1,5 +1,38 @@
 # D.RAW state directory
 
+## Current active state — 2026-10-02 — code 44488
+
+Read first:
+
+- `CURRENT_PROJECT_STATE_2026-10-02.json`
+- `../docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `../docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+- `../START_HERE_NEW_CHAT.md`
+
+Current branch:
+
+`fix/android17-research-resilience-v02`
+
+Current merged source checkpoint:
+
+`edcae3eabb077d53b6a25802e6b9ca62c188b973`
+
+Latest merged performance line:
+
+#109 sparse-reference reuse -> #110 row-band reuse -> #111 phase timing -> #112 subphase timing -> #113 authority fusion -> #114 direct record streaming -> #115 canonical direct-byte -> **#116 SHA-256 direct-block transport v0.2.9**.
+
+v0.2.9 is real-device validated. The two-RAW aggregate is about 32.515 s. Complete SHA input blocks now bypass the old staging-copy while the compression transform and digest semantics remain exact.
+
+The current next frontier is **Pixel-Triplet Authority Encoder v0.2.10**. It must emit exactly the same three 25-byte records per pixel in channel order, preserve the final authority SHA/counts, and retain a fail-closed general fallback for future semantic extensions.
+
+Template reuse, batch tuning and center-excluded work remain separate later candidates.
+
+All older dated state snapshots remain provenance.
+
+---
+
+# D.RAW state directory
+
 ## Current active state — 2026-10-01 — code 44485
 
 Read first:

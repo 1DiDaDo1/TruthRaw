@@ -2,12 +2,14 @@
 #include "open_scene_local_policy_v0_86.h"
 #include "truthnegative_local_authority_projection_v0_4.h"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 namespace field = truthraw::open_scene_field::v0_85;
@@ -27,6 +29,37 @@ field::Digest digest(std::uint8_t seed){
     field::Digest d{};
     for(std::size_t i=0;i<d.size();++i)d[i]=static_cast<std::uint8_t>(seed+i);
     return d;
+}
+
+std::array<std::uint8_t, field::kCanonicalAuthorityRecordBytes>
+canonical_authority_bytes(const field::ChannelRecord& r){
+    std::array<std::uint8_t, field::kCanonicalAuthorityRecordBytes> out{};
+    std::size_t off=0u;
+    const auto put8=[&](std::uint8_t v){out[off++]=v;};
+    const auto put32=[&](std::uint32_t v){
+        put8(static_cast<std::uint8_t>(v));
+        put8(static_cast<std::uint8_t>(v>>8u));
+        put8(static_cast<std::uint8_t>(v>>16u));
+        put8(static_cast<std::uint8_t>(v>>24u));
+    };
+    const auto putf=[&](float v){
+        put32(std::bit_cast<std::uint32_t>(v));
+    };
+    putf(r.value);
+    put8(static_cast<std::uint8_t>(r.role));
+    put8(static_cast<std::uint8_t>(r.authority));
+    put8(static_cast<std::uint8_t>(r.uncertainty));
+    put8(static_cast<std::uint8_t>(r.boundDomain));
+    put8(r.valuePresent?1u:0u);
+    put8(r.p95Known?1u:0u);
+    putf(r.p95);
+    put8(r.supportKnown?1u:0u);
+    putf(r.support);
+    put8(r.boundKnown?1u:0u);
+    putf(r.bound);
+    put8(r.contributionMask);
+    require(off==out.size(),"canonical authority record byte width");
+    return out;
 }
 
 int measured_channel(truthraw::CfaPattern cfa,int x,int y){
@@ -68,6 +101,81 @@ struct VectorFieldSource final : projection::IFieldTileSource {
 };
 
 
+void test_pixel_triplet_exact_parity(){
+    const std::array<truthraw::CfaPattern,4u> cfas{
+        truthraw::CfaPattern::BGGR,
+        truthraw::CfaPattern::RGGB,
+        truthraw::CfaPattern::GRBG,
+        truthraw::CfaPattern::GBRG,
+    };
+    for(const auto cfa:cfas){
+        for(std::uint32_t y=0u;y<4u;++y){
+            for(std::uint32_t x=0u;x<4u;++x){
+                for(const std::uint16_t rawCode:
+                    {std::uint16_t{100u},std::uint16_t{1023u}}){
+                    const std::array<float,3u> rgb{
+                        0.125f+static_cast<float>(x)*0.01f,
+                        0.25f+static_cast<float>(y)*0.02f,
+                        0.5f+static_cast<float>(x+y)*0.005f,
+                    };
+                    field::CanonicalSourcePixelTriplet triplet{};
+                    require(
+                        field::encode_source_pixel_triplet_canonical_v1(
+                            cfa,x,y,rawCode,1023.0f,rgb,triplet)==
+                            field::CanonicalSourceEncodingStatus::Encoded,
+                        "pixel triplet canonical encode");
+                    require(
+                        triplet.measuredChannel==
+                            static_cast<std::uint8_t>(
+                                measured_channel(
+                                    cfa,
+                                    static_cast<int>(x),
+                                    static_cast<int>(y))),
+                        "pixel triplet measured CFA channel exact");
+                    require(
+                        triplet.measuredCensored==(rawCode>=1023u),
+                        "pixel triplet censor classification exact");
+
+                    for(int ch=0;ch<3;++ch){
+                        field::CanonicalSourceChannelRecord single{};
+                        require(
+                            field::encode_source_channel_record_canonical_v1(
+                                cfa,x,y,rawCode,1023.0f,ch,
+                                rgb[static_cast<std::size_t>(ch)],
+                                single)==
+                                field::CanonicalSourceEncodingStatus::Encoded,
+                            "single canonical encode for triplet oracle");
+                        const auto begin=
+                            triplet.bytes.begin()+
+                            static_cast<std::ptrdiff_t>(
+                                static_cast<std::size_t>(ch)*
+                                field::kCanonicalAuthorityRecordBytes);
+                        require(
+                            std::equal(
+                                single.bytes.begin(),
+                                single.bytes.end(),
+                                begin),
+                            "pixel triplet bytes equal concatenated single records");
+                    }
+                }
+            }
+        }
+    }
+
+    field::CanonicalSourcePixelTriplet invalid{};
+    const std::array<float,3u> invalidRgb{
+        0.1f,
+        std::numeric_limits<float>::quiet_NaN(),
+        0.3f,
+    };
+    require(
+        field::encode_source_pixel_triplet_canonical_v1(
+            truthraw::CfaPattern::BGGR,
+            0u,0u,100u,1023.0f,invalidRgb,invalid)==
+            field::CanonicalSourceEncodingStatus::Invalid,
+        "pixel triplet fails closed on non-finite source value");
+}
+
 void test_source_field_and_encoding(){
     constexpr std::uint32_t w=4u,h=4u;
     std::vector<std::uint16_t> raw(w*h,100u);
@@ -81,6 +189,89 @@ void test_source_field_and_encoding(){
     require(field::build_source_tile_records(
         truthraw::CfaPattern::BGGR,0u,0u,w,h,raw,1023.0f,rgb,records),
         "source field build");
+
+    // The single-record builder is the canonical semantic source for both
+    // materialized and direct-streaming authority paths.
+    for(std::uint32_t y=0;y<h;++y){
+        for(std::uint32_t x=0;x<w;++x){
+            const std::size_t p=static_cast<std::size_t>(y)*w+x;
+            for(int ch=0;ch<3;++ch){
+                field::ChannelRecord direct{};
+                require(
+                    field::build_source_channel_record(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        direct),
+                    "single source channel build");
+                const auto& vectorRecord=
+                    records[3u*p+static_cast<std::size_t>(ch)];
+                require(
+                    field::classification_word(direct)==
+                        field::classification_word(vectorRecord),
+                    "single/vector classification exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.value)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.value),
+                    "single/vector value bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.p95)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.p95),
+                    "single/vector p95 bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.support)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.support),
+                    "single/vector support bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.bound)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.bound),
+                    "single/vector bound bits exact");
+                require(
+                    direct.contributionMask==vectorRecord.contributionMask,
+                    "single/vector contribution mask exact");
+                field::CanonicalSourceChannelRecord encodedDirect{};
+                field::CanonicalSourceChannelRecord encodedV1{};
+                require(
+                    field::encode_source_channel_record_canonical_v1(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        encodedV1) ==
+                        field::CanonicalSourceEncodingStatus::Encoded,
+                    "versioned canonical direct-byte source encode");
+                require(
+                    field::encode_source_channel_record_canonical(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        encodedDirect),
+                    "canonical direct-byte source channel encode");
+                require(
+                    encodedDirect.bytes==
+                        canonical_authority_bytes(vectorRecord),
+                    "direct-byte/materialized canonical bytes exact");
+                require(
+                    encodedDirect.role==vectorRecord.role &&
+                    encodedDirect.authority==vectorRecord.authority &&
+                    encodedDirect.p95Known==vectorRecord.p95Known &&
+                    encodedDirect.supportKnown==vectorRecord.supportKnown &&
+                    encodedDirect.boundKnown==vectorRecord.boundKnown,
+                    "direct-byte/materialized summary fields exact");
+            }
+        }
+    }
 
     std::uint64_t measured=0u,reconstructed=0u,calibrated=0u,censored=0u,unknown=0u;
     for(std::uint32_t y=0;y<h;++y){
@@ -119,6 +310,19 @@ void test_source_field_and_encoding(){
     }
     require(measured==16u&&reconstructed==32u&&calibrated==15u&&censored==1u&&unknown==32u,
             "source counts");
+
+    field::CanonicalSourceChannelRecord invalidCanonical{};
+    require(
+        !field::encode_source_channel_record_canonical(
+            truthraw::CfaPattern::BGGR,
+            0u,
+            0u,
+            100u,
+            1023.0f,
+            0,
+            std::numeric_limits<float>::quiet_NaN(),
+            invalidCanonical),
+        "canonical direct-byte encoder fails closed on non-finite source value");
 
     field::EncodedTile encoded{};
     require(field::encode_tile(0u,0u,w,h,records,encoded),"encode source tile");
@@ -328,6 +532,7 @@ void test_scene_linear_bound_projection(){
 } // namespace
 
 int main(){
+    test_pixel_triplet_exact_parity();
     test_source_field_and_encoding();
     test_dense_projection_fail_closed();
     test_procedural_dense_binding();

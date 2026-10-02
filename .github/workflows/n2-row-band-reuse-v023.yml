@@ -1,0 +1,33 @@
+name: N2 Row-Band Reuse v0.2.3 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-n2-row-band-reuse-v0.1/**'
+      - 'docs/research/truthnegative-n2-cfa-audit-v0.1/native/**'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/cpp/CMakeLists.txt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'tools/check_n2_row_band_reuse_v023.py'
+      - '.github/workflows/n2-row-band-reuse-v023.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S docs/research/truthnegative-n2-row-band-reuse-v0.1 -B build/n2_row_band_v023 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/n2_row_band_v023 --config Release -j2
+      - name: Run exact output parity
+        run: ctest --test-dir build/n2_row_band_v023 --output-on-failure
+      - name: Verify Android and diagnostic transport contract
+        run: python3 tools/check_n2_row_band_reuse_v023.py

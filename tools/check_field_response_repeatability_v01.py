@@ -34,22 +34,44 @@ for needle in [
 ]:
     assert needle in code, f"missing repeatability invariant: {needle}"
 
+service = (JAVA / "TruthRawMediaProcessingForegroundService.kt").read_text()
+journal = (JAVA / "ResearchBatchJournalV02.kt").read_text()
+profile_store = (JAVA / "ResearchUniversalProfileStoreV01.kt").read_text()
+
 for needle in [
-    "Multi-observation · Field Response v0.1",
     "Analyseer alle geselecteerde bronnen universeel",
     "Export Field Response Repeatability v0.1 · JSON",
     "launchFieldResponseRepeatabilityExport",
     "REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128",
     "currentMeasuredFieldCharts",
-    "source-SHA set veranderde",
     "fieldResponseRepeatabilityAnalysisOperationKey",
-    "startBackgroundOperation",
+    "startResearchBatch",
     "backgroundOperationStatusView",
     "Analyse actief · nog ",
-    "force = true",
+    "ResearchBatchJournalV02",
     "Alleen DNG-observaties met een werkelijk gemeten PR96",
 ]:
     assert needle in main, f"missing Android repeatability binding: {needle}"
+
+for needle in [
+    "ACTION_RESEARCH_UNIVERSAL_BATCH",
+    "START_REDELIVER_INTENT",
+    "runResearchUniversalBatch",
+    "UniversalSourceProfiler.profile",
+    "ResearchUniversalProfileStoreV01.save",
+    "ResearchBatchJournalV02.stage",
+    "RESEARCH_HEARTBEAT_INTERVAL_MS",
+]:
+    assert needle in service, f"missing service-owned repeatability binding: {needle}"
+
+for needle in [
+    "D.RAW/ResearchBatchJournal/0.2",
+    "service_heartbeat_wall_ms",
+    "completedJobIds",
+]:
+    assert needle in journal, f"missing durable repeatability journal invariant: {needle}"
+
+assert "D.RAW/ResearchUniversalProfileStore/0.1" in profile_store
 
 for forbidden in [
     '.put("same_physical_camera_proven", true)',

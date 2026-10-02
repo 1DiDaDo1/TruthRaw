@@ -1,0 +1,46 @@
+name: Authority Direct Byte v0.2.8 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.h'
+      - 'suite_android/app/src/main/cpp/open_scene_field_v0_85.cpp'
+      - 'docs/research/open-scene-field-v0.85/**'
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/truthnegative-authority-field-fusion-v0.1/**'
+      - 'docs/research/truthnegative-authority-direct-byte-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'tools/check_authority_direct_byte_v028.py'
+      - '.github/workflows/authority-direct-byte-v028.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Canonical source-record byte parity
+        run: |
+          cmake -S docs/research/open-scene-field-v0.85 -B build/open_scene_field -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/open_scene_field --config Release -j2
+          ctest --test-dir build/open_scene_field --output-on-failure
+      - name: Authority SHA and count parity
+        run: |
+          cmake -S docs/research/truthnegative-continuous-v0.5 -B build/tn_continuous -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/tn_continuous --config Release -j2
+          ctest --test-dir build/tn_continuous --output-on-failure
+      - name: Scientific Master and replay parity
+        run: |
+          cmake -S docs/research/truthnegative-authority-field-fusion-v0.1 -B build/authority_fusion -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/authority_fusion --config Release -j2
+          ctest --test-dir build/authority_fusion --output-on-failure
+      - name: Verify versioned direct-byte transport contract
+        run: python3 tools/check_authority_direct_byte_v028.py

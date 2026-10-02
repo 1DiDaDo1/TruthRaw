@@ -13,11 +13,18 @@ object ResearchUniversalProfileStoreV01 {
     private const val DIR_NAME =
         "draw_research_universal_profiles_v0_1"
 
+    private fun isCurrentProfile(profile: JSONObject): Boolean =
+        profile.optString("profile_cache_generation") ==
+            UniversalSourceProfiler.CACHE_GENERATION
+
     fun save(
         filesDir: File,
         job: RawJob,
         profile: JSONObject,
     ) {
+        require(isCurrentProfile(profile)) {
+            "Refusing to persist a UniversalSourceProfile from a stale profiler cache generation."
+        }
         val dir =
             File(
                 filesDir,
@@ -28,6 +35,10 @@ object ResearchUniversalProfileStoreV01 {
         val wrapper =
             JSONObject()
                 .put("schema", SCHEMA)
+                .put(
+                    "profile_cache_generation",
+                    UniversalSourceProfiler.CACHE_GENERATION,
+                )
                 .put("job_id", job.id)
                 .put(
                     "source_uri",
@@ -92,6 +103,8 @@ object ResearchUniversalProfileStoreV01 {
         if (
             wrapper.optString("schema") !=
             SCHEMA ||
+            wrapper.optString("profile_cache_generation") !=
+            UniversalSourceProfiler.CACHE_GENERATION ||
             wrapper.optString("job_id") !=
             job.id ||
             wrapper.optString("source_uri") !=
@@ -113,6 +126,7 @@ object ResearchUniversalProfileStoreV01 {
         if (
             profile.optString("status") !=
             "AUTO_PROFILED_IN_FULL_DRAW_SUITE" ||
+            !isCurrentProfile(profile) ||
             profile.optString(
                 "source_sha256",
             ).isBlank()

@@ -32,7 +32,7 @@ for needle in [
     'report.canReduceProtection',
     'report.canEnableCorrection',
     'report.unsampledPixelsInferred',
-    'pipeline::reverify(ctx)',
+    'pipeline::reverify(*ctx)',
 ]:
     assert needle in bridge_cpp, f"missing bridge invariant: {needle}"
 

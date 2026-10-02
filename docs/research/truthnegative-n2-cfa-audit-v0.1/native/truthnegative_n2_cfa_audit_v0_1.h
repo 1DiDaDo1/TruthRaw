@@ -36,6 +36,11 @@ struct Options final {
     std::uint32_t regionHeight = 0u;
 };
 
+struct CorrectedSampleCoordinate final {
+    std::uint32_t x = 0u;
+    std::uint32_t y = 0u;
+};
+
 struct TileAudit final {
     std::uint32_t x = 0u;
     std::uint32_t y = 0u;
@@ -45,6 +50,12 @@ struct TileAudit final {
     std::array<std::uint64_t,4u> cfaPhaseSamples{};
     std::uint64_t borderProtected = 0u;
     std::uint64_t sampled = 0u;
+    // In-memory sparse index only. These fields are deliberately excluded
+    // from v0.1 candidate/audit/spatial hashes so the sealed v0.1 output
+    // identity is unchanged. They let later read-only audits reuse the exact
+    // already-computed correction locations without rerunning v0.1 per tile.
+    std::uint64_t correctedSampleOffset = 0u;
+    std::uint64_t correctedSampleCount = 0u;
 };
 
 struct AppearanceCorrectionBin final {
@@ -69,6 +80,14 @@ struct Result final {
     std::uint32_t samplingPeriod = 0u;
     std::uint32_t tileEdge = 0u;
     std::vector<TileAudit> tiles{};
+    // Sparse, in-memory-only coordinates for samples where v0.1 set
+    // correctionApplied=true. This is derived from the same single v0.1 pass,
+    // is never promoted to evidence, and is not included in v0.1 hashes.
+    std::vector<CorrectedSampleCoordinate> correctedSampleCoordinates{};
+    // Runtime optimization index is bounded. If this becomes false the
+    // scientific v0.1 result remains valid and downstream code must use the
+    // legacy v0.2.1 rerun path instead of sparse reuse.
+    bool correctedSampleCoordinatesComplete = true;
     std::uint32_t appearanceGridWidth = 0u;
     std::uint32_t appearanceGridHeight = 0u;
     std::uint32_t regionX = 0u;

@@ -1,0 +1,43 @@
+name: Authority Field Fused Pass v0.2.6 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/truthnegative-continuous-v0.5/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/truthnegative-authority-field-fusion-v0.1/**'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'tools/check_authority_field_fusion_v026.py'
+      - '.github/workflows/authority-field-fused-pass-v026.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: TruthNegative accumulator parity
+        run: |
+          cmake -S docs/research/truthnegative-continuous-v0.5 -B build/tn_continuous -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/tn_continuous --config Release -j2
+          ctest --test-dir build/tn_continuous --output-on-failure
+      - name: Scientific Master observer neutrality
+        run: |
+          cmake -S docs/research/scientific-master-streaming-binding-v0.2 -B build/smsb2 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/smsb2 --config Release -j2
+          ctest --test-dir build/smsb2 --output-on-failure
+      - name: End-to-end fused versus replay authority parity
+        run: |
+          cmake -S docs/research/truthnegative-authority-field-fusion-v0.1 -B build/authority_fusion -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/authority_fusion --config Release -j2
+          ctest --test-dir build/authority_fusion --output-on-failure
+      - name: Verify fusion remains transport-only
+        run: python3 tools/check_authority_field_fusion_v026.py

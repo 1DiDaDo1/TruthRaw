@@ -1,0 +1,47 @@
+{
+  "schema": "D.RAW/Android17ResearchPerformanceBaseline/0.1",
+  "status": "REAL_DEVICE_PERFORMANCE_BASELINE_ESTABLISHED",
+  "date": "2026-10-01",
+  "device_runtime": "Android 17 / API 37",
+  "test_shape": {
+    "same_four_dng_sources_used_for_before_after": true,
+    "app_data_cleared_before_optimized_run": true,
+    "optimized_run_was_cold_profile_run": true,
+    "background_focus_loss_exercised": true,
+    "post_completion_navigation_exercised": true,
+    "foundation_export_after_completion_succeeded": true
+  },
+  "before": {
+    "elapsed_seconds": 931,
+    "elapsed_text": "15:31",
+    "architecture": "separate repeated native scientific preparation per heavy audit"
+  },
+  "after": {
+    "elapsed_seconds": 318,
+    "elapsed_text": "05:18",
+    "architecture": "bounded same-RAW shared scientific preparation",
+    "attempt_count": 1,
+    "redelivery_count": 0,
+    "anr_observed": false
+  },
+  "difference": {
+    "seconds_saved": 613,
+    "speedup_factor": 2.927672955974843,
+    "elapsed_time_reduction_fraction": 0.6584317937701396
+  },
+  "validated_merge_commit": "9c74740bc8174d7e29d2312e342c1f3c8c943e16",
+  "validated_pr": 107,
+  "scientific_boundaries": {
+    "source_samples_modified": false,
+    "scientific_master_writeback_allowed": false,
+    "candidate_applied": false,
+    "calibration_promoted": false,
+    "correction_authorized": false,
+    "runtime_ai_ml_used": false
+  },
+  "notes": [
+    "Calibration Observation Record was absent in the final Foundation export because app data had been cleared for the cold performance run; this is not a performance regression.",
+    "The optimized run completed four measured field charts and repeatability export, then navigation away/back and Free World Foundation export succeeded without ANR.",
+    "Performance telemetry added after this validated baseline is diagnostic-only and does not change scientific computation."
+  ]
+}

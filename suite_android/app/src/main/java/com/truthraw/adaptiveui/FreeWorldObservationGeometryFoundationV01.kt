@@ -275,6 +275,10 @@ object FreeWorldObservationGeometryFoundationV01 {
                     "UNKNOWN_FAIL_CLOSED"
                 },
             )
+            .put(
+                "performance_diagnostics_v0_1",
+                FreeWorldPerformanceDiagnosticsV01.build(profiles),
+            )
             .put("campaign", campaign)
             .put("observation_graph", graph)
             .put("observation_components", observationComponents)

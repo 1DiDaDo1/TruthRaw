@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,11 @@ inline constexpr const char* kAuthorityFieldDigestMethod =
 inline constexpr const char* kStateMethod =
     "TRUTHNEGATIVE_CONTINUOUS_CAMERA_PLANE_STATE_V0_5";
 
+inline constexpr std::size_t kAuthorityDirectHashBatchRecordCount = 96u;
+inline constexpr std::size_t kAuthorityDirectHashBatchBytes =
+    field::kCanonicalAuthorityRecordBytes *
+    kAuthorityDirectHashBatchRecordCount;
+
 struct AuthorityFieldSummary final {
     Digest contentSha256{};
     std::array<std::uint64_t, 5u> creationRoleCounts{};
@@ -35,6 +41,76 @@ struct AuthorityFieldSummary final {
     std::uint64_t tileCount = 0u;
     bool createsNewEvidence = false;
     bool scientificWritebackAllowed = false;
+};
+
+class AuthorityFieldAccumulator final {
+public:
+    AuthorityFieldAccumulator(
+        std::uint32_t sourceWidth,
+        std::uint32_t sourceHeight) noexcept;
+
+    bool valid() const noexcept;
+
+    bool appendRecords(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::span<const field::ChannelRecord> records) noexcept;
+
+    bool appendSourceTile(
+        CfaPattern cfa,
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::span<const std::uint16_t> raw,
+        float whiteLevel,
+        std::span<const float> cameraNativeRgb) noexcept;
+
+    std::size_t residentBytesUpperBound() const noexcept;
+    std::uint64_t directByteRecordCount() const noexcept;
+    std::uint64_t genericFallbackRecordCount() const noexcept;
+    std::uint64_t directPixelTripletCount() const noexcept;
+    std::uint64_t genericFallbackPixelCount() const noexcept;
+    std::uint64_t shaDirectInputBlockTransformCount() const noexcept;
+    std::uint64_t shaBufferedInputBlockTransformCount() const noexcept;
+
+    bool finalize(AuthorityFieldSummary& out) noexcept;
+
+private:
+    bool beginTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::size_t recordCount) noexcept;
+
+    bool appendRecord(
+        const field::ChannelRecord& record) noexcept;
+
+    bool accountCanonicalSourceRecord(
+        const field::CanonicalSourceChannelRecord& record) noexcept;
+
+    bool accountCanonicalSourcePixelTriplet(
+        const field::CanonicalSourcePixelTriplet& triplet) noexcept;
+
+    bool finishTile(
+        std::uint32_t x,
+        std::uint32_t y) noexcept;
+
+    std::uint32_t sourceWidth_ = 0u;
+    std::uint32_t sourceHeight_ = 0u;
+    std::uint32_t expectedTileX_ = 0u;
+    std::uint32_t expectedTileY_ = 0u;
+    truthraw::sha256_v0_69::Hasher hasher_{};
+    AuthorityFieldSummary partial_{};
+    std::uint64_t directByteRecordCount_ = 0u;
+    std::uint64_t genericFallbackRecordCount_ = 0u;
+    std::uint64_t directPixelTripletCount_ = 0u;
+    std::uint64_t genericFallbackPixelCount_ = 0u;
+    bool valid_ = false;
+    bool finalized_ = false;
 };
 
 struct StateInput final {
