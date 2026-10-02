@@ -289,7 +289,8 @@ std::uint32_t classification_word(const ChannelRecord& r) noexcept {
     return word;
 }
 
-bool encode_source_channel_record_canonical(
+CanonicalSourceEncodingStatus
+encode_source_channel_record_canonical_v1(
     CfaPattern cfa,
     std::uint32_t globalX,
     std::uint32_t globalY,
@@ -310,7 +311,7 @@ bool encode_source_channel_record_canonical(
                 channel,
                 cameraNativeValue,
                 classification)) {
-            return false;
+            return CanonicalSourceEncodingStatus::Invalid;
         }
 
         const CreationRole role =
@@ -392,7 +393,7 @@ bool encode_source_channel_record_canonical(
             contributionMask);
 
         if (offset != kCanonicalAuthorityRecordBytes) {
-            return false;
+            return CanonicalSourceEncodingStatus::Invalid;
         }
 
         out.role = role;
@@ -400,11 +401,31 @@ bool encode_source_channel_record_canonical(
         out.p95Known = p95Known;
         out.supportKnown = supportKnown;
         out.boundKnown = boundKnown;
-        return true;
+        return CanonicalSourceEncodingStatus::Encoded;
     } catch (...) {
         out = CanonicalSourceChannelRecord{};
-        return false;
+        return CanonicalSourceEncodingStatus::Invalid;
     }
+}
+
+bool encode_source_channel_record_canonical(
+    CfaPattern cfa,
+    std::uint32_t globalX,
+    std::uint32_t globalY,
+    std::uint16_t rawCode,
+    float whiteLevel,
+    int channel,
+    float cameraNativeValue,
+    CanonicalSourceChannelRecord& out) noexcept {
+    return encode_source_channel_record_canonical_v1(
+        cfa,
+        globalX,
+        globalY,
+        rawCode,
+        whiteLevel,
+        channel,
+        cameraNativeValue,
+        out) == CanonicalSourceEncodingStatus::Encoded;
 }
 
 bool build_source_channel_record(
