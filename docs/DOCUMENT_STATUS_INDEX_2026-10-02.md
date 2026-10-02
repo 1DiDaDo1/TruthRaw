@@ -19,7 +19,7 @@ Continuation code: **44488**
 
 Current source-code merge checkpoint:
 
-`33c69b635be5bcc57ec4a947eb8fda3649e492ad`
+`85e67ca3090aa113edda7133d656f28087e3ad22`
 
 Current development branch:
 
@@ -27,15 +27,23 @@ Current development branch:
 
 Latest merged performance PR:
 
-`#114 — authority direct stream v0.2.7`
+`#115 — authority direct-byte v0.2.8`
 
 ## Current status
 
-The v0.2.7 direct-stream route is host-parity validated, full-PR CI green and real-device validated.
+v0.2.8 is host exact-parity validated, real-device validated and **37/37 post-merge green**.
 
-The temporary tile-wide authority `ChannelRecord` vector is removed from the fused hot path. The authority replay remains removed. Exact authority digest/count semantics remain bound to the same canonical source-record logic.
+The source authority route now:
+- keeps the historical materialized/general route available as parity oracle and fallback;
+- keeps the fused pass and no-replay property from v0.2.6;
+- keeps zero tile-wide `ChannelRecord` scratch from v0.2.7;
+- emits the canonical 25 authority bytes directly for the current proven source semantics;
+- processes `37,601,280` direct-byte records per RAW with `0` generic fallbacks in the validated device run;
+- leaves source values, Scientific Master authority, candidate application and writeback unchanged.
 
-The next performance frontier is a canonical direct-byte authority encoder that removes remaining per-record object/validation overhead without changing a single canonical authority byte, SHA/count, evidence classification or authority rule.
+The validated two-RAW aggregate profiler time is about `32.968 s`, roughly `18.96%` faster than v0.2.7.
+
+The next isolated performance frontier is **SHA-256 direct-block transport v0.2.9**. It may eliminate redundant copies of complete 64-byte SHA blocks, but it may not alter a digest bit or any scientific semantics. The later per-pixel/three-channel authority encoder stays separate.
 
 ## Historical state
 
