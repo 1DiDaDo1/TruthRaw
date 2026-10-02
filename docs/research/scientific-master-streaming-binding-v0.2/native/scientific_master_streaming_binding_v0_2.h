@@ -22,6 +22,23 @@ inline constexpr std::size_t kRadix16HistogramBytes =
 inline constexpr std::size_t kMaximumRadixAuxiliaryBytes =
     2u * kRadix16HistogramBytes;
 
+class ICanonicalTileObserver {
+public:
+    virtual ~ICanonicalTileObserver() = default;
+
+    virtual std::size_t residentBytesUpperBound() const noexcept = 0;
+
+    virtual bool observeCanonicalTile(
+        std::uint32_t x,
+        std::uint32_t y,
+        std::uint32_t width,
+        std::uint32_t height,
+        const std::uint16_t* rawCore,
+        std::size_t rawCount,
+        const float* cameraNativeRgb,
+        std::size_t floatCount) noexcept = 0;
+};
+
 // Builds exactly the same Scientific Master identity and TruthRange v0.2
 // self-gauge as v0.1, but resolves the positive-float median in two 16-bit
 // radix scans rather than four 8-bit scans. No source, reconstruction,
@@ -30,6 +47,17 @@ Status bind_scientific_master_streaming(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const Options& options,
+    Result& out) noexcept;
+
+// Same Scientific Master/gauge contract, with a bounded read-only observer fed
+// from the already-computed canonical pass-1 core RAW + camera-native RGB.
+// The observer cannot modify source or reconstruction values and does not
+// change Scientific Master identity or gauge semantics.
+Status bind_scientific_master_streaming_observed(
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    const Options& options,
+    ICanonicalTileObserver& observer,
     Result& out) noexcept;
 
 inline const char* status_name(StatusCode code) noexcept {
