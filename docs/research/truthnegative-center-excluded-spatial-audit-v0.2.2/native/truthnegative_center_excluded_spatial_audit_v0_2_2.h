@@ -27,8 +27,10 @@ struct Diagnostics final {
     double predictorScaleConsistencyMs = 0.0;
     double predictorCrossScaleCombineMs = 0.0;
     double predictorFinalCombineMs = 0.0;
+    double fixedTopologyParityOracleMs = 0.0;
     double finalHashMs = 0.0;
     std::uint64_t profileSampleStride = 64u;
+    std::uint64_t paritySampleStride = 64u;
     std::uint64_t profiledCandidateCount = 0u;
     std::uint64_t profiledNeighborSampleCount = 0u;
     std::uint64_t profiledPathCheckCount = 0u;
@@ -42,9 +44,16 @@ struct Diagnostics final {
     std::uint64_t predictorCrossScaleZDistanceCount = 0u;
     std::uint64_t predictorInverseVariancePairCombineCount = 0u;
     std::uint64_t predictorInverseVarianceScaleCombineCount = 0u;
+    std::uint64_t fixedTopologyFastPathCount = 0u;
+    std::uint64_t fixedTopologyNotApplicableFallbackCount = 0u;
+    std::uint64_t fixedTopologyFailureFallbackCount = 0u;
+    std::uint64_t fixedTopologyParityOracleCount = 0u;
+    std::uint64_t fixedTopologyParityMismatchCount = 0u;
     std::uint64_t tileCount = 0u;
     std::uint64_t candidateTileCount = 0u;
     std::uint64_t candidateCenterCount = 0u;
+    bool fixedTopologyFastPathActive = false;
+    bool fixedTopologyParityVerified = false;
     bool timingIsScientificEvidence = false;
     bool timingMayChangeScientificAuthority = false;
 };
