@@ -15,6 +15,7 @@ set(DIGEST "${REPO_ROOT}/docs/research/scientific-master-digest-v0.1/native")
 set(TRUTHRANGE "${REPO_ROOT}/docs/research/truthrange-latent-binding-v0.2/native")
 set(BACKPLANE "${REPO_ROOT}/docs/research/technical-backplane-v0.1/native")
 set(MASTER_TILE "${REPO_ROOT}/docs/research/scientific-master-linear-dng-projection-v0.1/native")
+set(DENSE "${REPO_ROOT}/docs/research/truthnegative-dense-projection-v0.3/native")
 set(TN "${REPO_ROOT}/docs/research/truthnegative-continuous-v0.5/native")
 set(FREE_WORLD "${REPO_ROOT}/docs/research/free-world-pixel-resolve-2d-v0.2/native")
 
@@ -40,6 +41,8 @@ add_executable(
     "${DIGEST}/scientific_master_digest_v0_1.cpp"
     "${TRUTHRANGE}/truthrange_latent_v0_2.cpp"
     "${MASTER_TILE}/streaming_scientific_master_tile_source_v0_1.cpp"
+    "${DENSE}/truthnegative_dense_projection_v0_3.cpp"
+    "${APP_CPP}/truthnegative_local_authority_projection_v0_4.cpp"
     "${TN}/truthnegative_continuous_v0_5.cpp"
     "${FREE_WORLD}/free_world_pixel_resolve_2d_v0_2.cpp"
     "${APP_CPP}/open_scene_channel_authority_v0_78.cpp"
@@ -57,6 +60,7 @@ target_include_directories(
     "${TRUTHRANGE}"
     "${BACKPLANE}"
     "${MASTER_TILE}"
+    "${DENSE}"
     "${TN}"
     "${FREE_WORLD}"
     "${STREAM}"
