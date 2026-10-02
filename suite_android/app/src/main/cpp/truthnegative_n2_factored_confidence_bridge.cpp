@@ -474,6 +474,56 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<centerExcludedDiagnostics.candidateTileCount;
     o<<",\"centerExcludedCandidateCenterCount\":"
       <<centerExcludedDiagnostics.candidateCenterCount;
+    o<<",\"centerExcludedProfileSampleStride\":"
+      <<centerExcludedDiagnostics.profileSampleStride;
+    o<<",\"centerExcludedProfiledCandidateCount\":"
+      <<centerExcludedDiagnostics.profiledCandidateCount;
+    o<<",\"centerExcludedProfiledNeighborSampleCount\":"
+      <<centerExcludedDiagnostics.profiledNeighborSampleCount;
+    o<<",\"centerExcludedProfiledPathCheckCount\":"
+      <<centerExcludedDiagnostics.profiledPathCheckCount;
+    o<<",\"centerExcludedProfiledPathStepCount\":"
+      <<centerExcludedDiagnostics.profiledPathStepCount;
+    o<<",\"centerExcludedProfiledNeighborVarianceCount\":"
+      <<centerExcludedDiagnostics.profiledNeighborVarianceCount;
+    o<<",\"centerExcludedProfiledCenterSetupMs\":"
+      <<centerExcludedDiagnostics.profiledCenterSetupMs;
+    o<<",\"centerExcludedProfiledNeighborAcquireMs\":"
+      <<centerExcludedDiagnostics.profiledNeighborAcquireMs;
+    o<<",\"centerExcludedProfiledPathCensorMs\":"
+      <<centerExcludedDiagnostics.profiledPathCensorMs;
+    o<<",\"centerExcludedProfiledNeighborVarianceMs\":"
+      <<centerExcludedDiagnostics.profiledNeighborVarianceMs;
+    o<<",\"centerExcludedProfiledPredictorEstimateMs\":"
+      <<centerExcludedDiagnostics.profiledPredictorEstimateMs;
+    o<<",\"centerExcludedProfiledResidualMetricsMs\":"
+      <<centerExcludedDiagnostics.profiledResidualMetricsMs;
+    o<<",\"centerExcludedPredictorAdmissibilitySlotBuildMs\":"
+      <<centerExcludedDiagnostics.predictorAdmissibilitySlotBuildMs;
+    o<<",\"centerExcludedPredictorPairBuildGateMs\":"
+      <<centerExcludedDiagnostics.predictorPairBuildGateMs;
+    o<<",\"centerExcludedPredictorScaleConsistencyMs\":"
+      <<centerExcludedDiagnostics.predictorScaleConsistencyMs;
+    o<<",\"centerExcludedPredictorCrossScaleCombineMs\":"
+      <<centerExcludedDiagnostics.predictorCrossScaleCombineMs;
+    o<<",\"centerExcludedPredictorFinalCombineMs\":"
+      <<centerExcludedDiagnostics.predictorFinalCombineMs;
+    o<<",\"centerExcludedPredictorProfiledEstimateCount\":"
+      <<centerExcludedDiagnostics.predictorProfiledEstimateCount;
+    o<<",\"centerExcludedPredictorSlotDuplicateCount\":"
+      <<centerExcludedDiagnostics.predictorSlotDuplicateCount;
+    o<<",\"centerExcludedPredictorPairLookupCount\":"
+      <<centerExcludedDiagnostics.predictorPairLookupCount;
+    o<<",\"centerExcludedPredictorPairZDistanceCount\":"
+      <<centerExcludedDiagnostics.predictorPairZDistanceCount;
+    o<<",\"centerExcludedPredictorDirectionalZDistanceCount\":"
+      <<centerExcludedDiagnostics.predictorDirectionalZDistanceCount;
+    o<<",\"centerExcludedPredictorCrossScaleZDistanceCount\":"
+      <<centerExcludedDiagnostics.predictorCrossScaleZDistanceCount;
+    o<<",\"centerExcludedPredictorInverseVariancePairCombineCount\":"
+      <<centerExcludedDiagnostics.predictorInverseVariancePairCombineCount;
+    o<<",\"centerExcludedPredictorInverseVarianceScaleCombineCount\":"
+      <<centerExcludedDiagnostics.predictorInverseVarianceScaleCombineCount;
     o<<",\"phaseConfidenceDeriveMs\":"
       <<elapsed_ms(confidenceStarted,confidenceFinished);
     o<<",\"phaseFactoredDeriveMs\":"

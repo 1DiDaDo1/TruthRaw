@@ -15,6 +15,10 @@ import org.json.JSONObject
 object ResearchProfileStageCacheV01 {
     const val SCHEMA = "D.RAW/ResearchProfileStageCache/0.1"
     private const val DIR_NAME = "draw_research_profile_stage_cache_v0_1"
+    private const val N2_R12_STAGE =
+        "N2_LOCAL_SPATIAL_V01_R12_CENTER_EXCLUDED_PROFILE"
+    private const val N2_R12_IMPLEMENTATION_EPOCH =
+        "CENTER_EXCLUDED_FIXED_TOPOLOGY_V01"
     private val lock = Any()
 
     fun load(
@@ -42,6 +46,14 @@ object ResearchProfileStageCacheV01 {
             return@synchronized null
         }
 
+        val requiredImplementationEpoch = implementationEpoch(stageId)
+        if (
+            requiredImplementationEpoch != null &&
+            wrapper.optString("implementation_epoch") != requiredImplementationEpoch
+        ) {
+            return@synchronized null
+        }
+
         wrapper.optJSONObject("result")
             ?.let { JSONObject(it.toString()) }
     }
@@ -62,6 +74,10 @@ object ResearchProfileStageCacheV01 {
                 .put("result", result)
                 .put("creates_new_evidence", false)
                 .put("scientific_writeback_allowed", false)
+
+        implementationEpoch(stageId)?.let {
+            wrapper.put("implementation_epoch", it)
+        }
 
         val target = fileFor(filesDir, sourceSha256, stageId)
         target.parentFile?.mkdirs()
@@ -89,6 +105,13 @@ object ResearchProfileStageCacheV01 {
         }
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
+
+    private fun implementationEpoch(stageId: String): String? =
+        if (stageId == N2_R12_STAGE) {
+            N2_R12_IMPLEMENTATION_EPOCH
+        } else {
+            null
+        }
 
     private fun fileFor(
         filesDir: File,

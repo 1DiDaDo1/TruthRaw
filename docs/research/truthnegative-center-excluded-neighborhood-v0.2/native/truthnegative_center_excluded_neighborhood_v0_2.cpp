@@ -1,6 +1,7 @@
 #include "truthnegative_center_excluded_neighborhood_v0_2.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -146,12 +147,42 @@ bool inverse_variance_combine_scales(
 
 }  // namespace
 
-bool estimate(const Input& input, Result& out) noexcept {
+bool estimate(
+    const Input& input,
+    Result& out,
+    Diagnostics* diagnostics) noexcept {
     out = Result{};
     try {
+        // The established runtime topology is fixed at radii 2/4/8 and four
+        // symmetric directions. Unsampled calls take the specialized path.
+        // Any unsupported or failed specialized case falls back to this exact
+        // canonical generic implementation; scientific semantics never widen.
+        if (diagnostics == nullptr) {
+            Result fixed{};
+            const auto fixedOutcome = estimateFixedTopology(input,fixed,nullptr);
+            if (fixedOutcome == FixedTopologyOutcome::Success) {
+                out = fixed;
+                return true;
+            }
+        }
+
+        using SteadyClock = std::chrono::steady_clock;
+        const auto elapsedMs = [](
+            SteadyClock::time_point started,
+            SteadyClock::time_point finished) noexcept {
+            return std::chrono::duration<double,std::milli>(
+                finished-started).count();
+        };
+
+        if (diagnostics) {
+            ++diagnostics->profiledEstimateCount;
+        }
+
         using Key = std::tuple<std::uint32_t, std::uint8_t, int>;
         std::map<Key, const Sample*> slots;
 
+        SteadyClock::time_point sectionStarted{};
+        if (diagnostics) sectionStarted = SteadyClock::now();
         for (const auto& sample : input.neighbors) {
             Geometry geometry{};
             if (!admissible(sample, geometry)) continue;
@@ -161,10 +192,16 @@ bool estimate(const Input& input, Result& out) noexcept {
                 static_cast<std::uint8_t>(geometry.direction),
                 geometry.side};
             if (slots.contains(key)) {
+                if (diagnostics) ++diagnostics->slotDuplicateCount;
                 slots[key] = nullptr;
             } else {
                 slots.emplace(key, &sample);
             }
+        }
+        if (diagnostics) {
+            diagnostics->admissibilitySlotBuildMs +=
+                elapsedMs(sectionStarted, SteadyClock::now());
+            sectionStarted = SteadyClock::now();
         }
 
         std::map<std::uint32_t, std::vector<PairEstimate>> pairsByScale;
@@ -190,6 +227,7 @@ bool estimate(const Input& input, Result& out) noexcept {
                     radius, static_cast<std::uint8_t>(direction), -1};
                 const Key positive{
                     radius, static_cast<std::uint8_t>(direction), 1};
+                if (diagnostics) diagnostics->pairLookupCount += 2u;
                 const auto leftIt = slots.find(negative);
                 const auto rightIt = slots.find(positive);
                 if (leftIt == slots.end() || rightIt == slots.end() ||
@@ -200,6 +238,7 @@ bool estimate(const Input& input, Result& out) noexcept {
                 ++out.symmetricPairsConsidered;
                 const Sample& a = *leftIt->second;
                 const Sample& b = *rightIt->second;
+                if (diagnostics) ++diagnostics->pairZDistanceCount;
                 const double pairZ = z_distance(
                     a.value, a.variance, b.value, b.variance);
                 if (!std::isfinite(pairZ)) return false;
@@ -228,6 +267,11 @@ bool estimate(const Input& input, Result& out) noexcept {
                 ++out.symmetricPairsAccepted;
             }
         }
+        if (diagnostics) {
+            diagnostics->pairBuildGateMs +=
+                elapsedMs(sectionStarted, SteadyClock::now());
+            sectionStarted = SteadyClock::now();
+        }
 
         std::vector<ScaleEstimate> candidateScales;
         for (auto& [radius, pairs] : pairsByScale) {
@@ -240,6 +284,9 @@ bool estimate(const Input& input, Result& out) noexcept {
             bool directionalConflict = false;
             for (std::size_t i = 0u; i < pairs.size(); ++i) {
                 for (std::size_t j = i + 1u; j < pairs.size(); ++j) {
+                    if (diagnostics) {
+                        ++diagnostics->directionalZDistanceCount;
+                    }
                     const double z = z_distance(
                         pairs[i].estimate, pairs[i].variance,
                         pairs[j].estimate, pairs[j].variance);
@@ -260,11 +307,18 @@ bool estimate(const Input& input, Result& out) noexcept {
             scale.radius = radius;
             scale.directions = static_cast<std::uint32_t>(pairs.size());
             double unusedWeight = 0.0;
+            if (diagnostics) {
+                ++diagnostics->inverseVariancePairCombineCount;
+            }
             if (!inverse_variance_combine(
                     pairs, scale.estimate, scale.variance, unusedWeight)) {
                 return false;
             }
             candidateScales.push_back(scale);
+        }
+        if (diagnostics) {
+            diagnostics->scaleConsistencyMs +=
+                elapsedMs(sectionStarted, SteadyClock::now());
         }
 
         if (candidateScales.empty()) return true;
@@ -284,8 +338,10 @@ bool estimate(const Input& input, Result& out) noexcept {
         double runningVariance = candidateScales.front().variance;
         double runningWeight = 1.0 / runningVariance;
 
+        if (diagnostics) sectionStarted = SteadyClock::now();
         for (std::size_t i = 1u; i < candidateScales.size(); ++i) {
             const auto& scale = candidateScales[i];
+            if (diagnostics) ++diagnostics->crossScaleZDistanceCount;
             const double z = z_distance(
                 scale.estimate, scale.variance,
                 runningEstimate, runningVariance);
@@ -300,6 +356,9 @@ bool estimate(const Input& input, Result& out) noexcept {
             acceptedScales.push_back(scale);
             ++out.scalesAccepted;
             out.coarsestAcceptedRadius = scale.radius;
+            if (diagnostics) {
+                ++diagnostics->inverseVarianceScaleCombineCount;
+            }
             if (!inverse_variance_combine_scales(
                     acceptedScales,
                     runningEstimate,
@@ -308,14 +367,26 @@ bool estimate(const Input& input, Result& out) noexcept {
                 return false;
             }
         }
+        if (diagnostics) {
+            diagnostics->crossScaleCombineMs +=
+                elapsedMs(sectionStarted, SteadyClock::now());
+        }
 
         if (acceptedScales.empty()) return true;
+        if (diagnostics) sectionStarted = SteadyClock::now();
+        if (diagnostics) {
+            ++diagnostics->inverseVarianceScaleCombineCount;
+        }
         if (!inverse_variance_combine_scales(
                 acceptedScales,
                 out.estimate,
                 out.estimateVariance,
                 out.effectiveWeight)) {
             return false;
+        }
+        if (diagnostics) {
+            diagnostics->finalCombineMs +=
+                elapsedMs(sectionStarted, SteadyClock::now());
         }
 
         out.valid = true;
