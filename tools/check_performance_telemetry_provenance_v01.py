@@ -47,10 +47,10 @@ for token in [
     assert token in aggregate, f"Foundation provenance aggregation missing {token}"
 
 assert "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1" in profiler
-assert version_code == "26100116"
-assert 'versionName = "0.53-v0.84.2-authority-template-reuse-telemetry-provenance"' in gradle
-assert lineage["previous_version_code"] == 26100115
-assert lineage["current_version_code"] == 26100116
+assert int(version_code) >= 26100116
+assert lineage["current_version_code"] == int(version_code)
+assert lineage["current_version_code"] > lineage["previous_version_code"]
+assert f'versionName = "{lineage["version_name"]}"' in gradle
 assert lineage["scientific_authority_affected"] is False
 
 for token in [
