@@ -668,6 +668,13 @@ object N2LocalSpatialBindingAudit {
                     ),
                 )
                 .put(
+                    "authority_canonical_template_pixel_triplet_count",
+                    status.optLong(
+                        "authorityCanonicalTemplatePixelTripletCount",
+                        0L,
+                    ),
+                )
+                .put(
                     "authority_generic_fallback_pixel_count",
                     status.optLong(
                         "authorityGenericFallbackPixelCount",
