@@ -380,6 +380,35 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<sharedAcquireTiming.preparation.openDngAdapterMs;
     o<<",\"prepareBindScientificMasterMs\":"
       <<sharedAcquireTiming.preparation.bindScientificMasterMs;
+    o<<",\"scientificMasterBindProfileAvailable\":"
+      <<(sharedAcquireTiming.preparation.scientificMasterBindProfileAvailable
+            ?"true":"false");
+    o<<",\"scientificMasterSourceReadRawMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadRawMs;
+    o<<",\"scientificMasterSourceReadRawCallCount\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadRawCallCount;
+    o<<",\"scientificMasterSourceReadRowBiasMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadRowBiasMs;
+    o<<",\"scientificMasterSourceReadRowBiasCallCount\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadRowBiasCallCount;
+    o<<",\"scientificMasterSourceReadColBiasMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadColBiasMs;
+    o<<",\"scientificMasterSourceReadColBiasCallCount\":"
+      <<sharedAcquireTiming.preparation.scientificMasterSourceReadColBiasCallCount;
+    o<<",\"scientificMasterReconstructionMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterReconstructionMs;
+    o<<",\"scientificMasterReconstructionCallCount\":"
+      <<sharedAcquireTiming.preparation.scientificMasterReconstructionCallCount;
+    o<<",\"scientificMasterAuthorityObserverMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterAuthorityObserverMs;
+    o<<",\"scientificMasterBindUnattributedMs\":"
+      <<sharedAcquireTiming.preparation.scientificMasterBindUnattributedMs;
+    o<<",\"scientificMasterBindTimingIsScientificEvidence\":"
+      <<(sharedAcquireTiming.preparation.scientificMasterBindTimingIsScientificEvidence
+            ?"true":"false");
+    o<<",\"scientificMasterBindTimingMayChangeScientificAuthority\":"
+      <<(sharedAcquireTiming.preparation.scientificMasterBindTimingMayChangeScientificAuthority
+            ?"true":"false");
     o<<",\"prepareFinalizePhase2Ms\":"
       <<sharedAcquireTiming.preparation.finalizePhase2Ms;
     o<<",\"prepareSummarizeAuthorityFieldMs\":"
@@ -438,7 +467,6 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
     o<<",\"authorityShaDirectInputBytes\":"
       <<sharedAcquireTiming.preparation.authorityShaDirectInputBytes;
     o<<",\"authorityDirectRecordStreamMs\":"
-
       <<sharedAcquireTiming.preparation.authorityDirectRecordStreamMs;
     o<<",\"authorityDirectRecordStreamTileCount\":"
       <<sharedAcquireTiming.preparation.authorityDirectRecordStreamTileCount;
