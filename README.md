@@ -1,18 +1,17 @@
 > **CURRENT PROJECT CHECKPOINT — 2026-10-02 — continuation code `44488`**
 >
-> Current development branch: `fix/android17-research-resilience-v02`  
-> Latest merged PR: `#115 — authority direct-byte v0.2.8`  
-> Android/scientific source checkpoint: `85e67ca3090aa113edda7133d656f28087e3ad22`
+> Current branch: `fix/android17-research-resilience-v02`  
+> Latest merged PR: `#116 — SHA-256 Direct Block v0.2.9`  
+> Source checkpoint: `edcae3eabb077d53b6a25802e6b9ca62c188b973`
 >
 > Current state: `state/CURRENT_PROJECT_STATE_2026-10-02.json`  
-> Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`  
-> Current document index: `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+> Current handoff: `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
 >
-> v0.2.8 is exact-parity validated, real-device validated and **37/37 post-merge green**. The canonical authority source-record bytes are emitted directly for the proven current source semantics; the device run processed `37,601,280` direct-byte records per RAW with `0` generic fallbacks. Authority replay remains removed, tile-wide record scratch remains removed, and the scientific firewall remains intact.
+> v0.2.9 is exact-parity and real-device validated. Complete SHA-256 blocks now enter the unchanged compression transform directly; 914,964,480 authority bytes per RAW bypass the historical full-block staging copy. Authority digest/count semantics and the scientific firewall remain unchanged.
 >
-> The next frontier is **SHA-256 direct-block transport v0.2.9**: complete 64-byte blocks may bypass a redundant internal memcpy but must enter the unchanged SHA compression transform and produce exactly the same digest. A later pixel-triplet authority encoder remains a separate candidate.
+> The next isolated frontier is **Pixel-Triplet Authority Encoder v0.2.10**: determine CFA/censor state once per pixel and emit the exact three existing 25-byte authority records as one 75-byte triplet. Future unsupported semantics must fall back to the general route.
 >
-> Fast paths remain versioned and fail-closed. Future semantic extensions that exceed a proven fast path must fall back to the general route rather than being silently ignored.
+> Template/suffix reuse, batch-size tuning, center-excluded optimization and later scientific model-selection remain separate stages.
 >
 > **MEASURED != RECONSTRUCTED != APPEARANCE.**
 >
