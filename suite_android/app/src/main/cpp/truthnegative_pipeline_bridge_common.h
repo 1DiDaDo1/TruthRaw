@@ -36,6 +36,9 @@ struct PreparationTiming final {
     double bindScientificMasterMs = 0.0;
     double finalizePhase2Ms = 0.0;
     double summarizeAuthorityFieldMs = 0.0;
+    double authorityFusedFinalizeMs = 0.0;
+    bool authorityFusedIntoScientificMasterPass = false;
+    bool authorityReplayPassPerformed = true;
     double finalizeTruthNegativeMs = 0.0;
     double finalizeDrawNegativeMs = 0.0;
     double totalMs = 0.0;
