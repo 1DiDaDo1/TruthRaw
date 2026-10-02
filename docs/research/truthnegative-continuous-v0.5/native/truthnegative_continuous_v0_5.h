@@ -69,6 +69,8 @@ public:
         std::span<const float> cameraNativeRgb) noexcept;
 
     std::size_t residentBytesUpperBound() const noexcept;
+    std::uint64_t directByteRecordCount() const noexcept;
+    std::uint64_t genericFallbackRecordCount() const noexcept;
 
     bool finalize(AuthorityFieldSummary& out) noexcept;
 
@@ -96,6 +98,8 @@ private:
     std::uint32_t expectedTileY_ = 0u;
     truthraw::sha256_v0_69::Hasher hasher_{};
     AuthorityFieldSummary partial_{};
+    std::uint64_t directByteRecordCount_ = 0u;
+    std::uint64_t genericFallbackRecordCount_ = 0u;
     bool valid_ = false;
     bool finalized_ = false;
 };
