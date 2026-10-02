@@ -1,0 +1,53 @@
+{
+  "schema": "D.RAW/PerformanceCheckpoint/2026-10-02-CenterExcludedV2",
+  "continuation_code": "44488",
+  "status": "PROMOTED_REAL_DEVICE_VALIDATED",
+  "repository": "1DiDaDo1/TruthRaw",
+  "active_branch": "fix/research-fresh-rerun-v01",
+  "promoted_pr": 125,
+  "source_head": "2260f9be52666939243c769f91ce2fed90a5748b",
+  "merge_commit": "92b56f44a04313901ad1e430901ac3d0e3d884c8",
+  "android_validation": {
+    "application_id": "com.truthraw.adaptiveui",
+    "version_code": 26100120,
+    "version_name": "0.53-v0.84.2-authority-template-reuse-center-excluded-fixed-topology-v01"
+  },
+  "baseline_before_fixed_topology": {
+    "aggregate_profile_elapsed_ms": 31963.150301,
+    "raw1_center_excluded_ms": 4088.13,
+    "raw1_predictor_ms": 3021.54,
+    "raw2_center_excluded_ms": 5675.69,
+    "raw2_predictor_ms": 4467.30
+  },
+  "fixed_topology_result": {
+    "aggregate_profile_elapsed_ms": 26169.369782,
+    "raw1_center_excluded_ms": 1985.62,
+    "raw1_predictor_ms": 1020.15,
+    "raw2_center_excluded_ms": 2870.54,
+    "raw2_predictor_ms": 1628.82,
+    "combined_center_excluded_ms": 4856.16,
+    "combined_predictor_ms": 2648.97,
+    "aggregate_speedup_percent": 18.13,
+    "combined_center_excluded_speedup_percent": 50.26,
+    "combined_predictor_speedup_percent": 64.63
+  },
+  "scientific_parity": {
+    "foundation_outside_performance_diagnostics_parsed_structure_equal": true,
+    "exact_ieee754_result_parity_oracle_in_ci": true,
+    "generic_fail_closed_fallback_preserved": true
+  },
+  "invariants": {
+    "source_values_modified": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "timing_is_scientific_evidence": false,
+    "performance_changes_measurement_authority": false
+  },
+  "next_frontier": {
+    "name": "Shared Scientific Preparation re-profile",
+    "purpose": "Separate authority direct-record streaming from non-authority Scientific Master binding and identify the next dominant remaining compute block before any new optimization.",
+    "simd_neon_allowed_now": false,
+    "blind_authority_micro_optimization_allowed": false
+  }
+}
