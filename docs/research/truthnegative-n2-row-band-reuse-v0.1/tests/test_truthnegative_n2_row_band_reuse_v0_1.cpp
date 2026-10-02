@@ -368,13 +368,24 @@ int main() {
         ceCachedSource,
         8u * 1024u * 1024u);
     ce21::Result cachedCe{};
+    ce22::Diagnostics ceDiagnostics{};
     R(ce22::runSparseReference(
         ceRowBand,
         ceBinding,
         cachedV01,
-        cachedCe));
+        cachedCe,
+        &ceDiagnostics));
 
     R(same_ce_result(directCe, cachedCe));
+    R(ceDiagnostics.totalMs >= 0.0);
+    R(ceDiagnostics.fillStage2Ms >= 0.0);
+    R(ceDiagnostics.candidateLoopMs >= 0.0);
+    R(ceDiagnostics.predictorEstimateMs >= 0.0);
+    R(ceDiagnostics.finalHashMs >= 0.0);
+    R(ceDiagnostics.tileCount == cachedV01.tiles.size());
+    R(ceDiagnostics.candidateCenterCount == cachedV01.audit.corrected);
+    R(!ceDiagnostics.timingIsScientificEvidence);
+    R(!ceDiagnostics.timingMayChangeScientificAuthority);
     R(ceRowBand.bandFillCount() > 0u);
     R(ceRowBand.fallbackRequestCount() == 0u);
     R(ceCachedSource.readCalls <= ceDirectSource.readCalls);

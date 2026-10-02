@@ -432,6 +432,149 @@ object ResearchPerformanceDiagnosticsV01 {
                         ) ?: true,
                     )
                     .put(
+                        "subphase_timing",
+                        JSONObject()
+                            .put(
+                                "shared_acquire_subphase_timing_available",
+                                n2Local?.optBoolean(
+                                    "shared_acquire_subphase_timing_available",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "shared_acquire_probe_seal_ms",
+                                n2Local?.optDouble(
+                                    "shared_acquire_probe_seal_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "shared_acquire_cache_lookup_ms",
+                                n2Local?.optDouble(
+                                    "shared_acquire_cache_lookup_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "shared_acquire_prepare_total_ms",
+                                n2Local?.optDouble(
+                                    "shared_acquire_prepare_total_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_seal_source_ms",
+                                n2Local?.optDouble(
+                                    "prepare_seal_source_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_pre_open_reverify_ms",
+                                n2Local?.optDouble(
+                                    "prepare_pre_open_reverify_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_open_dng_adapter_ms",
+                                n2Local?.optDouble(
+                                    "prepare_open_dng_adapter_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_bind_scientific_master_ms",
+                                n2Local?.optDouble(
+                                    "prepare_bind_scientific_master_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_summarize_authority_field_ms",
+                                n2Local?.optDouble(
+                                    "prepare_summarize_authority_field_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "prepare_total_instrumented_ms",
+                                n2Local?.optDouble(
+                                    "prepare_total_instrumented_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_subphase_timing_available",
+                                n2Local?.optBoolean(
+                                    "center_excluded_subphase_timing_available",
+                                    false,
+                                ) ?: false,
+                            )
+                            .put(
+                                "center_excluded_fill_stage2_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_fill_stage2_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_candidate_loop_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_candidate_loop_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_predictor_estimate_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_predictor_estimate_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_final_hash_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_final_hash_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_total_instrumented_ms",
+                                n2Local?.optDouble(
+                                    "center_excluded_total_instrumented_ms",
+                                    0.0,
+                                ) ?: 0.0,
+                            )
+                            .put(
+                                "center_excluded_tile_count",
+                                n2Local?.optLong(
+                                    "center_excluded_tile_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_candidate_tile_count",
+                                n2Local?.optLong(
+                                    "center_excluded_candidate_tile_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "center_excluded_candidate_center_count",
+                                n2Local?.optLong(
+                                    "center_excluded_candidate_center_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
+                            .put("timing_is_scientific_evidence", false)
+                            .put(
+                                "timing_may_change_scientific_authority",
+                                false,
+                            ),
+                    )
+                    .put(
                         "bounded_index_fallback_policy",
                         "LEGACY_V0_2_1_RERUN_IF_SPARSE_INDEX_INCOMPLETE",
                     )

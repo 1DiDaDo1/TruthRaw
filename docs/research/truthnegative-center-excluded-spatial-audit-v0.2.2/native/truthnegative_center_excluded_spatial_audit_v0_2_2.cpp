@@ -3,6 +3,7 @@
 #include "full_frame_streaming_v0_1_internal.h"
 
 #include <algorithm>
+#include <chrono>
 #include <array>
 #include <bit>
 #include <cmath>
@@ -22,6 +23,15 @@ using TileMetrics = v021::TileMetrics;
 using Result = v021::Result;
 
 namespace {
+
+using SteadyClock = std::chrono::steady_clock;
+
+double elapsed_ms(
+    SteadyClock::time_point started,
+    SteadyClock::time_point finished) noexcept {
+    return std::chrono::duration<double,std::milli>(
+        finished-started).count();
+}
 
 namespace detail = truthraw::streaming_v0_1::detail;
 namespace ce =
@@ -282,8 +292,11 @@ bool runSparseReference(
     stream::IRawTileSource& source,
     const Binding& binding,
     const v01::Result& referenceV01,
-    Result& out) noexcept {
+    Result& out,
+    Diagnostics* diagnostics) noexcept {
     out={};
+    if(diagnostics)*diagnostics=Diagnostics{};
+    const auto totalStarted=SteadyClock::now();
     try{
         const auto& md=source.metadata();
         if(md.width<=0||md.height<=0||
@@ -326,6 +339,7 @@ bool runSparseReference(
         detail::Workspace workspace{};
 
         for(const auto& referenceTile:referenceV01.tiles){
+            if(diagnostics)++diagnostics->tileCount;
             if(referenceTile.width==0u||referenceTile.height==0u){
                 return false;
             }
@@ -351,6 +365,11 @@ bool runSparseReference(
                 referenceTile.audit.corrected;
 
             if(referenceTile.audit.corrected>0u){
+                if(diagnostics){
+                    ++diagnostics->candidateTileCount;
+                    diagnostics->candidateCenterCount+=
+                        referenceTile.audit.corrected;
+                }
                 TileRect supportTile{};
                 supportTile.x0=static_cast<int>(referenceTile.x);
                 supportTile.y0=static_cast<int>(referenceTile.y);
@@ -367,8 +386,14 @@ bool runSparseReference(
                 supportTile.hy1=std::min(
                     md.height,supportTile.y1+kMaxRadius);
 
+                const auto fillStarted=SteadyClock::now();
                 const auto filled=detail::fill_stage2(
                     source,supportTile,workspace);
+                const auto fillFinished=SteadyClock::now();
+                if(diagnostics){
+                    diagnostics->fillStage2Ms+=
+                        elapsed_ms(fillStarted,fillFinished);
+                }
                 if(!filled)return false;
 
                 const int tw=supportTile.hx1-supportTile.hx0;
@@ -425,6 +450,7 @@ bool runSparseReference(
                         return false;
                     };
 
+                const auto candidateLoopStarted=SteadyClock::now();
                 for(std::uint64_t localSparse=0u;
                     localSparse<sparseCount;
                     ++localSparse){
@@ -520,7 +546,16 @@ bool runSparseReference(
                         }
 
                         ce::Result predictor{};
-                        if(!ce::estimate(input,predictor)||
+                        const auto predictorStarted=SteadyClock::now();
+                        const auto predictorOk=ce::estimate(input,predictor);
+                        const auto predictorFinished=SteadyClock::now();
+                        if(diagnostics){
+                            diagnostics->predictorEstimateMs+=
+                                elapsed_ms(
+                                    predictorStarted,
+                                    predictorFinished);
+                        }
+                        if(!predictorOk||
                            !predictor.centerExcluded||
                            predictor.createsNewEvidence||
                            predictor.scientificWritebackAllowed){
@@ -569,6 +604,13 @@ bool runSparseReference(
                             combinedZ,
                             phase);
                 }
+                const auto candidateLoopFinished=SteadyClock::now();
+                if(diagnostics){
+                    diagnostics->candidateLoopMs+=
+                        elapsed_ms(
+                            candidateLoopStarted,
+                            candidateLoopFinished);
+                }
             }
 
             if(tile.metrics.v01CandidateCenters!=
@@ -592,6 +634,7 @@ bool runSparseReference(
             return false;
         }
 
+        const auto hashStarted=SteadyClock::now();
         truthraw::sha256_v0_69::Hasher hasher;
         constexpr char domain[]=
             "D_RAW_TN_N2_CENTER_EXCLUDED_SPATIAL_AUDIT_V0_2_1";
@@ -616,6 +659,11 @@ bool runSparseReference(
             hash_metrics(hasher,tile.metrics);
         }
         out.auditSha256=hasher.finalize();
+        const auto hashFinished=SteadyClock::now();
+        if(diagnostics){
+            diagnostics->finalHashMs=
+                elapsed_ms(hashStarted,hashFinished);
+        }
         out.v01TileParityVerified=true;
         out.centerOnlySigmaPrimary=true;
         out.combinedSigmaDiagnosticOnly=true;
@@ -624,6 +672,10 @@ bool runSparseReference(
         out.createsNewEvidence=false;
         out.scientificWritebackAllowed=false;
 
+        if(diagnostics){
+            diagnostics->totalMs=
+                elapsed_ms(totalStarted,SteadyClock::now());
+        }
         return nonzero(out.auditSha256)&&
                out.v01TileParityVerified&&
                out.centerOnlySigmaPrimary&&

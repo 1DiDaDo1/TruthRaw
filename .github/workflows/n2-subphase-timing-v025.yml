@@ -1,0 +1,27 @@
+name: N2 Subphase Timing v0.2.5 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_pipeline_bridge_common.cpp'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'docs/research/truthnegative-center-excluded-spatial-audit-v0.2.2/native/**'
+      - 'docs/research/truthnegative-n2-row-band-reuse-v0.1/tests/**'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'tools/check_n2_subphase_timing_v025.py'
+      - '.github/workflows/n2-subphase-timing-v025.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify subphase timing remains diagnostic only
+        run: python3 tools/check_n2_subphase_timing_v025.py

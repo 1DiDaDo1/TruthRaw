@@ -11,6 +11,19 @@ namespace v01 = truthraw::truthnegative_n2_cfa_audit::v0_1;
 namespace v021 =
     truthraw::truthnegative_center_excluded_spatial_audit::v0_2_1;
 
+struct Diagnostics final {
+    double totalMs = 0.0;
+    double fillStage2Ms = 0.0;
+    double candidateLoopMs = 0.0;
+    double predictorEstimateMs = 0.0;
+    double finalHashMs = 0.0;
+    std::uint64_t tileCount = 0u;
+    std::uint64_t candidateTileCount = 0u;
+    std::uint64_t candidateCenterCount = 0u;
+    bool timingIsScientificEvidence = false;
+    bool timingMayChangeScientificAuthority = false;
+};
+
 /**
  * Performance-only execution path for the v0.2.1 scientific contract.
  *
@@ -24,6 +37,7 @@ bool runSparseReference(
     stream::IRawTileSource& source,
     const v021::Binding& binding,
     const v01::Result& referenceV01,
-    v021::Result& out) noexcept;
+    v021::Result& out,
+    Diagnostics* diagnostics = nullptr) noexcept;
 
 } // namespace truthraw::truthnegative_center_excluded_spatial_audit::v0_2_2

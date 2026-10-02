@@ -491,6 +491,142 @@ object N2LocalSpatialBindingAudit {
                         true,
                     ),
                 )
+                .put(
+                    "shared_acquire_subphase_timing_available",
+                    status.optBoolean(
+                        "sharedAcquireSubphaseTimingAvailable",
+                        false,
+                    ),
+                )
+                .put(
+                    "shared_acquire_probe_seal_ms",
+                    status.optDouble("sharedAcquireProbeSealMs", 0.0),
+                )
+                .put(
+                    "shared_acquire_cache_lookup_ms",
+                    status.optDouble("sharedAcquireCacheLookupMs", 0.0),
+                )
+                .put(
+                    "shared_acquire_prepare_total_ms",
+                    status.optDouble("sharedAcquirePrepareTotalMs", 0.0),
+                )
+                .put(
+                    "prepare_duplicate_and_byte_source_ms",
+                    status.optDouble(
+                        "prepareDuplicateAndByteSourceMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "prepare_seal_source_ms",
+                    status.optDouble("prepareSealSourceMs", 0.0),
+                )
+                .put(
+                    "prepare_color_binding_ms",
+                    status.optDouble("prepareColorBindingMs", 0.0),
+                )
+                .put(
+                    "prepare_color_source_ms",
+                    status.optDouble("prepareColorSourceMs", 0.0),
+                )
+                .put(
+                    "prepare_pre_open_reverify_ms",
+                    status.optDouble("preparePreOpenReverifyMs", 0.0),
+                )
+                .put(
+                    "prepare_open_dng_adapter_ms",
+                    status.optDouble("prepareOpenDngAdapterMs", 0.0),
+                )
+                .put(
+                    "prepare_bind_scientific_master_ms",
+                    status.optDouble(
+                        "prepareBindScientificMasterMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "prepare_finalize_phase2_ms",
+                    status.optDouble("prepareFinalizePhase2Ms", 0.0),
+                )
+                .put(
+                    "prepare_summarize_authority_field_ms",
+                    status.optDouble(
+                        "prepareSummarizeAuthorityFieldMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "prepare_finalize_truthnegative_ms",
+                    status.optDouble(
+                        "prepareFinalizeTruthNegativeMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "prepare_finalize_drawnegative_ms",
+                    status.optDouble(
+                        "prepareFinalizeDrawNegativeMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "prepare_total_instrumented_ms",
+                    status.optDouble("prepareTotalInstrumentedMs", 0.0),
+                )
+                .put(
+                    "center_excluded_subphase_timing_available",
+                    status.optBoolean(
+                        "centerExcludedSubphaseTimingAvailable",
+                        false,
+                    ),
+                )
+                .put(
+                    "center_excluded_fill_stage2_ms",
+                    status.optDouble("centerExcludedFillStage2Ms", 0.0),
+                )
+                .put(
+                    "center_excluded_candidate_loop_ms",
+                    status.optDouble(
+                        "centerExcludedCandidateLoopMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "center_excluded_predictor_estimate_ms",
+                    status.optDouble(
+                        "centerExcludedPredictorEstimateMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "center_excluded_final_hash_ms",
+                    status.optDouble("centerExcludedFinalHashMs", 0.0),
+                )
+                .put(
+                    "center_excluded_total_instrumented_ms",
+                    status.optDouble(
+                        "centerExcludedTotalInstrumentedMs",
+                        0.0,
+                    ),
+                )
+                .put(
+                    "center_excluded_tile_count",
+                    status.optLong("centerExcludedTileCount", 0L),
+                )
+                .put(
+                    "center_excluded_candidate_tile_count",
+                    status.optLong(
+                        "centerExcludedCandidateTileCount",
+                        0L,
+                    ),
+                )
+                .put(
+                    "center_excluded_candidate_center_count",
+                    status.optLong(
+                        "centerExcludedCandidateCenterCount",
+                        0L,
+                    ),
+                )
                 .put("authority", "DIAGNOSTIC_BINDING_ONLY")
                 .put("source_width", sourceWidth)
                 .put("source_height", sourceHeight)
