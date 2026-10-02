@@ -205,9 +205,19 @@ object ResearchBatchJournalV02 {
         message: String,
     ) = mutate(context, operationKey) { root ->
         val now = System.currentTimeMillis()
+        val attemptStartedAt =
+            root.optLong(
+                "attempt_started_at_wall_ms",
+                now,
+            )
         root
             .put("updated_at_wall_ms", now)
             .put("service_heartbeat_wall_ms", now)
+            .put("attempt_finished_at_wall_ms", now)
+            .put(
+                "attempt_elapsed_ms",
+                (now - attemptStartedAt).coerceAtLeast(0L),
+            )
             .put("terminal", true)
             .put("status", if (success) "SUCCESS" else "ERROR")
             .put("terminal_message", message)

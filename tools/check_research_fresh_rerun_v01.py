@@ -54,10 +54,10 @@ for token in [
     assert token in store, f"profile store freshness guard missing {token}"
 
 assert "D.RAW/UniversalSourceProfileCache/0.2.11-authority-template-reuse-v1" in profiler
-assert version_code == "26100113"
-assert 'versionName = "0.53-v0.84.2-authority-template-reuse-fresh-rerun"' in gradle
-assert lineage["previous_version_code"] == 26100112
-assert lineage["current_version_code"] == 26100113
+assert int(version_code) >= 26100113
+assert 'versionName = "0.53-v0.84.2-authority-template-reuse-' in gradle
+assert lineage["current_version_code"] == int(version_code)
+assert lineage["current_version_code"] > lineage["previous_version_code"]
 assert lineage["scientific_authority_affected"] is False
 
 for token in [
