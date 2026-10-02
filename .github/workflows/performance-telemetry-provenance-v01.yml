@@ -1,0 +1,26 @@
+name: Performance Telemetry Provenance v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/VERSION_CODE'
+      - 'suite_android/app/build.gradle.kts'
+      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
+      - 'docs/research/performance-telemetry-provenance-v0.1/README.md'
+      - 'tools/check_performance_telemetry_provenance_v01.py'
+      - '.github/workflows/performance-telemetry-provenance-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify current-run versus cached-origin telemetry provenance
+        run: python3 tools/check_performance_telemetry_provenance_v01.py
