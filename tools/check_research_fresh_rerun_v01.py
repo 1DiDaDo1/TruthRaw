@@ -64,7 +64,7 @@ for token in [
     "derived diagnostic caches only",
     "does not delete",
     "only Android service redelivery",
-    "fresh measurement attempt",
+    "explicit user request",
 ]:
     assert token.lower() in readme.lower(), f"README missing {token}"
 
