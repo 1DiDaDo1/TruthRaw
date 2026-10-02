@@ -82,6 +82,53 @@ void test_source_field_and_encoding(){
         truthraw::CfaPattern::BGGR,0u,0u,w,h,raw,1023.0f,rgb,records),
         "source field build");
 
+    // The single-record builder is the canonical semantic source for both
+    // materialized and direct-streaming authority paths.
+    for(std::uint32_t y=0;y<h;++y){
+        for(std::uint32_t x=0;x<w;++x){
+            const std::size_t p=static_cast<std::size_t>(y)*w+x;
+            for(int ch=0;ch<3;++ch){
+                field::ChannelRecord direct{};
+                require(
+                    field::build_source_channel_record(
+                        truthraw::CfaPattern::BGGR,
+                        x,
+                        y,
+                        raw[p],
+                        1023.0f,
+                        ch,
+                        rgb[3u*p+static_cast<std::size_t>(ch)],
+                        direct),
+                    "single source channel build");
+                const auto& vectorRecord=
+                    records[3u*p+static_cast<std::size_t>(ch)];
+                require(
+                    field::classification_word(direct)==
+                        field::classification_word(vectorRecord),
+                    "single/vector classification exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.value)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.value),
+                    "single/vector value bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.p95)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.p95),
+                    "single/vector p95 bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.support)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.support),
+                    "single/vector support bits exact");
+                require(
+                    std::bit_cast<std::uint32_t>(direct.bound)==
+                        std::bit_cast<std::uint32_t>(vectorRecord.bound),
+                    "single/vector bound bits exact");
+                require(
+                    direct.contributionMask==vectorRecord.contributionMask,
+                    "single/vector contribution mask exact");
+            }
+        }
+    }
+
     std::uint64_t measured=0u,reconstructed=0u,calibrated=0u,censored=0u,unknown=0u;
     for(std::uint32_t y=0;y<h;++y){
         for(std::uint32_t x=0;x<w;++x){
