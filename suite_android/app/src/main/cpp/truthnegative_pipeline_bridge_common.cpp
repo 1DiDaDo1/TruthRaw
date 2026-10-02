@@ -79,7 +79,8 @@ public:
         const float* cameraNativeRgb,
         std::size_t floatCount) noexcept override {
         if (!rawCore || !cameraNativeRgb) return false;
-        return accumulator_.appendSourceTile(
+        const auto started = SteadyClock::now();
+        const bool ok = accumulator_.appendSourceTile(
             cfa_,
             x,
             y,
@@ -92,6 +93,15 @@ public:
             std::span<const float>(
                 cameraNativeRgb,
                 floatCount));
+        const auto finished = SteadyClock::now();
+        if (ok) {
+            directRecordStreamMs_ +=
+                elapsed_ms(started, finished);
+            ++tileCount_;
+            recordCount_ +=
+                static_cast<std::uint64_t>(rawCount) * 3u;
+        }
+        return ok;
     }
 
     bool finalize(
@@ -100,11 +110,30 @@ public:
         return accumulator_.finalize(out);
     }
 
+    double directRecordStreamMs() const noexcept {
+        return directRecordStreamMs_;
+    }
+
+    std::uint64_t tileCount() const noexcept {
+        return tileCount_;
+    }
+
+    std::uint64_t recordCount() const noexcept {
+        return recordCount_;
+    }
+
+    std::size_t accumulatorResidentBytesUpperBound() const noexcept {
+        return accumulator_.residentBytesUpperBound();
+    }
+
 private:
     CfaPattern cfa_ = CfaPattern::BGGR;
     float whiteLevel_ = 0.0f;
     truthnegative_continuous::v0_5::
         AuthorityFieldAccumulator accumulator_;
+    double directRecordStreamMs_ = 0.0;
+    std::uint64_t tileCount_ = 0u;
+    std::uint64_t recordCount_ = 0u;
 };
 
 }  // namespace
@@ -251,6 +280,16 @@ Status prepare(
         if (timing) {
             timing->bindScientificMasterMs =
                 elapsed_ms(scienceStarted, scienceFinished);
+            timing->authorityDirectRecordStreamingActive = true;
+            timing->authorityTemporaryRecordVectorUsed = false;
+            timing->authorityDirectRecordStreamMs =
+                authorityObserver.directRecordStreamMs();
+            timing->authorityDirectRecordStreamTileCount =
+                authorityObserver.tileCount();
+            timing->authorityDirectRecordStreamRecordCount =
+                authorityObserver.recordCount();
+            timing->authorityAccumulatorResidentBytesUpperBound =
+                authorityObserver.accumulatorResidentBytesUpperBound();
         }
 
         technical_backplane_phase2::v0_1::Phase2Input phaseInput;
