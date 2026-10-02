@@ -16,6 +16,15 @@ public:
         update(bytes.data(), bytes.size());
     }
     Digest finalize() noexcept;
+
+    std::uint64_t directInputBlockTransformCount() const noexcept {
+        return directInputBlockTransforms_;
+    }
+
+    std::uint64_t bufferedInputBlockTransformCount() const noexcept {
+        return bufferedInputBlockTransforms_;
+    }
+
 private:
     void transform(const std::uint8_t* block) noexcept;
     std::array<std::uint32_t, 8> state_{
@@ -24,6 +33,8 @@ private:
     std::array<std::uint8_t,64> block_{};
     std::size_t used_=0;
     std::uint64_t total_=0;
+    std::uint64_t directInputBlockTransforms_=0;
+    std::uint64_t bufferedInputBlockTransforms_=0;
     bool finalized_=false;
 };
 
