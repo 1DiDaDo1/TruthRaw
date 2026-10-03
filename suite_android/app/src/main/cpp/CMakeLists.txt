@@ -25,6 +25,7 @@ set(BACKPLANE_PHASE2 "${RESEARCH_ROOT}/technical-backplane-phase2-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V01 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.1/native")
 set(SCIENTIFIC_MASTER_BINDING_V02 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.2/native")
 set(SCIENTIFIC_MASTER_BINDING_V03 "${RESEARCH_ROOT}/scientific-master-streaming-binding-v0.3/native")
+set(SCIENTIFIC_MASTER_EXACT_GAUGE_V03 "${RESEARCH_ROOT}/scientific-master-exact-gauge-retained-artifact-v0.3/native")
 set(SCIENTIFIC_MASTER_DIGEST "${RESEARCH_ROOT}/scientific-master-digest-v0.1/native")
 set(SCIENTIFIC_MASTER_FLOAT_DNG "${RESEARCH_ROOT}/scientific-master-linear-dng-projection-v0.1/native")
 set(TRUTHNEGATIVE_DENSE_V03 "${RESEARCH_ROOT}/truthnegative-dense-projection-v0.3/native")
@@ -85,6 +86,7 @@ add_library(truthraw_ui_preview_bridge SHARED
     advanced_preview_bridge.cpp
     truthnegative_continuous_preview_bridge.cpp
     truthnegative_pipeline_bridge_common.cpp
+    scientific_master_pass_artifact_router_v0_1.cpp
     camera5_color_highlight_oracle_bridge.cpp
     truthnegative_native_container_bridge.cpp
     truthnegative_n2_spatial_sidecar_bridge.cpp
@@ -149,6 +151,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     ${SCIENTIFIC_MASTER_BINDING_V01}/scientific_master_streaming_binding_v0_1.cpp
     ${SCIENTIFIC_MASTER_BINDING_V02}/scientific_master_streaming_binding_v0_2.cpp
     ${SCIENTIFIC_MASTER_BINDING_V03}/scientific_master_streaming_binding_v0_3.cpp
+    ${SCIENTIFIC_MASTER_EXACT_GAUGE_V03}/scientific_master_exact_gauge_retained_artifact_v0_3_atomic_core.cpp
+    ${SCIENTIFIC_MASTER_EXACT_GAUGE_V03}/scientific_master_exact_gauge_retained_artifact_v0_3_admission.cpp
     ${SCIENTIFIC_MASTER_DIGEST}/scientific_master_digest_v0_1.cpp
     ${SCIENTIFIC_MASTER_FLOAT_DNG}/scientific_master_linear_dng_projection_v0_1.cpp
     ${SCIENTIFIC_MASTER_FLOAT_DNG}/streaming_scientific_master_tile_source_v0_1.cpp
@@ -219,6 +223,7 @@ target_include_directories(truthraw_ui_preview_bridge PRIVATE
     ${SCIENTIFIC_MASTER_BINDING_V01}
     ${SCIENTIFIC_MASTER_BINDING_V02}
     ${SCIENTIFIC_MASTER_BINDING_V03}
+    ${SCIENTIFIC_MASTER_EXACT_GAUGE_V03}
     ${SCIENTIFIC_MASTER_DIGEST}
     ${SCIENTIFIC_MASTER_FLOAT_DNG}
     ${TRUTHNEGATIVE_DENSE_V03}
