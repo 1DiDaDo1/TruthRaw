@@ -1,11 +1,17 @@
 #include "scientific_master_pass_artifact_dispatch_v0_1.h"
 
+#include <mutex>
+#include <sstream>
 #include <string>
 
 namespace truthraw::android_scientific_master_pass_artifact::v0_1 {
 namespace {
 
 thread_local Diagnostics gLastDiagnostics{};
+std::mutex gBoundDiagnosticsMutex;
+std::string gBoundScientificMasterHash;
+Diagnostics gBoundDiagnostics{};
+bool gBoundDiagnosticsAvailable = false;
 
 void import_exact_gauge_diagnostics(
     const exact_gauge::Diagnostics& source,
@@ -40,6 +46,40 @@ smsb2::Status firewall_failure(const char* message) noexcept {
     return smsb2::Status::error(
         smsb2::StatusCode::GaugeFailed,
         std::string("PassArtifact firewall violation: ") + message);
+}
+
+void publish_bound_diagnostics(
+    const std::string& scientificMasterHash,
+    const Diagnostics& diagnostics) noexcept {
+    try {
+        std::lock_guard<std::mutex> guard(gBoundDiagnosticsMutex);
+        gBoundScientificMasterHash = scientificMasterHash;
+        gBoundDiagnostics = diagnostics;
+        gBoundDiagnosticsAvailable = !scientificMasterHash.empty();
+    } catch (...) {
+        // Telemetry is diagnostic-only. Allocation/locking failure must never
+        // alter the scientific result or trigger a second scientific route.
+        gBoundDiagnosticsAvailable = false;
+    }
+}
+
+void append_json_string(std::ostringstream& out, const char* value) {
+    out << '\"';
+    const char* p = value != nullptr ? value : "";
+    while (*p != '\0') {
+        const unsigned char c = static_cast<unsigned char>(*p++);
+        switch (c) {
+            case '\"': out << "\\\""; break;
+            case '\\': out << "\\\\"; break;
+            case '\n': out << "\\n"; break;
+            case '\r': out << "\\r"; break;
+            case '\t': out << "\\t"; break;
+            default:
+                if (c >= 0x20u) out << static_cast<char>(c);
+                break;
+        }
+    }
+    out << '\"';
 }
 
 }  // namespace
@@ -96,12 +136,86 @@ smsb2::Status bind_observed(
     if (diagnostics.candidateApplied) {
         return firewall_failure("scientific candidate application reported");
     }
+    if (!status) {
+        return status;
+    }
 
+    // Publish only after a successful, firewall-clean scientific bind. The
+    // Scientific-Master hash is the binding key, so later JNI consumers can
+    // never attach this snapshot to a different prepared source/context.
+    publish_bound_diagnostics(out.scientificMasterHash, diagnostics);
     return status;
 }
 
 const Diagnostics& last_thread_diagnostics() noexcept {
     return gLastDiagnostics;
+}
+
+std::string bound_diagnostics_json(
+    const std::string& scientificMasterHash) noexcept {
+    static constexpr const char* kUnavailable =
+        "{\"schema\":\"D.RAW/ScientificMasterPassArtifactDiagnostics/0.1\","
+        "\"available\":false,\"binding_verified\":false,"
+        "\"authority\":\"DIAGNOSTIC_RUNTIME_ONLY\","
+        "\"creates_new_evidence\":false,"
+        "\"scientific_writeback_allowed\":false}";
+    try {
+        std::lock_guard<std::mutex> guard(gBoundDiagnosticsMutex);
+        if (!gBoundDiagnosticsAvailable ||
+            scientificMasterHash.empty() ||
+            scientificMasterHash != gBoundScientificMasterHash) {
+            return kUnavailable;
+        }
+
+        const Diagnostics& d = gBoundDiagnostics;
+        std::ostringstream out;
+        out << "{\"schema\":\"D.RAW/ScientificMasterPassArtifactDiagnostics/0.1\"";
+        out << ",\"available\":true";
+        out << ",\"binding_verified\":true";
+        out << ",\"binding\":\"SCIENTIFIC_MASTER_SHA256\"";
+        out << ",\"selected_artifact_id\":"
+            << static_cast<unsigned int>(d.selectedArtifact);
+        out << ",\"artifact_type\":";
+        append_json_string(out, d.artifactType);
+        out << ",\"artifact_version\":";
+        append_json_string(out, d.artifactVersion);
+        out << ",\"route_used\":";
+        append_json_string(out, d.routeUsed);
+        out << ",\"fallback_reason\":";
+        append_json_string(out, d.fallbackReason);
+        out << ",\"geometric_eligible_upper_bound\":"
+            << d.geometricEligibleUpperBound;
+        out << ",\"eligible_retained_samples\":"
+            << d.eligibleRetainedSamples;
+        out << ",\"retained_bytes_requested\":"
+            << d.retainedBytesRequested;
+        out << ",\"retained_bytes_reserved\":"
+            << d.retainedBytesReserved;
+        out << ",\"retained_bytes_used\":"
+            << d.retainedBytesUsed;
+        out << ",\"caller_budget_bytes\":"
+            << d.callerBudgetBytes;
+        out << ",\"candidate_logical_resident_upper_bound\":"
+            << d.candidateLogicalResidentUpperBound;
+        out << ",\"stage2_gauge_scan_passes_actually_used\":"
+            << d.stage2GaugeScanPassesActuallyUsed;
+        out << ",\"pass2_stage2_tile_reads_avoided\":"
+            << d.pass2Stage2TileReadsAvoided;
+        out << ",\"optimization_applied\":"
+            << (d.optimizationApplied ? "true" : "false");
+        out << ",\"candidate_applied\":"
+            << (d.candidateApplied ? "true" : "false");
+        out << ",\"source_values_modified\":"
+            << (d.sourceValuesModified ? "true" : "false");
+        out << ",\"creates_new_evidence\":"
+            << (d.createsNewEvidence ? "true" : "false");
+        out << ",\"scientific_writeback_allowed\":"
+            << (d.scientificWritebackAllowed ? "true" : "false");
+        out << ",\"authority\":\"DIAGNOSTIC_RUNTIME_ONLY\"}";
+        return out.str();
+    } catch (...) {
+        return kUnavailable;
+    }
 }
 
 }  // namespace truthraw::android_scientific_master_pass_artifact::v0_1
