@@ -22,7 +22,7 @@ endif()
 add_executable(test_scientific_master_exact_gauge_retained_artifact_v0_3
     native/scientific_master_exact_gauge_retained_artifact_v0_3.cpp
     native/scientific_master_exact_gauge_retained_artifact_v0_3_admission.cpp
-    tests/test_scientific_master_exact_gauge_retained_artifact_v0_3.cpp
+    tests/test_scientific_master_exact_gauge_retained_artifact_v0_3_oracle.cpp
     ../scientific-master-streaming-binding-v0.2/native/scientific_master_streaming_binding_v0_2.cpp
     ../scientific-master-streaming-binding-v0.1/native/scientific_master_streaming_binding_v0_1.cpp
     ../scientific-master-digest-v0.1/native/scientific_master_digest_v0_1.cpp
