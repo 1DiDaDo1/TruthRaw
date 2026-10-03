@@ -9,7 +9,7 @@ namespace {
 
 thread_local Diagnostics gLastDiagnostics{};
 std::mutex gBoundDiagnosticsMutex;
-std::string gBoundScientificMasterHash;
+smsb2::Hash256 gBoundScientificMasterHash{};
 Diagnostics gBoundDiagnostics{};
 bool gBoundDiagnosticsAvailable = false;
 
@@ -49,16 +49,16 @@ smsb2::Status firewall_failure(const char* message) noexcept {
 }
 
 void publish_bound_diagnostics(
-    const std::string& scientificMasterHash,
+    const smsb2::Hash256& scientificMasterHash,
     const Diagnostics& diagnostics) noexcept {
     try {
         std::lock_guard<std::mutex> guard(gBoundDiagnosticsMutex);
         gBoundScientificMasterHash = scientificMasterHash;
         gBoundDiagnostics = diagnostics;
-        gBoundDiagnosticsAvailable = !scientificMasterHash.empty();
+        gBoundDiagnosticsAvailable = true;
     } catch (...) {
-        // Telemetry is diagnostic-only. Allocation/locking failure must never
-        // alter the scientific result or trigger a second scientific route.
+        // Telemetry is diagnostic-only. Locking failure must never alter the
+        // scientific result or trigger a second scientific route.
         gBoundDiagnosticsAvailable = false;
     }
 }
@@ -152,7 +152,7 @@ const Diagnostics& last_thread_diagnostics() noexcept {
 }
 
 std::string bound_diagnostics_json(
-    const std::string& scientificMasterHash) noexcept {
+    const smsb2::Hash256& scientificMasterHash) noexcept {
     static constexpr const char* kUnavailable =
         "{\"schema\":\"D.RAW/ScientificMasterPassArtifactDiagnostics/0.1\","
         "\"available\":false,\"binding_verified\":false,"
@@ -162,7 +162,6 @@ std::string bound_diagnostics_json(
     try {
         std::lock_guard<std::mutex> guard(gBoundDiagnosticsMutex);
         if (!gBoundDiagnosticsAvailable ||
-            scientificMasterHash.empty() ||
             scientificMasterHash != gBoundScientificMasterHash) {
             return kUnavailable;
         }
