@@ -29,7 +29,7 @@ Read the current project layer in this order:
 4. [`docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-03.md)
 5. [`docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`](docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md)
 
-The previous long-form root README has been preserved verbatim as [`README_HISTORY_2026-10-02.md`](README_HISTORY_2026-10-02.md). Older dated handoffs/state files remain provenance for their own checkpoints.
+The previous long-form root README is preserved verbatim at `docs/history/ROOT_README_SNAPSHOT_2026-10-02.md`. The previous long-form bootstrap is preserved at `docs/history/START_HERE_SNAPSHOT_2026-10-02.md`. Older dated handoffs/state files remain provenance for their own checkpoints.
 
 ## Current validated engineering state
 
@@ -53,6 +53,22 @@ Architecture law:
 > **general semantic route -> versioned specialized route -> exact parity oracle -> fail-closed fallback**
 
 Before implementation, the exact current source eligibility/rank/Float32/cardinality/memory semantics and every second-pass consumer must be inspected. Memory budget, unsupported topology or semantic mismatch must fall back to v0.2 rather than narrowing future expansion space.
+
+## Historical provenance pointers retained for governance
+
+These older layers are **not** the current frontier. They remain directly discoverable because they encode permanent scientific decisions and historical checkpoints:
+
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 
 ## Scientific boundaries
 
