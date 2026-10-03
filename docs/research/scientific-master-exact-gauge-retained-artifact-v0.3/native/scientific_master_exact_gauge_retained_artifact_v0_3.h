@@ -24,6 +24,12 @@ inline constexpr const char* kConsumerSemanticVersion = "EXACT_GAUGE_LOW16_V0_3"
 inline constexpr const char* kEligibilityContractId =
     "SMSB_V0_2_POSITIVE_FINITE_RAW_LT_WHITE_CENTER80";
 
+struct ArtifactOptions final {
+    // 0 means no separate artifact-only ceiling. The established Options::
+    // memoryBudgetBytes remains the total scientific logical resident ceiling.
+    std::size_t retainedArtifactBudgetBytes = 0u;
+};
+
 enum class RouteUsed : std::uint8_t {
     RetainedExactFloat32Bits = 0,
     CanonicalV02Fallback,
@@ -33,6 +39,7 @@ enum class FallbackReason : std::uint8_t {
     None = 0,
     GeometricBoundOverflow,
     RetainedByteBoundOverflow,
+    RetainedArtifactBudgetInsufficient,
     MemoryBudgetInsufficient,
     ArtifactAllocationFailed,
     ArtifactCardinalityExceeded,
@@ -54,6 +61,7 @@ struct Diagnostics final {
     std::size_t retainedBytesRequested = 0;
     std::size_t retainedBytesReserved = 0;
     std::size_t retainedBytesUsed = 0;
+    std::size_t retainedArtifactBudgetBytes = 0;
     std::size_t callerBudgetBytes = 0;
     std::size_t candidateLogicalResidentUpperBound = 0;
 
@@ -75,10 +83,29 @@ Status bind_scientific_master_retained_exact_gauge(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
     const Options& options,
+    const ArtifactOptions& artifactOptions,
+    Result& out,
+    Diagnostics& diagnostics) noexcept;
+
+// Convenience overload with no separate artifact-only ceiling.
+Status bind_scientific_master_retained_exact_gauge(
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    const Options& options,
     Result& out,
     Diagnostics& diagnostics) noexcept;
 
 // Same candidate with the existing bounded, read-only canonical observer.
+Status bind_scientific_master_retained_exact_gauge_observed(
+    streaming_v0_1::IRawTileSource& source,
+    IReconstructionBackend& reconstruction,
+    const Options& options,
+    const ArtifactOptions& artifactOptions,
+    ICanonicalTileObserver& observer,
+    Result& out,
+    Diagnostics& diagnostics) noexcept;
+
+// Convenience observed overload with no separate artifact-only ceiling.
 Status bind_scientific_master_retained_exact_gauge_observed(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
