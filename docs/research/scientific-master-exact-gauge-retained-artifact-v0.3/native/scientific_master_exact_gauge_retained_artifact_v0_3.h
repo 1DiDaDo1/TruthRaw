@@ -39,8 +39,12 @@ enum class FallbackReason : std::uint8_t {
     None = 0,
     GeometricBoundOverflow,
     RetainedByteBoundOverflow,
-    RetainedArtifactBudgetInsufficient,
     MemoryBudgetInsufficient,
+    // Admission-policy subtype. It deliberately aliases the existing memory
+    // reason value so the initial scalar candidate does not silently widen the
+    // persisted diagnostic enum ABI before Android integration. The dedicated
+    // artifact budget remains separately visible in Diagnostics.
+    RetainedArtifactBudgetInsufficient = MemoryBudgetInsufficient,
     ArtifactAllocationFailed,
     ArtifactCardinalityExceeded,
     CandidateResidentBudgetExceeded,
@@ -76,9 +80,6 @@ struct Diagnostics final {
     bool scientificWritebackAllowed = false;
 };
 
-// Candidate route. Scientific behavior is the established v0.2 contract.
-// Only exact already-eligible Stage-2 Float32 bit patterns may be retained.
-// Admission failure falls back to the complete canonical v0.2 binder.
 Status bind_scientific_master_retained_exact_gauge(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
@@ -87,7 +88,6 @@ Status bind_scientific_master_retained_exact_gauge(
     Result& out,
     Diagnostics& diagnostics) noexcept;
 
-// Convenience overload with no separate artifact-only ceiling.
 Status bind_scientific_master_retained_exact_gauge(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
@@ -95,7 +95,6 @@ Status bind_scientific_master_retained_exact_gauge(
     Result& out,
     Diagnostics& diagnostics) noexcept;
 
-// Same candidate with the existing bounded, read-only canonical observer.
 Status bind_scientific_master_retained_exact_gauge_observed(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
@@ -105,7 +104,6 @@ Status bind_scientific_master_retained_exact_gauge_observed(
     Result& out,
     Diagnostics& diagnostics) noexcept;
 
-// Convenience observed overload with no separate artifact-only ceiling.
 Status bind_scientific_master_retained_exact_gauge_observed(
     streaming_v0_1::IRawTileSource& source,
     IReconstructionBackend& reconstruction,
