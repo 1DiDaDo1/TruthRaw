@@ -1,110 +1,84 @@
-# D.RAW / TruthRaw — CURRENT CHECKPOINT — 2026-10-03 — CODE 44488
+# D.RAW / TruthRaw — CURRENT BOOTSTRAP — 2026-10-03 — CODE 44489
 
-Continuation code: **44488**
+Continuation code: **44489**
 
-This file is the current bootstrap. Historical checkpoint detail remains in dated handoffs/state files and preserved snapshots; do not treat an older checkpoint as current merely because it contains more detail.
+This file is a short bootstrap. The complete recovery authority is:
 
-## Mandatory current reading order
+`docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
 
-1. `state/DRAW_PROJECT_STATE_2026-10-03.json`
-2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md`
-3. `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
-4. `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
-5. inspect the actual `fix/research-fresh-rerun-v01` head and open/merged PR state before changing code.
+A new chat receiving only **44489** must restore the project from the repository before changing scientific or Android code. Do not ask the user to reconstruct prior chats when the repository recovery layer is sufficient.
 
-The current layer supersedes older statements about branch/build/next task. Historical pointers below remain discoverable for provenance and permanent scientific decisions.
+## Mandatory recovery order
 
-## Current repository/code checkpoint
+1. Fetch the live head of `fix/research-fresh-rerun-v01`.
+2. Read `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md` completely.
+3. Read `state/DRAW_PROJECT_STATE_2026-10-03.json`.
+4. Read `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`.
+5. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md` when historical/normative documents are needed.
+6. Inspect actual current native/Android sources and CI before any mutation.
 
-Repository: `1DiDaDo1/TruthRaw`
+Runtime/research checkpoint at the start of the 44489 documentation refresh:
 
-Active integration branch: `fix/research-fresh-rerun-v01`
+`dbf826b883d0e7bb40ff0a8e7654a0d87be78546` — `Remove superseded pre-atomic retained gauge core`
 
-Current scientific/runtime source checkpoint before this documentation-only refresh:
+Documentation-only commits after that hash are expected. Never force-reset the branch to the recorded checkpoint.
 
-`b82ada319ede5a87b0da0cdfe8732a19a3e74ff6`
+## Scientific laws that must already be loaded before coding
 
-This is the merge of PR #127, **Scientific Master Tile-Read Attribution v0.1**.
+- **Seal the evidence, not the thinking.**
+- **MEASURED != RECONSTRUCTED != APPEARANCE.**
+- **Representation may become richer than the source; knowledge claims may not exceed the evidence.**
+- **One Free World. Many sealed observations. One evidence law.**
+- Direct-CFA/source evidence is immutable.
+- A Source Capability Envelope is not proof of an observed sample domain.
+- A TruthNegative belongs to one Observation lineage; multiple observations meet only above that in the Free World Observation Graph.
+- `T = log2(L/L0)` is a coordinate family; cross-observation radiometric equivalence requires an admitted common-gauge relation.
+- Branch-sensitive reconstruction/calibration/optimization/uncertainty work remains Float64 where required; validated canonical storage may be Float32. Precision does not grant authority.
+- Scientific Master is scene-linear and pre-appearance; no presentation semantics may write back into it.
+- `MEASURED`, `CALIBRATED_ESTIMATE`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `COUNTERFACTUAL` and `APPEARANCE` remain distinct authority/state classes.
+- Unknown covariance is not zero.
+- World-space claims require proven world-to-source binding before gaining local authority.
+- Derived/virtual views do not create additional physical captures.
+- No AI/ML/neural/generative runtime belongs in the scientific path.
 
-Current Android lineage:
+## Current engineering frontier
+
+**Scientific Master Exact Gauge Retained Artifact v0.3** is implemented and green on the host parity/fallback test line but remains **NOT PROMOTED** and **NOT YET ANDROID-INTEGRATED**.
+
+Current binding architectural rules:
+
+- canonical Scientific Master v0.2 remains the complete fallback;
+- v0.3 retains exact eligible Float32 gauge bits to eliminate the second Stage-2 reread without changing exact scientific semantics;
+- admission/fallback may occur before semantic start;
+- after semantic processing starts, there is **no replay** into the canonical route;
+- Exact Gauge is one registered/versioned **PassArtifact**, not a hard-coded exception;
+- the atomic core constrains safe Scientific-Master interaction, not the set of future cable/artifact types;
+- registration never confers authority;
+- `candidate_applied=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false` remain binding until explicit promotion evidence says otherwise.
+
+## Android state
+
+Actual runtime app: `suite_android`.
+
+Current Android identity before Exact Gauge integration:
 
 - application ID `com.truthraw.adaptiveui`
 - versionCode `26100124`
 - versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
 
-## What has just been proven
+Do not hand out or describe this older Android lineage as though Exact Gauge v0.3 has already been wired into it.
 
-- PR #125 fixed-topology Center-Excluded is merged and real-device validated with exact scientific parity. Combined Center-Excluded time fell about 50%, combined predictor time about 65%, and the complete two-RAW profiler about 18% for the established test pair.
-- PR #126 measured the Scientific Master binder and established RAW source reads as a distinct material cost after the Center-Excluded win.
-- PR #127 reconciled `6144` RAW reads vs `3072` reconstruction calls per established RAW: the canonical v0.2 binder has two tile passes, reconstruction only in pass 1, and pass 2 rereads Stage-2 support for exact low-16 self-gauge median resolution.
-- PR #127 did not itself optimize the binder and did not infer unmeasured per-pass timings.
+## Exact next technical task
 
-## Current next frontier
+Before writing new Android runtime code:
 
-**Scientific Master Exact Gauge Retained Artifact v0.3**.
+1. search the current native and Java/Kotlin tree for an existing generic registry/descriptor/artifact-dispatch layer;
+2. reuse it if present;
+3. otherwise create only the smallest generic PassArtifact registry needed for identity/version, admission, dispatch, provenance/diagnostics, atomic/no-replay lifecycle and authority classification;
+4. register Exact Gauge v0.3 as one artifact;
+5. wire the candidate sources into `suite_android/app/src/main/cpp/CMakeLists.txt` and the Foundation/observation route, not the general preview route;
+6. keep canonical v0.2 fail-closed fallback and all scientific firewalls;
+7. run exact parity, forced budget fallback and all regressions before building a new APK;
+8. only then perform real-device parity/performance measurement.
 
-The design target is to retain only the exact Float32 bits already eligible for the existing self-gauge during pass 1, then resolve the low-16 median from that bounded artifact instead of rereading every Stage-2 tile.
-
-The canonical v0.2 two-pass binder remains intact as the complete fallback.
-
-Do not hard-code today's two-pass schedule as the universal architecture. v0.3 must use an extensible, versioned pass-artifact contract so future passes/intermediate products/topologies can be added without narrowing the system.
-
-General optimization law:
-
-**general semantic route -> versioned specialized route -> exact parity oracle -> fail-closed fallback**
-
-Before implementation, source-inspect the exact v0.2 eligibility/rank/Float32/cardinality/memory contract and verify that pass 2 has no additional scientific consumer that the artifact would omit.
-
-## Historical provenance pointers required for continuity
-
-The following are not the current frontier. They remain discoverable because the documentation governance suite protects their scientific/historical role:
-
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-16.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
-- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
-- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
-- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-- `docs/research/free-world-observation-graph-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
-- `docs/research/optical-field-topography-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
-
-The former long bootstrap is preserved verbatim at `docs/history/START_HERE_SNAPSHOT_2026-10-02.md`; the former long root README is preserved at `docs/history/ROOT_README_SNAPSHOT_2026-10-02.md`.
-
-## Permanent scientific laws
-
-- `MEASURED != RECONSTRUCTED != APPEARANCE`.
-- Seal the evidence, not the thinking.
-- Representation can exceed the source; knowledge claims cannot exceed the evidence.
-- Source/Direct-CFA evidence remains immutable.
-- Scientific Master is separate from export/presentation.
-- Performance caches/artifacts cannot create authority.
-- Camera/lens/vendor/RAW identity may route parsing but may not select scientific truth.
-- No AI/ML/neural/generative runtime in the scientific path.
-- No diagnostic/performance candidate may create new evidence or perform scientific writeback.
-- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
-- UNKNOWN remains valid when evidence/support is absent.
-
-A new chat receiving only **44488** should restore this checkpoint, verify whether the repository has advanced, and continue from the newest proven state without asking the user to reconstruct the project manually.
+Historical handoffs and snapshots remain provenance. The older 44488 bootstrap is no longer the current recognition point.
