@@ -1,86 +1,91 @@
 # D.RAW / TruthRaw
 
-> **CURRENT PROJECT CHECKPOINT — 2026-10-03 — continuation code `44488`**
+> **CURRENT PROJECT RECOVERY — 2026-10-03 — continuation code `44489`**
 >
-> Repository integration line: `fix/research-fresh-rerun-v01`  
-> Current scientific/runtime source checkpoint: `b82ada319ede5a87b0da0cdfe8732a19a3e74ff6`  
-> Latest merged scientific/performance diagnostic PR: **#127 — Scientific Master Tile-Read Attribution v0.1**  
-> Android lineage: versionCode `26100124`, versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
+> Canonical project/product name: **D.RAW**  
+> Historical/repository name: `TruthRaw`  
+> Repository: `1DiDaDo1/TruthRaw`  
+> Active integration branch: `fix/research-fresh-rerun-v01`  
+> Runtime/research checkpoint at the start of the 44489 documentation refresh: `dbf826b883d0e7bb40ff0a8e7654a0d87be78546` (`Remove superseded pre-atomic retained gauge core`)
 
-D.RAW is a deterministic, provenance-bound scientific imaging system built around one permanent rule:
-
-> **Measured where measured. Reconstructed where necessary. Never invented.**
-
-> **MEASURED != RECONSTRUCTED != APPEARANCE.**
+D.RAW is a deterministic, provenance-bound scientific imaging system built around permanent rules:
 
 > **Seal the evidence, not the thinking.**
+>
+> **MEASURED != RECONSTRUCTED != APPEARANCE.**
+>
+> **Representation may become richer than the source; the knowledge claim may never become richer than the evidence.**
+>
+> **One Free World. Many sealed observations. One evidence law.**
 
-> **Representation can exceed the source. Knowledge claims cannot exceed the evidence.**
+## Start here — code 44489
 
-## Start here
+The single canonical recovery document is:
 
-Continuation code: **44488**
+1. [`docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`](docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md)
 
-Read the current project layer in this order:
+Then read:
 
-1. [`state/DRAW_PROJECT_STATE_2026-10-03.json`](state/DRAW_PROJECT_STATE_2026-10-03.json)
-2. [`docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md`](docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md)
+2. [`state/DRAW_PROJECT_STATE_2026-10-03.json`](state/DRAW_PROJECT_STATE_2026-10-03.json)
 3. [`START_HERE_NEW_CHAT.md`](START_HERE_NEW_CHAT.md)
 4. [`docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-03.md)
 5. [`docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`](docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md)
 
-The previous long-form root README is preserved verbatim at `docs/history/ROOT_README_SNAPSHOT_2026-10-02.md`. The previous long-form bootstrap is preserved at `docs/history/START_HERE_SNAPSHOT_2026-10-02.md`. Older dated handoffs/state files remain provenance for their own checkpoints.
+A future chat receiving only **44489** should be able to restore the complete current scientific/architectural state from the repository without asking the user to reconstruct old chats manually. It must fetch the live branch head first; documentation-only commits after the recorded runtime checkpoint are allowed and must not be confused with new scientific/runtime code.
 
-## Current validated engineering state
+## Current scientific architecture in one line
 
-The recent performance line is deliberately evidence-driven and isolated:
+`sealed physical Observation / RAW_SENSOR -> D.RAW Observation Contract -> Source Capability Envelope -> Float64 measurement/calibration/reconstruction -> Scientific Master -> validated Float32 scientific state -> Dynamic Authority + uncertainty -> TruthNegative Continuous per Observation -> Free World Observation Graph -> Deep Scene / Light Transport -> View / Appearance -> finite projection`
 
-- **v0.2.10 Pixel-Triplet Authority Encoder** remains the accepted authority-performance reference. v0.2.11 template/suffix reuse was safe but did not give meaningful device speedup, so authority micro-optimization hit its diminishing-returns gate.
-- **PR #125** added a fixed-topology Center-Excluded fast path with exact parity and complete generic fallback. On the established two-RAW device test, combined Center-Excluded time fell about 50%, combined predictor time about 65%, and total profiler time about 18%, with zero scientific differences outside performance diagnostics.
-- **PR #126** measured the Scientific Master binder. Combined bind time was about 15.74 s across the two RAWs; RAW source reads were about 2.64 s, reconstruction about 1.31 s, and authority observation about 9.91 s.
-- **PR #127** established why each RAW had 6,144 Stage-2/RAW reads but only 3,072 reconstruction calls: the canonical v0.2 Scientific Master binder has two tile passes. Reconstruction happens in pass 1; pass 2 rereads Stage-2 support to resolve the exact low-16 self-gauge median. No per-pass timing was invented and no optimization was applied by #127.
+This means lens/sensor/CFA/readout/capture-route are properties of an Observation. TruthNegative belongs to that Observation lineage. Multiple sealed observations may meet in one Free World only through admitted evidence relations; a shared TruthRange coordinate does not by itself prove a shared radiometric gauge.
 
-## Current next frontier
+## Current engineering frontier
 
-The next isolated code candidate is **Scientific Master Exact Gauge Retained Artifact v0.3**.
+The newest implemented research candidate is **Scientific Master Exact Gauge Retained Artifact v0.3**.
 
-The design is to retain only the exact Float32 bits already eligible for the existing self-gauge during pass 1, then resolve the low-16 median from that bounded artifact instead of rereading every Stage-2 tile.
+Host-side status:
 
-This is **not** allowed to hard-code today's two-pass implementation as the universal architecture. The canonical v0.2 binder remains the complete fallback, and v0.3 must use an extensible versioned pass-artifact contract.
+- configure/build: green;
+- warnings-as-errors: green;
+- ASan/UBSan: green;
+- exact parity oracle: green;
+- forced budget fallback: green;
+- atomic/no-replay semantics present;
+- superseded pre-atomic core removed;
+- candidate **not promoted**;
+- Android integration **not yet completed**.
 
-Architecture law:
+The candidate retains exact eligible Float32 gauge bits in pass 1 so the exact low-16 self-gauge median can be resolved without the canonical second Stage-2 reread. Scientific output must remain bit-exact.
 
-> **general semantic route -> versioned specialized route -> exact parity oracle -> fail-closed fallback**
+Exact Gauge must be one registered, versioned **PassArtifact**, not a hard-coded special exception. The atomic core defines safe behavior once an artifact touches Scientific Master; it does not define which future cable/artifact families D.RAW may contain.
 
-Before implementation, the exact current source eligibility/rank/Float32/cardinality/memory semantics and every second-pass consumer must be inspected. Memory budget, unsupported topology or semantic mismatch must fall back to v0.2 rather than narrowing future expansion space.
+## Android lineage
 
-## Historical provenance pointers retained for governance
+Actual runtime application: `suite_android`.
 
-These older layers are **not** the current frontier. They remain directly discoverable because they encode permanent scientific decisions and historical checkpoints:
+Current retained Android identity before Exact Gauge Android wiring:
 
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+- application ID `com.truthraw.adaptiveui`
+- versionCode `26100124`
+- versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
 
-## Scientific boundaries
+Do not label an APK from this lineage as an Exact Gauge v0.3 device build until the native Foundation/observation integration, regression gates and APK build have actually completed.
 
-- Direct-CFA/source evidence is immutable.
-- Scientific Master is separate from presentation/export.
-- Performance artifacts may remember computation; they cannot become observation or authority.
+## Permanent scientific boundaries
+
+- Direct-CFA/source evidence is immutable and sealed.
+- Source capability is not proof of measured sample domain.
+- Scientific Master remains separate from presentation/export.
+- `UNKNOWN`, `CENSORED`, `RECONSTRUCTED`, `MEASURED` and `APPEARANCE` must not collapse into one another.
+- Unknown covariance is not zero.
+- Cross-observation radiometric fusion requires an admitted common-gauge relation.
+- Performance artifacts may remember computation; they cannot create evidence or authority.
 - Camera/lens/vendor/RAW identity may route parsing but cannot select scientific truth.
-- UNKNOWN is valid and must not silently become zero/certainty.
 - No AI/ML/neural/generative runtime exists in the scientific path.
 - No diagnostic/performance route may create evidence, mutate measured anchors, promote a correction or perform scientific writeback.
 - SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
+- Derived/virtual observations do not create additional physical captures.
 
-## Historical name
+## Historical provenance
 
-D.RAW is the canonical project/product name. Historical `TruthRaw` identifiers remain where required for provenance, sealed evidence, schemas, Android compatibility and reproducibility.
+Older handoffs, state files and architecture branches remain preserved for provenance. In particular, the validated lens-independent Free World Observation architecture from 2026-09-26 is carried into 44489 as scientific lineage, not as the active branch. The previous 44488 bootstrap is superseded as the current recovery entry but remains historical provenance.
