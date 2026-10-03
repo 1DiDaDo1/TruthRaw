@@ -6,7 +6,7 @@ When a new chat receives only **44488**, restore the complete D.RAW/TruthRaw pro
 
 The continuation code is a recognition anchor. The durable authority for recovery is the repository. Read, in order:
 
-1. `state/CURRENT_PROJECT_STATE_2026-10-03.json`
+1. `state/DRAW_PROJECT_STATE_2026-10-03.json`
 2. this handoff
 3. `START_HERE_NEW_CHAT.md`
 4. `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
@@ -217,6 +217,6 @@ Once v0.3 is actually implemented and host/CI parity is green:
 
 ## 44488 recovery instruction
 
-A future chat receiving **44488** should restore this file and `state/CURRENT_PROJECT_STATE_2026-10-03.json`, verify whether the repository has advanced beyond the recorded source checkpoint, and then continue from the newest proven state.
+A future chat receiving **44488** should restore this file and `state/DRAW_PROJECT_STATE_2026-10-03.json`, verify whether the repository has advanced beyond the recorded source checkpoint, and then continue from the newest proven state.
 
 At this checkpoint the next code task is **not** to micro-optimize authority or blindly cache the full frame. It is to source-inspect the exact self-gauge eligibility/cardinality and then implement the bounded, versioned Exact Gauge Retained Artifact v0.3 with exact parity and complete fallback to v0.2.
