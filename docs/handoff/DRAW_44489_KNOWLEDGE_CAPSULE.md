@@ -6,7 +6,7 @@ Project: **D.RAW** (`TruthRaw` is historical/repository naming)
 Repo: `1DiDaDo1/TruthRaw`  
 Branch: `fix/research-fresh-rerun-v01`  
 Recovery code: **44489**  
-Live head immediately before this document was added: `fb0bff795ee991f77c691b0a707a7d91e75aa54d` (`Upgrade machine state to recovery code 44489`). This document-only commit moves the branch head forward; always fetch live head before mutation.
+Always fetch the live branch head before mutation. Documentation-only commits may move the head beyond older runtime/scientific checkpoints; never reset or force-move the branch merely to match a remembered SHA.
 
 ## 1. Permanent scientific law
 
@@ -98,6 +98,8 @@ Known integration target: `suite_android/app/src/main/cpp/CMakeLists.txt` plus F
 
 Do not silently substitute the general preview flow. First device integration should be selectable/diagnostic Foundation/observation execution with canonical v0.2 fallback.
 
+Android update continuity is a build invariant: preserve package/application identity, signing identity and monotonically increasing `versionCode` so validated newer APKs can update the existing D.RAW installation rather than requiring uninstall/data loss. The APK file hash may change per build; update compatibility depends on package/signing/version continuity.
+
 ## 9. Exact next work
 
 1. Fetch live branch head; never force-reset to a remembered SHA.
@@ -121,3 +123,28 @@ For full detail/provenance read:
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
 
 When the user says **44489**, restore this capsule + live repository state first, then continue directly. Do not ask the user to reconstruct prior chats when repository state is sufficient.
+
+## 11. Continuous maintenance rule
+
+This capsule is a **living recovery artifact**, not a one-time summary. During normal D.RAW work it must be kept current after every materially meaningful change.
+
+Update 44489 when any of the following occurs:
+- a scientific law, interpretation or calibration assumption is added, refined, falsified or restricted;
+- a new measurement, hold-out, real-device result or uncertainty result changes what is known;
+- a candidate is promoted, rejected, superseded or deliberately kept non-promoted;
+- architecture changes, including Observation, Authority, Scientific Master, TruthNegative, Free World, PassArtifact, optics, geometry, temporal, colour, restoration or calibration contracts;
+- performance work changes implementation or measured runtime/resource behavior;
+- Android integration, APK identity/signing/version continuity, build/test status or real-device state changes;
+- the exact next implementation step changes.
+
+Maintenance discipline:
+1. record the **scientific conclusion**, not only the code change;
+2. preserve failed/falsified experiments when they constrain future work;
+3. distinguish measured fact, derived fact, estimate, candidate and appearance;
+4. cite/retain provenance for important numbers and test results in the larger handoff/state when the compact capsule would become too large;
+5. keep the capsule concise enough for fast cold-start recovery;
+6. move detail to dedicated research/state documents, but keep the binding conclusion and pointer here;
+7. never rewrite history to make a newer approach look inevitable;
+8. before ending a long work session or when chat context is becoming unreliable, refresh 44489 so the next chat can recover without depending on conversation memory.
+
+Scientific knowledge should be updated alongside implementation. When a new domain materially affects semantics (photography, colour science, low-light vision, calibration, black/highlight behavior, optics/MTF/PSF, restoration, geometry/3D camera models, temporal exposure/readout, stop-motion sampling, human perception, etc.), study authoritative/primary material where practical and translate the result into contracts, provenance, uncertainty, authority rules and tests. Perceptual/appearance models may inform output but may not silently overwrite physical evidence.
