@@ -1,167 +1,141 @@
 {
-  "schema": "D.RAW/CurrentProjectState/2026-10-03",
+  "schema": "D.RAW/CurrentProjectState/2026-10-03/44489",
   "status": "ACTIVE_RESEARCH_CHECKPOINT",
-  "continuation_code": "44488",
-  "continuation_semantics": "Restore D.RAW/TruthRaw through merged Scientific Master Tile-Read Attribution v0.1 and the validated Center-Excluded/Scientific-Master performance findings before further code changes.",
-  "supersedes_current_state": "state/CURRENT_PROJECT_STATE_2026-10-02.json",
+  "continuation_code": "44489",
+  "canonical_recovery_document": "docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md",
+  "continuation_semantics": "Restore the full D.RAW evidence/Observation/Scientific-Master/TruthNegative/Free-World architecture plus the current Exact Gauge Retained Artifact v0.3 host candidate and Android integration frontier before further code changes.",
+  "supersedes_recognition_code": "44488",
   "repository": "1DiDaDo1/TruthRaw",
+  "project_name": "D.RAW",
+  "historical_repository_name": "TruthRaw",
   "active_integration_branch": "fix/research-fresh-rerun-v01",
-  "documentation_refresh_branch": "chore/project-state-post-pr127-v03-plan",
-  "scientific_source_checkpoint": "b82ada319ede5a87b0da0cdfe8732a19a3e74ff6",
-  "scientific_source_checkpoint_meaning": "Merge of PR #127; documentation-only commits after this point do not change scientific/runtime code.",
+  "runtime_research_checkpoint_at_44489_refresh_start": "dbf826b883d0e7bb40ff0a8e7654a0d87be78546",
+  "runtime_research_checkpoint_meaning": "Remove superseded pre-atomic retained gauge core. Documentation-only 44489 commits may advance the live branch beyond this hash; always fetch the live head and never force-reset to this checkpoint.",
   "android_lineage": {
+    "runtime_app": "suite_android",
     "application_id": "com.truthraw.adaptiveui",
     "version_code": 26100124,
     "version_name": "0.53-v0.84.2-scientific-master-tile-read-attribution-v01",
+    "target_sdk": 37,
     "install_over_current": true,
-    "clear_app_data_by_default": false
+    "clear_app_data_by_default": false,
+    "exact_gauge_v0_3_android_integrated": false,
+    "warning": "Do not describe an APK from this lineage as an Exact Gauge v0.3 device build until native integration, regression gates and build have actually completed."
   },
-  "recent_merged_prs": [
-    {
-      "number": 125,
-      "title": "Add Center-Excluded fixed-topology fast path v0.1",
-      "merge_commit": "c6d86e324e984a652927276b6c37cbbaefd05c00",
-      "role": "Validated Center-Excluded performance specialization with generic fail-closed fallback and exact parity."
-    },
-    {
-      "number": 126,
-      "title": "Profile Scientific Master bind components without changing scientific output",
-      "merge_commit": "d230b4c7fafa05a0ee413a903f48040d6e292994",
-      "role": "Diagnostic-only Scientific Master binder breakdown and current-run timing provenance."
-    },
-    {
-      "number": 127,
-      "title": "Add Scientific Master Tile-Read Attribution v0.1",
-      "merge_commit": "b82ada319ede5a87b0da0cdfe8732a19a3e74ff6",
-      "role": "Fail-closed attribution of 6144 RAW reads to two canonical binder passes without inventing a per-pass timing split."
-    }
+  "epistemic_laws": [
+    "Seal the evidence, not the thinking.",
+    "MEASURED != RECONSTRUCTED != APPEARANCE.",
+    "Representation may become richer than the source; the knowledge claim may never become richer than the evidence.",
+    "One Free World. Many sealed observations. One evidence law.",
+    "Direct-CFA/source evidence remains immutable and sealed.",
+    "Single physical-frame provenance remains single-frame provenance.",
+    "Source capability is not proof of measured sample domain.",
+    "Scientific Master remains separate from export/presentation.",
+    "Unknown remains a valid state and may not silently become zero or certainty.",
+    "More precision, more raster samples or faster computation never creates authority or evidence.",
+    "APK/GCam/computational RAW may not determine D.RAW evidence, calibration or Scientific-Master authority.",
+    "No AI/ML/neural/generative runtime belongs in the scientific path."
   ],
-  "authority_performance_reference": {
-    "version": "v0.2.10 Pixel-Triplet Authority Encoder",
-    "aggregate_two_raw_profile_ms": 31973.220820,
-    "combined_authority_direct_stream_ms": 9958.35,
-    "v0_2_11_template_reuse_decision": "NOT_PROMOTED_AS_PERFORMANCE_BASELINE",
-    "v0_2_11_reason": "Scientific/byte-contract safe but no meaningful real-device performance gain; authority micro-optimization diminishing-returns gate reached."
+  "scientific_chain": [
+    "sealed physical Observation / RAW_SENSOR",
+    "D.RAW Observation Contract",
+    "Source Capability Envelope",
+    "Float64 measurement/calibration/reconstruction",
+    "Scientific Master",
+    "validated Float32 scientific state",
+    "Dynamic Authority + uncertainty",
+    "TruthNegative Continuous per Observation",
+    "Free World Observation Graph",
+    "Deep Scene / Light Transport",
+    "View / Appearance",
+    "finite projection"
+  ],
+  "observation_law": {
+    "rule": "One Free World. Many sealed observations. One evidence law.",
+    "truthnegative_scope": "TruthNegative is bound to one Observation lineage. Multiple Observation-bound TruthNegatives meet only above that boundary in the Free World Observation Graph.",
+    "source_capability_rule": "Source Capability Envelope != proven sample domain.",
+    "camera_5_proven_observation": {
+      "provenance": "TELEPHOTO",
+      "width": 4080,
+      "height": 3072,
+      "raw_format": "RAW10",
+      "cfa": "BGGR",
+      "white_level": 1023,
+      "black_level": 64,
+      "gauge": "SOURCE_LOCAL",
+      "shared_free_world_gauge_proven": false,
+      "cross_lens_radiometric_fusion_allowed": false
+    },
+    "capability_only_example": "16320x12288 / 200 MP does not prove an observed 200 MP Direct-CFA sample domain."
   },
-  "center_excluded_fixed_topology": {
-    "status": "MERGED_AND_REAL_DEVICE_VALIDATED",
-    "route": "specialized fixed topology with canonical generic fail-closed fallback",
-    "topology": {
-      "radii": [2, 4, 8],
-      "directions": 4,
-      "symmetric_sides": 2,
-      "maximum_neighbor_slots": 24
+  "historical_lens_independent_architecture": {
+    "branch": "architecture/lens-independent-free-world-observation-v01-2026-09-26",
+    "role": "Historical validated scientific lineage carried forward into 44489; not the active integration branch.",
+    "sealed_sha256": {
+      "core_vision": "a6dff18fd8c43224163df9a438655be1625458596194b853698862bd4ac6da88",
+      "contract_readme": "c943bea678e6b9c2045363ac725aebe57f8b86a290cf303c7138ffc7549a6c6e",
+      "machine_contract": "7edf5eb211ae66347586ce4ff375b4bc62f451fe578fa83e336b19818205b522",
+      "architecture_state": "dbd5c6ce3f835657182ea302d9d49bd1d9b2dfa0f8fb6dd3fcf11d3dcf1ec1f3"
     },
-    "baseline": {
-      "raw1_center_excluded_ms": 4088.13,
-      "raw1_predictor_ms": 3021.54,
-      "raw2_center_excluded_ms": 5675.69,
-      "raw2_predictor_ms": 4467.30,
-      "combined_center_excluded_ms": 9763.82,
-      "combined_predictor_ms": 7488.84,
-      "aggregate_two_raw_profile_ms": 31963.15
+    "verification": {
+      "seal_verifier_run": 36258818429,
+      "observation_record_run": 36258955138,
+      "documentation_governance_run": 36259104919,
+      "historical_governance_head": "443c80f2363b2db4064801b653cb7f4e01a7c229"
     },
-    "validated": {
-      "raw1_center_excluded_ms": 1985.62,
-      "raw1_predictor_ms": 1020.15,
-      "raw2_center_excluded_ms": 2870.54,
-      "raw2_predictor_ms": 1628.82,
-      "combined_center_excluded_ms": 4856.16,
-      "combined_predictor_ms": 2648.97,
-      "aggregate_two_raw_profile_ms": 26169.37
-    },
-    "improvement_percent": {
-      "raw1_center_excluded": 51.43,
-      "raw1_predictor": 66.24,
-      "raw2_center_excluded": 49.42,
-      "raw2_predictor": 63.54,
-      "combined_center_excluded": 50.26,
-      "combined_predictor": 64.63,
-      "aggregate_two_raw_profile": 18.13
-    },
-    "scientific_output_comparison": "Parsed Foundation content outside performance_diagnostics_v0_1 was exactly equal (0 differences)."
+    "machine_record": "DRAWObservationRecord v0.1",
+    "negative_test": "Cross-observation radiometric fusion without an admitted common gauge was deliberately rejected."
   },
-  "scientific_master_bind_profile": {
-    "status": "REAL_DEVICE_COLD_RUN_VALIDATED",
-    "aggregate_two_raw_profile_ms": 27014.29,
-    "combined_bind_ms": 15739.38,
-    "combined_breakdown_ms": {
-      "authority_observer": 9912.67,
-      "raw_source_reads": 2640.68,
-      "reconstruction": 1305.22,
-      "unattributed": 1880.81
-    },
-    "combined_breakdown_percent_approx": {
-      "authority_observer": 63.0,
-      "raw_source_reads": 16.8,
-      "reconstruction": 8.3,
-      "unattributed": 11.9
-    },
-    "per_raw_counts": {
-      "raw_read_calls": 6144,
-      "reconstruction_calls": 3072
-    }
+  "truthrange": {
+    "equation": "T = log2(L / L0)",
+    "l0_role": "Defined scientific gauge/reference, not automatically black level, clip level or middle grey.",
+    "common_gauge_rule": "Shared TruthRange coordinates do not imply physically equal radiance across observations. Cross-observation radiometric equivalence/fusion requires an admitted common-gauge relation.",
+    "source_local_gauge_allowed": true
   },
-  "scientific_master_tile_read_attribution": {
-    "status": "MERGED_AND_RECONCILED",
-    "canonical_binder_version": "v0.2",
-    "pass_1": "Stage-2 read plus reconstruction/Scientific-Master work, authority observation and high-16 self-gauge selection work.",
-    "pass_2": "No reconstruction; Stage-2 reread used to resolve the exact low-16 self-gauge median within the selected high-16 bucket.",
-    "device_result_per_raw": {
-      "status": "TWO_PASS_BINDER_SCHEDULE_RECONCILED",
-      "total_raw_reads": 6144,
-      "pass_1_attributed_reads": 3072,
-      "pass_2_attributed_reads": 3072,
-      "unattributed_reads": 0,
-      "raw_call_count_reconciles": true,
-      "per_pass_timing_inferred": false,
-      "optimization_applied": false
-    }
+  "precision_policy": {
+    "float64": "Branch-sensitive reconstruction, calibration, optimization and uncertainty calculations where required.",
+    "float32": "Controlled canonical storage only where scientific adequacy/equivalence is explicitly validated.",
+    "authority_rule": "Numerical precision never grants authority or evidence."
   },
-  "next_frontier": {
-    "name": "Scientific Master Exact Gauge Retained Artifact v0.3",
-    "status": "DESIGN_READY_CODE_NOT_STARTED",
-    "purpose": "Avoid the second Stage-2/RAW tile-read pass by retaining only exact Float32 bit patterns already eligible for the existing self-gauge median during pass 1, then resolve the low-16 median from that bounded artifact.",
-    "architecture": [
-      "Keep the canonical v0.2 two-pass binder intact as the general fallback.",
-      "Implement v0.3 as a versioned specialized route above the general semantic contract.",
-      "Use an extensible pass-artifact abstraction; gauge retention is the first artifact type, not the universal binder definition.",
-      "Apply only when explicit memory budget, topology and semantic-version gates are satisfied.",
-      "On any mismatch or resource failure, fail closed to complete canonical v0.2 execution; do not partially mix routes."
+  "scientific_master": {
+    "scene_linear": true,
+    "pre_appearance": true,
+    "signed_values_allowed": true,
+    "values_above_one_allowed": true,
+    "forced_unit_clamp_allowed": false,
+    "appearance_writeback_allowed": false,
+    "derived_state_may_impersonate_sensor_raw": false
+  },
+  "dynamic_authority": {
+    "classes": [
+      "MEASURED",
+      "CALIBRATED_ESTIMATE",
+      "RECONSTRUCTED",
+      "CENSORED",
+      "UNKNOWN",
+      "COUNTERFACTUAL",
+      "APPEARANCE"
     ],
-    "required_exact_parity": [
-      "Scientific Master SHA-256",
-      "gaugeMedian Float32 bits",
-      "all scientific sample values, states and counts",
-      "authority digest and counts",
-      "reconstruction behavior",
-      "source and measured-anchor immutability",
-      "promotion/firewall state",
-      "determinism across repeated runs",
-      "budget-fallback result parity",
-      "unsupported-topology fallback parity"
-    ],
-    "allowed_diagnostic_difference": [
-      "residentPeakBytes may increase truthfully because bounded temporary retained-artifact memory is intentional",
-      "timings and route/fallback diagnostics may differ"
-    ],
-    "first_device_performance_expectation": "When v0.3 is applied on the two established RAWs, approximately 3072 of 6144 Stage-2/RAW tile reads per RAW should be avoidable. This is a performance expectation, not a scientific criterion."
+    "local_and_provenance_bound": true,
+    "registration_confers_authority": false,
+    "censor_rule": "Clipping/saturation may provide bounds without revealing the exact latent signal.",
+    "unknown_covariance_is_zero": false,
+    "covariance_transport": "J Sigma J^T"
   },
-  "cable_room_architecture_law": {
-    "rule": "general semantic route -> versioned specialized route -> parity oracle -> fail-closed fallback",
-    "requirements": [
-      "Do not hardcode current topology as universal truth.",
-      "Do not hardcode the current two-pass schedule as the universal binder contract.",
-      "Caches and retained artifacts may accelerate authorized computation but may not create authority.",
-      "Future pass types, observer consumers, CFA layouts, RAW sources and scientific models must remain addable.",
-      "Unsupported future semantics return to the general route instead of being coerced into today's fast path.",
-      "UNKNOWN remains valid when an evidence or extension contract is absent."
-    ]
+  "world_space": {
+    "authority_path": "world-space claim -> proven world-to-source binding -> local authority",
+    "scientific_master_writeback_by_default": false,
+    "physical_frame_count_rule": "Derived/virtual views, projections, reconstructions and counterfactuals do not increase physicalFrameCount."
   },
   "anchor_constrained_local_reconstruction": {
+    "version": "v0.1",
     "status": "NOT_PROMOTED",
+    "archive": "DRAWteleAnchor-Constrained.zip",
+    "frame": "DRAW_CAPTURE_1790686814757_tele_4080x3072",
     "true_cfa_holdouts": 21760,
     "comparable_samples": 19560,
+    "affine_valid": 21760,
+    "baseline_valid": 19560,
     "affine_mae": 0.00154976,
     "baseline_mae": 0.00147486,
     "affine_rmse": 0.00205484,
@@ -171,25 +145,141 @@
     "affine_wins": 9363,
     "baseline_wins": 10197,
     "additional_affine_valid_points": 2200,
-    "uncertainty_too_optimistic": true,
+    "uncertainty_coverage_percent_1s_2s_3s": [47.69, 80.19, 93.54],
+    "max_combined_z_approx": 16.29,
+    "target_value_used_by_solver": false,
+    "measured_anchors_modified": false,
+    "solver_applied_to_scientific_master": false,
+    "candidate_applied": false,
     "scientific_writeback_allowed": false,
-    "future_direction": "Deterministic local model selection from structural support, direction, CFA phase and uncertainty; no-suitable-model remains allowed."
+    "future_direction": "Deterministic local model selection from structural support, direction, CFA phase and uncertainty; affine plane remains one possible model and no-suitable-model remains valid."
   },
-  "permanent_laws": [
-    "MEASURED != RECONSTRUCTED != APPEARANCE",
-    "Seal the evidence, not the thinking.",
-    "Representation can exceed the source; knowledge claims cannot exceed the evidence.",
-    "Direct-CFA/source evidence remains immutable and sealed.",
-    "Scientific Master remains separate from export/presentation.",
-    "Camera/lens/vendor/RAW identity may route decoding but may not select scientific truth.",
-    "APK/GCam/computational RAW may not determine D.RAW evidence, calibration or Scientific Master authority.",
-    "Held-out values may evaluate a frozen candidate but may not fit/select it.",
-    "UNKNOWN residual remains UNKNOWN until supported.",
-    "No AI/ML/neural/generative runtime in the scientific path.",
-    "No performance or diagnostic path may create new evidence or perform scientific writeback.",
-    "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.",
-    "Raster resolution does not prove independent optical information."
+  "n2_sparse_reference": {
+    "historical_checkpoint": "808485b6676f23ac1a846e1eba1c625067f657bc",
+    "version": "v0.2.2",
+    "checks_green": "27/27",
+    "authority_rule": "N2/restoration/reconstruction support never gains MEASURED authority merely by being selected or faster."
+  },
+  "validated_performance_provenance": {
+    "optimization_law": "same scientific meaning, less work",
+    "sha_transport_v0_2_9": "Approximately 914.96 MB/RAW through the direct 64-byte path; scientific firewall remained closed.",
+    "pixel_triplet_authority_v0_2_10": {
+      "triplets_per_raw": 12533760,
+      "canonical_records": 37601280,
+      "generic_fallback": 0,
+      "authority_route_speedup_percent_approx": 5.52,
+      "scientific_output_changed": false
+    },
+    "scientific_master_tile_schedule": {
+      "canonical_version": "v0.2",
+      "raw_reads_per_established_raw": 6144,
+      "reconstruction_calls_per_established_raw": 3072,
+      "pass_1_reads": 3072,
+      "pass_2_reads": 3072,
+      "pass_1_role": "Stage-2 + reconstruction + authority + high-16 self-gauge selection.",
+      "pass_2_role": "Stage-2 reread for exact low-16 self-gauge median resolution.",
+      "per_pass_timing_inferred": false
+    }
+  },
+  "exact_gauge_retained_artifact_v0_3": {
+    "name": "Scientific Master Exact Gauge Retained Artifact v0.3",
+    "status": "HOST_CANDIDATE_GREEN_NOT_PROMOTED_ANDROID_PENDING",
+    "purpose": "Retain exact eligible Float32 gauge bit-patterns during pass 1 and resolve the exact low-16 median without the second Stage-2 reread, while preserving bit-exact scientific semantics.",
+    "host_gates": {
+      "configure": "GREEN",
+      "warnings_as_errors_build": "GREEN",
+      "asan_ubsan": "GREEN",
+      "exact_parity_oracle": "GREEN",
+      "forced_budget_fallback": "GREEN"
+    },
+    "android_integrated": false,
+    "promoted": false,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "superseded_pre_atomic_core_removed": true,
+    "required_parity": [
+      "Scientific Master/hash",
+      "exact gaugeMedian Float32 bits",
+      "samples/states/counts",
+      "authority results",
+      "reconstruction behavior",
+      "source and measured-anchor immutability",
+      "promotion/firewall state",
+      "deterministic repeat runs",
+      "budget/topology fallback results"
+    ],
+    "allowed_differences": [
+      "truthful route diagnostics",
+      "timing diagnostics",
+      "retained/resident memory diagnostics"
+    ]
+  },
+  "pass_artifact_architecture": {
+    "exact_gauge_is_hardcoded_global_exception": false,
+    "exact_gauge_role": "One registered/versioned PassArtifact type.",
+    "generic_facets": [
+      "identity/version",
+      "applicability/admission",
+      "execution/dispatch",
+      "provenance/diagnostics",
+      "atomic/no-replay lifecycle",
+      "authority classification"
+    ],
+    "artifact_specific_payload_remains_open": true,
+    "future_families_may_include": [
+      "optics",
+      "geometry",
+      "temporal evidence",
+      "calibration",
+      "restoration",
+      "future unknown artifact categories"
+    ],
+    "registration_confers_authority": false
+  },
+  "atomic_semantics": {
+    "meaning": "Safety transaction boundary for work touching Scientific Master; not a taxonomy of allowed cable types.",
+    "pre_semantic_admission_or_budget_failure_may_fallback_to_canonical": true,
+    "replay_after_semantic_start_allowed": false,
+    "late_candidate_failure": "HARD_FAIL",
+    "canonical_fallback": "Scientific Master v0.2 complete route"
+  },
+  "next_implementation_sequence": [
+    "Fetch the live active-branch head and inspect commits newer than the recorded runtime checkpoint.",
+    "Search native and Java/Kotlin sources for an existing generic registry/descriptor/artifact-dispatch layer before creating anything new.",
+    "Reuse an existing generic layer if suitable; otherwise create the smallest generic PassArtifact registration interface required by the contract.",
+    "Register Exact Gauge v0.3 as one artifact rather than a global special case.",
+    "Wire the v0.3 admission and atomic-core sources into suite_android/app/src/main/cpp/CMakeLists.txt.",
+    "Connect Foundation/observation JNI and Java/Kotlin execution to generic selection/dispatch, not the general preview route.",
+    "Emit artifact/version, admission/fallback, semantic-start/no-replay, canonical/candidate read-count, retained-byte/budget, peak-byte and authority/candidate diagnostics.",
+    "Preserve canonical v0.2 full fallback and all promotion firewalls.",
+    "Run exact parity, forced budget fallback and all regression gates.",
+    "Only after all gates are green, build a new APK.",
+    "Then perform real-device parity/performance measurement; promotion remains a separate scientific decision."
   ],
-  "next_code_task": "Before implementation, inspect the exact v0.2 self-gauge eligibility/cardinality and memory requirements. Then implement Exact Gauge Retained Artifact v0.3 on a separate performance branch with exact scalar parity oracle, explicit memory budget, diagnostic route/fallback telemetry and complete fallback to canonical v0.2. Do not add SIMD in the first candidate.",
-  "continuation_instruction": "On 44488, read this state and the 2026-10-03 handoff, verify the current repository head/PRs, preserve all permanent laws and cable-room constraints, and continue from the newest proven checkpoint rather than from older v0.2.9/v0.2.11 notes."
+  "hard_prohibitions": [
+    "Do not convert reconstructed values to MEASURED.",
+    "Do not equate cross-lens radiometry without an admitted common gauge.",
+    "Do not treat a capability envelope as measured samples.",
+    "Do not let world/appearance/export information rewrite sealed evidence.",
+    "Do not replace unknown covariance with zero.",
+    "Do not promote the affine reconstruction candidate.",
+    "Do not promote Exact Gauge merely because host gates are green.",
+    "Do not resurrect the superseded pre-atomic retained-gauge core.",
+    "Do not implement Exact Gauge as a one-off architectural exception.",
+    "Do not replay canonical semantics after candidate semantic processing has started.",
+    "Do not hand out an older APK as if it contains the current v0.3 integration.",
+    "Do not force-update the active branch to an old handoff hash."
+  ],
+  "recognition_lineage": {
+    "44489": "Current canonical recovery point.",
+    "44488": "Post-PR #127 binder-attribution documentation checkpoint before the implemented v0.3 host candidate.",
+    "44487": "N2 sparse-reference v0.2.2 checkpoint.",
+    "44484": "Cable restoration, RAW_SENSOR->DNG lineage, calibration binding, promotion firewall, covariance, optics and world-space authority checkpoint."
+  },
+  "historical_formal_handoff": {
+    "file": "TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-10.zip",
+    "sha256": "42ef40eaa42d6065a62556126fc03348b4d9b8ae4a30defa927b0bb098f9bb1e"
+  },
+  "continuation_instruction": "On 44489, read the canonical recovery document, fetch the live active-branch head, preserve all scientific laws and firewalls, then continue from the newest proven state. Do not require the user to manually reconstruct prior chats."
 }
