@@ -4,7 +4,7 @@
 
 Read these first and treat them as the current continuation layer:
 
-1. `../state/CURRENT_PROJECT_STATE_2026-10-03.json`
+1. `../state/DRAW_PROJECT_STATE_2026-10-03.json`
 2. `handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md`
 3. `../START_HERE_NEW_CHAT.md`
 4. `research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
