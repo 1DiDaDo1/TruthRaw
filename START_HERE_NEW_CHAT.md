@@ -2,26 +2,26 @@
 
 Continuation code: **44489**
 
-This file is a short bootstrap. The complete recovery authority is:
+This file is the short bootstrap. The complete current recovery authority is:
 
 `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
 
 A new chat receiving only **44489** must restore the project from the repository before changing scientific or Android code. Do not ask the user to reconstruct prior chats when the repository recovery layer is sufficient.
 
-## Mandatory recovery order
+## Mandatory current reading order / recovery order
 
-1. Fetch the live head of `fix/research-fresh-rerun-v01`.
+1. Fetch the live head of `fix/research-fresh-rerun-v01` and the current PR #130 candidate head.
 2. Read `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md` completely.
 3. Read `state/DRAW_PROJECT_STATE_2026-10-03.json`.
 4. Read `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`.
 5. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md` when historical/normative documents are needed.
 6. Inspect actual current native/Android sources and CI before any mutation.
 
-Runtime/research checkpoint at the start of the 44489 documentation refresh:
+Current PR #130 candidate at this bootstrap update:
 
-`dbf826b883d0e7bb40ff0a8e7654a0d87be78546` — `Remove superseded pre-atomic retained gauge core`
+`2a90e821709eb9abdd87ba64e343bb37f4d0a129` on `fix/android-exact-gauge-pass-artifact-v03`.
 
-Documentation-only commits after that hash are expected. Never force-reset the branch to the recorded checkpoint.
+Never force-reset the branch to a recorded checkpoint merely because documentation contains an older runtime hash.
 
 ## Scientific laws that must already be loaded before coding
 
@@ -43,16 +43,18 @@ Documentation-only commits after that hash are expected. Never force-reset the b
 
 ## Current engineering frontier
 
-**Scientific Master Exact Gauge Retained Artifact v0.3** is implemented and green on the host parity/fallback test line but remains **NOT PROMOTED** and **NOT YET ANDROID-INTEGRATED**.
+Scientific Master Exact Gauge Retained Artifact v0.3 is now Android-integrated as a **candidate** through the generic PassArtifact dispatcher.
 
-Current binding architectural rules:
+Current binding rules:
 
-- canonical Scientific Master v0.2 remains the complete fallback;
+- canonical Scientific Master v0.2 remains the complete admitted pre-semantic-start fallback;
 - v0.3 retains exact eligible Float32 gauge bits to eliminate the second Stage-2 reread without changing exact scientific semantics;
-- admission/fallback may occur before semantic start;
 - after semantic processing starts, there is **no replay** into the canonical route;
-- Exact Gauge is one registered/versioned **PassArtifact**, not a hard-coded exception;
-- the atomic core constrains safe Scientific-Master interaction, not the set of future cable/artifact types;
+- Exact Gauge is one registered/versioned PassArtifact, not a hard-coded truth exception;
+- PassArtifact telemetry is diagnostic-only and bound to the exact Scientific-Master Hash256;
+- JNI/Kotlin/Foundation attribution may report the retained route or canonical fallback only from that explicit native diagnostic snapshot;
+- source-read counts never prove which route ran;
+- telemetry contradictions fail closed to `UNKNOWN_FAIL_CLOSED`;
 - registration never confers authority;
 - `candidate_applied=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false` remain binding until explicit promotion evidence says otherwise.
 
@@ -60,25 +62,54 @@ Current binding architectural rules:
 
 Actual runtime app: `suite_android`.
 
-Current Android identity before Exact Gauge integration:
+Current Android candidate identity:
 
 - application ID `com.truthraw.adaptiveui`
-- versionCode `26100124`
+- versionCode `26100125`
 - versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
 
-Do not hand out or describe this older Android lineage as though Exact Gauge v0.3 has already been wired into it.
+A new cold-validation APK may only be treated as a test candidate after the full regression/governance line is green.
 
 ## Exact next technical task
 
-Before writing new Android runtime code:
+1. keep the sealed v0.3 scientific core and canonical v0.2 implementation unchanged;
+2. validate PassArtifact retained-route, canonical-fallback and contradiction/fail-closed telemetry contracts;
+3. keep Scientific-Master source-read telemetry independent from route authority;
+4. run all relevant Android, canonical, shared-context, N2, performance and governance regressions;
+5. only after fully green CI build the new cold-validation APK;
+6. use real-device cold validation to verify route attribution, 3,072-vs-6,144 Stage-2 read behavior, unchanged Scientific Master identity and closed scientific firewalls.
 
-1. search the current native and Java/Kotlin tree for an existing generic registry/descriptor/artifact-dispatch layer;
-2. reuse it if present;
-3. otherwise create only the smallest generic PassArtifact registry needed for identity/version, admission, dispatch, provenance/diagnostics, atomic/no-replay lifecycle and authority classification;
-4. register Exact Gauge v0.3 as one artifact;
-5. wire the candidate sources into `suite_android/app/src/main/cpp/CMakeLists.txt` and the Foundation/observation route, not the general preview route;
-6. keep canonical v0.2 fail-closed fallback and all scientific firewalls;
-7. run exact parity, forced budget fallback and all regressions before building a new APK;
-8. only then perform real-device parity/performance measurement.
+## Historical governance discoverability — not current authority
+
+The following documents remain intentionally discoverable because the governance checker and project provenance retain historical states. They must **not** override the current 44489 recovery authority:
+
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+- `docs/research/free-world-observation-graph-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 
 Historical handoffs and snapshots remain provenance. The older 44488 bootstrap is no longer the current recognition point.
