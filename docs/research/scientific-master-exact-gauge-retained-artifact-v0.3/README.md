@@ -1,14 +1,16 @@
 # Scientific Master Exact Gauge Retained Artifact v0.3
 
-Status: **DESIGN CHECKPOINT — CODE NOT YET STARTED**
+Status: **SCALAR HOST CANDIDATE IMPLEMENTED — EXACT HOST PARITY GREEN — ANDROID RUNTIME NOT YET WIRED — NOT PROMOTED**
 
-This document defines the next isolated Scientific Master performance candidate after real-device Center-Excluded optimization, Scientific Master bind profiling and two-pass tile-read attribution.
+This document defines and records the isolated D.RAW Scientific Master performance candidate that follows real-device Center-Excluded optimization, Scientific Master bind profiling and two-pass tile-read attribution.
 
-It does **not** promote a new scientific model and does not authorize any change to Scientific Master values, authority, reconstruction, calibration, source evidence or writeback.
+It does **not** promote a new scientific model and does not authorize any change to Scientific Master values, authority, reconstruction, calibration, source evidence, restoration, appearance or writeback.
+
+The canonical v0.2 two-pass binder remains the semantic fallback authority.
 
 ## 1. Established problem
 
-The canonical Scientific Master streaming binder v0.2 currently traverses the canonical tile schedule twice.
+The canonical Scientific Master streaming binder v0.2 traverses the canonical tile schedule twice.
 
 On each of the two established device RAWs the measured/attributed count is:
 
@@ -17,180 +19,175 @@ On each of the two established device RAWs the measured/attributed count is:
 - `6144` total reads;
 - `3072` reconstruction calls.
 
-The second pass performs no reconstruction. Its remaining scientific purpose is to resolve the exact low 16 bits of the self-gauge median after pass 1 has established the selected high-16 bucket.
+Pass 2 performs no reconstruction, no Scientific Master digest addition and no canonical observer callback. Its remaining scientific purpose in the inspected v0.2 source is to resolve the exact low 16 bits of the self-gauge median after pass 1 has selected the high-16 bucket(s).
 
-The optimization target is therefore not "cache the whole Scientific Master". It is narrower: avoid recomputing/re-reading information that pass 1 already observed and that pass 2 needs only for the exact self-gauge selection.
+The optimization target is therefore deliberately narrow: retain only the exact already-observed information that this low-16 selection needs, rather than cache a whole Scientific Master or redefine the processing model.
 
-## 2. Candidate hypothesis
+## 2. Implemented candidate
 
-During pass 1, retain the exact Float32 bit patterns of only the samples that the existing v0.2 self-gauge eligibility logic already admits.
+The scalar v0.3 host candidate now retains the exact IEEE-754 Float32 bit pattern (`uint32_t`) of every sample already admitted by the unchanged v0.2 self-gauge eligibility predicate during pass 1.
 
-The retained representation is an implementation artifact, not evidence and not a new scientific state.
+After high-16 rank selection, the candidate consumes that temporary exact-bit ledger to build the same low-16 histogram/order statistic that v0.2 obtains by rereading Stage-2 tiles.
 
-After the existing high-16 selection is complete, the v0.3 route may use those retained exact bits to build the same low-16 histogram/order statistic that v0.2 obtains through a second Stage-2 tile traversal.
+The candidate therefore uses one Stage-2 gauge scan instead of two for an admitted input while preserving the canonical Scientific Master and self-gauge semantics.
 
-If the result is bit-identical, pass 2 no longer needs to reread the RAW/Stage-2 tiles for this purpose.
+The retained representation is an implementation artifact. It is not source evidence, calibration, restoration state, appearance state or a new Scientific Master.
 
-## 3. Architecture: pass artifacts, not a hard-coded two-pass shortcut
+## 3. Open-world D.RAW architecture
 
-The user's expansion-space requirement is binding: the current two-pass implementation must not become the universal architecture merely because it is today's optimization target.
+D.RAW seals source evidence and provenance; it does not seal the scientific world built above them.
 
-The v0.3 design therefore introduces a versioned **pass-artifact contract** above the canonical v0.2 route.
+A current RAW encoding, JPG encoding, Stage-2 representation, canonical raster, Float32 path, Float64 path, Truth Zero representation, reconstruction model or pass schedule is never a universal boundary on future interpretation.
 
-Conceptually, an admitted artifact has at least:
-
-- artifact type/version;
-- producer semantic version;
-- consumer semantic version or compatibility contract;
-- explicit byte budget and retained-byte count;
-- explicit eligibility/selection contract identity;
-- deterministic lifecycle: begin, append/observe, finalize, consume, release;
-- diagnostic-only route/fallback status;
-- no authority of its own.
-
-The Exact Gauge retained ledger is the first concrete artifact type. The abstraction must remain able to carry different future intermediate products for different future passes without changing the meaning of Scientific Master.
-
-The general law remains:
+The expansion law remains:
 
 **general semantic route -> versioned specialized route -> exact parity oracle -> fail-closed fallback**
 
-## 4. Canonical v0.2 remains the fallback authority for behavior
+The Exact Gauge ledger is only the first concrete pass artifact. Future pass artifacts may carry different intermediate products without changing Scientific Master meaning or closing D.RAW's free-resolution/free-raster world.
 
-v0.3 must not replace or delete the established v0.2 two-pass binder.
+## 4. Canonical v0.2 remains the fallback authority
 
-Fallback to the complete v0.2 route is mandatory when any of the following is true:
+v0.3 does not replace or delete the established v0.2 two-pass binder.
 
-- memory budget cannot be reserved safely;
+Complete fallback to v0.2 is required when an admitted specialized route cannot be proven safe, including when:
+
+- retained-artifact budget is insufficient;
+- total scientific resident-memory budget is insufficient;
 - artifact allocation fails;
-- topology is unsupported;
+- representable cardinality/bounds fail;
 - eligibility semantics/version do not match exactly;
-- pass schedule/consumer contract differs from the one proven by the v0.3 oracle;
-- retained count exceeds a declared bound;
-- an integrity/parity precondition is not satisfied;
-- a future extension requires data not represented by this artifact.
+- topology or pass-consumer contract is unsupported;
+- a future pass-2 consumer requires information absent from this artifact;
+- any exact-parity or integrity precondition is not satisfied.
 
-A partial mix such as "some tiles retained, remaining tiles reread with different selection semantics" is not an accepted scientific path for the first candidate. On admission failure, return to the complete canonical route.
+The first candidate does not permit a partial mixed scientific path. An artifact-admission failure selects the complete canonical v0.2 route.
 
-## 5. Exact Gauge retained representation
+## 5. Exact inspected eligibility contract
 
-The first implementation candidate should prefer the smallest representation that preserves the exact v0.2 decision.
+The source-inspection gate is complete and is recorded in `SOURCE_INSPECTION_CHECKPOINT.md`.
 
-The starting hypothesis is a deterministic ledger of exact IEEE-754 Float32 bits (`uint32` representation) for samples already admitted by the existing self-gauge eligibility rule.
+For a canonical-core sample, v0.2 admits Stage-2 into the self-gauge only when:
 
-Important constraints:
+- it lies inside the canonical 10% border exclusion;
+- RAW and Stage-2 tile-local indices are valid;
+- `float(raw) < WhiteLevel` on the original RAW code;
+- `Stage2 > 0.0f`;
+- `Stage2` is finite.
 
-- do not round, normalize or re-encode the bits;
-- do not retain a target value that the canonical algorithm did not already inspect for the gauge;
-- do not use retained values to alter reconstruction or authority;
-- do not broaden eligibility merely to simplify storage;
-- retain canonical observation/order information only if the exact current median semantics require it;
-- derive the exact memory/cardinality bound from source inspection before choosing the final container.
+Consequences include exclusion of `+0.0f`, `-0.0f`, NaN and infinities from the gauge. In the full binder, a non-finite Stage-2 value can fail even earlier if reconstruction causes the Scientific Master digest to encounter NaN/Inf; v0.3 preserves that earlier failure instead of broadening tolerance.
 
-This document intentionally does not guess the final byte budget or exact eligible-sample count. Those must be derived from the current v0.2 source contract before code is written.
+Because the admitted domain is strictly positive finite Float32, unsigned binary32 bit-pattern ordering is monotonic with numerical ordering. That proof is specific to this eligibility contract and may not be reused if eligibility is broadened later.
 
-## 6. Memory-budget contract
+## 6. Exact median/rank semantics
 
-The optimization explicitly trades bounded temporary memory for fewer Stage-2/RAW rereads.
+For eligible count `N`:
 
-Therefore:
+- lower rank = `(N - 1) / 2`;
+- upper rank = `N / 2`;
+- ranks are zero-based.
 
-- a memory budget is a route-admission requirement, not a best-effort suggestion;
-- requested/reserved/used/peak retained bytes must be diagnostic-visible;
-- failure to reserve the declared budget causes complete v0.2 fallback;
-- `residentPeakBytes` may truthfully increase and is not required to match v0.2;
-- Scientific Master values/hashes and every authority/safety gate still must match exactly;
-- no artifact may persist as scientific evidence after its computational lifetime.
+For odd `N`, both ranks resolve to the same exact Float32 value.
 
-The first code candidate should remain scalar/deterministic. SIMD/NEON is a later optimization only after the scalar v0.3 route is proven exact.
+For even `N`, each selected Float32 value is converted to `double`, then v0.2 computes:
 
-## 7. Mandatory exact-parity oracle
+`L0 = lowerDouble + (upperDouble - lowerDouble) * 0.5`
 
-Host/CI promotion to a device APK requires exact comparison of v0.2 and v0.3 for the same admitted input.
+The v0.3 candidate reproduces this operation rather than substituting an approximate or rearranged average.
 
-At minimum compare:
+## 7. Stage-2 meaning and Truth Zero boundary
 
-1. exact Scientific Master SHA-256;
-2. exact self-gauge median Float32 bits;
-3. exact encoded gauge metadata/bit representation where exposed;
-4. exact per-sample scientific values and states;
-5. exact measured/reconstructed/censored/unknown counts;
-6. exact authority digest, record counts and classification counts;
-7. exact reconstruction outputs and quality/status fields;
-8. exact source/anchor immutability flags;
-9. exact promotion/firewall state;
-10. repeated-run determinism;
-11. exact result after forced memory-budget fallback;
-12. exact result after unsupported-topology/semantic-version fallback.
+Before self-gauge eligibility, the established `fill_stage2` path:
 
-Any scientific mismatch blocks the fast path. Timing improvement never overrides parity failure.
+1. selects the CFA-phase black level;
+2. adds row/column residual black when present;
+3. normalizes as `(raw - black) / max(WhiteLevel - black, 1.0f)`;
+4. applies the gain field exactly once when present;
+5. stores the result as Float32 Stage-2.
 
-## 8. Required diagnostics
+The retained artifact only remembers exact bits that already exist after these canonical operations. It does not recalibrate, alter black or white level, redefine Truth Zero, restore data, reconstruct additional evidence, change Float32/Float64 authority or restrict future precision choices.
 
-Performance diagnostics may report, without affecting scientific identity:
+## 8. Cardinality and memory admission
 
-- route requested;
-- route actually used;
+For dimensions `W x H`, the retained geometric upper bound is derived from the unchanged v0.2 10% border rule:
+
+`(W - 2*borderX) * (H - 2*borderY)`
+
+Actual retained count is less than or equal to this because clipped, non-positive and non-finite Stage-2 samples remain excluded.
+
+For the established `4080 x 3072` geometry:
+
+- `borderX = 408`;
+- `borderY = 307`;
+- geometric maximum = `8,022,912` retained positions;
+- `uint32_t` ledger payload maximum = `32,091,648` bytes;
+- approximately `30.60 MiB`.
+
+This is a dimension-specific bound, not a universal D.RAW memory constant.
+
+The candidate exposes two distinct budget concepts:
+
+- the established `Options::memoryBudgetBytes` remains the total scientific logical-resident ceiling;
+- `ArtifactOptions::retainedArtifactBudgetBytes` is an optional artifact-only admission ceiling.
+
+A too-small artifact ceiling causes complete v0.2 fallback without redefining the general scientific memory contract.
+
+Requested, reserved and used retained bytes are diagnostic-visible. The temporary ledger does not persist as scientific evidence.
+
+## 9. Pass-artifact identity
+
+Current host contract:
+
+- artifact type: `EXACT_GAUGE_FLOAT32_BITS`;
+- artifact version: `0.3`;
+- producer semantics: `SMSB_V0_2_STAGE2_SELF_GAUGE`;
+- consumer semantics: `EXACT_GAUGE_LOW16_V0_3`;
+- eligibility identity: `SMSB_V0_2_POSITIVE_FINITE_RAW_LT_WHITE_CENTER80`.
+
+The implementation remains scalar, deterministic and single-threaded. SIMD/NEON and concurrency are deferred until after real-device proof.
+
+## 10. Host exact-parity result
+
+The latest clean research-branch host gate completed successfully after removal of the superseded test draft.
+
+The CI gate builds with warnings-as-errors and ASan/UBSan enabled and runs the exact-parity oracle against canonical v0.2.
+
+The active oracle covers:
+
+- pseudo-random data;
+- constant even-cardinality median;
+- constant odd-cardinality median;
+- split median;
+- sparse eligibility;
+- signed-zero gain behavior;
+- residual-black plus gain behavior;
+- exact expected constant Stage-2 Float32 median bits;
+- repeated-run determinism;
+- canonical observer parity;
+- non-finite Stage-2 rejection at the existing earlier Scientific Master boundary;
+- explicit retained-artifact-budget fallback to complete v0.2.
+
+For successful admitted synthetic cases, the oracle requires exact scientific parity for the Scientific Master SHA-256, self-gauge L0 bit representation, gauge metadata, scene binding, eligible count, tile count and single-frame/evidence identity while verifying that canonical v0.2 performs two gauge scans and the v0.3 candidate performs one.
+
+This host result is evidence that the scalar specialization matches the tested v0.2 semantics. It is **not** a real-device performance result and does not by itself authorize promotion.
+
+## 11. Diagnostics are not scientific evidence
+
+The candidate may report:
+
+- requested/actual route;
 - artifact type/version;
-- admission status;
-- fallback reason;
-- eligible retained sample count;
-- retained bytes;
-- budget bytes;
-- peak resident delta/upper bound;
-- pass-2 Stage-2 rereads avoided;
-- source-read call counts;
-- current-run timing provenance;
+- admission/fallback status;
+- geometric and eligible retained counts;
+- requested/reserved/used retained bytes;
+- artifact and total resident budgets;
+- selected lower/upper median Float32 bits for parity diagnostics;
+- actual Stage-2 gauge scans;
+- pass-2 rereads avoided;
+- logical resident upper bound;
+- timing provenance once Android integration exists;
 - `optimization_applied`.
 
-Diagnostics must explicitly state that timing, memory and route choice are not scientific evidence and may not change scientific authority.
-
-## 9. Device acceptance plan
-
-Only after host exact parity and the full inherited CI/build matrix are green:
-
-1. build a higher-versionCode Android candidate;
-2. install over the current app without clearing app data unless the validation design explicitly needs a cache epoch change;
-3. use the same two established RAWs;
-4. require a true current-run/cold execution for timing evidence;
-5. export Free World Observation Geometry Foundation v0.1 JSON;
-6. verify v0.3 route admission and `optimization_applied=true` for supported inputs;
-7. expect approximately `3072` rather than `6144` Stage-2/RAW tile reads per RAW if the second reread pass is fully eliminated;
-8. compare complete scientific Foundation content outside performance diagnostics against the canonical baseline;
-9. inspect memory/resident telemetry and fallback behavior;
-10. do not promote if speed improves but any exact parity/firewall condition fails.
-
-The read-count reduction is an engineering expectation, not a scientific criterion.
-
-## 10. Deliberate non-goals for v0.3 first candidate
-
-Do not combine this work with:
-
-- further authority byte/SHA micro-optimization;
-- Center-Excluded changes;
-- SIMD/NEON;
-- new reconstruction/model selection;
-- new calibration or correction;
-- full-frame Scientific Master caching;
-- evidence promotion;
-- appearance/export changes;
-- changes to the meaning of self-gauge.
-
-Keep the experiment isolated so device performance and parity remain attributable.
-
-## 11. Source-inspection gate before implementation
-
-Before writing v0.3 code, inspect and document from the current merged source:
-
-- the exact v0.2 gauge eligibility predicate;
-- where high-16 counts are accumulated;
-- exact median/rank convention for even/odd cardinalities;
-- whether canonical iteration order contributes to any tie/rank semantics;
-- exact Float32 bit treatment including NaN/Inf/signed-zero policy if reachable;
-- exact eligible cardinality on the established RAW dimensions;
-- current workspace/resident memory bounds;
-- all call sites that depend on the second pass beyond low-16 gauge resolution.
-
-If source inspection shows pass 2 has another scientific consumer, the retained-artifact design must be expanded or abandoned; do not silently drop that consumer.
+Route, memory, read-count and timing diagnostics do not affect Scientific Master identity or authority.
 
 ## 12. Permanent safety statement
 
@@ -198,10 +195,58 @@ This is a performance artifact only.
 
 `source_values_modified=false`
 
-`candidate_applied=false`
-
 `creates_new_evidence=false`
 
 `scientific_writeback_allowed=false`
 
-The artifact can remember computation. It cannot become observation.
+`restoration_authority_created=false`
+
+`appearance_authority_created=false`
+
+`truth_zero_redefined=false`
+
+`free_resolution_or_raster_restricted=false`
+
+`float32_declared_universal=false`
+
+`float64_declared_universal=false`
+
+The artifact may remember computation. It cannot become observation.
+
+## 13. Android/device acceptance plan — next gate
+
+Android runtime wiring has **not** yet been performed and the candidate is **not promoted**.
+
+Before wiring, the Android bridge/CMake/telemetry path must be inspected so the specialized route remains selectable/diagnostic and canonical v0.2 remains a complete fail-closed fallback.
+
+Only after inherited Android CI/build gates are green may a higher-versionCode APK be produced for the established real-device test. Device acceptance requires:
+
+1. use the same established RAWs and a true current-run/cold timing path;
+2. verify v0.3 admission and `optimization_applied=true` only on supported inputs;
+3. expect approximately `3072` rather than `6144` Stage-2/RAW tile reads per RAW if the second reread is fully eliminated;
+4. compare complete scientific Foundation content outside performance diagnostics against canonical v0.2;
+5. inspect real resident-memory telemetry and fallback behavior;
+6. preserve source/provenance/Scientific-Master/firewall invariants;
+7. reject promotion on any scientific mismatch regardless of speed.
+
+The read-count reduction is an engineering expectation, not a scientific criterion.
+
+## 14. Deliberate non-goals of this first candidate
+
+Do not combine this first retained-artifact experiment with:
+
+- new reconstruction or model selection;
+- restoration-model changes;
+- new calibration/correction;
+- Truth Zero changes;
+- free-resolution/free-raster restrictions;
+- Float32/Float64 architectural restrictions;
+- Center-Excluded changes;
+- further authority SHA micro-optimization;
+- SIMD/NEON;
+- full-frame Scientific Master caching;
+- evidence promotion;
+- appearance/export changes;
+- changes to self-gauge meaning.
+
+Keeping this experiment isolated is what makes the later device performance and exact-parity evidence attributable.
