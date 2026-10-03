@@ -23,7 +23,7 @@ Continuation code: **44488**
 
 Read the current project layer in this order:
 
-1. [`state/CURRENT_PROJECT_STATE_2026-10-03.json`](state/CURRENT_PROJECT_STATE_2026-10-03.json)
+1. [`state/DRAW_PROJECT_STATE_2026-10-03.json`](state/DRAW_PROJECT_STATE_2026-10-03.json)
 2. [`docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md`](docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md)
 3. [`START_HERE_NEW_CHAT.md`](START_HERE_NEW_CHAT.md)
 4. [`docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-03.md)
