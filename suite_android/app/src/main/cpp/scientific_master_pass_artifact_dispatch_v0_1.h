@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 namespace truthraw::android_scientific_master_pass_artifact::v0_1 {
 
@@ -71,6 +72,14 @@ smsb2::Status bind_observed(
 // Diagnostic-only thread-local snapshot of the most recent dispatch on the
 // calling native worker thread. It is never evidence, authority or writeback.
 const Diagnostics& last_thread_diagnostics() noexcept;
+
+// Returns diagnostic JSON only when the retained snapshot is bound to the exact
+// Scientific-Master hash supplied by the caller. This is hash-bound rather than
+// thread-bound so later JNI consumers and shared-context cache hits can never
+// attribute stale PassArtifact telemetry to another Scientific Master. A
+// mismatch fails closed to available=false.
+std::string bound_diagnostics_json(
+    const std::string& scientificMasterHash) noexcept;
 
 }  // namespace truthraw::android_scientific_master_pass_artifact::v0_1
 
