@@ -6,7 +6,7 @@ This file is the current bootstrap. Historical checkpoint detail remains in date
 
 ## Mandatory current reading order
 
-1. `state/CURRENT_PROJECT_STATE_2026-10-03.json`
+1. `state/DRAW_PROJECT_STATE_2026-10-03.json`
 2. `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-03.md`
 3. `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
 4. `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
