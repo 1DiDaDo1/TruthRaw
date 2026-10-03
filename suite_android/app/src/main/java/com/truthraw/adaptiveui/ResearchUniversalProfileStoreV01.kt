@@ -13,7 +13,7 @@ object ResearchUniversalProfileStoreV01 {
     private const val DIR_NAME =
         "draw_research_universal_profiles_v0_1"
     private const val VALIDATION_EPOCH =
-        "EXACT_GAUGE_V03_COLD_VALIDATION_V01"
+        "EXACT_GAUGE_V03_COLD_VALIDATION_V02"
 
     private fun isCurrentProfile(profile: JSONObject): Boolean =
         profile.optString("profile_cache_generation") ==
