@@ -8,7 +8,7 @@ This file is the short bootstrap. The complete current recovery authority is:
 
 A new chat receiving only **44489** must restore the project from the repository before changing scientific or Android code. Do not ask the user to reconstruct prior chats when the repository recovery layer is sufficient.
 
-## Mandatory current reading order / recovery order
+## Mandatory current reading order
 
 1. Fetch the live head of `fix/research-fresh-rerun-v01` and the current PR #130 candidate head.
 2. Read `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md` completely.
@@ -19,7 +19,7 @@ A new chat receiving only **44489** must restore the project from the repository
 
 Current PR #130 candidate at this bootstrap update:
 
-`2a90e821709eb9abdd87ba64e343bb37f4d0a129` on `fix/android-exact-gauge-pass-artifact-v03`.
+`cde06677e3a4bb5c381b444ab77890f837bd4511` on `fix/android-exact-gauge-pass-artifact-v03`.
 
 Never force-reset the branch to a recorded checkpoint merely because documentation contains an older runtime hash.
 
