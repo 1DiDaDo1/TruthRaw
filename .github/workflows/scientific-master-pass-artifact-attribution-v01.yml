@@ -1,0 +1,26 @@
+name: Scientific Master PassArtifact Attribution v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/**'
+      - 'suite_android/app/src/main/cpp/scientific_master_pass_artifact_dispatch_v0_1.cpp'
+      - 'suite_android/app/src/main/cpp/scientific_master_pass_artifact_dispatch_v0_1.h'
+      - 'suite_android/app/src/main/cpp/truthnegative_n2_factored_confidence_bridge.cpp'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/N2LocalSpatialBindingAudit.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificMasterPassArtifactPerformanceAttributionV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceDiagnosticsV01.kt'
+      - 'tools/check_scientific_master_pass_artifact_attribution_v01.py'
+      - '.github/workflows/scientific-master-pass-artifact-attribution-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  attribution-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PassArtifact route attribution stays hash-bound and fail-closed
+        run: python3 tools/check_scientific_master_pass_artifact_attribution_v01.py
