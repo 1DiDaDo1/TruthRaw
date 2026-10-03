@@ -16,6 +16,7 @@ object ScientificMasterPassArtifactPerformanceAttributionV01 {
 
     private const val DIAGNOSTICS_SCHEMA =
         "D.RAW/ScientificMasterPassArtifactDiagnostics/0.1"
+    private const val SCIENTIFIC_MASTER_BINDING = "SCIENTIFIC_MASTER_SHA256"
     private const val EXACT_GAUGE_TYPE = "EXACT_GAUGE_FLOAT32_BITS"
     private const val EXACT_GAUGE_VERSION = "0.3"
     private const val RETAINED_ROUTE = "retained_exact_float32_bits_v0.3"
@@ -42,6 +43,7 @@ object ScientificMasterPassArtifactPerformanceAttributionV01 {
         }
 
         val bindingVerified = diagnostics!!.optBoolean("binding_verified", false)
+        val binding = diagnostics.optString("binding", "unknown")
         val route = diagnostics.optString("route_used", "unknown")
         val fallbackReason = diagnostics.optString("fallback_reason", "unknown")
         val optimizationApplied =
@@ -58,6 +60,10 @@ object ScientificMasterPassArtifactPerformanceAttributionV01 {
             "DIAGNOSTICS_SCHEMA_MISMATCH",
         )
         contradiction(!bindingVerified, "SCIENTIFIC_MASTER_HASH_BINDING_UNVERIFIED")
+        contradiction(
+            binding != SCIENTIFIC_MASTER_BINDING,
+            "SCIENTIFIC_MASTER_HASH_BINDING_CONTRACT_MISMATCH",
+        )
         contradiction(
             diagnostics.optString("artifact_type") != EXACT_GAUGE_TYPE,
             "ARTIFACT_TYPE_MISMATCH",
@@ -140,6 +146,7 @@ object ScientificMasterPassArtifactPerformanceAttributionV01 {
             contradictions = contradictions,
         )
             .put("telemetry_unavailable", false)
+            .put("binding", binding)
             .put("artifact_type", diagnostics.optString("artifact_type"))
             .put("artifact_version", diagnostics.optString("artifact_version"))
             .put("route_used", route)
