@@ -1,222 +1,77 @@
 # D.RAW next-chat handoff — 2026-10-03
 
-## Continuation code: 44488
+## Continuation code: 44489
 
-When a new chat receives only **44488**, restore the complete D.RAW/TruthRaw project through this checkpoint before changing scientific or Android code.
+The canonical complete handoff for this checkpoint is:
 
-The continuation code is a recognition anchor. The durable authority for recovery is the repository. Read, in order:
+`docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
 
-1. `state/DRAW_PROJECT_STATE_2026-10-03.json`
-2. this handoff
-3. `START_HERE_NEW_CHAT.md`
-4. `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
-5. `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
-6. older dated handoffs only when historical provenance is needed.
+When a new chat receives only **44489**, read that file completely, fetch the live repository head, then use `state/DRAW_PROJECT_STATE_2026-10-03.json` as the machine-readable state. Do not reconstruct the project from an older handoff merely because it is longer.
 
-Do not ask the user to reconstruct the project manually when repository state can recover it.
+Repository: `1DiDaDo1/TruthRaw`  
+Active integration branch: `fix/research-fresh-rerun-v01`  
+Runtime/research checkpoint at the start of the 44489 documentation refresh: `dbf826b883d0e7bb40ff0a8e7654a0d87be78546`
 
-## Current repository checkpoint
+A later docs-only commit may move the live branch beyond that hash. Always inspect the live branch and never force-reset it to the recorded checkpoint.
 
-Repository: `1DiDaDo1/TruthRaw`
+## What 44489 must restore
 
-Active integration branch: `fix/research-fresh-rerun-v01`
+44489 is not just the last performance task. It restores the full scientific architecture:
 
-Current scientific/code checkpoint before this documentation-only refresh:
+- sealed Direct-CFA/source evidence and single-frame provenance;
+- D.RAW Observation Contract and Source Capability Envelope;
+- `One Free World. Many sealed observations. One evidence law.`;
+- Observation-bound TruthNegative lineage;
+- TruthRange `T = log2(L/L0)` with source-local versus admitted common-gauge separation;
+- Float64 branch-sensitive science and validated Float32 storage without authority inflation;
+- Scientific Master before appearance;
+- Dynamic Authority / uncertainty / censoring / covariance;
+- Free World geometry/radiometry/world-space authority boundaries;
+- optics/noise binding rules;
+- virtual observations without invented physical frames;
+- reconstruction non-promotion evidence;
+- performance optimization only under exact scientific equivalence;
+- generic PassArtifact architecture and atomic/no-replay safety law;
+- Exact Gauge Retained Artifact v0.3 current candidate state;
+- Android integration status and the exact next implementation sequence.
 
-`b82ada319ede5a87b0da0cdfe8732a19a3e74ff6`
+## Current candidate
 
-That commit is the merge of PR #127, **Scientific Master Tile-Read Attribution v0.1**. It contains the accumulated validated performance line through PRs #125, #126 and #127.
+**Scientific Master Exact Gauge Retained Artifact v0.3** is host-implemented and green for configure/build, warnings-as-errors, ASan/UBSan, exact parity and forced budget fallback.
 
-Current Android lineage at that source checkpoint:
+It remains:
 
-- application ID: `com.truthraw.adaptiveui`
-- versionCode: `26100124`
-- versionName: `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
-- normal continuation remains install-over-current; do not uninstall or clear app data unless a specific test explicitly requires it.
+- `candidate_applied=false`
+- `creates_new_evidence=false`
+- `scientific_writeback_allowed=false`
+- **NOT PROMOTED**
+- **NOT YET ANDROID-INTEGRATED**
 
-The documentation refresh itself must not be mistaken for a scientific/source-code change. After its merge, the integration-branch Git head may advance while the scientific/code checkpoint above remains the same until the next code PR.
+The superseded pre-atomic implementation was removed and must not be resurrected.
 
-## Recent validated performance lineage
+Exact Gauge must be one registered versioned **PassArtifact**. It may not become a hard-coded exception around which future optics, geometry, temporal, calibration, restoration or other artifact families must be built.
 
-### Authority line
+Atomic semantics mean:
 
-PRs #109 through #117 progressively optimized N2 support reuse and the authority stream. The accepted authority-performance reference remains **v0.2.10 Pixel-Triplet Authority Encoder**.
+- admission/fallback before semantic start is allowed;
+- once candidate semantic processing begins, there is no replay into canonical processing;
+- later failure propagates hard;
+- the atomic core governs safe interaction with Scientific Master, not which future cables D.RAW may contain.
 
-Accepted v0.2.10 two-RAW aggregate profile: `31,973.220820 ms`.
+## Android state
 
-Accepted combined authority direct-record-stream time: `9,958.35 ms`.
+Actual runtime app: `suite_android`.
 
-v0.2.11 Canonical Template/Suffix Reuse was scientifically/byte-contract safe but did not produce a meaningful device speedup. It was not promoted as a performance baseline. The authority micro-optimization diminishing-returns gate is therefore active.
+Current identity before Exact Gauge Android wiring:
 
-Do not restart authority byte-stream micro-optimization merely because it remains a large block. Re-open that frontier only with a new structural hypothesis.
+- application ID `com.truthraw.adaptiveui`
+- versionCode `26100124`
+- versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
 
-### Center-Excluded profiling and fixed topology
+Do not present an APK from this lineage as an Exact Gauge v0.3 device build.
 
-PR #124 profiled the Center-Excluded v2 internals and showed on the two established device RAWs that `predictor_estimate` consumed about 86–87% of the candidate loop. Pair construction/gating, scale consistency and admissibility/slot construction were the dominant sampled predictor internals.
+## Next task
 
-PR #125 added the fixed-topology fast path for the established `{2,4,8}` radii × four directions × two symmetric sides while keeping the generic predictor as the fail-closed fallback and requiring exact parity.
+Search the current native and Java/Kotlin tree for an existing generic registry/descriptor/artifact dispatch layer. Reuse it if it exists. Only if none is suitable, add the smallest generic PassArtifact mechanism. Then register Exact Gauge v0.3, wire its admission/atomic sources into `suite_android` Foundation/observation execution with canonical v0.2 fallback, add route/budget/no-replay diagnostics, run exact parity and all regressions, and only after that build a new APK and perform real-device measurement.
 
-Real-device result:
-
-- RAW1 Center-Excluded: `4088.13 ms -> 1985.62 ms` (`-51.43%`)
-- RAW1 predictor: `3021.54 ms -> 1020.15 ms` (`-66.24%`)
-- RAW2 Center-Excluded: `5675.69 ms -> 2870.54 ms` (`-49.42%`)
-- RAW2 predictor: `4467.30 ms -> 1628.82 ms` (`-63.54%`)
-- combined Center-Excluded: `9763.82 ms -> 4856.16 ms` (`-50.26%`)
-- combined predictor: `7488.84 ms -> 2648.97 ms` (`-64.63%`)
-- aggregate two-RAW profiler: about `31963.15 ms -> 26169.37 ms` (`-18.13%`).
-
-Parsed Foundation content outside `performance_diagnostics_v0_1` was exactly unchanged.
-
-Architectural lesson: optimization may specialize a proven topology, but the specialized path is not allowed to redefine the general scientific contract. Keep the generic path available for future topology and model expansion.
-
-### Scientific Master bind profiling
-
-PR #126 added diagnostic-only Scientific Master bind attribution. A true cold two-RAW device run measured about `27,014.29 ms` aggregate and split the combined Scientific Master bind as follows:
-
-- total bind: `15,739.38 ms`
-- authority observer: `9,912.67 ms` (~63.0%)
-- RAW source reads: `2,640.68 ms` (~16.8%)
-- reconstruction: `1,305.22 ms` (~8.3%)
-- unattributed binder remainder: `1,880.81 ms` (~11.9%).
-
-Each RAW showed `6,144` RAW-tile reads and `3,072` reconstruction calls.
-
-The scientific output remained unchanged; timings are diagnostic only and do not grant authority.
-
-### Scientific Master tile-read attribution
-
-PR #127 resolved the 6,144-vs-3,072 count without inventing a per-pass timing split.
-
-The established Scientific Master streaming binder v0.2 has two canonical tile passes:
-
-- **pass 1** reads Stage-2 support, performs reconstruction/Scientific Master work, authority observation and the high-16 self-gauge selection work;
-- **pass 2** performs no reconstruction and re-reads Stage-2 support only to resolve the low 16 bits of the exact self-gauge median inside the selected high-16 bucket.
-
-Attribution is accepted only when the observed total RAW-read count reconciles exactly with the two-pass schedule. Otherwise the diagnostic state is fail-closed/unknown.
-
-The established two RAWs reported:
-
-- `TWO_PASS_BINDER_SCHEDULE_RECONCILED`
-- total RAW reads `6144`
-- pass-1 attributed reads `3072`
-- pass-2 attributed reads `3072`
-- unattributed reads `0`
-- `per_pass_timing_inferred=false`
-- `optimization_applied=false`.
-
-PR #127 is merged. It is diagnostic evidence, not itself a performance optimization.
-
-## Next code frontier — Exact Gauge Retained Artifact v0.3
-
-The next candidate is **Scientific Master Exact Gauge Retained Artifact v0.3**.
-
-Goal: remove the second Stage-2/RAW tile-read pass without changing the exact Scientific Master or gauge semantics.
-
-The intended route is:
-
-1. keep v0.2 as the canonical proven two-pass binder;
-2. introduce a versioned v0.3 binder/optimization route above it;
-3. during pass 1 retain only the exact Float32 bit patterns required by the existing self-gauge eligibility contract;
-4. preserve the existing high-16 selection semantics;
-5. after high-16 selection, derive the exact low-16 histogram/median result from the retained artifact rather than re-reading every Stage-2 tile;
-6. if the artifact cannot be admitted because of memory budget, topology, version, semantic mismatch or future pass requirements, fall back completely to the canonical v0.2 two-pass route.
-
-Do not implement this as an assumption that Scientific Master will always have exactly two passes. The retained object must be an extensible **pass-artifact contract**. Gauge retention is the first artifact type, not the definition of the abstraction.
-
-### Mandatory parity gates for v0.3
-
-Before any device promotion, require at minimum:
-
-- exact Scientific Master SHA-256 identity;
-- exact `gaugeMedian` Float32 bits;
-- exact sample values/states/counts;
-- exact authority digest/count semantics;
-- exact reconstruction behavior;
-- unchanged source and measured-anchor values;
-- unchanged promotion/firewall state;
-- no new evidence;
-- no scientific writeback;
-- deterministic repeated-run parity;
-- explicit budget-fallback parity;
-- unsupported topology/semantic extension must fail closed to v0.2;
-- diagnostic telemetry must state which route ran, retained bytes, peak-resident effect, avoided rereads and fallback reason.
-
-`residentPeakBytes` is allowed to change honestly because the candidate intentionally trades bounded temporary memory for fewer Stage-2 rereads. That memory change is not scientific evidence. The optimization must not be applied when its explicit budget cannot be satisfied.
-
-The first device expectation, only after host parity and full CI are green, is roughly a reduction from `6144` to `3072` Stage-2/RAW tile reads per established RAW when v0.3 is actually applied. This is a performance expectation, not a scientific acceptance criterion.
-
-## Cable-room / expansion law
-
-The user's "ruimte in de kabels" requirement remains a hard architecture constraint.
-
-For every performance specialization:
-
-**general semantic route -> versioned specialized route -> parity oracle -> fail-closed fallback**
-
-Consequences:
-
-- current topology must not become a permanent universal assumption;
-- current two-pass scheduling must not become the universal binder contract;
-- caches/artifacts may accelerate already-authorized data flow but may not create authority;
-- future pass types, extra observers, other CFA layouts, other RAW sources and new scientific models must be able to coexist;
-- unsupported future semantics return to the general route rather than being coerced into today's fast path;
-- schema additions must not silently redefine older fields;
-- UNKNOWN remains valid when evidence or an extension contract is absent.
-
-The cable may become faster; it must not become narrower.
-
-## Permanent scientific laws
-
-These are not performance options:
-
-- `MEASURED != RECONSTRUCTED != APPEARANCE`.
-- Seal the evidence, not the thinking.
-- Representation can exceed the source; knowledge claims cannot exceed the evidence.
-- Direct-CFA/source evidence remains immutable/sealed.
-- Single-frame provenance remains explicit.
-- Scientific Master remains separate from export/presentation.
-- Camera/lens/vendor/RAW identity may route decoding but may not select scientific truth.
-- APK/GCam/computational-RAW content may not determine D.RAW/TruthRaw evidence, calibration or Scientific Master authority.
-- Held-out values may evaluate a frozen candidate but may not fit/select it.
-- UNKNOWN residual remains UNKNOWN until supported.
-- No AI/ML/neural/generative runtime in the scientific path.
-- No candidate availability implies correction or promotion.
-- No performance/diagnostic route may write Scientific Master as a promotion action.
-- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
-- Appearance/frontside geometry is not automatically sensor evidence.
-- Raster size is not independent optical information.
-
-## Scientific non-promotion result that must remain remembered
-
-Anchor-Constrained Local Reconstruction v0.1 remains **not promoted** after the real-CFA hold-out test:
-
-- true hold-outs `21,760`
-- comparable samples `19,560`
-- affine MAE ~`0.00154976` vs baseline ~`0.00147486`
-- affine RMSE ~`0.00205484` vs baseline ~`0.00190590`
-- affine bias ~`-0.00049664` vs baseline ~`-0.00009471`
-- affine wins `9363`, baseline wins `10197`
-- affine added `2200` valid points
-- uncertainty was too optimistic.
-
-Coverage improvement is not sufficient for promotion. The later scientific direction remains deterministic local model selection based on structure support, direction, CFA phase and uncertainty, with "no suitable model" allowed.
-
-## Device-test workflow for the next performance candidate
-
-Once v0.3 is actually implemented and host/CI parity is green:
-
-1. install the higher-versionCode APK over the current app;
-2. do not clear app data/cache unless the specific validation design says otherwise;
-3. use the same two established RAWs for the first A/B;
-4. force/verify a true current-run compute rather than accepting a warm cached result as timing evidence;
-5. run the universal analysis;
-6. export Free World Observation Geometry Foundation v0.1 JSON;
-7. compare route selection, current-run provenance, tile-read counts, exact scientific output identity, memory telemetry and performance;
-8. keep the candidate unpromoted if any parity/firewall/budget gate is not exact.
-
-## 44488 recovery instruction
-
-A future chat receiving **44488** should restore this file and `state/DRAW_PROJECT_STATE_2026-10-03.json`, verify whether the repository has advanced beyond the recorded source checkpoint, and then continue from the newest proven state.
-
-At this checkpoint the next code task is **not** to micro-optimize authority or blindly cache the full frame. It is to source-inspect the exact self-gauge eligibility/cardinality and then implement the bounded, versioned Exact Gauge Retained Artifact v0.3 with exact parity and complete fallback to v0.2.
+For all scientific details, historical validation hashes/runs, reconstruction hold-out results and hard prohibitions, the canonical authority is `DRAW_44489_RECOVERY_2026-10-03.md`.
