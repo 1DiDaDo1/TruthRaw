@@ -1,0 +1,45 @@
+name: D.RAW Exact Gauge Retained Artifact v0.3
+
+on:
+  push:
+    branches:
+      - research/exact-gauge-retained-artifact-v03
+    paths:
+      - 'docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/scientific-master-exact-gauge-retained-artifact-v03.yml'
+  pull_request:
+    paths:
+      - 'docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'docs/research/scientific-master-streaming-binding-v0.1/**'
+      - 'docs/research/full-frame-streaming-v0.1/**'
+      - 'docs/research/scientific-master-digest-v0.1/**'
+      - 'docs/research/truthrange-latent-binding-v0.2/**'
+      - 'canonical/reconstruction/v4.7i/**'
+      - '.github/workflows/scientific-master-exact-gauge-retained-artifact-v03.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure scalar candidate with sanitizers
+        run: >-
+          cmake
+          -S docs/research/scientific-master-exact-gauge-retained-artifact-v0.3
+          -B build/exact-gauge-retained-v03
+          -DDRAW_EGA3_ENABLE_SANITIZERS=ON
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build/exact-gauge-retained-v03 --parallel 2
+      - name: Exact parity oracle
+        run: ctest --test-dir build/exact-gauge-retained-v03 --output-on-failure
