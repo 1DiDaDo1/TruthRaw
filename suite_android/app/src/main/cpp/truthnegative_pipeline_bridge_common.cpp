@@ -1,5 +1,6 @@
 #include "truthnegative_pipeline_bridge_common.h"
 
+#include "scientific_master_pass_artifact_router_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 
 #include <algorithm>
@@ -434,19 +435,28 @@ Status prepare(
 
         scientific_master_streaming_binding::v0_2::Options scienceOptions;
         scienceOptions.memoryBudgetBytes = maxLogicalResidentBytes;
+        scientific_master_pass_artifact_router::v0_1::Diagnostics
+            passArtifactDiagnostics{};
         const auto scienceStarted = SteadyClock::now();
         const auto scienceStatus =
-            scientific_master_streaming_binding::v0_2::
-                bind_scientific_master_streaming_observed(
-                    profiledSource,
-                    profiledReconstruction,
-                    scienceOptions,
-                    authorityObserver,
-                    out.scientific);
+            scientific_master_pass_artifact_router::v0_1::bindObserved(
+                profiledSource,
+                profiledReconstruction,
+                scienceOptions,
+                authorityObserver,
+                out.scientific,
+                passArtifactDiagnostics);
         if (!scienceStatus) {
             return fail(
                 8000 + static_cast<int>(scienceStatus.code),
                 scienceStatus.message);
+        }
+        if (passArtifactDiagnostics.sourceValuesModified ||
+            passArtifactDiagnostics.createsNewEvidence ||
+            passArtifactDiagnostics.scientificWritebackAllowed ||
+            passArtifactDiagnostics.isScientificEvidence ||
+            passArtifactDiagnostics.mayChangeScientificAuthority) {
+            return fail(-10, "Scientific Master pass-artifact authority invariant failed");
         }
         const auto scienceFinished = SteadyClock::now();
         if (timing) {
