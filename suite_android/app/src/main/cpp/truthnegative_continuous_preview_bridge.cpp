@@ -505,13 +505,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     policy.identitySha256 = labeled_digest(
         "D_RAW_TN_CONT_V05_NEUTRAL_APPEARANCE_POLICY");
 
-    // The Android caller now always enters the stable Open-World appearance
-    // corridor. No pre-Appearance stage is enabled until an authority-bound
-    // v0.6 LightTransportAttachment exists. Therefore today's baseline is an
-    // exact-preserving empty chain, while future geometry/light/material or
-    // appearance stages can be inserted without changing this outer contract.
+    // The scientific baseline now runs the existing extensible Appearance
+    // corridor with a real authority-bound v0.6 LightTransportAttachment and
+    // the existing Room Capsule stage. Until room geometry/illumination is
+    // actually admitted for this observation, the sample is explicitly
+    // outside-room, so the stage executes and takes an exact-preserving bypass.
+    // The separate N2 appearance-only candidate remains an empty-chain branch.
     constexpr std::array<open_world_host::AppearanceStage, 0u>
-        kBaselineAppearanceStages{};
+        kCandidateAppearanceStages{};
 
     const std::uint64_t pixelCount64 =
         static_cast<std::uint64_t>(targetWidth) * targetHeight;
@@ -559,6 +560,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     std::uint64_t n2CandidateChangedPixels = 0u;
     std::uint64_t n2CandidateAdjustedChannels = 0u;
     std::uint64_t n2CandidateDisplayClampPixels = 0u;
+    std::uint64_t lightTransportSeedCount = 0u;
+    std::uint64_t roomCapsuleExactBypassCount = 0u;
 
     for (std::uint32_t y = 0u; y < targetHeight; ++y) {
         for (std::uint32_t x = 0u; x < targetWidth; ++x) {
@@ -638,6 +641,73 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 static_cast<std::uint64_t>(
                     query.pixel.footprint.size());
 
+            tn_deep::InferredLambertianSeedInput seedInput{};
+            seedInput.scene = scenePacket;
+            seedInput.provenanceId = cameraPlane.provenanceId;
+            seedInput.regionId = cameraPlane.regionId;
+            seedInput.objectId = cameraPlane.objectId;
+            seedInput.incomingDirection = {0.0, 0.0, 1.0};
+            seedInput.outgoingDirection = {0.0, 0.0, 1.0};
+            seedInput.surfaceNormal = {0.0, 0.0, 1.0};
+            seedInput.materialIdentitySha256 = labeled_digest(
+                "D_RAW_TN_CONT_V05_INFERRED_NEUTRAL_MATERIAL",
+                &scenePacket.scenePacketSha256);
+            seedInput.illuminationIdentitySha256 = labeled_digest(
+                "D_RAW_TN_CONT_V05_INFERRED_NEUTRAL_ILLUMINATION",
+                &scenePacket.scenePacketSha256);
+            seedInput.materialSpectralHypothesisSha256 = labeled_digest(
+                "D_RAW_TN_CONT_V05_INFERRED_MATERIAL_SPECTRAL_HYPOTHESIS",
+                &scenePacket.scenePacketSha256);
+            seedInput.illuminationSpectralHypothesisSha256 = labeled_digest(
+                "D_RAW_TN_CONT_V05_INFERRED_ILLUMINATION_SPECTRAL_HYPOTHESIS",
+                &scenePacket.scenePacketSha256);
+            seedInput.diffuseReflectanceRgb = {1.0, 1.0, 1.0};
+            seedInput.visibility = 1.0;
+
+            tn_deep::InferredLambertianSeedResult seed{};
+            if (!tn_deep::buildInferredLambertianSeed(seedInput, seed) ||
+                seed.inheritedScientificRadiometryAsMeasurement ||
+                seed.createsNewEvidence ||
+                seed.scientificWritebackAllowed ||
+                !seed.state.finalized ||
+                seed.state.parentBoundDeepPacketSha256 !=
+                    scenePacket.boundPacket.boundPacketSha256) {
+                return status_packet(env, -20);
+            }
+            ++lightTransportSeedCount;
+
+            open_world_host::LightTransportAttachment lightAttachment{};
+            lightAttachment.state = &seed.state;
+            lightAttachment.expectedParentBoundDeepPacketSha256 =
+                scenePacket.boundPacket.boundPacketSha256;
+
+            open_world_host::RoomCapsuleAppearanceStageContext roomContext{};
+            roomContext.sample.position = {0.0F, 0.0F, 0.0F};
+            roomContext.sample.normal = {0.0F, 0.0F, 1.0F};
+            roomContext.sample.visibility = 1.0F;
+            roomContext.sample.confidence = 0.0F;
+            roomContext.sample.insideRoom = false;
+            roomContext.illumination.present = true;
+            roomContext.illumination.authority =
+                open_world_host::IlluminationAuthority::Inferred;
+            roomContext.illumination.recordId =
+                "D_RAW_TN_CONT_V05_INFERRED_NEUTRAL_ROOM_LIGHT";
+            roomContext.illumination.spatialScope =
+                "CAMERA_PLANE_PIXEL_NO_ROOM_EVIDENCE";
+            roomContext.illumination.provenanceSha256 =
+                sha::hex(seed.seedSha256);
+            roomContext.illumination.inferenceMethod =
+                "TN_DEEP_V08_INFERRED_LAMBERTIAN_EXACT_BYPASS";
+
+            std::array<open_world_host::AppearanceStage, 1u>
+                baselineAppearanceStages{};
+            baselineAppearanceStages[0].stageId =
+                "ROOM_CAPSULE_V0_1_AUTHORITY_BOUND";
+            baselineAppearanceStages[0].hook =
+                &open_world_host::room_capsule_appearance_stage;
+            baselineAppearanceStages[0].context = &roomContext;
+            baselineAppearanceStages[0].required = false;
+
             appearance::AppearanceInput input{};
             input.scene = scientificView;
             input.sceneColorimetry = sceneColor;
@@ -648,16 +718,22 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
             open_world_host::AppearanceCorridorEnvelope visibleEnvelope{};
             if (open_world_host::resolve_appearance_corridor(
                     input,
-                    nullptr,
-                    kBaselineAppearanceStages,
+                    &lightAttachment,
+                    baselineAppearanceStages,
                     visibleEnvelope) != open_world_host::Status::Ok ||
                 !visibleEnvelope.valid ||
+                visibleEnvelope.audit.configuredStages != 1u ||
+                visibleEnvelope.audit.appliedStages != 0u ||
+                visibleEnvelope.audit.bypassedStages != 1u ||
+                !visibleEnvelope.audit.lightTransportAttached ||
                 !visibleEnvelope.audit.exactPreservingBypass ||
                 visibleEnvelope.audit.sourceSceneMutated ||
                 visibleEnvelope.audit.createsNewEvidence ||
                 visibleEnvelope.audit.scientificWritebackAllowed) {
                 return status_packet(env, -12);
             }
+            ++roomCapsuleExactBypassCount;
+
             const auto& visible = visibleEnvelope.result;
             if (visible.sourceSceneSha256 != scientificView.sourcePacketSha256 ||
                 visible.sourceSceneMutated ||
@@ -739,7 +815,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
             if (open_world_host::resolve_appearance_corridor(
                     candidateInput,
                     nullptr,
-                    kBaselineAppearanceStages,
+                    kCandidateAppearanceStages,
                     candidateEnvelope) != open_world_host::Status::Ok ||
                 !candidateEnvelope.valid ||
                 !candidateEnvelope.audit.exactPreservingBypass ||
@@ -842,7 +918,11 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     packet[88] = 0; // baseline candidateAppliedToAppearance = false
     packet[89] = 1; // scientific audit-only = true
     packet[90] = 1; // measuredCfaDomain = true
-    packet[91] = 0; // reserved
+    packet[91] =
+        (lightTransportSeedCount == pixelCount64 &&
+         roomCapsuleExactBypassCount == pixelCount64)
+            ? 15
+            : 0; // bits 0..3: v0.6 built, parent-bound, Room Capsule ran, exact bypass
     packet[92] = 1; // N2 appearance A/B candidate available
     packet[93] = 1; // appearance-only candidate
     packet[94] = 1; // candidate rendered in separate B bitmap
@@ -854,7 +934,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     packet[100] = clamp_metric(n2CandidateChangedPixels);
     packet[101] = clamp_metric(n2CandidateAdjustedChannels);
     packet[102] = clamp_metric(n2CandidateDisplayClampPixels);
-    packet[103] = 1; // Open-World appearance corridor active; zero stages = exact bypass
+    packet[103] =
+        roomCapsuleExactBypassCount == pixelCount64 ? 1 : 0;
+        // Open-World corridor active: v0.6 -> Room Capsule -> v0.7, exact bypass.
     digest_to_words(
         n2Audit.appearanceGridSha256, packet.data() + 104u);
     digest_to_words(
