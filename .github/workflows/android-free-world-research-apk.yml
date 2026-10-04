@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - research/free-world-radiometric-noise-transport-v01-2026-09-30
+      - fix/android-exact-gauge-pass-artifact-v03
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-free-world-research-apk.yml'
