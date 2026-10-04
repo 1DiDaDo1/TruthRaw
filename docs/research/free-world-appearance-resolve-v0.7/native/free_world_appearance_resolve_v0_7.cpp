@@ -300,6 +300,10 @@ bool resolveAppearance(
             exposedRgb[c] =
                 input.scene.sceneLinearRgb[c] * exposure;
         }
+        // Exposure is a single logical appearance operation across the RGB
+        // vector. mapLuminance() consumes the already-exposed result and must
+        // not apply it again.
+        out.exposureApplicationCount = 1u;
 
         const auto xyzRelative =
             mul(input.sceneColorimetry.rgbToXyz, exposedRgb);
