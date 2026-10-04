@@ -1,150 +1,278 @@
-# D.RAW 44489 — compact knowledge capsule
+# D.RAW 44489 — current knowledge capsule
 
-Purpose: smallest practical project-state document that preserves the binding scientific/architectural knowledge needed for a new chat to continue safely. Read this first; use the larger recovery handoff only when detail/provenance is needed.
+Purpose: compact but binding recovery state for a new chat. This capsule records what is proven, what remains candidate/research, the current Android/runtime baseline, and the exact point where the next chat should start testing.
 
 Project: **D.RAW** (`TruthRaw` is historical/repository naming)  
-Repo: `1DiDaDo1/TruthRaw`  
-Branch: `fix/research-fresh-rerun-v01`  
-Recovery code: **44489**  
-Always fetch the live branch head before mutation. Documentation-only commits may move the head beyond older runtime/scientific checkpoints; never reset or force-move the branch merely to match a remembered SHA.
+Repository: `1DiDaDo1/TruthRaw`  
+Continuation code: **44489**  
+Recovery marker: **`[KCR-44489-2026-10-03-A]`**  
+Active candidate branch: **`fix/android-exact-gauge-pass-artifact-v03`**  
+Active PR: **#130**, open/draft/mergeable at the 2026-10-04 refresh  
+Runtime/scientific baseline before this documentation refresh: **`2766aca5f8acf0f441c7b4f7fb6d892de9ae5778`**
+
+Always resolve the live PR #130 head before mutation or testing. Documentation commits may move HEAD beyond the runtime/scientific baseline. Never force-reset to a remembered SHA merely to make documentation match.
 
 ## 1. Permanent scientific law
 
-D.RAW is deterministic, provenance-bound and AI/ML-free in its scientific path.
+D.RAW is deterministic and provenance-bound. Its scientific path does not use AI/ML/neural/generative inference as evidence.
 
 - **Seal the evidence, not the thinking.**
 - **MEASURED != RECONSTRUCTED != APPEARANCE.**
-- Richer representation may never imply richer evidence.
-- Direct-CFA / RAW_SENSOR evidence is immutable/sealed.
-- One physical frame remains one physical frame; virtual/derived views do not create captures.
-- Scientific Master is scene-linear scientific state, separate from view/export/appearance; signed values and >1 are valid.
-- UNKNOWN is valid and must not silently become zero/certainty/estimate.
-- More precision, more resolution, reconstruction, speed or registration never creates authority.
-- APK/GCam/computational RAW/presentation may not define source evidence, calibration or Scientific-Master truth.
+- **Representation may become richer than the source; the knowledge claim may never become richer than the evidence.**
+- **One Free World. Many sealed observations. One evidence law.**
+- Direct-CFA / RAW_SENSOR evidence is immutable and sealed.
+- One physical frame remains one physical frame. Derived/virtual views do not create captures.
+- Scientific Master is scene-linear scientific state, separate from presentation, export and appearance. Signed values and values above 1 are valid when scientifically meaningful.
+- `UNKNOWN` is valid and must never silently become zero, certainty or an estimate.
+- Precision, resolution, reconstruction, registration and performance never create authority.
+- APK/GCam/computational-RAW/presentation behavior may not define source evidence, calibration or Scientific-Master truth.
+- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
 
-Canonical chain:
-`sealed Observation -> Observation Contract -> Source Capability Envelope -> measurement/calibration/reconstruction -> Scientific Master -> Dynamic Authority+uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> view/appearance/projection`
+Canonical architecture:
 
-## 2. Evidence / authority
+`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> admitted measurement/calibration/reconstruction -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> finite/free raster projection`
 
-Authority classes include:
+## 2. Evidence and authority
+
+Authority/state classes include at least:
+
 `MEASURED`, `CALIBRATED_ESTIMATE`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `COUNTERFACTUAL`, `APPEARANCE`.
 
-Authority is local and provenance-bound. Registration, interpolation or reconstruction never upgrades to `MEASURED` automatically.
+Authority is local, monotone with respect to evidence, and provenance-bound. Registration/interpolation/reconstruction may never auto-upgrade a value to `MEASURED`.
 
-Clipping may be `CENSORED`: a bound is known while the exact latent signal remains unknown.
+Clipping may be `CENSORED`: a bound can be known while the latent signal remains unknown. Unknown RGB covariance terms remain UNKNOWN/NaN rather than convenience-zero; full covariance requires all terms to be known/consistent. Optics, colour, geometry, material and illumination claims require explicit proven binding.
 
-Unknown RGB covariance terms stay UNKNOWN/NaN, never convenience-zero. Full covariance requires all needed terms known/consistent; transport is conceptually `J Sigma J^T`.
+## 3. Observation and gauge law
 
-Optics (NPS/signal PSD/MTF/SFR/PSF), geometry, colour and world-space claims require explicit proven binding. World-space information may not rewrite Scientific Master merely because it exists.
-
-## 3. Observation / gauge law
-
-**One Free World. Many sealed observations. One evidence law.**
-
-Lens/sensor/CFA/readout/capture route belong to an Observation. TruthNegative is Observation-bound; multiple observations meet only above that boundary.
+A lens/sensor/CFA/readout/capture route belongs to an Observation. TruthNegative is Observation-bound. Multiple observations meet only above that boundary in the Free World layer.
 
 `source capability != proven sample domain`.
 
-Proven Camera-5 example: TELE provenance, `4080x3072`, RAW10/BGGR, WhiteLevel `1023`, BlackLevel `64`, source-local gauge. A `16320x12288`/200MP capability is not proof that a captured frame measured 200MP.
+The existence of a 200 MP sensor/capability does not prove that a particular frame contains 200 MP measured samples. Camera/vendor identity may route parsing, but it cannot select scientific truth.
 
-TruthRange family: `T = log2(L/L0)`. Shared coordinate notation is not shared radiance. Cross-observation radiometric fusion requires an admitted common-gauge relation and otherwise fails closed.
+TruthRange coordinate family: `T = log2(L/L0)`. Shared coordinate notation is not proof of shared radiance. Cross-observation radiometric fusion requires an admitted common-gauge relation; otherwise it fails closed.
 
-## 4. Reconstruction research
+## 4. Current Android/runtime identity
 
-Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. Real tele hold-out: 21,760 CFA holdouts; affine solver covered more points but was worse on directly comparable aggregate MAE/RMSE/bias and had over-optimistic uncertainty. Safety stayed closed (`target_value_used_by_solver=false`, `measured_anchors_modified=false`, `solver_applied_to_scientific_master=false`, `candidate_applied=false`, `scientific_writeback_allowed=false`). Future direction: deterministic local model selection from structural support/direction/CFA phase/uncertainty; affine is only one optional model; `no suitable model` is valid.
+Real application: `suite_android`.
 
-N2 sparse/local-spatial remains reconstruction/performance support only, never `MEASURED`. Historical v0.2.2 checkpoint: `808485b6676f23ac1a846e1eba1c625067f657bc`, 27/27 green.
+Current branch configuration at the runtime baseline:
 
-## 5. Performance law
+- application ID / namespace: **`com.truthraw.adaptiveui`**
+- versionCode: **`26100127`**
+- versionName: **`0.54-v0.84.2-open-world-authority-corridor-v01`**
+- minSdk 31
+- targetSdk 37
+- ARM64 native target
+- C++20 with warnings-as-errors in the Android native build
 
-Permanent rule: **same scientific meaning, less work**.
+Do not substitute stale identities from older 44489 snapshots. An APK is a valid current test candidate only after its package/version/signing identity and SHA-256 are checked against the artifact actually being installed.
 
-Known validated examples: v0.2.9 direct SHA transport (~914.96 MB/RAW direct path); Pixel-Triplet Authority Encoder (`12,533,760` triplets, `37,601,280` canonical records, fallback 0, ~5.52% faster authority route); PR #125 fixed-topology exact-parity specialization; PR #126/#127 measured Scientific-Master binder at 6,144 Stage-2/RAW tile reads vs 3,072 reconstruction calls because canonical v0.2 has two tile passes.
+## 5. Scientific Master and Exact Gauge Retained Artifact v0.3
 
-Never trade scientific semantics for speed or invent unmeasured performance claims.
+Scientific Master remains the immutable scientific authority source for downstream layers. Exact Gauge v0.3 is an execution/performance artifact; it does not create evidence or change scientific meaning.
 
-## 6. Exact Gauge Retained Artifact v0.3
+Binding rules:
 
-Current candidate removes the second Stage-2 reread **without changing semantics** by retaining exact Float32 bit patterns of eligible gauge candidates during pass 1 and resolving the exact low-16 median from that bounded artifact.
+- canonical v0.2 remains the admitted complete fallback before candidate semantic start;
+- v0.3 retains exact eligible Float32 gauge bit patterns so the second Stage-2 reread can be avoided without changing the canonical result;
+- after semantic processing starts there is **no replay** into canonical v0.2;
+- Exact Gauge is one registered/versioned `PassArtifact`, not a hard-coded truth exception;
+- telemetry/route attribution must be bound to the exact Scientific-Master identity rather than inferred from timings/read counts;
+- telemetry contradiction/mismatch fails closed to `UNKNOWN_FAIL_CLOSED`;
+- `candidate_applied=false`;
+- `creates_new_evidence=false`;
+- `scientific_writeback_allowed=false`.
 
-Parity must be bit-exact for Scientific Master/hash, `gaugeMedian` bits, samples/states/counts, authority, reconstruction behavior, source/measured-anchor immutability, firewall state and deterministic repeats. Only truthful resource/timing diagnostics may differ.
+Performance work follows one permanent rule: **same scientific meaning, less work**.
 
-Host candidate is green for configure, warnings-as-errors build, ASan/UBSan, exact parity oracle and forced budget fallback. Candidate remains **NOT PROMOTED**. Old pre-atomic retained-gauge core was removed and must not be resurrected.
+## 6. Reconstruction result that must NOT be rediscovered as a missing feature
 
-Firewall remains:
-`candidate_applied=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false`.
+Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. Real tele hold-out used 21,760 CFA holdouts. On the 19,560 directly comparable samples, the affine solver was worse than baseline in aggregate MAE/RMSE/bias; uncertainty was too optimistic. It did provide better coverage and a small channel-2 benefit, but that is insufficient for promotion.
 
-## 7. Atomic + PassArtifact architecture
+Safety remained closed: target value not used by the solver, measured anchors unmodified, no Scientific-Master solver writeback, candidate not applied.
 
-Atomic is a Scientific-Master transaction/safety boundary, **not** a closed cable taxonomy.
+Future reconstruction direction is deterministic local model selection from structural support, direction, CFA phase and uncertainty. Affine is only one optional model; `no suitable model` is a valid result.
 
-- Admission/budget/topology failure before semantic start may use complete canonical v0.2 fallback.
-- Once candidate semantic processing/tile observation starts: **no replay**.
-- Later candidate failures propagate hard; never silently redo canonical after partial semantic execution.
+N2 sparse/local-spatial remains reconstruction/performance support only and never becomes `MEASURED` by reuse or speed.
 
-Binding architectural law:
-**The atomic core does not decide which cables D.RAW may have; it defines how a cable behaves safely once it touches Scientific Master.**
+## 7. Open-World corridor: what is now connected
 
-Exact Gauge must be only one registered/versioned `PassArtifact`, never a hard-coded architectural exception.
+The historical project contained two highly developed worlds:
 
-Generic registry/descriptor may define identity/version, applicability/admission, dispatch, provenance/diagnostics, atomic/no-replay lifecycle and authority classification. Artifact-specific payload/state remains open. Future optics/geometry/temporal/calibration/restoration/unknown artifacts need not use Exact Gauge's data model. **Registration never grants authority.**
+A. `real RAW -> sealing -> calibration -> Scientific Master -> authority/uncertainty`
 
-## 8. Android/runtime state
+B. `Open Scene -> geometry/world representation -> restoration/light transport -> appearance/rendering`
 
-Real runtime app: `suite_android` (not historical `android/app`). Target SDK 37. The current Android lineage predates completed Exact Gauge v0.3 wiring; do not call an existing APK a v0.3 device build unless native integration/tests/build actually occurred.
+The current branch has connected the corridor far enough that the modern route is conceptually and in runtime wiring:
 
-Known integration target: `suite_android/app/src/main/cpp/CMakeLists.txt` plus Foundation/observation JNI + Java/Kotlin path under `suite_android/app/src/main/...`.
+`Scientific Master -> v0.4 Deep Scene Contribution / geometry bridge -> v0.5 Deep Scene Binding / ObservationGeometryEnvelope -> v0.6 Light Transport / World Observation Contract -> existing Room Capsule host -> v0.7 Appearance Resolve`.
 
-Do not silently substitute the general preview flow. First device integration should be selectable/diagnostic Foundation/observation execution with canonical v0.2 fallback.
+Important commit landmarks in this lineage include:
 
-Android update continuity is a build invariant: preserve package/application identity, signing identity and monotonically increasing `versionCode` so validated newer APKs can update the existing D.RAW installation rather than requiring uninstall/data loss. The APK file hash may change per build; update compatibility depends on package/signing/version continuity.
+- v0.4 geometry bridge: `f1004b6...`
+- v0.5 geometry envelope: `e27d478...`
+- v0.6 world observation contract: `33fad60...`
+- v0.7 appearance layer: `205754e...`
+- duplicate user-exposure correction: `0053e25...`
 
-## 9. Exact next work
+These abbreviated landmarks are navigation aids, not a substitute for resolving the live branch.
 
-1. Fetch live branch head; never force-reset to a remembered SHA.
-2. Search existing native + Java/Kotlin tree for registry/descriptor/artifact/pass_artifact/candidate/admission dispatch.
-3. Reuse an existing generic abstraction if present; do not create a parallel registry.
-4. If none exists, add the smallest generic PassArtifact interface and register Exact Gauge v0.3 as one concrete type.
-5. Add v0.3 admission + atomic-core sources/dependencies to `suite_android` CMake.
-6. Wire Foundation/observation callsite through generic artifact dispatch, not preview.
-7. Emit diagnostics: artifact id/version, candidate/canonical reads, retained bytes, budget fallback, peak bytes, admission/fallback state, semantic-start/no-replay state, authority/candidate status.
-8. Preserve all firewalls and canonical v0.2 fallback.
-9. Run exact parity + forced-budget fallback + all regressions.
-10. Only when green, build a new APK and then real-device measure.
+### Room Capsule rule
 
-## 10. Recovery pointers
+Room Capsule architecture was **not missing**. It already existed in the flexible Open-World host. The missing runtime connection was the issue; the corridor is now wired through it.
 
-For full detail/provenance read:
+Without admitted geometry/material/illumination evidence, Room Capsule must remain an **exact-preserving bypass**. It may not change pixels merely because the host exists. More useful relighting requires an admitted world-evidence package first.
+
+## 8. Nine-block architecture status
+
+### Blocks 1–6 — largely present
+
+The source/seal/calibration/Scientific-Master/authority scientific core is architecturally mature, though universal source admission and broader real-device validation remain incomplete.
+
+### Block 7 — Free Raster Projection: PARTIAL
+
+The resolver mathematics and free-evaluation idea exist, but the product path does not yet prove a complete first-class arbitrary full-resolution projection flow (for example 1080p/4K/8K/arbitrary raster) from the same scientific state with all authority/provenance preserved.
+
+### Block 8 — Free World Observation Graph: LARGEST INCOMPLETE SCIENTIFIC BLOCK
+
+Foundations exist: world-field separation, pair geometry, observation-manifold and related experiments. What is still missing is a mature active graph that binds multiple sealed observations through proven registration/transforms, radiometric relations and uncertainty, then allows controlled joint evaluation without inventing shared truth.
+
+### Block 9 — View / Appearance: SINGLE-OBSERVATION ROUTE CONNECTED
+
+v0.7 Appearance is in the runtime corridor and duplicate user exposure has been corrected. Richer geometry/light/material-driven appearance remains gated by admitted world evidence. Dynamic display-target/HDR behavior is still product work.
+
+## 9. Missing / incomplete components found by historical audit
+
+### 9.1 Universal source admission
+
+DNG is the best-proven admitted route. Professional non-DNG RAW families have recognition/research foundations, but a broad container-independent end-to-end chain from arbitrary professional RAW container -> sensor payload -> evidence contract -> Scientific Master is not yet proven.
+
+### 9.2 Camera -> true source validation
+
+Camera2 `RAW_SENSOR -> rawsensor/seal -> DNG/intake` lineage, calibration binding, SHA/provenance and promotion firewalls are substantially repaired. They still require real-device validation across modes/devices/vendors; one HONOR route is not universal proof.
+
+### 9.3 Canonical Source Capability Envelope
+
+Many individual capability facts exist (CFA, packing, black/white limits, optics, metadata, NPS, calibration). A single canonical source-agnostic capability layer that consistently exposes only what can be proven and governs downstream authority is still incomplete.
+
+### 9.4 First-class D.RAWnegative container
+
+TruthNegative Continuous/native-container research exists, including high-resolution/native experiments. What remains unproven is a single first-class standalone D.RAWnegative with complete write -> close -> read -> re-import -> verify -> export round-trip and preserved scientific identity/provenance.
+
+### 9.5 Free Raster productization
+
+Free continuous evaluation is not the same as pixel enlargement. The unresolved product task is to evaluate the same scientific/world state on a requested raster/footprint while preserving state/uncertainty/provenance and without pretending added samples are new measurements.
+
+### 9.6 Active multi-observation graph
+
+This is the main next scientific frontier after device validation: multiple real sealed observations -> proven inter-observation relations -> world representation -> controlled free evaluation.
+
+### 9.7 True 3D geometry
+
+Current safe route may use `ImagePlaneBound`/limited geometry authority. A metrically meaningful 3D geometry state has not yet been broadly admitted from real evidence. Estimated depth/normals must never silently become `MEASURED`.
+
+### 9.8 Material / illumination authority
+
+BRDF/PBR/material/illumination/light-transport structures are architectural/research tools until supported by admitted evidence. They may influence Appearance only under explicit authority and may not rewrite Scientific Master.
+
+### 9.9 Restoration / Render-Edit consolidation
+
+Censor-aware restoration, `.trr`, and DNG/EXR/TIFF projection research exist in older lines. They need consolidation into the modern D.RAW flow with explicit provenance/uncertainty. Restoration hypotheses remain hypotheses and never contaminate measured source truth.
+
+### 9.10 User-visible authority
+
+Internal authority/telemetry is much richer than the current user presentation. A coherent UI should eventually show what is MEASURED, RECONSTRUCTED, CENSORED, UNKNOWN, INFERRED/estimated or APPEARANCE, why, and with what uncertainty.
+
+### 9.11 Scale/performance proof
+
+N2 reuse, direct SHA, Pixel-Triplet work and Exact Gauge reduce redundant work, but true full-resolution free-raster and multi-observation workloads still need real-device memory/runtime proof.
+
+## 10. Current CI truth at runtime baseline `2766aca...`
+
+Do **not** call the baseline fully green.
+
+Known check state on 2026-10-04:
+
+- exact-parity checks are succeeding;
+- **Research Integrity Guard / integrity** is failing;
+- **Lifecycle Contract Test / lifecycle-contract** is failing;
+- many other scientific/Android checks are green.
+
+The two red governance/lifecycle checks must be diagnosed from their exact current output before promotion. Do not guess their cause and do not treat a device pass as permission to ignore them.
+
+## 11. Exact next-chat starting point: TEST, not new architecture
+
+Read `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md` and begin there.
+
+The next chat should first establish a reproducible test baseline:
+
+1. resolve live PR #130 HEAD and record it;
+2. read current CI and classify every red/skipped required gate;
+3. identify or build the exact candidate APK, record SHA-256/package/version/signing identity;
+4. install/update on the real device without silently changing app identity;
+5. capture one real Camera2 RAW_SENSOR observation and preserve raw/seal/DNG/manifest lineage;
+6. run it through intake -> Scientific Master -> v0.4 -> v0.5 -> v0.6 -> Room Capsule -> v0.7 Appearance;
+7. verify provenance, calibration binding, Scientific-Master identity, authority monotonicity, duplicate-exposure absence and exact-preserving Room-Capsule bypass where world evidence is absent;
+8. save an evidence bundle before any new research or optimization.
+
+### Stop immediately if any of these occurs
+
+- installed APK SHA/package/version/signing identity is not the intended candidate;
+- source lineage/hash or calibration binding disagrees;
+- crash/OOM or non-deterministic scientific output;
+- user exposure is applied twice;
+- Room Capsule changes scientific/presentation values without admitted world evidence;
+- inferred/estimated geometry becomes `MEASURED`;
+- authority increases without new evidence;
+- non-DNG admission silently guesses sensor truth;
+- Scientific Master, sealed CFA or measured anchors are mutated by a candidate/performance/appearance path.
+
+No promotion until CI + real-device evidence support it.
+
+## 12. What comes after a clean device test
+
+Do not immediately add another local reconstruction heuristic. The highest-value scientific continuation is:
+
+`multiple real sealed observations -> proven registration/gauge/uncertainty relations -> active Free World Observation Graph -> free raster/world evaluation`.
+
+In parallel, horizontal engineering tracks are:
+
+- universal source admission;
+- first-class D.RAWnegative round-trip;
+- user-visible authority/uncertainty;
+- dynamic appearance/HDR targets;
+- scale/performance proof for full-resolution and multi-observation workloads.
+
+## 13. Recovery pointers
+
+Current recovery/test layer:
+
+- `START_HERE_NEW_CHAT.md`
+- `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
+- `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
+- `state/DRAW_PROJECT_STATE_2026-10-04.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`
+
+Historical but still important provenance:
+
 - `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
 - `state/DRAW_PROJECT_STATE_2026-10-03.json`
 - `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
-- `START_HERE_NEW_CHAT.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`
+- older handoffs/state/research files referenced by the document-status index.
 
-When the user says **44489**, restore this capsule + live repository state first, then continue directly. Do not ask the user to reconstruct prior chats when repository state is sufficient.
+When the user says **44489**, restore this capsule plus the live repository/PR state first. Do not ask the user to manually reconstruct old chats when the repository recovery layer is sufficient.
 
-## 11. Continuous maintenance rule
+## 14. Continuous maintenance rule
 
-This capsule is a **living recovery artifact**, not a one-time summary. During normal D.RAW work it must be kept current after every materially meaningful change.
-
-Update 44489 when any of the following occurs:
-- a scientific law, interpretation or calibration assumption is added, refined, falsified or restricted;
-- a new measurement, hold-out, real-device result or uncertainty result changes what is known;
-- a candidate is promoted, rejected, superseded or deliberately kept non-promoted;
-- architecture changes, including Observation, Authority, Scientific Master, TruthNegative, Free World, PassArtifact, optics, geometry, temporal, colour, restoration or calibration contracts;
-- performance work changes implementation or measured runtime/resource behavior;
-- Android integration, APK identity/signing/version continuity, build/test status or real-device state changes;
-- the exact next implementation step changes.
+44489 is a living recovery artifact. Refresh it whenever a scientific conclusion changes, a candidate is promoted/rejected, real-device evidence arrives, architecture/authority changes, Android identity/build state changes, or the exact next task moves.
 
 Maintenance discipline:
-1. record the **scientific conclusion**, not only the code change;
-2. preserve failed/falsified experiments when they constrain future work;
-3. distinguish measured fact, derived fact, estimate, candidate and appearance;
-4. cite/retain provenance for important numbers and test results in the larger handoff/state when the compact capsule would become too large;
-5. keep the capsule concise enough for fast cold-start recovery;
-6. move detail to dedicated research/state documents, but keep the binding conclusion and pointer here;
-7. never rewrite history to make a newer approach look inevitable;
-8. before ending a long work session or when chat context is becoming unreliable, refresh 44489 so the next chat can recover without depending on conversation memory.
 
-Scientific knowledge should be updated alongside implementation. When a new domain materially affects semantics (photography, colour science, low-light vision, calibration, black/highlight behavior, optics/MTF/PSF, restoration, geometry/3D camera models, temporal exposure/readout, stop-motion sampling, human perception, etc.), study authoritative/primary material where practical and translate the result into contracts, provenance, uncertainty, authority rules and tests. Perceptual/appearance models may inform output but may not silently overwrite physical evidence.
+1. record scientific conclusions, not only code changes;
+2. preserve falsified/negative experiments because they constrain future work;
+3. distinguish measured fact, derived fact, estimate, candidate and appearance;
+4. preserve provenance for important measurements;
+5. keep the capsule compact enough for cold-start recovery and move deep detail to dedicated state/research documents;
+6. never rewrite history to make a newer approach look inevitable;
+7. study authoritative photography, optics, radiometry, colour science, signal processing, calibration, 3D/photogrammetry, rendering/PBR and human-vision literature when those domains affect semantics, then translate that knowledge into explicit contracts, provenance, uncertainty and tests rather than assumptions.
