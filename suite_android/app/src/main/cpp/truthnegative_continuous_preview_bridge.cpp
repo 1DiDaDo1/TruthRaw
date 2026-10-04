@@ -3,6 +3,7 @@
 #include "dng_color_binding_producer_v0_2.h"
 #include "free_world_appearance_resolve_v0_7.h"
 #include "free_world_scientific_open_scene_binding_v0_3.h"
+#include "open_world_appearance_corridor_v03.h"
 #include "raw_source_adapter_bridge_common.h"
 #include "scientific_master_f64_reconstruction_v0_1.h"
 #include "scientific_master_streaming_binding_v0_2.h"
@@ -47,6 +48,7 @@ namespace binding =
     truthraw::free_world_scientific_open_scene_binding::v0_3;
 namespace deep = truthraw::free_world_deep_scene_contribution::v0_4;
 namespace free_world = truthraw::free_world_pixel_resolve_2d::v0_2;
+namespace open_world_host = truthraw::open_world::v0_3;
 namespace master_projection =
     truthraw::scientific_master_linear_dng_projection::v0_1;
 namespace tn = truthraw::truthnegative_continuous::v0_5;
@@ -503,6 +505,14 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     policy.identitySha256 = labeled_digest(
         "D_RAW_TN_CONT_V05_NEUTRAL_APPEARANCE_POLICY");
 
+    // The Android caller now always enters the stable Open-World appearance
+    // corridor. No pre-Appearance stage is enabled until an authority-bound
+    // v0.6 LightTransportAttachment exists. Therefore today's baseline is an
+    // exact-preserving empty chain, while future geometry/light/material or
+    // appearance stages can be inserted without changing this outer contract.
+    constexpr std::array<open_world_host::AppearanceStage, 0u>
+        kBaselineAppearanceStages{};
+
     const std::uint64_t pixelCount64 =
         static_cast<std::uint64_t>(targetWidth) * targetHeight;
     if (pixelCount64 >
@@ -635,9 +645,21 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
             input.display = display;
             input.policy = policy;
 
-            appearance::AppearanceResolvedPixel visible{};
-            if (!appearance::resolveAppearance(input, visible) ||
-                visible.sourceSceneSha256 != scientificView.sourcePacketSha256 ||
+            open_world_host::AppearanceCorridorEnvelope visibleEnvelope{};
+            if (open_world_host::resolve_appearance_corridor(
+                    input,
+                    nullptr,
+                    kBaselineAppearanceStages,
+                    visibleEnvelope) != open_world_host::Status::Ok ||
+                !visibleEnvelope.valid ||
+                !visibleEnvelope.audit.exactPreservingBypass ||
+                visibleEnvelope.audit.sourceSceneMutated ||
+                visibleEnvelope.audit.createsNewEvidence ||
+                visibleEnvelope.audit.scientificWritebackAllowed) {
+                return status_packet(env, -12);
+            }
+            const auto& visible = visibleEnvelope.result;
+            if (visible.sourceSceneSha256 != scientificView.sourcePacketSha256 ||
                 visible.sourceSceneMutated ||
                 visible.createsNewEvidence ||
                 visible.scientificWritebackAllowed ||
@@ -713,10 +735,21 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
             candidateInput.display = display;
             candidateInput.policy = policy;
 
-            appearance::AppearanceResolvedPixel candidateVisible{};
-            if(!appearance::resolveAppearance(
-                    candidateInput,candidateVisible) ||
-               candidateVisible.sourceSceneMutated ||
+            open_world_host::AppearanceCorridorEnvelope candidateEnvelope{};
+            if (open_world_host::resolve_appearance_corridor(
+                    candidateInput,
+                    nullptr,
+                    kBaselineAppearanceStages,
+                    candidateEnvelope) != open_world_host::Status::Ok ||
+                !candidateEnvelope.valid ||
+                !candidateEnvelope.audit.exactPreservingBypass ||
+                candidateEnvelope.audit.sourceSceneMutated ||
+                candidateEnvelope.audit.createsNewEvidence ||
+                candidateEnvelope.audit.scientificWritebackAllowed) {
+                return status_packet(env, -18);
+            }
+            const auto& candidateVisible = candidateEnvelope.result;
+            if(candidateVisible.sourceSceneMutated ||
                candidateVisible.createsNewEvidence ||
                candidateVisible.scientificWritebackAllowed ||
                !candidateVisible.appearanceApplied ||
@@ -821,7 +854,7 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     packet[100] = clamp_metric(n2CandidateChangedPixels);
     packet[101] = clamp_metric(n2CandidateAdjustedChannels);
     packet[102] = clamp_metric(n2CandidateDisplayClampPixels);
-    packet[103] = 0; // reserved
+    packet[103] = 1; // Open-World appearance corridor active; zero stages = exact bypass
     digest_to_words(
         n2Audit.appearanceGridSha256, packet.data() + 104u);
     digest_to_words(
