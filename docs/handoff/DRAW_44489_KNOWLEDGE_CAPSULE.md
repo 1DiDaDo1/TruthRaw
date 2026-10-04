@@ -46,9 +46,140 @@ Lens/sensor/CFA/readout/capture route belong to an Observation. TruthNegative is
 
 `source capability != proven sample domain`.
 
-Proven Camera-5 example: TELE provenance, `4080x3072`, RAW10/BGGR, WhiteLevel `1023`, BlackLevel `64`, source-local gauge. A `16320x12288`/200MP capability is not proof that a captured frame measured 200MP.
+Proven Camera-5 example: TELE provenance, `4080x3072`, RAW10/BGGR, WhiteLevel `1023`, BlackLevel `64`, source-local gauge. A `16320x12288`/200MP capability is not by itself proof that a particular captured frame measured 200MP.
 
 TruthRange family: `T = log2(L/L0)`. Shared coordinate notation is not shared radiance. Cross-observation radiometric fusion requires an admitted common-gauge relation and otherwise fails closed.
+
+## 3A. 200 MP / Camera-5 / Free Raster knowledge
+
+The historical 200 MP research contains **two scientifically different paths that must never be collapsed into one “200 MP mode.”**
+
+### A. 12.5 MP observation -> TruthNegative -> x4 Free Raster
+
+Historical `truthnegative_dense_full_colour_v0_4` defines:
+- source raster `4080x3072`;
+- target raster `16320x12288`;
+- `kScale = 4` on each axis;
+- `createsNewEvidence=false`;
+- `impliesPhysicalSensorGeometry=false`;
+- `sourceMasterAnchorValuesPreserved=true`;
+- `appearanceApplied=false`;
+- one physical frame and one independent evidence item remain one.
+
+Scientific interpretation: Free Raster may evaluate a continuous TruthNegative at more output positions than existed in the source raster. New output positions are **RECONSTRUCTED** unless direct source support proves otherwise. A denser raster is not automatically more measurement and is not ordinary pixel stretching either: output geometry and evidence authority are separate domains.
+
+Binding slogan: **FREE RESOLUTION != UPSCALING; representation may exceed source sampling, knowledge claims may not exceed evidence.**
+
+### B. Physical Camera-5 MAXIMUM_RESOLUTION RAW observation
+
+Historical Camera-5 static capability evidence reports:
+- physical camera id `5`;
+- `ULTRA_HIGH_RESOLUTION_SENSOR=true`;
+- advertised high-resolution `RAW_SENSOR 16320x12288`;
+- advertised high-resolution `RAW10 16320x12288`;
+- `REMOSAIC_REPROCESSING=false`;
+- a reported `2x2` binning factor also exists and is retained as **vendor metadata tension**, not silently resolved in favour of a convenient CFA story.
+
+The bounded Android-contract interpretation used by the research is:
+`APP_VISIBLE_RAW_SENSOR_REGULAR_BAYER_BY_ANDROID_CONTRACT`.
+
+A qualifying runtime proof may establish:
+`APP_VISIBLE_PHYSICAL5_200MP_RAW_SENSOR_CAPTURE_PROVEN`.
+
+Its hard authority boundary remains:
+`APP_VISIBLE_CAMERA2_RAW_SENSOR_NOT_UNTOUCHED_PHOTODIODE_ADC_PROOF`.
+
+Therefore an admitted `16320x12288` Camera2 RAW_SENSOR frame can be genuine source-observed app-visible RAW evidence without proving any of the following automatically:
+- untouched photodiode/ADC values;
+- absence of on-sensor, ISP or HAL preprocessing;
+- one ADC conversion per delivered output sample;
+- electron-count calibration;
+- optical 200 MP resolving power;
+- full physical colour truth.
+
+Sample count is not optical resolution. CFA/sample support, optical/detail support, reconstruction support and appearance/acutance stay separate.
+
+### 200 MP runtime admission / promotion gate
+
+For MAXIMUM_RESOLUTION source admission, preserve and validate at minimum:
+- exact raster `16320x12288` (`200,540,160` samples);
+- physical camera id `5` and physical-scoped output/request binding;
+- one physical frame / one independent evidence item;
+- Camera2 acquisition-observation authority only unless stronger calibration is separately proven;
+- exact `Image`/physical `SENSOR_TIMESTAMP` identity;
+- bound `TotalCaptureResult` / physical-result identity;
+- RAW payload size/stride/layout consistency;
+- sealed payload SHA-256 identity;
+- requested/read-back sensor-pixel-mode observations kept independently;
+- Scientific Master not modified merely by admission diagnostics.
+
+Historical v0.14 evidence intentionally preserved a returned `SENSOR_PIXEL_MODE=0` mismatch rather than rewriting it to MAXIMUM_RESOLUTION. Exact raster + physical-result + timestamp/payload proof and returned mode are separate observations; contradiction is evidence to retain, not metadata to normalize away.
+
+Fail closed if physical 200 MP source admission is not proven. The fallback may use the normal admitted RAW observation and an explicitly RECONSTRUCTED Free Raster 200 MP projection; it may not relabel that projection as a native 200 MP measurement.
+
+### Route orthogonality
+
+`PURE`, `ADVANCED` and `PRO` are **processing/view routes above the sealed source**, not sensor readout modes. Historical Android UI already described all three as starting from the same sealed source / Scientific Master and routed camera input through the 200 MP staged camera activity.
+
+Keep these dimensions independent in architecture and UI:
+
+`Lens/Observation` = e.g. Tele / physical camera 5  
+`Sensor/readout` = e.g. Default `4080x3072` or MAXIMUM_RESOLUTION `16320x12288`  
+`D.RAW route` = `PURE` / `ADVANCED` / `PRO`  
+`Output raster` = Native / 4K / 8K / 200 MP / Custom
+
+Never encode all four dimensions into one overloaded “200 MP” flag.
+
+### Recommended 200 MP implementation semantics
+
+1. Discover capabilities per physical camera at runtime; never hard-code that another device or lens has Camera-5 semantics.
+2. Put exact capture/readout facts in the Source Capability Envelope: physical/logical ids, format, exact dimensions, stream-map origin, requested and returned sensor pixel mode, binning metadata, remosaic capability, timestamps/result binding, row/pixel stride and payload SHA.
+3. Seal source bytes before interpretive promotion.
+4. Give native MAX-resolution observations and x4 Free Raster projections distinct state/telemetry labels such as `MAXIMUM_RESOLUTION_SOURCE` versus `FREE_RASTER_200MP_RECONSTRUCTION`.
+5. In UI/provenance, distinguish concise badges such as **200 MP source** and **200 MP projection**; full authority/provenance belongs in Foundation/PRO diagnostics/export.
+6. Preserve MEASURED source anchors exactly where their mapping is proven. Generated Free Raster sites remain RECONSTRUCTED with footprint/uncertainty; interpolation cannot promote itself.
+7. Never accept vendor JPEG/HEIF/processed 200 MP output as RAW evidence merely because dimensions match.
+8. Dimensions alone never grant CFA, optical, colour, radiometric or photodiode authority.
+9. PURE/ADVANCED/PRO may render/project the same admitted source differently, but ADVANCED/PRO appearance must never write back into Scientific Master or upgrade source authority.
+
+### Recommended same-lens three-way validation
+
+Use the same physical tele lens/scene and compare:
+1. normal `4080x3072` tele RAW -> D.RAW TruthNegative -> x4 Free Raster `16320x12288`;
+2. physical MAXIMUM_RESOLUTION `16320x12288` RAW -> D.RAW;
+3. HONOR/vendor 200 MP photographic pipeline output.
+
+Evaluate separately:
+- CFA topology/phase and sample support;
+- SFR/MTF/PSF or equivalent resolved-detail evidence across field/focus;
+- aliasing and false-detail behaviour;
+- noise/NPS and signal-dependent noise;
+- radiometry/linearity, black/white/clipping behaviour and dynamic-range bounds;
+- registration/support footprints and uncertainty;
+- vendor-added processing differences;
+- repeatability under identical capture conditions.
+
+Promotion of an optical “200 MP detail” claim requires an independent optical gate; exact 200 MP raster capture alone is insufficient.
+
+### Required 200 MP regressions
+
+Maintain tests that prove:
+- x4 Free Raster creates no new evidence;
+- directly supported source anchors remain exact;
+- one input frame remains one physical frame/evidence item;
+- MAX-resolution gate requires exact `16320x12288` plus correct physical binding;
+- timestamp/result/payload SHA identity is enforced;
+- wrong camera/result/payload binding fails closed;
+- `MAXIMUM_RESOLUTION_SOURCE` cannot be confused with `FREE_RASTER_200MP_RECONSTRUCTION`;
+- PURE/ADVANCED/PRO preserve identical source lineage and cannot cause scientific writeback from appearance;
+- a processed vendor 200 MP image cannot be promoted to RAW evidence;
+- dimensions/sample count alone cannot grant optical-resolution authority.
+
+Historical provenance pointers to retain:
+- branch `integration/truthraw-suite-v0-84-4-truthnegative-200mp-full-colour`, `suite_android/app/src/main/cpp/truthnegative_dense_full_colour_v0_4.h`;
+- branch `integration/truthraw-suite-v0-10-200mp-max-highres`, `docs/CURRENT_SCENE_PHYSICS_RESTORATION_200MP_2026-09-16.md`;
+- branch `integration/truthraw-suite-v0-16-v014-stage4-rawsensor-audit`, `tools/camera5_200mp_runtime_gate_v09.py`;
+- historical launcher `TruthRawSuiteLauncherActivity.kt`, where PURE/ADVANCED/PRO share sealed-source semantics and camera input enters the staged 200 MP route.
 
 ## 4. Reconstruction research
 
@@ -112,6 +243,8 @@ Android update continuity is a build invariant: preserve package/application ide
 8. Preserve all firewalls and canonical v0.2 fallback.
 9. Run exact parity + forced-budget fallback + all regressions.
 10. Only when green, build a new APK and then real-device measure.
+
+200 MP work is orthogonal to the active Exact-Gauge/PassArtifact work. When returning to 200 MP integration, first reuse the existing Camera-5 contracts/gates and the Free Raster distinction above rather than inventing a new 200 MP path.
 
 ## 10. Recovery pointers
 
