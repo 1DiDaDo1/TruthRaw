@@ -157,6 +157,28 @@ void test_viewing_conditions_change_appearance_only() {
     REQUIRE(std::abs(a.encodedRgb[0] - b.encodedRgb[0]) > 1e-8);
 }
 
+void test_exposure_is_applied_exactly_once() {
+    auto base = baseInput();
+    auto plusOne = baseInput();
+    base.scene.sceneLinearRgb = {0.10, 0.10, 0.10};
+    plusOne.scene.sceneLinearRgb = base.scene.sceneLinearRgb;
+    base.display.transfer = app::TransferFunction::LinearNormalized;
+    plusOne.display.transfer = app::TransferFunction::LinearNormalized;
+    plusOne.policy.exposureEv = 1.0;
+    plusOne.policy.identitySha256 = digest(81u);
+
+    app::AppearanceResolvedPixel a{};
+    app::AppearanceResolvedPixel b{};
+    REQUIRE(app::resolveAppearance(base, a));
+    REQUIRE(app::resolveAppearance(plusOne, b));
+
+    REQUIRE(std::abs(b.sourceLuminanceNits - 2.0 * a.sourceLuminanceNits) < 1e-12);
+    REQUIRE(std::abs(b.mappedLuminanceNits - 2.0 * a.mappedLuminanceNits) < 1e-12);
+    REQUIRE(!b.sourceSceneMutated);
+    REQUIRE(!b.createsNewEvidence);
+    REQUIRE(!b.scientificWritebackAllowed);
+}
+
 void test_highlights_compress_to_peak_without_scene_mutation() {
     auto in = baseInput();
     in.scene.sceneLinearRgb = {20.0, 20.0, 20.0};
@@ -203,6 +225,7 @@ int main() {
     test_authority_and_uncertainty_are_not_upgraded();
     test_display_target_changes_output_not_scene_identity();
     test_viewing_conditions_change_appearance_only();
+    test_exposure_is_applied_exactly_once();
     test_highlights_compress_to_peak_without_scene_mutation();
     test_display_clamp_is_explicit();
     test_invalid_identity_fails_closed();

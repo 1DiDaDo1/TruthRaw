@@ -1,0 +1,226 @@
+{
+  "project": "D.RAW",
+  "repository_name": "TruthRaw",
+  "date": "2026-10-04",
+  "handoff_code": 44489,
+  "recovery_marker": "[KCR-44489-2026-10-03-A]",
+  "authority": {
+    "active_pr": 130,
+    "active_branch": "fix/android-exact-gauge-pass-artifact-v03",
+    "base_branch": "fix/research-fresh-rerun-v01",
+    "runtime_scientific_baseline_head_before_documentation_refresh": "2766aca5f8acf0f441c7b4f7fb6d892de9ae5778",
+    "rule": "Resolve the live PR head before testing or mutation. Documentation commits may move HEAD beyond the runtime/scientific baseline. Never force-reset to a remembered SHA."
+  },
+  "android": {
+    "module": "suite_android",
+    "application_id": "com.truthraw.adaptiveui",
+    "namespace": "com.truthraw.adaptiveui",
+    "version_code": 26100127,
+    "version_name": "0.54-v0.84.2-open-world-authority-corridor-v01",
+    "min_sdk": 31,
+    "target_sdk": 37,
+    "abi": ["arm64-v8a"],
+    "test_rule": "An APK is current only after its SHA-256, package/version and signer identity are tied to the intended source state. Do not infer currency from filename."
+  },
+  "permanent_scientific_laws": [
+    "Seal the evidence, not the thinking.",
+    "MEASURED != RECONSTRUCTED != APPEARANCE.",
+    "Representation may become richer than the source; knowledge claims may not exceed evidence.",
+    "One Free World. Many sealed observations. One evidence law.",
+    "Direct-CFA and RAW_SENSOR evidence are immutable and sealed.",
+    "One physical frame remains one physical frame; derived views do not create captures.",
+    "Scientific Master is scene-linear and separate from presentation/export/appearance.",
+    "UNKNOWN is valid and must not silently become zero, certainty or estimate.",
+    "Precision, resolution, reconstruction, registration and performance do not create authority.",
+    "Camera/vendor identity may route parsing but may not choose scientific truth.",
+    "SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.",
+    "No performance, diagnostic, reconstruction or appearance path may mutate sealed evidence or measured anchors or write back scientific truth without explicit admitted authority."
+  ],
+  "authority_classes": [
+    "MEASURED",
+    "CALIBRATED_ESTIMATE",
+    "RECONSTRUCTED",
+    "CENSORED",
+    "UNKNOWN",
+    "COUNTERFACTUAL",
+    "APPEARANCE"
+  ],
+  "canonical_pipeline": "readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> admitted measurement/calibration/reconstruction -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> finite/free raster projection",
+  "current_runtime_corridor": {
+    "status": "connected through single-observation Appearance path",
+    "stages": [
+      "Scientific Master",
+      "v0.4 Deep Scene Contribution / geometry bridge",
+      "v0.5 Deep Scene Binding / ObservationGeometryEnvelope",
+      "v0.6 Light Transport / World Observation Contract",
+      "existing Room Capsule host",
+      "v0.7 Appearance Resolve"
+    ],
+    "room_capsule_rule": "When admitted geometry/material/illumination evidence is absent, Room Capsule must be exact-preserving bypass and may not create authority or change values merely because the host exists.",
+    "appearance_rule": "Appearance remains downstream and may not write back to Scientific Master; user exposure must be applied once."
+  },
+  "exact_gauge_v0_3": {
+    "role": "semantics-preserving performance PassArtifact",
+    "promotion_state": "candidate / not promoted by device evidence",
+    "canonical_fallback": "v0.2 complete fallback only before candidate semantic start",
+    "no_replay_after_semantic_start": true,
+    "candidate_applied": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "route_authority_rule": "Route attribution must come from explicit Scientific-Master-identity-bound diagnostics, not timings or source-read counts."
+  },
+  "known_negative_result": {
+    "anchor_constrained_local_reconstruction_v0_1": {
+      "status": "NOT_PROMOTED",
+      "holdouts": 21760,
+      "directly_comparable_samples": 19560,
+      "conclusion": "Affine solver improved coverage but was worse than baseline in aggregate MAE/RMSE/bias on directly comparable samples; uncertainty was over-optimistic. Do not rediscover this as an unfinished promotion task.",
+      "future_direction": "Deterministic local model selection using structural support, direction, CFA phase and uncertainty; affine is one optional model and no-suitable-model is valid."
+    }
+  },
+  "architecture_status": {
+    "blocks_1_to_6": {
+      "status": "largely_present",
+      "note": "Source/seal/calibration/Scientific-Master/authority foundations are mature, with remaining universal-source and broader device validation work."
+    },
+    "block_7_free_raster_projection": {
+      "status": "partial",
+      "missing": "Productized arbitrary/full-resolution raster evaluation from the same scientific/world state with complete provenance/authority preservation."
+    },
+    "block_8_free_world_observation_graph": {
+      "status": "largest_incomplete_scientific_block",
+      "missing": "Mature active multi-observation graph with proven registration/transforms, radiometric/gauge relations, uncertainty and controlled joint evaluation."
+    },
+    "block_9_view_appearance": {
+      "status": "single_observation_route_connected",
+      "missing": "Admitted richer geometry/material/illumination evidence and productized dynamic display/HDR targets."
+    }
+  },
+  "historical_audit_findings": [
+    {
+      "id": "universal_source_admission",
+      "status": "incomplete",
+      "finding": "DNG is the best-proven admitted route. Broad professional non-DNG RAW recognition/research exists, but container-to-sensor-evidence-to-Scientific-Master admission is not yet proven generically."
+    },
+    {
+      "id": "camera_true_source",
+      "status": "substantially_repaired_needs_broader_real_device_validation",
+      "finding": "Camera2 RAW_SENSOR -> rawsensor/seal -> DNG/intake lineage, calibration binding and provenance are substantially repaired, but one device/vendor route is not universal proof."
+    },
+    {
+      "id": "source_capability_envelope",
+      "status": "incomplete_centralization",
+      "finding": "CFA, packing, black/white bounds, optics, NPS, metadata and calibration facts exist in pieces; one canonical source-agnostic capability authority layer remains incomplete."
+    },
+    {
+      "id": "scientific_master_authority",
+      "status": "strong_foundation",
+      "finding": "Float precision, uncertainty/covariance, censoring, Dynamic Authority, zero/gauge, optics and provenance are mature; remaining work is hardening, real-device regression and governance reconciliation."
+    },
+    {
+      "id": "first_class_drawnegative",
+      "status": "incomplete",
+      "finding": "TruthNegative/native-container research exists, but a single first-class D.RAWnegative write/read/re-import/verify/export round trip is not yet fully proven."
+    },
+    {
+      "id": "free_raster_projection",
+      "status": "partial",
+      "finding": "Resolver/free-evaluation foundations exist; true arbitrary full-resolution product output preserving authority/provenance is not yet closed."
+    },
+    {
+      "id": "observation_graph",
+      "status": "largest_scientific_gap",
+      "finding": "World-field separation, pair geometry and observation-manifold foundations exist; the active evidence-bound multi-observation graph remains unfinished."
+    },
+    {
+      "id": "true_3d_geometry",
+      "status": "not_broadly_admitted",
+      "finding": "Current safe route can carry limited/ImagePlaneBound geometry. Inferred depth/normals/transforms must never silently become MEASURED."
+    },
+    {
+      "id": "material_light_room_capsule",
+      "status": "corridor_connected_world_evidence_missing",
+      "finding": "Room Capsule architecture already existed and runtime wiring now reaches it; without admitted geometry/material/illumination it remains exact-preserving bypass."
+    },
+    {
+      "id": "restoration_render_edit",
+      "status": "research_exists_needs_consolidation",
+      "finding": "Censor-aware restoration, .trr and DNG/EXR/TIFF projection research exist; modern integration must preserve provenance/uncertainty and never contaminate measured truth."
+    },
+    {
+      "id": "appearance_hdr_perception",
+      "status": "runtime_connected_productization_incomplete",
+      "finding": "v0.7 Appearance is connected and historical duplicate user exposure is corrected; dynamic HDR/display target behavior remains product work."
+    },
+    {
+      "id": "user_visible_authority",
+      "status": "incomplete",
+      "finding": "Internal telemetry is rich; coherent UI presentation of measured/reconstructed/censored/unknown/estimated/appearance state, rationale and uncertainty remains missing."
+    },
+    {
+      "id": "performance_scale",
+      "status": "optimized_foundations_need_large_workload_proof",
+      "finding": "N2 reuse, direct SHA, Pixel-Triplet and Exact Gauge reduce redundant work; full-resolution/free-raster/multi-observation memory and runtime still need physical proof."
+    },
+    {
+      "id": "project_governance",
+      "status": "reconciled_by_2026_10_04_recovery_layer_but_ci_not_fully_green",
+      "finding": "44489 capsule/state/bootstrap are refreshed to current architecture and test start. Required red governance/lifecycle checks still need exact diagnosis before promotion."
+    }
+  ],
+  "not_missing": [
+    "Anchor-Constrained Local Reconstruction is deliberately not promoted because real hold-out evidence was worse than baseline and uncertainty was over-optimistic.",
+    "Room Capsule architecture already existed; the missing runtime connection was addressed. Remaining limitation is admitted world evidence, not absence of the host architecture."
+  ],
+  "ci_at_runtime_baseline_2766aca": {
+    "fully_green": false,
+    "known_success": ["exact-parity checks"],
+    "known_failure": [
+      "integrity / Research Integrity Guard",
+      "lifecycle-contract / Lifecycle Contract Test"
+    ],
+    "rule": "Read current logs/annotations and diagnose exact causes; do not guess. Device success cannot override required red CI/governance gates."
+  },
+  "next_chat_mode": "TEST_FIRST",
+  "next_chat_entry": "docs/handoff/DRAW_44489_TEST_START_2026-10-04.md",
+  "next_test_sequence": [
+    "T0 resolve live PR head and current CI for that exact head",
+    "T1 identify/build exact APK and record SHA-256, package/version and signer identity",
+    "T2 install/update and launch with reproducibility logging",
+    "T3 capture one real Camera2 RAW_SENSOR observation and preserve complete lineage",
+    "T4 verify Scientific Master identity, calibration/provenance and Exact Gauge diagnostics",
+    "T5 verify v0.4 -> v0.5 -> v0.6 -> Room Capsule -> v0.7 authority corridor",
+    "T6 preserve complete evidence bundle before code changes"
+  ],
+  "stop_conditions": [
+    "APK/source/signing identity mismatch",
+    "source lineage/hash mismatch",
+    "calibration fingerprint mismatch",
+    "crash or OOM",
+    "nondeterministic Scientific Master under identical controlled input",
+    "sealed CFA or measured-anchor mutation",
+    "duplicate user exposure",
+    "Room Capsule changes values without admitted world evidence",
+    "inferred geometry promoted to MEASURED",
+    "authority increases without evidence",
+    "UNKNOWN converted to certainty for convenience",
+    "non-DNG scientific admission based on vendor-name guesswork"
+  ],
+  "post_test_primary_frontier": "multiple real sealed observations -> proven inter-observation registration/gauge/uncertainty -> active Free World Observation Graph -> controlled free raster/world evaluation",
+  "parallel_frontiers": [
+    "universal non-DNG source admission",
+    "first-class D.RAWnegative round trip",
+    "arbitrary/full-resolution Free Raster Projection",
+    "user-visible authority and uncertainty",
+    "dynamic HDR/display-target Appearance",
+    "real-device performance/memory proof at full-resolution and multi-observation scale"
+  ],
+  "recovery_documents": [
+    "START_HERE_NEW_CHAT.md",
+    "docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md",
+    "docs/handoff/DRAW_44489_TEST_START_2026-10-04.md",
+    "state/DRAW_PROJECT_STATE_2026-10-04.json",
+    "docs/DOCUMENT_STATUS_INDEX_2026-10-04.md",
+    "docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md"
+  ]
+}

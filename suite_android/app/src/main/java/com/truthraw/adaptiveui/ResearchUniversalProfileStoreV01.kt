@@ -12,6 +12,8 @@ object ResearchUniversalProfileStoreV01 {
     const val SCHEMA = "D.RAW/ResearchUniversalProfileStore/0.1"
     private const val DIR_NAME =
         "draw_research_universal_profiles_v0_1"
+    private const val VALIDATION_EPOCH =
+        "EXACT_GAUGE_V03_COLD_VALIDATION_V02"
 
     private fun isCurrentProfile(profile: JSONObject): Boolean =
         profile.optString("profile_cache_generation") ==
@@ -39,6 +41,7 @@ object ResearchUniversalProfileStoreV01 {
                     "profile_cache_generation",
                     UniversalSourceProfiler.CACHE_GENERATION,
                 )
+                .put("validation_epoch", VALIDATION_EPOCH)
                 .put("job_id", job.id)
                 .put(
                     "source_uri",
@@ -105,6 +108,8 @@ object ResearchUniversalProfileStoreV01 {
             SCHEMA ||
             wrapper.optString("profile_cache_generation") !=
             UniversalSourceProfiler.CACHE_GENERATION ||
+            wrapper.optString("validation_epoch") !=
+            VALIDATION_EPOCH ||
             wrapper.optString("job_id") !=
             job.id ||
             wrapper.optString("source_uri") !=
@@ -178,6 +183,8 @@ object ResearchUniversalProfileStoreV01 {
                 SCHEMA ||
                 wrapper.optString("profile_cache_generation") !=
                 UniversalSourceProfiler.CACHE_GENERATION ||
+                wrapper.optString("validation_epoch") !=
+                VALIDATION_EPOCH ||
                 wrapper.optString("job_id") !=
                 job.id ||
                 wrapper.optString("source_uri") !=

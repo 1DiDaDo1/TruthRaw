@@ -1,5 +1,6 @@
 #include <jni.h>
 
+#include "scientific_master_pass_artifact_dispatch_v0_1.h"
 #include "truthnegative_center_excluded_spatial_audit_v0_2_1.h"
 #include "truthnegative_center_excluded_spatial_audit_v0_2_2.h"
 #include "truthnegative_n2_cfa_audit_v0_1.h"
@@ -21,6 +22,8 @@
 
 namespace {
 
+namespace pass_artifact =
+    truthraw::android_scientific_master_pass_artifact::v0_1;
 namespace pipeline =
     truthraw::android_truthnegative_pipeline::v0_1;
 namespace n2_cfa =
@@ -585,6 +588,9 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_exportAndVe
       <<state.censorBoundaryProtectionPresentTiles;
     o<<",\"maxPredictorVarianceLeCenterVarianceTiles\":"
       <<state.maxPredictorVarianceLeCenterVarianceTiles;
+    o<<",\"scientificMasterPassArtifactDiagnostics\":"
+      <<pass_artifact::bound_diagnostics_json(
+            ctx->scientific.scientificMasterHash);
     o<<",\"sourceSha256\":\""
       <<sha::hex(ctx->sourceSeal.sha256)<<"\"";
     o<<",\"scientificMasterSha256\":\""
@@ -627,4 +633,3 @@ Java_com_truthraw_adaptiveui_TruthNegativeN2FactoredConfidenceBridge_clearShared
     pipeline::clearSharedCache();
     return JNI_TRUE;
 }
-

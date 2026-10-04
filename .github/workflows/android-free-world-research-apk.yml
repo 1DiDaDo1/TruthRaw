@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - research/free-world-radiometric-noise-transport-v01-2026-09-30
+      - fix/android-exact-gauge-pass-artifact-v03
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-free-world-research-apk.yml'
@@ -26,6 +27,7 @@ jobs:
 
       - name: Install Android SDK / NDK
         run: |
+          set -euo pipefail
           test -n "$ANDROID_HOME"
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
@@ -37,20 +39,51 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Materialize stable D.RAW development signing identity
+        env:
+          DRAW_DEBUG_KEYSTORE_B64: ${{ secrets.DRAW_DEBUG_KEYSTORE_B64 }}
+          DRAW_DEBUG_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_DEBUG_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_DEBUG_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$DRAW_DEBUG_KEYSTORE_B64" || { echo "::error::D.RAW signing slot A missing: keystore Base64 payload"; exit 1; }
+          test -n "$DRAW_DEBUG_STORE_PASSWORD" || { echo "::error::D.RAW signing slot B missing: keystore password"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_ALIAS" || { echo "::error::D.RAW signing slot C missing: key alias"; exit 1; }
+          test -n "$DRAW_DEBUG_KEY_PASSWORD" || { echo "::error::D.RAW signing slot D missing: key password"; exit 1; }
+          printf '%s' "$DRAW_DEBUG_KEYSTORE_B64" | tr -d '\r\n\t ' | base64 --decode > "$RUNNER_TEMP/draw-debug.jks"
+          test -s "$RUNNER_TEMP/draw-debug.jks"
+          ACTUAL_KEYSTORE_SHA256=$(sha256sum "$RUNNER_TEMP/draw-debug.jks" | awk '{print $1}')
+          test "$ACTUAL_KEYSTORE_SHA256" = "eaddcb4abdab1353a5cd15d71d52ea373abbabc46459ed7f2c8c08acf15d1137"
+          keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
+
       - name: Assemble debug APK
         working-directory: suite_android
+        env:
+          DRAW_SIGNING_STORE_FILE: ${{ runner.temp }}/draw-debug.jks
+          DRAW_SIGNING_STORE_PASSWORD: ${{ secrets.DRAW_DEBUG_STORE_PASSWORD }}
+          DRAW_SIGNING_KEY_ALIAS: ${{ secrets.DRAW_DEBUG_KEY_ALIAS }}
+          DRAW_SIGNING_KEY_PASSWORD: ${{ secrets.DRAW_DEBUG_KEY_PASSWORD }}
         run: gradle --no-daemon :app:assembleDebug
 
-      - name: Verify APK exists
+      - name: Verify APK exists and signing identity
         run: |
+          set -euo pipefail
           APK='suite_android/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$APK"
           echo "apk_bytes=$(stat -c%s "$APK")"
-          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+          sha256sum "$APK" | tee "$APK.sha256"
           unzip -l "$APK" | grep -F 'classes.dex'
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)
+          echo "apk_signing_cert_sha256=$CERT_SHA256"
+          test "$CERT_SHA256" = "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
+          test "$(cat suite_android/VERSION_CODE)" = "26100127"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DRAW-free-world-research-debug-arm64
-          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          name: DRAW-free-world-research-debug-arm64-stable-signed
+          path: |
+            suite_android/app/build/outputs/apk/debug/app-debug.apk
+            suite_android/app/build/outputs/apk/debug/app-debug.apk.sha256
           if-no-files-found: error
