@@ -1,13 +1,13 @@
 # D.RAW / TruthRaw
 
-> **CURRENT PROJECT RECOVERY — 2026-10-03 — continuation code `44489`**
+> **CURRENT PROJECT STATE — 2026-10-04 — continuation code `44489`**
 >
 > Canonical project/product name: **D.RAW**  
 > Historical/repository name: `TruthRaw`  
 > Repository: `1DiDaDo1/TruthRaw`  
-> Active integration branch: `fix/research-fresh-rerun-v01`  
-> Active Android candidate branch: `fix/android-exact-gauge-pass-artifact-v03` / PR #130  
-> Current PR #130 head at this documentation update: `2a90e821709eb9abdd87ba64e343bb37f4d0a129`
+> Active candidate branch: `fix/android-exact-gauge-pass-artifact-v03`  
+> Active PR: **#130**  
+> Runtime/scientific baseline before the 2026-10-04 documentation refresh: `2766aca5f8acf0f441c7b4f7fb6d892de9ae5778`
 
 D.RAW is a deterministic, provenance-bound scientific imaging system built around permanent rules:
 
@@ -21,83 +21,110 @@ D.RAW is a deterministic, provenance-bound scientific imaging system built aroun
 
 ## Start here — code 44489
 
-The single canonical recovery document is:
+A future chat receiving only **44489** should recover the current project from the repository and begin at the test handoff rather than reconstructing old chats manually.
 
-1. [`docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`](docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md)
+Read in this order:
 
-Then read:
+1. [`START_HERE_NEW_CHAT.md`](START_HERE_NEW_CHAT.md)
+2. [`docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`](docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md)
+3. [`state/DRAW_PROJECT_STATE_2026-10-04.json`](state/DRAW_PROJECT_STATE_2026-10-04.json)
+4. [`docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`](docs/handoff/DRAW_44489_TEST_START_2026-10-04.md)
+5. [`docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-04.md)
 
-2. [`state/DRAW_PROJECT_STATE_2026-10-03.json`](state/DRAW_PROJECT_STATE_2026-10-03.json)
-3. [`START_HERE_NEW_CHAT.md`](START_HERE_NEW_CHAT.md)
-4. [`docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-03.md)
-5. [`docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`](docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md)
+Historical recovery provenance remains preserved in [`docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`](docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md).
 
-A future chat receiving only **44489** should restore the complete current scientific/architectural state from the repository without asking the user to reconstruct old chats manually. It must fetch the live branch head first.
+Always fetch the live PR #130 head first. Documentation commits may move HEAD beyond the runtime/scientific baseline; never force-reset to a remembered SHA merely to make documentation match.
 
-## Current scientific architecture in one line
+## Current scientific architecture
 
-`sealed physical Observation / RAW_SENSOR -> D.RAW Observation Contract -> Source Capability Envelope -> Float64 measurement/calibration/reconstruction -> Scientific Master -> validated Float32 scientific state -> Dynamic Authority + uncertainty -> TruthNegative Continuous per Observation -> Free World Observation Graph -> Deep Scene / Light Transport -> View / Appearance -> finite projection`
+`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> admitted measurement/calibration/reconstruction -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> finite/free raster projection`
 
-## Current engineering frontier
+The single-observation runtime corridor is now connected through:
 
-Scientific Master Exact Gauge Retained Artifact v0.3 is now wired into the Android Foundation Scientific-Master preparation route through the generic PassArtifact dispatcher on PR #130.
+`Scientific Master -> v0.4 geometry bridge -> v0.5 geometry envelope -> v0.6 world/light-transport contract -> existing Room Capsule -> v0.7 Appearance`.
 
-Current candidate properties:
+Room Capsule is an existing architecture, not a missing cable. Without admitted geometry/material/illumination evidence it must remain exact-preserving bypass.
 
-- exact-gauge v0.3 scientific core unchanged;
-- canonical v0.2 remains the only admitted pre-semantic-start fallback;
-- no replay after semantic start;
-- PassArtifact diagnostics are bound to the exact Scientific-Master Hash256;
-- JNI/Kotlin/Foundation telemetry attributes `retained_exact_float32_bits_v0.3` and `canonical_v0.2_fallback` only from explicit hash-bound native diagnostics;
-- source read counts are performance observations, not route authority;
-- contradiction/mismatch states fail closed to `UNKNOWN_FAIL_CLOSED`;
-- `candidate_applied=false`;
-- `creates_new_evidence=false`;
-- `scientific_writeback_allowed=false`;
-- cold real-device validation is still required before promotion.
-
-## Android lineage
+## Current Android identity
 
 Actual runtime application: `suite_android`.
 
-Current candidate identity:
+Current source configuration at the runtime baseline:
 
-- application ID `com.truthraw.adaptiveui`
-- versionCode `26100125`
-- versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
+- application ID / namespace: `com.truthraw.adaptiveui`
+- versionCode: `26100127`
+- versionName: `0.54-v0.84.2-open-world-authority-corridor-v01`
+- minSdk 31
+- targetSdk 37
+- ARM64
 
-Do not describe this candidate as promoted until all regression gates and the new cold device validation are complete.
+An APK is a current test candidate only after its SHA-256, package/version and signer identity are tied to the intended source state. Do not rely on filename alone.
+
+## Current scientific/engineering truth
+
+Scientific Master Exact Gauge Retained Artifact v0.3 is integrated through the generic PassArtifact route as a semantics-preserving performance candidate. Its firewalls remain closed:
+
+- canonical v0.2 is the complete pre-semantic-start fallback;
+- no replay after candidate semantic start;
+- route attribution must come from explicit identity-bound diagnostics;
+- source-read counts/timing are not authority;
+- contradiction fails closed;
+- `candidate_applied=false`;
+- `creates_new_evidence=false`;
+- `scientific_writeback_allowed=false`.
+
+Anchor-Constrained Local Reconstruction remains deliberately **NOT PROMOTED** after worse real hold-out aggregate results and over-optimistic uncertainty. Do not treat it as a forgotten feature to turn on.
+
+## Main incomplete areas found by historical audit
+
+The source/Scientific-Master foundation is stronger than the remaining end-to-end product/world gaps. The main unresolved areas are:
+
+- universal evidence-bound admission of professional non-DNG RAW containers;
+- a single canonical source-agnostic Source Capability Envelope;
+- first-class standalone D.RAWnegative write/read/re-import/export round-trip;
+- productized arbitrary/full-resolution Free Raster Projection;
+- an active evidence-bound multi-observation Free World Observation Graph;
+- broadly admitted metric 3D geometry;
+- admitted material/illumination evidence for useful non-bypass Room Capsule behavior;
+- restoration/render-edit consolidation under modern provenance/uncertainty rules;
+- coherent user-visible authority/uncertainty;
+- real-device memory/runtime proof for full-resolution and multi-observation workloads;
+- dynamic HDR/display-target Appearance behavior.
+
+The **largest incomplete scientific block** is currently the active Free World Observation Graph.
+
+## Current CI warning
+
+At runtime/scientific baseline `2766aca...`, exact-parity checks were succeeding but `integrity` and `lifecycle-contract` were failing. Many other checks were green. The exact causes of those red checks must be read from current logs/annotations; do not guess and do not describe the branch as fully green until required gates pass.
+
+## Exact next work: testing
+
+The next chat should start at:
+
+[`docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`](docs/handoff/DRAW_44489_TEST_START_2026-10-04.md)
+
+Sequence:
+
+`T0 live repository/CI freeze -> T1 exact APK identity -> T2 launch/logging -> T3 one real RAW_SENSOR observation -> T4 Scientific Master verification -> T5 v0.4/v0.5/v0.6/Room Capsule/v0.7 authority verification -> T6 evidence bundle`.
+
+Do not start new architecture before this evidence is captured.
+
+After a clean device test and required CI reconciliation, the primary scientific frontier is:
+
+`multiple real sealed observations -> proven inter-observation registration/gauge/uncertainty -> active Free World Observation Graph -> controlled free raster/world evaluation`.
 
 ## Permanent scientific boundaries
 
 - Direct-CFA/source evidence is immutable and sealed.
 - Source capability is not proof of measured sample domain.
-- Scientific Master remains separate from presentation/export.
-- `UNKNOWN`, `CENSORED`, `RECONSTRUCTED`, `MEASURED` and `APPEARANCE` must not collapse into one another.
+- Scientific Master remains separate from presentation/export/appearance.
+- `UNKNOWN`, `CENSORED`, `RECONSTRUCTED`, `MEASURED` and `APPEARANCE` do not collapse into one another.
 - Unknown covariance is not zero.
 - Cross-observation radiometric fusion requires an admitted common-gauge relation.
 - Performance artifacts may remember computation; they cannot create evidence or authority.
 - Camera/lens/vendor/RAW identity may route parsing but cannot select scientific truth.
-- No AI/ML/neural/generative runtime exists in the scientific path.
-- No diagnostic/performance route may create evidence, mutate measured anchors, promote a correction or perform scientific writeback.
+- No diagnostic/performance/appearance path may create evidence, mutate measured anchors or perform scientific writeback.
 - SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
 - Derived/virtual observations do not create additional physical captures.
 
-## Historical provenance / governance discoverability
-
-The paths below are historical snapshots or older authority documents. They are intentionally discoverable for provenance and governance, but they are **not** the current 44489 recovery authority:
-
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
-
-Older handoffs, state files and architecture branches remain preserved for provenance. The validated lens-independent Free World Observation architecture from 2026-09-26 is carried into 44489 as scientific lineage, not as the active branch. The previous 44488 bootstrap is superseded as the current recovery entry but remains historical provenance.
+Older handoffs, state files and architecture branches remain preserved as provenance. The 2026-10-04 44489 layer is the current continuation authority.
