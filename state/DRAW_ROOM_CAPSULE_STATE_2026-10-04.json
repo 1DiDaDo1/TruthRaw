@@ -1,0 +1,90 @@
+{
+  "schema": "d_raw_room_capsule_state_v1",
+  "project": {
+    "name": "D.RAW",
+    "legacy_repo_name": "TruthRaw",
+    "repository": "1DiDaDo1/TruthRaw"
+  },
+  "date": "2026-10-04",
+  "version_handoff": "44489",
+  "source_runtime_code_head": "8edb7a50ef5101799346229d4c1272f690e863ad",
+  "pull_request": {
+    "number": 130,
+    "branch": "fix/android-exact-gauge-pass-artifact-v03",
+    "state": "OPEN",
+    "draft": true,
+    "mergeable": true
+  },
+  "component": {
+    "name": "Local Illumination Room Capsule",
+    "version": "v0.1",
+    "research_path": "docs/research/local-illumination-room-capsule-v0.1",
+    "native_implementation": "docs/research/local-illumination-room-capsule-v0.1/native/room_capsule_v0_1.cpp"
+  },
+  "verified_implementation_state": {
+    "status": "IMPLEMENTED_NATIVE_HOST_AND_ANDROID_COMPILE_GATED",
+    "bounded_region_planning": true,
+    "geometry_scales": [4, 8, 16, 32, 64],
+    "tile_halo": 4,
+    "memory_budgeting": {
+      "minimum_runtime_bytes": 2097152,
+      "maximum_runtime_bytes": 67108864,
+      "default_unknown_memory_class_bytes": 8388608,
+      "memory_class_fraction": "1/16",
+      "low_ram_constrained": true
+    },
+    "tile_sizes": [64, 128, 256],
+    "boundary_illumination_envelope": true,
+    "room_sample_runtime": [
+      "position",
+      "normal",
+      "visibility",
+      "confidence"
+    ],
+    "relative_light_models": [
+      "ambient",
+      "directional",
+      "point_inverse_square"
+    ],
+    "outside_room_behavior": "UNCHANGED_MULTIPLIER_1_1_1",
+    "low_confidence_behavior": "FAIL_TOWARD_BOUNDARY_ILLUMINATION_WITHOUT_INVENTING_STRUCTURE",
+    "physical_relight_claim_allowed_by_default": false,
+    "finite_nonnegative_guards": true
+  },
+  "scientific_scope": {
+    "domain": "APPEARANCE_UNLESS_EXPLICIT_PHYSICAL_AUTHORITY_EXISTS",
+    "sealed_direct_cfa_modified": false,
+    "scientific_core_modified": false,
+    "new_evidence_created": false,
+    "measured_reconstructed_appearance_separation_required": true,
+    "unknown_must_remain_unknown": true,
+    "physical_relight_without_view_pose_consistency": "BLOCK_FAIL_CLOSED"
+  },
+  "runtime_wiring": {
+    "status": "NOT_YET_PROVEN",
+    "important_distinction": "SOURCE_PRESENCE_AND_ANDROID_COMPILATION_DO_NOT_PROVE_RUNTIME_USE",
+    "required_audit_path": [
+      "Free World",
+      "Deep Scene",
+      "Light Transport",
+      "Room Capsule",
+      "Appearance"
+    ],
+    "promotion_rule": "DO_NOT_REPORT_CONNECTED_OR_ACTIVE_UNTIL_CALL_SITE_AND_RUNTIME_EXECUTION_ARE_PROVEN"
+  },
+  "relation_to_exact_gauge_v03": {
+    "scientific_core_dependency": false,
+    "must_not_modify_exact_gauge_core": true,
+    "must_not_modify_canonical_v02": true,
+    "passartifact_telemetry_is_separate": true,
+    "room_capsule_update_scope": "STATE_AND_RUNTIME_WIRING_AUDIT_ONLY"
+  },
+  "next_actions": [
+    "Trace concrete Room Capsule call sites from Free World through Deep Scene and Light Transport into Appearance.",
+    "Classify each connection as IMPLEMENTED, PARTIAL, CONTRACT_ONLY, or MISSING.",
+    "Add deterministic runtime proof only if a real call path exists; otherwise keep status NOT_YET_PROVEN.",
+    "Preserve fail-closed physical-relight authority and all scientific firewalls.",
+    "Do not couple Room Capsule state to Exact Gauge v0.3 scientific semantics."
+  ],
+  "state_update_note": "This snapshot updates project knowledge only. It does not claim that Room Capsule is active in the runtime path, and it does not change scientific computation."
+}

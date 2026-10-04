@@ -51,6 +51,24 @@ object ResearchPerformanceDiagnosticsV01 {
                     cacheReleaseSucceeded = sharedCacheReleaseSucceeded,
                 )
 
+            val n2Execution = shared.optJSONObject("n2_local_execution")
+            val n2Local = profile.optJSONObject("n2_local_spatial_binding")
+            val passArtifactDiagnostics =
+                n2Local?.optJSONObject("scientific_master_pass_artifact_v0_1")
+            val telemetryOrigin =
+                n2Execution?.optString(
+                    "native_phase_timing_origin",
+                    "UNAVAILABLE",
+                ) ?: "UNAVAILABLE"
+            n2Execution?.put(
+                "scientific_master_pass_artifact_attribution_v0_1",
+                ScientificMasterPassArtifactPerformanceAttributionV01.from(
+                    diagnostics = passArtifactDiagnostics,
+                    telemetryOrigin = telemetryOrigin,
+                    expectedCallerBudgetBytes = 64L * 1024L * 1024L,
+                ),
+            )
+
             profile.put(
                 "performance_diagnostics_v0_1",
                 JSONObject()
@@ -1117,6 +1135,39 @@ object ResearchPerformanceDiagnosticsV01 {
                                 "timing_may_change_scientific_authority",
                                 false,
                             ),
+                    )
+                    .put(
+                        "scientific_master_tile_read_attribution",
+                        JSONObject()
+                            .put(
+                                "profile_schema",
+                                "D.RAW/ScientificMasterTileReadAttribution/0.1",
+                            )
+                            .put(
+                                "source_read_raw_call_count",
+                                n2Local?.optJSONObject(
+                                    "scientific_master_bind_profile_v0_1",
+                                )?.optLong(
+                                    "source_read_raw_call_count",
+                                    0L,
+                                ) ?: 0L,
+                            )
+                            .put(
+                                "source_read_raw_count_is_route_evidence",
+                                false,
+                            )
+                            .put(
+                                "route_attribution_policy",
+                                "EXPLICIT_PASS_ARTIFACT_DIAGNOSTICS_ONLY",
+                            )
+                            .put(
+                                "authority",
+                                "DIAGNOSTIC_RUNTIME_ONLY",
+                            ),
+                    )
+                    .put(
+                        "sparse_reference_policy",
+                        "REUSE_V0_1_CORRECTED_SAMPLE_COORDINATES_WHEN_COMPLETE",
                     )
                     .put(
                         "bounded_index_fallback_policy",

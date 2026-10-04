@@ -103,6 +103,58 @@ object N2LocalSpatialBindingAudit {
                 return unavailable(sourceSha256, "N2_FACTORED_STATUS_BINDING_MISMATCH")
             }
 
+            val passArtifactDiagnostics =
+                status.optJSONObject("scientificMasterPassArtifactDiagnostics")
+                    ?: JSONObject()
+                        .put(
+                            "schema",
+                            "D.RAW/ScientificMasterPassArtifactDiagnostics/0.1",
+                        )
+                        .put("available", false)
+                        .put("binding_verified", false)
+                        .put("authority", "DIAGNOSTIC_RUNTIME_ONLY")
+                        .put("creates_new_evidence", false)
+                        .put("scientific_writeback_allowed", false)
+            if (
+                passArtifactDiagnostics.optBoolean("available", false) &&
+                (
+                    passArtifactDiagnostics.optString("schema") !=
+                        "D.RAW/ScientificMasterPassArtifactDiagnostics/0.1" ||
+                        !passArtifactDiagnostics.optBoolean(
+                            "binding_verified",
+                            false,
+                        ) ||
+                        passArtifactDiagnostics.optString("artifact_type") !=
+                        "EXACT_GAUGE_FLOAT32_BITS" ||
+                        passArtifactDiagnostics.optString("artifact_version") != "0.3" ||
+                        passArtifactDiagnostics.optLong(
+                            "caller_budget_bytes",
+                            -1L,
+                        ) != MAX_LOGICAL_RESIDENT_BYTES.toLong() ||
+                        passArtifactDiagnostics.optBoolean(
+                            "candidate_applied",
+                            true,
+                        ) ||
+                        passArtifactDiagnostics.optBoolean(
+                            "source_values_modified",
+                            true,
+                        ) ||
+                        passArtifactDiagnostics.optBoolean(
+                            "creates_new_evidence",
+                            true,
+                        ) ||
+                        passArtifactDiagnostics.optBoolean(
+                            "scientific_writeback_allowed",
+                            true,
+                        )
+                )
+            ) {
+                return unavailable(
+                    sourceSha256,
+                    "PASS_ARTIFACT_DIAGNOSTICS_CONTRADICTION",
+                )
+            }
+
             val factoredText = runCatching { temp.readText() }.getOrNull()
                 ?: return unavailable(sourceSha256, "N2_FACTORED_FILE_READ_FAILED")
             val factored = runCatching { JSONObject(factoredText) }.getOrNull()
@@ -543,6 +595,10 @@ object N2LocalSpatialBindingAudit {
                         "prepareBindScientificMasterMs",
                         0.0,
                     ),
+                )
+                .put(
+                    "scientific_master_pass_artifact_v0_1",
+                    JSONObject(passArtifactDiagnostics.toString()),
                 )
                 .put(
                     "scientific_master_bind_profile_v0_1",

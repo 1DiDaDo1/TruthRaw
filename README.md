@@ -6,7 +6,8 @@
 > Historical/repository name: `TruthRaw`  
 > Repository: `1DiDaDo1/TruthRaw`  
 > Active integration branch: `fix/research-fresh-rerun-v01`  
-> Runtime/research checkpoint at the start of the 44489 documentation refresh: `dbf826b883d0e7bb40ff0a8e7654a0d87be78546` (`Remove superseded pre-atomic retained gauge core`)
+> Active Android candidate branch: `fix/android-exact-gauge-pass-artifact-v03` / PR #130  
+> Current PR #130 head at this documentation update: `2a90e821709eb9abdd87ba64e343bb37f4d0a129`
 
 D.RAW is a deterministic, provenance-bound scientific imaging system built around permanent rules:
 
@@ -31,45 +32,41 @@ Then read:
 4. [`docs/DOCUMENT_STATUS_INDEX_2026-10-03.md`](docs/DOCUMENT_STATUS_INDEX_2026-10-03.md)
 5. [`docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`](docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md)
 
-A future chat receiving only **44489** should be able to restore the complete current scientific/architectural state from the repository without asking the user to reconstruct old chats manually. It must fetch the live branch head first; documentation-only commits after the recorded runtime checkpoint are allowed and must not be confused with new scientific/runtime code.
+A future chat receiving only **44489** should restore the complete current scientific/architectural state from the repository without asking the user to reconstruct old chats manually. It must fetch the live branch head first.
 
 ## Current scientific architecture in one line
 
 `sealed physical Observation / RAW_SENSOR -> D.RAW Observation Contract -> Source Capability Envelope -> Float64 measurement/calibration/reconstruction -> Scientific Master -> validated Float32 scientific state -> Dynamic Authority + uncertainty -> TruthNegative Continuous per Observation -> Free World Observation Graph -> Deep Scene / Light Transport -> View / Appearance -> finite projection`
 
-This means lens/sensor/CFA/readout/capture-route are properties of an Observation. TruthNegative belongs to that Observation lineage. Multiple sealed observations may meet in one Free World only through admitted evidence relations; a shared TruthRange coordinate does not by itself prove a shared radiometric gauge.
-
 ## Current engineering frontier
 
-The newest implemented research candidate is **Scientific Master Exact Gauge Retained Artifact v0.3**.
+Scientific Master Exact Gauge Retained Artifact v0.3 is now wired into the Android Foundation Scientific-Master preparation route through the generic PassArtifact dispatcher on PR #130.
 
-Host-side status:
+Current candidate properties:
 
-- configure/build: green;
-- warnings-as-errors: green;
-- ASan/UBSan: green;
-- exact parity oracle: green;
-- forced budget fallback: green;
-- atomic/no-replay semantics present;
-- superseded pre-atomic core removed;
-- candidate **not promoted**;
-- Android integration **not yet completed**.
-
-The candidate retains exact eligible Float32 gauge bits in pass 1 so the exact low-16 self-gauge median can be resolved without the canonical second Stage-2 reread. Scientific output must remain bit-exact.
-
-Exact Gauge must be one registered, versioned **PassArtifact**, not a hard-coded special exception. The atomic core defines safe behavior once an artifact touches Scientific Master; it does not define which future cable/artifact families D.RAW may contain.
+- exact-gauge v0.3 scientific core unchanged;
+- canonical v0.2 remains the only admitted pre-semantic-start fallback;
+- no replay after semantic start;
+- PassArtifact diagnostics are bound to the exact Scientific-Master Hash256;
+- JNI/Kotlin/Foundation telemetry attributes `retained_exact_float32_bits_v0.3` and `canonical_v0.2_fallback` only from explicit hash-bound native diagnostics;
+- source read counts are performance observations, not route authority;
+- contradiction/mismatch states fail closed to `UNKNOWN_FAIL_CLOSED`;
+- `candidate_applied=false`;
+- `creates_new_evidence=false`;
+- `scientific_writeback_allowed=false`;
+- cold real-device validation is still required before promotion.
 
 ## Android lineage
 
 Actual runtime application: `suite_android`.
 
-Current retained Android identity before Exact Gauge Android wiring:
+Current candidate identity:
 
 - application ID `com.truthraw.adaptiveui`
-- versionCode `26100124`
+- versionCode `26100125`
 - versionName `0.53-v0.84.2-scientific-master-tile-read-attribution-v01`
 
-Do not label an APK from this lineage as an Exact Gauge v0.3 device build until the native Foundation/observation integration, regression gates and APK build have actually completed.
+Do not describe this candidate as promoted until all regression gates and the new cold device validation are complete.
 
 ## Permanent scientific boundaries
 
@@ -86,6 +83,21 @@ Do not label an APK from this lineage as an Exact Gauge v0.3 device build until 
 - SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
 - Derived/virtual observations do not create additional physical captures.
 
-## Historical provenance
+## Historical provenance / governance discoverability
 
-Older handoffs, state files and architecture branches remain preserved for provenance. In particular, the validated lens-independent Free World Observation architecture from 2026-09-26 is carried into 44489 as scientific lineage, not as the active branch. The previous 44488 bootstrap is superseded as the current recovery entry but remains historical provenance.
+The paths below are historical snapshots or older authority documents. They are intentionally discoverable for provenance and governance, but they are **not** the current 44489 recovery authority:
+
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+
+Older handoffs, state files and architecture branches remain preserved for provenance. The validated lens-independent Free World Observation architecture from 2026-09-26 is carried into 44489 as scientific lineage, not as the active branch. The previous 44488 bootstrap is superseded as the current recovery entry but remains historical provenance.
