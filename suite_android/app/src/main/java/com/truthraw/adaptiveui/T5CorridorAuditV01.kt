@@ -231,7 +231,7 @@ object T5CorridorAuditV01 {
         nativeStatusCode: Int?,
         reason: String,
     ): JSONObject {
-        val v06State = if (nativeStatusCode == -20 || nativeStatusCode == -22) {
+        val v06State = if (nativeStatusCode == -20) {
             "BLOCKED"
         } else {
             "UNKNOWN"
