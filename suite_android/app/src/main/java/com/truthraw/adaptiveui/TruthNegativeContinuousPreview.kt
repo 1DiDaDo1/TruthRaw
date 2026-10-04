@@ -82,6 +82,10 @@ data class TruthNegativeContinuousPreviewMetrics(
     val n2CandidateAppliedToAppearance: Boolean,
     val n2AuditOnly: Boolean,
     val n2MeasuredCfaDomain: Boolean,
+    val lightTransportSeedBuilt: Boolean,
+    val lightTransportParentBound: Boolean,
+    val roomCapsuleEvaluated: Boolean,
+    val roomCapsuleExactBypass: Boolean,
     val n2AppearanceCandidateAvailable: Boolean,
     val n2AppearanceOnly: Boolean,
     val n2AppearanceCandidateRendered: Boolean,
@@ -93,6 +97,7 @@ data class TruthNegativeContinuousPreviewMetrics(
     val n2AppearanceChangedPixels: Int,
     val n2AppearanceAdjustedChannels: Int,
     val n2AppearanceDisplayClampPixels: Int,
+    val openWorldAuthorityCorridorActive: Boolean,
     val n2AppearanceGridSha256: String,
 )
 
@@ -230,6 +235,7 @@ object TruthNegativeContinuousPreviewLoader {
             )
         }
 
+        val corridorFlags = packet[91]
         val metrics = TruthNegativeContinuousPreviewMetrics(
             width = width,
             height = height,
@@ -290,6 +296,10 @@ object TruthNegativeContinuousPreviewLoader {
             n2CandidateAppliedToAppearance = packet[88] != 0,
             n2AuditOnly = packet[89] != 0,
             n2MeasuredCfaDomain = packet[90] != 0,
+            lightTransportSeedBuilt = corridorFlags and 0x1 != 0,
+            lightTransportParentBound = corridorFlags and 0x2 != 0,
+            roomCapsuleEvaluated = corridorFlags and 0x4 != 0,
+            roomCapsuleExactBypass = corridorFlags and 0x8 != 0,
             n2AppearanceCandidateAvailable = packet[92] != 0,
             n2AppearanceOnly = packet[93] != 0,
             n2AppearanceCandidateRendered = packet[94] != 0,
@@ -301,6 +311,7 @@ object TruthNegativeContinuousPreviewLoader {
             n2AppearanceChangedPixels = packet[100],
             n2AppearanceAdjustedChannels = packet[101],
             n2AppearanceDisplayClampPixels = packet[102],
+            openWorldAuthorityCorridorActive = packet[103] != 0,
             n2AppearanceGridSha256 = digestWords(packet, 104),
         )
 
@@ -329,6 +340,11 @@ object TruthNegativeContinuousPreviewLoader {
                 metrics.n2CandidateAppliedToAppearance ||
                 !metrics.n2AuditOnly ||
                 !metrics.n2MeasuredCfaDomain ||
+                !metrics.lightTransportSeedBuilt ||
+                !metrics.lightTransportParentBound ||
+                !metrics.roomCapsuleEvaluated ||
+                !metrics.roomCapsuleExactBypass ||
+                !metrics.openWorldAuthorityCorridorActive ||
                 !metrics.n2AppearanceCandidateAvailable ||
                 !metrics.n2AppearanceOnly ||
                 !metrics.n2AppearanceCandidateRendered ||
@@ -385,7 +401,7 @@ object TruthNegativeContinuousPreviewLoader {
                 appearanceAddedByPreview = true,
                 scientificWritebackAllowed = false,
             ),
-            outputLabel = "PRO · D.RAWnegative v0.1 · Appearance View",
+            outputLabel = "PRO · D.RAWnegative v0.1 · Authority-bound Appearance View",
         )
     }
 
@@ -415,7 +431,7 @@ object TruthNegativeContinuousPreviewLoader {
         -9 -> "D.RAWnegative: area-footprint resolver kon niet starten."
         -10 -> "D.RAWnegative: previewraster is te groot."
         -11 -> "D.RAWnegative: target query/authority resolve faalde."
-        -12 -> "D.RAWnegative: Appearance/Display resolve faalde."
+        -12 -> "D.RAWnegative: authority-bound Open-World Appearance corridor faalde."
         -13 -> "D.RAWnegative: Scientific Master/Open Scene query-binding was niet exact."
         -14 -> "D.RAWnegative: camera-plane bijdrage kon niet authority-preserving aan Deep Scene worden gebonden."
         -15 -> "D.RAWnegative: Deep Scene scientific resolve faalde."
@@ -423,6 +439,7 @@ object TruthNegativeContinuousPreviewLoader {
         -17 -> "D.RAWnegative: N2 CFA audit-only side-car faalde fail-closed."
         -18 -> "D.RAWnegative: N2 appearance-only A/B candidate faalde fail-closed."
         -19 -> "D.RAWnegative: observation/gauge/state-binding faalde fail-closed."
+        -20 -> "D.RAWnegative: v0.6 Light Transport kon niet parent-bound worden opgebouwd."
         in 2000..2099 -> "D.RAWnegative source-binding faalde (status $status)."
         in 2100..2199 -> "D.RAWnegative color-binding faalde (status $status)."
         in 7000..7099 -> "D.RAWnegative RAW-adapter faalde (status $status)."
