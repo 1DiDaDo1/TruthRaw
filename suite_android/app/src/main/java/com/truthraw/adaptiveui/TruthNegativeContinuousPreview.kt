@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.graphics.Bitmap
 
 private const val TN_CONTINUOUS_MAGIC = 0x35434e54
-private const val TN_CONTINUOUS_HEADER_INTS = 120
+private const val TN_CONTINUOUS_HEADER_INTS = 192
 private const val TN_CONTINUOUS_MAX_EDGE = 192
 private const val TN_CONTINUOUS_MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
 private const val TN_CONTINUOUS_MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
@@ -99,6 +99,28 @@ data class TruthNegativeContinuousPreviewMetrics(
     val n2AppearanceDisplayClampPixels: Int,
     val openWorldAuthorityCorridorActive: Boolean,
     val n2AppearanceGridSha256: String,
+    val sourceSha256: String,
+    val scientificMasterSha256: String,
+    val t5SourceScientificMasterBindingVerified: Boolean,
+    val t5ExposureApplicationCount: Int,
+    val t5V04ObservedCount: Int,
+    val t5V05ObservedCount: Int,
+    val t5V06ObservedCount: Int,
+    val t5RoomCapsuleAppliedCount: Int,
+    val t5RoomCapsuleExactBypassCount: Int,
+    val t5V07ObservedCount: Int,
+    val t5V04LineageSha256: String,
+    val t5V05LineageSha256: String,
+    val t5V06LineageSha256: String,
+    val t5RoomCapsuleLineageSha256: String,
+    val t5V07LineageSha256: String,
+    val t5FirewallBits: Int,
+    val t5PhysicalFrameCount: Int,
+    val t5IndependentEvidenceCount: Int,
+    val t5TelemetrySchemaVersion: Int,
+    val t5V05ImagePlaneBound: Boolean,
+    val t5V06InferredAuthority: Boolean,
+    val t5CandidateApplied: Boolean,
 )
 
 sealed interface TruthNegativeContinuousPreviewResult {
@@ -106,11 +128,18 @@ sealed interface TruthNegativeContinuousPreviewResult {
         val bitmap: Bitmap,
         val n2CandidateBitmap: Bitmap,
         val metrics: TruthNegativeContinuousPreviewMetrics,
-    ) : TruthNegativeContinuousPreviewResult
+    ) : TruthNegativeContinuousPreviewResult {
+        val t5CorridorAudit
+            get() = T5CorridorAuditV01.from(metrics)
+    }
 
     data class Failed(
         val reason: String,
-    ) : TruthNegativeContinuousPreviewResult
+        val nativeStatusCode: Int? = null,
+    ) : TruthNegativeContinuousPreviewResult {
+        val t5CorridorAudit
+            get() = T5CorridorAuditV01.fromFailure(nativeStatusCode, reason)
+    }
 }
 
 object TruthNegativeContinuousPreviewLoader {
@@ -163,6 +192,7 @@ object TruthNegativeContinuousPreviewLoader {
         if (packet[1] != 0) {
             return TruthNegativeContinuousPreviewResult.Failed(
                 nativeStatus(packet[1]),
+                packet[1],
             )
         }
 
@@ -313,6 +343,28 @@ object TruthNegativeContinuousPreviewLoader {
             n2AppearanceDisplayClampPixels = packet[102],
             openWorldAuthorityCorridorActive = packet[103] != 0,
             n2AppearanceGridSha256 = digestWords(packet, 104),
+            sourceSha256 = digestWords(packet, 120),
+            scientificMasterSha256 = digestWords(packet, 128),
+            t5SourceScientificMasterBindingVerified = packet[136] != 0,
+            t5ExposureApplicationCount = packet[137],
+            t5V04ObservedCount = packet[138],
+            t5V05ObservedCount = packet[139],
+            t5V06ObservedCount = packet[140],
+            t5RoomCapsuleAppliedCount = packet[141],
+            t5RoomCapsuleExactBypassCount = packet[142],
+            t5V07ObservedCount = packet[143],
+            t5V04LineageSha256 = digestWords(packet, 144),
+            t5V05LineageSha256 = digestWords(packet, 152),
+            t5V06LineageSha256 = digestWords(packet, 160),
+            t5RoomCapsuleLineageSha256 = digestWords(packet, 168),
+            t5V07LineageSha256 = digestWords(packet, 176),
+            t5FirewallBits = packet[184],
+            t5PhysicalFrameCount = packet[185],
+            t5IndependentEvidenceCount = packet[186],
+            t5TelemetrySchemaVersion = packet[187],
+            t5V05ImagePlaneBound = packet[188] != 0,
+            t5V06InferredAuthority = packet[189] != 0,
+            t5CandidateApplied = packet[190] != 0,
         )
 
         val contractViolation =
@@ -357,13 +409,35 @@ object TruthNegativeContinuousPreviewLoader {
                 metrics.n2AppearanceChangedPixels > pixels ||
                 metrics.n2AppearanceAdjustedChannels < 0 ||
                 metrics.n2AppearanceAdjustedChannels > pixels * 3 ||
-                metrics.n2AppearanceGridSha256.all { it == '0' }
+                metrics.n2AppearanceGridSha256.all { it == '0' } ||
+                metrics.sourceSha256.all { it == '0' } ||
+                metrics.scientificMasterSha256.all { it == '0' } ||
+                !metrics.t5SourceScientificMasterBindingVerified ||
+                metrics.t5ExposureApplicationCount != 1 ||
+                metrics.t5V04ObservedCount != pixels ||
+                metrics.t5V05ObservedCount != pixels ||
+                metrics.t5V06ObservedCount != pixels ||
+                metrics.t5RoomCapsuleAppliedCount != 0 ||
+                metrics.t5RoomCapsuleExactBypassCount != pixels ||
+                metrics.t5V07ObservedCount != pixels ||
+                metrics.t5V04LineageSha256.all { it == '0' } ||
+                metrics.t5V05LineageSha256.all { it == '0' } ||
+                metrics.t5V06LineageSha256.all { it == '0' } ||
+                metrics.t5RoomCapsuleLineageSha256.all { it == '0' } ||
+                metrics.t5V07LineageSha256.all { it == '0' } ||
+                metrics.t5FirewallBits != 0xff ||
+                metrics.t5PhysicalFrameCount != 1 ||
+                metrics.t5IndependentEvidenceCount != 1 ||
+                metrics.t5TelemetrySchemaVersion != 1 ||
+                !metrics.t5V05ImagePlaneBound ||
+                !metrics.t5V06InferredAuthority ||
+                metrics.t5CandidateApplied
 
         if (contractViolation) {
             bitmap.recycle()
             n2CandidateBitmap.recycle()
             return TruthNegativeContinuousPreviewResult.Failed(
-                "Fail-closed: D.RAWnegative schond scene-, authority-, evidence- of writebackcontract.",
+                "Fail-closed: D.RAWnegative schond scene-, authority-, evidence-, T5- of writebackcontract.",
             )
         }
 
@@ -440,6 +514,8 @@ object TruthNegativeContinuousPreviewLoader {
         -18 -> "D.RAWnegative: N2 appearance-only A/B candidate faalde fail-closed."
         -19 -> "D.RAWnegative: observation/gauge/state-binding faalde fail-closed."
         -20 -> "D.RAWnegative: v0.6 Light Transport kon niet parent-bound worden opgebouwd."
+        -21 -> "D.RAWnegative: v0.7 exposureApplicationCount was niet exact één."
+        -22 -> "D.RAWnegative: T5 corridorstage-aantallen waren niet compleet/exact."
         in 2000..2099 -> "D.RAWnegative source-binding faalde (status $status)."
         in 2100..2199 -> "D.RAWnegative color-binding faalde (status $status)."
         in 7000..7099 -> "D.RAWnegative RAW-adapter faalde (status $status)."
