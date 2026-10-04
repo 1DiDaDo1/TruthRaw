@@ -94,6 +94,11 @@ struct AppearanceResolvedPixel final {
     double sourceLuminanceNits = 0.0;
     double mappedLuminanceNits = 0.0;
 
+    // Read-only runtime telemetry. This counter is intentionally excluded from
+    // the appearance-state and output digests, so observing it cannot alter
+    // appearance identity or any upstream scientific state.
+    std::uint32_t exposureApplicationCount = 0u;
+
     bool gamutOrDisplayClampApplied = false;
     bool appearanceApplied = true;
     bool displayEncoded = true;
