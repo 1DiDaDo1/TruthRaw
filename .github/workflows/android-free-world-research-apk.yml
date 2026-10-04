@@ -78,7 +78,7 @@ jobs:
           CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n1)
           echo "apk_signing_cert_sha256=$CERT_SHA256"
           test "$CERT_SHA256" = "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44"
-          test "$(cat suite_android/VERSION_CODE)" = "26100126"
+          test "$(cat suite_android/VERSION_CODE)" = "26100127"
 
       - uses: actions/upload-artifact@v4
         with:
