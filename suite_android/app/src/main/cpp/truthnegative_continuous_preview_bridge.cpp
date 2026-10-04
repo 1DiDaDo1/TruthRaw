@@ -61,7 +61,7 @@ namespace n2_cfa =
 namespace sha = truthraw::sha256_v0_69;
 
 constexpr jint kMagic = 0x35434e54; // TNC5 in little-endian byte view.
-constexpr std::size_t kHeaderInts = 120u;
+constexpr std::size_t kHeaderInts = 192u;
 constexpr jint kMaxEdgeHardLimit = 256;
 
 jint clamp_metric(std::uint64_t value) noexcept {
@@ -133,6 +133,14 @@ sha::Digest labeled_digest(
             text->size());
     }
     return h.finalize();
+}
+
+void begin_stage_digest(
+    sha::Hasher& hasher,
+    const char* domain) noexcept {
+    const std::size_t n = std::char_traits<char>::length(domain);
+    hasher.update(
+        reinterpret_cast<const std::uint8_t*>(domain), n);
 }
 
 sha::Digest n2_candidate_scene_digest(
@@ -560,8 +568,29 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     std::uint64_t n2CandidateChangedPixels = 0u;
     std::uint64_t n2CandidateAdjustedChannels = 0u;
     std::uint64_t n2CandidateDisplayClampPixels = 0u;
+    std::uint64_t v04ObservedCount = 0u;
+    std::uint64_t v05ObservedCount = 0u;
     std::uint64_t lightTransportSeedCount = 0u;
+    std::uint64_t roomCapsuleAppliedCount = 0u;
     std::uint64_t roomCapsuleExactBypassCount = 0u;
+    std::uint64_t v07ObservedCount = 0u;
+
+    sha::Hasher v04LineageHasher;
+    sha::Hasher v05LineageHasher;
+    sha::Hasher v06LineageHasher;
+    sha::Hasher roomCapsuleLineageHasher;
+    sha::Hasher v07LineageHasher;
+    begin_stage_digest(
+        v04LineageHasher, "D_RAW_T5_V04_RUNTIME_LINEAGE_V0_1");
+    begin_stage_digest(
+        v05LineageHasher, "D_RAW_T5_V05_RUNTIME_LINEAGE_V0_1");
+    begin_stage_digest(
+        v06LineageHasher, "D_RAW_T5_V06_RUNTIME_LINEAGE_V0_1");
+    begin_stage_digest(
+        roomCapsuleLineageHasher,
+        "D_RAW_T5_ROOM_CAPSULE_RUNTIME_LINEAGE_V0_1");
+    begin_stage_digest(
+        v07LineageHasher, "D_RAW_T5_V07_RUNTIME_LINEAGE_V0_1");
 
     for (std::uint32_t y = 0u; y < targetHeight; ++y) {
         for (std::uint32_t x = 0u; x < targetWidth; ++x) {
@@ -597,9 +626,29 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 !scenePacket.radiometryBoundToTruthNegative ||
                 !scenePacket.geometryAuthoritySeparate ||
                 scenePacket.createsNewEvidence ||
-                scenePacket.scientificWritebackAllowed) {
+                scenePacket.scientificWritebackAllowed ||
+                !scenePacket.deepPacket.finalized ||
+                scenePacket.deepPacket.createsNewEvidence ||
+                scenePacket.deepPacket.scientificWritebackAllowed ||
+                !scenePacket.boundPacket.finalized ||
+                !scenePacket.boundPacket.geometryAndRadiometrySeparated ||
+                scenePacket.boundPacket.createsNewEvidence ||
+                scenePacket.boundPacket.scientificWritebackAllowed ||
+                scenePacket.boundPacket.contributions.empty()) {
                 return status_packet(env, -14);
             }
+            for (const auto& contribution :
+                 scenePacket.boundPacket.contributions) {
+                if (contribution.metadata.geometryAuthority !=
+                    truthraw::free_world_deep_scene_binding::v0_5::
+                        GeometryAuthority::ImagePlaneBound) {
+                    return status_packet(env, -14);
+                }
+            }
+            ++v04ObservedCount;
+            ++v05ObservedCount;
+            v04LineageHasher.update(scenePacket.deepPacket.packetSha256);
+            v05LineageHasher.update(scenePacket.boundPacket.boundPacketSha256);
 
             deep::DeepResolvedPixel scientificView{};
             if (!deep::resolve(
@@ -671,10 +720,30 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 seed.scientificWritebackAllowed ||
                 !seed.state.finalized ||
                 seed.state.parentBoundDeepPacketSha256 !=
-                    scenePacket.boundPacket.boundPacketSha256) {
+                    scenePacket.boundPacket.boundPacketSha256 ||
+                seed.state.surface.normalAuthority !=
+                    truthraw::free_world_deep_scene_binding::v0_5::
+                        GeometryAuthority::Inferred ||
+                seed.state.material.authority !=
+                    truthraw::free_world_light_transport_state::v0_6::
+                        ParameterAuthority::Inferred ||
+                seed.state.material.spectral.authority !=
+                    truthraw::free_world_light_transport_state::v0_6::
+                        ParameterAuthority::Inferred ||
+                seed.state.material.spectral.spectralMeasurementAdmitted ||
+                seed.state.material.spectral.fullSpectrumRecovered ||
+                seed.state.illumination.authority !=
+                    truthraw::free_world_light_transport_state::v0_6::
+                        ParameterAuthority::Inferred ||
+                seed.state.illumination.spectral.authority !=
+                    truthraw::free_world_light_transport_state::v0_6::
+                        ParameterAuthority::Inferred ||
+                seed.state.illumination.spectral.spectralMeasurementAdmitted ||
+                seed.state.illumination.spectral.fullSpectrumRecovered) {
                 return status_packet(env, -20);
             }
             ++lightTransportSeedCount;
+            v06LineageHasher.update(seed.state.stateSha256);
 
             open_world_host::LightTransportAttachment lightAttachment{};
             lightAttachment.state = &seed.state;
@@ -732,7 +801,13 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 visibleEnvelope.audit.scientificWritebackAllowed) {
                 return status_packet(env, -12);
             }
+            roomCapsuleAppliedCount +=
+                visibleEnvelope.audit.appliedStages;
             ++roomCapsuleExactBypassCount;
+            const auto roomAuditDigest = labeled_digest(
+                "D_RAW_T5_ROOM_CAPSULE_EXACT_PRESERVING_BYPASS_V0_1",
+                &seed.seedSha256);
+            roomCapsuleLineageHasher.update(roomAuditDigest);
 
             const auto& visible = visibleEnvelope.result;
             if (visible.sourceSceneSha256 != scientificView.sourcePacketSha256 ||
@@ -743,6 +818,11 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                 !visible.displayEncoded) {
                 return status_packet(env, -12);
             }
+            if (visible.exposureApplicationCount != 1u) {
+                return status_packet(env, -21);
+            }
+            ++v07ObservedCount;
+            v07LineageHasher.update(visible.outputSha256);
             if (visible.gamutOrDisplayClampApplied) {
                 ++displayClampPixels;
             }
@@ -829,7 +909,8 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
                candidateVisible.createsNewEvidence ||
                candidateVisible.scientificWritebackAllowed ||
                !candidateVisible.appearanceApplied ||
-               !candidateVisible.displayEncoded){
+               !candidateVisible.displayEncoded ||
+               candidateVisible.exposureApplicationCount != 1u){
                 return status_packet(env, -18);
             }
             if(candidateVisible.gamutOrDisplayClampApplied){
@@ -866,6 +947,22 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
     if (!postVerified) {
         return status_packet(env, binding_status(postVerified));
     }
+
+    if (v04ObservedCount != pixelCount64 ||
+        v05ObservedCount != pixelCount64 ||
+        lightTransportSeedCount != pixelCount64 ||
+        roomCapsuleAppliedCount != 0u ||
+        roomCapsuleExactBypassCount != pixelCount64 ||
+        v07ObservedCount != pixelCount64) {
+        return status_packet(env, -22);
+    }
+
+    const auto v04LineageSha256 = v04LineageHasher.finalize();
+    const auto v05LineageSha256 = v05LineageHasher.finalize();
+    const auto v06LineageSha256 = v06LineageHasher.finalize();
+    const auto roomCapsuleLineageSha256 =
+        roomCapsuleLineageHasher.finalize();
+    const auto v07LineageSha256 = v07LineageHasher.finalize();
 
     packet[13] = clamp_metric(reconstructedChannels);
     packet[14] = clamp_metric(censoredChannels);
@@ -941,6 +1038,33 @@ Java_com_truthraw_adaptiveui_TruthNegativeContinuousNativeBridge_buildProContinu
         n2Audit.appearanceGridSha256, packet.data() + 104u);
     digest_to_words(
         drawNegativeState.stateSha256, packet.data() + 112u);
+
+    // T5 Corridor Audit v0.1: diagnostic-only runtime telemetry. These slots
+    // observe the already executed corridor and never feed values back into
+    // Scientific Master, TruthNegative, Deep Scene, Room Capsule or v0.7.
+    digest_to_words(sourceSeal.sha256, packet.data() + 120u);
+    digest_to_words(scientific.scientificMasterHash, packet.data() + 128u);
+    packet[136] = 1; // source <-> Scientific Master phase-2 binding verified
+    packet[137] = 1; // v0.7 logical exposureApplicationCount
+    packet[138] = clamp_metric(v04ObservedCount);
+    packet[139] = clamp_metric(v05ObservedCount);
+    packet[140] = clamp_metric(lightTransportSeedCount);
+    packet[141] = clamp_metric(roomCapsuleAppliedCount);
+    packet[142] = clamp_metric(roomCapsuleExactBypassCount);
+    packet[143] = clamp_metric(v07ObservedCount);
+    digest_to_words(v04LineageSha256, packet.data() + 144u);
+    digest_to_words(v05LineageSha256, packet.data() + 152u);
+    digest_to_words(v06LineageSha256, packet.data() + 160u);
+    digest_to_words(roomCapsuleLineageSha256, packet.data() + 168u);
+    digest_to_words(v07LineageSha256, packet.data() + 176u);
+    packet[184] = 0xff; // all T5 mutation/evidence/writeback/binding gates closed
+    packet[185] = 1;    // physicalFrameCount observed by T5
+    packet[186] = 1;    // independentEvidenceCount observed by T5
+    packet[187] = 1;    // T5 telemetry schema version
+    packet[188] = 1;    // v0.5 geometry authority == IMAGE_PLANE_BOUND
+    packet[189] = 1;    // v0.6 geometry/material/light authority == INFERRED
+    packet[190] = 0;    // T5 candidateApplied / scientific writeback remains false
+    packet[191] = 0;    // reserved
 
     jintArray out =
         env->NewIntArray(static_cast<jsize>(packet.size()));
