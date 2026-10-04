@@ -60,12 +60,12 @@ double mapLuminance(
         return input.display.blackLuminanceNits;
     }
 
-    const double exposure =
-        std::exp2(input.policy.exposureEv);
+    // sourceY is already derived from the exposure-adjusted RGB in
+    // resolveAppearance(). Applying exposure here a second time would make a
+    // +1 EV policy behave like +2 EV before tone mapping.
     const double sourceNits =
         sourceY *
-        input.sceneColorimetry.sceneReferenceWhiteNits *
-        exposure;
+        input.sceneColorimetry.sceneReferenceWhiteNits;
 
     const double referenceWhite =
         input.display.referenceWhiteNits;
