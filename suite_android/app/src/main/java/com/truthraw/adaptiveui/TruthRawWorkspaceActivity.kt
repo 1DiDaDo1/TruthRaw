@@ -199,7 +199,7 @@ class TruthRawWorkspaceActivity : Activity() {
                     LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) },
                 )
                 addView(
-                    smallAction("1:1", blue) { setCanvasOneToOne() },
+                    smallAction("Preview 1:1", blue) { setCanvasOneToOne() },
                     LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4); marginEnd = dp(4) },
                 )
                 addView(
@@ -417,6 +417,9 @@ class TruthRawWorkspaceActivity : Activity() {
         )
         viewZoom = if (fitScale > 0f) 1f / fitScale else 1f
         applyCanvasMatrix()
+        canvasStatusView.text =
+            "Canvasstatus · PREVIEW_RASTER_1_TO_1 · 1 display-pixel per decoded preview-pixel · " +
+                "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
     }
 
     private fun applyCanvasMatrix() {
@@ -425,7 +428,8 @@ class TruthRawWorkspaceActivity : Activity() {
     }
 
     private fun updateCanvasTelemetry() {
-        if (presentationBitmap == null) {
+        val bitmap = presentationBitmap
+        if (bitmap == null) {
             canvasTelemetryView.text = "View transform · geen raster"
             return
         }
@@ -436,7 +440,9 @@ class TruthRawWorkspaceActivity : Activity() {
         val y = values[Matrix.MTRANS_Y]
         canvasTelemetryView.text = String.format(
             Locale.US,
-            "View transform · schaal %.3fx · x %.1f px · y %.1f px · PRESENTATION_ONLY",
+            "View transform · preview %d×%d px · schaal %.3fx · x %.1f px · y %.1f px · PRESENTATION_ONLY",
+            bitmap.width,
+            bitmap.height,
             scale,
             x,
             y,
