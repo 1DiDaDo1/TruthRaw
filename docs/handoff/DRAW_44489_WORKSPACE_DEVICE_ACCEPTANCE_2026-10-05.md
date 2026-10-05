@@ -130,7 +130,7 @@ The later repository commits on this branch are documentation-only acceptance/ha
 
 ## 9. Pull-request readiness boundary
 
-PR #131 may be marked **ready for review** after this device-acceptance record because the product/UI candidate now has both a successful exact-runtime APK build and real-device acceptance evidence. Marking PR #131 ready is a product-governance transition only. It does not merge PR #131, does not modify PR #130, and does not grant any scientific candidate authority or promotion.
+PR #131 is now **ready for review** (`draft=false`) after this device-acceptance round. This is a product-governance transition only. It does not merge PR #131, does not modify PR #130, and does not grant any scientific candidate authority or promotion.
 
 Permanent boundary remains:
 
