@@ -101,6 +101,8 @@ object FreeWorldPerformanceDiagnosticsV01 {
 
         for (profile in profiles) {
             val sourceSha = profile.optString("source_sha256")
+            val t5CorridorAuditBinding =
+                ResearchPerformanceT5CorridorBindingV01.forProfile(profile)
             val cacheGeneration =
                 profile.optString("profile_cache_generation")
             val diagnostics =
@@ -113,7 +115,11 @@ object FreeWorldPerformanceDiagnosticsV01 {
                             "profile_cache_generation",
                             if (cacheGeneration.isBlank()) JSONObject.NULL else cacheGeneration,
                         )
-                        .put("status", "UNKNOWN_NO_PROFILE_TELEMETRY"),
+                        .put("status", "UNKNOWN_NO_PROFILE_TELEMETRY")
+                        .put(
+                            "t5_corridor_audit_binding_v0_1",
+                            t5CorridorAuditBinding,
+                        ),
                 )
                 continue
             }
@@ -293,6 +299,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
                     .put(
                         "scientific_master_bind_profile_v0_1",
                         scientificMasterBindProfile,
+                    )
+                    .put(
+                        "t5_corridor_audit_binding_v0_1",
+                        t5CorridorAuditBinding,
                     ),
             )
         }
