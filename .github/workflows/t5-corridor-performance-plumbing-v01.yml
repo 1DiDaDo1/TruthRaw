@@ -1,0 +1,24 @@
+name: T5 Corridor Performance Plumbing v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/T5CorridorAuditV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeContinuousPreview.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceT5CorridorBindingV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGeometryFoundationV01.kt'
+      - 'tools/check_t5_corridor_performance_plumbing_v01.py'
+      - '.github/workflows/t5-corridor-performance-plumbing-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  t5-performance-plumbing-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify precomputed T5 audit stays source-bound, telemetry-only and fail-closed
+        run: python3 tools/check_t5_corridor_performance_plumbing_v01.py
