@@ -128,6 +128,10 @@ The required build completed successfully without any further runtime/scientific
 
 The later repository commits on this branch are documentation-only acceptance/handoff updates. They do not change APK runtime identity. PR #130 remains the frozen scientific/audit reference and has not been promoted or merged by this acceptance round.
 
+## 9. Pull-request readiness boundary
+
+PR #131 may be marked **ready for review** after this device-acceptance record because the product/UI candidate now has both a successful exact-runtime APK build and real-device acceptance evidence. Marking PR #131 ready is a product-governance transition only. It does not merge PR #131, does not modify PR #130, and does not grant any scientific candidate authority or promotion.
+
 Permanent boundary remains:
 
 **One Free World. Many sealed observations. One evidence law.**
