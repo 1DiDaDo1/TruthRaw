@@ -1,334 +1,246 @@
 # D.RAW 44489 — current knowledge capsule
 
-Purpose: compact but binding recovery state for a new chat. This capsule records what is proven, what remains candidate/research, the current Android/runtime baseline, and the exact point where the next chat should start testing.
+Purpose: binding recovery state for a new chat. Restore this file plus the live PR #130 state before changing or testing anything.
 
-Project: **D.RAW** (`TruthRaw` is historical/repository naming)  
+Project: **D.RAW** (`TruthRaw` remains repository/history naming)  
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
-Recovery marker: **`[KCR-44489-2026-10-05-T5-FOUNDATION]`**  
+Recovery marker: **`[KCR-44489-2026-10-05-FOUNDATION-DEVICE-ROUND]`**  
 Active candidate branch: **`fix/android-exact-gauge-pass-artifact-v03`**  
-Active PR: **#130**, open/draft and reported `mergeable=false` at the 2026-10-05 refresh  
-T5 runtime-audit candidate landmark: **`6a557cda2b8f10db7f4c81dde50b5dc8c77ea210`**  
-Foundation-T5 telemetry plumbing code head validated by Android APK build: **`90aeee32166c571ff12aa812bfe854e9e4f95d6a`**  
-Dedicated T5 plumbing integrity head: **`245e6b9a3bee6b101b81edcee9426694ec9c272d`**  
-Live branch head immediately before this capsule refresh: **`aa59b4b93a55751741cb67e4f2cca06e006ca03d`**
+Active PR: **#130** — open, draft, not merged; last observed `mergeable=false`  
+Latest detailed device-round handoff: `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
 
-Always resolve the live PR #130 head before mutation or testing. Documentation commits may move HEAD beyond the runtime/scientific baseline. Never force-reset to a remembered SHA merely to make documentation match.
+Always resolve live PR #130 HEAD before mutation. Documentation/checker commits may be newer than the exact runtime source used to build a tested APK; never force-reset to a remembered SHA.
 
 ## 1. Permanent scientific law
 
-D.RAW is deterministic and provenance-bound. Its scientific path does not use AI/ML/neural/generative inference as evidence.
-
 - **Seal the evidence, not the thinking.**
-- **MEASURED != RECONSTRUCTED != APPEARANCE.**
-- **Representation may become richer than the source; the knowledge claim may never become richer than the evidence.**
-- **One Free World. Many sealed observations. One evidence law.**
-- Direct-CFA / RAW_SENSOR evidence is immutable and sealed.
-- One physical frame remains one physical frame. Derived/virtual views do not create captures.
-- Scientific Master is scene-linear scientific state, separate from presentation, export and appearance. Signed values and values above 1 are valid when scientifically meaningful.
+- **MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.**
+- Representation may become richer than the source; knowledge claims may never become richer than evidence.
+- Direct CFA / RAW_SENSOR evidence is immutable and sealed.
+- One physical frame remains one physical frame; derived views never create additional captures.
+- Scientific Master is separate from export/presentation/Appearance.
 - `UNKNOWN` is valid and must never silently become zero, certainty or an estimate.
 - Precision, resolution, reconstruction, registration and performance never create authority.
-- APK/GCam/computational-RAW/presentation behavior may not define source evidence, calibration or Scientific-Master truth.
+- Camera/lens/vendor/container identity may describe provenance or route parsing; it may not select scientific truth or calibration by name alone.
+- AI/ML/neural/generative inference is not allowed as scientific evidence.
 - SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
+- **One Free World. Many sealed observations. One evidence law.**
 
 Canonical architecture:
 
-`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> admitted measurement/calibration/reconstruction -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> finite/free raster projection`
+`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> calibration/reconstruction with explicit authority -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> free raster projection`
 
-## 2. Evidence and authority
+## 2. Scientific Master / Exact Gauge v0.3
 
-Authority/state classes include at least:
+Scientific Master remains the downstream scientific authority source. Exact Gauge Retained Artifact v0.3 is an execution/performance artifact, not a new evidence class.
 
-`MEASURED`, `CALIBRATED_ESTIMATE`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `COUNTERFACTUAL`, `APPEARANCE`.
+Permanent v0.3 rules:
 
-Authority is local, monotone with respect to evidence, and provenance-bound. Registration/interpolation/reconstruction may never auto-upgrade a value to `MEASURED`.
-
-Clipping may be `CENSORED`: a bound can be known while the latent signal remains unknown. Unknown RGB covariance terms remain UNKNOWN/NaN rather than convenience-zero; full covariance requires all terms to be known/consistent. Optics, colour, geometry, material and illumination claims require explicit proven binding.
-
-## 3. Observation and gauge law
-
-A lens/sensor/CFA/readout/capture route belongs to an Observation. TruthNegative is Observation-bound. Multiple observations meet only above that boundary in the Free World layer.
-
-`source capability != proven sample domain`.
-
-The existence of a 200 MP sensor/capability does not prove that a particular frame contains 200 MP measured samples. Camera/vendor identity may route parsing, but it cannot select scientific truth.
-
-TruthRange coordinate family: `T = log2(L/L0)`. Shared coordinate notation is not proof of shared radiance. Cross-observation radiometric fusion requires an admitted common-gauge relation; otherwise it fails closed.
-
-## 4. Current Android/runtime identity
-
-Real application: `suite_android`.
-
-Current branch configuration at the validated plumbing code head:
-
-- application ID / namespace: **`com.truthraw.adaptiveui`**
-- versionCode: **`26100127`**
-- versionName: **`0.54-v0.84.2-open-world-authority-corridor-v01`**
-- minSdk 31
-- targetSdk 37
-- ARM64 native target
-- C++20 Android native target
-
-Do not substitute stale identities from older 44489 snapshots. An APK is a valid current test candidate only after its package/version/signing identity and SHA-256 are checked against the artifact actually being installed.
-
-Current Foundation-T5 test APK is bound to code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`:
-
-- workflow run: `37291164092` — SUCCESS;
-- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`;
-- artifact ID: `11336456810`;
-- APK bytes: `8,588,087`;
-- APK SHA-256: `bc20369453694e42826de8440ae8dd2c78a79d72b4d8066f4a942337bafd76b4`;
-- signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
-
-The older T5 runtime-audit APK from `6a557cda...` remains historical evidence but predates the Foundation telemetry plumbing and is not the correct APK for the next Foundation-T5 JSON-export test.
-
-## 5. Scientific Master and Exact Gauge Retained Artifact v0.3
-
-Scientific Master remains the immutable scientific authority source for downstream layers. Exact Gauge v0.3 is an execution/performance artifact; it does not create evidence or change scientific meaning.
-
-Binding rules:
-
-- canonical v0.2 remains the admitted complete fallback before candidate semantic start;
-- v0.3 retains exact eligible Float32 gauge bit patterns so the second Stage-2 reread can be avoided without changing the canonical result;
-- after semantic processing starts there is **no replay** into canonical v0.2;
-- Exact Gauge is one registered/versioned `PassArtifact`, not a hard-coded truth exception;
-- telemetry/route attribution must be bound to the exact Scientific-Master identity rather than inferred from timings/read counts;
-- telemetry contradiction/mismatch fails closed to `UNKNOWN_FAIL_CLOSED`;
+- canonical v0.2 remains complete fallback before candidate semantic start;
+- v0.3 retains exact eligible Float32 gauge bits so the second Stage-2 reread can be avoided without changing the canonical result;
+- after semantic processing starts there is no replay into another scientific route;
+- explicit PassArtifact diagnostics are bound to Scientific-Master SHA-256;
+- route attribution is never inferred from timing or raw-read counts;
 - `candidate_applied=false`;
+- `source_values_modified=false`;
 - `creates_new_evidence=false`;
 - `scientific_writeback_allowed=false`.
 
-Performance work follows one permanent rule: **same scientific meaning, less work**.
+Real-device exports in the 2026-10-05 device round proved Exact Gauge v0.3 active for all four tested sources: explicit route attribution `EXACT_GAUGE_RETAINED_V0_3`, hash binding verified, one Stage-2 gauge pass, and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
 
-## 6. Reconstruction result that must NOT be rediscovered as a missing feature
+## 3. T5 / Room Capsule runtime corridor
 
-Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. Real tele hold-out used 21,760 CFA holdouts. On the 19,560 directly comparable samples, the affine solver was worse than baseline in aggregate MAE/RMSE/bias; uncertainty was too optimistic. It did provide better coverage and a small channel-2 benefit, but that is insufficient for promotion.
+Existing route:
 
-Safety remained closed: target value not used by the solver, measured anchors unmodified, no Scientific-Master solver writeback, candidate not applied.
+`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule host -> v0.7 Appearance Resolve`
 
-Future reconstruction direction is deterministic local model selection from structural support, direction, CFA phase and uncertainty. Affine is only one optional model; `no suitable model` is a valid result.
+Room Capsule was never a missing architecture. Without admitted geometry/material/illumination world evidence it must be an **exact-preserving bypass**.
 
-N2 sparse/local-spatial remains reconstruction/performance support only and never becomes `MEASURED` by reuse or speed.
+`T5CorridorAuditV01` already interprets native corridor telemetry read-only/fail-closed. `TruthNegativeContinuousPreview.Ready` computes that existing audit once. `ResearchPerformanceT5CorridorBindingV01` carries only that precomputed object into Foundation diagnostics by exact source SHA.
 
-## 7. Open-World corridor: what is now connected
+Permanent T5 binding rules:
 
-The historical project contained two highly developed worlds:
+- process-local diagnostic transport only;
+- exact `source_sha256` binding;
+- no cross-observation reuse;
+- no second T5/Room-Capsule evaluation by Foundation;
+- `profile_run_binding_verified=false` unless independently proven — source binding is not equivalent to same-profiler-run evidence;
+- missing/mismatch/contradiction -> `UNKNOWN_FAIL_CLOSED`;
+- no new evidence, no writeback, no candidate application.
 
-A. `real RAW -> sealing -> calibration -> Scientific Master -> authority/uncertainty`
+## 4. 2026-10-05 real-device Foundation T5 result
 
-B. `Open Scene -> geometry/world representation -> restoration/light transport -> appearance/rendering`
+Four uploaded real-device exports used the same four source roots:
 
-The current branch has connected the corridor far enough that the modern route is conceptually and in runtime wiring:
+- `4cb86b5f965b0cdfbe7e272304950dc8a15bda41802bda0ba2c1a85cc1184af5`
+- `f1f5158fad120f3bc1c8e2f5b12b9b55e0a32d9ee27c8c6ae99f90eeac7b1d15`
+- `7bc0db97b50a7ce4a7bafeb8262d9e1bb572bf02fb7b6f22ac6713b87f917d4f`
+- `31b21f4aa15ea54f92b74ae004699186c9f19bc53c2836b5a94114423b964431`
 
-`Scientific Master -> v0.4 Deep Scene Contribution / geometry bridge -> v0.5 Deep Scene Binding / ObservationGeometryEnvelope -> v0.6 Light Transport / World Observation Contract -> existing Room Capsule host -> v0.7 Appearance Resolve`.
+Foundation physically exported `t5_corridor_audit_binding_v0_1` for all four roots. All four correctly reported:
 
-Important commit landmarks in this lineage include:
+`UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE`
 
-- v0.4 geometry bridge: `f1004b6...`
-- v0.5 geometry envelope: `e27d478...`
-- v0.6 world observation contract: `33fad60...`
-- v0.7 appearance layer: `205754e...`
-- duplicate user-exposure correction: `0053e25...`
-- T5 runtime-audit candidate: `6a557cd...`
+with no recomputation, no cross-source reuse and no writeback/evidence creation.
 
-These abbreviated landmarks are navigation aids, not a substitute for resolving the live branch.
+Conclusion: **the fail-closed branch of T5→Foundation plumbing is physically validated.**
 
-### Room Capsule rule
+The positive branch `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE` remains unproven because the device round did not first execute a matching `TruthNegativeContinuousPreview` T5 audit for those exact sources in the same app process.
 
-Room Capsule architecture was **not missing**. It already existed in the flexible Open-World host. The runtime corridor is wired through it.
+Do not “fix” this by running T5 automatically during Foundation export. The next test must precompute T5 intentionally and then export Foundation in the same living process.
 
-Without admitted geometry/material/illumination evidence, Room Capsule must remain an **exact-preserving bypass**. It may not change pixels merely because the host exists. More useful relighting requires an admitted world-evidence package first.
+## 5. Route-aware tile-read attribution — defect found and repaired
 
-### T5 telemetry -> Foundation connection — IMPLEMENTED, device export not yet proven
+The same device Foundation export revealed a stale diagnostic assumption:
 
-`T5CorridorAuditV01.kt` already interpreted the native runtime telemetry read-only and fail-closed. The missing connection identified after the original T5 candidate has now been implemented without adding a second corridor or scientific evaluation.
+- explicit PassArtifact telemetry correctly said Exact Gauge v0.3 was active;
+- measured RAW source calls were 3072 for 3072 reconstruction calls;
+- Exact Gauge reported one Stage-2 gauge pass and 3072 avoided second-pass reads;
+- old `ScientificMasterTileReadAttribution/0.1` still expected canonical-v0.2 `6144 = 2 × 3072`, so it reported `UNKNOWN_FAIL_CLOSED`.
 
-Current diagnostic path:
+This was **diagnostic telemetry drift**, not a Scientific-Master or Exact-Gauge scientific failure.
 
-`existing native T5 metrics -> TruthNegativeContinuousPreview.Ready -> T5CorridorAuditV01 -> ResearchPerformanceT5CorridorBindingV01 -> FreeWorldPerformanceDiagnosticsV01 -> Foundation performance_diagnostics_v0_1 JSON`.
+Repair code head:
 
-`ResearchPerformanceT5CorridorBindingV01` is process-local and keyed by exact source SHA-256. It accepts only diagnostic-only/no-mutation T5 audit snapshots, disallows cross-observation reuse and exports missing/mismatched/contradictory telemetry as `UNKNOWN_FAIL_CLOSED`. It deliberately records `profile_run_binding_verified=false`: source identity is proven, but the diagnostic transport must not invent a claim that the T5 audit was computed inside the same profiler run.
+`6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
-The Foundation observation field is:
+Only `FreeWorldPerformanceDiagnosticsV01` runtime diagnostic aggregation changed. It now follows:
 
-`t5_corridor_audit_binding_v0_1`.
+`explicit hash-bound PassArtifact route -> independent raw-read count reconciliation`
 
-This binding never invokes the native T5/Room-Capsule corridor again. It is transport/diagnostic plumbing only. Exact Gauge v0.3, canonical v0.2, sealed CFA, Scientific Master and reconstruction behavior were not changed in this round.
+Never:
 
-Dedicated integrity workflow `T5 Corridor Performance Plumbing v0.1 Integrity`, run `37291751779` on head `245e6b9a...`, is **SUCCESS**. It checks source binding, fail-closed contradiction behavior, Room-Capsule exact bypass, one exposure, one physical frame/evidence source, closed candidate/writeback/evidence firewalls and absence of T5 recomputation in the binding/Foundation layer.
+`raw-read count -> route inference`.
 
-Physical proof that this new field appears correctly in a real-device exported Foundation JSON is **still pending**.
+Admitted diagnostic outcomes:
 
-## 8. Nine-block architecture status
+- Exact Gauge v0.3 + one-pass footprint -> `EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`;
+- explicit canonical v0.2 fallback + two-pass footprint -> `CANONICAL_V0_2_TWO_PASS_RECONCILED`;
+- anything missing/contradictory/inconsistent -> `UNKNOWN_FAIL_CLOSED`.
 
-### Blocks 1–6 — largely present
+The historical two-pass expected count remains exportable for comparison, while `expected_active_route_raw_call_count` represents the route actually proven by PassArtifact diagnostics.
 
-The source/seal/calibration/Scientific-Master/authority scientific core is architecturally mature, though universal source admission and broader real-device validation remain incomplete.
+No change was made to canonical v0.2, Exact Gauge v0.3 core, sealed CFA, Scientific Master, reconstruction, T5 native runtime or Room Capsule.
 
-### Block 7 — Free Raster Projection: PARTIAL
+## 6. Validation/build identity after tile-attribution repair
 
-The resolver mathematics and free-evaluation idea exist, but the product path does not yet prove a complete first-class arbitrary full-resolution projection flow (for example 1080p/4K/8K/arbitrary raster) from the same scientific state with all authority/provenance preserved.
+Route-aware integrity gate:
 
-### Block 8 — Free World Observation Graph: LARGEST INCOMPLETE SCIENTIFIC BLOCK
+- workflow: `Scientific Master Tile-Read Attribution v0.1 Integrity`
+- run: `37298021441`
+- head: `665be2419b2d652206c624864edb864f86cdac4b`
+- result: **SUCCESS**
 
-Foundations exist: world-field separation, pair geometry, observation-manifold and related experiments. What is still missing is a mature active graph that binds multiple sealed observations through proven registration/transforms, radiometric relations and uncertainty, then allows controlled joint evaluation without inventing shared truth.
+Android/APK build of runtime patch:
 
-### Block 9 — View / Appearance: SINGLE-OBSERVATION ROUTE CONNECTED
+- workflow: `D.RAW Free World Research APK`
+- run: `37297805632`
+- exact runtime source head: `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
+- result: **SUCCESS**
+- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`
+- artifact ID: `11339942673`
+- artifact ZIP SHA-256: `9eafa0490115f9ca3480beeb380a7dbb8dbe0637ae27a1c02dc565a20486a67c`
+- APK bytes: `8,588,087`
+- APK SHA-256: `8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
+- signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+- versionCode: `26100127`
 
-v0.7 Appearance is in the runtime corridor and duplicate user exposure has been corrected. Richer geometry/light/material-driven appearance remains gated by admitted world evidence. Dynamic display-target/HDR behavior is still product work.
+This APK supersedes `90aeee... / bc203694...` specifically for the next Foundation diagnostics test.
 
-## 9. Missing / incomplete components found by historical audit
+## 7. Same device round: authority/promotion remained closed
 
-### 9.1 Universal source admission
+Field-response repeatability remains descriptive only. Four observations are sufficient to compute metrics, but the export explicitly does **not** prove camera-system response, lens-only vignetting, separated illumination, sensor angular response or optical axis. Calibration remains unpromoted and correction gain unauthorized.
 
-DNG is the best-proven admitted route. Professional non-DNG RAW families have recognition/research foundations, but a broad container-independent end-to-end chain from arbitrary professional RAW container -> sensor payload -> evidence contract -> Scientific Master is not yet proven.
+Observation/world field separation remains read-only. World structure is not yet scientifically registered; camera/lens identity is not used as a calibration key; calibration and correction remain unpromoted.
 
-### 9.2 Camera -> true source validation
+Foundation `ScientificPromotionState/0.1` remains:
 
-Camera2 `RAW_SENSOR -> rawsensor/seal -> DNG/intake` lineage, calibration binding, SHA/provenance and promotion firewalls are substantially repaired. They still require real-device validation across modes/devices/vendors; one HONOR route is not universal proof.
+`NOT_PROMOTED_FAIL_CLOSED / NO_INTERNAL_PROMOTION_DECISION`
 
-### 9.3 Canonical Source Capability Envelope
+World registration, world→source bridge, radiometric response, field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise approvals remain false. Validated world→source mapping is not attached. No scientific writeback is allowed.
 
-Many individual capability facts exist (CFA, packing, black/white limits, optics, metadata, NPS, calibration). A single canonical source-agnostic capability layer that consistently exposes only what can be proven and governs downstream authority is still incomplete.
+## 8. Reconstruction result that must not be rediscovered
 
-### 9.4 First-class D.RAWnegative container
+Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. The real tele hold-out showed worse aggregate MAE/RMSE/bias than baseline on directly comparable points and over-optimistic uncertainty despite better coverage and a small channel-2 benefit. Safety remained closed.
 
-TruthNegative Continuous/native-container research exists, including high-resolution/native experiments. What remains unproven is a single first-class standalone D.RAWnegative with complete write -> close -> read -> re-import -> verify -> export round-trip and preserved scientific identity/provenance.
+Future reconstruction direction remains deterministic local model selection from structural support, direction, CFA phase and uncertainty. Affine is only one optional model; `no suitable model` is valid.
 
-### 9.5 Free Raster productization
+## 9. Architecture status that remains open
 
-Free continuous evaluation is not the same as pixel enlargement. The unresolved product task is to evaluate the same scientific/world state on a requested raster/footprint while preserving state/uncertainty/provenance and without pretending added samples are new measurements.
+- Universal source admission beyond the best-proven DNG path is incomplete.
+- Canonical Source Capability Envelope is not yet fully unified.
+- First-class standalone D.RAWnegative write→close→read→re-import→verify round-trip remains incomplete.
+- Free Raster productization at arbitrary full-resolution output remains partial.
+- Active multi-observation Free World Observation Graph remains the largest incomplete scientific block.
+- True metric 3D geometry is not generally admitted.
+- Material/illumination authority remains research-only without admitted evidence.
+- User-visible authority/uncertainty still trails internal telemetry.
+- Full-resolution/multi-observation memory/runtime scaling still needs physical proof.
 
-### 9.6 Active multi-observation graph
+## 10. Exact next device test
 
-This is the main next scientific frontier after device validation: multiple real sealed observations -> proven inter-observation relations -> world representation -> controlled free evaluation.
+Use only the APK from runtime head `6a8e017...`, SHA-256:
 
-### 9.7 True 3D geometry
+`8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
 
-Current safe route may use `ImagePlaneBound`/limited geometry authority. A metrically meaningful 3D geometry state has not yet been broadly admitted from real evidence. Estimated depth/normals must never silently become `MEASURED`.
+### Test A — route-aware tile-read attribution
 
-### 9.8 Material / illumination authority
+Run/export Foundation normally for the four sources. For each Exact Gauge v0.3 profile with 3072 reconstruction calls, expect:
 
-BRDF/PBR/material/illumination/light-transport structures are architectural/research tools until supported by admitted evidence. They may influence Appearance only under explicit authority and may not rewrite Scientific Master.
+- `route_attribution = EXACT_GAUGE_RETAINED_V0_3`
+- `tile_read_attribution_v0_1.status = EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`
+- `expected_active_route_raw_call_count = 3072`
+- `aggregate_source_read_raw_call_count = 3072`
+- `pass_1_raw_call_count = 3072`
+- `pass_2_raw_call_count = 0`
+- `pass_2_raw_calls_avoided = 3072`
+- `raw_call_count_reconciles = true`
+- `optimization_applied = true`
+- all candidate/source/writeback/evidence firewalls remain closed.
 
-### 9.9 Restoration / Render-Edit consolidation
+### Test B — positive T5→Foundation binding
 
-Censor-aware restoration, `.trr`, and DNG/EXR/TIFF projection research exist in older lines. They need consolidation into the modern D.RAW flow with explicit provenance/uncertainty. Restoration hypotheses remain hypotheses and never contaminate measured source truth.
+For one exact DNG/source SHA:
 
-### 9.10 User-visible authority
+1. keep the app process alive;
+2. execute the source through PRO / D.RAWnegative / `TruthNegativeContinuousPreview` so T5 audit is actually computed and published;
+3. **do not restart or kill the app**;
+4. run/export Foundation including the same exact source;
+5. inspect that observation's `t5_corridor_audit_binding_v0_1`.
 
-Internal authority/telemetry is much richer than the current user presentation. A coherent UI should eventually show what is MEASURED, RECONSTRUCTED, CENSORED, UNKNOWN, INFERRED/estimated or APPEARANCE, why, and with what uncertainty.
+Expected positive state:
 
-### 9.11 Scale/performance proof
+- `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE`
+- exact source SHA match;
+- `source_binding_verified=true`
+- `profile_run_binding_verified=false` remains intentionally false;
+- `t5_corridor_recomputed_by_binding=false`
+- nested T5 audit present;
+- Room Capsule exact-preserving bypass if no admitted world evidence;
+- exposure application count = 1;
+- physical frame count = 1;
+- independent evidence count = 1;
+- `candidate_applied=false`;
+- no new evidence/writeback.
 
-N2 reuse, direct SHA, Pixel-Triplet work and Exact Gauge reduce redundant work, but true full-resolution free-raster and multi-observation workloads still need real-device memory/runtime proof.
+If no matching in-process T5 preview was executed, `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE` remains correct.
 
-## 10. Current validation truth — 2026-10-05
+## 11. Promotion/governance boundary
 
-Do **not** call the whole PR fully green or promoted.
+Do **not** call PR #130 promoted or globally green from the local successful gates above. PR remains draft and wider governance/lifecycle/mergeability state must be re-evaluated before merge. Real-device positive T5 binding is still outstanding.
 
-Newly proven for the T5 Foundation-plumbing round:
+No scientific promotion follows automatically from implementation availability, performance, geometric hypotheses, visual similarity or user-imported records.
 
-- Android/APK build for code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`: **SUCCESS**, run `37291164092`;
-- dedicated T5 Foundation telemetry integrity gate for head `245e6b9a3bee6b101b81edcee9426694ec9c272d`: **SUCCESS**, run `37291751779`;
-- APK package/signing/version checks passed in the build workflow;
-- no second T5 evaluation/Room-Capsule implementation was added;
-- no scientific-core file was intentionally modified by this plumbing round.
+## 12. Recovery pointers
 
-What is **not** yet proven:
+Read in this order after `44489`:
 
-- real-device Foundation JSON containing a correctly source-bound `t5_corridor_audit_binding_v0_1`;
-- physical continuity from the matching real observation through the new exported diagnostic field;
-- whole-PR promotion readiness.
+1. `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
+2. `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
+3. `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
+4. `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
+5. `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
+6. live PR #130 state
 
-Historical 2026-10-04 recovery data recorded red Research Integrity Guard / Lifecycle Contract gates. Those historical results must be re-evaluated against the current live PR before promotion; the two new green workflows do not automatically clear unrelated governance/lifecycle failures.
-
-PR #130 remains open/draft and was reported `mergeable=false` on the 2026-10-05 refresh. Do not merge/promotion-drive around that state.
-
-## 11. Exact next-chat starting point: REAL-DEVICE FOUNDATION T5 JSON TEST
-
-Read:
-
-- `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`;
-- `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`;
-- `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md` for broader device discipline.
-
-Immediate next test uses the stable-signed APK from code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`, SHA-256 `bc20369453694e42826de8440ae8dd2c78a79d72b4d8066f4a942337bafd76b4`.
-
-Test sequence:
-
-1. resolve live PR #130 HEAD and record it, but do not confuse later documentation/workflow commits with the validated APK source head;
-2. install/update the exact APK while preserving package/signing continuity;
-3. use one real admitted DNG/RAW_SENSOR-derived observation;
-4. execute the current Foundation/Open-World/T5 path so the matching precomputed T5 audit exists in-process;
-5. export the Foundation observation JSON;
-6. locate `performance_diagnostics_v0_1.observations[*].t5_corridor_audit_binding_v0_1` for the exact source SHA;
-7. expect `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE` only for an exact matching source snapshot;
-8. verify the nested T5 audit preserves stage lineages, Room Capsule `EXACT_PRESERVING_BYPASS`, `exposure_application_count == 1`, one physical frame, one independent evidence source, `candidate_applied=false`, no new evidence and no scientific writeback;
-9. if matching telemetry is absent or contradictory, require `UNKNOWN_FAIL_CLOSED` — Foundation must not recompute T5 to fill the gap;
-10. save/upload the exported JSON before changing further runtime/scientific code.
-
-### Stop immediately if any of these occurs
-
-- installed APK SHA/package/version/signing identity is not the intended candidate;
-- source lineage/hash or calibration binding disagrees;
-- `t5_corridor_audit_binding_v0_1` binds a different source SHA;
-- Foundation export triggers or implies a second T5/Room-Capsule evaluation;
-- missing T5 telemetry becomes certainty instead of `UNKNOWN_FAIL_CLOSED`;
-- crash/OOM or non-deterministic scientific output;
-- user exposure is applied twice;
-- Room Capsule changes values without admitted world evidence;
-- inferred/estimated geometry becomes `MEASURED`;
-- authority increases without new evidence;
-- Scientific Master, Exact Gauge v0.3, canonical v0.2, sealed CFA or measured anchors are mutated by diagnostic plumbing.
-
-No promotion until wider CI + this real-device evidence support it.
-
-## 12. What comes after a clean device test
-
-Do not immediately add another local reconstruction heuristic. The highest-value scientific continuation is:
-
-`multiple real sealed observations -> proven registration/gauge/uncertainty relations -> active Free World Observation Graph -> free raster/world evaluation`.
-
-In parallel, horizontal engineering tracks are:
-
-- universal source admission;
-- first-class D.RAWnegative round-trip;
-- user-visible authority/uncertainty;
-- dynamic appearance/HDR targets;
-- scale/performance proof for full-resolution and multi-observation workloads.
-
-## 13. Recovery pointers
-
-Current recovery/test layer:
-
-- `START_HERE_NEW_CHAT.md`
-- `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
-- `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
-- `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
-- `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
-- `state/DRAW_PROJECT_STATE_2026-10-04.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`
-
-Historical but still important provenance:
-
-- `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
-- `state/DRAW_PROJECT_STATE_2026-10-03.json`
-- `docs/research/scientific-master-exact-gauge-retained-artifact-v0.3/README.md`
-- older handoffs/state/research files referenced by the document-status index.
-
-When the user says **44489**, restore this capsule plus the live repository/PR state first. Do not ask the user to manually reconstruct old chats when the repository recovery layer is sufficient.
-
-## 14. Continuous maintenance rule
-
-44489 is a living recovery artifact. Refresh it whenever a scientific conclusion changes, a candidate is promoted/rejected, real-device evidence arrives, architecture/authority changes, Android identity/build state changes, or the exact next task moves.
-
-Maintenance discipline:
-
-1. record scientific conclusions, not only code changes;
-2. preserve falsified/negative experiments because they constrain future work;
-3. distinguish measured fact, derived fact, estimate, candidate and appearance;
-4. preserve provenance for important measurements;
-5. keep the capsule compact enough for cold-start recovery and move deep detail to dedicated state/research documents;
-6. never rewrite history to make a newer approach look inevitable;
-7. study authoritative photography, optics, radiometry, colour science, signal processing, calibration, 3D/photogrammetry, rendering/PBR and human-vision literature when those domains affect semantics, then translate that knowledge into explicit contracts, provenance, uncertainty and tests rather than assumptions.
+Historical negative experiments and older handoffs remain provenance and must not be rewritten away.
