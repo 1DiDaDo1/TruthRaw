@@ -106,6 +106,28 @@ Required APK provenance before delivery:
 - APK SHA-256
 - stable signing-certificate SHA-256
 
+## 8. Final accepted Workspace APK identity
+
+The required build completed successfully without any further runtime/scientific source change after the accepted checkpoint.
+
+- runtime code SHA: `c85b9805a56681b1adbc39f58b95724c4810907c`
+- workflow: `D.RAW Suite Universal Intake v0.1`
+- workflow run: `37370065875`
+- run attempt: `2`
+- build job: `111979622964`
+- build conclusion: `SUCCESS`
+- vision-contract verification: `SUCCESS`
+- Android assembleDebug: `SUCCESS`
+- APK verification: `SUCCESS`
+- artifact: `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
+- artifact ID: `11371257135`
+- artifact ZIP SHA-256: `1c8364f827eeb4939d98698c7bf96eff59fd6ddb4d0dae94b97b628d51eee366`
+- APK bytes: `8,637,267`
+- APK SHA-256: `642adbed19e67fdbf98650c1bb23da79945e01d4d7781fb1b9702f15407cd3ea`
+- stable signing-certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
+
+The later repository commits on this branch are documentation-only acceptance/handoff updates. They do not change APK runtime identity. PR #130 remains the frozen scientific/audit reference and has not been promoted or merged by this acceptance round.
+
 Permanent boundary remains:
 
 **One Free World. Many sealed observations. One evidence law.**
