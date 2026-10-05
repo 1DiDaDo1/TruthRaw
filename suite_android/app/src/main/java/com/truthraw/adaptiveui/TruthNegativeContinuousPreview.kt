@@ -129,8 +129,10 @@ sealed interface TruthNegativeContinuousPreviewResult {
         val n2CandidateBitmap: Bitmap,
         val metrics: TruthNegativeContinuousPreviewMetrics,
     ) : TruthNegativeContinuousPreviewResult {
-        val t5CorridorAudit
-            get() = T5CorridorAuditV01.from(metrics)
+        val t5CorridorAudit =
+            T5CorridorAuditV01.from(metrics).also {
+                ResearchPerformanceT5CorridorBindingV01.publish(it)
+            }
     }
 
     data class Failed(
