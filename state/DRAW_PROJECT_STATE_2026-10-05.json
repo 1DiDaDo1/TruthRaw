@@ -1,0 +1,101 @@
+{
+  "project": "D.RAW",
+  "repository_name": "TruthRaw",
+  "date": "2026-10-05",
+  "handoff_code": 44489,
+  "status": "REAL_DEVICE_T5_FOUNDATION_AND_EXACT_GAUGE_ROUTE_VALIDATED_PR_NOT_PROMOTED",
+  "authority": {
+    "active_pr": 130,
+    "active_branch": "fix/android-exact-gauge-pass-artifact-v03",
+    "base_branch": "fix/research-fresh-rerun-v01",
+    "validated_runtime_code_head": "6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50",
+    "route_aware_integrity_head": "665be2419b2d652206c624864edb864f86cdac4b",
+    "rule": "Resolve live PR head before mutation. Documentation may move HEAD beyond the validated runtime code head. Never force-reset to a remembered SHA."
+  },
+  "android": {
+    "module": "suite_android",
+    "application_id": "com.truthraw.adaptiveui",
+    "version_code": 26100127,
+    "version_name": "0.54-v0.84.2-open-world-authority-corridor-v01",
+    "abi": ["arm64-v8a"],
+    "validated_apk_sha256": "8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141",
+    "validated_apk_bytes": 8588087,
+    "stable_signing_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
+    "apk_workflow_run": 37297805632,
+    "apk_artifact_id": 11339942673
+  },
+  "real_device_foundation_evidence": {
+    "source_file": "draw_free_world_observation_geometry_foundation_v0_1_2_observations8.json",
+    "profile_count": 2,
+    "positive_t5_source_sha256": "4cb86b5f965b0cdfbe7e272304950dc8a15bda41802bda0ba2c1a85cc1184af5",
+    "negative_control_source_sha256": "7bc0db97b50a7ce4a7bafeb8262d9e1bb572bf02fb7b6f22ac6713b87f917d4f",
+    "positive_t5_binding": {
+      "status": "SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE",
+      "source_binding_verified": true,
+      "profile_run_binding_verified": false,
+      "t5_corridor_recomputed_by_binding": false,
+      "source_scientific_master_binding_verified": true,
+      "room_capsule_state": "EXACT_PRESERVING_BYPASS",
+      "exposure_application_count": 1,
+      "physical_frame_count": 1,
+      "independent_evidence_count": 1,
+      "candidate_applied": false,
+      "scientific_writeback_allowed": false,
+      "creates_new_evidence": false
+    },
+    "negative_control_t5_binding": {
+      "status": "UNKNOWN_FAIL_CLOSED",
+      "reason": "NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE",
+      "source_binding_verified": false,
+      "t5_corridor_recomputed_by_binding": false,
+      "cross_observation_reuse_allowed": false,
+      "scientific_writeback_allowed": false,
+      "creates_new_evidence": false
+    },
+    "exact_gauge_route": {
+      "both_observations_status": "EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED",
+      "route_attribution": "EXACT_GAUGE_RETAINED_V0_3",
+      "source_read_raw_call_count_each": 3072,
+      "pass_2_raw_call_count_each": 0,
+      "pass_2_raw_calls_avoided_each": 3072,
+      "raw_call_count_reconciles": true,
+      "candidate_applied": false,
+      "source_values_modified": false,
+      "creates_new_evidence": false,
+      "scientific_writeback_allowed": false
+    },
+    "scientific_promotion_state": "NOT_PROMOTED_FAIL_CLOSED"
+  },
+  "t5_stage_chain": [
+    "v0.4 OBSERVED / RADIOMETRY_PRESERVED_FROM_TRUTHNEGATIVE",
+    "v0.5 OBSERVED / IMAGE_PLANE_BOUND",
+    "v0.6 READY / GEOMETRY_MATERIAL_ILLUMINATION_INFERRED",
+    "ROOM_CAPSULE EXACT_PRESERVING_BYPASS / INFERRED_CONTEXT_NO_ADMITTED_ROOM_EVIDENCE",
+    "v0.7 OBSERVED / APPEARANCE_ONLY_DOWNSTREAM"
+  ],
+  "scientific_firewalls": {
+    "sealed_cfa_modified": false,
+    "measured_anchors_modified": false,
+    "scientific_master_modified": false,
+    "exact_gauge_v0_3_modified_by_audit": false,
+    "reconstruction_behavior_modified_by_audit": false,
+    "candidate_applied": false,
+    "scientific_writeback_allowed": false,
+    "creates_new_evidence": false
+  },
+  "ci": {
+    "t5_plumbing_integrity_run": 37291751779,
+    "tile_read_attribution_integrity_run": 37298021441,
+    "apk_build_run": 37297805632,
+    "known_current_blocker": "documentation governance must be green before PR promotion",
+    "promotion_allowed": false
+  },
+  "next_action": "Reconcile full PR #130 governance and lifecycle/integrity CI on the live head. Do not merge or promote while any required gate is failing or ambiguous.",
+  "permanent_laws": [
+    "Seal the evidence, not the thinking.",
+    "MEASURED != RECONSTRUCTED != APPEARANCE.",
+    "Representation may become richer than the source; knowledge claims may not exceed evidence.",
+    "One Free World. Many sealed observations. One evidence law.",
+    "No performance, diagnostic, reconstruction or appearance path may create evidence or scientific authority."
+  ]
+}
