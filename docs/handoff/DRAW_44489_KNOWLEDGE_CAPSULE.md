@@ -346,3 +346,33 @@ First validate compilation and static routing. Then perform a real-device UI rou
 8. No candidate is promoted and no Scientific Master writeback is enabled by the workspace.
 
 After that user journey is physically proven, return to the exact workflow causality audit for Research Integrity Guard / Lifecycle Contract only if still relevant to the then-current head. Do not resurrect old red states by memory.
+
+## 14. Workspace / Free Raster device acceptance — superseding product status
+
+The first real-device Workspace / Free Raster round is now accepted for product continuation. The full evidence record is:
+
+`docs/handoff/DRAW_44489_WORKSPACE_DEVICE_ACCEPTANCE_2026-10-05.md`
+
+The accepted device output family is bound to sealed source SHA-256:
+
+`fe88a0acd2f95d35353ef9e4c925e50923e100a257bd43f545df4c09b09340b8`
+
+Observed acceptance facts:
+
+- full-colour Scientific Master DNG is a three-channel IEEE Float32 LinearRaw representation at 4080×3072;
+- its private contract reports one physical frame and one independent evidence source;
+- `scientific_master_modified=0`, `appearance_applied=0`, `counterfactual_observation_created=0`;
+- embedded JPEG remains a non-authority preview and cannot write back scientifically;
+- Universal Observation Calibration Atlas is source-bound, keeps frontside inspection `APPEARANCE_DERIVED_ONLY`, and refuses unsupported automatic radiometric/colour/noise/light/optical correction;
+- Observation Optical Field Chart exports a measured composite scene/lens/sensor field signal but does not claim lens-only vignetting, separated illumination, sensor angular response or a proven optical axis;
+- Global Research Snapshot remains `IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE`; all promotion gates remain non-automatic and scientific writeback remains disabled;
+- camera/lens/vendor identity does not become a scientific-model or calibration key;
+- no source sample mutation, new measured sample, new evidence or scientific writeback is admitted by the supplied outputs.
+
+This section supersedes the pre-test wording in **13.4** for Workspace v0.1 product acceptance only. It does **not** promote research candidates, make UNKNOWN quantities known, or claim that future multi-observation/world-space functionality is already scientifically validated.
+
+Accepted Workspace runtime code checkpoint:
+
+`c85b9805a56681b1adbc39f58b95724c4810907c`
+
+Documentation-only commits may follow this checkpoint without changing APK runtime identity. The final APK must still be tied to a successful assemble/verify workflow and must record its exact runtime SHA, artifact ID, byte size, APK SHA-256 and stable signing-certificate SHA-256 before delivery.
