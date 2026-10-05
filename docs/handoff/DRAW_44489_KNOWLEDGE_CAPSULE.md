@@ -6,11 +6,13 @@ Project: **D.RAW** (`TruthRaw` remains repository/history naming)
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
 Recovery marker: **`[KCR-44489-2026-10-05-FOUNDATION-DEVICE-ROUND]`**  
-Active candidate branch: **`fix/android-exact-gauge-pass-artifact-v03`**  
-Active PR: **#130** — open, draft, not merged; last observed `mergeable=false`  
+Frozen UI/CI audit reference: **PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`**  
+Current UI implementation branch from that exact SHA: **`feat/draw-workspace-free-raster-v01`**  
+Scientific candidate branch at the frozen audit point: **`fix/android-exact-gauge-pass-artifact-v03`**  
+Active scientific PR at the frozen audit point: **#130** — open, draft, not merged  
 Latest detailed device-round handoff: `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
 
-Always resolve live PR #130 HEAD before mutation. Documentation/checker commits may be newer than the exact runtime source used to build a tested APK; never force-reset to a remembered SHA.
+Always resolve live PR #130 HEAD before mutating that PR. The UI implementation branch above is deliberately forked from the frozen `4e4f358a...` audit reference so UI work cannot silently rewrite the meaning of the exact-head CI audit. Documentation/checker commits may be newer than the exact runtime source used to build a tested APK; never force-reset to a remembered SHA.
 
 ## 1. Permanent scientific law
 
@@ -232,6 +234,17 @@ Do **not** call PR #130 promoted or globally green from the local successful gat
 
 No scientific promotion follows automatically from implementation availability, performance, geometric hypotheses, visual similarity or user-imported records.
 
+### Exact-head CI audit correction (2026-10-05)
+
+The UI audit is anchored to PR #130 head `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` and must not inherit status from any older SHA.
+
+- `Documentation Governance`: exact-head run exists via `push` and is **SUCCESS**.
+- `Research Integrity Guard`: **NO PROVEN RUN ON THIS EXACT HEAD**. Audit state is `NOT RUN / UNPROVEN`, not red and not green.
+- `Lifecycle Contract`: **NO PROVEN RUN ON THIS EXACT HEAD**. Audit state is `NOT RUN / UNPROVEN`, not red and not green.
+- On the older PR head `d2c26de69ea192ba23ade949aa2656ed6907e9ec`, `integrity` and `lifecycle-contract` were genuinely failing gates. Those failures belong only to that earlier SHA and may not be projected onto `4e4f358a...`.
+- The exact `4e4f358a...` PR diff contains **43 changed files**, including workflow files. The remaining governance question is causal only: compare exact workflow YAML `on:`, branch filters, `paths`, `paths-ignore` and job-level `if:` against those 43 files to explain why a workflow was or was not dispatched.
+- An absent workflow run is not scientific evidence and does not change any authority state. CI may validate contracts/provenance/cables; it may never manufacture MEASURED evidence or scientific authority.
+
 ## 12. Recovery pointers
 
 Read in this order after `44489`:
@@ -244,3 +257,92 @@ Read in this order after `44489`:
 6. live PR #130 state
 
 Historical negative experiments and older handoffs remain provenance and must not be rewritten away.
+
+## 13. Global UI / product audit — saved before Free Raster implementation
+
+Audit basis: the known D.RAW vision image **“D.RAW – van Lens naar Vrije Raster-Weergave (Eenvoudig Overzicht)”** plus the Android UI/runtime present on frozen head `4e4f358a...`.
+
+Vision law for the UI:
+
+`Werkelijke wereld -> Lens & Sensor -> Sealed Observation -> Kalibratie & Meting -> Scientific Master / reconstructie -> continue wetenschappelijke negatieve representatie -> Vrije Raster Projectie -> Free World Observation Graph -> View / Appearance`
+
+The UI may expose and navigate those layers, but it must not collapse their authority classes or imply that a view/projection created new evidence.
+
+### 13.1 What is already substantially present
+
+- Launcher: Bestand/Camera, PURE/ADVANCED/PRO, Research & JSON, settings and implementation guide.
+- Universal camera: live preview, dynamically discovered ultra-wide/main/tele acquisition roles, focus marker, AF lock, macro loupe/pinch, five-second capture timer, `RAW_SENSOR seal -> derived DNG -> Universal Intake`.
+- ADVANCED: downstream exposure/light balance, shadow recovery, display-HDR, detail, colourfulness and restoration controls.
+- PRO: Open Scene / Light Transport / provenance / professional export and research entry points using the same upstream scientific core.
+- Research Hub: multi-observation/JSON workbench, Calibration Observation Records, Free World Foundation and Global Research Snapshot.
+- Main workbench: unified output-preview state, long-running restoration/projectie job recovery and research-session persistence already exist.
+
+### 13.2 UI gaps against the vision
+
+1. **D.RAW Workspace / Vrije Raster-weergave — highest priority.**
+   One central image/workspace should become the natural operational surface after source selection. It should bring source, route, projection intent, output raster, authority visibility and export navigation together without building a second scientific pipeline.
+2. **Evidence / Authority Inspector.**
+   User-visible distinction of `MEASURED`, `CALIBRATED_ESTIMATE`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `APPEARANCE`, with source/provenance context. It must display existing authority, never infer stronger authority from UI state.
+3. **Visual Observation Graph.**
+   Multiple sealed observations should be shown as separate source nodes, with only proven relations between them. A RAW_SENSOR plus its derived DNG remains one physical observation, not two independent measurements.
+4. **Live Appearance around the image.**
+   ADVANCED controls should eventually operate around the active preview with reset/before-after while remaining downstream.
+5. **Compact pipeline indicator.**
+   A user-readable `SOURCE -> SEALED -> SCIENTIFIC -> CONTINUOUS/RECONSTRUCTED -> FREE RASTER -> APPEARANCE` map should expose state without turning a green UI status into scientific authority.
+
+### 13.3 Important UI-status classification
+
+- Layers 1–2 (world/lens/sensor ingress): substantially represented.
+- Sealed Observation: technically present, but needs a simple visible evidence card.
+- Calibration/measurement: strong in Research, but normal UI needs a compact “what is actually known?” view.
+- Scientific Master/reconstruction: strong internally, but authority classes are not yet sufficiently visible to normal users.
+- Continuous scientific-negative representation: runtime routes exist, but product identity is not yet clear enough in normal UI.
+- Free Raster: **largest immediate product/UI gap**.
+- Observation Graph: data/research concepts exist; graphical productization remains incomplete.
+- Appearance: controls exist; integrated image-centric workflow remains incomplete.
+
+### 13.4 “Should everything work now?” — exact audit answer
+
+Do **not** record “everything works” yet.
+
+The normal route is sufficiently connected that most of it is expected to function, but whole-product operation remains unproven until a real-device end-to-end run covers at least:
+
+`launcher/workspace -> physical camera -> sealed RAW_SENSOR -> derived DNG / Universal Intake -> Scientific Master -> PURE preview -> ADVANCED preview -> PRO -> restoration/projectie -> export -> reopen`
+
+Additional intentional limitations are not bugs:
+
+- several scientific runtimes remain `IMPLEMENTED CANDIDATE / NOT PROMOTED`;
+- DNG is the best-proven admitted full route;
+- NEF remains a limited measurement-only decoder path;
+- proprietary RAW formats without admitted decoder adapters stay immutable/fail-closed rather than being guessed.
+
+### 13.5 Workspace implementation contract
+
+The immediate next implementation on `feat/draw-workspace-free-raster-v01` is **D.RAW Workspace / Vrije Raster-weergave v0.1**.
+
+Non-negotiable rules:
+
+- reuse the existing proven MainActivity/Scientific/Open-Scene/preview/export machinery; do **not** create a second decoder or scientific core;
+- workspace controls are navigation/presentation/projection intent unless an existing scientific runtime explicitly supplies stronger state;
+- arbitrary output raster may change representation but never create `MEASURED` samples;
+- no UI zoom, crop, resolution, appearance control or status colour may change authority;
+- source SHA/provenance remains the authority anchor;
+- UNKNOWN stays visible/fail-closed;
+- no AI/ML scientific inference;
+- keep the current direct Bestand/Camera paths available while introducing the workspace so existing proven paths remain recoverable;
+- first implementation may expose a safe orchestration shell around existing workbench functions, but it must label unavailable runtime bindings honestly rather than simulate them.
+
+### 13.6 Planned validation after implementation
+
+First validate compilation and static routing. Then perform a real-device UI round proving:
+
+1. Workspace opens from the application without breaking existing direct routes.
+2. Existing RAW/DNG picker still reaches MainActivity.
+3. Universal camera still reaches the same sealed RAW_SENSOR -> derived DNG route.
+4. PURE/ADVANCED/PRO route selection remains shared and does not mutate source/scientific state.
+5. Authority legend/inspector does not report runtime authority unless actually bound.
+6. Free-raster controls affect only view/projection intent until a proven runtime bridge is attached.
+7. Existing export/restoration/research routes remain reachable.
+8. No candidate is promoted and no Scientific Master writeback is enabled by the workspace.
+
+After that user journey is physically proven, return to the exact workflow causality audit for Research Integrity Guard / Lifecycle Contract only if still relevant to the then-current head. Do not resurrect old red states by memory.
