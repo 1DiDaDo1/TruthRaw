@@ -15,6 +15,7 @@ object FreeWorldPerformanceDiagnosticsV01 {
 
     private fun scientificMasterTileReadAttribution(
         bindProfile: JSONObject?,
+        passArtifactAttribution: JSONObject?,
     ): JSONObject {
         val available = bindProfile?.optBoolean("available", false) == true
         val rawCalls = bindProfile?.optLong("source_read_raw_call_count", 0L) ?: 0L
@@ -26,14 +27,103 @@ object FreeWorldPerformanceDiagnosticsV01 {
         val safeTwoPassCount =
             reconstructionCalls > 0L &&
                 reconstructionCalls <= Long.MAX_VALUE / 2L
-        val expectedRawCalls =
+        val canonicalTwoPassRawCalls =
             if (safeTwoPassCount) reconstructionCalls * 2L else -1L
+
+        val routeAttribution =
+            passArtifactAttribution?.optString(
+                "route_attribution",
+                "UNKNOWN_FAIL_CLOSED",
+            ) ?: "UNKNOWN_FAIL_CLOSED"
+        val routeTelemetryUsable =
+            passArtifactAttribution != null &&
+                passArtifactAttribution.optString("schema") ==
+                    "D.RAW/ScientificMasterPassArtifactAttribution/0.1" &&
+                passArtifactAttribution.optString("status") ==
+                    "DIAGNOSTIC_ROUTE_ATTRIBUTION" &&
+                passArtifactAttribution.optString("authority") ==
+                    "DIAGNOSTIC_RUNTIME_ONLY" &&
+                passArtifactAttribution.optBoolean("telemetry_available", false) &&
+                passArtifactAttribution.optBoolean("binding_verified", false) &&
+                !passArtifactAttribution.optBoolean(
+                    "route_attribution_contradiction",
+                    true,
+                ) &&
+                !passArtifactAttribution.optBoolean("creates_new_evidence", true) &&
+                !passArtifactAttribution.optBoolean(
+                    "scientific_writeback_allowed",
+                    true,
+                )
+
+        val exactGaugeRoute =
+            routeTelemetryUsable &&
+                routeAttribution == "EXACT_GAUGE_RETAINED_V0_3" &&
+                passArtifactAttribution!!.optBoolean("optimization_applied", false) &&
+                !passArtifactAttribution.optBoolean("candidate_applied", true) &&
+                !passArtifactAttribution.optBoolean("source_values_modified", true) &&
+                passArtifactAttribution.optLong(
+                    "stage2_gauge_scan_passes_actually_used",
+                    -1L,
+                ) == 1L &&
+                passArtifactAttribution.optLong(
+                    "pass2_stage2_tile_reads_avoided",
+                    -1L,
+                ) == reconstructionCalls
+
+        val canonicalFallbackRoute =
+            routeTelemetryUsable &&
+                routeAttribution == "CANONICAL_V0_2_FALLBACK" &&
+                !passArtifactAttribution!!.optBoolean("optimization_applied", true) &&
+                !passArtifactAttribution.optBoolean("candidate_applied", true) &&
+                !passArtifactAttribution.optBoolean("source_values_modified", true) &&
+                passArtifactAttribution.optLong(
+                    "pass2_stage2_tile_reads_avoided",
+                    -1L,
+                ) == 0L
+
+        val expectedActiveRouteRawCalls =
+            when {
+                exactGaugeRoute -> reconstructionCalls
+                canonicalFallbackRoute && safeTwoPassCount -> canonicalTwoPassRawCalls
+                else -> -1L
+            }
         val reconciles =
             available &&
-                safeTwoPassCount &&
-                rawCalls == expectedRawCalls
-        val passCallCount: Any =
+                expectedActiveRouteRawCalls > 0L &&
+                rawCalls == expectedActiveRouteRawCalls
+
+        val status =
+            when {
+                exactGaugeRoute && reconciles ->
+                    "EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED"
+                canonicalFallbackRoute && reconciles ->
+                    "CANONICAL_V0_2_TWO_PASS_RECONCILED"
+                else -> "UNKNOWN_FAIL_CLOSED"
+            }
+        val attributionBasis =
+            when {
+                exactGaugeRoute ->
+                    "EXPLICIT_PASS_ARTIFACT_DIAGNOSTICS_EXACT_GAUGE_V0_3"
+                canonicalFallbackRoute ->
+                    "EXPLICIT_PASS_ARTIFACT_DIAGNOSTICS_CANONICAL_V0_2_FALLBACK"
+                else -> "UNKNOWN_FAIL_CLOSED"
+            }
+        val pass1RawCalls: Any =
             if (reconciles) reconstructionCalls else JSONObject.NULL
+        val pass2RawCalls: Any =
+            when {
+                !reconciles -> JSONObject.NULL
+                exactGaugeRoute -> 0L
+                canonicalFallbackRoute -> reconstructionCalls
+                else -> JSONObject.NULL
+            }
+        val pass2RawCallsAvoided: Any =
+            when {
+                !reconciles -> JSONObject.NULL
+                exactGaugeRoute -> reconstructionCalls
+                canonicalFallbackRoute -> 0L
+                else -> JSONObject.NULL
+            }
         val unattributedRawCalls =
             if (reconciles) 0L else rawCalls
 
@@ -42,18 +132,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
                 "schema",
                 "D.RAW/ScientificMasterTileReadAttribution/0.1",
             )
-            .put(
-                "status",
-                if (reconciles) {
-                    "TWO_PASS_BINDER_SCHEDULE_RECONCILED"
-                } else {
-                    "UNKNOWN_FAIL_CLOSED"
-                },
-            )
-            .put(
-                "attribution_basis",
-                "SCIENTIFIC_MASTER_STREAMING_BINDING_V0_2_TWO_CANONICAL_PASSES",
-            )
+            .put("status", status)
+            .put("attribution_basis", attributionBasis)
+            .put("route_attribution", routeAttribution)
+            .put("route_attribution_verified", routeTelemetryUsable)
             .put(
                 "pass_1_role",
                 "SCIENTIFIC_MASTER_DIGEST_RECONSTRUCTION_AUTHORITY_AND_HIGH16_GAUGE",
@@ -63,9 +145,21 @@ object FreeWorldPerformanceDiagnosticsV01 {
                 "EXACT_SELF_GAUGE_LOW16_RESOLUTION",
             )
             .put("aggregate_source_read_raw_call_count", rawCalls)
-            .put("expected_two_pass_raw_call_count", if (safeTwoPassCount) expectedRawCalls else JSONObject.NULL)
-            .put("pass_1_raw_call_count", passCallCount)
-            .put("pass_2_raw_call_count", passCallCount)
+            .put(
+                "expected_two_pass_raw_call_count",
+                if (safeTwoPassCount) canonicalTwoPassRawCalls else JSONObject.NULL,
+            )
+            .put(
+                "expected_active_route_raw_call_count",
+                if (expectedActiveRouteRawCalls > 0L) {
+                    expectedActiveRouteRawCalls
+                } else {
+                    JSONObject.NULL
+                },
+            )
+            .put("pass_1_raw_call_count", pass1RawCalls)
+            .put("pass_2_raw_call_count", pass2RawCalls)
+            .put("pass_2_raw_calls_avoided", pass2RawCallsAvoided)
             .put("unattributed_raw_call_count", unattributedRawCalls)
             .put("raw_call_count_reconciles", reconciles)
             .put(
@@ -74,7 +168,7 @@ object FreeWorldPerformanceDiagnosticsV01 {
             )
             .put("per_pass_source_read_timing_available", false)
             .put("per_pass_timing_inferred", false)
-            .put("optimization_applied", false)
+            .put("optimization_applied", exactGaugeRoute && reconciles)
             .put("source_values_modified", false)
             .put("candidate_applied", false)
             .put("creates_new_evidence", false)
@@ -197,6 +291,10 @@ object FreeWorldPerformanceDiagnosticsV01 {
                     "native_phase_timing_origin",
                     "UNAVAILABLE",
                 )
+            val passArtifactAttribution =
+                n2LocalExecution.optJSONObject(
+                    "scientific_master_pass_artifact_attribution_v0_1",
+                )
             val rawScientificMasterBindProfile =
                 profile
                     .optJSONObject("n2_local_spatial_binding")
@@ -240,6 +338,7 @@ object FreeWorldPerformanceDiagnosticsV01 {
                 "tile_read_attribution_v0_1",
                 scientificMasterTileReadAttribution(
                     rawScientificMasterBindProfile,
+                    passArtifactAttribution,
                 ),
             )
 
