@@ -2,51 +2,51 @@
 
 Continuation code: **44489**
 
-A new chat receiving only **44489** must restore the project from the repository before changing code. The project is in a **test-first handoff state**: recover the current authority, resolve the live PR head, then continue real-device evidence collection rather than redesigning architecture.
+A new chat receiving only **44489** must recover the live repository/PR state before changing code. The current narrow T5/Foundation and Exact-Gauge route-attribution questions have real-device evidence; the immediate task is repository governance, not new runtime architecture.
 
-## Read in this order
+## Mandatory current reading order
 
-1. Fetch live PR **#130** and record its current `head_sha`.
-2. Read `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`.
-3. Read `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`.
-4. Read `state/DRAW_PROJECT_STATE_2026-10-04.json`.
-5. Read `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`.
-6. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md` when older/normative provenance is needed.
-7. Inspect current source and CI for the exact live head before mutation.
+1. Resolve live PR **#130** and record its exact current `head_sha`.
+2. Read `docs/handoff/DRAW_44489_REAL_DEVICE_VALIDATED_2026-10-05.md`.
+3. Read `state/DRAW_PROJECT_STATE_2026-10-05.json`.
+4. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-05.md`.
+5. Read `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md` as accumulated 44489 context/provenance.
+6. Inspect the exact live-head CI/governance/lifecycle checks before mutation or promotion.
 
-Historical recovery provenance remains in `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`, but it is no longer the first operational continuation document.
+Documentation commits may move HEAD beyond the validated runtime source head. Never force-reset a live branch to a remembered SHA merely to make documentation match.
 
-## Runtime candidate versus documentation head
+## Current validated real-device checkpoint
 
-The exact T5 runtime/source candidate used to build the current physical-test APK is:
+Validated runtime code head:
 
-`6a557cda2b8f10db7f4c81dde50b5dc8c77ea210`
+`6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
-Later commits beginning with `9f3a38c...` are handoff/documentation updates unless source inspection proves otherwise. Do not rebuild scientific history merely because the live branch head moved after the validated APK build.
+Route-aware tile-attribution integrity head:
 
-Validated APK for the next T5 device round:
+`665be2419b2d652206c624864edb864f86cdac4b`
 
-- workflow run: `37232652035`
-- artifact ID: `11314697580`
-- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`
-- APK size: `8,588,087 bytes`
-- APK SHA-256: `31bba97ddb220284059eeb0c0402ba87b1b840935ccf2f39e848a865cd1b03aa`
+Validated APK:
 
-The exact-head APK workflow completed successfully, including stable signing verification and artifact upload. This proves buildability, **not** physical runtime T5 success or merge/promotion readiness.
+- versionCode `26100127`;
+- bytes `8,588,087`;
+- APK SHA-256 `8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`;
+- stable signer SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`;
+- APK workflow run `37297805632` — SUCCESS;
+- artifact ID `11339942673`.
 
-## Live branch rule
+Real-device Foundation evidence proves an exact matching precomputed T5 source becomes `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE`, while a second source without matching precomputed telemetry remains `UNKNOWN_FAIL_CLOSED`. No T5 recomputation or cross-observation reuse occurs. Room Capsule remains `EXACT_PRESERVING_BYPASS`, exposure count is one, frame/evidence is one/one, and writeback/evidence firewalls stay closed.
 
-Candidate branch: `fix/android-exact-gauge-pass-artifact-v03`  
-PR: #130  
-Base: `fix/research-fresh-rerun-v01`
+Both tested observations report `EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`, with 3072 pass-2 RAW tile reads avoided per observation. Read counts verify the explicitly identity-bound PassArtifact route; they do not select authority.
 
-PR #130 remains open/draft and is currently reported `mergeable=false`. Do not merge or resolve base conflicts as part of the physical T5 evidence round.
+Foundation-wide scientific promotion remains `NOT_PROMOTED_FAIL_CLOSED`.
 
-Earlier runtime/scientific baseline before the 2026-10-04 documentation refresh:
+## Current repository task
 
-`2766aca5f8acf0f441c7b4f7fb6d892de9ae5778`
+PR #130 remains draft. Positive device evidence cannot override a failing governance/lifecycle/integrity gate.
 
-Documentation-only commits intentionally move HEAD beyond runtime baselines. **Never force-reset the branch to a remembered SHA.** Resolve the live PR head first and distinguish runtime/source commits from documentation-only commits.
+Exact next sequence:
+
+`resolve live head -> inspect all required checks -> repair stale documentation authority or genuine contract failures without weakening gates -> rerun -> require green/understood state -> only then consider ready-for-review/merge`.
 
 ## Permanent scientific laws
 
@@ -55,113 +55,82 @@ Documentation-only commits intentionally move HEAD beyond runtime baselines. **N
 - **Representation may become richer than the source; knowledge claims may not exceed evidence.**
 - **One Free World. Many sealed observations. One evidence law.**
 - Direct-CFA / RAW_SENSOR evidence is immutable and sealed.
-- Source capability is not proof of the captured sample domain.
+- One physical frame remains one physical frame; derived views do not create captures.
 - Scientific Master is scene-linear and pre-appearance.
 - `UNKNOWN` is valid and may not be converted to zero/certainty for convenience.
 - Unknown covariance is not zero.
 - Registration/reconstruction/precision/resolution/performance do not create authority.
 - Cross-observation radiometric fusion requires an admitted common-gauge relation.
 - TruthNegative remains Observation-bound; observations meet only above that boundary.
-- Inferred depth/normal/geometry/material/illumination may not silently become `MEASURED`.
-- World/Appearance layers may not write back into sealed evidence or Scientific Master without explicit admitted authority.
+- Inferred geometry/material/illumination may not silently become `MEASURED`.
+- Appearance may not write back into sealed evidence or Scientific Master without explicit admitted authority.
 - No AI/ML/neural/generative runtime is scientific evidence in D.RAW.
 
-## Current Android identity
+## Required historical governance provenance
 
-Actual runtime app: `suite_android`.
+The governance verifier intentionally preserves dated snapshots and requires these pointers to remain discoverable. They are historical provenance unless the current reading order says otherwise.
 
-Current source configuration for the T5 candidate lineage:
+### 2026-09-16 / 2026-09-19
 
-- application ID / namespace: **`com.truthraw.adaptiveui`**
-- versionCode: **`26100127`**
-- versionName: **`0.54-v0.84.2-open-world-authority-corridor-v01`**
-- minSdk 31
-- targetSdk 37
-- ARM64
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-16.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
 
-Do not use stale package/version information from older snapshots. Before installation, bind the APK to the intended source state using SHA-256, package/version and signer identity.
+### 2026-09-20 / 2026-09-21
 
-## Current connected corridor and T5 audit
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
 
-The project connects the single-observation scientific path through:
+### 2026-09-24 / 2026-09-25
 
-`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule -> v0.7 Appearance`.
+- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
 
-T5 now audits that **existing** corridor read-only. It does not create a second scientific cable. The runtime candidate records source/Scientific-Master SHA binding, per-stage counts and lineage, authority, firewalls, frame/evidence counts and v0.7 exposure application count.
+### 2026-09-27 / 2026-09-28
 
-Expected current result without an admitted world-evidence package:
+- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+- `docs/research/free-world-observation-graph-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
 
-- v0.6: `READY` only when parent/authority/firewall checks pass;
-- Room Capsule: `EXACT_PRESERVING_BYPASS`;
-- v0.7: downstream Appearance only;
-- `exposureApplicationCount == 1`;
-- `candidate_applied=false`;
-- no scientific writeback/new evidence.
+### 2026-10-01
 
-Missing runtime evidence remains `UNKNOWN`; a known failing v0.6 construction may be `BLOCKED`.
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
 
-Room Capsule is **not** a missing architecture. Without admitted geometry/material/illumination evidence, it must remain exact-preserving bypass.
+### 2026-10-02
 
-## Important things that remain incomplete
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 
-- physical real-device proof of the new T5 telemetry and corridor result;
-- universal end-to-end professional non-DNG RAW admission;
-- one canonical source-agnostic Source Capability Envelope governing downstream authority;
-- first-class standalone D.RAWnegative write/read/re-import/export round-trip;
-- productized arbitrary/full-resolution Free Raster Projection;
-- active evidence-bound multi-observation Free World Observation Graph;
-- broadly admitted metric 3D geometry;
-- admitted material/illumination packages for non-bypass Room Capsule behavior;
-- consolidation of restoration/render-edit research into the modern provenance-bound flow;
-- coherent user-visible authority/uncertainty UI;
-- physical performance/memory proof for full-resolution and multi-observation workloads;
-- dynamic HDR/display-target product behavior.
+### 44489 provenance
 
-The **largest incomplete scientific block** after clean single-observation device validation remains the active multi-observation Free World Observation Graph.
+- `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
+- `state/DRAW_PROJECT_STATE_2026-10-04.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`
+- `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
+- `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
 
-## Things that are deliberately NOT missing
+## Current scientific frontier after governance is clean
 
-### Anchor-Constrained Local Reconstruction
-
-Do not promote it merely because the research code exists. Real hold-out evidence showed worse aggregate performance than baseline on directly comparable samples and over-optimistic uncertainty. It is intentionally **NOT PROMOTED**.
-
-### Room Capsule architecture
-
-Do not build a second Room Capsule/cable architecture. The existing flexible host is already the one to use. What is missing for non-bypass behavior is admitted world evidence.
-
-## CI / promotion warning
-
-For exact runtime head `6a557cda...`, the head-bound Actions query contains the APK workflow and that workflow is green. Do **not** reinterpret this as proof that all historical PR/governance/lifecycle gates are green.
-
-PR #130 remains draft and not mergeable at this checkpoint. Earlier recovery state also recorded red `integrity` and `lifecycle-contract` gates. Those must be re-evaluated separately before promotion. A device pass cannot override repository governance failures.
-
-## Exact next action
-
-**Continue testing, not architecture work.**
-
-Open:
-
-`docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
-
-The repository/APK freeze portion is now stronger:
-
-- runtime source commit known: `6a557cda...`;
-- exact signed APK known;
-- APK SHA-256 known;
-- exact APK workflow green.
-
-Continue with the physical round:
-
-`T1 install/update exact APK -> T2 launch/logging -> T3 one real RAW_SENSOR/DNG observation -> T4 Scientific Master verification -> T5 v0.4/v0.5/v0.6/Room Capsule/v0.7 runtime audit -> T6 evidence bundle`.
-
-Stop on identity/provenance/calibration mismatch, crash/OOM, nondeterministic Scientific Master, sealed-source mutation, duplicate exposure, Room Capsule non-bypass without admitted evidence, inferred geometry becoming MEASURED, missing/contradictory T5 stage lineage, or any authority increase without evidence.
-
-## After a clean test
-
-Do not jump directly into another reconstruction heuristic. The next major scientific frontier is:
+Do not add another reconstruction heuristic by default. The highest-value frontier remains:
 
 `multiple real sealed observations -> proven inter-observation registration/gauge/uncertainty -> active Free World Observation Graph -> controlled free raster/world evaluation`.
 
-Parallel tracks remain universal source admission, first-class D.RAWnegative, Free Raster productization, authority UI, dynamic Appearance/HDR and scale/performance proof.
-
-A new chat should not ask the user to manually reconstruct older chats when this recovery layer and live repository state are sufficient.
+Parallel tracks remain universal source admission, first-class D.RAWnegative, Free Raster productization, user-visible authority/uncertainty, dynamic Appearance/HDR, and full-resolution/multi-observation scale proof.
