@@ -1,6 +1,15 @@
 name: T5 Corridor Performance Plumbing v0.1 Integrity
 
 on:
+  push:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/T5CorridorAuditV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthNegativeContinuousPreview.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ResearchPerformanceT5CorridorBindingV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldObservationGeometryFoundationV01.kt'
+      - 'tools/check_t5_corridor_performance_plumbing_v01.py'
+      - '.github/workflows/t5-corridor-performance-plumbing-v01.yml'
   pull_request:
     paths:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/T5CorridorAuditV01.kt'
