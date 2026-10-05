@@ -3,7 +3,6 @@ package com.truthraw.adaptiveui
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -22,17 +21,17 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import java.util.Locale
-import kotlin.math.max
 import kotlin.math.min
 
 /**
- * D.RAW Workspace / Vrije Raster-weergave v0.1.
+ * D.RAW Workspace / Output / Vrije Raster v0.2.
  *
  * Product/UI shell around the existing proven D.RAW routes. This activity does
  * not decode RAW/DNG, does not build a second Scientific Master and does not
  * infer authority. RAW/DNG stays routed through MainActivity / Universal
- * Intake. The local canvas can inspect only an already-rendered presentation
- * raster and its pan/zoom matrix is APPEARANCE/PRESENTATION_ONLY.
+ * Intake. Free Raster is downstream Output/View and accepts only an existing
+ * D.RAW output/presentation state or an explicitly external presentation
+ * raster. Pan/zoom is APPEARANCE/PRESENTATION_ONLY.
  *
  * Free-raster rule: representation may move/scale independently; evidence and
  * authority remain bound to the upstream observation.
@@ -121,7 +120,7 @@ class TruthRawWorkspaceActivity : Activity() {
         root.addView(space(12))
         root.addView(
             body(
-                "One Free World. Many sealed observations. One evidence law. Deze Workspace brengt bron, route, vrije raster-weergave en authority-uitleg bij elkaar zonder een tweede scientific pipeline te maken.",
+                "One Free World. Many sealed observations. One evidence law. Deze Workspace brengt bron, één gedeelde PURE/ADVANCED/PRO-kabel, authority en downstream Output / Vrije Raster bij elkaar zonder een tweede scientific pipeline te maken.",
                 12.5f,
             ),
         )
@@ -132,7 +131,7 @@ class TruthRawWorkspaceActivity : Activity() {
             addView(routeStatusView)
             addView(space(7))
             addView(body(
-                "PURE, ADVANCED en PRO delen dezelfde sealed source en Scientific Master. Routekeuze verandert alleen downstream gereedschap/view.",
+                "PURE, ADVANCED en PRO delen dezelfde sealed source en Scientific Master. Routekeuze verandert alleen downstream gereedschap/view; geen route krijgt daardoor sterkere evidence.",
                 11.5f,
             ))
             addView(space(9))
@@ -185,46 +184,6 @@ class TruthRawWorkspaceActivity : Activity() {
         })
 
         root.addView(space(14))
-        root.addView(card("Vrije Raster-weergave · v0.1").apply {
-            addView(body(
-                "Het canvas hieronder is een vrije VIEW-projectie: pan en zoom veranderen alleen de zichtbare rasterpositie. Voor veiligheid accepteert deze lokale canvaslaag alleen een reeds gerenderd presentatiebeeld; RAW/DNG hoort altijd via de D.RAW werkbank. Geen canvasbewerking creëert MEASURED pixels of schrijft terug naar Scientific Master.",
-                11.7f,
-            ))
-            addView(space(10))
-            addView(buildCanvas())
-            addView(space(8))
-            addView(horizontal().apply {
-                addView(
-                    smallAction("Fit", teal) { fitCanvasImage() },
-                    LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) },
-                )
-                addView(
-                    smallAction("Preview 1:1", blue) { setCanvasOneToOne() },
-                    LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4); marginEnd = dp(4) },
-                )
-                addView(
-                    smallAction("Reset", orange) { fitCanvasImage() },
-                    LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) },
-                )
-            })
-            addView(space(8))
-            addView(action("Open gerenderd presentatie-raster", teal) { launchPresentationRasterPicker() })
-            addView(space(7))
-            addView(action("Projectie / export uitvoeren in bestaande D.RAW werkbank", blue) {
-                startActivity(
-                    Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                    },
-                )
-            })
-            addView(space(7))
-            addView(body(
-                "v0.1 productiseert de vrije x/y-weergave zonder de bestaande full-resolution projectieruntime te dupliceren. De volgende runtime-bridge mag uitsluitend bestaande Unified Output / projectie-state consumeren.",
-                10.8f,
-            ))
-        })
-
-        root.addView(space(14))
         root.addView(card("Pipeline · authority-neutrale kaart").apply {
             addView(body(
                 "Deze kaart is navigatie, geen meetresultaat. Alleen de brongebonden runtime mag een stap als werkelijk beschikbaar/bewezen markeren.",
@@ -235,14 +194,14 @@ class TruthRawWorkspaceActivity : Activity() {
             addView(pipelineRow("2 · SEALED", "alleen seal/provenance-record kan dit bewijzen"))
             addView(pipelineRow("3 · SCIENTIFIC", "Scientific Master · nooit afgeleid uit UI-status"))
             addView(pipelineRow("4 · CONTINUOUS", "TruthNegative / reconstruction · authority blijft expliciet"))
-            addView(pipelineRow("5 · FREE RASTER", "vrije view/projectie · creëert geen evidence"))
-            addView(pipelineRow("6 · APPEARANCE", "downstream display/view · nooit scientific writeback"))
+            addView(pipelineRow("5 · FREE RASTER", "downstream view/projectie · creëert geen evidence"))
+            addView(pipelineRow("6 · APPEARANCE", "display/view · nooit Scientific Master writeback"))
         })
 
         root.addView(space(14))
         root.addView(card("Evidence / Authority Inspector · betekenis").apply {
             addView(body(
-                "Nog zonder actieve bronbinding toont v0.1 uitsluitend de betekenis van authority-klassen. Het canvas mag deze labels nooit zelf toekennen.",
+                "Zonder actieve bronbinding toont deze Workspace uitsluitend de betekenis van authority-klassen. Output, zoom en Free Raster mogen deze labels nooit zelf toekennen.",
                 11.5f,
             ))
             addView(space(8))
@@ -253,6 +212,9 @@ class TruthRawWorkspaceActivity : Activity() {
             addView(authorityRow("UNKNOWN", "onvoldoende bewijs; blijft zichtbaar/fail-closed"))
             addView(authorityRow("APPEARANCE", "presentatie/view; geen scientific authority"))
         })
+
+        root.addView(space(14))
+        root.addView(buildFreeRasterCard())
 
         root.addView(space(14))
         root.addView(card("Werkbanken").apply {
@@ -280,7 +242,7 @@ class TruthRawWorkspaceActivity : Activity() {
         root.addView(space(16))
         root.addView(
             body(
-                "Workspace v0.1 · UI/presentation layer. No new evidence · no candidate promotion · no Scientific Master writeback · no AI/ML scientific inference.",
+                "Workspace v0.2 · source/scientific core gedeeld · Output / Vrije Raster downstream · externe rasters PRESENTATION_ONLY · geen nieuwe evidence · geen candidate promotion · geen Scientific Master writeback · geen AI/ML scientific inference.",
                 10.5f,
             ).apply { gravity = Gravity.CENTER },
         )
@@ -299,17 +261,63 @@ class TruthRawWorkspaceActivity : Activity() {
         }
     }
 
+    private fun buildFreeRasterCard(): View = card("Output / Vrije Raster · v0.2").apply {
+        addView(body(
+            "Vrije Raster is downstream Output/View. Het canvas kan een bestaande D.RAW-output consumeren zodra de bestaande Unified Output-state is gebonden, of bewust een externe JPG/PNG/WebP als PRESENTATION_ONLY bekijken. RAW/DNG blijft altijd via Universal Intake. Geen canvasbewerking creëert MEASURED pixels of schrijft terug naar Scientific Master.",
+            11.7f,
+        ))
+        addView(space(10))
+        addView(buildCanvas())
+        addView(space(8))
+        addView(horizontal().apply {
+            addView(
+                smallAction("Fit", teal) { fitCanvasImage() },
+                LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) },
+            )
+            addView(
+                smallAction("Preview 1:1", blue) { setCanvasOneToOne() },
+                LinearLayout.LayoutParams(0, dp(48), 1f).apply {
+                    marginStart = dp(4)
+                    marginEnd = dp(4)
+                },
+            )
+            addView(
+                smallAction("Reset", orange) { fitCanvasImage() },
+                LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) },
+            )
+        })
+        addView(space(8))
+        addView(action("Open externe JPG / PNG / WebP", teal) {
+            launchPresentationRasterPicker()
+        })
+        addView(space(7))
+        addView(action("Projectie / output uitvoeren in D.RAW werkbank", blue) {
+            startActivity(
+                Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                },
+            )
+        })
+        addView(space(7))
+        addView(body(
+            "Interne D.RAW-output moet uitsluitend de bestaande Unified Output / projectie-state consumeren. De externe rasterroute is expliciet een viewer en nooit een tweede renderer of scientific pipeline.",
+            10.8f,
+        ))
+    }
+
     private fun buildCanvas(): View {
         canvasImage = ImageView(this).apply {
             setBackgroundColor(DrawVisualTheme.INK)
             scaleType = ImageView.ScaleType.MATRIX
             imageMatrix = canvasMatrix
-            contentDescription = "Vrije Raster presentatie-canvas"
+            contentDescription = "Output / Vrije Raster presentatie-canvas"
             setOnTouchListener { view, event -> handleCanvasTouch(view, event) }
         }
 
         canvasPlaceholder = TextView(this).apply {
-            text = "VRIJE RASTER\n\nGeen presentatie-raster geladen\n\nRAW / DNG → D.RAW werkbank"
+            text =
+                "OUTPUT / VRIJE RASTER\n\nGeen D.RAW-output-raster beschikbaar\n\n" +
+                    "Externe JPG / PNG / WebP = PRESENTATION_ONLY"
             textSize = 15f
             setTextColor(DrawVisualTheme.PAPER_WHITE)
             gravity = Gravity.CENTER
@@ -338,7 +346,10 @@ class TruthRawWorkspaceActivity : Activity() {
             )
         }
 
-        canvasStatusView = body("Canvasstatus · EMPTY · authority niet afgeleid", 10.8f)
+        canvasStatusView = body(
+            "Canvasstatus · EMPTY · geen output-raster · authority niet afgeleid",
+            10.8f,
+        )
         canvasTelemetryView = body("View transform · geen raster", 10.3f)
 
         return vertical().apply {
@@ -453,6 +464,10 @@ class TruthRawWorkspaceActivity : Activity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "image/*"
+            putExtra(
+                Intent.EXTRA_MIME_TYPES,
+                arrayOf("image/jpeg", "image/png", "image/webp"),
+            )
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
@@ -465,13 +480,6 @@ class TruthRawWorkspaceActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_PRESENTATION_RASTER || resultCode != RESULT_OK) return
         val uri = data?.data ?: return
-
-        runCatching {
-            contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION,
-            )
-        }
 
         if (looksLikeRawSource(uri)) {
             canvasStatusView.text =
@@ -488,57 +496,37 @@ class TruthRawWorkspaceActivity : Activity() {
 
     private fun loadPresentationRaster(uri: Uri, restored: Boolean) {
         canvasStatusView.text = if (restored) {
-            "Presentatie-raster herstellen…"
+            "Extern presentatie-raster herstellen… · PRESENTATION_ONLY"
         } else {
-            "Presentatie-raster laden…"
+            "Extern presentatie-raster laden… · PRESENTATION_ONLY"
         }
+
         Thread({
-            val decoded = runCatching { decodePresentationBitmap(uri) }
+            val result = PresentationRasterLoader.load(this, uri)
             runOnUiThread {
-                decoded.fold(
-                    onSuccess = { bitmap ->
+                when (result) {
+                    is PresentationRasterLoader.Result.Ready -> {
                         presentationBitmap?.recycle()
-                        presentationBitmap = bitmap
+                        presentationBitmap = result.bitmap
                         presentationUri = uri
-                        canvasImage.setImageBitmap(bitmap)
+                        canvasImage.setImageBitmap(result.bitmap)
                         canvasPlaceholder.visibility = View.GONE
                         canvasStatusView.text =
-                            "Canvasstatus · PRESENTATION_ONLY · " +
-                                bitmap.width + "×" + bitmap.height +
-                                " preview · bron-authority niet gewijzigd"
+                            "Canvasstatus · EXTERNAL_PRESENTATION_RASTER · bron " +
+                                result.sourceWidth + "×" + result.sourceHeight +
+                                " px · preview " + result.bitmap.width + "×" + result.bitmap.height +
+                                " px · sample " + result.sampleSize + "× · PRESENTATION_ONLY · " +
+                                "geen scientific authority/writeback"
                         canvasImage.post { fitCanvasImage() }
-                    },
-                    onFailure = { error ->
+                    }
+                    is PresentationRasterLoader.Result.Failure -> {
                         canvasStatusView.text =
-                            "Presentatie-raster kon niet worden gelezen: " +
-                                (error.message ?: error.javaClass.simpleName)
-                    },
-                )
+                            "Rasterfout · " + result.kind.name + " · " + result.detail +
+                                " · scientific state ongewijzigd"
+                    }
+                }
             }
-        }, "draw-workspace-presentation-decode").start()
-    }
-
-    private fun decodePresentationBitmap(uri: Uri): Bitmap {
-        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        contentResolver.openInputStream(uri)?.use { stream ->
-            BitmapFactory.decodeStream(stream, null, bounds)
-        } ?: error("Geen leesbare inputstream")
-
-        require(bounds.outWidth > 0 && bounds.outHeight > 0) {
-            "Geen ondersteund gerenderd raster"
-        }
-
-        var sample = 1
-        val largest = max(bounds.outWidth, bounds.outHeight)
-        while (largest / sample > MAX_PRESENTATION_EDGE) sample *= 2
-
-        val options = BitmapFactory.Options().apply {
-            inSampleSize = sample
-            inPreferredConfig = Bitmap.Config.ARGB_8888
-        }
-        return contentResolver.openInputStream(uri)?.use { stream ->
-            BitmapFactory.decodeStream(stream, null, options)
-        } ?: error("Rasterdecode gaf geen bitmap")
+        }, "draw-workspace-presentation-decode-v02").start()
     }
 
     private fun looksLikeRawSource(uri: Uri): Boolean {
@@ -584,7 +572,7 @@ class TruthRawWorkspaceActivity : Activity() {
         addView(
             vertical().apply {
                 addView(title("D.RAW Workspace", 27f))
-                addView(body("Vrije Raster-weergave · evidence-bound UI v0.1", 11.5f))
+                addView(body("Source → Scientific → Output / Vrije Raster · v0.2", 11.5f))
             },
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
         )
@@ -688,7 +676,6 @@ class TruthRawWorkspaceActivity : Activity() {
         private const val REQUEST_PRESENTATION_RASTER = 4810
         private const val PREF_WORKSPACE = "draw_workspace_v0_1"
         private const val KEY_PRESENTATION_URI = "presentation_uri"
-        private const val MAX_PRESENTATION_EDGE = 2048
 
         private val RAW_EXTENSIONS = listOf(
             ".dng", ".raw", ".nef", ".cr3", ".cr2", ".arw", ".raf", ".rw2",
