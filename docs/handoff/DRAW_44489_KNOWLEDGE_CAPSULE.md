@@ -5,10 +5,13 @@ Purpose: compact but binding recovery state for a new chat. This capsule records
 Project: **D.RAW** (`TruthRaw` is historical/repository naming)  
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
-Recovery marker: **`[KCR-44489-2026-10-03-A]`**  
+Recovery marker: **`[KCR-44489-2026-10-05-T5-FOUNDATION]`**  
 Active candidate branch: **`fix/android-exact-gauge-pass-artifact-v03`**  
-Active PR: **#130**, open/draft/mergeable at the 2026-10-04 refresh  
-Runtime/scientific baseline before this documentation refresh: **`2766aca5f8acf0f441c7b4f7fb6d892de9ae5778`**
+Active PR: **#130**, open/draft and reported `mergeable=false` at the 2026-10-05 refresh  
+T5 runtime-audit candidate landmark: **`6a557cda2b8f10db7f4c81dde50b5dc8c77ea210`**  
+Foundation-T5 telemetry plumbing code head validated by Android APK build: **`90aeee32166c571ff12aa812bfe854e9e4f95d6a`**  
+Dedicated T5 plumbing integrity head: **`245e6b9a3bee6b101b81edcee9426694ec9c272d`**  
+Live branch head immediately before this capsule refresh: **`aa59b4b93a55751741cb67e4f2cca06e006ca03d`**
 
 Always resolve the live PR #130 head before mutation or testing. Documentation commits may move HEAD beyond the runtime/scientific baseline. Never force-reset to a remembered SHA merely to make documentation match.
 
@@ -56,7 +59,7 @@ TruthRange coordinate family: `T = log2(L/L0)`. Shared coordinate notation is no
 
 Real application: `suite_android`.
 
-Current branch configuration at the runtime baseline:
+Current branch configuration at the validated plumbing code head:
 
 - application ID / namespace: **`com.truthraw.adaptiveui`**
 - versionCode: **`26100127`**
@@ -64,9 +67,20 @@ Current branch configuration at the runtime baseline:
 - minSdk 31
 - targetSdk 37
 - ARM64 native target
-- C++20 with warnings-as-errors in the Android native build
+- C++20 Android native target
 
 Do not substitute stale identities from older 44489 snapshots. An APK is a valid current test candidate only after its package/version/signing identity and SHA-256 are checked against the artifact actually being installed.
+
+Current Foundation-T5 test APK is bound to code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`:
+
+- workflow run: `37291164092` — SUCCESS;
+- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`;
+- artifact ID: `11336456810`;
+- APK bytes: `8,588,087`;
+- APK SHA-256: `bc20369453694e42826de8440ae8dd2c78a79d72b4d8066f4a942337bafd76b4`;
+- signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`.
+
+The older T5 runtime-audit APK from `6a557cda...` remains historical evidence but predates the Foundation telemetry plumbing and is not the correct APK for the next Foundation-T5 JSON-export test.
 
 ## 5. Scientific Master and Exact Gauge Retained Artifact v0.3
 
@@ -115,14 +129,35 @@ Important commit landmarks in this lineage include:
 - v0.6 world observation contract: `33fad60...`
 - v0.7 appearance layer: `205754e...`
 - duplicate user-exposure correction: `0053e25...`
+- T5 runtime-audit candidate: `6a557cd...`
 
 These abbreviated landmarks are navigation aids, not a substitute for resolving the live branch.
 
 ### Room Capsule rule
 
-Room Capsule architecture was **not missing**. It already existed in the flexible Open-World host. The missing runtime connection was the issue; the corridor is now wired through it.
+Room Capsule architecture was **not missing**. It already existed in the flexible Open-World host. The runtime corridor is wired through it.
 
 Without admitted geometry/material/illumination evidence, Room Capsule must remain an **exact-preserving bypass**. It may not change pixels merely because the host exists. More useful relighting requires an admitted world-evidence package first.
+
+### T5 telemetry -> Foundation connection — IMPLEMENTED, device export not yet proven
+
+`T5CorridorAuditV01.kt` already interpreted the native runtime telemetry read-only and fail-closed. The missing connection identified after the original T5 candidate has now been implemented without adding a second corridor or scientific evaluation.
+
+Current diagnostic path:
+
+`existing native T5 metrics -> TruthNegativeContinuousPreview.Ready -> T5CorridorAuditV01 -> ResearchPerformanceT5CorridorBindingV01 -> FreeWorldPerformanceDiagnosticsV01 -> Foundation performance_diagnostics_v0_1 JSON`.
+
+`ResearchPerformanceT5CorridorBindingV01` is process-local and keyed by exact source SHA-256. It accepts only diagnostic-only/no-mutation T5 audit snapshots, disallows cross-observation reuse and exports missing/mismatched/contradictory telemetry as `UNKNOWN_FAIL_CLOSED`. It deliberately records `profile_run_binding_verified=false`: source identity is proven, but the diagnostic transport must not invent a claim that the T5 audit was computed inside the same profiler run.
+
+The Foundation observation field is:
+
+`t5_corridor_audit_binding_v0_1`.
+
+This binding never invokes the native T5/Room-Capsule corridor again. It is transport/diagnostic plumbing only. Exact Gauge v0.3, canonical v0.2, sealed CFA, Scientific Master and reconstruction behavior were not changed in this round.
+
+Dedicated integrity workflow `T5 Corridor Performance Plumbing v0.1 Integrity`, run `37291751779` on head `245e6b9a...`, is **SUCCESS**. It checks source binding, fail-closed contradiction behavior, Room-Capsule exact bypass, one exposure, one physical frame/evidence source, closed candidate/writeback/evidence firewalls and absence of T5 recomputation in the binding/Foundation layer.
+
+Physical proof that this new field appears correctly in a real-device exported Foundation JSON is **still pending**.
 
 ## 8. Nine-block architecture status
 
@@ -188,47 +223,66 @@ Internal authority/telemetry is much richer than the current user presentation. 
 
 N2 reuse, direct SHA, Pixel-Triplet work and Exact Gauge reduce redundant work, but true full-resolution free-raster and multi-observation workloads still need real-device memory/runtime proof.
 
-## 10. Current CI truth at runtime baseline `2766aca...`
+## 10. Current validation truth — 2026-10-05
 
-Do **not** call the baseline fully green.
+Do **not** call the whole PR fully green or promoted.
 
-Known check state on 2026-10-04:
+Newly proven for the T5 Foundation-plumbing round:
 
-- exact-parity checks are succeeding;
-- **Research Integrity Guard / integrity** is failing;
-- **Lifecycle Contract Test / lifecycle-contract** is failing;
-- many other scientific/Android checks are green.
+- Android/APK build for code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`: **SUCCESS**, run `37291164092`;
+- dedicated T5 Foundation telemetry integrity gate for head `245e6b9a3bee6b101b81edcee9426694ec9c272d`: **SUCCESS**, run `37291751779`;
+- APK package/signing/version checks passed in the build workflow;
+- no second T5 evaluation/Room-Capsule implementation was added;
+- no scientific-core file was intentionally modified by this plumbing round.
 
-The two red governance/lifecycle checks must be diagnosed from their exact current output before promotion. Do not guess their cause and do not treat a device pass as permission to ignore them.
+What is **not** yet proven:
 
-## 11. Exact next-chat starting point: TEST, not new architecture
+- real-device Foundation JSON containing a correctly source-bound `t5_corridor_audit_binding_v0_1`;
+- physical continuity from the matching real observation through the new exported diagnostic field;
+- whole-PR promotion readiness.
 
-Read `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md` and begin there.
+Historical 2026-10-04 recovery data recorded red Research Integrity Guard / Lifecycle Contract gates. Those historical results must be re-evaluated against the current live PR before promotion; the two new green workflows do not automatically clear unrelated governance/lifecycle failures.
 
-The next chat should first establish a reproducible test baseline:
+PR #130 remains open/draft and was reported `mergeable=false` on the 2026-10-05 refresh. Do not merge/promotion-drive around that state.
 
-1. resolve live PR #130 HEAD and record it;
-2. read current CI and classify every red/skipped required gate;
-3. identify or build the exact candidate APK, record SHA-256/package/version/signing identity;
-4. install/update on the real device without silently changing app identity;
-5. capture one real Camera2 RAW_SENSOR observation and preserve raw/seal/DNG/manifest lineage;
-6. run it through intake -> Scientific Master -> v0.4 -> v0.5 -> v0.6 -> Room Capsule -> v0.7 Appearance;
-7. verify provenance, calibration binding, Scientific-Master identity, authority monotonicity, duplicate-exposure absence and exact-preserving Room-Capsule bypass where world evidence is absent;
-8. save an evidence bundle before any new research or optimization.
+## 11. Exact next-chat starting point: REAL-DEVICE FOUNDATION T5 JSON TEST
+
+Read:
+
+- `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`;
+- `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`;
+- `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md` for broader device discipline.
+
+Immediate next test uses the stable-signed APK from code head `90aeee32166c571ff12aa812bfe854e9e4f95d6a`, SHA-256 `bc20369453694e42826de8440ae8dd2c78a79d72b4d8066f4a942337bafd76b4`.
+
+Test sequence:
+
+1. resolve live PR #130 HEAD and record it, but do not confuse later documentation/workflow commits with the validated APK source head;
+2. install/update the exact APK while preserving package/signing continuity;
+3. use one real admitted DNG/RAW_SENSOR-derived observation;
+4. execute the current Foundation/Open-World/T5 path so the matching precomputed T5 audit exists in-process;
+5. export the Foundation observation JSON;
+6. locate `performance_diagnostics_v0_1.observations[*].t5_corridor_audit_binding_v0_1` for the exact source SHA;
+7. expect `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE` only for an exact matching source snapshot;
+8. verify the nested T5 audit preserves stage lineages, Room Capsule `EXACT_PRESERVING_BYPASS`, `exposure_application_count == 1`, one physical frame, one independent evidence source, `candidate_applied=false`, no new evidence and no scientific writeback;
+9. if matching telemetry is absent or contradictory, require `UNKNOWN_FAIL_CLOSED` — Foundation must not recompute T5 to fill the gap;
+10. save/upload the exported JSON before changing further runtime/scientific code.
 
 ### Stop immediately if any of these occurs
 
 - installed APK SHA/package/version/signing identity is not the intended candidate;
 - source lineage/hash or calibration binding disagrees;
+- `t5_corridor_audit_binding_v0_1` binds a different source SHA;
+- Foundation export triggers or implies a second T5/Room-Capsule evaluation;
+- missing T5 telemetry becomes certainty instead of `UNKNOWN_FAIL_CLOSED`;
 - crash/OOM or non-deterministic scientific output;
 - user exposure is applied twice;
-- Room Capsule changes scientific/presentation values without admitted world evidence;
+- Room Capsule changes values without admitted world evidence;
 - inferred/estimated geometry becomes `MEASURED`;
 - authority increases without new evidence;
-- non-DNG admission silently guesses sensor truth;
-- Scientific Master, sealed CFA or measured anchors are mutated by a candidate/performance/appearance path.
+- Scientific Master, Exact Gauge v0.3, canonical v0.2, sealed CFA or measured anchors are mutated by diagnostic plumbing.
 
-No promotion until CI + real-device evidence support it.
+No promotion until wider CI + this real-device evidence support it.
 
 ## 12. What comes after a clean device test
 
@@ -250,6 +304,8 @@ Current recovery/test layer:
 
 - `START_HERE_NEW_CHAT.md`
 - `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
+- `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
+- `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
 - `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
 - `state/DRAW_PROJECT_STATE_2026-10-04.json`
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`
