@@ -5,6 +5,7 @@ on:
     branches:
       - research/free-world-radiometric-noise-transport-v01-2026-09-30
       - fix/android-exact-gauge-pass-artifact-v03
+      - feat/draw-workspace-free-raster-v01
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-free-world-research-apk.yml'
