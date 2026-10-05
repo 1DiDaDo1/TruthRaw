@@ -1,13 +1,17 @@
 name: Scientific Master Tile-Read Attribution v0.1 Integrity
 
 on:
+  push:
+    paths:
+      - 'docs/research/scientific-master-streaming-binding-v0.2/**'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
+      - 'docs/research/scientific-master-tile-read-attribution-v0.1/**'
+      - 'tools/check_scientific_master_tile_read_attribution_v01.py'
+      - '.github/workflows/scientific-master-tile-read-attribution-v01.yml'
   pull_request:
     paths:
       - 'docs/research/scientific-master-streaming-binding-v0.2/**'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldPerformanceDiagnosticsV01.kt'
-      - 'suite_android/VERSION_CODE'
-      - 'suite_android/app/build.gradle.kts'
-      - 'state/DRAW_ANDROID_VERSION_LINEAGE_V01.json'
       - 'docs/research/scientific-master-tile-read-attribution-v0.1/**'
       - 'tools/check_scientific_master_tile_read_attribution_v01.py'
       - '.github/workflows/scientific-master-tile-read-attribution-v01.yml'
@@ -21,5 +25,5 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify Scientific Master tile-read attribution stays fail-closed
+      - name: Verify Scientific Master tile-read attribution is route-aware and fail-closed
         run: python3 tools/check_scientific_master_tile_read_attribution_v01.py
