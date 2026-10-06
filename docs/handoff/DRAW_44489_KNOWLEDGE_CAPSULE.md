@@ -376,3 +376,206 @@ Accepted Workspace runtime code checkpoint:
 `c85b9805a56681b1adbc39f58b95724c4810907c`
 
 Documentation-only commits may follow this checkpoint without changing APK runtime identity. The final APK must still be tied to a successful assemble/verify workflow and must record its exact runtime SHA, artifact ID, byte size, APK SHA-256 and stable signing-certificate SHA-256 before delivery.
+
+## 15. Workspace / Free Raster v0.2 continuation — flexible cables and non-destructive workbench
+
+This section records the v0.2 continuation after the accepted v0.1 device round. It is a **product/architecture/runtime-candidate status**, not scientific promotion.
+
+### 15.1 Exact PR / branch boundary
+
+Immediately before this capsule-only documentation commit, PR #131 had implementation/documentation checkpoint:
+
+`f5d70040cb965fb727d3679f5412a4970c53dd4d`
+
+State at that checkpoint:
+
+- branch: `feat/draw-workspace-free-raster-v01`;
+- PR #131: open, draft, not merged, mergeable=true;
+- base/frozen scientific-audit reference: PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`;
+- PR #130 was not modified by this Workspace continuation.
+
+The capsule commit itself is documentation-only; it advances the branch head without changing Android runtime semantics.
+
+### 15.2 v0.2 product architecture reference
+
+The user-supplied image **“D.RAW – Volledige Project Architectuur, Kabels, Input, Opties en Output (v0.2)”** is the current concrete product/architecture reference. It does not prove runtime implementation or scientific admission of every depicted block.
+
+Canonical product cable:
+
+`Input -> Universal Intake -> Scientific Core -> Unified Output State -> PURE / ADVANCED / PRO -> Vrije Raster / Output -> Export`
+
+Scientific/world architecture remains evidence-bound. The UI diagram may guide placement and responsibility, but it may never manufacture authority.
+
+Free Raster is downstream output/projection. It must consume an already admitted/rendered output state; it is not a second RAW decoder, second Scientific Master, second reconstruction route or second source of truth.
+
+### 15.3 Permanent flexible-inside cable rule
+
+New binding architecture rule:
+
+**Stable outside. Flexible inside. Evidence law unchanged.**
+
+Every cable must keep its outer evidence/provenance/safety contract explicit while permitting internal stages, adapters, algorithms and capability routing to evolve.
+
+Stable outer boundary includes, where applicable:
+
+- source/observation binding;
+- payload/type contract;
+- provenance contract;
+- authority contract;
+- uncertainty/censoring state;
+- writeback permission;
+- UNKNOWN/failure semantics.
+
+Flexible internal structure may include deterministic adapters, alternate implementations behind the same contract, optional telemetry, faster exact-preserving implementations and future source/output capabilities.
+
+Flexibility never allows:
+
+- creation of new `MEASURED` evidence;
+- silent promotion of `UNKNOWN`;
+- mutation of sealed evidence;
+- hidden Scientific Master writeback;
+- conversion of appearance into scientific authority;
+- AI/ML as a scientific inference layer.
+
+Implementation/documentation anchors now present:
+
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawFlexibleCableContractV01.kt`;
+- `docs/DRAW_FLEXIBLE_CABLE_INTERNALS_v0_1.md`;
+- refactored `PresentationRasterLoader.kt` with a stable `load(...)` boundary and internally extensible `Decoder` adapter chain.
+
+The first presentation decoder is `android.bitmap_factory.v1`. This is an implementation adapter, not scientific authority.
+
+### 15.4 External raster loading status
+
+The external JPG/PNG/WebP path remains explicitly:
+
+`EXTERNAL_PRESENTATION_RASTER / PRESENTATION_ONLY`
+
+`PresentationRasterLoader` now has an internally extensible decoder cable while retaining provider-safe Android loading:
+
+- best-effort persistable read permission;
+- `openFileDescriptor(uri, "r")` preferred;
+- fresh `openInputStream(uri)` fallback;
+- separate fresh handles for bounds and actual decode;
+- sampled preview bounded by the configured display dimension;
+- distinct permission/provider/type/decode/memory failures;
+- no RAW parsing;
+- no Scientific Master mutation;
+- no authority creation.
+
+### 15.5 Unified Output -> Free Raster bridge progress
+
+New runtime file:
+
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt`
+
+Purpose:
+
+`existing Unified Output Ready bitmap -> lifetime-safe presentation snapshot -> Workspace / Free Raster consumer`
+
+The bridge is process-local and presentation-only. It does **not** render, reconstruct, run T5, modify Scientific Master or infer scientific authority.
+
+Important bitmap-lifetime rule: MainActivity owns and may recycle its own `UnifiedOutputPreviewResult.Ready.bitmap`. Workspace must therefore never retain that direct bitmap reference. The bridge publishes an owned copy and returns a separate consumer-owned copy.
+
+The bridge itself follows the flexible-inside rule through an internal `Transport` adapter. Current default transport:
+
+`process_memory_owned_copy.v1`
+
+Current bridge authority/safety constants remain presentation-only and no-scientific-writeback.
+
+**Status boundary:** the bridge class exists, but the complete publisher/consumer wiring is not yet proven complete. Do not report the internal D.RAW-output Free Raster path as finished until the existing `UnifiedOutputPreviewResult.Ready` creation/publication path and Workspace consume action are actually connected and compiled/tested.
+
+Exact remaining cable:
+
+`UnifiedOutputPreviewResult.Ready -> UnifiedOutputPresentationBridge.publish(...) -> Workspace consume -> Free Raster`
+
+No second renderer or T5 evaluation may be introduced to complete this connection.
+
+### 15.6 Permanent non-destructive workbench rule
+
+The D.RAW Workbench must be non-destructive for **RAW/DNG scientific sources and ordinary JPEG/PNG/WebP source images**.
+
+Canonical model:
+
+`IMMUTABLE_SOURCE + REVERSIBLE_EDIT_STATE -> PRESENTATION / OUTPUT`
+
+`EXPORT -> NEW_DERIVED_OUTPUT`
+
+Never:
+
+`SOURCE -> EDIT -> OVERWRITE SOURCE`
+
+Hard consequences:
+
+- sealed RAW/CFA evidence remains immutable;
+- D.RAW Observation Records remain unchanged by workbench edits;
+- Scientific Master remains unchanged by appearance/output controls;
+- source RAW/DNG is never overwritten by workbench editing;
+- imported JPEG/PNG/WebP remains read-only as the base image;
+- appearance operations are stored separately and remain individually reversible;
+- crop/framing, rotation, pan, zoom, Free Raster x/y and scale are downstream view/output transforms;
+- reset returns to the same original source with no edit operations;
+- previews are render results, never replacement source truth;
+- JPEG is not repeatedly decode -> edit -> re-encode -> overwrite as working state;
+- explicit export creates a new derived file with lineage/provenance;
+- PURE / ADVANCED / PRO share the same admitted source/scientific core and differ downstream only.
+
+New runtime contract anchor:
+
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/NonDestructiveWorkbenchStateV01.kt`
+
+It stores an immutable/read-only `SourceBinding` plus open, reversible downstream `EditOperation` records. Operation and parameter identifiers remain extensible instead of being frozen into a closed list. The contract permits only downstream domains `APPEARANCE_ONLY`, `OUTPUT_TRANSFORM_ONLY` and `VIEW_ONLY` and hard-codes these safety states false:
+
+- `SOURCE_MUTATION_ALLOWED=false`;
+- `SCIENTIFIC_MASTER_WRITEBACK_ALLOWED=false`;
+- `OVERWRITE_SOURCE_ON_EXPORT_ALLOWED=false`.
+
+Documentation anchor:
+
+`docs/DRAW_NON_DESTRUCTIVE_WORKBENCH_v0_1.md`
+
+**Status boundary:** this contract now exists, but every existing ADVANCED/Workspace control has not yet been migrated to it. Do not claim global non-destructive runtime proof until integration and tests demonstrate that all relevant edit/export paths obey it.
+
+### 15.7 Appearance reference — dog JPEG
+
+The supplied black/white dog JPEG is retained only as an **appearance stress-test/reference**, never as calibration evidence.
+
+Desired downstream qualities include:
+
+- deeper black fur without crushed strand detail;
+- retained texture in white fur/highlights;
+- smooth highlight roll-off instead of hard display clipping;
+- useful midtone separation without halos;
+- restrained warmth/colorfulness increases when the render is dull/cool;
+- neutral white/black fur protection;
+- subtle detail/texture enhancement.
+
+No observation-specific scientific calibration values may be learned from this single JPEG.
+
+### 15.8 Current APK / validation boundary
+
+The v0.1 accepted APK identity from section 14 remains historical evidence only. Runtime code has changed since that checkpoint.
+
+Therefore:
+
+- no old APK SHA/artifact ID may be presented as the build identity of the v0.2 continuation;
+- PR #131 remains draft;
+- fresh current-head compilation/CI is required;
+- a new APK must be tied to its exact runtime SHA, artifact ID, byte count, APK SHA-256 and signing-certificate SHA-256;
+- real-device validation is required for both external presentation raster and internal D.RAW Unified Output consumption;
+- none of these product validations promotes a scientific candidate.
+
+### 15.9 Exact next implementation / acceptance order
+
+1. Trace the common existing creation/publication boundary of `UnifiedOutputPreviewResult.Ready` without duplicating render logic.
+2. Publish that existing Ready result through `UnifiedOutputPresentationBridge` using source/route binding already known upstream.
+3. Add Workspace action/state to consume the bridge snapshot fail-closed; absence of a current publication must remain “no current D.RAW output available”.
+4. Keep external JPG/PNG/WebP as a separate `PRESENTATION_ONLY` input path.
+5. Integrate `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED state so source binding and edit recipe are separate.
+6. Extend the existing Appearance cable — not a duplicate renderer — with reversible black point, white point, highlight roll-off, shadow/midtone and colour/detail controls.
+7. Add static/runtime checks that workbench edits cannot mutate source/Scientific Master and export cannot overwrite the source by default.
+8. Compile/build on the exact new runtime head and record exact build provenance.
+9. Real-device test a normal JPEG plus one D.RAW observation through internal Unified Output -> Free Raster.
+10. Keep PR #131 draft until those checks are green; keep PR #130 frozen and scientifically unmodified.
+
+This section supersedes any earlier implication that the internal Unified Output -> Free Raster bridge or fully non-destructive edit-state integration was already complete. The architecture/contract pieces exist; their remaining wiring and physical validation are explicitly open.
