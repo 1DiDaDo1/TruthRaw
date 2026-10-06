@@ -4,15 +4,17 @@
   "repository_full_name": "1DiDaDo1/TruthRaw",
   "date": "2026-10-06",
   "handoff_code": 44489,
-  "status": "WORKSPACE_FREE_RASTER_V0_2_RUNTIME_WIRED_PREVIEW_INDEPENDENT_JPEG_BUILD_GREEN_PARTIAL_DEVICE_ACCEPTANCE",
+  "status": "WORKSPACE_FREE_RASTER_V0_2_PREVIEW_INDEPENDENT_JPEG_DEVICE_PASS_REMAINING_PHYSICAL_ACCEPTANCE",
   "authority": {
     "active_product_pr": 131,
     "active_product_branch": "feat/draw-workspace-free-raster-v01",
     "frozen_scientific_audit_pr": 130,
     "frozen_scientific_audit_head": "4e4f358ac5d6fb4a8562286257b8edb76ae5d33f",
     "runtime_build_head": "de0d49ef9f9abda777a8126a2a98a028030eafa1",
+    "exact_head_before_jpeg_device_evidence_record": "74327d189128ca0b8fa53e9dac6aa881e6c9433a",
     "documentation_governance_repair_head": "c2e5e7372b62afed6769d7ce11f35e5f85cc6d14",
     "partial_device_acceptance_record": "docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md",
+    "jpeg_device_pass_record": "docs/handoff/DRAW_44489_PREVIEW_INDEPENDENT_JPEG_DEVICE_PASS_2026-10-06.md",
     "rule": "Resolve live PR #131 head before mutation. Documentation-only commits may advance HEAD beyond the recorded runtime/build checkpoint. Never force-reset to a remembered SHA."
   },
   "product_architecture": {
@@ -44,7 +46,7 @@
     "second_t5_evaluation_allowed": false
   },
   "preview_independent_jpeg_output": {
-    "status": "IMPLEMENTED_BUILD_GREEN_REAL_DEVICE_VALIDATION_PENDING",
+    "status": "REAL_DEVICE_PASS_FOR_TESTED_DNG_PRO_ROUTE",
     "contract_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawPhotoOutputCableV01.kt",
     "main_activity_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt",
     "adapter_id": "jpeg.full_resolution.native_dng.v1",
@@ -65,10 +67,22 @@
     "render_source": "FullResJpegExporter.renderToPrivateJpeg(contentResolver, job, flags, quarterTurns, dir)",
     "ui_preview_role": "SIBLING_PRESENTATION_OUTPUT_ONLY_NOT_PIXEL_SOURCE_NOT_AUTHORITY",
     "result_preview_role": "BEST_EFFORT_PRESENTATION_FEEDBACK_AFTER_SUCCESSFUL_EXPORT",
-    "real_device_acceptance": "PENDING"
+    "tested_source_display_name": "IMG_260830_143010_214_008.dng",
+    "tested_route": "PRO",
+    "physical_timing_evidence": "JPEG worker active around 00:02 while normal D.RAW photo worker still active around 00:05; normal Advanced/PRO render became Ready only around 00:09",
+    "real_device_acceptance": "PASS_PREVIEW_INDEPENDENT_FULL_RESOLUTION_JPEG",
+    "reported_output_dimensions": "4080x3072",
+    "reported_rotation_degrees": 0,
+    "reported_elapsed_seconds": 17,
+    "uploaded_jpeg_bytes": 1991838,
+    "uploaded_jpeg_sha256": "115354213c3fd828bd2708414a423dba33e39c644f8aa6ea8a251b1c042f1bbc",
+    "uploaded_jpeg_independent_geometry": "4080x3072",
+    "uploaded_jpeg_independent_format": "JPEG_SRGB_8BIT_3_CHANNEL",
+    "source_sha256_from_uploaded_records": "c7356b5ad112e898d720a888410a29705c4aeaa9fcae8b8a6ebf88e2b10c52a6",
+    "source_byte_exact_before_after_comparison": "NOT_PROVEN_SOURCE_INPUT_BYTES_NOT_INCLUDED_IN_DRAWTEST_ZIP"
   },
   "device_acceptance": {
-    "status": "PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_EXTERNAL_FIT_PREVIEW_1_TO_1_PAN_ZOOM_PASS",
+    "status": "PARTIAL_DEVICE_ACCEPTANCE_PLUS_PREVIEW_INDEPENDENT_JPEG_PASS",
     "complete": false,
     "evidence_date": "2026-10-06",
     "user_provided_real_device_screenshots": true,
@@ -97,25 +111,54 @@
     "pan_zoom": "PASS",
     "zoom_scale_observed": 3.98,
     "same_environment_external_reload": "PASS",
+    "preview_independent_fullres_jpeg": "PASS",
+    "preview_independent_fullres_jpeg_independent_file_inspection": "PASS_4080x3072_JPEG_EXISTS_AND_READABLE",
+    "uploaded_records_no_new_evidence": "PASS",
+    "uploaded_records_scientific_writeback_forbidden": "PASS",
+    "n2_primary_candidate_applied_visible": false,
     "cold_start_process_death_persistence": "NOT_TESTED",
     "nonzero_orientation": "PENDING",
     "route_mismatch_fail_closed": "PENDING",
     "source_switch_reprocess_stale_clear": "PENDING",
-    "full_no_mutation_acceptance_round": "PENDING",
-    "preview_independent_fullres_jpeg": "PENDING_REAL_DEVICE_TEST",
+    "full_no_mutation_acceptance_round": "PARTIAL_RUNTIME_RECORDS_PASS_BYTE_EXACT_SOURCE_COMPARE_NOT_PROVEN",
     "installed_apk_hash_read_back_from_device": false,
     "scientific_promotion_implied": false
+  },
+  "uploaded_drawtest_artifacts": {
+    "zip_name": "DRAWTEST.zip",
+    "jpeg": {
+      "name": "IMG_260830_143010_214_008_draw_pro_fullres.jpg",
+      "bytes": 1991838,
+      "sha256": "115354213c3fd828bd2708414a423dba33e39c644f8aa6ea8a251b1c042f1bbc",
+      "geometry": "4080x3072",
+      "colourspace": "sRGB",
+      "depth": "8-bit",
+      "channels": 3
+    },
+    "float32_scientific_master": {
+      "name": "IMG_260830_143010_214_008_draw_full_colour_scientific_master_float32_v0_1.dng",
+      "bytes": 153008398,
+      "sha256": "55830c6c780b137c25834d0c2ca64163aea7402c4066f46e404a384d7e7bbeb2",
+      "geometry": "4080x3072",
+      "samples_per_pixel": 3,
+      "bits_per_sample": [32, 32, 32],
+      "sample_format": "IEEE_FLOAT",
+      "orientation": "UPPER_LEFT"
+    },
+    "observation_optical_field_record": "IMG_260830_143010_214_008_draw_observation_optical_field_chart_v0_1.json",
+    "universal_calibration_atlas": "IMG_260830_143010_214_008_draw_universal_observation_calibration_atlas_v0_1.json",
+    "global_research_snapshot": "DRAW_GLOBAL_RESEARCH_SNAPSHOT_v0_1 (6).json"
   },
   "non_destructive_workbench": {
     "model": "IMMUTABLE_SOURCE + REVERSIBLE_EDIT_STATE -> PRESENTATION / OUTPUT",
     "export_model": "EXPORT -> NEW_DERIVED_OUTPUT",
-    "forbidden_model": "SOURCE -> EDIT -> OVERWRITE SOURCE",
+    "forbidden_model": "SOURCE -> EDIT -> OVERWRITE_SOURCE",
     "runtime_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/NonDestructiveWorkbenchStateV01.kt",
     "documentation_anchor": "docs/DRAW_NON_DESTRUCTIVE_WORKBENCH_v0_1.md",
     "source_mutation_allowed": false,
     "scientific_master_writeback_allowed": false,
     "overwrite_source_on_export_allowed": false,
-    "status": "CONTRACT_EXISTS_FULL_CONTROL_INTEGRATION_NOT_YET_PROVEN"
+    "status": "CONTRACT_AND_RUNTIME_RECORDS_PASS_BYTE_EXACT_SOURCE_COMPARE_STILL_OPTIONAL_PENDING"
   },
   "external_presentation_raster": {
     "supported_types": ["image/jpeg", "image/png", "image/webp"],
@@ -166,27 +209,10 @@
   "ci_summary": {
     "runtime_build_head": "de0d49ef9f9abda777a8126a2a98a028030eafa1",
     "runtime_android_build": "SUCCESS",
-    "runtime_scientific_and_contract_checks": "SUCCESS_EXCEPT_DOCUMENTATION_GOVERNANCE",
-    "documentation_governance_on_runtime_head": "FAIL_HISTORICAL_BOOTSTRAP_DISCOVERABILITY_ONLY",
-    "documentation_governance_failure_run": 37486202039,
     "documentation_governance_repaired_head": "c2e5e7372b62afed6769d7ce11f35e5f85cc6d14",
     "documentation_governance_repair_run": 37496655736,
     "documentation_governance_repair_result": "SUCCESS",
-    "documentation_governance_failure_was_runtime_or_scientific_failure": false,
-    "includes_runtime_head_successes": [
-      "Research Live Status v0.2",
-      "Research Fresh Rerun v0.1",
-      "Android Version Lineage",
-      "Canonical Integrity",
-      "TruthRange",
-      "Shared Scientific Context",
-      "performance provenance",
-      "DngCreator Compatibility",
-      "D.RAW Suite Universal Intake v0.1",
-      "D.RAW Universal Physical Capture",
-      "Anchor-Constrained Local Reconstruction",
-      "Free World Observation Geometry Foundation"
-    ],
+    "exact_head_74327d_returned_workflow_set": "ALL_RETURNED_RUNS_SUCCESS",
     "ci_creates_scientific_authority": false
   },
   "scientific_firewalls": {
@@ -198,7 +224,7 @@
     "creates_new_evidence": false,
     "scientific_promotion_state": "NOT_PROMOTED_FAIL_CLOSED"
   },
-  "next_action": "Use the exact APK built from runtime source head de0d49ef9f9abda777a8126a2a98a028030eafa1 for real-device validation of preview-independent full-resolution JPEG: import/admit a DNG, invoke JPG full-resolution without relying on TilePreviewUiState.Ready, verify the export completes from the existing admitted DNG/full-resolution output cable, verify the saved JPEG dimensions/orientation/status, and confirm the original DNG is not overwritten and no Scientific Master writeback/candidate/new-evidence claim occurs. Then continue the remaining Free Raster v0.2 physical acceptance: non-zero orientation, route mismatch fail-closed, source-switch/reprocess stale-state clearing. Keep PR #131 draft.",
+  "next_action": "Preview-independent full-resolution JPEG is now real-device PASS for the tested PRO-route DNG and the uploaded JPEG independently confirms a real 4080x3072 output. Next test non-zero downstream orientation: press 90 degrees once, export a new full-resolution PRO JPEG, require runtime status rotation=90 degrees, visually confirm orientation, and upload the JPEG for independent geometry/orientation inspection. Then test route-mismatch fail-closed and source-switch/reprocess stale-state clearing. Keep PR #131 draft. Byte-exact source immutability remains independently unproven unless the original source DNG is supplied for before/after hash comparison.",
   "permanent_laws": [
     "Seal the evidence, not the thinking.",
     "MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.",
