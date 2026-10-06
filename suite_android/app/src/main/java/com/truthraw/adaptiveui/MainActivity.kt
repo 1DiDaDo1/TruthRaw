@@ -33,7 +33,18 @@ class MainActivity : Activity() {
     private var session = BatchSession()
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
+    private var preserveUnifiedOutputPresentationOnDestroy: Boolean = false
     private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
+        set(value) {
+            field = value
+            when {
+                value != null -> publishUnifiedOutputPresentation(value)
+                !preserveUnifiedOutputPresentationOnDestroy ->
+                    UnifiedOutputPresentationBridge.clear(
+                        "main_activity_unified_output_state_cleared",
+                    )
+            }
+        }
     private var n2AppearanceCandidateBitmap: Bitmap? = null
     private var n2AppearanceCandidateJobId: String? = null
     private var n2AppearanceCandidateMetrics: TruthNegativeContinuousPreviewMetrics? = null
@@ -203,6 +214,43 @@ class MainActivity : Activity() {
         n2CropAbResult = null
         n2CropAbJobId = null
         n2CropAbStatus = null
+    }
+
+    private fun publishUnifiedOutputPresentation(
+        ready: UnifiedOutputPreviewResult.Ready,
+    ) {
+        val jobId = activeJobId
+        val job = jobId?.let { id ->
+            session.jobs.firstOrNull { it.id == id }
+        }
+        if (job == null) {
+            UnifiedOutputPresentationBridge.clear(
+                "unified_output_ready_without_active_job",
+            )
+            return
+        }
+
+        val sourceSha256 = universalProfiles[job.id]
+            ?.optString("source_sha256", "")
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+
+        when (
+            val result = UnifiedOutputPresentationBridge.publishReady(
+                ready = ready,
+                sourceJobId = job.id,
+                sourceDisplayName = job.source.displayName,
+                sourceUri = job.source.uri.toString(),
+                sourceSha256 = sourceSha256,
+                route = preferredRoute(),
+            )
+        ) {
+            is UnifiedOutputPresentationBridge.PublishResult.Ready -> Unit
+            is UnifiedOutputPresentationBridge.PublishResult.Failure ->
+                UnifiedOutputPresentationBridge.clear(
+                    "unified_output_ready_publish_failed_" + result.kind.name,
+                )
+        }
     }
 
     private fun calibrationObservationRecordStoreDir(): File =
@@ -631,8 +679,13 @@ class MainActivity : Activity() {
         )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        // The bridge owns an independent presentation copy. Activity teardown
+        // releases only MainActivity's bitmap; source/job invalidation elsewhere
+        // still clears the bridge through the unifiedOutputPreviewState setter.
+        preserveUnifiedOutputPresentationOnDestroy = true
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        preserveUnifiedOutputPresentationOnDestroy = false
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
