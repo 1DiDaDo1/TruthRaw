@@ -52,6 +52,7 @@ class MainActivity : Activity() {
     private var previewGeneration: Long = 0
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
+    private var pendingJpegBinding: DrawPhotoOutputBindingV01? = null
     private var jpegStatus: String? = null
     private var pendingFullColourMasterJobId: String? = null
     private var fullColourMasterStatus: String? = null
@@ -583,6 +584,8 @@ class MainActivity : Activity() {
         previewState = TilePreviewUiState.Idle
         loadingStartedAtElapsedMs = null
         empiricalAudit = null
+        pendingJpegJobId = null
+        pendingJpegBinding = null
         jpegStatus = null
         fullColourMasterStatus = null
         truthNegative200MpStatus = null
@@ -1124,14 +1127,34 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun launchJpegExport(job: RawJob) {
-        val ready = previewState as? TilePreviewUiState.Ready ?: return
-        if (ready.jobId != job.id) return
-        pendingJpegJobId = job.id
-        jpegStatus = null
         val route = preferredRoute()
-        pendingPhotoRoute = route
-        pendingPhotoFlags = photoFlagsForRoute(route)
-        pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
+        val flags = photoFlagsForRoute(route)
+        val quarterTurns =
+            TruthRawOrientationOverride.quarterTurns(this, job.source)
+
+        when (
+            val result = DrawPhotoOutputCableV01.bindFullResolutionJpeg(
+                job = job,
+                activeJobId = activeJobId,
+                route = route,
+                routeFlags = flags,
+                userQuarterTurns = quarterTurns,
+            )
+        ) {
+            is DrawPhotoOutputBindResultV01.Failed -> {
+                pendingJpegJobId = null
+                pendingJpegBinding = null
+                jpegStatus = result.reason
+                render()
+                return
+            }
+            is DrawPhotoOutputBindResultV01.Ready -> {
+                pendingJpegJobId = result.binding.sourceJobId
+                pendingJpegBinding = result.binding
+                jpegStatus = null
+            }
+        }
+
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -2798,30 +2821,51 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_SAVE_JPEG) {
-            val expectedJob = pendingJpegJobId
+            val binding = pendingJpegBinding
+            pendingJpegBinding = null
             pendingJpegJobId = null
-            val route = pendingPhotoRoute ?: preferredRoute()
-            val flags = pendingPhotoFlags
-            val quarterTurns = pendingPhotoQuarterTurns
-            pendingPhotoRoute = null
-            pendingPhotoFlags = 0
-            pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 jpegStatus = "JPG-export geannuleerd."
                 render()
                 return
             }
-            val job = session.jobs.firstOrNull { it.id == expectedJob }
-            val ready = previewState as? TilePreviewUiState.Ready
-            if (expectedJob == null || job == null || ready == null ||
-                ready.jobId != expectedJob || activeJobId != expectedJob
-            ) {
-                jpegStatus = "JPG-export geblokkeerd: actieve D.RAW-route veranderde."
+            if (binding == null) {
+                jpegStatus = "JPG-output geblokkeerd: bevroren outputbinding ontbreekt."
                 render()
                 return
             }
 
+            val expectedJob = binding.sourceJobId
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            if (job == null) {
+                jpegStatus = "JPG-output geblokkeerd: actieve bron ontbreekt."
+                render()
+                return
+            }
+
+            val currentRoute = preferredRoute()
+            val currentFlags = photoFlagsForRoute(currentRoute)
+            val currentQuarterTurns =
+                TruthRawOrientationOverride.quarterTurns(this, job.source)
+            val validationError =
+                DrawPhotoOutputCableV01.validateCurrentOutputContext(
+                    binding = binding,
+                    job = job,
+                    activeJobId = activeJobId,
+                    currentRoute = currentRoute,
+                    currentRouteFlags = currentFlags,
+                    currentQuarterTurns = currentQuarterTurns,
+                )
+            if (validationError != null) {
+                jpegStatus = validationError
+                render()
+                return
+            }
+
+            val route = binding.route
+            val flags = binding.routeFlags
+            val quarterTurns = binding.userQuarterTurns
             val operationKey = backgroundOperationKey("jpeg", expectedJob)
             if (!startBackgroundOperation(operationKey, "JPG full-resolution opbouwen")) {
                 jpegStatus = "JPG achtergrondverwerking kon niet veilig starten."
@@ -5614,6 +5658,7 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingJpegBinding = null
         pendingFullColourMasterJobId = null
         pendingTruthNegative200MpJobId = null
         pendingRenderEditJobId = null
@@ -7061,6 +7106,7 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingJpegBinding = null
         pendingPureFloatDngJobId = null
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
@@ -7400,6 +7446,40 @@ class MainActivity : Activity() {
         addView(space(8))
         addView(universalIntakePane(active))
         addView(space(8))
+
+        if (
+            active.source.format.nativeProcessingReady &&
+            active.source.format.id == "DNG"
+        ) {
+            val outputRoute = preferredRoute()
+            val jpegActionLabel = when (outputRoute) {
+                TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ->
+                    "JPG · full resolution"
+                TruthRawSuiteLauncherActivity.OUTPUT_PRO ->
+                    "JPG · full resolution professional"
+                else ->
+                    "JPG · full resolution compatibility"
+            }
+            addView(label("Output / Vrije Raster", 13f, bold = true))
+            addView(actionButton(jpegActionLabel) {
+                launchJpegExport(active)
+            })
+            jpegStatus?.let { status ->
+                backgroundOperationStatusView(
+                    backgroundOperationKey("jpeg", active.id),
+                    status,
+                )?.let(::addView) ?: addView(
+                    label(status, 10f, muted = true),
+                )
+            }
+            addView(label(
+                "Preview-onafhankelijke full-resolution output · de UI-preview is een zustertak, " +
+                    "geen pixelbron of authority. Source mutation=false · Scientific Master writeback=false.",
+                10f,
+                muted = true,
+            ))
+            addView(space(8))
+        }
 
         when (val state = previewState) {
             TilePreviewUiState.Idle -> {
@@ -8031,26 +8111,9 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
-                        addView(space(7))
-                        addView(actionButton("JPG · full resolution compatibility") {
-                            launchJpegExport(active)
-                        })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> {
-                        addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                         addView(space(5))
                         addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
                             launchFullColourScientificMasterExport(active)
@@ -8142,15 +8205,6 @@ class MainActivity : Activity() {
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_PRO -> {
-                        addView(actionButton("JPG · full resolution professional") {
-                            launchJpegExport(active)
-                        })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                         addView(space(5))
                         addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
                             launchFullColourScientificMasterExport(active)
