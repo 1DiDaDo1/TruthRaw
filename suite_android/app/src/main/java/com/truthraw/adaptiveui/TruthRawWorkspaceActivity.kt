@@ -90,6 +90,7 @@ class TruthRawWorkspaceActivity : Activity() {
                     )
                     viewZoom = desired
                     applyCanvasMatrix()
+                    markManualCanvasTransform()
                     return true
                 }
             },
@@ -417,6 +418,7 @@ class TruthRawWorkspaceActivity : Activity() {
                     lastTouchX = event.x
                     lastTouchY = event.y
                     applyCanvasMatrix()
+                    markManualCanvasTransform()
                 }
             }
             MotionEvent.ACTION_UP,
@@ -428,7 +430,7 @@ class TruthRawWorkspaceActivity : Activity() {
         return true
     }
 
-    private fun fitCanvasImage() {
+    private fun fitCanvasImage(updateStatus: Boolean = true) {
         val bitmap = presentationBitmap ?: return
         val width = canvasImage.width.toFloat()
         val height = canvasImage.height.toFloat()
@@ -444,6 +446,11 @@ class TruthRawWorkspaceActivity : Activity() {
             (height - bitmap.height * fitScale) / 2f,
         )
         applyCanvasMatrix()
+        if (updateStatus) {
+            canvasStatusView.text =
+                "Canvasstatus · FIT_VIEW · preview passend in canvas · " +
+                    "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+        }
     }
 
     private fun setCanvasOneToOne() {
@@ -462,6 +469,25 @@ class TruthRawWorkspaceActivity : Activity() {
         canvasStatusView.text =
             "Canvasstatus · PREVIEW_RASTER_1_TO_1 · 1 display-pixel per decoded preview-pixel · " +
                 "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+    }
+
+    private fun markManualCanvasTransform() {
+        if (presentationBitmap == null) return
+        val values = FloatArray(9)
+        canvasMatrix.getValues(values)
+        val scale = values[Matrix.MSCALE_X]
+        canvasStatusView.text = if (kotlin.math.abs(scale - 1f) <= 0.001f) {
+            "Canvasstatus · PREVIEW_RASTER_1_TO_1_PANNED · " +
+                "1 display-pixel per decoded preview-pixel · pan actief · " +
+                "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+        } else {
+            String.format(
+                Locale.US,
+                "Canvasstatus · VIEW_TRANSFORM · handmatige pan/zoom · schaal %.3fx · " +
+                    "preview-pixel 1:1 niet actief · PRESENTATION_ONLY",
+                scale,
+            )
+        }
     }
 
     private fun applyCanvasMatrix() {
@@ -629,7 +655,7 @@ class TruthRawWorkspaceActivity : Activity() {
                 "bron=$sourceName · source ${sourceWidth}×${sourceHeight} px · " +
                 "preview ${oriented.width}×${oriented.height} px · rotation=${quarterTurns * 90}° · " +
                 "$shaText · VIEW_ONLY_COPY · createsNewEvidence=false · scientificWriteback=false"
-        canvasImage.post { fitCanvasImage() }
+        canvasImage.post { fitCanvasImage(updateStatus = false) }
     }
 
     private fun orientUnifiedPresentationBitmap(
@@ -739,7 +765,7 @@ class TruthRawWorkspaceActivity : Activity() {
                                 " px · preview " + result.bitmap.width + "×" + result.bitmap.height +
                                 " px · sample " + result.sampleSize + "× · PRESENTATION_ONLY · " +
                                 "geen scientific authority/writeback"
-                        canvasImage.post { fitCanvasImage() }
+                        canvasImage.post { fitCanvasImage(updateStatus = false) }
                     }
                     is PresentationRasterLoader.Result.Failure -> {
                         clearCanvasPresentation(
