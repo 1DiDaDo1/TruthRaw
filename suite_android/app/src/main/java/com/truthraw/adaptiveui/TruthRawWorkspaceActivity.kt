@@ -52,8 +52,15 @@ class TruthRawWorkspaceActivity : Activity() {
     private lateinit var canvasStatusView: TextView
     private lateinit var canvasTelemetryView: TextView
 
+    private enum class PresentationMode {
+        INTERNAL_D_RAW,
+        EXTERNAL_RASTER,
+    }
+
+    private var presentationMode = PresentationMode.INTERNAL_D_RAW
     private var presentationBitmap: Bitmap? = null
     private var presentationUri: Uri? = null
+    private var presentationGeneration: Long = 0L
     private val canvasMatrix = Matrix()
     private var fitScale = 1f
     private var viewZoom = 1f
@@ -90,22 +97,42 @@ class TruthRawWorkspaceActivity : Activity() {
 
         setContentView(buildUi())
 
-        getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
-            .getString(KEY_PRESENTATION_URI, null)
+        val prefs = getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
+        val savedUri = prefs.getString(KEY_PRESENTATION_URI, null)
             ?.takeIf { it.isNotBlank() }
-            ?.let { saved ->
-                canvasImage.post { loadPresentationRaster(Uri.parse(saved), restored = true) }
+        presentationMode = when (prefs.getString(KEY_PRESENTATION_MODE, null)) {
+            MODE_EXTERNAL -> PresentationMode.EXTERNAL_RASTER
+            MODE_INTERNAL -> PresentationMode.INTERNAL_D_RAW
+            else -> if (savedUri != null) {
+                // Backwards-compatible with v0.1, which persisted only the URI.
+                PresentationMode.EXTERNAL_RASTER
+            } else {
+                PresentationMode.INTERNAL_D_RAW
             }
+        }
+
+        if (presentationMode == PresentationMode.EXTERNAL_RASTER && savedUri != null) {
+            canvasImage.post {
+                loadPresentationRaster(Uri.parse(savedUri), restored = true)
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         DrawVisualTheme.applyWindow(this)
         updateRouteStatus()
+        if (
+            ::canvasImage.isInitialized &&
+            presentationMode == PresentationMode.INTERNAL_D_RAW
+        ) {
+            canvasImage.post { consumeUnifiedOutputPresentation() }
+        }
     }
 
     override fun onDestroy() {
-        presentationBitmap?.recycle()
+        ++presentationGeneration
+        presentationBitmap?.takeUnless { it.isRecycled }?.recycle()
         presentationBitmap = null
         super.onDestroy()
     }
@@ -157,6 +184,7 @@ class TruthRawWorkspaceActivity : Activity() {
             ))
             addView(space(9))
             addView(action("Bestand · Open RAW / DNG in D.RAW werkbank", blue) {
+                enterInternalPresentationMode()
                 startActivity(
                     Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
@@ -166,6 +194,7 @@ class TruthRawWorkspaceActivity : Activity() {
             })
             addView(space(7))
             addView(action("Camera · Universele fysieke RAW", teal) {
+                enterInternalPresentationMode()
                 startActivity(
                     Intent(
                         this@TruthRawWorkspaceActivity,
@@ -175,6 +204,7 @@ class TruthRawWorkspaceActivity : Activity() {
             })
             addView(space(7))
             addView(action("Open bestaande D.RAW werkbank / actieve sessie", blue) {
+                enterInternalPresentationMode()
                 startActivity(
                     Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
@@ -292,6 +322,7 @@ class TruthRawWorkspaceActivity : Activity() {
         })
         addView(space(7))
         addView(action("Projectie / output uitvoeren in D.RAW werkbank", blue) {
+            enterInternalPresentationMode()
             startActivity(
                 Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
@@ -300,7 +331,7 @@ class TruthRawWorkspaceActivity : Activity() {
         })
         addView(space(7))
         addView(body(
-            "Interne D.RAW-output moet uitsluitend de bestaande Unified Output / projectie-state consumeren. De externe rasterroute is expliciet een viewer en nooit een tweede renderer of scientific pipeline.",
+            "Interne D.RAW-output consumeert uitsluitend een lifetime-safe kopie van de bestaande Unified Output Ready-state. De externe rasterroute is expliciet een viewer en nooit een tweede renderer of scientific pipeline.",
             10.8f,
         ))
     }
@@ -460,6 +491,181 @@ class TruthRawWorkspaceActivity : Activity() {
         )
     }
 
+    private fun currentSelectedRoute(): String =
+        getSharedPreferences(TruthRawSuiteLauncherActivity.PREFS, MODE_PRIVATE)
+            .getString(
+                TruthRawSuiteLauncherActivity.KEY_OUTPUT,
+                TruthRawSuiteLauncherActivity.OUTPUT_PURE,
+            ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+
+    private fun enterInternalPresentationMode() {
+        presentationMode = PresentationMode.INTERNAL_D_RAW
+        ++presentationGeneration
+        getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
+            .edit()
+            .putString(KEY_PRESENTATION_MODE, MODE_INTERNAL)
+            .apply()
+        clearCanvasPresentation(
+            "Canvasstatus · INTERNAL_D_RAW · wacht op een gebonden Unified Output Ready-state · " +
+                "authority niet afgeleid",
+        )
+    }
+
+    private fun clearCanvasPresentation(status: String) {
+        presentationBitmap?.takeUnless { it.isRecycled }?.recycle()
+        presentationBitmap = null
+        presentationUri = null
+        canvasImage.setImageDrawable(null)
+        canvasPlaceholder.visibility = View.VISIBLE
+        canvasMatrix.reset()
+        fitScale = 1f
+        viewZoom = 1f
+        canvasImage.imageMatrix = canvasMatrix
+        canvasStatusView.text = status
+        updateCanvasTelemetry()
+    }
+
+    private fun consumeUnifiedOutputPresentation() {
+        if (presentationMode != PresentationMode.INTERNAL_D_RAW) return
+        ++presentationGeneration
+
+        val snapshot = UnifiedOutputPresentationBridge.acquire()
+        if (snapshot == null) {
+            clearCanvasPresentation(
+                "Canvasstatus · EMPTY · Geen D.RAW-output-raster beschikbaar · " +
+                    "geen snapshot = geen afgeleide authority",
+            )
+            return
+        }
+
+        val metadata = snapshot.metadata
+        val expectedRoute = currentSelectedRoute()
+        val sourceJobId = metadata[UnifiedOutputPresentationBridge.META_SOURCE_JOB_ID].orEmpty()
+        val sourceUri = metadata[UnifiedOutputPresentationBridge.META_SOURCE_URI].orEmpty()
+        val outputLabel = metadata[UnifiedOutputPresentationBridge.META_OUTPUT_LABEL].orEmpty()
+        val publishedRoute = metadata[UnifiedOutputPresentationBridge.META_ROUTE].orEmpty()
+        val quarterTurns = metadata[UnifiedOutputPresentationBridge.META_DISPLAY_QUARTER_TURNS]
+            ?.toIntOrNull()
+        val expectedPreviewWidth = metadata[UnifiedOutputPresentationBridge.META_PREVIEW_WIDTH]
+            ?.toIntOrNull()
+        val expectedPreviewHeight = metadata[UnifiedOutputPresentationBridge.META_PREVIEW_HEIGHT]
+            ?.toIntOrNull()
+        val sourceWidth = metadata[UnifiedOutputPresentationBridge.META_SOURCE_WIDTH]
+            ?.toIntOrNull()
+        val sourceHeight = metadata[UnifiedOutputPresentationBridge.META_SOURCE_HEIGHT]
+            ?.toIntOrNull()
+
+        val rejection = when {
+            snapshot.contractId != UnifiedOutputPresentationBridge.PRESENTATION_CONTRACT_ID ->
+                "presentation contract mismatch"
+            metadata[UnifiedOutputPresentationBridge.META_ORIGIN] !=
+                UnifiedOutputPresentationBridge.ORIGIN_UNIFIED_OUTPUT_READY ->
+                "origin is geen Unified Output Ready"
+            metadata[UnifiedOutputPresentationBridge.META_SOURCE_BINDING_KIND] !=
+                UnifiedOutputPresentationBridge.SOURCE_BINDING_ACTIVE_JOB ->
+                "process-local sourcebinding ontbreekt"
+            sourceJobId.isBlank() || sourceUri.isBlank() ->
+                "actieve sourcebinding ontbreekt"
+            outputLabel.isBlank() ->
+                "outputlabel ontbreekt"
+            publishedRoute != expectedRoute ->
+                "snapshot-route $publishedRoute != actieve route $expectedRoute"
+            metadata[UnifiedOutputPresentationBridge.META_SCIENTIFIC_WRITEBACK_ALLOWED] != "false" ->
+                "scientific writeback is niet bewezen dicht"
+            metadata[UnifiedOutputPresentationBridge.META_CREATES_NEW_EVIDENCE] != "false" ->
+                "creates-new-evidence contract mismatch"
+            metadata[UnifiedOutputPresentationBridge.META_PRESENTATION_LAYER] !=
+                UnifiedOutputPresentationBridge.PRESENTATION_LAYER_VIEW_ONLY ->
+                "snapshot is niet VIEW_ONLY_COPY"
+            quarterTurns !in 0..3 ->
+                "display orientation ontbreekt of is ongeldig"
+            expectedPreviewWidth != snapshot.bitmap.width ||
+                expectedPreviewHeight != snapshot.bitmap.height ->
+                "previewdimensies komen niet overeen met de snapshot"
+            sourceWidth == null || sourceWidth <= 0 || sourceHeight == null || sourceHeight <= 0 ->
+                "upstream sourcedimensies ontbreken"
+            snapshot.bitmap.width <= 0 || snapshot.bitmap.height <= 0 ->
+                "lege snapshotbitmap"
+            else -> null
+        }
+
+        if (rejection != null) {
+            snapshot.bitmap.takeUnless { it.isRecycled }?.recycle()
+            clearCanvasPresentation(
+                "Canvasstatus · UNIFIED_OUTPUT_REJECTED · $rejection · fail-closed · " +
+                    "Scientific Master ongewijzigd",
+            )
+            return
+        }
+
+        val oriented = orientUnifiedPresentationBitmap(snapshot.bitmap, quarterTurns!!)
+        if (oriented == null) {
+            clearCanvasPresentation(
+                "Canvasstatus · UNIFIED_OUTPUT_REJECTED · preview-oriëntatie kon niet veilig worden gekopieerd · " +
+                    "fail-closed",
+            )
+            return
+        }
+
+        presentationBitmap?.takeUnless { it.isRecycled }?.recycle()
+        presentationBitmap = oriented
+        presentationUri = null
+        canvasImage.setImageBitmap(oriented)
+        canvasPlaceholder.visibility = View.GONE
+
+        val sourceName = metadata[UnifiedOutputPresentationBridge.META_SOURCE_DISPLAY_NAME]
+            ?.takeIf { it.isNotBlank() }
+            ?: "onbekende bronnaam"
+        val sourceSha = metadata[UnifiedOutputPresentationBridge.META_SOURCE_SHA256]
+            ?.takeIf { it.isNotBlank() }
+            ?: UnifiedOutputPresentationBridge.UNKNOWN_SOURCE_SHA256
+        val shaText = if (sourceSha == UnifiedOutputPresentationBridge.UNKNOWN_SOURCE_SHA256) {
+            "sourceSHA=UNKNOWN"
+        } else {
+            "sourceSHA=${sourceSha.take(16)}…"
+        }
+        canvasStatusView.text =
+            "Canvasstatus · D.RAW_UNIFIED_OUTPUT_PRESENTATION · $outputLabel · route=$publishedRoute · " +
+                "bron=$sourceName · source ${sourceWidth}×${sourceHeight} px · " +
+                "preview ${oriented.width}×${oriented.height} px · rotation=${quarterTurns * 90}° · " +
+                "$shaText · VIEW_ONLY_COPY · createsNewEvidence=false · scientificWriteback=false"
+        canvasImage.post { fitCanvasImage() }
+    }
+
+    private fun orientUnifiedPresentationBitmap(
+        source: Bitmap,
+        quarterTurns: Int,
+    ): Bitmap? {
+        if (source.isRecycled) return null
+        val turns = ((quarterTurns % 4) + 4) % 4
+        if (turns == 0) return source
+
+        val rotated = try {
+            Bitmap.createBitmap(
+                source,
+                0,
+                0,
+                source.width,
+                source.height,
+                Matrix().apply { postRotate(turns * 90f) },
+                false,
+            )
+        } catch (_: OutOfMemoryError) {
+            null
+        } catch (_: Exception) {
+            null
+        }
+
+        if (rotated == null) {
+            source.takeUnless { it.isRecycled }?.recycle()
+            return null
+        }
+        if (rotated !== source) {
+            source.takeUnless { it.isRecycled }?.recycle()
+        }
+        return rotated
+    }
+
     private fun launchPresentationRasterPicker() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -487,26 +693,42 @@ class TruthRawWorkspaceActivity : Activity() {
             return
         }
 
+        presentationMode = PresentationMode.EXTERNAL_RASTER
         getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
             .edit()
+            .putString(KEY_PRESENTATION_MODE, MODE_EXTERNAL)
             .putString(KEY_PRESENTATION_URI, uri.toString())
             .apply()
         loadPresentationRaster(uri, restored = false)
     }
 
     private fun loadPresentationRaster(uri: Uri, restored: Boolean) {
-        canvasStatusView.text = if (restored) {
-            "Extern presentatie-raster herstellen… · PRESENTATION_ONLY"
-        } else {
-            "Extern presentatie-raster laden… · PRESENTATION_ONLY"
-        }
+        presentationMode = PresentationMode.EXTERNAL_RASTER
+        val generation = ++presentationGeneration
+        clearCanvasPresentation(
+            if (restored) {
+                "Extern presentatie-raster herstellen… · PRESENTATION_ONLY"
+            } else {
+                "Extern presentatie-raster laden… · PRESENTATION_ONLY"
+            },
+        )
 
         Thread({
             val result = PresentationRasterLoader.load(this, uri)
             runOnUiThread {
+                if (
+                    generation != presentationGeneration ||
+                    presentationMode != PresentationMode.EXTERNAL_RASTER
+                ) {
+                    (result as? PresentationRasterLoader.Result.Ready)
+                        ?.bitmap
+                        ?.takeUnless { it.isRecycled }
+                        ?.recycle()
+                    return@runOnUiThread
+                }
                 when (result) {
                     is PresentationRasterLoader.Result.Ready -> {
-                        presentationBitmap?.recycle()
+                        presentationBitmap?.takeUnless { it.isRecycled }?.recycle()
                         presentationBitmap = result.bitmap
                         presentationUri = uri
                         canvasImage.setImageBitmap(result.bitmap)
@@ -520,9 +742,10 @@ class TruthRawWorkspaceActivity : Activity() {
                         canvasImage.post { fitCanvasImage() }
                     }
                     is PresentationRasterLoader.Result.Failure -> {
-                        canvasStatusView.text =
+                        clearCanvasPresentation(
                             "Rasterfout · " + result.kind.name + " · " + result.detail +
-                                " · scientific state ongewijzigd"
+                                " · scientific state ongewijzigd",
+                        )
                     }
                 }
             }
@@ -551,15 +774,14 @@ class TruthRawWorkspaceActivity : Activity() {
             .putString(TruthRawSuiteLauncherActivity.KEY_OUTPUT, route)
             .apply()
         updateRouteStatus()
+        if (presentationMode == PresentationMode.INTERNAL_D_RAW) {
+            consumeUnifiedOutputPresentation()
+        }
     }
 
     private fun updateRouteStatus() {
         if (!::routeStatusView.isInitialized) return
-        val route = getSharedPreferences(TruthRawSuiteLauncherActivity.PREFS, MODE_PRIVATE)
-            .getString(
-                TruthRawSuiteLauncherActivity.KEY_OUTPUT,
-                TruthRawSuiteLauncherActivity.OUTPUT_PURE,
-            ) ?: TruthRawSuiteLauncherActivity.OUTPUT_PURE
+        val route = currentSelectedRoute()
         routeStatusView.text = "Geselecteerd · " + when (route) {
             TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED"
             TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO"
@@ -676,6 +898,9 @@ class TruthRawWorkspaceActivity : Activity() {
         private const val REQUEST_PRESENTATION_RASTER = 4810
         private const val PREF_WORKSPACE = "draw_workspace_v0_1"
         private const val KEY_PRESENTATION_URI = "presentation_uri"
+        private const val KEY_PRESENTATION_MODE = "presentation_mode"
+        private const val MODE_INTERNAL = "INTERNAL_D_RAW"
+        private const val MODE_EXTERNAL = "EXTERNAL_RASTER"
 
         private val RAW_EXTENSIONS = listOf(
             ".dng", ".raw", ".nef", ".cr3", ".cr2", ".arw", ".raf", ".rw2",
