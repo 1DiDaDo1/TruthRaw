@@ -1,0 +1,103 @@
+name: D.RAW MainActivity Presentation Bridge Patch
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - .github/workflows/draw-mainactivity-presentation-bridge-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-mainactivity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+
+      - name: Patch only the Unified Output acceptance boundary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          path = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt')
+          data = path.read_bytes()
+          git_blob_sha = hashlib.sha1(b'blob ' + str(len(data)).encode('ascii') + b'\0' + data).hexdigest()
+          expected_blob_sha = '77a86f2cbd2514b0c05e4bc9bd093d57e21d080d'
+          if git_blob_sha != expected_blob_sha:
+              raise SystemExit(f'MainActivity blob moved: {git_blob_sha} != {expected_blob_sha}')
+
+          text = data.decode('utf-8')
+          old = '    private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null\n'
+          new = '''    private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
+        set(value) {
+            field = value
+            if (value == null) {
+                // A source switch or reprocess invalidates downstream presentation.
+                // A normal finishing Activity deliberately leaves the bridge-owned
+                // copy alive so Workspace can consume it after back navigation.
+                if (!isFinishing && !isChangingConfigurations) {
+                    UnifiedOutputPresentationBridge.clear(
+                        "main_unified_output_invalidated",
+                    )
+                }
+                return
+            }
+
+            val active = session.jobs.firstOrNull { it.id == activeJobId }
+            if (active == null) {
+                UnifiedOutputPresentationBridge.clear(
+                    "unified_output_ready_without_active_job",
+                )
+                return
+            }
+
+            val sourceSha256 = universalProfiles[active.id]
+                ?.optString("source_sha256", "")
+                ?.takeIf { it.isNotBlank() }
+
+            when (
+                val publication = UnifiedOutputPresentationBridge.publishReady(
+                    ready = value,
+                    sourceJobId = active.id,
+                    sourceDisplayName = active.source.displayName,
+                    sourceUri = active.source.uri.toString(),
+                    sourceSha256 = sourceSha256,
+                    route = preferredRoute(),
+                )
+            ) {
+                is UnifiedOutputPresentationBridge.PublishResult.Ready -> Unit
+                is UnifiedOutputPresentationBridge.PublishResult.Failure ->
+                    UnifiedOutputPresentationBridge.clear(
+                        "unified_output_publish_failed:" + publication.kind.name,
+                    )
+            }
+        }
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected exactly one Unified Output state declaration, found {text.count(old)}')
+          patched = text.replace(old, new, 1)
+          path.write_text(patched, encoding='utf-8', newline='')
+          PY
+
+          git diff --check -- suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          git diff --exit-code --quiet -- . ':!.github/workflows/draw-mainactivity-presentation-bridge-patch.yml' || true
+          grep -F 'UnifiedOutputPresentationBridge.publishReady(' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+
+      - name: Commit surgical patch and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          git rm .github/workflows/draw-mainactivity-presentation-bridge-patch.yml
+          git diff --cached --check
+          git commit -m 'Android: publish Unified Output Ready snapshots to Workspace'
+          git push origin HEAD:feat/draw-workspace-free-raster-v01
