@@ -4,14 +4,15 @@
   "repository_full_name": "1DiDaDo1/TruthRaw",
   "date": "2026-10-06",
   "handoff_code": 44489,
-  "status": "WORKSPACE_FREE_RASTER_V0_2_RUNTIME_CANDIDATE_BUILD_GREEN_PHYSICAL_ACCEPTANCE_OPEN",
+  "status": "WORKSPACE_FREE_RASTER_V0_2_RUNTIME_WIRED_BUILD_GREEN_PARTIAL_DEVICE_ACCEPTANCE",
   "authority": {
     "active_product_pr": 131,
     "active_product_branch": "feat/draw-workspace-free-raster-v01",
     "frozen_scientific_audit_pr": 130,
     "frozen_scientific_audit_head": "4e4f358ac5d6fb4a8562286257b8edb76ae5d33f",
-    "pre_handoff_live_head": "93c8c05343c35c44a0bf7bb46ee3c630cb11787d",
-    "rule": "Resolve live PR #131 head before mutation. Documentation-only handoff commits may advance HEAD beyond the recorded runtime/build checkpoint. Never force-reset to a remembered SHA."
+    "runtime_build_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
+    "partial_device_acceptance_record": "docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md",
+    "rule": "Resolve live PR #131 head before mutation. Documentation-only commits may advance HEAD beyond the recorded runtime/build checkpoint. Never force-reset to a remembered SHA."
   },
   "product_architecture": {
     "canonical_cable": "Input -> Universal Intake -> Scientific Core / Scientific Master -> Unified Output State -> PURE / ADVANCED / PRO -> Output / Free Raster -> Export",
@@ -29,13 +30,45 @@
   },
   "unified_output_free_raster": {
     "bridge_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt",
-    "intended_cable": "UnifiedOutputPreviewResult.Ready -> UnifiedOutputPresentationBridge.publish(...) -> Workspace consume -> Free Raster",
+    "main_activity_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt",
+    "workspace_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt",
+    "runtime_cable": "UnifiedOutputPreviewResult.Ready -> MainActivity common state boundary -> UnifiedOutputPresentationBridge.publishReady(...) -> Workspace fail-closed consume -> Free Raster",
     "transport": "process_memory_owned_copy.v1",
-    "status": "BRIDGE_EXISTS_FULL_PUBLISHER_CONSUMER_WIRING_NOT_YET_PROVEN_COMPLETE",
+    "status": "RUNTIME_WIRED_BUILD_GREEN_PARTIAL_DEVICE_ACCEPTANCE",
+    "source_job_route_binding_is_scientific_authority": false,
+    "unknown_source_sha_allowed": true,
     "creates_new_evidence": false,
     "scientific_writeback_allowed": false,
     "second_renderer_allowed": false,
     "second_t5_evaluation_allowed": false
+  },
+  "device_acceptance": {
+    "status": "PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_D_RAW_FIT_PREVIEW_1_TO_1_PASS",
+    "complete": false,
+    "evidence_date": "2026-10-06",
+    "user_provided_real_device_screenshots": true,
+    "tested_internal_source_display_name": "IMG_BNC_TRUTHRAW20260907_094414_423.dng",
+    "tested_source_dimensions": "4080x3072",
+    "tested_preview_dimensions": "192x145",
+    "tested_route": "PRO",
+    "tested_output_label": "D.RAWnegative v0.1 - Authority-bound Appearance View",
+    "tested_rotation_degrees": 0,
+    "source_sha_prefix_visible": "578fad42dad6819b",
+    "view_only_copy_visible": true,
+    "creates_new_evidence_false_visible": true,
+    "scientific_writeback_false_visible": true,
+    "internal_unified_output_bridge_to_workspace": "PASS",
+    "fit": "PASS",
+    "preview_1_to_1": "PASS",
+    "preview_1_to_1_semantics": "ONE_DISPLAY_PIXEL_PER_DECODED_PREVIEW_PIXEL_ONLY",
+    "external_jpg_png_webp_presentation_only": "PENDING",
+    "pan_zoom": "PENDING",
+    "nonzero_orientation": "PENDING",
+    "route_mismatch_fail_closed": "PENDING",
+    "source_switch_reprocess_stale_clear": "PENDING",
+    "full_no_mutation_acceptance_round": "PENDING",
+    "installed_apk_hash_read_back_from_device": false,
+    "scientific_promotion_implied": false
   },
   "non_destructive_workbench": {
     "model": "IMMUTABLE_SOURCE + REVERSIBLE_EDIT_STATE -> PRESENTATION / OUTPUT",
@@ -57,7 +90,8 @@
     "separate_bounds_and_decode_handles": true,
     "raw_parsing": false,
     "scientific_inference": false,
-    "scientific_writeback_allowed": false
+    "scientific_writeback_allowed": false,
+    "physical_device_acceptance": "PENDING"
   },
   "appearance": {
     "domain": "APPEARANCE_ONLY",
@@ -77,33 +111,39 @@
     "sharpening_increases_optical_authority": false
   },
   "build_checkpoint": {
-    "source_head": "93c8c05343c35c44a0bf7bb46ee3c630cb11787d",
+    "source_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
     "workflow": "D.RAW Suite Universal Intake v0.1",
-    "workflow_run": 37395957742,
+    "workflow_run": 37439775107,
     "result": "SUCCESS",
     "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
-    "artifact_id": 11382743163,
-    "artifact_zip_sha256": "1bd705259502a1c2b68cbcb183ff5057654b05eefa91f95cda071f0ff0f5692b",
-    "apk_bytes": 8686419,
-    "apk_sha256": "3279aab03463bb528e24c6386b68a63e07b401bffc034d735c97f7c239baaad9",
+    "artifact_id": 11401290002,
+    "artifact_zip_sha256": "5ae0e7d9d86db230c2d76e5d86cb0521511c07dd7615c695e78782ba56e791a4",
+    "apk_bytes": 8702803,
+    "apk_sha256": "d8baafc8715f41a5585a9e1687e8ac56c4ddb6d5f900321bb091b7fb16f1c8ee",
     "stable_signing_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
     "version_code": 26100127,
     "version_name": "0.54-v0.84.2-open-world-authority-corridor-v01",
-    "physical_acceptance_of_internal_unified_output_free_raster": false,
+    "compile_build_evidence_only": true,
+    "installed_package_hash_readback_proven": false,
     "scientific_promotion_implied": false
   },
-  "exact_head_ci_93c8c053": {
-    "Shared Scientific Context v0.1 Integrity": {"run": 37395957710, "conclusion": "success"},
-    "TruthRange v0.4 Integrity": {"run": 37395957718, "conclusion": "success"},
-    "TruthRange v0.5 Integrity": {"run": 37395957675, "conclusion": "success"},
-    "Canonical Integrity": {"run": 37395958028, "conclusion": "success"},
-    "Camera RGB Covariance v0.6 Integrity": {"run": 37395957942, "conclusion": "success"},
-    "Tile-Native DNG Source v0.2 Android Compatibility": {"run": 37395957761, "conclusion": "success"},
-    "XYZ D50 Uncertainty v0.7 Integrity": {"run": 37395957797, "conclusion": "success"},
-    "Documentation Governance": {"run": 37395957910, "conclusion": "success"},
-    "D.RAW Suite Universal Intake v0.1": {"run": 37395957742, "conclusion": "success"},
-    "D.RAW Android DngCreator Compatibility v0.1": {"run": 37395957835, "conclusion": "success"},
-    "D.RAW Universal Physical Capture v0.3 Live Preview Macro": {"run": 37395957759, "conclusion": "success"}
+  "ci_summary": {
+    "runtime_build_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
+    "returned_exact_head_set_green": true,
+    "includes": [
+      "Research Live Status v0.2",
+      "Research Fresh Rerun v0.1",
+      "Android Version Lineage",
+      "Documentation Governance",
+      "Canonical Integrity",
+      "TruthRange",
+      "Shared Scientific Context",
+      "performance provenance",
+      "DngCreator Compatibility",
+      "D.RAW Suite Universal Intake v0.1",
+      "D.RAW Universal Physical Capture"
+    ],
+    "ci_creates_scientific_authority": false
   },
   "scientific_firewalls": {
     "sealed_cfa_modified": false,
@@ -114,7 +154,7 @@
     "creates_new_evidence": false,
     "scientific_promotion_state": "NOT_PROMOTED_FAIL_CLOSED"
   },
-  "next_action": "Resolve live PR #131. Trace the actual existing UnifiedOutputPreviewResult.Ready publication boundary; publish the already-rendered Ready output through UnifiedOutputPresentationBridge; consume it in Workspace fail-closed; then integrate NonDestructiveWorkbenchStateV01 and extend the existing Appearance cable without adding a duplicate renderer. Rebuild exact head and physically test normal JPEG plus one D.RAW observation.",
+  "next_action": "Complete the remaining Free Raster v0.2 physical acceptance: external JPG/PNG/WebP PRESENTATION_ONLY, pan/zoom, non-zero orientation, route-mismatch fail-closed, source-switch/reprocess stale-state clearing, and explicit no-mutation/writeback/candidate checks. Keep PR #131 draft. After full physical acceptance, bind NonDestructiveWorkbenchStateV01 into Workspace/ADVANCED and extend the existing Appearance cable without adding a duplicate renderer.",
   "permanent_laws": [
     "Seal the evidence, not the thinking.",
     "MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.",
