@@ -150,6 +150,7 @@ object DrawPhotoOutputCableV01 {
         currentRouteFlags: Int,
         currentQuarterTurns: Int,
     ): String? {
+        // This freshness recheck is intentionally independent of all UI-preview state.
         validateCurrentSource(
             binding = binding,
             job = job,
