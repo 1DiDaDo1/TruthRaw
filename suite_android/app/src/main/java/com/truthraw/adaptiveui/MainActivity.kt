@@ -679,10 +679,11 @@ class MainActivity : Activity() {
         )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
-        // The bridge owns an independent presentation copy. Activity teardown
-        // releases only MainActivity's bitmap; source/job invalidation elsewhere
-        // still clears the bridge through the unifiedOutputPreviewState setter.
-        preserveUnifiedOutputPresentationOnDestroy = true
+        // Preserve the bridge-owned presentation copy only across a normal
+        // finish/back transition or a configuration change. Unexpected teardown
+        // clears it fail-closed through the unifiedOutputPreviewState setter.
+        preserveUnifiedOutputPresentationOnDestroy =
+            isFinishing || isChangingConfigurations
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
         preserveUnifiedOutputPresentationOnDestroy = false
