@@ -36,86 +36,67 @@ jobs:
                   raise SystemExit(f"{label}: expected exactly one match, found {count}")
               s = s.replace(old, new, 1)
 
+          def regex_once(pattern: str, new: str, label: str):
+              global s
+              rx = re.compile(pattern, re.S)
+              matches = list(rx.finditer(s))
+              if len(matches) != 1:
+                  raise SystemExit(f"{label}: expected exactly one match, found {len(matches)}")
+              s = rx.sub(lambda _: new, s, count=1)
+
           replace_once(
               "    private var pendingJpegJobId: String? = null\n    private var jpegStatus: String? = null",
               "    private var pendingJpegJobId: String? = null\n    private var pendingJpegBinding: DrawPhotoOutputBindingV01? = null\n    private var jpegStatus: String? = null",
               "pending JPEG binding field",
           )
 
-          replace_once(
-              '''    @Suppress("DEPRECATION")
-              private fun launchJpegExport(job: RawJob) {
-                  val ready = previewState as? TilePreviewUiState.Ready ?: return
-                  if (ready.jobId != job.id) return
-                  pendingJpegJobId = job.id
-                  jpegStatus = null
-                  val route = preferredRoute()
-                  pendingPhotoRoute = route
-                  pendingPhotoFlags = photoFlagsForRoute(route)
-                  pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
-                  val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
-                  val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                      addCategory(Intent.CATEGORY_OPENABLE)
-                      type = "image/jpeg"
-                      putExtra(Intent.EXTRA_TITLE, "${stem}_draw_${route.lowercase()}_fullres.jpg")
-                  }
-                  startActivityForResult(intent, REQUEST_SAVE_JPEG)
-              }
-          '''.replace("              ", ""),
-              '''    @Suppress("DEPRECATION")
-              private fun launchJpegExport(job: RawJob) {
-                  val route = preferredRoute()
-                  val flags = photoFlagsForRoute(route)
-                  val quarterTurns =
-                      TruthRawOrientationOverride.quarterTurns(this, job.source)
+          launch_replacement = '''    @Suppress("DEPRECATION")
+          private fun launchJpegExport(job: RawJob) {
+              val route = preferredRoute()
+              val flags = photoFlagsForRoute(route)
+              val quarterTurns =
+                  TruthRawOrientationOverride.quarterTurns(this, job.source)
 
-                  when (
-                      val result = DrawPhotoOutputCableV01.bindFullResolutionJpeg(
-                          job = job,
-                          activeJobId = activeJobId,
-                          route = route,
-                          routeFlags = flags,
-                          userQuarterTurns = quarterTurns,
-                      )
-                  ) {
-                      is DrawPhotoOutputBindResultV01.Failed -> {
-                          pendingJpegJobId = null
-                          pendingJpegBinding = null
-                          jpegStatus = result.reason
-                          render()
-                          return
-                      }
-                      is DrawPhotoOutputBindResultV01.Ready -> {
-                          pendingJpegJobId = result.binding.sourceJobId
-                          pendingJpegBinding = result.binding
-                          jpegStatus = null
-                      }
+              when (
+                  val result = DrawPhotoOutputCableV01.bindFullResolutionJpeg(
+                      job = job,
+                      activeJobId = activeJobId,
+                      route = route,
+                      routeFlags = flags,
+                      userQuarterTurns = quarterTurns,
+                  )
+              ) {
+                  is DrawPhotoOutputBindResultV01.Failed -> {
+                      pendingJpegJobId = null
+                      pendingJpegBinding = null
+                      jpegStatus = result.reason
+                      render()
+                      return
                   }
-
-                  val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
-                  val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                      addCategory(Intent.CATEGORY_OPENABLE)
-                      type = "image/jpeg"
-                      putExtra(Intent.EXTRA_TITLE, "${stem}_draw_${route.lowercase()}_fullres.jpg")
+                  is DrawPhotoOutputBindResultV01.Ready -> {
+                      pendingJpegJobId = result.binding.sourceJobId
+                      pendingJpegBinding = result.binding
+                      jpegStatus = null
                   }
-                  startActivityForResult(intent, REQUEST_SAVE_JPEG)
               }
-          '''.replace("              ", ""),
+
+              val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
+              val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                  addCategory(Intent.CATEGORY_OPENABLE)
+                  type = "image/jpeg"
+                  putExtra(Intent.EXTRA_TITLE, "${stem}_draw_${route.lowercase()}_fullres.jpg")
+              }
+              startActivityForResult(intent, REQUEST_SAVE_JPEG)
+          }
+
+'''.replace("          ", "")
+          regex_once(
+              r'    @Suppress\("DEPRECATION"\)\n    private fun launchJpegExport\(job: RawJob\) \{.*?\n    \}\n\n(?=    @Suppress\("DEPRECATION"\)\n    private fun launchFullColourScientificMasterExport)',
+              launch_replacement,
               "launchJpegExport",
           )
 
-          pattern = re.compile(
-              r'''        if \(requestCode == REQUEST_SAVE_JPEG\) \{\n'''
-              r'''.*?'''
-              r'''            val operationKey = backgroundOperationKey\("jpeg", expectedJob\)''',
-              re.S,
-          )
-          match = pattern.search(s)
-          if match is None:
-              raise SystemExit("JPEG onActivityResult preamble: no match")
-          if len(pattern.findall(s)) != 1:
-              raise SystemExit("JPEG onActivityResult preamble: expected one match")
-          replacement = '''        if (requestCode == REQUEST_SAVE_JPEG) {
+          result_replacement = '''        if (requestCode == REQUEST_SAVE_JPEG) {
               val binding = pendingJpegBinding
               pendingJpegBinding = null
               pendingJpegJobId = null
@@ -162,10 +143,12 @@ jobs:
               val flags = binding.routeFlags
               val quarterTurns = binding.userQuarterTurns
               val operationKey = backgroundOperationKey("jpeg", expectedJob)'''.replace("              ", "")
-          s = s[:match.start()] + replacement + s[match.end():]
+          regex_once(
+              r'        if \(requestCode == REQUEST_SAVE_JPEG\) \{.*?            val operationKey = backgroundOperationKey\("jpeg", expectedJob\)',
+              result_replacement,
+              "JPEG onActivityResult preamble",
+          )
 
-          # Any source switch, internal camera replacement or explicit reprocess
-          # invalidates an outstanding document-picker request fail-closed.
           replace_once(
               "        empiricalAudit = null\n        jpegStatus = null\n        fullColourMasterStatus = null",
               "        empiricalAudit = null\n        pendingJpegJobId = null\n        pendingJpegBinding = null\n        jpegStatus = null\n        fullColourMasterStatus = null",
@@ -182,57 +165,96 @@ jobs:
               "reprocess stale JPEG clear",
           )
 
-          # Expose JPEG as a sibling output adapter of the main admitted cable.
-          # It is deliberately rendered before the preview-state switch, so an
-          # Idle/Loading/Failed UI preview cannot become a JPEG prerequisite.
-          anchor = '''        addView(universalIntakePane(active))
-              addView(space(8))
+          ui_anchor = (
+              "        addView(universalIntakePane(active))\n"
+              "        addView(space(8))\n\n"
+              "        when (val state = previewState) {"
+          )
+          ui_insert = '''        addView(universalIntakePane(active))
+          addView(space(8))
 
-              when (val state = previewState) {'''.replace("              ", "")
-          insert = '''        addView(universalIntakePane(active))
-              addView(space(8))
-
-              if (
-                  active.source.format.nativeProcessingReady &&
-                  active.source.format.id == "DNG"
-              ) {
-                  val outputRoute = preferredRoute()
-                  val jpegActionLabel = when (outputRoute) {
-                      TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ->
-                          "JPG · full resolution"
-                      TruthRawSuiteLauncherActivity.OUTPUT_PRO ->
-                          "JPG · full resolution professional"
-                      else ->
-                          "JPG · full resolution compatibility"
-                  }
-                  addView(label("Output / Vrije Raster", 13f, bold = true))
-                  addView(actionButton(jpegActionLabel) {
-                      launchJpegExport(active)
-                  })
-                  jpegStatus?.let { status ->
-                      backgroundOperationStatusView(
-                          backgroundOperationKey("jpeg", active.id),
-                          status,
-                      )?.let(::addView) ?: addView(
-                          label(status, 10f, muted = true),
-                      )
-                  }
-                  addView(label(
-                      "Preview-onafhankelijke full-resolution output · de UI-preview is een zustertak, " +
-                          "geen pixelbron of authority. Source mutation=false · Scientific Master writeback=false.",
-                      10f,
-                      muted = true,
-                  ))
-                  addView(space(8))
+          if (
+              active.source.format.nativeProcessingReady &&
+              active.source.format.id == "DNG"
+          ) {
+              val outputRoute = preferredRoute()
+              val jpegActionLabel = when (outputRoute) {
+                  TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ->
+                      "JPG · full resolution"
+                  TruthRawSuiteLauncherActivity.OUTPUT_PRO ->
+                      "JPG · full resolution professional"
+                  else ->
+                      "JPG · full resolution compatibility"
               }
+              addView(label("Output / Vrije Raster", 13f, bold = true))
+              addView(actionButton(jpegActionLabel) {
+                  launchJpegExport(active)
+              })
+              jpegStatus?.let { status ->
+                  backgroundOperationStatusView(
+                      backgroundOperationKey("jpeg", active.id),
+                      status,
+                  )?.let(::addView) ?: addView(
+                      label(status, 10f, muted = true),
+                  )
+              }
+              addView(label(
+                  "Preview-onafhankelijke full-resolution output · de UI-preview is een zustertak, " +
+                      "geen pixelbron of authority. Source mutation=false · Scientific Master writeback=false.",
+                  10f,
+                  muted = true,
+              ))
+              addView(space(8))
+          }
 
-              when (val state = previewState) {'''.replace("              ", "")
-          replace_once(anchor, insert, "preview-independent JPEG action")
+          when (val state = previewState) {'''.replace("          ", "")
+          replace_once(ui_anchor, ui_insert, "preview-independent JPEG action")
+
+          # Remove the old Ready-only duplicates. The single output action above
+          # now owns JPEG launch/status for PURE, ADVANCED and PRO.
+          for old, label in [
+              ('''                        addView(space(7))
+                        addView(actionButton("JPG · full resolution compatibility") {
+                            launchJpegExport(active)
+                        })
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+''', "PURE Ready JPEG duplicate"),
+              ('''                        addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+''', "ADVANCED Ready JPEG duplicate"),
+              ('''                        addView(actionButton("JPG · full resolution professional") {
+                            launchJpegExport(active)
+                        })
+                        jpegStatus?.let { status ->
+                            backgroundOperationStatusView(
+                                backgroundOperationKey("jpeg", active.id),
+                                status,
+                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
+                        }
+''', "PRO Ready JPEG duplicate"),
+          ]:
+              replace_once(old, "", label)
 
           path.write_text(s)
           PY
 
           git diff --check
+          grep -F 'pendingJpegBinding: DrawPhotoOutputBindingV01?' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'DrawPhotoOutputCableV01.bindFullResolutionJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'DrawPhotoOutputCableV01.validateCurrentOutputContext' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'Preview-onafhankelijke full-resolution output' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          test "$(grep -F -c 'JPG · full resolution compatibility' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt)" -eq 1
+          test "$(grep -F -c 'JPG · full resolution professional' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt)" -eq 1
           git diff -- suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
 
       - name: Commit runtime wiring and remove one-shot workflow
