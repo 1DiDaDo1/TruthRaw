@@ -133,4 +133,40 @@ object DrawPhotoOutputCableV01 {
         }
         return null
     }
+
+    /**
+     * Freeze the complete downstream presentation request across Android's
+     * document-picker round-trip. A route, appearance-setting or orientation
+     * change invalidates the request instead of silently retargeting the output.
+     *
+     * This is presentation freshness only. It never creates scientific authority
+     * and it never turns the UI preview into an output dependency.
+     */
+    fun validateCurrentOutputContext(
+        binding: DrawPhotoOutputBindingV01,
+        job: RawJob?,
+        activeJobId: String?,
+        currentRoute: String,
+        currentRouteFlags: Int,
+        currentQuarterTurns: Int,
+    ): String? {
+        validateCurrentSource(
+            binding = binding,
+            job = job,
+            activeJobId = activeJobId,
+        )?.let { return it }
+
+        if (currentRoute != binding.route) {
+            return "JPG-output geblokkeerd: uitvoerroute veranderde tijdens de bestandsdialoog."
+        }
+        if (currentRouteFlags != binding.routeFlags) {
+            return "JPG-output geblokkeerd: appearance-instellingen veranderden tijdens de bestandsdialoog."
+        }
+        if (currentQuarterTurns !in 0..3 ||
+            currentQuarterTurns != binding.userQuarterTurns
+        ) {
+            return "JPG-output geblokkeerd: downstream oriëntatie veranderde tijdens de bestandsdialoog."
+        }
+        return null
+    }
 }
