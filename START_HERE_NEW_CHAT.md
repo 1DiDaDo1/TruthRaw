@@ -238,6 +238,39 @@ Historical dated architecture/state/handoff documents remain provenance and must
 - `state/DRAW_PROJECT_STATE_2026-10-06.json`
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-06.md`
 
+### Governance-verifier historical discoverability pointers
+
+The current bootstrap remains authoritative for continuation, while the following older files are listed explicitly only so the repository's historical documentation-governance verifier can continue to discover the preserved provenance chain. They are **historical**, not a rollback of current 44489 authority:
+
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+- `docs/research/free-world-observation-graph-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+
 ## Scientific frontier beyond the product work
 
 Do not add another reconstruction heuristic by default. Highest-value scientific frontier remains:
