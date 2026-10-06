@@ -25,7 +25,7 @@ Documentation-only commits may advance the live branch beyond the runtime/build 
 - Active product/runtime PR: **#131**
 - branch: `feat/draw-workspace-free-raster-v01`
 - frozen base/scientific-audit reference: PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
-- runtime/build head: `7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390`
+- runtime/build head used by the tested APK: `7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390`
 - PR remains draft until remaining physical acceptance is complete.
 
 Resolve live head first because the current head may be a later documentation-only commit.
@@ -45,7 +45,7 @@ RAW/DNG remains on Universal Intake.
 
 ## Runtime wiring status
 
-The internal cable is now implemented and build-green:
+The internal cable is implemented and build-green:
 
 `UnifiedOutputPreviewResult.Ready -> MainActivity common state boundary -> UnifiedOutputPresentationBridge.publishReady(...) -> Workspace fail-closed consume -> Free Raster`
 
@@ -69,9 +69,11 @@ Properties:
 
 Current status:
 
-`PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_D_RAW_FIT_PREVIEW_1_TO_1_PASS`
+`PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_EXTERNAL_FIT_PREVIEW_1_TO_1_PAN_ZOOM_PASS`
 
-User-provided real-device screenshots on 2026-10-06 show:
+### Internal D.RAW PASS
+
+Real-device screenshots show:
 
 - `D.RAW_UNIFIED_OUTPUT_PRESENTATION` in Free Raster;
 - route `PRO`;
@@ -79,26 +81,42 @@ User-provided real-device screenshots on 2026-10-06 show:
 - source `IMG_BNC_TRUTHRAW20260907_094414_423.dng`;
 - source `4080×3072`;
 - decoded preview `192×145`;
-- source-SHA prefix visible as `578fad42dad6819b…`;
+- source-SHA prefix `578fad42dad6819b…`;
 - `VIEW_ONLY_COPY`;
 - `createsNewEvidence=false`;
 - `scientificWriteback=false`;
 - Fit = PASS;
 - Preview 1:1 = PASS.
 
+### External raster PASS
+
+The normal black/white dog JPG was reloaded in the same Workspace/app environment and shows:
+
+- `EXTERNAL_PRESENTATION_RASTER`;
+- source `4080×3072`;
+- preview `2040×1536`;
+- sample `2×`;
+- `PRESENTATION_ONLY`;
+- Fit scale about `0.502x`;
+- Preview 1:1 scale `1.000x`;
+- zoom about `3.980x`;
+- changed x/y transforms proving pan/positioning;
+- same-environment reload = PASS.
+
 **Preview 1:1** means one display pixel per decoded preview pixel only. It is never a sensor/CFA/Scientific-Master sampling claim or optical-resolution proof.
+
+Same-environment reload does **not** prove cold-start/process-death persistence.
 
 Still pending before full v0.2 physical acceptance:
 
-- external JPG/PNG/WebP `PRESENTATION_ONLY` test;
-- pan/zoom;
 - non-zero orientation;
 - route mismatch fail-closed;
 - source switch/reprocess stale-state clearing;
-- explicit no-source-overwrite / no-Scientific-Master-writeback / no-candidate-application interaction check;
-- installed APK hash readback if byte-exact installed-package provenance is required.
+- explicit no-source-overwrite / no-Scientific-Master-writeback / no-candidate-application / no-new-evidence interaction check;
+- cold-start/process-death raster restoration only if required;
+- installed APK hash readback only if byte-exact physical-package provenance is required.
 
-Do not re-test Fit/Preview 1:1 unless runtime code changes.
+Do not re-test internal/external Fit, Preview 1:1 or pan/zoom unless runtime code changes.
 
 ## Current build checkpoint
 
@@ -122,7 +140,7 @@ Android build:
 
 The exact-head returned workflow set was green after Android lineage repair, including Research Live Status, Research Fresh Rerun, Android Version Lineage, Documentation Governance, Canonical, TruthRange, Shared Scientific Context, performance provenance, DngCreator compatibility, Universal Intake and Universal Physical Capture.
 
-Build/CI evidence creates no scientific authority. The device screenshots prove functional runtime behavior but the installed APK hash was not independently read back from the physical device in this chat.
+Build/CI evidence creates no scientific authority. Device screenshots prove functional runtime behavior; the installed APK hash was not independently read back from the device in this chat.
 
 ## Non-destructive workbench invariant
 
@@ -150,18 +168,17 @@ Do not redesign the internal bridge; it is wired and green.
 
 Complete physical acceptance in order:
 
-1. external normal JPG through `PRESENTATION_ONLY`;
-2. pan + pinch zoom;
-3. non-zero orientation;
-4. route mismatch fail-closed;
-5. source switch/reprocess stale-state clearing;
-6. confirm no source overwrite, Scientific Master writeback, candidate application or new-evidence claim.
+1. non-zero orientation;
+2. route mismatch fail-closed;
+3. source switch/reprocess stale-state clearing;
+4. confirm no source overwrite, Scientific Master writeback, candidate application or new-evidence claim;
+5. optionally test cold-start/process-death raster restoration and installed APK hash readback if those properties are required.
 
 After full v0.2 physical acceptance:
 
-7. bind `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED;
-8. extend the **existing** Appearance renderer/cable with reversible black point, white point, highlight roll-off, shadows/midtones, warmth/tint, saturation/vibrance/colorfulness, neutral protection and detail/appearance sharpening;
-9. do not create a duplicate renderer.
+6. bind `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED;
+7. extend the **existing** Appearance renderer/cable with reversible black point, white point, highlight roll-off, shadows/midtones, warmth/tint, saturation/vibrance/colorfulness, neutral protection and detail/appearance sharpening;
+8. do not create a duplicate renderer.
 
 ## Permanent scientific laws
 
@@ -205,31 +222,8 @@ PR #131 product work must not rewrite this audit meaning.
 
 ## Historical governance provenance
 
-Historical dated architecture/state/handoff documents remain provenance and must remain discoverable. Important current predecessors include:
+Historical dated architecture/state/handoff documents remain provenance and must remain discoverable. Important current predecessors include the dated September/October state, handoff and document-index files, plus:
 
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 - `docs/handoff/DRAW_44489_RECOVERY_2026-10-03.md`
 - `state/DRAW_PROJECT_STATE_2026-10-04.json`
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-04.md`
