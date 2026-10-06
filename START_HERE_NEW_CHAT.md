@@ -9,23 +9,25 @@ Documentation-only commits may advance the live branch beyond the runtime/build 
 ## Mandatory current reading order
 
 1. Resolve live PR **#131** and record exact current `head_sha`.
-2. Read `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-06.md`.
-3. Read `state/DRAW_PROJECT_STATE_2026-10-06.json`.
-4. Read `docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md`.
-5. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-06.md`.
-6. Read `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`.
-7. Read `docs/handoff/DRAW_44489_WORKSPACE_OUTPUT_FREE_RASTER_V0_2.md`.
-8. Read `docs/DRAW_FLEXIBLE_CABLE_INTERNALS_v0_1.md`.
-9. Read `docs/DRAW_NON_DESTRUCTIVE_WORKBENCH_v0_1.md`.
-10. Read `docs/DRAW_INTERDISCIPLINARY_SCIENTIFIC_DECISION_FOUNDATION_v0_1.md`.
-11. Inspect exact live-head PR #131 code/CI before mutation; consult frozen PR #130 only for the scientific/audit reference.
+2. Read `docs/handoff/DRAW_44489_PREVIEW_INDEPENDENT_JPEG_CHECKPOINT_2026-10-06.md`.
+3. Read `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-06.md`.
+4. Read `state/DRAW_PROJECT_STATE_2026-10-06.json`.
+5. Read `docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md`.
+6. Read `docs/DOCUMENT_STATUS_INDEX_2026-10-06.md`.
+7. Read `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`.
+8. Read `docs/handoff/DRAW_44489_WORKSPACE_OUTPUT_FREE_RASTER_V0_2.md`.
+9. Read `docs/DRAW_FLEXIBLE_CABLE_INTERNALS_v0_1.md`.
+10. Read `docs/DRAW_NON_DESTRUCTIVE_WORKBENCH_v0_1.md`.
+11. Read `docs/DRAW_INTERDISCIPLINARY_SCIENTIFIC_DECISION_FOUNDATION_v0_1.md`.
+12. Inspect exact live-head PR #131 code/CI before mutation; consult frozen PR #130 only for the scientific/audit reference.
 
 ## Active repository boundary
 
 - Active product/runtime PR: **#131**
 - branch: `feat/draw-workspace-free-raster-v01`
 - frozen base/scientific-audit reference: PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
-- runtime/build head used by the tested APK: `7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390`
+- current runtime/build source head: `de0d49ef9f9abda777a8126a2a98a028030eafa1`
+- later documentation-only commits may advance live HEAD beyond that runtime source head.
 - PR remains draft until remaining physical acceptance is complete.
 
 Resolve live head first because the current head may be a later documentation-only commit.
@@ -45,7 +47,7 @@ RAW/DNG remains on Universal Intake.
 
 ## Runtime wiring status
 
-The internal cable is implemented and build-green:
+The internal Free Raster cable is implemented and build-green:
 
 `UnifiedOutputPreviewResult.Ready -> MainActivity common state boundary -> UnifiedOutputPresentationBridge.publishReady(...) -> Workspace fail-closed consume -> Free Raster`
 
@@ -65,9 +67,27 @@ Properties:
 - stale source/reprocess state clears fail-closed;
 - no second renderer, RAW decoder, Scientific Master, reconstruction route or T5 evaluation.
 
+## Preview-independent full-resolution JPEG status
+
+Full-resolution JPEG no longer depends on `TilePreviewUiState.Ready`.
+
+`admitted DNG observation -> DrawPhotoOutputCableV01 binding -> FullResJpegExporter -> new derived JPEG`
+
+The binding freezes source/job, PURE/ADVANCED/PRO route, appearance flags and downstream orientation before Android's document picker. After the picker returns, the same context is revalidated fail-closed.
+
+Hard output properties:
+
+- `previewRequired=false`
+- `createsNewEvidence=false`
+- `scientificWritebackAllowed=false`
+- `sourceMutationAllowed=false`
+- UI preview = sibling presentation output only, never pixel source or authority.
+
+Exact detail and build provenance: `docs/handoff/DRAW_44489_PREVIEW_INDEPENDENT_JPEG_CHECKPOINT_2026-10-06.md`.
+
 ## Current real-device status
 
-Current status:
+Current Free Raster status:
 
 `PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_EXTERNAL_FIT_PREVIEW_1_TO_1_PAN_ZOOM_PASS`
 
@@ -109,6 +129,7 @@ Same-environment reload does **not** prove cold-start/process-death persistence.
 
 Still pending before full v0.2 physical acceptance:
 
+- preview-independent full-resolution JPEG real-device acceptance;
 - non-zero orientation;
 - route mismatch fail-closed;
 - source switch/reprocess stale-state clearing;
@@ -122,25 +143,26 @@ Do not re-test internal/external Fit, Preview 1:1 or pan/zoom unless runtime cod
 
 Runtime/build source head:
 
-`7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390`
+`de0d49ef9f9abda777a8126a2a98a028030eafa1`
 
 Android build:
 
 - workflow: `D.RAW Suite Universal Intake v0.1`
-- run: `37439775107`
+- run: `37486202104`
 - result: **SUCCESS**
 - artifact: `DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64`
-- artifact ID: `11401290002`
-- artifact ZIP SHA-256: `5ae0e7d9d86db230c2d76e5d86cb0521511c07dd7615c695e78782ba56e791a4`
-- APK bytes: `8,702,803`
-- APK SHA-256: `d8baafc8715f41a5585a9e1687e8ac56c4ddb6d5f900321bb091b7fb16f1c8ee`
+- artifact ID: `11423262790`
+- artifact ZIP bytes: `3,286,459`
+- artifact ZIP SHA-256: `1339acd7093d51fb5964d5a95d07a091e77b192dbb649c0bd0f14753628dbb34`
+- APK bytes: `8,719,187`
+- APK SHA-256: `9887085f71a24ceb0057f2503728e886502d11b92f908f23a00f107eab3ec860`
 - stable signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
 - versionCode: `26100127`
 - versionName: `0.54-v0.84.2-open-world-authority-corridor-v01`
 
-The exact-head returned workflow set was green after Android lineage repair, including Research Live Status, Research Fresh Rerun, Android Version Lineage, Documentation Governance, Canonical, TruthRange, Shared Scientific Context, performance provenance, DngCreator compatibility, Universal Intake and Universal Physical Capture.
+On `de0d49…`, Android/runtime/scientific contract checks passed except Documentation Governance. That documentation-only failure was caused by missing historical bootstrap discoverability pointers after the current 44489 bootstrap was modernized. The compatibility repair at `c2e5e7372b62afed6769d7ce11f35e5f85cc6d14` produced Documentation Governance run `37496655736`: **SUCCESS**.
 
-Build/CI evidence creates no scientific authority. Device screenshots prove functional runtime behavior; the installed APK hash was not independently read back from the device in this chat.
+Build/CI evidence creates no scientific authority. The installed APK hash has not been independently read back from the physical device.
 
 ## Non-destructive workbench invariant
 
@@ -164,21 +186,28 @@ Full integration of all Workspace/ADVANCED edit controls remains after Free Rast
 
 ## Exact next action
 
-Do not redesign the internal bridge; it is wired and green.
+Do not redesign either the Unified Output -> Free Raster bridge or the preview-independent JPEG cable; both are now implemented and build-green.
 
-Complete physical acceptance in order:
+First validate the new JPEG path on the physical device:
 
-1. non-zero orientation;
-2. route mismatch fail-closed;
-3. source switch/reprocess stale-state clearing;
-4. confirm no source overwrite, Scientific Master writeback, candidate application or new-evidence claim;
-5. optionally test cold-start/process-death raster restoration and installed APK hash readback if those properties are required.
+1. install/use the APK from runtime source head `de0d49…`;
+2. import/admit a real DNG;
+3. invoke **JPG · full resolution** while the normal preview is still idle/loading if possible, so `TilePreviewUiState.Ready` is demonstrably not required;
+4. save to a new JPEG and verify `JPG full-resolution gereed`, full-resolution dimensions and expected orientation;
+5. confirm the source DNG is unchanged and no Scientific Master writeback, candidate application or new-evidence claim occurs.
+
+Then finish the remaining Free Raster acceptance:
+
+6. non-zero orientation;
+7. route mismatch fail-closed;
+8. source switch/reprocess stale-state clearing;
+9. optionally test cold-start/process-death raster restoration and installed APK hash readback if those properties are required.
 
 After full v0.2 physical acceptance:
 
-6. bind `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED;
-7. extend the **existing** Appearance renderer/cable with reversible black point, white point, highlight roll-off, shadows/midtones, warmth/tint, saturation/vibrance/colorfulness, neutral protection and detail/appearance sharpening;
-8. do not create a duplicate renderer.
+10. bind `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED;
+11. extend the **existing** Appearance renderer/cable with reversible black point, white point, highlight roll-off, shadows/midtones, warmth/tint, saturation/vibrance/colorfulness, neutral protection and detail/appearance sharpening;
+12. do not create a duplicate renderer.
 
 ## Permanent scientific laws
 
@@ -235,6 +264,7 @@ Historical dated architecture/state/handoff documents remain provenance and must
 - `docs/handoff/DRAW_44489_WORKSPACE_DEVICE_ACCEPTANCE_2026-10-05.md`
 - `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-06.md`
 - `docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md`
+- `docs/handoff/DRAW_44489_PREVIEW_INDEPENDENT_JPEG_CHECKPOINT_2026-10-06.md`
 - `state/DRAW_PROJECT_STATE_2026-10-06.json`
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-06.md`
 
