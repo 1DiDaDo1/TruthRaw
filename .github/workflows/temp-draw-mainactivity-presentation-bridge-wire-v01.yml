@@ -1,0 +1,71 @@
+name: TEMP D.RAW MainActivity presentation bridge wiring
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - '.github/workflows/temp-draw-mainactivity-presentation-bridge-wire-v01.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-mainactivity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply exact guarded MainActivity bridge patch
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt')
+          text = path.read_text(encoding='utf-8')
+
+          field_old = '''    private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null\n'''
+          field_new = '''    private var preserveUnifiedOutputPresentationOnDestroy: Boolean = false\n    private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null\n        set(value) {\n            field = value\n            when {\n                value != null -> publishUnifiedOutputPresentation(value)\n                !preserveUnifiedOutputPresentationOnDestroy ->\n                    UnifiedOutputPresentationBridge.clear(\n                        "main_activity_unified_output_state_cleared",\n                    )\n            }\n        }\n'''
+          if text.count(field_old) != 1:
+              raise SystemExit(f'Expected exactly one unifiedOutputPreviewState declaration, found {text.count(field_old)}')
+          text = text.replace(field_old, field_new, 1)
+
+          helper_anchor = '''    private fun clearN2CropAb() {\n        TruthNegativeN2CropAbLoader.recycle(n2CropAbResult)\n        n2CropAbResult = null\n        n2CropAbJobId = null\n        n2CropAbStatus = null\n    }\n\n'''
+          helper_insert = helper_anchor + '''    private fun publishUnifiedOutputPresentation(\n        ready: UnifiedOutputPreviewResult.Ready,\n    ) {\n        val jobId = activeJobId\n        val job = jobId?.let { id ->\n            session.jobs.firstOrNull { it.id == id }\n        }\n        if (job == null) {\n            UnifiedOutputPresentationBridge.clear(\n                "unified_output_ready_without_active_job",\n            )\n            return\n        }\n\n        val sourceSha256 = universalProfiles[job.id]\n            ?.optString("source_sha256", "")\n            ?.trim()\n            ?.takeIf { it.isNotBlank() }\n\n        when (\n            val result = UnifiedOutputPresentationBridge.publishReady(\n                ready = ready,\n                sourceJobId = job.id,\n                sourceDisplayName = job.source.displayName,\n                sourceUri = job.source.uri.toString(),\n                sourceSha256 = sourceSha256,\n                route = preferredRoute(),\n            )\n        ) {\n            is UnifiedOutputPresentationBridge.PublishResult.Ready -> Unit\n            is UnifiedOutputPresentationBridge.PublishResult.Failure ->\n                UnifiedOutputPresentationBridge.clear(\n                    "unified_output_ready_publish_failed_" + result.kind.name,\n                )\n        }\n    }\n\n'''
+          if text.count(helper_anchor) != 1:
+              raise SystemExit(f'Expected exactly one clearN2CropAb helper anchor, found {text.count(helper_anchor)}')
+          if 'private fun publishUnifiedOutputPresentation(' in text:
+              raise SystemExit('publishUnifiedOutputPresentation already exists; refusing duplicate patch')
+          text = text.replace(helper_anchor, helper_insert, 1)
+
+          destroy_old = '''        restorationStatusHandler.removeCallbacks(restorationStatusPoll)\n        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()\n        unifiedOutputPreviewState?.bitmap?.recycle()\n        unifiedOutputPreviewState = null\n        clearN2AppearanceCandidate()\n'''
+          destroy_new = '''        restorationStatusHandler.removeCallbacks(restorationStatusPoll)\n        (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()\n        // The bridge owns an independent presentation copy. Activity teardown\n        // releases only MainActivity's bitmap; source/job invalidation elsewhere\n        // still clears the bridge through the unifiedOutputPreviewState setter.\n        preserveUnifiedOutputPresentationOnDestroy = true\n        unifiedOutputPreviewState?.bitmap?.recycle()\n        unifiedOutputPreviewState = null\n        preserveUnifiedOutputPresentationOnDestroy = false\n        clearN2AppearanceCandidate()\n'''
+          if text.count(destroy_old) != 1:
+              raise SystemExit(f'Expected exactly one onDestroy unified-output block, found {text.count(destroy_old)}')
+          text = text.replace(destroy_old, destroy_new, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Verify patch scope
+        run: |
+          set -euo pipefail
+          git diff --check
+          git diff -- suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'private fun publishUnifiedOutputPresentation(' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'UnifiedOutputPresentationBridge.publishReady(' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          test "$(git diff --name-only | wc -l)" -eq 1
+          test "$(git diff --name-only)" = 'suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt'
+
+      - name: Commit exact runtime wiring
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          git commit -m 'Android: publish Unified Output Ready to Workspace bridge'
+          git push origin HEAD:feat/draw-workspace-free-raster-v01
