@@ -18,7 +18,7 @@ Read these first for Workspace / Free Raster v0.2:
 10. live PR #131 / exact current head
 11. frozen PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` only when its scientific/audit reference is needed.
 
-Documentation-only commits may advance PR #131 beyond the last runtime/build checkpoint. Resolve live head before mutation; never force-reset merely to match a remembered SHA.
+Documentation-only commits may advance PR #131 beyond the runtime/build checkpoint. Resolve live head before mutation; never force-reset merely to match a remembered SHA.
 
 ## Current product/runtime meaning
 
@@ -37,7 +37,7 @@ Current proven runtime pieces:
 - `NonDestructiveWorkbenchStateV01` contract;
 - interdisciplinary scientific decision foundation.
 
-The internal runtime cable is implemented as:
+Internal runtime cable:
 
 `UnifiedOutputPreviewResult.Ready -> MainActivity common state boundary -> UnifiedOutputPresentationBridge.publishReady(...) -> Workspace fail-closed consume -> Free Raster`
 
@@ -47,7 +47,7 @@ No second renderer, RAW decoder, Scientific Master, reconstruction route, T5 eva
 
 Current status:
 
-`PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_D_RAW_FIT_PREVIEW_1_TO_1_PASS`
+`PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_EXTERNAL_FIT_PREVIEW_1_TO_1_PAN_ZOOM_PASS`
 
 PASS on physical device:
 
@@ -57,19 +57,34 @@ PASS on physical device:
 - `VIEW_ONLY_COPY` visible;
 - `createsNewEvidence=false` visible;
 - `scientificWriteback=false` visible;
-- Fit;
-- Preview 1:1.
+- internal Fit;
+- internal Preview 1:1;
+- external JPG/JPEG as `EXTERNAL_PRESENTATION_RASTER / PRESENTATION_ONLY`;
+- external Fit;
+- external Preview 1:1;
+- pan/zoom, with observed zoom about `3.980x`;
+- same-environment external raster reload.
+
+External test details:
+
+- source `4080×3072`;
+- preview `2040×1536`;
+- sample `2×`;
+- Fit about `0.502x`;
+- Preview 1:1 `1.000x`;
+- changed x/y transforms during zoom/pan.
 
 Preview 1:1 means one display pixel per decoded preview pixel only; it is not a sensor/CFA/Scientific-Master or optical-resolution claim.
 
+Same-environment reload is not cold-start/process-death persistence evidence.
+
 Still pending before full v0.2 device acceptance:
 
-- external JPG/PNG/WebP `PRESENTATION_ONLY` test;
-- pan/zoom;
 - non-zero orientation;
 - route mismatch fail-closed;
 - source switch/reprocess stale-state clearing;
-- explicit no-source-overwrite/no-writeback/no-candidate-application interaction round;
+- explicit no-source-overwrite/no-writeback/no-candidate-application/no-new-evidence interaction round;
+- optional cold-start/process-death raster restoration if required;
 - optional installed APK hash readback for byte-exact physical-package provenance.
 
 PR #131 remains draft.
@@ -96,7 +111,7 @@ Build/CI evidence is not scientific promotion. Device screenshots are functional
 
 ## Still-open product work
 
-The following are not yet complete:
+Not yet complete:
 
 - remaining physical acceptance items listed above;
 - full integration of Workspace/ADVANCED controls into `NonDestructiveWorkbenchStateV01`;
