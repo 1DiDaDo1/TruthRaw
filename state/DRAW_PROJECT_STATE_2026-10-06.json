@@ -4,13 +4,14 @@
   "repository_full_name": "1DiDaDo1/TruthRaw",
   "date": "2026-10-06",
   "handoff_code": 44489,
-  "status": "WORKSPACE_FREE_RASTER_V0_2_RUNTIME_WIRED_BUILD_GREEN_PARTIAL_DEVICE_ACCEPTANCE",
+  "status": "WORKSPACE_FREE_RASTER_V0_2_RUNTIME_WIRED_PREVIEW_INDEPENDENT_JPEG_BUILD_GREEN_PARTIAL_DEVICE_ACCEPTANCE",
   "authority": {
     "active_product_pr": 131,
     "active_product_branch": "feat/draw-workspace-free-raster-v01",
     "frozen_scientific_audit_pr": 130,
     "frozen_scientific_audit_head": "4e4f358ac5d6fb4a8562286257b8edb76ae5d33f",
-    "runtime_build_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
+    "runtime_build_head": "de0d49ef9f9abda777a8126a2a98a028030eafa1",
+    "documentation_governance_repair_head": "c2e5e7372b62afed6769d7ce11f35e5f85cc6d14",
     "partial_device_acceptance_record": "docs/handoff/DRAW_44489_FREE_RASTER_V02_DEVICE_PARTIAL_ACCEPTANCE_2026-10-06.md",
     "rule": "Resolve live PR #131 head before mutation. Documentation-only commits may advance HEAD beyond the recorded runtime/build checkpoint. Never force-reset to a remembered SHA."
   },
@@ -41,6 +42,30 @@
     "scientific_writeback_allowed": false,
     "second_renderer_allowed": false,
     "second_t5_evaluation_allowed": false
+  },
+  "preview_independent_jpeg_output": {
+    "status": "IMPLEMENTED_BUILD_GREEN_REAL_DEVICE_VALIDATION_PENDING",
+    "contract_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawPhotoOutputCableV01.kt",
+    "main_activity_anchor": "suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt",
+    "adapter_id": "jpeg.full_resolution.native_dng.v1",
+    "source_authority": "EXISTING_ADMITTED_DNG_OBSERVATION",
+    "output_authority": "DERIVED_PRESENTATION_OUTPUT",
+    "preview_required": false,
+    "source_mutation_allowed": false,
+    "scientific_writeback_allowed": false,
+    "creates_new_evidence": false,
+    "frozen_request_context": [
+      "source_job_id",
+      "source_uri",
+      "route",
+      "route_flags",
+      "user_quarter_turns"
+    ],
+    "post_picker_revalidation": "FAIL_CLOSED_SOURCE_JOB_ROUTE_FLAGS_ORIENTATION",
+    "render_source": "FullResJpegExporter.renderToPrivateJpeg(contentResolver, job, flags, quarterTurns, dir)",
+    "ui_preview_role": "SIBLING_PRESENTATION_OUTPUT_ONLY_NOT_PIXEL_SOURCE_NOT_AUTHORITY",
+    "result_preview_role": "BEST_EFFORT_PRESENTATION_FEEDBACK_AFTER_SUCCESSFUL_EXPORT",
+    "real_device_acceptance": "PENDING"
   },
   "device_acceptance": {
     "status": "PARTIAL_DEVICE_ACCEPTANCE_INTERNAL_EXTERNAL_FIT_PREVIEW_1_TO_1_PAN_ZOOM_PASS",
@@ -77,6 +102,7 @@
     "route_mismatch_fail_closed": "PENDING",
     "source_switch_reprocess_stale_clear": "PENDING",
     "full_no_mutation_acceptance_round": "PENDING",
+    "preview_independent_fullres_jpeg": "PENDING_REAL_DEVICE_TEST",
     "installed_apk_hash_read_back_from_device": false,
     "scientific_promotion_implied": false
   },
@@ -121,15 +147,15 @@
     "sharpening_increases_optical_authority": false
   },
   "build_checkpoint": {
-    "source_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
+    "source_head": "de0d49ef9f9abda777a8126a2a98a028030eafa1",
     "workflow": "D.RAW Suite Universal Intake v0.1",
-    "workflow_run": 37439775107,
+    "workflow_run": 37486202104,
     "result": "SUCCESS",
     "artifact_name": "DRAW_Full_Suite_Universal_Intake_v0.1_debug_arm64",
-    "artifact_id": 11401290002,
-    "artifact_zip_sha256": "5ae0e7d9d86db230c2d76e5d86cb0521511c07dd7615c695e78782ba56e791a4",
-    "apk_bytes": 8702803,
-    "apk_sha256": "d8baafc8715f41a5585a9e1687e8ac56c4ddb6d5f900321bb091b7fb16f1c8ee",
+    "artifact_id": 11423262790,
+    "artifact_zip_sha256": "1339acd7093d51fb5964d5a95d07a091e77b192dbb649c0bd0f14753628dbb34",
+    "apk_bytes": 8719187,
+    "apk_sha256": "9887085f71a24ceb0057f2503728e886502d11b92f908f23a00f107eab3ec860",
     "stable_signing_cert_sha256": "a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44",
     "version_code": 26100127,
     "version_name": "0.54-v0.84.2-open-world-authority-corridor-v01",
@@ -138,20 +164,28 @@
     "scientific_promotion_implied": false
   },
   "ci_summary": {
-    "runtime_build_head": "7f7d3f896d5e48d31a5b0ab833b9fbfe53cca390",
-    "returned_exact_head_set_green": true,
-    "includes": [
+    "runtime_build_head": "de0d49ef9f9abda777a8126a2a98a028030eafa1",
+    "runtime_android_build": "SUCCESS",
+    "runtime_scientific_and_contract_checks": "SUCCESS_EXCEPT_DOCUMENTATION_GOVERNANCE",
+    "documentation_governance_on_runtime_head": "FAIL_HISTORICAL_BOOTSTRAP_DISCOVERABILITY_ONLY",
+    "documentation_governance_failure_run": 37486202039,
+    "documentation_governance_repaired_head": "c2e5e7372b62afed6769d7ce11f35e5f85cc6d14",
+    "documentation_governance_repair_run": 37496655736,
+    "documentation_governance_repair_result": "SUCCESS",
+    "documentation_governance_failure_was_runtime_or_scientific_failure": false,
+    "includes_runtime_head_successes": [
       "Research Live Status v0.2",
       "Research Fresh Rerun v0.1",
       "Android Version Lineage",
-      "Documentation Governance",
       "Canonical Integrity",
       "TruthRange",
       "Shared Scientific Context",
       "performance provenance",
       "DngCreator Compatibility",
       "D.RAW Suite Universal Intake v0.1",
-      "D.RAW Universal Physical Capture"
+      "D.RAW Universal Physical Capture",
+      "Anchor-Constrained Local Reconstruction",
+      "Free World Observation Geometry Foundation"
     ],
     "ci_creates_scientific_authority": false
   },
@@ -164,7 +198,7 @@
     "creates_new_evidence": false,
     "scientific_promotion_state": "NOT_PROMOTED_FAIL_CLOSED"
   },
-  "next_action": "Complete the remaining Free Raster v0.2 physical acceptance: non-zero orientation, route-mismatch fail-closed, source-switch/reprocess stale-state clearing, and explicit no-source-overwrite/no-Scientific-Master-writeback/no-candidate-application checks. Same-environment external reload is proven but cold-start/process-death persistence is not. Keep PR #131 draft. After full physical acceptance, bind NonDestructiveWorkbenchStateV01 into Workspace/ADVANCED and extend the existing Appearance cable without adding a duplicate renderer.",
+  "next_action": "Use the exact APK built from runtime source head de0d49ef9f9abda777a8126a2a98a028030eafa1 for real-device validation of preview-independent full-resolution JPEG: import/admit a DNG, invoke JPG full-resolution without relying on TilePreviewUiState.Ready, verify the export completes from the existing admitted DNG/full-resolution output cable, verify the saved JPEG dimensions/orientation/status, and confirm the original DNG is not overwritten and no Scientific Master writeback/candidate/new-evidence claim occurs. Then continue the remaining Free Raster v0.2 physical acceptance: non-zero orientation, route mismatch fail-closed, source-switch/reprocess stale-state clearing. Keep PR #131 draft.",
   "permanent_laws": [
     "Seal the evidence, not the thinking.",
     "MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.",
