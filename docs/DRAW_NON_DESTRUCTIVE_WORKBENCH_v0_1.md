@@ -116,6 +116,32 @@ Free Raster is non-destructive by construction:
 
 None of these operations creates a measured sample, changes CFA evidence, increases optical resolution, or changes Scientific Master authority.
 
+## Preview-independent sibling output contract
+
+Full-resolution JPEG is a sibling consumer of the admitted D.RAW source/scientific output cable. The UI preview is **not** a prerequisite, pixel source, evidence source or authority source for that export.
+
+The current runtime binding freezes the complete downstream output context before Android's document picker opens:
+
+- source job ID;
+- source URI;
+- PURE / ADVANCED / PRO route;
+- route/appearance flags;
+- downstream orientation;
+- explicit derived-output safety flags.
+
+When the picker returns, that frozen binding is revalidated fail-closed. A source/job/URI switch, route change, appearance-setting change or orientation change invalidates the pending JPEG request instead of silently retargeting it. Explicit source replacement or reprocessing also clears the pending binding.
+
+The actual JPEG renderer remains full-resolution and source/job-bound. A small JPEG decoded **after** successful commit is presentation feedback only; it is not reused as the export's pixel source or scientific authority.
+
+The safety state remains:
+
+- `previewRequired=false`;
+- `createsNewEvidence=false`;
+- `sourceMutationAllowed=false`;
+- `scientificWritebackAllowed=false`.
+
+This sibling-output rule is the intended pattern for future Free Raster / PNG / other derived-output adapters: one admitted upstream state, multiple downstream raster/output consumers, no preview-as-authority shortcut.
+
 ## Export boundary
 
 Export must be explicit and must create a **new derived output**. Source overwrite is not an admitted default workbench operation.
