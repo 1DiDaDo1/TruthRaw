@@ -82,8 +82,10 @@ internal object UnifiedOutputPresentationBridge {
      *
      * sourceJobId is deliberately labelled process-local: it is a lifetime
      * binding used to prevent stale UI transport, not a cryptographic evidence
-     * identity. sourceSha256 is transported only when an existing upstream
-     * profile already provides it; UNKNOWN remains valid and is never promoted.
+     * identity. Route/job binding is presentation freshness/provenance only and
+     * never elevates scientific evidence or authority. sourceSha256 is
+     * transported only when an existing upstream profile already provides it;
+     * UNKNOWN remains valid and is never promoted.
      */
     @Synchronized
     fun publishReady(
