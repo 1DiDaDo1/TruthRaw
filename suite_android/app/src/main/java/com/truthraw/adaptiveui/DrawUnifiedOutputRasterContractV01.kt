@@ -50,29 +50,16 @@ object DrawUnifiedOutputRasterContractV01 {
     const val CONTRACT_VERSION = "DrawUnifiedOutputRaster/0.3"
 
     /**
-     * Outer evidence-law validation. A valid JPEG_EXPORT request also arms the
-     * presentation-only Free Raster observer. Arming has no influence on the
-     * validation result or JPEG exporter; inability to arm only means no
-     * full-resolution Free Raster handoff will be available.
+     * Pure outer evidence-law validation. It intentionally imposes no fixed
+     * product resolution ceiling and performs no rendering or presentation
+     * side effects.
      */
     fun validate(
         request: DrawUnifiedOutputRasterRequestV01,
         activeJobId: String?,
-    ): DrawUnifiedOutputRasterBindResultV01 {
-        val result = validateCore(request, activeJobId)
-        if (
-            result is DrawUnifiedOutputRasterBindResultV01.Ready &&
-            request.purpose == DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT
-        ) {
-            UnifiedOutputFreeRasterRuntimeV01.armValidatedJpegRequest(request)
-        }
-        return result
-    }
+    ): DrawUnifiedOutputRasterBindResultV01 =
+        validateCore(request, activeJobId)
 
-    /**
-     * Pure contract check used by sibling comparisons so revalidation during a
-     * later presentation promotion can never re-arm the renderer observer.
-     */
     private fun validateCore(
         request: DrawUnifiedOutputRasterRequestV01,
         activeJobId: String?,
@@ -132,9 +119,8 @@ object DrawUnifiedOutputRasterContractV01 {
     }
 
     /**
-     * Existing JPEG helper retained for compatibility. JPEG and Free Raster are
-     * siblings of one frozen full-resolution output binding; neither is derived
-     * from TilePreviewUiState or a UI Bitmap.
+     * JPEG and Free Raster are siblings of one frozen full-resolution output
+     * binding; neither is derived from TilePreviewUiState or a UI Bitmap.
      */
     fun fromFullResolutionJpegBinding(
         binding: DrawPhotoOutputBindingV01,
