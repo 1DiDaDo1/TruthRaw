@@ -47,14 +47,33 @@ sealed interface DrawUnifiedOutputRasterBindResultV01 {
 }
 
 object DrawUnifiedOutputRasterContractV01 {
-    const val CONTRACT_VERSION = "DrawUnifiedOutputRaster/0.2"
+    const val CONTRACT_VERSION = "DrawUnifiedOutputRaster/0.3"
 
     /**
-     * Outer evidence-law validation only. It intentionally imposes no fixed
-     * product resolution ceiling: memory/codec/export adapters may apply their
-     * own capability limits without turning those limits into scientific law.
+     * Outer evidence-law validation. A valid JPEG_EXPORT request also arms the
+     * presentation-only Free Raster observer. Arming has no influence on the
+     * validation result or JPEG exporter; inability to arm only means no
+     * full-resolution Free Raster handoff will be available.
      */
     fun validate(
+        request: DrawUnifiedOutputRasterRequestV01,
+        activeJobId: String?,
+    ): DrawUnifiedOutputRasterBindResultV01 {
+        val result = validateCore(request, activeJobId)
+        if (
+            result is DrawUnifiedOutputRasterBindResultV01.Ready &&
+            request.purpose == DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT
+        ) {
+            UnifiedOutputFreeRasterRuntimeV01.armValidatedJpegRequest(request)
+        }
+        return result
+    }
+
+    /**
+     * Pure contract check used by sibling comparisons so revalidation during a
+     * later presentation promotion can never re-arm the renderer observer.
+     */
+    private fun validateCore(
         request: DrawUnifiedOutputRasterRequestV01,
         activeJobId: String?,
     ): DrawUnifiedOutputRasterBindResultV01 {
@@ -177,11 +196,11 @@ object DrawUnifiedOutputRasterContractV01 {
             return "Unified output geblokkeerd: Free Raster sibling heeft onjuist purpose."
         }
 
-        val jpegValidation = validate(jpeg, jpeg.sourceJobId)
+        val jpegValidation = validateCore(jpeg, jpeg.sourceJobId)
         if (jpegValidation is DrawUnifiedOutputRasterBindResultV01.Failed) {
             return jpegValidation.reason
         }
-        val freeRasterValidation = validate(freeRaster, freeRaster.sourceJobId)
+        val freeRasterValidation = validateCore(freeRaster, freeRaster.sourceJobId)
         if (freeRasterValidation is DrawUnifiedOutputRasterBindResultV01.Failed) {
             return freeRasterValidation.reason
         }
