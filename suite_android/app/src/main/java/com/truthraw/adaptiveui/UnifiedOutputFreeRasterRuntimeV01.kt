@@ -2,7 +2,6 @@ package com.truthraw.adaptiveui
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.os.FileObserver
 import android.os.SystemClock
 import java.io.File
 import java.io.FileInputStream
@@ -10,29 +9,33 @@ import java.io.FileOutputStream
 import java.security.MessageDigest
 
 /**
- * Runtime handoff between the already-existing full-resolution JPEG renderer
- * and the downstream Free Raster presentation cable.
+ * Fail-closed runtime handoff from the already-existing full-resolution JPEG
+ * renderer to the downstream Free Raster presentation cable.
  *
- * This object never renders pixels. A validated JPEG_EXPORT request only arms a
- * read-only observer on MainActivity's private renderer directory. The emitted
- * file is staged after CLOSE_WRITE, but it is not promoted to Free Raster until
- * MainActivity has independently completed its normal post-render authority
- * checks, document commit and saved-JPEG preview publication.
- *
- * Therefore a stale/failed renderer result can never become the active Free
- * Raster source merely because a private file happened to be written.
+ * It never renders pixels. MainActivity explicitly stages the exact private
+ * renderer artifact before that temporary file is deleted. Staging alone does
+ * not publish anything: promotion is allowed only after MainActivity later
+ * publishes its normal saved-JPEG preview, which happens after successful
+ * destination commit and on the then-active source/route.
  */
 internal object UnifiedOutputFreeRasterRuntimeV01 {
-    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterRuntime/0.1"
+    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterRuntime/0.2"
 
     private const val CONFIRM_LABEL_PREFIX = "JPG full-resolution "
-    private const val MAX_ARM_AGE_MS = 120_000L
-    private const val WATCH_EVENTS = FileObserver.CLOSE_WRITE or FileObserver.MOVED_TO
+    private const val MAX_STAGE_AGE_MS = 120_000L
 
-    private data class FileSignature(
-        val length: Long,
-        val modified: Long,
-    )
+    sealed interface StageResult {
+        data class Ready(
+            val jpegRequest: DrawUnifiedOutputRasterRequestV01,
+            val freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+            val sha256: String,
+            val bytes: Long,
+        ) : StageResult
+
+        data class Failed(
+            val reason: String,
+        ) : StageResult
+    }
 
     private data class StagedArtifact(
         val file: File,
@@ -40,15 +43,12 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
         val bytes: Long,
     )
 
-    private class ArmedState(
+    private data class StagedState(
         val generation: Long,
-        val request: DrawUnifiedOutputRasterRequestV01,
-        val directory: File,
-        val baseline: Map<String, FileSignature>,
+        val jpegRequest: DrawUnifiedOutputRasterRequestV01,
+        val freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        val artifact: StagedArtifact,
         val startedAtElapsedMs: Long,
-        val observer: FileObserver,
-        var confirmed: Boolean = false,
-        var staged: StagedArtifact? = null,
         var promoting: Boolean = false,
     )
 
@@ -58,155 +58,84 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
     private var appContext: Context? = null
 
     private var generation: Long = 0L
-    private var armed: ArmedState? = null
+    private var stagedState: StagedState? = null
 
     fun initialize(context: Context) {
         appContext = context.applicationContext
     }
 
     /**
-     * Presentation-side hook invoked only after the outer raster request has
-     * passed the existing scientific/evidence-law validator.
-     *
-     * Failure to arm is intentionally non-authoritative: JPEG export keeps its
-     * original behaviour. Free Raster simply remains unavailable.
+     * Copy and SHA-verify the exact renderer artifact into runtime-owned staging.
+     * No Free Raster state becomes visible here.
      */
-    fun armValidatedJpegRequest(request: DrawUnifiedOutputRasterRequestV01) {
-        if (request.purpose != DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT) return
-        val context = appContext ?: return
+    fun stageRenderedJpeg(
+        binding: DrawPhotoOutputBindingV01,
+        renderedFile: File,
+        outputWidth: Int,
+        outputHeight: Int,
+        jpegSha256: String,
+    ): StageResult {
+        val context = appContext
+            ?: return StageResult.Failed("Free Raster staging: runtime-context ontbreekt.")
 
-        val directory = File(context.filesDir, "photo_export/${request.sourceJobId}")
-        if (!directory.exists() && !directory.mkdirs()) return
-        if (!directory.isDirectory) return
-
-        val baseline = directory.listFiles()
-            ?.filter { it.isFile }
-            ?.associate { file ->
-                file.absolutePath to FileSignature(file.length(), file.lastModified())
-            }
-            .orEmpty()
-
-        val nextGeneration: Long
-        synchronized(lock) {
-            generation += 1L
-            nextGeneration = generation
-            cleanupLocked("rearm")
-            UnifiedOutputFreeRasterBridge.clear("new_validated_full_resolution_jpeg_request")
-        }
-
-        lateinit var observer: FileObserver
-        observer = object : FileObserver(directory.absolutePath, WATCH_EVENTS) {
-            override fun onEvent(event: Int, path: String?) {
-                if ((event and WATCH_EVENTS) == 0 || path.isNullOrBlank()) return
-                stageCandidate(nextGeneration, File(directory, path))
-            }
-        }
-
-        val state = ArmedState(
-            generation = nextGeneration,
-            request = request,
-            directory = directory,
-            baseline = baseline,
-            startedAtElapsedMs = SystemClock.elapsedRealtime(),
-            observer = observer,
+        val jpegRequest = DrawUnifiedOutputRasterContractV01.fromFullResolutionJpegBinding(
+            binding = binding,
+            targetWidth = outputWidth,
+            targetHeight = outputHeight,
         )
-
-        synchronized(lock) {
-            if (nextGeneration != generation) return
-            armed = state
-        }
-        observer.startWatching()
-    }
-
-    /**
-     * MainActivity publishes this preview only after the normal JPEG result path
-     * has completed its source/route/orientation checks and successful document
-     * commit. That publication is the promotion gate for the previously staged
-     * private full-resolution artifact.
-     */
-    fun confirmFromSavedJpegPreview(
-        sourceJobId: String,
-        sourceUri: String,
-        route: String,
-        outputLabel: String,
-    ) {
-        if (outputLabel != CONFIRM_LABEL_PREFIX + route) return
-
-        var promote: Pair<ArmedState, StagedArtifact>? = null
-        synchronized(lock) {
-            val state = armed ?: return
-            if (isExpired(state)) {
-                cleanupLocked("confirmation_timeout")
-                return
-            }
-            val request = state.request
-            if (
-                request.sourceJobId != sourceJobId ||
-                request.sourceUri != sourceUri ||
-                request.route != route
-            ) {
-                return
-            }
-            state.confirmed = true
-            val staged = state.staged
-            if (staged != null && !state.promoting) {
-                state.promoting = true
-                promote = state to staged
-            }
+        val freeRasterRequest = DrawUnifiedOutputRasterContractV01.fromFreeRasterBinding(
+            binding = binding,
+            targetWidth = outputWidth,
+            targetHeight = outputHeight,
+        )
+        val siblingMismatch = DrawUnifiedOutputRasterContractV01
+            .validateJpegFreeRasterSiblingBasis(jpegRequest, freeRasterRequest)
+        if (siblingMismatch != null) {
+            return StageResult.Failed(siblingMismatch)
         }
 
-        promote?.let { (state, staged) ->
-            Thread(
-                { promoteStaged(state, staged) },
-                "draw-free-raster-promote-${sourceJobId.take(8)}",
-            ).start()
+        val normalizedExpectedSha = jpegSha256.trim().lowercase()
+        if (!normalizedExpectedSha.matches(Regex("[0-9a-f]{64}"))) {
+            return StageResult.Failed("Free Raster staging: ongeldige JPEG SHA-256.")
         }
-    }
-
-    private fun stageCandidate(expectedGeneration: Long, candidate: File) {
-        val state = synchronized(lock) {
-            val current = armed ?: return
-            if (current.generation != expectedGeneration) return
-            if (isExpired(current)) {
-                cleanupLocked("observer_timeout")
-                return
-            }
-            if (current.staged != null) return
-            current
-        }
-
-        if (!candidate.isFile || candidate.length() <= 0L) return
-        val previous = state.baseline[candidate.absolutePath]
-        if (
-            previous != null &&
-            previous.length == candidate.length() &&
-            previous.modified == candidate.lastModified()
-        ) {
-            return
+        if (!renderedFile.isFile || renderedFile.length() <= 0L) {
+            return StageResult.Failed("Free Raster staging: renderer-artifact ontbreekt.")
         }
 
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        runCatching { BitmapFactory.decodeFile(candidate.absolutePath, bounds) }.getOrNull()
-        if (
-            bounds.outWidth != state.request.targetWidth ||
-            bounds.outHeight != state.request.targetHeight
-        ) {
-            return
+        runCatching { BitmapFactory.decodeFile(renderedFile.absolutePath, bounds) }
+            .getOrElse {
+                return StageResult.Failed("Free Raster staging: JPEG-bounds konden niet worden gelezen.")
+            }
+        if (bounds.outWidth != outputWidth || bounds.outHeight != outputHeight) {
+            return StageResult.Failed(
+                "Free Raster staging: renderer-geometrie ${bounds.outWidth}x${bounds.outHeight} != " +
+                    "binding ${outputWidth}x${outputHeight}.",
+            )
         }
 
-        val context = appContext ?: return
-        val stageDir = File(context.filesDir, "free_raster_staging/${state.request.sourceJobId}")
-        if (!stageDir.exists() && !stageDir.mkdirs()) return
-        if (!stageDir.isDirectory) return
+        val stageDir = File(context.filesDir, "free_raster_staging/${binding.sourceJobId}")
+        if (!stageDir.exists() && !stageDir.mkdirs()) {
+            return StageResult.Failed("Free Raster staging: private stagingmap kon niet worden gemaakt.")
+        }
+        if (!stageDir.isDirectory) {
+            return StageResult.Failed("Free Raster staging: private staginglocatie is ongeldig.")
+        }
 
+        val nextGeneration = synchronized(lock) {
+            generation += 1L
+            cleanupLocked()
+            UnifiedOutputFreeRasterBridge.clear("new_full_resolution_candidate_staged")
+            generation
+        }
         val stageFile = File(
             stageDir,
-            ".stage_${state.generation}_${System.nanoTime()}.jpg",
+            ".stage_${nextGeneration}_${System.nanoTime()}.jpg",
         )
 
         val digest = MessageDigest.getInstance("SHA-256")
         val bytes = try {
-            FileInputStream(candidate).use { input ->
+            FileInputStream(renderedFile).use { input ->
                 FileOutputStream(stageFile).use { output ->
                     val buffer = ByteArray(256 * 1024)
                     var total = 0L
@@ -223,103 +152,135 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
                     total
                 }
             }
-        } catch (_: Throwable) {
+        } catch (error: Throwable) {
             stageFile.delete()
-            return
+            return StageResult.Failed(
+                "Free Raster staging-copy faalde: ${error.message ?: error.javaClass.simpleName}",
+            )
         }
 
-        if (bytes <= 0L || !stageFile.isFile || stageFile.length() != bytes) {
+        val copiedSha = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+        if (
+            bytes <= 0L ||
+            !stageFile.isFile ||
+            stageFile.length() != bytes ||
+            copiedSha != normalizedExpectedSha
+        ) {
             stageFile.delete()
-            return
+            return StageResult.Failed("Free Raster staging: SHA-256/bytecontrole faalde.")
         }
-        val sha256 = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
-        val staged = StagedArtifact(stageFile, sha256, bytes)
 
-        var promote: Pair<ArmedState, StagedArtifact>? = null
+        val artifact = StagedArtifact(stageFile, copiedSha, bytes)
+        val state = StagedState(
+            generation = nextGeneration,
+            jpegRequest = jpegRequest,
+            freeRasterRequest = freeRasterRequest,
+            artifact = artifact,
+            startedAtElapsedMs = SystemClock.elapsedRealtime(),
+        )
         synchronized(lock) {
-            val current = armed
-            if (
-                current == null ||
-                current.generation != state.generation ||
-                isExpired(current)
-            ) {
+            if (generation != nextGeneration) {
                 stageFile.delete()
-                return
+                return StageResult.Failed("Free Raster staging: nieuwere outputcandidate heeft voorrang.")
             }
-            if (current.staged != null) {
-                stageFile.delete()
-                return
-            }
-            current.staged = staged
-            if (current.confirmed && !current.promoting) {
-                current.promoting = true
-                promote = current to staged
-            }
+            stagedState = state
         }
 
-        promote?.let { (promoteState, promoteArtifact) ->
-            promoteStaged(promoteState, promoteArtifact)
+        return StageResult.Ready(
+            jpegRequest = jpegRequest,
+            freeRasterRequest = freeRasterRequest,
+            sha256 = copiedSha,
+            bytes = bytes,
+        )
+    }
+
+    /**
+     * Promotion gate. The exact output label is emitted only by the saved-JPEG
+     * result preview, after successful destination commit. The current route is
+     * supplied by MainActivity at publication time, so a route change during the
+     * render also prevents promotion.
+     */
+    fun confirmFromSavedJpegPreview(
+        sourceJobId: String,
+        sourceUri: String,
+        route: String,
+        outputLabel: String,
+    ) {
+        if (outputLabel != CONFIRM_LABEL_PREFIX + route) return
+
+        val state = synchronized(lock) {
+            val current = stagedState ?: return
+            if (isExpired(current)) {
+                cleanupLocked()
+                return
+            }
+            val request = current.jpegRequest
+            if (
+                request.sourceJobId != sourceJobId ||
+                request.sourceUri != sourceUri ||
+                request.route != route ||
+                current.promoting
+            ) {
+                return
+            }
+            current.promoting = true
+            current
+        }
+
+        Thread(
+            { promoteStaged(state) },
+            "draw-free-raster-promote-${sourceJobId.take(8)}",
+        ).start()
+    }
+
+    fun discardStaged(sourceJobId: String, reason: String) {
+        synchronized(lock) {
+            val current = stagedState ?: return
+            if (current.jpegRequest.sourceJobId != sourceJobId) return
+            cleanupLocked()
+            UnifiedOutputFreeRasterBridge.clear(
+                if (reason.isBlank()) "staged_candidate_discarded" else reason,
+            )
         }
     }
 
-    private fun promoteStaged(state: ArmedState, staged: StagedArtifact) {
-        val request = state.request
-        val freeRasterRequest = request.copy(
-            purpose = DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW,
-            targetCoordinatesCreateMeasuredEvidence = false,
-            scientificWritebackAllowed = false,
-            sourceMutationAllowed = false,
-        )
-
-        val siblingMismatch = DrawUnifiedOutputRasterContractV01
-            .validateJpegFreeRasterSiblingBasis(request, freeRasterRequest)
-        if (siblingMismatch != null) {
-            UnifiedOutputFreeRasterBridge.clear("sibling_basis_rejected")
-            finishPromotion(state, staged)
+    private fun promoteStaged(state: StagedState) {
+        if (isExpired(state)) {
+            discardStaged(state.jpegRequest.sourceJobId, "full_resolution_promotion_timeout")
             return
         }
-
         val context = appContext
         if (context == null) {
-            UnifiedOutputFreeRasterBridge.clear("runtime_context_missing")
-            finishPromotion(state, staged)
+            discardStaged(state.jpegRequest.sourceJobId, "runtime_context_missing")
             return
         }
 
         val outputDirectory = File(
             context.filesDir,
-            "free_raster_output/${request.sourceJobId}",
+            "free_raster_output/${state.jpegRequest.sourceJobId}",
         )
         val result = UnifiedOutputFreeRasterBridge.publishRenderedJpeg(
-            renderedFile = staged.file,
-            freeRasterRequest = freeRasterRequest,
-            expectedSha256 = staged.sha256,
+            renderedFile = state.artifact.file,
+            freeRasterRequest = state.freeRasterRequest,
+            expectedSha256 = state.artifact.sha256,
             artifactDirectory = outputDirectory,
         )
         if (result is UnifiedOutputFreeRasterPublishResultV01.Failed) {
             UnifiedOutputFreeRasterBridge.clear("full_resolution_publish_failed")
         }
-        finishPromotion(state, staged)
-    }
 
-    private fun finishPromotion(state: ArmedState, staged: StagedArtifact) {
-        staged.file.delete()
         synchronized(lock) {
-            if (armed?.generation == state.generation) {
-                cleanupLocked("promotion_complete")
+            if (stagedState?.generation == state.generation) {
+                cleanupLocked()
             }
         }
     }
 
-    private fun isExpired(state: ArmedState): Boolean =
-        SystemClock.elapsedRealtime() - state.startedAtElapsedMs > MAX_ARM_AGE_MS
+    private fun isExpired(state: StagedState): Boolean =
+        SystemClock.elapsedRealtime() - state.startedAtElapsedMs > MAX_STAGE_AGE_MS
 
-    private fun cleanupLocked(reason: String) {
-        val previous = armed
-        armed = null
-        previous?.observer?.stopWatching()
-        previous?.staged?.file?.delete()
-        @Suppress("UNUSED_VARIABLE")
-        val ignoredReason = reason
+    private fun cleanupLocked() {
+        stagedState?.artifact?.file?.delete()
+        stagedState = null
     }
 }
