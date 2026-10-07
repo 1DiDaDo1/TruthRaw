@@ -1,6 +1,7 @@
 package com.truthraw.adaptiveui
 
 import android.graphics.Bitmap
+import android.net.Uri
 
 /**
  * Lifetime-safe downstream bridge from an already-rendered Unified Output
@@ -43,6 +44,8 @@ internal object UnifiedOutputPresentationBridge {
     const val PRESENTATION_LAYER_VIEW_ONLY = "VIEW_ONLY_COPY"
     const val SOURCE_BINDING_ACTIVE_JOB = "ACTIVE_JOB_PROCESS_LOCAL"
     const val UNKNOWN_SOURCE_SHA256 = "UNKNOWN"
+
+    private const val FULL_RES_TRANSPORT_ID = "private_full_resolution_free_raster.v1"
 
     data class Publication(
         val bitmap: Bitmap,
@@ -124,7 +127,7 @@ internal object UnifiedOutputPresentationBridge {
             ?: UNKNOWN_SOURCE_SHA256
         val metrics = ready.metrics
 
-        return publish(
+        val result = publish(
             bitmap = ready.bitmap,
             metadata = linkedMapOf(
                 META_ORIGIN to ORIGIN_UNIFIED_OUTPUT_READY,
@@ -148,6 +151,20 @@ internal object UnifiedOutputPresentationBridge {
                 META_PRESENTATION_LAYER to PRESENTATION_LAYER_VIEW_ONLY,
             ),
         )
+
+        if (result is PublishResult.Ready) {
+            // Only the JPEG result path emits the exact "JPG full-resolution
+            // <route>" label, and only after its normal post-render checks and
+            // successful document commit. This is therefore the promotion gate
+            // for a staged full-resolution Free Raster artifact.
+            UnifiedOutputFreeRasterRuntimeV01.confirmFromSavedJpegPreview(
+                sourceJobId = sourceJobId,
+                sourceUri = sourceUri,
+                route = route,
+                outputLabel = ready.outputLabel,
+            )
+        }
+        return result
     }
 
     /**
@@ -198,11 +215,95 @@ internal object UnifiedOutputPresentationBridge {
     }
 
     /**
-     * Acquire a consumer-owned snapshot. The returned bitmap may safely be
-     * recycled by Workspace without affecting MainActivity or bridge storage.
+     * Prefer the authority-bound full-resolution sibling whenever one has been
+     * successfully promoted. The backing artifact remains full resolution; the
+     * decoded Bitmap is only the current display representation. If that decode
+     * fails we fail closed instead of silently presenting the old small preview
+     * as if it were the full-resolution Free Raster source.
      */
     @Synchronized
     fun acquire(): Snapshot? {
+        val fullResolution = UnifiedOutputFreeRasterBridge.acquire()
+        if (fullResolution != null) {
+            return when (
+                val display = UnifiedOutputFreeRasterDisplayLoaderV01.load(fullResolution)
+            ) {
+                is UnifiedOutputFreeRasterDisplayLoaderV01.Result.Failed -> {
+                    UnifiedOutputFreeRasterBridge.clear("full_resolution_display_decode_failed")
+                    null
+                }
+                is UnifiedOutputFreeRasterDisplayLoaderV01.Result.Ready -> {
+                    val request = fullResolution.request
+                    val baseMetadata = InMemoryCopyTransport.peekMetadata()
+                    val baseMatches =
+                        baseMetadata[META_SOURCE_JOB_ID] == request.sourceJobId &&
+                            baseMetadata[META_SOURCE_URI] == request.sourceUri
+
+                    val sourceWidth = if (request.userQuarterTurns % 2 == 0) {
+                        request.targetWidth
+                    } else {
+                        request.targetHeight
+                    }
+                    val sourceHeight = if (request.userQuarterTurns % 2 == 0) {
+                        request.targetHeight
+                    } else {
+                        request.targetWidth
+                    }
+                    val displayName = if (baseMatches) {
+                        baseMetadata[META_SOURCE_DISPLAY_NAME]
+                    } else {
+                        null
+                    }?.takeIf { it.isNotBlank() }
+                        ?: runCatching {
+                            Uri.parse(request.sourceUri).lastPathSegment
+                        }.getOrNull()?.takeIf { it.isNotBlank() }
+                        ?: "D.RAW observation"
+                    val sourceSha = if (baseMatches) {
+                        baseMetadata[META_SOURCE_SHA256]
+                    } else {
+                        null
+                    }?.takeIf { it.isNotBlank() }
+                        ?: UNKNOWN_SOURCE_SHA256
+                    val sourceSpaceCode = if (baseMatches) {
+                        baseMetadata[META_SOURCE_SPACE_CODE]
+                    } else {
+                        null
+                    }?.takeIf { it.isNotBlank() }
+                        ?: "0"
+
+                    Snapshot(
+                        bitmap = display.bitmap,
+                        metadata = linkedMapOf(
+                            META_ORIGIN to ORIGIN_UNIFIED_OUTPUT_READY,
+                            META_SOURCE_JOB_ID to request.sourceJobId,
+                            META_SOURCE_DISPLAY_NAME to displayName,
+                            META_SOURCE_URI to request.sourceUri,
+                            META_SOURCE_SHA256 to sourceSha,
+                            META_SOURCE_BINDING_KIND to SOURCE_BINDING_ACTIVE_JOB,
+                            META_ROUTE to request.route,
+                            META_OUTPUT_LABEL to
+                                "D.RAW Free Raster full-resolution ${request.route}",
+                            META_PREVIEW_WIDTH to display.bitmap.width.toString(),
+                            META_PREVIEW_HEIGHT to display.bitmap.height.toString(),
+                            META_SOURCE_WIDTH to sourceWidth.toString(),
+                            META_SOURCE_HEIGHT to sourceHeight.toString(),
+                            META_SOURCE_SPACE_CODE to sourceSpaceCode,
+                            // FullResJpegExporter already writes the requested
+                            // rotation into physical JPEG raster geometry.
+                            META_DISPLAY_QUARTER_TURNS to "0",
+                            META_PRIMARY_TILE_SOURCE_DIRECT to
+                                (request.route == TruthRawSuiteLauncherActivity.OUTPUT_PURE).toString(),
+                            META_APPEARANCE_ADDED to (request.routeFlags != 0).toString(),
+                            META_SCIENTIFIC_WRITEBACK_ALLOWED to "false",
+                            META_CREATES_NEW_EVIDENCE to "false",
+                            META_PRESENTATION_LAYER to PRESENTATION_LAYER_VIEW_ONLY,
+                        ),
+                        transportId = FULL_RES_TRANSPORT_ID,
+                    )
+                }
+            }
+        }
+
         transports.forEach { transport ->
             transport.acquire()?.let { return it }
         }
@@ -212,6 +313,9 @@ internal object UnifiedOutputPresentationBridge {
     @Synchronized
     fun clear(reason: String) {
         transports.forEach { it.clear(reason) }
+        UnifiedOutputFreeRasterBridge.clear(
+            if (reason.isBlank()) "presentation_bridge_cleared" else reason,
+        )
     }
 
     /**
@@ -288,6 +392,8 @@ internal object UnifiedOutputPresentationBridge {
                 transportId = id,
             )
         }
+
+        fun peekMetadata(): Map<String, String> = storedMetadata.toMap()
 
         override fun clear(reason: String) {
             storedBitmap?.takeUnless { it.isRecycled }?.recycle()
