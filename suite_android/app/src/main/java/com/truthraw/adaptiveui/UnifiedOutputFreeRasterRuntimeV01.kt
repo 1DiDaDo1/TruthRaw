@@ -1,7 +1,6 @@
 package com.truthraw.adaptiveui
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.os.SystemClock
 import java.io.File
 import java.io.FileInputStream
@@ -9,17 +8,17 @@ import java.io.FileOutputStream
 import java.security.MessageDigest
 
 /**
- * Fail-closed runtime handoff from the already-existing full-resolution JPEG
- * renderer to the downstream Free Raster presentation cable.
+ * Fail-closed runtime handoff from one full-resolution output render to the
+ * downstream Free Raster presentation cable.
  *
- * It never renders pixels. MainActivity explicitly stages the exact private
- * renderer artifact before that temporary file is deleted. Staging alone does
- * not publish anything: promotion is allowed only after MainActivity later
- * publishes its normal saved-JPEG preview, which happens after successful
- * destination commit and on the then-active source/route.
+ * v0.3 keeps the existing JPEG commit/current-output confirmation gate, but the
+ * staged Free Raster artifact is no longer that JPEG. It is the exact RGB24
+ * sibling emitted by the same native render before NV21/JPEG chroma reduction.
+ * This remains DERIVED_PRESENTATION_OUTPUT / PRESENTATION_ONLY and never writes
+ * back to Scientific Master.
  */
 internal object UnifiedOutputFreeRasterRuntimeV01 {
-    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterRuntime/0.2"
+    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterRuntime/0.3"
 
     private const val CONFIRM_LABEL_PREFIX = "JPG full-resolution "
     private const val MAX_STAGE_AGE_MS = 120_000L
@@ -65,8 +64,8 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
     }
 
     /**
-     * Copy and SHA-verify the exact renderer artifact into runtime-owned staging.
-     * No Free Raster state becomes visible here.
+     * Resolve and stage the exact pre-encode RGB24 sibling associated with this
+     * JPEG candidate. No Free Raster state becomes visible here.
      */
     fun stageRenderedJpeg(
         binding: DrawPhotoOutputBindingV01,
@@ -94,32 +93,45 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
             return StageResult.Failed(siblingMismatch)
         }
 
-        val normalizedExpectedSha = jpegSha256.trim().lowercase()
-        if (!normalizedExpectedSha.matches(Regex("[0-9a-f]{64}"))) {
+        val normalizedJpegSha = jpegSha256.trim().lowercase()
+        if (!normalizedJpegSha.matches(Regex("[0-9a-f]{64}"))) {
             return StageResult.Failed("Free Raster staging: ongeldige JPEG SHA-256.")
         }
         if (!renderedFile.isFile || renderedFile.length() <= 0L) {
-            return StageResult.Failed("Free Raster staging: renderer-artifact ontbreekt.")
+            return StageResult.Failed("Free Raster staging: JPEG-candidate ontbreekt.")
+        }
+        if (FullResJpegExporter.sha256(renderedFile) != normalizedJpegSha) {
+            return StageResult.Failed("Free Raster staging: JPEG-candidate SHA-256 mismatch.")
         }
 
-        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        runCatching { BitmapFactory.decodeFile(renderedFile.absolutePath, bounds) }
-            .getOrElse {
-                return StageResult.Failed("Free Raster staging: JPEG-bounds konden niet worden gelezen.")
-            }
-        if (bounds.outWidth != outputWidth || bounds.outHeight != outputHeight) {
-            return StageResult.Failed(
-                "Free Raster staging: renderer-geometrie ${bounds.outWidth}x${bounds.outHeight} != " +
-                    "binding ${outputWidth}x${outputHeight}.",
-            )
+        val raster = FullResPresentationRasterRegistryV01.resolveForJpeg(
+            jpegFile = renderedFile,
+            expectedWidth = outputWidth,
+            expectedHeight = outputHeight,
+        ) ?: return StageResult.Failed(
+            "Free Raster staging: exact pre-encode RGB24 sibling ontbreekt.",
+        )
+
+        fun fail(reason: String): StageResult.Failed {
+            FullResPresentationRasterRegistryV01.releaseForJpeg(renderedFile, deleteRaster = true)
+            return StageResult.Failed(reason)
+        }
+
+        val expectedRgbBytes = outputWidth.toLong() * outputHeight.toLong() * 3L
+        if (
+            raster.pixelFormat != FullResPresentationRasterV01.PIXEL_FORMAT ||
+            raster.bytes != expectedRgbBytes ||
+            raster.file.length() != expectedRgbBytes
+        ) {
+            return fail("Free Raster staging: RGB24-rastergeometrie mismatch.")
         }
 
         val stageDir = File(context.filesDir, "free_raster_staging/${binding.sourceJobId}")
         if (!stageDir.exists() && !stageDir.mkdirs()) {
-            return StageResult.Failed("Free Raster staging: private stagingmap kon niet worden gemaakt.")
+            return fail("Free Raster staging: private stagingmap kon niet worden gemaakt.")
         }
         if (!stageDir.isDirectory) {
-            return StageResult.Failed("Free Raster staging: private staginglocatie is ongeldig.")
+            return fail("Free Raster staging: private staginglocatie is ongeldig.")
         }
 
         val nextGeneration = synchronized(lock) {
@@ -130,12 +142,12 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
         }
         val stageFile = File(
             stageDir,
-            ".stage_${nextGeneration}_${System.nanoTime()}.jpg",
+            ".stage_${nextGeneration}_${System.nanoTime()}.rgb24",
         )
 
         val digest = MessageDigest.getInstance("SHA-256")
         val bytes = try {
-            FileInputStream(renderedFile).use { input ->
+            FileInputStream(raster.file).use { input ->
                 FileOutputStream(stageFile).use { output ->
                     val buffer = ByteArray(256 * 1024)
                     var total = 0L
@@ -154,20 +166,20 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
             }
         } catch (error: Throwable) {
             stageFile.delete()
-            return StageResult.Failed(
-                "Free Raster staging-copy faalde: ${error.message ?: error.javaClass.simpleName}",
+            return fail(
+                "Free Raster RGB24 staging-copy faalde: ${error.message ?: error.javaClass.simpleName}",
             )
         }
 
         val copiedSha = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
         if (
-            bytes <= 0L ||
+            bytes != expectedRgbBytes ||
             !stageFile.isFile ||
             stageFile.length() != bytes ||
-            copiedSha != normalizedExpectedSha
+            copiedSha != raster.sha256
         ) {
             stageFile.delete()
-            return StageResult.Failed("Free Raster staging: SHA-256/bytecontrole faalde.")
+            return fail("Free Raster RGB24 staging: SHA-256/bytecontrole faalde.")
         }
 
         val artifact = StagedArtifact(stageFile, copiedSha, bytes)
@@ -181,10 +193,11 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
         synchronized(lock) {
             if (generation != nextGeneration) {
                 stageFile.delete()
-                return StageResult.Failed("Free Raster staging: nieuwere outputcandidate heeft voorrang.")
+                return fail("Free Raster staging: nieuwere outputcandidate heeft voorrang.")
             }
             stagedState = state
         }
+        FullResPresentationRasterRegistryV01.releaseForJpeg(renderedFile, deleteRaster = true)
 
         return StageResult.Ready(
             jpegRequest = jpegRequest,
@@ -259,14 +272,14 @@ internal object UnifiedOutputFreeRasterRuntimeV01 {
             context.filesDir,
             "free_raster_output/${state.jpegRequest.sourceJobId}",
         )
-        val result = UnifiedOutputFreeRasterBridge.publishRenderedJpeg(
+        val result = UnifiedOutputFreeRasterBridge.publishRenderedRgb24(
             renderedFile = state.artifact.file,
             freeRasterRequest = state.freeRasterRequest,
             expectedSha256 = state.artifact.sha256,
             artifactDirectory = outputDirectory,
         )
         if (result is UnifiedOutputFreeRasterPublishResultV01.Failed) {
-            UnifiedOutputFreeRasterBridge.clear("full_resolution_publish_failed")
+            UnifiedOutputFreeRasterBridge.clear("full_resolution_rgb24_publish_failed")
         }
 
         synchronized(lock) {

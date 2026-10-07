@@ -226,7 +226,6 @@ public:
                   : truthraw_v47k::OutputProfile::Neutral) {}
 
     std::size_t residentBytesUpperBound() const override {
-        // Finish-frame uses one bounded core tile plus 3-pixel support halo.
         return 4u * 1024u * 1024u;
     }
 
@@ -273,7 +272,9 @@ public:
         const std::uint64_t halfCells=halfW*halfH;
 
         nv21Bytes_=pixels + pixels/2u;
-        scratchRgbOffset_=nv21Bytes_;
+        presentationRgbOffset_=nv21Bytes_;
+        presentationRgbBytes_=pixels*3u;
+        scratchRgbOffset_=presentationRgbOffset_+presentationRgbBytes_;
         scratchRgbBytes_=pixels*3u*sizeof(float);
         scratchGainOffset_=scratchRgbOffset_+scratchRgbBytes_;
         scratchGainBytes_=halfCells*sizeof(float);
@@ -426,12 +427,13 @@ public:
             }
         }
 
+        const std::uint64_t finalBytes=nv21Bytes_+presentationRgbBytes_;
         if(writtenPixels_!=expectedPixels || ::fsync(fd_)!=0 ||
-            ::ftruncate(fd_,static_cast<off_t>(nv21Bytes_))!=0 ||
+            ::ftruncate(fd_,static_cast<off_t>(finalBytes))!=0 ||
             ::fsync(fd_)!=0) {
             return StreamStatus::error(
                 StreamStatusCode::SinkFailed,
-                "full-res NV21 finalization incomplete");
+                "full-res NV21/RGB24 finalization incomplete");
         }
         finished_=true;
         return StreamStatus::ok();
@@ -440,6 +442,7 @@ public:
     int width() const noexcept { return displayWidth_; }
     int height() const noexcept { return displayHeight_; }
     std::uint64_t outputBytes() const noexcept { return nv21Bytes_; }
+    std::uint64_t presentationRgbBytes() const noexcept { return presentationRgbBytes_; }
     std::uint64_t lightAdjustedPixels() const noexcept { return lightAdjustedPixels_; }
     std::uint64_t hdrPositiveGainSamples() const noexcept { return hdrPositiveGainSamples_; }
     std::uint64_t restoredPixels() const noexcept { return restoredPixels_; }
@@ -719,6 +722,7 @@ private:
         }
 
         std::vector<std::uint8_t> yrow(static_cast<std::size_t>(dw));
+        std::vector<std::uint8_t> rgbrow(3u*static_cast<std::size_t>(dw));
         for(int dy=dr.y0;dy<dr.y1;++dy) {
             for(int dx=dr.x0;dx<dr.x1;++dx) {
                 int sx=-1,sy=-1;
@@ -728,15 +732,25 @@ private:
                 }
                 const std::size_t ci=
                     static_cast<std::size_t>(sy-y0)*cw+static_cast<std::size_t>(sx-x0);
+                const std::size_t rp=3u*static_cast<std::size_t>(dx-dr.x0);
+                rgbrow[rp]=coreRgb[3u*ci];
+                rgbrow[rp+1u]=coreRgb[3u*ci+1u];
+                rgbrow[rp+2u]=coreRgb[3u*ci+2u];
                 std::uint8_t Y,U,V;
                 rgb_to_yuv(coreRgb[3u*ci],coreRgb[3u*ci+1u],coreRgb[3u*ci+2u],Y,U,V);
                 (void)U; (void)V;
                 yrow[static_cast<std::size_t>(dx-dr.x0)]=Y;
             }
-            const std::uint64_t off=
+            const std::uint64_t yOff=
                 static_cast<std::uint64_t>(dy)*displayWidth_+dr.x0;
-            if(!pwrite_all(fd_,off,yrow.data(),yrow.size())) {
+            if(!pwrite_all(fd_,yOff,yrow.data(),yrow.size())) {
                 return StreamStatus::error(StreamStatusCode::SinkFailed,"final NV21 Y write failed");
+            }
+            const std::uint64_t rgbOff=
+                presentationRgbOffset_+
+                (static_cast<std::uint64_t>(dy)*displayWidth_+dr.x0)*3u;
+            if(!pwrite_all(fd_,rgbOff,rgbrow.data(),rgbrow.size())) {
+                return StreamStatus::error(StreamStatusCode::SinkFailed,"final presentation RGB24 write failed");
             }
         }
 
@@ -805,6 +819,8 @@ private:
     bool finished_=false;
 
     std::uint64_t nv21Bytes_=0;
+    std::uint64_t presentationRgbOffset_=0;
+    std::uint64_t presentationRgbBytes_=0;
     std::uint64_t scratchRgbOffset_=0;
     std::uint64_t scratchRgbBytes_=0;
     std::uint64_t scratchGainOffset_=0;
@@ -897,9 +913,6 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
        phase2.backplane.physicalFrameCount!=1u ||
        phase2.backplane.independentEvidenceCount!=1u) return packet(env,-4);
 
-    // Full-resolution ADVANCED/PRO must carry the same fail-closed
-    // Open Scene/authority corridor as the Advanced preview. This binds
-    // provenance and scientific limits; it does not change the output pixels.
     canonical_scene::Binding openSceneBinding{};
     openSceneBinding.sourceEvidenceSha256=seal.sha256;
     openSceneBinding.scientificMasterSha256=sci.scientificMasterHash;
@@ -1059,8 +1072,6 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         static_cast<std::uint32_t>(source->metadata().width);
     outputAuthorityBinding.sourceHeight=
         static_cast<std::uint32_t>(source->metadata().height);
-    // Rotation is a coordinate transform only. Full-resolution authority stays
-    // on the canonical source raster even when display axes are swapped.
     outputAuthorityBinding.outputWidth=outputAuthorityBinding.sourceWidth;
     outputAuthorityBinding.outputHeight=outputAuthorityBinding.sourceHeight;
     outputAuthorityBinding.reconstructionSupportRadius=
@@ -1138,21 +1149,21 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     v[9]=(flags&kFlagDetail)!=0?1:0;
     v[10]=static_cast<jlong>(sink.lightAdjustedPixels());
     v[11]=static_cast<jlong>(sink.hdrPositiveGainSamples());
-    v[12]=1; // Scientific Master digest bound and verified.
-    v[13]=1; // Technical Backplane phase2 bound and verified.
-    v[14]=1; // source pre/post SHA verified.
-    v[15]=1; // full resolution, no preview downscale.
-    v[16]=sink.hdrBaked()?1:0; // presentation HDR only; never scientific HDR authority.
-    v[17]=sink.restorationBaked()?1:0; // aesthetic reintegration only; no scientific writeback.
+    v[12]=1;
+    v[13]=1;
+    v[14]=1;
+    v[15]=1;
+    v[16]=sink.hdrBaked()?1:0;
+    v[17]=sink.restorationBaked()?1:0;
     v[18]=stream.provenance.physicalFrameCount;
     v[19]=stream.provenance.independentEvidenceCount;
     v[20]=userQuarterTurns;
     v[21]=static_cast<jlong>(compose_orientation(source->metadata().orientation, userQuarterTurns));
-    v[22]=1; // canonical Open Scene v0.70 bound.
-    v[23]=1; // channel authority v0.78 bound.
+    v[22]=1;
+    v[23]=1;
     v[24]=static_cast<jlong>(uncertaintyDecision.code);
     v[25]=uncertaintyDecision.reconstructedAuthorityAllowed?1:0;
-    v[26]=1; // illumination state v0.82 bound.
+    v[26]=1;
     v[27]=illuminationState.whitePointKnown?1:0;
     v[28]=static_cast<jlong>(hdrState.scientificAuthority);
     v[29]=static_cast<jlong>(hdrState.presentationAuthority);
@@ -1175,7 +1186,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
             (static_cast<std::uint32_t>(d[i+3u])<<24u);
         v[39u+word]=static_cast<jlong>(value);
     }
-    v[47]=0;
+    v[47]=static_cast<jlong>(sink.presentationRgbBytes());
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));
     if(out) env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());
     return out;

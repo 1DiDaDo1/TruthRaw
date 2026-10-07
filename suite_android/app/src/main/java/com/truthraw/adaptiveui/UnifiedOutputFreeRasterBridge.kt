@@ -9,13 +9,14 @@ import java.security.MessageDigest
  * Process-local handoff for a full-resolution derived presentation artifact.
  *
  * Important authority boundary:
- * - the backing JPEG is DERIVED_PRESENTATION_OUTPUT;
+ * - the backing artifact is DERIVED_PRESENTATION_OUTPUT;
  * - the Free Raster viewport itself remains PRESENTATION_ONLY;
- * - no Bitmap is stored here and no preview raster can become the pixel source;
+ * - no preview raster can become the full-resolution pixel source;
  * - publishing never creates MEASURED evidence or writes to Scientific Master.
  *
- * The bridge owns a verified private copy so MainActivity may delete the
- * renderer's temporary file after JPEG export without invalidating Free Raster.
+ * The preferred v0.2 artifact is exact display-oriented RGB24 from the native
+ * renderer before NV21/JPEG chroma reduction. JPEG publication remains as a
+ * compatibility entry point for older callers only.
  */
 data class UnifiedOutputFreeRasterSnapshotV01(
     val generation: Long,
@@ -26,6 +27,7 @@ data class UnifiedOutputFreeRasterSnapshotV01(
     val rasterWidth: Int,
     val rasterHeight: Int,
     val mediaType: String = "image/jpeg",
+    val pixelFormat: String = "ENCODED_JPEG",
     val artifactAuthority: String = DrawPhotoOutputCableV01.OUTPUT_AUTHORITY,
     val viewportAuthority: String = "PRESENTATION_ONLY",
 )
@@ -41,7 +43,7 @@ sealed interface UnifiedOutputFreeRasterPublishResultV01 {
 }
 
 object UnifiedOutputFreeRasterBridge {
-    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterBridge/0.1"
+    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterBridge/0.2"
 
     @Volatile
     private var current: UnifiedOutputFreeRasterSnapshotV01? = null
@@ -53,17 +55,60 @@ object UnifiedOutputFreeRasterBridge {
     var lastClearReason: String? = null
         private set
 
-    /**
-     * Copies one already-rendered full-resolution JPEG into bridge-owned app
-     * storage, verifies its SHA-256, then publishes it atomically at the
-     * process-state level. The renderer is never invoked here.
-     */
+    /** Compatibility publication path retained for callers that still own JPEG. */
     @Synchronized
     fun publishRenderedJpeg(
         renderedFile: File,
         freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
         expectedSha256: String,
         artifactDirectory: File,
+    ): UnifiedOutputFreeRasterPublishResultV01 = publishPrivateArtifact(
+        renderedFile = renderedFile,
+        freeRasterRequest = freeRasterRequest,
+        expectedSha256 = expectedSha256,
+        artifactDirectory = artifactDirectory,
+        expectedBytes = null,
+        extension = "jpg",
+        mediaType = "image/jpeg",
+        pixelFormat = "ENCODED_JPEG",
+    )
+
+    /**
+     * Preferred v0.2 publication path. The file is tightly packed RGB24 in
+     * display orientation, one sRGB 8-bit triplet per output pixel, with no
+     * chroma subsampling and no encoder transform.
+     */
+    @Synchronized
+    fun publishRenderedRgb24(
+        renderedFile: File,
+        freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        expectedSha256: String,
+        artifactDirectory: File,
+    ): UnifiedOutputFreeRasterPublishResultV01 {
+        val expectedBytes =
+            freeRasterRequest.targetWidth.toLong() *
+                freeRasterRequest.targetHeight.toLong() * 3L
+        return publishPrivateArtifact(
+            renderedFile = renderedFile,
+            freeRasterRequest = freeRasterRequest,
+            expectedSha256 = expectedSha256,
+            artifactDirectory = artifactDirectory,
+            expectedBytes = expectedBytes,
+            extension = "rgb24",
+            mediaType = FullResPresentationRasterV01.MEDIA_TYPE,
+            pixelFormat = FullResPresentationRasterV01.PIXEL_FORMAT,
+        )
+    }
+
+    private fun publishPrivateArtifact(
+        renderedFile: File,
+        freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        expectedSha256: String,
+        artifactDirectory: File,
+        expectedBytes: Long?,
+        extension: String,
+        mediaType: String,
+        pixelFormat: String,
     ): UnifiedOutputFreeRasterPublishResultV01 {
         if (freeRasterRequest.purpose !=
             DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW
@@ -93,6 +138,11 @@ object UnifiedOutputFreeRasterBridge {
         if (!renderedFile.isFile || renderedFile.length() <= 0L) {
             return UnifiedOutputFreeRasterPublishResultV01.Failed(
                 "Free Raster publish geblokkeerd: full-resolution artifact ontbreekt.",
+            )
+        }
+        if (expectedBytes != null && renderedFile.length() != expectedBytes) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: RGB24-bytegeometrie wijkt af van de output-binding.",
             )
         }
         if (!artifactDirectory.exists() && !artifactDirectory.mkdirs()) {
@@ -138,16 +188,20 @@ object UnifiedOutputFreeRasterBridge {
         }
 
         val copiedSha = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
-        if (copiedBytes <= 0L || copiedSha != normalizedExpected) {
+        if (
+            copiedBytes <= 0L ||
+            copiedSha != normalizedExpected ||
+            (expectedBytes != null && copiedBytes != expectedBytes)
+        ) {
             temp.delete()
             return UnifiedOutputFreeRasterPublishResultV01.Failed(
-                "Free Raster publish geblokkeerd: artifactcopy SHA-256 mismatch.",
+                "Free Raster publish geblokkeerd: artifactcopy SHA-256/byte mismatch.",
             )
         }
 
         val finalFile = File(
             artifactDirectory,
-            "free_raster_${freeRasterRequest.sourceJobId.take(16)}_${copiedSha.take(16)}.jpg",
+            "free_raster_${freeRasterRequest.sourceJobId.take(16)}_${copiedSha.take(16)}.$extension",
         )
 
         if (finalFile.exists()) {
@@ -174,6 +228,8 @@ object UnifiedOutputFreeRasterBridge {
             artifactBytes = copiedBytes,
             rasterWidth = freeRasterRequest.targetWidth,
             rasterHeight = freeRasterRequest.targetHeight,
+            mediaType = mediaType,
+            pixelFormat = pixelFormat,
         )
         current = snapshot
         lastClearReason = null
