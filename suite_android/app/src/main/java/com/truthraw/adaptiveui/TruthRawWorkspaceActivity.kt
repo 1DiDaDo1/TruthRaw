@@ -568,7 +568,7 @@ class TruthRawWorkspaceActivity : Activity() {
         viewZoom = if (fitScale > 0f) 1f / fitScale else 1f
         applyCanvasMatrix()
         canvasStatusView.text =
-            "Canvasstatus · PREVIEW_RASTER_1_TO_1 · 1 display-pixel per decoded preview-pixel · " +
+            "Canvasstatus · DISPLAY_RASTER_1_TO_1 · 1 display-pixel per decoded viewport-sample · " +
                 "niet sensor/master 1:1 · PRESENTATION_ONLY"
     }
 
@@ -578,7 +578,7 @@ class TruthRawWorkspaceActivity : Activity() {
         canvasMatrix.getValues(values)
         val scale = values[Matrix.MSCALE_X]
         canvasStatusView.text = if (abs(scale - 1f) <= 0.001f) {
-            "Canvasstatus · PREVIEW_RASTER_1_TO_1_PANNED · pan actief · " +
+            "Canvasstatus · DISPLAY_RASTER_1_TO_1_PANNED · pan actief · " +
                 "scientific sampling ongewijzigd · PRESENTATION_ONLY"
         } else {
             String.format(

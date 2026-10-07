@@ -2887,17 +2887,35 @@ class MainActivity : Activity() {
                 var status = when (rendered) {
                     is FullResJpegResult.Failed -> rendered.reason
                     is FullResJpegResult.Success -> {
+                        val m = rendered.metrics
+                        val freeRasterStage =
+                            UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg(
+                                binding = binding,
+                                renderedFile = rendered.file,
+                                outputWidth = m.width,
+                                outputHeight = m.height,
+                                jpegSha256 = m.jpegSha256,
+                            )
+                        val freeRasterStageStatus = when (freeRasterStage) {
+                            is UnifiedOutputFreeRasterRuntimeV01.StageResult.Ready ->
+                                "Free Raster full-res sibling staged · promotion wacht op commit/current-output bevestiging"
+                            is UnifiedOutputFreeRasterRuntimeV01.StageResult.Failed ->
+                                "Free Raster staging geblokkeerd: ${freeRasterStage.reason}"
+                        }
                         val ok = FullResJpegExporter.commit(
                             contentResolver,
                             rendered.file,
                             destination,
-                            rendered.metrics.jpegSha256,
+                            m.jpegSha256,
                         )
-                        val m = rendered.metrics
                         rendered.file.delete()
                         if (!ok) {
+                            UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                                expectedJob,
+                                "jpeg_destination_commit_failed",
+                            )
                             runCatching { contentResolver.delete(destination, null, null) }
-                            "JPG commit/post-write SHA-verify faalde."
+                            "JPG commit/post-write SHA-verify faalde · $freeRasterStageStatus"
                         } else {
                             when (
                                 val preview = UnifiedOutputPreviewLoader.loadSavedJpeg(
@@ -2909,16 +2927,22 @@ class MainActivity : Activity() {
                             ) {
                                 is UnifiedOutputPreviewResult.Ready ->
                                     jpegOutputPreview = preview
-                                is UnifiedOutputPreviewResult.Failed ->
+                                is UnifiedOutputPreviewResult.Failed -> {
+                                    UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                                        expectedJob,
+                                        "saved_jpeg_preview_failed",
+                                    )
                                     jpegStatus =
                                         "JPG opgeslagen; uitkomst-preview faalde: " +
                                             preview.reason
+                                }
                             }
                             "JPG full-resolution gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
                                 "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
                                 "rotatie=${quarterTurns * 90}° · HDR-front=${m.hdrBakedIntoFront} (APPEARANCE_ONLY) · " +
-                                "Restoration-front=${m.restorationBakedIntoFront} (AESTHETIC_REINTEGRATION_ONLY)."
+                                "Restoration-front=${m.restorationBakedIntoFront} (AESTHETIC_REINTEGRATION_ONLY) · " +
+                                freeRasterStageStatus
                         }
                     }
                 }
@@ -2937,6 +2961,10 @@ class MainActivity : Activity() {
                         jpegStatus = status
                         render()
                     } else {
+                        UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                            expectedJob,
+                            "active_job_changed_before_free_raster_promotion",
+                        )
                         jpegOutputPreview?.bitmap?.recycle()
                     }
                 }
