@@ -4,6 +4,7 @@
 
 #include <cerrno>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -16,8 +17,29 @@ constexpr jint kRequiredQuality = 100;
 struct WriterContext {
     int fd = -1;
     bool ok = true;
+    bool canonicalSosWritten = false;
     std::uint64_t bytes = 0u;
 };
+
+bool write_all(WriterContext *context, const std::uint8_t *bytes, std::size_t size) {
+    if (context == nullptr || !context->ok || context->fd < 0 || bytes == nullptr) {
+        if (context != nullptr) context->ok = false;
+        return false;
+    }
+    std::size_t remaining = size;
+    while (remaining > 0u) {
+        const ssize_t written = ::write(context->fd, bytes, remaining);
+        if (written < 0 && errno == EINTR) continue;
+        if (written <= 0) {
+            context->ok = false;
+            return false;
+        }
+        bytes += static_cast<std::size_t>(written);
+        remaining -= static_cast<std::size_t>(written);
+        context->bytes += static_cast<std::uint64_t>(written);
+    }
+    return true;
+}
 
 void fd_writer(void *opaque, const void *data, int size) {
     auto *context = static_cast<WriterContext *>(opaque);
@@ -25,19 +47,43 @@ void fd_writer(void *opaque, const void *data, int size) {
         if (context != nullptr) context->ok = false;
         return;
     }
+
     const auto *bytes = static_cast<const std::uint8_t *>(data);
-    std::size_t remaining = static_cast<std::size_t>(size);
-    while (remaining > 0u) {
-        const ssize_t written = ::write(context->fd, bytes, remaining);
-        if (written < 0 && errno == EINTR) continue;
-        if (written <= 0) {
+
+    // The first generated-Huffman encoder revision accidentally emitted one
+    // extra 0x00 byte inside the SOS payload while still declaring length 12.
+    // Tolerant decoders could display the image, but strict JPEG decoders
+    // correctly rejected the stream. Canonicalize exactly that known header at
+    // the downstream presentation boundary and fail closed if the encoder's SOS
+    // shape changes unexpectedly. This does not touch RGB pixels or science.
+    static constexpr std::uint8_t kMalformedSos[15] = {
+        0xff,0xda,0x00,0x0c,0x03,0x01,0x00,0x02,0x11,0x03,0x11,0x00,0x00,0x3f,0x00,
+    };
+    static constexpr std::uint8_t kCanonicalSos[14] = {
+        0xff,0xda,0x00,0x0c,0x03,0x01,0x00,0x02,0x11,0x03,0x11,0x00,0x3f,0x00,
+    };
+
+    if (size == static_cast<int>(sizeof(kMalformedSos)) &&
+        std::memcmp(bytes, kMalformedSos, sizeof(kMalformedSos)) == 0) {
+        if (context->canonicalSosWritten) {
             context->ok = false;
             return;
         }
-        bytes += static_cast<std::size_t>(written);
-        remaining -= static_cast<std::size_t>(written);
-        context->bytes += static_cast<std::uint64_t>(written);
+        context->canonicalSosWritten = true;
+        (void)write_all(context, kCanonicalSos, sizeof(kCanonicalSos));
+        return;
     }
+
+    if (size == static_cast<int>(sizeof(kCanonicalSos)) &&
+        std::memcmp(bytes, kCanonicalSos, sizeof(kCanonicalSos)) == 0) {
+        if (context->canonicalSosWritten) {
+            context->ok = false;
+            return;
+        }
+        context->canonicalSosWritten = true;
+    }
+
+    (void)write_all(context, bytes, static_cast<std::size_t>(size));
 }
 
 jlongArray result(JNIEnv *env, jlong status, jlong bytes = 0) {
@@ -92,7 +138,8 @@ Java_com_truthraw_adaptiveui_HighFidelityJpegNativeBridge_encodeRgb24Jpeg444Q100
         height);
     const int unmapStatus = ::munmap(mapped, static_cast<std::size_t>(expectedBytes));
 
-    if (!encoded || !writer.ok || writer.bytes <= 4u || unmapStatus != 0 || ::fsync(outputFd) != 0) {
+    if (!encoded || !writer.ok || !writer.canonicalSosWritten ||
+        writer.bytes <= 4u || unmapStatus != 0 || ::fsync(outputFd) != 0) {
         (void)::ftruncate(outputFd, 0);
         return result(env, -6);
     }
