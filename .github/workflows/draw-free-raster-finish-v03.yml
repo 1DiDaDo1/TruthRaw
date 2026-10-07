@@ -21,6 +21,9 @@ jobs:
       - name: Apply deterministic v0.3 patch
         run: python3 tools/finish_free_raster_v03.py
 
+      - name: Apply presentation gamut fit v0.1
+        run: python3 tools/apply_presentation_gamut_fit_v0_1.py
+
       - name: Verify full-resolution cable
         run: |
           grep -F 'UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
@@ -30,6 +33,12 @@ jobs:
           grep -F 'DISPLAY_RASTER_1_TO_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
           grep -F 'HighFidelityJpegContract/0.2' suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt
           grep -F 'canonicalSosWritten' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'presentation_gamut_fit_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'fit_nonnegative_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'fit_unit_rgb_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+
+      - name: Presentation gamut fit regression
+        run: python3 tools/test_presentation_gamut_fit_v0_1.py
 
       - name: Install strict JPEG decoder
         run: |
@@ -73,12 +82,14 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
+          git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt \
+                  suite_android/app/src/main/cpp/photo_export_bridge.cpp
           git diff --cached --check
           if git diff --cached --quiet; then
-            echo 'Runtime wiring already applied.'
+            echo 'Runtime wiring and gamut fit already applied.'
           else
-            git commit -m 'android: wire commit-gated full-resolution output into Free Raster v0.3'
+            git commit -m 'android: apply luminance-preserving presentation gamut fit v0.1'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
