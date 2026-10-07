@@ -1,15 +1,16 @@
 name: D.RAW Free Raster v0.3 Finish APK
 
 on:
-  push:
-    branches: [feat/draw-workspace-free-raster-v01]
-    paths: [.github/workflows/draw-free-raster-finish-v03.yml]
+  pull_request:
+    branches:
+      - fix/android-exact-gauge-pass-artifact-v03
 
 permissions:
   contents: write
 
 jobs:
   finish:
+    if: github.head_ref == 'feat/draw-workspace-free-raster-v01'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
