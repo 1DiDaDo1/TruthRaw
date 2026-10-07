@@ -1,21 +1,13 @@
 #include <jni.h>
 
+#include "draw_jpeg444_q100_encoder.h"
+
 #include <cerrno>
 #include <cstdint>
 #include <limits>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-using jo_write_func = void(void *context, const void *data, int size);
-extern bool jo_write_jpg_to_func(
-    jo_write_func *func,
-    void *context,
-    const void *data,
-    int width,
-    int height,
-    int comp,
-    int quality);
 
 namespace {
 constexpr jlong kMagic = 0x44524a34; // DRJ4
@@ -92,14 +84,12 @@ Java_com_truthraw_adaptiveui_HighFidelityJpegNativeBridge_encodeRgb24Jpeg444Q100
 
     WriterContext writer;
     writer.fd = outputFd;
-    const bool encoded = jo_write_jpg_to_func(
+    const bool encoded = draw_jpeg444_q100::encodeRgb24(
         fd_writer,
         &writer,
-        mapped,
+        static_cast<const std::uint8_t *>(mapped),
         width,
-        height,
-        3,
-        kRequiredQuality);
+        height);
     const int unmapStatus = ::munmap(mapped, static_cast<std::size_t>(expectedBytes));
 
     if (!encoded || !writer.ok || writer.bytes <= 4u || unmapStatus != 0 || ::fsync(outputFd) != 0) {
