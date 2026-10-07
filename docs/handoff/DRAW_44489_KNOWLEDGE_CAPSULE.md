@@ -448,7 +448,7 @@ The user explicitly supplied this as what may have been the last substantial imp
 >
 > Continue to the actual `MainActivity` / full-output renderer -> Free Raster v0.3 binding from runtime head `edf37b50...`, without touching PR #130 and without using the approximately 192×145 preview as the source.
 
-This is still the correct continuation direction as of this capsule update.
+This remains architecturally correct, but the broader image-quality programme in sections 19–23 below is now the active continuation plan.
 
 ---
 
@@ -489,7 +489,9 @@ For target-resolution semantics:
 
 ---
 
-## 17. Exact next step for the next chat
+## 17. Historical next step from the pre-audit state
+
+This section is retained as history, but **sections 19–23 now supersede it as the active next-chat plan**.
 
 1. Resolve live PR #131 head and compare it to this capsule-only documentation commit.
 2. If no newer runtime commit exists, treat **`edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`** as the last runtime code checkpoint.
@@ -502,7 +504,7 @@ For target-resolution semantics:
 9. Build/CI the exact new runtime head and record provenance.
 10. Keep PR #131 draft/unmerged and PR #130 scientifically untouched.
 
-### Absolute safety boundary for this continuation
+### Absolute safety boundary for every continuation
 
 No UI, Free Raster, JPEG/PNG, performance, diagnostics, Appearance or restoration change may:
 
@@ -516,9 +518,9 @@ No UI, Free Raster, JPEG/PNG, performance, diagnostics, Appearance or restoratio
 
 ---
 
-## 18. Recovery pointers
+## 18. Recovery pointers from the pre-audit state
 
-Read/inspect in this order in a new chat:
+Read/inspect in this order in a new chat, then continue with the newer pointers in section 23:
 
 1. **this entire file** `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`;
 2. live PR #131 metadata/head/diff;
@@ -532,3 +534,512 @@ Read/inspect in this order in a new chat:
 10. historical scientific/device documents only as provenance, never as permission to rewrite current authority.
 
 When this capsule conflicts with a newer exact runtime commit, **newer live code + explicit newer handoff wins for implementation state, while the permanent evidence laws above still remain binding**.
+
+---
+
+## 19. 2026-10-07 complete image-quality audit — frozen findings
+
+This audit was requested because the current full-resolution JPEG is technically full resolution but is not yet photographically finished enough: black is too conservative, colourfulness is too weak, visible noise remains, and there is not yet a final user-selectable resolution control. The user explicitly requires a solution **without a conventional noise filter**, with natural rendering and maximum physically supported fine detail.
+
+### 19.1 Frozen audit sample provenance
+
+Inspected JPEG:
+
+`DRAW_CAPTURE_1791385687736_tele_4080x3072_draw_pro_fullres.jpg`
+
+- 4080×3072;
+- 5,554,774 bytes;
+- supplied-file SHA-256 `8f0f0f15011ab9a98bded3ee6f69462115d25aa9c7706bbcffe5946fd96e46f4`;
+- JPEG quality 96;
+- sampling factor `2x2,1x1,1x1`, i.e. ordinary 4:2:0 chroma subsampling;
+- no embedded ICC profile detected by the audit tools.
+
+Inspected full-colour Scientific Master:
+
+`DRAW_CAPTURE_1791385687736_tele_4080x3072_draw_full_colour_scientific_master_float32_v0_1.dng`
+
+- 4080×3072 × 3 channels;
+- IEEE Float32 primary raster;
+- supplied-file bytes `156,283,749`;
+- supplied-file SHA-256 `67ae02196f3dfe6cc710372d7b62b1dc0cad52a331a4b7aba7b2cc7f8c1e4e5c`;
+- private metadata reports sealed source SHA-256 `355ea429035c3180c6129f5350e1654ad568a989b21706e8404a964696979941` and scientific-master SHA-256 `f7855217d0e512c4e31fde6a0a6e127f9b06c8e562a69041b7e11ae5b20d7128`; these are different object/hash scopes and must not be conflated.
+
+### 19.2 Black/tone finding
+
+JPEG encoded-RGB luma diagnostics:
+
+- minimum ≈ `10.28`;
+- maximum ≈ `235.08`;
+- median ≈ `103.44`;
+- 1st percentile ≈ `23.57`;
+- 5th percentile ≈ `48.28`;
+- 95th percentile ≈ `193.91`;
+- 99th percentile ≈ `217.14`;
+- only ≈ `0.018%` of pixels below luma 16;
+- effectively no pixels above luma 235.
+
+Interpretation: the default presentation uses display black/headroom conservatively and therefore looks somewhat lifted/milky. This is an **Appearance/tone-mapping gap**, not evidence that the Float32 Scientific Master lacks numeric range.
+
+Do not repair it by crushing shadows, global histogram stretching, or rewriting scientific black/zero-line metadata.
+
+### 19.3 Zero-Line finding
+
+The DNG private data states:
+
+- `zero_line_mode=SELF_GAUGE`;
+- `zero_line_gauge_id=SELF_GAUGE_STAGE2_Q0.500000`;
+- `zero_line_cross_scene_comparable=0`;
+- `zero_line_absolute_physical_units=0`.
+
+Therefore the current zero-line is an observation-internal scientific gauge, not an absolute cross-scene display-black definition. A separate downstream natural display toe is required.
+
+### 19.4 Standard DNG guidance finding
+
+Present on the primary IFD include `ColorMatrix1` and `AsShotNeutral`.
+
+Not detected on the primary IFD during this audit:
+
+- `BlackLevel`;
+- `WhiteLevel`;
+- `BaselineExposure`;
+- `BaselineNoise`;
+- `BaselineSharpness`;
+- `NoiseProfile`.
+
+This does **not** by itself make the DNG invalid; D.RAW uses a Float32 full-colour LinearRaw scientific primary plus a private contract. It does mean generic DNG consumers have less standardised guidance. Future work must decide field-by-field which standard tags are truthful for the D.RAW Scientific Master. Cosmetic metadata is forbidden.
+
+### 19.5 Colourfulness finding
+
+JPEG output diagnostics:
+
+- mean HSV saturation ≈ `0.1385`;
+- median ≈ `0.1184`;
+- 95th percentile ≈ `0.3333`;
+- global Hasler–Süsstrunk-style colourfulness diagnostic ≈ `19.30`.
+
+These are output diagnostics, not scientific colour measurements. The scene contains many neutral surfaces, but the visual audit agrees with the user that skin, wood and coloured objects are too timid. The answer is not a fixed saturation multiplier; it is a perceptual Natural Appearance transform with neutral/skin protection and gamut mapping.
+
+### 19.6 Noise finding
+
+Visible high-frequency grain remains in smooth surfaces while real fine hair/fabric structure is simultaneously present. A JPEG-space low-texture diagnostic from the audit was of order `~2.7` encoded luma code values; this is **not a calibrated sensor-noise sigma** and must never be promoted as one.
+
+A conventional blur/denoiser would erase both stochastic variation and real microstructure. Therefore the primary solution must be **evidence-weighted local radiance reconstruction**, not a noise filter.
+
+### 19.7 Full-colour authority finding — major scientific gap
+
+The private authority manifest says:
+
+- `schema=TruthRawOutputChannelAuthority/0.84`;
+- `mapping_mode=FULL_RESOLUTION_CONSERVATIVE`;
+- `calibrated_estimate_channels=0`;
+- `reconstructed_channels=0`;
+- `censored_channels=10455`;
+- `unknown_channels=37590825`;
+- `censored_support_pixels=3485`.
+
+Total channels are `4080 × 3072 × 3 = 37,601,280`. Thus this specific full-colour master currently classifies every output channel as CENSORED or UNKNOWN; none is scientifically promoted to CALIBRATED_ESTIMATE or RECONSTRUCTED.
+
+This is conservative and safe, but also means the project has not yet turned its reconstruction machinery into a validated authority-rich photographic estimator. The forbidden shortcut is to relabel UNKNOWN because the result looks plausible.
+
+### 19.8 Previous affine reconstruction remains NOT PROMOTED
+
+Anchor-Constrained Local Reconstruction v0.1 remains a useful experiment but not a valid default. The earlier real-device CFA hold-out showed worse aggregate MAE/RMSE/bias than baseline on the directly comparable points and over-optimistic uncertainty, despite coverage gains and a small channel-2 benefit.
+
+The next reconstruction must be deterministic **local model selection**, where affine is one optional model and `NO_SUITABLE_MODEL` is valid.
+
+### 19.9 Sharpness finding
+
+The target is not a sharpen slider. D.RAW should respect the forward image-formation chain:
+
+`scene radiance -> lens PSF/MTF -> sensor aperture -> CFA sampling -> measurement/noise -> sealed sample`
+
+and invert it only where evidence allows:
+
+`sealed measurements + optical support + uncertainty -> latent spatial estimate`.
+
+No halos, ringing, fake microtexture, worm artefacts or deconvolution beyond the trustworthy recoverable spatial-frequency range are acceptable. Pixel count is not identical to true optical resolution.
+
+### 19.10 Resolution/export finding
+
+The architecture already supports arbitrary target raster geometry through `DrawUnifiedOutputRasterRequestV01`. Therefore the lack of a final resolution chooser is a **product/UI/integration gap**, not a reason for a new renderer.
+
+Required user choices:
+
+- Original;
+- 1080p;
+- 4K;
+- 8K;
+- Custom W×H;
+- optionally long-side-in-pixels mode.
+
+`Original` must mean true upstream/output geometry after downstream crop/rotation, never preview geometry. Downsampling requires proper anti-alias/low-pass before decimation. Upsampling may create a denser Free Raster representation but never new MEASURED detail.
+
+### 19.11 JPEG fidelity finding
+
+The current quality-96 JPEG is good compatibility output, but 4:2:0 subsampling and absent embedded ICC profile are not the project’s maximum-fidelity endpoint.
+
+Recommended downstream modes:
+
+- compatibility JPEG;
+- High Fidelity JPEG using 4:4:4 where the codec path permits, with explicit ICC profile;
+- lossless/high-bit-depth PNG path once proven;
+- no hidden sharpening/denoise during encoding.
+
+Export fidelity never changes scientific authority.
+
+---
+
+## 20. Active scientific solution — no noise filter
+
+The active research direction is now:
+
+**Evidence-Weighted Local Radiance Reconstruction v0.1**
+
+Not:
+
+`image -> denoise filter -> sharpen`
+
+But:
+
+`sealed CFA measurements + observation-bound noise likelihood + local structure + CFA phase + optical support + uncertainty -> best locally supported latent scene estimate -> explicit authority/uncertainty -> Natural Appearance`.
+
+### 20.1 Measurement likelihood
+
+Build an observation-bound uncertainty/noise model. Where evidence permits, use a photon-transfer-style first-order structure such as signal-dependent shot variance plus read/dark/quantisation floor, with row/column/fixed-pattern terms only when actually measured. Calibration must be source/mode/gain/exposure/context-bound and may not be selected merely by camera model name.
+
+Where calibration is insufficient, uncertainty becomes broader or UNKNOWN. Never invent precise coefficients.
+
+### 20.2 Deterministic local model bank
+
+Candidate models can include:
+
+- locally constant;
+- local affine plane;
+- edge-aligned/directional;
+- low-curvature smooth model;
+- chroma-coupled model only where evidence supports it;
+- texture/periodic model only if real hold-outs justify it;
+- explicit `NO_SUITABLE_MODEL`.
+
+Selection uses support, direction, CFA phase, distance, censoring/unknown state, measurement likelihood and later optical support.
+
+### 20.3 Hold-out validation is mandatory
+
+Use genuine CFA hold-outs with target values excluded from solver input. Record at minimum:
+
+- comparable sample count;
+- per-channel and aggregate MAE;
+- RMSE;
+- signed bias;
+- candidate vs baseline wins/losses;
+- uncertainty 1σ/2σ/3σ coverage;
+- worst/large z-scores;
+- smooth/edge/textured/clipped strata;
+- coverage/gaps.
+
+No visual preference can promote a scientific candidate. Measured anchors remain untouched.
+
+### 20.4 Authority remains explicit
+
+MEASURED stays MEASURED only for actual sealed measurements. Validated predicted values may become CALIBRATED_ESTIMATE or RECONSTRUCTED according to existing project definitions. UNKNOWN and CENSORED remain distinct and valid.
+
+---
+
+## 21. D.RAW Natural Appearance v0.1 — active downstream photographic plan
+
+After the scientific/output state is established, use a fully reversible APPEARANCE-only transform:
+
+`Scientific/output state -> scene-referred colour conversion -> chromatic adaptation/viewing context -> tone scale -> perceptual chroma/colourfulness -> gamut mapping -> output encoding/profile`.
+
+Requirements:
+
+- preserve scientific zero-line/clipping/censoring semantics;
+- create a display toe that gives convincing black without crushing real shadow separation;
+- create a soft highlight shoulder that uses Float32 headroom and avoids premature clipping;
+- use existing `ColorMatrix1` / `AsShotNeutral` only according to their proven binding semantics;
+- use perceptual chroma/colourfulness rather than fixed RGB saturation;
+- protect neutrals and skin-like colours;
+- compress gamut rather than hard-clipping channels;
+- store controls in the reversible non-destructive workbench state;
+- never write Appearance back to source or Scientific Master.
+
+CIECAM16/CIE 248:2022 is an appropriate scientific reference family for viewing-condition-dependent colour appearance, but it remains downstream and cannot create scene evidence.
+
+---
+
+## 22. Complete implementation and validation plan — active next-chat roadmap
+
+**This section supersedes section 17 as the active execution order.**
+
+### Phase 0 — freeze baseline and provenance
+
+- resolve live PR #131 head and inspect any intervening runtime commits;
+- keep PR #130 frozen;
+- preserve current outputs as baseline, never overwrite them;
+- record source/master/output hashes and exact APK/runtime provenance;
+- create a deterministic image-quality audit record containing dimensions, colour/profile, JPEG sampling, tone/clipping diagnostics, authority counts, zero-line mode, candidate/writeback/source-mutation state and relevant detail/noise metrics.
+
+Exit: the same sealed observation can be compared reproducibly before/after future work.
+
+### Phase 1 — black/white/exposure semantic separation
+
+- audit exact zero-line, scene-scale, clipping/censoring and highlight-headroom creation;
+- decide which standard DNG tags are truthful for the Float32 scientific master;
+- never add cosmetic BlackLevel/WhiteLevel/Baseline* values;
+- build a downstream Appearance input state for shadows, highlights, headroom, viewing/output target and unknown/censoring;
+- implement a reversible default toe/shoulder while preserving negative and >1 values internally until output mapping.
+
+Exit: natural black/white without scientific rewrite or shadow crushing.
+
+### Phase 2 — observation-bound noise likelihood
+
+- inventory existing NPS/noise/repeatability/calibration artifacts;
+- determine exact applicability by source/mode/gain/exposure/context/CFA phase;
+- model signal-dependent + floor components only where evidence permits;
+- retain UNKNOWN/broad uncertainty where calibration does not apply;
+- bind the likelihood record to source/calibration provenance.
+
+Exit: per-sample/local uncertainty exists and fails closed outside proven applicability.
+
+### Phase 3 — Evidence-Weighted Local Radiance Reconstruction v0.1
+
+- reuse existing support/anchor/CFA-geometry infrastructure;
+- exclude the target measurement in hold-out mode;
+- implement deterministic model bank + `NO_SUITABLE_MODEL`;
+- score by structure, direction, CFA phase, support distance, measurement variance, censoring/unknown state and optical support when available;
+- return value, model ID, uncertainty, support diagnostics and authority-candidate state;
+- never modify measured anchors.
+
+Exit: candidate beats predeclared baseline criteria on real hold-outs and uncertainty is materially calibrated.
+
+### Phase 4 — promotion firewall
+
+- keep new outputs candidate-only by default;
+- define promotion criteria before looking at final beauty shots;
+- no blanket promotion;
+- no predicted target becomes MEASURED;
+- retain UNKNOWN/NO_SUITABLE_MODEL where evidence is insufficient.
+
+Exit: any richer authority is justified locally by validation.
+
+### Phase 5 — optical PSF/MTF support
+
+- audit existing optical-field/lens/MTF infrastructure;
+- distinguish measured/calibrated optics from assumptions;
+- bind support to field position and capture conditions where evidence exists;
+- integrate optical transfer support into model selection;
+- allow only conservative regularised inversion below trustworthy frequency support;
+- explicitly manage aliasing/Nyquist risk.
+
+Validation: slanted-edge/SFR where suitable, hair/fabric/line detail, ringing/halo and false-detail checks.
+
+Exit: real fine detail is preserved/improved without false high-frequency structure.
+
+### Phase 6 — Natural Appearance v0.1
+
+- scene-referred colour path;
+- neutral-preserving tone toe/midtone/shoulder;
+- preserve over-range headroom until output mapping;
+- perceptual chroma/colourfulness;
+- neutral/skin protection;
+- gamut compression;
+- reversible APPEARANCE_ONLY controls in workbench state.
+
+Exit: better black, richer natural colour, smooth highlights, zero scientific writeback.
+
+### Phase 7 — integrate reconstruction and Appearance
+
+- scientific reconstruction remains separate from Appearance;
+- Appearance never promotes authority;
+- uncertainty may guide rendering strength but may not be hidden as fake certainty;
+- explicitly reject plastic/waxy skin, texture synthesis and oversharpening.
+
+Validation: Fit, 1:1, 2:1, 4:1 smooth surfaces, skin, fabric, hair, edges, highlights.
+
+Exit: noise is reduced through better estimation, not blur.
+
+### Phase 8 — real resolution selector
+
+Add:
+
+- Original;
+- 1080p;
+- 4K;
+- 8K;
+- Custom W×H;
+- optional long-side mode.
+
+Implementation:
+
+- use `DrawUnifiedOutputRasterRequestV01`;
+- reuse the existing full-resolution pre-JPEG raster generator;
+- never use a preview bitmap as high-resolution source;
+- preserve route/flags/source/orientation binding;
+- keep aspect ratio locked by default;
+- fail closed on invalid geometry/source/route changes.
+
+Exit: saved files have requested dimensions and are generated from full-output state.
+
+### Phase 9 — one-step high-quality resampling
+
+Downsampling:
+
+- operate before final display quantisation;
+- use appropriate low-pass/anti-alias behaviour;
+- avoid repeated resampling.
+
+Upsampling:
+
+- evaluate the continuous/reconstructed representation directly where available;
+- otherwise deterministic non-generative interpolation only;
+- label denser output correctly as representation/reconstruction, never new measured detail.
+
+Validation: zone/checker detail, fine textile, diagonals, edges, moiré and one-step vs repeated resize.
+
+### Phase 10 — high-fidelity export
+
+- compatibility JPEG remains;
+- add High Fidelity JPEG 4:4:4 where proven, with explicit ICC profile;
+- add lossless/high-bit-depth PNG when Android/codec path is proven;
+- no hidden denoise/sharpen during encoding;
+- preserve derived-output provenance.
+
+Exit: selected profile/subsampling/bit-depth actually matches saved file.
+
+### Phase 11 — non-destructive workbench integration
+
+All new controls remain operations, not overwritten pixels:
+
+- tone/black/white;
+- colourfulness;
+- crop;
+- rotation;
+- Free Raster transform;
+- output resolution;
+- export parameters as appropriate.
+
+Hard false flags remain:
+
+- `SOURCE_MUTATION_ALLOWED=false`;
+- `SCIENTIFIC_MASTER_WRITEBACK_ALLOWED=false`;
+- `OVERWRITE_SOURCE_ON_EXPORT_ALLOWED=false`.
+
+Exit: reset returns to original presentation state with unchanged source/master.
+
+### Phase 12 — automated image-quality regression harness
+
+Build a sealed benchmark set covering bright/dim, shadow, neutral, saturated colour, skin, hair, fabric, foliage, high-contrast edges, clipped highlights and smooth surfaces.
+
+Metrics include provenance equality, hold-out errors, uncertainty coverage, clipping, luma/tone diagnostics, valid colour-difference metrics where references exist, SFR/detail, halo/ringing indicators, residual-noise diagnostics, output dimensions/profile/subsampling, runtime and memory.
+
+Exit: no scientific or major photographic regression across the benchmark.
+
+### Phase 13 — real-device acceptance
+
+On target Android hardware:
+
+- document clean-install vs upgrade path;
+- verify sealed-source identity;
+- render/export Original plus at least one downsampled and one denser target where relevant;
+- inspect off-device and at Fit/1:1/2:1/4:1;
+- inspect smooth surfaces, hair, fabric, edges, shadows/highlights;
+- verify source/master unchanged;
+- verify stale source/route mismatches still fail closed.
+
+Classification law:
+
+- PASS only for what was actually tested;
+- NOT TESTED is not FAILURE;
+- NOT REACHABLE is not PASS;
+- visual preference cannot promote scientific authority.
+
+### Phase 14 — performance only after correctness
+
+Then optimise model selection, neighbourhood reuse, calibration caching, tile/stream high-resolution output and conversion/resampling reuse. Preserve Exact Gauge v0.3 semantics and deterministic scientific outputs.
+
+### Phase 15 — documentation/governance
+
+After every accepted stage:
+
+- update 44489 capsule;
+- record exact runtime head;
+- record CI separately from physical evidence;
+- record candidate/promotion state explicitly;
+- record APK hash/certificate/versionCode on delivery;
+- retain failed/non-promoted experiments as provenance;
+- keep PR #131 draft/unmerged until acceptance is complete.
+
+### Priority order
+
+P0 — scientific estimation:
+
+1. baseline audit harness;
+2. black/white semantic separation;
+3. observation-bound noise likelihood;
+4. evidence-weighted local radiance reconstruction;
+5. hold-out/uncertainty calibration;
+6. optical support.
+
+P1 — natural photographic output:
+
+7. Natural Appearance v0.1;
+8. integrate clean reconstruction + natural tone/colour;
+9. reject plastic/oversharpened artefacts.
+
+P2 — user-facing output:
+
+10. real resolution selector;
+11. one-step correct resampling;
+12. high-fidelity JPEG/PNG/profile handling.
+
+P3 — acceptance:
+
+13. automated regression;
+14. real-device acceptance;
+15. performance;
+16. final documentation/merge decision.
+
+---
+
+## 23. Absolute do-not-do list and new-chat recovery order
+
+Future chats must **not**:
+
+- add a conventional blur-based noise filter as the primary solution;
+- run a generic AI denoiser and call it scientific reconstruction;
+- use unsharp-mask-style sharpening as the core detail solution;
+- promote UNKNOWN because the picture looks good;
+- select calibration truth by camera model name alone;
+- rewrite Zero-Line to obtain prettier blacks;
+- bake Appearance into Scientific Master;
+- use a preview bitmap as the source of 4K/8K output;
+- create a second full-resolution renderer when the sibling-output cable can be reused;
+- modify frozen PR #130;
+- merge PR #131 prematurely;
+- claim denser raster density equals new measured resolution;
+- hide unresolved uncertainty.
+
+### New-chat exact start order after continuation code 44489
+
+1. Read **this entire file** `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`.
+2. Treat sections 19–23 as the current image-quality continuation; section 17 is historical.
+3. Resolve live PR #131 metadata/head/diff before any mutation.
+4. Compare live head against the latest documentation-only head and inspect any intervening runtime code.
+5. Keep PR #130 / `4e4f358a...` frozen.
+6. Read `TruthRawWorkspaceActivity.kt`, `DrawUnifiedOutputRasterContractV01.kt`, `DrawPhotoOutputCableV01.kt`, current `FullResJpegExporter`/full-output caller path, `NonDestructiveWorkbenchStateV01.kt`, and current scientific reconstruction/noise/optical support paths.
+7. Start with **Phase 0 then Phase 1**, unless newer validated work explicitly proves them complete.
+8. Do not jump directly to a beauty filter.
+9. Every scientific candidate requires real hold-out validation before promotion.
+10. Every final-output operation remains downstream, non-destructive and provenance-bound.
+
+Scientific reference basis to keep synchronized with current primary/standards sources includes Adobe DNG 1.7.1.0, EMVA 1288 Release 4.0, CIE 248:2022 CIECAM16, ISO 12233:2024 and current university-level computational-imaging/noise references. Theory informs model/test design; it never creates authority.
+
+### Final active direction
+
+The missing work is not “make a stronger filter”. The active D.RAW quality path is:
+
+`SEALED MEASUREMENT -> MEASUREMENT LIKELIHOOD/UNCERTAINTY -> EVIDENCE-WEIGHTED LOCAL SCENE ESTIMATE -> OPTICAL SUPPORT -> EXPLICIT AUTHORITY -> NATURAL APPEARANCE -> FREE RASTER -> USER-SELECTED RESOLUTION -> HIGH-FIDELITY EXPORT`
+
+Guiding rule:
+
+**Remove noise by better evidence-bound estimation, not by erasing detail. Make sharpness follow physics, not a sharpening slider. Make black and colour natural in Appearance, not by rewriting scientific truth. Let Free Raster choose output density without pretending density creates new evidence.**
