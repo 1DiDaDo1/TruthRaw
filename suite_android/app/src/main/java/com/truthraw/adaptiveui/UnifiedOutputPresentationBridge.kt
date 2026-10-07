@@ -239,16 +239,11 @@ internal object UnifiedOutputPresentationBridge {
                         baseMetadata[META_SOURCE_JOB_ID] == request.sourceJobId &&
                             baseMetadata[META_SOURCE_URI] == request.sourceUri
 
-                    val sourceWidth = if (request.userQuarterTurns % 2 == 0) {
-                        request.targetWidth
-                    } else {
-                        request.targetHeight
-                    }
-                    val sourceHeight = if (request.userQuarterTurns % 2 == 0) {
-                        request.targetHeight
-                    } else {
-                        request.targetWidth
-                    }
+                    // targetWidth/targetHeight already describe the physical
+                    // JPEG raster after FullResJpegExporter applied the requested
+                    // quarter-turns. Do not swap them a second time here.
+                    val sourceWidth = request.targetWidth
+                    val sourceHeight = request.targetHeight
                     val displayName = if (baseMatches) {
                         baseMetadata[META_SOURCE_DISPLAY_NAME]
                     } else {
