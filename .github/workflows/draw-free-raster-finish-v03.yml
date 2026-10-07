@@ -23,9 +23,11 @@ jobs:
 
       - name: Verify full-resolution cable
         run: |
-          grep -F 'UnifiedOutputFreeRasterPublisherV01.publishFromRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
-          grep -F 'UnifiedOutputFreeRasterDisplayLoaderV01.load(freeRasterSnapshot)' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
-          grep -F 'D.RAW_FREE_RASTER_FULL_RES' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
+          grep -F 'UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'confirmFromSavedJpegPreview' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'UnifiedOutputFreeRasterDisplayLoaderV01.load(fullResolution)' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'D.RAW Free Raster full-resolution' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'DISPLAY_RASTER_1_TO_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
 
       - uses: actions/setup-java@v4
         with:
@@ -66,7 +68,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Runtime wiring already applied.'
           else
-            git commit -m 'android: wire full-resolution unified output into Free Raster v0.3'
+            git commit -m 'android: wire commit-gated full-resolution output into Free Raster v0.3'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
