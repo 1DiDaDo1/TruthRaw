@@ -47,7 +47,7 @@ sealed interface DrawUnifiedOutputRasterBindResultV01 {
 }
 
 object DrawUnifiedOutputRasterContractV01 {
-    const val CONTRACT_VERSION = "DrawUnifiedOutputRaster/0.1"
+    const val CONTRACT_VERSION = "DrawUnifiedOutputRaster/0.2"
 
     /**
      * Outer evidence-law validation only. It intentionally imposes no fixed
@@ -112,10 +112,40 @@ object DrawUnifiedOutputRasterContractV01 {
         return DrawUnifiedOutputRasterBindResultV01.Ready(request)
     }
 
+    /**
+     * Existing JPEG helper retained for compatibility. JPEG and Free Raster are
+     * siblings of one frozen full-resolution output binding; neither is derived
+     * from TilePreviewUiState or a UI Bitmap.
+     */
     fun fromFullResolutionJpegBinding(
         binding: DrawPhotoOutputBindingV01,
         targetWidth: Int,
         targetHeight: Int,
+    ): DrawUnifiedOutputRasterRequestV01 =
+        fromFullResolutionBinding(
+            binding = binding,
+            targetWidth = targetWidth,
+            targetHeight = targetHeight,
+            purpose = DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT,
+        )
+
+    fun fromFreeRasterBinding(
+        binding: DrawPhotoOutputBindingV01,
+        targetWidth: Int,
+        targetHeight: Int,
+    ): DrawUnifiedOutputRasterRequestV01 =
+        fromFullResolutionBinding(
+            binding = binding,
+            targetWidth = targetWidth,
+            targetHeight = targetHeight,
+            purpose = DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW,
+        )
+
+    private fun fromFullResolutionBinding(
+        binding: DrawPhotoOutputBindingV01,
+        targetWidth: Int,
+        targetHeight: Int,
+        purpose: DrawUnifiedOutputRasterRequestV01.Purpose,
     ): DrawUnifiedOutputRasterRequestV01 =
         DrawUnifiedOutputRasterRequestV01(
             sourceJobId = binding.sourceJobId,
@@ -124,10 +154,63 @@ object DrawUnifiedOutputRasterContractV01 {
             routeFlags = binding.routeFlags,
             targetWidth = targetWidth,
             targetHeight = targetHeight,
-            purpose = DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT,
+            purpose = purpose,
             userQuarterTurns = binding.userQuarterTurns,
             targetCoordinatesCreateMeasuredEvidence = false,
             scientificWritebackAllowed = binding.scientificWritebackAllowed,
             sourceMutationAllowed = binding.sourceMutationAllowed,
         )
+
+    /**
+     * Proves that JPEG export and Free Raster address the exact same frozen
+     * downstream raster basis. This is deliberately a presentation/output
+     * identity check, not a scientific promotion check.
+     */
+    fun validateJpegFreeRasterSiblingBasis(
+        jpeg: DrawUnifiedOutputRasterRequestV01,
+        freeRaster: DrawUnifiedOutputRasterRequestV01,
+    ): String? {
+        if (jpeg.purpose != DrawUnifiedOutputRasterRequestV01.Purpose.JPEG_EXPORT) {
+            return "Unified output geblokkeerd: JPEG sibling heeft onjuist purpose."
+        }
+        if (freeRaster.purpose != DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW) {
+            return "Unified output geblokkeerd: Free Raster sibling heeft onjuist purpose."
+        }
+
+        val jpegValidation = validate(jpeg, jpeg.sourceJobId)
+        if (jpegValidation is DrawUnifiedOutputRasterBindResultV01.Failed) {
+            return jpegValidation.reason
+        }
+        val freeRasterValidation = validate(freeRaster, freeRaster.sourceJobId)
+        if (freeRasterValidation is DrawUnifiedOutputRasterBindResultV01.Failed) {
+            return freeRasterValidation.reason
+        }
+
+        if (jpeg.sourceJobId != freeRaster.sourceJobId ||
+            jpeg.sourceUri != freeRaster.sourceUri
+        ) {
+            return "Unified output geblokkeerd: sibling source-observation verschilt."
+        }
+        if (jpeg.route != freeRaster.route ||
+            jpeg.routeFlags != freeRaster.routeFlags
+        ) {
+            return "Unified output geblokkeerd: sibling outputroute/appearance verschilt."
+        }
+        if (jpeg.targetWidth != freeRaster.targetWidth ||
+            jpeg.targetHeight != freeRaster.targetHeight
+        ) {
+            return "Unified output geblokkeerd: sibling rastergeometrie verschilt."
+        }
+        if (jpeg.userQuarterTurns != freeRaster.userQuarterTurns) {
+            return "Unified output geblokkeerd: sibling oriëntatie verschilt."
+        }
+        if (jpeg.targetCoordinatesCreateMeasuredEvidence !=
+                freeRaster.targetCoordinatesCreateMeasuredEvidence ||
+            jpeg.scientificWritebackAllowed != freeRaster.scientificWritebackAllowed ||
+            jpeg.sourceMutationAllowed != freeRaster.sourceMutationAllowed
+        ) {
+            return "Unified output geblokkeerd: sibling evidence/writeback-contract verschilt."
+        }
+        return null
+    }
 }
