@@ -9,6 +9,7 @@
 #include "output_channel_authority_v0_84.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
+#include "presentation_gamut_fit_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
 #include "raw_source_adapter_bridge_common.h"
@@ -55,6 +56,7 @@ namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
+namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
 constexpr std::size_t kPacketLongs = 48u;
@@ -552,10 +554,12 @@ private:
             for(int x=ax0;x<ax1;++x) {
                 const std::size_t si=
                     static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
-                float r=std::max(supportRgb[3u*si],0.0f);
-                float g=std::max(supportRgb[3u*si+1u],0.0f);
-                float b=std::max(supportRgb[3u*si+2u],0.0f);
-                if(!std::isfinite(r)||!std::isfinite(g)||!std::isfinite(b)) r=g=b=0.0f;
+                float r=supportRgb[3u*si];
+                float g=supportRgb[3u*si+1u];
+                float b=supportRgb[3u*si+2u];
+                if(!presentation_gamut::fit_nonnegative_preserve_luminance(r,g,b)) {
+                    r=g=b=0.0f;
+                }
                 const bool censored=supportMask[si]!=0u;
 
                 bool restored=false;
@@ -701,6 +705,12 @@ private:
                         0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
                     const float sc=shoulder/std::max(mx,1e-8f);
                     r*=sc; g*=sc; b*=sc;
+                }
+
+                if(!presentation_gamut::fit_unit_rgb_preserve_luminance(r,g,b)) {
+                    return StreamStatus::error(
+                        StreamStatusCode::SinkFailed,
+                        "full-res presentation gamut fit failed");
                 }
 
                 const std::size_t ci=
