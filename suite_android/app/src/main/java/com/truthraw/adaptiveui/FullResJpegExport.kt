@@ -2,9 +2,6 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import java.io.File
@@ -26,6 +23,18 @@ object PhotoExportNativeBridge {
     ): LongArray
 }
 
+object HighFidelityJpegNativeBridge {
+    init { System.loadLibrary("truthraw_ui_preview_bridge") }
+
+    external fun encodeRgb24Jpeg444Q100(
+        inputFd: Int,
+        outputFd: Int,
+        width: Int,
+        height: Int,
+        quality: Int,
+    ): LongArray
+}
+
 data class FullResJpegMetrics(
     val width: Int,
     val height: Int,
@@ -38,6 +47,10 @@ data class FullResJpegMetrics(
     val presentationRgbBytes: Long,
     val presentationRgbSha256: String,
     val jpegBytes: Long,
+    val jpegQuality: Int,
+    val jpeg444Verified: Boolean,
+    val jpegQ100QuantizationVerified: Boolean,
+    val jpegSampling: String,
     val advancedFlags: Int,
     val detailApplied: Boolean,
     val lightAdjustedPixels: Long,
@@ -76,9 +89,11 @@ sealed interface FullResJpegResult {
 object FullResJpegExporter {
     private const val MAGIC = 0x54524a50L
     private const val PACKET_LONGS = 48
+    private const val JPEG444_MAGIC = 0x44524a34L
+    private const val JPEG444_PACKET_LONGS = 4
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
-    private const val JPEG_QUALITY = 96
+    private const val JPEG_QUALITY = 100
     private const val COPY_BUFFER = 1024 * 1024
 
     fun renderToPrivateJpeg(
@@ -205,40 +220,73 @@ object FullResJpegExporter {
                 presentationFile.delete()
                 return FullResJpegResult.Failed("Full-resolution RGB24 SHA-256 kon niet worden berekend.")
             }
+        nativeStageFile.delete()
 
-        val nv21 = try {
-            if (nv21Bytes > Int.MAX_VALUE.toLong()) throw IllegalStateException("NV21 groter dan Java byte-array limiet.")
-            FileInputStream(nativeStageFile).use { input ->
-                val bytes = ByteArray(nv21Bytes.toInt())
-                var offset = 0
-                while (offset < bytes.size) {
-                    val n = input.read(bytes, offset, bytes.size - offset)
-                    if (n <= 0) break
-                    offset += n
+        val rgbInput = try {
+            ParcelFileDescriptor.open(presentationFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        } catch (_: Throwable) {
+            null
+        } ?: run {
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG: RGB24-bron kon niet worden geopend.")
+        }
+        val jpegOutput = try {
+            ParcelFileDescriptor.open(
+                jpegFile,
+                ParcelFileDescriptor.MODE_CREATE or
+                    ParcelFileDescriptor.MODE_READ_WRITE or
+                    ParcelFileDescriptor.MODE_TRUNCATE,
+            )
+        } catch (_: Throwable) {
+            null
+        } ?: run {
+            rgbInput.close()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG: encoder-output kon niet worden geopend.")
+        }
+
+        val jpegPacket = try {
+            rgbInput.use { src ->
+                jpegOutput.use { dst ->
+                    HighFidelityJpegNativeBridge.encodeRgb24Jpeg444Q100(
+                        src.fd,
+                        dst.fd,
+                        width,
+                        height,
+                        JPEG_QUALITY,
+                    )
                 }
-                if (offset != bytes.size) throw IllegalStateException("NV21 staging is onvolledig.")
-                bytes
             }
         } catch (error: Throwable) {
-            nativeStageFile.delete()
-            presentationFile.delete()
-            return FullResJpegResult.Failed("JPG NV21 staging kon niet worden geladen: ${error.message ?: error.javaClass.simpleName}")
-        }
-
-        val encoded = try {
-            FileOutputStream(jpegFile).use { out ->
-                YuvImage(nv21, ImageFormat.NV21, width, height, null)
-                    .compressToJpeg(Rect(0, 0, width, height), JPEG_QUALITY, out)
-            }
-        } catch (_: Throwable) {
-            false
-        } finally {
-            nativeStageFile.delete()
-        }
-        if (!encoded || !jpegFile.isFile || jpegFile.length() <= 4L) {
             jpegFile.delete()
             presentationFile.delete()
-            return FullResJpegResult.Failed("Android JPEG-encoder gaf geen geldig full-resolution bestand.")
+            return FullResJpegResult.Failed(
+                "High-Fidelity JPEG Q100/4:4:4 encoder faalde: ${error.message ?: error.javaClass.simpleName}",
+            )
+        }
+
+        if (
+            jpegPacket.size != JPEG444_PACKET_LONGS ||
+            jpegPacket[0] != JPEG444_MAGIC ||
+            jpegPacket[1] != 0L ||
+            jpegPacket[2] <= 4L ||
+            jpegPacket[2] != jpegFile.length() ||
+            jpegPacket[3] != JPEG_QUALITY.toLong()
+        ) {
+            jpegFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed(
+                "High-Fidelity JPEG encoder faalde fail-closed status ${jpegPacket.getOrNull(1) ?: "pakketfout"}.",
+            )
+        }
+
+        val jpegContract = HighFidelityJpegContractV01.verify(jpegFile, width, height)
+        if (jpegContract !is HighFidelityJpegContractV01.Result.Ready) {
+            val reason = (jpegContract as? HighFidelityJpegContractV01.Result.Failed)?.reason
+                ?: "onbekende JPEG-contractfout"
+            jpegFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG Q100/4:4:4 verificatie geblokkeerd: $reason")
         }
 
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -286,6 +334,10 @@ object FullResJpegExporter {
                 presentationRgbBytes = presentationRgbBytes,
                 presentationRgbSha256 = presentationSha,
                 jpegBytes = jpegFile.length(),
+                jpegQuality = JPEG_QUALITY,
+                jpeg444Verified = true,
+                jpegQ100QuantizationVerified = jpegContract.quantizationTablesAllOnes,
+                jpegSampling = jpegContract.sampling,
                 advancedFlags = packet[8].toInt(),
                 detailApplied = packet[9] != 0L,
                 lightAdjustedPixels = packet[10],
