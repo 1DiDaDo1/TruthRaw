@@ -28,6 +28,11 @@ jobs:
           grep -F 'UnifiedOutputFreeRasterDisplayLoaderV01.load(fullResolution)' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
           grep -F 'D.RAW Free Raster full-resolution' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
           grep -F 'DISPLAY_RASTER_1_TO_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
+          grep -F 'HighFidelityJpegContract/0.2' suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt
+          grep -F 'canonicalSosWritten' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+
+      - name: High-Fidelity JPEG codec regression
+        run: python3 tools/test_high_fidelity_jpeg_codec_v0_1.py
 
       - uses: actions/setup-java@v4
         with:
