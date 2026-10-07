@@ -16,6 +16,7 @@ class HighFidelityJpegContractV01Test {
             assertEquals(100, ready.requestedQuality)
             assertEquals("1x1,1x1,1x1", ready.sampling)
             assertTrue(ready.quantizationTablesAllOnes)
+            assertTrue(ready.canonicalSequentialSos)
         }
     }
 
@@ -43,6 +44,23 @@ class HighFidelityJpegContractV01Test {
         }
     }
 
+    @Test
+    fun rejectsMalformedSequentialSosPayload() {
+        withTempJpeg(jpegHeader(width = 4080, height = 3072, malformedSos = true)) { file ->
+            val result = HighFidelityJpegContractV01.verify(file, 4080, 3072)
+            assertTrue(result is HighFidelityJpegContractV01.Result.Failed)
+        }
+    }
+
+    @Test
+    fun rejectsMissingTerminalEoi() {
+        val bytes = jpegHeader(width = 4080, height = 3072)
+        withTempJpeg(bytes.copyOf(bytes.size - 2)) { file ->
+            val result = HighFidelityJpegContractV01.verify(file, 4080, 3072)
+            assertTrue(result is HighFidelityJpegContractV01.Result.Failed)
+        }
+    }
+
     private fun withTempJpeg(bytes: ByteArray, block: (File) -> Unit) {
         val file = File.createTempFile("draw_hf_jpeg_", ".jpg")
         try {
@@ -58,6 +76,7 @@ class HighFidelityJpegContractV01Test {
         height: Int,
         ySampling: Int = 0x11,
         dqtValue: Int = 1,
+        malformedSos: Boolean = false,
     ): ByteArray {
         val out = ByteArrayOutputStream()
         fun b(value: Int) = out.write(value and 0xff)
@@ -83,7 +102,15 @@ class HighFidelityJpegContractV01Test {
         b(1); b(0x00)
         b(2); b(0x11)
         b(3); b(0x11)
-        b(0); b(63); b(0)
+        b(0)
+        if (malformedSos) b(0)
+        b(63); b(0)
+
+        // Minimal entropy placeholder plus terminal EOI. The verifier deliberately
+        // does not infer image validity from payload pixels; it verifies the
+        // admitted structural contract up to SOS and the terminal EOI marker.
+        b(0)
+        b(0xff); b(0xd9)
         return out.toByteArray()
     }
 }
