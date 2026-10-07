@@ -1,65 +1,88 @@
 # D.RAW 44489 — current knowledge capsule
 
-Purpose: binding recovery state for a new chat. Restore this file plus the live PR #130 state before changing or testing anything.
+Purpose: binding recovery state for a new chat. This file is the first recovery point for continuation code **44489**. Read it completely before changing code, tests, scientific authority, PR state or APK provenance.
 
 Project: **D.RAW** (`TruthRaw` remains repository/history naming)  
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
-Recovery marker: **`[KCR-44489-2026-10-05-FOUNDATION-DEVICE-ROUND]`**  
-Frozen UI/CI audit reference: **PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`**  
-Current UI implementation branch from that exact SHA: **`feat/draw-workspace-free-raster-v01`**  
-Scientific candidate branch at the frozen audit point: **`fix/android-exact-gauge-pass-artifact-v03`**  
-Active scientific PR at the frozen audit point: **#130** — open, draft, not merged  
-Latest detailed device-round handoff: `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
+Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
-Always resolve live PR #130 HEAD before mutating that PR. The UI implementation branch above is deliberately forked from the frozen `4e4f358a...` audit reference so UI work cannot silently rewrite the meaning of the exact-head CI audit. Documentation/checker commits may be newer than the exact runtime source used to build a tested APK; never force-reset to a remembered SHA.
+## 0. Recovery warning — IMPORTANT, written at the end of the current chat
+
+This capsule update was written because the current chat is at/near its end. **The assistant may no longer reliably remember every final inspection/reasoning step from the immediately preceding turns.** Therefore, in the next chat:
+
+- treat the live Git history, exact file contents and exact current PR #131 head as stronger evidence than conversational memory;
+- do not infer an unrecorded code change from prose;
+- the last runtime/code commit that was proven live immediately before this capsule-only update is **`edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`** (`Android: start central vision workspace UI v0.3`);
+- this capsule update itself is documentation-only and therefore advances the branch head without changing runtime semantics;
+- if the live PR #131 head in the next chat is newer than this capsule commit, inspect the intervening diff before continuing;
+- the quoted “last thing done” supplied by the user is preserved below as the last known implementation direction, but it may not literally be the final internal thought/inspection from the previous chat.
+
+At the moment immediately before this capsule-only update, PR #131 was proven:
+
+- branch: `feat/draw-workspace-free-raster-v01`;
+- state: open;
+- draft: true;
+- merged: false;
+- mergeable: true;
+- runtime/code head: `edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`;
+- base/frozen scientific audit reference: PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`.
+
+PR #130 was not modified by the current UI continuation.
+
+---
 
 ## 1. Permanent scientific law
+
+These rules survive every UI, performance, raster, rendering and research change:
 
 - **Seal the evidence, not the thinking.**
 - **MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.**
 - Representation may become richer than the source; knowledge claims may never become richer than evidence.
 - Direct CFA / RAW_SENSOR evidence is immutable and sealed.
-- One physical frame remains one physical frame; derived views never create additional captures.
+- One physical frame remains one physical frame; derived views do not create extra captures.
 - Scientific Master is separate from export/presentation/Appearance.
-- `UNKNOWN` is valid and must never silently become zero, certainty or an estimate.
-- Precision, resolution, reconstruction, registration and performance never create authority.
-- Camera/lens/vendor/container identity may describe provenance or route parsing; it may not select scientific truth or calibration by name alone.
-- AI/ML/neural/generative inference is not allowed as scientific evidence.
-- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
-- **One Free World. Many sealed observations. One evidence law.**
+- `UNKNOWN` is valid and must never silently become zero, certainty or estimate.
+- Precision, raster density, reconstruction, registration, visual similarity and performance never create authority.
+- Camera/lens/vendor/container identity may describe provenance/routing/parsing but may not select scientific truth/calibration by name alone.
+- AI/ML/neural/generative inference is not admitted as scientific evidence.
+- SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT spaces remain distinct.
 
-Canonical architecture:
+Canonical scientific architecture:
 
-`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> calibration/reconstruction with explicit authority -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> free raster projection`
+`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> calibration/reconstruction with explicit authority -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> Free Raster projection`
 
-## 2. Scientific Master / Exact Gauge v0.3
+The user’s standing interdisciplinary knowledge requirement remains active for all future decisions: photography/RAW/CFA and sensor metrology; lenses/PSF/MTF; radiometry/photometry/light transport; calibration and black/white/clipping/censoring; human vision and viewing conditions; 3D/projective geometry and physically based rendering/animation; stop-motion/time sampling/motion blur/temporal aliasing; architecture/perspective; restoration/conservation/reversibility; scene-referred vs display-referred pipelines. Extra theory never promotes evidence authority.
 
-Scientific Master remains the downstream scientific authority source. Exact Gauge Retained Artifact v0.3 is an execution/performance artifact, not a new evidence class.
+---
+
+## 2. Scientific Master / Exact Gauge v0.3 — keep unchanged
+
+Scientific Master remains the downstream scientific authority source. Exact Gauge Retained Artifact v0.3 is execution/performance only, never new evidence.
 
 Permanent v0.3 rules:
 
 - canonical v0.2 remains complete fallback before candidate semantic start;
-- v0.3 retains exact eligible Float32 gauge bits so the second Stage-2 reread can be avoided without changing the canonical result;
-- after semantic processing starts there is no replay into another scientific route;
+- exact eligible Float32 gauge bits may be retained to avoid a second Stage-2 reread without changing canonical semantics;
+- no replay into another scientific route after semantic processing begins;
 - explicit PassArtifact diagnostics are bound to Scientific-Master SHA-256;
-- route attribution is never inferred from timing or raw-read counts;
+- route attribution is never inferred from timing/raw-read count;
 - `candidate_applied=false`;
 - `source_values_modified=false`;
 - `creates_new_evidence=false`;
 - `scientific_writeback_allowed=false`.
 
-Real-device exports in the 2026-10-05 device round proved Exact Gauge v0.3 active for all four tested sources: explicit route attribution `EXACT_GAUGE_RETAINED_V0_3`, hash binding verified, one Stage-2 gauge pass, and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
+Real-device device-round proof on 2026-10-05 showed Exact Gauge v0.3 active for four sources with explicit `EXACT_GAUGE_RETAINED_V0_3`, correct hash binding, one Stage-2 gauge pass and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
 
-## 3. T5 / Room Capsule runtime corridor
+---
+
+## 3. T5 / Room Capsule corridor — keep unchanged
 
 Existing route:
 
 `Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule host -> v0.7 Appearance Resolve`
 
-Room Capsule was never a missing architecture. Without admitted geometry/material/illumination world evidence it must be an **exact-preserving bypass**.
-
-`T5CorridorAuditV01` already interprets native corridor telemetry read-only/fail-closed. `TruthNegativeContinuousPreview.Ready` computes that existing audit once. `ResearchPerformanceT5CorridorBindingV01` carries only that precomputed object into Foundation diagnostics by exact source SHA.
+Room Capsule is not a missing architecture. Without admitted geometry/material/illumination world evidence it must remain exact-preserving bypass.
 
 Permanent T5 binding rules:
 
@@ -67,433 +90,136 @@ Permanent T5 binding rules:
 - exact `source_sha256` binding;
 - no cross-observation reuse;
 - no second T5/Room-Capsule evaluation by Foundation;
-- `profile_run_binding_verified=false` unless independently proven — source binding is not equivalent to same-profiler-run evidence;
+- `profile_run_binding_verified=false` unless independently proven;
 - missing/mismatch/contradiction -> `UNKNOWN_FAIL_CLOSED`;
-- no new evidence, no writeback, no candidate application.
+- no new evidence, candidate application or scientific writeback.
 
-## 4. 2026-10-05 real-device Foundation T5 result
-
-Four uploaded real-device exports used the same four source roots:
+The four device-round source roots remain:
 
 - `4cb86b5f965b0cdfbe7e272304950dc8a15bda41802bda0ba2c1a85cc1184af5`
 - `f1f5158fad120f3bc1c8e2f5b12b9b55e0a32d9ee27c8c6ae99f90eeac7b1d15`
 - `7bc0db97b50a7ce4a7bafeb8262d9e1bb572bf02fb7b6f22ac6713b87f917d4f`
 - `31b21f4aa15ea54f92b74ae004699186c9f19bc53c2836b5a94114423b964431`
 
-Foundation physically exported `t5_corridor_audit_binding_v0_1` for all four roots. All four correctly reported:
+Foundation exported `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE` for all four, correctly. The fail-closed branch is physically validated. The positive source-bound same-process branch remains unproven.
 
-`UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE`
+Do not “fix” this by auto-running T5 during Foundation export.
 
-with no recomputation, no cross-source reuse and no writeback/evidence creation.
+---
 
-Conclusion: **the fail-closed branch of T5→Foundation plumbing is physically validated.**
+## 4. Route-aware tile-read attribution repair — keep result
 
-The positive branch `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE` remains unproven because the device round did not first execute a matching `TruthNegativeContinuousPreview` T5 audit for those exact sources in the same app process.
+A stale diagnostic assumption expected canonical-v0.2 two-pass `6144 = 2 × 3072` reads even when Exact Gauge v0.3 had explicit one-pass attribution. This was diagnostic telemetry drift, not Scientific-Master failure.
 
-Do not “fix” this by running T5 automatically during Foundation export. The next test must precompute T5 intentionally and then export Foundation in the same living process.
-
-## 5. Route-aware tile-read attribution — defect found and repaired
-
-The same device Foundation export revealed a stale diagnostic assumption:
-
-- explicit PassArtifact telemetry correctly said Exact Gauge v0.3 was active;
-- measured RAW source calls were 3072 for 3072 reconstruction calls;
-- Exact Gauge reported one Stage-2 gauge pass and 3072 avoided second-pass reads;
-- old `ScientificMasterTileReadAttribution/0.1` still expected canonical-v0.2 `6144 = 2 × 3072`, so it reported `UNKNOWN_FAIL_CLOSED`.
-
-This was **diagnostic telemetry drift**, not a Scientific-Master or Exact-Gauge scientific failure.
-
-Repair code head:
+Repair runtime head:
 
 `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
-Only `FreeWorldPerformanceDiagnosticsV01` runtime diagnostic aggregation changed. It now follows:
+Only diagnostic aggregation changed. Rule:
 
-`explicit hash-bound PassArtifact route -> independent raw-read count reconciliation`
+`explicit hash-bound PassArtifact route -> independent raw-read reconciliation`
 
 Never:
 
 `raw-read count -> route inference`.
 
-Admitted diagnostic outcomes:
+Admitted diagnostic states:
 
 - Exact Gauge v0.3 + one-pass footprint -> `EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`;
-- explicit canonical v0.2 fallback + two-pass footprint -> `CANONICAL_V0_2_TWO_PASS_RECONCILED`;
-- anything missing/contradictory/inconsistent -> `UNKNOWN_FAIL_CLOSED`.
+- canonical v0.2 + two-pass footprint -> `CANONICAL_V0_2_TWO_PASS_RECONCILED`;
+- anything missing/contradictory -> `UNKNOWN_FAIL_CLOSED`.
 
-The historical two-pass expected count remains exportable for comparison, while `expected_active_route_raw_call_count` represents the route actually proven by PassArtifact diagnostics.
+Known validated build after that repair:
 
-No change was made to canonical v0.2, Exact Gauge v0.3 core, sealed CFA, Scientific Master, reconstruction, T5 native runtime or Room Capsule.
+- workflow `Scientific Master Tile-Read Attribution v0.1 Integrity` run `37298021441`: SUCCESS;
+- Android build workflow run `37297805632`: SUCCESS;
+- runtime source `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`;
+- artifact ID `11339942673`;
+- APK bytes `8,588,087`;
+- APK SHA-256 `8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`;
+- signing certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`;
+- versionCode `26100127`.
 
-## 6. Validation/build identity after tile-attribution repair
+This is historical scientific/runtime provenance, not the current Workspace APK identity.
 
-Route-aware integrity gate:
+---
 
-- workflow: `Scientific Master Tile-Read Attribution v0.1 Integrity`
-- run: `37298021441`
-- head: `665be2419b2d652206c624864edb864f86cdac4b`
-- result: **SUCCESS**
-
-Android/APK build of runtime patch:
-
-- workflow: `D.RAW Free World Research APK`
-- run: `37297805632`
-- exact runtime source head: `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
-- result: **SUCCESS**
-- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`
-- artifact ID: `11339942673`
-- artifact ZIP SHA-256: `9eafa0490115f9ca3480beeb380a7dbb8dbe0637ae27a1c02dc565a20486a67c`
-- APK bytes: `8,588,087`
-- APK SHA-256: `8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
-- signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
-- versionCode: `26100127`
-
-This APK supersedes `90aeee... / bc203694...` specifically for the next Foundation diagnostics test.
-
-## 7. Same device round: authority/promotion remained closed
-
-Field-response repeatability remains descriptive only. Four observations are sufficient to compute metrics, but the export explicitly does **not** prove camera-system response, lens-only vignetting, separated illumination, sensor angular response or optical axis. Calibration remains unpromoted and correction gain unauthorized.
-
-Observation/world field separation remains read-only. World structure is not yet scientifically registered; camera/lens identity is not used as a calibration key; calibration and correction remain unpromoted.
+## 5. Authority / promotion remains closed
 
 Foundation `ScientificPromotionState/0.1` remains:
 
 `NOT_PROMOTED_FAIL_CLOSED / NO_INTERNAL_PROMOTION_DECISION`
 
-World registration, world→source bridge, radiometric response, field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise approvals remain false. Validated world→source mapping is not attached. No scientific writeback is allowed.
+World registration, world→source bridge, radiometric response, field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise approvals are not automatically promoted. Camera/lens identity is not a calibration key. No scientific writeback follows from implementation availability or visual similarity.
 
-## 8. Reconstruction result that must not be rediscovered
+Anchor-Constrained Local Reconstruction v0.1 remains **NOT PROMOTED**: on direct comparable tele hold-outs it had worse aggregate MAE/RMSE/bias than baseline and over-optimistic uncertainty despite coverage gains and a small channel-2 benefit. Future direction is deterministic local model selection from support/direction/CFA phase/uncertainty; affine is one optional model and `no suitable model` is valid.
 
-Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. The real tele hold-out showed worse aggregate MAE/RMSE/bias than baseline on directly comparable points and over-optimistic uncertainty despite better coverage and a small channel-2 benefit. Safety remained closed.
+---
 
-Future reconstruction direction remains deterministic local model selection from structural support, direction, CFA phase and uncertainty. Affine is only one optional model; `no suitable model` is valid.
+## 6. PR #130 governance correction — never regress this
 
-## 9. Architecture status that remains open
+Frozen UI/CI audit reference:
 
-- Universal source admission beyond the best-proven DNG path is incomplete.
-- Canonical Source Capability Envelope is not yet fully unified.
-- First-class standalone D.RAWnegative write→close→read→re-import→verify round-trip remains incomplete.
-- Free Raster productization at arbitrary full-resolution output remains partial.
-- Active multi-observation Free World Observation Graph remains the largest incomplete scientific block.
-- True metric 3D geometry is not generally admitted.
-- Material/illumination authority remains research-only without admitted evidence.
-- User-visible authority/uncertainty still trails internal telemetry.
-- Full-resolution/multi-observation memory/runtime scaling still needs physical proof.
+`PR #130 / 4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
 
-## 10. Exact next device test
+On that exact head:
 
-Use only the APK from runtime head `6a8e017...`, SHA-256:
+- Documentation Governance: proven SUCCESS;
+- Research Integrity Guard: **NO PROVEN RUN ON THIS EXACT HEAD**;
+- Lifecycle Contract: **NO PROVEN RUN ON THIS EXACT HEAD**.
 
-`8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
+Therefore the latter two are neither red nor green on that SHA. Older failures on older SHAs must not be projected onto `4e4f358a...`.
 
-### Test A — route-aware tile-read attribution
+CI validates contracts/provenance/cables. It cannot create MEASURED evidence or scientific authority.
 
-Run/export Foundation normally for the four sources. For each Exact Gauge v0.3 profile with 3072 reconstruction calls, expect:
+---
 
-- `route_attribution = EXACT_GAUGE_RETAINED_V0_3`
-- `tile_read_attribution_v0_1.status = EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`
-- `expected_active_route_raw_call_count = 3072`
-- `aggregate_source_read_raw_call_count = 3072`
-- `pass_1_raw_call_count = 3072`
-- `pass_2_raw_call_count = 0`
-- `pass_2_raw_calls_avoided = 3072`
-- `raw_call_count_reconciles = true`
-- `optimization_applied = true`
-- all candidate/source/writeback/evidence firewalls remain closed.
+## 7. Architecture status still open
 
-### Test B — positive T5→Foundation binding
+Still incomplete or only partially productized:
 
-For one exact DNG/source SHA:
+- universal source admission beyond the best-proven DNG route;
+- unified Source Capability Envelope;
+- standalone D.RAWnegative write→close→read→re-import→verify round trip;
+- arbitrary full-resolution Free Raster productization;
+- active multi-observation Free World Observation Graph;
+- general true metric 3D;
+- admitted material/illumination authority;
+- user-visible authority/uncertainty parity with internal telemetry;
+- full-resolution/multi-observation scaling proof.
 
-1. keep the app process alive;
-2. execute the source through PRO / D.RAWnegative / `TruthNegativeContinuousPreview` so T5 audit is actually computed and published;
-3. **do not restart or kill the app**;
-4. run/export Foundation including the same exact source;
-5. inspect that observation's `t5_corridor_audit_binding_v0_1`.
+Do not claim “everything works” globally.
 
-Expected positive state:
+---
 
-- `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE`
-- exact source SHA match;
-- `source_binding_verified=true`
-- `profile_run_binding_verified=false` remains intentionally false;
-- `t5_corridor_recomputed_by_binding=false`
-- nested T5 audit present;
-- Room Capsule exact-preserving bypass if no admitted world evidence;
-- exposure application count = 1;
-- physical frame count = 1;
-- independent evidence count = 1;
-- `candidate_applied=false`;
-- no new evidence/writeback.
+## 8. Workspace / Free Raster product law
 
-If no matching in-process T5 preview was executed, `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE` remains correct.
+The user’s architecture/vision reference remains binding as product direction:
 
-## 11. Promotion/governance boundary
+`Input -> Universal Intake -> Scientific Core / Scientific Master -> Unified Output State -> PURE / ADVANCED / PRO -> Output / Free Raster -> Export`
 
-Do **not** call PR #130 promoted or globally green from the local successful gates above. PR remains draft and wider governance/lifecycle/mergeability state must be re-evaluated before merge. Real-device positive T5 binding is still outstanding.
+Free Raster is downstream VIEW/OUTPUT/PROJECTION only. It is not a second decoder, Scientific Master, reconstruction route, T5 path or truth source.
 
-No scientific promotion follows automatically from implementation availability, performance, geometric hypotheses, visual similarity or user-imported records.
-
-### Exact-head CI audit correction (2026-10-05)
-
-The UI audit is anchored to PR #130 head `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` and must not inherit status from any older SHA.
-
-- `Documentation Governance`: exact-head run exists via `push` and is **SUCCESS**.
-- `Research Integrity Guard`: **NO PROVEN RUN ON THIS EXACT HEAD**. Audit state is `NOT RUN / UNPROVEN`, not red and not green.
-- `Lifecycle Contract`: **NO PROVEN RUN ON THIS EXACT HEAD**. Audit state is `NOT RUN / UNPROVEN`, not red and not green.
-- On the older PR head `d2c26de69ea192ba23ade949aa2656ed6907e9ec`, `integrity` and `lifecycle-contract` were genuinely failing gates. Those failures belong only to that earlier SHA and may not be projected onto `4e4f358a...`.
-- The exact `4e4f358a...` PR diff contains **43 changed files**, including workflow files. The remaining governance question is causal only: compare exact workflow YAML `on:`, branch filters, `paths`, `paths-ignore` and job-level `if:` against those 43 files to explain why a workflow was or was not dispatched.
-- An absent workflow run is not scientific evidence and does not change any authority state. CI may validate contracts/provenance/cables; it may never manufacture MEASURED evidence or scientific authority.
-
-## 12. Recovery pointers
-
-Read in this order after `44489`:
-
-1. `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
-2. `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
-3. `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
-4. `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
-5. `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
-6. live PR #130 state
-
-Historical negative experiments and older handoffs remain provenance and must not be rewritten away.
-
-## 13. Global UI / product audit — saved before Free Raster implementation
-
-Audit basis: the known D.RAW vision image **“D.RAW – van Lens naar Vrije Raster-Weergave (Eenvoudig Overzicht)”** plus the Android UI/runtime present on frozen head `4e4f358a...`.
-
-Vision law for the UI:
-
-`Werkelijke wereld -> Lens & Sensor -> Sealed Observation -> Kalibratie & Meting -> Scientific Master / reconstructie -> continue wetenschappelijke negatieve representatie -> Vrije Raster Projectie -> Free World Observation Graph -> View / Appearance`
-
-The UI may expose and navigate those layers, but it must not collapse their authority classes or imply that a view/projection created new evidence.
-
-### 13.1 What is already substantially present
-
-- Launcher: Bestand/Camera, PURE/ADVANCED/PRO, Research & JSON, settings and implementation guide.
-- Universal camera: live preview, dynamically discovered ultra-wide/main/tele acquisition roles, focus marker, AF lock, macro loupe/pinch, five-second capture timer, `RAW_SENSOR seal -> derived DNG -> Universal Intake`.
-- ADVANCED: downstream exposure/light balance, shadow recovery, display-HDR, detail, colourfulness and restoration controls.
-- PRO: Open Scene / Light Transport / provenance / professional export and research entry points using the same upstream scientific core.
-- Research Hub: multi-observation/JSON workbench, Calibration Observation Records, Free World Foundation and Global Research Snapshot.
-- Main workbench: unified output-preview state, long-running restoration/projectie job recovery and research-session persistence already exist.
-
-### 13.2 UI gaps against the vision
-
-1. **D.RAW Workspace / Vrije Raster-weergave — highest priority.**
-   One central image/workspace should become the natural operational surface after source selection. It should bring source, route, projection intent, output raster, authority visibility and export navigation together without building a second scientific pipeline.
-2. **Evidence / Authority Inspector.**
-   User-visible distinction of `MEASURED`, `CALIBRATED_ESTIMATE`, `RECONSTRUCTED`, `CENSORED`, `UNKNOWN`, `APPEARANCE`, with source/provenance context. It must display existing authority, never infer stronger authority from UI state.
-3. **Visual Observation Graph.**
-   Multiple sealed observations should be shown as separate source nodes, with only proven relations between them. A RAW_SENSOR plus its derived DNG remains one physical observation, not two independent measurements.
-4. **Live Appearance around the image.**
-   ADVANCED controls should eventually operate around the active preview with reset/before-after while remaining downstream.
-5. **Compact pipeline indicator.**
-   A user-readable `SOURCE -> SEALED -> SCIENTIFIC -> CONTINUOUS/RECONSTRUCTED -> FREE RASTER -> APPEARANCE` map should expose state without turning a green UI status into scientific authority.
-
-### 13.3 Important UI-status classification
-
-- Layers 1–2 (world/lens/sensor ingress): substantially represented.
-- Sealed Observation: technically present, but needs a simple visible evidence card.
-- Calibration/measurement: strong in Research, but normal UI needs a compact “what is actually known?” view.
-- Scientific Master/reconstruction: strong internally, but authority classes are not yet sufficiently visible to normal users.
-- Continuous scientific-negative representation: runtime routes exist, but product identity is not yet clear enough in normal UI.
-- Free Raster: **largest immediate product/UI gap**.
-- Observation Graph: data/research concepts exist; graphical productization remains incomplete.
-- Appearance: controls exist; integrated image-centric workflow remains incomplete.
-
-### 13.4 “Should everything work now?” — exact audit answer
-
-Do **not** record “everything works” yet.
-
-The normal route is sufficiently connected that most of it is expected to function, but whole-product operation remains unproven until a real-device end-to-end run covers at least:
-
-`launcher/workspace -> physical camera -> sealed RAW_SENSOR -> derived DNG / Universal Intake -> Scientific Master -> PURE preview -> ADVANCED preview -> PRO -> restoration/projectie -> export -> reopen`
-
-Additional intentional limitations are not bugs:
-
-- several scientific runtimes remain `IMPLEMENTED CANDIDATE / NOT PROMOTED`;
-- DNG is the best-proven admitted full route;
-- NEF remains a limited measurement-only decoder path;
-- proprietary RAW formats without admitted decoder adapters stay immutable/fail-closed rather than being guessed.
-
-### 13.5 Workspace implementation contract
-
-The immediate next implementation on `feat/draw-workspace-free-raster-v01` is **D.RAW Workspace / Vrije Raster-weergave v0.1**.
-
-Non-negotiable rules:
-
-- reuse the existing proven MainActivity/Scientific/Open-Scene/preview/export machinery; do **not** create a second decoder or scientific core;
-- workspace controls are navigation/presentation/projection intent unless an existing scientific runtime explicitly supplies stronger state;
-- arbitrary output raster may change representation but never create `MEASURED` samples;
-- no UI zoom, crop, resolution, appearance control or status colour may change authority;
-- source SHA/provenance remains the authority anchor;
-- UNKNOWN stays visible/fail-closed;
-- no AI/ML scientific inference;
-- keep the current direct Bestand/Camera paths available while introducing the workspace so existing proven paths remain recoverable;
-- first implementation may expose a safe orchestration shell around existing workbench functions, but it must label unavailable runtime bindings honestly rather than simulate them.
-
-### 13.6 Planned validation after implementation
-
-First validate compilation and static routing. Then perform a real-device UI round proving:
-
-1. Workspace opens from the application without breaking existing direct routes.
-2. Existing RAW/DNG picker still reaches MainActivity.
-3. Universal camera still reaches the same sealed RAW_SENSOR -> derived DNG route.
-4. PURE/ADVANCED/PRO route selection remains shared and does not mutate source/scientific state.
-5. Authority legend/inspector does not report runtime authority unless actually bound.
-6. Free-raster controls affect only view/projection intent until a proven runtime bridge is attached.
-7. Existing export/restoration/research routes remain reachable.
-8. No candidate is promoted and no Scientific Master writeback is enabled by the workspace.
-
-After that user journey is physically proven, return to the exact workflow causality audit for Research Integrity Guard / Lifecycle Contract only if still relevant to the then-current head. Do not resurrect old red states by memory.
-
-## 14. Workspace / Free Raster device acceptance — superseding product status
-
-The first real-device Workspace / Free Raster round is now accepted for product continuation. The full evidence record is:
-
-`docs/handoff/DRAW_44489_WORKSPACE_DEVICE_ACCEPTANCE_2026-10-05.md`
-
-The accepted device output family is bound to sealed source SHA-256:
-
-`fe88a0acd2f95d35353ef9e4c925e50923e100a257bd43f545df4c09b09340b8`
-
-Observed acceptance facts:
-
-- full-colour Scientific Master DNG is a three-channel IEEE Float32 LinearRaw representation at 4080×3072;
-- its private contract reports one physical frame and one independent evidence source;
-- `scientific_master_modified=0`, `appearance_applied=0`, `counterfactual_observation_created=0`;
-- embedded JPEG remains a non-authority preview and cannot write back scientifically;
-- Universal Observation Calibration Atlas is source-bound, keeps frontside inspection `APPEARANCE_DERIVED_ONLY`, and refuses unsupported automatic radiometric/colour/noise/light/optical correction;
-- Observation Optical Field Chart exports a measured composite scene/lens/sensor field signal but does not claim lens-only vignetting, separated illumination, sensor angular response or a proven optical axis;
-- Global Research Snapshot remains `IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE`; all promotion gates remain non-automatic and scientific writeback remains disabled;
-- camera/lens/vendor identity does not become a scientific-model or calibration key;
-- no source sample mutation, new measured sample, new evidence or scientific writeback is admitted by the supplied outputs.
-
-This section supersedes the pre-test wording in **13.4** for Workspace v0.1 product acceptance only. It does **not** promote research candidates, make UNKNOWN quantities known, or claim that future multi-observation/world-space functionality is already scientifically validated.
-
-Accepted Workspace runtime code checkpoint:
-
-`c85b9805a56681b1adbc39f58b95724c4810907c`
-
-Documentation-only commits may follow this checkpoint without changing APK runtime identity. The final APK must still be tied to a successful assemble/verify workflow and must record its exact runtime SHA, artifact ID, byte size, APK SHA-256 and stable signing-certificate SHA-256 before delivery.
-
-## 15. Workspace / Free Raster v0.2 continuation — flexible cables and non-destructive workbench
-
-This section records the v0.2 continuation after the accepted v0.1 device round. It is a **product/architecture/runtime-candidate status**, not scientific promotion.
-
-### 15.1 Exact PR / branch boundary
-
-Immediately before this capsule-only documentation commit, PR #131 had implementation/documentation checkpoint:
-
-`f5d70040cb965fb727d3679f5412a4970c53dd4d`
-
-State at that checkpoint:
-
-- branch: `feat/draw-workspace-free-raster-v01`;
-- PR #131: open, draft, not merged, mergeable=true;
-- base/frozen scientific-audit reference: PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`;
-- PR #130 was not modified by this Workspace continuation.
-
-The capsule commit itself is documentation-only; it advances the branch head without changing Android runtime semantics.
-
-### 15.2 v0.2 product architecture reference
-
-The user-supplied image **“D.RAW – Volledige Project Architectuur, Kabels, Input, Opties en Output (v0.2)”** is the current concrete product/architecture reference. It does not prove runtime implementation or scientific admission of every depicted block.
-
-Canonical product cable:
-
-`Input -> Universal Intake -> Scientific Core -> Unified Output State -> PURE / ADVANCED / PRO -> Vrije Raster / Output -> Export`
-
-Scientific/world architecture remains evidence-bound. The UI diagram may guide placement and responsibility, but it may never manufacture authority.
-
-Free Raster is downstream output/projection. It must consume an already admitted/rendered output state; it is not a second RAW decoder, second Scientific Master, second reconstruction route or second source of truth.
-
-### 15.3 Permanent flexible-inside cable rule
-
-New binding architecture rule:
+Permanent cable rule:
 
 **Stable outside. Flexible inside. Evidence law unchanged.**
 
-Every cable must keep its outer evidence/provenance/safety contract explicit while permitting internal stages, adapters, algorithms and capability routing to evolve.
-
-Stable outer boundary includes, where applicable:
-
-- source/observation binding;
-- payload/type contract;
-- provenance contract;
-- authority contract;
-- uncertainty/censoring state;
-- writeback permission;
-- UNKNOWN/failure semantics.
-
-Flexible internal structure may include deterministic adapters, alternate implementations behind the same contract, optional telemetry, faster exact-preserving implementations and future source/output capabilities.
+Stable outer contract includes source/observation binding, payload/type, provenance, authority, uncertainty/censoring, writeback permission and UNKNOWN/failure semantics. Internals may evolve through deterministic adapters, telemetry, exact-preserving speedups and future capability routing.
 
 Flexibility never allows:
 
-- creation of new `MEASURED` evidence;
-- silent promotion of `UNKNOWN`;
-- mutation of sealed evidence;
+- creation of new MEASURED evidence;
+- silent UNKNOWN promotion;
+- sealed-source mutation;
 - hidden Scientific Master writeback;
-- conversion of appearance into scientific authority;
-- AI/ML as a scientific inference layer.
+- Appearance becoming scientific authority;
+- AI/ML becoming scientific inference.
 
-Implementation/documentation anchors now present:
+---
 
-- `suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawFlexibleCableContractV01.kt`;
-- `docs/DRAW_FLEXIBLE_CABLE_INTERNALS_v0_1.md`;
-- refactored `PresentationRasterLoader.kt` with a stable `load(...)` boundary and internally extensible `Decoder` adapter chain.
+## 9. Non-destructive Workbench law — permanent
 
-The first presentation decoder is `android.bitmap_factory.v1`. This is an implementation adapter, not scientific authority.
-
-### 15.4 External raster loading status
-
-The external JPG/PNG/WebP path remains explicitly:
-
-`EXTERNAL_PRESENTATION_RASTER / PRESENTATION_ONLY`
-
-`PresentationRasterLoader` now has an internally extensible decoder cable while retaining provider-safe Android loading:
-
-- best-effort persistable read permission;
-- `openFileDescriptor(uri, "r")` preferred;
-- fresh `openInputStream(uri)` fallback;
-- separate fresh handles for bounds and actual decode;
-- sampled preview bounded by the configured display dimension;
-- distinct permission/provider/type/decode/memory failures;
-- no RAW parsing;
-- no Scientific Master mutation;
-- no authority creation.
-
-### 15.5 Unified Output -> Free Raster bridge progress
-
-New runtime file:
-
-`suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt`
-
-Purpose:
-
-`existing Unified Output Ready bitmap -> lifetime-safe presentation snapshot -> Workspace / Free Raster consumer`
-
-The bridge is process-local and presentation-only. It does **not** render, reconstruct, run T5, modify Scientific Master or infer scientific authority.
-
-Important bitmap-lifetime rule: MainActivity owns and may recycle its own `UnifiedOutputPreviewResult.Ready.bitmap`. Workspace must therefore never retain that direct bitmap reference. The bridge publishes an owned copy and returns a separate consumer-owned copy.
-
-The bridge itself follows the flexible-inside rule through an internal `Transport` adapter. Current default transport:
-
-`process_memory_owned_copy.v1`
-
-Current bridge authority/safety constants remain presentation-only and no-scientific-writeback.
-
-**Status boundary:** the bridge class exists, but the complete publisher/consumer wiring is not yet proven complete. Do not report the internal D.RAW-output Free Raster path as finished until the existing `UnifiedOutputPreviewResult.Ready` creation/publication path and Workspace consume action are actually connected and compiled/tested.
-
-Exact remaining cable:
-
-`UnifiedOutputPreviewResult.Ready -> UnifiedOutputPresentationBridge.publish(...) -> Workspace consume -> Free Raster`
-
-No second renderer or T5 evaluation may be introduced to complete this connection.
-
-### 15.6 Permanent non-destructive workbench rule
-
-The D.RAW Workbench must be non-destructive for **RAW/DNG scientific sources and ordinary JPEG/PNG/WebP source images**.
+Non-destructive means more than retaining a RAW backup.
 
 Canonical model:
 
@@ -507,75 +233,302 @@ Never:
 
 Hard consequences:
 
-- sealed RAW/CFA evidence remains immutable;
-- D.RAW Observation Records remain unchanged by workbench edits;
-- Scientific Master remains unchanged by appearance/output controls;
-- source RAW/DNG is never overwritten by workbench editing;
-- imported JPEG/PNG/WebP remains read-only as the base image;
-- appearance operations are stored separately and remain individually reversible;
-- crop/framing, rotation, pan, zoom, Free Raster x/y and scale are downstream view/output transforms;
-- reset returns to the same original source with no edit operations;
+- RAW/CFA, D.RAW Observation Records and Scientific Master remain unchanged by UI edits;
+- imported JPEG/PNG/WebP stays read-only as base image;
+- appearance operations are stored separately and individually reversible;
+- crop, rotation, pan, zoom, Free Raster x/y/scale and output resolution are downstream view/output transforms;
 - previews are render results, never replacement source truth;
-- JPEG is not repeatedly decode -> edit -> re-encode -> overwrite as working state;
-- explicit export creates a new derived file with lineage/provenance;
-- PURE / ADVANCED / PRO share the same admitted source/scientific core and differ downstream only.
+- JPEG working state is never repeated decode→edit→re-encode→overwrite;
+- explicit export creates a new derivative with provenance;
+- PURE/ADVANCED/PRO share the same admitted source/scientific core and differ downstream.
 
-New runtime contract anchor:
+Runtime anchor:
 
 `suite_android/app/src/main/java/com/truthraw/adaptiveui/NonDestructiveWorkbenchStateV01.kt`
 
-It stores an immutable/read-only `SourceBinding` plus open, reversible downstream `EditOperation` records. Operation and parameter identifiers remain extensible instead of being frozen into a closed list. The contract permits only downstream domains `APPEARANCE_ONLY`, `OUTPUT_TRANSFORM_ONLY` and `VIEW_ONLY` and hard-codes these safety states false:
+Hard safety flags remain false:
 
 - `SOURCE_MUTATION_ALLOWED=false`;
 - `SCIENTIFIC_MASTER_WRITEBACK_ALLOWED=false`;
 - `OVERWRITE_SOURCE_ON_EXPORT_ALLOWED=false`.
 
-Documentation anchor:
+The contract exists, but not every existing ADVANCED/Workspace control is proven migrated to it yet.
 
-`docs/DRAW_NON_DESTRUCTIVE_WORKBENCH_v0_1.md`
+---
 
-**Status boundary:** this contract now exists, but every existing ADVANCED/Workspace control has not yet been migrated to it. Do not claim global non-destructive runtime proof until integration and tests demonstrate that all relevant edit/export paths obey it.
+## 10. Existing external raster / presentation path
 
-### 15.7 Appearance reference — dog JPEG
+External JPG/PNG/WebP remains:
 
-The supplied black/white dog JPEG is retained only as an **appearance stress-test/reference**, never as calibration evidence.
+`EXTERNAL_PRESENTATION_RASTER / PRESENTATION_ONLY`
 
-Desired downstream qualities include:
+`PresentationRasterLoader` uses provider-safe Android loading with best-effort persistable permission, file-descriptor preferred and fresh stream fallback, separate bounds/decode handles, sampled preview and distinct failure states. It performs no RAW parsing, no Scientific Master mutation and no authority creation.
 
-- deeper black fur without crushed strand detail;
-- retained texture in white fur/highlights;
-- smooth highlight roll-off instead of hard display clipping;
-- useful midtone separation without halos;
-- restrained warmth/colorfulness increases when the render is dull/cool;
-- neutral white/black fur protection;
-- subtle detail/texture enhancement.
+`UnifiedOutputPresentationBridge` is process-local, lifetime-safe and presentation-only. MainActivity may recycle its Ready bitmap, therefore Workspace consumes owned copies rather than retaining the producer bitmap. Current transport is `process_memory_owned_copy.v1`.
 
-No observation-specific scientific calibration values may be learned from this single JPEG.
+The bridge is not a full-resolution renderer.
 
-### 15.8 Current APK / validation boundary
+---
 
-The v0.1 accepted APK identity from section 14 remains historical evidence only. Runtime code has changed since that checkpoint.
+## 11. Preview-independent full-resolution JPEG — proven sibling output
 
-Therefore:
+The preview-independent full-resolution JPEG route is already real-device proven on PR #131 history.
 
-- no old APK SHA/artifact ID may be presented as the build identity of the v0.2 continuation;
-- PR #131 remains draft;
-- fresh current-head compilation/CI is required;
-- a new APK must be tied to its exact runtime SHA, artifact ID, byte count, APK SHA-256 and signing-certificate SHA-256;
-- real-device validation is required for both external presentation raster and internal D.RAW Unified Output consumption;
-- none of these product validations promotes a scientific candidate.
+Canonical route:
 
-### 15.9 Exact next implementation / acceptance order
+`admitted DNG observation -> DrawPhotoOutputCableV01 binding -> FullResJpegExporter -> new derived JPEG`
 
-1. Trace the common existing creation/publication boundary of `UnifiedOutputPreviewResult.Ready` without duplicating render logic.
-2. Publish that existing Ready result through `UnifiedOutputPresentationBridge` using source/route binding already known upstream.
-3. Add Workspace action/state to consume the bridge snapshot fail-closed; absence of a current publication must remain “no current D.RAW output available”.
-4. Keep external JPG/PNG/WebP as a separate `PRESENTATION_ONLY` input path.
-5. Integrate `NonDestructiveWorkbenchStateV01` into Workspace/ADVANCED state so source binding and edit recipe are separate.
-6. Extend the existing Appearance cable — not a duplicate renderer — with reversible black point, white point, highlight roll-off, shadow/midtone and colour/detail controls.
-7. Add static/runtime checks that workbench edits cannot mutate source/Scientific Master and export cannot overwrite the source by default.
-8. Compile/build on the exact new runtime head and record exact build provenance.
-9. Real-device test a normal JPEG plus one D.RAW observation through internal Unified Output -> Free Raster.
-10. Keep PR #131 draft until those checks are green; keep PR #130 frozen and scientifically unmodified.
+Hard output-cable state:
 
-This section supersedes any earlier implication that the internal Unified Output -> Free Raster bridge or fully non-destructive edit-state integration was already complete. The architecture/contract pieces exist; their remaining wiring and physical validation are explicitly open.
+- `previewRequired=false`;
+- `createsNewEvidence=false`;
+- `scientificWritebackAllowed=false`;
+- `sourceMutationAllowed=false`;
+- source authority `EXISTING_ADMITTED_DNG_OBSERVATION`;
+- output authority `DERIVED_PRESENTATION_OUTPUT`.
+
+Known real-device 0° JPEG:
+
+- 4080×3072;
+- 1,991,838 bytes;
+- SHA-256 `115354213c3fd828bd2708414a423dba33e39c644f8aa6ea8a251b1c042f1bbc`.
+
+Known +90° JPEG:
+
+- 3072×4080;
+- 1,994,803 bytes;
+- SHA-256 `9ac32855452494ec8b755d187f6c5f99006284a842123cc8fa80426643154b11`;
+- pixels physically rotated, not only EXIF;
+- comparison against the accepted 0° output rotated clockwise: MAE `0.6985928936`, RMSE `1.0416217438`, PSNR `47.7766 dB`, correlation `0.9997739056`, max difference `8`;
+- opposite-direction MAE about `62.82`;
+- accepted result: `PASS — NON_ZERO_ORIENTATION_FULL_RESOLUTION_JPEG_CLOCKWISE_90`.
+
+`DrawPhotoOutputCableV01.validateCurrentOutputContext(...)` revalidates source/job/URI, route, appearance flags and orientation after Android DocumentsUI returns. A mismatch blocks fail-closed. Physical route-mismatch lifecycle acceptance remains pending unless separately proven later.
+
+A known tested JPEG APK earlier in PR #131 history had:
+
+- bytes `8,719,187`;
+- APK SHA-256 `9887085f71a24ceb0057f2503728e886502d11b92f908f23a00f107eab3ec860`;
+- stable signing certificate SHA-256 `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`;
+- versionCode `26100127`.
+
+Do not present that APK as the current v0.3 Workspace build identity.
+
+---
+
+## 12. Workspace v0.1 physical acceptance retained
+
+The first Workspace / Free Raster device round was accepted for product continuation. Evidence record:
+
+`docs/handoff/DRAW_44489_WORKSPACE_DEVICE_ACCEPTANCE_2026-10-05.md`
+
+Accepted sealed source SHA-256:
+
+`fe88a0acd2f95d35353ef9e4c925e50923e100a257bd43f545df4c09b09340b8`
+
+Important acceptance facts:
+
+- full-colour Scientific Master DNG: 3-channel IEEE Float32 LinearRaw, 4080×3072;
+- one physical frame / one independent evidence source;
+- `scientific_master_modified=0`;
+- `appearance_applied=0`;
+- `counterfactual_observation_created=0`;
+- embedded JPEG preview non-authority;
+- Atlas source-bound/frontside appearance-derived;
+- unsupported automatic correction refused;
+- Optical Field Chart composite scene/lens/sensor field only, no lens-only/separated-illumination claims;
+- Global Research Snapshot is `IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE`;
+- no new measured sample, source mutation or scientific writeback.
+
+Accepted v0.1 runtime checkpoint:
+
+`c85b9805a56681b1adbc39f58b95724c4810907c`
+
+Later UI/runtime work supersedes it for current APK identity but not for historical acceptance evidence.
+
+---
+
+## 13. 2026-10-07 — central Vision UI v0.3 actually implemented
+
+The UI work is no longer only a design statement. Runtime/code commit:
+
+`edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`
+
+Commit message:
+
+`Android: start central vision workspace UI v0.3`
+
+Primary changed runtime file:
+
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt`
+
+The v0.3 shell moved the Workspace toward the user’s vision image:
+
+- one **central image/canvas** becomes the operational surface;
+- PURE / ADVANCED / PRO appear as top route tabs sharing one upstream core;
+- a compact source strip exposes Bestand / Camera / Sessie;
+- a horizontal tool rail surrounds the same active image with `EVIDENCE`, `PIPELINE`, `ATLAS / GRAPH`, `APPEARANCE`, `FREE RASTER`, `EXPORT`;
+- Evidence/Authority and Pipeline remain visible downstream inspectors instead of becoming truth-producing UI state;
+- Appearance/Restoration, PRO/Open Scene/Light Transport, Atlas/Observation Graph/Research and Output/Free Raster/Export remain reachable around the same image-centric workbench;
+- Fit, pan, zoom and Preview 1:1 remain VIEW/PRESENTATION state;
+- `Preview 1:1` still means one display pixel per **decoded preview pixel**, not sensor/CFA/Scientific-Master 1:1;
+- external JPG/PNG/WebP remains read-only `PRESENTATION_ONLY`;
+- the UI explicitly retains `read-only source + reversible workbench/view/output state -> live presentation / new export`;
+- the UI does not decode RAW/DNG itself, create evidence, mutate sealed source data or write Appearance/View state to Scientific Master.
+
+No second renderer was introduced by this UI commit.
+
+Exact-head workflow inspection for `edf37b50...` returned successful runs including at least:
+
+- `D.RAW Suite Universal Intake v0.1` run `37594415472`: success;
+- `D.RAW Android DngCreator Compatibility v0.1` run `37594415463`: success;
+- `Documentation Governance 2026-09-10` run `37594415402`: success;
+- `Canonical Integrity` run `37594415612`: success;
+- `D.RAW Universal Physical Capture v0.3 Live Preview Macro` run `37594415289`: success;
+- `Android Version Lineage v0.1 Integrity` run `37594415487`: success;
+- many existing scientific integrity checks also completed successfully on this exact UI head.
+
+These successful workflows prove code/build/contracts only. They do not promote scientific authority.
+
+---
+
+## 14. Latest confirmed output-raster architecture — this is the current continuation point
+
+The current exact file `DrawUnifiedOutputRasterContractV01.kt` confirms the architecture is already correct and should not be redesigned.
+
+`DrawUnifiedOutputRasterRequestV01` is deliberately independent from `TilePreviewUiState` and `Bitmap`. It defines sibling purposes:
+
+- `UI_PREVIEW`;
+- `FREE_RASTER_VIEW`;
+- `JPEG_EXPORT`;
+- `PNG_EXPORT`;
+- `OTHER_DERIVED_EXPORT`.
+
+Request fields:
+
+- `sourceJobId`;
+- `sourceUri`;
+- `route`;
+- `routeFlags`;
+- `targetWidth`;
+- `targetHeight`;
+- `purpose`;
+- `userQuarterTurns`;
+- safety booleans for measured-evidence creation, scientific writeback and source mutation — all false by valid design.
+
+The target raster is explicitly a **representation grid**. A denser grid never promotes target samples to MEASURED and never changes sealed-CFA authority.
+
+The contract intentionally imposes **no fixed scientific/product resolution ceiling**. Memory/codec/export adapters may have capability limits, but those limits do not become evidence law.
+
+The validator already blocks:
+
+- changed/absent active sealed observation (`sourceJobId` mismatch);
+- blank source URI;
+- non-positive/overflow target resolution;
+- invalid downstream orientation;
+- unknown route;
+- PURE carrying ADVANCED/PRO flags;
+- any request that enables measured-evidence creation, scientific writeback or source mutation.
+
+`DrawUnifiedOutputRasterContractV01.fromFullResolutionJpegBinding(...)` already converts the existing preview-independent JPEG binding into a resolution-aware sibling output request.
+
+`DrawPhotoOutputCableV01` independently confirms that full-resolution photo output is deliberately detached from `TilePreviewUiState` and `UnifiedOutputPreviewResult`. Preview is a sibling adapter, never the authority or pixel source for full-resolution output.
+
+Therefore the architecture search is finished. **Do not build a second renderer.**
+
+---
+
+## 15. Last known implementation direction quoted from the previous assistant
+
+The user explicitly supplied this as what may have been the last substantial implementation statement before the chat boundary. Preserve its meaning:
+
+> The correct basis is already present: `DrawUnifiedOutputRasterRequestV01` is independent from `TilePreviewUiState` and `Bitmap`, and `UI_PREVIEW`, `FREE_RASTER_VIEW`, `JPEG_EXPORT` and `PNG_EXPORT` are sibling consumers of the same upstream output-state. There is intentionally no fixed resolution limit in this contract; a larger raster creates no new MEASURED evidence.
+>
+> Therefore a new renderer is not required. The missing step is concrete: let the existing full-resolution render route already used by JPEG consume the same `FREE_RASTER_VIEW` request, including `sourceJobId`, `sourceUri`, PURE/ADVANCED/PRO route, flags, target resolution and rotation. Existing validators already protect observation changes, invalid resolution, route/PURE flags, orientation and evidence/writeback firewalls.
+>
+> Continue to the actual `MainActivity` / full-output renderer -> Free Raster v0.3 binding from runtime head `edf37b50...`, without touching PR #130 and without using the approximately 192×145 preview as the source.
+
+This is still the correct continuation direction as of this capsule update.
+
+---
+
+## 16. Exact status boundary: what is and is not implemented yet
+
+### Proven implemented / present
+
+- central Vision UI v0.3 shell at runtime head `edf37b50...`;
+- shared PURE/ADVANCED/PRO route selection in Workspace;
+- central presentation canvas with Fit/pan/zoom/Preview 1:1;
+- external read-only JPG/PNG/WebP presentation loading;
+- process-local lifetime-safe Unified Output presentation bridge;
+- non-destructive workbench contract anchor;
+- preview-independent full-resolution JPEG route;
+- frozen output binding and fail-closed source/route/flag/orientation validation;
+- resolution-independent sibling-output request contract containing `FREE_RASTER_VIEW`;
+- no fixed evidence-level resolution ceiling;
+- exact-head UI/build workflows observed green on `edf37b50...`.
+
+### Not yet allowed to claim complete
+
+- `FREE_RASTER_VIEW` is **not yet proven wired into the same actual full-resolution renderer used by JPEG**;
+- Original/1080p/4K/8K or arbitrary target resolution must not be presented as final until that real full-output path consumes the request;
+- no `192×145 preview -> upscale to 4K/8K` path is acceptable;
+- Free Raster full-resolution output is not yet physically accepted on-device after the v0.3 UI change;
+- all ADVANCED/Appearance controls are not yet proven migrated to `NonDestructiveWorkbenchStateV01`;
+- route-mismatch DocumentsUI lifecycle test remains unproven unless a later record exists;
+- current v0.3 APK artifact hash/provenance must be re-resolved before delivery;
+- PR #131 must remain draft/unmerged until required product acceptance is complete.
+
+For target-resolution semantics:
+
+- `Original` must mean true source/upstream output geometry, never preview geometry;
+- downsampling must preserve appropriate low-pass/anti-alias behaviour before decimation;
+- upsampling may create a denser representation but must never be described as recovered measured detail;
+- crop/rotation/scale/resolution stay reversible downstream output/view transforms;
+- any UI result shown for a full-output request may be downsampled for display, but the **source render** must come from the full-output path rather than preview upscaling.
+
+---
+
+## 17. Exact next step for the next chat
+
+1. Resolve live PR #131 head and compare it to this capsule-only documentation commit.
+2. If no newer runtime commit exists, treat **`edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`** as the last runtime code checkpoint.
+3. Inspect current `MainActivity.kt`, `DrawPhotoOutputCableV01.kt`, `DrawUnifiedOutputRasterContractV01.kt`, the exact current `FullResJpegExporter` implementation and `TruthRawWorkspaceActivity.kt` on that runtime checkpoint.
+4. Identify the common raster-generation stage **before JPEG compression** that already produces the preview-independent full-resolution JPEG pixels.
+5. Reuse that same renderer for `DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW`; do not create a second scientific/output renderer.
+6. Preserve source/job/URI, route, routeFlags, target resolution and `userQuarterTurns` binding; source-switch/reprocess/route changes must invalidate stale output fail-closed.
+7. Feed only a presentation-safe copy/downsample of the result to the central v0.3 canvas if necessary for memory/UI; never treat that display copy as the source of a later high-resolution output.
+8. Continue non-destructive workbench integration around the central image: Appearance, crop, rotation, Free Raster and Export share one reversible edit/output state over an immutable source.
+9. Build/CI the exact new runtime head and record provenance.
+10. Keep PR #131 draft/unmerged and PR #130 scientifically untouched.
+
+### Absolute safety boundary for this continuation
+
+No UI, Free Raster, JPEG/PNG, performance, diagnostics, Appearance or restoration change may:
+
+- mutate sealed CFA/RAW_SENSOR;
+- mutate Scientific Master;
+- create new MEASURED evidence;
+- silently promote UNKNOWN;
+- apply a scientific candidate;
+- enable scientific writeback;
+- use AI/ML/neural/generative inference as scientific evidence.
+
+---
+
+## 18. Recovery pointers
+
+Read/inspect in this order in a new chat:
+
+1. **this entire file** `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`;
+2. live PR #131 metadata/head/diff;
+3. `TruthRawWorkspaceActivity.kt` at the last runtime checkpoint;
+4. `DrawUnifiedOutputRasterContractV01.kt`;
+5. `DrawPhotoOutputCableV01.kt`;
+6. exact `FullResJpegExporter` implementation and its current callers in `MainActivity.kt`;
+7. `NonDestructiveWorkbenchStateV01.kt`;
+8. `UnifiedOutputPresentationBridge.kt`;
+9. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-06.md` and later handoffs if present;
+10. historical scientific/device documents only as provenance, never as permission to rewrite current authority.
+
+When this capsule conflicts with a newer exact runtime commit, **newer live code + explicit newer handoff wins for implementation state, while the permanent evidence laws above still remain binding**.
