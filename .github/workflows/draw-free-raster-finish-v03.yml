@@ -31,6 +31,11 @@ jobs:
           grep -F 'HighFidelityJpegContract/0.2' suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt
           grep -F 'canonicalSosWritten' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
 
+      - name: Install strict JPEG decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: High-Fidelity JPEG codec regression
         run: python3 tools/test_high_fidelity_jpeg_codec_v0_1.py
 
