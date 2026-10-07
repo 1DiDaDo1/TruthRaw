@@ -1,64 +1,156 @@
-/* public domain Simple, Minimalistic JPEG writer - http://jonolick.com
+/*
+ * D.RAW deterministic baseline JPEG writer for downstream presentation only.
  *
- * Quick Notes:
- * 	Based on a javascript jpeg writer
- * 	JPEG baseline (no JPEG progressive)
- * 	Supports 1, 3 or 4 component input. (luminance, RGB or RGBX)
- *
- * Latest revisions:
- *	1.52 (2012-22-11) Added support for specifying Luminance, RGB, or RGBA via comp(onents) argument (1, 3 and 4 respectively).
- *	1.51 (2012-19-11) Fixed some warnings
- *	1.50 (2012-18-11) MT safe. Simplified. Optimized. Reduced memory requirements. Zero allocations. No namespace pollution. Approx 340 lines code.
- *	1.10 (2012-16-11) compile fixes, added docs,
- *		changed from .h to .cpp (simpler to bootstrap), etc
- * 	1.00 (2012-02-02) initial release
- *
- * Vendored by D.RAW solely for downstream presentation JPEG encoding.
- * Original license: public domain.
- * D.RAW adaptation: fixed the upstream UVAC row-0 excess zero initializer and
- * hardens the internal default quality to 100. The public D.RAW JNI wrapper
- * separately rejects every quality other than 100 and post-verifies SOF/DQT.
+ * Derived from the public-domain jo_jpeg algorithm, but the fragile static
+ * Huffman symbol lookup tables are deliberately removed. Canonical encoder
+ * lookup tables are generated from the exact DHT count/value arrays written
+ * into each JPEG. The only admitted public path is RGB24, quality 100, 4:4:4.
  */
 
-#ifndef JO_INCLUDE_JPEG_H
-#define JO_INCLUDE_JPEG_H
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 
-typedef void jo_write_func(void *context, const void *data, int size);
-extern bool jo_write_jpg(const char *filename, const void *data, int width, int height, int comp, int quality);
-extern bool jo_write_jpg_to_func(jo_write_func *func, void *context, const void *data, int width, int height, int comp, int quality);
+using jo_write_func = void(void *context, const void *data, int size);
 
-#endif
+namespace {
 
-#ifndef JO_JPEG_HEADER_FILE_ONLY
+struct HuffmanCode {
+    std::uint16_t code = 0;
+    std::uint8_t length = 0;
+};
 
-#if defined(_MSC_VER) && _MSC_VER >= 0x1400
-#define _CRT_SECURE_NO_WARNINGS
-#endif
+constexpr std::array<std::uint8_t, 64> kZigZag = {
+    0,1,5,6,14,15,27,28,2,4,7,13,16,26,29,42,
+    3,8,12,17,25,30,41,43,9,11,18,24,31,40,44,53,
+    10,19,23,32,39,45,52,54,20,22,33,38,46,51,55,60,
+    21,34,37,47,50,56,59,61,35,36,48,49,57,58,62,63,
+};
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+constexpr std::array<std::uint8_t, 17> kDcLumaCounts =
+    {0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0};
+constexpr std::array<std::uint8_t, 12> kDcLumaValues =
+    {0,1,2,3,4,5,6,7,8,9,10,11};
+constexpr std::array<std::uint8_t, 17> kAcLumaCounts =
+    {0,0,2,1,3,3,2,4,3,5,5,4,4,0,0,1,0x7d};
+constexpr std::array<std::uint8_t, 162> kAcLumaValues = {
+    0x01,0x02,0x03,0x00,0x04,0x11,0x05,0x12,0x21,0x31,0x41,0x06,0x13,0x51,0x61,0x07,0x22,0x71,0x14,0x32,0x81,0x91,0xa1,0x08,
+    0x23,0x42,0xb1,0xc1,0x15,0x52,0xd1,0xf0,0x24,0x33,0x62,0x72,0x82,0x09,0x0a,0x16,0x17,0x18,0x19,0x1a,0x25,0x26,0x27,0x28,
+    0x29,0x2a,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x53,0x54,0x55,0x56,0x57,0x58,0x59,
+    0x5a,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x83,0x84,0x85,0x86,0x87,0x88,0x89,
+    0x8a,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,0xb5,0xb6,
+    0xb7,0xb8,0xb9,0xba,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xe1,0xe2,
+    0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,
+};
+constexpr std::array<std::uint8_t, 17> kDcChromaCounts =
+    {0,0,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0};
+constexpr std::array<std::uint8_t, 12> kDcChromaValues =
+    {0,1,2,3,4,5,6,7,8,9,10,11};
+constexpr std::array<std::uint8_t, 17> kAcChromaCounts =
+    {0,0,2,1,2,4,4,3,4,7,5,4,4,0,1,2,0x77};
+constexpr std::array<std::uint8_t, 162> kAcChromaValues = {
+    0x00,0x01,0x02,0x03,0x11,0x04,0x05,0x21,0x31,0x06,0x12,0x41,0x51,0x07,0x61,0x71,0x13,0x22,0x32,0x81,0x08,0x14,0x42,0x91,
+    0xa1,0xb1,0xc1,0x09,0x23,0x33,0x52,0xf0,0x15,0x62,0x72,0xd1,0x0a,0x16,0x24,0x34,0xe1,0x25,0xf1,0x17,0x18,0x19,0x1a,0x26,
+    0x27,0x28,0x29,0x2a,0x35,0x36,0x37,0x38,0x39,0x3a,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x53,0x54,0x55,0x56,0x57,0x58,
+    0x59,0x5a,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x82,0x83,0x84,0x85,0x86,0x87,
+    0x88,0x89,0x8a,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,
+    0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,
+    0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,
+};
 
-static const unsigned char s_jo_ZigZag[] = { 0,1,5,6,14,15,27,28,2,4,7,13,16,26,29,42,3,8,12,17,25,30,41,43,9,11,18,24,31,40,44,53,10,19,23,32,39,45,52,54,20,22,33,38,46,51,55,60,21,34,37,47,50,56,59,61,35,36,48,49,57,58,62,63 };
+constexpr std::array<int, 64> kYqt = {
+    16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,
+    14,13,16,24,40,57,69,56,14,17,22,29,51,87,80,62,
+    18,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,
+    49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99,
+};
+constexpr std::array<int, 64> kUvqt = {
+    17,18,24,47,99,99,99,99,18,21,26,66,99,99,99,99,
+    24,26,56,99,99,99,99,99,47,66,99,99,99,99,99,99,
+    99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,
+    99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,
+};
+constexpr std::array<float, 8> kAasf = {
+    1.0f * 2.828427125f,
+    1.387039845f * 2.828427125f,
+    1.306562965f * 2.828427125f,
+    1.175875602f * 2.828427125f,
+    1.0f * 2.828427125f,
+    0.785694958f * 2.828427125f,
+    0.541196100f * 2.828427125f,
+    0.275899379f * 2.828427125f,
+};
 
-static void jo_putc(jo_write_func *func, void *context, int c)
-{
-    func(context, (unsigned char *)&c, sizeof(unsigned char));
-}
+struct BitWriter {
+    jo_write_func *func = nullptr;
+    void *context = nullptr;
+    std::uint64_t bits = 0;
+    int count = 0;
+    bool ok = true;
 
-static void jo_writeBits(jo_write_func *func, void *context, int &bitBuf, int &bitCnt, const unsigned short *bs) {
-    bitCnt += bs[1];
-    bitBuf |= bs[0] << (24 - bitCnt);
-    while(bitCnt >= 8) {
-        unsigned char c = (bitBuf >> 16) & 255;
-        jo_putc(func, context, c);
-        if(c == 255) jo_putc(func, context, 0);
-        bitBuf <<= 8;
-        bitCnt -= 8;
+    void emitByte(std::uint8_t value) {
+        if (!ok) return;
+        func(context, &value, 1);
+        if (value == 0xffu) {
+            const std::uint8_t zero = 0u;
+            func(context, &zero, 1);
+        }
     }
+
+    void write(std::uint16_t code, std::uint8_t length) {
+        if (!ok || length == 0 || length > 16 || count > 48) {
+            ok = false;
+            return;
+        }
+        bits = (bits << length) | static_cast<std::uint64_t>(code);
+        count += length;
+        while (count >= 8) {
+            const int shift = count - 8;
+            emitByte(static_cast<std::uint8_t>((bits >> shift) & 0xffu));
+            count -= 8;
+            if (count == 0) {
+                bits = 0;
+            } else {
+                bits &= ((std::uint64_t{1} << count) - 1u);
+            }
+        }
+    }
+
+    void finish() {
+        if (count > 0) {
+            const int pad = 8 - count;
+            const std::uint16_t fill = static_cast<std::uint16_t>((std::uint16_t{1} << pad) - 1u);
+            write(fill, static_cast<std::uint8_t>(pad));
+        }
+    }
+};
+
+template <std::size_t N>
+bool buildHuffmanTable(
+    const std::array<std::uint8_t, 17>& counts,
+    const std::array<std::uint8_t, N>& values,
+    std::array<HuffmanCode, 256>& out) {
+    out.fill({});
+    std::uint32_t code = 0u;
+    std::size_t k = 0u;
+    for (int length = 1; length <= 16; ++length) {
+        for (int j = 0; j < counts[static_cast<std::size_t>(length)]; ++j) {
+            if (k >= values.size() || code >= (std::uint32_t{1} << length)) return false;
+            const auto symbol = values[k++];
+            out[symbol] = HuffmanCode{
+                static_cast<std::uint16_t>(code),
+                static_cast<std::uint8_t>(length),
+            };
+            ++code;
+        }
+        code <<= 1u;
+    }
+    return k == values.size();
 }
 
-static void jo_DCT(float &d0, float &d1, float &d2, float &d3, float &d4, float &d5, float &d6, float &d7) {
+void dct8(float& d0, float& d1, float& d2, float& d3, float& d4, float& d5, float& d6, float& d7) {
     float tmp0 = d0 + d7;
     float tmp7 = d0 - d7;
     float tmp1 = d1 + d6;
@@ -73,224 +165,253 @@ static void jo_DCT(float &d0, float &d1, float &d2, float &d3, float &d4, float 
     float tmp12 = tmp1 - tmp2;
     d0 = tmp10 + tmp11;
     d4 = tmp10 - tmp11;
-    float z1 = (tmp12 + tmp13) * 0.707106781f;
+    const float z1 = (tmp12 + tmp13) * 0.707106781f;
     d2 = tmp13 + z1;
     d6 = tmp13 - z1;
     tmp10 = tmp4 + tmp5;
     tmp11 = tmp5 + tmp6;
     tmp12 = tmp6 + tmp7;
-    float z5 = (tmp10 - tmp12) * 0.382683433f;
-    float z2 = tmp10 * 0.541196100f + z5;
-    float z4 = tmp12 * 1.306562965f + z5;
-    float z3 = tmp11 * 0.707106781f;
-    float z11 = tmp7 + z3;
-    float z13 = tmp7 - z3;
+    const float z5 = (tmp10 - tmp12) * 0.382683433f;
+    const float z2 = tmp10 * 0.541196100f + z5;
+    const float z4 = tmp12 * 1.306562965f + z5;
+    const float z3 = tmp11 * 0.707106781f;
+    const float z11 = tmp7 + z3;
+    const float z13 = tmp7 - z3;
     d5 = z13 + z2;
     d3 = z13 - z2;
     d1 = z11 + z4;
     d7 = z11 - z4;
 }
 
-static void jo_calcBits(int val, unsigned short bits[2]) {
-    int tmp1 = val < 0 ? -val : val;
-    val = val < 0 ? val-1 : val;
-    bits[1] = 1;
-    while(tmp1 >>= 1) ++bits[1];
-    bits[0] = val & ((1<<bits[1])-1);
+struct MagnitudeBits {
+    std::uint16_t bits = 0;
+    std::uint8_t length = 0;
+};
+
+MagnitudeBits magnitudeBits(int value) {
+    int magnitude = value < 0 ? -value : value;
+    if (magnitude == 0) return {};
+    std::uint8_t length = 0;
+    int t = magnitude;
+    while (t != 0) {
+        ++length;
+        t >>= 1;
+    }
+    const int adjusted = value < 0 ? value - 1 : value;
+    const std::uint16_t mask = static_cast<std::uint16_t>((std::uint32_t{1} << length) - 1u);
+    return MagnitudeBits{
+        static_cast<std::uint16_t>(static_cast<std::uint16_t>(adjusted) & mask),
+        length,
+    };
 }
 
-static int jo_processDU(jo_write_func *func, void *context, int &bitBuf, int &bitCnt, float *CDU, float *fdtbl, int DC, const unsigned short HTDC[256][2], const unsigned short HTAC[256][2]) {
-    const unsigned short EOB[2] = { HTAC[0x00][0], HTAC[0x00][1] };
-    const unsigned short M16zeroes[2] = { HTAC[0xF0][0], HTAC[0xF0][1] };
-    for(int dataOff=0; dataOff<64; dataOff+=8) jo_DCT(CDU[dataOff], CDU[dataOff+1], CDU[dataOff+2], CDU[dataOff+3], CDU[dataOff+4], CDU[dataOff+5], CDU[dataOff+6], CDU[dataOff+7]);
-    for(int dataOff=0; dataOff<8; ++dataOff) jo_DCT(CDU[dataOff], CDU[dataOff+8], CDU[dataOff+16], CDU[dataOff+24], CDU[dataOff+32], CDU[dataOff+40], CDU[dataOff+48], CDU[dataOff+56]);
-    int DU[64];
-    for(int i=0; i<64; ++i) {
-        float v = CDU[i]*fdtbl[i];
-        DU[s_jo_ZigZag[i]] = (int)(v < 0 ? ceilf(v - 0.5f) : floorf(v + 0.5f));
+bool processDu(
+    BitWriter& writer,
+    float* values,
+    const std::array<float,64>& fdtbl,
+    int& previousDc,
+    const std::array<HuffmanCode,256>& dcTable,
+    const std::array<HuffmanCode,256>& acTable) {
+    for (int off = 0; off < 64; off += 8) {
+        dct8(values[off], values[off+1], values[off+2], values[off+3], values[off+4], values[off+5], values[off+6], values[off+7]);
     }
-    int diff = DU[0] - DC;
-    if (diff == 0) {
-        jo_writeBits(func, context, bitBuf, bitCnt, HTDC[0]);
-    } else {
-        unsigned short bits[2];
-        jo_calcBits(diff, bits);
-        jo_writeBits(func, context, bitBuf, bitCnt, HTDC[bits[1]]);
-        jo_writeBits(func, context, bitBuf, bitCnt, bits);
+    for (int off = 0; off < 8; ++off) {
+        dct8(values[off], values[off+8], values[off+16], values[off+24], values[off+32], values[off+40], values[off+48], values[off+56]);
     }
-    int end0pos = 63;
-    for(; (end0pos>0)&&(DU[end0pos]==0); --end0pos) {}
-    if(end0pos == 0) {
-        jo_writeBits(func, context, bitBuf, bitCnt, EOB);
-        return DU[0];
+
+    std::array<int,64> du{};
+    for (int i = 0; i < 64; ++i) {
+        const float v = values[i] * fdtbl[static_cast<std::size_t>(i)];
+        du[kZigZag[static_cast<std::size_t>(i)]] =
+            static_cast<int>(v < 0.0f ? std::ceil(v - 0.5f) : std::floor(v + 0.5f));
     }
-    for(int i = 1; i <= end0pos; ++i) {
-        int startpos = i;
-        for (; DU[i]==0 && i<=end0pos; ++i) {}
-        int nrzeroes = i-startpos;
-        if (nrzeroes >= 16) {
-            int lng = nrzeroes>>4;
-            for (int nrmarker=1; nrmarker <= lng; ++nrmarker) jo_writeBits(func, context, bitBuf, bitCnt, M16zeroes);
-            nrzeroes &= 15;
+
+    const int diff = du[0] - previousDc;
+    previousDc = du[0];
+    const auto dcMagnitude = magnitudeBits(diff);
+    const auto dcCode = dcTable[dcMagnitude.length];
+    if (dcCode.length == 0) return false;
+    writer.write(dcCode.code, dcCode.length);
+    if (dcMagnitude.length != 0) writer.write(dcMagnitude.bits, dcMagnitude.length);
+
+    int last = 63;
+    while (last > 0 && du[static_cast<std::size_t>(last)] == 0) --last;
+    if (last == 0) {
+        const auto eob = acTable[0x00];
+        if (eob.length == 0) return false;
+        writer.write(eob.code, eob.length);
+        return writer.ok;
+    }
+
+    int i = 1;
+    while (i <= last) {
+        int run = 0;
+        while (i <= last && du[static_cast<std::size_t>(i)] == 0) {
+            ++run;
+            ++i;
         }
-        unsigned short bits[2];
-        jo_calcBits(DU[i], bits);
-        jo_writeBits(func, context, bitBuf, bitCnt, HTAC[(nrzeroes<<4)+bits[1]]);
-        jo_writeBits(func, context, bitBuf, bitCnt, bits);
-    }
-    if(end0pos != 63) jo_writeBits(func, context, bitBuf, bitCnt, EOB);
-    return DU[0];
-}
-
-static void jo_file_func(void *context, const void *data, int size)
-{
-    fwrite(data, size, 1, (FILE *)context);
-}
-
-bool jo_write_jpg(const char *filename, const void *data, int width, int height, int comp, int quality) {
-    if(!filename) return false;
-    FILE *fp = fopen(filename, "wb");
-    if(!fp) return false;
-    bool result = jo_write_jpg_to_func(jo_file_func, fp, data, width, height, comp, quality);
-    fclose(fp);
-    return result;
-}
-
-bool jo_write_jpg_to_func(jo_write_func *func, void *context, const void *data, int width, int height, int comp, int quality) {
-    static const unsigned char std_dc_luminance_nrcodes[] = {0,0,1,5,1,1,1,1,1,1,0,0,0,0,0,0,0};
-    static const unsigned char std_dc_luminance_values[] = {0,1,2,3,4,5,6,7,8,9,10,11};
-    static const unsigned char std_ac_luminance_nrcodes[] = {0,0,2,1,3,3,2,4,3,5,5,4,4,0,0,1,0x7d};
-    static const unsigned char std_ac_luminance_values[] = {
-        0x01,0x02,0x03,0x00,0x04,0x11,0x05,0x12,0x21,0x31,0x41,0x06,0x13,0x51,0x61,0x07,0x22,0x71,0x14,0x32,0x81,0x91,0xa1,0x08,
-        0x23,0x42,0xb1,0xc1,0x15,0x52,0xd1,0xf0,0x24,0x33,0x62,0x72,0x82,0x09,0x0a,0x16,0x17,0x18,0x19,0x1a,0x25,0x26,0x27,0x28,
-        0x29,0x2a,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x53,0x54,0x55,0x56,0x57,0x58,0x59,
-        0x5a,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x83,0x84,0x85,0x86,0x87,0x88,0x89,
-        0x8a,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,0xb5,0xb6,
-        0xb7,0xb8,0xb9,0xba,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xe1,0xe2,
-        0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa
-    };
-    static const unsigned char std_dc_chrominance_nrcodes[] = {0,0,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0};
-    static const unsigned char std_dc_chrominance_values[] = {0,1,2,3,4,5,6,7,8,9,10,11};
-    static const unsigned char std_ac_chrominance_nrcodes[] = {0,0,2,1,2,4,4,3,4,7,5,4,4,0,1,2,0x77};
-    static const unsigned char std_ac_chrominance_values[] = {
-        0x00,0x01,0x02,0x03,0x11,0x04,0x05,0x21,0x31,0x06,0x12,0x41,0x51,0x07,0x61,0x71,0x13,0x22,0x32,0x81,0x08,0x14,0x42,0x91,
-        0xa1,0xb1,0xc1,0x09,0x23,0x33,0x52,0xf0,0x15,0x62,0x72,0xd1,0x0a,0x16,0x24,0x34,0xe1,0x25,0xf1,0x17,0x18,0x19,0x1a,0x26,
-        0x27,0x28,0x29,0x2a,0x35,0x36,0x37,0x38,0x39,0x3a,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x53,0x54,0x55,0x56,0x57,0x58,
-        0x59,0x5a,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x82,0x83,0x84,0x85,0x86,0x87,
-        0x88,0x89,0x8a,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb2,0xb3,0xb4,
-        0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,
-        0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa
-    };
-    static const unsigned short YDC_HT[256][2] = { {0,2},{2,3},{3,3},{4,3},{5,3},{6,3},{14,4},{30,5},{62,6},{126,7},{254,8},{510,9}};
-    static const unsigned short UVDC_HT[256][2] = { {0,2},{1,2},{2,2},{6,3},{14,4},{30,5},{62,6},{126,7},{254,8},{510,9},{1022,10},{2046,11}};
-    static const unsigned short YAC_HT[256][2] = {
-        {10,4},{0,2},{1,2},{4,3},{11,4},{26,5},{120,7},{248,8},{1014,10},{65410,16},{65411,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {12,4},{27,5},{121,7},{502,9},{2038,11},{65412,16},{65413,16},{65414,16},{65415,16},{65416,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {28,5},{249,8},{1015,10},{4084,12},{65417,16},{65418,16},{65419,16},{65420,16},{65421,16},{65422,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {58,6},{503,9},{4085,12},{65423,16},{65424,16},{65425,16},{65426,16},{65427,16},{65428,16},{65429,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {59,6},{1016,10},{65430,16},{65431,16},{65432,16},{65433,16},{65434,16},{65435,16},{65436,16},{65437,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {122,7},{2039,11},{65438,16},{65439,16},{65440,16},{65441,16},{65442,16},{65443,16},{65444,16},{65445,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {123,7},{4086,12},{65446,16},{65447,16},{65448,16},{65449,16},{65450,16},{65451,16},{65452,16},{65453,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {250,8},{4087,12},{65454,16},{65455,16},{65456,16},{65457,16},{65458,16},{65459,16},{65460,16},{65461,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {504,9},{32704,15},{65462,16},{65463,16},{65464,16},{65465,16},{65466,16},{65467,16},{65468,16},{65469,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {505,9},{65470,16},{65471,16},{65472,16},{65473,16},{65474,16},{65475,16},{65476,16},{65477,16},{65478,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {506,9},{65479,16},{65480,16},{65481,16},{65482,16},{65483,16},{65484,16},{65485,16},{65486,16},{65487,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {1017,10},{65488,16},{65489,16},{65490,16},{65491,16},{65492,16},{65493,16},{65494,16},{65495,16},{65496,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {1018,10},{65497,16},{65498,16},{65499,16},{65500,16},{65501,16},{65502,16},{65503,16},{65504,16},{65505,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {2040,11},{65506,16},{65507,16},{65508,16},{65509,16},{65510,16},{65511,16},{65512,16},{65513,16},{65514,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {65515,16},{65516,16},{65517,16},{65518,16},{65519,16},{65520,16},{65521,16},{65522,16},{65523,16},{65524,16},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {2041,11},{65525,16},{65526,16},{65527,16},{65528,16},{65529,16},{65530,16},{65531,16},{65532,16},{65533,16},{65534,16},{0,0},{0,0},{0,0},{0,0},{0,0}
-    };
-    static const unsigned short UVAC_HT[256][2] = {
-        {0,2},{1,2},{4,3},{10,4},{24,5},{25,5},{56,6},{120,7},{500,9},{1014,10},{4084,12},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {11,4},{57,6},{246,8},{501,9},{2038,11},{4085,12},{65416,16},{65417,16},{65418,16},{65419,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {26,5},{247,8},{1015,10},{4086,12},{32706,15},{65420,16},{65421,16},{65422,16},{65423,16},{65424,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {27,5},{248,8},{1016,10},{4087,12},{65425,16},{65426,16},{65427,16},{65428,16},{65429,16},{65430,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {58,6},{502,9},{65431,16},{65432,16},{65433,16},{65434,16},{65435,16},{65436,16},{65437,16},{65438,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {59,6},{1017,10},{65439,16},{65440,16},{65441,16},{65442,16},{65443,16},{65444,16},{65445,16},{65446,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {121,7},{2039,11},{65447,16},{65448,16},{65449,16},{65450,16},{65451,16},{65452,16},{65453,16},{65454,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {122,7},{2040,11},{65455,16},{65456,16},{65457,16},{65458,16},{65459,16},{65460,16},{65461,16},{65462,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {249,8},{65463,16},{65464,16},{65465,16},{65466,16},{65467,16},{65468,16},{65469,16},{65470,16},{65471,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {503,9},{65472,16},{65473,16},{65474,16},{65475,16},{65476,16},{65477,16},{65478,16},{65479,16},{65480,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {504,9},{65481,16},{65482,16},{65483,16},{65484,16},{65485,16},{65486,16},{65487,16},{65488,16},{65489,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {505,9},{65490,16},{65491,16},{65492,16},{65493,16},{65494,16},{65495,16},{65496,16},{65497,16},{65498,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {506,9},{65499,16},{65500,16},{65501,16},{65502,16},{65503,16},{65504,16},{65505,16},{65506,16},{65507,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {2041,11},{65508,16},{65509,16},{65510,16},{65511,16},{65512,16},{65513,16},{65514,16},{65515,16},{65516,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {16352,14},{65517,16},{65518,16},{65519,16},{65520,16},{65521,16},{65522,16},{65523,16},{65524,16},{65525,16},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
-        {1018,10},{32707,15},{65526,16},{65527,16},{65528,16},{65529,16},{65530,16},{65531,16},{65532,16},{65533,16},{65534,16},{0,0},{0,0},{0,0},{0,0},{0,0}
-    };
-    static const int YQT[] = {16,11,10,16,24,40,51,61,12,12,14,19,26,58,60,55,14,13,16,24,40,57,69,56,14,17,22,37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99};
-    static const int UVQT[] = {17,18,24,47,99,99,99,99,18,21,26,66,99,99,99,99,24,26,56,99,99,99,99,99,47,66,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99};
-    static const float aasf[] = { 1.0f * 2.828427125f, 1.387039845f * 2.828427125f, 1.306562965f * 2.828427125f, 1.175875602f * 2.828427125f, 1.0f * 2.828427125f, 0.785694958f * 2.828427125f, 0.541196100f * 2.828427125f, 0.275899379f * 2.828427125f };
-
-    if(!data || !func || !context || !width || !height || comp > 4 || comp < 1 || comp == 2) return false;
-    quality = quality ? quality : 100;
-    quality = quality < 1 ? 1 : quality > 100 ? 100 : quality;
-    quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
-
-    unsigned char YTable[64], UVTable[64];
-    for(int i = 0; i < 64; ++i) {
-        int yti = (YQT[i]*quality+50)/100;
-        YTable[s_jo_ZigZag[i]] = yti < 1 ? 1 : yti > 255 ? 255 : yti;
-        int uvti = (UVQT[i]*quality+50)/100;
-        UVTable[s_jo_ZigZag[i]] = uvti < 1 ? 1 : uvti > 255 ? 255 : uvti;
+        while (run >= 16) {
+            const auto zrl = acTable[0xf0];
+            if (zrl.length == 0) return false;
+            writer.write(zrl.code, zrl.length);
+            run -= 16;
+        }
+        if (i > last) break;
+        const auto magnitude = magnitudeBits(du[static_cast<std::size_t>(i)]);
+        if (magnitude.length == 0 || magnitude.length > 10) return false;
+        const std::uint8_t symbol = static_cast<std::uint8_t>((run << 4) | magnitude.length);
+        const auto acCode = acTable[symbol];
+        if (acCode.length == 0) return false;
+        writer.write(acCode.code, acCode.length);
+        writer.write(magnitude.bits, magnitude.length);
+        ++i;
     }
 
-    float fdtbl_Y[64], fdtbl_UV[64];
-    for(int row = 0, k = 0; row < 8; ++row) for(int col = 0; col < 8; ++col, ++k) {
-        fdtbl_Y[k] = 1 / (YTable[s_jo_ZigZag[k]] * aasf[row] * aasf[col]);
-        fdtbl_UV[k] = 1 / (UVTable[s_jo_ZigZag[k]] * aasf[row] * aasf[col]);
+    if (last != 63) {
+        const auto eob = acTable[0x00];
+        if (eob.length == 0) return false;
+        writer.write(eob.code, eob.length);
+    }
+    return writer.ok;
+}
+
+void emit(jo_write_func* func, void* context, const void* data, std::size_t size) {
+    func(context, data, static_cast<int>(size));
+}
+
+void emitByte(jo_write_func* func, void* context, std::uint8_t value) {
+    emit(func, context, &value, 1u);
+}
+
+void emitDht(
+    jo_write_func* func,
+    void* context,
+    std::uint8_t tableInfo,
+    const std::array<std::uint8_t,17>& counts,
+    const std::uint8_t* values,
+    std::size_t valueCount) {
+    emitByte(func, context, tableInfo);
+    emit(func, context, counts.data()+1, 16u);
+    emit(func, context, values, valueCount);
+}
+
+} // namespace
+
+bool jo_write_jpg_to_func(
+    jo_write_func* func,
+    void* context,
+    const void* data,
+    int width,
+    int height,
+    int comp,
+    int quality) {
+    if (func == nullptr || context == nullptr || data == nullptr ||
+        width <= 0 || height <= 0 || width > 65535 || height > 65535 ||
+        comp != 3 || quality != 100) {
+        return false;
     }
 
-    static const unsigned char head0[] = { 0xFF,0xD8,0xFF,0xE0,0,0x10,'J','F','I','F',0,1,1,0,0,1,0,1,0,0,0xFF,0xDB,0,0x84,0 };
-    func(context, head0, sizeof(head0));
-    func(context, YTable, sizeof(YTable));
-    jo_putc(func, context, 1);
-    func(context, UVTable, sizeof(UVTable));
-    const unsigned char head1[] = { 0xFF,0xC0,0,0x11,8,(unsigned char)(height>>8),(unsigned char)(height&0xFF),(unsigned char)(width>>8),(unsigned char)(width&0xFF),3,1,0x11,0,2,0x11,1,3,0x11,1,0xFF,0xC4,0x01,0xA2,0 };
-    func(context, head1, sizeof(head1));
-    func(context, std_dc_luminance_nrcodes+1, sizeof(std_dc_luminance_nrcodes)-1);
-    func(context, std_dc_luminance_values, sizeof(std_dc_luminance_values));
-    jo_putc(func, context, 0x10);
-    func(context, std_ac_luminance_nrcodes+1, sizeof(std_ac_luminance_nrcodes)-1);
-    func(context, std_ac_luminance_values, sizeof(std_ac_luminance_values));
-    jo_putc(func, context, 1);
-    func(context, std_dc_chrominance_nrcodes+1, sizeof(std_dc_chrominance_nrcodes)-1);
-    func(context, std_dc_chrominance_values, sizeof(std_dc_chrominance_values));
-    jo_putc(func, context, 0x11);
-    func(context, std_ac_chrominance_nrcodes+1, sizeof(std_ac_chrominance_nrcodes)-1);
-    func(context, std_ac_chrominance_values, sizeof(std_ac_chrominance_values));
-    static const unsigned char head2[] = { 0xFF,0xDA,0,0xC,3,1,0,2,0x11,3,0x11,0,0x3F,0 };
-    func(context, head2, sizeof(head2));
+    std::array<HuffmanCode,256> ydc{}, yac{}, uvdc{}, uvac{};
+    if (!buildHuffmanTable(kDcLumaCounts, kDcLumaValues, ydc) ||
+        !buildHuffmanTable(kAcLumaCounts, kAcLumaValues, yac) ||
+        !buildHuffmanTable(kDcChromaCounts, kDcChromaValues, uvdc) ||
+        !buildHuffmanTable(kAcChromaCounts, kAcChromaValues, uvac)) {
+        return false;
+    }
 
-    const unsigned char *imageData = (const unsigned char *)data;
-    int DCY=0, DCU=0, DCV=0;
-    int bitBuf=0, bitCnt=0;
-    int ofsG = comp > 1 ? 1 : 0, ofsB = comp > 1 ? 2 : 0;
-    for(int y = 0; y < height; y += 8) {
-        for(int x = 0; x < width; x += 8) {
-            float YDU[64], UDU[64], VDU[64];
-            for(int row = y, pos = 0; row < y+8; ++row) {
-                for(int col = x; col < x+8; ++col, ++pos) {
-                    int p = row*width*comp + col*comp;
-                    if(row >= height) p -= width*comp*(row+1 - height);
-                    if(col >= width) p -= comp*(col+1 - width);
-                    float r = imageData[p+0], g = imageData[p+ofsG], b = imageData[p+ofsB];
-                    YDU[pos]=+0.29900f*r+0.58700f*g+0.11400f*b-128;
-                    UDU[pos]=-0.16874f*r-0.33126f*g+0.50000f*b;
-                    VDU[pos]=+0.50000f*r-0.41869f*g-0.08131f*b;
+    std::array<std::uint8_t,64> yTable{}, uvTable{};
+    std::array<float,64> fdtblY{}, fdtblUv{};
+    constexpr int scaledQuality = 0;
+    for (int i = 0; i < 64; ++i) {
+        const int yti = (kYqt[static_cast<std::size_t>(i)] * scaledQuality + 50) / 100;
+        const int uvti = (kUvqt[static_cast<std::size_t>(i)] * scaledQuality + 50) / 100;
+        yTable[kZigZag[static_cast<std::size_t>(i)]] =
+            static_cast<std::uint8_t>(std::clamp(yti,1,255));
+        uvTable[kZigZag[static_cast<std::size_t>(i)]] =
+            static_cast<std::uint8_t>(std::clamp(uvti,1,255));
+    }
+    for (int row = 0, k = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col, ++k) {
+            fdtblY[static_cast<std::size_t>(k)] = 1.0f /
+                (yTable[kZigZag[static_cast<std::size_t>(k)]] *
+                 kAasf[static_cast<std::size_t>(row)] *
+                 kAasf[static_cast<std::size_t>(col)]);
+            fdtblUv[static_cast<std::size_t>(k)] = 1.0f /
+                (uvTable[kZigZag[static_cast<std::size_t>(k)]] *
+                 kAasf[static_cast<std::size_t>(row)] *
+                 kAasf[static_cast<std::size_t>(col)]);
+        }
+    }
+
+    const std::uint8_t head0[] = {
+        0xff,0xd8, 0xff,0xe0, 0x00,0x10, 'J','F','I','F',0x00,
+        0x01,0x01, 0x00, 0x00,0x01, 0x00,0x01, 0x00,0x00,
+        0xff,0xdb, 0x00,0x84, 0x00,
+    };
+    emit(func, context, head0, sizeof(head0));
+    emit(func, context, yTable.data(), yTable.size());
+    emitByte(func, context, 0x01);
+    emit(func, context, uvTable.data(), uvTable.size());
+
+    const std::uint8_t sof0[] = {
+        0xff,0xc0,0x00,0x11,0x08,
+        static_cast<std::uint8_t>((height >> 8) & 0xff),
+        static_cast<std::uint8_t>(height & 0xff),
+        static_cast<std::uint8_t>((width >> 8) & 0xff),
+        static_cast<std::uint8_t>(width & 0xff),
+        0x03,
+        0x01,0x11,0x00,
+        0x02,0x11,0x01,
+        0x03,0x11,0x01,
+        0xff,0xc4,0x01,0xa2,
+    };
+    emit(func, context, sof0, sizeof(sof0));
+    emitDht(func, context, 0x00, kDcLumaCounts, kDcLumaValues.data(), kDcLumaValues.size());
+    emitDht(func, context, 0x10, kAcLumaCounts, kAcLumaValues.data(), kAcLumaValues.size());
+    emitDht(func, context, 0x01, kDcChromaCounts, kDcChromaValues.data(), kDcChromaValues.size());
+    emitDht(func, context, 0x11, kAcChromaCounts, kAcChromaValues.data(), kAcChromaValues.size());
+
+    const std::uint8_t sos[] = {
+        0xff,0xda,0x00,0x0c,0x03,
+        0x01,0x00,
+        0x02,0x11,
+        0x03,0x11,
+        0x00,0x3f,0x00,
+    };
+    emit(func, context, sos, sizeof(sos));
+
+    const auto* rgb = static_cast<const std::uint8_t*>(data);
+    int dcY = 0, dcU = 0, dcV = 0;
+    BitWriter writer{func, context};
+    for (int y = 0; y < height; y += 8) {
+        for (int x = 0; x < width; x += 8) {
+            float ydu[64], udu[64], vdu[64];
+            int pos = 0;
+            for (int yy = 0; yy < 8; ++yy) {
+                const int sy = std::min(y + yy, height - 1);
+                for (int xx = 0; xx < 8; ++xx, ++pos) {
+                    const int sx = std::min(x + xx, width - 1);
+                    const std::size_t p =
+                        (static_cast<std::size_t>(sy) * static_cast<std::size_t>(width) +
+                         static_cast<std::size_t>(sx)) * 3u;
+                    const float r = rgb[p];
+                    const float g = rgb[p+1u];
+                    const float b = rgb[p+2u];
+                    ydu[pos] = +0.29900f*r + 0.58700f*g + 0.11400f*b - 128.0f;
+                    udu[pos] = -0.16874f*r - 0.33126f*g + 0.50000f*b;
+                    vdu[pos] = +0.50000f*r - 0.41869f*g - 0.08131f*b;
                 }
             }
-            DCY = jo_processDU(func, context, bitBuf, bitCnt, YDU, fdtbl_Y, DCY, YDC_HT, YAC_HT);
-            DCU = jo_processDU(func, context, bitBuf, bitCnt, UDU, fdtbl_UV, DCU, UVDC_HT, UVAC_HT);
-            DCV = jo_processDU(func, context, bitBuf, bitCnt, VDU, fdtbl_UV, DCV, UVDC_HT, UVAC_HT);
+            if (!processDu(writer, ydu, fdtblY, dcY, ydc, yac) ||
+                !processDu(writer, udu, fdtblUv, dcU, uvdc, uvac) ||
+                !processDu(writer, vdu, fdtblUv, dcV, uvdc, uvac)) {
+                return false;
+            }
         }
     }
-    static const unsigned short fillBits[] = {0x7F, 7};
-    jo_writeBits(func, context, bitBuf, bitCnt, fillBits);
-    jo_putc(func, context, 0xFF);
-    jo_putc(func, context, 0xD9);
+    writer.finish();
+    if (!writer.ok) return false;
+    const std::uint8_t eoi[] = {0xff,0xd9};
+    emit(func, context, eoi, sizeof(eoi));
     return true;
 }
-
-#endif
