@@ -16,25 +16,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.min
 
 /**
- * D.RAW Workspace / Output / Vrije Raster v0.2.
+ * D.RAW Workspace / Output / Vrije Raster v0.3 vision shell.
  *
- * Product/UI shell around the existing proven D.RAW routes. This activity does
- * not decode RAW/DNG, does not build a second Scientific Master and does not
- * infer authority. RAW/DNG stays routed through MainActivity / Universal
- * Intake. Free Raster is downstream Output/View and accepts only an existing
- * D.RAW output/presentation state or an explicitly external presentation
- * raster. Pan/zoom is APPEARANCE/PRESENTATION_ONLY.
+ * This Activity is intentionally downstream from the sealed source and Scientific Master.
+ * It reorganises the product UI around one central image/workspace and one shared
+ * PURE / ADVANCED / PRO state. It does not decode RAW/DNG, create scientific evidence,
+ * mutate sealed source data or write Appearance/View state back to Scientific Master.
  *
- * Free-raster rule: representation may move/scale independently; evidence and
- * authority remain bound to the upstream observation.
+ * Non-destructive rule:
+ * read-only source + reversible workbench/view/output state -> live presentation / new export.
  */
 class TruthRawWorkspaceActivity : Activity() {
     private val bg = DrawVisualTheme.PAPER_YELLOW
@@ -47,6 +47,10 @@ class TruthRawWorkspaceActivity : Activity() {
     private val purple = DrawVisualTheme.PURPLE
 
     private lateinit var routeStatusView: TextView
+    private lateinit var pureRouteTab: TextView
+    private lateinit var advancedRouteTab: TextView
+    private lateinit var proRouteTab: TextView
+
     private lateinit var canvasImage: ImageView
     private lateinit var canvasPlaceholder: TextView
     private lateinit var canvasStatusView: TextView
@@ -99,13 +103,11 @@ class TruthRawWorkspaceActivity : Activity() {
         setContentView(buildUi())
 
         val prefs = getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
-        val savedUri = prefs.getString(KEY_PRESENTATION_URI, null)
-            ?.takeIf { it.isNotBlank() }
+        val savedUri = prefs.getString(KEY_PRESENTATION_URI, null)?.takeIf { it.isNotBlank() }
         presentationMode = when (prefs.getString(KEY_PRESENTATION_MODE, null)) {
             MODE_EXTERNAL -> PresentationMode.EXTERNAL_RASTER
             MODE_INTERNAL -> PresentationMode.INTERNAL_D_RAW
             else -> if (savedUri != null) {
-                // Backwards-compatible with v0.1, which persisted only the URI.
                 PresentationMode.EXTERNAL_RASTER
             } else {
                 PresentationMode.INTERNAL_D_RAW
@@ -141,144 +143,47 @@ class TruthRawWorkspaceActivity : Activity() {
     private fun buildUi(): ScrollView {
         val root = vertical().apply {
             setBackgroundColor(bg)
-            setPadding(dp(18), dp(12), dp(18), dp(28))
+            setPadding(dp(16), dp(10), dp(16), dp(28))
         }
 
         root.addView(header())
-        root.addView(space(12))
+        root.addView(space(8))
         root.addView(
             body(
-                "One Free World. Many sealed observations. One evidence law. Deze Workspace brengt bron, één gedeelde PURE/ADVANCED/PRO-kabel, authority en downstream Output / Vrije Raster bij elkaar zonder een tweede scientific pipeline te maken.",
-                12.5f,
+                "One Free World. Many sealed observations. One evidence law. " +
+                    "Eén centrale werkruimte, één bronbinding en één gedeelde outputkabel.",
+                11.8f,
             ),
         )
 
-        root.addView(space(14))
-        root.addView(card("Actieve route").apply {
-            routeStatusView = title("", 14f)
-            addView(routeStatusView)
-            addView(space(7))
-            addView(body(
-                "PURE, ADVANCED en PRO delen dezelfde sealed source en Scientific Master. Routekeuze verandert alleen downstream gereedschap/view; geen route krijgt daardoor sterkere evidence.",
-                11.5f,
-            ))
-            addView(space(9))
-            addView(routeAction("PURE · Scientific View", teal) {
-                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_PURE)
-            })
-            addView(space(7))
-            addView(routeAction("ADVANCED · Appearance / Restoration", orange) {
-                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED)
-            })
-            addView(space(7))
-            addView(routeAction("PRO · Open Scene / Research", purple) {
-                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_PRO)
-            })
-        })
-        updateRouteStatus()
+        root.addView(space(12))
+        root.addView(buildRouteStrip())
+
+        root.addView(space(10))
+        root.addView(buildSourceStrip())
+
+        root.addView(space(12))
+        root.addView(buildVisionWorkspace())
+
+        root.addView(space(12))
+        root.addView(buildInspectorDeck())
+
+        root.addView(space(12))
+        root.addView(buildWorkbenchDock())
 
         root.addView(space(14))
-        root.addView(card("Bron / Observation").apply {
-            addView(body(
-                "RAW/DNG wordt bewust niet in deze Activity gedecodeerd. Daardoor blijft er één Universele Ingang en één evidence-keten.",
-                11.7f,
-            ))
-            addView(space(9))
-            addView(action("Bestand · Open RAW / DNG in D.RAW werkbank", blue) {
-                enterInternalPresentationMode()
-                startActivity(
-                    Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                        putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
-                    },
-                )
-            })
-            addView(space(7))
-            addView(action("Camera · Universele fysieke RAW", teal) {
-                enterInternalPresentationMode()
-                startActivity(
-                    Intent(
-                        this@TruthRawWorkspaceActivity,
-                        UniversalPhysicalCaptureActivity::class.java,
-                    ),
-                )
-            })
-            addView(space(7))
-            addView(action("Open bestaande D.RAW werkbank / actieve sessie", blue) {
-                enterInternalPresentationMode()
-                startActivity(
-                    Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                    },
-                )
-            })
-        })
-
-        root.addView(space(14))
-        root.addView(card("Pipeline · authority-neutrale kaart").apply {
-            addView(body(
-                "Deze kaart is navigatie, geen meetresultaat. Alleen de brongebonden runtime mag een stap als werkelijk beschikbaar/bewezen markeren.",
-                11.5f,
-            ))
-            addView(space(8))
-            addView(pipelineRow("1 · SOURCE", "selectie / camera-ingress · runtime-bound"))
-            addView(pipelineRow("2 · SEALED", "alleen seal/provenance-record kan dit bewijzen"))
-            addView(pipelineRow("3 · SCIENTIFIC", "Scientific Master · nooit afgeleid uit UI-status"))
-            addView(pipelineRow("4 · CONTINUOUS", "TruthNegative / reconstruction · authority blijft expliciet"))
-            addView(pipelineRow("5 · FREE RASTER", "downstream view/projectie · creëert geen evidence"))
-            addView(pipelineRow("6 · APPEARANCE", "display/view · nooit Scientific Master writeback"))
-        })
-
-        root.addView(space(14))
-        root.addView(card("Evidence / Authority Inspector · betekenis").apply {
-            addView(body(
-                "Zonder actieve bronbinding toont deze Workspace uitsluitend de betekenis van authority-klassen. Output, zoom en Free Raster mogen deze labels nooit zelf toekennen.",
-                11.5f,
-            ))
-            addView(space(8))
-            addView(authorityRow("MEASURED", "direct gemeten / sealed support"))
-            addView(authorityRow("CALIBRATED_ESTIMATE", "gekalibreerde schatting met expliciete basis"))
-            addView(authorityRow("RECONSTRUCTED", "afgeleid uit toegelaten support; niet gemeten"))
-            addView(authorityRow("CENSORED", "bronverlies/clipping is aantoonbaar aanwezig"))
-            addView(authorityRow("UNKNOWN", "onvoldoende bewijs; blijft zichtbaar/fail-closed"))
-            addView(authorityRow("APPEARANCE", "presentatie/view; geen scientific authority"))
-        })
-
-        root.addView(space(14))
-        root.addView(buildFreeRasterCard())
-
-        root.addView(space(14))
-        root.addView(card("Werkbanken").apply {
-            addView(action("Appearance / Restoration instellingen", orange) {
-                startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawAdvancedActivity::class.java))
-            })
-            addView(space(7))
-            addView(action("PRO · Open Scene / Light Transport", purple) {
-                startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawProActivity::class.java))
-            })
-            addView(space(7))
-            addView(action("Research & JSON · Observation Graph basis", blue) {
-                startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawResearchHubActivity::class.java))
-            })
-            addView(space(7))
-            addView(action("Wat is geïmplementeerd?", teal) {
-                startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawImplementationGuideActivity::class.java))
-            })
-            addView(space(7))
-            addView(action("Klassiek route-overzicht", blue) {
-                startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawSuiteLauncherActivity::class.java))
-            })
-        })
-
-        root.addView(space(16))
         root.addView(
             body(
-                "Workspace v0.2 · source/scientific core gedeeld · Output / Vrije Raster downstream · externe rasters PRESENTATION_ONLY · geen nieuwe evidence · geen candidate promotion · geen Scientific Master writeback · geen AI/ML scientific inference.",
-                10.5f,
+                "Workspace v0.3 vision shell · bron read-only · Scientific Master immutable · " +
+                    "edits reversibel · Free Raster/Appearance/View downstream · export maakt een nieuw derivaat · " +
+                    "geen nieuwe evidence · geen scientific writeback.",
+                10.4f,
             ).apply { gravity = Gravity.CENTER },
         )
         root.addView(space(10))
         root.addView(DrawVisualTheme.brandFooter(this, 82))
+
+        updateRouteStatus()
 
         return ScrollView(this).apply {
             isFillViewport = true
@@ -292,37 +197,217 @@ class TruthRawWorkspaceActivity : Activity() {
         }
     }
 
-    private fun buildFreeRasterCard(): View = card("Output / Vrije Raster · v0.2").apply {
-        addView(body(
-            "Vrije Raster is downstream Output/View. Het canvas kan een bestaande D.RAW-output consumeren zodra de bestaande Unified Output-state is gebonden, of bewust een externe JPG/PNG/WebP als PRESENTATION_ONLY bekijken. RAW/DNG blijft altijd via Universal Intake. Geen canvasbewerking creëert MEASURED pixels of schrijft terug naar Scientific Master.",
-            11.7f,
-        ))
-        addView(space(10))
-        addView(buildCanvas())
+    private fun buildRouteStrip(): View = card("PURE / ADVANCED / PRO · één upstream kern").apply {
+        routeStatusView = title("", 13.5f)
+        addView(routeStatusView)
+        addView(space(7))
+        addView(
+            body(
+                "De route verandert downstream gereedschap en view-state; sealed source, " +
+                    "Scientific Master en authority worden niet herschreven.",
+                10.8f,
+            ),
+        )
+        addView(space(9))
+
+        addView(horizontal().apply {
+            pureRouteTab = routeTab("PURE", teal) {
+                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_PURE)
+            }
+            advancedRouteTab = routeTab("ADVANCED", orange) {
+                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED)
+            }
+            proRouteTab = routeTab("PRO", purple) {
+                selectRoute(TruthRawSuiteLauncherActivity.OUTPUT_PRO)
+            }
+
+            addView(
+                pureRouteTab,
+                LinearLayout.LayoutParams(0, dp(52), 1f).apply { marginEnd = dp(4) },
+            )
+            addView(
+                advancedRouteTab,
+                LinearLayout.LayoutParams(0, dp(52), 1f).apply {
+                    marginStart = dp(4)
+                    marginEnd = dp(4)
+                },
+            )
+            addView(
+                proRouteTab,
+                LinearLayout.LayoutParams(0, dp(52), 1f).apply { marginStart = dp(4) },
+            )
+        })
+    }
+
+    private fun buildSourceStrip(): View = card("Bron / Observation · universele ingang").apply {
+        addView(
+            body(
+                "RAW/DNG blijft via Universal Intake. Externe JPG/PNG/WebP blijft read-only PRESENTATION_ONLY.",
+                10.8f,
+            ),
+        )
         addView(space(8))
         addView(horizontal().apply {
             addView(
-                smallAction("Fit", teal) { fitCanvasImage() },
+                smallAction("Bestand", blue) {
+                    enterInternalPresentationMode()
+                    startActivity(
+                        Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                            putExtra(MainActivity.EXTRA_AUTO_OPEN_RAW_PICKER, true)
+                        },
+                    )
+                },
                 LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) },
             )
             addView(
-                smallAction("Preview 1:1", blue) { setCanvasOneToOne() },
+                smallAction("Camera", teal) {
+                    enterInternalPresentationMode()
+                    startActivity(
+                        Intent(
+                            this@TruthRawWorkspaceActivity,
+                            UniversalPhysicalCaptureActivity::class.java,
+                        ),
+                    )
+                },
                 LinearLayout.LayoutParams(0, dp(48), 1f).apply {
                     marginStart = dp(4)
                     marginEnd = dp(4)
                 },
             )
             addView(
-                smallAction("Reset", orange) { fitCanvasImage() },
+                smallAction("Sessie", blue) {
+                    enterInternalPresentationMode()
+                    startActivity(
+                        Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        },
+                    )
+                },
                 LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) },
             )
         })
+    }
+
+    private fun buildVisionWorkspace(): View = card("Centrale Werkruimte · Unified Output").apply {
+        addView(
+            body(
+                "De afbeelding staat centraal. Evidence/Authority, Pipeline, Atlas/Observation Graph, " +
+                    "Appearance, Vrije Raster en Export zijn gereedschappen rond dezelfde actieve output-state.",
+                11.2f,
+            ),
+        )
+        addView(space(9))
+        addView(buildWorkspaceRail())
+        addView(space(9))
+        addView(buildCanvas())
         addView(space(8))
-        addView(action("Open externe JPG / PNG / WebP", teal) {
-            launchPresentationRasterPicker()
+
+        addView(horizontal().apply {
+            addView(
+                smallAction("Fit", teal) { fitCanvasImage() },
+                LinearLayout.LayoutParams(0, dp(46), 1f).apply { marginEnd = dp(4) },
+            )
+            addView(
+                smallAction("Preview 1:1", blue) { setCanvasOneToOne() },
+                LinearLayout.LayoutParams(0, dp(46), 1f).apply {
+                    marginStart = dp(4)
+                    marginEnd = dp(4)
+                },
+            )
+            addView(
+                smallAction("Reset view", orange) { fitCanvasImage() },
+                LinearLayout.LayoutParams(0, dp(46), 1f).apply { marginStart = dp(4) },
+            )
+        })
+
+        addView(space(8))
+        addView(horizontal().apply {
+            addView(
+                smallAction("Extern raster", teal) { launchPresentationRasterPicker() },
+                LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = dp(4) },
+            )
+            addView(
+                smallAction("Output / Export", blue) {
+                    enterInternalPresentationMode()
+                    startActivity(
+                        Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        },
+                    )
+                },
+                LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginStart = dp(4) },
+            )
+        })
+
+        addView(space(8))
+        addView(
+            body(
+                "Fit/pan/zoom/Preview 1:1 zijn alleen VIEW-state. Crop, rotatie, resolutie en Appearance " +
+                    "horen als reversibele edit/output-state bovenop dezelfde bron; nooit als nieuwe bronpixels.",
+                10.5f,
+            ),
+        )
+    }
+
+    private fun buildWorkspaceRail(): View {
+        val rail = horizontal().apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(toolLabel("EVIDENCE", teal))
+            addView(toolLabel("PIPELINE", blue))
+            addView(toolLabel("ATLAS / GRAPH", purple))
+            addView(toolLabel("APPEARANCE", orange))
+            addView(toolLabel("FREE RASTER", teal))
+            addView(toolLabel("EXPORT", blue))
+        }
+        return HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            addView(rail)
+        }
+    }
+
+    private fun buildInspectorDeck(): View = vertical().apply {
+        addView(card("Evidence / Authority · brongebonden").apply {
+            addView(
+                body(
+                    "UI-status kent nooit zelf authority toe. Zonder runtimebinding blijft bewijs UNKNOWN/fail-closed.",
+                    10.7f,
+                ),
+            )
+            addView(space(7))
+            addView(authorityRow("MEASURED", "direct gemeten / sealed support"))
+            addView(authorityRow("CALIBRATED_ESTIMATE", "gekalibreerde schatting"))
+            addView(authorityRow("RECONSTRUCTED", "afgeleid; niet gemeten"))
+            addView(authorityRow("CENSORED", "aantoonbaar bronverlies/clipping"))
+            addView(authorityRow("UNKNOWN", "onvoldoende bewijs; zichtbaar"))
+            addView(authorityRow("APPEARANCE", "view/presentatie; geen scientific authority"))
+        })
+
+        addView(space(10))
+        addView(card("Pipeline · authority-neutrale kaart").apply {
+            addView(pipelineRow("1 · SOURCE", "selectie / camera-ingress"))
+            addView(pipelineRow("2 · SEALED", "provenance / immutable observation"))
+            addView(pipelineRow("3 · SCIENTIFIC", "Scientific Master"))
+            addView(pipelineRow("4 · CONTINUOUS", "reconstruction / TruthNegative"))
+            addView(pipelineRow("5 · FREE RASTER", "downstream projectie/output"))
+            addView(pipelineRow("6 · APPEARANCE", "view/display; geen writeback"))
+        })
+    }
+
+    private fun buildWorkbenchDock(): View = card("Werkbank · gereedschappen rond dezelfde afbeelding").apply {
+        addView(action("Appearance / Restoration", orange) {
+            startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawAdvancedActivity::class.java))
         })
         addView(space(7))
-        addView(action("Projectie / output uitvoeren in D.RAW werkbank", blue) {
+        addView(action("PRO · Open Scene / Light Transport", purple) {
+            startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawProActivity::class.java))
+        })
+        addView(space(7))
+        addView(action("Atlas / Observation Graph / Research", blue) {
+            startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawResearchHubActivity::class.java))
+        })
+        addView(space(7))
+        addView(action("Output / Vrije Raster / Export", teal) {
             enterInternalPresentationMode()
             startActivity(
                 Intent(this@TruthRawWorkspaceActivity, MainActivity::class.java).apply {
@@ -331,10 +416,14 @@ class TruthRawWorkspaceActivity : Activity() {
             )
         })
         addView(space(7))
-        addView(body(
-            "Interne D.RAW-output consumeert uitsluitend een lifetime-safe kopie van de bestaande Unified Output Ready-state. De externe rasterroute is expliciet een viewer en nooit een tweede renderer of scientific pipeline.",
-            10.8f,
-        ))
+        addView(action("Implementatiestatus", blue) {
+            startActivity(
+                Intent(
+                    this@TruthRawWorkspaceActivity,
+                    TruthRawImplementationGuideActivity::class.java,
+                ),
+            )
+        })
     }
 
     private fun buildCanvas(): View {
@@ -342,15 +431,16 @@ class TruthRawWorkspaceActivity : Activity() {
             setBackgroundColor(DrawVisualTheme.INK)
             scaleType = ImageView.ScaleType.MATRIX
             imageMatrix = canvasMatrix
-            contentDescription = "Output / Vrije Raster presentatie-canvas"
+            contentDescription = "Centrale D.RAW Output / Vrije Raster werkruimte"
             setOnTouchListener { view, event -> handleCanvasTouch(view, event) }
         }
 
         canvasPlaceholder = TextView(this).apply {
             text =
-                "OUTPUT / VRIJE RASTER\n\nGeen D.RAW-output-raster beschikbaar\n\n" +
-                    "Externe JPG / PNG / WebP = PRESENTATION_ONLY"
-            textSize = 15f
+                "D.RAW CENTRALE WERKRUIMTE\n\nGeen gebonden output-raster\n\n" +
+                    "PURE / ADVANCED / PRO delen dezelfde bron\n" +
+                    "Extern JPG / PNG / WebP = PRESENTATION_ONLY"
+            textSize = 14.5f
             setTextColor(DrawVisualTheme.PAPER_WHITE)
             gravity = Gravity.CENTER
             setPadding(dp(20), dp(20), dp(20), dp(20))
@@ -380,16 +470,16 @@ class TruthRawWorkspaceActivity : Activity() {
 
         canvasStatusView = body(
             "Canvasstatus · EMPTY · geen output-raster · authority niet afgeleid",
-            10.8f,
+            10.6f,
         )
-        canvasTelemetryView = body("View transform · geen raster", 10.3f)
+        canvasTelemetryView = body("View transform · geen raster", 10.1f)
 
         return vertical().apply {
             addView(
                 canvas,
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    dp(430),
+                    dp(500),
                 ),
             )
             addView(space(7))
@@ -410,6 +500,9 @@ class TruthRawWorkspaceActivity : Activity() {
                 lastTouchY = event.y
                 dragging = true
             }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                dragging = false
+            }
             MotionEvent.ACTION_MOVE -> {
                 if (dragging && !scaleDetector.isInProgress && event.pointerCount == 1) {
                     val dx = event.x - lastTouchX
@@ -420,6 +513,14 @@ class TruthRawWorkspaceActivity : Activity() {
                     applyCanvasMatrix()
                     markManualCanvasTransform()
                 }
+            }
+            MotionEvent.ACTION_POINTER_UP -> {
+                val remainingIndex = if (event.actionIndex == 0) 1 else 0
+                if (remainingIndex < event.pointerCount) {
+                    lastTouchX = event.getX(remainingIndex)
+                    lastTouchY = event.getY(remainingIndex)
+                }
+                dragging = event.pointerCount - 1 == 1
             }
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_CANCEL -> {
@@ -448,8 +549,8 @@ class TruthRawWorkspaceActivity : Activity() {
         applyCanvasMatrix()
         if (updateStatus) {
             canvasStatusView.text =
-                "Canvasstatus · FIT_VIEW · preview passend in canvas · " +
-                    "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+                "Canvasstatus · FIT_VIEW · presentation passend in centrale werkruimte · " +
+                    "source/scientific sampling ongewijzigd"
         }
     }
 
@@ -468,7 +569,7 @@ class TruthRawWorkspaceActivity : Activity() {
         applyCanvasMatrix()
         canvasStatusView.text =
             "Canvasstatus · PREVIEW_RASTER_1_TO_1 · 1 display-pixel per decoded preview-pixel · " +
-                "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+                "niet sensor/master 1:1 · PRESENTATION_ONLY"
     }
 
     private fun markManualCanvasTransform() {
@@ -476,15 +577,13 @@ class TruthRawWorkspaceActivity : Activity() {
         val values = FloatArray(9)
         canvasMatrix.getValues(values)
         val scale = values[Matrix.MSCALE_X]
-        canvasStatusView.text = if (kotlin.math.abs(scale - 1f) <= 0.001f) {
-            "Canvasstatus · PREVIEW_RASTER_1_TO_1_PANNED · " +
-                "1 display-pixel per decoded preview-pixel · pan actief · " +
-                "source/scientific sampling ongewijzigd · PRESENTATION_ONLY"
+        canvasStatusView.text = if (abs(scale - 1f) <= 0.001f) {
+            "Canvasstatus · PREVIEW_RASTER_1_TO_1_PANNED · pan actief · " +
+                "scientific sampling ongewijzigd · PRESENTATION_ONLY"
         } else {
             String.format(
                 Locale.US,
-                "Canvasstatus · VIEW_TRANSFORM · handmatige pan/zoom · schaal %.3fx · " +
-                    "preview-pixel 1:1 niet actief · PRESENTATION_ONLY",
+                "Canvasstatus · VIEW_TRANSFORM · handmatige pan/zoom · schaal %.3fx · PRESENTATION_ONLY",
                 scale,
             )
         }
@@ -508,7 +607,7 @@ class TruthRawWorkspaceActivity : Activity() {
         val y = values[Matrix.MTRANS_Y]
         canvasTelemetryView.text = String.format(
             Locale.US,
-            "View transform · preview %d×%d px · schaal %.3fx · x %.1f px · y %.1f px · PRESENTATION_ONLY",
+            "View transform · presentation %d×%d px · schaal %.3fx · x %.1f px · y %.1f px",
             bitmap.width,
             bitmap.height,
             scale,
@@ -532,7 +631,7 @@ class TruthRawWorkspaceActivity : Activity() {
             .putString(KEY_PRESENTATION_MODE, MODE_INTERNAL)
             .apply()
         clearCanvasPresentation(
-            "Canvasstatus · INTERNAL_D_RAW · wacht op een gebonden Unified Output Ready-state · " +
+            "Canvasstatus · INTERNAL_D_RAW · wacht op gebonden Unified Output Ready-state · " +
                 "authority niet afgeleid",
         )
     }
@@ -558,7 +657,7 @@ class TruthRawWorkspaceActivity : Activity() {
         val snapshot = UnifiedOutputPresentationBridge.acquire()
         if (snapshot == null) {
             clearCanvasPresentation(
-                "Canvasstatus · EMPTY · Geen D.RAW-output-raster beschikbaar · " +
+                "Canvasstatus · EMPTY · geen D.RAW-output-raster beschikbaar · " +
                     "geen snapshot = geen afgeleide authority",
             )
             return
@@ -607,7 +706,7 @@ class TruthRawWorkspaceActivity : Activity() {
                 "display orientation ontbreekt of is ongeldig"
             expectedPreviewWidth != snapshot.bitmap.width ||
                 expectedPreviewHeight != snapshot.bitmap.height ->
-                "previewdimensies komen niet overeen met de snapshot"
+                "previewdimensies komen niet overeen met snapshot"
             sourceWidth == null || sourceWidth <= 0 || sourceHeight == null || sourceHeight <= 0 ->
                 "upstream sourcedimensies ontbreken"
             snapshot.bitmap.width <= 0 || snapshot.bitmap.height <= 0 ->
@@ -627,8 +726,8 @@ class TruthRawWorkspaceActivity : Activity() {
         val oriented = orientUnifiedPresentationBitmap(snapshot.bitmap, quarterTurns!!)
         if (oriented == null) {
             clearCanvasPresentation(
-                "Canvasstatus · UNIFIED_OUTPUT_REJECTED · preview-oriëntatie kon niet veilig worden gekopieerd · " +
-                    "fail-closed",
+                "Canvasstatus · UNIFIED_OUTPUT_REJECTED · preview-oriëntatie kon niet veilig " +
+                    "worden gekopieerd · fail-closed",
             )
             return
         }
@@ -650,6 +749,7 @@ class TruthRawWorkspaceActivity : Activity() {
         } else {
             "sourceSHA=${sourceSha.take(16)}…"
         }
+
         canvasStatusView.text =
             "Canvasstatus · D.RAW_UNIFIED_OUTPUT_PRESENTATION · $outputLabel · route=$publishedRoute · " +
                 "bron=$sourceName · source ${sourceWidth}×${sourceHeight} px · " +
@@ -719,6 +819,13 @@ class TruthRawWorkspaceActivity : Activity() {
             return
         }
 
+        runCatching {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                data.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        }
+
         presentationMode = PresentationMode.EXTERNAL_RASTER
         getSharedPreferences(PREF_WORKSPACE, MODE_PRIVATE)
             .edit()
@@ -733,9 +840,9 @@ class TruthRawWorkspaceActivity : Activity() {
         val generation = ++presentationGeneration
         clearCanvasPresentation(
             if (restored) {
-                "Extern presentatie-raster herstellen… · PRESENTATION_ONLY"
+                "Extern presentatie-raster herstellen… · read-only · PRESENTATION_ONLY"
             } else {
-                "Extern presentatie-raster laden… · PRESENTATION_ONLY"
+                "Extern presentatie-raster laden… · read-only · PRESENTATION_ONLY"
             },
         )
 
@@ -752,6 +859,7 @@ class TruthRawWorkspaceActivity : Activity() {
                         ?.recycle()
                     return@runOnUiThread
                 }
+
                 when (result) {
                     is PresentationRasterLoader.Result.Ready -> {
                         presentationBitmap?.takeUnless { it.isRecycled }?.recycle()
@@ -760,22 +868,22 @@ class TruthRawWorkspaceActivity : Activity() {
                         canvasImage.setImageBitmap(result.bitmap)
                         canvasPlaceholder.visibility = View.GONE
                         canvasStatusView.text =
-                            "Canvasstatus · EXTERNAL_PRESENTATION_RASTER · bron " +
+                            "Canvasstatus · EXTERNAL_PRESENTATION_RASTER · read-only bron " +
                                 result.sourceWidth + "×" + result.sourceHeight +
                                 " px · preview " + result.bitmap.width + "×" + result.bitmap.height +
                                 " px · sample " + result.sampleSize + "× · PRESENTATION_ONLY · " +
-                                "geen scientific authority/writeback"
+                                "geen source/scientific writeback"
                         canvasImage.post { fitCanvasImage(updateStatus = false) }
                     }
                     is PresentationRasterLoader.Result.Failure -> {
                         clearCanvasPresentation(
                             "Rasterfout · " + result.kind.name + " · " + result.detail +
-                                " · scientific state ongewijzigd",
+                                " · bron en scientific state ongewijzigd",
                         )
                     }
                 }
             }
-        }, "draw-workspace-presentation-decode-v02").start()
+        }, "draw-workspace-presentation-decode-v03").start()
     }
 
     private fun looksLikeRawSource(uri: Uri): Boolean {
@@ -808,10 +916,32 @@ class TruthRawWorkspaceActivity : Activity() {
     private fun updateRouteStatus() {
         if (!::routeStatusView.isInitialized) return
         val route = currentSelectedRoute()
-        routeStatusView.text = "Geselecteerd · " + when (route) {
-            TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED"
-            TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO"
-            else -> "D.RAW PURE"
+        routeStatusView.text = "Actief · " + when (route) {
+            TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> "D.RAW ADVANCED · Appearance / Restoration"
+            TruthRawSuiteLauncherActivity.OUTPUT_PRO -> "D.RAW PRO · Open Scene / Research"
+            else -> "D.RAW PURE · Scientific View"
+        }
+
+        if (::pureRouteTab.isInitialized) {
+            styleRouteTab(
+                pureRouteTab,
+                route == TruthRawSuiteLauncherActivity.OUTPUT_PURE,
+                teal,
+            )
+        }
+        if (::advancedRouteTab.isInitialized) {
+            styleRouteTab(
+                advancedRouteTab,
+                route == TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED,
+                orange,
+            )
+        }
+        if (::proRouteTab.isInitialized) {
+            styleRouteTab(
+                proRouteTab,
+                route == TruthRawSuiteLauncherActivity.OUTPUT_PRO,
+                purple,
+            )
         }
     }
 
@@ -820,7 +950,7 @@ class TruthRawWorkspaceActivity : Activity() {
         addView(
             vertical().apply {
                 addView(title("D.RAW Workspace", 27f))
-                addView(body("Source → Scientific → Output / Vrije Raster · v0.2", 11.5f))
+                addView(body("Vision UI · centrale afbeelding · non-destructive v0.3", 11.2f))
             },
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
         )
@@ -830,93 +960,158 @@ class TruthRawWorkspaceActivity : Activity() {
                 textSize = 26f
                 gravity = Gravity.CENTER
                 setTextColor(ink)
-                background = rounded(DrawVisualTheme.PAPER_WHITE, DrawVisualTheme.PENCIL_YELLOW, 14f)
+                background = rounded(surface, DrawVisualTheme.PENCIL_YELLOW, 14f)
                 contentDescription = "Instellingen"
                 setOnClickListener {
-                    startActivity(Intent(this@TruthRawWorkspaceActivity, TruthRawSettingsActivity::class.java))
+                    startActivity(
+                        Intent(
+                            this@TruthRawWorkspaceActivity,
+                            TruthRawSettingsActivity::class.java,
+                        ),
+                    )
                 }
             },
             LinearLayout.LayoutParams(dp(48), dp(48)),
         )
     }
 
+    private fun routeTab(
+        label: String,
+        accent: Int,
+        onClick: () -> Unit,
+    ): TextView = TextView(this).apply {
+        text = label
+        textSize = 12f
+        setTypeface(typeface, Typeface.BOLD)
+        gravity = Gravity.CENTER
+        setTextColor(ink)
+        setPadding(dp(8), 0, dp(8), 0)
+        background = rounded(surface, accent, 14f)
+        setOnClickListener { onClick() }
+    }
+
+    private fun styleRouteTab(view: TextView, selected: Boolean, accent: Int) {
+        view.setTextColor(if (selected) DrawVisualTheme.PAPER_WHITE else ink)
+        view.background = rounded(
+            if (selected) accent else surface,
+            accent,
+            14f,
+        )
+        view.alpha = if (selected) 1f else 0.82f
+    }
+
+    private fun toolLabel(label: String, accent: Int): View =
+        TextView(this).apply {
+            text = label
+            textSize = 10.5f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(ink)
+            gravity = Gravity.CENTER
+            setPadding(dp(13), dp(10), dp(13), dp(10))
+            background = rounded(surface, accent, 14f)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ).apply { marginEnd = dp(7) }
+        }
+
     private fun pipelineRow(label: String, detail: String): View = vertical().apply {
-        setPadding(dp(11), dp(9), dp(11), dp(9))
-        background = rounded(DrawVisualTheme.PAPER_BLUE, DrawVisualTheme.BORDER, 12f)
-        addView(title(label, 12.8f))
-        addView(body(detail, 10.7f))
-        addView(space(5))
+        setPadding(dp(10), dp(7), dp(10), dp(7))
+        background = rounded(surface, DrawVisualTheme.BORDER, 11f)
+        addView(title(label, 11.2f))
+        addView(space(2))
+        addView(body(detail, 10.1f))
+        layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+        ).apply { bottomMargin = dp(5) }
     }
 
     private fun authorityRow(label: String, detail: String): View = horizontal().apply {
         gravity = Gravity.CENTER_VERTICAL
-        setPadding(dp(10), dp(8), dp(10), dp(8))
         addView(
-            title(label, 11.5f),
-            LinearLayout.LayoutParams(dp(138), ViewGroup.LayoutParams.WRAP_CONTENT),
+            TextView(this@TruthRawWorkspaceActivity).apply {
+                text = label
+                textSize = 10.2f
+                setTypeface(typeface, Typeface.BOLD)
+                setTextColor(ink)
+                setPadding(dp(8), dp(6), dp(8), dp(6))
+                background = rounded(surface, DrawVisualTheme.BORDER, 10f)
+            },
+            LinearLayout.LayoutParams(dp(150), ViewGroup.LayoutParams.WRAP_CONTENT),
         )
+        addView(spaceHorizontal(8))
         addView(
-            body(detail, 10.7f),
+            body(detail, 10.2f),
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
         )
     }
 
-    private fun card(heading: String): LinearLayout = vertical().apply {
-        setPadding(dp(15), dp(15), dp(15), dp(15))
+    private fun card(label: String): LinearLayout = vertical().apply {
+        setPadding(dp(14), dp(13), dp(14), dp(14))
         background = rounded(surface, DrawVisualTheme.BORDER, 18f)
-        addView(title(heading, 17f))
-        addView(space(7))
+        addView(title(label, 15f))
+        addView(space(8))
     }
 
-    private fun action(label: String, accent: Int, onClick: () -> Unit): View =
+    private fun action(label: String, accent: Int, onClick: () -> Unit): TextView =
         TextView(this).apply {
             text = label
-            textSize = 14f
+            textSize = 12f
+            setTypeface(typeface, Typeface.BOLD)
             setTextColor(ink)
-            gravity = Gravity.CENTER
-            setPadding(dp(13), dp(13), dp(13), dp(13))
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14), 0, dp(14), 0)
             background = rounded(surface, accent, 14f)
             setOnClickListener { onClick() }
+            minHeight = dp(50)
         }
 
-    private fun smallAction(label: String, accent: Int, onClick: () -> Unit): View =
+    private fun smallAction(label: String, accent: Int, onClick: () -> Unit): TextView =
         TextView(this).apply {
             text = label
-            textSize = 13f
+            textSize = 10.7f
+            setTypeface(typeface, Typeface.BOLD)
             setTextColor(ink)
             gravity = Gravity.CENTER
+            setPadding(dp(8), 0, dp(8), 0)
             background = rounded(surface, accent, 12f)
             setOnClickListener { onClick() }
         }
 
-    private fun routeAction(label: String, accent: Int, onClick: () -> Unit): View =
-        action(label, accent, onClick)
-
     private fun rounded(fill: Int, stroke: Int, radius: Float): GradientDrawable =
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = radius * resources.displayMetrics.density
+            cornerRadius = dp(radius.toInt()).toFloat()
             setColor(fill)
             setStroke(dp(1), stroke)
         }
 
     private fun vertical() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
     private fun horizontal() = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+
     private fun space(height: Int) = View(this).apply {
         layoutParams = LinearLayout.LayoutParams(1, dp(height))
     }
+
+    private fun spaceHorizontal(width: Int) = View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(dp(width), 1)
+    }
+
     private fun title(value: String, size: Float) = TextView(this).apply {
         text = value
         textSize = size
         setTextColor(ink)
         setTypeface(typeface, Typeface.BOLD)
     }
+
     private fun body(value: String, size: Float) = TextView(this).apply {
         text = value
         textSize = size
         setTextColor(muted)
         setLineSpacing(0f, 1.12f)
     }
+
     private fun dp(value: Int): Int =
         (value * resources.displayMetrics.density + 0.5f).toInt()
 
