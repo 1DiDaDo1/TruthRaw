@@ -5,16 +5,18 @@ import java.io.DataInputStream
 import java.io.EOFException
 import java.io.File
 import java.io.FileInputStream
+import java.io.RandomAccessFile
 
 /**
- * Fail-closed verifier for D.RAW High-Fidelity JPEG v0.1.
+ * Fail-closed verifier for D.RAW High-Fidelity JPEG v0.2.
  *
  * JPEG has no standardized integer "quality" metadata. D.RAW therefore verifies
  * the admitted Q100 encoder's actual output structure: baseline SOF0, exact
- * geometry, 1x1 sampling for all three components, and all-one 8-bit DQT tables.
+ * geometry, 1x1 sampling for all three components, all-one 8-bit DQT tables,
+ * and a canonical baseline-sequential SOS payload.
  */
 internal object HighFidelityJpegContractV01 {
-    const val CONTRACT_VERSION = "HighFidelityJpegContract/0.1"
+    const val CONTRACT_VERSION = "HighFidelityJpegContract/0.2"
     const val REQUIRED_QUALITY = 100
     const val REQUIRED_SAMPLING = "1x1,1x1,1x1"
 
@@ -26,6 +28,7 @@ internal object HighFidelityJpegContractV01 {
             val sampling: String = REQUIRED_SAMPLING,
             val baselineSof0: Boolean = true,
             val quantizationTablesAllOnes: Boolean = true,
+            val canonicalSequentialSos: Boolean = true,
         ) : Result
 
         data class Failed(val reason: String) : Result
@@ -37,6 +40,9 @@ internal object HighFidelityJpegContractV01 {
         }
         if (expectedWidth !in 1..65535 || expectedHeight !in 1..65535) {
             return Result.Failed("High-Fidelity JPEG heeft ongeldige verwachte geometrie.")
+        }
+        if (!hasTerminalEoi(file)) {
+            return Result.Failed("High-Fidelity JPEG mist terminale EOI-marker.")
         }
 
         return try {
@@ -160,6 +166,13 @@ internal object HighFidelityJpegContractV01 {
                                     "High-Fidelity JPEG Q100-contract faalde: DQT0/DQT1 zijn niet volledig 1.",
                                 )
                             }
+                            val payload = ByteArray(payloadLength)
+                            input.readFully(payload)
+                            if (!isCanonicalSequentialSos(payload)) {
+                                return Result.Failed(
+                                    "High-Fidelity JPEG SOS is niet canoniek baseline-sequential.",
+                                )
+                            }
                             return Result.Ready(expectedWidth, expectedHeight)
                         }
 
@@ -177,6 +190,30 @@ internal object HighFidelityJpegContractV01 {
                 }
             }
         }
+    }
+
+    private fun isCanonicalSequentialSos(payload: ByteArray): Boolean {
+        if (payload.size != 10) return false
+        val expected = intArrayOf(
+            3,
+            1, 0x00,
+            2, 0x11,
+            3, 0x11,
+            0x00, 0x3f, 0x00,
+        )
+        return expected.indices.all { index ->
+            (payload[index].toInt() and 0xff) == expected[index]
+        }
+    }
+
+    private fun hasTerminalEoi(file: File): Boolean = try {
+        RandomAccessFile(file, "r").use { input ->
+            if (input.length() < 2L) return@use false
+            input.seek(input.length() - 2L)
+            input.readUnsignedByte() == 0xff && input.readUnsignedByte() == 0xd9
+        }
+    } catch (_: Throwable) {
+        false
     }
 
     private fun nextMarker(input: DataInputStream): Int? {
