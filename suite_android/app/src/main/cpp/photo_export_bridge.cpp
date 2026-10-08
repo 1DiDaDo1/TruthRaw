@@ -13,6 +13,7 @@
 #include "presentation_gamut_fit_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_illuminant_warmth_retention_v0_1.h"
+#include "presentation_natural_light_field_tone_v0_1.h"
 #include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
@@ -63,6 +64,7 @@ namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
+namespace presentation_natural_light_field = truthraw::presentation_natural_light_field_tone::v0_1;
 namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
 namespace render_edit = truthraw::advanced_render_edit::v0_1;
 
@@ -532,12 +534,19 @@ private:
     StreamStatus finalizeCoreTile(
         int x0,int y0,int x1,int y1,
         const truthraw_v47k::OutputAcutancePlan& plan) {
-        constexpr int kSupportHalo=3;
-        const int sx0=std::max(0,x0-kSupportHalo);
-        const int sy0=std::max(0,y0-kSupportHalo);
-        const int sx1=std::min(sourceWidth_,x1+kSupportHalo);
-        const int sy1=std::min(sourceHeight_,y1+kSupportHalo);
+        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;
+        const bool naturalLightFieldEnabled=
+            naturalLightEnabled && !extendedLinearHeadroomInput_;
+        const int localFieldRadius=naturalLightFieldEnabled
+            ? std::clamp(std::min(sourceWidth_,sourceHeight_)/128,12,32)
+            : 3;
+        const int supportHalo=std::max(3,localFieldRadius);
+        const int sx0=std::max(0,x0-supportHalo);
+        const int sy0=std::max(0,y0-supportHalo);
+        const int sx1=std::min(sourceWidth_,x1+supportHalo);
+        const int sy1=std::min(sourceHeight_,y1+supportHalo);
         const int sw=sx1-sx0;
+        const int sh=sy1-sy0;
 
         std::vector<float> supportRgb;
         std::vector<std::uint8_t> supportMask;
@@ -545,6 +554,47 @@ private:
         if(!st) return st;
         st=readMaskRect(sx0,sy0,sx1,sy1,supportMask);
         if(!st) return st;
+
+        // Build a deterministic integral image from already-rendered RGB.
+        // Censored samples are excluded: this stage is a View/Appearance
+        // neighbourhood cue, never clipped-radiance recovery or light-transport proof.
+        const int fieldIntegralWidth=sw+1;
+        std::vector<double> fieldLumaIntegral;
+        std::vector<std::uint32_t> fieldCountIntegral;
+        if(naturalLightFieldEnabled) {
+            const std::size_t integralCells=
+                static_cast<std::size_t>(fieldIntegralWidth)*static_cast<std::size_t>(sh+1);
+            fieldLumaIntegral.assign(integralCells,0.0);
+            fieldCountIntegral.assign(integralCells,0u);
+            for(int fy=0;fy<sh;++fy) {
+                double rowLuma=0.0;
+                std::uint32_t rowCount=0u;
+                for(int fx=0;fx<sw;++fx) {
+                    const std::size_t si=
+                        static_cast<std::size_t>(fy)*sw+static_cast<std::size_t>(fx);
+                    if(supportMask[si]==0u) {
+                        const float rr=supportRgb[3u*si];
+                        const float gg=supportRgb[3u*si+1u];
+                        const float bb=supportRgb[3u*si+2u];
+                        if(std::isfinite(rr)&&std::isfinite(gg)&&std::isfinite(bb)) {
+                            const float yy=std::clamp(
+                                presentation_natural_light_field::luminance709(rr,gg,bb),
+                                0.0f,1.0f);
+                            rowLuma+=static_cast<double>(yy);
+                            ++rowCount;
+                        }
+                    }
+                    const std::size_t p=
+                        static_cast<std::size_t>(fy+1)*fieldIntegralWidth+
+                        static_cast<std::size_t>(fx+1);
+                    const std::size_t above=
+                        static_cast<std::size_t>(fy)*fieldIntegralWidth+
+                        static_cast<std::size_t>(fx+1);
+                    fieldLumaIntegral[p]=fieldLumaIntegral[above]+rowLuma;
+                    fieldCountIntegral[p]=fieldCountIntegral[above]+rowCount;
+                }
+            }
+        }
 
         const int ax0=std::max(0,x0-1);
         const int ay0=std::max(0,y0-1);
@@ -555,7 +605,6 @@ private:
         std::vector<float> preAcutance(
             3u*static_cast<std::size_t>(aw)*static_cast<std::size_t>(ah));
 
-        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;
         const float exposureGain=advanced_controls::presentation_exposure_gain(
             static_cast<std::uint32_t>(flags_),
             exposure_.anchorsY[2],
@@ -563,6 +612,30 @@ private:
             naturalLightEnabled);
         const float shadowMix=advanced_controls::shadow_recovery_mix(
             static_cast<std::uint32_t>(flags_));
+
+        auto localFieldMeanAt=[&](int px,int py) noexcept -> float {
+            if(!naturalLightFieldEnabled || fieldLumaIntegral.empty() ||
+               fieldCountIntegral.empty()) return 0.0f;
+            const int rx0=std::max(sx0,px-localFieldRadius);
+            const int ry0=std::max(sy0,py-localFieldRadius);
+            const int rx1=std::min(sx1,px+localFieldRadius+1);
+            const int ry1=std::min(sy1,py+localFieldRadius+1);
+            const int ix0=rx0-sx0, iy0=ry0-sy0;
+            const int ix1=rx1-sx0, iy1=ry1-sy0;
+            const auto at=[&](const auto& integral,int ix,int iy) noexcept {
+                return integral[static_cast<std::size_t>(iy)*fieldIntegralWidth+
+                                static_cast<std::size_t>(ix)];
+            };
+            const double sum=
+                at(fieldLumaIntegral,ix1,iy1)-at(fieldLumaIntegral,ix0,iy1)-
+                at(fieldLumaIntegral,ix1,iy0)+at(fieldLumaIntegral,ix0,iy0);
+            const std::uint32_t count=
+                at(fieldCountIntegral,ix1,iy1)-at(fieldCountIntegral,ix0,iy1)-
+                at(fieldCountIntegral,ix1,iy0)+at(fieldCountIntegral,ix0,iy0);
+            if(count==0u || !std::isfinite(sum) || sum<0.0) return 0.0f;
+            const float mean=static_cast<float>(sum/static_cast<double>(count));
+            return std::clamp(mean*exposureGain,0.0f,1.0f);
+        };
 
         for(int y=ay0;y<ay1;++y) {
             for(int x=ax0;x<ax1;++x) {
@@ -725,6 +798,16 @@ private:
                             "PURE extended-linear headroom mapping failed");
                     }
                 } else {
+                    // A bounded image-space luminous-field cue improves Natural
+                    // Light appearance without claiming physical light transport.
+                    // It is a common RGB gain and censored samples are protected.
+                    const float localFieldY=localFieldMeanAt(x,y);
+                    if(!presentation_natural_light_field::apply(
+                            r,g,b,localFieldY,censored,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res Natural Light local field tone failed");
+                    }
                     // Natural Light may retain a bounded fraction of a warm
                     // source-white appearance. This is presentation-only and
                     // deliberately excluded from the PURE headroom branch.
