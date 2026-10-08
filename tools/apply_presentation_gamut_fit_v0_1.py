@@ -65,8 +65,8 @@ if not presentation_fit_present:
         text = text.replace(old, new, 1)
     changed = True
 
-policy_token = "PresentationNegativeGamutPolicy::PreserveLuminance"
-if policy_token not in text:
+negative_policy_token = "PresentationNegativeGamutPolicy::PreserveLuminance"
+if negative_policy_token not in text:
     old = (
         '    o.streamScientificDiagnostics=false;\n'
         '    o.sdrLutSize=4096;\n'
@@ -84,7 +84,37 @@ if policy_token not in text:
     count = text.count(old)
     if count != 1:
         print(
-            f"FAIL: photo-output presentation policy: expected exactly one anchor, found {count}",
+            f"FAIL: photo-output negative-gamut policy: expected exactly one anchor, found {count}",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+    text = text.replace(old, new, 1)
+    changed = True
+
+headroom_policy_token = "PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom"
+if headroom_policy_token not in text:
+    old = (
+        '    o.presentationNegativeGamutPolicy=\n'
+        '        truthraw::streaming_v0_1::PresentationNegativeGamutPolicy::PreserveLuminance;\n'
+        '    o.memoryBudgetBytes=memoryBudgetBytes;\n'
+    )
+    new = (
+        '    o.presentationNegativeGamutPolicy=\n'
+        '        truthraw::streaming_v0_1::PresentationNegativeGamutPolicy::PreserveLuminance;\n'
+        '    // Keep finite positive float headroom above 1.0 intact for the\n'
+        '    // non-HDR derived photo route until FullResNv21Sink performs the\n'
+        '    // actual highlight/output mapping. HDR keeps its proven legacy\n'
+        '    // intermediate contract in this isolated experiment.\n'
+        '    o.presentationPositiveHeadroomPolicy=\n'
+        '        ((flags&kFlagHdr)==0)\n'
+        '            ? truthraw::streaming_v0_1::PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom\n'
+        '            : truthraw::streaming_v0_1::PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit;\n'
+        '    o.memoryBudgetBytes=memoryBudgetBytes;\n'
+    )
+    count = text.count(old)
+    if count != 1:
+        print(
+            f"FAIL: photo-output positive-headroom policy: expected exactly one anchor, found {count}",
             file=sys.stderr,
         )
         raise SystemExit(2)
@@ -95,4 +125,4 @@ if changed:
     TARGET.write_text(text, encoding="utf-8")
     print("PRESENTATION_GAMUT_FIT_V0_1_PATCH_APPLIED")
 else:
-    print("presentation gamut fit v0.1 and pre-sink policy already applied")
+    print("presentation gamut fit v0.1 and float-headroom policy already applied")
