@@ -40,17 +40,6 @@ enum class PresentationNegativeGamutPolicy : std::uint8_t {
     PreserveLuminance = 1,
 };
 
-// Controls what happens to finite positive presentation values above linear 1.0
-// before they reach the actual display/output boundary. The legacy path
-// normalizes each RGB triplet to max(channel)==1.0. PreserveFloatHeadroom keeps
-// those values in float so the final downstream highlight/output mapping can
-// make one explicit bounded conversion. This is presentation-only: it does not
-// modify sealed RAW, Scientific Master, authority, censoring or Zero-Line.
-enum class PresentationPositiveHeadroomPolicy : std::uint8_t {
-    LegacyNormalizeToUnit = 0,
-    PreserveFloatHeadroom = 1,
-};
-
 struct StreamingOptions {
     TilePolicy tile{128, 16};
     int workers = 1;
@@ -60,8 +49,6 @@ struct StreamingOptions {
     std::size_t memoryBudgetBytes = 0; // 0 = caller does not impose a logical resident ceiling.
     PresentationNegativeGamutPolicy presentationNegativeGamutPolicy =
         PresentationNegativeGamutPolicy::LegacyPerChannelClip;
-    PresentationPositiveHeadroomPolicy presentationPositiveHeadroomPolicy =
-        PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit;
 };
 
 struct HalfStateRect {
