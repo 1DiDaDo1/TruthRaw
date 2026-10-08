@@ -2882,6 +2882,7 @@ class MainActivity : Activity() {
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
                 val rendered = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver, job, flags, quarterTurns, dir,
+                    presentationHeadroomMode = binding.presentationHeadroomMode,
                 )
                 var jpegOutputPreview: UnifiedOutputPreviewResult.Ready? = null
                 var status = when (rendered) {

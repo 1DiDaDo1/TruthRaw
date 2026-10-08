@@ -15,6 +15,7 @@ data class DrawPhotoOutputBindingV01(
     val route: String,
     val routeFlags: Int,
     val userQuarterTurns: Int,
+    val presentationHeadroomMode: Int,
     val adapterId: String,
     val sourceAuthority: String,
     val outputAuthority: String,
@@ -92,6 +93,10 @@ object DrawPhotoOutputCableV01 {
                 route = route,
                 routeFlags = routeFlags,
                 userQuarterTurns = userQuarterTurns,
+                presentationHeadroomMode = PresentationHeadroomModeV01.forPhotoOutputRoute(route)
+                    ?: return DrawPhotoOutputBindResultV01.Failed(
+                        "JPG-output geblokkeerd: onbekende presentation-headroom route.",
+                    ),
                 adapterId = JPEG_FULL_RES_ADAPTER,
                 sourceAuthority = SOURCE_AUTHORITY,
                 outputAuthority = OUTPUT_AUTHORITY,
@@ -123,6 +128,13 @@ object DrawPhotoOutputCableV01 {
         }
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return "JPG-output geblokkeerd: admitted DNG-route is niet meer geldig."
+        }
+        val expectedHeadroomMode = PresentationHeadroomModeV01.forPhotoOutputRoute(binding.route)
+            ?: return "JPG-output geblokkeerd: onbekende presentation-headroom route in binding."
+        if (!PresentationHeadroomModeV01.isKnown(binding.presentationHeadroomMode) ||
+            binding.presentationHeadroomMode != expectedHeadroomMode
+        ) {
+            return "JPG-output geblokkeerd: presentation-headroom contract mismatch."
         }
         if (binding.createsNewEvidence ||
             binding.scientificWritebackAllowed ||
@@ -159,6 +171,11 @@ object DrawPhotoOutputCableV01 {
 
         if (currentRoute != binding.route) {
             return "JPG-output geblokkeerd: uitvoerroute veranderde tijdens de bestandsdialoog."
+        }
+        val currentHeadroomMode = PresentationHeadroomModeV01.forPhotoOutputRoute(currentRoute)
+            ?: return "JPG-output geblokkeerd: onbekende presentation-headroom route tijdens de bestandsdialoog."
+        if (currentHeadroomMode != binding.presentationHeadroomMode) {
+            return "JPG-output geblokkeerd: presentation-headroom contract veranderde tijdens de bestandsdialoog."
         }
         if (currentRouteFlags != binding.routeFlags) {
             return "JPG-output geblokkeerd: appearance-instellingen veranderden tijdens de bestandsdialoog."

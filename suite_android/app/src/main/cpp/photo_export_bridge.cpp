@@ -69,6 +69,8 @@ constexpr jint kFlagHdr = static_cast<jint>(advanced_controls::kFlagHdr);
 constexpr jint kFlagDetail = static_cast<jint>(advanced_controls::kFlagDetail);
 constexpr jint kFlagRestoration = static_cast<jint>(advanced_controls::kFlagRestoration);
 constexpr jint kAllowedFlags = static_cast<jint>(advanced_controls::kAllowedFlags);
+constexpr jint kPresentationHeadroomOff = 0;
+constexpr jint kPresentationHeadroomPureMap90To100 = 1;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
 
@@ -975,9 +977,13 @@ StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
 extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     JNIEnv* env, jobject, jint sourceFd, jint outputFd, jint flags, jint sourceRouteCode,
-    jint userQuarterTurns, jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
+    jint userQuarterTurns, jint presentationHeadroomMode,
+    jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
     if (sourceFd<0 || outputFd<0 || maxSourceResidentBytes<=0 || maxLogicalResidentBytes<=0 ||
         userQuarterTurns<0 || userQuarterTurns>3 ||
+        (presentationHeadroomMode!=kPresentationHeadroomOff &&
+         presentationHeadroomMode!=kPresentationHeadroomPureMap90To100) ||
+        (presentationHeadroomMode==kPresentationHeadroomPureMap90To100 && flags!=0) ||
         (flags&~kAllowedFlags)!=0 || (sourceRouteCode!=0 && sourceRouteCode!=1)) {
         return packet(env,-1);
     }
@@ -1159,7 +1165,11 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
 
-    const bool pureExtendedLinearHeadroomCandidate=(flags==0);
+    // Selection is an explicit downstream output contract. flags==0 alone is
+    // not sufficient: scientific/helper renders also legitimately carry zero
+    // appearance flags and must not silently enter the PURE headroom path.
+    const bool pureExtendedLinearHeadroomCandidate=
+        presentationHeadroomMode==kPresentationHeadroomPureMap90To100;
     FullResNv21Sink sink(
         static_cast<int>(outputFd),
         flags,

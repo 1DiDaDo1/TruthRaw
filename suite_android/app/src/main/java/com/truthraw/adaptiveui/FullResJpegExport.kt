@@ -18,6 +18,7 @@ object PhotoExportNativeBridge {
         flags: Int,
         sourceRouteCode: Int,
         userQuarterTurns: Int,
+        presentationHeadroomMode: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
     ): LongArray
@@ -102,9 +103,13 @@ object FullResJpegExporter {
         flags: Int,
         userQuarterTurns: Int,
         workingDir: File,
+        presentationHeadroomMode: Int = PresentationHeadroomModeV01.OFF,
     ): FullResJpegResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return FullResJpegResult.Failed("Full-resolution JPG is alleen beschikbaar voor de admitted DNG-route.")
+        }
+        if (!PresentationHeadroomModeV01.isKnown(presentationHeadroomMode)) {
+            return FullResJpegResult.Failed("JPG: onbekende presentation-headroom modus.")
         }
         FullResPresentationRasterRegistryV01.clear()
         workingDir.mkdirs()
@@ -143,6 +148,7 @@ object FullResJpegExporter {
                             SourceIngressRoute.CAMERA_CAPTURE -> 1
                         },
                         userQuarterTurns,
+                        presentationHeadroomMode,
                         MAX_SOURCE_RESIDENT_BYTES,
                         MAX_LOGICAL_RESIDENT_BYTES,
                     )
