@@ -859,6 +859,14 @@ StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
     // negative-gamut policy. Legacy/canonical streaming stays default.
     o.presentationNegativeGamutPolicy=
         truthraw::streaming_v0_1::PresentationNegativeGamutPolicy::PreserveLuminance;
+    // Keep finite positive float headroom above 1.0 intact for the
+    // non-HDR derived photo route until FullResNv21Sink performs the
+    // actual highlight/output mapping. HDR keeps its proven legacy
+    // intermediate contract in this isolated experiment.
+    o.presentationPositiveHeadroomPolicy=
+        ((flags&kFlagHdr)==0)
+            ? truthraw::streaming_v0_1::PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom
+            : truthraw::streaming_v0_1::PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit;
     o.memoryBudgetBytes=memoryBudgetBytes;
     return o;
 }
