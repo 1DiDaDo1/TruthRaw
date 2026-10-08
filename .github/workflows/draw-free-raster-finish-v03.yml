@@ -36,9 +36,15 @@ jobs:
           grep -F 'presentation_gamut_fit_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_nonnegative_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_unit_rgb_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'PresentationNegativeGamutPolicy::PreserveLuminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'streaming_presentation_gamut_fit_v0_1.h' docs/research/full-frame-streaming-v0.1/native/full_frame_streaming_v0_1_pass2.cpp
+          grep -F 'presentation_gamut::fit_nonnegative_preserve_luminance(rr, gg, bb)' docs/research/full-frame-streaming-v0.1/native/full_frame_streaming_v0_1_pass2.cpp
 
       - name: Presentation gamut fit regression
         run: python3 tools/test_presentation_gamut_fit_v0_1.py
+
+      - name: Pre-sink presentation negative-gamut regression
+        run: python3 tools/test_streaming_presentation_negative_gamut_v0_1.py
 
       - name: Install strict JPEG decoder
         run: |
