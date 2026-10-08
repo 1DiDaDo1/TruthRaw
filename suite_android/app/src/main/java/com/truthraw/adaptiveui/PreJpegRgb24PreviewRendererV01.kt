@@ -149,6 +149,7 @@ internal object PreJpegRgb24PreviewRendererV01 {
                 presentationRgbBytes != expectedRgbBytes ||
                 expectedStageBytes <= nv21Bytes ||
                 nativeStageFile.length() != expectedStageBytes ||
+                packet[8].toInt() != flags ||
                 packet[12] != 1L || packet[13] != 1L || packet[14] != 1L ||
                 packet[15] != 1L || packet[18] != 1L || packet[19] != 1L ||
                 packetUserQuarterTurns != userQuarterTurns ||
