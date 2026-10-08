@@ -31,7 +31,9 @@ jobs:
         run: python3 tools/apply_presentation_illuminant_warmth_retention_v0_1.py
 
       - name: Apply ADVANCED/PRO Natural Light local field tone v0.1
-        run: python3 tools/apply_presentation_natural_light_field_tone_v0_1.py
+        run: |
+          python3 tools/apply_presentation_natural_light_field_tone_v0_1.py
+          python3 tools/fix_presentation_natural_light_field_tone_v0_1.py
 
       - name: Apply PURE Float32 headroom output v0.1
         run: python3 tools/apply_pure_float_headroom_output_v0_1.py
