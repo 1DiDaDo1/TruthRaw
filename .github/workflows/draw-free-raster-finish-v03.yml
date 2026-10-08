@@ -30,6 +30,9 @@ jobs:
       - name: Apply ADVANCED/PRO warm illuminant retention v0.1
         run: python3 tools/apply_presentation_illuminant_warmth_retention_v0_1.py
 
+      - name: Apply ADVANCED/PRO Natural Light local field tone v0.1
+        run: python3 tools/apply_presentation_natural_light_field_tone_v0_1.py
+
       - name: Apply PURE Float32 headroom output v0.1
         run: python3 tools/apply_pure_float_headroom_output_v0_1.py
 
@@ -53,6 +56,9 @@ jobs:
           grep -F 'presentation_illuminant_warmth_retention_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'presentation_illuminant_warmth::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'presentationSourceWhite.x=illuminationState.whiteX' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_natural_light_field_tone_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_natural_light_field::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'naturalLightFieldEnabled && !extendedLinearHeadroomInput_' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'presentation_headroom_map_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'process_pure_extended_linear_headroom_v0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
@@ -67,6 +73,9 @@ jobs:
 
       - name: ADVANCED/PRO warm illuminant retention regression
         run: python3 tools/test_presentation_illuminant_warmth_retention_v0_1.py
+
+      - name: ADVANCED/PRO Natural Light local field tone regression
+        run: python3 tools/test_presentation_natural_light_field_tone_v0_1.py
 
       - name: PURE Float32 headroom regression
         run: python3 tools/test_presentation_headroom_map_v0_1.py
