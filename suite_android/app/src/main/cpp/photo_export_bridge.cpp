@@ -12,6 +12,7 @@
 #include "output_acutance_v0_81.h"
 #include "presentation_gamut_fit_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
+#include "presentation_illuminant_warmth_retention_v0_1.h"
 #include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
@@ -61,6 +62,7 @@ namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
+namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
 namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
 namespace render_edit = truthraw::advanced_render_edit::v0_1;
 
@@ -223,12 +225,14 @@ public:
         jint userQuarterTurns,
         truthraw::streaming_v0_1::IRawTileSource& source,
         float noiseSigmaAt2Pct,
+        presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite,
         bool extendedLinearHeadroomInput)
         : fd_(fd),
           flags_(flags),
           userQuarterTurns_(userQuarterTurns),
           source_(source),
           noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          presentationSourceWhite_(presentationSourceWhite),
           extendedLinearHeadroomInput_(extendedLinearHeadroomInput),
           detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
           colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
@@ -721,6 +725,15 @@ private:
                             "PURE extended-linear headroom mapping failed");
                     }
                 } else {
+                    // Natural Light may retain a bounded fraction of a warm
+                    // source-white appearance. This is presentation-only and
+                    // deliberately excluded from the PURE headroom branch.
+                    if(!presentation_illuminant_warmth::apply(
+                            r,g,b,presentationSourceWhite_,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res source-white warmth retention failed");
+                    }
                     const float mx=std::max(r,std::max(g,b));
                     if(mx>0.92f) {
                         const float shoulder=
@@ -840,6 +853,7 @@ private:
     jint userQuarterTurns_=0;
     truthraw::streaming_v0_1::IRawTileSource& source_;
     float noiseSigmaAt2Pct_=0.0f;
+    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};
     bool extendedLinearHeadroomInput_=false;
     float detailMix_=0.0f;
     float colorFullnessMix_=0.0f;
@@ -1173,6 +1187,15 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
 
+    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite{};
+    presentationSourceWhite.known=
+        illuminationState.whitePointKnown &&
+        illuminationState.whitePointAuthority!=illumination_state::EstimateAuthority::Unknown;
+    presentationSourceWhite.x=illuminationState.whiteX;
+    presentationSourceWhite.y=illuminationState.whiteY;
+    presentationSourceWhite.correlatedColorTemperatureK=
+        illuminationState.correlatedColorTemperatureK;
+
     // Selection is an explicit downstream output contract. flags==0 alone is
     // not sufficient: scientific/helper renders also legitimately carry zero
     // appearance flags and must not silently enter the PURE headroom path.
@@ -1184,6 +1207,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         userQuarterTurns,
         *source,
         noiseSigma,
+        presentationSourceWhite,
         pureExtendedLinearHeadroomCandidate);
     StreamingResult stream;
     StreamStatus processed;
