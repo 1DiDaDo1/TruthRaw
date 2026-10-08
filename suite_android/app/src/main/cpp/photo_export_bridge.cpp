@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "adaptive_detail_v47j_adapter.h"
+#include "advanced_render_edit_tile_source_v0_1.h"
 #include "advanced_appearance_controls_v0_1.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
@@ -10,6 +11,7 @@
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
 #include "presentation_gamut_fit_v0_1.h"
+#include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
 #include "raw_source_adapter_bridge_common.h"
@@ -57,6 +59,8 @@ namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
+namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
+namespace render_edit = truthraw::advanced_render_edit::v0_1;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
 constexpr std::size_t kPacketLongs = 48u;
@@ -214,12 +218,14 @@ public:
         jint flags,
         jint userQuarterTurns,
         truthraw::streaming_v0_1::IRawTileSource& source,
-        float noiseSigmaAt2Pct)
+        float noiseSigmaAt2Pct,
+        bool extendedLinearHeadroomInput)
         : fd_(fd),
           flags_(flags),
           userQuarterTurns_(userQuarterTurns),
           source_(source),
           noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),
           detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
           colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
           outputProfile_(
@@ -699,12 +705,25 @@ private:
                         "full-res color-fullness transform failed");
                 }
 
-                const float mx=std::max(r,std::max(g,b));
-                if(mx>0.92f) {
-                    const float shoulder=
-                        0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
-                    const float sc=shoulder/std::max(mx,1e-8f);
-                    r*=sc; g*=sc; b*=sc;
+                if(extendedLinearHeadroomInput_) {
+                    // The PURE headroom candidate arrives here as the existing
+                    // extended-linear Float32 derivative, so this is the one
+                    // deliberate scene/display boundary. 90/100 is the most
+                    // conservative previously measured non-baseline headroom
+                    // candidate. It is APPEARANCE only.
+                    if(!presentation_headroom::map_90_100(r,g,b)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "PURE extended-linear headroom mapping failed");
+                    }
+                } else {
+                    const float mx=std::max(r,std::max(g,b));
+                    if(mx>0.92f) {
+                        const float shoulder=
+                            0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
+                        const float sc=shoulder/std::max(mx,1e-8f);
+                        r*=sc; g*=sc; b*=sc;
+                    }
                 }
 
                 if(!presentation_gamut::fit_unit_rgb_preserve_luminance(r,g,b)) {
@@ -811,6 +830,7 @@ private:
     jint userQuarterTurns_=0;
     truthraw::streaming_v0_1::IRawTileSource& source_;
     float noiseSigmaAt2Pct_=0.0f;
+    bool extendedLinearHeadroomInput_=false;
     float detailMix_=0.0f;
     float colorFullnessMix_=0.0f;
     truthraw_v47k::OutputProfile outputProfile_=truthraw_v47k::OutputProfile::Neutral;
@@ -847,6 +867,97 @@ private:
     std::uint64_t restoredPixels_=0;
     std::uint64_t censoredPixels_=0;
 };
+
+StreamStatus process_pure_extended_linear_headroom_v0_1(
+    truthraw::streaming_v0_1::IRawTileSource& source,
+    truthraw::IReconstructionBackend& reconstruction,
+    const std::array<float,9>& cameraToXyzD50,
+    FullResNv21Sink& sink,
+    StreamingResult& stream) {
+    const auto& m=source.metadata();
+    if(m.width<=0 || m.height<=0 || (m.width&1)!=0 || (m.height&1)!=0) {
+        return StreamStatus::error(
+            StreamStatusCode::InvalidArgument,
+            "PURE extended-linear headroom route requires even geometry");
+    }
+
+    // PURE carries no adjustable Appearance flags here. A default exposure
+    // plan is therefore intentionally inert in FullResNv21Sink. The source
+    // below replays the already admitted reconstruction directly into
+    // extended linear-sRGB and preserves finite values above 1.0.
+    truthraw::ExposurePlan exposure{};
+    auto status=sink.beginFrame(
+        m.width,m.height,m.orientation,exposure,false,false);
+    if(!status) return status;
+
+    render_edit::ExtendedLinearSrgbTileSource linearSource(
+        source,reconstruction,cameraToXyzD50,0u,exposure);
+    if(linearSource.residentBytesUpperBound()==0u) {
+        return StreamStatus::error(
+            StreamStatusCode::BackendFailed,
+            "PURE extended-linear source failed to initialize");
+    }
+
+    std::vector<float> rgb;
+    std::vector<float> zeroGain;
+    std::size_t tileCount=0u;
+    for(int y0=0;y0<m.height;y0+=kTileCore) {
+        const int y1=std::min(m.height,y0+kTileCore);
+        for(int x0=0;x0<m.width;x0+=kTileCore) {
+            const int x1=std::min(m.width,x0+kTileCore);
+            const int w=x1-x0;
+            const int h=y1-y0;
+            rgb.resize(
+                3u*static_cast<std::size_t>(w)*static_cast<std::size_t>(h));
+            const auto read=linearSource.readCameraNativeTile(
+                static_cast<std::uint32_t>(x0),
+                static_cast<std::uint32_t>(y0),
+                static_cast<std::uint32_t>(w),
+                static_cast<std::uint32_t>(h),
+                rgb.data(),rgb.size());
+            if(!read) {
+                return StreamStatus::error(
+                    StreamStatusCode::BackendFailed,
+                    "PURE extended-linear tile replay failed: "+read.message);
+            }
+
+            const TileRect core{x0,y0,x1,y1,x0,y0,x1,y1};
+            status=sink.writeSdrTile(core,rgb.data(),rgb.size());
+            if(!status) return status;
+
+            const HalfStateRect half{x0/2,y0/2,x1/2,y1/2};
+            const std::size_t halfCount=
+                static_cast<std::size_t>(half.x1-half.x0)*
+                static_cast<std::size_t>(half.y1-half.y0);
+            zeroGain.assign(halfCount,0.0f);
+            status=sink.writeHalfLogGainBlock(
+                half,zeroGain.data(),zeroGain.size());
+            if(!status) return status;
+            ++tileCount;
+        }
+    }
+
+    status=sink.finishFrame();
+    if(!status) return status;
+
+    stream={};
+    stream.status=StreamStatus::ok();
+    stream.width=m.width;
+    stream.height=m.height;
+    stream.orientation=m.orientation;
+    stream.exposure=exposure;
+    stream.tilesProcessedPass2=tileCount;
+    stream.memory.sourceResidentUpperBound=source.residentBytesUpperBound();
+    stream.memory.sinkResidentUpperBound=sink.residentBytesUpperBound();
+    stream.provenance.physicalFrameCount=1u;
+    stream.provenance.independentEvidenceCount=1u;
+    stream.provenance.scientificMasterModifiedByAppearance=false;
+    stream.provenance.counterfactualObservationCreated=false;
+    stream.provenance.reconstructionBackend=reconstruction.name();
+    stream.provenance.appearanceBackend=
+        "PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1";
+    return StreamStatus::ok();
+}
 
 StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
     StreamingOptions o;
@@ -1048,16 +1159,26 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
 
+    const bool pureExtendedLinearHeadroomCandidate=(flags==0);
     FullResNv21Sink sink(
         static_cast<int>(outputFd),
         flags,
         userQuarterTurns,
         *source,
-        noiseSigma);
-    StreamingTruthRawProcessor processor(reconstruction,appearance);
+        noiseSigma,
+        pureExtendedLinearHeadroomCandidate);
     StreamingResult stream;
-    const auto processed=processor.process(
-        *source,sink,photo_options(static_cast<std::size_t>(maxLogicalResidentBytes),flags),stream);
+    StreamStatus processed;
+    if(pureExtendedLinearHeadroomCandidate) {
+        processed=process_pure_extended_linear_headroom_v0_1(
+            *source,*reconstruction,produced.color.cameraToXyzD50,sink,stream);
+    } else {
+        StreamingTruthRawProcessor processor(reconstruction,appearance);
+        processed=processor.process(
+            *source,sink,
+            photo_options(static_cast<std::size_t>(maxLogicalResidentBytes),flags),
+            stream);
+    }
     if(!processed) { (void)::ftruncate(outputFd,0); return packet(env,stream_status(processed)); }
 
     const auto post=truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes,seal);
