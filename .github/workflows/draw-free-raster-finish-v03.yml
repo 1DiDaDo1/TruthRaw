@@ -24,6 +24,9 @@ jobs:
       - name: Apply presentation gamut fit v0.1
         run: python3 tools/apply_presentation_gamut_fit_v0_1.py
 
+      - name: Apply PURE Float32 headroom output v0.1
+        run: python3 tools/apply_pure_float_headroom_output_v0_1.py
+
       - name: Verify full-resolution cable
         run: |
           grep -F 'UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
@@ -36,9 +39,19 @@ jobs:
           grep -F 'presentation_gamut_fit_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_nonnegative_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_unit_rgb_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_headroom_map_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'process_pure_extended_linear_headroom_v0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
 
       - name: Presentation gamut fit regression
         run: python3 tools/test_presentation_gamut_fit_v0_1.py
+
+      - name: PURE Float32 headroom regression
+        run: python3 tools/test_presentation_headroom_map_v0_1.py
+
+      - name: Verify sealed Full-Frame Streaming untouched
+        run: |
+          python3 docs/research/full-frame-streaming-v0.1/tools/verify_integrity_v0_1.py
 
       - name: Install strict JPEG decoder
         run: |
@@ -87,9 +100,9 @@ jobs:
                   suite_android/app/src/main/cpp/photo_export_bridge.cpp
           git diff --cached --check
           if git diff --cached --quiet; then
-            echo 'Runtime wiring and gamut fit already applied.'
+            echo 'Runtime wiring, gamut fit and PURE Float32 headroom route already applied.'
           else
-            git commit -m 'android: apply luminance-preserving presentation gamut fit v0.1'
+            git commit -m 'android: route PURE Float32 headroom to output boundary v0.1'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
