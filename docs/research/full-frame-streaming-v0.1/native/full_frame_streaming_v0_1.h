@@ -31,15 +31,6 @@ struct StreamStatus {
     }
 };
 
-// Controls only the derived SDR presentation boundary after the tone LUT.
-// LegacyPerChannelClip preserves the historical/canonical streaming behaviour.
-// PreserveLuminance is an explicit downstream output policy and cannot create
-// scientific authority or modify Scientific Master values.
-enum class PresentationNegativeGamutPolicy : std::uint8_t {
-    LegacyPerChannelClip = 0,
-    PreserveLuminance = 1,
-};
-
 struct StreamingOptions {
     TilePolicy tile{128, 16};
     int workers = 1;
@@ -47,8 +38,6 @@ struct StreamingOptions {
     bool streamScientificDiagnostics = false;
     int sdrLutSize = 4096;
     std::size_t memoryBudgetBytes = 0; // 0 = caller does not impose a logical resident ceiling.
-    PresentationNegativeGamutPolicy presentationNegativeGamutPolicy =
-        PresentationNegativeGamutPolicy::LegacyPerChannelClip;
 };
 
 struct HalfStateRect {
