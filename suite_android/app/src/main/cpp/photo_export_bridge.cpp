@@ -11,6 +11,7 @@
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
 #include "presentation_gamut_fit_v0_1.h"
+#include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
@@ -59,6 +60,7 @@ namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
+namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
 namespace render_edit = truthraw::advanced_render_edit::v0_1;
 
@@ -725,6 +727,12 @@ private:
                             0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
                         const float sc=shoulder/std::max(mx,1e-8f);
                         r*=sc; g*=sc; b*=sc;
+                    }
+                    if(!presentation_highlight::apply_near_neutral_rolloff(
+                            r,g,b,censored)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res presentation highlight chroma roll-off failed");
                     }
                 }
 
