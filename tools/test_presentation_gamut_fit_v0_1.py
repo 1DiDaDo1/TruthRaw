@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -120,3 +121,10 @@ with tempfile.TemporaryDirectory(prefix="draw_gamut_fit_") as tmp:
         check=True,
     )
     subprocess.run([str(exe)], check=True)
+
+# Keep the historical workflow entry point while making the new output-only
+# headroom candidate part of the same regression gate.
+subprocess.run(
+    [sys.executable, str(ROOT / "tools" / "test_presentation_headroom_map_v0_1.py")],
+    check=True,
+)
