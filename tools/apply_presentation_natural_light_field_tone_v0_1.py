@@ -112,14 +112,18 @@ def main() -> None:
     )
     text = require_replace(text, mask_old, mask_new, "field integral build")
 
+    gate_marker = "        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;\n"
     exposure_old = (
-        "        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;\n"
-        "        const float exposureGain=advanced_controls::presentation_exposure_gain(\n"
+        gate_marker
+        + "        const float exposureGain=advanced_controls::presentation_exposure_gain(\n"
     )
     exposure_new = (
         "        const float exposureGain=advanced_controls::presentation_exposure_gain(\n"
     )
-    text = require_replace(text, exposure_old, exposure_new, "single Natural Light gate")
+    if exposure_old in text:
+        text = text.replace(exposure_old, exposure_new, 1)
+    elif text.count(gate_marker) != 1:
+        raise SystemExit("Natural Light gate must exist exactly once after field wiring")
 
     shadow_old = (
         "        const float shadowMix=advanced_controls::shadow_recovery_mix(\n"
@@ -179,7 +183,8 @@ def main() -> None:
     required = [
         '#include "presentation_natural_light_field_tone_v0_1.h"',
         "namespace presentation_natural_light_field =",
-        "naturalLightFieldEnabled && !extendedLinearHeadroomInput_",
+        "const bool naturalLightFieldEnabled=",
+        "naturalLightEnabled && !extendedLinearHeadroomInput_;",
         "fieldLumaIntegral",
         "localFieldMeanAt",
         "presentation_natural_light_field::apply(",
@@ -188,6 +193,9 @@ def main() -> None:
     for token in required:
         if token not in text:
             raise SystemExit(f"post-patch contract missing: {token}")
+
+    if text.count(gate_marker) != 1:
+        raise SystemExit("Natural Light gate count is not canonical")
 
     pure_pos = text.index("if(extendedLinearHeadroomInput_)")
     else_pos = text.index("                } else {", pure_pos)
