@@ -600,7 +600,26 @@ object AdvancedTilePreviewLoader {
             )
         }
 
-        return TilePreviewUiState.Ready(job.id, bitmap, metrics)
+        return when (
+            val exact = PreJpegRgb24PreviewRendererV01.render(
+                resolver = resolver,
+                job = job,
+                flags = options.flags(),
+                presentationHeadroomMode = PresentationHeadroomModeV01.OFF,
+            )
+        ) {
+            is PreJpegRgb24PreviewRendererV01.Result.Ready -> {
+                bitmap.recycle()
+                TilePreviewUiState.Ready(job.id, exact.bitmap, metrics)
+            }
+            is PreJpegRgb24PreviewRendererV01.Result.Failed -> {
+                bitmap.recycle()
+                TilePreviewUiState.Failed(
+                    job.id,
+                    "ADVANCED/PRO exact output-preview geblokkeerd: ${exact.reason}",
+                )
+            }
+        }
     }
 
     private fun advancedStatusDescription(status: Int): String = when (status) {
