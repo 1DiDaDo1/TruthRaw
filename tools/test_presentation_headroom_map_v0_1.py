@@ -13,10 +13,13 @@ for token in (
     'presentation_headroom_map_v0_1.h',
     'process_pure_extended_linear_headroom_v0_1',
     'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1',
-    'pureExtendedLinearHeadroomCandidate=(flags==0)',
+    'presentationHeadroomMode==kPresentationHeadroomPureMap90To100',
 ):
     if token not in bridge:
         raise SystemExit(f"FAIL: photo output headroom route missing {token!r}")
+
+if 'pureExtendedLinearHeadroomCandidate=(flags==0)' in bridge:
+    raise SystemExit("FAIL: obsolete flags==0 headroom selector is still present")
 
 CPP = r'''
 #include <cassert>
