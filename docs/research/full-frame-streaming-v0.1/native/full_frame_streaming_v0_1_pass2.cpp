@@ -58,7 +58,18 @@ StreamStatus run_pass2(
         for (std::size_t i = 0; i < coreN; ++i) {
             float rr = w.look[3*i], gg = w.look[3*i+1], bb = w.look[3*i+2];
             const float Y = std::max(luminance709(rr,gg,bb), 0.0f);
-            const float Yo = lut_sample(lut, Y);
+            const float boundedYo = lut_sample(lut, Y);
+            float Yo = boundedYo;
+            if (o.presentationPositiveHeadroomPolicy ==
+                    PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom &&
+                Y > 1.0f) {
+                if (!presentation_gamut::extend_luminance_above_unit_preserve_headroom(
+                        Y, boundedYo, lut.back(), Yo)) {
+                    return StreamStatus::error(
+                        StreamStatusCode::BackendFailed,
+                        "streaming presentation positive-headroom extension failed");
+                }
+            }
             const float sc = Y > 1e-8f ? Yo/Y : 0.0f;
             rr *= sc; gg *= sc; bb *= sc;
             if (o.presentationNegativeGamutPolicy ==
@@ -76,8 +87,11 @@ StreamStatus run_pass2(
                 gg = std::max(gg, 0.0f);
                 bb = std::max(bb, 0.0f);
             }
-            const float mx = std::max(rr, std::max(gg,bb));
-            if (mx > 1.0f) { rr/=mx; gg/=mx; bb/=mx; }
+            if (o.presentationPositiveHeadroomPolicy ==
+                PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit) {
+                const float mx = std::max(rr, std::max(gg,bb));
+                if (mx > 1.0f) { rr/=mx; gg/=mx; bb/=mx; }
+            }
             w.look[3*i]=rr; w.look[3*i+1]=gg; w.look[3*i+2]=bb;
         }
         st = sink.writeSdrTile(t, w.look.data(), w.look.size());
