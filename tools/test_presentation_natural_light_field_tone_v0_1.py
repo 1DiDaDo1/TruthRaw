@@ -15,7 +15,8 @@ def main() -> None:
     bridge = BRIDGE.read_text(encoding="utf-8")
     tokens = [
         '#include "presentation_natural_light_field_tone_v0_1.h"',
-        "naturalLightFieldEnabled && !extendedLinearHeadroomInput_",
+        "const bool naturalLightFieldEnabled=",
+        "naturalLightEnabled && !extendedLinearHeadroomInput_;",
         "fieldLumaIntegral",
         "localFieldMeanAt",
         "presentation_natural_light_field::apply(",
@@ -24,6 +25,10 @@ def main() -> None:
     for token in tokens:
         if token not in bridge:
             raise SystemExit(f"runtime wiring token missing: {token}")
+
+    gate = "        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;\n"
+    if bridge.count(gate) != 1:
+        raise SystemExit("Natural Light runtime gate count invalid")
 
     pure_pos = bridge.index("if(extendedLinearHeadroomInput_)")
     else_pos = bridge.index("                } else {", pure_pos)
