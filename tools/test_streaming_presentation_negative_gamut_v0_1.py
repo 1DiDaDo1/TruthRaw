@@ -16,6 +16,9 @@ required_pass2 = [
     '#include "streaming_presentation_gamut_fit_v0_1.h"',
     "PresentationNegativeGamutPolicy::PreserveLuminance",
     "presentation_gamut::fit_nonnegative_preserve_luminance(rr, gg, bb)",
+    "PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom",
+    "presentation_gamut::extend_luminance_above_unit_preserve_headroom",
+    "PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit",
 ]
 for token in required_pass2:
     if token not in pass2:
@@ -23,6 +26,10 @@ for token in required_pass2:
 
 if "PresentationNegativeGamutPolicy::PreserveLuminance" not in photo:
     raise SystemExit("FAIL: photo output did not opt into luminance-preserving pre-sink gamut fit")
+if "PresentationPositiveHeadroomPolicy::PreserveFloatHeadroom" not in photo:
+    raise SystemExit("FAIL: non-HDR photo output did not opt into positive float headroom")
+if "PresentationPositiveHeadroomPolicy::LegacyNormalizeToUnit" not in photo:
+    raise SystemExit("FAIL: HDR photo output lost explicit legacy positive-headroom contract")
 
 CPP = r'''
 #include <algorithm>
@@ -75,6 +82,37 @@ int main() {
         assert(close(gamut::luminance709(r, g, b), y0));
     }
 
+    // Below the unit boundary the normal bounded LUT result is untouched.
+    {
+        float out = -1.0f;
+        assert(gamut::extend_luminance_above_unit_preserve_headroom(
+            0.75f, 0.61f, 0.82f, out));
+        assert(close(out, 0.61));
+    }
+
+    // Above 1.0, do not collapse every float value to the LUT endpoint. Carry
+    // the endpoint scale forward until the actual final highlight mapper.
+    {
+        float out2 = -1.0f;
+        float out4 = -1.0f;
+        assert(gamut::extend_luminance_above_unit_preserve_headroom(
+            2.0f, 0.82f, 0.82f, out2));
+        assert(gamut::extend_luminance_above_unit_preserve_headroom(
+            4.0f, 0.82f, 0.82f, out4));
+        assert(close(out2, 1.64));
+        assert(close(out4, 3.28));
+        assert(out4 > out2 && out2 > 0.82f);
+        assert(close(out4 / out2, 2.0));
+    }
+
+    // Continuity at exactly 1.0: the bounded LUT owns the boundary itself.
+    {
+        float out = -1.0f;
+        assert(gamut::extend_luminance_above_unit_preserve_headroom(
+            1.0f, 0.82f, 0.82f, out));
+        assert(close(out, 0.82));
+    }
+
     // Non-positive luminance has only one non-negative neutral endpoint.
     {
         float r = -0.20f, g = -0.10f, b = 0.05f;
@@ -88,14 +126,17 @@ int main() {
         float r = std::numeric_limits<float>::quiet_NaN();
         float g = 0.5f, b = 0.5f;
         assert(!gamut::fit_nonnegative_preserve_luminance(r, g, b));
+        float out = 0.0f;
+        assert(!gamut::extend_luminance_above_unit_preserve_headroom(
+            std::numeric_limits<float>::quiet_NaN(), 0.8f, 0.8f, out));
     }
 
-    std::cout << "STREAMING_PRESENTATION_NEGATIVE_GAMUT_V0_1_PASS\n";
+    std::cout << "STREAMING_PRESENTATION_GAMUT_HEADROOM_V0_1_PASS\n";
     return 0;
 }
 '''
 
-with tempfile.TemporaryDirectory(prefix="draw_streaming_gamut_") as tmp:
+with tempfile.TemporaryDirectory(prefix="draw_streaming_gamut_headroom_") as tmp:
     tmp_path = Path(tmp)
     cpp = tmp_path / "test.cpp"
     exe = tmp_path / "test"
