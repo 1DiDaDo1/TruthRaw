@@ -27,6 +27,9 @@ jobs:
       - name: Apply PURE Float32 headroom output v0.1
         run: python3 tools/apply_pure_float_headroom_output_v0_1.py
 
+      - name: Apply explicit presentation headroom wiring v0.2
+        run: python3 tools/apply_presentation_headroom_wiring_v0_2.py
+
       - name: Verify full-resolution cable
         run: |
           grep -F 'UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
@@ -42,12 +45,17 @@ jobs:
           grep -F 'presentation_headroom_map_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'process_pure_extended_linear_headroom_v0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentationHeadroomMode = binding.presentationHeadroomMode' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'PURE_MAP_90_TO_100' suite_android/app/src/main/java/com/truthraw/adaptiveui/PresentationHeadroomModeV01.kt
 
       - name: Presentation gamut fit regression
         run: python3 tools/test_presentation_gamut_fit_v0_1.py
 
       - name: PURE Float32 headroom regression
         run: python3 tools/test_presentation_headroom_map_v0_1.py
+
+      - name: Explicit presentation headroom wiring regression
+        run: python3 tools/test_presentation_headroom_wiring_v0_2.py
 
       - name: Verify sealed Full-Frame Streaming untouched
         run: |
@@ -97,12 +105,15 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt \
                   suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawPhotoOutputCableV01.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/FullResJpegExport.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/PresentationHeadroomModeV01.kt \
                   suite_android/app/src/main/cpp/photo_export_bridge.cpp
           git diff --cached --check
           if git diff --cached --quiet; then
-            echo 'Runtime wiring, gamut fit and PURE Float32 headroom route already applied.'
+            echo 'Runtime wiring, gamut fit and explicit PURE presentation headroom route already applied.'
           else
-            git commit -m 'android: route PURE Float32 headroom to output boundary v0.1'
+            git commit -m 'android: make PURE presentation headroom selector explicit v0.2'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
