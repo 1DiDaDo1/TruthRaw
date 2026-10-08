@@ -855,10 +855,6 @@ StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
     o.hdrEnabled=(flags&kFlagHdr)!=0;
     o.streamScientificDiagnostics=false;
     o.sdrLutSize=4096;
-    // Derived photo output opts into the luminance-preserving pre-sink
-    // negative-gamut policy. Legacy/canonical streaming stays default.
-    o.presentationNegativeGamutPolicy=
-        truthraw::streaming_v0_1::PresentationNegativeGamutPolicy::PreserveLuminance;
     o.memoryBudgetBytes=memoryBudgetBytes;
     return o;
 }
