@@ -1,9 +1,6 @@
 #include "full_frame_streaming_v0_1_internal.h"
-#include "streaming_presentation_gamut_fit_v0_1.h"
 
 namespace truthraw::streaming_v0_1::detail {
-
-namespace presentation_gamut = truthraw::streaming_v0_1::presentation_gamut_v0_1;
 
 StreamStatus run_pass2(
     IRawTileSource& source,
@@ -60,22 +57,7 @@ StreamStatus run_pass2(
             const float Y = std::max(luminance709(rr,gg,bb), 0.0f);
             const float Yo = lut_sample(lut, Y);
             const float sc = Y > 1e-8f ? Yo/Y : 0.0f;
-            rr *= sc; gg *= sc; bb *= sc;
-            if (o.presentationNegativeGamutPolicy ==
-                PresentationNegativeGamutPolicy::PreserveLuminance) {
-                if (!presentation_gamut::fit_nonnegative_preserve_luminance(rr, gg, bb)) {
-                    return StreamStatus::error(
-                        StreamStatusCode::BackendFailed,
-                        "streaming presentation negative-gamut fit failed");
-                }
-            } else {
-                // Historical/canonical v0.1 output behaviour. Keep this exact
-                // path as the default so scientific/legacy equivalence is not
-                // silently redefined by an output-only repair.
-                rr = std::max(rr, 0.0f);
-                gg = std::max(gg, 0.0f);
-                bb = std::max(bb, 0.0f);
-            }
+            rr = std::max(rr*sc, 0.0f); gg = std::max(gg*sc, 0.0f); bb = std::max(bb*sc, 0.0f);
             const float mx = std::max(rr, std::max(gg,bb));
             if (mx > 1.0f) { rr/=mx; gg/=mx; bb/=mx; }
             w.look[3*i]=rr; w.look[3*i+1]=gg; w.look[3*i+2]=bb;
