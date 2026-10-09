@@ -5,9 +5,11 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 CPP = ROOT / "suite_android/app/src/main/cpp/photo_export_bridge.cpp"
+PATCH = ROOT / "tools/apply_presentation_illuminant_warmth_retention_v0_1.py"
 HEADER_DIR = ROOT / "suite_android/app/src/main/cpp"
 
 text = CPP.read_text(encoding="utf-8")
+patch_text = PATCH.read_text(encoding="utf-8")
 
 required = [
     '#include "presentation_illuminant_warmth_retention_v0_1.h"',
@@ -24,13 +26,27 @@ for token in required:
     if token not in text:
         raise SystemExit(f"missing runtime warmth contract: {token}")
 
+# The patch generator must remain idempotent even after later presentation-only
+# stages are inserted before the already-wired warmth call. This prevents the
+# build workflow from mistaking an evolved runtime layout for a missing stage.
+patch_required = [
+    'warm_call_marker = "presentation_illuminant_warmth::apply("',
+    "if warm_call_marker not in text:",
+    'text = require_replace(text, warm_anchor, warm_block, "ADVANCED/PRO warmth call")',
+    "if text.count(warm_call_marker) != 1:",
+]
+for token in patch_required:
+    if token not in patch_text:
+        raise SystemExit(f"missing warmth patch idempotence contract: {token}")
+
 pure_pos = text.index("if(extendedLinearHeadroomInput_)")
 else_pos = text.index("                } else {", pure_pos)
+field_pos = text.index("presentation_natural_light_field_tone::apply(", else_pos)
 warm_pos = text.index("presentation_illuminant_warmth::apply(", else_pos)
 highlight_pos = text.index("presentation_highlight::apply_near_neutral_rolloff(", warm_pos)
 gamut_pos = text.index("presentation_gamut::fit_unit_rgb_preserve_luminance(", highlight_pos)
-if not (pure_pos < else_pos < warm_pos < highlight_pos < gamut_pos):
-    raise SystemExit("warmth runtime ordering failed")
+if not (pure_pos < else_pos < field_pos < warm_pos < highlight_pos < gamut_pos):
+    raise SystemExit("warmth/local-field runtime ordering failed")
 if text.count("presentation_illuminant_warmth::apply(") != 1:
     raise SystemExit("warmth runtime call count must equal one")
 
