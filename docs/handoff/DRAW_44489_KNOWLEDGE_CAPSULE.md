@@ -1,4 +1,4 @@
-# D.RAW 44489 — current knowledge capsule — 2026-10-08
+# D.RAW 44489 — current knowledge capsule — 2026-10-09
 
 Purpose: **binding recovery state for continuation code 44489**. Read this file completely before changing runtime code, scientific authority, promotion state, PR state, output contracts or APK provenance.
 
@@ -7,7 +7,7 @@ Repository: `1DiDaDo1/TruthRaw`
 Continuation code: **44489**  
 Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
-This 2026-10-08 capsule supersedes older “current state” passages in previous 44489 handoffs. Historical results remain provenance, but the exact current downstream output state is the one recorded here.
+This 2026-10-09 capsule supersedes older “current state” passages in previous 44489 handoffs. Historical results remain provenance in Git history and the referenced handoff documents. Where an older document conflicts with a newer exact runtime/build record below, the newer exact evidence wins for implementation state. The permanent evidence law always wins over implementation prose.
 
 ---
 
@@ -16,10 +16,11 @@ This 2026-10-08 capsule supersedes older “current state” passages in previou
 In a new chat, recover in this order:
 
 1. read this capsule completely;
-2. resolve the live PR #131 head and compare intervening commits to the heads below;
+2. resolve the live PR #131 head and compare intervening commits to the exact validated runtime/documentation heads below;
 3. preserve PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` as the frozen scientific/UI-audit base;
-4. distinguish **physically accepted runtime** from later test/documentation-only commits;
-5. never infer scientific promotion from successful output, CI, visual quality or decoder compatibility.
+4. distinguish **physically accepted runtime**, **CI/build candidate**, and later **documentation-only** commits;
+5. never infer scientific promotion from successful output, CI, visual quality, JPEG compatibility or an APK build;
+6. for the newest purple/magenta-highlight candidate, physical real-device acceptance is still pending until the user validates the same problematic RAW.
 
 ### Frozen base
 
@@ -28,6 +29,14 @@ PR #130 exact frozen reference:
 `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
 
 Do not merge, mutate or retroactively classify missing workflow runs on that SHA as failures.
+
+On that exact SHA:
+
+- Documentation Governance: proven SUCCESS;
+- Research Integrity Guard: **NO PROVEN RUN ON THIS EXACT HEAD**;
+- Lifecycle Contract: **NO PROVEN RUN ON THIS EXACT HEAD**.
+
+Therefore the latter two are neither red nor green on that SHA.
 
 ### Active PR
 
@@ -40,26 +49,19 @@ PR #131:
 - base: PR #130 / `4e4f358a...`;
 - product/runtime line: Workspace / Free Raster / downstream output.
 
-### Exact physically accepted High-Fidelity JPEG runtime
+Keep PR #131 **draft and unmerged** until remaining physical/product acceptance is explicit. A green CI/APK candidate is not a merge or promotion decision.
 
-`f42cd79ef5060e78c1c6e6bcc1e7d9d94a07d588`
+### Exact newest support-aware highlight candidate
 
-This is the runtime/code head used for the real-device Q100 / true-4:4:4 tele/PURE JPEG that was independently decoded and user-confirmed in Lightroom.
+Patcher/test correction head:
 
-### Exact regression-lock code head
+`5aa70d92468d1ab905534050fbf0ea574089e770`
 
-`e4742bf048a160b65398d93461f9fa3799faa638`
+Validated generated runtime committed by the successful APK workflow:
 
-This head is **test/CI only relative to the physically accepted runtime**. It adds the host High-Fidelity JPEG codec regression and its explicit FFmpeg dependency. It does not alter the accepted JPEG runtime semantics.
+`4aae3de96323780e20f45f519ccb6e9f887684ef`
 
-Regression workflow:
-
-- workflow: `D.RAW Free Raster v0.3 Finish APK`;
-- run: `37696081058`;
-- the dedicated `High-Fidelity JPEG codec regression` step is proven SUCCESS;
-- the workflow compiles the actual D.RAW encoder fixture, checks Q100/4:4:4/SOF/SOS/EOI/entropy structure and requires strict FFmpeg decoding before Android build may continue.
-
-Any later capsule/documentation commit is documentation-only unless its diff proves otherwise. When a future live branch head is newer, inspect the diff rather than assuming runtime semantics changed.
+This `4aae3de...` commit is the exact generated Android runtime wiring corresponding to the successful candidate build described in section 15. A later capsule/documentation commit is documentation-only unless its diff proves otherwise.
 
 ---
 
@@ -79,6 +81,7 @@ These rules survive every UI, rendering, performance, reconstruction, export and
 - AI/ML/neural/generative inference is not admitted as scientific evidence.
 - SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT spaces remain distinct.
 - A downstream output pass can never authorize scientific writeback.
+- APK/GCam/computational-RAW behavior may not determine TruthRaw scientific truth, calibration or evidence.
 
 Canonical scientific/product architecture:
 
@@ -90,13 +93,47 @@ The project vision remains:
 
 ---
 
-## 2. Interdisciplinary scientific foundation — permanent requirement
+## 2. Source-agnostic Free World law — explicit 2026-10-09 clarification
+
+D.RAW may begin from sealed RAW data originating from a file, camera/lens observation or another readable source. The scientific process does **not** require knowing the camera/lens/vendor identity before it can begin.
+
+Correct direction:
+
+`sealed readable observation -> inspect what is actually present -> derive only what the evidence supports -> internal calibrated/reconstructed representation with explicit authority/uncertainty -> Free World representation`
+
+Never:
+
+`camera/lens/vendor X -> therefore profile Y is scientific truth`.
+
+D.RAW may directly inspect and reason from what is actually readable, including where present:
+
+- sample values and geometry;
+- CFA structure/phase;
+- bit/data type and packing;
+- black/white information;
+- clipping/censoring patterns;
+- metadata with explicit provenance;
+- local/statistical relations;
+- noise/support information;
+- uncertainty and UNKNOWN state.
+
+Camera/lens/vendor/container identity may remain provenance/routing/parsing metadata. It cannot by itself choose calibration or scientific truth.
+
+The internal “Free World RAW” may use a different raster, resolution or world representation, but newly computed pixels/samples remain derived/reconstructed as appropriate. They never become original `MEASURED` samples by virtue of being useful, plausible, dense or visually convincing.
+
+Multiple observations may later be connected in the Free World graph only as separately sealed proven observations. Their evidence remains individually immutable.
+
+This source-agnostic architecture is now a standing decision criterion for future work.
+
+---
+
+## 3. Interdisciplinary scientific foundation — permanent requirement
 
 Future D.RAW decisions must remain synchronized with current primary/standard/university knowledge in:
 
 - photography, RAW/CFA imaging and sensor metrology;
 - lens optics, PSF, OTF/MTF, sampling and real optical resolution;
-- radiometry, photometry, artificial illumination, inverse-square/geometric falloff, shadow/penumbra and light transport;
+- radiometry, photometry, artificial illumination, geometric falloff, shadow/penumbra and light transport;
 - camera/color calibration, black/white levels, clipping, censoring and reference gauges;
 - human vision, luminance adaptation, contrast, colour appearance and viewing conditions;
 - 3D/projective geometry, camera models, single-view metrology, stereo/epipolar geometry and physically based rendering/animation;
@@ -105,15 +142,15 @@ Future D.RAW decisions must remain synchronized with current primary/standard/un
 - restoration/conservation: authenticity, minimal intervention, reversibility/retreatability and documentation/provenance;
 - scene-referred versus display-referred pipelines.
 
-Reference families already used in project reasoning include Adobe DNG 1.7.1.0, EMVA 1288 Release 4.0, ISO 12233:2024, CIE 248:2022/CIECAM16 and university imaging/vision/graphics course material. Theory may inform models/tests; it may never create MEASURED authority or silently promote UNKNOWN.
+Reference families used in project reasoning include Adobe DNG 1.7.1.0, EMVA 1288 Release 4.0, ISO 12233:2024, CIE 248:2022/CIECAM16 and university imaging/vision/graphics material. Theory may inform models/tests; it may never create MEASURED authority or silently promote UNKNOWN.
 
 ---
 
-## 3. Scientific Master / Exact Gauge Retained Artifact v0.3 — unchanged
+## 4. Scientific Master / Exact Gauge Retained Artifact v0.3 — unchanged
 
 Scientific Master remains the downstream scientific authority source. Exact Gauge Retained Artifact v0.3 is execution/performance only, never new evidence.
 
-Permanent v0.3 rules:
+Permanent rules:
 
 - canonical v0.2 remains complete fallback before candidate semantic start;
 - exact eligible Float32 gauge bits may be retained to avoid a second Stage-2 reread without changing canonical semantics;
@@ -125,13 +162,9 @@ Permanent v0.3 rules:
 - `creates_new_evidence=false`;
 - `scientific_writeback_allowed=false`.
 
-The 2026-10-05 device round proved Exact Gauge v0.3 active for four sources with explicit `EXACT_GAUGE_RETAINED_V0_3`, correct hash binding, one Stage-2 gauge pass and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
+The 2026-10-05 real-device round proved Exact Gauge v0.3 active for four sources with explicit `EXACT_GAUGE_RETAINED_V0_3`, correct hash binding, one Stage-2 gauge pass and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
 
-### Historical route-attribution repair
-
-A stale diagnostic expected canonical-v0.2 two-pass `6144 = 2 × 3072` reads even when Exact Gauge v0.3 explicitly attributed one pass. This was telemetry drift, not Scientific-Master failure.
-
-Repair runtime:
+Historical telemetry repair runtime:
 
 `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
@@ -143,19 +176,17 @@ Never:
 
 `raw-read count -> route inference`.
 
-Historical build provenance remains available in earlier 44489 documents; it is not the current Workspace APK identity.
-
 ---
 
-## 4. T5 / Room Capsule corridor — unchanged and fail-closed
+## 5. T5 / Room Capsule corridor — unchanged and fail-closed
 
 Existing route:
 
 `Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule host -> v0.7 Appearance Resolve`
 
-Room Capsule is not a missing architecture. Without admitted geometry/material/illumination world evidence it must remain exact-preserving bypass.
+Room Capsule is not a missing architecture. Without admitted geometry/material/illumination world evidence it remains exact-preserving bypass.
 
-Permanent T5 binding rules:
+Permanent T5 rules:
 
 - process-local diagnostic transport only;
 - exact `source_sha256` binding;
@@ -165,21 +196,21 @@ Permanent T5 binding rules:
 - missing/mismatch/contradiction -> `UNKNOWN_FAIL_CLOSED`;
 - no new evidence, candidate application or scientific writeback.
 
-The earlier four-source device round correctly exported `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE`. That fail-closed branch is physically validated. Positive same-process source-bound T5 acceptance remains separately unproven. Do not “fix” this by auto-running T5 during Foundation export.
+The earlier four-source device round physically validated the fail-closed branch `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE`. Positive same-process source-bound T5 acceptance remains separately unproven.
 
 ---
 
-## 5. Scientific promotion remains closed
+## 6. Scientific promotion remains closed
 
 Foundation `ScientificPromotionState/0.1` remains:
 
 `NOT_PROMOTED_FAIL_CLOSED / NO_INTERNAL_PROMOTION_DECISION`
 
-World registration, world→source bridges, radiometric response, field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise approvals are not promoted merely because implementation exists.
+World registration, radiometric/field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise/reconstruction approvals are not promoted merely because implementation exists.
 
 ### Anchor-Constrained Local Reconstruction v0.1 remains NOT PROMOTED
 
-Real-device tele hold-out result retained:
+Retained real-device tele hold-out:
 
 - 21,760 true CFA hold-outs;
 - affine solver valid 21,760/21,760;
@@ -191,56 +222,33 @@ Real-device tele hold-out result retained:
 - affine wins 9,363 samples vs baseline 10,197;
 - channel 2 slightly better, channel 1 clearly worse;
 - uncertainty too optimistic: ~47.69/80.19/93.54% 1σ/2σ/3σ coverage, max combined z ~16.29;
-- safety remained intact: target unused, anchors unmodified, no Scientific-Master application/writeback.
+- safety intact: target unused, anchors unmodified, no Scientific-Master application/writeback.
 
-Future reconstruction direction is deterministic local model selection based on support, direction, CFA phase, censoring/unknown state and uncertainty. Affine is one optional model. `NO_SUITABLE_MODEL` is valid.
-
----
-
-## 6. PR #130 governance correction — never regress
-
-Frozen exact reference:
-
-`PR #130 / 4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
-
-On that exact head:
-
-- Documentation Governance: proven SUCCESS;
-- Research Integrity Guard: **NO PROVEN RUN ON THIS EXACT HEAD**;
-- Lifecycle Contract: **NO PROVEN RUN ON THIS EXACT HEAD**.
-
-Therefore the latter two are neither red nor green on that SHA. Older failures on older SHAs must never be projected onto it.
-
-CI validates contracts/provenance/cables. CI cannot create MEASURED evidence or scientific authority.
+Future reconstruction direction remains deterministic local model selection based on support, direction, CFA phase, censoring/UNKNOWN and uncertainty. Affine is one optional model; `NO_SUITABLE_MODEL` is valid.
 
 ---
 
-## 7. Product/output architecture — do not build a second renderer
+## 7. Product/output architecture — one renderer, sibling outputs
 
 Current product direction:
 
 `Input -> Universal Intake -> Scientific Core / Scientific Master -> PURE / ADVANCED / PRO -> Unified Output State -> Free Raster / Export`
 
-`DrawUnifiedOutputRasterRequestV01` intentionally separates output-raster requests from UI preview bitmaps. `UI_PREVIEW`, `FREE_RASTER_VIEW`, `JPEG_EXPORT`, `PNG_EXPORT` and other derived outputs are sibling consumers of a shared upstream output basis.
+`DrawUnifiedOutputRasterRequestV01` separates output-raster requests from UI preview bitmaps. UI preview, Free Raster, JPEG, PNG and future derivatives are sibling consumers of a shared upstream output basis.
 
 Permanent cable rule:
 
 **Stable outside. Flexible inside. Evidence law unchanged.**
 
-Stable outer contract includes:
+Current full-resolution downstream cable:
 
-- source/observation binding;
-- payload/type;
-- provenance;
-- authority;
-- uncertainty/censoring;
-- writeback permission;
-- UNKNOWN/failure semantics;
-- geometry/orientation contract.
+`admitted source/scientific cable -> full-resolution presentation render -> exact display-oriented RGB24 sibling -> { Free Raster backing artifact | High-Fidelity JPEG | future sibling outputs }`
 
-Internals may evolve with deterministic adapters, exact-preserving optimizations, telemetry and future capability routing. Flexibility never permits source mutation, authority inflation, hidden Scientific-Master writeback or Appearance becoming scientific truth.
+The RGB24 sibling is emitted before JPEG chroma reduction. Free Raster does not use a re-decoded JPEG as its primary backing artifact.
 
-**Architecture search for a second renderer is closed. Reuse and extend the existing full-output renderer/cable.**
+Free Raster remains VIEW/OUTPUT/PROJECTION only. It is not a RAW decoder, Scientific Master, reconstruction authority route, T5 route or evidence source.
+
+Do not build a second renderer.
 
 ---
 
@@ -258,18 +266,12 @@ Never:
 
 Consequences:
 
-- RAW/CFA, D.RAW Observation Records and Scientific Master remain unchanged by UI edits;
-- imported JPEG/PNG/WebP remains read-only as base raster;
+- RAW/CFA, Observation Records and Scientific Master remain unchanged by UI edits;
+- imported JPEG/PNG/WebP remains read-only base raster;
 - appearance operations stay separate/reversible;
 - crop, rotation, pan, zoom, Free Raster x/y/scale and output resolution are downstream view/output transforms;
 - previews are render results, never replacement source truth;
-- JPEG working state must not become repeated decode→edit→re-encode→overwrite;
-- explicit export creates a new derivative with provenance;
-- PURE/ADVANCED/PRO share the admitted source/scientific core and differ downstream.
-
-Runtime anchor:
-
-`suite_android/app/src/main/java/com/truthraw/adaptiveui/NonDestructiveWorkbenchStateV01.kt`
+- explicit export creates a new derivative with provenance.
 
 Hard safety flags remain false:
 
@@ -277,415 +279,351 @@ Hard safety flags remain false:
 - `SCIENTIFIC_MASTER_WRITEBACK_ALLOWED=false`;
 - `OVERWRITE_SOURCE_ON_EXPORT_ALLOWED=false`.
 
-Not every legacy ADVANCED/Workspace control is necessarily proven migrated into this reversible state yet; do not overclaim.
-
 ---
 
-## 9. Workspace / Free Raster state
+## 9. High-Fidelity JPEG — accepted physical baseline
 
-Central Vision/Workspace UI history remains valid, including v0.3 work that originally reached runtime commit `edf37b50aa59593db1d92b2f745cf7c61dd5bfa7`. Later output/runtime work supersedes that SHA as current runtime identity but not as historical UI provenance.
-
-Free Raster is downstream VIEW/OUTPUT/PROJECTION only. It is not:
-
-- a second RAW decoder;
-- Scientific Master;
-- a reconstruction authority route;
-- a T5 route;
-- a new evidence source.
-
-### External raster path
-
-External JPG/PNG/WebP remains `EXTERNAL_PRESENTATION_RASTER / PRESENTATION_ONLY`. `PresentationRasterLoader` uses provider-safe Android input and has no scientific writeback or authority creation.
-
-### Full-resolution sibling basis
-
-The crucial downstream improvement now in PR #131 is that Free Raster and High-Fidelity JPEG no longer need a preview bitmap as pixel source.
-
-Current conceptual cable:
-
-`admitted source/scientific cable -> full-resolution presentation render -> exact display-oriented RGB24 sibling -> { Free Raster backing artifact | High-Fidelity JPEG encoder | future lossless/other sibling outputs }`
-
-The RGB24 sibling is emitted before NV21/JPEG chroma reduction. Therefore Free Raster does **not** use a re-decoded High-Fidelity JPEG as its primary backing artifact.
-
-The output remains `DERIVED_PRESENTATION_OUTPUT`; viewport remains `PRESENTATION_ONLY`.
-
----
-
-## 10. Preview-independent full-resolution JPEG history
-
-Earlier PR #131 work already proved that full-resolution JPEG output could be independent from a display preview.
-
-Canonical source/output binding:
-
-`admitted DNG observation -> DrawPhotoOutputCableV01 -> full-resolution renderer -> new derived output`
-
-Hard cable state:
-
-- `previewRequired=false`;
-- `createsNewEvidence=false`;
-- `scientificWritebackAllowed=false`;
-- `sourceMutationAllowed=false`;
-- source authority `EXISTING_ADMITTED_DNG_OBSERVATION`;
-- output authority `DERIVED_PRESENTATION_OUTPUT`.
-
-Historical pre-Q100 device outputs include a 0° 4080×3072 JPEG and a physically rotated +90° 3072×4080 JPEG. The +90° comparison supported clockwise physical rotation. Those files were from the older encoder/output state and do **not** by themselves prove +90° under the new Q100/4:4:4 codec.
-
-`DrawPhotoOutputCableV01.validateCurrentOutputContext(...)` revalidates source/job/URI, route, appearance flags and orientation after DocumentsUI return. Physical route-mismatch lifecycle acceptance remains separately pending unless later evidence proves it.
-
----
-
-## 11. Historical 2026-10-07 image-quality audit — preserve findings, not old encoder status
-
-The image-quality audit used a tele 4080×3072 PRO JPEG and corresponding Float32 scientific output. Findings remain important:
-
-- display black/tone was too conservative/lifted;
-- colourfulness was visually timid;
-- visible high-frequency grain remained in smooth regions alongside real fine detail;
-- final resolution chooser was missing;
-- the private full-colour authority manifest was conservatively CENSORED/UNKNOWN rather than promoted;
-- previous affine reconstruction remained not promotable;
-- sharpness must respect PSF/MTF/sampling rather than use an unrestricted sharpen slider;
-- zero-line scientific gauge is not identical to display black;
-- `BaselineSharpness` / `NoiseProfile` standard DNG guidance was not present in that audited primary IFD and must only be added if truthful;
-- embedded ICC/profile completion was missing for final high-fidelity display/export.
-
-### Historical JPEG status correction
-
-That audit found the **older** JPEG output to be quality 96 with 4:2:0 sampling. This remains true historical provenance for that file.
-
-It is **not** the current High-Fidelity JPEG state. The Q100 / true-4:4:4 route described below supersedes it for new admitted High-Fidelity JPEG output.
-
----
-
-## 12. High-Fidelity JPEG — REAL-DEVICE OUTPUT PASS
-
-This is the major new 2026-10-08 state.
-
-### Exact accepted runtime
+Exact physically accepted 0° tele/PURE runtime:
 
 `f42cd79ef5060e78c1c6e6bcc1e7d9d94a07d588`
 
-### Build provenance for accepted runtime
+Regression-lock head:
 
-Workflow:
+`e4742bf048a160b65398d93461f9fa3799faa638`
 
-- `D.RAW Free Raster v0.3 Finish APK`;
+Accepted workflow/build:
+
+- workflow `D.RAW Free Raster v0.3 Finish APK`;
 - run `37691044445`;
-- result SUCCESS;
-- artifact ID `11513327435`;
-- artifact ZIP digest reported by GitHub: `sha256:189f6962b5c269259585dab563dd2af684c0668ca773a671f5b20054fce32612`.
-
-APK:
-
-- bytes `8,816,915`;
-- SHA-256 `4c6a794b252a43a6bf38405b053e667738e779c0fe014bdbe02713765cfdeb22`.
-
-### Physical acceptance bundle
-
-User upload:
-
-`DRAWRAWJPG444succes.zip`
-
-User identified the source as **tele camera**.
-
-Companion Float32 DNG:
-
-`DRAW_CAPTURE_1791409962721_tele_4080x3072_draw_pure_float32_v0_63.dng`
-
-- bytes `172,761,232`;
-- SHA-256 `2a4f5b50c0e2b630306464610d773721016a2a32d0e0726b4ad237c5fb496797`.
-
-This DNG is companion provenance for the round, not a new authority claim.
+- artifact `11513327435`;
+- APK bytes `8,816,915`;
+- APK SHA-256 `4c6a794b252a43a6bf38405b053e667738e779c0fe014bdbe02713765cfdeb22`.
 
 Accepted JPEG:
 
 `DRAW_CAPTURE_1791409962721_tele_4080x3072_draw_pure_fullres.jpg`
 
-- route: PURE;
-- tested orientation in this acceptance: 0°;
-- bytes: `21,738,392`;
-- SHA-256: `7d37016b7dbf6277ce5e196ec778bb33aa927f78009dd07c49b2891f14cd47ff`;
-- geometry: `4080 × 3072`;
-- JPEG: baseline SOF0, 8-bit, 3 components;
-- sampling: `0x11 / 0x11 / 0x11` = true `1×1 / 1×1 / 1×1` 4:4:4;
-- DQT table 0: every value `1`;
-- DQT table 1: every value `1`;
-- SOS marker offset: `593`;
-- SOS length: `12`;
-- canonical sequential SOS payload: `03 01 00 02 11 03 11 00 3F 00`;
-- entropy starts at offset `607`;
-- valid `FF 00` byte-stuffings: `18,208`;
-- unexpected unstuffed entropy markers: `0`;
-- EOI `FF D9` exactly at end.
-
-Independent acceptance:
-
-- FFmpeg full decode: success, no decode error;
-- FFprobe: `4080×3072`, `yuvj444p`;
-- Pillow verify/load: success;
-- ImageMagick: Quality 100;
-- Adobe Lightroom: **user-confirmed successful check on 2026-10-08**.
+- bytes `21,738,392`;
+- SHA-256 `7d37016b7dbf6277ce5e196ec778bb33aa927f78009dd07c49b2891f14cd47ff`;
+- 4080×3072;
+- baseline SOF0, 8-bit, 3 components;
+- true 4:4:4 sampling `0x11 / 0x11 / 0x11`;
+- DQT0/DQT1 all ones = admitted Q100 contract;
+- canonical sequential SOS;
+- entropy start 607;
+- 18,208 valid `FF 00` stuffings;
+- zero unexpected unstuffed entropy markers;
+- terminal EOI exactly at end;
+- FFmpeg, FFprobe, Pillow and ImageMagick decode/inspect successfully;
+- Adobe Lightroom user-confirmed successful.
 
 Classification:
 
 **PASS — HIGH_FIDELITY_JPEG_Q100_444_REAL_DEVICE_LIGHTROOM_COMPATIBLE_0_DEGREE_TELE**
 
-This is a downstream output acceptance only. It does not promote Scientific Master, reconstruction authority, calibration, UNKNOWN, sealed evidence or scientific writeback.
+Two historical failures remain provenance and define the regression boundary:
+
+1. formally Q100/4:4:4 headers but corrupt chroma due Huffman lookup/DHT mismatch;
+2. visually plausible output rejected by Lightroom/strict decoders because an extra `0x00` in SOS shifted entropy one byte.
+
+Therefore header-only validation is permanently insufficient. Production structural verification plus end-to-end strict codec regression remain required.
+
+Still separate/pending: +90° on new codec, route/source mismatch lifecycle physical round, arbitrary resolution/scaling, truthful ICC/output profile, lossless/high-bit-depth siblings and broader source/device coverage.
 
 ---
 
-## 13. Why the two failed JPEG rounds must remain in provenance
+## 10. Natural Appearance direction — downstream only
 
-Do not erase these failures; they define the regression boundary.
+Natural Appearance remains reversible `APPEARANCE_ONLY` behavior after authority-checked scientific/output state:
 
-### Failure A — formally correct headers, corrupt chroma content
+`scientific/output state -> scene-referred colour conversion -> chromatic adaptation/viewing context -> tone scale -> perceptual chroma/colourfulness -> gamut mapping -> output encoding/profile`
 
-The first Q100/4:4:4 candidate had formally correct Q100/4:4:4 marker/header properties but severe horizontal colour bands. Root cause: encoder Huffman lookup/bitstream mismatch. This proved that header inspection alone is insufficient.
+Goals include natural display black/toe without rewriting zero-line, controlled highlight shoulder without inventing unclipped evidence, perceptual colourfulness, neutral/skin protection and gamut-aware/profile-aware output.
 
-The encoder was changed so Huffman codes are deterministically generated from the same DHT definition written into the JPEG stream.
+CIECAM16/CIE 248 may inform appearance behavior but can never create scene evidence or scientific authority.
 
-### Failure B — visually plausible output, malformed SOS/container
+Optical detail law remains:
 
-The following candidate looked visually correct in tolerant decoders but Lightroom rejected it. FFmpeg/ImageMagick also exposed structural decode problems. Root cause: one extra `0x00` in SOS shifted the entropy stream one byte late.
+`scene radiance -> lens PSF/MTF -> sensor aperture -> CFA sampling -> measurement/noise -> sealed sample`
 
-The accepted runtime canonicalizes the admitted baseline sequential SOS and production verification rejects malformed SOS/terminal-EOI structure.
-
-These failures motivate both production fail-closed verification and end-to-end codec regression.
+Pixel count is not optical resolution. No unrestricted sharpening/deconvolution, halos, ringing or fabricated microtexture.
 
 ---
 
-## 14. High-Fidelity JPEG regression lock — current CI contract
+## 11. Warm Illuminant Retention v0.1 — REAL-DEVICE PASS
 
-Production contract remains in `HighFidelityJpegContractV01` (`HighFidelityJpegContract/0.2`) and its unit tests.
+Accepted runtime head:
 
-The output is admitted only if the actual JPEG proves the expected structure; an encoder request or UI label is not proof.
+`8ad695bad5be4fbc799fa781d401124e466ca48e`
 
-Structural requirements include:
+Build provenance:
 
-- requested High-Fidelity quality exactly 100;
-- baseline SOF0;
-- exact expected width/height;
-- 8-bit precision;
-- exactly 3 components;
-- component sampling `1×1 / 1×1 / 1×1`;
-- admitted DQT0/DQT1 all-one Q100 quantization contract;
-- canonical baseline sequential SOS;
-- terminal EOI;
-- no acceptance of malformed/non-baseline alternatives;
-- full-resolution RGB24 sibling as source, not preview upscaling.
+- workflow `D.RAW Free Raster v0.3 Finish APK`;
+- run `37851925752`;
+- artifact `11582322599`;
+- APK bytes `8,858,859`;
+- APK SHA-256 `2449505201762a78911663f8b6198086226b978fd3edc4b793d03712296b7031`.
 
-### New end-to-end host codec regression
+Accepted ADVANCED JPEG:
 
-Regression-lock code head:
+`DRAW_CAPTURE_1791498014821_tele_4080x3072_draw_advanced_fullres.jpg`
 
-`e4742bf048a160b65398d93461f9fa3799faa638`
+SHA-256 `89b14f498e03c3b3c42c393cd435ab479e039421ee2d39f7acfbabf842cb0d17`
 
-Files:
+Accepted PRO JPEG:
 
-- `tools/high_fidelity_jpeg_codec_regression_v0_1.cpp`;
-- `tools/test_high_fidelity_jpeg_codec_v0_1.py`;
-- `.github/workflows/draw-free-raster-finish-v03.yml`.
+`DRAW_CAPTURE_1791498365845_tele_4080x3072_draw_pro_fullres.jpg`
 
-The test:
+SHA-256 `19d30fa75f296b47a55d3a5f39f46e2cf15f4a8160d978b72e376fb06077987f`
 
-1. compiles the actual header-only D.RAW Q100/4:4:4 encoder on the CI host;
-2. creates a chroma-stressing synthetic 256×192 RGB24 raster;
-3. encodes through the accepted final-output SOS canonicalization behavior;
-4. parses the resulting file for SOI/EOI, SOF0, exact geometry, 4:4:4 sampling, Q100 DQT0/DQT1 and canonical SOS;
-5. scans entropy data and accepts only legal `FF 00` stuffing plus terminal EOI under this no-restart contract;
-6. requires strict FFmpeg `-xerror` full decode;
-7. requires FFprobe to report the expected geometry and a 4:4:4 pixel format;
-8. only then lets the Android build proceed.
+Physical findings:
 
-Workflow run `37696081058` proves the dedicated High-Fidelity JPEG codec regression step SUCCESS on `e4742bf...`.
+- source-white warmth retention visibly active in ADVANCED/PRO with Natural Light on;
+- lampshade/lit wall/curtains retain credible warm illuminant impression instead of excessive neutralization;
+- old near-white magenta/purple highlight defect did not return in that accepted round;
+- PURE remained isolated;
+- Q100/true-4:4:4 JPEG remained intact.
 
-The earlier setup failures are test-harness provenance only:
+HONOR stock-camera output in comparison is **appearance reference only**. It is not scientific truth, calibration evidence, vendor profile or authority.
 
-- first attempt lacked FFmpeg on the GitHub runner;
-- next attempt promoted a host-GCC class-memaccess warning to failure via `-Werror`;
-- neither altered or invalidated the physically accepted runtime;
-- the final harness explicitly installs FFmpeg and leaves host compiler warnings visible without letting unrelated warning policy replace the JPEG decode verdict.
+Warm stage remains `APPEARANCE_ONLY / DERIVED_PRESENTATION_OUTPUT`; max warm-source retention remains 18%. Do not increase warmth merely because a later highlight issue exists.
 
 ---
 
-## 15. Active scientific image-quality solution — still not complete
+## 12. Natural Light Local Field Tone v0.1 — candidate, not physical light transport
 
-The user explicitly does **not** want a conventional blur-based denoiser as the primary solution. The active research direction remains:
+Purpose: improve local brightness/luminous-field impression around illuminated surfaces without changing the accepted source-white response.
+
+This is **not** reconstructed physical light transport. It is an image-space View/Appearance operator derived from the already rendered single observation and cannot establish lamp intensity, geometry, reflectance, spectrum, bounce paths or world-space irradiance.
+
+Contract:
+
+- ADVANCED/PRO + Natural Light only;
+- PURE bypass;
+- deterministic local luminance field from already rendered RGB;
+- censored source samples excluded from local statistic;
+- resolution-scaled radius bounded 12..32 source pixels;
+- at 4080×3072 radius is approximately 24 px;
+- common RGB gain only, preserving channel ratios;
+- deep-black protection;
+- near-white protection;
+- local lift capped at +0.14 EV;
+- no semantic segmentation, vendor fitting, AI/ML/generative inference;
+- no source/Scientific-Master mutation or authority creation.
+
+Candidate CI checkpoint before the newest highlight work:
+
+- head `0a489190c474fa765431064513c0f6e52f7b63fd`;
+- run `37856370118`;
+- artifact `11583719795`;
+- APK bytes `8,861,667`;
+- APK SHA-256 `8e7783b3e055a66011cd1bd28307076bbe5832ab8272e3ca34de3eb90707d041`.
+
+Status remains **CANDIDATE / NOT PHYSICALLY ACCEPTED** unless a later explicit real-device handoff proves otherwise.
+
+---
+
+## 13. Purple/magenta highlight failure — key 2026-10-09 finding
+
+A later problematic RAW/output showed strong purple/magenta behavior in highlights again.
+
+Important localization result:
+
+- the artifact was visible in the UI preview **and** in the saved full-resolution output;
+- therefore it was not correctly explained as JPEG-only corruption or a UI-only colour bug;
+- the fault boundary was in the shared native presentation RGB path before the preview/full-resolution outputs diverge.
+
+The earlier near-neutral highlight guard handled modest near-white chroma imbalance but was too narrow for a severe censored white-boundary class where red and blue can stay high while green collapses strongly.
+
+The downstream solution remains conservative and appearance-only:
+
+- detect only the severe, white-boundary, magenta-collapse signature under admitted censoring authority;
+- use a bounded luminance-preserving chroma contraction in presentation space;
+- protect legitimate saturated magenta/yellow and non-censored saturated colour;
+- apply the correction once in the shared native pre-JPEG RGB24 path, not once for preview and again for saved output;
+- no new evidence, no calibration claim, no Scientific-Master writeback.
+
+---
+
+## 14. Support-aware highlight censor authority split — exact current implementation law
+
+The decisive 2026-10-09 refinement is that the final highlight-colour guard may use the **same reconstruction-support concept** already used by existing output-channel authority, but this stricter support-aware status must **not** leak into restoration, exposure/shadow, acutance/detail, HDR or Natural Light Local Field Tone.
+
+Required split:
+
+- historical shared `censored` remains the centre-sample state used by restoration/HDR/Local-Field/detail-related stages;
+- a local integral/helper may be prepared earlier because it is inert until queried;
+- `highlightCensored` is derived from reconstruction support only in the **final output loop**;
+- only `presentation_highlight::apply_near_neutral_rolloff(...)` consumes `highlightCensored`;
+- HDR continues to gate on `!censored`;
+- Natural Light Local Field continues to receive `censored`;
+- pre-acutance/detail stages must not consume `highlightCensored`;
+- PURE’s extended-linear headroom branch remains outside this ADVANCED/PRO highlight-colour guard.
+
+Why the previous run failed:
+
+An earlier patcher used a first-occurrence text replacement for `const bool censored=...`. `finalizeCoreTile` contains more than one such location, so `highlightCensored` was inserted in the pre-acutance loop while the actual highlight call lives later. The regression test correctly stopped the workflow. This was not a reason to increase desaturation; it exposed an authority/scope wiring error.
+
+Corrected patcher head:
+
+`5aa70d92468d1ab905534050fbf0ea574089e770`
+
+The corrected patcher uses a unique final-output-loop anchor and self-checks that the support-aware boolean does not occur in the pre-acutance/detail region.
+
+The successful workflow generated the exact runtime wiring and committed it as:
+
+`4aae3de96323780e20f45f519ccb6e9f887684ef`
+
+Classification of this change:
+
+**APPEARANCE_ONLY / DERIVED_PRESENTATION_OUTPUT / CI-VALIDATED CANDIDATE**
+
+It does not:
+
+- alter sealed CFA/source bytes;
+- change BlackLevel/WhiteLevel or source clipping facts;
+- create MEASURED authority;
+- rewrite Scientific Master;
+- promote any reconstruction candidate;
+- authorize scientific writeback.
+
+---
+
+## 15. New support-aware highlight APK — full CI/build PASS, physical acceptance pending
+
+Successful workflow:
+
+- workflow `D.RAW Free Raster v0.3 Finish APK`;
+- run `37935028207`;
+- job `113834818863`;
+- input/patcher head `5aa70d92468d1ab905534050fbf0ea574089e770`;
+- generated validated runtime committed as `4aae3de96323780e20f45f519ccb6e9f887684ef`;
+- result: **SUCCESS**.
+
+Proven PASS gates in the same run:
+
+- `FREE_RASTER_V03_INTEGRATED_CONTRACT_PASS`;
+- `PRESENTATION_HIGHLIGHT_CHROMA_ROLLOFF_V01_APPLIED`;
+- `PRESENTATION_HIGHLIGHT_CENSOR_AUTHORITY_SPLIT_V01_APPLIED`;
+- `PRESENTATION_GAMUT_FIT_V0_1_PASS`;
+- `PRESENTATION_HEADROOM_MAP_V0_1_PASS`;
+- `PRESENTATION_HIGHLIGHT_CHROMA_ROLLOFF_V01_REGRESSION_PASS`;
+- `PRESENTATION_HIGHLIGHT_PREVIEW_FULLRES_SHARED_RGB24_PASS`;
+- `PRESENTATION_HIGHLIGHT_CENSOR_AUTHORITY_SPLIT_V01_REGRESSION_PASS`;
+- `PRESENTATION_HIGHLIGHT_DETAIL_HDR_LOCAL_FIELD_ISOLATION_PASS`;
+- `APPEARANCE_WARM_ILLUMINANT_RETENTION_V0_1_REGRESSION_PASS`;
+- `NATURAL_LIGHT_FIELD_TONE_V0_1_REGRESSION_PASS`;
+- `PRESENTATION_HEADROOM_WIRING_V0_2_PASS checks=21`;
+- `FULL_FRAME_STREAMING_V0_1_INTEGRITY_PASS`;
+- `canonical_v4_7i_bytes_bound=true`;
+- `adapter_full_frame_owned_buffers=0`;
+- `half_resolution_scratch_store=false`;
+- `HIGH_FIDELITY_JPEG_REGRESSION_PASS bytes=20800 entropy_start=607 byte_stuffings=270 pix_fmt=yuvj444p`;
+- Android Kotlin/unit/NDK/C++ build: `BUILD SUCCESSFUL`, 44/44 actionable tasks executed;
+- APK structural verification passed.
+
+Warnings were non-fatal existing/deprecation warnings; no test or build gate failed.
+
+### Exact APK provenance
+
+Artifact:
+
+- ID `11618006395`;
+- name `draw-free-raster-v03-fullres-candidate-apk`;
+- artifact ZIP bytes `3,342,594`;
+- artifact ZIP digest `sha256:849aa1336951bcd842e2f648affd338bbe46d21ef900cd72737e0629ea5c1289`;
+- expiry `2027-01-07`.
+
+APK:
+
+- bytes **`8,863,131`**;
+- SHA-256 **`616133c1ea3015d80911a3e5e0241bc5e5b5c204fd76224709e104081a02a412`**.
+
+The downloaded APK was independently re-hashed after artifact extraction and matched these exact CI values.
+
+### Status distinction
+
+**GREEN: code/CI/APK candidate.**  
+**YELLOW: real-device purple/magenta-highlight acceptance still pending.**
+
+Do not relabel this candidate as physical PASS until the problematic RAW is rerun on device and both UI preview and saved full-resolution output are checked.
+
+Required real-device acceptance checks:
+
+1. rerun the same problematic RAW/scene that exposed the strong purple/magenta highlight;
+2. inspect both UI preview and saved full-resolution output;
+3. verify the purple/magenta highlight collapse is absent or materially corrected;
+4. verify legitimate saturated colours are not globally neutralized/desaturated;
+5. verify detail/acutance/HDR/Natural-Light local field appearance has not changed unexpectedly;
+6. verify no halo/bloom/seam artifact appears around clipped/censored highlight boundaries;
+7. retain Q100/true-4:4:4 output compatibility;
+8. optionally repeat PURE as an isolation regression; PURE must not inherit the ADVANCED/PRO highlight guard.
+
+If the physical test fails, keep this candidate yellow and iterate downstream only. Do not alter scientific evidence/authority to make the JPEG look better.
+
+---
+
+## 16. Active scientific image-quality solution — still not promoted
+
+The user explicitly does **not** want a conventional blur-based denoiser as the primary scientific solution. Active research direction remains:
 
 **Evidence-Weighted Local Radiance Reconstruction**
 
 Conceptual chain:
 
-`sealed CFA measurements + observation-bound measurement/noise likelihood + local structure + CFA phase + optical support + censoring/UNKNOWN state + uncertainty -> best locally supported latent scene estimate -> explicit authority/uncertainty -> Natural Appearance`
+`sealed CFA measurements + observation-bound measurement/noise likelihood + local structure + CFA phase + optical support + censoring/UNKNOWN + uncertainty -> best locally supported latent scene estimate -> explicit authority/uncertainty -> Natural Appearance`
 
-### Measurement likelihood
+Candidate model bank may include locally constant, affine plane, direction/edge-aware, texture/periodic only if hold-outs justify, and `NO_SUITABLE_MODEL`.
 
-Where evidence permits, model signal-dependent shot variance plus read/dark/quantization floor and only measured row/column/fixed-pattern terms. Calibration must be source/mode/gain/exposure/context-bound, not merely camera-model-name selected.
-
-Insufficient evidence means broader uncertainty or UNKNOWN, never fabricated coefficients.
-
-### Deterministic local model bank
-
-Candidate family may include:
-
-- locally constant;
-- local affine plane;
-- direction/edge-aware models justified by hold-outs;
-- texture/periodic models only when real hold-outs justify them;
-- `NO_SUITABLE_MODEL`.
-
-Selection must use genuine support, direction, CFA phase, distance, censoring/UNKNOWN state, measurement likelihood and optical support.
-
-### Hold-out validation mandatory
-
-Target values must be excluded from solver input. Record per-channel/aggregate error, bias, coverage and strata such as smooth/edge/textured/clipped. Visual preference cannot promote a scientific candidate. Measured anchors remain untouched.
+Genuine hold-out validation is mandatory. Target values must be excluded from solver input. Record per-channel/aggregate error, bias, uncertainty coverage and smooth/edge/textured/clipped strata. Visual preference cannot promote a scientific candidate.
 
 ---
 
-## 16. D.RAW Natural Appearance — downstream plan
-
-After scientific/output state is established, use a fully reversible APPEARANCE-only transform:
-
-`scientific/output state -> scene-referred colour conversion -> chromatic adaptation/viewing context -> tone scale -> perceptual chroma/colourfulness -> gamut mapping -> output encoding/profile`
-
-Goals:
-
-- natural display black/toe without rewriting scientific zero-line;
-- controlled highlight shoulder without inventing unclipped measurements;
-- perceptual colourfulness rather than naive saturation multiplication;
-- neutral and skin protection;
-- gamut-aware output;
-- explicit viewing/output profile handling.
-
-CIECAM16/CIE 248:2022 is a relevant appearance reference family, but Appearance remains downstream and cannot create scene evidence.
-
----
-
-## 17. Optical detail and true resolution law
-
-Pixel count is not the same as optical resolution.
-
-Respect the forward image-formation chain:
-
-`scene radiance -> lens PSF/MTF -> sensor aperture -> CFA sampling -> measurement/noise -> sealed sample`
-
-Then:
-
-`sealed measurements + optical support + uncertainty -> latent spatial estimate`.
-
-No unrestricted sharpening/deconvolution beyond trustworthy support. No halos, ringing, fake microtexture or worm artefacts. ISO 12233-style SFR thinking is relevant to evaluating effective resolution but cannot create evidence.
-
-A denser Free Raster or 8K output may contain more output samples; it does not automatically contain 8K independent measured detail.
-
----
-
-## 18. Resolution/output chooser — product gap, not renderer gap
-
-`DrawUnifiedOutputRasterRequestV01` already models arbitrary target geometry. Therefore the remaining resolution chooser is a product/UI/integration task, not a reason to create a new renderer.
-
-Required direction:
-
-- Original;
-- 1080p;
-- 4K;
-- 8K;
-- Custom W×H;
-- optionally long-side-in-pixels.
-
-`Original` means true upstream/output geometry after downstream crop/rotation, never preview geometry.
-
-Downsampling requires a proper anti-alias/low-pass step before decimation. Upsampling may create a denser presentation raster but never new MEASURED detail. JPEG, Free Raster and future PNG should share the same explicit target-geometry contract and one high-quality scale step before encoding.
-
-Do not stack new scaling code onto a physically unvalidated codec checkpoint. The Q100/4:4:4 0° tele codec is now physically validated, so the next scaling/resolution work may proceed from this accepted boundary while preserving its regression lock.
-
----
-
-## 19. Remaining High-Fidelity output work
-
-The Q100 true-4:4:4 baseline JPEG path is now physically accepted for the exact 0° tele/PURE case, but the high-fidelity programme is not globally finished.
-
-Still pending/separate:
-
-- +90° physical output validation under the **new** Q100/4:4:4 codec;
-- physical route-mismatch lifecycle fail-closed acceptance;
-- arbitrary resolution chooser and scale-path validation;
-- truthful embedded ICC/output profile completion;
-- PNG/lossless high-fidelity sibling output;
-- any higher-bit-depth presentation/export format considered appropriate;
-- output-profile/gamut behavior across external applications;
-- broader source/camera/device coverage.
-
-The historical older +90° JPEG proves the geometry architecture, not this new codec at +90°.
-
----
-
-## 20. Active execution order from this capsule
-
-The previous broad image-quality phases remain valid, with the High-Fidelity JPEG subphase updated by the new PASS.
-
-Recommended continuation order:
-
-1. **Preserve current evidence and accepted runtime.** Do not edit `f42cd79e...` history or rewrite failed rounds.
-2. **Keep the regression lock green.** Any output-code change must pass production unit tests + host codec regression + Android/NDK build.
-3. **Validate new codec at +90°** on real device and confirm exact geometry/Q100/4:4:4/strict decoder acceptance.
-4. **Validate lifecycle fail-closed behavior** if route/source/orientation changes while output is in flight.
-5. **Implement one shared explicit target-resolution/scaling stage** for JPEG/Free Raster/future PNG siblings; no preview source.
-6. **Add truthful output colour-profile/ICC handling** with no scientific-authority implications.
-7. **Continue evidence-weighted local radiance reconstruction research** with genuine CFA hold-outs; do not promote until metrics and uncertainty justify it.
-8. **Develop Natural Appearance** as reversible APPEARANCE_ONLY behavior for black/toe, highlight shoulder, perceptual colourfulness and gamut mapping.
-9. **Integrate optical support/MTF constraints** before claiming recovered high-frequency detail.
-10. **Add lossless/high-fidelity sibling output** after shared raster/geometry/profile contracts are stable.
-11. Performance optimization comes after semantic/output equivalence gates, never before.
-12. Merge decision only after required physical acceptance and governance state are explicit.
-
-The physical Q100/4:4:4 JPEG success does **not** mean scientific reconstruction/noise/Natural Appearance research is complete.
-
----
-
-## 21. Current status matrix
+## 17. Current status matrix
 
 ### Proven / accepted
 
 - sealed evidence immutability architecture;
 - Scientific Master separation;
-- Exact Gauge v0.3 exact-preserving performance route and device evidence;
+- Exact Gauge v0.3 exact-preserving performance route/device evidence;
 - fail-closed T5 missing-runtime branch;
-- Workspace/Free Raster architecture as downstream presentation;
-- preview-independent full-resolution output cable;
-- shared pre-JPEG full-resolution RGB24 presentation sibling;
-- Free Raster backing from that RGB24 sibling rather than JPEG round-trip;
-- High-Fidelity JPEG requested quality 100;
-- actual Q100 DQT contract verification;
-- actual true 4:4:4 SOF sampling verification;
-- canonical baseline SOS verification;
-- terminal EOI verification;
-- physically saved 4080×3072 tele/PURE JPEG accepted by FFmpeg, FFprobe, Pillow, ImageMagick and Lightroom;
-- end-to-end host codec regression step proven green.
+- Workspace/Free Raster downstream-presentation architecture;
+- shared pre-JPEG full-resolution RGB24 sibling;
+- Q100 true-4:4:4 0° tele/PURE JPEG physical PASS + strict codec regression;
+- Warm Illuminant Retention v0.1 real-device ADVANCED/PRO PASS;
+- PURE isolation from warm-illuminant stage in the accepted round.
 
-### Partial / still requires validation or productization
+### CI/build-proven candidate — physical acceptance pending
 
-- +90° with new Q100/4:4:4 codec;
-- route/source mismatch lifecycle physical round;
-- arbitrary output resolution UI and scaler;
-- ICC/output profile;
-- lossless PNG/high-bit-depth siblings;
-- complete migration of workbench controls to reversible state;
-- universal intake beyond best-proven routes;
-- positive same-process T5 binding branch.
+- support-aware purple/magenta highlight authority split;
+- corrected patcher `5aa70d92468d1ab905534050fbf0ea574089e770`;
+- generated validated runtime `4aae3de96323780e20f45f519ccb6e9f887684ef`;
+- workflow run `37935028207` SUCCESS;
+- APK SHA-256 `616133c1ea3015d80911a3e5e0241bc5e5b5c204fd76224709e104081a02a412`.
+
+### Other candidate / incomplete product work
+
+- Natural Light Local Field Tone v0.1 physical acceptance;
+- +90° physical validation under the new Q100/4:4:4 codec;
+- route/source mismatch lifecycle physical fail-closed round;
+- arbitrary output resolution UI/scaler;
+- truthful ICC/output profile;
+- lossless/high-bit-depth siblings;
+- broader source/device coverage;
+- positive same-process T5 branch.
 
 ### Research / not promoted
 
 - Evidence-Weighted Local Radiance Reconstruction;
 - local model-bank promotion;
 - scientific denoise/reconstruction authority enrichment;
-- general true metric 3D;
-- material/illumination authority;
+- general metric 3D/material/illumination authority;
 - active multi-observation Free World graph authority;
-- any claim that UNKNOWN full-colour channels have become reconstructed solely because output looks plausible.
+- any claim that UNKNOWN channels become measured/reconstructed solely because presentation looks plausible.
 
 ---
 
-## 22. Absolute do-not-do list
+## 18. Absolute do-not-do list
 
 Future chats must not:
 
@@ -694,7 +632,7 @@ Future chats must not:
 - use preview upscaling as full-resolution/master output;
 - create a second independent renderer when the existing full-output cable can be extended;
 - turn JPEG, Free Raster or Appearance into Scientific Master;
-- treat Q100/4:4:4 as evidence authority;
+- treat Q100/4:4:4 or a successful APK as evidence authority;
 - infer MEASURED detail from output raster density;
 - relabel UNKNOWN because a result looks convincing;
 - change sealed CFA/source bytes;
@@ -702,41 +640,61 @@ Future chats must not:
 - confuse scientific zero-line with display black;
 - select scientific calibration solely by camera/lens/vendor identity;
 - project old workflow failures onto a newer exact SHA;
-- call a workflow “red” on an exact head when no run exists;
-- erase the two historical JPEG failure rounds;
-- weaken the High-Fidelity JPEG regression to header-only validation;
-- merge PR #131 solely because the 0° JPEG codec passed.
+- call a workflow red on an exact head when no run exists;
+- erase historical JPEG failure rounds;
+- weaken High-Fidelity JPEG regression to header-only validation;
+- broaden support-aware highlight censoring into detail/acutance/HDR/Local Field;
+- solve the purple-highlight candidate by adding indiscriminate/global desaturation;
+- merge PR #131 solely because CI/APK is green.
 
 ---
 
-## 23. Key files / records for recovery
+## 19. Key recovery files / records
 
-Read these before making new output decisions:
+Read these before new output/scientific decisions:
 
-- `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md` — this file;
-- `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_V0_1.md` — current JPEG contract/history;
-- `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_REAL_DEVICE_PASS_2026-10-08.md` — physical acceptance record;
+- `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md` — this binding current capsule;
+- `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_V0_1.md`;
+- `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_REAL_DEVICE_PASS_2026-10-08.md`;
+- `docs/handoff/DRAW_44489_WARM_ILLUMINANT_REAL_DEVICE_PASS_2026-10-09.md`;
+- `docs/handoff/DRAW_44489_NATURAL_LIGHT_LOCAL_FIELD_TONE_CANDIDATE_V0_1.md`;
+- source-agnostic/Free-World architecture handoffs from 2026-10-09 where present;
+- `suite_android/app/src/main/cpp/photo_export_bridge.cpp`;
+- `suite_android/app/src/main/cpp/presentation_highlight_chroma_rolloff_v0_1.h`;
+- `tools/apply_presentation_highlight_chroma_rolloff_v0_1.py`;
+- `tools/test_presentation_highlight_chroma_rolloff_v0_1.py`;
 - `suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt`;
-- `suite_android/app/src/test/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01Test.kt`;
 - `suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp`;
 - `suite_android/app/src/main/cpp/draw_jpeg444_q100_encoder.h`;
-- `tools/high_fidelity_jpeg_codec_regression_v0_1.cpp`;
 - `tools/test_high_fidelity_jpeg_codec_v0_1.py`;
 - `.github/workflows/draw-free-raster-finish-v03.yml`;
-- `DrawPhotoOutputCableV01` / `DrawUnifiedOutputRasterContractV01` / `UnifiedOutputFreeRasterRuntimeV01` / `UnifiedOutputFreeRasterBridge` / `UnifiedOutputFreeRasterDisplayLoaderV01`;
+- `DrawPhotoOutputCableV01` / `DrawUnifiedOutputRasterContractV01` / Free Raster runtime/bridge/display-loader files;
 - Non-Destructive Workbench contract files;
-- previous Exact Gauge/T5/Room Capsule handoff records.
+- Exact Gauge / T5 / Room Capsule handoff records.
 
-When prose and code disagree on current implementation, exact newer code + explicit newer evidence wins for implementation state. Permanent evidence law still wins over both.
+When prose and code disagree on current implementation, exact newer code + explicit newer evidence wins for implementation state. Permanent evidence law wins over both.
 
 ---
 
-## 24. Final recovery statement
+## 20. Current execution order
 
-The correct continuation point is **not** “invent another JPEG path”, “build another renderer” or “promote reconstruction because the JPEG is now beautiful/compatible.”
+1. Preserve frozen PR #130 and all sealed/scientific firewalls.
+2. Keep PR #131 draft/unmerged.
+3. Treat `4aae3de96323780e20f45f519ccb6e9f887684ef` as the exact validated runtime for the new support-aware highlight candidate; later documentation-only commits do not change that runtime identity.
+4. Use APK SHA-256 `616133c1ea3015d80911a3e5e0241bc5e5b5c204fd76224709e104081a02a412` for the next physical purple-highlight device round.
+5. Re-run the same problematic RAW and inspect both UI preview and saved full-resolution output.
+6. If physical output succeeds, create a separate real-device PASS handoff; only then change the purple-highlight candidate from yellow to accepted.
+7. If it fails, iterate only on the bounded downstream highlight-colour treatment; do not globally desaturate and do not broaden the censor mask into detail/HDR/local-field stages.
+8. Preserve the already accepted Warm Illuminant result and Q100/true-4:4:4 codec regression.
+9. Continue Natural Light Local Field physical validation separately.
+10. Continue scientific reconstruction research only with real hold-outs/uncertainty and no promotion without evidence.
 
-The current state is:
+---
 
-**sealed scientific source/core unchanged -> full-resolution presentation RGB24 sibling -> Free Raster and High-Fidelity JPEG as downstream siblings -> Q100 true-4:4:4 baseline JPEG physically accepted at 0° tele/PURE -> exact codec/container regression locked in CI -> broader scientific image-quality and flexible-resolution programme continues downstream/upstream only where authority permits.**
+## 21. Final recovery statement
 
-PR #130 remains frozen. PR #131 remains the active draft continuation line until the remaining required physical/product validation is explicit.
+The correct continuation point is now:
+
+**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior -> bounded support-aware censor authority only for the final ADVANCED/PRO highlight-colour guard -> preview and saved full-res share that same correction -> detail/acutance/HDR/Natural-Light Local Field keep their historical centre-only censor state -> High-Fidelity Q100/true-4:4:4 regression remains green -> new APK is CI/build proven but still requires real-device validation on the problematic purple-highlight RAW.**
+
+PR #130 remains frozen. PR #131 remains open, draft and unmerged. No scientific candidate has been promoted and no scientific writeback has been enabled.
