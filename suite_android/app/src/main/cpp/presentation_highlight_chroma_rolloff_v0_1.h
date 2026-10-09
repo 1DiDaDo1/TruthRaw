@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
+#include <cstdint>
 
 namespace truthraw::presentation_highlight_chroma_rolloff::v0_1 {
 
@@ -31,6 +33,39 @@ namespace truthraw::presentation_highlight_chroma_rolloff::v0_1 {
 constexpr double kLumaR = 0.2126;
 constexpr double kLumaG = 0.7152;
 constexpr double kLumaB = 0.0722;
+
+// Temporary, presentation-only diagnostic counters. These counters observe the
+// already-authorized highlight path but never alter its decisions or pixels.
+struct DiagnosticsSnapshot final {
+    std::uint64_t censoredCalls = 0u;
+    std::uint64_t censoredGreenStrictMinInput = 0u;
+    std::uint64_t censoredWhiteCandidates = 0u;
+    std::uint64_t censoredSevereApplied = 0u;
+    std::uint64_t censoredNearNeutralApplied = 0u;
+};
+
+namespace diagnostics_detail {
+inline std::atomic<std::uint64_t> censoredCalls{0u};
+inline std::atomic<std::uint64_t> censoredGreenStrictMinInput{0u};
+inline std::atomic<std::uint64_t> censoredWhiteCandidates{0u};
+inline std::atomic<std::uint64_t> censoredSevereApplied{0u};
+inline std::atomic<std::uint64_t> censoredNearNeutralApplied{0u};
+} // namespace diagnostics_detail
+
+inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
+    DiagnosticsSnapshot out{};
+    out.censoredCalls =
+        diagnostics_detail::censoredCalls.exchange(0u, std::memory_order_relaxed);
+    out.censoredGreenStrictMinInput =
+        diagnostics_detail::censoredGreenStrictMinInput.exchange(0u, std::memory_order_relaxed);
+    out.censoredWhiteCandidates =
+        diagnostics_detail::censoredWhiteCandidates.exchange(0u, std::memory_order_relaxed);
+    out.censoredSevereApplied =
+        diagnostics_detail::censoredSevereApplied.exchange(0u, std::memory_order_relaxed);
+    out.censoredNearNeutralApplied =
+        diagnostics_detail::censoredNearNeutralApplied.exchange(0u, std::memory_order_relaxed);
+    return out;
+}
 
 inline float smoothstep01(float x) noexcept {
     x = std::clamp(x, 0.0f, 1.0f);
@@ -70,6 +105,14 @@ inline bool apply_near_neutral_rolloff(
     if (!std::isfinite(yd)) return false;
     const float y = static_cast<float>(yd);
 
+    if (censored) {
+        diagnostics_detail::censoredCalls.fetch_add(1u, std::memory_order_relaxed);
+        if (g < r && g < b) {
+            diagnostics_detail::censoredGreenStrictMinInput.fetch_add(
+                1u, std::memory_order_relaxed);
+        }
+    }
+
     // Real-device censored-white regression guard.
     //
     // Only a censored sample can enter this extension. The two opponent R/B
@@ -78,6 +121,8 @@ inline bool apply_near_neutral_rolloff(
     // turn into a blanket highlight desaturator: uncensored magenta, yellow,
     // cyan and other legitimate saturated colours retain their colour.
     if (censored && mx > 0.92f && y > 0.45f) {
+        diagnostics_detail::censoredWhiteCandidates.fetch_add(
+            1u, std::memory_order_relaxed);
         const float rbFloor = std::min(r, b);
         const float rbBalance = std::abs(r - b);
         const float greenDeficit = std::max(0.0f, 0.5f * (r + b) - g);
@@ -99,6 +144,8 @@ inline bool apply_near_neutral_rolloff(
             0.0f,
             0.95f);
         if (severeAmount > 1.0e-7f) {
+            diagnostics_detail::censoredSevereApplied.fetch_add(
+                1u, std::memory_order_relaxed);
             contract_chroma_preserve_luminance(r, g, b, y, severeAmount);
             return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
         }
@@ -120,6 +167,10 @@ inline bool apply_near_neutral_rolloff(
         1.0f);
     if (amount <= 1.0e-7f) return true;
 
+    if (censored) {
+        diagnostics_detail::censoredNearNeutralApplied.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
     contract_chroma_preserve_luminance(r, g, b, y, amount);
     return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
 }
