@@ -22,7 +22,8 @@ In a new chat:
 5. never infer scientific promotion from visual quality, Lightroom similarity, a successful JPEG/APK build or user acceptance of Appearance;
 6. **do not reopen the purple/magenta-highlight investigation unless a real regression appears** — the user has accepted the current fix as standard project behavior;
 7. treat the yellow-TV-subtitle observation as a separate colour/Appearance investigation, not as a highlight regression;
-8. for emissive-display colour work, explicitly consider spectral observer mismatch, display-subpixel/CFA sampling and temporal exposure integration before blaming the final output transform.
+8. for emissive-display colour work, explicitly consider spectral observer mismatch, display-subpixel/CFA sampling and temporal exposure integration before blaming the final output transform;
+9. preserve the original design intent of Natural Light Local Field Tone v0.1: it exists to address the **remaining local brightness / luminous-field impression around illuminated surfaces after Warm Illuminant Retention has already addressed source-white warmth**, not as a generic effect and not as physical light-transport reconstruction.
 
 ### Frozen base
 
@@ -274,13 +275,60 @@ Accepted PRO JPEG SHA-256:
 
 Warm source-white impression works; PURE is isolated; Q100/4:4:4 stays intact. Maximum warm retention remains 18%. Do not increase it merely to fix another colour problem.
 
-### Natural Light Local Field Tone v0.1 — still candidate
+### Natural Light Local Field Tone v0.1 — design intent recovered; candidate status unchanged
 
-APPEARANCE-only image-space local luminance operator; not physical light transport. ADVANCED/PRO + Natural Light only; PURE bypass; censored centre samples excluded; radius 12..32 px (~24 at 4080x3072); common RGB gain; near-black/near-white protection; max +0.14 EV.
+The original design intent from the candidate handoff is now binding recovery context:
 
-CI checkpoint `0a489190c474fa765431064513c0f6e52f7b63fd`, run `37856370118`, APK SHA-256 `8e7783b3e055a66011cd1bd28307076bbe5832ab8272e3ca34de3eb90707d041`.
+> **Target the remaining local brightness / luminous-field impression visible around illuminated surfaces, without changing the already accepted source-white colour response.**
 
-Do not reinterpret it as reconstructed lamp geometry, reflectance, irradiance or light transport.
+This layer exists because the Warm Illuminant pass solved the source-white / warmth problem, while a separate perceptual difference remained: locally illuminated surfaces could still lack the natural brightness/light-field impression seen by the user. Natural Light Local Field Tone v0.1 was therefore introduced as the downstream Appearance operator for that residual **local luminance / luminous-field impression**, not as another white-balance stage, not as a generic style effect, and not as a substitute for physical scene reconstruction.
+
+The intended functional separation is:
+
+- **Warm Illuminant Retention v0.1** -> preserve a bounded natural source-white / warm-illuminant impression;
+- **Natural Light Local Field Tone v0.1** -> give locally illuminated surfaces a modest, spatially contextual brightness / light-field impression from the already rendered observation;
+- neither stage changes Scientific Master or establishes physical lamp/material/light-transport truth.
+
+The v0.1 implementation contract remains:
+
+- `APPEARANCE_ONLY` image-space operator;
+- runs only when Natural Light is enabled in ADVANCED/PRO;
+- PURE extended-linear route bypasses it;
+- derives a deterministic local luminance field from already rendered RGB;
+- excludes censored source samples from the local-field statistic;
+- resolution-scaled radius bounded to 12..32 source pixels, about 24 px at 4080x3072;
+- common RGB gain only, preserving channel ratios rather than inventing a new hue;
+- deep-black protection;
+- near-white protection so headroom/highlight guards remain authoritative;
+- maximum additional local lift +0.14 EV;
+- no semantic segmentation, camera/vendor-specific fitting, AI/ML or generative inference;
+- no source mutation, no Scientific-Master writeback and no new scientific authority.
+
+Interpretation boundary:
+
+A bright local neighbourhood may justify a modest **display-referred perceptual brightness cue**. It does **not** establish actual lamp intensity, lamp geometry, reflectance, material, spectrum, irradiance, bounce-light path or world-space light transport. Do not reinterpret this stage as reconstructed physical illumination.
+
+CI checkpoint:
+
+`0a489190c474fa765431064513c0f6e52f7b63fd`
+
+Workflow run `37856370118`; APK SHA-256 `8e7783b3e055a66011cd1bd28307076bbe5832ab8272e3ca34de3eb90707d041`.
+
+Dedicated candidate handoff:
+
+`docs/handoff/DRAW_44489_NATURAL_LIGHT_LOCAL_FIELD_TONE_CANDIDATE_V0_1.md`
+
+#### Validation-status distinction — do not confuse purpose with proof
+
+The recovered design intent above is settled. A separate implementation-validation question remains: **was Natural Light Local Field v0.1 definitely active in the already accepted later PRO real-device bundle(s)?**
+
+That question affects only whether an existing device round can count as physical validation of this specific layer. It does **not** change what the layer was designed to do.
+
+Until the runtime flag/caller provenance for a qualifying real-device round is proven, retain classification:
+
+**CANDIDATE / NOT SEPARATELY PHYSICALLY ACCEPTED**.
+
+Do not demote its design role to an arbitrary optional effect merely because that physical-activation provenance is still being resolved. Conversely, do not promote it to physically accepted without proving that the tested output actually executed the stage.
 
 ---
 
@@ -604,7 +652,7 @@ For emissive displays, future reconstruction/color work must additionally avoid 
 
 ### Candidate / incomplete product work
 
-- Natural Light Local Field Tone v0.1 physical acceptance/generalization;
+- Natural Light Local Field Tone v0.1: **design intent recovered and binding, physical activation/acceptance provenance still unresolved**;
 - +90° physical validation under new Q100/4:4:4 codec;
 - route/source mismatch lifecycle round;
 - arbitrary resolution/scaling UI;
@@ -646,6 +694,10 @@ Future chats must not:
 - ignore display subpixel/CFA/PSF interaction for small emissive glyphs;
 - ignore PWM/scanout/refresh/rolling-shutter exposure integration merely because a scene appears static;
 - turn spectral/spatial/temporal uncertainty into MEASURED authority;
+- reinterpret Natural Light Local Field Tone as measured lamp geometry, physical irradiance, actual bounce paths or Scientific Master content;
+- collapse Natural Light Local Field Tone into Warm Illuminant Retention: they solve different Appearance dimensions;
+- call Natural Light Local Field physically accepted merely from visual similarity without proving the stage was active in the tested runtime route;
+- demote Natural Light Local Field to a generic arbitrary effect merely because its physical activation provenance is still unresolved;
 - add a conventional blur denoiser as the primary scientific solution;
 - call generic AI denoising scientific reconstruction;
 - use preview upscaling as full-res/master output;
@@ -677,8 +729,9 @@ Read before new output/scientific decisions:
 - `docs/handoff/DRAW_44489_PURPLE_HIGHLIGHT_CAUSAL_TRACE_2026-10-09.md`;
 - `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_REAL_DEVICE_PASS_2026-10-08.md`;
 - `docs/handoff/DRAW_44489_WARM_ILLUMINANT_REAL_DEVICE_PASS_2026-10-09.md`;
-- `docs/handoff/DRAW_44489_NATURAL_LIGHT_LOCAL_FIELD_TONE_CANDIDATE_V0_1.md`;
+- `docs/handoff/DRAW_44489_NATURAL_LIGHT_LOCAL_FIELD_TONE_CANDIDATE_V0_1.md` — authoritative design-intent provenance for the local luminous-field Appearance layer;
 - `suite_android/app/src/main/cpp/photo_export_bridge.cpp`;
+- `suite_android/app/src/main/cpp/presentation_natural_light_field_tone_v0_1.h`;
 - `suite_android/app/src/main/cpp/presentation_censored_chroma_fallback_v0_1.h`;
 - `tools/apply_presentation_censored_chroma_fallback_v0_1.py`;
 - `tools/test_presentation_censored_chroma_fallback_v0_1.py`;
@@ -694,16 +747,18 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 ## 17. Current execution order
 
 1. Preserve PR #130 frozen and all scientific firewalls.
-2. Keep PR #131 draft/unmerged.
+2. Keep PR #131 draft/unmerged until its remaining merge-readiness conditions are explicitly resolved.
 3. Treat runtime `3d33af73436925853b3e59d40bec82733c9234fd` as the exact accepted generated runtime identity for Censored Chroma Fallback v0.1 unless a newer runtime diff explicitly changes it.
 4. Keep Censored Chroma Fallback v0.1 enabled by default in ADVANCED/PRO downstream Appearance.
 5. Do **not** schedule more highlight-specific testing now.
-6. Preserve Warm Illuminant, Natural Light, detail/acutance/HDR and PURE isolation exactly.
-7. If continuing colour work, investigate the yellow-TV-subtitle case separately and in this order: per-pixel authority/support -> camera-native/CFA relation -> large-field versus small-glyph behaviour -> spectral-camera/XYZ plausibility -> repeated/exposure-duration temporal test -> downstream display stages.
-8. Do not implement an emissive-source correction until the experiment distinguishes spectral, spatial, temporal and censoring hypotheses sufficiently to justify one.
-9. Use the Lightroom lamp only as a qualitative human Appearance reference.
-10. Preserve Q100/true-4:4:4 codec regression.
-11. Continue scientific reconstruction only with real hold-outs/uncertainty and no promotion without evidence.
+6. Preserve Warm Illuminant, Natural Light Local Field, detail/acutance/HDR and PURE isolation exactly.
+7. For Natural Light Local Field, first resolve runtime caller/flag provenance of a qualifying existing real-device PRO/ADVANCED output. If the stage is proven active in that round, evaluate whether the existing physical evidence satisfies its specific acceptance gates; if it was not active, do not count that round as its physical acceptance.
+8. Do not change the Natural Light Local Field algorithm merely to resolve the provenance question. Its intended role is already recovered: residual local brightness/luminous-field Appearance after source-white warmth, with no physical-light-transport claim.
+9. If continuing colour work, investigate the yellow-TV-subtitle case separately and in this order: per-pixel authority/support -> camera-native/CFA relation -> large-field versus small-glyph behaviour -> spectral-camera/XYZ plausibility -> repeated/exposure-duration temporal test -> downstream display stages.
+10. Do not implement an emissive-source correction until the experiment distinguishes spectral, spatial, temporal and censoring hypotheses sufficiently to justify one.
+11. Use the Lightroom lamp only as a qualitative human Appearance reference.
+12. Preserve Q100/true-4:4:4 codec regression.
+13. Continue scientific reconstruction only with real hold-outs/uncertainty and no promotion without evidence.
 
 ---
 
@@ -711,6 +766,6 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 
 The correct continuation point is now:
 
-**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> this case must now be treated as a possible spectral-observer + display-subpixel/CFA + temporal-exposure problem before any matrix/Appearance fix is attempted -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
+**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior for bounded source-white warmth -> Natural Light Local Field Tone v0.1 retains its recovered intended role as a separate Appearance-only local brightness/luminous-field layer around illuminated surfaces, with physical-activation/acceptance provenance still to be resolved -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> this case must be treated as a possible spectral-observer + display-subpixel/CFA + temporal-exposure problem before any matrix/Appearance fix is attempted -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
 
 PR #130 remains frozen. PR #131 remains open, draft and unmerged. No scientific candidate has been promoted and no scientific writeback has been enabled.
