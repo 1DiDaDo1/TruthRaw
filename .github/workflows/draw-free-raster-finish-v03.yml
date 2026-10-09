@@ -48,6 +48,9 @@ jobs:
           grep -F 'DISPLAY_RASTER_1_TO_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
           grep -F 'HighFidelityJpegContract/0.2' suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt
           grep -F 'canonicalSosWritten' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'D.RAW_GAMUT_DIAG_V01' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'early_g_boundary_input_rb_high' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'sealed_streaming_module_modified=0' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
           grep -F 'presentation_gamut_fit_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_nonnegative_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'fit_unit_rgb_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
@@ -123,6 +126,11 @@ jobs:
           unzip -l "$APK" | grep -F classes.dex
           unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
           test -s /tmp/libtruthraw_ui_preview_bridge.so
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'D.RAW_GAMUT_DIAG_V01'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'early_g_boundary_input_rb_high'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'sealed_streaming_module_modified=0'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'pixel_mutation_by_diagnostics=0'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'scientific_writeback=0'
           echo "apk_bytes=$(stat -c%s "$APK")"
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
 
