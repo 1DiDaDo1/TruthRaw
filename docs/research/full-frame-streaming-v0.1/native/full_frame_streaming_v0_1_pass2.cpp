@@ -1,5 +1,4 @@
 #include "full_frame_streaming_v0_1_internal.h"
-#include "full_frame_streaming_presentation_diagnostics_v0_1.h"
 
 namespace truthraw::streaming_v0_1::detail {
 
@@ -58,14 +57,7 @@ StreamStatus run_pass2(
             const float Y = std::max(luminance709(rr,gg,bb), 0.0f);
             const float Yo = lut_sample(lut, Y);
             const float sc = Y > 1e-8f ? Yo/Y : 0.0f;
-            rr *= sc;
-            gg *= sc;
-            bb *= sc;
-            presentation_diagnostics_v0_1::observe_pre_clamp(rr,gg,bb);
-            rr = std::max(rr, 0.0f);
-            gg = std::max(gg, 0.0f);
-            bb = std::max(bb, 0.0f);
-            presentation_diagnostics_v0_1::observe_post_clamp(rr,gg,bb);
+            rr = std::max(rr*sc, 0.0f); gg = std::max(gg*sc, 0.0f); bb = std::max(bb*sc, 0.0f);
             const float mx = std::max(rr, std::max(gg,bb));
             if (mx > 1.0f) { rr/=mx; gg/=mx; bb/=mx; }
             w.look[3*i]=rr; w.look[3*i+1]=gg; w.look[3*i+2]=bb;
