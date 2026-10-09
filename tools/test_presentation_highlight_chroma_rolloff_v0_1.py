@@ -28,34 +28,66 @@ gamut_pos = bridge.index('presentation_gamut::fit_unit_rgb_preserve_luminance', 
 if not (pure_pos < map_pos < else_pos < call_pos < gamut_pos):
     raise SystemExit("runtime guard is not isolated to ADVANCED/PRO presentation branch")
 
-# Presentation censor authority must use the same reconstruction-support concept
-# as OutputChannelAuthority v0.84. A centre CFA sample being below WhiteLevel is
-# insufficient when a neighbouring CFA phase used by dense RGB reconstruction
-# is clipped.
+# The historical shared staged mask remains centre-only. This mask already
+# participates in restoration/HDR/local-field behaviour, so a highlight-colour
+# fix is not allowed to broaden it.
+central_rule = (
+    'static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;'
+)
+if central_rule not in bridge:
+    raise SystemExit("historical centre-only staged censor rule was not preserved")
+
+write_start = bridge.index('    StreamStatus writeSdrTile(')
+write_end = bridge.index('        stagedPixels_+=pixels;', write_start)
+write_block = bridge[write_start:write_end]
+for forbidden in ('supportPixels', 'saturatedPrefix', 'reconstructionSupportRadius_'):
+    if forbidden in write_block:
+        raise SystemExit(f"shared staged censor mask was broadened: {forbidden}")
+if 'scratchMaskOffset_' not in write_block:
+    raise SystemExit("historical centre-only censor mask is no longer staged")
+
+# Highlight chroma authority separately follows the reconstruction support used
+# by OutputChannelAuthority v0.84. It is derived from the unchanged centre-mask
+# in finalizeCoreTile, so no extra RAW read or RGB rewrite is introduced.
 for token in (
     'int reconstructionSupportRadius_',
-    'const int radius=reconstructionSupportRadius_;',
-    'const auto saturated_count =',
-    'saturated_count(ax0,ay0,ax1,ay1)>0u?1u:0u',
+    'std::max({3,localFieldRadius,reconstructionSupportRadius_})',
+    'const int highlightIntegralWidth=sw+1;',
+    'std::vector<std::uint32_t> highlightCensorIntegral(',
+    'const auto highlightCensoredAt=',
+    'const bool censored=supportMask[si]!=0u;',
+    'const bool highlightCensored=highlightCensoredAt(x,y);',
+    'r,g,b,highlightCensored)',
     'std::max(0,reconstruction->requiredHalo())',
 ):
     if token not in bridge:
-        raise SystemExit(f"support-based presentation censor contract missing: {token}")
+        raise SystemExit(f"isolated highlight support-authority contract missing: {token}")
 
-old_central_rule = (
-    'static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;'
-)
-if old_central_rule in bridge:
-    raise SystemExit("central-only presentation censor rule survived")
+# Detail/HDR/local-field consumers must remain bound to the historical `censored`
+# boolean. Only the highlight chroma guard receives `highlightCensored`.
+if 'if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored)' not in bridge:
+    raise SystemExit("HDR no longer uses centre-only censor state")
+if 'r,g,b,localFieldY,censored,naturalLightEnabled' not in bridge:
+    raise SystemExit("Natural Light local field no longer uses centre-only censor state")
+if 'presentation_highlight::apply_near_neutral_rolloff(\n                            r,g,b,censored)' in bridge:
+    raise SystemExit("highlight guard still consumes the shared detail/HDR censor state")
 
-mask_start = bridge.index('const int radius=reconstructionSupportRadius_;')
-mask_end = bridge.index('stagedPixels_+=pixels;', mask_start)
-mask_block = bridge[mask_start:mask_end]
-if 'scratchRgbOffset_' in mask_block or 'presentationRgbOffset_' in mask_block:
-    raise SystemExit("support-authority mask stage must not rewrite staged/presentation RGB")
-if 'scratchMaskOffset_' not in mask_block:
-    raise SystemExit("support-authority stage is not writing only the censor mask")
+highlight_def = bridge.index('const bool highlightCensored=highlightCensoredAt(x,y);')
+highlight_call = bridge.index('r,g,b,highlightCensored)', highlight_def)
+if highlight_def >= highlight_call:
+    raise SystemExit("highlight authority boolean is not defined before use")
 
+# Ensure the new stricter highlight authority does not become a hidden input to
+# the earlier pre-acutance/restoration or HDR stages.
+preacutance_start = bridge.index('std::vector<float> preAcutance(')
+final_loop_start = bridge.index('        for(int y=y0;y<y1;++y) {', bridge.index('std::vector<std::uint8_t> coreRgb('))
+pre_final_block = bridge[preacutance_start:final_loop_start]
+if 'highlightCensored' in pre_final_block:
+    raise SystemExit("highlight-only authority leaked into pre-acutance/detail stages")
+
+# OutputChannelAuthority remains the scientific/authority reference for the
+# reconstruction-support censor concept. Presentation merely mirrors its support
+# geometry for a downstream colour guard; it does not promote authority.
 authority = AUTHORITY.read_text(encoding="utf-8")
 for token in (
     'binding.reconstructionSupportRadius',
@@ -65,9 +97,9 @@ for token in (
     if token not in authority:
         raise SystemExit(f"OutputChannelAuthority support rule missing: {token}")
 
-# Tiny semantic lock: a non-clipped centre with a clipped neighbour is not
-# censored at radius 0 but is censored at radius 1. This is the exact failure
-# mode that the old centre-only presentation mask could miss.
+# Tiny semantic lock: a non-clipped centre with a clipped neighbour remains
+# centre-uncensored for detail/HDR behaviour, while highlight chroma authority
+# becomes censored when the reconstruction radius includes that neighbour.
 def support_censored(raw, width, height, x, y, radius, white):
     x0 = max(0, x - radius)
     y0 = max(0, y - radius)
@@ -82,8 +114,10 @@ def support_censored(raw, width, height, x, y, radius, white):
 synthetic = [0] * 9
 synthetic[1] = 100
 assert synthetic[4] < 100
-assert not support_censored(synthetic, 3, 3, 1, 1, 0, 100)
-assert support_censored(synthetic, 3, 3, 1, 1, 1, 100)
+centre_censored = synthetic[4] >= 100
+highlight_censored = support_censored(synthetic, 3, 3, 1, 1, 1, 100)
+assert not centre_censored
+assert highlight_censored
 
 # The Android UI preview must be a sampled sibling of the exact same native
 # pre-JPEG RGB24 output. It may not fall back to a separately coloured bitmap
@@ -206,5 +240,5 @@ with tempfile.TemporaryDirectory() as td:
 
 print("PRESENTATION_HIGHLIGHT_CHROMA_ROLLOFF_V01_REGRESSION_PASS")
 print("PRESENTATION_HIGHLIGHT_PREVIEW_FULLRES_SHARED_RGB24_PASS")
-print("PRESENTATION_CENSOR_SUPPORT_AUTHORITY_V01_REGRESSION_PASS")
-print("PRESENTATION_CENSOR_SUPPORT_DETAIL_PRESERVATION_PASS")
+print("PRESENTATION_HIGHLIGHT_CENSOR_AUTHORITY_SPLIT_V01_REGRESSION_PASS")
+print("PRESENTATION_HIGHLIGHT_DETAIL_HDR_LOCAL_FIELD_ISOLATION_PASS")
