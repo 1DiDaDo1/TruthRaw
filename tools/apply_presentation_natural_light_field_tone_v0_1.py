@@ -58,7 +58,18 @@ def main() -> None:
         "        const int sw=sx1-sx0;\n"
         "        const int sh=sy1-sy0;\n"
     )
-    text = require_replace(text, support_old, support_new, "field support geometry")
+    # Later downstream patches may widen supportHalo for their own isolated
+    # authority evaluation. Once the Natural Light field geometry already
+    # exists, do not require this script's historical exact supportHalo line.
+    if "const bool naturalLightFieldEnabled=" not in text:
+        text = require_replace(text, support_old, support_new, "field support geometry")
+    else:
+        accepted_support = (
+            "const int supportHalo=std::max(3,localFieldRadius);" in text
+            or "std::max({3,localFieldRadius,reconstructionSupportRadius_})" in text
+        )
+        if not accepted_support:
+            raise SystemExit("Natural Light field support geometry is present but unrecognized")
 
     mask_old = (
         "        st=readMaskRect(sx0,sy0,sx1,sy1,supportMask);\n"
@@ -110,7 +121,11 @@ def main() -> None:
         "        }\n\n"
         "        const int ax0=std::max(0,x0-1);\n"
     )
-    text = require_replace(text, mask_old, mask_new, "field integral build")
+    # The highlight-authority split may insert its own integral between the
+    # shared mask read and this field integral. If the field integral already
+    # exists, treat it as authoritative and do not demand historical adjacency.
+    if "const int fieldIntegralWidth=sw+1;" not in text:
+        text = require_replace(text, mask_old, mask_new, "field integral build")
 
     gate_marker = "        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;\n"
     exposure_old = (
