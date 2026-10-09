@@ -35,8 +35,11 @@ struct DiagnosticsSnapshot final {
     std::uint64_t censoredCalls = 0u;
     std::uint64_t censoredGreenStrictMinInput = 0u;
     std::uint64_t censoredWhiteCandidates = 0u;
-    std::uint64_t censoredSevereCandidates = 0u;
-    std::uint64_t censoredNearNeutralCandidates = 0u;
+    // Legacy field names retained for the existing JPEG diagnostics ABI.
+    // They now count where the removed correction WOULD have triggered; no
+    // chroma contraction is applied.
+    std::uint64_t censoredSevereApplied = 0u;
+    std::uint64_t censoredNearNeutralApplied = 0u;
 };
 
 namespace diagnostics_detail {
@@ -55,9 +58,9 @@ inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
         diagnostics_detail::censoredGreenStrictMinInput.exchange(0u, std::memory_order_relaxed);
     out.censoredWhiteCandidates =
         diagnostics_detail::censoredWhiteCandidates.exchange(0u, std::memory_order_relaxed);
-    out.censoredSevereCandidates =
+    out.censoredSevereApplied =
         diagnostics_detail::censoredSevereCandidates.exchange(0u, std::memory_order_relaxed);
-    out.censoredNearNeutralCandidates =
+    out.censoredNearNeutralApplied =
         diagnostics_detail::censoredNearNeutralCandidates.exchange(0u, std::memory_order_relaxed);
     return out;
 }
